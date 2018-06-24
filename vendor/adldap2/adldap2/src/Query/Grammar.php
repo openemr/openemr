@@ -39,14 +39,18 @@ class Grammar
 
         $query = $this->compileOrWheres($ors, $query);
 
-        $total = count($ands) + count($raws);
+        // We need to check if the query is already nested, otherwise
+        // we'll nest it here and return the result.
+        if (!$builder->isNested()) {
+            $total = count($ands) + count($raws);
 
-        // Make sure we wrap the query in an 'and' if using
-        // multiple filters. We also need to check if only
-        // one where is used with multiple orWheres, that
-        // we wrap it in an `and` query.
-        if ($total > 1 || (count($ands) === 1 && count($ors) > 0)) {
-            $query = $this->compileAnd($query);
+            // Make sure we wrap the query in an 'and' if using
+            // multiple filters. We also need to check if only
+            // one where is used with multiple orWheres, that
+            // we wrap it in an `and` query.
+            if ($total > 1 || (count($ands) === 1 && count($ors) > 0)) {
+                $query = $this->compileAnd($query);
+            }
         }
 
         return $query;
@@ -96,7 +100,22 @@ class Grammar
      */
     public function compileDoesNotEqual($field, $value)
     {
-        return $this->wrap(Operator::$doesNotEqual.$this->compileEquals($field, $value));
+        return $this->compileNot($this->compileEquals($field, $value));
+    }
+
+    /**
+     * Alias for does not equal operator (!=) operator.
+     *
+     * Produces: (!(field=value))
+     *
+     * @param string $field
+     * @param string $value
+     *
+     * @return string
+     */
+    public function compileDoesNotEqualAlias($field, $value)
+    {
+        return $this->compileDoesNotEqual($field, $value);
     }
 
     /**
@@ -171,7 +190,7 @@ class Grammar
      */
     public function compileNotStartsWith($field, $value)
     {
-        return $this->wrap(Operator::$doesNotEqual.$this->compileStartsWith($field, $value));
+        return $this->compileNot($this->compileStartsWith($field, $value));
     }
 
     /**
@@ -201,7 +220,7 @@ class Grammar
      */
     public function compileNotEndsWith($field, $value)
     {
-        return $this->wrap(Operator::$doesNotEqual.$this->compileEndsWith($field, $value));
+        return $this->compileNot($this->compileEndsWith($field, $value));
     }
 
     /**
@@ -231,7 +250,7 @@ class Grammar
      */
     public function compileNotContains($field, $value)
     {
-        return $this->wrap(Operator::$doesNotEqual.$this->compileContains($field, $value));
+        return $this->compileNot($this->compileContains($field, $value));
     }
 
     /**
@@ -259,7 +278,7 @@ class Grammar
      */
     public function compileNotHas($field)
     {
-        return $this->wrap(Operator::$doesNotEqual.$this->compileHas($field));
+        return $this->compileNot($this->compileHas($field));
     }
 
     /**
@@ -291,6 +310,18 @@ class Grammar
     }
 
     /**
+     * Wraps the inserted query inside an NOT operator.
+     *
+     * @param string $query
+     *
+     * @return string
+     */
+    public function compileNot($query)
+    {
+        return $query ? $this->wrap($query, '(!') : '';
+    }
+
+    /**
      * Assembles all where clauses in the current wheres property.
      *
      * @param array  $wheres
@@ -303,6 +334,7 @@ class Grammar
         foreach ($wheres as $where) {
             $query .= $this->compileWhere($where);
         }
+
         return $query;
     }
 
@@ -343,19 +375,11 @@ class Grammar
      */
     protected function compileWhere(array $where)
     {
-        // The compile function prefix.
-        $prefix = 'compile';
-
-        // Get the operator from the where.
-        $operator = $where['operator'];
-
         // Get the name of the operator.
-        $name = array_search($operator, Operator::all());
-
-        if ($name !== false) {
+        if ($name = array_search($where['operator'], Operator::all())) {
             // If the name was found we'll camel case it
             // to run it through the compile method.
-            $method = $prefix.ucfirst($name);
+            $method = 'compile'.ucfirst($name);
 
             // Make sure the compile method exists for the operator.
             if (method_exists($this, $method)) {

@@ -31,8 +31,6 @@ class CheckCircularReferencesPass implements CompilerPassInterface
 
     /**
      * Checks the ContainerBuilder object for circular references.
-     *
-     * @param ContainerBuilder $container The ContainerBuilder instances
      */
     public function process(ContainerBuilder $container)
     {
@@ -51,7 +49,7 @@ class CheckCircularReferencesPass implements CompilerPassInterface
      *
      * @param ServiceReferenceGraphEdge[] $edges An array of Edges
      *
-     * @throws ServiceCircularReferenceException When a circular reference is found.
+     * @throws ServiceCircularReferenceException when a circular reference is found
      */
     private function checkOutEdges(array $edges)
     {

@@ -84,8 +84,10 @@ class JsPull extends AbstractAdapter
      * @param  string $data
      * @return void
      */
+    // @codingStandardsIgnoreStart
     protected function _outputData($data)
     {
+        // @codingStandardsIgnoreEnd
         echo $data;
 
         if ($this->exitAfterSend) {

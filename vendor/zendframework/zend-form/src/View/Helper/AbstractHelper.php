@@ -1,15 +1,15 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @see       https://github.com/zendframework/zend-form for the canonical source repository
+ * @copyright Copyright (c) 2005-2018 Zend Technologies USA Inc. (https://www.zend.com)
+ * @license   https://github.com/zendframework/zend-form/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\Form\View\Helper;
 
+use Zend\Escaper\Exception\RuntimeException as EscaperException;
 use Zend\Form\ElementInterface;
+use Zend\Form\Exception\InvalidArgumentException;
 use Zend\I18n\View\Helper\AbstractTranslatorHelper as BaseAbstractHelper;
 use Zend\View\Helper\Doctype;
 use Zend\View\Helper\EscapeHtml;
@@ -162,6 +162,17 @@ abstract class AbstractHelper extends BaseAbstractHelper
     ];
 
     /**
+     * Attribute prefixes valid for all tags
+     *
+     * @var array
+     */
+    protected $validTagAttributePrefixes = [
+        'data-',
+        'aria-',
+        'x-',
+    ];
+
+    /**
      * Attributes valid for the tag represented by this helper
      *
      * This should be overridden in extending classes
@@ -244,8 +255,14 @@ abstract class AbstractHelper extends BaseAbstractHelper
             //check if attribute is translatable and translate it
             $value = $this->translateHtmlAttributeValue($key, $value);
 
-            //@TODO Escape event attributes like AbstractHtmlElement view helper does in htmlAttribs ??
-            $strings[] = sprintf('%s="%s"', $escape($key), $escapeAttr($value));
+            // @todo Escape event attributes like AbstractHtmlElement view helper does in htmlAttribs ??
+            try {
+                $escapedAttribute = $escapeAttr($value);
+                $strings[] = sprintf('%s="%s"', $escape($key), $escapedAttribute);
+            } catch (EscaperException $x) {
+                // If an escaper exception happens, escape only the key, and use a blank value.
+                $strings[] = sprintf('%s=""', $escape($key));
+            }
         }
 
         return implode(' ', $strings);
@@ -370,11 +387,8 @@ abstract class AbstractHelper extends BaseAbstractHelper
 
             if (! isset($this->validGlobalAttributes[$attribute])
                 && ! isset($this->validTagAttributes[$attribute])
-                && 'data-' != substr($attribute, 0, 5)
-                && 'aria-' != substr($attribute, 0, 5)
-                && 'x-' != substr($attribute, 0, 2)
+                && ! $this->hasAllowedPrefix($attribute)
             ) {
-                // Invalid attribute for the current tag
                 unset($attributes[$key]);
                 continue;
             }
@@ -434,13 +448,13 @@ abstract class AbstractHelper extends BaseAbstractHelper
             return $this->getTranslator()->translate($value, $this->getTranslatorTextDomain());
         } else {
             foreach ($this->translatableAttributePrefixes as $prefix) {
-                if (mb_substr($key, 0, mb_strlen($prefix)) === $prefix) {
+                if (0 === mb_strpos($key, $prefix)) {
                     // prefix matches => return translated $value
                     return $this->getTranslator()->translate($value, $this->getTranslatorTextDomain());
                 }
             }
             foreach (self::$defaultTranslatableHtmlAttributePrefixes as $prefix) {
-                if (mb_substr($key, 0, mb_strlen($prefix)) === $prefix) {
+                if (0 === mb_strpos($key, $prefix)) {
                     // default prefix matches => return translated $value
                     return $this->getTranslator()->translate($value, $this->getTranslatorTextDomain());
                 }
@@ -448,6 +462,42 @@ abstract class AbstractHelper extends BaseAbstractHelper
         }
 
         return $value;
+    }
+
+    /**
+     * Adds an HTML attribute to the list of valid attributes
+     *
+     * @param string $attribute
+     * @return AbstractHelper
+     * @throws InvalidArgumentException for attribute names that are invalid
+     *     per the HTML specifications.
+     */
+    public function addValidAttribute($attribute)
+    {
+        if (! $this->isValidAttributeName($attribute)) {
+            throw new InvalidArgumentException(sprintf('%s is not a valid attribute name', $attribute));
+        }
+
+        $this->validTagAttributes[$attribute] = true;
+        return $this;
+    }
+
+    /**
+     * Adds a prefix to the list of valid attribute prefixes
+     *
+     * @param string $prefix
+     * @return AbstractHelper
+     * @throws InvalidArgumentException for attribute prefixes that are invalid
+     *     per the HTML specifications for attribute names.
+     */
+    public function addValidAttributePrefix($prefix)
+    {
+        if (! $this->isValidAttributeName($prefix)) {
+            throw new InvalidArgumentException(sprintf('%s is not a valid attribute prefix', $prefix));
+        }
+
+        $this->validTagAttributePrefixes[] = $prefix;
+        return $this;
     }
 
     /**
@@ -496,5 +546,35 @@ abstract class AbstractHelper extends BaseAbstractHelper
     public static function addDefaultTranslatableAttributePrefix($prefix)
     {
         self::$defaultTranslatableHtmlAttributePrefixes[] = $prefix;
+    }
+
+    /**
+     * Whether the passed attribute is valid or not
+     *
+     * @see https://html.spec.whatwg.org/multipage/syntax.html#attributes-2
+     *     Description of valid attributes
+     * @param string  $attribute
+     * @return bool
+     */
+    protected function isValidAttributeName($attribute)
+    {
+        return preg_match('/^[^\t\n\f \/>"\'=]+$/', $attribute);
+    }
+
+    /**
+     * Whether the passed attribute has a valid prefix or not
+     *
+     * @param string  $attribute
+     * @return bool
+     */
+    protected function hasAllowedPrefix($attribute)
+    {
+        foreach ($this->validTagAttributePrefixes as $prefix) {
+            if (substr($attribute, 0, strlen($prefix)) === $prefix) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

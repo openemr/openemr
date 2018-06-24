@@ -8,6 +8,7 @@
  */
 namespace Dompdf\FrameDecorator;
 
+use DOMElement;
 use Dompdf\Dompdf;
 use Dompdf\Frame;
 use Dompdf\Exception;
@@ -21,11 +22,21 @@ use Dompdf\Exception;
 class Inline extends AbstractFrameDecorator
 {
 
+    /**
+     * Inline constructor.
+     * @param Frame $frame
+     * @param Dompdf $dompdf
+     */
     function __construct(Frame $frame, Dompdf $dompdf)
     {
         parent::__construct($frame, $dompdf);
     }
 
+    /**
+     * @param Frame|null $frame
+     * @param bool $force_pagebreak
+     * @throws Exception
+     */
     function split(Frame $frame = null, $force_pagebreak = false)
     {
         if (is_null($frame)) {
@@ -38,13 +49,17 @@ class Inline extends AbstractFrameDecorator
         }
 
         $node = $this->_frame->get_node();
-        
+
         if ($node instanceof DOMElement && $node->hasAttribute("id")) {
             $node->setAttribute("data-dompdf-original-id", $node->getAttribute("id"));
             $node->removeAttribute("id");
         }
 
         $split = $this->copy($node->cloneNode());
+        // if this is a generated node don't propagate the content style
+        if ($split->get_node()->nodeName == "dompdf_generated") {
+            $split->get_style()->content = "normal";
+        }
         $this->get_parent()->insert_child_after($split, $this);
 
         // Unset the current node's right style properties
@@ -84,7 +99,6 @@ class Inline extends AbstractFrameDecorator
             in_array($frame_style->page_break_before, $page_breaks) ||
             in_array($frame_style->page_break_after, $page_breaks)
         ) {
-
             $this->get_parent()->split($split, true);
         }
     }

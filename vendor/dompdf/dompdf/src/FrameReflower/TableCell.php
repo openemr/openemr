@@ -17,14 +17,20 @@ use Dompdf\FrameDecorator\Table as TableFrameDecorator;
  */
 class TableCell extends Block
 {
+    /**
+     * TableCell constructor.
+     * @param BlockFrameDecorator $frame
+     */
     function __construct(BlockFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
 
+    /**
+     * @param BlockFrameDecorator|null $block
+     */
     function reflow(BlockFrameDecorator $block = null)
     {
-
         $style = $this->_frame->get_style();
 
         $table = TableFrameDecorator::find_parent_table($this->_frame);
@@ -44,21 +50,21 @@ class TableCell extends Block
         //FIXME?
         $h = $this->_frame->get_containing_block("h");
 
-        $left_space = $style->length_in_pt(array($style->margin_left,
+        $left_space = (float)$style->length_in_pt(array($style->margin_left,
                 $style->padding_left,
                 $style->border_left_width),
             $w);
 
-        $right_space = $style->length_in_pt(array($style->padding_right,
+        $right_space = (float)$style->length_in_pt(array($style->padding_right,
                 $style->margin_right,
                 $style->border_right_width),
             $w);
 
-        $top_space = $style->length_in_pt(array($style->margin_top,
+        $top_space = (float)$style->length_in_pt(array($style->margin_top,
                 $style->padding_top,
                 $style->border_top_width),
             $h);
-        $bottom_space = $style->length_in_pt(array($style->margin_bottom,
+        $bottom_space = (float)$style->length_in_pt(array($style->margin_bottom,
                 $style->padding_bottom,
                 $style->border_bottom_width),
             $h);
@@ -69,7 +75,7 @@ class TableCell extends Block
         $content_y = $line_y = $y + $top_space;
 
         // Adjust the first line based on the text-indent property
-        $indent = $style->length_in_pt($style->text_indent, $w);
+        $indent = (float)$style->length_in_pt($style->text_indent, $w);
         $this->_frame->increase_line_width($indent);
 
         $page = $this->_frame->get_root();
@@ -80,41 +86,36 @@ class TableCell extends Block
 
         // Set the containing blocks and reflow each child
         foreach ($this->_frame->get_children() as $child) {
-
-            if ($page->is_full())
+            if ($page->is_full()) {
                 break;
+            }
 
             $child->set_containing_block($content_x, $content_y, $cb_w, $h);
-
             $this->process_clear($child);
-
             $child->reflow($this->_frame);
-
             $this->process_float($child, $x + $left_space, $w - $right_space - $left_space);
         }
 
         // Determine our height
-        $style_height = $style->length_in_pt($style->height, $h);
+        $style_height = (float)$style->length_in_pt($style->height, $h);
 
         $this->_frame->set_content_height($this->_calculate_content_height());
 
-        $height = max($style_height, $this->_frame->get_content_height());
+        $height = max($style_height, (float)$this->_frame->get_content_height());
 
         // Let the cellmap know our height
         $cell_height = $height / count($cells["rows"]);
 
-        if ($style_height <= $height)
+        if ($style_height <= $height) {
             $cell_height += $top_space + $bottom_space;
+        }
 
-        foreach ($cells["rows"] as $i)
+        foreach ($cells["rows"] as $i) {
             $cellmap->set_row_height($i, $cell_height);
+        }
 
         $style->height = $height;
-
         $this->_text_align();
-
         $this->vertical_align();
-
     }
-
 }

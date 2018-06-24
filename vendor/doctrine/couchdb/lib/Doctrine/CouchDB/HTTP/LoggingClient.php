@@ -79,4 +79,35 @@ class LoggingClient implements Client
 
         return $response;
     }
+
+    public function getConnection(
+        $method,
+        $path,
+        $data = null,
+        array $headers = array()
+    ) {
+        $start = microtime(true);
+
+        $response = $this->client->getConnection(
+            $method,
+            $path,
+            $data,
+            $headers
+        );
+
+        $duration = microtime(true) - $start;
+        $this->requests[] = array(
+            'duration' => $duration,
+            'method' => $method,
+            'path' => rawurldecode($path),
+            'request' => $data,
+            'request_size' => strlen($data),
+            'response_status' => $response->status,
+            'response' => $response->body,
+            'response_headers' => $response->headers,
+        );
+        $this->totalDuration += $duration;
+
+        return $response;
+    }
 }

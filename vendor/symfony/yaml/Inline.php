@@ -31,9 +31,9 @@ class Inline
      * Converts a YAML string to a PHP value.
      *
      * @param string $value                  A YAML string
-     * @param bool   $exceptionOnInvalidType true if an exception must be thrown on invalid types (a PHP resource or object), false otherwise
-     * @param bool   $objectSupport          true if object support is enabled, false otherwise
-     * @param bool   $objectForMap           true if maps should return a stdClass instead of array()
+     * @param bool   $exceptionOnInvalidType True if an exception must be thrown on invalid types (a PHP resource or object), false otherwise
+     * @param bool   $objectSupport          True if object support is enabled, false otherwise
+     * @param bool   $objectForMap           True if maps should return a stdClass instead of array()
      * @param array  $references             Mapping of variable names to values
      *
      * @return mixed A PHP value
@@ -87,8 +87,8 @@ class Inline
      * Dumps a given PHP variable to a YAML string.
      *
      * @param mixed $value                  The PHP variable to convert
-     * @param bool  $exceptionOnInvalidType true if an exception must be thrown on invalid types (a PHP resource or object), false otherwise
-     * @param bool  $objectSupport          true if object support is enabled, false otherwise
+     * @param bool  $exceptionOnInvalidType True if an exception must be thrown on invalid types (a PHP resource or object), false otherwise
+     * @param bool  $objectSupport          True if object support is enabled, false otherwise
      *
      * @return string The YAML string representing the PHP value
      *
@@ -183,8 +183,8 @@ class Inline
      * Dumps a PHP array to a YAML string.
      *
      * @param array $value                  The PHP array to dump
-     * @param bool  $exceptionOnInvalidType true if an exception must be thrown on invalid types (a PHP resource or object), false otherwise
-     * @param bool  $objectSupport          true if object support is enabled, false otherwise
+     * @param bool  $exceptionOnInvalidType True if an exception must be thrown on invalid types (a PHP resource or object), false otherwise
+     * @param bool  $objectSupport          True if object support is enabled, false otherwise
      *
      * @return string The YAML string representing the PHP array
      */
@@ -233,6 +233,9 @@ class Inline
 
             if (null !== $delimiters) {
                 $tmp = ltrim(substr($scalar, $i), ' ');
+                if ('' === $tmp) {
+                    throw new ParseException(sprintf('Unexpected end of line, expected one of "%s".', implode($delimiters)));
+                }
                 if (!in_array($tmp[0], $delimiters)) {
                     throw new ParseException(sprintf('Unexpected characters (%s).', substr($scalar, $i)));
                 }
@@ -375,6 +378,7 @@ class Inline
         $output = array();
         $len = strlen($mapping);
         ++$i;
+        $allowOverwrite = false;
 
         // {foo: bar, bar:foo, ...}
         while ($i < $len) {
@@ -394,6 +398,10 @@ class Inline
             // key
             $key = self::parseScalar($mapping, array(':', ' '), array('"', "'"), $i, false);
 
+            if ('<<' === $key) {
+                $allowOverwrite = true;
+            }
+
             // value
             $done = false;
 
@@ -405,7 +413,12 @@ class Inline
                         // Spec: Keys MUST be unique; first one wins.
                         // Parser cannot abort this mapping earlier, since lines
                         // are processed sequentially.
-                        if (!isset($output[$key])) {
+                        // But overwriting is allowed when a merge node is used in current block.
+                        if ('<<' === $key) {
+                            foreach ($value as $parsedValue) {
+                                $output += $parsedValue;
+                            }
+                        } elseif ($allowOverwrite || !isset($output[$key])) {
                             $output[$key] = $value;
                         }
                         $done = true;
@@ -416,7 +429,10 @@ class Inline
                         // Spec: Keys MUST be unique; first one wins.
                         // Parser cannot abort this mapping earlier, since lines
                         // are processed sequentially.
-                        if (!isset($output[$key])) {
+                        // But overwriting is allowed when a merge node is used in current block.
+                        if ('<<' === $key) {
+                            $output += $value;
+                        } elseif ($allowOverwrite || !isset($output[$key])) {
                             $output[$key] = $value;
                         }
                         $done = true;
@@ -429,7 +445,10 @@ class Inline
                         // Spec: Keys MUST be unique; first one wins.
                         // Parser cannot abort this mapping earlier, since lines
                         // are processed sequentially.
-                        if (!isset($output[$key])) {
+                        // But overwriting is allowed when a merge node is used in current block.
+                        if ('<<' === $key) {
+                            $output += $value;
+                        } elseif ($allowOverwrite || !isset($output[$key])) {
                             $output[$key] = $value;
                         }
                         $done = true;
@@ -491,7 +510,7 @@ class Inline
             case 'false' === $scalarLower:
                 return false;
             // Optimise for returning strings.
-            case $scalar[0] === '+' || $scalar[0] === '-' || $scalar[0] === '.' || $scalar[0] === '!' || is_numeric($scalar[0]):
+            case '+' === $scalar[0] || '-' === $scalar[0] || '.' === $scalar[0] || '!' === $scalar[0] || is_numeric($scalar[0]):
                 switch (true) {
                     case 0 === strpos($scalar, '!str'):
                         return (string) substr($scalar, 5);
@@ -547,6 +566,7 @@ class Inline
 
                         return $time;
                 }
+                // no break
             default:
                 return (string) $scalar;
         }

@@ -1,8 +1,6 @@
 # Authenticating
 
-## Authenticating Users
-
-To authenticate users using your AD server, call the `auth()->attempt()`
+To authenticate users using your LDAP server, call the `auth()->attempt()`
 method on your provider:
 
 ```php
@@ -14,9 +12,9 @@ try {
         // Credentials were incorrect.
     }
 
-} catch (\Adldap\Exceptions\Auth\UsernameRequiredException $e) {
+} catch (\Adldap\Auth\UsernameRequiredException $e) {
     // The user didn't supply a username.
-} catch (\Adldap\Exceptions\Auth\PasswordRequiredException $e) {
+} catch (\Adldap\Auth\PasswordRequiredException $e) {
     // The user didn't supply a password.
 }
 ```
@@ -25,9 +23,14 @@ try {
 > sort of login functionality. The attempt() method merely tries to bind to
 > your LDAP server as the specified user and returns true / false on its result.
 
+> **Tip**: If you're already performing validation on your username and password
+> fields to ensure they are not empty, then you can remove the try / catch
+> blocks for the Username/Password required exceptions.
+
 ## Binding as Authenticated Users
 
-To bind the users to your LDAP connection that you authenticate (which means 'run all LDAP operations under this user'),
+To bind the users to your LDAP connection that you authenticate (which
+means *run all further LDAP operations under this user*),
 pass in `true` into the third parameter:
 
 ```php
@@ -35,7 +38,9 @@ $username = 'jdoe';
 $password = 'Password123';
 
 if ($provider->auth()->attempt($username, $password, $bindAsUser = true)) {
-    // Credentials were correct. All LDAP operations will be ran under John Doe.
+    // Credentials were correct.
+    
+    // All LDAP operations will be ran under John Doe.
 }
 ```
 
@@ -52,7 +57,7 @@ try {
     $provider->auth()->bindAsAdministrator();
 
     // Successfully bound to server.
-} catch (\Adldap\Exceptions\Auth\BindException $e) {
+} catch (\Adldap\Auth\BindException $e) {
     // There was an issue binding to the LDAP server.
 }
 ```
@@ -66,11 +71,13 @@ try {
     $provider->auth()->bind($username, $password);
 
      // Successfully bound to server.
-} catch (\Adldap\Exceptions\Auth\BindException $e) {
+} catch (\Adldap\Auth\BindException $e) {
     // There was an issue binding to the LDAP server.
 }
 ```
 
-> **Note**: Manually binding as a user **will not** validate their username or password to ensure they are not empty.
+> **Note**: Manually binding as a user **will not** validate their
+> username or password to ensure they are not empty.
 >
-> This means, a user could pass in empty strings and could anonymously authenticate to your server if you're not careful.
+> This means, a user could pass in empty strings and could anonymously
+> authenticate to your server if you don't validate their input.

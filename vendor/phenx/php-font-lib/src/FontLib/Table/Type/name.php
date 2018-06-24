@@ -73,7 +73,7 @@ class name extends Table {
     3 => "Microsoft",
   );
 
-  static $plaformSpecific = array(
+  static $platformSpecific = array(
     // Unicode
     0 => array(
       0 => "Default semantics",

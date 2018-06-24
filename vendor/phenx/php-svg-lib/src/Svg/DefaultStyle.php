@@ -3,7 +3,7 @@
  * @package php-svg-lib
  * @link    http://github.com/PhenX/php-svg-lib
  * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
+ * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
  */
 
 namespace Svg;
@@ -12,6 +12,7 @@ class DefaultStyle extends Style
 {
     public $color = '';
     public $opacity = 1.0;
+    public $display = 'inline';
 
     public $fill = 'black';
     public $fillOpacity = 1.0;

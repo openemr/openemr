@@ -12,6 +12,14 @@ namespace Zend\Diactoros;
 use Psr\Http\Message\StreamInterface;
 use UnexpectedValueException;
 
+use function array_pop;
+use function implode;
+use function ltrim;
+use function preg_match;
+use function sprintf;
+use function str_replace;
+use function ucwords;
+
 /**
  * Provides base functionality for request and response de/serialization
  * strategies, including functionality for retrieving a line at a time from

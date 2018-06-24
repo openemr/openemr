@@ -38,6 +38,20 @@ class Capabilities
     protected $baseCapabilities;
 
     /**
+     * "lock-on-expire" support in seconds.
+     *
+     *      0 = Expired items will never be retrieved
+     *     >0 = Time in seconds an expired item could be retrieved
+     *     -1 = Expired items could be retrieved forever
+     *
+     * If it's NULL the capability isn't set and the getter
+     * returns the base capability or the default value.
+     *
+     * @var null|bool
+     */
+    protected $lockOnExpire;
+
+    /**
      * Max. key length
      *
      * If it's NULL the capability isn't set and the getter
@@ -424,7 +438,31 @@ class Capabilities
     }
 
     /**
-     * Get maximum key lenth
+     * Get "lock-on-expire" support in seconds.
+     *
+     * @return int 0  = Expired items will never be retrieved
+     *             >0 = Time in seconds an expired item could be retrieved
+     *             -1 = Expired items could be retrieved forever
+     */
+    public function getLockOnExpire()
+    {
+        return $this->getCapability('lockOnExpire', 0);
+    }
+
+    /**
+     * Set "lock-on-expire" support in seconds.
+     *
+     * @param  stdClass $marker
+     * @param  int      $timeout
+     * @return Capabilities Fluent interface
+     */
+    public function setLockOnExpire(stdClass $marker, $timeout)
+    {
+        return $this->setCapability($marker, 'lockOnExpire', (int) $timeout);
+    }
+
+    /**
+     * Get maximum key length
      *
      * @return int -1 means unknown, 0 means infinite
      */

@@ -1,10 +1,8 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @see       https://github.com/zendframework/zend-text for the canonical source repository
+ * @copyright Copyright (c) 2005-2018 Zend Technologies USA Inc. (https://www.zend.com)
+ * @license   https://github.com/zendframework/zend-text/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\Text\Table\Decorator;
@@ -132,19 +130,21 @@ class Unicode implements Decorator
      * @param  int $code
      * @return string|false
      */
+    // @codingStandardsIgnoreStart
     protected function _uniChar($code)
     {
+        // @codingStandardsIgnoreEnd
         if ($code <= 0x7F) {
             $char = chr($code);
         } elseif ($code <= 0x7FF) {
             $char = chr(0xC0 | $code >> 6)
                   . chr(0x80 | $code & 0x3F);
         } elseif ($code <= 0xFFFF) {
-            $char =  chr(0xE0 | $code >> 12)
+            $char = chr(0xE0 | $code >> 12)
                   . chr(0x80 | $code >> 6 & 0x3F)
                   . chr(0x80 | $code & 0x3F);
         } elseif ($code <= 0x10FFFF) {
-            $char =  chr(0xF0 | $code >> 18)
+            $char = chr(0xF0 | $code >> 18)
                   . chr(0x80 | $code >> 12 & 0x3F)
                   . chr(0x80 | $code >> 6 & 0x3F)
                   . chr(0x80 | $code & 0x3F);

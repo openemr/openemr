@@ -26,7 +26,7 @@ use Doctrine\ODM\CouchDB\DocumentManager;
 /**
  * Doctrine CLI Connection Helper.
  *
- * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @license http://www.opensource.org/licenses/mit-license.php MIT
  * @link    www.doctrine-project.org
  * @since   2.0
  * @author  Benjamin Eberlei <kontakt@beberlei.de>

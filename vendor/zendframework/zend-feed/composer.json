@@ -53,8 +53,8 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.9-dev",
-            "dev-develop": "2.10-dev"
+            "dev-master": "2.10.x-dev",
+            "dev-develop": "2.11.x-dev"
         }
     },
     "scripts": {
@@ -65,7 +65,6 @@
         "cs-check": "phpcs",
         "cs-fix": "phpcbf",
         "test": "phpunit --colors=always",
-        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml",
-        "upload-coverage": "coveralls -v"
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
     }
 }

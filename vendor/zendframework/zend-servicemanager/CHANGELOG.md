@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.7.11 - 2018-06-22
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#269](https://github.com/zendframework/zend-servicemanager/pull/269) fixes a
+  regression whereby using static Callable strings caused an undefined variable
+  notice.
+
 ## 2.7.10 - 2017-12-05
 
 ### Added

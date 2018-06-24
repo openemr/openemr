@@ -38,5 +38,22 @@ interface Client
      * @param array $headers
      * @return Response
      */
-    function request( $method, $path, $data = null, $raw = false, array $headers = array() );
+    function request($method, $path, $data = null, $raw = false, array $headers = array());
+
+    /**
+     * Return the connection pointer or connection socket after setting up the
+     * connection.
+     *
+     * Return the connection pointer (for stream connection) or connection
+     * socket (for socket connection) after setting up the connection. The
+     * returned resource can be used to read and write data in small chunks
+     * reducing the memory usage.
+     *
+     * @param string $method
+     * @param string $path
+     * @param string $data
+     * @param array $headers
+     * @return resource
+     */
+    function getConnection($method, $path, $data = null, array $headers = array());
 }

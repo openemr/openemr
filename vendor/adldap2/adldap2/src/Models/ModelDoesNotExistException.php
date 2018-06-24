@@ -4,6 +4,13 @@ namespace Adldap\Models;
 
 use Adldap\AdldapException;
 
+/**
+ * Class ModelDoesNotExistException
+ *
+ * Thrown when a model being saved / updated does not actually exist.
+ *
+ * @package Adldap\Models
+ */
 class ModelDoesNotExistException extends AdldapException
 {
     /**

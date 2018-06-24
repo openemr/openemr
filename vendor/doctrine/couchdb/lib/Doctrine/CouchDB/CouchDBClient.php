@@ -20,14 +20,17 @@
 namespace Doctrine\CouchDB;
 
 use Doctrine\CouchDB\HTTP\Client;
+use Doctrine\CouchDB\HTTP\Response;
 use Doctrine\CouchDB\HTTP\HTTPException;
+use Doctrine\CouchDB\HTTP\MultipartParserAndSender;
+use Doctrine\CouchDB\HTTP\StreamClient;
 use Doctrine\CouchDB\Utils\BulkUpdater;
 use Doctrine\CouchDB\View\DesignDocument;
 
 /**
  * CouchDB client class
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @license     http://www.opensource.org/licenses/mit-license.php MIT
  * @link        www.doctrine-project.com
  * @since       1.0
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
@@ -73,11 +76,53 @@ class CouchDBClient
      */
     static public function create(array $options)
     {
+        if (isset($options['url'])) {
+            $urlParts = parse_url($options['url']);
+            $urlOptions = ['user' => 'user', 'pass' => 'password', 'host' => 'host', 'path' => 'dbname', 'port' => 'port'];
+            foreach ($urlParts as $part => $value) {
+                switch($part) {
+                    case 'host':
+                    case 'user':
+                    case 'port':
+                        $options[$part] = $value;
+                        break;
+
+                    case 'path':
+                        $path = explode('/', $value);
+                        $options['dbname'] = array_pop($path);
+                        $options['path'] = trim(implode('/', $path), '/');
+                        break;
+
+                    case 'pass':
+                        $options['password'] = $value;
+                        break;
+
+                    case 'scheme':
+                        $options['ssl'] = ($value === 'https');
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        }
+
         if (!isset($options['dbname'])) {
             throw new \InvalidArgumentException("'dbname' is a required option to create a CouchDBClient");
         }
 
-        $defaults = array('type' => 'socket', 'host' => 'localhost', 'port' => 5984, 'user' => null, 'password' => null, 'ip' => null, 'logging' => false);
+        $defaults = array(
+            'type' => 'socket',
+            'host' => 'localhost',
+            'port' => 5984,
+            'user' => null,
+            'password' => null,
+            'ip' => null,
+            'ssl' => false,
+            'path' => null,
+            'logging' => false,
+            'timeout' => 0.01,
+        );
         $options = array_merge($defaults, $options);
 
         if (!isset(self::$clients[$options['type']])) {
@@ -86,7 +131,16 @@ class CouchDBClient
             ));
         }
         $connectionClass = self::$clients[$options['type']];
-        $connection = new $connectionClass($options['host'], $options['port'], $options['user'], $options['password'], $options['ip']);
+        $connection = new $connectionClass(
+            $options['host'],
+            $options['port'],
+            $options['user'],
+            $options['password'],
+            $options['ip'],
+            $options['ssl'],
+            $options['path'],
+            $options['timeout']
+        );
         if ($options['logging'] === true) {
             $connection = new HTTP\LoggingClient($connection);
         }
@@ -143,13 +197,45 @@ class CouchDBClient
     /**
      * Find a document by ID and return the HTTP response.
      *
-     * @param  string $id
+     * @param string $id
      * @return HTTP\Response
      */
     public function findDocument($id)
     {
         $documentPath = '/' . $this->databaseName . '/' . urlencode($id);
-        return $this->httpClient->request( 'GET', $documentPath );
+        return $this->httpClient->request('GET', $documentPath);
+    }
+
+    /**
+     * Find documents of all or the specified revisions.
+     *
+     * If $revisions is an array containing the revisions to be fetched, only
+     * the documents of those revisions are fetched. Else document of all
+     * leaf revisions are fetched.
+     *
+     * @param string $docId
+     * @param mixed $revisions
+     * @return HTTP\Response
+     */
+    public function findRevisions($docId, $revisions = null)
+    {
+        $path = '/' . $this->databaseName . '/' . urlencode($docId);
+        if (is_array($revisions)) {
+            // Fetch documents of only the specified leaf revisions.
+            $path .= '?open_revs=' . json_encode($revisions);
+        } else {
+            // Fetch documents of all leaf revisions.
+            $path .= '?open_revs=all';
+        }
+        // Set the Accept header to application/json to get a JSON array in the
+        // response's body. Without this the response is multipart/mixed stream.
+        return $this->httpClient->request(
+            'GET',
+            $path,
+            null,
+            false,
+            array('Accept' => 'application/json')
+        );
     }
 
     /**
@@ -180,9 +266,12 @@ class CouchDBClient
      *
      * @param int|null $limit
      * @param string|null $startKey
+     * @param string|null $endKey
+     * @param int|null $skip
+     * @param bool $descending
      * @return HTTP\Response
      */
-    public function allDocs($limit = null, $startKey = null)
+    public function allDocs($limit = null, $startKey = null, $endKey = null, $skip = null, $descending = false)
     {
         $allDocsPath = '/' . $this->databaseName . '/_all_docs?include_docs=true';
         if ($limit) {
@@ -190,6 +279,15 @@ class CouchDBClient
         }
         if ($startKey) {
             $allDocsPath .= '&startkey="' . (string)$startKey.'"';
+        }
+        if (!is_null($endKey)) {
+            $allDocsPath .= '&endkey="' . (string)$endKey.'"';
+        }
+        if (!is_null($skip) && (int)$skip > 0) {
+            $allDocsPath .= '&skip=' . (int)$skip;
+        }
+        if (!is_null($descending) && (bool)$descending === true) {
+            $allDocsPath .= '&descending=true';
         }
         return $this->httpClient->request('GET', $allDocsPath);
     }
@@ -268,9 +366,9 @@ class CouchDBClient
      * @return array
      * @throws HTTPException
      */
-    public function getDatabaseInfo($name)
+    public function getDatabaseInfo($name = null)
     {
-        $response = $this->httpClient->request('GET', '/' . $this->databaseName);
+        $response = $this->httpClient->request('GET', '/' . ($name ? urlencode($name) : $this->databaseName));
 
         if ($response->status != 200) {
             throw HTTPException::fromResponse('/' . urlencode($name), $response);
@@ -297,7 +395,7 @@ class CouchDBClient
 
             foreach ($params as $key => $value) {
                 if (isset($params[$key]) === true && is_bool($value) === true) {
-                    $params[$key] = ($value) ? 'true': 'false';
+                    $params[$key] = ($value) ? 'true' : 'false';
                 }
             }
             if (count($params) > 0) {
@@ -382,7 +480,7 @@ class CouchDBClient
      */
     public function deleteDocument($id, $rev)
     {
-        $path = '/' . $this->databaseName . '/' . $id . '?rev=' . $rev;
+        $path = '/' . $this->databaseName . '/' . urlencode($id) . '?rev=' . $rev;
         $response = $this->httpClient->request('DELETE', $path);
 
         if ($response->status != 200) {
@@ -561,6 +659,114 @@ class CouchDBClient
         $path = '/' . $this->databaseName . '/_revs_diff';
         $response = $this->httpClient->request('POST', $path, json_encode($data));
         if ($response->status != 200) {
+            throw HTTPException::fromResponse($path, $response);
+        }
+        return $response->body;
+    }
+
+    /**
+     * Transfer missing revisions to the target. The Content-Type of response
+     * from the source should be multipart/mixed.
+     *
+     * @param string $docId
+     * @param array $missingRevs
+     * @param CouchDBClient $target
+     * @return array|HTTP\ErrorResponse|string
+     * @throws HTTPException
+     */
+    public function transferChangedDocuments($docId, $missingRevs, CouchDBClient $target)
+    {
+        $path = '/' . $this->getDatabase() . '/' . $docId;
+        $params = array('revs' => true, 'latest' => true, 'open_revs' => json_encode($missingRevs));
+        $query = http_build_query($params);
+        $path .= '?' . $query;
+
+        $targetPath = '/' . $target->getDatabase() . '/' . $docId . '?new_edits=false';
+
+        $mutltipartHandler = new MultipartParserAndSender($this->getHttpClient(), $target->getHttpClient());
+        return $mutltipartHandler->request(
+            'GET',
+            $path,
+            $targetPath,
+            null,
+            array('Accept' => 'multipart/mixed')
+        );
+
+    }
+
+    /**
+     * Get changes as a stream.
+     *
+     * This method similar to the getChanges() method. But instead of returning
+     * the set of changes, it returns the connection stream from which the response
+     * can be read line by line. This is useful when you want to continuously get changes
+     * as they occur. Filtered changes feed is not supported by this method.
+     *
+     * @param array $params
+     * @param bool $raw
+     * @return resource
+     * @throws HTTPException
+     */
+    public function getChangesAsStream(array $params = array())
+    {
+        // Set feed to continuous.
+        if (!isset($params['feed']) || $params['feed'] != 'continuous') {
+            $params['feed'] = 'continuous';
+        }
+        $path = '/' . $this->databaseName . '/_changes';
+        $connectionOptions = $this->getHttpClient()->getOptions();
+        $streamClient = new StreamClient(
+            $connectionOptions['host'],
+            $connectionOptions['port'],
+            $connectionOptions['username'],
+            $connectionOptions['password'],
+            $connectionOptions['ip'],
+            $connectionOptions['ssl'],
+            $connectionOptions['path']
+        );
+
+        foreach ($params as $key => $value) {
+            if (isset($params[$key]) === true && is_bool($value) === true) {
+                $params[$key] = ($value) ? 'true' : 'false';
+            }
+        }
+        if (count($params) > 0) {
+            $query = http_build_query($params);
+            $path = $path . '?' . $query;
+        }
+        $stream = $streamClient->getConnection('GET', $path, null);
+
+        $headers = $streamClient->getStreamHeaders($stream);
+        if (empty($headers['status'])) {
+            throw HTTPException::readFailure(
+                $connectionOptions['ip'],
+                $connectionOptions['port'],
+                'Received an empty response or not status code',
+                0
+            );
+        } elseif ($headers['status'] != 200) {
+            $body = '';
+            while (!feof($stream)) {
+                $body .= fgets($stream);
+            }
+            throw HTTPException::fromResponse($path, new Response($headers['status'], $headers, $body));
+        }
+        // Everything seems okay. Return the connection resource.
+        return $stream;
+
+    }
+
+    /**
+     * Commit any recent changes to the specified database to disk.
+     *
+     * @return array
+     * @throws HTTPException
+     */
+    public function ensureFullCommit()
+    {
+        $path = '/' . $this->databaseName . '/_ensure_full_commit';
+        $response = $this->httpClient->request('POST', $path);
+        if ($response->status != 201) {
             throw HTTPException::fromResponse($path, $response);
         }
         return $response->body;

@@ -59,7 +59,7 @@ class ListBulletImage extends AbstractFrameDecorator
         // Resample the bullet image to be consistent with 'auto' sized images
         // See also Image::get_min_max_width
         // Tested php ver: value measured in px, suffix "px" not in value: rtrim unnecessary.
-        $dpi = $this->_dompdf->get_option("dpi");
+        $dpi = $this->_dompdf->getOptions()->getDpi();
         $this->_width = ((float)rtrim($width, "px") * 72) / $dpi;
         $this->_height = ((float)rtrim($height, "px") * 72) / $dpi;
 
@@ -118,10 +118,9 @@ class ListBulletImage extends AbstractFrameDecorator
 
         // Small hack to prevent indenting of list text
         // Image Might not exist, then position like on list_bullet_frame_decorator fallback to none.
-        if ($this->_frame->get_style()->list_style_position === "outside" ||
-            $this->_width == 0
-        )
+        if ($this->_frame->get_style()->list_style_position === "outside" || $this->_width == 0) {
             return 0;
+        }
         //This aligns the "inside" image position with the text.
         //The text starts to the right of the image.
         //Between the image and the text there is an added margin of image width.

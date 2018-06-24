@@ -3,7 +3,7 @@
  * @package php-svg-lib
  * @link    http://github.com/PhenX/php-svg-lib
  * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
+ * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
  */
 
 namespace Svg\Tag;
@@ -15,21 +15,21 @@ class Ellipse extends Shape
     protected $rx = 0;
     protected $ry = 0;
 
-    public function start($attribs)
+    public function start($attributes)
     {
-        parent::start($attribs);
+        parent::start($attributes);
 
-        if (isset($attribs['cx'])) {
-            $this->cx = $attribs['cx'];
+        if (isset($attributes['cx'])) {
+            $this->cx = $attributes['cx'];
         }
-        if (isset($attribs['cy'])) {
-            $this->cy = $attribs['cy'];
+        if (isset($attributes['cy'])) {
+            $this->cy = $attributes['cy'];
         }
-        if (isset($attribs['rx'])) {
-            $this->rx = $attribs['rx'];
+        if (isset($attributes['rx'])) {
+            $this->rx = $attributes['rx'];
         }
-        if (isset($attribs['ry'])) {
-            $this->ry = $attribs['ry'];
+        if (isset($attributes['ry'])) {
+            $this->ry = $attributes['ry'];
         }
 
         $this->document->getSurface()->ellipse($this->cx, $this->cy, $this->rx, $this->ry, 0, 0, 360, false);

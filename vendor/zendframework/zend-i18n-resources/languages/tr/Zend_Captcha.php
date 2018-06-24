@@ -10,7 +10,7 @@
 /**
  * TR-Revision: 28.Sept.2012
  */
-return array(
+return [
     // Zend_Captcha_ReCaptcha
     "Missing captcha fields" => "Eksik captcha alanı",
     "Failed to validate captcha" => "Captcha doğrulaması başarısız oldu",
@@ -20,4 +20,4 @@ return array(
     "Empty captcha value" => "Boş captcha boşluğu",
     "Captcha ID field is missing" => "Captcha kimlik alanı eksik",
     "Captcha value is wrong" => "Captcha değeri yanlış",
-);
+];

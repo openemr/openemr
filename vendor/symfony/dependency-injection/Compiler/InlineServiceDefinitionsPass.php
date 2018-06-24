@@ -23,7 +23,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  */
 class InlineServiceDefinitionsPass implements RepeatablePassInterface
 {
-    private $repeatedPass;
     private $graph;
     private $compiler;
     private $formatter;
@@ -34,13 +33,11 @@ class InlineServiceDefinitionsPass implements RepeatablePassInterface
      */
     public function setRepeatedPass(RepeatedPass $repeatedPass)
     {
-        $this->repeatedPass = $repeatedPass;
+        // no-op for BC
     }
 
     /**
      * Processes the ContainerBuilder for inline service definitions.
-     *
-     * @param ContainerBuilder $container
      */
     public function process(ContainerBuilder $container)
     {
@@ -109,11 +106,15 @@ class InlineServiceDefinitionsPass implements RepeatablePassInterface
      */
     private function isInlineableDefinition(ContainerBuilder $container, $id, Definition $definition)
     {
+        if ($definition->isDeprecated() || $definition->isLazy() || $definition->isSynthetic()) {
+            return false;
+        }
+
         if (!$definition->isShared() || ContainerInterface::SCOPE_PROTOTYPE === $definition->getScope(false)) {
             return true;
         }
 
-        if ($definition->isPublic() || $definition->isLazy()) {
+        if ($definition->isPublic()) {
             return false;
         }
 

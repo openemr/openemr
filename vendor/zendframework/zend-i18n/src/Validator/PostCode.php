@@ -132,7 +132,7 @@ class PostCode extends AbstractValidator
         'KE' => '\d{5}',
         'KW' => '\d{5}',
         'LA' => '\d{5}',
-        'LV' => '\d{4}',
+        'LV' => '(LV-)?\d{4}',
         'LB' => '(\d{4}([ ]?\d{4})?)?',
         'LI' => '(948[5-9])|(949[0-7])',
         'LT' => '\d{5}',

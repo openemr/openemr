@@ -1,10 +1,8 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @see       https://github.com/zendframework/zend-mail for the canonical source repository
+ * @copyright Copyright (c) 2005-2018 Zend Technologies USA Inc. (https://www.zend.com)
+ * @license   https://github.com/zendframework/zend-mail/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\Mail\Transport;
@@ -47,6 +45,13 @@ class Smtp implements TransportInterface
      * @var Protocol\SmtpPluginManager
      */
     protected $plugins;
+
+    /**
+     * When did we connect to the server?
+     *
+     * @var int|null
+     */
+    protected $connectedTime;
 
     /**
      * Constructor.
@@ -168,15 +173,18 @@ class Smtp implements TransportInterface
      */
     public function __destruct()
     {
-        if ($this->connection instanceof Protocol\Smtp) {
-            try {
-                $this->connection->quit();
-            } catch (ProtocolException\ExceptionInterface $e) {
-                // ignore
-            }
-            if ($this->autoDisconnect) {
-                $this->connection->disconnect();
-            }
+        if (! $this->getConnection() instanceof Protocol\Smtp) {
+            return;
+        }
+
+        try {
+            $this->getConnection()->quit();
+        } catch (ProtocolException\ExceptionInterface $e) {
+            // ignore
+        }
+
+        if ($this->autoDisconnect) {
+            $this->getConnection()->disconnect();
         }
     }
 
@@ -188,6 +196,11 @@ class Smtp implements TransportInterface
     public function setConnection(Protocol\AbstractProtocol $connection)
     {
         $this->connection = $connection;
+        if (($connection instanceof Protocol\Smtp)
+            && ($this->getOptions()->getConnectionTimeLimit() !== null)
+        ) {
+            $connection->setUseCompleteQuit(false);
+        }
     }
 
     /**
@@ -197,6 +210,13 @@ class Smtp implements TransportInterface
      */
     public function getConnection()
     {
+        $timeLimit = $this->getOptions()->getConnectionTimeLimit();
+        if ($timeLimit !== null
+            && $this->connectedTime !== null
+            && ((time() - $this->connectedTime) > $timeLimit)
+        ) {
+            $this->connection = null;
+        }
         return $this->connection;
     }
 
@@ -207,8 +227,9 @@ class Smtp implements TransportInterface
      */
     public function disconnect()
     {
-        if (! empty($this->connection) && ($this->connection instanceof Protocol\Smtp)) {
-            $this->connection->disconnect();
+        if ($this->getConnection() instanceof Protocol\Smtp) {
+            $this->getConnection()->disconnect();
+            $this->connectedTime = null;
         }
     }
 
@@ -356,8 +377,8 @@ class Smtp implements TransportInterface
         $config           = $options->getConnectionConfig();
         $config['host']   = $options->getHost();
         $config['port']   = $options->getPort();
-        $connection       = $this->plugin($options->getConnectionClass(), $config);
-        $this->connection = $connection;
+
+        $this->setConnection($this->plugin($options->getConnectionClass(), $config));
 
         return $this->connect();
     }
@@ -374,6 +395,9 @@ class Smtp implements TransportInterface
         }
 
         $this->connection->connect();
+
+        $this->connectedTime = time();
+
         $this->connection->helo($this->getOptions()->getName());
 
         return $this->connection;

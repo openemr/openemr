@@ -1,10 +1,8 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @see       https://github.com/zendframework/zend-server for the canonical source repository
+ * @copyright Copyright (c) 2005-2018 Zend Technologies USA Inc. (https://www.zend.com)
+ * @license   https://github.com/zendframework/zend-server/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\Server;
@@ -44,7 +42,7 @@ class Reflection
             throw new Reflection\Exception\InvalidArgumentException('Invalid class or object passed to attachClass()');
         }
 
-        if ($argv && !is_array($argv)) {
+        if ($argv && ! is_array($argv)) {
             throw new Reflection\Exception\InvalidArgumentException('Invalid argv argument passed to reflectClass');
         }
 
@@ -70,14 +68,14 @@ class Reflection
      */
     public static function reflectFunction($function, $argv = false, $namespace = '')
     {
-        if (!is_string($function) || !function_exists($function)) {
+        if (! is_string($function) || ! function_exists($function)) {
             throw new Reflection\Exception\InvalidArgumentException(sprintf(
                 'Invalid function "%s" passed to reflectFunction',
                 $function
             ));
         }
 
-        if ($argv && !is_array($argv)) {
+        if ($argv && ! is_array($argv)) {
             throw new Reflection\Exception\InvalidArgumentException('Invalid argv argument passed to reflectFunction');
         }
 

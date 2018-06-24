@@ -1,10 +1,8 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @see       https://github.com/zendframework/zend-debug for the canonical source repository
+ * @copyright Copyright (c) 2005-2018 Zend Technologies USA Inc. (https://www.zend.com)
+ * @license   https://github.com/zendframework/zend-debug/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\Debug;
@@ -19,12 +17,12 @@ class Debug
     /**
      * @var Escaper
      */
-    protected static $escaper = null;
+    protected static $escaper;
 
     /**
      * @var string
      */
-    protected static $sapi = null;
+    protected static $sapi;
 
     /**
      * Get the current value of the debug output environment.
@@ -90,7 +88,7 @@ class Debug
     public static function dump($var, $label = null, $echo = true)
     {
         // format the label
-        $label = ($label===null) ? '' : rtrim($label) . ' ';
+        $label = ($label === null) ? '' : rtrim($label) . ' ';
 
         // var_dump the variable into a buffer and keep the output
         ob_start();
@@ -106,7 +104,7 @@ class Debug
         } else {
             if (null !== static::$escaper) {
                 $output = static::$escaper->escapeHtml($output);
-            } elseif (!extension_loaded('xdebug')) {
+            } elseif (! extension_loaded('xdebug')) {
                 $output = static::getEscaper()->escapeHtml($output);
             }
 

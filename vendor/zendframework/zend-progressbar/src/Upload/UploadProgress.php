@@ -23,14 +23,14 @@ class UploadProgress extends AbstractUploadHandler
      */
     protected function getUploadProgress($id)
     {
-        if (!$this->isUploadProgressAvailable()) {
+        if (! $this->isUploadProgressAvailable()) {
             throw new Exception\PhpEnvironmentException(
                 'UploadProgress extension is not installed'
             );
         }
 
         $uploadInfo = uploadprogress_get_info($id);
-        if (!is_array($uploadInfo)) {
+        if (! is_array($uploadInfo)) {
             return false;
         }
 

@@ -40,7 +40,7 @@ class MongoDbResourceManager
      * @param string $id
      * @param array|MongoCollection $resource
      *
-     * @return self
+     * @return MongoDbResourceManager Provides a fluent interface
      *
      * @throws Exception\RuntimeException
      */
@@ -117,9 +117,9 @@ class MongoDbResourceManager
     {
         $this->resources[$id]['server'] = (string)$server;
 
-        unset($this->resource[$id]['client_instance']);
-        unset($this->resource[$id]['db_instance']);
-        unset($this->resource[$id]['collection_instance']);
+        unset($this->resources[$id]['client_instance']);
+        unset($this->resources[$id]['db_instance']);
+        unset($this->resources[$id]['collection_instance']);
     }
 
     public function getServer($id)
@@ -135,9 +135,9 @@ class MongoDbResourceManager
     {
         $this->resources[$id]['connection_options'] = $connectionOptions;
 
-        unset($this->resource[$id]['client_instance']);
-        unset($this->resource[$id]['db_instance']);
-        unset($this->resource[$id]['collection_instance']);
+        unset($this->resources[$id]['client_instance']);
+        unset($this->resources[$id]['db_instance']);
+        unset($this->resources[$id]['collection_instance']);
     }
 
     public function getConnectionOptions($id)
@@ -155,9 +155,9 @@ class MongoDbResourceManager
     {
         $this->resources[$id]['driver_options'] = $driverOptions;
 
-        unset($this->resource[$id]['client_instance']);
-        unset($this->resource[$id]['db_instance']);
-        unset($this->resource[$id]['collection_instance']);
+        unset($this->resources[$id]['client_instance']);
+        unset($this->resources[$id]['db_instance']);
+        unset($this->resources[$id]['collection_instance']);
     }
 
     public function getDriverOptions($id)
@@ -173,8 +173,8 @@ class MongoDbResourceManager
     {
         $this->resources[$id]['db'] = (string)$database;
 
-        unset($this->resource[$id]['db_instance']);
-        unset($this->resource[$id]['collection_instance']);
+        unset($this->resources[$id]['db_instance']);
+        unset($this->resources[$id]['collection_instance']);
     }
 
     public function getDatabase($id)
@@ -190,7 +190,7 @@ class MongoDbResourceManager
     {
         $this->resources[$id]['collection'] = (string)$collection;
 
-        unset($this->resource[$id]['collection_instance']);
+        unset($this->resources[$id]['collection_instance']);
     }
 
     public function getCollection($id)

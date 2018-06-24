@@ -733,7 +733,6 @@ class UnitOfWork implements PropertyChangedListener
 
         // Look for changes in associations of the entity
         foreach ($class->associationMappings as $field => $assoc) {
-
             if (($val = $class->reflFields[$field]->getValue($entity)) === null) {
                 continue;
             }
@@ -799,7 +798,7 @@ class UnitOfWork implements PropertyChangedListener
                 // Only MANAGED entities that are NOT SCHEDULED FOR INSERTION OR DELETION are processed here.
                 $oid = spl_object_hash($entity);
 
-                if ( ! isset($this->entityInsertions[$oid]) &&  ! isset($this->entityDeletions[$oid]) && isset($this->entityStates[$oid])) {
+                if ( ! isset($this->entityInsertions[$oid]) && ! isset($this->entityDeletions[$oid]) && isset($this->entityStates[$oid])) {
                     $this->computeChangeSet($class, $entity);
                 }
             }
@@ -826,10 +825,7 @@ class UnitOfWork implements PropertyChangedListener
         if ($value instanceof PersistentCollection && $value->isDirty()) {
             $coid = spl_object_hash($value);
 
-            if ($assoc['isOwningSide']) {
-                $this->collectionUpdates[$coid] = $value;
-            }
-
+            $this->collectionUpdates[$coid] = $value;
             $this->visitedCollections[$coid] = $value;
         }
 
@@ -1803,7 +1799,7 @@ class UnitOfWork implements PropertyChangedListener
      * @throws OptimisticLockException If the entity uses optimistic locking through a version
      *         attribute and the version check against the managed copy fails.
      * @throws ORMInvalidArgumentException If the entity instance is NEW.
-     * @throws EntityNotFoundException
+     * @throws EntityNotFoundException if an assigned identifier is used in the entity, but none is provided
      */
     private function doMerge($entity, array &$visited, $prevManagedCopy = null, $assoc = null)
     {
@@ -1835,6 +1831,7 @@ class UnitOfWork implements PropertyChangedListener
             if ( ! $id) {
                 $managedCopy = $this->newInstance($class);
 
+                $this->mergeEntityStateIntoManagedCopy($entity, $managedCopy);
                 $this->persistNew($class, $managedCopy);
             } else {
                 $flatId = ($class->containsForeignIdentifier)
@@ -1866,30 +1863,15 @@ class UnitOfWork implements PropertyChangedListener
                     $managedCopy = $this->newInstance($class);
                     $class->setIdentifierValues($managedCopy, $id);
 
+                    $this->mergeEntityStateIntoManagedCopy($entity, $managedCopy);
                     $this->persistNew($class, $managedCopy);
-                }
-            }
-
-            if ($class->isVersioned && $this->isLoaded($managedCopy) && $this->isLoaded($entity)) {
-                $reflField          = $class->reflFields[$class->versionField];
-                $managedCopyVersion = $reflField->getValue($managedCopy);
-                $entityVersion      = $reflField->getValue($entity);
-
-                // Throw exception if versions don't match.
-                if ($managedCopyVersion != $entityVersion) {
-                    throw OptimisticLockException::lockFailedVersionMismatch($entity, $entityVersion, $managedCopyVersion);
+                } else {
+                    $this->ensureVersionMatch($class, $entity, $managedCopy);
+                    $this->mergeEntityStateIntoManagedCopy($entity, $managedCopy);
                 }
             }
 
             $visited[$oid] = $managedCopy; // mark visited
-
-            if ($this->isLoaded($entity)) {
-                if ($managedCopy instanceof Proxy && ! $managedCopy->__isInitialized()) {
-                    $managedCopy->__load();
-                }
-
-                $this->mergeEntityStateIntoManagedCopy($entity, $managedCopy);
-            }
 
             if ($class->isChangeTrackingDeferredExplicit()) {
                 $this->scheduleForDirtyCheck($entity);
@@ -1906,6 +1888,33 @@ class UnitOfWork implements PropertyChangedListener
         $this->cascadeMerge($entity, $managedCopy, $visited);
 
         return $managedCopy;
+    }
+
+    /**
+     * @param ClassMetadata $class
+     * @param object        $entity
+     * @param object        $managedCopy
+     *
+     * @return void
+     *
+     * @throws OptimisticLockException
+     */
+    private function ensureVersionMatch(ClassMetadata $class, $entity, $managedCopy)
+    {
+        if (! ($class->isVersioned && $this->isLoaded($managedCopy) && $this->isLoaded($entity))) {
+            return;
+        }
+
+        $reflField          = $class->reflFields[$class->versionField];
+        $managedCopyVersion = $reflField->getValue($managedCopy);
+        $entityVersion      = $reflField->getValue($entity);
+
+        // Throw exception if versions don't match.
+        if ($managedCopyVersion == $entityVersion) {
+            return;
+        }
+
+        throw OptimisticLockException::lockFailedVersionMismatch($entity, $entityVersion, $managedCopyVersion);
     }
 
     /**
@@ -3360,6 +3369,14 @@ class UnitOfWork implements PropertyChangedListener
      */
     private function mergeEntityStateIntoManagedCopy($entity, $managedCopy)
     {
+        if (! $this->isLoaded($entity)) {
+            return;
+        }
+
+        if (! $this->isLoaded($managedCopy)) {
+            $managedCopy->__load();
+        }
+
         $class = $this->em->getClassMetadata(get_class($entity));
 
         foreach ($this->reflectionPropertiesGetter->getProperties($class->name) as $prop) {

@@ -923,9 +923,9 @@ abstract class AbstractAdapter implements TranslatorAwareInterface
     }
 
     /**
-     * Retrieve additional internal file informations for files
+     * Retrieve additional internal file information for files
      *
-     * @param  string $file (Optional) File to get informations for
+     * @param  string $file (Optional) File to get information for
      * @return array
      */
     public function getFileInfo($file = null)

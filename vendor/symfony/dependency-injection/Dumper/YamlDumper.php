@@ -32,8 +32,6 @@ class YamlDumper extends Dumper
     /**
      * Dumps the service container as an YAML string.
      *
-     * @param array $options An array of options
-     *
      * @return string A YAML string representing of the service container
      */
     public function dump(array $options = array())
@@ -57,7 +55,7 @@ class YamlDumper extends Dumper
      *
      * @return string
      */
-    private function addService($id, $definition)
+    private function addService($id, Definition $definition)
     {
         $code = "    $id:\n";
         if ($class = $definition->getClass()) {
@@ -118,6 +116,10 @@ class YamlDumper extends Dumper
 
         if ($definition->getFactoryClass(false)) {
             $code .= sprintf("        factory_class: %s\n", $this->dumper->dump($definition->getFactoryClass(false)));
+        }
+
+        if ($definition->isAbstract()) {
+            $code .= "        abstract: true\n";
         }
 
         if ($definition->isLazy()) {
@@ -182,7 +184,7 @@ class YamlDumper extends Dumper
      *
      * @return string
      */
-    private function addServiceAlias($alias, $id)
+    private function addServiceAlias($alias, Alias $id)
     {
         if ($id->isPublic()) {
             return sprintf("    %s: '@%s'\n", $alias, $id);
@@ -345,8 +347,6 @@ class YamlDumper extends Dumper
 
     /**
      * Escapes arguments.
-     *
-     * @param array $arguments
      *
      * @return array
      */

@@ -12,15 +12,10 @@
 namespace Symfony\Component\HttpFoundation\Session\Storage\Handler;
 
 /**
- * MemcacheSessionHandler.
- *
  * @author Drak <drak@zikula.org>
  */
 class MemcacheSessionHandler implements \SessionHandlerInterface
 {
-    /**
-     * @var \Memcache Memcache driver
-     */
     private $memcache;
 
     /**
@@ -95,7 +90,9 @@ class MemcacheSessionHandler implements \SessionHandlerInterface
      */
     public function destroy($sessionId)
     {
-        return $this->memcache->delete($this->prefix.$sessionId);
+        $this->memcache->delete($this->prefix.$sessionId);
+
+        return true;
     }
 
     /**

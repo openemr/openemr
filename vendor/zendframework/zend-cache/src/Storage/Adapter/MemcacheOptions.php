@@ -241,7 +241,7 @@ class MemcacheOptions extends AdapterOptions
     /**
      * Get compress min savings
      *
-     * @return Exception\RuntimeException
+     * @throws Exception\RuntimeException
      */
     public function getAutoCompressMinSavings()
     {

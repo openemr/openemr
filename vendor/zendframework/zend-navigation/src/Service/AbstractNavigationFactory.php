@@ -53,10 +53,9 @@ abstract class AbstractNavigationFactory implements FactoryInterface
      * @param null|string $requestedName
      * @return Navigation
      */
-    public function createService(ServiceLocatorInterface $container, $name = null, $requestedName = null)
+    public function createService(ServiceLocatorInterface $container)
     {
-        $requestedName = $requestedName ?: Navigation::class;
-        return $this($container, $requestedName);
+        return $this($container, Navigation::class);
     }
 
     /**

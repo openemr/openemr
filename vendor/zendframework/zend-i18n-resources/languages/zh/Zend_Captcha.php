@@ -10,7 +10,7 @@
 /**
  * ZH-Revision: 09.Nov.2012
  */
-return array(
+return [
     // Zend_Captcha_ReCaptcha
     "Missing captcha fields" => "没有找到验证码区域",
     "Failed to validate captcha" => "验证码校验失败",
@@ -20,4 +20,4 @@ return array(
     "Empty captcha value" => "请输入验证码",
     "Captcha ID field is missing" => "没有找到验证码区域",
     "Captcha value is wrong" => "验证码不匹配",
-);
+];

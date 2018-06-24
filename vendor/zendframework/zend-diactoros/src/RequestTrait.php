@@ -11,6 +11,15 @@ use InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 
+use function array_keys;
+use function get_class;
+use function gettype;
+use function is_object;
+use function is_string;
+use function preg_match;
+use function sprintf;
+use function strtolower;
+
 /**
  * Trait with common request behaviors.
  *

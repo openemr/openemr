@@ -10,7 +10,7 @@
 /**
  * EN-Revision: 16.Jun.2015
  */
-return array(
+return [
     // Zend\Authentication\Validator\Authentication
     "Invalid identity" => "Invalid identity",
     "Identity is ambiguous" => "Identity is ambiguous",
@@ -305,4 +305,4 @@ return array(
     // Zend\Validator\Uri
     "Invalid type given. String expected" => "Invalid type given. String expected",
     "The input does not appear to be a valid Uri" => "The input does not appear to be a valid Uri",
-);
+];

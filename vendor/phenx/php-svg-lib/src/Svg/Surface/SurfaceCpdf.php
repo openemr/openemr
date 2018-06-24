@@ -2,8 +2,8 @@
 /**
  * @package php-svg-lib
  * @link    http://github.com/PhenX/php-svg-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
+ * @author  Fabien Mï¿½nager <fabien.menager@gmail.com>
+ * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
  */
 
 namespace Svg\Surface;
@@ -15,7 +15,7 @@ class SurfaceCpdf implements SurfaceInterface
 {
     const DEBUG = false;
 
-    /** @var Cpdf */
+    /** @var \CPdf\CPdf */
     private $canvas;
 
     private $width;
@@ -33,7 +33,9 @@ class SurfaceCpdf implements SurfaceInterface
         $h = $dimensions["height"];
 
         if (!$canvas) {
-            $canvas = new CPdf(array(0, 0, $w, $h));
+            $canvas = new \CPdf\CPdf(array(0, 0, $w, $h));
+            $refl = new \ReflectionClass($canvas);
+            $canvas->fontcache = realpath(dirname($refl->getFileName()) . "/../../fonts/")."/";
         }
 
         // Flip PDF coordinate system so that the origin is in
@@ -141,7 +143,7 @@ class SurfaceCpdf implements SurfaceInterface
     public function strokeText($text, $x, $y, $maxWidth = null)
     {
         if (self::DEBUG) echo __FUNCTION__ . "\n";
-        // TODO: Implement drawImage() method.
+        $this->canvas->addText($x, $y, $this->style->fontSize, $text);
     }
 
     public function drawImage($image, $sx, $sy, $sw = null, $sh = null, $dx = null, $dy = null, $dw = null, $dh = null)
@@ -149,9 +151,22 @@ class SurfaceCpdf implements SurfaceInterface
         if (self::DEBUG) echo __FUNCTION__ . "\n";
 
         if (strpos($image, "data:") === 0) {
-            $data = substr($image, strpos($image, ";") + 1);
-            if (strpos($data, "base64") === 0) {
-                $data = base64_decode(substr($data, 7));
+            $parts = explode(',', $image, 2);
+
+            $data = $parts[1];
+            $base64 = false;
+
+            $token = strtok($parts[0], ';');
+            while ($token !== false) {
+                if ($token == 'base64') {
+                    $base64 = true;
+                }
+
+                $token = strtok(';');
+            }
+
+            if ($base64) {
+                $data = base64_decode($data);
             }
         }
         else {
@@ -281,6 +296,9 @@ class SurfaceCpdf implements SurfaceInterface
             return;
         }
 
+        $rx = min($rx, $w / 2);
+        $rx = min($rx, $h / 2);
+
         /* Define a path for a rectangle with corners rounded by a given radius.
          * Start from the lower left corner and proceed counterclockwise.
          */
@@ -340,7 +358,7 @@ class SurfaceCpdf implements SurfaceInterface
     {
         if (self::DEBUG) echo __FUNCTION__ . "\n";
         $style = $this->getStyle();
-        $this->getFont($style->fontFamily, $style->fontStyle);
+        $this->setFont($style->fontFamily, $style->fontStyle, $style->fontWeight);
 
         return $this->canvas->getTextWidth($this->getStyle()->fontSize, $text);
     }
@@ -358,12 +376,12 @@ class SurfaceCpdf implements SurfaceInterface
         $this->style = $style;
         $canvas = $this->canvas;
 
-        if ($stroke = $style->stroke) {
-            $canvas->setStrokeColor(array($stroke[0]/255, $stroke[1]/255, $stroke[2]/255), true);
+        if (is_array($style->stroke) && $stroke = $style->stroke) {
+            $canvas->setStrokeColor(array((float)$stroke[0]/255, (float)$stroke[1]/255, (float)$stroke[2]/255), true);
         }
 
-        if ($fill = $style->fill) {
-            $canvas->setColor(array($fill[0]/255, $fill[1]/255, $fill[2]/255), true);
+        if (is_array($style->fill) && $fill = $style->fill) {
+            $canvas->setColor(array((float)$fill[0]/255, (float)$fill[1]/255, (float)$fill[2]/255), true);
         }
 
         if ($fillRule = strtolower($style->fillRule)) {
@@ -392,17 +410,22 @@ class SurfaceCpdf implements SurfaceInterface
             }
         }
 
+        $dashArray = null;
+        if ($style->strokeDasharray) {
+            $dashArray = preg_split('/\s*,\s*/', $style->strokeDasharray);
+        }
+
         $canvas->setLineStyle(
             $style->strokeWidth,
             $style->strokeLinecap,
-            $style->strokeLinejoin
+            $style->strokeLinejoin,
+            $dashArray
         );
 
-        //$font = $this->getFont($style->fontFamily, $style->fontStyle);
-        //$canvas->setfont($font, $style->fontSize);
+        $this->setFont($style->fontFamily, $style->fontStyle, $style->fontWeight);
     }
 
-    private function getFont($family, $style)
+    public function setFont($family, $style, $weight)
     {
         $map = array(
             "serif"      => "Times",
@@ -415,11 +438,49 @@ class SurfaceCpdf implements SurfaceInterface
             "verdana"    => "Helvetica",
         );
 
+        $styleMap = array(
+            'Helvetica' => array(
+                'b'  => 'Helvetica-Bold',
+                'i'  => 'Helvetica-Oblique',
+                'bi' => 'Helvetica-BoldOblique',
+            ),
+            'Courier' => array(
+                'b'  => 'Courier-Bold',
+                'i'  => 'Courier-Oblique',
+                'bi' => 'Courier-BoldOblique',
+            ),
+            'Times' => array(
+                ''   => 'Times-Roman',
+                'b'  => 'Times-Bold',
+                'i'  => 'Times-Italic',
+                'bi' => 'Times-BoldItalic',
+            ),
+        );
+
         $family = strtolower($family);
+        $style  = strtolower($style);
+        $weight = strtolower($weight);
+
         if (isset($map[$family])) {
             $family = $map[$family];
         }
 
-        //return $this->canvas->load_font($family, "unicode", "fontstyle=$style");
+        if (isset($styleMap[$family])) {
+            $key = "";
+
+            if ($weight === "bold" || $weight === "bolder" || (is_numeric($weight) && $weight >= 600)) {
+                $key .= "b";
+            }
+
+            if ($style === "italic" || $style === "oblique") {
+                $key .= "i";
+            }
+
+            if (isset($styleMap[$family][$key])) {
+                $family = $styleMap[$family][$key];
+            }
+        }
+
+        $this->canvas->selectFont("$family.afm");
     }
 }

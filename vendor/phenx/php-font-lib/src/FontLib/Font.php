@@ -8,6 +8,8 @@
 
 namespace FontLib;
 
+use FontLib\Exception\FontNotFoundException;
+
 /**
  * Generic font file.
  *
@@ -22,6 +24,10 @@ class Font {
    * @return TrueType\File|null $file
    */
   public static function load($file) {
+      if(!file_exists($file)){
+          throw new FontNotFoundException($file);
+      }
+
     $header = file_get_contents($file, false, null, null, 4);
     $class  = null;
 

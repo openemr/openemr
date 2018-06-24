@@ -18,6 +18,9 @@ use Zend\Diactoros\Request;
 use Zend\Diactoros\Stream;
 use Zend\Diactoros\Uri;
 
+use function preg_match;
+use function sprintf;
+
 /**
  * Serialize (cast to string) or deserialize (cast string to Request) messages.
  *

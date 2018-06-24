@@ -8,39 +8,53 @@
 
 namespace Svg\Tests;
 
-include_once __DIR__."/../../src/autoload.php";
+include_once __DIR__ . "/../../src/autoload.php";
 
 use Svg\Style;
 
-class StyleTest extends \PHPUnit_Framework_TestCase {
-  public function test_parseColor() {
-    $this->assertEquals("none",               Style::parseColor("none"));
-    $this->assertEquals(array(255,   0,   0), Style::parseColor("RED"));
-    $this->assertEquals(array(0,     0, 255), Style::parseColor("blue"));
-    $this->assertEquals(null,                 Style::parseColor("foo"));
-  }
+class StyleTest extends \PHPUnit\Framework\TestCase
+{
 
-  public function test_fromAttributes() {
-    $style = new Style();
+    public function test_parseColor()
+    {
+        $this->assertEquals("none", Style::parseColor("none"));
+        $this->assertEquals(array(255, 0, 0), Style::parseColor("RED"));
+        $this->assertEquals(array(0, 0, 255), Style::parseColor("blue"));
+        $this->assertEquals(null, Style::parseColor("foo"));
+        $this->assertEquals(array(0, 0, 0), Style::parseColor("black"));
+        $this->assertEquals(array(255, 255, 255), Style::parseColor("white"));
+        $this->assertEquals(array(0, 0, 0), Style::parseColor("#000000"));
+        $this->assertEquals(array(255, 255, 255), Style::parseColor("#ffffff"));
+        $this->assertEquals(array(0, 0, 0), Style::parseColor("rgb(0,0,0)"));
+        $this->assertEquals(array(255, 255, 255), Style::parseColor("rgb(255,255,255)"));
+        $this->assertEquals(array(0, 0, 0), Style::parseColor("rgb(0, 0, 0)"));
+        $this->assertEquals(array(255, 255, 255), Style::parseColor("rgb(255, 255, 255)"));
+    }
 
-    $attributes = array(
-      "color"  => "blue",
-      "fill"   => "#fff",
-      "stroke" => "none",
-    );
+    public function test_fromAttributes()
+    {
+        $style = new Style();
 
-    $style->fromAttributes($attributes);
+        $attributes = array(
+            "color" => "blue",
+            "fill" => "#fff",
+            "stroke" => "none",
+        );
 
-    $this->assertEquals(array(0,     0, 255), $style->color);
-    $this->assertEquals(array(255, 255, 255), $style->fill);
-    $this->assertEquals("none",               $style->stroke);
-  }
+        $style->fromAttributes($attributes);
 
-    public function test_convertSize(){
-        $this->assertEquals(1,  Style::convertSize(1));
+        $this->assertEquals(array(0, 0, 255), $style->color);
+        $this->assertEquals(array(255, 255, 255), $style->fill);
+        $this->assertEquals("none", $style->stroke);
+    }
+
+    public function test_convertSize()
+    {
+        $this->assertEquals(1, Style::convertSize(1));
         $this->assertEquals(10, Style::convertSize("10px")); // FIXME
         $this->assertEquals(10, Style::convertSize("10pt"));
-        $this->assertEquals(8,  Style::convertSize("80%", 72, 10));
+        $this->assertEquals(8, Style::convertSize("80%", 10, 72));
     }
+
 }
  

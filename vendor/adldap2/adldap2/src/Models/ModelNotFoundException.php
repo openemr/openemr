@@ -4,6 +4,13 @@ namespace Adldap\Models;
 
 use Adldap\AdldapException;
 
+/**
+ * Class ModelNotFoundException
+ *
+ * Thrown when an LDAP record is not found.
+ *
+ * @package Adldap\Models
+ */
 class ModelNotFoundException extends AdldapException
 {
     /**

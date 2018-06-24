@@ -21,6 +21,8 @@ class StandaloneExtensionManager implements ExtensionManagerInterface
         'CreativeCommons\Feed'  => Extension\CreativeCommons\Feed::class,
         'DublinCore\Entry'      => Extension\DublinCore\Entry::class,
         'DublinCore\Feed'       => Extension\DublinCore\Feed::class,
+        'GooglePlayPodcast\Entry' => Extension\GooglePlayPodcast\Entry::class,
+        'GooglePlayPodcast\Feed'  => Extension\GooglePlayPodcast\Feed::class,
         'Podcast\Entry'         => Extension\Podcast\Entry::class,
         'Podcast\Feed'          => Extension\Podcast\Feed::class,
         'Slash\Entry'           => Extension\Slash\Entry::class,

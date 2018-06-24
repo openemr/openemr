@@ -10,7 +10,7 @@
 /**
  * CS-Revision: 4.Nov.2013
  */
-return array(
+return [
     // Zend\Captcha\ReCaptcha
     "Missing captcha fields" => "Chybí pole captcha",
     "Failed to validate captcha" => "Captchu se nepodařilo ověřit",
@@ -20,4 +20,4 @@ return array(
     "Empty captcha value" => "Hodnota captcha nebyla zadána",
     "Captcha ID field is missing" => "Chybí pole captcha ID",
     "Captcha value is wrong" => "Hodnota captchy není správná",
-);
+];
