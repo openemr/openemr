@@ -38,7 +38,7 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false)
     while ($frow = sqlFetchArray($fres)) {
         $field_id  = $frow['field_id'];
         $currvalue = '';
-        if (strpos($frow['edit_options'], 'H') !== false) {
+        if (isOption($frow['edit_options'], 'H') !== false) {
             if (isset($shrow[$field_id])) {
                 $currvalue = $shrow[$field_id];
             }
