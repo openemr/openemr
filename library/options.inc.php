@@ -39,7 +39,7 @@
 require_once("user.inc");
 require_once("patient.inc");
 require_once("lists.inc");
-require_once(dirname(dirname(__FILE__)) . "/custom/code_types.inc.php");
+require_once(dirname(__FILE__, 2) . "/custom/code_types.inc.php");
 
 use OpenEMR\Services\FacilityService;
 
@@ -2033,6 +2033,11 @@ function generate_display_field($frow, $currvalue)
               $lrow = sqlQuery("SELECT title FROM list_options " .
               "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$currvalue));
               $s = htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);
+        }
+        // If match is not found in main and backup lists, return the key with exclamation mark
+        if ($s == '') {
+            $s = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES)).
+            '<sup><i class="fa fas fa-exclamation-circle ml-1"></i></sup>';
         }
     } // simple text field
     else if ($data_type == 2) {
