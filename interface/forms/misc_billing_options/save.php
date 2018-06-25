@@ -5,8 +5,10 @@
  * @package OpenEMR
  * @author Terry Hill <terry@lilysystems.com>
  * @author Brady Miller <brady.g.miller@gmail.com>
+ * @author Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (C) 2007 Bo Huynh
  * @copyright Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
+ * @copyright Copyright (C) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @link http://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General P
  */
@@ -14,7 +16,12 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 
-if (! $encounter) { // comes from globals.php
+// From billing manager so do stuff
+if (isset($_SESSION['billencounter'])) {
+    $pid = $_SESSION['billpid'];
+    $encounter = $_SESSION['billencounter'];
+}
+if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
 }
 
@@ -32,9 +39,9 @@ if ($_POST["hospitalization_date_from"] == "0000-00-00" || $_POST["hospitalizati
     $_POST["is_hospitalized"] = "1";
 }
 
-        $id = formData('id', 'G') + 0;
+$id = formData('id', 'G') + 0;
 
-        $sets = "pid = {$_SESSION["pid"]},
+$sets = "pid = {$pid},
   groupname = '" . $_SESSION["authProvider"] . "',
   user = '" . $_SESSION["authUser"] . "',
   authorized = $userauthorized, activity=1, date = NOW(),
@@ -45,7 +52,7 @@ if ($_POST["hospitalization_date_from"] == "0000-00-00" || $_POST["hospitalizati
   outside_lab                 = '" . formData("outside_lab") . "',
   medicaid_referral_code      = '" . formData("medicaid_referral_code") . "',
   epsdt_flag                  = '" . formData("epsdt_flag") . "',
-  provider_id                 = '" . formData("provider_id")  . "',
+  provider_id                 = '" . formData("provider_id") . "',
   provider_qualifier_code     = '" . formData("provider_qualifier_code") . "',
   lab_amount                  = '" . formData("lab_amount") . "',
   is_unable_to_work           = '" . formData("is_unable_to_work") . "',
@@ -72,6 +79,12 @@ if (empty($id)) {
     sqlStatement("UPDATE form_misc_billing_options SET $sets WHERE id = $id");
 }
 
-        formHeader("Redirecting....");
-        formJump();
-        formFooter();
+if (isset($_SESSION['billencounter'])) {
+    unset($_SESSION['billpid']);
+    unset($_SESSION['billencounter']);
+    echo "<script>parent.dlgclose('SubmitTheScreen')</script>";
+} else {
+    formHeader("Redirecting....");
+    formJump();
+    formFooter();
+}

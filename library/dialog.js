@@ -176,19 +176,37 @@ function inDom(dependency, type, remove) {
 
 // Test if supporting dialog callbacks and close dependencies are in scope.
 // This is useful when opening and closing the dialog is in the same scope. Still use include_opener.js
-// in script that will close a dialog that is not in the same scope dlgopen was used.
+// in script that will close a dialog that is not in the same scope dlgopen was used
+// or use parent.dlgclose() if known decendent.
+// dlgopen() will always have a name whether assigned by dev or created by function.
 // Callback, onClosed and button clicks are still available either way.
 // For a callback on close use: dlgclose(functionName, farg1, farg2 ...) which becomes: functionName(farg1,farg2, etc)
 //
 if (typeof dlgclose !== "function") {
     if (!opener) {
-        opener = window.name;
+        if (!top.tab_mode) {
+            opener = top.get_opener(window.name) ? top.get_opener(window.name) : window;
+        } else {
+            opener = window;
+        }
     }
 
     var dlgclose =
         function (call, args) {
             var frameName = window.name;
             var wframe = opener;
+            if (frameName === '') {
+                // try to find dialog. dialogModal is embedded dialog class
+                // It has to be here somewhere.
+                frameName = $(".dialogModal").attr('id');
+                if (!frameName) {
+                    frameName = parent.$(".dialogModal").attr('id');
+                    if (!frameName) {
+                        console.log("Unable to find dialog.");
+                        return false;
+                    }
+                }
+            }
             if (!top.tab_mode) {
                 for (; wframe.name !== 'RTop' && wframe.name !== 'RBot'; wframe = wframe.parent) {
                     if (wframe.parent === wframe) {
@@ -202,6 +220,12 @@ if (typeof dlgclose !== "function") {
                     }
                 }
                 dialogModal = wframe.$('div#' + frameName);
+                if (dialogModal.length === 0) {
+                    // Never give up...
+                    frameName = $(".dialogModal").attr('id');
+                    dialogModal = wframe.$('div#' + frameName);
+                    console.log("Frame: used local find dialog");
+                }
             } else {
                 var dialogModal = top.$('div#' + frameName);
                 wframe = top;
@@ -229,7 +253,7 @@ if (typeof dlgclose !== "function") {
 * @param {url} string Content location.
 * @param {String} winname If set becomes modal id and/or iframes name. Or, one is created/assigned(iframes).
 * @param {Number| String} width|modalSize(modal-xlg) For sizing: an number will be converted to a percentage of view port width.
-* @param {Number} height Initial height. For iframe auto resize starts here.
+* @param {Number} height Initial minimum height. For iframe auto resize starts at this height.
 * @param {boolean} forceNewWindow Force using a native window.
 * @param {String} title If exist then header with title is created otherwise no header and content only.
 * @param {Object} opts Dialogs options.
