@@ -356,15 +356,15 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     }
 
     if (mSize === 'modal-sm') {
-        msSize = '<style>.modal-sm {width:25%;}</style>';
+        msSize = '<style>.modal-sm {width:25%; max-width:540px;}</style>';
     } else if (mSize === 'modal-md') {
-        msSize = '<style>.modal-md {width:40%;}</style>';
+        msSize = '<style>.modal-md {width:40%; max-width:720px;}</style>';
     } else if (mSize === 'modal-mlg') {
-        msSize = '<style>.modal-mlg {width:55%;}</style>';
+        msSize = '<style>.modal-mlg {width:55%; max-width:720px;}</style>';
     } else if (mSize === 'modal-lg') {
-        msSize = '<style>.modal-lg {width:75%;}</style>';
+        msSize = '<style>.modal-lg {width:75%; max-width:960px;}</style>';
     } else if (mSize === 'modal-xl') {
-        msSize = '<style>.modal-xl {width:96%;}</style>';
+        msSize = '<style>.modal-xl {width:96%; max-width:1140px;}</style>';
     }
 
     // Initial responsive height.
