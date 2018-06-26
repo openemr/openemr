@@ -371,25 +371,26 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     if (Math.abs(width) > 0) {
         width = Math.abs(width);
         mWidth = (width / where.innerWidth * 100).toFixed(4) + '%';
-        msSize = '<style>.modal-custom' + winname + ' {width:' + mWidth + ';}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {width:' + mWidth + ';}</style>';
         mSize = 'modal-custom' + winname;
     } else if (jQuery.inArray(width, sizeChoices) !== -1) {
         mSize = width; // is a modal class
     } else {
-        msSize = 'default'; // standard B.S. modal default (modal-md)
+        msSize = '<style>.modal-custom-' + winname + ' {width:35%;}</style>'; // standard B.S. modal default (modal-md)
     }
-
+    // leave below for legacy
     if (mSize === 'modal-sm') {
-        msSize = '<style>.modal-sm {width:25%;}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {width:25%;}</style>';
     } else if (mSize === 'modal-md') {
-        msSize = '<style>.modal-md {width:40%;}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {width:40%;}</style>';
     } else if (mSize === 'modal-mlg') {
-        msSize = '<style>.modal-mlg {width:55%;}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {width:55%;}</style>';
     } else if (mSize === 'modal-lg') {
-        msSize = '<style>.modal-lg {width:75%;}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {width:75%;}</style>';
     } else if (mSize === 'modal-xl') {
-        msSize = '<style>.modal-xl {width:96%;}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {width:96%;}</style>';
     }
+    mSize = 'modal-custom-' + winname;
 
     // Initial responsive height.
     var vpht = where.innerHeight;
@@ -433,7 +434,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             '<div class="modal-body %embedded%" %bodyStyles%>' +
             '%body%' + '</div></div></div></div>')
             .replace('%id%', winname)
-            .replace('%sStyle%', msSize !== "default" ? msSize : '')
+            .replace('%sStyle%', msSize ? msSize : '')
             .replace('%dialogId%', opts.dialogId ? ('id=' + opts.dialogId + '"') : '')
             .replace('%szClass%', mSize ? mSize : '')
             .replace('%head%', mTitle !== '' ? headerhtml : '')
