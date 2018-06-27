@@ -98,8 +98,13 @@ function show_graph(table_graph, name_graph, title_graph)
         },
         error: function() {
             // hide the chart div
-          $('#chart').hide();  
-          alert(title_graph + " " + "<?php echo xlt('has no data to graph');?>" + ".\n" +"<?php echo xlt('Please select an item that has data');?>" + ".");
+          $('#chart').hide();
+          if(!title_graph){
+              alert("<?php echo xlt('This item does not have enough data to graph');?>" + ".\n" +"<?php echo xlt('Please select an item that has more data');?>" + ".");
+          }
+          else {
+              alert(title_graph + " " + "<?php echo xlt('does not have enough data to graph');?>" + ".\n" + "<?php echo xlt('Please select an item that has more data');?>" + ".");
+          }
           
         }
     });
