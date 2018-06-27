@@ -100,9 +100,11 @@ function show_graph(table_graph, name_graph, title_graph)
             // hide the chart div
           $('#chart').hide();
           if(!title_graph){
-              title_graph = 'This item';
+              alert("<?php echo xlt('This item does not have enough data to graph');?>" + ".\n" +"<?php echo xlt('Please select an item that has more data');?>" + ".");
           }
-          alert(title_graph + " " + "<?php echo xlt('does not have enough data to graph');?>" + ".\n" +"<?php echo xlt('Please select an item that has more data');?>" + ".");
+          else {
+              alert(title_graph + " " + "<?php echo xlt('does not have enough data to graph');?>" + ".\n" + "<?php echo xlt('Please select an item that has more data');?>" + ".");
+          }
           
         }
     });
