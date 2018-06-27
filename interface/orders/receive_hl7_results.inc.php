@@ -729,8 +729,6 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             }
         } else if ('ORC' == $a[0] && 'ORU' == $msgtype) {
             // ORC segment, http://hl7-definition.caristix.com:9010/Default.aspx?version=HL7%20v2.5.1&segment=ORC
-            // if received set a flag to later create a "new" order for each OBR
-            $orc = true;
             $context = $a[0];
             $arep = array();
             $porow = false;
@@ -745,6 +743,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
         } else if ($a[0] == 'NTE' && ($context == 'ORC' || $context == 'TXA')) {
             // Is this ever used?
         } else if ('OBR' == $a[0] && 'ORU' == $msgtype) {
+            // https://corepointhealth.com/resource-center/hl7-resources/hl7-obr-segment
             $context = $a[0];
             $arep = array();
             if ($direction != 'R' && $a[2]) {
@@ -756,9 +755,11 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $tmp = explode($d2, $a[4]);
             $in_procedure_code = $tmp[0];
             $in_procedure_name = $tmp[1];
-            //add specimen source onto name for dermatology
+            //add specimen source to report
             if (!empty($a[15])) {
-                $in_procedure_name = $in_procedure_name . " - " . $a[15];
+                $specimen_source = $a[15];
+            } else {
+                $specimen_source = '';
             }
             $in_report_status = rhl7ReportStatus($a[25]);
 
@@ -823,16 +824,13 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     $in_orderid = intval($porow['procedure_order_id']);
                 }
 
-                if (!$in_orderid || $orc) {
-                    // Create order.  Also create a "new" order for each OBR using $orc flag
-                    // since the external order id (filler #) maybe reused due to the inclusion of an ORC segment.
-                    // https://corepointhealth.com/resource-center/hl7-resources/hl7-obr-segment
+                if (!$in_orderid) {
+                    // Create order.
                     // Need to identify the ordering provider and, if possible, a recent encounter.
                     $datetime_report = rhl7DateTime($a[22]);
                     $date_report = substr($datetime_report, 0, 10) . ' 00:00:00';
                     $encounter_id = 0;
                     $provider_id = 0;
-                    $specimen_location = $a[15];
                     // Look for the most recent encounter within 30 days of the report date.
                     $encrow = sqlQuery(
                         "SELECT encounter FROM form_encounter WHERE " .
@@ -864,13 +862,12 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                                   "date_transmitted = ?, " .
                                   "patient_id     = ?, " .
                                   "encounter_id   = ?, " .
-                                  "control_id     = ?, " .
-                                  "specimen_location = ?",
+                                  "control_id     = ? " ,
                                   array($datetime_report, $provider_id, $lab_id, rhl7DateTime($a[22]),
                                   rhl7DateTime($a[7]),
                                   $patient_id,
                                   $encounter_id,
-                                  $external_order_id, $specimen_location)
+                                  $external_order_id)
                               );
                               // If an encounter was identified then link the order to it.
                         if ($encounter_id && $in_orderid) {
@@ -965,6 +962,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $arep['date_report_tz'] = rhl7DateTimeZone($a[22]);
             $arep['report_status'] = $in_report_status;
             $arep['report_notes'] = '';
+            $arep['source'] = $specimen_source;
             $arep['specimen_num'] = '';
 
             // If this is a child report, add some info from the parent.
