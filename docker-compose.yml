@@ -6,38 +6,36 @@
 # Brief instructions on how to use (for fuller instructions and examples,
 #  see the document at contrib/util/docker/README.md):
 #   1. docker-compose up -d
-#   2. http://localhost:8080 to run setup in openemr (alpine 3.7 with Apache and PHP 7.1)
-#      or
-#      https://localhost:8090 to run setup in openemr with SSL (alpine 3.7 with Apache and PHP 7.1)
-#      or
-#      http://localhost:8081 to run setup in openemr (alpine edge with Apache and PHP 7.2)
-#      or
-#      https://localhost:8091 to run setup in openemr with SSL (alpine edge with Apache and PHP 7.2)
-#      or
-#      http://localhost:8085 to run setup in openemr (Nginx with php-fpm PHP 7.1)
-#      or
-#      https://localhost:8095 to run setup in openemr with SSL (Nginx with php-fpm PHP 7.1)
-#      or
-#      http://localhost:8086 to run setup in openemr (Nginx with php-fpm PHP 7.2)
-#      or
-#      https://localhost:8096 to run setup in openemr with SSL (Nginx with php-fpm PHP 7.2)
-#      or
-#      http://localhost:8087 to run setup in openemr (Nginx with php-fpm PHP 7.1 with redis)
-#      or
-#      https://localhost:8097 to run setup in openemr with SSL (Nginx with php-fpm PHP 7.1 with redis)
-#      or
-#      http://localhost:8088 to run setup in openemr (Nginx with php-fpm PHP 7.2 with redis)
-#      or
-#      https://localhost:8098 to run setup in openemr with SSL (Nginx with php-fpm PHP 7.2 with redis)
-
-#  On the main setup input screen:
-#   1. for Server Host, use either 'mariadb' or 'mysql' or `mariadb-dev` or 'mysql-dev' or 'mysql-old' or 'mysql-very-old' or 'mariadb-old' or 'mariadb-very-old' or 'mariadb-very-very-old'  (have both mariadb/mysql/mariadb-dev/mysql-dev dockers ready to go make testing either one easy; mysql is version 5.7; mysql-dev is version 8; mysql-old is version 5.6; mysql-very-old is version 5.5; mariadb is version 10.2 and mariadb-dev is version 10.3; mariadb-old is version 10.1; mariadb-very-old is version 10.0; mariadb-very-very-old is version 5.5)
-#   2. for Root Pass, use 'root'
-#   3. for User Hostname, use '%'
-#  And when need to tear it down and restart it
-#   1. docker-compose down -v
-#   2. docker-compose up -d
-#  Can see databases via http://localhost:8100
+#   2. Choose one of any of the following links:
+#        http://localhost:8080 (with Apache and PHP 7.1)
+#        http://localhost:8081 (with Apache and PHP 7.2)
+#        http://localhost:8090 (with Nginx and PHP-FPM 5.6)
+#        http://localhost:8091 (with Nginx and PHP-FPM 7.0)
+#        http://localhost:8092 (with Nginx and PHP-FPM 7.1)
+#        http://localhost:8093 (with Nginx and PHP-FPM 7.2)
+#        http://localhost:8094 (with Nginx and PHP-FPM 5.6 with redis)
+#        http://localhost:8095 (with Nginx and PHP-FPM 7.0 with redis)
+#        http://localhost:8096 (with Nginx and PHP-FPM 7.1 with redis)
+#        http://localhost:8097 (with Nginx and PHP-FPM 7.2 with redis)
+#        https://localhost:9080 with SSL (with Apache and PHP 7.1)
+#        https://localhost:9081 with SSL (with Apache and PHP 7.2)
+#        https://localhost:9090 with SSL (with Nginx and PHP-FPM 5.6)
+#        https://localhost:9091 with SSL (with Nginx and PHP-FPM 7.0)
+#        https://localhost:9092 with SSL (with Nginx and PHP-FPM 7.1)
+#        https://localhost:9093 with SSL (with Nginx and PHP-FPM 7.2)
+#        https://localhost:9094 with SSL (with Nginx and PHP-FPM 5.6 with redis)
+#        https://localhost:9095 with SSL (with Nginx and PHP-FPM 7.0 with redis)
+#        https://localhost:9096 with SSL (with Nginx and PHP-FPM 7.1 with redis)
+#        https://localhost:9097 with SSL (with Nginx and PHP-FPM 7.2 with redis)
+#
+#    On the main setup input screen:
+#     1. for Server Host, use either 'mariadb' or 'mysql' or `mariadb-dev` or 'mysql-dev' or 'mysql-old' or 'mysql-very-old' or 'mariadb-old' or 'mariadb-very-old' or 'mariadb-very-very-old'  (have both mariadb/mysql/mariadb-dev/mysql-dev dockers ready to go make testing either one easy; mysql is version 5.7; mysql-dev is version 8; mysql-old is version 5.6; mysql-very-old is version 5.5; mariadb is version 10.2 and mariadb-dev is version 10.3; mariadb-old is version 10.1; mariadb-very-old is version 10.0; mariadb-very-very-old is version 5.5)
+#     2. for Root Pass, use 'root'
+#     3. for User Hostname, use '%'
+#    And when need to tear it down and restart it
+#     1. docker-compose down -v
+#     2. docker-compose up -d
+#    Can see databases via http://localhost:8200
 #
 version: '3.1'
 services:
@@ -46,7 +44,7 @@ services:
     image: openemr/openemr:flex
     ports:
     - 8080:80
-    - 8090:443
+    - 9080:443
     volumes:
     - .:/var/www/localhost/htdocs/openemr
     environment:
@@ -56,7 +54,7 @@ services:
     image: openemr/openemr:flex-edge
     ports:
     - 8081:80
-    - 8091:443
+    - 9081:443
     volumes:
     - .:/var/www/localhost/htdocs/openemr
     environment:
@@ -119,7 +117,7 @@ services:
     restart: always
     image: phpmyadmin/phpmyadmin
     ports:
-    - 8100:80
+    - 8200:80
     environment:
       PMA_HOSTS: mariadb,mysql,mariadb-dev,mysql-dev,mysql-old,mysql-very-old,mariadb-old,mariadb-very-old,mariadb-very-very-old
   couchdb:
@@ -141,24 +139,48 @@ services:
     restart: always
     image: openemr/dev-nginx
     ports:
-    - 8085:80
-    - 8095:443
-    - 8086:81
-    - 8096:444
-    - 8087:82
-    - 8097:445
-    - 8088:83
-    - 8098:446
+    - 8090:80
+    - 9090:443
+    - 8091:81
+    - 9091:444
+    - 8092:82
+    - 9092:445
+    - 8093:83
+    - 9093:446
+    - 8094:84
+    - 9094:447
+    - 8095:85
+    - 9095:448
+    - 8096:86
+    - 9096:449
+    - 8097:87
+    - 9097:450
     volumes:
     - .:/usr/share/nginx/html/openemr
     - ./contrib/util/docker/dockers/dev-nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     - ./contrib/util/docker/dockers/dev-nginx/dummy-cert:/etc/nginx/dummy-cert:ro
     - ./contrib/util/docker/dockers/dev-nginx/dummy-key:/etc/nginx/dummy-key:ro
     depends_on:
+    - dev-php-fpm-5-6
+    - dev-php-fpm-7-0
     - dev-php-fpm-7-1
     - dev-php-fpm-7-2
+    - dev-php-fpm-5-6-redis
+    - dev-php-fpm-7-0-redis
     - dev-php-fpm-7-1-redis
     - dev-php-fpm-7-2-redis
+  dev-php-fpm-5-6:
+    restart: always
+    image: openemr/dev-php-fpm:5.6
+    volumes:
+    - .:/usr/share/nginx/html/openemr
+    - ./contrib/util/docker/dockers/dev-php-fpm-5-6/php.ini:/usr/local/etc/php/php.ini:ro
+  dev-php-fpm-7-0:
+    restart: always
+    image: openemr/dev-php-fpm:7.0
+    volumes:
+    - .:/usr/share/nginx/html/openemr
+    - ./contrib/util/docker/dockers/dev-php-fpm-7-0/php.ini:/usr/local/etc/php/php.ini:ro
   dev-php-fpm-7-1:
     restart: always
     image: openemr/dev-php-fpm:7.1
@@ -171,6 +193,18 @@ services:
     volumes:
     - .:/usr/share/nginx/html/openemr
     - ./contrib/util/docker/dockers/dev-php-fpm-7-2/php.ini:/usr/local/etc/php/php.ini:ro
+  dev-php-fpm-5-6-redis:
+    restart: always
+    image: openemr/dev-php-fpm:5.6-redis
+    volumes:
+    - .:/usr/share/nginx/html/openemr
+    - ./contrib/util/docker/dockers/dev-php-fpm-5-6-redis/php.ini:/usr/local/etc/php/php.ini:ro
+  dev-php-fpm-7-0-redis:
+    restart: always
+    image: openemr/dev-php-fpm:7.0-redis
+    volumes:
+    - .:/usr/share/nginx/html/openemr
+    - ./contrib/util/docker/dockers/dev-php-fpm-7-0-redis/php.ini:/usr/local/etc/php/php.ini:ro
   dev-php-fpm-7-1-redis:
     restart: always
     image: openemr/dev-php-fpm:7.1-redis
