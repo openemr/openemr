@@ -19,7 +19,12 @@ require_once("$srcdir/payment_jav.inc.php");
 
 use OpenEMR\Core\Header;
 
-$search_options = array("Demographics"=>xl("Demographics"),"Problems"=>xl("Problems"),"Medications"=>xl("Medications"),"Allergies"=>xl("Allergies"),"Lab results"=>xl("Lab Results"),"Communication"=>xl("Communication"));
+$sqlstatement = "SELECT option_id, title FROM list_options WHERE list_id = 'patient_list_type' AND activity = 1 ORDER BY seq ASC";
+$result = sqlStatement($sqlstatement);
+while ($row = sqlFetchArray($result)){
+ $search_options[$row['option_id']] = xlt($row['title']);
+}
+
 $comarr = array("allow_sms"=>xl("Allow SMS"),"allow_voice"=>xl("Allow Voice Message"),"allow_mail"=>xl("Allow Mail Message"),"allow_email"=>xl("Allow Email"));
 $_POST['form_details'] = true;
 
@@ -306,7 +311,7 @@ $communication = trim($_POST["communication"]);
 						   li.diagnosis AS lists_diagnosis,
 								li.title AS lists_title";
                     break;
-                case "Lab results":
+                case "Lab_results":
                     $sqlstmt = $sqlstmt.",pr.date AS procedure_result_date,
 							pr.facility AS procedure_result_facility,
 							pr.units AS procedure_result_units,
@@ -334,7 +339,7 @@ $communication = trim($_POST["communication"]);
                 case "Allergies":
                     $sqlstmt = $sqlstmt." left outer join lists as li on (li.pid  = pd.pid AND (li.type='allergy')) ";
                     break;
-                case "Lab results":
+                case "Lab_results":
                     $sqlstmt = $sqlstmt." left outer join procedure_order as po on po.patient_id = pd.pid
 							left outer join procedure_order_code as pc on pc.procedure_order_id = po.procedure_order_id
 							left outer join procedure_report as pp on pp.procedure_order_id = po.procedure_order_id
@@ -356,7 +361,7 @@ $communication = trim($_POST["communication"]);
                     $whr_stmt=$whr_stmt." AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND li.date <= ?";
                     array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
                     break;
-                case "Lab results":
+                case "Lab_results":
                     $whr_stmt=$whr_stmt." AND pr.date >= ? AND pr.date < DATE_ADD(?, INTERVAL 1 DAY) AND pr.date <= ?";
                     $whr_stmt= $whr_stmt." AND (pr.result != '') ";
                     array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
@@ -412,7 +417,7 @@ $communication = trim($_POST["communication"]);
                         $sortby = $sort[1];
                     }
                     break;
-                case "Lab results":
+                case "Lab_results":
                     $sort = array("procedure_result_date","procedure_result_facility","procedure_result_units","procedure_result_result","procedure_result_range","procedure_result_abnormal");
                     //$odrstmt = " procedure_result_result";
                     break;
@@ -461,7 +466,7 @@ $communication = trim($_POST["communication"]);
                 case "Problems":
                     $odrstmt = " ORDER BY lists_date asc";
                     break;
-                case "Lab results":
+                case "Lab_results":
                     $odrstmt = " ORDER BY procedure_result_date asc";
                     break;
                 case "Communication":
@@ -509,7 +514,7 @@ $communication = trim($_POST["communication"]);
                         $patInfoArr['patient_race'] = $row['patient_race'];
                         $patInfoArr['patient_ethinic'] = $row['patient_ethinic'];
                         $patInfoArr['users_provider'] = $row['users_provider'];
-                    } elseif ($srch_option == "Lab results") {
+                    } elseif ($srch_option == "Lab_results") {
                         $patInfoArr['procedure_result_date'] = $row['procedure_result_date'];
                         $patInfoArr['procedure_result_facility'] = $row['procedure_result_facility'];
                         $patInfoArr['procedure_result_units'] = $row['procedure_result_units'];
@@ -576,7 +581,7 @@ $communication = trim($_POST["communication"]);
                                     <td colspan=4><?php echo text($patDetailVal['users_provider']);?></td>
                                 </tr>
                         <?php	}
-                    } elseif ($srch_option == "Lab results") { ?>
+                    } elseif ($srch_option == "Lab_results") { ?>
                         <tr bgcolor="#C3FDB8" align= "left" >
                             <td width="15%"><b><?php echo xlt('Date'); ?><?php echo $sortlink[0]; ?></b></td>
                             <td width="15%"><b><?php echo xlt('Facility');?><?php echo $sortlink[1]; ?></b></td>

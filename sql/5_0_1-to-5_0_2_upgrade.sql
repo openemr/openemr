@@ -86,3 +86,31 @@
 --    behavior: can take a long time.
 
 UPDATE `background_services` SET `require_once`='/library/MedEx/MedEx_background.php' WHERE `name`='MedEx';
+
+#IfNotRow2D list_options list_id lists option_id patient_list_type
+INSERT INTO list_options (list_id,option_id,title) VALUES ('lists','patient_list_type','Patient List Types');
+#EndIf
+
+#IfNotRow2D list_options list_id patient_list_type option_id Demographics
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('patient_list_type','Demographics','Demographics',10,0,1);
+#EndIf
+
+#IfNotRow2D list_options list_id patient_list_type option_id Problems
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('patient_list_type','Problems','Problems',20,0,1);
+#EndIf
+
+#IfNotRow2D list_options list_id patient_list_type option_id Medications
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('patient_list_type','Medications','Medications',30,0,1);
+#EndIf
+
+#IfNotRow2D list_options list_id patient_list_type option_id Allergies
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('patient_list_type','Allergies','Allergies',40,0,1);
+#EndIf
+
+#IfNotRow2D list_options list_id patient_list_type option_id Lab_results
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('patient_list_type','Lab_results','Lab results',50,0,1);
+#EndIf
+
+#IfNotRow2D list_options list_id patient_list_type option_id Communication
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('patient_list_type','Communication','Communication',60,0,1);
+#EndIf
