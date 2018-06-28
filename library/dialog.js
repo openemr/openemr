@@ -182,8 +182,12 @@ function inDom(dependency, type, remove) {
 //
 if (typeof dlgclose !== "function") {
     if (!opener) {
-        opener = window.name;
-    }
+        if (!top.tab_mode && typeof top.get_opener === 'function') {
+            opener = top.get_opener(window.name) ? top.get_opener(window.name) : window;
+        } else {
+            opener = window;
+        }
+}
 
     var dlgclose =
         function (call, args) {
@@ -538,6 +542,8 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     function dialogAjax(data, $dialog) {
         var params = {
             async: true,
+            method: data.method || '',
+            data: data.content,
             url: data.url || data,
             dataType: data.dataType || 'text'
         };
