@@ -21,8 +21,8 @@ use OpenEMR\Core\Header;
 
 $sqlstatement = "SELECT option_id, title FROM list_options WHERE list_id = 'patient_list_type' AND activity = 1 ORDER BY seq ASC";
 $result = sqlStatement($sqlstatement);
-while ($row = sqlFetchArray($result)){
- $search_options[$row['option_id']] = xlt($row['title']);
+while ($row = sqlFetchArray($result)) {
+    $search_options[$row['option_id']] = xlt($row['title']);
 }
 
 $comarr = array("allow_sms"=>xl("Allow SMS"),"allow_voice"=>xl("Allow Voice Message"),"allow_mail"=>xl("Allow Mail Message"),"allow_email"=>xl("Allow Email"));
