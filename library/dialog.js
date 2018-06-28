@@ -184,7 +184,7 @@ function inDom(dependency, type, remove) {
 //
 if (typeof dlgclose !== "function") {
     if (!opener) {
-        if (!top.tab_mode) {
+        if (!top.tab_mode && typeof top.get_opener === 'function') {
             opener = top.get_opener(window.name) ? top.get_opener(window.name) : window;
         } else {
             opener = window;
@@ -576,7 +576,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         var params = {
             async: true,
             method: data.method || '',
-            data: opts.content,
+            data: data.content,
             url: data.url || data,
             dataType: data.dataType || 'text'
         };
