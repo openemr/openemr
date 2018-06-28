@@ -274,8 +274,8 @@ if ($what == 'fields' && $source == 'V') {
 //
 $out = array(
   "sEcho"                => intval($_GET['sEcho']),
-  "iTotalRecords"        => $iTotal,
-  "iTotalDisplayRecords" => $iFilteredTotal,
+  "iTotalRecords"        => ($iTotal) ? $iTotal : 0,
+  "iTotalDisplayRecords" => ($iFilteredTotal) ? $iFilteredTotal : 0,
   "aaData"               => array()
 );
 
