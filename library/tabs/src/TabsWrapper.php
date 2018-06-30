@@ -197,7 +197,7 @@ EOD;
             if ($i == 1) {
                 $s .= $this->htmBrand;
             }
-            $s = "<a href='#{$this->tabsid}-$i'>" . text($val['title']) . "</a>";
+            $s .= "<a href='#{$this->tabsid}-$i'>" . text($val['title']) . "</a>";
             if ($val['closeable']) {
                 $s .= " <span class='ui-icon ui-icon-close' role='presentation'>" . xlt('Remove Tab') . "</span>";
             }
