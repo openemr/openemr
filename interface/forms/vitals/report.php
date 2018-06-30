@@ -108,13 +108,14 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
         $vitals .= sprintf('<div class="col-3"><small><strong>%s</strong></small>: %s</div>%s', xl($key), $value, PHP_EOL);
     }
 
-    $vitals = sprintf('
-        <div class="container">
+    $vitals = sprintf(
+        '<div class="container">
             <div class="row">
                 %s
             </div>
         </div>',
-        $vitals);
+        $vitals
+    );
 
     if ($print) {
         echo $vitals ;
