@@ -8,6 +8,8 @@ require_once("phpmailer/class.phpmailer.php");
 require_once("EmailMessage.php");
 require_once("Recipient.php");
 
+use PHPMailer\PHPMailer\PHPMailer;
+
 define("MAILER_RESULT_FAIL", 0);
 define("MAILER_RESULT_OK", 1);
 
@@ -34,7 +36,7 @@ class Mailer
     var $AuthPassword;
     var $Host;
     var $LangPath;
-    
+
     /**
      * Constructor initializes the mailer object and prepares it for mailing
      *
@@ -49,7 +51,7 @@ class Mailer
     function __construct($method = MAILER_METHOD_SENDMAIL, $path = "/usr/sbin/sendmail")
     {
         $pair = explode("@", $path);
-        
+
         if (count($pair) > 1) {
             $this->Path = $pair [1];
             $userpass = explode(":", $pair [0], 2);
@@ -58,13 +60,13 @@ class Mailer
         } else {
             $this->Path = $path;
         }
-        
+
         $this->Method = $method;
-        
+
         $this->Reset();
         $this->LangPath = $this->_GetLangPath();
     }
-    
+
     /**
      * Bare line feeds do not play nicely with email.
      * this strips them
@@ -76,7 +78,7 @@ class Mailer
         $str = str_replace("\r\n", "\n", $str);
         return str_replace("\r", "\n", $str);
     }
-    
+
     /**
      * This function attempts to locate the language file path for
      * PHPMailer because it's a whiney-ass bitch about finding it's
@@ -88,7 +90,7 @@ class Mailer
     {
         $lang_path = "";
         $paths = explode(PATH_SEPARATOR, get_include_path());
-        
+
         foreach ($paths as $path) {
             if (file_exists($path . '/language/phpmailer.lang-en.php')) {
                 $lang_path = $path . '/language/';
@@ -97,7 +99,7 @@ class Mailer
 
         return $lang_path;
     }
-    
+
     /**
      * Send the message.
      * If MAILER_RESULT_FAIL is returned, use GetErrors() to
@@ -109,10 +111,10 @@ class Mailer
     function Send($message)
     {
         $mailer = new PHPMailer();
-        
+
         // this prevents problems with phpmailer not being able to locate the language path
         $mailer->SetLanguage("en", $this->LangPath);
-        
+
         $mailer->From = $message->From->Email;
         $mailer->FromName = $message->From->RealName;
         if ($message->ReplyTo) {
@@ -125,79 +127,79 @@ class Mailer
         $mailer->Mailer = strtolower($this->Method);
         $mailer->Host = $this->Path;
         $mailer->Sendmail = $this->Path;
-        
+
         // use authentication if necessary
         if ($this->AuthUsername) {
             $mailer->SMTPAuth = true;
             $mailer->Username = $this->AuthUsername;
             $mailer->Password = $this->AuthPassword;
         }
-        
+
         // if custom headers are to be provided, include them in the message
         foreach ($message->Headers as $header_key => $header_val) {
             $mailer->AddCustomHeader($header_key . ': ' . $header_val);
         }
-        
+
         if ($message->Sender) {
             $this->_log [] = "Adding Sender " . $message->Sender;
-            
+
             // phpmailer accepts this but it seems to not work consistently..?
             // $mailer->Sender = $message->Sender;
-            
+
             // instead add the dang headers ourselves
             $mailer->AddCustomHeader("Sender: " . $message->Sender);
             $mailer->AddCustomHeader("Return-Path: " . $message->Sender);
         }
-        
+
         if (! $this->IsValid($mailer->From)) {
             $this->_errors [] = "Sender '" . $mailer->From . "' is not a valid email address.";
             return MAILER_RESULT_FAIL;
         }
-        
+
         // add the recipients
         foreach ($message->Recipients as $recipient) {
             $this->_log [] = "Adding Recipient " . $recipient->RealName . " [" . $recipient->Email . "]";
-            
+
             if (! $this->IsValid($recipient->Email)) {
                 $this->_errors [] = "Recipient '" . $recipient->Email . "' is not a valid email address.";
                 return MAILER_RESULT_FAIL;
             }
-            
+
             $mailer->AddAddress($recipient->Email, $recipient->RealName);
         }
-        
+
         foreach ($message->CCRecipients as $recipient) {
             $this->_log [] = "Adding CC Recipient " . $recipient->RealName . " [" . $recipient->Email . "]";
-            
+
             if (! $this->IsValid($recipient->Email)) {
                 $this->_errors [] = "CC Recipient '" . $recipient->Email . "' is not a valid email address.";
                 return MAILER_RESULT_FAIL;
             }
-            
+
             $mailer->AddCC($recipient->Email, $recipient->RealName);
         }
-        
+
         foreach ($message->BCCRecipients as $recipient) {
             $this->_log [] = "Adding BCC Recipient " . $recipient->RealName . " [" . $recipient->Email . "]";
-            
+
             if (! $this->IsValid($recipient->Email)) {
                 $this->_errors [] = "BCC Recipient '" . $recipient->Email . "' is not a valid email address.";
                 return MAILER_RESULT_FAIL;
             }
-            
+
             $mailer->AddBCC($recipient->Email, $recipient->RealName);
         }
-        
+
         $result = MAILER_RESULT_OK;
-        
+
         $this->_log [] = "Sending message using " . $mailer->Mailer;
-        
+
         ob_start(); // buffer output because class.phpmailer.php Send() is chatty and writes to stdout
-        
+
         $fail = ! $mailer->Send();
-        
+
         ob_end_clean(); // clear the buffer
-        
+
         if ($fail || $mailer->ErrorInfo) {
             $result = MAILER_RESULT_FAIL;
             $this->_errors [] = trim(str_replace(array (
@@ -208,10 +210,10 @@ class Mailer
                     ''
             ), $mailer->ErrorInfo));
         }
-        
+
         return $result;
     }
-    
+
     /**
      * returns true if the provided email appears to be valid
      *
@@ -221,7 +223,7 @@ class Mailer
     {
         return Recipient::IsEmailInValidFormat($email);
     }
-    
+
     /**
      * Clears log and error
      */
@@ -230,7 +232,7 @@ class Mailer
         $this->_errors = array ();
         $this->_log = array ();
     }
-    
+
     /**
      * Utility method to send a simple text email message
      *
@@ -247,10 +249,10 @@ class Mailer
         $message->Subject = $subject;
         $message->Body = $body;
         $message->Format = $format;
-        
+
         return $this->Send($message);
     }
-    
+
     /**
      * Returns an array of errors that occured during the last attempt
      * to send a message
@@ -261,7 +263,7 @@ class Mailer
     {
         return $this->_errors;
     }
-    
+
     /**
      * Returns a log of the last email transaction in array format
      *
