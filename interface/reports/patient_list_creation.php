@@ -19,12 +19,6 @@ require_once("$srcdir/payment_jav.inc.php");
 
 use OpenEMR\Core\Header;
 
-$sqlstatement = "SELECT option_id, title FROM list_options WHERE list_id = 'patient_list_type' AND activity = 1 ORDER BY seq ASC";
-$result = sqlStatement($sqlstatement);
-while ($row = sqlFetchArray($result)) {
-    $search_options[$row['option_id']] = xlt($row['title']);
-}
-
 $comarr = array("allow_sms"=>xl("Allow SMS"),"allow_voice"=>xl("Allow Voice Message"),"allow_mail"=>xl("Allow Mail Message"),"allow_email"=>xl("Allow Email"));
 $_POST['form_details'] = true;
 
@@ -43,6 +37,8 @@ $form_lab_results = trim($_POST["form_lab_results"]);
 $form_service_codes = trim($_POST["form_service_codes"]);
 $form_immunization = trim($_POST["form_immunization"]);
 $communication = trim($_POST["communication"]);
+$srch_option = $_POST['srch_option'];
+
 ?>
 <html>
     <head>
@@ -210,12 +206,7 @@ $communication = trim($_POST["communication"]);
                                 </td>
                                 <td class='control-label'><?php echo xlt('Option'); ?>: </td>
                                 <td class='control-label'>
-                                    <select class="form-control" name="srch_option" id="srch_option" onchange="javascript:$('#sortby').val('');$('#sortorder').val('');if(this.value == 'Communication'){ $('#communication').val('');$('#com_pref').show();}else{ $('#communication').val('');$('#com_pref').hide();}">
-                                        <?php foreach ($search_options as $skey => $svalue) { ?>
-                                            <option <?php echo ($_POST['srch_option'] == $skey) ? 'selected' : ''; ?> value="<?php echo attr($skey); ?>"><?php echo text($svalue); ?></option>
-                                        <?php } ?>
-                                    </select>
-                                    <?php ?>
+                                    <?php echo generate_select_list("srch_option", "patient_list_type", $srch_option, "Select Option", "", "form-control", 'javascript:$("#sortby").val("");$("#sortorder").val("");if(this.value == "Communication"){ $("#communication").val("");$("#com_pref").show();}else{ $("#communication").val("");$("#com_pref").hide();}'); ?>
                                 </td>
 
                                 <td >
