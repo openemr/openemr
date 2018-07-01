@@ -1,10 +1,8 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @see       https://github.com/zendframework/zend-tag for the canonical source repository
+ * @copyright Copyright (c) 2005-2018 Zend Technologies USA Inc. (https://www.zend.com)
+ * @license   https://github.com/zendframework/zend-tag/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\Tag;
@@ -129,7 +127,7 @@ class Cloud
             return $this;
         }
 
-        if (!is_array($tag)) {
+        if (! is_array($tag)) {
             throw new Exception\InvalidArgumentException(sprintf(
                 'Tag must be an instance of %s\TaggableInterface or an array; received "%s"',
                 __NAMESPACE__,
@@ -194,8 +192,10 @@ class Cloud
             $decorator = $this->getDecoratorPluginManager()->get($decorator, $options);
         }
 
-        if (!($decorator instanceof Cloud\Decorator\AbstractCloud)) {
-            throw new Exception\InvalidArgumentException('DecoratorInterface is no instance of Cloud\Decorator\AbstractCloud');
+        if (! ($decorator instanceof Cloud\Decorator\AbstractCloud)) {
+            throw new Exception\InvalidArgumentException(
+                'DecoratorInterface is no instance of Cloud\Decorator\AbstractCloud'
+            );
         }
 
         $this->cloudDecorator = $decorator;
@@ -241,8 +241,10 @@ class Cloud
             $decorator = $this->getDecoratorPluginManager()->get($decorator, $options);
         }
 
-        if (!($decorator instanceof Cloud\Decorator\AbstractTag)) {
-            throw new Exception\InvalidArgumentException('DecoratorInterface is no instance of Cloud\Decorator\AbstractTag');
+        if (! ($decorator instanceof Cloud\Decorator\AbstractTag)) {
+            throw new Exception\InvalidArgumentException(
+                'DecoratorInterface is no instance of Cloud\Decorator\AbstractTag'
+            );
         }
 
         $this->tagDecorator = $decorator;

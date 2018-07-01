@@ -18,29 +18,12 @@ namespace Symfony\Component\HttpFoundation;
  */
 class AcceptHeaderItem
 {
-    /**
-     * @var string
-     */
     private $value;
-
-    /**
-     * @var float
-     */
     private $quality = 1.0;
-
-    /**
-     * @var int
-     */
     private $index = 0;
-
-    /**
-     * @var array
-     */
     private $attributes = array();
 
     /**
-     * Constructor.
-     *
      * @param string $value
      * @param array  $attributes
      */
@@ -67,7 +50,7 @@ class AcceptHeaderItem
 
         $lastNullAttribute = null;
         foreach ($bits as $bit) {
-            if (($start = substr($bit, 0, 1)) === ($end = substr($bit, -1)) && ($start === '"' || $start === '\'')) {
+            if (($start = substr($bit, 0, 1)) === ($end = substr($bit, -1)) && ('"' === $start || '\'' === $start)) {
                 $attributes[$lastNullAttribute] = substr($bit, 1, -1);
             } elseif ('=' === $end) {
                 $lastNullAttribute = $bit = substr($bit, 0, -1);
@@ -78,7 +61,7 @@ class AcceptHeaderItem
             }
         }
 
-        return new self(($start = substr($value, 0, 1)) === ($end = substr($value, -1)) && ($start === '"' || $start === '\'') ? substr($value, 1, -1) : $value, $attributes);
+        return new self(($start = substr($value, 0, 1)) === ($end = substr($value, -1)) && ('"' === $start || '\'' === $start) ? substr($value, 1, -1) : $value, $attributes);
     }
 
     /**

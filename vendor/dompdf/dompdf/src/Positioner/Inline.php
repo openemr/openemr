@@ -10,7 +10,6 @@ namespace Dompdf\Positioner;
 
 use Dompdf\FrameDecorator\AbstractFrameDecorator;
 use Dompdf\FrameDecorator\Inline as InlineFrameDecorator;
-use Dompdf\FrameDecorator\Block as BlockFrameDecorator;
 use Dompdf\Exception;
 
 /**
@@ -21,33 +20,31 @@ use Dompdf\Exception;
 class Inline extends AbstractPositioner
 {
 
-    function __construct(AbstractFrameDecorator $frame)
-    {
-        parent::__construct($frame);
-    }
-
-    //........................................................................
-
-    function position()
+    /**
+     * @param AbstractFrameDecorator $frame
+     * @throws Exception
+     */
+    function position(AbstractFrameDecorator $frame)
     {
         /**
          * Find our nearest block level parent and access its lines property.
          * @var BlockFrameDecorator
          */
-        $p = $this->_frame->find_block_parent();
+        $p = $frame->find_block_parent();
 
         // Debugging code:
 
-//     Helpers::pre_r("\nPositioning:");
-//     Helpers::pre_r("Me: " . $this->_frame->get_node()->nodeName . " (" . spl_object_hash($this->_frame->get_node()) . ")");
-//     Helpers::pre_r("Parent: " . $p->get_node()->nodeName . " (" . spl_object_hash($p->get_node()) . ")");
+        // Helpers::pre_r("\nPositioning:");
+        // Helpers::pre_r("Me: " . $frame->get_node()->nodeName . " (" . spl_object_hash($frame->get_node()) . ")");
+        // Helpers::pre_r("Parent: " . $p->get_node()->nodeName . " (" . spl_object_hash($p->get_node()) . ")");
 
         // End debugging
 
-        if (!$p)
+        if (!$p) {
             throw new Exception("No block-level parent found.  Not good.");
+        }
 
-        $f = $this->_frame;
+        $f = $frame;
 
         $cb = $f->get_containing_block();
         $line = $p->get_current_line_box();
@@ -61,13 +58,12 @@ class Inline extends AbstractPositioner
             }
         }
 
-        $f = $this->_frame;
+        $f = $frame;
 
         if (!$is_fixed && $f->get_parent() &&
             $f->get_parent() instanceof InlineFrameDecorator &&
             $f->is_text_node()
         ) {
-
             $min_max = $f->get_reflower()->get_min_max_width();
 
             // If the frame doesn't fit in the current line, a line break occurs
@@ -77,6 +73,5 @@ class Inline extends AbstractPositioner
         }
 
         $f->set_position($cb["x"] + $line->w, $line->y);
-
     }
 }

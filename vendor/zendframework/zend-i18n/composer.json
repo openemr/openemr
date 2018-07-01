@@ -1,28 +1,26 @@
 {
     "name": "zendframework/zend-i18n",
-    "description": " ",
+    "description": "Provide translations for your application, and filter and validate internationalized values",
     "license": "BSD-3-Clause",
     "keywords": [
-        "zf2",
+        "zendframework",
+        "zf",
         "i18n"
     ],
-    "homepage": "https://github.com/zendframework/zend-i18n",
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.7-dev",
-            "dev-develop": "2.8-dev"
-        },
-        "zf": {
-            "component": "Zend\\I18n",
-            "config-provider": "Zend\\I18n\\ConfigProvider"
-        }
+    "support": {
+        "docs": "https://docs.zendframework.com/zend-i18n/",
+        "issues": "https://github.com/zendframework/zend-i18n/issues",
+        "source": "https://github.com/zendframework/zend-i18n",
+        "rss": "https://github.com/zendframework/zend-i18n/releases.atom",
+        "chat": "https://zendframework-slack.herokuapp.com",
+        "forum": "https://discourse.zendframework.com/c/questions/components"
     },
     "require": {
-        "php": "^7.0 || ^5.6",
+        "php": "^5.6 || ^7.0",
         "zendframework/zend-stdlib": "^2.7 || ^3.0"
     },
     "require-dev": {
-        "phpunit/PHPUnit": "^6.0.8 || ^5.7.15",
+        "phpunit/phpunit": "^5.7.27 || ^6.5.8 || ^7.1.2",
         "zendframework/zend-cache": "^2.6.1",
         "zendframework/zend-coding-standard": "~1.0.0",
         "zendframework/zend-config": "^2.6",
@@ -38,10 +36,10 @@
         "zendframework/zend-config": "Zend\\Config component",
         "zendframework/zend-eventmanager": "You should install this package to use the events in the translator",
         "zendframework/zend-filter": "You should install this package to use the provided filters",
+        "zendframework/zend-i18n-resources": "Translation resources",
         "zendframework/zend-servicemanager": "Zend\\ServiceManager component",
         "zendframework/zend-validator": "You should install this package to use the provided validators",
-        "zendframework/zend-view": "You should install this package to use the provided view helpers",
-        "zendframework/zend-i18n-resources": "Translation resources"
+        "zendframework/zend-view": "You should install this package to use the provided view helpers"
     },
     "autoload": {
         "psr-4": {
@@ -53,6 +51,19 @@
             "ZendTest\\I18n\\": "test/"
         }
     },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.9.x-dev",
+            "dev-develop": "2.10.x-dev"
+        },
+        "zf": {
+            "component": "Zend\\I18n",
+            "config-provider": "Zend\\I18n\\ConfigProvider"
+        }
+    },
     "scripts": {
         "check": [
             "@cs-check",
@@ -61,7 +72,6 @@
         "cs-check": "phpcs",
         "cs-fix": "phpcbf",
         "test": "phpunit --colors=always",
-        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml",
-        "upload-coverage": "coveralls -v"
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
     }
 }

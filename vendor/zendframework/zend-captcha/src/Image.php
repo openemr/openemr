@@ -609,7 +609,9 @@ class Image extends AbstractWord
                 if (file_exists($file->getPathname()) && $file->getMTime() < $expire) {
                     // only deletes files ending with $this->suffix
                     if (substr($file->getFilename(), -($suffixLength)) == $this->suffix) {
+                        ErrorHandler::start();
                         unlink($file->getPathname());
+                        ErrorHandler::stop();
                     }
                 }
             }

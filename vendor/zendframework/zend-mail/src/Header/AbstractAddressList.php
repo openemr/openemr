@@ -1,14 +1,15 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @see       https://github.com/zendframework/zend-mail for the canonical source repository
+ * @copyright Copyright (c) 2005-2018 Zend Technologies USA Inc. (https://www.zend.com)
+ * @license   https://github.com/zendframework/zend-mail/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\Mail\Header;
 
+use TrueBV\Exception\OutOfBoundsException;
+use TrueBV\Punycode;
+use Zend\Mail\Address;
 use Zend\Mail\AddressList;
 use Zend\Mail\Headers;
 
@@ -39,6 +40,11 @@ abstract class AbstractAddressList implements HeaderInterface
      */
     protected static $type;
 
+    /**
+     * @var Punycode|null
+     */
+    private static $punycode;
+
     public static function fromString($headerLine)
     {
         list($fieldName, $fieldValue) = GenericHeader::splitHeaderLine($headerLine);
@@ -52,40 +58,48 @@ abstract class AbstractAddressList implements HeaderInterface
         // split value on ","
         $fieldValue = str_replace(Headers::FOLDING, ' ', $fieldValue);
         $fieldValue = preg_replace('/[^:]+:([^;]*);/', '$1,', $fieldValue);
-        $values = str_getcsv($fieldValue, ',');
+        $values = ListParser::parse($fieldValue);
 
         $wasEncoded = false;
-        array_walk(
-            $values,
-            function (&$value) use (&$wasEncoded) {
+        $addresses = array_map(
+            function ($value) use (&$wasEncoded) {
                 $decodedValue = HeaderWrap::mimeDecodeValue($value);
                 $wasEncoded = $wasEncoded || ($decodedValue !== $value);
+
                 $value = trim($decodedValue);
+
+                $comments = self::getComments($value);
                 $value = self::stripComments($value);
+
                 $value = preg_replace(
                     [
-                        '#(?<!\\\)"(.*)(?<!\\\)"#', //quoted-text
-                        '#\\\([\x01-\x09\x0b\x0c\x0e-\x7f])#' //quoted-pair
+                        '#(?<!\\\)"(.*)(?<!\\\)"#',            // quoted-text
+                        '#\\\([\x01-\x09\x0b\x0c\x0e-\x7f])#', // quoted-pair
                     ],
                     [
                         '\\1',
-                        '\\1'
+                        '\\1',
                     ],
                     $value
                 );
-            }
+
+                return empty($value) ? null : Address::fromString($value, $comments);
+            },
+            $values
         );
+        $addresses = array_filter($addresses);
+
         $header = new static();
         if ($wasEncoded) {
             $header->setEncoding('UTF-8');
         }
 
-        $values = array_filter($values);
-
+        /** @var AddressList $addressList */
         $addressList = $header->getAddressList();
-        foreach ($values as $address) {
-            $addressList->addFromString($address);
+        foreach ($addresses as $address) {
+            $addressList->add($address);
         }
+
         return $header;
     }
 
@@ -96,15 +110,19 @@ abstract class AbstractAddressList implements HeaderInterface
 
     /**
      * Safely convert UTF-8 encoded domain name to ASCII
-     * @param string $domainName  the UTF-8 encoded email
+     * @param string $domainName the UTF-8 encoded email
      * @return string
      */
     protected function idnToAscii($domainName)
     {
-        if (extension_loaded('intl')) {
-            return (idn_to_ascii($domainName) ?: $domainName);
+        if (null === self::$punycode) {
+            self::$punycode = new Punycode();
         }
-        return $domainName;
+        try {
+            return self::$punycode->encode($domainName);
+        } catch (OutOfBoundsException $e) {
+            return $domainName;
+        }
     }
 
     public function getFieldValue($format = HeaderInterface::FORMAT_RAW)
@@ -192,7 +210,38 @@ abstract class AbstractAddressList implements HeaderInterface
         return (empty($value)) ? '' : sprintf('%s: %s', $name, $value);
     }
 
-    // Supposed to be private, protected as a workaround for PHP bug 68194
+    /**
+     * Retrieve comments from value, if any.
+     *
+     * Supposed to be private, protected as a workaround for PHP bug 68194
+     *
+     * @param string $value
+     * @return string
+     */
+    protected static function getComments($value)
+    {
+        $matches = [];
+        preg_match_all(
+            '/\\(
+                (?P<comment>(
+                    \\\\.|
+                    [^\\\\)]
+                )+)
+            \\)/x',
+            $value,
+            $matches
+        );
+        return isset($matches['comment']) ? implode(', ', $matches['comment']) : '';
+    }
+
+    /**
+     * Strip all comments from value, if any.
+     *
+     * Supposed to be private, protected as a workaround for PHP bug 68194
+     *
+     * @param string $value
+     * @return void
+     */
     protected static function stripComments($value)
     {
         return preg_replace(

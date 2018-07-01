@@ -2,6 +2,106 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 1.8.0 - 2018-06-27
+
+### Added
+
+- [#307](https://github.com/zendframework/zend-diactoros/pull/307) adds the following functions under the `Zend\Diactoros` namespace, each of
+  which may be used to derive artifacts from SAPI supergloabls for the purposes
+  of generating a `ServerRequest` instance:
+  - `normalizeServer(array $server, callable $apacheRequestHeaderCallback = null) : array`
+    (main purpose is to aggregate the `Authorization` header in the SAPI params
+    when under Apache)
+  - `marshalProtocolVersionFromSapi(array $server) : string`
+  - `marshalMethodFromSapi(array $server) : string`
+  - `marshalUriFromSapi(array $server, array $headers) : Uri`
+  - `marshalHeadersFromSapi(array $server) : array`
+  - `parseCookieHeader(string $header) : array`
+  - `createUploadedFile(array $spec) : UploadedFile` (creates the instance from
+    a normal `$_FILES` entry)
+  - `normalizeUploadedFiles(array $files) : UploadedFileInterface[]` (traverses
+    a potentially nested array of uploaded file instances and/or `$_FILES`
+    entries, including those aggregated under mod_php, php-fpm, and php-cgi in
+    order to create a flat array of `UploadedFileInterface` instances to use in a
+    request)
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- [#307](https://github.com/zendframework/zend-diactoros/pull/307) deprecates `ServerRequestFactory::normalizeServer()`; the method is
+  no longer used internally, and users should instead use `Zend\Diactoros\normalizeServer()`,
+  to which it proxies.
+
+- [#307](https://github.com/zendframework/zend-diactoros/pull/307) deprecates `ServerRequestFactory::marshalHeaders()`; the method is
+  no longer used internally, and users should instead use `Zend\Diactoros\marshalHeadersFromSapi()`,
+  to which it proxies.
+
+- [#307](https://github.com/zendframework/zend-diactoros/pull/307) deprecates `ServerRequestFactory::marshalUriFromServer()`; the method
+  is no longer used internally. Users should use `marshalUriFromSapi()` instead.
+
+- [#307](https://github.com/zendframework/zend-diactoros/pull/307) deprecates `ServerRequestFactory::marshalRequestUri()`. the method is no longer
+  used internally, and currently proxies to `marshalUriFromSapi()`, pulling the
+  discovered path from the `Uri` instance returned by that function. Users
+  should use `marshalUriFromSapi()` instead.
+
+- [#307](https://github.com/zendframework/zend-diactoros/pull/307) deprecates `ServerRequestFactory::marshalHostAndPortFromHeaders()`; the method
+  is no longer used internally, and currently proxies to `marshalUriFromSapi()`,
+  pulling the discovered host and port from the `Uri` instance returned by that
+  function. Users should use `marshalUriFromSapi()` instead.
+
+- [#307](https://github.com/zendframework/zend-diactoros/pull/307) deprecates `ServerRequestFactory::getHeader()`; the method is no longer
+  used internally. Users should copy and paste the functionality into their own
+  applications if needed, or rely on headers from a fully-populated `Uri`
+  instance instead.
+
+- [#307](https://github.com/zendframework/zend-diactoros/pull/307) deprecates `ServerRequestFactory::stripQueryString()`; the method is no longer
+  used internally, and users can mimic the functionality via the expression
+  `$path = explode('?', $path, 2)[0];`.
+
+- [#307](https://github.com/zendframework/zend-diactoros/pull/307) deprecates `ServerRequestFactory::normalizeFiles()`; the functionality
+  is no longer used internally, and users can use `normalizeUploadedFiles()` as
+  a replacement.
+
+- [#303](https://github.com/zendframework/zend-diactoros/pull/303) deprecates `Zend\Diactoros\Response\EmitterInterface` and its various implementations. These are now provided via the
+  [zendframework/zend-httphandlerrunner](https://docs.zendframework.com/zend-httphandlerrunner) package as 1:1 substitutions.
+
+- [#303](https://github.com/zendframework/zend-diactoros/pull/303) deprecates the `Zend\Diactoros\Server` class. Users are directed to the `RequestHandlerRunner` class from the
+  [zendframework/zend-httphandlerrunner](https://docs.zendframework.com/zend-httphandlerrunner) package as an alternative.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
+## 1.7.2 - 2018-05-29
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#301](https://github.com/zendframework/zend-diactoros/pull/301) adds stricter comparisons within the `uri` class to ensure non-empty
+  values are not treated as empty.
+
 ## 1.7.1 - 2018-02-26
 
 ### Added

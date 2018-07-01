@@ -10,7 +10,7 @@
 /**
  * EN-Revision: 16.Jul.2013
  */
-return array(
+return [
     // Zend\I18n\Validator\Alnum
     "Invalid type given. String, integer or float expected" => "不正な形式です。文字列、整数、もしくは小数が期待されています",
     "The input contains characters which are non alphabetic and no digits" => "入力値にアルファベットと数字以外の文字が含まれています",
@@ -286,4 +286,4 @@ return array(
     // Zend\Validator\Uri
     "Invalid type given. String expected" => "不正な形式です。文字列が期待されています",
     "The input does not appear to be a valid Uri" => "入力値は有効なUriではないようです",
-);
+];

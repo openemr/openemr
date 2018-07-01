@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.6.1 - 2018-04-30
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- [#23](https://github.com/zendframework/zend-uri/pull/23) updates the zend-validator dependency to the 2.10 series, in order to ensure that
+  this package can run under PHP 7.2.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
 ## 2.6.0 - 2018-04-10
 
 ### Added

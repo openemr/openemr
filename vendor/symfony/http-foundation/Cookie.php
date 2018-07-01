@@ -27,8 +27,6 @@ class Cookie
     protected $httpOnly;
 
     /**
-     * Constructor.
-     *
      * @param string                                  $name     The name of the cookie
      * @param string                                  $value    The value of the cookie
      * @param int|string|\DateTime|\DateTimeInterface $expire   The time the cookie expires
@@ -82,7 +80,7 @@ class Cookie
         if ('' === (string) $this->getValue()) {
             $str .= 'deleted; expires='.gmdate('D, d-M-Y H:i:s T', time() - 31536001);
         } else {
-            $str .= urlencode($this->getValue());
+            $str .= rawurlencode($this->getValue());
 
             if (0 !== $this->getExpiresTime()) {
                 $str .= '; expires='.gmdate('D, d-M-Y H:i:s T', $this->getExpiresTime());

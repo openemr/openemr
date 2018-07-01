@@ -18,8 +18,9 @@
   },
   "extra": {
     "branch-alias": {
-      "dev-master": "1.7.x-dev",
-      "dev-develop": "1.8.x-dev"
+      "dev-master": "1.8.x-dev",
+      "dev-develop": "1.9.x-dev",
+      "dev-release-2.0": "2.0.x-dev"
     }
   },
   "require": {
@@ -36,6 +37,16 @@
     "psr/http-message-implementation": "1.0"
   },
   "autoload": {
+    "files": [
+        "src/functions/create_uploaded_file.php",
+        "src/functions/marshal_headers_from_sapi.php",
+        "src/functions/marshal_method_from_sapi.php",
+        "src/functions/marshal_protocol_version_from_sapi.php",
+        "src/functions/marshal_uri_from_sapi.php",
+        "src/functions/normalize_server.php",
+        "src/functions/normalize_uploaded_files.php",
+        "src/functions/parse_cookie_header.php"
+    ],
     "psr-4": {
       "Zend\\Diactoros\\": "src/"
     }

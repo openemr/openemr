@@ -10,7 +10,7 @@
 /**
  * EN-Revision: 28.Sept.2012
  */
-return array(
+return [
     // Zend_I18n_Validator_Alnum
     "Invalid type given. String, integer or float expected" => "Geçersiz tür verildi, Dize, tamsayı ya da ondalık sayı bekleniyor",
     "The input contains characters which are non alphabetic and no digits" => "Girdi, harf ve rakam olmayan karakterler içeriyor",
@@ -147,9 +147,9 @@ return array(
     "File '%value%' is not readable or does not exist" => "'%value%' dosyası okunamıyor ya da yok",
 
     // Zend_Validator_File_MimeType
-    "File '%value%' has a false mimetype of '%type%'" => "'%value%' dosyası yanlış mime-tipine sahip: '%type%'",
-    "The mimetype of file '%value%' could not be detected" => "'%value%' dosyasının mime-tipi algılanamadı",
-    "File '%value%' is not readable or does not exist" => "'%value%' dosyası okunamıyor ya da yok",
+    "File has an incorrect mimetype of '%type%'" => "Dosya yanlış mime-tipine sahip: '%type%'",
+    "The mimetype could not be detected from the file" => "Dosyanın mime-tipi algılanamadı",
+    "File is not readable or does not exist" => "Dosya okunamıyor ya da yok",
 
     // Zend_Validator_File_NotExists
     "File '%value%' exists" => "'%value%' dosyası var",
@@ -264,4 +264,4 @@ return array(
     // Zend_Validator_Uri
     "Invalid type given. String expected" => "Yanlış tür verildi. Dizge bekleniyor",
     "The input does not appear to be a valid Uri" => "Girdi geçerli bir Uri olarak görünmüyor",
-);
+];

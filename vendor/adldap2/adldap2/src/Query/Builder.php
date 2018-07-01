@@ -2,12 +2,12 @@
 
 namespace Adldap\Query;
 
-use InvalidArgumentException;
+use Closure;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use Adldap\Utilities;
 use Adldap\Models\Model;
-use Adldap\Objects\Paginator;
 use Adldap\Schemas\SchemaInterface;
 use Adldap\Schemas\ActiveDirectory;
 use Adldap\Models\ModelNotFoundException;
@@ -20,7 +20,7 @@ class Builder
      *
      * @var array
      */
-    public $columns = [];
+    public $columns = ['*'];
 
     /**
      * The query filters.
@@ -32,6 +32,13 @@ class Builder
         'or' => [],
         'raw' => [],
     ];
+
+    /**
+     * The size limit of the query.
+     *
+     * @var int
+     */
+    public $limit = 0;
 
     /**
      * Determines whether the current query is paginated.
@@ -69,18 +76,11 @@ class Builder
     protected $dn;
 
     /**
-     * Determines whether or not to search LDAP recursively.
+     * The default query type.
      *
-     * @var bool
+     * @var string
      */
-    protected $recursive = true;
-
-    /**
-     * Determines whether or not to search LDAP on the base scope.
-     *
-     * @var bool
-     */
-    protected $read = false;
+    protected $type = 'search';
 
     /**
      * Determines whether or not to return LDAP results in their raw array format.
@@ -88,6 +88,13 @@ class Builder
      * @var bool
      */
     protected $raw = false;
+
+    /**
+     * Determines whether the query is nested.
+     *
+     * @var bool
+     */
+    protected $nested = false;
 
     /**
      * The current connection instance.
@@ -114,10 +121,10 @@ class Builder
      * Constructor.
      *
      * @param ConnectionInterface  $connection
-     * @param Grammar              $grammar
+     * @param Grammar|null         $grammar
      * @param SchemaInterface|null $schema
      */
-    public function __construct(ConnectionInterface $connection, Grammar $grammar, SchemaInterface $schema = null)
+    public function __construct(ConnectionInterface $connection, Grammar $grammar = null, SchemaInterface $schema = null)
     {
         $this->setConnection($connection)
             ->setGrammar($grammar)
@@ -141,13 +148,13 @@ class Builder
     /**
      * Sets the current filter grammar.
      *
-     * @param Grammar $grammar
+     * @param Grammar|null $grammar
      *
      * @return Builder
      */
-    public function setGrammar(Grammar $grammar)
+    public function setGrammar(Grammar $grammar = null)
     {
-        $this->grammar = $grammar;
+        $this->grammar = $grammar ?: new Grammar();
 
         return $this;
     }
@@ -191,6 +198,24 @@ class Builder
 
         return (new static($this->connection, $this->grammar, $this->schema))
             ->setDn($dn);
+    }
+
+    /**
+     * Returns a new nested Query Builder instance.
+     * 
+     * @param Closure|null $closure
+     * 
+     * @return $this
+     */
+    public function newNestedInstance(Closure $closure = null)
+    {
+        $query = $this->newInstance()->nested();
+        
+        if ($closure) {
+            call_user_func($closure, $query);
+        }
+
+        return $query;
     }
 
     /**
@@ -282,6 +307,20 @@ class Builder
     }
 
     /**
+     * Sets the size limit of the current query.
+     *
+     * @param int $limit
+     *
+     * @return Builder
+     */
+    public function limit($limit = 0)
+    {
+        $this->limit = $limit;
+
+        return $this;
+    }
+
+    /**
      * Performs the specified query on the current LDAP connection.
      *
      * @param string $query
@@ -290,20 +329,13 @@ class Builder
      */
     public function query($query)
     {
-        $dn = $this->getDn();
-
-        $selects = $this->getSelects();
-
-        if ($this->read) {
-            // If read is true, we'll perform a read search, retrieving one record
-            $results = $this->connection->read($dn, $query, $selects);
-        } elseif ($this->recursive) {
-            // If recursive is true, we'll perform a recursive search
-            $results = $this->connection->search($dn, $query, $selects);
-        } else {
-            // Read and recursive is false, we'll return a listing
-            $results = $this->connection->listing($dn, $query, $selects);
-        }
+        $results = $this->connection->{$this->type}(
+            $this->getDn(),
+            $query,
+            $this->getSelects(),
+            $onlyAttributes = false,
+            $this->limit
+        );
 
         return $this->newProcessor()->process($results);
     }
@@ -359,7 +391,7 @@ class Builder
      */
     public function first($columns = [])
     {
-        $results = $this->select($columns)->get();
+        $results = $this->select($columns)->limit(1)->get();
 
         return Arr::get($results, 0);
     }
@@ -422,13 +454,17 @@ class Builder
     /**
      * Finds a record using ambiguous name resolution.
      *
-     * @param string       $anr
+     * @param string|array $anr
      * @param array|string $columns
      *
      * @return mixed
      */
     public function find($anr, $columns = [])
     {
+        if (is_array($anr)) {
+            return $this->findMany($anr, $columns);
+        }
+
         return $this->findBy($this->schema->anr(), $anr, $columns);
     }
 
@@ -466,8 +502,9 @@ class Builder
     }
 
     /**
-     * Finds a record using ambiguous name resolution. If a record
-     * is not found, an exception is thrown.
+     * Finds a record using ambiguous name resolution.
+     * 
+     * If a record is not found, an exception is thrown.
      *
      * @param string       $anr
      * @param array|string $columns
@@ -502,7 +539,7 @@ class Builder
     {
         return $this
             ->setDn($dn)
-            ->read(true)
+            ->read()
             ->whereHas($this->schema->objectClass())
             ->first($columns);
     }
@@ -523,7 +560,7 @@ class Builder
     {
         return $this
             ->setDn($dn)
-            ->read(true)
+            ->read()
             ->whereHas($this->schema->objectClass())
             ->firstOrFail($columns);
     }
@@ -538,7 +575,9 @@ class Builder
      */
     public function findByGuid($guid, $columns = [])
     {
-        $guid = Utilities::stringGuidToHex($guid);
+        if ($this->schema->objectGuidRequiresConversion()) {
+            $guid = Utilities::stringGuidToHex($guid);
+        }
 
         return $this->select($columns)->whereRaw([
             $this->schema->objectGuid() => $guid
@@ -559,7 +598,9 @@ class Builder
      */
     public function findByGuidOrFail($guid, $columns = [])
     {
-        $guid = Utilities::stringGuidToHex($guid);
+        if ($this->schema->objectGuidRequiresConversion()) {
+            $guid = Utilities::stringGuidToHex($guid);
+        }
 
         return $this->select($columns)->whereRaw([
             $this->schema->objectGuid() => $guid
@@ -603,15 +644,13 @@ class Builder
      */
     public function findBaseDn()
     {
-        $schema = $this->schema;
-
         $result = $this->setDn(null)
             ->read()
             ->raw()
-            ->whereHas($schema->objectClass())
+            ->whereHas($this->schema->objectClass())
             ->first();
 
-        $key = $schema->defaultNamingContext();
+        $key = $this->schema->defaultNamingContext();
 
         if (is_array($result) && array_key_exists($key, $result)) {
             if (array_key_exists(0, $result[$key])) {
@@ -634,7 +673,7 @@ class Builder
         $columns = is_array($columns) ? $columns : func_get_args();
 
         if (!empty($columns)) {
-            $this->columns = is_array($columns) ? $columns : func_get_args();
+            $this->columns = $columns;
         }
 
         return $this;
@@ -659,6 +698,54 @@ class Builder
     }
 
     /**
+     * Adds a nested 'and' filter to the current query.
+     *
+     * @param Closure $closure
+     *
+     * @return Builder
+     */
+    public function andFilter(Closure $closure)
+    {
+        $query = $this->newNestedInstance($closure);
+
+        $filter = $this->grammar->compileAnd($query->getQuery());
+
+        return $this->rawFilter($filter);
+    }
+
+    /**
+     * Adds a nested 'or' filter to the current query.
+     *
+     * @param Closure $closure
+     *
+     * @return Builder
+     */
+    public function orFilter(Closure $closure)
+    {
+        $query = $this->newNestedInstance($closure);
+
+        $filter = $this->grammar->compileOr($query->getQuery());
+
+        return $this->rawFilter($filter);
+    }
+
+    /**
+     * Adds a nested 'not' filter to the current query.
+     *
+     * @param Closure $closure
+     *
+     * @return Builder
+     */
+    public function notFilter(Closure $closure)
+    {
+        $query = $this->newNestedInstance($closure);
+
+        $filter = $this->grammar->compileNot($query->getQuery());
+
+        return $this->rawFilter($filter);
+    }
+
+    /**
      * Adds a where clause to the current query.
      *
      * @param string|array $field
@@ -676,11 +763,7 @@ class Builder
         if (is_array($field)) {
             // If the column is an array, we will assume it is an array of
             // key-value pairs and can add them each as a where clause.
-            foreach ($field as $key => $value) {
-                $this->where($key, Operator::$equals, $value, $boolean, $raw);
-            }
-
-            return $this;
+            return $this->addArrayOfWheres($field, $boolean, $raw);
         }
 
         // We'll bypass the 'has' and 'notHas' operator since they
@@ -689,7 +772,7 @@ class Builder
 
         // Here we will make some assumptions about the operator. If only
         // 2 values are passed to the method, we will assume that
-        // the operator is an equals sign and keep going.
+        // the operator is 'equals' and keep going.
         if (func_num_args() === 2 && in_array($operator, $bypass) === false) {
             list($value, $operator) = [$operator, '='];
         }
@@ -699,9 +782,9 @@ class Builder
         }
 
         // We'll escape the value if raw isn't requested.
-        $value = $raw ? $value : Utilities::escape($value);
+        $value = $raw ? $value : $this->escape($value);
 
-        $field = Utilities::escape($field, null, 3);
+        $field = $this->escape($field, $ignore = null, 3);
 
         $this->filters[$boolean][] = compact('field', 'operator', 'value');
 
@@ -713,9 +796,9 @@ class Builder
      *
      * Values given to this method are not escaped.
      *
-     * @param string $field
-     * @param string $operator
-     * @param string $value
+     * @param string|array $field
+     * @param string       $operator
+     * @param string       $value
      *
      * @return Builder
      */
@@ -725,7 +808,7 @@ class Builder
     }
 
     /**
-     * Adds a where equals clause to the current query.
+     * Adds a 'where equals' clause to the current query.
      *
      * @param string $field
      * @param string $value
@@ -738,7 +821,20 @@ class Builder
     }
 
     /**
-     * Adds a where approximately equals clause to the current query.
+     * Adds a 'where not equals' clause to the current query.
+     *
+     * @param string $field
+     * @param string $value
+     *
+     * @return Builder
+     */
+    public function whereNotEquals($field, $value)
+    {
+        return $this->where($field, Operator::$doesNotEqual, $value);
+    }
+
+    /**
+     * Adds a 'where approximately equals' clause to the current query.
      *
      * @param string $field
      * @param string $value
@@ -751,7 +847,7 @@ class Builder
     }
 
     /**
-     * Adds a where has clause to the current query.
+     * Adds a 'where has' clause to the current query.
      *
      * @param string $field
      *
@@ -763,7 +859,7 @@ class Builder
     }
 
     /**
-     * Adds a where not has clause to the current query.
+     * Adds a 'where not has' clause to the current query.
      *
      * @param string $field
      *
@@ -775,7 +871,7 @@ class Builder
     }
 
     /**
-     * Adds a where contains clause to the current query.
+     * Adds a 'where contains' clause to the current query.
      *
      * @param string $field
      * @param string $value
@@ -788,7 +884,7 @@ class Builder
     }
 
     /**
-     * Adds a where contains clause to the current query.
+     * Adds a 'where contains' clause to the current query.
      *
      * @param string $field
      * @param string $value
@@ -801,7 +897,23 @@ class Builder
     }
 
     /**
-     * Adds a where starts with clause to the current query.
+     * Adds a 'between' clause to the current query.
+     *
+     * @param string $field
+     * @param array  $values
+     *
+     * @return Builder
+     */
+    public function whereBetween($field, array $values)
+    {
+        return $this->where([
+            [$field, '>=', $values[0]],
+            [$field, '<=', $values[1]],
+        ]);
+    }
+
+    /**
+     * Adds a 'where starts with' clause to the current query.
      *
      * @param string $field
      * @param string $value
@@ -814,7 +926,7 @@ class Builder
     }
 
     /**
-     * Adds a where *not* starts with clause to the current query.
+     * Adds a 'where *not* starts with' clause to the current query.
      *
      * @param string $field
      * @param string $value
@@ -827,7 +939,7 @@ class Builder
     }
 
     /**
-     * Adds a where ends with clause to the current query.
+     * Adds a 'where ends with' clause to the current query.
      *
      * @param string $field
      * @param string $value
@@ -840,13 +952,26 @@ class Builder
     }
 
     /**
+     * Adds a 'where *not* ends with' clause to the current query.
+     *
+     * @param string $field
+     * @param string $value
+     *
+     * @return Builder
+     */
+    public function whereNotEndsWith($field, $value)
+    {
+        return $this->where($field, Operator::$notEndsWith, $value);
+    }
+
+    /**
      * Adds a enabled filter to the current query.
      *
      * @return Builder
      */
     public function whereEnabled()
     {
-        return $this->rawFilter('(!(UserAccountControl:1.2.840.113556.1.4.803:=2))');
+        return $this->rawFilter($this->schema->filterEnabled());
     }
 
     /**
@@ -856,15 +981,27 @@ class Builder
      */
     public function whereDisabled()
     {
-        return $this->rawFilter('(UserAccountControl:1.2.840.113556.1.4.803:=2)');
+        return $this->rawFilter($this->schema->filterDisabled());
     }
 
     /**
-     * Adds an or where clause to the current query.
+     * Adds a 'member of' filter to the current query.
      *
-     * @param string      $field
-     * @param string|null $operator
-     * @param string|null $value
+     * @param string $dn
+     *
+     * @return Builder
+     */
+    public function whereMemberOf($dn)
+    {
+        return $this->whereEquals($this->schema->memberOfRecursive(), $dn);
+    }
+
+    /**
+     * Adds an 'or where' clause to the current query.
+     *
+     * @param array|string $field
+     * @param string|null  $operator
+     * @param string|null  $value
      *
      * @return Builder
      */
@@ -890,7 +1027,7 @@ class Builder
     }
 
     /**
-     * Adds an or where has clause to the current query.
+     * Adds an 'or where has' clause to the current query.
      *
      * @param string $field
      *
@@ -902,7 +1039,7 @@ class Builder
     }
 
     /**
-     * Adds a where not has clause to the current query.
+     * Adds a 'where not has' clause to the current query.
      *
      * @param string $field
      *
@@ -914,7 +1051,7 @@ class Builder
     }
 
     /**
-     * Adds an or where equals clause to the current query.
+     * Adds an 'or where equals' clause to the current query.
      *
      * @param string $field
      * @param string $value
@@ -927,7 +1064,20 @@ class Builder
     }
 
     /**
-     * Adds a or where approximately equals clause to the current query.
+     * Adds an 'or where not equals' clause to the current query.
+     *
+     * @param string $field
+     * @param string $value
+     *
+     * @return Builder
+     */
+    public function orWhereNotEquals($field, $value)
+    {
+        return $this->orWhere($field, Operator::$doesNotEqual, $value);
+    }
+
+    /**
+     * Adds a 'or where approximately equals' clause to the current query.
      *
      * @param string $field
      * @param string $value
@@ -940,7 +1090,7 @@ class Builder
     }
 
     /**
-     * Adds an or where contains clause to the current query.
+     * Adds an 'or where contains' clause to the current query.
      *
      * @param string $field
      * @param string $value
@@ -953,7 +1103,7 @@ class Builder
     }
 
     /**
-     * Adds an or where *not* contains clause to the current query.
+     * Adds an 'or where *not* contains' clause to the current query.
      *
      * @param string $field
      * @param string $value
@@ -966,7 +1116,7 @@ class Builder
     }
 
     /**
-     * Adds an or where starts with clause to the current query.
+     * Adds an 'or where starts with' clause to the current query.
      *
      * @param string $field
      * @param string $value
@@ -979,7 +1129,7 @@ class Builder
     }
 
     /**
-     * Adds an or where *not* starts with clause to the current query.
+     * Adds an 'or where *not* starts with' clause to the current query.
      *
      * @param string $field
      * @param string $value
@@ -992,7 +1142,7 @@ class Builder
     }
 
     /**
-     * Adds an or where ends with clause to the current query.
+     * Adds an 'or where ends with' clause to the current query.
      *
      * @param string $field
      * @param string $value
@@ -1005,7 +1155,7 @@ class Builder
     }
 
     /**
-     * Adds an or where *not* ends with clause to the current query.
+     * Adds an 'or where *not* ends with' clause to the current query.
      *
      * @param string $field
      * @param string $value
@@ -1015,6 +1165,18 @@ class Builder
     public function orWhereNotEndsWith($field, $value)
     {
         return $this->orWhere($field, Operator::$notEndsWith, $value);
+    }
+
+    /**
+     * Adds an 'or where member of' filter to the current query.
+     *
+     * @param string $dn
+     *
+     * @return Builder
+     */
+    public function orWhereMemberOf($dn)
+    {
+        return $this->orWhereEquals($this->schema->memberOfRecursive(), $dn);
     }
 
     /**
@@ -1037,9 +1199,11 @@ class Builder
     {
         $selects = $this->columns;
 
-        if (count($selects) > 0) {
-            // Always make sure object category and class are selected. We need these
-            // attributes to construct the right model instance for the record.
+        // If the asterisk is not provided in the selected columns, we need to
+        // ensure we always select the object class and category, as these
+        // are used for constructing models. The asterisk indicates that
+        // we want all attributes returned for LDAP records.
+        if (!in_array('*', $selects)) {
             $selects[] = $this->schema->objectCategory();
             $selects[] = $this->schema->objectClass();
         }
@@ -1075,31 +1239,39 @@ class Builder
     }
 
     /**
-     * Sets the recursive property to tell the search whether or not to search recursively.
+     * Set the query to search on the base distinguished name.
      *
-     * @param bool $recursive
+     * This will result in one record being returned.
      *
      * @return Builder
      */
-    public function recursive($recursive = true)
+    public function read()
     {
-        $this->recursive = (bool) $recursive;
+        $this->type = 'read';
 
         return $this;
     }
 
     /**
-     * Sets the recursive property to tell the search
-     * whether or not to search on the base scope and
-     * return a single entry.
-     *
-     * @param bool $read
+     * Set the query to search one level on the base distinguished name.
      *
      * @return Builder
      */
-    public function read($read = true)
+    public function listing()
     {
-        $this->read = (bool) $read;
+        $this->type = 'listing';
+
+        return $this;
+    }
+
+    /**
+     * Sets the query to search the entire directory on the base distinguished name.
+     *
+     * @return Builder
+     */
+    public function recursive()
+    {
+        $this->type = 'search';
 
         return $this;
     }
@@ -1117,6 +1289,45 @@ class Builder
         $this->raw = (bool) $raw;
 
         return $this;
+    }
+
+    /**
+     * Sets the nested property to tell the Grammar instance whether
+     * or not the current query is already nested.
+     *
+     * @param bool $nested
+     *
+     * @return Builder
+     */
+    public function nested($nested = true)
+    {
+        $this->nested = (bool) $nested;
+
+        return $this;
+    }
+
+    /**
+     * Returns true / false if the current query is nested.
+     *
+     * @return bool
+     */
+    public function isNested()
+    {
+        return $this->nested === true;
+    }
+
+    /**
+     * Returns an escaped string for use in an LDAP filter.
+     *
+     * @param string $value
+     * @param string $ignore
+     * @param int    $flags
+     *
+     * @return string
+     */
+    public function escape($value, $ignore = '', $flags = 0)
+    {
+        return Utilities::escape($value, $ignore, $flags);
     }
 
     /**
@@ -1206,7 +1417,7 @@ class Builder
      * @param string $method
      * @param string $parameters
      *
-     * @return $this
+     * @return Builder
      */
     public function dynamicWhere($method, $parameters)
     {
@@ -1236,6 +1447,38 @@ class Builder
             // have the proper boolean connector to connect the next where clause found.
             else {
                 $connector = $segment;
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Adds an array of wheres to the current query.
+     *
+     * @param array  $wheres
+     * @param string $boolean
+     * @param bool   $raw
+     *
+     * @return Builder
+     */
+    protected function addArrayOfWheres($wheres, $boolean, $raw)
+    {
+        foreach ($wheres as $key => $value) {
+            if (is_numeric($key) && is_array($value)) {
+                // If the key is numeric and the value is an array, we'll
+                // assume we've been given an array with conditionals.
+                list($field, $condition) = $value;
+
+                // Since a value is optional for some conditionals, we will
+                // try and retrieve the third parameter from the array,
+                // but is entirely optional.
+                $value = Arr::get($value, 2);
+
+                $this->where($field, $condition, $value, $boolean);
+            } else {
+                // If the value is not an array, we will assume an equals clause.
+                $this->where($key, Operator::$equals, $value, $boolean, $raw);
             }
         }
 

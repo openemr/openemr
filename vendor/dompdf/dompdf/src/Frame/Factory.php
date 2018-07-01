@@ -15,6 +15,7 @@ use Dompdf\FrameDecorator\AbstractFrameDecorator;
 use DOMXPath;
 use Dompdf\FrameDecorator\Page as PageFrameDecorator;
 use Dompdf\FrameReflower\Page as PageFrameReflower;
+use Dompdf\Positioner\AbstractPositioner;
 
 /**
  * Contains frame decorating logic
@@ -29,6 +30,13 @@ use Dompdf\FrameReflower\Page as PageFrameReflower;
  */
 class Factory
 {
+
+     /**
+     * Array of positioners for specific frame types
+     *
+     * @var AbstractPositioner[]
+     */
+    protected static $_positioners;
 
     /**
      * Decorate the root Frame
@@ -76,12 +84,15 @@ class Factory
 
         switch ($display) {
 
+            case "flex": //FIXME: display type not yet supported 
+            case "table-caption": //FIXME: display type not yet supported
             case "block":
                 $positioner = "Block";
                 $decorator = "Block";
                 $reflower = "Block";
                 break;
 
+            case "inline-flex": //FIXME: display type not yet supported 
             case "inline-block":
                 $positioner = "Inline";
                 $decorator = "Block";
@@ -205,14 +216,13 @@ class Factory
             $reflower = "Image";
         }
 
-        $positioner = "Dompdf\\Positioner\\$positioner";
         $decorator  = "Dompdf\\FrameDecorator\\$decorator";
         $reflower   = "Dompdf\\FrameReflower\\$reflower";
 
         /** @var AbstractFrameDecorator $deco */
         $deco = new $decorator($frame, $dompdf);
 
-        $deco->set_positioner(new $positioner($deco));
+        $deco->set_positioner(self::getPositionerInstance($positioner));
         $deco->set_reflower(new $reflower($deco, $dompdf->getFontMetrics()));
 
         if ($root) {
@@ -221,7 +231,7 @@ class Factory
 
         if ($display === "list-item") {
             // Insert a list-bullet frame
-            $xml = $dompdf->get_dom();
+            $xml = $dompdf->getDom();
             $bullet_node = $xml->createElement("bullet"); // arbitrary choice
             $b_f = new Frame($bullet_node);
 
@@ -241,7 +251,7 @@ class Factory
                     if (!$parent_node->hasAttribute("dompdf-counter")) {
                         $index = ($parent_node->hasAttribute("start") ? $parent_node->getAttribute("start") : 1);
                     } else {
-                        $index = $parent_node->getAttribute("dompdf-counter") + 1;
+                        $index = (int)$parent_node->getAttribute("dompdf-counter") + 1;
                     }
                 }
 
@@ -249,7 +259,7 @@ class Factory
                 $bullet_node->setAttribute("dompdf-counter", $index);
             }
 
-            $new_style = $dompdf->get_css()->create_style();
+            $new_style = $dompdf->getCss()->create_style();
             $new_style->display = "-dompdf-list-bullet";
             $new_style->inherit($style);
             $b_f->set_style($new_style);
@@ -258,5 +268,20 @@ class Factory
         }
 
         return $deco;
+    }
+
+    /**
+     * Creates Positioners
+     *
+     * @param string $type type of positioner to use
+     * @return AbstractPositioner
+     */
+    protected static function getPositionerInstance($type)
+    {
+        if (!isset(self::$_positioners[$type])) {
+            $class = '\\Dompdf\\Positioner\\'.$type;
+            self::$_positioners[$type] = new $class();
+        }
+        return self::$_positioners[$type];
     }
 }

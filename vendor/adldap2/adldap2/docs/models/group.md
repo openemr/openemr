@@ -5,6 +5,31 @@
 >
 > [HasMemberOf](traits/has-member-of.md)
 
+## Creation
+
+```php
+// Adldap\Models\Group
+$group = $provider->make()->group([
+    'cn' => 'Managers',
+]);
+
+// Create group's DN through the DN Builder:
+$group = $provider->make()->group();
+
+$dn = $group->getDnBuilder();
+
+$dn->addOu('Workstation Computers');
+
+$dn->addCn("Managers");
+
+$group->setDn($dn);
+
+// Or set the DN manually:
+$ou->setDn('cn=Managers,ou=Workstation Computers,dc=test,dc=local,dc=com');
+
+$group->save();
+```
+
 ## Getting a groups members
 
 When you receive a `Group` model instance, it will contain a `member`
@@ -152,6 +177,31 @@ if ($group->addMember($user)) {
 $user = 'cn=John Doe,dc=corp,dc=acme,dc=org';
 
 if ($group->addMember($user)) {
+    //
+}
+```
+
+## Adding Multiple Group Members
+
+To add multiple members to a group, use the `addMembers()` method:
+
+> **Note**: You do not need to call the `save()` method after adding
+> members. It's automatically called so you can determine
+> if the members were successfully added.
+
+```php
+$members = [
+    'cn=John Doe,dc=corp,dc=acme,dc=org',
+    'cn=Jane Doe,dc=corp,dc=acme,dc=org',
+];
+
+$group->addMembers($members);
+
+// Or
+
+$user = $provider->search()->users()->first();
+
+if ($group->addMembers($user)) {
     //
 }
 ```

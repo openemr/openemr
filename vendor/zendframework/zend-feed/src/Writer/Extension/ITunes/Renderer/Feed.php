@@ -44,6 +44,8 @@ class Feed extends Extension\AbstractRenderer
         $this->_setOwners($this->dom, $this->base);
         $this->_setSubtitle($this->dom, $this->base);
         $this->_setSummary($this->dom, $this->base);
+        $this->_setType($this->dom, $this->base);
+        $this->_setComplete($this->dom, $this->base);
         if ($this->called) {
             $this->_appendNamespaces();
         }
@@ -322,6 +324,50 @@ class Feed extends Extension\AbstractRenderer
         }
         $el = $dom->createElement('itunes:summary');
         $text = $dom->createTextNode($summary);
+        $el->appendChild($text);
+        $root->appendChild($el);
+        $this->called = true;
+    }
+
+    /**
+     * Set podcast type
+     *
+     * @param  DOMDocument $dom
+     * @param  DOMElement $root
+     * @return void
+     */
+    // @codingStandardsIgnoreStart
+    protected function _setType(DOMDocument $dom, DOMElement $root)
+    {
+        // @codingStandardsIgnoreEnd
+        $type = $this->getDataContainer()->getItunesType();
+        if (! $type) {
+            return;
+        }
+        $el = $dom->createElement('itunes:type');
+        $text = $dom->createTextNode($type);
+        $el->appendChild($text);
+        $root->appendChild($el);
+        $this->called = true;
+    }
+
+    /**
+     * Set complete status
+     *
+     * @param  DOMDocument $dom
+     * @param  DOMElement $root
+     * @return void
+     */
+    // @codingStandardsIgnoreStart
+    protected function _setComplete(DOMDocument $dom, DOMElement $root)
+    {
+        // @codingStandardsIgnoreEnd
+        $status = $this->getDataContainer()->getItunesComplete();
+        if (! $status) {
+            return;
+        }
+        $el = $dom->createElement('itunes:complete');
+        $text = $dom->createTextNode('Yes');
         $el->appendChild($text);
         $root->appendChild($el);
         $this->called = true;

@@ -80,7 +80,7 @@ class ApcIterator implements IteratorInterface
      * Set iterator mode
      *
      * @param int $mode
-     * @return ApcIterator Fluent interface
+     * @return ApcIterator Provides a fluent interface
      */
     public function setMode($mode)
     {

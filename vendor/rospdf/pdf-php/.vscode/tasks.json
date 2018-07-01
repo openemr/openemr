@@ -1,0 +1,24 @@
+{
+    // This task will start php in background (WINDOWS)
+    "version": "0.1.0",
+    "isShellCommand": true,
+    "showOutput": "always",
+    "tasks": [
+        { 
+            "taskName": "Run PHP5 Server (Port 5000)",
+            "suppressTaskName": true,
+            "command": "php",
+            "args": [
+                "-S", "localhost:5000"
+            ]
+        },
+        { 
+            "taskName": "Run PHP7 Server (Port 5000)",
+            "suppressTaskName": true,
+            "command": "php7",
+            "args": [
+                "-S", "localhost:5000"
+            ]
+        }
+    ]
+}

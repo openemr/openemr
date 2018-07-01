@@ -54,7 +54,7 @@ class Registry
         $roleParents = [];
 
         if (null !== $parents) {
-            if (!is_array($parents) && !$parents instanceof Traversable) {
+            if (! is_array($parents) && ! $parents instanceof Traversable) {
                 $parents = [$parents];
             }
             foreach ($parents as $parent) {
@@ -102,7 +102,7 @@ class Registry
             $roleId = (string) $role;
         }
 
-        if (!$this->has($role)) {
+        if (! $this->has($role)) {
             throw new Exception\InvalidArgumentException("Role '$roleId' not found");
         }
 

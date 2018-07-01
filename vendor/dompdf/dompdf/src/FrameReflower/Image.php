@@ -20,11 +20,18 @@ use Dompdf\FrameDecorator\Image as ImageFrameDecorator;
 class Image extends AbstractFrameReflower
 {
 
+    /**
+     * Image constructor.
+     * @param ImageFrameDecorator $frame
+     */
     function __construct(ImageFrameDecorator $frame)
     {
         parent::__construct($frame);
     }
 
+    /**
+     * @param BlockFrameDecorator|null $block
+     */
     function reflow(BlockFrameDecorator $block = null)
     {
         $this->_frame->position();
@@ -36,7 +43,7 @@ class Image extends AbstractFrameReflower
         //if ($frame->get_style()->float !== "none" ) {
         //  $page->add_floating_frame($this);
         //}
-        
+
         // Set the frame's width
         $this->get_min_max_width();
 
@@ -45,9 +52,12 @@ class Image extends AbstractFrameReflower
         }
     }
 
+    /**
+     * @return array
+     */
     function get_min_max_width()
     {
-        if ($this->get_dompdf()->get_option("debugPng")) {
+        if ($this->get_dompdf()->getOptions()->getDebugPng()) {
             // Determine the image's size. Time consuming. Only when really needed?
             list($img_width, $img_height) = Helpers::dompdf_getimagesize($this->_frame->get_image_url(), $this->get_dompdf()->getHttpContext());
             print "get_min_max_width() " .
@@ -83,7 +93,7 @@ class Image extends AbstractFrameReflower
                 }
             }
             $width = ((float)rtrim($width, "%") * $t) / 100; //maybe 0
-        } elseif (!mb_strpos($width, 'pt')) {
+        } else {
             // Don't set image original size if "%" branch was 0 or size not given.
             // Otherwise aspect changed on %/auto combination for width/height
             // Resample according to px per inch
@@ -96,13 +106,13 @@ class Image extends AbstractFrameReflower
             $t = 0.0;
             for ($f = $this->_frame->get_parent(); $f; $f = $f->get_parent()) {
                 $f_style = $f->get_style();
-                $t = $f_style->length_in_pt($f_style->height);
+                $t = (float)$f_style->length_in_pt($f_style->height);
                 if ($t != 0) {
                     break;
                 }
             }
             $height = ((float)rtrim($height, "%") * $t) / 100; //maybe 0
-        } elseif (!mb_strpos($height, 'pt')) {
+        } else {
             // Don't set image original size if "%" branch was 0 or size not given.
             // Otherwise aspect changed on %/auto combination for width/height
             // Resample according to px per inch
@@ -118,7 +128,7 @@ class Image extends AbstractFrameReflower
             // Resample according to px per inch
             // See also ListBulletImage::__construct
             if ($width == 0 && $height == 0) {
-                $dpi = $this->_frame->get_dompdf()->get_option("dpi");
+                $dpi = $this->_frame->get_dompdf()->getOptions()->getDpi();
                 $width = (float)($img_width * 72) / $dpi;
                 $height = (float)($img_height * 72) / $dpi;
                 $width_forced = false;
@@ -179,7 +189,9 @@ class Image extends AbstractFrameReflower
             }
         }
 
-        if ($this->get_dompdf()->get_option("debugPng")) print $width . ' ' . $height . ';';
+        if ($this->get_dompdf()->getOptions()->getDebugPng()) {
+            print $width . ' ' . $height . ';';
+        }
 
         $style->width = $width . "pt";
         $style->height = $height . "pt";
@@ -190,6 +202,5 @@ class Image extends AbstractFrameReflower
         $style->max_height = "none";
 
         return array($width, $width, "min" => $width, "max" => $width);
-
     }
 }

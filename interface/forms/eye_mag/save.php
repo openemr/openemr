@@ -58,6 +58,8 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/report.inc");
 require_once("$srcdir/html2pdf/html2pdf.class.php");
 
+use Mpdf\Mpdf;
+
 $returnurl = 'encounter_top.php';
 
 if (isset($_REQUEST['id'])) {
@@ -114,17 +116,17 @@ if ($_REQUEST['AJAX_PREFS']) {
               VALUES
               ('PREFS','CTL','Contact Lens',?,'CTL','55',?,'5')";
     sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_CTL']));
-    
+
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS', 'VAX', 'Visual Acuities', ?, 'VAX','65', ?,'15')";
     sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_VAX']));
-    
+
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS', 'RXHX', 'Prior Refractions', ?, 'RXHX','65', ?,'115')";
     sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_RXHX']));
-    
+
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','ADDITIONAL','Additional Data Points',?,'ADDITIONAL','56',?,'6')";
@@ -360,26 +362,26 @@ if ($_REQUEST["mode"] == "new") {
             array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
             $_SESSION['language_direction'] == 'rtl' ? true : false
         );*/
-        $pdf = new mPDF(
-            $GLOBALS['pdf_language'],
-            $GLOBALS['pdf_size'],
-            '9',
-            '',
-            $GLOBALS['pdf_left_margin'],
-            $GLOBALS['pdf_right_margin'],
-            $GLOBALS['pdf_top_margin'],
-            $GLOBALS['pdf_bottom_margin'],
-            '', // default header margin
-            '', // default footer margin
-            $GLOBALS['pdf_layout']
+        $config_mpdf = array(
+            'mode' => $GLOBALS['pdf_language'],
+            'format' => $GLOBALS['pdf_size'],
+            'default_font_size' => '9',
+            'default_font' => '',
+            'margin_left' => $GLOBALS['pdf_left_margin'],
+            'margin_right' => $GLOBALS['pdf_right_margin'],
+            'margin_top' => $GLOBALS['pdf_top_margin'],
+            'margin_bottom' => $GLOBALS['pdf_bottom_margin'],
+            'margin_header' => '',
+            'margin_footer' => '',
+            'orientation' => $GLOBALS['pdf_layout'],
+            'shrink_tables_to_fit' => 1,
+            'use_kwt' => true,
+            'keep_table_proportions' => true
         );
+        $pdf = new mPDF($config_mpdf);
         if ($_SESSION['language_direction'] == 'rtl') {
             $pdf->SetDirectionality('rtl');
         }
-        $pdf->shrink_tables_to_fit = 1;
-        $keep_table_proportions = true;
-        $pdf->use_kwt = true;
-
         ob_start();
         ?>
         <link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css" type="text/css">
@@ -459,7 +461,7 @@ if ($_REQUEST["mode"] == "new") {
     if ($_REQUEST['action'] == 'docs') {
         $query = "update patient_data set providerID=?,ref_providerID=? where pid =?";
         sqlQuery($query, array($_REQUEST['pcp'],$_REQUEST['rDOC'],$pid));
-        
+
         if ($_REQUEST['pcp']) {
             //return PCP's data to end user to update their form
             $query = "SELECT * FROM users WHERE id =?";
@@ -471,7 +473,7 @@ if ($_REQUEST["mode"] == "new") {
             $DOCS['pcp']['address'] = $DOC1['organization'] . "<br />" . $DOC1['street'] . "<br />" . $DOC1['city'] . ", " . $DOC1['state'] . "  " . $DOC1['zip'] . "<br />";
             $DOCS['pcp']['fax'] = $DOC1['fax'];
             $DOCS['pcp']['phone'] = $DOC1['phonew1'];
-    
+
             // does the fax already exist?
             $query = "SELECT * FROM form_taskman WHERE TO_ID=? AND PATIENT_ID=? AND ENC_ID=?";
             $FAX_PCP = sqlQuery($query, array($_REQUEST['pcp'], $pid, $encounter));
@@ -492,7 +494,7 @@ if ($_REQUEST["mode"] == "new") {
                 </a>';
             }
         }
-        
+
         if ($_REQUEST['rDOC']) {
             //return referring Doc's data to end user to update their form
             $query = "SELECT * FROM users WHERE id =?";
@@ -507,7 +509,7 @@ if ($_REQUEST["mode"] == "new") {
             $DOCS['ref']['address'] .= $DOC2['street'] . "<br />" . $DOC2['city'] . ", " . $DOC2['state'] . "  " . $DOC2['zip'] . "<br />";
             $DOCS['ref']['fax'] = $DOC2['fax'];
             $DOCS['ref']['phone'] = $DOC2['phonew1'];
-    
+
             // does the fax already exist?
             $query = "SELECT * FROM form_taskman WHERE TO_ID=? AND PATIENT_ID=? AND ENC_ID=?";
             $FAX_REF = sqlQuery($query, array($_REQUEST['rDOC'], $pid, $encounter));
@@ -528,7 +530,7 @@ if ($_REQUEST["mode"] == "new") {
                 </a>';
             }
         }
-        
+
         echo json_encode($DOCS);
         exit;
     }

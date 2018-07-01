@@ -305,7 +305,7 @@ class File extends BinaryStream {
 
       $class = "FontLib\\Table\\Type\\$name_canon";
 
-      if (!isset($this->directory[$tag]) || !class_exists($class)) {
+      if (!isset($this->directory[$tag]) || !@class_exists($class)) {
         return;
       }
     }

@@ -40,7 +40,7 @@ final class Php55
     public static function hash_pbkdf2($algorithm, $password, $salt, $iterations, $length = 0, $rawOutput = false)
     {
         // Number of blocks needed to create the derived key
-        $blocks = ceil($length / strlen(hash($algorithm, null, true)));
+        $blocks = ceil($length / \strlen(hash($algorithm, null, true)));
         $digest = '';
 
         for ($i = 1; $i <= $blocks; ++$i) {

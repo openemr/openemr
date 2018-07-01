@@ -11,6 +11,12 @@ use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
+use function gettype;
+use function is_float;
+use function is_numeric;
+use function is_scalar;
+use function sprintf;
+
 /**
  * HTTP response encapsulation.
  *

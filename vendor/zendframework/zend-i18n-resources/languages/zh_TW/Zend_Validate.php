@@ -10,7 +10,7 @@
 /**
  * ZH-Revision: 26.Apr.2013
  */
-return array(
+return [
     // Zend_I18n_Validator_Alnum
     "Invalid type given. String, integer or float expected" => "請輸入一個整數或小數",
     "The input contains characters which are non alphabetic and no digits" => "輸入不能為字母數字以外的字符",
@@ -264,4 +264,4 @@ return array(
     // Zend_Validator_Uri
     "Invalid type given. String expected" => "輸入無效，請輸入一個字符串",
     "The input does not appear to be a valid Uri" => "輸入的Uri格式有誤",
-);
+];

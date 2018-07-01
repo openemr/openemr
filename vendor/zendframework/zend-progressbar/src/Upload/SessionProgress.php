@@ -23,7 +23,7 @@ class SessionProgress extends AbstractUploadHandler
      */
     protected function getUploadProgress($id)
     {
-        if (!$this->isSessionUploadProgressAvailable()) {
+        if (! $this->isSessionUploadProgressAvailable()) {
             throw new Exception\PhpEnvironmentException(
                 'Session Upload Progress is not available'
             );
@@ -31,7 +31,7 @@ class SessionProgress extends AbstractUploadHandler
 
         $sessionKey = ini_get('session.upload_progress.prefix') . $id;
         $uploadInfo = (isset($_SESSION[$sessionKey])) ? $_SESSION[$sessionKey] : null;
-        if (!is_array($uploadInfo)) {
+        if (! is_array($uploadInfo)) {
             return false;
         }
 
@@ -49,7 +49,7 @@ class SessionProgress extends AbstractUploadHandler
         $time = time() - $status['start_time'];
         $status['rate'] = ($time > 0) ? $status['bytes_processed'] / $time : 0;
 
-        if (!empty($status['cancel_upload'])) {
+        if (! empty($status['cancel_upload'])) {
             $status['done'] = true;
             $status['message'] = 'The upload has been canceled';
         }

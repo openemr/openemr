@@ -19,19 +19,13 @@ use Dompdf\FrameDecorator\Table;
 class TableCell extends AbstractPositioner
 {
 
-    function __construct(AbstractFrameDecorator $frame)
+    /**
+     * @param AbstractFrameDecorator $frame
+     */
+    function position(AbstractFrameDecorator $frame)
     {
-        parent::__construct($frame);
-    }
-
-    //........................................................................
-
-    function position()
-    {
-
-        $table = Table::find_parent_table($this->_frame);
+        $table = Table::find_parent_table($frame);
         $cellmap = $table->get_cellmap();
-        $this->_frame->set_position($cellmap->get_frame_position($this->_frame));
-
+        $frame->set_position($cellmap->get_frame_position($frame));
     }
 }

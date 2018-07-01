@@ -4,10 +4,16 @@ namespace Adldap\Models;
 
 use InvalidArgumentException;
 use Adldap\Utilities;
-use Adldap\Objects\BatchModification;
-use Adldap\Models\Traits\HasMemberOf;
-use Adldap\Models\Traits\HasDescription;
+use Adldap\Models\Concerns\HasMemberOf;
+use Adldap\Models\Concerns\HasDescription;
 
+/**
+ * Class Group
+ *
+ * Represents an LDAP group (security / distribution).
+ *
+ * @package Adldap\Models
+ */
 class Group extends Entry
 {
     use HasDescription, HasMemberOf;
@@ -15,7 +21,7 @@ class Group extends Entry
     /**
      * Returns all users apart of the current group.
      *
-     * https://msdn.microsoft.com/en-us/library/ms677097(v=vs.85).aspx
+     * @link https://msdn.microsoft.com/en-us/library/ms677097(v=vs.85).aspx
      *
      * @return \Illuminate\Support\Collection
      */
@@ -67,11 +73,35 @@ class Group extends Entry
     }
 
     /**
+     * Adds multiple entries to the current group.
+     *
+     * @param array $members
+     *
+     * @return bool
+     */
+    public function addMembers(array $members)
+    {
+        $members = array_map(function ($member) {
+            return $member instanceof Model
+                ? $member->getDn()
+                : $member;
+        }, $members);
+
+        $mod = $this->newBatchModification(
+            $this->schema->member(),
+            LDAP_MODIFY_BATCH_ADD,
+            $members
+        );
+
+        return $this->addModification($mod)->save();
+    }
+
+    /**
      * Adds an entry to the current group.
      *
      * @param string|Entry $entry
      *
-     * @throws InvalidArgumentException
+     * @throws InvalidArgumentException When the given entry is empty or contains no distinguished name.
      *
      * @return bool
      */
@@ -85,13 +115,13 @@ class Group extends Entry
             );
         }
 
-        $this->addModification(new BatchModification(
+        $mod = $this->newBatchModification(
             $this->schema->member(),
             LDAP_MODIFY_BATCH_ADD,
             [$entry]
-        ));
+        );
 
-        return $this->save();
+        return $this->addModification($mod)->save();
     }
 
     /**
@@ -113,13 +143,13 @@ class Group extends Entry
             );
         }
 
-        $this->addModification(new BatchModification(
+        $mod = $this->newBatchModification(
             $this->schema->member(),
             LDAP_MODIFY_BATCH_REMOVE,
             [$entry]
-        ));
+        );
 
-        return $this->save();
+        return $this->addModification($mod)->save();
     }
 
     /**
@@ -129,16 +159,18 @@ class Group extends Entry
      */
     public function removeMembers()
     {
-        return $this->addModification(new BatchModification(
+        $mod = $this->newBatchModification(
             $this->schema->member(),
             LDAP_MODIFY_BATCH_REMOVE_ALL
-        ))->save();
+        );
+
+        return $this->addModification($mod)->save();
     }
 
     /**
      * Returns the group type integer.
      *
-     * https://msdn.microsoft.com/en-us/library/ms675935(v=vs.85).aspx
+     * @link https://msdn.microsoft.com/en-us/library/ms675935(v=vs.85).aspx
      *
      * @return string
      */
@@ -224,6 +256,8 @@ class Group extends Entry
                 [$this->query->getSchema()->memberRange($from, $to)]
             );
 
+            // Finally, we'll merge our current members
+            // with the newly returned members.
             $members = array_merge(
                 $members,
                 $group->getMembers()->toArray()

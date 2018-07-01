@@ -25,6 +25,7 @@
  * @link http://www.open-emr.org
  */
 
+use Mpdf\Mpdf;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -322,27 +323,27 @@ function make_document($task)
         $sql = "DELETE from documents where documents.url like ?";
         sqlQuery($sql, array("%".$filename));
     }
-    
-    $pdf = new mPDF(
-        $GLOBALS['pdf_language'],
-        $GLOBALS['pdf_size'],
-        '9',
-        '',
-        $GLOBALS['pdf_left_margin'],
-        $GLOBALS['pdf_right_margin'],
-        $GLOBALS['pdf_top_margin'],
-        $GLOBALS['pdf_bottom_margin'],
-        '', // default header margin
-        '', // default footer margin
-        $GLOBALS['pdf_layout']
+
+    $config_mpdf = array(
+        'mode' => $GLOBALS['pdf_language'],
+        'format' => $GLOBALS['pdf_size'],
+        'default_font_size' => '9',
+        'default_font' => '',
+        'margin_left' => $GLOBALS['pdf_left_margin'],
+        'margin_right' => $GLOBALS['pdf_right_margin'],
+        'margin_top' => $GLOBALS['pdf_top_margin'],
+        'margin_bottom' => $GLOBALS['pdf_bottom_margin'],
+        'margin_header' => '',
+        'margin_footer' => '',
+        'orientation' => $GLOBALS['pdf_layout'],
+        'shrink_tables_to_fit' => 1,
+        'use_kwt' => true,
+        'keep_table_proportions' => true
     );
+    $pdf = new mPDF($config_mpdf);
     if ($_SESSION['language_direction'] == 'rtl') {
         $pdf->SetDirectionality('rtl');
     }
-    $pdf->shrink_tables_to_fit = 1;
-    $keep_table_proportions = true;
-    $pdf->use_kwt = true;
-
     ob_start();
     ?><html>
     <head>

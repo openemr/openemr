@@ -20,7 +20,7 @@ final class Php54
 {
     public static function hex2bin($data)
     {
-        $len = strlen($data);
+        $len = \strlen($data);
 
         if (null === $len) {
             return;

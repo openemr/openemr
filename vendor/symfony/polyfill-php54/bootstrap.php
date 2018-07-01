@@ -13,12 +13,12 @@ use Symfony\Polyfill\Php54 as p;
 
 if (PHP_VERSION_ID < 50400) {
     if (!function_exists('trait_exists')) {
-        function trait_exists($class, $autoload = true) { return $autoload && class_exists($class, $autoload) && false; }
+        function trait_exists($class, $autoload = true) { return $autoload && \class_exists($class, $autoload) && false; }
     }
     if (!function_exists('class_uses')) {
         function class_uses($class, $autoload = true)
         {
-            if (is_object($class) || class_exists($class, $autoload) || interface_exists($class, false)) {
+            if (\is_object($class) || \class_exists($class, $autoload) || \interface_exists($class, false)) {
                 return array();
             }
 

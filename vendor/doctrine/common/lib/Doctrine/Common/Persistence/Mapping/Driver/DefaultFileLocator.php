@@ -37,7 +37,7 @@ class DefaultFileLocator implements FileLocator
      *
      * @var array
      */
-    protected $paths = array();
+    protected $paths = [];
 
     /**
      * The file extension of mapping documents.
@@ -51,7 +51,7 @@ class DefaultFileLocator implements FileLocator
      * documents and operates in the specified operating mode.
      *
      * @param string|array $paths         One or multiple paths where mapping documents can be found.
-     * @param string|null  $fileExtension The file extension of mapping documents.
+     * @param string|null  $fileExtension The file extension of mapping documents, usually prefixed with a dot.
      */
     public function __construct($paths, $fileExtension = null)
     {
@@ -125,7 +125,7 @@ class DefaultFileLocator implements FileLocator
      */
     public function getAllClassNames($globalBasename)
     {
-        $classes = array();
+        $classes = [];
 
         if ($this->paths) {
             foreach ($this->paths as $path) {

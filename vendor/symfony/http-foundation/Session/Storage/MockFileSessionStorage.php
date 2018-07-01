@@ -24,14 +24,9 @@ namespace Symfony\Component\HttpFoundation\Session\Storage;
  */
 class MockFileSessionStorage extends MockArraySessionStorage
 {
-    /**
-     * @var string
-     */
     private $savePath;
 
     /**
-     * Constructor.
-     *
      * @param string      $savePath Path of directory to save session files
      * @param string      $name     Session name
      * @param MetadataBag $metaBag  MetadataBag instance

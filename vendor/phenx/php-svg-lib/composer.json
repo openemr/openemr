@@ -14,5 +14,11 @@
     "psr-0": {
       "Svg\\": "src/"
     }
+  },
+  "require": {
+    "sabberworm/php-css-parser": "8.1.*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~5.0"
   }
 }

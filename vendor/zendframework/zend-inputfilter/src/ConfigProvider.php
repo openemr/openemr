@@ -18,6 +18,7 @@ class ConfigProvider
     {
         return [
             'dependencies' => $this->getDependencyConfig(),
+            'input_filters' => $this->getInputFilterConfig(),
         ];
     }
 
@@ -32,11 +33,22 @@ class ConfigProvider
             'aliases' => [
                 'InputFilterManager' => InputFilterPluginManager::class,
             ],
-            'abstract_factories' => [
-                InputFilterAbstractServiceFactory::class,
-            ],
             'factories' => [
                 InputFilterPluginManager::class => InputFilterPluginManagerFactory::class,
+            ],
+        ];
+    }
+
+    /**
+     * Get input filter configuration
+     *
+     * @return array
+     */
+    public function getInputFilterConfig()
+    {
+        return [
+            'abstract_factories' => [
+                InputFilterAbstractServiceFactory::class,
             ],
         ];
     }

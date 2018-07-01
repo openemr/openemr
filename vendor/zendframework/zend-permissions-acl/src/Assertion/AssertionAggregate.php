@@ -9,10 +9,10 @@
 namespace Zend\Permissions\Acl\Assertion;
 
 use Zend\Permissions\Acl\Acl;
-use Zend\Permissions\Acl\Role\RoleInterface;
-use Zend\Permissions\Acl\Resource\ResourceInterface;
 use Zend\Permissions\Acl\Exception\InvalidArgumentException;
 use Zend\Permissions\Acl\Exception\RuntimeException;
+use Zend\Permissions\Acl\Resource\ResourceInterface;
+use Zend\Permissions\Acl\Role\RoleInterface;
 
 class AssertionAggregate implements AssertionInterface
 {
@@ -34,7 +34,7 @@ class AssertionAggregate implements AssertionInterface
      * Stacks an assertion in aggregate
      *
      * @param AssertionInterface|string $assertion
-     *            if string, must match a AssertionManager declared service (checked later)
+     *    if string, must match a AssertionManager declared service (checked later)
      *
      * @return self
      */
@@ -93,7 +93,7 @@ class AssertionAggregate implements AssertionInterface
      * - at least one assertion is true with MODE_AT_LEAST_ONE
      *
      * @param string $mode
-     *            indicates how assertion chain result should interpreted (either 'all' or 'at_least_one')
+     *    indicates how assertion chain result should interpreted (either 'all' or 'at_least_one')
      * @throws InvalidArgumentException
      *
      * @return self
@@ -125,8 +125,12 @@ class AssertionAggregate implements AssertionInterface
      * @throws RuntimeException
      * @return bool
      */
-    public function assert(Acl $acl, RoleInterface $role = null, ResourceInterface $resource = null, $privilege = null)
-    {
+    public function assert(
+        Acl $acl,
+        RoleInterface $role = null,
+        ResourceInterface $resource = null,
+        $privilege = null
+    ) {
         // check if assertions are set
         if (! $this->assertions) {
             throw new RuntimeException('no assertion have been aggregated to this AssertionAggregate');
@@ -142,7 +146,11 @@ class AssertionAggregate implements AssertionInterface
                         try {
                             $assertion = $manager->get($assertion);
                         } catch (\Exception $e) {
-                            throw new Exception\InvalidAssertionException('assertion "' . $assertion . '" is not defined in assertion manager');
+                            throw new Exception\InvalidAssertionException(
+                                'assertion "'
+                                . $assertion
+                                . '" is not defined in assertion manager'
+                            );
                         }
                     } else {
                         throw new RuntimeException('no assertion manager is set - cannot look up for assertions');

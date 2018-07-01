@@ -67,4 +67,9 @@ class Result implements \IteratorAggregate, \Countable, \ArrayAccess
     {
         return $this->result['rows'];
     }
+
+    public function getOffset()
+    {
+        return $this->result['offset'];
+    }
 }

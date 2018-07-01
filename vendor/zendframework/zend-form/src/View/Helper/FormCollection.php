@@ -123,7 +123,7 @@ class FormCollection extends AbstractHelper
         if ($this->shouldWrap) {
             $attributes = $element->getAttributes();
             unset($attributes['name']);
-            $attributesString = count($attributes) ? ' ' . $this->createAttributesString($attributes) : '';
+            $attributesString = $attributes ? ' ' . $this->createAttributesString($attributes) : '';
 
             $label = $element->getLabel();
             $legend = '';

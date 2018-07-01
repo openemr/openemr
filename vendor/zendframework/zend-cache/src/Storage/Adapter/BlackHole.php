@@ -71,7 +71,7 @@ class BlackHole implements
      * Set options.
      *
      * @param array|\Traversable|AdapterOptions $options
-     * @return StorageInterface Fluent interface
+     * @return BlackHole Provides a fluent interface
      */
     public function setOptions($options)
     {

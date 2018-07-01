@@ -87,7 +87,7 @@ class KeyListIterator implements IteratorInterface, Countable
      * Set iterator mode
      *
      * @param int $mode
-     * @return KeyListIterator Fluent interface
+     * @return KeyListIterator Provides a fluent interface
      */
     public function setMode($mode)
     {

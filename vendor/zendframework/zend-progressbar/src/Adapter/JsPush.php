@@ -113,8 +113,10 @@ class JsPush extends AbstractAdapter
      * @param  string $data
      * @return void
      */
+    // @codingStandardsIgnoreStart
     protected function _outputData($data)
     {
+        // @codingStandardsIgnoreEnd
         // 1024 padding is required for Safari, while 256 padding is required
         // for Internet Explorer. The <br /> is required so Safari actually
         // executes the <script />

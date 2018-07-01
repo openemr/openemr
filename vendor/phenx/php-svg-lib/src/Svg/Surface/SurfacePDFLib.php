@@ -2,8 +2,8 @@
 /**
  * @package php-svg-lib
  * @link    http://github.com/PhenX/php-svg-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
+ * @author  Fabien Mï¿½nager <fabien.menager@gmail.com>
+ * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
  */
 
 namespace Svg\Surface;
@@ -315,7 +315,7 @@ class SurfacePDFLib implements SurfaceInterface
         $this->style = $style;
         $canvas = $this->canvas;
 
-        if (($stroke = $style->stroke) && $stroke !== "none") {
+        if ($stroke = $style->stroke && is_array($style->stroke)) {
             $canvas->setcolor(
                 "stroke",
                 "rgb",
@@ -326,7 +326,7 @@ class SurfacePDFLib implements SurfaceInterface
             );
         }
 
-        if (($fill = $style->fill) && $fill !== "none") {
+        if ($fill = $style->fill && is_array($style->fill)) {
             $canvas->setcolor(
                 "fill",
                 "rgb",
@@ -413,5 +413,10 @@ class SurfacePDFLib implements SurfaceInterface
         }
 
         return $this->canvas->load_font($family, "unicode", "fontstyle=$style");
+    }
+
+    public function setFont($family, $style, $weight)
+    {
+        // TODO: Implement setFont() method.
     }
 }

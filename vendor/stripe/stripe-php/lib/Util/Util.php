@@ -11,21 +11,22 @@ abstract class Util
 
     /**
      * Whether the provided array (or other) is a list rather than a dictionary.
+     * A list is defined as an array for which all the keys are consecutive
+     * integers starting at 0. Empty arrays are considered to be lists.
      *
      * @param array|mixed $array
-     * @return boolean True if the given object is a list.
+     * @return boolean true if the given object is a list.
      */
     public static function isList($array)
     {
         if (!is_array($array)) {
             return false;
         }
-
-      // TODO: generally incorrect, but it's correct given Stripe's response
-        foreach (array_keys($array) as $k) {
-            if (!is_numeric($k)) {
-                return false;
-            }
+        if ($array === []) {
+            return true;
+        }
+        if (array_keys($array) !== range(0, count($array) - 1)) {
+            return false;
         }
         return true;
     }
@@ -38,7 +39,7 @@ abstract class Util
      */
     public static function convertStripeObjectToArray($values)
     {
-        $results = array();
+        $results = [];
         foreach ($values as $k => $v) {
             // FIXME: this is an encapsulation violation
             if ($k[0] == '_') {
@@ -64,47 +65,61 @@ abstract class Util
      */
     public static function convertToStripeObject($resp, $opts)
     {
-        $types = array(
-            'account' => 'Stripe\\Account',
-            'alipay_account' => 'Stripe\\AlipayAccount',
-            'apple_pay_domain' => 'Stripe\\ApplePayDomain',
-            'bank_account' => 'Stripe\\BankAccount',
-            'balance_transaction' => 'Stripe\\BalanceTransaction',
-            'card' => 'Stripe\\Card',
-            'charge' => 'Stripe\\Charge',
-            'country_spec' => 'Stripe\\CountrySpec',
-            'coupon' => 'Stripe\\Coupon',
-            'customer' => 'Stripe\\Customer',
-            'dispute' => 'Stripe\\Dispute',
-            'ephemeral_key' => 'Stripe\\EphemeralKey',
-            'list' => 'Stripe\\Collection',
-            'login_link' => 'Stripe\\LoginLink',
-            'invoice' => 'Stripe\\Invoice',
-            'invoiceitem' => 'Stripe\\InvoiceItem',
-            'event' => 'Stripe\\Event',
-            'file' => 'Stripe\\FileUpload',
-            'token' => 'Stripe\\Token',
-            'transfer' => 'Stripe\\Transfer',
-            'transfer_reversal' => 'Stripe\\TransferReversal',
-            'order' => 'Stripe\\Order',
-            'order_return' => 'Stripe\\OrderReturn',
-            'payout' => 'Stripe\\Payout',
-            'plan' => 'Stripe\\Plan',
-            'product' => 'Stripe\\Product',
-            'recipient' => 'Stripe\\Recipient',
-            'recipient_transfer' => 'Stripe\\RecipientTransfer',
-            'refund' => 'Stripe\\Refund',
-            'sku' => 'Stripe\\SKU',
-            'source' => 'Stripe\\Source',
-            'subscription' => 'Stripe\\Subscription',
-            'subscription_item' => 'Stripe\\SubscriptionItem',
-            'three_d_secure' => 'Stripe\\ThreeDSecure',
-            'fee_refund' => 'Stripe\\ApplicationFeeRefund',
-            'bitcoin_receiver' => 'Stripe\\BitcoinReceiver',
-            'bitcoin_transaction' => 'Stripe\\BitcoinTransaction',
-        );
+        $types = [
+            // data structures
+            \Stripe\Collection::OBJECT_NAME => 'Stripe\\Collection',
+
+            // business objects
+            \Stripe\Account::OBJECT_NAME => 'Stripe\\Account',
+            \Stripe\AlipayAccount::OBJECT_NAME => 'Stripe\\AlipayAccount',
+            \Stripe\ApplePayDomain::OBJECT_NAME => 'Stripe\\ApplePayDomain',
+            \Stripe\ApplicationFee::OBJECT_NAME => 'Stripe\\ApplicationFee',
+            \Stripe\Balance::OBJECT_NAME => 'Stripe\\Balance',
+            \Stripe\BalanceTransaction::OBJECT_NAME => 'Stripe\\BalanceTransaction',
+            \Stripe\BankAccount::OBJECT_NAME => 'Stripe\\BankAccount',
+            \Stripe\BitcoinReceiver::OBJECT_NAME => 'Stripe\\BitcoinReceiver',
+            \Stripe\BitcoinTransaction::OBJECT_NAME => 'Stripe\\BitcoinTransaction',
+            \Stripe\Card::OBJECT_NAME => 'Stripe\\Card',
+            \Stripe\Charge::OBJECT_NAME => 'Stripe\\Charge',
+            \Stripe\CountrySpec::OBJECT_NAME => 'Stripe\\CountrySpec',
+            \Stripe\Coupon::OBJECT_NAME => 'Stripe\\Coupon',
+            \Stripe\Customer::OBJECT_NAME => 'Stripe\\Customer',
+            \Stripe\Discount::OBJECT_NAME => 'Stripe\\Discount',
+            \Stripe\Dispute::OBJECT_NAME => 'Stripe\\Dispute',
+            \Stripe\EphemeralKey::OBJECT_NAME => 'Stripe\\EphemeralKey',
+            \Stripe\Event::OBJECT_NAME => 'Stripe\\Event',
+            \Stripe\ExchangeRate::OBJECT_NAME => 'Stripe\\ExchangeRate',
+            \Stripe\ApplicationFeeRefund::OBJECT_NAME => 'Stripe\\ApplicationFeeRefund',
+            \Stripe\FileUpload::OBJECT_NAME => 'Stripe\\FileUpload',
+            \Stripe\Invoice::OBJECT_NAME => 'Stripe\\Invoice',
+            \Stripe\InvoiceItem::OBJECT_NAME => 'Stripe\\InvoiceItem',
+            \Stripe\InvoiceLineItem::OBJECT_NAME => 'Stripe\\InvoiceLineItem',
+            \Stripe\IssuerFraudRecord::OBJECT_NAME => 'Stripe\\IssuerFraudRecord',
+            \Stripe\LoginLink::OBJECT_NAME => 'Stripe\\LoginLink',
+            \Stripe\Order::OBJECT_NAME => 'Stripe\\Order',
+            \Stripe\OrderItem::OBJECT_NAME => 'Stripe\\OrderItem',
+            \Stripe\OrderReturn::OBJECT_NAME => 'Stripe\\OrderReturn',
+            \Stripe\PaymentIntent::OBJECT_NAME => 'Stripe\\PaymentIntent',
+            \Stripe\Payout::OBJECT_NAME => 'Stripe\\Payout',
+            \Stripe\Plan::OBJECT_NAME => 'Stripe\\Plan',
+            \Stripe\Product::OBJECT_NAME => 'Stripe\\Product',
+            \Stripe\Recipient::OBJECT_NAME => 'Stripe\\Recipient',
+            \Stripe\RecipientTransfer::OBJECT_NAME => 'Stripe\\RecipientTransfer',
+            \Stripe\Refund::OBJECT_NAME => 'Stripe\\Refund',
+            \Stripe\SKU::OBJECT_NAME => 'Stripe\\SKU',
+            \Stripe\Source::OBJECT_NAME => 'Stripe\\Source',
+            \Stripe\SourceTransaction::OBJECT_NAME => 'Stripe\\SourceTransaction',
+            \Stripe\Subscription::OBJECT_NAME => 'Stripe\\Subscription',
+            \Stripe\SubscriptionItem::OBJECT_NAME => 'Stripe\\SubscriptionItem',
+            \Stripe\ThreeDSecure::OBJECT_NAME => 'Stripe\\ThreeDSecure',
+            \Stripe\Token::OBJECT_NAME => 'Stripe\\Token',
+            \Stripe\Topup::OBJECT_NAME => 'Stripe\\Topup',
+            \Stripe\Transfer::OBJECT_NAME => 'Stripe\\Transfer',
+            \Stripe\TransferReversal::OBJECT_NAME => 'Stripe\\TransferReversal',
+            \Stripe\UsageRecord::OBJECT_NAME => 'Stripe\\UsageRecord',
+        ];
         if (self::isList($resp)) {
-            $mapped = array();
+            $mapped = [];
             foreach ($resp as $i) {
                 array_push($mapped, self::convertToStripeObject($i, $opts));
             }
@@ -188,7 +203,7 @@ abstract class Util
             return $arr;
         }
 
-        $r = array();
+        $r = [];
         foreach ($arr as $k => $v) {
             if (is_null($v)) {
                 continue;
@@ -213,5 +228,17 @@ abstract class Util
         }
 
         return implode("&", $r);
+    }
+
+    public static function normalizeId($id)
+    {
+        if (is_array($id)) {
+            $params = $id;
+            $id = $params['id'];
+            unset($params['id']);
+        } else {
+            $params = [];
+        }
+        return [$id, $params];
     }
 }
