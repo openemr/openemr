@@ -5116,6 +5116,16 @@ INSERT INTO list_options (list_id,option_id,title) VALUES ('lists','apps','Apps'
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','*OpenEMR','main/main_screen.php',10,1,0);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','Calendar','main/calendar/index.php',20,0,0);
 
+-- Patient List Types
+
+INSERT INTO list_options (list_id,option_id,title) VALUES ('lists','patient_list_type','Patient List Types');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('patient_list_type','Demographics','Demographics',10,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('patient_list_type','Problems','Problems',20,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('patient_list_type','Medications','Medications',30,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('patient_list_type','Allergies','Allergies',40,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('patient_list_type','Lab_results','Lab results',50,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('patient_list_type','Communication','Communication',60,0,1);
+
 -----------------------------------------------------------
 
 --
