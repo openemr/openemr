@@ -171,7 +171,14 @@ if (!empty($_REQUEST['go'])) { ?>
     <div class="container">
         <div class="row">
             <div class="page-header clearfix">
-                <h2 id="header_title" class="clearfix"><span id='header_text'><?php echo xlt('Messages, Reminders'); if ($GLOBALS['disable_rcb'] != '1') { echo ", " . xlt('Recalls'); }?></span><?php echo $help_icon; ?></h2>
+                <h2 id="header_title" class="clearfix"><span id='header_text'>
+                        <?php
+                        echo xlt('Messages, Reminders');
+                        if ($GLOBALS['disable_rcb'] != '1') {
+                            echo ", " . xlt('Recalls');
+                        }
+                        ?>
+                    </span><?php echo $help_icon; ?></h2>
             </div>
         </div>
         <div class="row" >
@@ -188,7 +195,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             <li class="oe-bold-black" id='li-remi' >
                                 <a href='#' id='reminders-li' style="font-weight:700; color:#000000"><?php echo xlt('Reminders'); ?></a>
                             </li>
-                            <?php if($GLOBALS['disable_rcb'] != '1'){ ?>
+                            <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
                             <li class="oe-bold-black" id='li-reca'>
                                 <a href='#' id='recalls-li' style="font-weight:700; color:#000000"><?php echo xlt('Recalls'); ?></a>
                             </li>
