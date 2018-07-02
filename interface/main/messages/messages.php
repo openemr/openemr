@@ -121,7 +121,7 @@ if (($_POST['setting_bootstrap_submenu']) ||
         </style>
     
 <?php
-if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
+if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu'])) && ($GLOBALS['disable_rcb'] != '1')) {
     $MedEx->display->navigation($logged_in);
     echo "<br />";
 }
