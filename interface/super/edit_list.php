@@ -80,7 +80,8 @@ if ($_POST['formaction'] == 'save' && $list_id) {
             $ct_problem = empty($iter['ct_problem']) ? 0 : 1;
             $ct_drug = empty($iter['ct_drug']) ? 0 : 1;
             if (strlen($ct_key) > 0 && $ct_id > 0) {
-                sqlInsert("INSERT INTO code_types ( " .
+                sqlInsert(
+                    "INSERT INTO code_types ( " .
                     "ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_mask, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim, ct_proc, ct_term, ct_problem, ct_drug " .
                     ") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     array(
@@ -102,7 +103,8 @@ if ($_POST['formaction'] == 'save' && $list_id) {
                         $ct_term,
                         $ct_problem,
                         $ct_drug
-                    ));
+                    )
+                );
             }
         }
     } elseif ($list_id == 'issue_types') {
@@ -182,7 +184,8 @@ if ($_POST['formaction'] == 'save' && $list_id) {
                     $notes = formTrim($iter['notes']);
                 }
                 // Insert the list item
-                sqlInsert("INSERT INTO list_options ( " .
+                sqlInsert(
+                    "INSERT INTO list_options ( " .
                     "list_id, option_id, title, seq, is_default, option_value, mapping, notes, codes, toggle_setting_1, toggle_setting_2, activity, subtype " .
                     ") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     array(
@@ -199,7 +202,8 @@ if ($_POST['formaction'] == 'save' && $list_id) {
                         formTrim($iter['toggle_setting_2']),
                         formTrim($iter['activity']),
                         formTrim($iter['subtype'])
-                    ));
+                    )
+                );
             }
         }
     }
