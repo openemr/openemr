@@ -45,7 +45,7 @@ version: '3.1'
 services:
   openemr-7-1:
     restart: always
-    image: openemr/openemr:flex
+    image: openemr/openemr:flex-3.7
     ports:
     - 8080:80
     - 9080:443
@@ -55,7 +55,7 @@ services:
       EMPTY: "yes"
   openemr-7-2:
     restart: always
-    image: openemr/openemr:flex-edge
+    image: openemr/openemr:flex-3.8
     ports:
     - 8081:80
     - 9081:443
@@ -65,7 +65,7 @@ services:
       EMPTY: "yes"
   openemr-7-1-redis:
     restart: always
-    image: openemr/openemr:flex
+    image: openemr/openemr:flex-3.7
     ports:
     - 8082:80
     - 9082:443
@@ -76,7 +76,7 @@ services:
       EMPTY: "yes"
   openemr-7-2-redis:
     restart: always
-    image: openemr/openemr:flex-edge
+    image: openemr/openemr:flex-3.8
     ports:
     - 8083:80
     - 9083:443
