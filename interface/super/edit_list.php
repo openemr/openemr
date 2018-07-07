@@ -6,6 +6,7 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Dan Ehrlich <daniel.ehrlich1@gmail.com>
  * @author    Teny <teny@zhservices.com>
  * @copyright Copyright (c) 2007-2017 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
@@ -52,11 +53,7 @@ if ($_POST['formaction'] == 'save' && $list_id) {
             if (strlen($category) > 0 && strlen($option) > 0) {
                 sqlInsert("INSERT INTO fee_sheet_options ( " .
                     "fs_category, fs_option, fs_codes " .
-                    ") VALUES ( " .
-                    "'$category', " .
-                    "'$option', " .
-                    "'$codes' " .
-                    ")");
+                    ") VALUES ( ?,?,? )", array($category, $option, $codes));
             }
         }
     } elseif ($list_id == 'code_types') {
@@ -85,26 +82,27 @@ if ($_POST['formaction'] == 'save' && $list_id) {
             if (strlen($ct_key) > 0 && $ct_id > 0) {
                 sqlInsert("INSERT INTO code_types ( " .
                     "ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_mask, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim, ct_proc, ct_term, ct_problem, ct_drug " .
-                    ") VALUES ( " .
-                    "'$ct_key' , " .
-                    "'$ct_id'  , " .
-                    "'$ct_seq' , " .
-                    "'$ct_mod' , " .
-                    "'$ct_just', " .
-                    "'$ct_mask', " .
-                    "'$ct_fee' , " .
-                    "'$ct_rel' , " .
-                    "'$ct_nofs', " .
-                    "'$ct_diag', " .
-                    "'$ct_active', " .
-                    "'$ct_label', " .
-                    "'$ct_external', " .
-                    "'$ct_claim', " .
-                    "'$ct_proc', " .
-                    "'$ct_term', " .
-                    "'$ct_problem', " .
-                    "'$ct_drug' " .
-                    ")");
+                    ") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    array(
+                        $ct_key,
+                        $ct_id,
+                        $ct_seq,
+                        $ct_mod,
+                        $ct_just,
+                        $ct_mask,
+                        $ct_fee,
+                        $ct_rel,
+                        $ct_nofs,
+                        $ct_diag,
+                        $ct_active,
+                        $ct_label,
+                        $ct_external,
+                        $ct_claim,
+                        $ct_proc,
+                        $ct_term,
+                        $ct_problem,
+                        $ct_drug
+                    ));
             }
         }
     } elseif ($list_id == 'issue_types') {
@@ -139,7 +137,7 @@ if ($_POST['formaction'] == 'save' && $list_id) {
             $ok_map_cvx_codes = isset($_POST['ok_map_cvx_codes']) ? $_POST['ok_map_cvx_codes'] : 0;
         }
         // erase lists options and recreate them from the submitted form data
-        sqlStatement("DELETE FROM list_options WHERE list_id = '$list_id'");
+        sqlStatement("DELETE FROM list_options WHERE list_id = ?", array($list_id));
         for ($lino = 1; isset($opt["$lino"]['id']); ++$lino) {
             $iter = $opt["$lino"];
             $value = empty($iter['value']) ? 0 : (formTrim($iter['value']) + 0);
@@ -164,8 +162,8 @@ if ($_POST['formaction'] == 'save' && $list_id) {
                     $ok_map_cvx_codes == 1
                 ) {
                     sqlStatement("UPDATE `immunizations` " .
-                        "SET `cvx_code`='" . $value . "' " .
-                        "WHERE `immunization_id`='" . $id . "'");
+                        "SET `cvx_code`= ? " .
+                        "WHERE `immunization_id`= ? ", array($value, $id));
                 }
 
                 // Force List Based Form names to start with LBF.
@@ -183,24 +181,25 @@ if ($_POST['formaction'] == 'save' && $list_id) {
                 } else {
                     $notes = formTrim($iter['notes']);
                 }
-                // Insert the list item
+                // Insert the list item //### what is the purpose of formTrim??
                 sqlInsert("INSERT INTO list_options ( " .
                     "list_id, option_id, title, seq, is_default, option_value, mapping, notes, codes, toggle_setting_1, toggle_setting_2, activity, subtype " .
-                    ") VALUES ( " .
-                    "'$list_id', " .
-                    "'" . $id . "', " .
-                    "'" . formTrim($iter['title']) . "', " .
-                    "'" . formTrim($iter['seq']) . "', " .
-                    "'" . formTrim($iter['default']) . "', " .
-                    "'" . $value . "', " .
-                    "'" . formTrim($iter['mapping']) . "', " .
-                    "'" . $notes . "', " .
-                    "'" . formTrim($iter['codes']) . "', " .
-                    "'" . formTrim($iter['toggle_setting_1']) . "', " .
-                    "'" . formTrim($iter['toggle_setting_2']) . "', " .
-                    "'" . formTrim($iter['activity']) . "', " .
-                    "'" . formTrim($iter['subtype']) . "'  " .
-                    ")");
+                    ") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    array(
+                        $list_id,
+                        $id,
+                        formTrim($iter['title']),
+                        formTrim($iter['seq']),
+                        formTrim($iter['default']),
+                        $value,
+                        formTrim($iter['mapping']),
+                        $notes,
+                        formTrim($iter['codes']),
+                        formTrim($iter['toggle_setting_1']),
+                        formTrim($iter['toggle_setting_2']),
+                        formTrim($iter['activity']),
+                        formTrim($iter['subtype'])
+                    ));
             }
         }
     }
@@ -219,9 +218,9 @@ if ($_POST['formaction'] == 'save' && $list_id) {
     $list_id = $newlistID;
 } elseif ($_POST['formaction'] == 'deletelist') {
     // delete the lists options
-    sqlStatement("DELETE FROM list_options WHERE list_id = '" . $_POST['list_id'] . "'");
+    sqlStatement("DELETE FROM list_options WHERE list_id = ?", array($_POST['list_id']));
     // delete the list from the master list-of-lists
-    sqlStatement("DELETE FROM list_options WHERE list_id = 'lists' AND option_id='" . $_POST['list_id'] . "'");
+    sqlStatement("DELETE FROM list_options WHERE list_id = 'lists' AND option_id='?", array($_POST['list_id']));
 }
 
 $opt_line_no = 0;
@@ -244,12 +243,12 @@ function getCodeDescriptions($codes)
         $selector = $arrcode[2];
         $desc = '';
         if ($code_type == 'PROD') {
-            $row = sqlQuery("SELECT name FROM drugs WHERE drug_id = '$code' ");
+            $row = sqlQuery("SELECT name FROM drugs WHERE drug_id = ?", array($code));
             $desc = "$code:$selector " . $row['name'];
         } else {
             $row = sqlQuery("SELECT code_text FROM codes WHERE " .
-                "code_type = '" . $code_types[$code_type]['id'] . "' AND " .
-                "code = '$code' ORDER BY modifier LIMIT 1");
+                "code_type = ? AND " .
+                "code = ? ORDER BY modifier LIMIT 1", array($code_types[$code_type]['id'], $code ));
             $desc = "$code_type:$code " . ucfirst(strtolower($row['code_text']));
         }
         $desc = str_replace('~', ' ', $desc);
@@ -748,8 +747,7 @@ function writeITLine($it_array)
     <script type="text/javascript">
         $(document).ready(function () {
             $(".select-dropdown").select2({
-                theme: "bootstrap",
-                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+                theme: "bootstrap"
             });
         });
 
@@ -1030,9 +1028,9 @@ function writeITLine($it_array)
                                 "FROM list_options AS lo " .
                                 "LEFT JOIN lang_constants AS lc ON lc.constant_name = lo.title " .
                                 "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
-                                "ld.lang_id = '$lang_id' " .
+                                "ld.lang_id = ? " .
                                 "WHERE lo.list_id = 'lists' AND lo.edit_options = 1 " .
-                                "ORDER BY IF(LENGTH(ld.definition),ld.definition,lo.title), lo.seq");
+                                "ORDER BY IF(LENGTH(ld.definition),ld.definition,lo.title), lo.seq", array($lang_id));
                         }
 
                         while ($row = sqlFetchArray($res)) {
@@ -1238,8 +1236,8 @@ if ($GLOBALS['ippf_specific']) { ?>
             $res = sqlStatement("SELECT lo.*
                          FROM list_options as lo
                          right join list_options as lo2 on lo2.option_id = lo.list_id AND lo2.edit_options = 1
-                         WHERE lo.list_id = '{$list_id}' AND lo.edit_options = 1
-                         ORDER BY seq,title");
+                         WHERE lo.list_id = ? AND lo.edit_options = 1
+                         ORDER BY seq,title", array($list_id));
             while ($row = sqlFetchArray($res)) {
                 writeOptionLine(
                     $row['option_id'],
