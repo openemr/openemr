@@ -181,7 +181,7 @@ if ($_POST['formaction'] == 'save' && $list_id) {
                 } else {
                     $notes = formTrim($iter['notes']);
                 }
-                // Insert the list item //### what is the purpose of formTrim??
+                // Insert the list item
                 sqlInsert("INSERT INTO list_options ( " .
                     "list_id, option_id, title, seq, is_default, option_value, mapping, notes, codes, toggle_setting_1, toggle_setting_2, activity, subtype " .
                     ") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -747,7 +747,8 @@ function writeITLine($it_array)
     <script type="text/javascript">
         $(document).ready(function () {
             $(".select-dropdown").select2({
-                theme: "bootstrap"
+                theme: "bootstrap",
+                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
             });
         });
 
