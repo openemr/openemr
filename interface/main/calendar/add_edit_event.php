@@ -1307,16 +1307,28 @@ var weekDays = new Array(
   else f.form_repeat_type.selectedIndex = 5; // Added by epsdky 2016 (details in commit)
  }
 
- // This is for callback by the find-available popup.
- function setappt(year,mon,mday,hours,minutes) {
-  var f = document.forms[0];
-  f.form_date.value = '' + year + '-' +
-   ('' + (mon  + 100)).substring(1) + '-' +
-   ('' + (mday + 100)).substring(1);
-  f.form_ampm.selectedIndex = (hours >= 12) ? 1 : 0;
-  f.form_hour.value = (hours > 12) ? hours - 12 : hours;
-  f.form_minute.value = ('' + (minutes + 100)).substring(1);
- }
+    // This is for callback by the find-available popup.
+    function setappt(year,mon,mday,hours,minutes) {
+        var f = document.forms[0];
+        <?php
+        $currentDateFormat = $GLOBALS['date_display_format'];
+        if ($currentDateFormat == 0) { ?>
+        f.form_date.value =  '' + year + '-' +
+            ('' + (mon  + 100)).substring(1) + '-' +
+            ('' + (mday + 100)).substring(1);
+        <?php } elseif ($currentDateFormat == 1) { ?>
+        f.form_date.value = ('' + (mon  + 100)).substring(1) + '/' +
+            ('' + (mday + 100)).substring(1) + '/' +
+            '' + year;
+        <?php } elseif ($currentDateFormat == 2) { ?>
+        f.form_date.value = ('' + (mday + 100)).substring(1) + '/' +
+            ('' + (mon  + 100)).substring(1) + '/' +
+            '' + year;
+        <?php } ?>
+        f.form_ampm.selectedIndex = (hours >= 12) ? 1 : 0;
+        f.form_hour.value = (hours > 12) ? hours - 12 : hours;
+        f.form_minute.value = ('' + (minutes + 100)).substring(1);
+    }
 
     // Invoke the find-available popup.
     function find_available(extra) {
