@@ -811,3 +811,9 @@ ALTER TABLE form_misc_billing_options CHANGE `icn_resubmission_number` `icn_resu
 #IfMissingColumn users patient_menu_role
 ALTER TABLE `users` ADD `patient_menu_role` VARCHAR(50) NOT NULL DEFAULT 'standard';
 #EndIf
+
+# Inactivate ICD9
+UPDATE `code_types` SET `ct_active` = 0 WHERE `ct_key` = 'ICD9';
+UPDATE `code_types` SET `ct_just` = 'ICD10' WHERE `ct_key` = 'CPT4';
+UPDATE `code_types` SET `ct_just` = 'ICD10' WHERE `ct_key` = 'HCPCS';
+
