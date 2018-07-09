@@ -70,6 +70,11 @@ if (!empty($_POST['bn_save'])) {
             die(htmlspecialchars(xl('Cannot find a destination filename')));
         }
 
+        $path_parts = pathinfo($form_dest_filename);
+        if (in_array(strtolower($path_parts['extension']), array('gif','jpg','jpe','jpeg','png','svg'))) {
+            die(xl('Only images files are accepted'));
+        }
+
         $imagepath = "$imagedir/$form_dest_filename";
         // If the site's image directory does not yet exist, create it.
         if (!is_dir($imagedir)) {

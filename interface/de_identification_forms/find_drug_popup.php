@@ -38,14 +38,14 @@ td { font-size:10pt; }
 <script language="JavaScript">
 //pass value selected to the parent window
  function window_submit(chk)
- { 
+ {
   var str;
   var len=chk.length;
-  if (len==undefined && chk.checked==1) 
+  if (len==undefined && chk.checked==1)
   {
     if(!str)
       str = chk.value;
-    else  
+    else
     str = "#"+chk.value;
   }
   else
@@ -56,7 +56,7 @@ td { font-size:10pt; }
     {
      if(!str)
       str = chk[pr].value;
-     else 
+     else
       str = str+"#"+chk[pr].value;
     }
    }
@@ -67,16 +67,16 @@ td { font-size:10pt; }
    alert("<?php echo xl('The destination form was closed')?>");
   else
    opener.set_related(str,"drugs");
-   
+
   window.close();
-  
+
  }
- 
+
 function window_close(chk)
 {
  window.close();
 }
- 
+
 function chkbox_select_none(chk)
 {
  var len=chk.length;
@@ -112,8 +112,8 @@ function check_search_str()
   return false;
  }
  top.restoreSession();
- return true; 
-}   
+ return true;
+}
 
 </script>
 </head>
@@ -133,7 +133,7 @@ function check_search_str()
    <input type='text' name='search_term' id='search_term' size='12' value='<?php echo $_REQUEST['search_term']; ?>'
     title='<?php xl('Any part of the drug id or drug name', 'e'); ?>' />
    &nbsp;
-   <input type='submit' name='bn_search' id='bn_search' value='<?php xl('Search', 'e'); ?>' />  
+   <input type='submit' name='bn_search' id='bn_search' value='<?php xl('Search', 'e'); ?>' />
    </b>
   </td>
  </tr>
@@ -152,9 +152,9 @@ function check_search_str()
     $search_term = $_REQUEST['search_term'];
     {
     $query = "SELECT count(*) as count FROM drugs " .
-      "WHERE (drug_id LIKE '%$search_term%' OR " .
-      "name LIKE '%$search_term%') ";
-    $res = sqlStatement($query);
+      "WHERE (drug_id LIKE ? OR " .
+      "name LIKE ?) ";
+    $res = sqlStatement($query, array('%'.$search_term.'%', '%'.$search_term.'%'));
     if ($row = sqlFetchArray($res)) {
         $no_of_items = addslashes($row['count']);
         if ($no_of_items < 1) {
@@ -165,15 +165,15 @@ function check_search_str()
             echo xl('Please enter new search string');?>");
         document.theform.search_term.value=" ";
         document.theform.search_term.focus();
-        </script>    
+        </script>
         <?php
         }
 
         $query = "SELECT drug_id, name FROM drugs " .
-        "WHERE (drug_id LIKE '%$search_term%' OR " .
-        "name LIKE '%$search_term%') " .
+        "WHERE (drug_id LIKE ? OR " .
+        "name LIKE ?) " .
         "ORDER BY drug_id";
-        $res = sqlStatement($query);
+        $res = sqlStatement($query, array('%'.$search_term.'%', '%'.$search_term.'%'));
         $row_count = 0;
         while ($row = sqlFetchArray($res)) {
               $row_count = $row_count + 1;
@@ -191,13 +191,13 @@ function check_search_str()
  </table>
 <center>
  <input type='button' name='select_all' value='<?php xl('Select All', 'e'); ?>' onclick="chkbox_select_all(document.select_drug.chkbox);"/>
- 
+
  <input type='button' name='unselect_all' value='<?php xl('Unselect All', 'e'); ?>' onclick="chkbox_select_none(document.select_drug.chkbox);"/>
- 
+
  <input type='button' name='submit' value='<?php xl('Submit', 'e'); ?>' onclick="window_submit(document.select_drug.chkbox);"/>
- 
+
  <input type='button' name='cancel' value='<?php xl('Cancel', 'e'); ?>' onclick="window_close();"/>
-</center> 
+</center>
 <?php } ?>
 </form>
 </body>
