@@ -118,21 +118,21 @@ if ($eid) {
     $facility = sqlQuery("SELECT pc_facility, pc_multiple, pc_aid, facility.name
                             FROM openemr_postcalendar_events
                               LEFT JOIN facility ON (openemr_postcalendar_events.pc_facility = facility.id)
-                              WHERE pc_eid = $eid");
+                              WHERE pc_eid = ?", array($eid));
     if (!$facility['pc_facility']) {
-        $qmin = sqlQuery("SELECT facility_id as minId, facility FROM users WHERE id = ".$facility['pc_aid']);
+        $qmin = sqlQuery("SELECT facility_id as minId, facility FROM users WHERE id = ?", array($facility['pc_aid']));
         $min  = $qmin['minId'];
         $min_name = $qmin['facility'];
 
         // multiple providers case
         if ($GLOBALS['select_multi_providers']) {
             $mul  = $facility['pc_multiple'];
-            sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = $min WHERE pc_multiple = $mul");
+            sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = ? WHERE pc_multiple = ?", array($min, $mul));
         }
 
         // EOS multiple
 
-        sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = $min WHERE pc_eid = $eid");
+        sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = ? WHERE pc_eid = ?", array($min, $eid));
         $e2f = $min;
         $e2f_name = $min_name;
     } else {
@@ -615,7 +615,7 @@ if ($eid) {
 // If we have a patient ID, get the name and phone numbers to display.
 if ($patientid) {
     $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB " .
-        "FROM patient_data WHERE pid = '" . $patientid . "'");
+        "FROM patient_data WHERE pid = ?", array($patientid));
     $patientname = $prow['lname'] . ", " . $prow['fname'];
     if ($prow['phone_home']) {
         $patienttitle .= " H=" . $prow['phone_home'];
@@ -634,7 +634,7 @@ $ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE " .
 //(CHEMED)
 //Set default facility for a new event based on the given 'userid'
 if ($userid) {
-    $pref_facility = sqlFetchArray(sqlStatement("SELECT facility_id, facility FROM users WHERE id = $userid"));
+    $pref_facility = sqlFetchArray(sqlStatement("SELECT facility_id, facility FROM users WHERE id = ?", array($userid)));
     $e2f = $pref_facility['facility_id'];
     $e2f_name = $pref_facility['facility'];
 }

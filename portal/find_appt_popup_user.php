@@ -103,7 +103,7 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
 
  $catslots = 1;
 if ($input_catid) {
-    $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = '$input_catid'");
+    $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = ?", array($input_catid));
     if ($srow['pc_duration']) {
         $catslots = ceil($srow['pc_duration'] / $slotsecs);
     }
@@ -162,12 +162,12 @@ if ($_REQUEST['startdate'] && preg_match(
     // Note there is no need to sort the query results.
     //  echo $sdate." -- ".$edate;
         $query = "SELECT pc_eventDate, pc_endDate, pc_startTime, pc_duration, " .
-        "pc_recurrtype, pc_recurrspec, pc_alldayevent, pc_catid, pc_prefcatid, pc_title " .
-        "FROM openemr_postcalendar_events " .
-        "WHERE pc_aid = '$providerid' AND " .
-        "((pc_endDate >= '$sdate' AND pc_eventDate < '$edate') OR " .
-        "(pc_endDate = '0000-00-00' AND pc_eventDate >= '$sdate' AND pc_eventDate < '$edate'))";
-        $res = sqlStatement($query);
+            "pc_recurrtype, pc_recurrspec, pc_alldayevent, pc_catid, pc_prefcatid, pc_title " .
+            "FROM openemr_postcalendar_events " .
+            "WHERE pc_aid = ? AND " .
+            "((pc_endDate >= ? AND pc_eventDate < ?) OR " .
+            "(pc_endDate = '0000-00-00' AND pc_eventDate >= ? AND pc_eventDate < ?))";
+        $res = sqlStatement($query, array($providerid, $sdate, $edate, $sdate, $edate));
    //  print_r($res);
 
         while ($row = sqlFetchArray($res)) {

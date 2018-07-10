@@ -13,7 +13,6 @@ session_start();
 session_regenerate_id(true);
 
 unset($_SESSION['itsme']);
-$_SESSION['patient_portal_onsite_two'] = true;
 $_SESSION['authUser'] = 'portal-user';
 $_SESSION['pid'] = true;
 $_SESSION['register'] = true;
