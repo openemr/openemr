@@ -20,8 +20,6 @@
  * @author Jerry Padgett <sjpadgett@gmail.com>
  * @link http://www.open-emr.org
  */
-//$ignoreAuth = true;
-
 
 require_once("../interface/globals.php");
 $getdir = isset($_POST['sel_pt']) ? $_POST['sel_pt'] : 0;
@@ -174,7 +172,7 @@ var tdelete = function(docname) {
 </script>
 <style>
 .modal.modal-wide .modal-dialog {
-  width: 75%;
+  width: 55%;
 }
 .modal-wide .modal-body {
   overflow-y: auto;
@@ -262,8 +260,8 @@ $(document).ready(function(){
                         <div class="edittpl" id="templatecontent"></div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><?php echo xlt('Dismiss'); ?></button>
-                        <button type="button" class="btn btn-success" data-dismiss="modal" onclick="tsave()"><?php echo xlt('Save'); ?></button>
+                        <button type="button" class="btn btn-danger btn-xs" data-dismiss="modal"><?php echo xlt('Dismiss'); ?></button>
+                        <button type="button" class="btn btn-success btn-xs" data-dismiss="modal" onclick="tsave()"><?php echo xlt('Save'); ?></button>
                     </div>
             </div>
         </div>
