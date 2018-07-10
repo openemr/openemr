@@ -10,7 +10,7 @@
  */
 
 session_start();
-if ($_SESSION['patient_portal_onsite_two'] && $_SESSION['pid']) {
+if ($_SESSION['register'] === true && isset($_SESSION['pid'])) {
     $ignoreAuth_onsite_portal_two = true;
 }
 

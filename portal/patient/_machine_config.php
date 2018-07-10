@@ -16,8 +16,8 @@
  */
 /* */
 
-    session_start();
-if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
+session_start();
+if (isset($_SESSION['pid']) && (isset($_SESSION['patient_portal_onsite_two']) || $_SESSION['register'] === true)) {
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;
     GlobalConfig::$PORTAL = true;
@@ -27,9 +27,9 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     GlobalConfig::$PORTAL = false;
     $ignoreAuth = false;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
-    if (! isset($_SESSION['authUserID'])) {
+    if (!isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";
-        header('Location: '.$landingpage);
+        header('Location: ' . $landingpage);
         exit;
     }
 }
