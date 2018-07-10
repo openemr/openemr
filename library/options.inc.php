@@ -1256,10 +1256,23 @@ function generate_form_field($frow, $currvalue)
 
     elseif ($data_type == 34) {
         $arr = explode("|*|*|*|", $currvalue);
-        echo "<a href='../../../library/custom_template/custom_template.php?type=form_{$field_id}&contextName=".htmlspecialchars($list_id_esc, ENT_QUOTES)."' class='iframe_medium' style='text-decoration:none;color:black;'>";
-        echo "<div id='form_{$field_id}_div' class='text-area' style='min-width:100pt'>" . $arr[0] . "</div>";
-        echo "<div style='display:none'><textarea name='form_{$field_id}' id='form_{$field_id}' class='form-control' style='display:none' $lbfonchange $disabled>" . $currvalue . "</textarea></div>";
-        echo "</a>";
+        // Text to display
+        $txtDisp = trim($arr[0]);
+        if (strlen($txtDisp) == 0) {
+            $hint34 = xlt('Click here to enter details using text editor.');
+            $txtDisp = $hint34;
+        } else {
+            $hint34 = xlt('Click to update details using text editor.');
+        }
+        $hint34 .= '  '.xlt('Changes will need to be saved later using "Save" button.');
+        printf(
+            "<a class='iframe_medium text-dark' title='%s' href='../../../library/custom_template/custom_template.php?type=form_%s&contextName=%s'>
+                <div id='form_%s_div' style='min-width:100pt' class='mb-2'>%s</div>
+                <div style='display:none'><textarea name='form_%s' id='form_%s' class='form-control' style='display:none' %s %s>%s</textarea></div>
+            </a>",
+            htmlspecialchars($hint34, ENT_QUOTES), $field_id, htmlspecialchars($list_id_esc, ENT_QUOTES), $field_id, $txtDisp,
+            $field_id, $field_id, $lbfonchange, $disabled, $currvalue
+            );
     } //facilities drop-down list
     elseif ($data_type == 35) {
         if (empty($currvalue)) {
