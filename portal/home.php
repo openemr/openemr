@@ -22,7 +22,9 @@
  */
  require_once("verify_session.php");
  require_once("$srcdir/patient.inc");
+ require_once("$srcdir/options.inc.php");
  require_once("lib/portal_mail.inc");
+
 
 if ($_SESSION['register'] === true) {
     session_destroy();
@@ -234,6 +236,7 @@ function editAppointment(mode,deid){
                                 echo '<table id="appttable" style="width:100%;background:#eee;" class="table table-striped fixedtable"><thead>
                                 </thead><tbody>';
                                 while ($row = sqlFetchArray($res)) {
+                                    $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
                                     $count++;
                                     $dayname = xl(date("l", strtotime($row ['pc_eventDate'])));
                                     $dispampm = "am";
@@ -254,10 +257,11 @@ function editAppointment(mode,deid){
 
                                     echo "<tr><td><p>";
                                     echo "<a href='#' onclick='editAppointment(0," . htmlspecialchars($row ['pc_eid'], ENT_QUOTES) . ')' . "' title='" . htmlspecialchars($etitle, ENT_QUOTES) . "'>";
-                                    echo "<b>" . htmlspecialchars($dayname . ", " . $row ['pc_eventDate'], ENT_NOQUOTES) . "</b><br>";
-                                    echo htmlspecialchars("$disphour:$dispmin " . $dispampm . " " . $row ['pc_catname'], ENT_NOQUOTES) . "<br>";
-                                    echo htmlspecialchars($row ['fname'] . " " . $row ['lname'], ENT_NOQUOTES) . "<br>";
-                                    echo htmlspecialchars("Status: " . $row ['pc_apptstatus'], ENT_NOQUOTES);
+                                    echo "<b>" . htmlspecialchars($dayname . ", " . $row ['pc_eventDate'], ENT_NOQUOTES) . "&nbsp;";
+                                    echo htmlspecialchars("$disphour:$dispmin " . $dispampm, ENT_NOQUOTES) . "</b><br>";
+                                    echo htmlspecialchars($row ['pc_catname'], ENT_NOQUOTES) . "<br><b>";
+                                    echo xlt("Provider") . ":</b> " . htmlspecialchars($row ['fname'] . " " . $row ['lname'], ENT_NOQUOTES) . "<br><b>";
+                                    echo xlt("Status") . ":</b> " . htmlspecialchars($status_title, ENT_NOQUOTES);
                                     echo "</a></p></td></tr>";
                                 }
 
