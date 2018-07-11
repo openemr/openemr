@@ -83,33 +83,6 @@ if (isset($_GET['starttimeh'])) {
 
  $info_msg = "";
 
-// ===========================
-// EVENTS TO FACILITIES (lemonsoftware)
-// edit event case - if there is no association made, then insert one with the first facility
-/*if ( $eid ) {
-    $selfacil = '';
-    $facility = sqlQuery("SELECT pc_facility, pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
-    if ( !$facility['pc_facility'] ) {
-        $qmin = sqlQuery("SELECT MIN(id) as minId FROM facility");
-        $min  = $qmin['minId'];
-
-        // multiple providers case
-        if ( $GLOBALS['select_multi_providers'] ) {
-            $mul  = $facility['pc_multiple'];
-            sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = $min WHERE pc_multiple = $mul");
-        }
-        // EOS multiple
-
-        sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = $min WHERE pc_eid = $eid");
-        $e2f = $minId;
-    } else {
-        $e2f = $facility['pc_facility'];
-    }
-}*/
-// EOS E2F
-// ===========================
-// ===========================
-
 // EVENTS TO FACILITIES (lemonsoftware)
 //(CHEMED) get facility name
 // edit event case - if there is no association made, then insert one with the first facility
@@ -454,33 +427,33 @@ if ($_POST['form_action'] == "save") {
                 "1, " .(int)$_POST['facility']. " )"); // FF stuff
             } // foreach
         } else {
-            $_POST['form_apptstatus'] =  '^';
+            $_POST['form_apptstatus'] = '^';
             sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
-            "pc_catid, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
-            "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
-            "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
-            "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility " .
-            ") VALUES ( " .
-            "'" . $_POST['form_category']             . "', " .
-            "'" . $_POST['form_provider_ae']             . "', " .
-            "'" . $_POST['form_pid']                  . "', " .
-            "'" . add_escape_custom($_POST['form_title'])               . "', " .
-            "NOW(), "                                         .
-            "'" . add_escape_custom($_POST['form_comments'])             . "', " .
-            "'" . $_SESSION['providerId']             . "', " .
-            "'" . $event_date                         . "', " .
-            "'" . fixDate($_POST['form_enddate'])     . "', " .
-            "'" . ($duration * 60)                    . "', " .
-            "'" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
-            "'$recurrspec', "                                 .
-            "'$starttime', "                                  .
-            "'$endtime', "                                    .
-            "'" . $_POST['form_allday']               . "', " .
-            "'" . $_POST['form_apptstatus']           . "', " .
-            "'" . $_POST['form_prefcat']              . "', " .
-            "'$locationspec', "                               .
-            "1, " .
-            "1," .(int)$_POST['facility']. ")"); // FF stuff
+                "pc_catid, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
+                "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
+                "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
+                "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility " .
+                ") VALUES ( " .
+                "'" . $_POST['form_category'] . "', " .
+                "'" . $_POST['form_provider_ae'] . "', " .
+                "'" . $_POST['form_pid'] . "', " .
+                "'" . add_escape_custom($_POST['form_title']) . "', " .
+                "NOW(), " .
+                "'" . add_escape_custom($_POST['form_comments']) . "', " .
+                "'" . $_SESSION['providerId'] . "', " .
+                "'" . $event_date . "', " .
+                "'" . fixDate($_POST['form_enddate']) . "', " .
+                "'" . ($duration * 60) . "', " .
+                "'" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
+                "'$recurrspec', " .
+                "'$starttime', " .
+                "'$endtime', " .
+                "'" . $_POST['form_allday'] . "', " .
+                "'" . $_POST['form_apptstatus'] . "', " .
+                "'" . $_POST['form_prefcat'] . "', " .
+                "'$locationspec', " .
+                "1, " .
+                "1," . (int)$_POST['facility'] . ")"); // FF stuff
         } // INSERT single
     } // else - insert
 
@@ -587,7 +560,7 @@ $row = array();
 
 // If we are editing an existing event, then get its data.
 if ($eid) {
-    $row = sqlQuery("SELECT * FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+    $row = sqlQuery("SELECT * FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
     $date = $row['pc_eventDate'];
     $userid = $row['pc_aid'];
     $patientid = $row['pc_pid'];
@@ -676,7 +649,7 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
    <b><?php xl('Visit', 'e'); ?>: </b>
   </td>
   <td nowrap style='padding:0px 5px 5px 0'>
-   <input class="form-control" type="text" id='form_title' name='form_title' value='<?php echo htmlspecialchars($row['pc_title'], ENT_QUOTES) ? htmlspecialchars(['pc_title'], ENT_QUOTES) : 'Office Visit'; ?>' readonly='readonly'/>
+   <input class="form-control" type="text" id='form_title' name='form_title' value='<?php echo ($row['pc_title'] > "") ? htmlspecialchars($row['pc_title'], ENT_QUOTES) : xlt('Office Visit'); ?>' readonly='readonly'/>
   </td>
   <td></td>
   <td width='1%' nowrap>
@@ -723,7 +696,7 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
   </td>
   <td nowrap id='tdallday4'><?php xl('Duration', 'e'); ?></td>
   <td nowrap id='tdallday5'>
-  <input class="form-control input-sm" type='text' size='1' name='form_duration' value='<?php echo $row['pc_duration'] ? ($row['pc_duration']*1/60) : "0" ?>' readonly /><?php echo xl('minutes'); ?>
+  <input class="form-control input-sm" type='text' size='1' name='form_duration' value='<?php echo $row['pc_duration'] ? ($row['pc_duration']*1/60) : "15" ?>' readonly /><?php echo "&nbsp" . xlt('minutes'); ?>
   </td>
  </tr>
     <tr>
@@ -775,7 +748,6 @@ while ($urow = sqlFetchArray($ures)) {
 <script>
 
  var durations = new Array();
- // var rectypes  = new Array();
 <?php
  // Read the event categories, generate their options list, and get
  // the default event duration from them if this is a new event.
