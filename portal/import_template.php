@@ -33,7 +33,7 @@ if ($_POST['mode'] == 'get') {
     }
 } else if ($_POST['mode'] == 'save') {
     if (validateFile($_POST['docid'])) {
-        if (stripos($_POST['content'], "<?php") !== false) {
+        if (stripos($_POST['content'], "<?php") === false) {
             file_put_contents($_POST['docid'], $_POST['content']);
             exit(true);
         } else {
@@ -100,8 +100,8 @@ if (!empty($_FILES["tplFile"])) {
 function validateFile($filename = '')
 {
     $valid = false;
-    $filePath = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates';
-    if (stripos($filename, $filePath) === false) {
+    $filePath = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/';
+    if (stripos($filename, $filePath) === false || !realpath($filename)) {
         return false;
     }
     if (preg_match("/(.*)\.(php|php3|php4|php5|php7)$/i", $filename) === 0) {
