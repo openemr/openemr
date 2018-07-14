@@ -99,15 +99,14 @@ if (!empty($_FILES["tplFile"])) {
 
 function validateFile($filename = '')
 {
-    $valid = false;
     $filePath = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/';
-    if (stripos($filename, $filePath) === false || !realpath($filename)) {
+    if (stripos(realpath($filename), realpath($filePath)) === false) {
         return false;
     }
     if (preg_match("/(.*)\.(php|php3|php4|php5|php7)$/i", $filename) === 0) {
         if (preg_match("/(.*)\.(tpl)$/i", $filename) === 1) {
-            $valid = true;
+            return true;
         }
     }
-    return $valid;
+    return false;
 }
