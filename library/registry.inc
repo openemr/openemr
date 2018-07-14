@@ -58,8 +58,8 @@ function getRegistered($state = "1", $limit = "unlimited", $offset = "0")
 
 function getRegistryEntry($id, $cols = "*")
 {
-    $sql = "select $cols from registry where id='$id'";
-    return sqlQuery($sql);
+    $sql = "select $cols from registry where id=?";
+    return sqlQuery($sql, array($id));
 }
 
 function getRegistryEntryByDirectory($directory, $cols = "*")

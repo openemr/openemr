@@ -560,7 +560,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
         if ($DEBUG) {
             $alertmsg = xl("Printing skipped; see test output in") .' '. $STMT_TEMP_FILE;
         } else {
-            exec("$STMT_PRINT_CMD $STMT_TEMP_FILE");
+            exec(escapeshellcmd($STMT_PRINT_CMD) . " " . escapeshellarg($STMT_TEMP_FILE));
             if ($_POST['form_without']) {
                 $alertmsg = xl('Now printing') .' '. $stmt_count .' '. xl('statements; invoices will not be updated.');
             } else {
@@ -705,13 +705,13 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                         &nbsp;<span><?php echo xlt('Select Method');?></span>&nbsp;<i id='select-method-tooltip' class="fa fa-info-circle oe-superscript" aria-hidden="true"></i>
                         <div id="radio-div" class="pull-right oe-legend-radio">
                                 <label class="radio-inline">
-                                  <input type="radio" id="invoice_search" name="radio-search" onclick="" value="inv-search"><?php echo xlt('Invoice Search'); ?> 
+                                  <input type="radio" id="invoice_search" name="radio-search" onclick="" value="inv-search"><?php echo xlt('Invoice Search'); ?>
                                 </label>
                                 <label class="radio-inline">
                                   <input type="radio" id="era_upload" name="radio-search" onclick=""  value="era-upld"><?php echo xlt('ERA Upload'); ?>
                                 </label>
                         </div>
-                        
+
                         <input type="hidden" id="hid1" value="<?php echo xlt('Invoice Search');?>">
                         <input type="hidden" id="hid2" value="<?php echo xlt('ERA Upload');?>">
                         <input type="hidden" id="hid3" value="<?php echo xlt('Select Method');?>">
@@ -755,11 +755,11 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                     </div>
                     <div class="col-xs-12 .oe-custom-line oe-show-hide" id = 'era-upld'>
                         <div class="form-group col-xs9 oe-file-div">
-                            <div class="input-group"> 
+                            <div class="input-group">
                                 <label class="input-group-btn">
                                     <span class="btn btn-default">
                                         Browse&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;" >
-                                        <input name="MAX_FILE_SIZE" type="hidden" value="5000000"> 
+                                        <input name="MAX_FILE_SIZE" type="hidden" value="5000000">
                                     </span>
                                 </label>
                                 <input type="text" class="form-control" placeholder="<?php echo xlt('Click Browse and select one Electronic Remittance Advice (ERA) file...'); ?>" readonly>
@@ -771,9 +771,9 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                 <div class="form-group clearfix">
                     <div class="col-sm-12 position-override oe-show-hide" id="search-btn">
                         <div class="btn-group" role="group">
-                            <button type='submit' class="btn btn-default btn-search oe-show-hide" name='form_search' 
+                            <button type='submit' class="btn btn-default btn-search oe-show-hide" name='form_search'
                             id="btn-inv-search" value='<?php echo xla("Search"); ?>'><?php echo xlt("Search"); ?></button>
-                            <button type='submit' class="btn btn-default btn-save oe-show-hide" name='form_search' 
+                            <button type='submit' class="btn btn-default btn-save oe-show-hide" name='form_search'
                             id="btn-era-upld" value='<?php echo xla("Upload"); ?>'><?php echo xlt("Upload"); ?></button>
                         </div>
                     </div>
@@ -802,7 +802,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                                     exec("unzip -p $tmp_name.zip > $tmp_name");
                                     unlink("$tmp_name.zip");
                                 }
-                                
+
                                 echo "<!-- Notes from ERA upload processing:\n";
                                 $alertmsg .= parse_era($tmp_name, 'era_callback');
                                 echo "-->\n";
@@ -1055,14 +1055,14 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                                 <button type="button" class="btn btn-default btn-undo" name="Submit2"
                                 onclick='checkAll(false)'><?php echo xlt('Clear All');?></button>
                                 <?php if ($GLOBALS['statement_appearance'] != '1') { ?>
-                                    <button type="submit" class="btn btn-default btn-print" name='form_print' 
+                                    <button type="submit" class="btn btn-default btn-print" name='form_print'
                                     value="<?php echo xla('Print Selected Statements'); ?>">
                                     <?php echo xlt('Print Selected Statements');?></button>
-                                    <button type="submit" class="btn btn-default btn-download" name='form_download' 
+                                    <button type="submit" class="btn btn-default btn-download" name='form_download'
                                     value="<?php echo xla('Download Selected Statements'); ?>">
                                     <?php echo xlt('Download Selected Statements');?></button>
                                 <?php } ?>
-                                    <button type="submit" class="btn btn-default btn-download" name='form_pdf' 
+                                    <button type="submit" class="btn btn-default btn-download" name='form_pdf'
                                     value="<?php echo xla('PDF Download Selected Statements'); ?>">
                                     <?php echo xlt('PDF Download Selected Statements');?></button>
                                     <button type="submit" class="btn btn-default btn-mail" name='form_download'
@@ -1093,7 +1093,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
         //help_modal.php lives in interface, set path accordingly
         require_once "../help_modal.php";
     }
-    ?> 
+    ?>
     <script language="JavaScript">
     function processERA() {
      var f = document.forms[0];
@@ -1117,10 +1117,10 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
             $(':file').on('fileselect', function(event, numFiles, label) {
                 var input = $(this).parents('.input-group').find(':text'),
                 log = numFiles > 1 ? numFiles + ' files selected' : label;
-                
+
                 if( input.length ) {
                 input.val(log);
-                } 
+                }
                 else {
                 if( log ) alert(log);
                 }
@@ -1196,6 +1196,6 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
     <?php
     }
     ?>
-    
+
 </body>
 </html>

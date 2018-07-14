@@ -164,8 +164,8 @@ function getProviderIdOfEncounter($encounter)
 {
         global $attendant_type;
         $table = $attendant_type == 'pid' ? 'form_encounter' : 'form_groups_encounter';
-        $sql = "select provider_id from $table where encounter='$encounter' order by date";
-        $res = sqlQuery($sql);
+        $sql = "select provider_id from $table where encounter=? order by date";
+        $res = sqlQuery($sql, array($encounter));
         return $res['provider_id'];
 }
 
