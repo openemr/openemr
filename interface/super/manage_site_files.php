@@ -71,7 +71,7 @@ if (!empty($_POST['bn_save'])) {
         }
 
         $path_parts = pathinfo($form_dest_filename);
-        if (in_array(strtolower($path_parts['extension']), array('gif','jpg','jpe','jpeg','png','svg'))) {
+        if (!in_array(strtolower($path_parts['extension']), array('gif','jpg','jpe','jpeg','png','svg'))) {
             die(xl('Only images files are accepted'));
         }
 
