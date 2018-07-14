@@ -114,61 +114,65 @@ var tdelete = function(docname) {
     if(delok === true) {getDocument(docname, 'delete', '')}
     return false;
     };
- function getDocument(docname, mode, content){
-        var liburl = 'import_template.php';
-            $.ajax({
-                type: "POST",
-                url: liburl,
-                data: {docid: docname, mode: mode,content: content},
-                beforeSend: function(xhr){
-                    console.log("Please wait..."+content);
-                },
-                error: function(qXHR, textStatus, errorThrow){
-                    console.log("There was an error");
-                },
-                success: function(templateHtml, textStatus, jqXHR){
-                    if(mode == 'get'){
-                        //console.log("File get..."+templateHtml);
-                        $('#templatecontent').summernote('destroy');
-                        $('#templatecontent').empty().append(templateHtml);
-                        $('#popeditor').modal({backdrop: "static"});
-                        $('#templatecontent').summernote({
-                           // height: 200,
-                            focus: true,
-                            placeholder: '',
-                            toolbar: [
-                                ['style', ['bold', 'italic', 'underline', 'clear']],
-                                ['fontsize', ['fontsize']],
-                                ['color', ['color']],
-                                ['para', ['ul', 'ol', 'paragraph']],
-                                ['insert', ['link','picture', 'video', 'hr']],
-                                ['view', ['fullscreen', 'codeview']],
-                                ['insert', ['nugget']],
-                                ['edit',['undo','redo']]
-                                ],
-                                nugget: {
-                                    list: [
-                                        '{ParseAsHTML}{TextInput}', '{smTextInput}', '{CheckMark}', '{ynRadioGroup}', '{DOS}','{ReferringDOC}', '{PatientID}',
-                                        '{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{PatientSignature}', '{Address}', '{City}', '{State}', '{Zip}',
-                                        '{AdminSignature}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}'
-                                    ],
-                                    label: 'Tags / Directives',
-                                    tooltip: 'Insert at current cursor location.'
-                                },
-                             options:{'label': 'Tags/Directives',
-                                    'tooltip': 'Insert Tag or Directive'}
-                            });
-                        }
-                    else if(mode == 'save'){
-                        $('#templatecontent').summernote('destroy');
-                        location.reload();
+
+function getDocument(docname, mode, content) {
+    var liburl = 'import_template.php';
+    $.ajax({
+        type: "POST",
+        url: liburl,
+        data: {docid: docname, mode: mode, content: content},
+        beforeSend: function (xhr) {
+            console.log("Please wait..." + content);
+        },
+        error: function (qXHR, textStatus, errorThrow) {
+            console.log("There was an error");
+            alert('<?php echo xlt("File Error") ?>' + "\n" + docname)
+        },
+        success: function (templateHtml, textStatus, jqXHR) {
+            if (mode == 'get') {
+                //console.log("File get..."+templateHtml);
+                $('#templatecontent').summernote('destroy');
+                $('#templatecontent').empty().append(templateHtml);
+                $('#popeditor').modal({backdrop: "static"});
+                $('#templatecontent').summernote({
+                    // height: 200,
+                    focus: true,
+                    placeholder: '',
+                    toolbar: [
+                        ['style', ['bold', 'italic', 'underline', 'clear']],
+                        ['fontsize', ['fontsize']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['insert', ['link', 'picture', 'video', 'hr']],
+                        ['view', ['fullscreen', 'codeview']],
+                        ['insert', ['nugget']],
+                        ['edit', ['undo', 'redo']]
+                    ],
+                    nugget: {
+                        list: [
+                            '{ParseAsHTML}{TextInput}', '{smTextInput}', '{CheckMark}', '{ynRadioGroup}', '{DOS}', '{ReferringDOC}', '{PatientID}',
+                            '{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{PatientSignature}', '{Address}', '{City}', '{State}', '{Zip}',
+                            '{AdminSignature}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}'
+                        ],
+                        label: 'Tags / Directives',
+                        tooltip: 'Insert at current cursor location.'
+                    },
+                    options: {
+                        'label': 'Tags/Directives',
+                        'tooltip': 'Insert Tag or Directive'
                     }
-                    else if(mode == 'delete'){
-                        location.reload();
-                    }
-                }
-            });
-    }
+                });
+            }
+            else if (mode == 'save') {
+                $('#templatecontent').summernote('destroy');
+                location.reload();
+            }
+            else if (mode == 'delete') {
+                location.reload();
+            }
+        }
+    });
+}
 </script>
 <style>
 .modal.modal-wide .modal-dialog {
@@ -246,25 +250,25 @@ $(document).ready(function(){
 });
 </script>
 </div>
-   <div class="modal modal-wide fade" id="popeditor">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">
-                            <span aria-hidden="true">&times;</span>
-                            <span class="sr-only"><?php echo xlt('Close'); ?></span>
-                        </button>
-                        <h4 class="modal-title"><?php echo xlt('Edit Template'); ?></h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="edittpl" id="templatecontent"></div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger btn-xs" data-dismiss="modal"><?php echo xlt('Dismiss'); ?></button>
-                        <button type="button" class="btn btn-success btn-xs" data-dismiss="modal" onclick="tsave()"><?php echo xlt('Save'); ?></button>
-                    </div>
+<div class="modal modal-wide fade" id="popeditor">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only"><?php echo xlt('Close'); ?></span>
+                </button>
+                <h4 class="modal-title"><?php echo xlt('Edit Template'); ?></h4>
+            </div>
+            <div class="modal-body">
+                <div class="edittpl" id="templatecontent"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger btn-xs" data-dismiss="modal"><?php echo xlt('Dismiss'); ?></button>
+                <button type="button" class="btn btn-success btn-xs" data-dismiss="modal" onclick="tsave()"><?php echo xlt('Save'); ?></button>
             </div>
         </div>
     </div>
-    </body>
+</div>
+</body>
 </html>

@@ -25,16 +25,18 @@
 require_once("../interface/globals.php");
 
 if ($_POST['mode'] == 'get') {
-    if (validateFile($_POST['docid'])) {
-        echo file_get_contents($_POST['docid']);
+    $rebuilt = validateFile($_POST['docid']);
+    if ($rebuilt) {
+        echo file_get_contents($rebuilt);
         exit();
     } else {
         die(xlt('Invalid File'));
     }
 } else if ($_POST['mode'] == 'save') {
-    if (validateFile($_POST['docid'])) {
+    $rebuilt = validateFile($_POST['docid']);
+    if ($rebuilt) {
         if (stripos($_POST['content'], "<?php") === false) {
-            file_put_contents($_POST['docid'], $_POST['content']);
+            file_put_contents($rebuilt, $_POST['content']);
             exit(true);
         } else {
             die(xlt('Invalid Content'));
@@ -43,8 +45,9 @@ if ($_POST['mode'] == 'get') {
         die(xlt('Invalid File'));
     }
 } else if ($_POST['mode'] == 'delete') {
-    if (validateFile($_POST['docid'])) {
-        unlink($_POST['docid']);
+    $rebuilt = validateFile($_POST['docid']);
+    if ($rebuilt) {
+        unlink($rebuilt);
         exit(true);
     } else {
         die(xlt('Invalid File'));
@@ -95,18 +98,29 @@ if (!empty($_FILES["tplFile"])) {
     // set proper permissions on the new file
     chmod(UPLOAD_DIR . $name, 0644);
     header("location: " . $_SERVER['HTTP_REFERER']);
+    die();
 }
 
 function validateFile($filename = '')
 {
-    $filePath = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/';
-    if (stripos(realpath($filename), realpath($filePath)) === false) {
-        return false;
+    $knownPath = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/'; // default path
+    $unknown = str_replace("\\", "/", realpath($filename)); // normalize requested path
+    $parts = pathinfo($unknown);
+    $unkParts = explode('/', $parts['dirname']);
+    $ptpid = $unkParts[count($unkParts) - 1]; // is this a patient or global template
+    $ptpid = ($ptpid == 'templates') ? '' : ($ptpid . '/'); // last part should be pid or template
+    $rebuiltPath = $knownPath . $ptpid . $parts['filename'] . '.tpl';
+    if (file_exists($rebuiltPath) === false || $parts['extension'] != 'tpl') {
+        redirect();
+    } elseif ($rebuiltPath != $unknown) { // these need to match to be valid request
+        redirect();
     }
-    if (preg_match("/(.*)\.(php|php3|php4|php5|php7)$/i", $filename) === 0) {
-        if (preg_match("/(.*)\.(tpl)$/i", $filename) === 1) {
-            return true;
-        }
-    }
-    return false;
+
+    return $rebuiltPath;
+}
+
+function redirect()
+{
+    header('HTTP/1.0 404 Not Found');
+    die();
 }
