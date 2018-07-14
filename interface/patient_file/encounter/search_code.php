@@ -4,8 +4,8 @@
 // THIS MODULE REPLACES cptcm_codes.php, hcpcs_codes.php AND icd9cm_codes.php.
 ////////////////////////////////////////////////////////////////////////////////
 
-include_once("../../globals.php");
-include_once("../../../custom/code_types.inc.php");
+require_once("../../globals.php");
+require_once("../../../custom/code_types.inc.php");
 
 //the maximum number of records to pull out with the search:
 $M = 30;
@@ -58,18 +58,18 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
 
   // The above is obsolete now, fees come from the prices table:
     $sql = "SELECT codes.*, prices.pr_price FROM codes " .
-    "LEFT OUTER JOIN patient_data ON patient_data.pid = '$pid' " .
+    "LEFT OUTER JOIN patient_data ON patient_data.pid = ? " .
     "LEFT OUTER JOIN prices ON prices.pr_id = codes.id AND " .
     "prices.pr_selector = '' AND " .
     "prices.pr_level = patient_data.pricelevel " .
-    "WHERE (code_text LIKE '%" . $_POST["text"] . "%' OR " .
-    "code LIKE '%" . $_POST["text"] . "%') AND " .
-    "code_type = '" . $code_types[$code_type]['id'] . "' " .
+    "WHERE (code_text LIKE ? OR " .
+    "code LIKE ?) AND " .
+    "code_type = ? " .
     "ORDER BY code ".
     " LIMIT " . ($M + 1).
     "";
 
-    if ($res = sqlStatement($sql)) {
+    if ($res = sqlStatement($sql, array($pid, "%".$_POST["text"]."%", "%".$_POST["text"]."%", $code_types[$code_type]['id']))) {
         for ($iter=0; $row=sqlFetchArray($res); $iter++) {
             $result[$iter] = $row;
         }

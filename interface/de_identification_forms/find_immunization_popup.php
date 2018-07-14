@@ -144,8 +144,8 @@ function check_search_str()
   $search_term = $_REQUEST['search_term'];
   {
     $query = "SELECT count(*) as count FROM list_options " .
-      "WHERE (list_id = 'immunizations' and title LIKE '%$search_term%' AND activity = 1) " ;
-    $res = sqlStatement($query);
+      "WHERE (list_id = 'immunizations' and title LIKE ? AND activity = 1) " ;
+    $res = sqlStatement($query, array('%'.$search_term.'%'));
 if ($row = sqlFetchArray($res)) {
     $no_of_items = addslashes($row['count']);
     if ($no_of_items < 1) {
@@ -161,9 +161,9 @@ if ($row = sqlFetchArray($res)) {
     }
 
     $query = "SELECT option_id,title FROM list_options " .
-    "WHERE (list_id = 'immunizations' and title LIKE '%$search_term%' AND activity = 1) " .
+    "WHERE (list_id = 'immunizations' and title LIKE ? AND activity = 1) " .
     "ORDER BY title";
-    $res = sqlStatement($query);
+    $res = sqlStatement($query, array('%'.$search_term.'%'));
     $row_count = 0;
     while ($row = sqlFetchArray($res)) {
         $row_count = $row_count + 1;

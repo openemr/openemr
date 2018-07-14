@@ -562,7 +562,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
         if ($DEBUG) {
             $alertmsg = xl("Printing skipped; see test output in") .' '. $STMT_TEMP_FILE;
         } else {
-            exec("$STMT_PRINT_CMD $STMT_TEMP_FILE");
+            exec(escapeshellcmd($STMT_PRINT_CMD) . " " . escapeshellarg($STMT_TEMP_FILE));
             if ($_POST['form_without']) {
                 $alertmsg = xl('Now printing') .' '. $stmt_count .' '. xl('statements; invoices will not be updated.');
             } else {

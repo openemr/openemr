@@ -314,7 +314,7 @@ if ($_POST['form_save']) {
         $cpstring = str_replace('{MESSAGE}', $form_message, $cpstring);
         fwrite($tmph, $cpstring);
         fclose($tmph);
-        $tmp0 = exec("cd $webserver_root/custom; " . $GLOBALS['hylafax_enscript'] .
+        $tmp0 = exec("cd $webserver_root/custom; " . escapeshellcmd($GLOBALS['hylafax_enscript']) .
         " -o $tmpfn2 $tmpfn1", $tmp1, $tmp2);
         if ($tmp2) {
               $info_msg .= "enscript returned $tmp2: $tmp0 ";

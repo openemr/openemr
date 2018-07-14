@@ -127,7 +127,7 @@ if ($eid) {
     $facility = sqlQuery("SELECT pc_facility, pc_multiple, pc_aid, facility.name
                             FROM openemr_postcalendar_events
                               LEFT JOIN facility ON (openemr_postcalendar_events.pc_facility = facility.id)
-                              WHERE pc_eid = $eid");
+                              WHERE pc_eid = ?", array($eid));
     if (!$facility['pc_facility']) {
         $qmin = sqlQuery("SELECT facility_id as minId, facility FROM users WHERE id = ".$facility['pc_aid']);
         $min  = $qmin['minId'];
@@ -141,7 +141,7 @@ if ($eid) {
 
         // EOS multiple
 
-        sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = $min WHERE pc_eid = $eid");
+        sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = ? WHERE pc_eid = ?", array($min, $eid));
         $e2f = $min;
         $e2f_name = $min_name;
     } else {
@@ -298,7 +298,7 @@ if ($_POST['form_action'] == "save") {
 ========================================================*/
     if ($eid) {
         // what is multiple key around this $eid?
-        $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+        $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
 
         if ($GLOBALS['select_multi_providers'] && $row['pc_multiple']) {
             /* ==========================================
@@ -408,7 +408,7 @@ if ($_POST['form_action'] == "save") {
                 "pc_apptstatus = '"  . $_POST['form_apptstatus']           . "', "  .
                 "pc_prefcatid = '"   . $_POST['form_prefcat']              . "' ,"  .
                  "pc_facility = '"   .(int)$_POST['facility']               ."' "  . // FF stuff
-                "WHERE pc_eid = '$eid'");
+                "WHERE pc_eid = '" . add_escape_custom($eid) . "'");
         }
 
     // =======================================
@@ -546,18 +546,18 @@ if ($_POST['form_action'] == "save") {
       // =======================================
     if ($GLOBALS['select_multi_providers']) {
         // what is multiple key around this $eid?
-        $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+        $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
         if ($row['pc_multiple']) {
             sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_multiple = {$row['pc_multiple']}");
         } else {
-                        sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+                        sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
         }
 
         // =======================================
         //  EOS multi providers case
         // =======================================
     } else {
-        sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = '$eid'");
+        sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
     }
 }
 
@@ -603,7 +603,7 @@ $row = array();
 
 // If we are editing an existing event, then get its data.
 if ($eid) {
-    $row = sqlQuery("SELECT * FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+    $row = sqlQuery("SELECT * FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
     $date = $row['pc_eventDate'];
     $userid = $row['pc_aid'];
     $patientid = $row['pc_pid'];
@@ -631,7 +631,7 @@ if ($eid) {
  // If we have a patient ID, get the name and phone numbers to display.
 if ($patientid) {
     $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB " .
-        "FROM patient_data WHERE pid = '" . $patientid . "'");
+        "FROM patient_data WHERE pid = ?", array($patientid));
     $patientname = $prow['lname'] . ", " . $prow['fname'];
     if ($prow['phone_home']) {
         $patienttitle .= " H=" . $prow['phone_home'];
@@ -650,7 +650,7 @@ $ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE " .
 //(CHEMED)
 //Set default facility for a new event based on the given 'userid'
 if ($userid) {
-    $pref_facility = sqlFetchArray(sqlStatement("SELECT facility_id, facility FROM users WHERE id = $userid"));
+    $pref_facility = sqlFetchArray(sqlStatement("SELECT facility_id, facility FROM users WHERE id = ?", array($userid)));
     $e2f = $pref_facility['facility_id'];
     $e2f_name = $pref_facility['facility'];
 }
@@ -941,7 +941,7 @@ while ($crow = sqlFetchArray($cres)) {
 
 <body class="body_top" onunload='imclosing()' onload='categoryChanged()'>
 
-<form method='post' name='theform' id='theform' action='add_edit_event_user.php?eid=<?php echo $eid ?>' />
+<form method='post' name='theform' id='theform' action='add_edit_event_user.php?eid=<?php echo attr($eid); ?>' />
 <input type="hidden" name="form_action" id="form_action" value="">
 <center>
 
@@ -995,7 +995,7 @@ while ($crow = sqlFetchArray($cres)) {
   </td>
   <td nowrap>
    <input type='text' size='10' id='form_patient' name='form_patient' style='width:100%;' value='<?php echo $patientname ?>' title='Patient' readonly />
-   <input type='hidden' name='form_pid' value='<?php echo $patientid ?>' />
+   <input type='hidden' name='form_pid' value='<?php echo attr($patientid); ?>' />
   </td>
   <td nowrap>
    &nbsp;
