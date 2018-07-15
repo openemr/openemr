@@ -59,7 +59,7 @@ if (!isset($_POST['up_dir'])) {
     define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/');
 } else {
     if ($_POST['up_dir'] > 0) {
-        define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/' . $_POST['up_dir'] . '/');
+        define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/' . convert_safe_file_dir_name($_POST['up_dir']) . '/');
     } else {
         define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/');
     }
@@ -112,7 +112,9 @@ function validateFile($filename = '')
     $rebuiltPath = $knownPath . $ptpid . $parts['filename'] . '.tpl';
     if (file_exists($rebuiltPath) === false || $parts['extension'] != 'tpl') {
         redirect();
-    } elseif ($rebuiltPath != $unknown) { // these need to match to be valid request
+    } elseif (realpath($rebuiltPath) != realpath($filename)) { // these need to match to be valid request
+        redirect();
+    } elseif (stripos(realpath($filename), realpath($knownPath)) === false) { // this needs to pass be a valid request
         redirect();
     }
 

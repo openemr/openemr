@@ -24,7 +24,7 @@
 require_once("../interface/globals.php");
 $getdir = isset($_POST['sel_pt']) ? $_POST['sel_pt'] : 0;
 if ($getdir > 0) {
-    $tdir = $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/' . $getdir . '/';
+    $tdir = $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/' . convert_safe_file_dir_name($getdir) . '/';
     if (!is_dir($tdir)) {
         if (!mkdir($tdir, 0755, true)) {
             die(xl('Failed to create folder'));
