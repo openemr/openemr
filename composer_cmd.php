@@ -20,13 +20,13 @@ $allowedCommands = [
 
 showOptions($allowedCommands);
 
-if ( !isset($_GET['cmd']) ) {
+if (!isset($_GET['cmd'])) {
     exit('<br />');
 }
 
 $cmdRaw = base64_decode($_GET['cmd']);
 
-if ( !in_array($cmdRaw, $allowedCommands) ) {
+if (!in_array($cmdRaw, $allowedCommands)) {
     exit;
 }
 
@@ -49,16 +49,17 @@ putenv('COMPOSER_CACHE_DIR=' . __DIR__ . '/vendor/composer/cache');
 
 $output = new Output(
     $isDebug ? OutputInterface::VERBOSITY_DEBUG : OutputInterface::VERBOSITY_NORMAL
-    );
+);
 
-$input = new ArrayInput( $inputArray );
+$input = new ArrayInput($inputArray);
 $application = new Application();
 $application->setAutoExit(false);
 $application->run($input, $output);
 
 echo '<pre>' . $output->fetch() . '</pre>';
 
-function showOptions($allowedCommands) {
+function showOptions($allowedCommands)
+{
     $buttons = [];
     foreach ($allowedCommands as $cmd) {
         $buttons[] = '<button type="button" onclick="window.location=\'' . $_SERVER['SCRIPT_NAME'] . '?cmd=' . base64_encode($cmd) . '\'">composer ' . $cmd . '</button>';
