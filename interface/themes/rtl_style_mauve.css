@@ -69,7 +69,7 @@ body {
  */
 @font-face {
   font-family: "FontAwesome";
-  src: url("/public/assets/font-awesome-4-6-3/fonts/fontawesome-webfont.ttf") format("truetype"); }
+  src: url("/public/assets/font-awesome/fonts/fontawesome-webfont.ttf") format("truetype"); }
 
 .css_button[href*="deleter"]:before, input[type="button"][href*="deleter"] [type="submit"]:before, button[href*="deleter"]:before {
   font-family: "FontAwesome";
@@ -227,7 +227,7 @@ div.closeDlgIframe:before {
   background-position: -64px -224px; }
 
 .ui-icon, .ui-widget-content .ui-icon {
-  background-image: url("/public/assets/jquery-ui-1-12-1/themes/sunny/images/ui-icons_d19405_256x240.png"); }
+  background-image: url("/public/assets/jquery-ui-themes/themes/sunny/images/ui-icons_d19405_256x240.png"); }
 
 .ui-icon {
   width: 16px;

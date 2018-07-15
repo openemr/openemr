@@ -85,7 +85,7 @@ gulp.task('sync', ['styles'], function() {
     } else {
         // hack to get font awesome files into the .out directory
         gulp.src([
-            './public/assets/font-awesome-4-6-3/fonts/**/*.{ttf,woff,eof,svg}'
+            './public/assets/font-awesome/fonts/**/*.{ttf,woff,eof,svg}'
             ], {base: '../'})
             .pipe(gulp.dest(config.dist.storybook));
     }
@@ -180,7 +180,8 @@ gulp.task('install', function() {
         // check if the property/key is defined in the object itself, not in parent
         if (dependencies.hasOwnProperty(key)) {
             // only copy dist directory, if it exists
-            if (fs.existsSync('node_modules/' + key + '/dist')) {
+            // skip this if for dwv dependency
+            if (key != 'dwv' && fs.existsSync('node_modules/' + key + '/dist')) {
                 gulp.src('node_modules/' + key + '/dist/**/*')
                     .pipe(gulp.dest(config.dist.assets + key + '/dist'));
             } else {

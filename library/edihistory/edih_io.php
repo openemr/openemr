@@ -141,7 +141,7 @@ function edih_html_heading($option, $title = '')
     //$str_html .= " <link rel='stylesheet' href='jscript/style/csv_new.css' type='text/css' media='print, projection, screen' />".PHP_EOL;
     //$str_html .= " <link rel='stylesheet' href='../css/edi_history.css' type='text/css' />".PHP_EOL;
     $str_html .= " <link rel='stylesheet' href='$webdir/library/css/edi_history.css' type='text/css' />".PHP_EOL;
-    $str_html .= " <link type='text/javascript' src='$vendordir/jquery-min-1-9-1/index.js'  />".PHP_EOL;
+    $str_html .= " <link type='text/javascript' src='$vendordir/jquery-1-9-1/jquery.min.js'  />".PHP_EOL;
     $str_html .= " <link type='text/javascript' src='$webdir/library/js/jquery-ui-1.8.21.custom.min.js'  />".PHP_EOL;
     //
     $str_html .= "</head>".PHP_EOL."<body>".PHP_EOL;

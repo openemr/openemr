@@ -166,7 +166,7 @@ $result = getPnotesByDate(
 <link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
 
 <!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <!--<script type="text/javascript" src="../../../library/dialog.js?v=<?php /*echo $v_js_includes; */?>"></script>-->
 <script type="text/javascript" src="../../../library/js/common.js"></script>

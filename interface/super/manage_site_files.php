@@ -226,7 +226,7 @@ if ($GLOBALS['secure_upload']) {
  }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery/dist/jquery.min.js"></script>
 
 <script language="JavaScript">
 // This is invoked when a filename selection changes in the drop-list.

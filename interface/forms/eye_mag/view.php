@@ -163,13 +163,17 @@ if ($refresh and $refresh != 'fullscreen') {
 <html>
   <head>
     <title> <?php echo xlt('Chart'); ?>: <?php echo text($pat_data['fname'])." ".text($pat_data['lname'])." ".text($visit_date); ?></title>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-10-2/index.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.js"></script>
+    <?php Header::setupHeader([
+        'no_jquery',
+        'jquery-1-10-2',
+        'jquery-ui-1-11-4',
+        'jquery-ui-excite-bike-1-11-4',
+        'manual-added-packages/qtip2-2-2-1',
+        'jscolor',
+        'jquery-panelslider',
+
+    ]); ?>
     <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jscolor-2-0-4/jscolor.js"></script>
-
     <script language="JavaScript">
     <?php require_once("$srcdir/restoreSession.php");
     ?>
@@ -220,11 +224,11 @@ if ($refresh and $refresh != 'fullscreen') {
     <!-- Add Font stuff for the look and feel.  -->
 
     <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/themes/excite-bike/jquery-ui.css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.css" />
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-themes-1-11-4/themes/excite-bike/jquery-ui.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure/0.5.0/pure-min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/qtip2-2-2-1/jquery.qtip.min.css" />
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
 
     <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
@@ -4001,10 +4005,10 @@ if ($refresh and $refresh != 'fullscreen') {
         echo $output;
     }
     ?>
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-panelslider-0-1-1/jquery.panelslider.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-panelslider/jquery.panelslider.js"></script>
     <!-- Undo code -->
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/undone.js-0-0-1/undone.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/undone.js-0-0-1/jquery.undone.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/undone.js-0-0-1/undone.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/undone.js-0-0-1/jquery.undone.js"></script>
     <script>
         $.undone();
 
