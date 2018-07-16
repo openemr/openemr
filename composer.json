@@ -33,9 +33,14 @@
         "ezyang/htmlpurifier" : "4.10.0",
         "knplabs/knp-snappy" : "1.0.4",
         "stripe/stripe-php" : "6.10.0",
-        "phpoffice/phpspreadsheet": "1.3.1"
+        "phpoffice/phpspreadsheet": "1.3.1",
+        "mouf/nodejs-installer": "~1.0"
     },
     "require-dev" : {
+    },
+    "scripts": {
+        "post-install-cmd": "npm install --scripts-prepend-node-path",
+        "post-update-cmd": "npm install --scripts-prepend-node-path"
     },
     "repositories" : [{
         "type" : "vcs",
