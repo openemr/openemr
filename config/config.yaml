@@ -11,114 +11,170 @@
 #         link: jquery-ui.min.css filename or null
 #         autoload: true (defaults to false)
 assets:
-    jquery:
-        basePath: %assets_static_relative%/jquery-min-3-1-1/
-        script: index.js
-        autoload: true
-        allowNoLoad: true
+    angular:
+        basePath: %assets_static_relative%/angular/
+        script: angular.min.js
+    angular-sanitize:
+        basePath: %assets_static_relative%/angular-sanitize/
+        script: angular-sanitize.min.js
+    angular-summernote:
+        basePath: %assets_static_relative%/angular-summernote/dist/
+        script: angular-summernote.js # should this be the minified file?
+    anythingslider:
+        basePath: %assets_static_relative%/anythingslider/
+        script: js/jquery.anythingslider.fx.js # should optional plugins be their own key?
+        script: js/jquery.anythingslider.video.js # should optional plugins be their own key?
+        script: js/jquery.easing.1.2.js # should optional extensions be their own key?
+        script: js/jquery.anythingslider.min.js
+        # link: css/anythingslider.css
+        link: css/theme-metallic.css
+        link: css/theme-minimalist-round.css
+        link: css/theme-minimalist-square.css
+        link: css/theme-construction.css
+        link: css/theme-cs-portfolio.css
+    backbone:
+        basePath: %assets_static_relative%/backbone/
+        script: backbone-min.js
     bootstrap:
-        basePath: %assets_static_relative%/bootstrap-3-3-4/dist/
+        basePath: %assets_static_relative%/bootstrap/dist/
         script: js/bootstrap.min.js
         link: css/bootstrap.min.css
         autoload: true
-        allowNoLoad: true
+        allowNoLoad: true # could also just edit Header.php to remove this check (unnecessary?)
         rtl:
-            basePath: %assets_static_relative%/bootstrap-rtl-3-3-4/dist/
+            basePath: %assets_static_relative%/bootstrap-rtl/dist/
             link: css/bootstrap-rtl.css
     bootstrap-sidebar:
-        basePath: %assets_static_relative%/bootstrap-sidebar-0-2-2/dist/
+        basePath: %assets_static_relative%/bootstrap-sidebar/dist/
         script: js/sidebar.js
         link: css/sidebar.css
+    checklist-model:
+        basePath: %assets_static_relative%/checklist-model/
+        script: checklist-model.js
+    common:
+        basePath: %webroot%/library/js/
+        script: common.js
+    datetime-picker:
+        basePath: %assets_static_relative%/jquery-datetimepicker/build/
+        script: jquery.datetimepicker.full.min.js
+        link: jquery.datetimepicker.min.css
+    dialog:
+        basePath: %webroot%/library/
+        script: dialog.js
+        autoload: true
+        allowNoLoad: true
+    dygraphs:
+        basePath: %assets_static_relative%/modified/dygraphs-2-0-0/
+        script: dygraph.js
+        link: dygraph.css
+    emodal:
+        basePath: %assets_static_relative%/emodal/dist/
+        script: eModal.min.js
+    esign:
+        basePath: %webroot%/library/ESign/
+        script: js/jquery.esign.js
+        link: css/esign.css
+    fontawesome:
+        basePath: %assets_static_relative%/font-awesome/css/
+        link: font-awesome.min.css
+        autoload: true
+        allowNoLoad: true
+    jquery:
+        basePath: %assets_static_relative%/jquery/dist/
+        script: jquery.min.js
+        autoload: true
+        allowNoLoad: true
+    jquery-1-10-2:
+        basePath: %assets_static_relative%/jquery-1-10-2/
+        script: jquery.min.js
+    jquery-1-11-3:
+        basePath: %assets_static_relative%/jquery-1-11-3/dist/
+        script: jquery.min.js
+    jquery-ui:
+        basePath: %assets_static_relative%/jquery-ui/
+        script: jquery-ui.min.js
+    jquery-ui-base:
+        basePath: %assets_static_relative%/jquery-ui-themes/themes/base/
+        link: jquery-ui.min.css
+    jquery-ui-darkness:
+        basePath: %assets_static_relative%/jquery-ui-themes/themes/ui-darkness/
+        link: jquery-ui.min.css
+    jquery-ui-sunny:
+        basePath: %assets_static_relative%/jquery-ui-themes/themes/sunny/
+        link: jquery-ui.min.css
+    jquery-ui-redmond:
+        basePath: %assets_static_relative%/jquery-ui-themes/themes/redmond/
+        link: jquery-ui.min.css
+    jquery-ui-cupertino:
+        basePath: %assets_static_relative%/jquery-ui-themes/themes/cupertino/
+        link: jquery-ui.min.css
+    jquery-ui-lightness-1-10-4:
+        basePath: %assets_static_relative%/jquery-ui-themes-1-10-4/themes/ui-lightness/
+        link: jquery-ui.min.css
+    jquery-ui-excite-bike-1-11-4:
+        basePath: %assets_static_relative%/jquery-ui-themes-1-11-4/themes/excite-bike/
+        link: jquery-ui.css # should this be the minified file?
+    jscolor:
+        basePath: %assets_static_relative%/jscolor/
+        script: jscolor.js
+    jscolor-1-4-5:
+        basePath: %assets_static_relative%/jscolor-1-4-5/
+        script: jscolor.js
+    knockout:
+        basePath: %assets_static_relative%/knockout/build/output/
+        script: knockout-latest.js
     main-theme:
         alreadyBuilt: true
         link: %css_header%
         autoload: true
         allowNoLoad: true
+    moment:
+        basePath: %assets_static_relative%/moment/
+        script: moment.js # should this be the minified file?
+    opener:
+        basePath: %webroot%/interface/main/tabs/js/
+        script: include_opener.js
+    pure:
+        basePath: %assets_static_relative%/pure/0.5.0/
+        link: pure-min.css
+    summernote:
+        basePath: %assets_static_relative%/summernote/dist/
+        script: summernote.js
+        link: summernote.css
+    qtip2:
+        basePath: %assets_static_relative%/qtip2/dist/
+        script: jquery.qtip.min.js
+        link: jquery.qtip.min.css
+    qtip2-2-2-1:
+        basePath: %assets_static_relative%/qtip2-2-2-1/
+        script: jquery.qtip.min.js
+        link: jquery.qtip.min.css
+    report-helper:
+        basePath: %webroot%/library/js/
+        script: report_helper.js
+    select2:
+        basePath: %assets_static_relative%/
+        script: select2/dist/js/select2.full.js # should this be the minified file?
+        link:
+            - select2/dist/css/select2.css # should this be the minified file?
+            - select2-bootstrap-theme/dist/select2-bootstrap.css # should this be the minified file?
+    shortcut:
+        basePath: %assets_static_relative%/manual-added-package/shortcut.js-2-01-B/
+        script: shortcut.js
     tabs-theme:
         basePath: %webroot%/interface/themes/
         link: %theme_tabs_layout%
         rtl:
             basePath: %webroot%/interface/themes/
             link: rtl_%theme_tabs_layout%
-    knockout:
-        basePath: %assets_static_relative%/knockout-3-4-0/dist/
-        script: knockout.js
-    jquery-ui:
-        basePath: %assets_static_relative%/jquery-ui-1-12-1/
-        script: jquery-ui.min.js
-    jquery-ui-base:
-        basePath: %assets_static_relative%/jquery-ui-1-12-1/themes/base/
-        link: jquery-ui.min.css
-    jquery-ui-darkness:
-        basePath: %assets_static_relative%/jquery-ui-1-12-1/themes/ui-darkness/
-        link: jquery-ui.min.css
-    jquery-ui-sunny:
-        basePath: %assets_static_relative%/jquery-ui-1-12-1/themes/sunny/
-        link: jquery-ui.min.css
-    jquery-ui-redmond:
-        basePath: %assets_static_relative%/jquery-ui-1-12-1/themes/redmond/
-        link: jquery-ui.min.css
-    jquery-ui-cupertino:
-        basePath: %assets_static_relative%/jquery-ui-1-12-1/themes/cupertino/
-        link: jquery-ui.min.css
-    fontawesome:
-        basePath: %assets_static_relative%/font-awesome-4-6-3/css/
-        link: font-awesome.min.css
-        autoload: true
-        allowNoLoad: true
-    datetime-picker:
-        basePath: %assets_static_relative%/jquery-datetimepicker-2-5-4/build/
-        script: jquery.datetimepicker.full.min.js
-        link: jquery.datetimepicker.min.css
-    report-helper:
-        basePath: %webroot%/library/js/
-        script: report_helper.js
-    opener:
-        basePath: %webroot%/interface/main/tabs/js/
-        script: include_opener.js
-    topdialog:
-        basePath: %webroot%/library/
-        script: topdialog.js
-    common:
-        basePath: %webroot%/library/js/
-        script: common.js
     textformat:
         basePath: %webroot%/library/
         script: textformat.js
         autoload: true
         allowNoLoad: true
-    dialog:
+    topdialog:
         basePath: %webroot%/library/
-        script: dialog.js
-        autoload: true
-        allowNoLoad: true
-    select2:
-        basePath: %assets_static_relative%/
-        script: select2-4-0/dist/js/select2.full.js
-        link:
-            - select2-4-0/dist/css/select2.css
-            - select2-bootstrap-theme-0-1-0/dist/select2-bootstrap.css
-    jscolor:
-        basePath: %assets_static_relative%/jscolor-2-0-4/
-        script: jscolor.js
-    emodal:
-        basePath: %assets_static_relative%/emodal-1-2-65/dist/
-        script: eModal.min.js
-    esign:
-        basePath: %webroot%/library/ESign/
-        script: js/jquery.esign.js
-        link: css/esign.css
-    dygraphs:
-        basePath: %assets_static_relative%/modified/dygraphs-2-0-0/
-        script: dygraph.js
-        link: dygraph.css
-    moment:
-        basePath: %assets_static_relative%/moment-2-13-0/
-        script: moment.js
-    pure:
-        basePath: %assets_static_relative%/pure-0-5-0/
-        link: pure-min.css
-    qtip2:
-        basePath: %assets_static_relative%/qtip2-3-0-3/dist/
-        script: jquery.qtip.min.js
-        link: jquery.qtip.min.css
+        script: topdialog.js
+    underscore:
+        basePath: %assets_static_relative%/underscore
+        script: underscore-min.js
