@@ -78,10 +78,5 @@
             "OpenEMR\\Tabs\\" : "library/tabs/src",
             "OpenEMR\\Rx\\Weno\\" : "library/weno/src"
         }
-    },
-    "config" : {
-        "preferred-install" : {
-            "doctrine/couchdb" : "dist"
-        }
     }
 }
