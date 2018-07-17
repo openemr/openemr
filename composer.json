@@ -10,6 +10,7 @@
         "source" : "http://github.com/openemr/openemr"
     },
     "require" : {
+        "php" : ">=5.6.0",
         "mpdf/mpdf" : "7.1.0",
         "adldap2/adldap2" : "8.1.5",
         "smarty/smarty" : "2.6.31",
