@@ -123,13 +123,11 @@ function navigateTab(url,name,afterLoadFunction)
     var curTab;
     if($("iframe[name='"+name+"']").length>0)
     {
-        if(typeof afterLoadFunction === 'undefined'){
+        if(typeof afterLoadFunction !== 'function'){
             $( "body" ).off( "load", "iframe[name='"+name+"']");
-            console.log('turn off');
         } else {
             $("iframe[name='"+name+"']").on('load', function () {
                 afterLoadFunction();
-                console.log('loa function');
             });
         }
        $("iframe[name='"+name+"']").get(0).contentWindow.location=url;
@@ -138,6 +136,9 @@ function navigateTab(url,name,afterLoadFunction)
     {
         curTab=new tabStatus("New",url,name,true,false,false);
         app_view_model.application_data.tabs.tabsList.push(curTab);
+        if(typeof afterLoadFunction === 'function'){
+            afterLoadFunction();
+        }
     }
 }
 
