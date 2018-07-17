@@ -62,6 +62,7 @@ services:
     volumes:
     - .:/var/www/localhost/htdocs/openemr
     environment:
+      FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
   openemr-7-1-redis:
     restart: always
@@ -72,6 +73,7 @@ services:
     volumes:
     - .:/var/www/localhost/htdocs/openemr
     environment:
+      FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
   openemr-7-2-redis:
@@ -83,6 +85,7 @@ services:
     volumes:
     - .:/var/www/localhost/htdocs/openemr
     environment:
+      FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
   mariadb:
