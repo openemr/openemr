@@ -25,6 +25,47 @@ use function is_array;
 function normalizeUploadedFiles(array $files)
 {
     /**
+     * Traverse a nested tree of uploaded file specifications.
+     *
+     * @param string[]|array[] $tmpNameTree
+     * @param int[]|array[] $sizeTree
+     * @param int[]|array[] $errorTree
+     * @param string[]|array[]|null $nameTree
+     * @param string[]|array[]|null $typeTree
+     * @return UploadedFile[]|array[]
+     */
+    $recursiveNormalize = function (
+        array $tmpNameTree,
+        array $sizeTree,
+        array $errorTree,
+        array $nameTree = null,
+        array $typeTree = null
+    ) use (&$recursiveNormalize) {
+        $normalized = [];
+        foreach ($tmpNameTree as $key => $value) {
+            if (is_array($value)) {
+                // Traverse
+                $normalized[$key] = $recursiveNormalize(
+                    $tmpNameTree[$key],
+                    $sizeTree[$key],
+                    $errorTree[$key],
+                    isset($nameTree[$key]) ? $nameTree[$key] : null,
+                    isset($typeTree[$key]) ? $typeTree[$key] : null
+                );
+                continue;
+            }
+            $normalized[$key] = createUploadedFile([
+                'tmp_name' => $tmpNameTree[$key],
+                'size' => $sizeTree[$key],
+                'error' => $errorTree[$key],
+                'name' => isset($nameTree[$key]) ? $nameTree[$key] : null,
+                'type' => isset($typeTree[$key]) ? $typeTree[$key] : null
+            ]);
+        }
+        return $normalized;
+    };
+
+    /**
      * Normalize an array of file specifications.
      *
      * Loops through all nested files (as determined by receiving an array to the
@@ -38,7 +79,7 @@ function normalizeUploadedFiles(array $files)
      * @param array $files
      * @return UploadedFile[]
      */
-    $normalizeUploadedFileSpecification = function (array $files = []) {
+    $normalizeUploadedFileSpecification = function (array $files = []) use (&$recursiveNormalize) {
         if (! isset($files['tmp_name']) || ! is_array($files['tmp_name'])
             || ! isset($files['size']) || ! is_array($files['size'])
             || ! isset($files['error']) || ! is_array($files['error'])
@@ -51,19 +92,13 @@ function normalizeUploadedFiles(array $files)
             ));
         }
 
-
-        $normalized = [];
-        foreach (array_keys($files['tmp_name']) as $key) {
-            $spec = [
-                'tmp_name' => $files['tmp_name'][$key],
-                'size'     => $files['size'][$key],
-                'error'    => $files['error'][$key],
-                'name'     => isset($files['name'][$key]) ? $files['name'][$key] : null,
-                'type'     => isset($files['type'][$key]) ? $files['type'][$key] : null,
-            ];
-            $normalized[$key] = createUploadedFile($spec);
-        }
-        return $normalized;
+        return $recursiveNormalize(
+            $files['tmp_name'],
+            $files['size'],
+            $files['error'],
+            isset($files['name']) ? $files['name'] : null,
+            isset($files['type']) ? $files['type'] : null
+        );
     };
 
     $normalized = [];
