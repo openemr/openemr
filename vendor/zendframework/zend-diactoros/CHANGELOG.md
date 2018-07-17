@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 1.8.1 - 2018-07-09
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- [#313](https://github.com/zendframework/zend-diactoros/pull/313) changes the reason phrase associated with the status code 425
+  to "Too Early", corresponding to a new definition of the code as specified by the IANA.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#312](https://github.com/zendframework/zend-diactoros/pull/312) fixes how the `normalizeUploadedFiles()` utility function handles nested trees of
+  uploaded files, ensuring it detects them properly.
+
 ## 1.8.0 - 2018-06-27
 
 ### Added

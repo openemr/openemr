@@ -4,16 +4,15 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
+class ComposerStaticInit78952819747237e7b8d3ac815ae6af28
 {
     public static $files = array (
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
-        '3a505b5f7faaefce1a399e528c23742b' => __DIR__ . '/..' . '/zendframework/zend-mvc/src/autoload.php',
-        '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
-        '10a6847eba8a430a134fad89f4a30a26' => __DIR__ . '/..' . '/zendframework/zend-cache/autoload/patternPluginManagerPolyfill.php',
-        'e40631d46120a9c38ea139981f8dab26' => __DIR__ . '/..' . '/ircmaxell/password-compat/lib/password.php',
         '34901568a1e26d13dd475cb2c85e0284' => __DIR__ . '/..' . '/zendframework/zend-form/autoload/formElementManagerPolyfill.php',
+        '3a505b5f7faaefce1a399e528c23742b' => __DIR__ . '/..' . '/zendframework/zend-mvc/src/autoload.php',
+        '10a6847eba8a430a134fad89f4a30a26' => __DIR__ . '/..' . '/zendframework/zend-cache/autoload/patternPluginManagerPolyfill.php',
+        '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
         'cf97c57bfe0f23854afd2f3818abb7a0' => __DIR__ . '/..' . '/zendframework/zend-diactoros/src/functions/create_uploaded_file.php',
         '9bf37a3d0dad93e29cb4e1b1bfab04e9' => __DIR__ . '/..' . '/zendframework/zend-diactoros/src/functions/marshal_headers_from_sapi.php',
@@ -23,14 +22,15 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         '0b0974a5566a1077e4f2e111341112c1' => __DIR__ . '/..' . '/zendframework/zend-diactoros/src/functions/normalize_server.php',
         '1ca3bc274755662169f9629d5412a1da' => __DIR__ . '/..' . '/zendframework/zend-diactoros/src/functions/normalize_uploaded_files.php',
         '40360c0b9b437e69bcbb7f1349ce029e' => __DIR__ . '/..' . '/zendframework/zend-diactoros/src/functions/parse_cookie_header.php',
+        'e40631d46120a9c38ea139981f8dab26' => __DIR__ . '/..' . '/ircmaxell/password-compat/lib/password.php',
+        '72579e7bd17821bb1321b87411366eae' => __DIR__ . '/..' . '/illuminate/support/helpers.php',
         'edc6464955a37aa4d5fbf39d40fb6ee7' => __DIR__ . '/..' . '/symfony/polyfill-php55/bootstrap.php',
         '3e2471375464aac821502deb0ac64275' => __DIR__ . '/..' . '/symfony/polyfill-php54/bootstrap.php',
-        '72579e7bd17821bb1321b87411366eae' => __DIR__ . '/..' . '/illuminate/support/helpers.php',
         'bf9f5270ae66ac6fa0290b4bf47867b7' => __DIR__ . '/..' . '/adodb/adodb-php/adodb.inc.php',
-        '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
         'd5fa61a7f6cbc1df09dd4df84549a2dc' => __DIR__ . '/..' . '/rospdf/pdf-php/src/Cpdf.php',
         '2d15964294879de66053d54f6bde65d7' => __DIR__ . '/..' . '/rospdf/pdf-php/src/Cezpdf.php',
         'decc78cc4436b1292c6c0d151b19445c' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
+        '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
         'ce966aaf9a7a6ac4e4663ee998e4282d' => __DIR__ . '/../..' . '/library/htmlspecialchars.inc.php',
         'e503b8ca58d1a18c65b5632ecd5a76b4' => __DIR__ . '/../..' . '/library/formdata.inc.php',
         '90ddd4120fc0e77b06a383f880188d79' => __DIR__ . '/../..' . '/library/sanitize.inc.php',
@@ -6524,11 +6524,11 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit22ddb69348c7ed922c96325249cef3d0::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit22ddb69348c7ed922c96325249cef3d0::$prefixDirsPsr4;
-            $loader->fallbackDirsPsr4 = ComposerStaticInit22ddb69348c7ed922c96325249cef3d0::$fallbackDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit22ddb69348c7ed922c96325249cef3d0::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit22ddb69348c7ed922c96325249cef3d0::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit78952819747237e7b8d3ac815ae6af28::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit78952819747237e7b8d3ac815ae6af28::$prefixDirsPsr4;
+            $loader->fallbackDirsPsr4 = ComposerStaticInit78952819747237e7b8d3ac815ae6af28::$fallbackDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit78952819747237e7b8d3ac815ae6af28::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit78952819747237e7b8d3ac815ae6af28::$classMap;
 
         }, null, ClassLoader::class);
     }
