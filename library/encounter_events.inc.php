@@ -45,9 +45,10 @@ $today=date('Y-m-d');
 // If unique current date appointment found update status to arrived and create
 // encounter
 //
-function calendar_arrived($form_pid)
+function calendar_arrived($form_pid, $apptstatus = "@")
 {
     $appts = array();
+    // WARNING : This is not the global $today as used in other functions
     $today = date('Y-m-d');
     $appts = fetchAppointments($today, $today, $form_pid);
     $appt_count = count($appts); //
@@ -55,11 +56,11 @@ function calendar_arrived($form_pid)
         echo "<br><br><br><h2 style='text-align:center;'>" . htmlspecialchars(xl('Sorry No Appointment is Fixed'), ENT_QUOTES) . ". " . htmlspecialchars(xl('No Encounter could be created'), ENT_QUOTES) . ".</h2>";
         exit;
     } elseif ($appt_count == 1) {
-        $enc = todaysEncounterCheck($form_pid);
+        $enc = todaysEncounterCheck($form_pid, $today);
         if ($appts[0]['pc_recurrtype'] == 0) {
-            sqlStatement("UPDATE openemr_postcalendar_events SET pc_apptstatus = '@' WHERE pc_eid = ?", array($appts[0]['pc_eid']));
+            sqlStatement("UPDATE openemr_postcalendar_events SET pc_apptstatus = ? WHERE pc_eid = ?", array($apptstatus, $appts[0]['pc_eid']));
         } else {
-            update_event($appts[0]['pc_eid']);
+            update_event($appts[0]['pc_eid'], $apptstatus);
         }
     } elseif ($appt_count > 1) {
         echo "<br><br><br><h2 style='text-align:center;'>" . htmlspecialchars(xl('More than one appointment was found'), ENT_QUOTES) . ". " . htmlspecialchars(xl('No Encounter could be created'), ENT_QUOTES) . ".</h2>";
@@ -73,8 +74,12 @@ function calendar_arrived($form_pid)
 //
 function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id = '', $billing_fac = '', $provider = '', $cat = '', $return_existing = true)
 {
-    global $today;
-    $encounter = todaysEncounterIf($patient_id);
+    if ($enc_date == '') {
+        global $today;
+        $enc_date = $today;
+    }
+
+    $encounter = todaysEncounterIf($patient_id, $enc_date);
     if ($encounter) {
         if ($return_existing) {
             return $encounter;
@@ -91,7 +96,6 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
         $visit_provider = '(NULL)';
     }
 
-    $dos = $enc_date ? $enc_date : $today;
     $visit_reason = $reason ? $reason : xl('Please indicate visit reason');
     $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", array($_SESSION["authUserID"]));
     $username = $tmprow['username'];
@@ -115,7 +119,7 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
             "pid = ?, " .
             "encounter = ?," .
             "pc_catid = ?",
-            array($dos,$visit_reason,$facility,$facility_id,$billing_facility,$visit_provider,$patient_id,$encounter,$visit_cat)
+            array($enc_date,$visit_reason,$facility,$facility_id,$billing_facility,$visit_provider,$patient_id,$encounter,$visit_cat)
         ),
         "newpatient",
         $patient_id,
@@ -192,12 +196,19 @@ function todaysTherapyGroupEncounterCheck($group_id, $enc_date = '', $reason = '
 // Get the patient's encounter ID for today, if it exists.
 // In the case of more than one encounter today, pick the last one.
 //
-function todaysEncounterIf($patient_id)
+function todaysEncounterIf($patient_id, $enc_date = '')
 {
-    global $today;
-    $tmprow = sqlQuery("SELECT encounter FROM form_encounter WHERE " .
-    "pid = ? AND date = ? " .
-    "ORDER BY encounter DESC LIMIT 1", array($patient_id,"$today 00:00:00"));
+    if ($enc_date == '') {
+        global $today;
+        $enc_date = $today;
+    }
+
+    $tmprow = sqlQuery(
+        "SELECT fe.encounter FROM form_encounter fe
+        WHERE fe.pid = ? AND DATE(fe.date) = ?
+        ORDER BY fe.date DESC",
+        array($patient_id, $enc_date)
+    );
     return empty($tmprow['encounter']) ? 0 : $tmprow['encounter'];
 }
 //===============================================================================
@@ -260,7 +271,7 @@ function todaysEncounter($patient_id, $reason = '')
 }
 //===============================================================================
 // get the original event's repeat specs
-function update_event($eid)
+function update_event($eid, $apptstatus = "@")
 {
     $origEventRes = sqlStatement("SELECT * FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
     $origEvent=sqlFetchArray($origEventRes);
@@ -310,7 +321,7 @@ function update_event($eid)
     $args['form_pid']=$origEvent['pc_pid'];
     $args['form_title']=$origEvent['pc_title'];
     $args['form_allday']=$origEvent['pc_alldayevent'];
-    $args['form_apptstatus']='@';
+    $args['form_apptstatus']=$apptstatus;
     $args['form_prefcat']=$origEvent['pc_prefcatid'];
     $args['facility']=$origEvent['pc_facility'];
     $args['billing_facility']=$origEvent['pc_billing_location'];
