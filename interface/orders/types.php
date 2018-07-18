@@ -266,7 +266,7 @@ if ($popup && $_POST['form_save']) {
 </head>
 
 <body class="body_nav">
-    <h3 style='margin-top:0'><?php xlt('Types of Orders and Results') ?></h3>
+    <h3 style='margin-top:0'><?php echo xlt('Types of Orders and Results') ?></h3>
 <div class="container-fluid">
     <form method='post' name='theform' action='types.php?popup=<?php echo $popup ?>&order=<?php
     echo $order;
