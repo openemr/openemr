@@ -33,7 +33,7 @@ class Yaml
      * you must validate the input before calling this method. Passing a file
      * as an input is a deprecated feature and will be removed in 3.0.
      *
-     * Note: the ability to pass file names to the Yaml::parse method is deprecated since version 2.2 and will be removed in 3.0. Pass the YAML contents of the file instead.
+     * Note: the ability to pass file names to the Yaml::parse method is deprecated since Symfony 2.2 and will be removed in 3.0. Pass the YAML contents of the file instead.
      *
      * @param string $input                  Path to a YAML file or a string containing YAML
      * @param bool   $exceptionOnInvalidType True if an exception must be thrown on invalid types false otherwise
@@ -48,8 +48,8 @@ class Yaml
     {
         // if input is a file, process it
         $file = '';
-        if (strpos($input, "\n") === false && is_file($input)) {
-            @trigger_error('The ability to pass file names to the '.__METHOD__.' method is deprecated since version 2.2 and will be removed in 3.0. Pass the YAML contents of the file instead.', E_USER_DEPRECATED);
+        if (false === strpos($input, "\n") && is_file($input)) {
+            @trigger_error('The ability to pass file names to the '.__METHOD__.' method is deprecated since Symfony 2.2 and will be removed in 3.0. Pass the YAML contents of the file instead.', E_USER_DEPRECATED);
 
             if (false === is_readable($input)) {
                 throw new ParseException(sprintf('Unable to parse "%s" as the file is not readable.', $input));
@@ -81,8 +81,8 @@ class Yaml
      * @param mixed $input                  The PHP value
      * @param int   $inline                 The level where you switch to inline YAML
      * @param int   $indent                 The amount of spaces to use for indentation of nested nodes
-     * @param bool  $exceptionOnInvalidType true if an exception must be thrown on invalid types (a PHP resource or object), false otherwise
-     * @param bool  $objectSupport          true if object support is enabled, false otherwise
+     * @param bool  $exceptionOnInvalidType True if an exception must be thrown on invalid types (a PHP resource or object), false otherwise
+     * @param bool  $objectSupport          True if object support is enabled, false otherwise
      *
      * @return string A YAML string representing the original PHP value
      */

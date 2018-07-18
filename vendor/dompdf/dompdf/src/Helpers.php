@@ -12,7 +12,7 @@ class Helpers
      * @param mixed $mixed variable or expression to display
      * @param bool $return
      *
-     * @return string
+     * @return string|null
      */
     public static function pre_r($mixed, $return = false)
     {
@@ -33,6 +33,8 @@ class Helpers
         }
 
         flush();
+
+        return null;
     }
 
       /**
@@ -72,7 +74,7 @@ class Helpers
             //drive: followed by a relative path would be a drive specific default folder.
             //not known in php app code, treat as abs path
             //($url[1] !== ':' || ($url[2]!=='\\' && $url[2]!=='/'))
-            if ($url[0] !== '/' && (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' || ($url[0] !== '\\' && $url[1] !== ':'))) {
+            if ($url[0] !== '/' && (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' || (mb_strlen($url) > 1 && $url[0] !== '\\' && $url[1] !== ':'))) {
                 // For rel path and local acess we ignore the host, and run the path through realpath()
                 $ret .= realpath($base_path) . '/';
             }
@@ -95,6 +97,33 @@ class Helpers
         }
 
         return $ret;
+    }
+
+    /**
+     * Builds a HTTP Content-Disposition header string using `$dispositionType`
+     * and `$filename`.
+     *
+     * If the filename contains any characters not in the ISO-8859-1 character
+     * set, a fallback filename will be included for clients not supporting the
+     * `filename*` parameter.
+     *
+     * @param string $dispositionType
+     * @param string $filename
+     * @return string
+     */
+    public static function buildContentDispositionHeader($dispositionType, $filename)
+    {
+        $encoding = mb_detect_encoding($filename);
+        $fallbackfilename = mb_convert_encoding($filename, "ISO-8859-1", $encoding);
+        $fallbackfilename = str_replace("\"", "", $fallbackfilename);
+        $encodedfilename = rawurlencode($filename);
+
+        $contentDisposition = "Content-Disposition: $dispositionType; filename=\"$fallbackfilename\"";
+        if ($fallbackfilename !== $filename) {
+            $contentDisposition .= "; filename*=UTF-8''$encodedfilename";
+        }
+
+        return $contentDisposition;
     }
 
     /**
@@ -125,12 +154,16 @@ class Helpers
 
         $ret = "";
         switch (mb_strlen($num)) {
+            /** @noinspection PhpMissingBreakStatementInspection */
             case 4:
                 $ret .= $thou[$num[3]];
+            /** @noinspection PhpMissingBreakStatementInspection */
             case 3:
                 $ret .= $hund[$num[2]];
+            /** @noinspection PhpMissingBreakStatementInspection */
             case 2:
                 $ret .= $tens[$num[1]];
+            /** @noinspection PhpMissingBreakStatementInspection */
             case 1:
                 $ret .= $ones[$num[0]];
             default:
@@ -158,7 +191,7 @@ class Helpers
      *
      * @param string $data_uri The data URI to parse
      *
-     * @return array The result with charset, mime type and decoded data
+     * @return array|bool The result with charset, mime type and decoded data
      */
     public static function parse_data_uri($data_uri)
     {
@@ -174,6 +207,37 @@ class Helpers
         );
 
         return $result;
+    }
+
+    /**
+     * Encodes a Uniform Resource Identifier (URI) by replacing non-alphanumeric
+     * characters with a percent (%) sign followed by two hex digits, excepting
+     * characters in the URI reserved character set.
+     *
+     * Assumes that the URI is a complete URI, so does not encode reserved
+     * characters that have special meaning in the URI.
+     *
+     * Simulates the encodeURI function available in JavaScript
+     * https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/encodeURI
+     *
+     * Source: http://stackoverflow.com/q/4929584/264628
+     *
+     * @param string $uri The URI to encode
+     * @return string The original URL with special characters encoded
+     */
+    public static function encodeURI($uri) {
+        $unescaped = array(
+            '%2D'=>'-','%5F'=>'_','%2E'=>'.','%21'=>'!', '%7E'=>'~',
+            '%2A'=>'*', '%27'=>"'", '%28'=>'(', '%29'=>')'
+        );
+        $reserved = array(
+            '%3B'=>';','%2C'=>',','%2F'=>'/','%3F'=>'?','%3A'=>':',
+            '%40'=>'@','%26'=>'&','%3D'=>'=','%2B'=>'+','%24'=>'$'
+        );
+        $score = array(
+            '%23'=>'#'
+        );
+        return strtr(rawurlencode(rawurldecode($uri)), array_merge($reserved,$unescaped,$score));
     }
 
     /**
@@ -199,20 +263,27 @@ class Helpers
                     switch (ord($str[$i])) {
                         case 0: # NEW LINE
                             $padCnt = $lineWidth - strlen($out) % $lineWidth;
-                            if ($padCnt < $lineWidth) $out .= str_repeat(chr(0), $padCnt); # pad line
+                            if ($padCnt < $lineWidth) {
+                                $out .= str_repeat(chr(0), $padCnt); # pad line
+                            }
                             break;
                         case 1: # END OF FILE
                             $padCnt = $lineWidth - strlen($out) % $lineWidth;
-                            if ($padCnt < $lineWidth) $out .= str_repeat(chr(0), $padCnt); # pad line
+                            if ($padCnt < $lineWidth) {
+                                $out .= str_repeat(chr(0), $padCnt); # pad line
+                            }
                             break 3;
                         case 2: # DELTA
                             $i += 2;
                             break;
                         default: # ABSOLUTE MODE
                             $num = ord($str[$i]);
-                            for ($j = 0; $j < $num; $j++)
+                            for ($j = 0; $j < $num; $j++) {
                                 $out .= $str[++$i];
-                            if ($num % 2) $i++;
+                            }
+                            if ($num % 2) {
+                                $i++;
+                            }
                     }
                     break;
                 default:
@@ -492,9 +563,15 @@ class Helpers
         $g = (1 - round(2.55 * ($m + $k)));
         $b = (1 - round(2.55 * ($y + $k)));
 
-        if ($r < 0) $r = 0;
-        if ($g < 0) $g = 0;
-        if ($b < 0) $b = 0;
+        if ($r < 0) {
+            $r = 0;
+        }
+        if ($g < 0) {
+            $g = 0;
+        }
+        if ($b < 0) {
+            $b = 0;
+        }
 
         return array(
             $r, $g, $b,
@@ -529,7 +606,7 @@ class Helpers
         $type = isset($types[$type]) ? $types[$type] : null;
 
         if ($width == null || $height == null) {
-            $data = file_get_contents($filename, null, $context, 0, 26);
+            list($data, $headers) = Helpers::getFileContent($filename, $context);
 
             if (substr($data, 0, 2) === "BM") {
                 $meta = unpack('vtype/Vfilesize/Vreserved/Voffset/Vheadersize/Vwidth/Vheight', $data);
@@ -538,7 +615,7 @@ class Helpers
                 $type = "bmp";
             }
             else {
-                if (strpos(file_get_contents($filename), "<svg") !== false) {
+                if (strpos($data, "<svg") !== false) {
                     $doc = new \Svg\Document();
                     $doc->loadFile($filename);
 
@@ -730,4 +807,88 @@ class Helpers
         return $im;
     }
 
+    /**
+     * Gets the content of the file at the specified path using one of
+     * the following methods, in preferential order:
+     *  - file_get_contents: if allow_url_fopen is true or the file is local
+     *  - curl: if allow_url_fopen is false and curl is available
+     *
+     * @param string $uri
+     * @param resource $context (ignored if curl is used)
+     * @param int $offset
+     * @param int $maxlen (ignored if curl is used)
+     * @return bool|array
+     */
+    public static function getFileContent($uri, $context = null, $offset = 0, $maxlen = null)
+    {
+        $result = false;
+        $headers = null;
+        list($proto, $host, $path, $file) = Helpers::explode_url($uri);
+        $is_local_path = ($proto == "" || $proto === "file://");
+
+        set_error_handler(array("\\Dompdf\\Helpers", "record_warnings"));
+
+        if ($is_local_path || ini_get("allow_url_fopen")) {
+            if ($is_local_path === false) {
+                $uri = Helpers::encodeURI($uri);
+            }
+            if (isset($maxlen)) {
+                $result = file_get_contents($uri, null, $context, $offset, $maxlen);
+            } else {
+                $result = file_get_contents($uri, null, $context, $offset);
+            }
+            if (isset($http_response_header)) {
+                $headers = $http_response_header;
+            }
+
+        } elseif (function_exists("curl_exec")) {
+            $curl = curl_init($uri);
+
+            //TODO: use $context to define additional curl options
+            curl_setopt($curl, CURLOPT_TIMEOUT, 10);
+            curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 10);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_HEADER, true);
+            if ($offset > 0) {
+                curl_setopt($curl, CURLOPT_RESUME_FROM, $offset);
+            }
+
+            $data = curl_exec($curl);
+            $raw_headers = substr($data, 0, curl_getinfo($curl, CURLINFO_HEADER_SIZE));
+            $headers = preg_split("/[\n\r]+/", trim($raw_headers));
+            $result = substr($data, curl_getinfo($curl, CURLINFO_HEADER_SIZE));
+            curl_close($curl);
+        }
+
+        restore_error_handler();
+
+        return array($result, $headers);
+    }
+
+    public static function mb_ucwords($str) {
+        $max_len = mb_strlen($str);
+        if ($max_len === 1) {
+            return mb_strtoupper($str);
+        }
+
+        $str = mb_strtoupper(mb_substr($str, 0, 1)) . mb_substr($str, 1);
+
+        foreach (array(' ', '.', ',', '!', '?', '-', '+') as $s) {
+            $pos = 0;
+            while (($pos = mb_strpos($str, $s, $pos)) !== false) {
+                $pos++;
+                // Nothing to do if the separator is the last char of the string
+                if ($pos !== false && $pos < $max_len) {
+                    // If the char we want to upper is the last char there is nothing to append behind
+                    if ($pos + 1 < $max_len) {
+                        $str = mb_substr($str, 0, $pos) . mb_strtoupper(mb_substr($str, $pos, 1)) . mb_substr($str, $pos + 1);
+                    } else {
+                        $str = mb_substr($str, 0, $pos) . mb_strtoupper(mb_substr($str, $pos, 1));
+                    }
+                }
+            }
+        }
+
+        return $str;
+    }
 }

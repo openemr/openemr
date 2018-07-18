@@ -1,10 +1,8 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @see       https://github.com/zendframework/zend-mail for the canonical source repository
+ * @copyright Copyright (c) 2005-2018 Zend Technologies USA Inc. (https://www.zend.com)
+ * @license   https://github.com/zendframework/zend-mail/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\Mail;
@@ -14,6 +12,8 @@ use Countable;
 use Iterator;
 use Traversable;
 use Zend\Loader\PluginClassLocator;
+use Zend\Mail\Header\GenericHeader;
+use Zend\Mail\Header\HeaderInterface;
 
 /**
  * Basic mail headers collection functionality
@@ -84,7 +84,7 @@ class Headers implements Countable, Iterator
                 continue;
             }
 
-            if ($emptyLine > 0) {
+            if ($emptyLine > 1) {
                 throw new Exception\RuntimeException('Malformed header detected');
             }
 
@@ -478,6 +478,8 @@ class Headers implements Countable, Iterator
     public function loadHeader($headerLine)
     {
         list($name, ) = Header\GenericHeader::splitHeaderLine($headerLine);
+
+        /** @var HeaderInterface $class */
         $class = $this->getPluginClassLoader()->load($name) ?: Header\GenericHeader::class;
         return $class::fromString($headerLine);
     }
@@ -491,6 +493,8 @@ class Headers implements Countable, Iterator
         $current = $this->headers[$index];
 
         $key   = $this->headersKeys[$index];
+
+        /** @var GenericHeader $class */
         $class = ($this->getPluginClassLoader()->load($key)) ?: 'Zend\Mail\Header\GenericHeader';
 
         $encoding = $current->getEncoding();

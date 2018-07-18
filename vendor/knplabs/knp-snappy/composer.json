@@ -17,10 +17,11 @@
     ],
     "require": {
         "php": ">=5.6",
-        "symfony/process": "~2.3|~3.0"
+        "symfony/process": "~2.3 || ~3.0 || ~4.0",
+        "psr/log": "^1.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "~4.7"
+        "phpunit/phpunit": "~4.8.36"
     },
     "suggest": {
         "h4cc/wkhtmltopdf-amd64": "Provides wkhtmltopdf-amd64 binary for Linux-compatible machines, use version `~0.12` as dependency",
@@ -36,7 +37,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "0.5.x-dev"
+            "dev-master": "1.0.x-dev"
         }
     }
 }

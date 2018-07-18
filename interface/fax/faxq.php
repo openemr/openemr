@@ -29,7 +29,7 @@ $slines = array();
 if ($GLOBALS['enable_hylafax']) {
 // Get the recvq entries, parse and sort by filename.
     $statlines = array();
-    exec("faxstat -r -l -h " . $GLOBALS['hylafax_server'], $statlines);
+    exec("faxstat -r -l -h " . escapeshellarg($GLOBALS['hylafax_server']), $statlines);
     foreach ($statlines as $line) {
         // This gets pagecount, sender, time, filename.  We are expecting the
         // string to start with "-rw-rw-" so as to exclude faxes not yet fully

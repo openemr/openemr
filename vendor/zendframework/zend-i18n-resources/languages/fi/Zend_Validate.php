@@ -10,7 +10,7 @@
 /**
  * EN-Revision: 22075
  */
-return array(
+return [
     // Zend_Validate_Alnum
     "Invalid type given. String, integer or float expected" => "Epäkelpo syöte. Pitäisi olla liukuluku, merkkijono tai kokonaisluku",
     "'%value%' contains characters which are non alphabetic and no digits" => "'%value%' on virheelinen, ainoastaan aakkoset ja numerot ovat sallittuja",
@@ -249,4 +249,4 @@ return array(
     "Invalid type given. String expected" => "Epäkelpo syöte. Pitäisi olla merkkijono",
     "'%value%' is less than %min% characters long" => "'%value%' on lyhyempi kuin vaaditut %min% merkkiä",
     "'%value%' is more than %max% characters long" => "'%value%' on pidempi kuin sallitut %max% merkkiä",
-);
+];

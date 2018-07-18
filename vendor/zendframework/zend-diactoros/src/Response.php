@@ -11,6 +11,12 @@ use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
+use function gettype;
+use function is_float;
+use function is_numeric;
+use function is_scalar;
+use function sprintf;
+
 /**
  * HTTP response encapsulation.
  *
@@ -81,7 +87,7 @@ class Response implements ResponseInterface
         422 => 'Unprocessable Entity',
         423 => 'Locked',
         424 => 'Failed Dependency',
-        425 => 'Unordered Collection',
+        425 => 'Too Early',
         426 => 'Upgrade Required',
         428 => 'Precondition Required',
         429 => 'Too Many Requests',

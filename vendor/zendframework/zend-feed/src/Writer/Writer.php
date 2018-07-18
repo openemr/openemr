@@ -91,40 +91,36 @@ class Writer
      */
     public static function registerExtension($name)
     {
-        $feedName          = $name . '\Feed';
-        $entryName         = $name . '\Entry';
-        $feedRendererName  = $name . '\Renderer\Feed';
-        $entryRendererName = $name . '\Renderer\Entry';
-        $manager           = static::getExtensionManager();
-        if (static::isRegistered($name)) {
-            if ($manager->has($feedName)
-                || $manager->has($entryName)
-                || $manager->has($feedRendererName)
-                || $manager->has($entryRendererName)
-            ) {
-                return;
-            }
-        }
-        if (! $manager->has($feedName)
-            && ! $manager->has($entryName)
-            && ! $manager->has($feedRendererName)
-            && ! $manager->has($entryRendererName)
-        ) {
+        if (! static::hasExtension($name)) {
             throw new Exception\RuntimeException(sprintf(
-                'Could not load extension "%s" using Plugin Loader. '
-                . 'Check prefix paths are configured and extension exists.',
+                'Could not load extension "%s" using Plugin Loader.'
+                . ' Check prefix paths are configured and extension exists.',
                 $name
             ));
         }
+
+        if (static::isRegistered($name)) {
+            return;
+        }
+
+        $manager = static::getExtensionManager();
+
+        $feedName = $name . '\Feed';
         if ($manager->has($feedName)) {
             static::$extensions['feed'][] = $feedName;
         }
+
+        $entryName = $name . '\Entry';
         if ($manager->has($entryName)) {
             static::$extensions['entry'][] = $entryName;
         }
+
+        $feedRendererName = $name . '\Renderer\Feed';
         if ($manager->has($feedRendererName)) {
             static::$extensions['feedRenderer'][] = $feedRendererName;
         }
+
+        $entryRendererName = $name . '\Renderer\Entry';
         if ($manager->has($entryRendererName)) {
             static::$extensions['entryRenderer'][] = $entryRendererName;
         }
@@ -192,11 +188,56 @@ class Writer
         static::registerExtension('WellFormedWeb');
         static::registerExtension('Threading');
         static::registerExtension('ITunes');
+
+        // Added in 2.10.0; check for it conditionally
+        static::hasExtension('GooglePlayPodcast')
+            ? static::registerExtension('GooglePlayPodcast')
+            : trigger_error(
+                sprintf(
+                    'Please update your %1$s\ExtensionManagerInterface implementation to add entries for'
+                    . ' %1$s\Extension\GooglePlayPodcast\Entry,'
+                    . ' %1$s\Extension\GooglePlayPodcast\Feed,'
+                    . ' %1$s\Extension\GooglePlayPodcast\Renderer\Entry,'
+                    . ' and %1$s\Extension\GooglePlayPodcast\Renderer\Feed.',
+                    __NAMESPACE__
+                ),
+                \E_USER_NOTICE
+            );
     }
 
     public static function lcfirst($str)
     {
         $str[0] = strtolower($str[0]);
         return $str;
+    }
+
+    /**
+     * Does the extension manager have the named extension?
+     *
+     * This method exists to allow us to test if an extension is present in the
+     * extension manager. It may be used by registerExtension() to determine if
+     * the extension has items present in the manager, or by
+     * registerCoreExtension() to determine if the core extension has entries
+     * in the extension manager. In the latter case, this can be useful when
+     * adding new extensions in a minor release, as custom extension manager
+     * implementations may not yet have an entry for the extension, which would
+     * then otherwise cause registerExtension() to fail.
+     *
+     * @param string $name
+     * @return bool
+     */
+    protected static function hasExtension($name)
+    {
+        $manager   = static::getExtensionManager();
+
+        $feedName          = $name . '\Feed';
+        $entryName         = $name . '\Entry';
+        $feedRendererName  = $name . '\Renderer\Feed';
+        $entryRendererName = $name . '\Renderer\Entry';
+
+        return $manager->has($feedName)
+            || $manager->has($entryName)
+            || $manager->has($feedRendererName)
+            || $manager->has($entryRendererName);
     }
 }

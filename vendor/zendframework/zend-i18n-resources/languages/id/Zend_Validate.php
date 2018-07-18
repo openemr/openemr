@@ -10,7 +10,7 @@
 /**
  * ID-Revision: 08.Dec.2013
  */
-return array(
+return [
     // Zend\I18n\Validator\Alnum
     "Invalid type given. String, integer or float expected" => "Tipe yang diberikan tidak valid. Diharapkan String, integer, atau float",
     "The input contains characters which are non alphabetic and no digits" => "Isian berisi karakter yang non abjad dan tidak ada angka",
@@ -253,4 +253,4 @@ return array(
 
     // Zend\Validator\Uri
     "The input does not appear to be a valid Uri" => "Isian tidak tampak sebagai Uri yang valid",
-);
+];

@@ -25,7 +25,7 @@ use Doctrine\CouchDB\HTTP\Client;
 /**
  * Bulk updater class
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @license     http://www.opensource.org/licenses/mit-license.php MIT
  * @link        www.doctrine-project.com
  * @since       1.0
  * @author      Benjamin Eberlei <kontakt@beberlei.de>

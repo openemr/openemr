@@ -2,6 +2,63 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.9.0 - 2018-05-16
+
+### Added
+
+- [#93](https://github.com/zendframework/zend-i18n/pull/93) adds two methods to `Translator`, `getCacheId(string $textDomain, string $locale)`,
+  and `clearCache(string $textDomain, string $locale)`.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#96](https://github.com/zendframework/zend-i18n/pull/96) ensures that the `TranslatorServiceFactory` injects the configured `TranslatorPluginManager`,
+  if any, before returning it. This ensures that configured remote loaders can be utilized.
+
+## 2.8.0 - 2018-04-25
+
+### Added
+
+- [#71](https://github.com/zendframework/zend-i18n/pull/71) adds a new option to the `IsInt` validator, `strict`. When set to boolean
+  true, comparisons will use strict type validations. The default, `false`, retains the current
+  behavior of non-strict comparisons. The class also exposes a `setStrict($flag)` method for
+  enabling/disabling the behavior.
+
+- [#78](https://github.com/zendframework/zend-i18n/pull/78) and [#91](https://github.com/zendframework/zend-i18n/pull/91) add support for PHP 7.2.
+
+### Changed
+
+- [#81](https://github.com/zendframework/zend-i18n/pull/81) updates the list of allowed mobile prefixes for Chinese phones to match
+  current changes to their systems.
+
+- [#80](https://github.com/zendframework/zend-i18n/pull/80) updates the PostCode validator to allow prefixing Latvian postal
+  codes using the string `LV-`, which is now mandatory within Latvia. For BC purposes, the
+  prefix is considered optional.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- [#78](https://github.com/zendframework/zend-i18n/pull/78) removes support for HHVM.
+
+### Fixed
+
+- [#75](https://github.com/zendframework/zend-i18n/pull/75) fixes an issue with formatting currency values where
+  the currency indicator is at the end of the value.
+
 ## 2.7.4 - 2017-05-17
 
 ### Added

@@ -97,7 +97,7 @@ class MemcacheResourceManager
      * @param array|Traversable|MemcacheResource $resource
      * @param callable $failureCallback
      * @param array|Traversable $serverDefaults
-     * @return MemcacheResourceManager
+     * @return MemcacheResourceManager Provides a fluent interface
      */
     public function setResource($id, $resource, $failureCallback = null, $serverDefaults = [])
     {
@@ -153,7 +153,7 @@ class MemcacheResourceManager
      * Remove a resource
      *
      * @param string $id
-     * @return MemcacheResourceManager
+     * @return MemcacheResourceManager Provides a fluent interface
      */
     public function removeResource($id)
     {
@@ -228,7 +228,7 @@ class MemcacheResourceManager
      * @param string                            $id
      * @param int|string|array|ArrayAccess|null $threshold
      * @param float|string|bool                 $minSavings
-     * @return MemcacheResourceManager
+     * @return MemcacheResourceManager Provides a fluent interface
      */
     public function setAutoCompressThreshold($id, $threshold, $minSavings = false)
     {
@@ -278,7 +278,7 @@ class MemcacheResourceManager
      *
      * @param  string            $id
      * @param  float|string|null $minSavings
-     * @return MemcacheResourceManager
+     * @return MemcacheResourceManager Provides a fluent interface
      * @throws \Zend\Cache\Exception\RuntimeException
      */
     public function setAutoCompressMinSavings($id, $minSavings)
@@ -310,7 +310,7 @@ class MemcacheResourceManager
      * )
      * @param string $id
      * @param array  $serverDefaults
-     * @return MemcacheResourceManager
+     * @return MemcacheResourceManager Provides a fluent interface
      */
     public function setServerDefaults($id, array $serverDefaults)
     {
@@ -383,7 +383,7 @@ class MemcacheResourceManager
      *
      * @param string $id
      * @param callable|null $failureCallback
-     * @return MemcacheResourceManager
+     * @return MemcacheResourceManager Provides a fluent interface
      */
     public function setFailureCallback($id, $failureCallback)
     {
@@ -435,7 +435,7 @@ class MemcacheResourceManager
      *
      * @param string       $id
      * @param string|array $servers
-     * @return MemcacheResourceManager
+     * @return MemcacheResourceManager Provides a fluent interface
      */
     public function addServers($id, $servers)
     {

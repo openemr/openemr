@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.9.0 - 2018-04-25
+
+### Added
+
+- [#67](https://github.com/zendframework/zend-navigation/pull/67) adds support for PHP 7.2.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- [#67](https://github.com/zendframework/zend-navigation/pull/67) removes support for HHVM.
+
+- [#59](https://github.com/zendframework/zend-navigation/pull/59) removes support for PHP 5.5.
+
+### Fixed
+
+- Nothing.
+
 ## 2.8.2 - 2017-03-22
 
 ### Added

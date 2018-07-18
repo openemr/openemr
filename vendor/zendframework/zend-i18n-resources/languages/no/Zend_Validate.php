@@ -10,7 +10,7 @@
 /**
  * EN-Revision: 25.Jul.2011
  */
-return array(
+return [
     // Zend_Validate_Alnum
     "Invalid type given. String, integer or float expected" => "Ugyldig type angitt. Forventet streng, heltall eller flyt-tall",
     "'%value%' contains characters which are non alphabetic and no digits" => "'%value%' inneholder tegn som ikke er alfabetiske eller sifre",
@@ -250,4 +250,4 @@ return array(
     "Invalid type given. String expected" => "Ugyldig type gitt. Forventet streng",
     "'%value%' is less than %min% characters long" => "'%value%' er mindre enn %min% tegn",
     "'%value%' is more than %max% characters long" => "'%value%' er mer enn %max% tegn",
-);
+];

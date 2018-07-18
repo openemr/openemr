@@ -21,8 +21,9 @@
         - [Counting the Models Attributes](#counting-the-models-attributes)
         - [Checking if a Model is Writable](#checking-if-a-model-is-writable)
     - [Force Re-Syncing Attributes](#force-re-syncing-a-models-attributes)
-- [Moving / Renaming](#moving-renaming)
+- [Moving / Renaming](#moving--renaming)
 - [Deleting](#deleting)
+- [Extending (Custom Models)](#extending)
 
 ## Creating
 
@@ -73,7 +74,7 @@ $group = $provider->make()->group([
 
 // Adldap\Models\OrganizationalUnit
 $ou = $provider->make()->ou([
-    'cn' => 'Acme',
+    'name' => 'Acme',
 ]);
 ```
 
@@ -98,7 +99,7 @@ if ($user->save()) {
 > the models attributes are re-synced in the background from your AD.
 > 
 > This allows you to perform other operations during the same
-> request that require an existing user.
+> request that require an existing model.
 
 ### Creating (Manually)
 
@@ -138,7 +139,7 @@ if ($user->update()) {
 
 ## Checking Existence
 
-If you need to check the existence of a model, use the property `exists`:
+If you need to check the existence of a model, use the property `exists`.
 
 How does it know if the model exists in AD? Well, when models are constructed from
 search results, the `exists` property on the model is set to `true`.
@@ -460,6 +461,26 @@ $count = $user->countAttributes();
 var_dump($count); // Returns int
 ```
 
+#### Checking if a Model is contained in an OU
+
+To check if a model is located inside an OU, use the `inOu()` method:
+
+```php
+if ($model->inOu('User Accounts')) {
+    // This model is inside the 'User Accounts' OU.
+}
+```
+
+You can also use an OU model instance:
+
+```php
+$serviceAccounts = $provider->search()->ous()->find('Service Accounts');
+
+if ($model->inOu($serviceAccounts)) {
+    // This model is inside the 'Service Accounts' OU.
+}
+```
+
 #### Checking if a Model is Writable
 
 To check if the model can be written to, use the method `isWritable()`:
@@ -495,7 +516,7 @@ $newRdn = 'cn=John Doe';
 // New parent distiguished name.
 $newParentDn = 'OU=New Ou,DC=corp,DC=local';
 
-if ($user->move($newRdn, $newParentDn) {
+if ($user->move($newRdn, $newParentDn)) {
     // User was successfully moved to the new OU.
 }
 ```
@@ -509,7 +530,7 @@ $newRdn = 'cn=John Doe';
 // New parent distiguished name.
 $newParentDn = 'OU=New Ou,DC=corp,DC=local';
 
-if ($user->move($newRdn, $newParentDn, $deleteOldRdn = false) {
+if ($user->move($newRdn, $newParentDn, $deleteOldRdn = false)) {
     // User was successfully moved to the new OU,
     // and their old RDN has been left in-tact.
 }
@@ -541,4 +562,64 @@ if ($user->delete()) {
 
     echo $user->exists; // Returns false.
 }
+```
+
+## Extending
+
+> **Note**: This feature was introduced in `v8.0.0`.
+
+To use your own models, you will need to create a new [Schema](../schema.md).
+
+Once you have created your own schema, you must insert it inside the construct of your provider.
+
+Let's walk through this process.
+
+First we'll create our model we'd like to extend / override:
+
+> **Note**: Your custom model **must** extend from an existing Adldap2 model.
+> This is due to methods and attributes that only exist on these classes.
+
+```php
+namespace App\Ldap\Models;
+
+use Adldap\Models\User as Model;
+
+class User extends Model
+{
+    public function getCommonName()
+    {
+        // Overriding model method.
+    }
+}
+```
+
+Now, we'll create our custom schema and return our models class name:
+
+```php
+namespace App\Ldap\Schemas;
+
+use App\Ldap\Models\User;
+
+class LdapSchema extends ActiveDirectory
+{
+    public function userModel()
+    {
+        return User::class;
+    }
+}
+```
+
+Finally, when we create a provider, we need to insert our Schema into the constructor:
+
+```php
+use Adldap\Connections\Provider;
+
+$schema = new LdapSchema();
+
+$provider = new Provider($config, $connection = null, $schema);
+
+$provider->connect();
+
+// If `jdoe` exists, your custom model will be returned.
+$user = $provider->search()->users()->find('jdoe');
 ```

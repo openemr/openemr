@@ -287,7 +287,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
         "*" . $claim->payerSequence() .
         "*" . ($claim->isSelfOfInsured() ? '18' : '') .
         "*" . $claim->groupNumber() .
-        "*" . $claim->groupName() .
+        "*" . ($claim->groupNumber() ? '' : $claim->groupName()) . // if groupNumber no groupName
         "*" . $claim->insuredTypeCode() . // applies for secondary medicare
         "*" .
         "*" .
@@ -446,6 +446,10 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
         "*" . "Y" .
         "~\n";
 
+    // above is for historical use of encounter onset date, now in misc_billing_options
+    // Segment DTP*431 (Onset of Current Symptoms or Illness)
+    // Segment DTP*484 (Last Menstrual Period Date)
+
     if ($claim->onsetDate() && ($claim->onsetDate() !== $claim->serviceDate()) && ($claim->onsetDateValid())) {
         ++$edicount;
         $out .= "DTP" .       // Date of Onset
@@ -453,13 +457,8 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
             "*" . "D8" .
             "*" . $claim->onsetDate() .
             "~\n";
-    }
-
-    // above is for historical use of encounter onset date, now in misc_billing_options
-    // Segment DTP*431 (Onset of Current Symptoms or Illness)
-    // Segment DTP*484 (Last Menstrual Period Date)
-
-    if ($claim->miscOnsetDate() && ($claim->box14Qualifier()) && ($claim->miscOnsetDateValid())) {
+    } else if ($claim->miscOnsetDate() && ($claim->miscOnsetDate() !== $claim->serviceDate())
+        && ($claim->box14Qualifier()) && ($claim->miscOnsetDateValid())) {
         ++$edicount;
         $out .= "DTP" .
             "*" . $claim->box14Qualifier() .
@@ -816,7 +815,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
         "*" . $claim->payerSequence($ins) .
         "*" . $claim->insuredRelationship($ins) .
         "*" . $claim->groupNumber($ins) .
-        "*" . $claim->groupName($ins) .
+        "*" . ($claim->groupNumber() ? '' : $claim->groupName()) .
         "*" . $claim->insuredTypeCode($ins) .
         "*" .
         "*" .

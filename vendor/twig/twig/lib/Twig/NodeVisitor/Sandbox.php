@@ -48,6 +48,11 @@ class Twig_NodeVisitor_Sandbox extends Twig_BaseNodeVisitor
                 $this->functions[$node->getAttribute('name')] = $node;
             }
 
+            // the .. operator is equivalent to the range() function
+            if ($node instanceof Twig_Node_Expression_Binary_Range && !isset($this->functions['range'])) {
+                $this->functions['range'] = $node;
+            }
+
             // wrap print to check __toString() calls
             if ($node instanceof Twig_Node_Print) {
                 return new Twig_Node_SandboxedPrint($node->getNode('expr'), $node->getTemplateLine(), $node->getNodeTag());
@@ -73,3 +78,5 @@ class Twig_NodeVisitor_Sandbox extends Twig_BaseNodeVisitor
         return 0;
     }
 }
+
+class_alias('Twig_NodeVisitor_Sandbox', 'Twig\NodeVisitor\SandboxNodeVisitor', false);

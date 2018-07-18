@@ -13,7 +13,7 @@ use Interop\Container\ContainerInterface;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\SharedEventManagerInterface;
 use Zend\Mvc\Exception;
-use Zend\ServiceManager\AbstractPluginManager;
+use Zend\ServiceManager\AbstractPluginManager as BasePluginManager;
 use Zend\ServiceManager\ConfigInterface;
 use Zend\ServiceManager\Exception\InvalidServiceException;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
@@ -24,7 +24,7 @@ use Zend\Stdlib\DispatchableInterface;
  *
  * Does not define any controllers by default, but does add a validator.
  */
-class ControllerManager extends AbstractPluginManager
+class ControllerManager extends BasePluginManager
 {
     /**
      * We do not want arbitrary classes instantiated as controllers.

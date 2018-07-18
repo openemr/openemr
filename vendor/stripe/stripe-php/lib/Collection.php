@@ -12,9 +12,22 @@ namespace Stripe;
  *
  * @package Stripe
  */
-class Collection extends ApiResource
+class Collection extends StripeObject
 {
-    protected $_requestParams = array();
+
+    const OBJECT_NAME = "list";
+
+    use ApiOperations\Request;
+
+    protected $_requestParams = [];
+
+    /**
+     * @return string The base URL for the given class.
+     */
+    public static function baseUrl()
+    {
+        return Stripe::$apiBase;
+    }
 
     public function setRequestParams($params)
     {
@@ -76,12 +89,11 @@ class Collection extends ApiResource
         if (isset($url['query'])) {
             // If the URL contains a query param, parse it out into $params so they
             // don't interact weirdly with each other.
-            $query = array();
+            $query = [];
             parse_str($url['query'], $query);
-            // PHP 5.2 doesn't support the ?: operator :(
-            $params = array_merge($params ? $params : array(), $query);
+            $params = array_merge($params ?: [], $query);
         }
 
-        return array($url['path'], $params);
+        return [$url['path'], $params];
     }
 }

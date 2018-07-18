@@ -1,10 +1,8 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @see       https://github.com/zendframework/zend-mail for the canonical source repository
+ * @copyright Copyright (c) 2005-2018 Zend Technologies USA Inc. (https://www.zend.com)
+ * @license   https://github.com/zendframework/zend-mail/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\Mail\Transport;
@@ -40,6 +38,14 @@ class SmtpOptions extends AbstractOptions
      * @var int
      */
     protected $port = 25;
+
+    /**
+     * The timeout in seconds for the SMTP connection
+     * (Use null to disable it)
+     *
+     * @var int|null
+     */
+    protected $connectionTimeLimit;
 
     /**
      * Return the local client hostname
@@ -176,6 +182,27 @@ class SmtpOptions extends AbstractOptions
             ));
         }
         $this->port = $port;
+        return $this;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getConnectionTimeLimit()
+    {
+        return $this->connectionTimeLimit;
+    }
+
+    /**
+     * @param int|null $seconds
+     * @return self
+     */
+    public function setConnectionTimeLimit($seconds)
+    {
+        $this->connectionTimeLimit = $seconds === null
+            ? null
+            : (int) $seconds;
+
         return $this;
     }
 }

@@ -19,34 +19,30 @@ use Dompdf\FrameDecorator\AbstractFrameDecorator;
 class ListBullet extends AbstractPositioner
 {
 
-    function __construct(AbstractFrameDecorator $frame)
-    {
-        parent::__construct($frame);
-    }
-
-    //........................................................................
-
-    function position()
+    /**
+     * @param AbstractFrameDecorator $frame
+     */
+    function position(AbstractFrameDecorator $frame)
     {
 
         // Bullets & friends are positioned an absolute distance to the left of
         // the content edge of their parent element
-        $cb = $this->_frame->get_containing_block();
+        $cb = $frame->get_containing_block();
 
         // Note: this differs from most frames in that we must position
         // ourselves after determining our width
-        $x = $cb["x"] - $this->_frame->get_width();
+        $x = $cb["x"] - $frame->get_width();
 
-        $p = $this->_frame->find_block_parent();
+        $p = $frame->find_block_parent();
 
         $y = $p->get_current_line_box()->y;
 
         // This is a bit of a hack...
-        $n = $this->_frame->get_next_sibling();
+        $n = $frame->get_next_sibling();
         if ($n) {
             $style = $n->get_style();
             $line_height = $style->length_in_pt($style->line_height, $style->get_font_size());
-            $offset = $style->length_in_pt($line_height, $n->get_containing_block("h")) - $this->_frame->get_height();
+            $offset = (float)$style->length_in_pt($line_height, $n->get_containing_block("h")) - $frame->get_height();
             $y += $offset / 2;
         }
 
@@ -71,11 +67,10 @@ class ListBullet extends AbstractPositioner
 
         /*$style = $p->get_style();
         $font_size = $style->get_font_size();
-        $line_height = $style->length_in_pt($style->line_height, $font_size);
+        $line_height = (float)$style->length_in_pt($style->line_height, $font_size);
         $y += ($line_height - $font_size) / 2;    */
 
         //Position is x-end y-top of character position of the bullet.
-        $this->_frame->set_position($x, $y);
-
+        $frame->set_position($x, $y);
     }
 }

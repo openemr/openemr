@@ -128,10 +128,10 @@ function checkService($ip = "localhost", $port = '6661')
     if ($result === false) {
         $path = $GLOBALS['fileroot'] . "/ccdaservice";
         if (IS_WINDOWS) {
-            $cmd = "node " . $path . "/serveccda.js";
+            $cmd = "node " . escapeshellarg($path . "/serveccda.js");
             pclose(popen("start /B " . $cmd, "r"));
         } else {
-            $cmd = "nodejs " . $path . "/serveccda.js";
+            $cmd = "nodejs " . escapeshellarg($path . "/serveccda.js");
             exec($cmd . " > /dev/null &");
         }
         sleep(2); // give cpu a rest

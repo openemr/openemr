@@ -25,8 +25,6 @@ use Symfony\Component\Process\Exception\RuntimeException;
 class PhpProcess extends Process
 {
     /**
-     * Constructor.
-     *
      * @param string      $script  The PHP script to run (as a string)
      * @param string|null $cwd     The working directory or null to use the working dir of the current PHP process
      * @param array|null  $env     The environment variables or null to use the same environment as the current PHP process
@@ -49,7 +47,7 @@ class PhpProcess extends Process
             $script = null;
         }
         if (null !== $options) {
-            @trigger_error(sprintf('The $options parameter of the %s constructor is deprecated since version 3.3 and will be removed in 4.0.', __CLASS__), E_USER_DEPRECATED);
+            @trigger_error(sprintf('The $options parameter of the %s constructor is deprecated since Symfony 3.3 and will be removed in 4.0.', __CLASS__), E_USER_DEPRECATED);
         }
 
         parent::__construct($php, $cwd, $env, $script, $timeout, $options);

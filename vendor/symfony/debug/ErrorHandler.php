@@ -134,10 +134,24 @@ class ErrorHandler
             $handler = $prev[0];
             $replace = false;
         }
-        if ($replace || !$prev) {
-            $handler->setExceptionHandler(set_exception_handler(array($handler, 'handleException')));
-        } else {
+        if (!$replace && $prev) {
             restore_error_handler();
+            $handlerIsRegistered = is_array($prev) && $handler === $prev[0];
+        } else {
+            $handlerIsRegistered = true;
+        }
+        if (is_array($prev = set_exception_handler(array($handler, 'handleException'))) && $prev[0] instanceof self) {
+            restore_exception_handler();
+            if (!$handlerIsRegistered) {
+                $handler = $prev[0];
+            } elseif ($handler !== $prev[0] && $replace) {
+                set_exception_handler(array($handler, 'handleException'));
+                $p = $prev[0]->setExceptionHandler(null);
+                $handler->setExceptionHandler($p);
+                $prev[0]->setExceptionHandler($p);
+            }
+        } else {
+            $handler->setExceptionHandler($prev);
         }
 
         $handler->throwAt(E_ALL & $handler->thrownErrors, true);
@@ -369,14 +383,16 @@ class ErrorHandler
     public function handleError($type, $message, $file, $line)
     {
         // Level is the current error reporting level to manage silent error.
+        $level = error_reporting();
+        $silenced = 0 === ($level & $type);
         // Strong errors are not authorized to be silenced.
-        $level = error_reporting() | E_RECOVERABLE_ERROR | E_USER_ERROR | E_DEPRECATED | E_USER_DEPRECATED;
+        $level |= E_RECOVERABLE_ERROR | E_USER_ERROR | E_DEPRECATED | E_USER_DEPRECATED;
         $log = $this->loggedErrors & $type;
         $throw = $this->thrownErrors & $type & $level;
         $type &= $level | $this->screamedErrors;
 
         if (!$type || (!$log && !$throw)) {
-            return $type && $log;
+            return !$silenced && $type && $log;
         }
         $scope = $this->scopedErrors & $type;
 
@@ -409,21 +425,25 @@ class ErrorHandler
             $errorAsException = self::$toStringException;
             self::$toStringException = null;
         } elseif (!$throw && !($type & $level)) {
-            if (isset(self::$silencedErrorCache[$message])) {
-                $lightTrace = null;
-                $errorAsException = self::$silencedErrorCache[$message];
-                ++$errorAsException->count;
-            } else {
+            if (!isset(self::$silencedErrorCache[$id = $file.':'.$line])) {
                 $lightTrace = $this->tracedErrors & $type ? $this->cleanTrace(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3), $type, $file, $line, false) : array();
                 $errorAsException = new SilencedErrorContext($type, $file, $line, $lightTrace);
+            } elseif (isset(self::$silencedErrorCache[$id][$message])) {
+                $lightTrace = null;
+                $errorAsException = self::$silencedErrorCache[$id][$message];
+                ++$errorAsException->count;
+            } else {
+                $lightTrace = array();
+                $errorAsException = null;
             }
 
             if (100 < ++self::$silencedErrorCount) {
                 self::$silencedErrorCache = $lightTrace = array();
                 self::$silencedErrorCount = 1;
             }
-            self::$silencedErrorCache[$message] = $errorAsException;
-
+            if ($errorAsException) {
+                self::$silencedErrorCache[$id][$message] = $errorAsException;
+            }
             if (null === $lightTrace) {
                 return;
             }
@@ -494,19 +514,19 @@ class ErrorHandler
                 $this->loggers[$type][0],
                 ($type & $level) ? $this->loggers[$type][1] : LogLevel::DEBUG,
                 $logMessage,
-                array('exception' => $errorAsException),
+                $errorAsException ? array('exception' => $errorAsException) : array(),
             );
         } else {
             try {
                 $this->isRecursive = true;
                 $level = ($type & $level) ? $this->loggers[$type][1] : LogLevel::DEBUG;
-                $this->loggers[$type][0]->log($level, $logMessage, array('exception' => $errorAsException));
+                $this->loggers[$type][0]->log($level, $logMessage, $errorAsException ? array('exception' => $errorAsException) : array());
             } finally {
                 $this->isRecursive = false;
             }
         }
 
-        return $type && $log;
+        return !$silenced && $type && $log;
     }
 
     /**
@@ -526,6 +546,7 @@ class ErrorHandler
             $exception = new FatalThrowableError($exception);
         }
         $type = $exception instanceof FatalErrorException ? $exception->getSeverity() : E_ERROR;
+        $handlerException = null;
 
         if (($this->loggedErrors & $type) || $exception instanceof FatalThrowableError) {
             if ($exception instanceof FatalErrorException) {
@@ -560,18 +581,21 @@ class ErrorHandler
                 }
             }
         }
-        if (empty($this->exceptionHandler)) {
-            throw $exception; // Give back $exception to the native handler
-        }
+        $exceptionHandler = $this->exceptionHandler;
+        $this->exceptionHandler = null;
         try {
-            call_user_func($this->exceptionHandler, $exception);
+            if (null !== $exceptionHandler) {
+                return \call_user_func($exceptionHandler, $exception);
+            }
+            $handlerException = $handlerException ?: $exception;
         } catch (\Exception $handlerException) {
         } catch (\Throwable $handlerException) {
         }
-        if (isset($handlerException)) {
-            $this->exceptionHandler = null;
-            $this->handleException($handlerException);
+        if ($exception === $handlerException) {
+            self::$reservedMemory = null; // Disable the fatal error handler
+            throw $exception; // Give back $exception to the native handler
         }
+        $this->handleException($handlerException);
     }
 
     /**
@@ -587,15 +611,39 @@ class ErrorHandler
             return;
         }
 
-        self::$reservedMemory = null;
+        $handler = self::$reservedMemory = null;
+        $handlers = array();
+        $previousHandler = null;
+        $sameHandlerLimit = 10;
 
-        $handler = set_error_handler('var_dump');
-        $handler = is_array($handler) ? $handler[0] : null;
-        restore_error_handler();
+        while (!is_array($handler) || !$handler[0] instanceof self) {
+            $handler = set_exception_handler('var_dump');
+            restore_exception_handler();
 
-        if (!$handler instanceof self) {
+            if (!$handler) {
+                break;
+            }
+            restore_exception_handler();
+
+            if ($handler !== $previousHandler) {
+                array_unshift($handlers, $handler);
+                $previousHandler = $handler;
+            } elseif (0 === --$sameHandlerLimit) {
+                $handler = null;
+                break;
+            }
+        }
+        foreach ($handlers as $h) {
+            set_exception_handler($h);
+        }
+        if (!$handler) {
             return;
         }
+        if ($handler !== $h) {
+            $handler[0]->setExceptionHandler($h);
+        }
+        $handler = $handler[0];
+        $handlers = array();
 
         if ($exit = null === $error) {
             $error = error_get_last();
@@ -648,17 +696,25 @@ class ErrorHandler
      *
      * The most important feature of this is to prevent
      * autoloading until unstackErrors() is called.
+     *
+     * @deprecated since version 3.4, to be removed in 4.0.
      */
     public static function stackErrors()
     {
+        @trigger_error('Support for stacking errors is deprecated since Symfony 3.4 and will be removed in 4.0.', E_USER_DEPRECATED);
+
         self::$stackedErrorLevels[] = error_reporting(error_reporting() | E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR);
     }
 
     /**
      * Unstacks stacked errors and forwards to the logger.
+     *
+     * @deprecated since version 3.4, to be removed in 4.0.
      */
     public static function unstackErrors()
     {
+        @trigger_error('Support for unstacking errors is deprecated since Symfony 3.4 and will be removed in 4.0.', E_USER_DEPRECATED);
+
         $level = array_pop(self::$stackedErrorLevels);
 
         if (null !== $level) {
@@ -707,7 +763,7 @@ class ErrorHandler
         }
         if (!($throw || $this->scopedErrors & $type)) {
             for ($i = 0; isset($lightTrace[$i]); ++$i) {
-                unset($lightTrace[$i]['args']);
+                unset($lightTrace[$i]['args'], $lightTrace[$i]['object']);
             }
         }
 

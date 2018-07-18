@@ -230,7 +230,7 @@ var SelectItem = function(jobj) {
 
 </head>
 
-<body class="body_top">
+<body id="codes_search" class="body_top">
 
 <?php
 $string_target_element = empty($target_element) ? '?' : "?target_element=" . rawurlencode($target_element) . "&";

@@ -2,6 +2,57 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.7.15 - 2018-05-03
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- [#245](https://github.com/zendframework/zend-mvc/pull/245) moves the zend-console dependency from `require-dev` to `require`, as it is
+  a requirement of the `RequestFactory`, and removal of the package causes that factory to fail.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
+## 2.7.14 - 2018-05-02
+
+### Added
+
+- [#279](https://github.com/zendframework/zend-mvc/pull/279) provides support for PHP 7.1 and 7.2.
+
+### Changed
+
+- [#279](https://github.com/zendframework/zend-mvc/pull/279) changes the `Zend\Mvc\Controller\PluginManager` implementation to vary
+  based on zend-servicemanager major version detected in order to ensure the
+  signature of `get()` will be correct regardless of version.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- [#279](https://github.com/zendframework/zend-mvc/pull/279) removes explicit support for PHP 5.5.
+  The code may, and likely will, continue to run on the 5.5 series, but we are
+  unable to continue testing it at this time as dependencies necessary for PHP
+  7.2 support have all bumped their minimum versions to PHP 5.6. If you use PHP
+  5.5, upgrade at your own risk.
+
+### Fixed
+
+- Nothing.
+
 ## 2.7.13 - 2017-12-14
 
 ### Added

@@ -313,6 +313,10 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("The Progress cell lists all the actions along with any associated notes if any"); ?>.
                 
                 <p><?php echo xlt("You can delete the recall by clicking on the X button on the top right corner of the cell"); ?>.
+                
+                <p><?php echo xlt("If so desired the default board can be disabled by going to Administration > Calendar > Recall Board: Disable and checking the checkbox and click Save"); ?>.
+                
+                <p><i class="fa fa-exclamation-triangle oe-text-red" aria-hidden="true"></i> <strong><?php echo xlt("You need administrator privileges to disable the default Recall Board"); ?>.</strong>
             </div>
             <div class= "row" id="medex_communication_service">
                 <h4 class="oe-help-heading"><?php echo xlt("MedEx Communication Service"); ?><a href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>

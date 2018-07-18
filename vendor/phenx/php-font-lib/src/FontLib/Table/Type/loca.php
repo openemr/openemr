@@ -32,7 +32,7 @@ class loca extends Table {
       $loc = unpack("n*", $d);
 
       for ($i = 0; $i <= $numGlyphs; $i++) {
-        $data[] = $loc[$i + 1] * 2;
+        $data[] = isset($loc[$i + 1]) ?  $loc[$i + 1] * 2 : 0;
       }
     }
 
@@ -43,7 +43,7 @@ class loca extends Table {
         $loc = unpack("N*", $d);
 
         for ($i = 0; $i <= $numGlyphs; $i++) {
-          $data[] = $loc[$i + 1];
+          $data[] = isset($loc[$i + 1]) ? $loc[$i + 1] : 0;
         }
       }
     }

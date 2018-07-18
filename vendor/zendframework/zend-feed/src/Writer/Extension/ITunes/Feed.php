@@ -169,7 +169,7 @@ class Feed
      */
     public function setItunesImage($value)
     {
-        if (! Uri::factory($value)->isValid()) {
+        if (! is_string($value) || ! Uri::factory($value)->isValid()) {
             throw new Writer\Exception\InvalidArgumentException('invalid parameter: "image" may only'
             . ' be a valid URI/IRI');
         }
@@ -223,12 +223,20 @@ class Feed
     /**
      * Set feed keywords
      *
+     * @deprecated since 2.10.0; itunes:keywords is no longer part of the
+     *     iTunes podcast RSS specification.
      * @param  array $value
      * @return Feed
      * @throws Writer\Exception\InvalidArgumentException
      */
     public function setItunesKeywords(array $value)
     {
+        trigger_error(
+            'itunes:keywords has been deprecated in the iTunes podcast RSS specification,'
+            . ' and should not be relied on.',
+            \E_USER_DEPRECATED
+        );
+
         if (count($value) > 12) {
             throw new Writer\Exception\InvalidArgumentException('invalid parameter: "keywords" may only'
             . ' contain a maximum of 12 terms');
@@ -335,6 +343,51 @@ class Feed
     }
 
     /**
+     * Set podcast type
+     *
+     * @param  string $type
+     * @return Feed
+     * @throws Writer\Exception\InvalidArgumentException
+     */
+    public function setItunesType($type)
+    {
+        $validTypes = ['episodic', 'serial'];
+        if (! in_array($type, $validTypes, true)) {
+            throw new Writer\Exception\InvalidArgumentException(sprintf(
+                'invalid parameter: "type" MUST be one of [%s]; received %s',
+                implode(', ', $validTypes),
+                is_object($type) ? get_class($type) : var_export($type, true)
+            ));
+        }
+        $this->data['type'] = $type;
+        return $this;
+    }
+
+    /**
+     * Set "completion" status (whether more episodes will be released)
+     *
+     * @param  bool $status
+     * @return Feed
+     * @throws Writer\Exception\InvalidArgumentException
+     */
+    public function setItunesComplete($status)
+    {
+        if (! is_bool($status)) {
+            throw new Writer\Exception\InvalidArgumentException(sprintf(
+                'invalid parameter: "complete" MUST be boolean; received %s',
+                is_object($status) ? get_class($status) : var_export($status, true)
+            ));
+        }
+
+        if (! $status) {
+            return $this;
+        }
+
+        $this->data['complete'] = 'Yes';
+        return $this;
+    }
+
+    /**
      * Overloading: proxy to internal setters
      *
      * @param  string $method
@@ -352,6 +405,7 @@ class Feed
                 'invalid method: ' . $method
             );
         }
+
         if (! array_key_exists($point, $this->data) || empty($this->data[$point])) {
             return;
         }

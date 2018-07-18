@@ -24,8 +24,7 @@ Here is an example array with all possible configuration options:
 
 ```php
 // Create the configuration array.
-$config = [
-    // Mandatory Configuration Options
+$config = [    // Mandatory Configuration Options
     'domain_controllers'    => ['corp-dc1.corp.acme.org', 'corp-dc2.corp.acme.org'],
     'base_dn'               => 'dc=corp,dc=acme,dc=org',
     'admin_username'        => 'admin',
@@ -34,6 +33,7 @@ $config = [
     // Optional Configuration Options
     'account_prefix'        => 'ACME-',
     'account_suffix'        => '@acme.org',
+    'admin_account_prefix'  => 'ACME-ADMIN-',
     'admin_account_suffix'  => '@acme.org',
     'port'                  => 389,
     'follow_referrals'      => false,
@@ -71,7 +71,6 @@ $config->set('domain_controllers', [
     'corp-dc2.corp.acme.org',
 ]);
 
-
 $provider = new \Adldap\Connections\Provider($config);
 ```
 
@@ -90,6 +89,11 @@ then your account suffix would be `@corp.acme.org`. This is then appended to the
 
 For example, if you're binding as a user, and your username is `jdoe`, then Adldap would try to authenticate with
 your server as `jdoe@corp.acme.org`.
+
+### Admin Account Prefix (optional)
+
+The admin account prefix option is the prefix of your administrator account in AD. Having a separate prefix for user accounts
+and administrator accounts allows you to bind your admin under a different prefix than user accounts.
 
 ### Admin Account Suffix (optional)
 
@@ -119,7 +123,7 @@ If one is not defined, you will not retrieve any search results.
 ### Administrator Username & Password (required)
 
 When connecting to your AD server, an administrator username and password is required to be able to query and run operations on your server(s).
-You can use any user account that has these permissions.
+You can use any account that has these permissions.
 
 ### Follow Referrals (optional)
 

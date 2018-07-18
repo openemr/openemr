@@ -6,6 +6,13 @@ use Adldap\Query\Builder;
 use Adldap\Schemas\ActiveDirectory;
 use Adldap\Schemas\SchemaInterface;
 
+/**
+ * Class Factory
+ *
+ * Constructs and scopes LDAP queries.
+ *
+ * @package Adldap\Models
+ */
 class Factory
 {
     /**
@@ -66,7 +73,9 @@ class Factory
      */
     public function entry(array $attributes = [])
     {
-        return new Entry($attributes, $this->query);
+        $model = $this->schema->entryModel();
+
+        return (new $model($attributes, $this->query));
     }
 
     /**
@@ -78,7 +87,9 @@ class Factory
      */
     public function user(array $attributes = [])
     {
-        return (new User($attributes, $this->query))
+        $model = $this->schema->userModel();
+
+        return (new $model($attributes, $this->query))
             ->setAttribute($this->schema->objectClass(), [
                 $this->schema->top(),
                 $this->schema->person(),
@@ -96,7 +107,9 @@ class Factory
      */
     public function ou(array $attributes = [])
     {
-        return (new OrganizationalUnit($attributes, $this->query))
+        $model = $this->schema->organizationalUnitModel();
+
+        return (new $model($attributes, $this->query))
             ->setAttribute($this->schema->objectClass(), [
                 $this->schema->top(),
                 $this->schema->organizationalUnit(),
@@ -112,7 +125,9 @@ class Factory
      */
     public function group(array $attributes = [])
     {
-        return (new Group($attributes, $this->query))
+        $model = $this->schema->groupModel();
+
+        return (new $model($attributes, $this->query))
             ->setAttribute($this->schema->objectClass(), [
                 $this->schema->top(),
                 $this->schema->objectCategoryGroup(),
@@ -128,7 +143,9 @@ class Factory
      */
     public function container(array $attributes = [])
     {
-        return (new Container($attributes, $this->query))
+        $model = $this->schema->containerModel();
+
+        return (new $model($attributes, $this->query))
             ->setAttribute($this->schema->objectClass(), $this->schema->organizationalUnit());
     }
 
@@ -141,7 +158,9 @@ class Factory
      */
     public function contact(array $attributes = [])
     {
-        return (new User($attributes, $this->query))
+        $model = $this->schema->contactModel();
+
+        return (new $model($attributes, $this->query))
             ->setAttribute($this->schema->objectClass(), [
                 $this->schema->top(),
                 $this->schema->person(),
@@ -159,7 +178,9 @@ class Factory
      */
     public function computer(array $attributes = [])
     {
-        return (new Computer($attributes, $this->query))
+        $model = $this->schema->computerModel();
+
+        return (new $model($attributes, $this->query))
             ->setAttribute($this->schema->objectClass(), [
                 $this->schema->top(),
                 $this->schema->person(),

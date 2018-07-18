@@ -1,10 +1,8 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @see       https://github.com/zendframework/zend-mail for the canonical source repository
+ * @copyright Copyright (c) 2005-2018 Zend Technologies USA Inc. (https://www.zend.com)
+ * @license   https://github.com/zendframework/zend-mail/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\Mail\Transport;
@@ -148,10 +146,18 @@ class Sendmail implements TransportInterface
     {
         $headers = $message->getHeaders();
 
-        if (! $headers->has('to')) {
-            throw new Exception\RuntimeException('Invalid email; contains no "To" header');
+        $hasTo = $headers->has('to');
+        if (! $hasTo && ! $headers->has('cc') && ! $headers->has('bcc')) {
+            throw new Exception\RuntimeException(
+                'Invalid email; contains no at least one of "To", "Cc", and "Bcc" header'
+            );
         }
 
+        if (! $hasTo) {
+            return '';
+        }
+
+        /** @var Mail\Header\To $to */
         $to   = $headers->get('to');
         $list = $to->getAddressList();
         if (0 == count($list)) {
@@ -225,11 +231,11 @@ class Sendmail implements TransportInterface
         $headers->removeHeader('To');
         $headers->removeHeader('Subject');
 
-        // Sanitize the From header
+        /** @var Mail\Header\From $from Sanitize the From header*/
         $from = $headers->get('From');
         if ($from) {
             foreach ($from->getAddressList() as $address) {
-                if (preg_match('/\\\"/', $address->getEmail())) {
+                if (strpos($address->getEmail(), '\\"') !== false) {
                     throw new Exception\RuntimeException('Potential code injection in From header');
                 }
             }

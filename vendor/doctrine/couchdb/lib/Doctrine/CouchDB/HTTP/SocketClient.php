@@ -24,7 +24,7 @@ namespace Doctrine\CouchDB\HTTP;
  * default PHP HTTP clients, but supports keep alive connections without any
  * extension dependencies.
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @license     http://www.opensource.org/licenses/mit-license.php MIT
  * @link        www.doctrine-project.com
  * @since       1.0
  * @author      Kore Nordmann <kore@arbitracker.org>
@@ -38,6 +38,42 @@ class SocketClient extends AbstractHTTPClient
      * @var resource
      */
     protected $connection;
+
+    /**
+     * Return the socket after setting up the connection to server and writing
+     * the headers. The returned resource can later be used to read and
+     * write data in chunks. These should be done without much delay as the
+     * connection might get closed.
+     *
+     * @return resource
+     * @throws HTTPException
+     */
+
+    public function getConnection(
+        $method,
+        $path,
+        $data = null,
+        array $headers = array()
+    ) {
+        $fullPath = $path;
+        if ($this->options['path']) {
+            $fullPath = '/' . $this->options['path'] . $path;
+        }
+
+        $this->checkConnection();
+        $stringHeader = $this->buildRequest($method, $fullPath, $data, $headers);
+        // Send the build request to the server
+        if (fwrite($this->connection, $stringHeader) === false) {
+            // Reestablish which seems to have been aborted
+            //
+            // The recursion in this method might be problematic if the
+            // connection establishing mechanism does not correctly throw an
+            // exception on failure.
+            $this->connection = null;
+            return $this->getConnection($method, $path, $data, $headers);
+        }
+        return $this->connection;
+    }
 
     /**
      * Check for server connection
@@ -64,18 +100,17 @@ class SocketClient extends AbstractHTTPClient
                     0
                 );
             }
-            
+
             $host = 'ssl://' . $this->options['host'];
-            
+
         } else {
-        	$host = $this->options['ip'];       
+            $host = $this->options['ip'];
         }
 
         // If the connection could not be established, fsockopen sadly does not
         // only return false (as documented), but also always issues a warning.
-        if ( ( $this->connection === null ) &&
-             ( ( $this->connection = @fsockopen($host, $this->options['port'], $errno, $errstr) ) === false ) )
-        {
+        if (($this->connection === null) &&
+             (($this->connection = @fsockopen($host, $this->options['port'], $errno, $errstr, $this->options['timeout'])) === false)) {
             // This is a bit hackisch...
             $this->connection = null;
             throw HTTPException::connectionFailure(
@@ -99,23 +134,26 @@ class SocketClient extends AbstractHTTPClient
      * @param array $headers
      * @return string
      */
-    protected function buildRequest( $method, $path, $data, $headers)
-    {
+    protected function buildRequest(
+        $method,
+        $path,
+        $data = null,
+        array $headers = array()
+    ) {
         // Create basic request headers
         $request = "$method $path HTTP/1.1\r\nHost: {$this->options['host']}\r\n";
 
         // Add basic auth if set
-        if ( $this->options['username'] )
-        {
-            $request .= sprintf( "Authorization: Basic %s\r\n",
-                base64_encode( $this->options['username'] . ':' . $this->options['password'] )
+        if ($this->options['username']) {
+            $request .= sprintf("Authorization: Basic %s\r\n",
+                base64_encode($this->options['username'] . ':' . $this->options['password'])
             );
         }
 
         // Set keep-alive header, which helps to keep to connection
         // initialization costs low, especially when the database server is not
         // available in the locale net.
-        $request .= "Connection: " . ( $this->options['keep-alive'] ? 'Keep-Alive' : 'Close' ) . "\r\n";
+        $request .= "Connection: " . ($this->options['keep-alive'] ? 'Keep-Alive' : 'Close') . "\r\n";
 
         if (!isset($headers['Content-Type'])) {
             $headers['Content-Type'] = 'application/json';
@@ -124,22 +162,18 @@ class SocketClient extends AbstractHTTPClient
             if (is_bool($value) === true) {
                 $value = ($value) ? 'true': 'false';
             }
-            $request .= $key . ": ". $value . "\r\n";
+            $request .= $key . ": " . $value . "\r\n";
         }
 
         // Also add headers and request body if data should be sent to the
         // server. Otherwise just add the closing mark for the header section
         // of the request.
-        if ( $data !== null )
-        {
-            $request .= "Content-Length: " . strlen( $data ) . "\r\n\r\n";
+        if ($data !== null) {
+            $request .= "Content-Length: " . strlen($data) . "\r\n\r\n";
             $request .= $data;
-        }
-        else
-        {
+        } else {
             $request .= "\r\n";
         }
-
         return $request;
     }
 
@@ -158,37 +192,40 @@ class SocketClient extends AbstractHTTPClient
      * @param array $headers
      * @return Response
      */
-    public function request( $method, $path, $data = null, $raw = false, array $headers = array() )
+    public function request($method, $path, $data = null, $raw = false, array $headers = array())
     {
+        $fullPath = $path;
+        if ($this->options['path']) {
+            $fullPath = '/' . $this->options['path'] . $path;
+        }
+
         // Try establishing the connection to the server
         $this->checkConnection();
 
         // Send the build request to the server
-        if ( fwrite( $this->connection, $request = $this->buildRequest( $method, $path, $data, $headers ) ) === false )
-        {
+        if (fwrite($this->connection, $request = $this->buildRequest($method, $fullPath, $data, $headers)) === false) {
             // Reestablish which seems to have been aborted
             //
             // The recursion in this method might be problematic if the
             // connection establishing mechanism does not correctly throw an
             // exception on failure.
             $this->connection = null;
-            return $this->request( $method, $path, $data, $raw );
+            return $this->request($method, $path, $data, $raw, $headers);
         }
 
         // Read server response headers
         $rawHeaders = '';
         $headers = array(
-            'connection' => ( $this->options['keep-alive'] ? 'Keep-Alive' : 'Close' ),
+            'connection' => ($this->options['keep-alive'] ? 'Keep-Alive' : 'Close'),
         );
 
         // Remove leading newlines, should not occur at all, actually.
-        while ( ( ( $line = fgets( $this->connection ) ) !== false ) &&
-                ( ( $lineContent = rtrim( $line ) ) === '' ) );
+        while((($line = fgets( $this->connection ) ) !== false) &&
+                (($lineContent = rtrim($line)) === ''));
 
         // Throw exception, if connection has been aborted by the server, and
         // leave handling to the user for now.
-        if ( $line === false )
-        {
+        if ($line === false) {
             // Reestablish which seems to have been aborted
             //
             // The recursion in this method might be problematic if the
@@ -198,7 +235,7 @@ class SocketClient extends AbstractHTTPClient
             // An aborted connection seems to happen here on long running
             // requests, which cause a connection timeout at server side.
             $this->connection = null;
-            return $this->request( $method, $path, $data, $raw );
+            return $this->request($method, $path, $data, $raw, $headers);
         }
 
         do {
@@ -206,89 +243,78 @@ class SocketClient extends AbstractHTTPClient
             $rawHeaders .= $lineContent . "\n";
 
             // Extract header values
-            if ( preg_match( '(^HTTP/(?P<version>\d+\.\d+)\s+(?P<status>\d+))S', $lineContent, $match ) )
-            {
+            if (preg_match( '(^HTTP/(?P<version>\d+\.\d+)\s+(?P<status>\d+))S', $lineContent, $match)) {
                 $headers['version'] = $match['version'];
                 $headers['status']  = (int) $match['status'];
+            } else {
+                list($key, $value) = explode(':', $lineContent, 2);
+                $headers[strtolower($key)] = ltrim($value);
             }
-            else
-            {
-                list( $key, $value ) = explode( ':', $lineContent, 2 );
-                $headers[strtolower( $key )] = ltrim( $value );
-            }
-        }  while ( ( ( $line = fgets( $this->connection ) ) !== false ) &&
-                   ( ( $lineContent = rtrim( $line ) ) !== '' ) );
+        }  while ((($line = fgets($this->connection)) !== false) &&
+                   (($lineContent = rtrim($line)) !== '' ));
 
         // Read response body
         $body = '';
-        if ( !isset( $headers['transfer-encoding'] ) ||
-             ( $headers['transfer-encoding'] !== 'chunked' ) )
-        {
+        if (!isset( $headers['transfer-encoding']) ||
+             ($headers['transfer-encoding'] !== 'chunked')) {
             // HTTP 1.1 supports chunked transfer encoding, if the according
             // header is not set, just read the specified amount of bytes.
-            $bytesToRead = (int) ( isset( $headers['content-length'] ) ? $headers['content-length'] : 0 );
+            $bytesToRead = (int) (isset($headers['content-length']) ? $headers['content-length'] : 0);
 
             // Read body only as specified by chunk sizes, everything else
             // are just footnotes, which are not relevant for us.
-            while ( $bytesToRead > 0 )
-            {
-                $body .= $read = fgets( $this->connection, $bytesToRead + 1 );
-                $bytesToRead -= strlen( $read );
+            while ($bytesToRead > 0) {
+                $body .= $read = fgets($this->connection, $bytesToRead + 1);
+                $bytesToRead -= strlen($read);
             }
-        }
-        else
-        {
+        } else {
             // When transfer-encoding=chunked has been specified in the
             // response headers, read all chunks and sum them up to the body,
             // until the server has finished. Ignore all additional HTTP
             // options after that.
             do {
-                $line = rtrim( fgets( $this->connection ) );
+                $line = rtrim(fgets($this->connection));
 
                 // Get bytes to read, with option appending comment
-                if ( preg_match( '(^([0-9a-f]+)(?:;.*)?$)', $line, $match ) )
+                if (preg_match('(^([0-9a-f]+)(?:;.*)?$)', $line, $match))
                 {
-                    $bytesToRead = hexdec( $match[1] );
+                    $bytesToRead = hexdec($match[1]);
 
                     // Read body only as specified by chunk sizes, everything else
                     // are just footnotes, which are not relevant for us.
                     $bytesLeft = $bytesToRead;
-                    while ( $bytesLeft > 0 )
-                    {
-                        $body .= $read = fread( $this->connection, $bytesLeft + 2 );
-                        $bytesLeft -= strlen( $read );
+                    while ($bytesLeft > 0) {
+                        $body .= $read = fread($this->connection, $bytesLeft + 2);
+                        $bytesLeft -= strlen($read);
                     }
                 }
-            } while ( $bytesToRead > 0 );
+            } while ($bytesToRead > 0);
 
             // Chop off \r\n from the end.
-            $body = substr( $body, 0, -2 );
+            $body = substr($body, 0, -2);
         }
 
         // Reset the connection if the server asks for it.
-        if ( $headers['connection'] !== 'Keep-Alive' )
-        {
-            fclose( $this->connection );
+        if ($headers['connection'] !== 'Keep-Alive') {
+            fclose($this->connection);
             $this->connection = null;
         }
 
         // Handle some response state as special cases
-        switch ( $headers['status'] )
-        {
+        switch ($headers['status']) {
             case 301:
             case 302:
             case 303:
             case 307:
-                $path = parse_url( $headers['location'], PHP_URL_PATH );
-                return $this->request( $method, $path, $data, $raw );
+                $path = parse_url($headers['location'], PHP_URL_PATH);
+                return $this->request($method, $path, $data, $raw, $headers);
         }
 
         // Create response object from couch db response
-        if ( $headers['status'] >= 400 )
-        {
-            return new ErrorResponse( $headers['status'], $headers, $body );
+        if ($headers['status'] >= 400) {
+            return new ErrorResponse($headers['status'], $headers, $body);
         }
-        return new Response( $headers['status'], $headers, $body, $raw );
+        return new Response($headers['status'], $headers, $body, $raw);
     }
 }
 

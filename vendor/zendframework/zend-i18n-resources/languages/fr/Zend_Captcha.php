@@ -10,7 +10,7 @@
 /**
  * FR-Revision: 17.Dec.2012
  */
-return array(
+return [
     // Zend_Captcha_ReCaptcha
     "Missing captcha fields" => "Les champs du captcha sont absents",
     "Failed to validate captcha" => "Échec lors de la validation du captcha",
@@ -20,4 +20,4 @@ return array(
     "Empty captcha value" => "La valeur du captcha est vide",
     "Captcha ID field is missing" => "L'ID du captcha est absent",
     "Captcha value is wrong" => "La valeur du captcha est incorrecte",
-);
+];

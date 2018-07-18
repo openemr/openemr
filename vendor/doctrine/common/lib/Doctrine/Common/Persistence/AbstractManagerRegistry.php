@@ -141,7 +141,7 @@ abstract class AbstractManagerRegistry implements ManagerRegistry
      */
     public function getConnections()
     {
-        $connections = array();
+        $connections = [];
         foreach ($this->connections as $name => $id) {
             $connections[$name] = $this->getService($id);
         }
@@ -195,8 +195,13 @@ abstract class AbstractManagerRegistry implements ManagerRegistry
         }
 
         $proxyClass = new \ReflectionClass($class);
+
         if ($proxyClass->implementsInterface($this->proxyInterfaceName)) {
-            $class = $proxyClass->getParentClass()->getName();
+            if (! $parentClass = $proxyClass->getParentClass()) {
+                return null;
+            }
+
+            $class = $parentClass->getName();
         }
 
         foreach ($this->managers as $id) {
@@ -221,7 +226,7 @@ abstract class AbstractManagerRegistry implements ManagerRegistry
      */
     public function getManagers()
     {
-        $dms = array();
+        $dms = [];
         foreach ($this->managers as $name => $id) {
             $dms[$name] = $this->getService($id);
         }
@@ -253,5 +258,7 @@ abstract class AbstractManagerRegistry implements ManagerRegistry
         // force the creation of a new document manager
         // if the current one is closed
         $this->resetService($this->managers[$name]);
+
+        return $this->getManager($name);
     }
 }

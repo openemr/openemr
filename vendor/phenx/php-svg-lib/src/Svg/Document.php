@@ -2,8 +2,8 @@
 /**
  * @package php-svg-lib
  * @link    http://github.com/PhenX/php-svg-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
+ * @author  Fabien MÃ©nager <fabien.menager@gmail.com>
+ * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
  */
 
 namespace Svg;
@@ -14,6 +14,7 @@ use Svg\Tag\Anchor;
 use Svg\Tag\Circle;
 use Svg\Tag\Ellipse;
 use Svg\Tag\Group;
+use Svg\Tag\ClipPath;
 use Svg\Tag\Image;
 use Svg\Tag\Line;
 use Svg\Tag\LinearGradient;
@@ -23,11 +24,13 @@ use Svg\Tag\Polyline;
 use Svg\Tag\Rect;
 use Svg\Tag\Stop;
 use Svg\Tag\Text;
+use Svg\Tag\StyleTag;
+use Svg\Tag\UseTag;
 
 class Document extends AbstractTag
 {
     protected $filename;
-    protected $inDefs = false;
+    public $inDefs = false;
 
     protected $x;
     protected $y;
@@ -49,6 +52,9 @@ class Document extends AbstractTag
 
     /** @var AbstractTag[] */
     protected $defs = array();
+
+    /** @var \Sabberworm\CSS\CSSList\Document[] */
+    protected $styleSheets = array();
 
     public function loadFile($filename)
     {
@@ -132,12 +138,12 @@ class Document extends AbstractTag
     public function handleSizeAttributes($attributes){
         if ($this->width === null) {
             if (isset($attributes["width"])) {
-                $width  = (int)$attributes["width"];
+                $width = Style::convertSize($attributes["width"], 400);
                 $this->width  = $width;
             }
 
             if (isset($attributes["height"])) {
-                $height = (int)$attributes["height"];
+                $height = Style::convertSize($attributes["height"], 300);
                 $this->height = $height;
             }
 
@@ -166,17 +172,35 @@ class Document extends AbstractTag
         );
     }
 
-    protected function getDocument(){
+    public function getDocument(){
         return $this;
     }
 
-    protected function before($attribs)
+    /**
+     * Append a style sheet
+     *
+     * @param \Sabberworm\CSS\CSSList\Document $stylesheet
+     */
+    public function appendStyleSheet($stylesheet) {
+        $this->styleSheets[] = $stylesheet;
+    }
+
+    /**
+     * Get the document style sheets
+     *
+     * @return \Sabberworm\CSS\CSSList\Document[]
+     */
+    public function getStyleSheets() {
+        return $this->styleSheets;
+    }
+
+    protected function before($attributes)
     {
         $surface = $this->getSurface();
 
         $style = new DefaultStyle();
         $style->inherit($this);
-        $style->fromAttributes($attribs);
+        $style->fromAttributes($attributes);
 
         $this->setStyle($style);
 
@@ -211,6 +235,12 @@ class Document extends AbstractTag
         $this->handleSizeAttributes($attributes);
     }
 
+    public function getDef($id) {
+        $id = ltrim($id, "#");
+
+        return isset($this->defs[$id]) ? $this->defs[$id] : null;
+    }
+
     private function _tagStart($parser, $name, $attributes)
     {
         $this->x = 0;
@@ -227,7 +257,7 @@ class Document extends AbstractTag
 
             case 'svg':
                 if (count($this->attributes)) {
-                    $tag = new Group($this);
+                    $tag = new Group($this, $name);
                 }
                 else {
                     $tag = $this;
@@ -236,74 +266,93 @@ class Document extends AbstractTag
                 break;
 
             case 'path':
-                $tag = new Path($this);
+                $tag = new Path($this, $name);
                 break;
 
             case 'rect':
-                $tag = new Rect($this);
+                $tag = new Rect($this, $name);
                 break;
 
             case 'circle':
-                $tag = new Circle($this);
+                $tag = new Circle($this, $name);
                 break;
 
             case 'ellipse':
-                $tag = new Ellipse($this);
+                $tag = new Ellipse($this, $name);
                 break;
 
             case 'image':
-                $tag = new Image($this);
+                $tag = new Image($this, $name);
                 break;
 
             case 'line':
-                $tag = new Line($this);
+                $tag = new Line($this, $name);
                 break;
 
             case 'polyline':
-                $tag = new Polyline($this);
+                $tag = new Polyline($this, $name);
                 break;
 
             case 'polygon':
-                $tag = new Polygon($this);
+                $tag = new Polygon($this, $name);
                 break;
 
             case 'lineargradient':
-                $tag = new LinearGradient($this);
+                $tag = new LinearGradient($this, $name);
                 break;
 
             case 'radialgradient':
-                $tag = new LinearGradient($this);
+                $tag = new LinearGradient($this, $name);
                 break;
 
             case 'stop':
-                $tag = new Stop($this);
+                $tag = new Stop($this, $name);
+                break;
+
+            case 'style':
+                $tag = new StyleTag($this, $name);
                 break;
 
             case 'a':
-                $tag = new Anchor($this);
+                $tag = new Anchor($this, $name);
                 break;
 
             case 'g':
-                $tag = new Group($this);
+            case 'symbol':
+                $tag = new Group($this, $name);
+                break;
+
+            case 'clippath':
+                $tag = new ClipPath($this, $name);
+                break;
+
+            case 'use':
+                $tag = new UseTag($this, $name);
                 break;
 
             case 'text':
-                $tag = new Text($this);
+                $tag = new Text($this, $name);
                 break;
+
+            case 'desc':
+                return;
         }
 
         if ($tag) {
-            if (!$this->inDefs) {
-                $this->stack[] = $tag;
-                $tag->handle($attributes);
+            if (isset($attributes["id"])) {
+                $this->defs[$attributes["id"]] = $tag;
             }
             else {
-                if (isset($attributes["id"])) {
-                    $this->defs[$attributes["id"]] = $tag;
+                /** @var AbstractTag $top */
+                $top = end($this->stack);
+                if ($top && $top != $tag) {
+                    $top->children[] = $tag;
                 }
             }
-        } else {
-            echo "Unknown: '$name'\n";
+
+            $this->stack[] = $tag;
+
+            $tag->handle($attributes);
         }
     }
 
@@ -311,7 +360,7 @@ class Document extends AbstractTag
     {
         $stack_top = end($this->stack);
 
-        if ($stack_top instanceof Text) {
+        if ($stack_top instanceof Text || $stack_top instanceof StyleTag) {
             $stack_top->appendText($data);
         }
     }
@@ -337,16 +386,18 @@ class Document extends AbstractTag
             case 'radialgradient':
             case 'lineargradient':
             case 'stop':
+            case 'style':
             case 'text':
             case 'g':
+            case 'symbol':
+            case 'clippath':
+            case 'use':
             case 'a':
-                if (!$this->inDefs) {
-                    $tag = array_pop($this->stack);
-                }
+                $tag = array_pop($this->stack);
                 break;
         }
 
-        if ($tag) {
+        if (!$this->inDefs && $tag) {
             $tag->handleEnd();
         }
     }

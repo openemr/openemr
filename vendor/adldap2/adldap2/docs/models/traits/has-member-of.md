@@ -66,7 +66,7 @@ To check if a model is apart of a certain group, use the `inGroup()` method:
 ```php
 $group = $provider->search()->groups()->find('Office');
 
-if ($user->inGroup($office)) {
+if ($user->inGroup($group)) {
 
     //
 

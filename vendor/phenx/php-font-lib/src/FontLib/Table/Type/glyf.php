@@ -31,7 +31,7 @@ class glyf extends Table {
     foreach ($real_loca as $gid => $location) {
       $_offset    = $offset + $loca[$gid];
       $_size      = $loca[$gid + 1] - $loca[$gid];
-      $data[$gid] = Outline::init($this, $_offset, $_size);
+      $data[$gid] = Outline::init($this, $_offset, $_size, $font);
     }
 
     $this->data = $data;

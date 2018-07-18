@@ -10,8 +10,12 @@
 namespace Zend\Diactoros;
 
 use InvalidArgumentException;
-use RuntimeException;
 use Psr\Http\Message\StreamInterface;
+use RuntimeException;
+
+use function array_key_exists;
+
+use const SEEK_SET;
 
 /**
  * Implementation of PSR HTTP streams

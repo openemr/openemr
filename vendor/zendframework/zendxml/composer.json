@@ -1,40 +1,54 @@
 {
     "name": "zendframework/zendxml",
     "description": "Utility library for XML usage, best practices, and security in PHP",
-    "type": "library",
     "license": "BSD-3-Clause",
     "keywords": [
-        "zf2",
+        "zf",
+        "zendframework",
         "xml",
         "security"
     ],
-    "homepage": "http://packages.zendframework.com/",
+    "support": {
+        "issues": "https://github.com/zendframework/ZendXml/issues",
+        "source": "https://github.com/zendframework/ZendXml",
+        "rss": "https://github.com/zendframework/ZendXml/releases.atom",
+        "chat": "https://zendframework-slack.herokuapp.com",
+        "forum": "https://discourse.zendframework.com/c/questions/components"
+    },
+    "require": {
+        "php": "^5.6 || ^7.0"
+    },
+    "require-dev": {
+        "zendframework/zend-coding-standard": "~1.0.0",
+        "phpunit/phpunit": "^5.7.27 || ^6.5.8 || ^7.1.4"
+    },
     "autoload": {
-        "psr-0": {
-            "ZendXml\\": "library/"
+        "psr-4": {
+            "ZendXml\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "ZendTest\\Xml\\": "tests/ZendXmlTest/"
+            "ZendXmlTest\\": "test/"
         }
     },
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "http://packages.zendframework.com/"
-        }
-    ],
-    "require": {
-        "php": "^5.3.3 || ^7.0"
+    "config": {
+        "sort-packages": true
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.0-dev"
+            "dev-master": "1.1.x-dev",
+            "dev-develop": "1.2.x-dev"
         }
     },
-    "require-dev": {
-        "phpunit/phpunit": "^3.7 || ^4.0",
-        "squizlabs/php_codesniffer": "^1.5"
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
     }
 }

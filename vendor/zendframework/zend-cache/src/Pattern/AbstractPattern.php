@@ -22,7 +22,7 @@ abstract class AbstractPattern implements PatternInterface
      * Set pattern options
      *
      * @param  PatternOptions $options
-     * @return AbstractPattern
+     * @return AbstractPattern Provides a fluent interface
      * @throws Exception\InvalidArgumentException
      */
     public function setOptions(PatternOptions $options)

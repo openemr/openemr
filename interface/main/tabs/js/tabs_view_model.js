@@ -125,7 +125,7 @@ function navigateTab(url,name)
     }
     else
     {
-        curTab=new tabStatus("New",url,name,true,false,false);
+        curTab=new tabStatus(xl_strings_tabs_view_model.new,url,name,true,false,false);
         app_view_model.application_data.tabs.tabsList.push(curTab);
     }
 }

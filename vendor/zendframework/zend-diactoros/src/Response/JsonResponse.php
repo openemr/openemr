@@ -11,6 +11,15 @@ use InvalidArgumentException;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\Stream;
 
+use function is_object;
+use function is_resource;
+use function json_encode;
+use function json_last_error;
+use function json_last_error_msg;
+use function sprintf;
+
+use const JSON_ERROR_NONE;
+
 /**
  * JSON response.
  *

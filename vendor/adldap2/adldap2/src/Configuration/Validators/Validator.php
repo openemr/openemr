@@ -2,6 +2,13 @@
 
 namespace Adldap\Configuration\Validators;
 
+/**
+ * Class Validator
+ *
+ * Validates configuration values.
+ *
+ * @package Adldap\Configuration\Validators
+ */
 abstract class Validator
 {
     /**
@@ -35,7 +42,7 @@ abstract class Validator
      *
      * @return bool
      *
-     * @throws \Adldap\Configuration\ConfigurationException
+     * @throws \Adldap\Configuration\ConfigurationException When the value given fails validation.
      */
     abstract public function validate();
 }

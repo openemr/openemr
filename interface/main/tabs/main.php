@@ -124,7 +124,8 @@ var jsLanguageDirection = "<?php echo $_SESSION["language_direction"]; ?>";
 var xl_strings_tabs_view_model = <?php echo json_encode(array(
     'encounter_locked' => xla('This encounter is locked. No new forms can be added.'),
     'must_select_patient'  => $GLOBALS['enable_group_therapy'] ? xla('You must first select or add a patient or therapy group.') : xla('You must first select or add a patient.'),
-    'must_select_encounter'    => xla('You must first select or create an encounter.')
+    'must_select_encounter'    => xla('You must first select or create an encounter.'),
+    'new' => xla('New')
 ));
 ?>;
 </script>

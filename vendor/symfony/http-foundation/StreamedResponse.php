@@ -31,8 +31,6 @@ class StreamedResponse extends Response
     private $headersSent;
 
     /**
-     * Constructor.
-     *
      * @param callable|null $callback A valid PHP callback or null to set it later
      * @param int           $status   The response status code
      * @param array         $headers  An array of response headers
@@ -85,12 +83,12 @@ class StreamedResponse extends Response
     public function sendHeaders()
     {
         if ($this->headersSent) {
-            return;
+            return $this;
         }
 
         $this->headersSent = true;
 
-        parent::sendHeaders();
+        return parent::sendHeaders();
     }
 
     /**
@@ -101,7 +99,7 @@ class StreamedResponse extends Response
     public function sendContent()
     {
         if ($this->streamed) {
-            return;
+            return $this;
         }
 
         $this->streamed = true;
@@ -111,6 +109,8 @@ class StreamedResponse extends Response
         }
 
         call_user_func($this->callback);
+
+        return $this;
     }
 
     /**

@@ -1,10 +1,8 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @see       https://github.com/zendframework/zend-mail for the canonical source repository
+ * @copyright Copyright (c) 2005-2018 Zend Technologies USA Inc. (https://www.zend.com)
+ * @license   https://github.com/zendframework/zend-mail/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\Mail;
@@ -33,7 +31,9 @@ class AddressList implements Countable, Iterator
     {
         if (is_string($emailOrAddress)) {
             $emailOrAddress = $this->createAddress($emailOrAddress, $name);
-        } elseif (! $emailOrAddress instanceof Address\AddressInterface) {
+        }
+
+        if (! $emailOrAddress instanceof Address\AddressInterface) {
             throw new Exception\InvalidArgumentException(sprintf(
                 '%s expects an email address or %s\Address object as its first argument; received "%s"',
                 __METHOD__,
@@ -67,14 +67,17 @@ class AddressList implements Countable, Iterator
         foreach ($addresses as $key => $value) {
             if (is_int($key) || is_numeric($key)) {
                 $this->add($value);
-            } elseif (is_string($key)) {
-                $this->add($key, $value);
-            } else {
+                continue;
+            }
+
+            if (! is_string($key)) {
                 throw new Exception\RuntimeException(sprintf(
                     'Invalid key type in provided addresses array ("%s")',
                     (is_object($key) ? get_class($key) : var_export($key, 1))
                 ));
             }
+
+            $this->add($key, $value);
         }
         return $this;
     }
@@ -85,32 +88,13 @@ class AddressList implements Countable, Iterator
      *  - dev@zf.com
      *
      * @param string $address
+     * @param null|string $comment Comment associated with the address, if any.
      * @throws Exception\InvalidArgumentException
      * @return AddressList
      */
-    public function addFromString($address)
+    public function addFromString($address, $comment = null)
     {
-        if (! preg_match('/^((?P<name>.*?)<(?P<namedEmail>[^>]+)>|(?P<email>.+))$/', $address, $matches)) {
-            throw new Exception\InvalidArgumentException('Invalid address format');
-        }
-
-        $name = null;
-        if (isset($matches['name'])) {
-            $name = trim($matches['name']);
-        }
-        if (empty($name)) {
-            $name = null;
-        }
-
-        if (isset($matches['namedEmail'])) {
-            $email = $matches['namedEmail'];
-        }
-        if (isset($matches['email'])) {
-            $email = $matches['email'];
-        }
-        $email = trim($email);
-
-        return $this->add($email, $name);
+        $this->add(Address::fromString($address, $comment));
     }
 
     /**

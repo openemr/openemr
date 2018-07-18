@@ -147,6 +147,8 @@ class RedisResourceManager
         $resource['resource'] = $redis;
         $this->connect($resource);
 
+        $this->normalizeLibOptions($resource['lib_options']);
+
         foreach ($resource['lib_options'] as $k => $v) {
             $redis->setOption($k, $v);
         }
@@ -340,7 +342,6 @@ class RedisResourceManager
             $resource = array_merge($defaults, $resource);
             // normalize and validate params
             $this->normalizePersistentId($resource['persistent_id']);
-            $this->normalizeLibOptions($resource['lib_options']);
 
             // #6495 note: order is important here, as `normalizeServer` applies destructive
             // transformations on $resource['server']
@@ -394,9 +395,9 @@ class RedisResourceManager
         }
 
         $resource = & $this->resources[$id];
-        if ($resource instanceof RedisResource) {
+        if ($resource['resource'] instanceof RedisResource && $resource['initialized']) {
             throw new Exception\RuntimeException(
-                "Can't change persistent id of resource {$id} after instanziation"
+                "Can't change persistent id of resource {$id} after initialization"
             );
         }
 
@@ -420,12 +421,6 @@ class RedisResourceManager
         }
 
         $resource = & $this->resources[$id];
-
-        if ($resource instanceof RedisResource) {
-            throw new Exception\RuntimeException(
-                "Can't get persistent id of an instantiated redis resource"
-            );
-        }
 
         return $resource['persistent_id'];
     }
@@ -455,19 +450,22 @@ class RedisResourceManager
             ]);
         }
 
-        $this->normalizeLibOptions($libOptions);
         $resource = & $this->resources[$id];
 
         $resource['lib_options'] = $libOptions;
 
-        if ($resource['resource'] instanceof RedisResource) {
-            $redis = & $resource['resource'];
-            if (method_exists($redis, 'setOptions')) {
-                $redis->setOptions($libOptions);
-            } else {
-                foreach ($libOptions as $key => $value) {
-                    $redis->setOption($key, $value);
-                }
+        if (! $resource['resource'] instanceof RedisResource) {
+            return $this;
+        }
+
+        $this->normalizeLibOptions($libOptions);
+        $redis = & $resource['resource'];
+
+        if (method_exists($redis, 'setOptions')) {
+            $redis->setOptions($libOptions);
+        } else {
+            foreach ($libOptions as $key => $value) {
+                $redis->setOption($key, $value);
             }
         }
 
@@ -489,13 +487,13 @@ class RedisResourceManager
 
         $resource = & $this->resources[$id];
 
-        if ($resource instanceof RedisResource) {
+        if ($resource['resource'] instanceof RedisResource) {
             $libOptions = [];
             $reflection = new ReflectionClass('Redis');
             $constants  = $reflection->getConstants();
             foreach ($constants as $constName => $constValue) {
                 if (substr($constName, 0, 4) == 'OPT_') {
-                    $libOptions[$constValue] = $resource->getOption($constValue);
+                    $libOptions[$constValue] = $resource['resource']->getOption($constValue);
                 }
             }
             return $libOptions;
@@ -533,8 +531,8 @@ class RedisResourceManager
         $this->normalizeLibOptionKey($key);
         $resource   = & $this->resources[$id];
 
-        if ($resource instanceof RedisResource) {
-            return $resource->getOption($key);
+        if ($resource['resource'] instanceof RedisResource) {
+            return $resource['resource']->getOption($key);
         }
 
         return isset($resource['lib_options'][$key]) ? $resource['lib_options'][$key] : null;

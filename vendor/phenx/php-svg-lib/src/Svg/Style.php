@@ -2,8 +2,8 @@
 /**
  * @package php-svg-lib
  * @link    http://github.com/PhenX/php-svg-lib
- * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
+ * @author  Fabien Mï¿½nager <fabien.menager@gmail.com>
+ * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
  */
 
 namespace Svg;
@@ -20,6 +20,7 @@ class Style
 
     public $color;
     public $opacity;
+    public $display;
 
     public $fill;
     public $fillOpacity;
@@ -45,6 +46,7 @@ class Style
         return array(
             'color'             => array('color', self::TYPE_COLOR),
             'opacity'           => array('opacity', self::TYPE_NUMBER),
+            'display'           => array('display', self::TYPE_NAME),
 
             'fill'              => array('fill', self::TYPE_COLOR),
             'fill-opacity'      => array('fillOpacity', self::TYPE_NUMBER),
@@ -61,7 +63,7 @@ class Style
 
             'font-family'       => array('fontFamily', self::TYPE_NAME),
             'font-size'         => array('fontSize', self::TYPE_NUMBER),
-            'font-weight'       => array('fontWeight', self::TYPE_NUMBER),
+            'font-weight'       => array('fontWeight', self::TYPE_NAME),
             'font-style'        => array('fontStyle', self::TYPE_NAME),
             'text-anchor'       => array('textAnchor', self::TYPE_NAME),
         );
@@ -95,6 +97,52 @@ class Style
         }
     }
 
+    public function fromStyleSheets(AbstractTag $tag, $attributes) {
+        $class = isset($attributes["class"]) ? preg_split('/\s+/', trim($attributes["class"])) : null;
+
+        $stylesheets = $tag->getDocument()->getStyleSheets();
+
+        $styles = array();
+
+        foreach ($stylesheets as $_sc) {
+
+            /** @var \Sabberworm\CSS\RuleSet\DeclarationBlock $_decl */
+            foreach ($_sc->getAllDeclarationBlocks() as $_decl) {
+
+                /** @var \Sabberworm\CSS\Property\Selector $_selector */
+                foreach ($_decl->getSelectors() as $_selector) {
+                    $_selector = $_selector->getSelector();
+
+                    // Match class name
+                    if ($class !== null) {
+                        foreach ($class as $_class) {
+                            if ($_selector === ".$_class") {
+                                /** @var \Sabberworm\CSS\Rule\Rule $_rule */
+                                foreach ($_decl->getRules() as $_rule) {
+                                    $styles[$_rule->getRule()] = $_rule->getValue() . "";
+                                }
+
+                                break 2;
+                            }
+                        }
+                    }
+
+                    // Match tag name
+                    if ($_selector === $tag->tagName) {
+                        /** @var \Sabberworm\CSS\Rule\Rule $_rule */
+                        foreach ($_decl->getRules() as $_rule) {
+                            $styles[$_rule->getRule()] = $_rule->getValue() . "";
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        $this->fillStyles($styles);
+    }
+
     protected function fillStyles($styles)
     {
         foreach ($this->getStyleMap() as $from => $spec) {
@@ -125,7 +173,7 @@ class Style
     {
         $color = strtolower(trim($color));
 
-        $parts = preg_split('/\s+/', $color, 2);
+        $parts = preg_split('/[^,]\s+/', $color, 2);
 
         if (count($parts) == 2) {
             $color = $parts[1];
@@ -218,6 +266,19 @@ class Style
             );
         }
 
+        // Gradient
+        if (strpos($color, "url(#") !== false) {
+            $i = strpos($color, "(");
+            $j = strpos($color, ")");
+
+            // Bad url format
+            if ($i === false || $j === false) {
+                return null;
+            }
+
+            return trim(substr($color, $i + 1, $j - $i - 1));
+        }
+
         return null;
     }
 
@@ -298,13 +359,13 @@ class Style
     /**
      * Convert a size to a float
      *
-     * @param string $size     SVG size
-     * @param float  $dpi      DPI
-     * @param float  $fontsize Reference font size
+     * @param string $size          SVG size
+     * @param float  $dpi           DPI
+     * @param float  $referenceSize Reference size
      *
      * @return float|null
      */
-    static function convertSize($size, $dpi = 72.0, $fontsize = 11.0) {
+    static function convertSize($size, $referenceSize = 11.0, $dpi = 96.0) {
         $size = trim(strtolower($size));
 
         if (is_numeric($size)) {
@@ -319,12 +380,16 @@ class Style
             return floatval(substr($size, 0, $pos));
         }
 
+        if ($pos = strpos($size, "cm")) {
+            return floatval(substr($size, 0, $pos)) * $dpi;
+        }
+
         if ($pos = strpos($size, "%")) {
-            return $fontsize * substr($size, 0, $pos) / 100;
+            return $referenceSize * substr($size, 0, $pos) / 100;
         }
 
         if ($pos = strpos($size, "em")) {
-            return $fontsize * substr($size, 0, $pos);
+            return $referenceSize * substr($size, 0, $pos);
         }
 
         // TODO cm, mm, pc, in, etc

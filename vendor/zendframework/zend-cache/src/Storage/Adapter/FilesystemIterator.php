@@ -88,7 +88,7 @@ class FilesystemIterator implements IteratorInterface
      * Set iterator mode
      *
      * @param int $mode
-     * @return FilesystemIterator Fluent interface
+     * @return FilesystemIterator Provides a fluent interface
      */
     public function setMode($mode)
     {

@@ -117,6 +117,8 @@ abstract class FileDriver implements MappingDriver
             throw MappingException::invalidMappingFile($className, str_replace('\\', '.', $className) . $this->locator->getFileExtension());
         }
 
+        $this->classCache[$className] = $result[$className];
+
         return $result[$className];
     }
 
@@ -145,11 +147,14 @@ abstract class FileDriver implements MappingDriver
             $this->initialize();
         }
 
-        $classNames = (array)$this->locator->getAllClassNames($this->globalBasename);
-        if ($this->classCache) {
-            $classNames = array_merge(array_keys($this->classCache), $classNames);
+        if (! $this->classCache) {
+            return (array) $this->locator->getAllClassNames($this->globalBasename);
         }
-        return $classNames;
+
+        return array_merge(
+            array_keys($this->classCache),
+            (array) $this->locator->getAllClassNames($this->globalBasename)
+        );
     }
 
     /**
@@ -175,7 +180,7 @@ abstract class FileDriver implements MappingDriver
      */
     protected function initialize()
     {
-        $this->classCache = array();
+        $this->classCache = [];
         if (null !== $this->globalBasename) {
             foreach ($this->locator->getPaths() as $path) {
                 $file = $path.'/'.$this->globalBasename.$this->locator->getFileExtension();

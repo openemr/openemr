@@ -10,7 +10,7 @@
 /**
  * ID-Revision: 08.Dec.2013
  */
-return array(
+return [
     // Zend\Captcha\ReCaptcha
     "Missing captcha fields" => "Tidak ada bidang captcha",
     "Failed to validate captcha" => "Gagal memvalidasi captcha",
@@ -20,4 +20,4 @@ return array(
     "Empty captcha value" => "Nilai captcha kosong",
     "Captcha ID field is missing" => "Bidang Captcha ID tidak ada",
     "Captcha value is wrong" => "Nilai Captcha salah",
-);
+];

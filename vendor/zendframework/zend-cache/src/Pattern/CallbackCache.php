@@ -18,7 +18,7 @@ class CallbackCache extends AbstractPattern
      * Set options
      *
      * @param  PatternOptions $options
-     * @return CallbackCache
+     * @return CallbackCache Provides a fluent interface
      * @throws Exception\InvalidArgumentException if missing storage option
      */
     public function setOptions(PatternOptions $options)

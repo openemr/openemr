@@ -10,7 +10,6 @@ namespace Dompdf\FrameDecorator;
 
 use Dompdf\Dompdf;
 use Dompdf\Frame;
-use Dompdf\FontMetrics;
 use Dompdf\Image\Cache;
 
 /**
@@ -47,14 +46,16 @@ class Image extends AbstractFrameDecorator
         parent::__construct($frame, $dompdf);
         $url = $frame->get_node()->getAttribute("src");
 
-        $debug_png = $dompdf->get_option("debug_png");
-        if ($debug_png) print '[__construct ' . $url . ']';
+        $debug_png = $dompdf->getOptions()->getDebugPng();
+        if ($debug_png) {
+            print '[__construct ' . $url . ']';
+        }
 
         list($this->_image_url, /*$type*/, $this->_image_msg) = Cache::resolve_url(
             $url,
-            $dompdf->get_protocol(),
-            $dompdf->get_host(),
-            $dompdf->get_base_path(),
+            $dompdf->getProtocol(),
+            $dompdf->getBaseHost(),
+            $dompdf->getBasePath(),
             $dompdf
         );
 

@@ -2,10 +2,13 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-
-## 2.7.1 - TBD
+## 2.8.0 - 2018-04-24
 
 ### Added
+
+- [#39](https://github.com/zendframework/zend-captcha/pull/39) adds support for PHP 7.1 and 7.2.
+
+### Changed
 
 - Nothing.
 
@@ -15,9 +18,12 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Removed
 
-- Nothing.
+- [#39](https://github.com/zendframework/zend-captcha/pull/39) removes support for HHVM.
 
 ### Fixed
+
+- [#23](https://github.com/zendframework/zend-captcha/pull/23) fixes an issue with garbage collection of expired CAPTCHA images
+  when concurrent requests trigger collection.
 
 - [#31](https://github.com/zendframework/zend-captcha/pull/31) fixes using the
   ReCaptcha response as the value parameter to isValid().

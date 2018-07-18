@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<ruleset name="PSR2Tabs">
+    <description>PSR2 with tabs instead of spaces.</description>
+    <arg name="tab-width" value="4"/>
+    <rule ref="PSR2">
+        <exclude name="PSR2.Classes.ClassDeclaration.CloseBraceAfterBody"/>
+        <exclude name="PSR2.Classes.PropertyDeclaration.ScopeMissing"/>
+        <exclude name="PSR2.Classes.PropertyDeclaration.VarUsed"/>
+
+        <exclude name="PSR2.ControlStructures.SwitchDeclaration.BodyOnNextLineCASE"/>
+
+        <exclude name="PSR1.Methods.CamelCapsMethodName.NotCamelCaps"/>
+
+        <exclude name="Squiz.Scope.MethodScope.Missing"/>
+
+        <exclude name="Squiz.WhiteSpace.ControlStructureSpacing.SpacingAfterOpen"/>
+        <exclude name="Squiz.WhiteSpace.ControlStructureSpacing.SpacingBeforeClose"/>
+
+        <exclude name="Generic.Commenting.DocComment"/>
+        <exclude name="Generic.Files.LineLength.MaxExceeded"/>
+        <exclude name="Generic.NamingConventions.UpperCaseConstantName.ClassConstantNotUpperCase)"/>
+        <exclude name="Generic.WhiteSpace.DisallowTabIndent"/>
+    </rule>
+    <rule ref="Generic.WhiteSpace.DisallowSpaceIndent"/>
+    <rule ref="Generic.WhiteSpace.ScopeIndent">
+        <properties>
+            <property name="indent" value="4"/>
+            <property name="tabIndent" value="true"/>
+        </properties>
+    </rule>
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="160"/>
+            <property name="absoluteLineLimit" value="200"/>
+        </properties>
+    </rule>
+</ruleset>

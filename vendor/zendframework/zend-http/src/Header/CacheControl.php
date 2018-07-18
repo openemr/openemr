@@ -39,7 +39,7 @@ class CacheControl implements HeaderInterface
         // check to ensure proper header type for this factory
         if (strtolower($name) !== 'cache-control') {
             throw new Exception\InvalidArgumentException(sprintf(
-                'Invalid header line for Cache-Control string: ""',
+                'Invalid header line for Cache-Control string: "%s"',
                 $name
             ));
         }

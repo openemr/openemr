@@ -6,6 +6,15 @@
 > [HasDescription](traits/has-description.md),
 > [HasCriticalSystemObject](traits/has-critical-system-object.md),
 
+## Creation
+
+```php
+// Adldap\Models\Container
+$container = $provider->make()->container([
+    'cn' => 'VPN Users',
+]);
+```
+
 ## List of Available 'Getter' Methods:
 
 The `Container` model contains only one unique method.

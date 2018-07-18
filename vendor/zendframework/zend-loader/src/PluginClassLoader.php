@@ -1,10 +1,8 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @see       https://github.com/zendframework/zend-loader for the canonical source repository
+ * @copyright Copyright (c) 2005-2018 Zend Technologies USA Inc. (https://www.zend.com)
+ * @license   https://github.com/zendframework/zend-loader/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\Loader;
@@ -22,13 +20,13 @@ class PluginClassLoader implements PluginClassLocator
      * List of plugin name => class name pairs
      * @var array
      */
-    protected $plugins = array();
+    protected $plugins = [];
 
     /**
      * Static map allow global seeding of plugin loader
      * @var array
      */
-    protected static $staticMap = array();
+    protected static $staticMap = [];
 
     /**
      * Constructor
@@ -38,7 +36,7 @@ class PluginClassLoader implements PluginClassLocator
     public function __construct($map = null)
     {
         // Merge in static overrides
-        if (!empty(static::$staticMap)) {
+        if (! empty(static::$staticMap)) {
             $this->registerPlugins(static::$staticMap);
         }
 
@@ -60,11 +58,11 @@ class PluginClassLoader implements PluginClassLocator
     public static function addStaticMap($map)
     {
         if (null === $map) {
-            static::$staticMap = array();
+            static::$staticMap = [];
             return;
         }
 
-        if (!is_array($map) && !$map instanceof Traversable) {
+        if (! is_array($map) && ! $map instanceof Traversable) {
             throw new Exception\InvalidArgumentException('Expects an array or Traversable object');
         }
         foreach ($map as $key => $value) {
@@ -105,7 +103,7 @@ class PluginClassLoader implements PluginClassLocator
     public function registerPlugins($map)
     {
         if (is_string($map)) {
-            if (!class_exists($map)) {
+            if (! class_exists($map)) {
                 throw new Exception\InvalidArgumentException('Map class provided is invalid');
             }
             $map = new $map;
@@ -113,7 +111,7 @@ class PluginClassLoader implements PluginClassLocator
         if (is_array($map)) {
             $map = new ArrayIterator($map);
         }
-        if (!$map instanceof Traversable) {
+        if (! $map instanceof Traversable) {
             throw new Exception\InvalidArgumentException('Map provided is invalid; must be traversable');
         }
 
@@ -124,7 +122,7 @@ class PluginClassLoader implements PluginClassLocator
 
         foreach ($map as $name => $class) {
             if (is_int($name) || is_numeric($name)) {
-                if (!is_object($class) && class_exists($class)) {
+                if (! is_object($class) && class_exists($class)) {
                     $class = new $class();
                 }
 
@@ -196,7 +194,7 @@ class PluginClassLoader implements PluginClassLocator
      */
     public function load($name)
     {
-        if (!$this->isLoaded($name)) {
+        if (! $this->isLoaded($name)) {
             return false;
         }
         return $this->plugins[strtolower($name)];

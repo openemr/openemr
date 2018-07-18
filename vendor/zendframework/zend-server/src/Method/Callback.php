@@ -1,10 +1,8 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @see       https://github.com/zendframework/zend-server for the canonical source repository
+ * @copyright Copyright (c) 2005-2018 Zend Technologies USA Inc. (https://www.zend.com)
+ * @license   https://github.com/zendframework/zend-server/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\Server\Method;
@@ -22,7 +20,7 @@ class Callback
     protected $class;
 
     /**
-     * @var string Function name for function callback
+     * @var string|callable Function name or callable for function callback
      */
     protected $function;
 
@@ -98,12 +96,12 @@ class Callback
     /**
      * Set callback function
      *
-     * @param  string $function
+     * @param  string|callable $function
      * @return \Zend\Server\Method\Callback
      */
     public function setFunction($function)
     {
-        $this->function = (string) $function;
+        $this->function = is_callable($function) ? $function : (string) $function;
         $this->setType('function');
         return $this;
     }
@@ -111,7 +109,7 @@ class Callback
     /**
      * Get callback function
      *
-     * @return null|string
+     * @return null|string|callable
      */
     public function getFunction()
     {
@@ -144,12 +142,12 @@ class Callback
      * Set callback type
      *
      * @param  string $type
-     * @return Callback
+     * @return \Zend\Server\Method\Callback
      * @throws Server\Exception\InvalidArgumentException
      */
     public function setType($type)
     {
-        if (!in_array($type, $this->types)) {
+        if (! in_array($type, $this->types)) {
             throw new Server\Exception\InvalidArgumentException(sprintf(
                 'Invalid method callback type "%s" passed to %s',
                 $type,

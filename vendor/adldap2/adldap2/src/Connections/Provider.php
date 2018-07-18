@@ -4,14 +4,22 @@ namespace Adldap\Connections;
 
 use InvalidArgumentException;
 use Adldap\Auth\Guard;
-use Adldap\Query\Builder;
 use Adldap\Auth\GuardInterface;
 use Adldap\Schemas\ActiveDirectory;
 use Adldap\Schemas\SchemaInterface;
 use Adldap\Models\Factory as ModelFactory;
-use Adldap\Search\Factory as SearchFactory;
+use Adldap\Query\Factory as SearchFactory;
 use Adldap\Configuration\DomainConfiguration;
 
+/**
+ * Class Provider
+ *
+ * Contains the LPAP connection and domain configuration to
+ * instantiate factories for retrieving and creating
+ * LDAP records as well as authentication (binding).
+ *
+ * @package Adldap\Connections
+ */
 class Provider implements ProviderInterface
 {
     /**
@@ -53,7 +61,9 @@ class Provider implements ProviderInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Close the LDAP connection (if bound) upon destruction.
+     * 
+     * @return void
      */
     public function __destruct()
     {
@@ -71,17 +81,20 @@ class Provider implements ProviderInterface
     public function setConfiguration($configuration = [])
     {
         if (is_array($configuration)) {
-            // Construct a configuration instance if an array is given.
             $configuration = new DomainConfiguration($configuration);
-        } elseif (!$configuration instanceof DomainConfiguration) {
-            $class = DomainConfiguration::class;
-
-            throw new InvalidArgumentException("Configuration must be either an array or instance of $class");
         }
 
-        $this->configuration = $configuration;
+        if ($configuration instanceof DomainConfiguration) {
+            $this->configuration = $configuration;
+            
+            return $this;
+        }
 
-        return $this;
+        $class = DomainConfiguration::class;
+        
+        throw new InvalidArgumentException(
+            "Configuration must be array or instance of $class"
+        );
     }
 
     /**
@@ -173,7 +186,9 @@ class Provider implements ProviderInterface
      */
     public function make()
     {
-        return $this->newModelFactory($this->search()->getQuery(), $this->schema);
+        return new ModelFactory(
+            $this->search()->getQuery()
+        );
     }
 
     /**
@@ -181,7 +196,7 @@ class Provider implements ProviderInterface
      */
     public function search()
     {
-        return $this->newSearchFactory(
+        return new SearchFactory(
             $this->connection,
             $this->schema,
             $this->configuration->get('base_dn')
@@ -217,36 +232,11 @@ class Provider implements ProviderInterface
     }
 
     /**
-     * Creates a new model factory.
-     *
-     * @param Builder         $builder
-     * @param SchemaInterface $schema
-     *
-     * @return ModelFactory
-     */
-    protected function newModelFactory(Builder $builder, SchemaInterface $schema)
-    {
-        return new ModelFactory($builder, $schema);
-    }
-
-    /**
-     * Creates a new search factory.
-     *
-     * @param ConnectionInterface $connection
-     * @param SchemaInterface     $schema
-     * @param string              $baseDn
-     *
-     * @return SearchFactory
-     */
-    protected function newSearchFactory(ConnectionInterface $connection, SchemaInterface $schema, $baseDn)
-    {
-        return new SearchFactory($connection, $schema, $baseDn);
-    }
-
-    /**
      * Prepares the connection by setting configured parameters.
      *
      * @return void
+     *
+     * @throws \Adldap\Configuration\ConfigurationException When configuration options requested do not exist
      */
     protected function prepareConnection()
     {

@@ -1,7 +1,7 @@
 # zend-text
 
 [![Build Status](https://secure.travis-ci.org/zendframework/zend-text.svg?branch=master)](https://secure.travis-ci.org/zendframework/zend-text)
-[![Coverage Status](https://coveralls.io/repos/zendframework/zend-text/badge.svg?branch=master)](https://coveralls.io/r/zendframework/zend-text?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/zendframework/zend-text/badge.svg?branch=master)](https://coveralls.io/github/zendframework/zend-text?branch=master)
 
 `Zend\Text` is a component to work on text strings. It contains the subcomponents:
 
@@ -17,4 +17,4 @@
 
 
 - File issues at https://github.com/zendframework/zend-text/issues
-- Documentation is at https://zendframework.github.io/zend-text/
+- Documentation is at https://docs.zendframework.com/zend-text/
