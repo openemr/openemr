@@ -2993,8 +2993,37 @@ $GLOBALS_METADATA = array(
             '30',
             xl('Rx Bottom Margin (px)')
         ),
+        'rx_use_fax_template' => array(
+            xl('Show special button for download fax template'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('')
+        ),
+        'rx_zend_html_template' => array(
+            xl('Use html prescription template from zend module'),
+            'bool',                           // data type
+            '1',                              // default = false
+            xl('')
+        ),
+        'rx_zend_html_action' => array(
+            xl('Which template loaded from zend'),
+            'text',                           // data type
+            'default',                              // default = false
+            xl('')
+        ),
+        'rx_zend_pdf_template' => array(
+            xl('Use pdf prescription template from zend module'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('')
+        ),
+        'rx_zend_pdf_action' => array(
+            xl('Which pdf template loaded from zend'),
+            'text',                           // data type
+            'default',                              // default = false
+            xl('')
+        ),
     ),
-
     'PDF' => array(
         'pdf_layout' => array(
             xl('Layout'),

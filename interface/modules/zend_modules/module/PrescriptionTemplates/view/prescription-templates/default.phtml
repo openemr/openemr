@@ -1,0 +1,57 @@
+<!-- body content  -->
+<style>
+
+    body {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+    div.section{
+        border: 1px solid black;
+        padding: 5px;
+        margin-bottom: 15px ;
+    }
+    span.title{
+        font-size: 20px;
+        font-weight: bold;
+    }
+    .pdf-label{
+        font-weight: bold;
+    }
+    .border-bottom{
+        border-bottom: 7px solid black;
+    }
+    hr{
+        padding: 0px;
+        margin: 0px;
+    }
+</style>
+
+<h2><?php echo xlt('Medical prescription');?></h2>
+<div dir="<?php echo text('ltr'); ?>"  class="section">
+    <span class="title"><?php echo xlt('Patient details');?></span>
+    <table width="100%" style="vertical-align: middle;font-size: 15px">
+        <tr>
+            <td colspan="2" width="60%"><span class="pdf-label"><?php echo xlt('Name') . ': ' ?></span><?php echo text($patient->get_name_display())?></td>
+        </tr>
+        <tr>
+            <td width="29%"><span class="pdf-label"><?php echo xlt('Birth Date') . ': '  ?></span><?php echo  text($patient->date_of_birth)?></td>
+            <td width="42%"><span class="pdf-label"><?php echo xlt('Pubpid') . ': '  ?></span><?php echo text($patient->get_pubpid)?></td>
+        </tr>
+    </table>
+</div>
+
+<div dir="<?php echo text('ltr'); ?>"  class="section">
+    <span class="title"><?php echo xlt('Prescriptions');?></span>
+    <table width="100%" style="vertical-align: middle;font-size: 15px">
+        <?php foreach ($prescriptions as $p):?>
+        <tr>
+            <td width="33%"><span class="pdf-label"><?php echo xlt('Drug name') . ': ' ?></span><?php echo text($p->get_drug())?></td>
+            <td width="33%"><span class="pdf-label"><?php echo xlt('Drug units') . ': ' ?></span><?php echo text($p->get_size()) . ' ' . text($p->get_unit_display())?></td>
+            <td width="33%"><span class="pdf-label"><?php echo xlt('Quantity') . ': ' ?></span><?php echo text($p->get_quantity())?></td>
+        </tr>
+        <tr>
+            <td width="40%"><span class="pdf-label"><?php echo xlt('Directions') . ': ' ?></span><?php echo text($p->get_dosage()) . ' ' . text($p->form_array[$p->get_form()]) . ' ' . text($p->route_array[$p->get_route()]) . ' ' . text($p->interval_array[$p->get_interval()])?></td>
+            <td width="60%"><span class="pdf-label"><?php echo xlt('Notes') . ': ' ?></span><?php echo text($p->get_note())?></td>
+        </tr>
+        <?php endforeach; ?>
+    </table>
+</div>

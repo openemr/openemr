@@ -146,16 +146,25 @@ $(document).ready(function(){
                 <table>
                     <tr>
                         <td>
+                        {if $GLOBALS.rx_zend_pdf_template}
+                            <a id="multiprint" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-pdf-template/{$GLOBALS.rx_zend_pdf_action}?id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Download'|escape:'html'} ({xl t='PDF'|escape:'html'})</span></a>
+                        {else}
                             <a id="multiprint" href="{$CONTROLLER}prescription&multiprint&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Download'|escape:'html'} ({xl t='PDF'|escape:'html'})</span></a>
+                        {/if}
                         </td>
                         <td>
+                        {if $GLOBALS.rx_zend_html_template}
+                            <a id="multiprintcss" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-html-template/{$GLOBALS.rx_zend_html_action}?id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='View Printable Version'|escape:'html'} ({xl t='HTML'|escape:'html'})</span></a>
+                        {else}
                           <!-- TajEmo work by CB 2012/06/14 02:16:32 PM target="_script" opens better -->
                             <a target="_script" id="multiprintcss" href="{$CONTROLLER}prescription&multiprintcss&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='View Printable Version'|escape:'html'} ({xl t='HTML'|escape:'html'})</span></a>
+                        {/if}
                         </td>
+                        {if $GLOBALS.rx_use_fax_template}
                         <td style="border-style:none;">
                             <a id="multiprintToFax" href="{$CONTROLLER}prescription&multiprintfax&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Download'|escape:'html'} ({xl t='Fax'|escape:'html'})</span></a>
                         </td>
-
+                        {/if}
                         {if $GLOBALS.weno_rx_enable}
                             <td style="border-style:none;">
                                 <a id="multiprintToFax" href="{$GLOBALS.webroot}/interface/weno/validate.php" onclick="top.restoreSession()" class="css_button"><span>{xl t='Transmit'|escape:'html'} {xl t='Rx'|escape:'html'}</span></a>
