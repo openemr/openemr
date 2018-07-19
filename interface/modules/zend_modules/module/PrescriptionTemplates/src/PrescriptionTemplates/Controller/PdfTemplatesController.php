@@ -22,6 +22,7 @@
 namespace PrescriptionTemplates\Controller;
 
 use Zend\View\Model\ViewModel;
+use Mpdf\Mpdf;
 
 /**
  * Class PdfTemplatesController
@@ -45,12 +46,12 @@ class PdfTemplatesController extends PrescriptionTemplatesController
         $defaultHtml = $this->getDefaultTemplate($id);
 
         $renderer = $this->getServiceLocator()->get('Zend\View\Renderer\PhpRenderer');
-        $defaultHtml = $renderer->render($defaultHtml);
+        $htmlView = $renderer->render($defaultHtml);
 
         /* create pdf */
-        $mpdf = new \Mpdf\Mpdf();
+        $mpdf = new Mpdf();
         $mpdf->autoLangToFont = true;
-        $mpdf->WriteHTML($defaultHtml);
+        $mpdf->WriteHTML($htmlView);
         $mpdf->Output();
     }
 }

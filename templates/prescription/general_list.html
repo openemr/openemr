@@ -27,7 +27,6 @@
 function changeLinkHref(id,addValue,value) {
     var myRegExp = new RegExp(":" + value + ":");
     if (addValue){ //add value to href
-        console.log(id)
         if(document.getElementById(id) !== null)document.getElementById(id).href += ':' + value + ':';
     }
     else { //remove value from href
@@ -121,7 +120,6 @@ function Checking(chk) {
 
 $(document).ready(function(){
   $(":checkbox:checked").each(function () {
-      console.log(this.checked)
       changeLinkHref('multiprint',this.checked, this.value);
       changeLinkHref('multiprintcss',this.checked, this.value);
       changeLinkHref('multiprintToFax',this.checked, this.value);

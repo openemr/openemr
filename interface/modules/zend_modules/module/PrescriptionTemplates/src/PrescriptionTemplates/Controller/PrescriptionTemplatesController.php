@@ -39,7 +39,7 @@ class PrescriptionTemplatesController extends AbstractActionController
         foreach ($ids as $id) {
             $p = new \Prescription($id);
 
-            if(!isset($prescriptions[$p->provider->id])) {
+            if (!isset($prescriptions[$p->provider->id])) {
                 $prescriptions[$p->provider->id] = array();
             }
 
