@@ -32,13 +32,12 @@ use Zend\View\Model\ViewModel;
  * 2. in the 'globals settings' screen go to 'Rx' tab and save your action in the 'Name of zend template for html print' label
  * @package PrescriptionTemplates\Controller
  */
-class HtmlTemplatesController extends PrescriptionTemplatesController {
-
+class HtmlTemplatesController extends PrescriptionTemplatesController
+{
 
     public function defaultAction()
     {
         $id = $this->params()->fromQuery('id');
         return $this->getDefaultTemplate($id);
     }
-
 }

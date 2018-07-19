@@ -32,22 +32,24 @@ class PrescriptionTemplatesController extends AbstractActionController
     /**
      * Create html page for 'default' template (match also for pdf)
      */
-     protected function getDefaultTemplate($id)
-     {
-         $ids = preg_split('/::/', substr($id, 1, strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
-         $prescriptions = array();
-         foreach ($ids as $id) {
-             $p = new \Prescription($id);
+    protected function getDefaultTemplate($id)
+    {
+        $ids = preg_split('/::/', substr($id, 1, strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
+        $prescriptions = array();
+        foreach ($ids as $id) {
+            $p = new \Prescription($id);
 
-             if(!isset($prescriptions[$p->provider->id]))$prescriptions[$p->provider->id] = array();
-             $prescriptions[$p->provider->id][] = $p;
-         }
-         $patient = $p->patient;
+            if(!isset($prescriptions[$p->provider->id])){
+                $prescriptions[$p->provider->id] = array();
+            }
 
-         $defaultHtml = new ViewModel(array('patient' => $patient, 'prescriptions' => $prescriptions, 'langDir' => $_SESSION['language_direction']));
-         $defaultHtml->setTemplate("prescription-templates/default.phtml");
+            $prescriptions[$p->provider->id][] = $p;
+        }
+        $patient = $p->patient;
 
-         return $defaultHtml;
+        $defaultHtml = new ViewModel(array('patient' => $patient, 'prescriptions' => $prescriptions, 'langDir' => $_SESSION['language_direction']));
+        $defaultHtml->setTemplate("prescription-templates/default.phtml");
+
+        return $defaultHtml;
      }
-
 }

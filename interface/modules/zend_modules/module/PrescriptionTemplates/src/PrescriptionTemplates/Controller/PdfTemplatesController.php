@@ -31,7 +31,8 @@ use Zend\View\Model\ViewModel;
  * 2. in the 'globals settings' screen go to 'Rx' tab and save your action in the 'Name of zend template for pdf export' label
  * @package PrescriptionTemplates\Controller
  */
-class PdfTemplatesController extends PrescriptionTemplatesController{
+class PdfTemplatesController extends PrescriptionTemplatesController
+{
 
     /**
      * default template for prescription using zend module
@@ -51,7 +52,5 @@ class PdfTemplatesController extends PrescriptionTemplatesController{
         $mpdf->autoLangToFont = true;
         $mpdf->WriteHTML($defaultHtml);
         $mpdf->Output();
-
     }
-
 }
