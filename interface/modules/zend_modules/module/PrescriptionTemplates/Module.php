@@ -1,6 +1,7 @@
 <?php
 
 namespace PrescriptionTemplates;
+
 use Zend\ModuleManager\ModuleManager;
 
 /**
@@ -8,7 +9,8 @@ use Zend\ModuleManager\ModuleManager;
  *
  * @author suleymanmelikoglu
  */
-class Module {
+class Module
+{
     
     /**
      * the implementation of the autoloader provider,
@@ -29,7 +31,8 @@ class Module {
         );
     }
     
-    public function getConfig() {
+    public function getConfig()
+    {
         return include __DIR__ . '/config/module.config.php';
     }
 
@@ -48,5 +51,4 @@ class Module {
             $controller->layout('PrescriptionTemplate/layout/layout');
         }, 100);
     }
-
 }
