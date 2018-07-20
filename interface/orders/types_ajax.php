@@ -47,11 +47,6 @@ while ($row = sqlFetchArray($res)) {
     } elseif (substr($row['procedure_type'], 0, 3) == 'ord') {
          $classes .= ' oe-ord';
           $classes .= ' oe-pl'.($level * 10) ;
-    // } elseif (substr($row['procedure_type'], 0, 3) == 'res') {
-        // $classes .= ' oe-res';
-        // $classes .= ' oe-pl'.($level * 10) ;
-    // } elseif (substr($row['procedure_type'], 0, 3) == 'rec') {
-        // $classes .= ' oe-pl'.($level * 10) ;
     } else {
         $classes .= ' oe-pl'.($level * 10) ;
     }
@@ -89,9 +84,9 @@ while ($row = sqlFetchArray($res)) {
         } elseif (substr($row['procedure_type'], 0, 3) == 'grp') {
              echo  xlt('Sub Group');
         } elseif (substr($row['procedure_type'], 0, 3) == 'res') {
-            echo  xl('Result');
+            echo  xlt('Result');
         } elseif (substr($row['procedure_type'], 0, 3) == 'rec') {
-            echo  xl('Recommendation');
+            echo  xlt('Recommendation');
         }
     }
 
@@ -99,15 +94,15 @@ while ($row = sqlFetchArray($res)) {
     if (substr($row['procedure_type'], 0, 3) != 'grp' &&  !empty($row['procedure_code'])) {
         echo "<td class=\"col3\">" . attr($row['procedure_code']) . "</td>";
     } elseif (substr($row['procedure_type'], 0, 3) != 'grp' &&  empty($row['procedure_code'])) {
-        echo "<td class=\"col3\" style=\"padding-left:15px\"><span class=\"required-tooltip\" title=\"".xl("Missing Identifying Code")."\"><i class=\"fa fa-exclamation-triangle text-center oe-text-red\" aria-hidden=\"true\" > </i></span></td>";
+        echo "<td class=\"col3\" style=\"padding-left:15px\"><span class=\"required-tooltip\" title=\"".xla("Missing Identifying Code")."\"><i class=\"fa fa-exclamation-triangle text-center oe-text-red\" aria-hidden=\"true\" > </i></span></td>";
     } elseif (substr($row['procedure_type'], 0, 3) == 'grp') {
         echo "<td class=\"col3\">" . attr($row['procedure_code']) . "</td>";
     }
     echo "<td class=\"col6\">" . attr($level + 1) . "</td>";
     echo "<td class=\"col4\">" . attr($row['description']) . "</td>";
     echo "<td class=\"col5\">";
-    echo "<span style=\"color:#000000;\" onclick=\"enode($chid)\" class=\"haskids fa fa-pencil fa-lg\" title=".xl("Edit")."></span>";
-    echo "<span style=\"color:#000000; margin-left:30px\" onclick=\"anode($chid)\" class=\"haskids fa fa-plus fa-lg\" title=".xl("Add")." ></span>";
+    echo "<span style=\"color:#000000;\" onclick=\"enode($chid)\" class=\"haskids fa fa-pencil fa-lg\" title=".xla("Edit")."></span>";
+    echo "<span style=\"color:#000000; margin-left:30px\" onclick=\"anode($chid)\" class=\"haskids fa fa-plus fa-lg\" title=".xla("Add")." ></span>";
     echo "</td>";
     echo "</tr>";
 }

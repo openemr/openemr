@@ -364,6 +364,7 @@ function proc_type_changed() {
                         <div id="sequence_info" class="col-sm-12 collapse">
                             <a href="#sequence_info" data-toggle="collapse" class="pull-right"><i class="fa fa-times" style="color:gray" aria-hidden="true"></i></a>
                             <p><?php echo xlt("The order in which the Category, Procedure or Result appears");?></p>
+                            <p><?php echo xlt("If value is left as zero, will be sorted alphabetically");?></p>
                         </div>
                     </div>
                     <div class="col-xs-12 ordonly">

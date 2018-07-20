@@ -38,8 +38,7 @@ function invalue($name)
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['jquery-ui', 'jquery-ui-base']);?>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+<?php Header::setupHeader(['opener','jquery-ui', 'jquery-ui-base']);?>
 <title><?php echo $ppid ? xlt('Edit') : xlt('Add New') ?> <?php echo xlt('Procedure Provider'); ?></title>
 
 

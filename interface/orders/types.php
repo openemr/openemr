@@ -359,7 +359,7 @@ if ($popup && $_POST['form_save']) {
                         <div class="col-sm-12 text-left position-override">
                             <div class="btn-group btn-group-pinch" role="group">
                                 <?php if ($popup) { ?>
-                                    <button type="submit" class="btn btn-default btn-save" name='form_save' value='<?php echo xlt('Save'); ?>'><?php echo xlt('Save');?></button>
+                                    <button type="submit" class="btn btn-default btn-save" name='form_save' value='<?php echo xla('Save'); ?>'><?php echo xlt('Save');?></button>
                                     <button class="btn btn-link btn-cancel btn-separate-left" onclick="CancelDistribute()"><?php echo xlt('Cancel');?></button>
                                 <?php } ?>
                             </div>
