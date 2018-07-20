@@ -32,7 +32,7 @@ require_once("../../interface/globals.php");
     <body>
         <div class="container oe-help-container">
             <div>
-                <center><h2><a name='entire_doc'><?php echo xlt("Lorem ipsum Help");?></a></h2></center>
+                <center><h2><a name='entire_doc'><?php echo xlt("Configure Orders Help");?></a></h2></center>
             </div>
             <div class= "row">
                 <p><?php echo xlt("This page lets you configure the orders and results");?>.
