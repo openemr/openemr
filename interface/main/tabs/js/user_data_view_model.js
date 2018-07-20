@@ -33,32 +33,37 @@ function user_data_view_model(username,fname,lname,authGrp)
 
 function viewPtFinder()
 {
-    navigateTab(webroot_url+"/interface/main/finder/dynamic_finder.php","fin");
-    activateTabByName("fin",true);
+    navigateTab(webroot_url+"/interface/main/finder/dynamic_finder.php","fin", function () {
+        activateTabByName("fin",true);
+    });
 }
 
 function viewTgFinder() {
 
-    navigateTab(webroot_url+"/interface/therapy_groups/index.php?method=listGroups","gfn");
-    activateTabByName("gfn",true);
+    navigateTab(webroot_url+"/interface/therapy_groups/index.php?method=listGroups","gfn", function () {
+        activateTabByName("gfn",true);
+    });
 }
 
 function viewMessages()
 {
-    navigateTab(webroot_url+"/interface/main/messages/messages.php?form_active=1","msg");
-    activateTabByName("msg",true);
+    navigateTab(webroot_url+"/interface/main/messages/messages.php?form_active=1","msg", function () {
+        activateTabByName("msg",true);
+    });
 }
 
 function editSettings()
 {
-    navigateTab(webroot_url+"/interface/super/edit_globals.php?mode=user","msc");
-    activateTabByName("msc",true);
+    navigateTab(webroot_url+"/interface/super/edit_globals.php?mode=user","msc", function () {
+        activateTabByName("msc",true);
+    });
 }
 
 function changePassword()
 {
-    navigateTab(webroot_url+"/interface/usergroup/user_info.php","msc");
-    activateTabByName("msc",true);
+    navigateTab(webroot_url+"/interface/usergroup/user_info.php","msc", function () {
+        activateTabByName("msc",true);
+    });
 }
 
 function logout()
