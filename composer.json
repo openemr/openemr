@@ -39,8 +39,8 @@
     "require-dev" : {
     },
     "scripts": {
-        "post-install-cmd": "npm install --scripts-prepend-node-path",
-        "post-update-cmd": "npm install --scripts-prepend-node-path"
+        "post-install-cmd": "npm install",
+        "post-update-cmd": "npm install"
     },
     "repositories" : [{
         "type" : "vcs",
