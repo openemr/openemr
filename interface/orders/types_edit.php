@@ -76,9 +76,8 @@ function recursiveDelete($typeid)
 <!DOCTYPE html>
 <html>
 <head>
-    <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-base']);?>
-<script type="text/javascript"
-    src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+    <?php Header::setupHeader(['opener','topdialog','datetime-picker', 'jquery-ui', 'jquery-ui-base']);?>
+
 <title><?php echo $typeid ? xlt('Edit') : xlt('Add New'); ?> <?php echo xlt('Order/Result Type'); ?></title>
 
 
@@ -131,10 +130,6 @@ div[id$="_info"] > a {
         text-align:left!Important;
     }*/
 </style>
-
-<script type="text/javascript" src="../../library/topdialog.js"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-
 
 <script language="JavaScript">
 
@@ -547,7 +542,7 @@ function proc_type_changed() {
                         </div>
                         <div class="col-sm-12">
                             <input type='text'  name='form_related_code' id='form_related_code'
-                                value='<?php echo $row['related_code'] ?>'
+                                value='<?php echo attr($row['related_code']) ?>'
                                 onclick='sel_related("form_related_code")'
                                 title='<?php echo xla('Click to select services to perform if this result is abnormal'); ?>'
                                 class='form-control' readonly />
