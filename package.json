@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "postinstall": "napa && gulp -i",
-    "build": "run-s gulp-build storybook-build",
+    "build": "gulp -b",
+    "dev-build": "run-s build storybook-build",
     "dev": "gulp --dev",
     "dev-docs": "run-p storybook gulp-docs",
     "gulp-build": "gulp -b --dev",

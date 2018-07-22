@@ -22,7 +22,7 @@ var packages = require('./package.json');
 var config = {
     /* Command Line Arguments */
     dev: argv['dev'],
-    build: argv['b'], // temporary until build == production
+    build: argv['b'],
     proxy: argv['p'],
     install: argv['i'],
     
@@ -41,7 +41,7 @@ var config = {
         storybook: '.docs/.out/'
     },
     dest: {
-        themes: 'interface/themes'
+        themes: 'public/themes'
     }
 };
 
@@ -51,8 +51,10 @@ var config = {
  * TODO make this more strict after CSS is not committed
  */
 gulp.task('clean', function () {
-    let ignore = "!" + config.dist.storybook+ '.gitignore';
+    let ignore = "!" + config.dist.storybook + '.gitignore';
     del.sync([config.dist.storybook + "*", ignore]);
+    ignore = "!" + config.dest.themes + '/.gitignore';
+    del.sync([config.dest.themes + "/*", ignore]);
 });
 
 
@@ -80,14 +82,15 @@ gulp.task('sync', ['styles'], function() {
         });
     }
 
-    if (config.dev && !config.build) {
-        gulp.watch('inteface/themes/**/*.scss', ['styles']);
-    } else {
-        // hack to get font awesome files into the .out directory
-        gulp.src([
-            './public/assets/font-awesome/fonts/**/*.{ttf,woff,eof,svg}'
-            ], {base: '../'})
-            .pipe(gulp.dest(config.dist.storybook));
+    if (config.dev) {
+        if(config.build) {
+            // if building storybook, grab the public folder
+            gulp.src(['./public/**/*'])
+                .pipe(gulp.dest(config.dist.storybook));
+        } else {
+            // watch for changes and run styles on change
+            gulp.watch('inteface/themes/**/*.scss', ['styles']);
+        }
     }
 });
 
@@ -113,7 +116,6 @@ gulp.task('styles:style_uni', function () {
         .pipe(gulpif(!config.dev, csso()))
         .pipe(gulpif(!config.dev,sourcemaps.write()))
         .pipe(gulp.dest(config.dest.themes))
-        .pipe(gulpif(config.build, gulp.dest(config.dist.storybook + config.dest.themes)))
         .pipe(gulpif(config.dev, reload({stream:true})));
 });
 
@@ -129,7 +131,6 @@ gulp.task('styles:style_color', function () {
         .pipe(gulpif(!config.dev, csso()))
         .pipe(gulpif(!config.dev,sourcemaps.write()))
         .pipe(gulp.dest(config.dest.themes))
-        .pipe(gulpif(config.build, gulp.dest(config.dist.storybook + config.dest.themes)))
         .pipe(gulpif(config.dev, reload({stream:true})));
 });
 
@@ -149,10 +150,10 @@ gulp.task('styles:rtl', function () {
             prefix:"rtl_"
         }))
         .pipe(gulp.dest(config.dest.themes))
-        .pipe(gulpif(config.build, gulp.dest(config.dist.storybook + config.dest.themes)))
         .pipe(gulpif(config.dev, reload({stream:true})));
 });
 
+// todo - make this dev only
 gulp.task('styles:style_list', function () {
     gulp.src(config.src.styles.all_rtl)
         .pipe(require('gulp-filelist')('themeOptions.json', {flatten: true, removeExtensions: true}))
