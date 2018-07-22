@@ -1,8 +1,14 @@
-/vendor/**/.git
+# logs
 /logs
+
+# environment vars
 .env
-/.idea/*
+
+# assets
 node_modules
 /public/assets/*
 !/public/assets/manual-added-packages
 !/public/assets/modified
+
+# dev editor configs
+/.idea/*
