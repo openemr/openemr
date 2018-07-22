@@ -39,11 +39,15 @@
     "extra": {
         "mouf": {
             "nodejs": {
-                "forceLocal": true
+                "forceLocal": true,
             }
         }
     },
     "require-dev" : {
+    },
+    "scripts": {
+        "post-install-cmd": "./vendor/bin/npm install",
+        "post-update-cmd": "./vendor/bin/npm install"
     },
     "repositories" : [{
         "type" : "vcs",
