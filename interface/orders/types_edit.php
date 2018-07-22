@@ -98,17 +98,17 @@ td {
 }
 
 .ordonly {
-    
+
 }
 
 .resonly {
-    
+
 }
 .label-div > a {
     display:none;
 }
 .label-div:hover > a {
-   display:inline-block; 
+   display:inline-block;
 }
 div[id$="_info"] {
     background: #F7FAB3;
@@ -166,9 +166,14 @@ function del_related(s) {
 
 // This invokes the find-code popup.
 function sel_related(varname) {
- if (typeof varname == 'undefined') varname = 'form_related_code';
- rcvarname = varname;
- dlgopen('../patient_file/encounter/find_code_dynamic.php', '_blank', 900, 600);
+    if (typeof varname == 'undefined')
+        varname = 'form_related_code';
+    rcvarname = varname;
+    let url = '../patient_file/encounter/find_code_dynamic.php';
+    if (varname == 'form_diagnosis_code')
+        url = '../patient_file/encounter/find_code_dynamic.php?codetype=ICD10';
+
+    dlgopen(url, '_codeslkup', 900, 800, '', '<?php echo xla("Select Diagnosis Codes"); ?>');
 }
 
 // Show or hide sections depending on procedure type.
@@ -181,12 +186,16 @@ function proc_type_changed() {
     var ptpfx = ptval.substring(0, 3);
     $('.ordonly').hide();
     $('.resonly').hide();
+    $('.fgponly').hide();
+    $('.foronly').hide();
     if (ptpfx == 'ord') $('.ordonly').show();
+    if (ptpfx == 'for') $('.foronly').show();
     if (ptpfx == 'res' || ptpfx == 'rec') $('.resonly').show();
-    if (ptpfx == 'grp') {
+    if (ptpfx == 'fgp') $('.fgponly').show(); // Favorites
+    if (ptpfx == 'grp' || ptpfx == 'fgp') {
         $('#form_legend').html(
             "<?php echo xlt('Enter Details for Group'); ?>" + "   <i id='grp' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
-    } else if (ptpfx == 'ord') {
+    } else if (ptpfx == 'ord' || ptpfx == 'for') {
         $('#form_legend').html(
             "<?php echo xlt('Enter Details for Individual Procedures'); ?>" + "   <i id='ord' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
     } else if (ptpfx == 'res') {
@@ -362,7 +371,7 @@ function proc_type_changed() {
                             <p><?php echo xlt("If value is left as zero, will be sorted alphabetically");?></p>
                         </div>
                     </div>
-                    <div class="col-xs-12 ordonly">
+                    <div class="col-xs-12 ordonly  fgponly foronly">
                         <div class="col-sm-12 label-div">
                             <label class="control-label" for="form_lab_id"><?php echo xlt('Order From'); ?>:</label><a href="#order_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                         </div>
@@ -376,7 +385,7 @@ function proc_type_changed() {
                                     if ($pprow['ppid'] == $row['lab_id']) {
                                         echo " selected";
                                     }
-                                    
+
                                     echo ">" . text($pprow['name']) . "</option>";
                                 }
                                 ?>
@@ -387,7 +396,7 @@ function proc_type_changed() {
                             <p><?php echo xlt("The entity performing this procedure");?></p>
                         </div>
                     </div>
-                    <div class="col-xs-12 ordonly resonly">
+                    <div class="col-xs-12 ordonly resonly fgponly foronly">
                         <div class="col-sm-12 label-div">
                             <label class="control-label" for="form_procedure_code"><?php echo xlt('Identifying Code'); ?>:</label><a href="#procedure_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                         </div>
@@ -404,7 +413,7 @@ function proc_type_changed() {
                             <p><?php echo xlt("For proper display of results this is a required field");?></p>
                         </div>
                     </div>
-                    <div class="col-xs-12 ordonly">
+                    <div class="col-xs-12 ordonly foronly">
                         <div class="col-sm-12 label-div">
                             <label class="control-label" for="form_standard_code"><?php echo xlt('Standard Code'); ?>:</label><a href="#standard_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                         </div>
@@ -421,7 +430,24 @@ function proc_type_changed() {
                             <p><?php echo xlt("Generally a good idea to include it");?></p>
                         </div>
                     </div>
-                    <div class="col-xs-12 ordonly">
+                    <div class="col-xs-12 foronly">
+                        <div class="col-sm-12 label-div">
+                            <label class="control-label" for="form_diagnosis_code"><?php echo xlt('Diagnosis Codes'); ?>:</label><a href="#related_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                        </div>
+                        <div class="col-sm-12">
+                            <input type='text'  name='form_diagnosis_code' id='form_related_code'
+                                   value='<?php echo attr($row['related_code']) ?>'
+                                   onclick='sel_related("form_diagnosis_code")'
+                                   title='<?php echo xla('Click to select diagnosis or procedure code to default to order'); ?>'
+                                   class='form-control' readonly />
+                        </div>
+                        <div id="related_code_info" class="col-sm-12 collapse">
+                            <a href="#related_code_info" data-toggle="collapse" class="pull-right"><i class="fa fa-times" style="color:gray" aria-hidden="true"></i></a>
+                            <p><?php echo xlt("Click to select diagnosis or procedure code to default to order");?></p>
+                            <p><?php echo xlt("This code is optional.");?></p>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 ordonly foronly">
                         <div class="col-sm-12 label-div">
                             <label class="control-label" for="form_body_site"><?php echo xlt('Body Site'); ?>:</label><a href="#body_site_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                         </div>
@@ -440,7 +466,7 @@ function proc_type_changed() {
                             <p><?php echo xlt("Enter the relevant site if applicable.");?></p>
                         </div>
                     </div>
-                    <div class="col-xs-12 ordonly">
+                    <div class="col-xs-12 ordonly foronly">
                         <div class="col-sm-12 label-div">
                             <label class="control-label" for="form_specimen"><?php echo xlt('Specimen Type'); ?>:</label><a href="#specimen_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                         </div>
@@ -460,7 +486,7 @@ function proc_type_changed() {
                             <p><?php echo xlt("This code is optional, but is a good practise to do so.");?></p>
                         </div>
                     </div>
-                    <div class="col-xs-12 ordonly">
+                    <div class="col-xs-12 ordonly foronly">
                         <div class="col-sm-12 label-div">
                             <label class="control-label" for="form_route_admin"><?php echo xlt('Administer Via'); ?>:</label><a href="#administer_via_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                         </div>
@@ -480,7 +506,7 @@ function proc_type_changed() {
                             <p><?php echo xlt("This code is optional.");?></p>
                         </div>
                     </div>
-                    <div class="col-xs-12 ordonly">
+                    <div class="col-xs-12 ordonly foronly">
                         <div class="col-sm-12 label-div">
                             <label class="control-label" for="form_laterality"><?php echo xlt('Laterality'); ?>:</label><a href="#laterality_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                         </div>

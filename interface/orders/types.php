@@ -128,7 +128,7 @@ if ($popup && $_POST['form_save']) {
             font-weight: 700;
         }
         .oe-grp {
-            font-size: 18px !important;
+            font-size: 16px !important;
             font-weight: 900;
             /*padding-left:0;*/
         }
@@ -200,7 +200,7 @@ if ($popup && $_POST['form_save']) {
     function nextOpen() {
       if (preopen.length) {
         var thisid = preopen.pop();
-      
+
       if (thisid == 0 || preopen.length > 0) {
        if (thisid > 0)
         toggle(thisid);
@@ -399,7 +399,7 @@ if ($popup && $_POST['form_save']) {
             });
         });
     </script>
-    
+
 </body>
 </html>
 
