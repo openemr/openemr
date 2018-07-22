@@ -46,15 +46,16 @@ var config = {
 };
 
 /**
- * Clean up static assets
- * - only deletes the storybook dist
- * TODO make this more strict after CSS is not committed
+ * Clean up lingering static assets 
  */
 gulp.task('clean', function () {
-    let ignore = "!" + config.dist.storybook + '.gitignore';
-    del.sync([config.dist.storybook + "*", ignore]);
-    ignore = "!" + config.dest.themes + '/.gitignore';
+    let ignore = "!" + config.dest.themes + '/.gitignore';
     del.sync([config.dest.themes + "/*", ignore]);
+    
+    if (config.dev) {
+        ignore = "!" + config.dist.storybook + '.gitignore';
+        del.sync([config.dist.storybook + "*", ignore]);
+    }
 });
 
 
@@ -85,7 +86,7 @@ gulp.task('sync', ['styles'], function() {
     if (config.dev) {
         if(config.build) {
             // if building storybook, grab the public folder
-            gulp.src(['./public/**/*'])
+            gulp.src(['./public/**/*'], {"base" : "."})
                 .pipe(gulp.dest(config.dist.storybook));
         } else {
             // watch for changes and run styles on change
@@ -116,6 +117,7 @@ gulp.task('styles:style_uni', function () {
         .pipe(gulpif(!config.dev, csso()))
         .pipe(gulpif(!config.dev,sourcemaps.write()))
         .pipe(gulp.dest(config.dest.themes))
+        .pipe(gulpif(config.dev && config.build, gulp.dest(config.dist.storybook + config.dest.themes)))
         .pipe(gulpif(config.dev, reload({stream:true})));
 });
 
@@ -131,6 +133,7 @@ gulp.task('styles:style_color', function () {
         .pipe(gulpif(!config.dev, csso()))
         .pipe(gulpif(!config.dev,sourcemaps.write()))
         .pipe(gulp.dest(config.dest.themes))
+        .pipe(gulpif(config.dev && config.build, gulp.dest(config.dist.storybook + config.dest.themes)))
         .pipe(gulpif(config.dev, reload({stream:true})));
 });
 
@@ -139,6 +142,7 @@ gulp.task('styles:style_color', function () {
  * TODO fix sourcemapping and/or convert to scss import
  */
 gulp.task('styles:rtl', function () {
+    console.log('here');
     gulp.src(config.src.styles.all)
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
@@ -150,6 +154,7 @@ gulp.task('styles:rtl', function () {
             prefix:"rtl_"
         }))
         .pipe(gulp.dest(config.dest.themes))
+        .pipe(gulpif(config.dev && config.build, gulp.dest(config.dist.storybook + config.dest.themes)))
         .pipe(gulpif(config.dev, reload({stream:true})));
 });
 
