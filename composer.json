@@ -39,7 +39,7 @@
     "extra": {
         "mouf": {
             "nodejs": {
-                "forceLocal": true,
+                "forceLocal": true
             }
         }
     },
