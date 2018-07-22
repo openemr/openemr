@@ -31,8 +31,8 @@ var config = {
         styles: {
             style_uni: 'interface/themes/style_*.scss',
             style_color: 'interface/themes/colors/*.scss',
-            all: 'interface/themes/**/style_*.css',
-            all_rtl: 'interface/themes/**/*style_*.css',
+            all: 'public/themes/**/style_*.css',
+            all_rtl: 'public/themes/**/*style_*.css',
         }
     },
     dist: {
@@ -83,12 +83,20 @@ gulp.task('sync', ['styles'], function() {
         });
     }
 
-    if (config.dev) {
-        if(config.build) {
+
+    if (config.build) {
+        if (config.dev) {
             // if building storybook, grab the public folder
             gulp.src(['./public/**/*'], {"base" : "."})
                 .pipe(gulp.dest(config.dist.storybook));
         } else {
+            // copy all leftover root-level components to the theme directory
+            // hoping this is only temporary
+            gulp.src(['interface/themes/*.{css,php}'])
+                .pipe(gulp.dest(config.dest.themes));
+        }
+    } else {
+        if (config.dev) {
             // watch for changes and run styles on change
             gulp.watch('inteface/themes/**/*.scss', ['styles']);
         }
@@ -140,9 +148,9 @@ gulp.task('styles:style_color', function () {
 /**
  * append rtl css
  * TODO fix sourcemapping and/or convert to scss import
+ * Have to since rtl isn't working at the moment
  */
 gulp.task('styles:rtl', function () {
-    console.log('here');
     gulp.src(config.src.styles.all)
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
@@ -158,7 +166,7 @@ gulp.task('styles:rtl', function () {
         .pipe(gulpif(config.dev, reload({stream:true})));
 });
 
-// todo - make this dev only
+// TODO make this dev only
 gulp.task('styles:style_list', function () {
     gulp.src(config.src.styles.all_rtl)
         .pipe(require('gulp-filelist')('themeOptions.json', {flatten: true, removeExtensions: true}))
