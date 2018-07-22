@@ -233,7 +233,7 @@ function proc_type_changed() {
             "units = " . invalue('form_units') . ", " .
             "`range` = " . invalue('form_range') . ", " .
             "standard_code = " . invalue('form_standard_code') . ", " .
-            "related_code = " . invalue('form_related_code') . ", " .
+            "related_code = " . (isset($_POST['form_diagnosis_code']) ? invalue('form_diagnosis_code') : invalue('form_related_code')) . ", " .
             "seq = " . invalue('form_seq');
 
             if ($typeid) {
