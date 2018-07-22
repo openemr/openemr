@@ -40,7 +40,6 @@
         "mouf": {
             "nodejs": {
                 "forceLocal": true,
-                "includeBinInPath": true
             }
         }
     },
