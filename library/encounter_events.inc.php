@@ -56,11 +56,14 @@ function calendar_arrived($form_pid, $apptstatus = "@")
         echo "<br><br><br><h2 style='text-align:center;'>" . htmlspecialchars(xl('Sorry No Appointment is Fixed'), ENT_QUOTES) . ". " . htmlspecialchars(xl('No Encounter could be created'), ENT_QUOTES) . ".</h2>";
         exit;
     } elseif ($appt_count == 1) {
-        $enc = todaysEncounterCheck($form_pid, $today);
-        if ($appts[0]['pc_recurrtype'] == 0) {
-            sqlStatement("UPDATE openemr_postcalendar_events SET pc_apptstatus = ? WHERE pc_eid = ?", array($apptstatus, $appts[0]['pc_eid']));
+        $appt = $appts[0];
+        // mdsupport - If appt is to be converted to encounter, please save users some work
+        // Appt to Encounter should really be a function/method of its own
+        $enc = todaysEncounterCheck($form_pid, $today, $appt['pc_title'], $appt['pc_facility'], $appt['pc_billing_location'], $appt['pc_aid'], $appt['pc_catid']);
+        if ($appt['pc_recurrtype'] == 0) {
+            sqlStatement("UPDATE openemr_postcalendar_events SET pc_apptstatus = ? WHERE pc_eid = ?", array($apptstatus, $appt['pc_eid']));
         } else {
-            update_event($appts[0]['pc_eid'], $apptstatus);
+            update_event($appt['pc_eid'], $apptstatus);
         }
     } elseif ($appt_count > 1) {
         echo "<br><br><br><h2 style='text-align:center;'>" . htmlspecialchars(xl('More than one appointment was found'), ENT_QUOTES) . ". " . htmlspecialchars(xl('No Encounter could be created'), ENT_QUOTES) . ".</h2>";
