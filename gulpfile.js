@@ -49,11 +49,10 @@ var config = {
  * Clean up lingering static assets 
  */
 gulp.task('clean', function () {
-    let ignore = "!" + config.dest.themes + '/.gitignore';
-    del.sync([config.dest.themes + "/*", ignore]);
+    del.sync([config.dest.themes + "/*"]);
     
     if (config.dev) {
-        ignore = "!" + config.dist.storybook + '.gitignore';
+        let ignore = "!" + config.dist.storybook + '.gitignore';
         del.sync([config.dist.storybook + "*", ignore]);
     }
 });
