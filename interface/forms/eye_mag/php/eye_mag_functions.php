@@ -3055,13 +3055,7 @@ background-image: none;" />
 function copy_forward($zone, $copy_from, $copy_to, $pid)
 {
     global $form_id;
-    $query="select form_encounter.date as encounter_date,form_eye_base.* from form_eye_mag ,forms,form_encounter
-                where
-                form_encounter.encounter = forms.encounter and
-                form_eye_mag.id=forms.form_id and
-                forms.pid =form_eye_mag.pid and
-                form_eye_mag.pid=?
-                and form_eye_mag.id =? ";
+
     $query = "select  *,form_encounter.date as encounter_date
               
                from forms,form_encounter,form_eye_base, 
@@ -3427,8 +3421,8 @@ function copy_forward($zone, $copy_from, $copy_to, $pid)
     } elseif ($zone =="READONLY") {
         $result=$objQuery;
         $count_rx='0';
-        $query = "select * from form_eye_mag_wearing where PID=? and ENCOUNTER=? and FORM_ID >'0' ORDER BY RX_NUMBER";
-        $wear = sqlStatement($query, array($pid,$_SESSION['encounter']));
+        $query1 = "select * from form_eye_mag_wearing where PID=? and ENCOUNTER=? and FORM_ID >'0' ORDER BY RX_NUMBER";
+        $wear = sqlStatement($query1, array($pid,$_SESSION['encounter']));
         while ($wearing = sqlFetchArray($wear)) {
             ${"display_W_$count_rx"}        = '';
                   ${"ODSPH_$count_rx"}            = $wearing['ODSPH'];
