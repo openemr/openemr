@@ -2,9 +2,19 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 2.8.2 - TBD
+## 2.9.0 - 2018-05-14
 
 ### Added
+
+- [#37](https://github.com/zendframework/zend-serializer/pull/37) adds support to the `PhpSerialize` adapter to allow it to support the
+  PHP 7 `$options` parameter of `unserialize`, and, specifically, the `allowed_classes` parameter.
+  A new options class, `PhpSerializeOptions`, now allows setting the `unserialize_class_whitelist`
+  option, which may be one of `true` (any class may be unserialized; current behavior), `false`
+  (no class may be unserialized), or an `array` of class names that are explicitly allowed to
+  be unserialized. An instance of this class may now be passed to the `PhpSerialize` constructor
+  in order to set the intended/expected behavior.
+
+### Changed
 
 - Nothing.
 
@@ -18,7 +28,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#34](https://github.com/zendframework/zend-serializer/pull/34) removes a redundant dependency on a Doctrine package.
 
 ## 2.8.1 - 2017-11-20
 

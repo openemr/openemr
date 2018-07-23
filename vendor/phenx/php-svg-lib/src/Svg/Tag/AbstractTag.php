@@ -3,7 +3,7 @@
  * @package php-svg-lib
  * @link    http://github.com/PhenX/php-svg-lib
  * @author  Fabien Ménager <fabien.menager@gmail.com>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
+ * @license GNU LGPLv3+ http://www.gnu.org/copyleft/lesser.html
  */
 
 namespace Svg\Tag;
@@ -16,19 +16,25 @@ abstract class AbstractTag
     /** @var Document */
     protected $document;
 
+    public $tagName;
+
     /** @var Style */
     protected $style;
 
-    protected $attributes;
+    protected $attributes = array();
 
     protected $hasShape = true;
 
-    public function __construct(Document $document)
+    /** @var self[] */
+    protected $children = array();
+
+    public function __construct(Document $document, $tagName)
     {
         $this->document = $document;
+        $this->tagName = $tagName;
     }
 
-    protected function getDocument(){
+    public function getDocument(){
         return $this->document;
     }
 
@@ -48,25 +54,29 @@ abstract class AbstractTag
         return null;
     }
 
-    public final function handle($attributes)
+    public function handle($attributes)
     {
         $this->attributes = $attributes;
 
-        $this->before($attributes);
-        $this->start($attributes);
+        if (!$this->getDocument()->inDefs) {
+            $this->before($attributes);
+            $this->start($attributes);
+        }
     }
 
-    public final function handleEnd()
+    public function handleEnd()
     {
-        $this->end();
-        $this->after();
+        if (!$this->getDocument()->inDefs) {
+            $this->end();
+            $this->after();
+        }
     }
 
-    protected function before($attribs)
+    protected function before($attributes)
     {
     }
 
-    protected function start($attribs)
+    protected function start($attributes)
     {
     }
 
@@ -86,23 +96,43 @@ abstract class AbstractTag
     protected function setStyle(Style $style)
     {
         $this->style = $style;
+
+        if ($style->display === "none") {
+            $this->hasShape = false;
+        }
     }
 
     /**
-     * @return \Svg\Style
+     * @return Style
      */
     public function getStyle()
     {
         return $this->style;
     }
 
-    protected function applyTransform($attribs)
+    /**
+     * Make a style object from the tag and its attributes
+     *
+     * @param array $attributes
+     *
+     * @return Style
+     */
+    protected function makeStyle($attributes) {
+        $style = new Style();
+        $style->inherit($this);
+        $style->fromStyleSheets($this, $attributes);
+        $style->fromAttributes($attributes);
+
+        return $style;
+    }
+
+    protected function applyTransform($attributes)
     {
 
-        if (isset($attribs["transform"])) {
+        if (isset($attributes["transform"])) {
             $surface = $this->document->getSurface();
 
-            $transform = $attribs["transform"];
+            $transform = $attributes["transform"];
 
             $match = array();
             preg_match_all(

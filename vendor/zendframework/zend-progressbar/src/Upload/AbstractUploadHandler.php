@@ -36,7 +36,7 @@ abstract class AbstractUploadHandler implements UploadHandlerInterface
      */
     public function __construct($options = [])
     {
-        if (!empty($options)) {
+        if (! empty($options)) {
             $this->setOptions($options);
         }
     }
@@ -54,7 +54,7 @@ abstract class AbstractUploadHandler implements UploadHandlerInterface
     {
         if ($options instanceof Traversable) {
             $options = ArrayUtils::iteratorToArray($options);
-        } elseif (!is_array($options)) {
+        } elseif (! is_array($options)) {
             throw new Exception\InvalidArgumentException(
                 'The options parameter must be an array or a Traversable'
             );
@@ -141,7 +141,7 @@ abstract class AbstractUploadHandler implements UploadHandlerInterface
                 $this->setProgressAdapter($adapter);
             }
 
-            if (!$adapter instanceof ProgressBar) {
+            if (! $adapter instanceof ProgressBar) {
                 throw new Exception\RuntimeException('Unknown Adapter type given');
             }
 
@@ -170,7 +170,7 @@ abstract class AbstractUploadHandler implements UploadHandlerInterface
     protected function toByteString($size)
     {
         $sizes = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-        for ($i=0; $size >= 1024 && $i < 9; $i++) {
+        for ($i = 0; $size >= 1024 && $i < 9; $i++) {
             $size /= 1024;
         }
 

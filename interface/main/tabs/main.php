@@ -124,7 +124,8 @@ var jsLanguageDirection = "<?php echo $_SESSION["language_direction"]; ?>";
 var xl_strings_tabs_view_model = <?php echo json_encode(array(
     'encounter_locked' => xla('This encounter is locked. No new forms can be added.'),
     'must_select_patient'  => $GLOBALS['enable_group_therapy'] ? xla('You must first select or add a patient or therapy group.') : xla('You must first select or add a patient.'),
-    'must_select_encounter'    => xla('You must first select or create an encounter.')
+    'must_select_encounter'    => xla('You must first select or create an encounter.'),
+    'new' => xla('New')
 ));
 ?>;
 </script>
@@ -166,14 +167,11 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters', 'notes', '', 'writ
         app_view_model.application_data.tabs.tabsList()[0].url(<?php echo json_encode("../".$_SESSION['frame1url']); ?>);
         app_view_model.application_data.tabs.tabsList()[0].name(<?php echo json_encode($_SESSION['frame1target']); ?>);
     <?php } ?>
-    <?php unset($_SESSION['frame1url']); ?>
-    <?php unset($_SESSION['frame1target']); ?>
+
     <?php if (!empty($_SESSION['frame2url']) && !empty($_SESSION['frame2target'])) { ?>
     app_view_model.application_data.tabs.tabsList()[1].url(<?php echo json_encode("../".$_SESSION['frame2url']); ?>);
     app_view_model.application_data.tabs.tabsList()[1].name(<?php echo json_encode($_SESSION['frame2target']); ?>);
     <?php } ?>
-    <?php unset($_SESSION['frame2url']); ?>
-    <?php unset($_SESSION['frame2target']); ?>
 
     app_view_model.application_data.user(new user_data_view_model(<?php echo json_encode($_SESSION{"authUser"})
         .',' . json_encode($userQuery['fname'])

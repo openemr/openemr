@@ -10,6 +10,19 @@ namespace Zend\Diactoros;
 use InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;
 
+use function array_map;
+use function array_merge;
+use function get_class;
+use function gettype;
+use function implode;
+use function is_array;
+use function is_object;
+use function is_resource;
+use function is_string;
+use function preg_match;
+use function sprintf;
+use function strtolower;
+
 /**
  * Trait implementing the various methods defined in MessageInterface.
  *

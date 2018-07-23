@@ -248,7 +248,7 @@ body
 
 .patientInfo .patientPicture img
 {
-    height: 50px;
+    height: 75px;
 }
 
 .top {
@@ -260,7 +260,7 @@ body
     float: left;
     padding:0px 0px;
     white-space: nowrap;
-    text-shadow: 0 1px 0 #f3f3f3;
+    text-shadow: none;
 }
 .appMenu > span:hover
 {

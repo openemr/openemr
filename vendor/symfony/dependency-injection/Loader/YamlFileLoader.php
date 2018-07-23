@@ -171,7 +171,7 @@ class YamlFileLoader extends FileLoader
 
         if (isset($service['scope'])) {
             if ('request' !== $id) {
-                @trigger_error(sprintf('The "scope" key of service "%s" in file "%s" is deprecated since version 2.8 and will be removed in 3.0.', $id, $file), E_USER_DEPRECATED);
+                @trigger_error(sprintf('The "scope" key of service "%s" in file "%s" is deprecated since Symfony 2.8 and will be removed in 3.0.', $id, $file), E_USER_DEPRECATED);
             }
             $definition->setScope($service['scope'], false);
         }
@@ -181,7 +181,7 @@ class YamlFileLoader extends FileLoader
         }
 
         if (isset($service['synchronized'])) {
-            @trigger_error(sprintf('The "synchronized" key of service "%s" in file "%s" is deprecated since version 2.7 and will be removed in 3.0.', $id, $file), E_USER_DEPRECATED);
+            @trigger_error(sprintf('The "synchronized" key of service "%s" in file "%s" is deprecated since Symfony 2.7 and will be removed in 3.0.', $id, $file), E_USER_DEPRECATED);
             $definition->setSynchronized($service['synchronized'], 'request' !== $id);
         }
 
@@ -203,7 +203,7 @@ class YamlFileLoader extends FileLoader
 
         if (isset($service['factory'])) {
             if (is_string($service['factory'])) {
-                if (strpos($service['factory'], ':') !== false && strpos($service['factory'], '::') === false) {
+                if (false !== strpos($service['factory'], ':') && false === strpos($service['factory'], '::')) {
                     $parts = explode(':', $service['factory']);
                     $definition->setFactory(array($this->resolveServices('@'.$parts[0]), $parts[1]));
                 } else {
@@ -215,17 +215,17 @@ class YamlFileLoader extends FileLoader
         }
 
         if (isset($service['factory_class'])) {
-            @trigger_error(sprintf('The "factory_class" key of service "%s" in file "%s" is deprecated since version 2.6 and will be removed in 3.0. Use "factory" instead.', $id, $file), E_USER_DEPRECATED);
+            @trigger_error(sprintf('The "factory_class" key of service "%s" in file "%s" is deprecated since Symfony 2.6 and will be removed in 3.0. Use "factory" instead.', $id, $file), E_USER_DEPRECATED);
             $definition->setFactoryClass($service['factory_class']);
         }
 
         if (isset($service['factory_method'])) {
-            @trigger_error(sprintf('The "factory_method" key of service "%s" in file "%s" is deprecated since version 2.6 and will be removed in 3.0. Use "factory" instead.', $id, $file), E_USER_DEPRECATED);
+            @trigger_error(sprintf('The "factory_method" key of service "%s" in file "%s" is deprecated since Symfony 2.6 and will be removed in 3.0. Use "factory" instead.', $id, $file), E_USER_DEPRECATED);
             $definition->setFactoryMethod($service['factory_method']);
         }
 
         if (isset($service['factory_service'])) {
-            @trigger_error(sprintf('The "factory_service" key of service "%s" in file "%s" is deprecated since version 2.6 and will be removed in 3.0. Use "factory" instead.', $id, $file), E_USER_DEPRECATED);
+            @trigger_error(sprintf('The "factory_service" key of service "%s" in file "%s" is deprecated since Symfony 2.6 and will be removed in 3.0. Use "factory" instead.', $id, $file), E_USER_DEPRECATED);
             $definition->setFactoryService($service['factory_service']);
         }
 
@@ -451,8 +451,6 @@ class YamlFileLoader extends FileLoader
 
     /**
      * Loads from Extensions.
-     *
-     * @param array $content
      */
     private function loadFromExtensions(array $content)
     {
@@ -461,7 +459,7 @@ class YamlFileLoader extends FileLoader
                 continue;
             }
 
-            if (!is_array($values)) {
+            if (!is_array($values) && null !== $values) {
                 $values = array();
             }
 

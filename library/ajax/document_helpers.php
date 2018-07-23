@@ -23,13 +23,23 @@
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 
-$term = isset($_GET["term"]) ? filter_input(INPUT_GET, 'term') : '';
+$req = array(
+    'term' => (isset($_GET["term"]) ? filter_input(INPUT_GET, 'term') : ''),
+    'sql_limit' => (isset($_GET["limit"]) ? filter_input(INPUT_GET, 'limit') : 20),
+);
 
-function get_patients_list($term)
+function get_patients_list($req)
 {
-    $term = "%" . $term . "%";
+    $term = "%" . $req['term'] . "%";
     $clear = "- " . xl("Reset to no patient") . " -";
-    $response = sqlStatement("SELECT Concat(patient_data.fname, ' ',patient_data.lname) as label, patient_data.pid as value FROM patient_data HAVING label LIKE ? ORDER BY patient_data.lname ASC", array($term));
+    $response = sqlStatement(
+        "SELECT CONCAT(fname, ' ',lname,IF(IFNULL(deceased_date,0)=0,'','*')) as label, pid as value
+            FROM patient_data
+            HAVING label LIKE ?
+            ORDER BY IF(IFNULL(deceased_date,0)=0, 0, 1) ASC, IFNULL(deceased_date,0) DESC, lname ASC, fname ASC
+            LIMIT " . escape_limit($req['sql_limit']),
+        array($term)
+    );
     $resultpd[] = array(
         'label' => $clear,
         'value' => '00'
@@ -46,4 +56,4 @@ function get_patients_list($term)
     echo json_encode($resultpd);
 }
 
-get_patients_list($term);
+get_patients_list($req);

@@ -23,14 +23,18 @@
 "use strict";
 var net = require('net');
 var to_json = require('xmljson').to_json;
-var bbg = require('blue-button-generate');
+var bbg = require('oe-blue-button-generate');
 //var bbm = require('blue-button-model'); //for use set global-not needed here
 //var fs = require('fs');
 //var bb = require('blue-button');
-
+var fs = require('fs');
 
 var server = net.createServer();
 var conn = ''; // make our connection scope global to script
+var oidFacility = "";
+var all = "";
+var npiProvider = "";
+var npiFacility = "";
 
 // some useful routines for populating template sections
 function validate(toValidate, ref, retObj) {
@@ -103,23 +107,44 @@ function safeId(s) {
 }
 
 function fDate(str) {
-    /*
-     * Format dates to js required yyyy-mm-dd + zero hundred hours Yes I freely
-     * admit, I'm lazy!
-     */
     str = String(str); // at least ensure string so cast it...
+
     if (Number(str) === 0) {
-        return "0000-01-01T00:00:00.000Z"
+        return '';
     }
     if (str.length === 8 || (str.length === 14 && (1 * str.substring(12, 14)) === 0)) {
-        return [str.slice(0, 4), str.slice(4, 6), str.slice(6, 8)].join('-') + 'T00:00:00.000Z';
+        return [str.slice(0, 4), str.slice(4, 6), str.slice(6, 8)].join('-')
     } else if (str.length === 10 && (1 * str.substring(0, 2)) <= 12) {
         // case mm/dd/yyyy or mm-dd-yyyy
-        return [str.slice(6, 10), str.slice(0, 2), str.slice(3, 5)].join('-') + 'T00:00:00.000Z';
+        return [str.slice(6, 10), str.slice(0, 2), str.slice(3, 5)].join('-')
     } else if (str.length === 14 && (1 * str.substring(12, 14)) > 0) {
         // maybe a real time so parse
     }
-    return str + 'T00:00:00.000Z';
+    return str;
+}
+
+function getPrecision(str) {
+    str = String(str);
+    let pflg = "day";
+
+    if (Number(str) === 0) {
+        return "day";
+    }
+    if (str.length > 8) {
+        pflg = "minute";
+    }
+    if (str.length > 12) {
+        pflg = "second";
+    }
+
+    return pflg;
+}
+
+function templateDate(date, precision) {
+    if (!fDate(date)) {
+        return "";
+    }
+    return [{'date': date, 'precision': precision}]
 }
 
 function cleanCode(code) {
@@ -129,7 +154,7 @@ function cleanCode(code) {
 function isOne(who) {
     try {
         if (who !== null && typeof who === 'object') {
-            return who.hasOwnProperty('extension') ? 1 : Object.keys(who).length;
+            return who.hasOwnProperty('extension') || who.hasOwnProperty('id') ? 1 : Object.keys(who).length;
         }
     }
     catch (e) {
@@ -147,7 +172,7 @@ function headReplace(content) {
 }
 
 // Data model for Blue Button
-function populateDemographic(pd, g, all) {
+function populateDemographic(pd, g) {
     let guardian = [{
         "relation": g.relation,
         "addresses": [{
@@ -180,15 +205,12 @@ function populateDemographic(pd, g, all) {
                 "precision": "day"
             }
         },
-        "gender": pd.gender,
+        "gender": pd.gender.toUpperCase(),
         "identifiers": [{
-            "identifier": "2.16.840.1.113883.19.5.99999.2",
-            "extension": "998991"
-        }, {
-            "identifier": "2.16.840.1.113883.4.1",
-            "extension": pd.ssn
+            "identifier": oidFacility,
+            "extension": "PT-" + pd.id
         }],
-        "marital_status": pd.status || "",
+        "marital_status": pd.status.toUpperCase() || "U",
         "addresses": [{
             "street_lines": [pd.street],
             "city": pd.city,
@@ -202,26 +224,25 @@ function populateDemographic(pd, g, all) {
             "type": "primary home"
         }],
         "race": pd.race,
-        "ethnicity": pd.ethnicity,
+        "ethnicity": pd.ethnicity || "U",
         "languages": [{
             "language": pd.language,
             "preferred": true,
             "mode": "Expressed spoken",
             "proficiency": "Good"
         }],
-        "religion": pd.religion,
-        /*"birthplace": {
+        "religion": pd.religion.toUpperCase() || "",
+        /*"birthplace":'', {
             "city": "",
             "state": "",
             "zip": "",
             "country": ""
         },*/
-        "guardians": g.display_name ? guardian : '',
         "attributed_provider": {
             "identity": [
                 {
-                    "root": "2.16.840.1.113883.4.6",
-                    //"extension": "KP00017"
+                    "root": oidFacility || "2.16.840.1.113883.4.6",
+                    "extension": npiFacility || "UNK"
                 }
             ],
             "phone": [{
@@ -232,19 +253,20 @@ function populateDemographic(pd, g, all) {
                     "full": all.encounter_provider.facility_name || ""
                 }
             ]
-        }
+        },
+        "guardians": g.display_name ? guardian : ''
     }
 
 }
 
-function populateProviders(all) {
+function populateProviders() {
     return {
         "providers": [
             {
                 "identity": [
                     {
                         "root": "2.16.840.1.113883.4.6",
-                        "extension": "MD-Provider-1"
+                        "extension": all.primary_care_provider.provider[0].npi || "UNK"
                     }
                 ],
                 "type": [
@@ -313,43 +335,44 @@ function populateProviders(all) {
 
 
     }
-
-
 }
 
 function populateMedication(pd) {
+    pd.status = 'Completed'; //@todo invoke prescribed
     return {
         "date_time": {
             "low": {
                 "date": fDate(pd.start_date),
                 "precision": "day"
             },
-            "high": {
+            /*"high": {
                 "date": pd.end_date ? fDate(pd.end_date) : "",
                 "precision": "day"
-            }
+            }*/
         },
         "identifiers": [{
-            "identifier": pd.sha_extension
+            "identifier": pd.sha_extension,
+            "extension": pd.extension || "UNK"
         }],
         "status": pd.status,
         "sig": pd.direction,
         "product": {
             "identifiers": [{
-                "identifier": "2a620155-9d11-439e-92b3-5d9815ff4ee8"
+                "identifier": "2a620155-9d11-439e-92b3-5d9815ff4ee8",
+                "extension": "UNK"
             }],
             "unencoded_name": pd.drug,
             "product": {
                 "name": pd.drug,
                 "code": pd.rxnorm,
-                "translations": [{
+                /*"translations": [{
                     "name": pd.drug,
                     "code": pd.rxnorm,
                     "code_system_name": "RXNORM"
-                }],
+                }],*/
                 "code_system_name": "RXNORM"
             },
-            "manufacturer": ""
+            //"manufacturer": ""
         },
         "supply": {
             "date_time": {
@@ -361,8 +384,15 @@ function populateMedication(pd) {
             "repeatNumber": "0",
             "quantity": "0",
             "author": {
+                "date_time": {
+                    "point": {
+                        "date": fDate(pd.start_date),
+                        "precision": getPrecision(fDate(pd.start_date))
+                    }
+                },
                 "identifiers": [{
-                    "identifier": "2a620155-9d11-439e-92b3-5d9815fe4de8"
+                    "identifier": "2.16.840.1.113883.4.6",
+                    "extension": pd.npi || "UNK"
                 }],
                 "name": {
                     "prefix": pd.title,
@@ -407,9 +437,14 @@ function populateMedication(pd) {
             }
         },
         "performer": {
+            "identifiers": [{
+                "identifier": "2.16.840.1.113883.4.6",
+                "extension": pd.npi || "UNK"
+            }],
             "organization": [{
                 "identifiers": [{
-                    "identifier": "2.16.840.1.113883.19.5.9999.1393"
+                    "identifier": pd.sha_extension,
+                    "extension": pd.extension || "UNK"
                 }],
                 "name": [pd.performer_name]
             }]
@@ -419,7 +454,7 @@ function populateMedication(pd) {
             "code": pd.form_code,
             "code_system_name": "RXNORM"
         },
-        "precondition": {
+        /*"precondition": {
             "code": {
                 "code": "ASSERTION",
                 "code_system_name": "ActCode"
@@ -451,7 +486,7 @@ function populateMedication(pd) {
                 "code": pd.indications_code,
                 "code_system_name": "SNOMED CT"
             }
-        },
+        },*/
         /*"dispense": {
             "identifiers": [{
                 "identifier": "1.2.3.4.56789.1",
@@ -502,7 +537,7 @@ function populateEncounter(pd) {
         "encounter": {
             "name": pd.visit_category ? pd.visit_category : '',
             "code": pd.encounter_procedures ? pd.encounter_procedures.procedures.code : '',
-            "code_system_name": "CPT",
+            "code_system_name": "CPT4",
             "translations": [{
                 "name": "Ambulatory",
                 "code": "AMB",
@@ -510,29 +545,43 @@ function populateEncounter(pd) {
             }]
         },
         "identifiers": [{
-            "identifier": pd.sha_extension
+            "identifier": pd.sha_extension,
+            "extension": pd.extension
         }],
         "date_time": {
             "point": {
                 "date": fDate(pd.date_formatted),
-                "precision": "second"
+                "precision": getPrecision(fDate(pd.date_formatted))
             }
         },
         "performers": [{
             "identifiers": [{
-                "identifier": pd.facility_sha_extension
+                "identifier": "2.16.840.1.113883.4.6",
+                "extension": pd.npi || "UNK"
             }],
             "code": [{
                 "name": pd.physician_type,
                 "code": pd.physician_type_code,
                 "code_system_name": "SNOMED CT"
-            }]
+            }],
+            "name": [
+                {
+                    "last": pd.lname || "",
+                    "first": pd.fname || ""
+                }
+            ],
+            "phone": [
+                {
+                    "number": pd.work_phone,
+                    "type": "work place"
+                }
+            ]
         }],
         "locations": [{
             "name": pd.location,
             "location_type": {
                 "name": pd.location_details,
-                "code": "",
+                "code": "1160-1",
                 "code_system_name": "HealthcareServiceLocation"
             },
             "address": [{
@@ -545,8 +594,8 @@ function populateEncounter(pd) {
         }],
         "findings": [{
             "identifiers": [{
-                "identifier": "",
-                "extension": ""
+                "identifier": pd.sha_extension,
+                "extension": pd.extension
             }],
             "value": {
                 "name": pd.encounter_reason,
@@ -555,7 +604,7 @@ function populateEncounter(pd) {
             },
             "date_time": {
                 "low": {
-                    "date": fDate(pd.date_formatted),
+                    "date": fDate(pd.date),
                     "precision": "day"
                 }
             }
@@ -566,7 +615,8 @@ function populateEncounter(pd) {
 function populateAllergy(pd) {
     return {
         "identifiers": [{
-            "identifier": "36e3e930-7b14-11db-9fe1-0800200c9a66"
+            "identifier": "36e3e930-7b14-11db-9fe1-0800200c9a66",
+            "extension": pd.id || "UNK"
         }],
         "date_time": {
             "point": {
@@ -576,16 +626,17 @@ function populateAllergy(pd) {
         },
         "observation": {
             "identifiers": [{
-                "identifier": "4adc1020-7b14-11db-9fe1-0800200c9a66"
+                "identifier": "4adc1020-7b14-11db-9fe1-0800200c9a66",
+                "extension": pd.extension || "UNK"
             }],
             "allergen": {
                 "name": pd.title,
-                "code": pd.rxnorm_code,
+                "code": pd.rxnorm_code === 0 ? "" : pd.rxnorm_code,
                 "code_system_name": "RXNORM"
             },
             "intolerance": {
                 "name": "Propensity to adverse reactions to drug",
-                "code": pd.snomed_code,
+                "code": pd.snomed_code || "420134006",
                 "code_system_name": "SNOMED CT"
             },
             "date_time": {
@@ -596,7 +647,7 @@ function populateAllergy(pd) {
             },
             "status": {
                 "name": pd.allergy_status,
-                "code": pd.status_code,
+                "code": pd.status_code === 0 ? "" : pd.status_code,
                 "code_system_name": "SNOMED CT"
             },
             "reactions": [{
@@ -604,24 +655,18 @@ function populateAllergy(pd) {
                     "identifier": "4adc1020-7b14-11db-9fe1-0800200c9a64"
                 }],
                 "date_time": {
-                    "low": {
-                        "date": fDate(pd.startdate),
-                        "precision": "day"
-                    },
-                    "high": {
-                        "date": fDate(pd.enddate),
-                        "precision": "day"
-                    }
+                    "low": templateDate(pd.startdate, "day"),
+                    "high": templateDate(pd.enddate, "day")
                 },
                 "reaction": {
                     "name": pd.reaction_text,
-                    "code": pd.reaction_code,
+                    "code": pd.reaction_code === 0 ? "" : pd.reaction_code,
                     "code_system_name": "SNOMED CT"
                 },
                 "severity": {
                     "code": {
                         "name": pd.outcome,
-                        "code": pd.outcome_code,
+                        "code": pd.outcome_code === 0 ? "" : pd.outcome_code,
                         "code_system_name": "SNOMED CT"
                     },
                     /*"interpretation": {
@@ -634,7 +679,7 @@ function populateAllergy(pd) {
             "severity": {
                 "code": {
                     "name": pd.outcome,
-                    "code": pd.outcome_code,
+                    "code": pd.outcome_code === 0 ? "" : pd.outcome_code,
                     "code_system_name": "SNOMED CT"
                 },
                 /*"interpretation": {
@@ -661,7 +706,7 @@ function populateProblem(pd) {
         },
         "identifiers": [{
             "identifier": pd.sha_extension,
-            "extension": pd.extension
+            "extension": pd.extension || "UNK"
         }],
         "problem": {
             "code": {
@@ -676,10 +721,25 @@ function populateProblem(pd) {
                 },
                 /*"high": {
                     "date": fDate(pd.end_date),
-                    "precision": "second"
+                    "precision": getPrecision()
                 }*/
             }
         },
+        "performer": [
+            {
+                "identifiers": [
+                    {
+                        "identifier": "2.16.840.1.113883.4.6",
+                        "extension": all.primary_care_provider.provider[0].npi || "UNK"
+                    }
+                ],
+                "name": [
+                    {
+                        "last": all.primary_care_provider.provider[0].lname || "",
+                        "first": all.primary_care_provider.provider[0].fname || ""
+                    }
+                ]
+            }],
         "onset_age": pd.age,
         "onset_age_unit": "Year",
         "status": {
@@ -691,13 +751,14 @@ function populateProblem(pd) {
                 },
                 /*"high": {
                     "date": fDate(pd.end_date),
-                    "precision": "second"
+                    "precision": getPrecision()
                 }*/
             }
         },
         "patient_status": pd.observation,
         "source_list_identifiers": [{
-            "identifier": pd.sha_extension
+            "identifier": pd.sha_extension,
+            "extension": pd.extension || "UNK"
         }]
     };
 
@@ -708,19 +769,20 @@ function populateProcedure(pd) {
         "procedure": {
             "name": pd.description,
             "code": pd.code,
-            "code_system_name": "CPT"
+            "code_system_name": "CPT4"
         },
         "identifiers": [{
-            "identifier": "d68b7e32-7810-4f5b-9cc2-acd54b0fd85d"
+            "identifier": "d68b7e32-7810-4f5b-9cc2-acd54b0fd85d",
+            "extension": pd.extension
         }],
-        "status": "",
+        "status": "completed",
         "date_time": {
             "point": {
                 "date": fDate(pd.date),
                 "precision": "day"
             }
         },
-        "body_sites": [{
+        /*"body_sites": [{
             "name": "",
             "code": "",
             "code_system_name": ""
@@ -734,11 +796,11 @@ function populateProcedure(pd) {
                 "code": "",
                 "code_system_name": "SNOMED CT"
             }
-        },
+        },*/
         "performers": [{
             "identifiers": [{
-                "identifier": "2.16.840.1.113883.19.5.9999.456",
-                "extension": "2981823"
+                "identifier": "2.16.840.1.113883.4.6",
+                "extension": pd.npi || "UNK"
             }],
             "address": [{
                 "street_lines": [pd.address],
@@ -753,7 +815,8 @@ function populateProcedure(pd) {
             }],
             "organization": [{
                 "identifiers": [{
-                    "identifier": "2.16.840.1.113883.19.5.9999.1393"
+                    "identifier": pd.facility_sha_extension,
+                    "extension": pd.facility_extension
                 }],
                 "name": [pd.facility_name],
                 "address": [{
@@ -774,42 +837,84 @@ function populateProcedure(pd) {
 }
 
 function populateResult(pd) {
+    let icode = pd.subtest.abnormal_flag;
+    switch (pd.subtest.abnormal_flag.toUpperCase()) {
+        case "NO":
+            icode = "Normal";
+            break;
+        case "YES":
+            icode = "Abnormal";
+            break;
+        case "":
+            icode = "UNK";
+            break;
+    }
     return {
         "identifiers": [{
-            "identifier": "107c2dc0-67a5-11db-bd13-0800200c9a66"
+            "identifier": pd.subtest.root,
+            "extension": pd.subtest.extension
         }],
         "result": {
             "name": pd.title,
-            "code": pd.test_code || "",
+            "code": pd.subtest.result_code || "",
             "code_system_name": "LOINC"
         },
         "date_time": {
             "point": {
-                "date": fDate(pd.date_ordered_table),
+                "date": fDate(pd.date_ordered),
                 "precision": "day"
             }
         },
         "status": pd.order_status,
         "reference_range": {
+            "range": pd.subtest.range //OpenEMR doesn't have high/low so show range as text.
+        },
+        /*"reference_range": {
             "low": pd.subtest.range,
             "high": pd.subtest.range,
             "unit": pd.subtest.unit
-        },
-        "interpretations": [pd.subtest.result_value],
-        "value": parseFloat(pd.subtest.result_value),
+        },*/
+        "interpretations": [icode],
+        "value": parseFloat(pd.subtest.result_value) || pd.subtest.result_value || "",
         "unit": pd.subtest.unit
     };
 }
 
 function getResultSet(results) {
+
+    if (!results) return '';
+
+    let tResult = results.result[0] || results.result;
     var resultSet = {
         "identifiers": [{
-            "identifier": "7d5a02b0-67a4-11db-bd13-0800200c9a66"
+            "identifier": tResult.root,
+            "extension": tResult.extension
         }],
+        "author": [
+            {
+                "date_time": {
+                    "point": {
+                        "date": fDate(tResult.date_ordered),
+                        "precision": getPrecision(fDate(tResult.date_ordered))
+                    }
+                },
+                "identifiers": [
+                    {
+                        "identifier": "2.16.840.1.113883.4.6",
+                        "extension": all.primary_care_provider.provider.npi || "UNK"
+                    }
+                ],
+                "name": [
+                    {
+                        "last": all.primary_care_provider.provider.lname || "",
+                        "first": all.primary_care_provider.provider.fname || ""
+                    }
+                ]
+            }],
         "result_set": {
-            "name": "Get this data.",
-            "code": "",
-            "code_system_name": "SNOMED CT"
+            "name": tResult.test_name,
+            "code": tResult.test_code,
+            "code_system_name": "LOINC"
         }
     };
     var rs = [];
@@ -875,7 +980,7 @@ function populateVital(pd) {
         "date_time": {
             "point": {
                 "date": fDate(pd.effectivetime),
-                "precision": "second"
+                "precision": getPrecision(fDate(pd.effectivetime))
             }
         },
         "value": parseFloat(pd.bps),
@@ -894,10 +999,10 @@ function populateVital(pd) {
         "date_time": {
             "point": {
                 "date": fDate(pd.effectivetime),
-                "precision": "second"
+                "precision": getPrecision(fDate(pd.effectivetime))
             }
         },
-        "interpretations": ["UNK"],
+        "interpretations": ["Normal"],
         "value": parseFloat(pd.bpd),
         "unit": "mm[Hg]"
     }, {
@@ -914,10 +1019,10 @@ function populateVital(pd) {
         "date_time": {
             "point": {
                 "date": fDate(pd.effectivetime),
-                "precision": "second"
+                "precision": getPrecision(fDate(pd.effectivetime))
             }
         },
-        "interpretations": ["UNK"],
+        "interpretations": ["Normal"],
         "value": parseFloat(pd.pulse),
         "unit": "/min"
     }, {
@@ -934,10 +1039,10 @@ function populateVital(pd) {
         "date_time": {
             "point": {
                 "date": fDate(pd.effectivetime),
-                "precision": "second"
+                "precision": getPrecision(fDate(pd.effectivetime))
             }
         },
-        "interpretations": ["UNK"],
+        "interpretations": ["Normal"],
         "value": parseFloat(pd.breath),
         "unit": "/min"
     }, {
@@ -954,10 +1059,10 @@ function populateVital(pd) {
         "date_time": {
             "point": {
                 "date": fDate(pd.effectivetime),
-                "precision": "second"
+                "precision": getPrecision(fDate(pd.effectivetime))
             }
         },
-        "interpretations": ["UNK"],
+        "interpretations": ["Normal"],
         "value": parseFloat(pd.temperature),
         "unit": "degF"
     }, {
@@ -974,10 +1079,10 @@ function populateVital(pd) {
         "date_time": {
             "point": {
                 "date": fDate(pd.effectivetime),
-                "precision": "second"
+                "precision": getPrecision(fDate(pd.effectivetime))
             }
         },
-        "interpretations": ["UNK"],
+        "interpretations": ["Normal"],
         "value": parseFloat(pd.height),
         "unit": pd.unit_height
     }, {
@@ -994,10 +1099,10 @@ function populateVital(pd) {
         "date_time": {
             "point": {
                 "date": fDate(pd.effectivetime),
-                "precision": "second"
+                "precision": getPrecision(fDate(pd.effectivetime))
             }
         },
-        "interpretations": ["UNK"],
+        "interpretations": ["Normal"],
         "value": parseFloat(pd.weight),
         "unit": pd.unit_weight
     }, {
@@ -1014,10 +1119,10 @@ function populateVital(pd) {
         "date_time": {
             "point": {
                 "date": fDate(pd.effectivetime),
-                "precision": "second"
+                "precision": getPrecision(fDate(pd.effectivetime))
             }
         },
-        "interpretations": ["UNK"],
+        "interpretations": ["Normal"],
         "value": parseFloat(pd.BMI),
         "unit": "kg/m2"
     }];
@@ -1026,14 +1131,8 @@ function populateVital(pd) {
 function populateSocialHistory(pd) {
     return {
         "date_time": {
-            "low": {
-                "date": fDate(pd.date),
-                "precision": "day"
-            },
-            "high": {
-                "date": fDate(pd.date),
-                "precision": "second"
-            }
+            "low": templateDate(pd.date_formatted, "day")
+            //"high": templateDate(pd.date_formatted, "day")
         },
         "identifiers": [{
             "identifier": pd.sha_extension,
@@ -1055,19 +1154,20 @@ function populateImmunization(pd) {
             }
         },
         "identifiers": [{
-            "identifier": "e6f1ba43-c0ed-4b9b-9f12-f435d8ad8f92"
+            "identifier": "e6f1ba43-c0ed-4b9b-9f12-f435d8ad8f92",
+            "extension": pd.extension || "UNK"
         }],
         "status": "complete",
         "product": {
             "product": {
                 "name": pd.code_text,
                 "code": pd.cvx_code,
-                "code_system_name": "CVX",
-                "translations": [{
+                "code_system_name": "CVX"
+                /*"translations": [{
                     "name": "",
                     "code": "",
                     "code_system_name": "CVX"
-                }]
+                }]*/
             },
             "lot_number": "1",
             "manufacturer": "UNK"
@@ -1085,8 +1185,8 @@ function populateImmunization(pd) {
         },
         "performer": {
             "identifiers": [{
-                "identifier": "2.16.840.1.113883.19.5.9999.456",
-                "extension": "2981824"
+                "identifier": "2.16.840.1.113883.4.6",
+                "extension": npiProvider
             }],
             "name": [{
                 "last": pd.lname,
@@ -1101,7 +1201,8 @@ function populateImmunization(pd) {
             }],
             "organization": [{
                 "identifiers": [{
-                    "identifier": "2.16.840.1.113883.19.5.9999.1394"
+                    "identifier": oidFacility,
+                    "extension": npiFacility
                 }],
                 "name": [pd.facility_name]
             }]
@@ -1283,8 +1384,8 @@ function populateHeader(pd) {
         "title": "Clinical Health Summary",
         "date_time": {
             "point": {
-                "date": pd.created_time_timezone || "",
-                "precision": "minute"
+                "date": fDate(pd.created_time) || "",
+                "precision": getPrecision(fDate(pd.created_time))
             }
         },
         "author": {
@@ -1293,7 +1394,7 @@ function populateHeader(pd) {
                     "identifiers": [
                         {
                             "identifier": "2.16.840.1.113883.4.6",
-                            "extension": "99999999"
+                            "extension": pd.author.npi || "UNK"
                         }
                     ],
                     "name": [
@@ -1329,7 +1430,8 @@ function populateHeader(pd) {
                         {
                             "identity": [
                                 {
-                                    "root": "2.16.840.1.113883.19.5.9999.1393" // @todo oid
+                                    "root": "2.16.840.1.113883.19.5.9999.1393",
+                                    "extension": pd.encounter_provider.facility_id || "UNK"
                                 }
                             ],
                             "name": [
@@ -1428,11 +1530,11 @@ function populateHeader(pd) {
             "date_time": {
                 "low": {
                     "date": "",
-                    "precision": "minute"
+                    "precision": getPrecision()
                 },
                 "high": {
-                    "date": pd.created_time_timezone,
-                    "precision": "minute"
+                    "date": pd.created_time,
+                    "precision": getPrecision()
                 }
             },
             "performer": [
@@ -1544,10 +1646,14 @@ function genCcda(pd) {
     var many = [];
     var theone = {};
 
+    all = pd;
+    npiProvider = all.primary_care_provider.provider[0].npi;
+    oidFacility = all.encounter_provider.facility_oid;
+    npiFacility = all.encounter_provider.facility_npi;
 
 // Demographics
     let demographic = populateDemographic(pd.patient, pd.guardian, pd);
-    Object.assign(demographic, populateProviders(pd));
+    Object.assign(demographic, populateProviders());
     data.demographics = Object.assign(demographic);
 
 // vitals
@@ -1637,7 +1743,7 @@ function genCcda(pd) {
     }
     if (count > 1) {
         for (let i in pd.problem_lists.problem) {
-            problem[i] = populateProblem(pd.problem_lists.problem[i]);
+            problem[i] = populateProblem(pd.problem_lists.problem[i], pd);
             problems.problems.push(problem[i]);
         }
     } else if (count !== 0) {
@@ -1666,7 +1772,9 @@ function genCcda(pd) {
 
     data.procedures = Object.assign(many.procedures);
 // Results
-    data.results = Object.assign(getResultSet(pd.results)['results']);
+    if (pd.results)
+        data.results = Object.assign(getResultSet(pd.results, pd)['results']);
+
 // Immunizations
     many = [];
     theone = {};
@@ -1717,6 +1825,7 @@ function genCcda(pd) {
     }
     if (count > 1) {
         for (let i in pd.history_physical.social_history.history_element) {
+            if (i > 0) break;
             theone[i] = populateSocialHistory(pd.history_physical.social_history.history_element[i]);
             many.social_history.push(theone[i]);
         }
@@ -1772,8 +1881,7 @@ function processConnection(connection) {
         // ---------------------start--------------------------------
         let doc = "";
         xml = xml.toString().replace(/\t\s+/g, ' ').trim();
-        //xml = xml.toString().replace(/\t/g,'');
-        //console.log(xml + "\n\rLen: "+ xml.length);
+
         to_json(xml, function (error, data) {
             // console.log(JSON.stringify(data, null, 4));
             if (error) { // need try catch

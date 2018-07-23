@@ -47,7 +47,7 @@ abstract class AbstractRenderer
     function __construct(Dompdf $dompdf)
     {
         $this->_dompdf = $dompdf;
-        $this->_canvas = $dompdf->get_canvas();
+        $this->_canvas = $dompdf->getCanvas();
     }
 
     /**
@@ -58,8 +58,6 @@ abstract class AbstractRenderer
      * @param Frame $frame The frame to render
      */
     abstract function render(Frame $frame);
-
-    //........................................................................
 
     /**
      * Render a background image over a rectangular area
@@ -90,7 +88,9 @@ abstract class AbstractRenderer
         $box_height = $height;
 
         //debugpng
-        if ($this->_dompdf->get_option("debugPng")) print '[_background_image ' . $url . ']';
+        if ($this->_dompdf->getOptions()->getDebugPng()) {
+            print '[_background_image ' . $url . ']';
+        }
 
         list($img, $type, /*$msg*/) = Cache::resolve_url(
             $url,
@@ -117,7 +117,7 @@ abstract class AbstractRenderer
         }
 
         $repeat = $style->background_repeat;
-        $dpi = $this->_dompdf->get_option("dpi");
+        $dpi = $this->_dompdf->getOptions()->getDpi();
 
         //Increase background resolution and dependent box size according to image resolution to be placed in
         //Then image can be copied in without resize
@@ -140,7 +140,7 @@ abstract class AbstractRenderer
             $bg_x = (float)($style->length_in_pt($bg_x) * $dpi) / 72;
         }
 
-        $bg_x = round($bg_x + $style->length_in_pt($style->border_left_width) * $dpi / 72);
+        $bg_x = round($bg_x + (float)$style->length_in_pt($style->border_left_width) * $dpi / 72);
 
         if (Helpers::is_percent($bg_y)) {
             // The point $bg_y % from the left edge of the image is placed
@@ -154,7 +154,7 @@ abstract class AbstractRenderer
             $bg_y = (float)($style->length_in_pt($bg_y) * $dpi) / 72;
         }
 
-        $bg_y = round($bg_y + $style->length_in_pt($style->border_top_width) * $dpi / 72);
+        $bg_y = round($bg_y + (float)$style->length_in_pt($style->border_top_width) * $dpi / 72);
 
         //clip background to the image area on partial repeat. Nothing to do if img off area
         //On repeat, normalize start position to the tile at immediate left/top or 0/0 of area
@@ -247,12 +247,9 @@ abstract class AbstractRenderer
         //Optimization to avoid multiple times rendering the same image.
         //If check functions are existing and identical image already cached,
         //then skip creation of duplicate, because it is not needed by addImagePng
-        if ($this->_canvas instanceof CPDF &&
-            $this->_canvas->get_cpdf()->image_iscached($filedummy)
-        ) {
+        if ($this->_canvas instanceof CPDF && $this->_canvas->get_cpdf()->image_iscached($filedummy)) {
             $bg = null;
         } else {
-
             // Create a new image to fit over the background rectangle
             $bg = imagecreatetruecolor($bg_width, $bg_height);
 
@@ -323,12 +320,10 @@ abstract class AbstractRenderer
 
             // Copy regions from the source image to the background
             if ($repeat === "no-repeat") {
-
                 // Simply place the image on the background
                 imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $img_w, $img_h);
 
             } else if ($repeat === "repeat-x") {
-
                 for ($bg_x = $start_x; $bg_x < $bg_width; $bg_x += $img_w) {
                     if ($bg_x < 0) {
                         $dst_x = 0;
@@ -341,7 +336,6 @@ abstract class AbstractRenderer
                     }
                     imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $w, $img_h);
                 }
-
             } else if ($repeat === "repeat-y") {
 
                 for ($bg_y = $start_y; $bg_y < $bg_height; $bg_y += $img_h) {
@@ -355,14 +349,10 @@ abstract class AbstractRenderer
                         $h = $img_h;
                     }
                     imagecopy($bg, $src, $dst_x, $dst_y, $src_x, $src_y, $img_w, $h);
-
                 }
-
             } else if ($repeat === "repeat") {
-
                 for ($bg_y = $start_y; $bg_y < $bg_height; $bg_y += $img_h) {
                     for ($bg_x = $start_x; $bg_x < $bg_width; $bg_x += $img_w) {
-
                         if ($bg_x < 0) {
                             $dst_x = 0;
                             $src_x = -$bg_x;
@@ -410,22 +400,26 @@ abstract class AbstractRenderer
             // Note: CPDF_Adapter image converts y position
             $this->_canvas->get_cpdf()->addImagePng($filedummy, $x, $this->_canvas->get_height() - $y - $height, $width, $height, $bg);
         } else {
-            $tmp_dir = $this->_dompdf->get_option("temp_dir");
+            $tmp_dir = $this->_dompdf->getOptions()->getTempDir();
             $tmp_name = tempnam($tmp_dir, "bg_dompdf_img_");
             @unlink($tmp_name);
             $tmp_file = "$tmp_name.png";
 
             //debugpng
-            if ($this->_dompdf->get_option("debugPng")) print '[_background_image ' . $tmp_file . ']';
+            if ($this->_dompdf->getOptions()->getDebugPng()) {
+                print '[_background_image ' . $tmp_file . ']';
+            }
 
             imagepng($bg, $tmp_file);
             $this->_canvas->image($tmp_file, $x, $y, $width, $height);
             imagedestroy($bg);
 
             //debugpng
-            if ($this->_dompdf->get_option("debugPng")) print '[_background_image unlink ' . $tmp_file . ']';
+            if ($this->_dompdf->getOptions()->getDebugPng()) {
+                print '[_background_image unlink ' . $tmp_file . ']';
+            }
 
-            if (!$this->_dompdf->get_option("debugKeepTemp")) {
+            if (!$this->_dompdf->getOptions()->getDebugKeepTemp()) {
                 unlink($tmp_file);
             }
         }
@@ -433,6 +427,11 @@ abstract class AbstractRenderer
         $this->_canvas->clipping_end();
     }
 
+    /**
+     * @param $style
+     * @param $width
+     * @return array
+     */
     protected function _get_dash_pattern($style, $width)
     {
         $pattern = array();
@@ -449,10 +448,11 @@ abstract class AbstractRenderer
                 break;
 
             case "dotted":
-                if ($width <= 1)
+                if ($width <= 1) {
                     $pattern = array($width, $width * 2);
-                else
+                } else {
                     $pattern = array($width);
+                }
                 break;
 
             case "dashed":
@@ -463,11 +463,33 @@ abstract class AbstractRenderer
         return $pattern;
     }
 
+    /**
+     * @param $x
+     * @param $y
+     * @param $length
+     * @param $color
+     * @param $widths
+     * @param $side
+     * @param string $corner_style
+     * @param int $r1
+     * @param int $r2
+     */
     protected function _border_none($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0)
     {
         return;
     }
 
+    /**
+     * @param $x
+     * @param $y
+     * @param $length
+     * @param $color
+     * @param $widths
+     * @param $side
+     * @param string $corner_style
+     * @param int $r1
+     * @param int $r2
+     */
     protected function _border_hidden($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0)
     {
         return;
@@ -475,18 +497,51 @@ abstract class AbstractRenderer
 
     // Border rendering functions
 
+    /**
+     * @param $x
+     * @param $y
+     * @param $length
+     * @param $color
+     * @param $widths
+     * @param $side
+     * @param string $corner_style
+     * @param int $r1
+     * @param int $r2
+     */
     protected function _border_dotted($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0)
     {
         $this->_border_line($x, $y, $length, $color, $widths, $side, $corner_style, "dotted", $r1, $r2);
     }
 
 
+    /**
+     * @param $x
+     * @param $y
+     * @param $length
+     * @param $color
+     * @param $widths
+     * @param $side
+     * @param string $corner_style
+     * @param int $r1
+     * @param int $r2
+     */
     protected function _border_dashed($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0)
     {
         $this->_border_line($x, $y, $length, $color, $widths, $side, $corner_style, "dashed", $r1, $r2);
     }
 
 
+    /**
+     * @param $x
+     * @param $y
+     * @param $length
+     * @param $color
+     * @param $widths
+     * @param $side
+     * @param string $corner_style
+     * @param int $r1
+     * @param int $r2
+     */
     protected function _border_solid($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0)
     {
         // TODO: Solve rendering where one corner is beveled (radius == 0), one corner isn't.
@@ -537,10 +592,22 @@ abstract class AbstractRenderer
         }
     }
 
+    /**
+     * @param $side
+     * @param $ratio
+     * @param $top
+     * @param $right
+     * @param $bottom
+     * @param $left
+     * @param $x
+     * @param $y
+     * @param $length
+     * @param $r1
+     * @param $r2
+     */
     protected function _apply_ratio($side, $ratio, $top, $right, $bottom, $left, &$x, &$y, &$length, &$r1, &$r2)
     {
         switch ($side) {
-
             case "top":
                 $r1 -= $left * $ratio;
                 $r2 -= $right * $ratio;
@@ -575,10 +642,20 @@ abstract class AbstractRenderer
 
             default:
                 return;
-
         }
     }
 
+    /**
+     * @param $x
+     * @param $y
+     * @param $length
+     * @param $color
+     * @param $widths
+     * @param $side
+     * @param string $corner_style
+     * @param int $r1
+     * @param int $r2
+     */
     protected function _border_double($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0)
     {
         list($top, $right, $bottom, $left) = $widths;
@@ -593,6 +670,17 @@ abstract class AbstractRenderer
         $this->_border_solid($x, $y, $length, $color, $third_widths, $side, $corner_style, $r1, $r2);
     }
 
+    /**
+     * @param $x
+     * @param $y
+     * @param $length
+     * @param $color
+     * @param $widths
+     * @param $side
+     * @param string $corner_style
+     * @param int $r1
+     * @param int $r2
+     */
     protected function _border_groove($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0)
     {
         list($top, $right, $bottom, $left) = $widths;
@@ -607,6 +695,17 @@ abstract class AbstractRenderer
 
     }
 
+    /**
+     * @param $x
+     * @param $y
+     * @param $length
+     * @param $color
+     * @param $widths
+     * @param $side
+     * @param string $corner_style
+     * @param int $r1
+     * @param int $r2
+     */
     protected function _border_ridge($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0)
     {
         list($top, $right, $bottom, $left) = $widths;
@@ -621,22 +720,43 @@ abstract class AbstractRenderer
 
     }
 
+    /**
+     * @param $c
+     * @return mixed
+     */
     protected function _tint($c)
     {
-        if (!is_numeric($c))
+        if (!is_numeric($c)) {
             return $c;
+        }
 
         return min(1, $c + 0.16);
     }
 
+    /**
+     * @param $c
+     * @return mixed
+     */
     protected function _shade($c)
     {
-        if (!is_numeric($c))
+        if (!is_numeric($c)) {
             return $c;
+        }
 
         return max(0, $c - 0.33);
     }
 
+    /**
+     * @param $x
+     * @param $y
+     * @param $length
+     * @param $color
+     * @param $widths
+     * @param $side
+     * @param string $corner_style
+     * @param int $r1
+     * @param int $r2
+     */
     protected function _border_inset($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0)
     {
         switch ($side) {
@@ -657,6 +777,17 @@ abstract class AbstractRenderer
         }
     }
 
+    /**
+     * @param $x
+     * @param $y
+     * @param $length
+     * @param $color
+     * @param $widths
+     * @param $side
+     * @param string $corner_style
+     * @param int $r1
+     * @param int $r2
+     */
     protected function _border_outset($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $r1 = 0, $r2 = 0)
     {
         switch ($side) {
@@ -677,12 +808,28 @@ abstract class AbstractRenderer
         }
     }
 
-    // Draws a solid, dotted, or dashed line, observing the border radius
+    /**
+     * Draws a solid, dotted, or dashed line, observing the border radius
+     *
+     * @param $x
+     * @param $y
+     * @param $length
+     * @param $color
+     * @param $widths
+     * @param $side
+     * @param string $corner_style
+     * @param $pattern_name
+     * @param int $r1
+     * @param int $r2
+     *
+     * @var $top
+     */
     protected function _border_line($x, $y, $length, $color, $widths, $side, $corner_style = "bevel", $pattern_name, $r1 = 0, $r2 = 0)
     {
+        /** used by $$side */
         list($top, $right, $bottom, $left) = $widths;
-
         $width = $$side;
+
         $pattern = $this->_get_dash_pattern($pattern_name, $width);
 
         $half_width = $width / 2;
@@ -754,6 +901,9 @@ abstract class AbstractRenderer
         }
     }
 
+    /**
+     * @param $opacity
+     */
     protected function _set_opacity($opacity)
     {
         if (is_numeric($opacity) && $opacity <= 1.0 && $opacity >= 0.0) {
@@ -761,6 +911,11 @@ abstract class AbstractRenderer
         }
     }
 
+    /**
+     * @param $box
+     * @param string $color
+     * @param array $style
+     */
     protected function _debug_layout($box, $color = "red", $style = array())
     {
         $this->_canvas->rectangle($box[0], $box[1], $box[2], $box[3], Color::parse($color), 0.1, $style);

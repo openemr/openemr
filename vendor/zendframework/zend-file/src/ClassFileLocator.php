@@ -80,13 +80,22 @@ class ClassFileLocator extends FilterIterator
         $contents = file_get_contents($file->getRealPath());
         $tokens   = token_get_all($contents);
         $count    = count($tokens);
+        $inFunctionDeclaration = false;
         for ($i = 0; $i < $count; $i++) {
             $token = $tokens[$i];
+
+            // single character token found; skip
             if (! is_array($token)) {
-                // single character token found; skip
+                // If we were in a function declaration, and we encounter an
+                // opening paren, reset the $inFunctionDeclaration flag.
+                if ('(' === $token) {
+                    $inFunctionDeclaration = false;
+                }
+
                 $i++;
                 continue;
             }
+
             switch ($token[0]) {
                 case T_NAMESPACE:
                     // Namespace found; grab it for later
@@ -116,10 +125,23 @@ class ClassFileLocator extends FilterIterator
                         $savedNamespace = $namespace;
                     }
                     break;
+                case T_FUNCTION:
+                    // `use function` should not enter function context
+                    if ($i < 2 || ! is_array($tokens[$i - 2]) || $tokens[$i - 2][0] !== T_USE) {
+                        $inFunctionDeclaration = true;
+                    }
+                    break;
                 case T_TRAIT:
                 case T_CLASS:
                     // ignore T_CLASS after T_DOUBLE_COLON to allow PHP >=5.5 FQCN scalar resolution
                     if ($i > 0 && is_array($tokens[$i - 1]) && $tokens[$i - 1][0] === T_DOUBLE_COLON) {
+                        break;
+                    }
+
+                    // Ignore if we are within a function declaration;
+                    // functions are allowed to be named after keywords
+                    // such as class, interface, and trait.
+                    if ($inFunctionDeclaration) {
                         break;
                     }
 
@@ -136,6 +158,13 @@ class ClassFileLocator extends FilterIterator
                     // no break
                 case T_INTERFACE:
                     // Abstract class, class, interface or trait found
+
+                    // Ignore if we are within a function declaration;
+                    // functions are allowed to be named after keywords
+                    // such as class, interface, and trait.
+                    if ($inFunctionDeclaration) {
+                        break;
+                    }
 
                     // Get the classname
                     for ($i++; $i < $count; $i++) {

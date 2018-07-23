@@ -24,7 +24,7 @@ class OutputCache extends AbstractPattern
      * Set options
      *
      * @param  PatternOptions $options
-     * @return OutputCache
+     * @return OutputCache Provides a fluent interface
      * @throws Exception\InvalidArgumentException
      */
     public function setOptions(PatternOptions $options)

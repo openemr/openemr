@@ -2,6 +2,52 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.8.0 - 2018-04-26
+
+### Added
+
+- [#135](https://github.com/zendframework/zend-http/pull/135) adds a package suggestion of paragonie/certainty, which provides automated
+  management of cacert.pem files.
+
+- [#143](https://github.com/zendframework/zend-http/pull/143) adds support for PHP 7.2.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#140](https://github.com/zendframework/zend-http/pull/140) fixes retrieval of headers when multiple headers of the same name
+  are added to the `Headers` instance; it now ensures that the last header added of the same
+  type is retrieved when it is not a multi-value type. Previous values are overwritten.
+
+- [#112](https://github.com/zendframework/zend-http/pull/112) provides performance improvements when parsing large chunked messages.
+
+- introduces changes to `Response::fromString()` to pull the next line of the response
+  and parse it for the status when a 100 status code is initially encountered, per https://tools.ietf.org/html/rfc7231\#section-6.2.1
+
+- [#122](https://github.com/zendframework/zend-http/pull/122) fixes an issue with the stream response whereby if the `outputstream`
+  option is set, the output file was opened twice; it is now opened exactly once.
+
+- [#147](https://github.com/zendframework/zend-http/pull/147) fixes an issue with header retrieval when the header line is malformed.
+  Previously, an exception would be raised if a specific `HeaderInterface` implementation determined
+  the header line was invalid. Now, `Header::has()` will return false for such headers, allowing
+  `Request::getHeader()` to return `false` or the provided default value. Additionally, in cases
+  where the header name is malformed (e.g., `Useragent` instead of `User-Agent`, users can still
+  retrieve by the submitted header name; they will receive a `GenericHeader` instance in such
+  cases, however.
+
+- [#133](https://github.com/zendframework/zend-http/pull/133) Adds back missing
+  sprintf placeholder in CacheControl exception message
+
 ## 2.7.0 - 2017-10-13
 
 ### Added
@@ -53,30 +99,6 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- [#120](https://github.com/zendframework/zend-http/pull/120) Fixed cURL
-  adapter not resetting headers from previous request when used with output
-  stream.
-
-## 2.6.0 - 2017-01-31
-
-### Added
-- [#99](https://github.com/zendframework/zend-http/pull/99) added
-  TimeoutException for cURL adapter.
-- [#98](https://github.com/zendframework/zend-http/pull/98) added connection
-  timeout (`connecttimeout`) for cURL and Socket adapters.
-- [#97](https://github.com/zendframework/zend-http/pull/97) added support to
-  `sslcafile` and `sslcapath` to cURL adapter.
-
-### Deprecated
-
-- Nothing.
-
-### Removed
-
-- Nothing.
-
-### Fixed
-
 - Nothing.
 
 ## 2.5.6 - 2017-01-31
@@ -104,7 +126,7 @@ All notable changes to this project will be documented in this file, in reverse 
   Security Policy CSP HTTP header when it is `none` (empty value).
 - [#92](https://github.com/zendframework/zend-http/pull/92) fixes the flatten
   cookies value for array value (also multidimensional).
-- [#34](https://github.com/zendframework/zend-http/issues/33) fixes the
+- [#34](https://github.com/zendframework/zend-http/pull/34) fixes the
   standard separator (&) for application/x-www-form-urlencoded.
 
 ## 2.5.5 - 2016-08-08

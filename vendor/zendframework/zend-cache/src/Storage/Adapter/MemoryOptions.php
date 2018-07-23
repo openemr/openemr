@@ -33,7 +33,7 @@ class MemoryOptions extends AdapterOptions
      *
      * @link http://php.net/manual/faq.using.php#faq.using.shorthandbytes
      * @param  string|int $memoryLimit
-     * @return MemoryOptions
+     * @return MemoryOptions Provides a fluent interface
      */
     public function setMemoryLimit($memoryLimit)
     {

@@ -10,7 +10,7 @@
 /**
  * EN-Revision: 25.Jul.2011
  */
-return array(
+return [
     // Zend_Validate_Alnum
     "Invalid type given. String, integer or float expected" => "خطأ في المدخلة. يجب ادخال أرقام أو حروف فقط",
     "'%value%' contains characters which are non alphabetic and no digits" => "'%value%' تحتوي على رموز ليست حروف أو أرقام",
@@ -250,4 +250,4 @@ return array(
     "Invalid type given. String expected" => "خطأ في المدخلة. يجب ادخال نص",
     "'%value%' is less than %min% characters long" => "طول '%value%' يجب أن يكون %min% حرف على الأقل",
     "'%value%' is more than %max% characters long" => "طول '%value%' يجب أن يكون %max% كحد أقصى",
-);
+];

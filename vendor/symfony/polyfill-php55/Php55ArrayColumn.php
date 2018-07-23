@@ -45,7 +45,7 @@ final class Php55ArrayColumn
             if ($columnKey === null) {
                 $valueSet = true;
                 $value = $row;
-            } elseif (is_array($row) && array_key_exists($columnKey, $row)) {
+            } elseif (\is_array($row) && \array_key_exists($columnKey, $row)) {
                 $valueSet = true;
                 $value = $row[$columnKey];
             }

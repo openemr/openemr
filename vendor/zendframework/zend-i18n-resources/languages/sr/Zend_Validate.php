@@ -10,7 +10,7 @@
 /**
  * EN-Revision: 21135
  */
-return array(
+return [
     // Zend_Validate_Alnum
     "Invalid type given, value should be float, string, or integer" => "Nevalidan tip, vrednost treba da bude tekst ili broj",
     "'%value%' contains characters which are non alphabetic and no digits" => "'%value%' sadrži karaktere koji nisu slova niti cifre",
@@ -250,4 +250,4 @@ return array(
     "Invalid type given, value should be a string" => "Nevalidan tip, vrednost treba da bude tekst",
     "'%value%' is less than %min% characters long" => "'%value%' ima manje od %min% karaktera",
     "'%value%' is more than %max% characters long" => "'%value%' ima više od %max% karaktera",
-);
+];

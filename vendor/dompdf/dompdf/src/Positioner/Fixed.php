@@ -17,15 +17,11 @@ use Dompdf\FrameDecorator\AbstractFrameDecorator;
 class Fixed extends AbstractPositioner
 {
 
-    function __construct(AbstractFrameDecorator $frame)
+    /**
+     * @param AbstractFrameDecorator $frame
+     */
+    function position(AbstractFrameDecorator $frame)
     {
-        parent::__construct($frame);
-    }
-
-    function position()
-    {
-
-        $frame = $this->_frame;
         $style = $frame->get_original_style();
         $root = $frame->get_root();
         $initialcb = $root->get_containing_block();
@@ -37,14 +33,14 @@ class Fixed extends AbstractPositioner
         }
 
         // Compute the margins of the @page style
-        $margin_top = $initialcb_style->length_in_pt($initialcb_style->margin_top, $initialcb["h"]);
-        $margin_right = $initialcb_style->length_in_pt($initialcb_style->margin_right, $initialcb["w"]);
-        $margin_bottom = $initialcb_style->length_in_pt($initialcb_style->margin_bottom, $initialcb["h"]);
-        $margin_left = $initialcb_style->length_in_pt($initialcb_style->margin_left, $initialcb["w"]);
+        $margin_top = (float)$initialcb_style->length_in_pt($initialcb_style->margin_top, $initialcb["h"]);
+        $margin_right = (float)$initialcb_style->length_in_pt($initialcb_style->margin_right, $initialcb["w"]);
+        $margin_bottom = (float)$initialcb_style->length_in_pt($initialcb_style->margin_bottom, $initialcb["h"]);
+        $margin_left = (float)$initialcb_style->length_in_pt($initialcb_style->margin_left, $initialcb["w"]);
 
         // The needed computed style of the element
-        $height = $style->length_in_pt($style->height, $initialcb["h"]);
-        $width = $style->length_in_pt($style->width, $initialcb["w"]);
+        $height = (float)$style->length_in_pt($style->height, $initialcb["h"]);
+        $width = (float)$style->length_in_pt($style->width, $initialcb["w"]);
 
         $top = $style->length_in_pt($style->top, $initialcb["h"]);
         $right = $style->length_in_pt($style->right, $initialcb["w"]);
@@ -53,16 +49,15 @@ class Fixed extends AbstractPositioner
 
         $y = $margin_top;
         if (isset($top)) {
-            $y = $top + $margin_top;
+            $y = (float)$top + $margin_top;
             if ($top === "auto") {
                 $y = $margin_top;
                 if (isset($bottom) && $bottom !== "auto") {
                     $y = $initialcb["h"] - $bottom - $margin_bottom;
-                    $margin_height = $this->_frame->get_margin_height();
-                    if ($margin_height !== "auto") {
-                        $y -= $margin_height;
-                    } else {
+                    if ($frame->is_auto_height()) {
                         $y -= $height;
+                    } else {
+                        $y -= $frame->get_margin_height();
                     }
                 }
             }
@@ -70,16 +65,15 @@ class Fixed extends AbstractPositioner
 
         $x = $margin_left;
         if (isset($left)) {
-            $x = $left + $margin_left;
+            $x = (float)$left + $margin_left;
             if ($left === "auto") {
                 $x = $margin_left;
                 if (isset($right) && $right !== "auto") {
                     $x = $initialcb["w"] - $right - $margin_right;
-                    $margin_width = $this->_frame->get_margin_width();
-                    if ($margin_width !== "auto") {
-                        $x -= $margin_width;
-                    } else {
+                    if ($frame->is_auto_width()) {
                         $x -= $width;
+                    } else {
+                        $x -= $frame->get_margin_width();
                     }
                 }
             }

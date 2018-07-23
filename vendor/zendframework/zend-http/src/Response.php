@@ -7,6 +7,7 @@
 
 namespace Zend\Http;
 
+use Zend\Http\Exception\RuntimeException;
 use Zend\Stdlib\ErrorHandler;
 use Zend\Stdlib\ResponseInterface;
 
@@ -189,20 +190,18 @@ class Response extends AbstractMessage implements ResponseInterface
         $firstLine = array_shift($lines);
 
         $response = new static();
+        $response->parseStatusLine($firstLine);
 
-        $regex   = '/^HTTP\/(?P<version>1\.[01]) (?P<status>\d{3})(?:[ ]+(?P<reason>.*))?$/';
-        $matches = [];
-        if (! preg_match($regex, $firstLine, $matches)) {
-            throw new Exception\InvalidArgumentException(
-                'A valid response status line was not found in the provided string'
-            );
+        /**
+         * @link https://tools.ietf.org/html/rfc7231#section-6.2.1
+         */
+        if ($response->statusCode === static::STATUS_CODE_100) {
+            $next = array_shift($lines); // take next line
+            $next = empty($next) ? array_shift($lines) : $next; // take next or skip if empty
+            $response->parseStatusLine($next);
         }
 
-        $response->version = $matches['version'];
-        $response->setStatusCode($matches['status']);
-        $response->setReasonPhrase((isset($matches['reason']) ? $matches['reason'] : ''));
-
-        if (empty($lines)) {
+        if (count($lines) === 0) {
             return $response;
         }
 
@@ -241,6 +240,26 @@ class Response extends AbstractMessage implements ResponseInterface
         }
 
         return $response;
+    }
+
+    /**
+     * @param string $line
+     * @throws Exception\InvalidArgumentException
+     * @throws Exception\RuntimeException
+     */
+    protected function parseStatusLine($line)
+    {
+        $regex   = '/^HTTP\/(?P<version>1\.[01]) (?P<status>\d{3})(?:[ ]+(?P<reason>.*))?$/';
+        $matches = [];
+        if (! preg_match($regex, $line, $matches)) {
+            throw new Exception\InvalidArgumentException(
+                'A valid response status line was not found in the provided string'
+            );
+        }
+
+        $this->version = $matches['version'];
+        $this->setStatusCode($matches['status']);
+        $this->setReasonPhrase((isset($matches['reason']) ? $matches['reason'] : ''));
     }
 
     /**
@@ -505,17 +524,24 @@ class Response extends AbstractMessage implements ResponseInterface
     {
         $decBody = '';
 
-        while (trim($body)) {
-            if (! preg_match("/^([\da-fA-F]+)[^\r\n]*\r\n/sm", $body, $m)) {
-                throw new Exception\RuntimeException(
-                    "Error parsing body - doesn't seem to be a chunked message"
-                );
+        $offset = 0;
+
+        while (true) {
+            if (! preg_match("/^([\da-fA-F]+)[^\r\n]*\r\n/sm", $body, $m, 0, $offset)) {
+                if (trim(substr($body, $offset))) {
+                    // Message was not consumed completely!
+                    throw new Exception\RuntimeException(
+                        'Error parsing body - doesn\'t seem to be a chunked message'
+                    );
+                }
+                // Message was consumed completely
+                break;
             }
 
             $length   = hexdec(trim($m[1]));
             $cut      = strlen($m[0]);
-            $decBody .= substr($body, $cut, $length);
-            $body     = substr($body, $cut + $length + 2);
+            $decBody .= substr($body, $offset + $cut, $length);
+            $offset += $cut + $length + 2;
         }
 
         return $decBody;

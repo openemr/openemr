@@ -148,8 +148,6 @@ class PdoSessionHandler implements \SessionHandlerInterface
     private $gcCalled = false;
 
     /**
-     * Constructor.
-     *
      * You can either pass an existing database connection as PDO instance or
      * pass a DSN string that will be used to lazy-connect to the database
      * when the session is actually used. Furthermore it's possible to pass null
@@ -332,13 +330,7 @@ class PdoSessionHandler implements \SessionHandlerInterface
                 return true;
             }
 
-            $updateStmt = $this->pdo->prepare(
-                "UPDATE $this->table SET $this->dataCol = :data, $this->lifetimeCol = :lifetime, $this->timeCol = :time WHERE $this->idCol = :id"
-            );
-            $updateStmt->bindParam(':id', $sessionId, \PDO::PARAM_STR);
-            $updateStmt->bindParam(':data', $data, \PDO::PARAM_LOB);
-            $updateStmt->bindParam(':lifetime', $maxlifetime, \PDO::PARAM_INT);
-            $updateStmt->bindValue(':time', time(), \PDO::PARAM_INT);
+            $updateStmt = $this->getUpdateStatement($sessionId, $data, $maxlifetime);
             $updateStmt->execute();
 
             // When MERGE is not supported, like in Postgres < 9.5, we have to use this approach that can result in
@@ -348,13 +340,7 @@ class PdoSessionHandler implements \SessionHandlerInterface
             // false positives due to longer gap locking.
             if (!$updateStmt->rowCount()) {
                 try {
-                    $insertStmt = $this->pdo->prepare(
-                        "INSERT INTO $this->table ($this->idCol, $this->dataCol, $this->lifetimeCol, $this->timeCol) VALUES (:id, :data, :lifetime, :time)"
-                    );
-                    $insertStmt->bindParam(':id', $sessionId, \PDO::PARAM_STR);
-                    $insertStmt->bindParam(':data', $data, \PDO::PARAM_LOB);
-                    $insertStmt->bindParam(':lifetime', $maxlifetime, \PDO::PARAM_INT);
-                    $insertStmt->bindValue(':time', time(), \PDO::PARAM_INT);
+                    $insertStmt = $this->getInsertStatement($sessionId, $data, $maxlifetime);
                     $insertStmt->execute();
                 } catch (\PDOException $e) {
                     // Handle integrity violation SQLSTATE 23000 (or a subclass like 23505 in Postgres) for duplicate keys
@@ -389,7 +375,11 @@ class PdoSessionHandler implements \SessionHandlerInterface
             $this->gcCalled = false;
 
             // delete the session records that have expired
-            $sql = "DELETE FROM $this->table WHERE $this->lifetimeCol + $this->timeCol < :time";
+            if ('mysql' === $this->driver) {
+                $sql = "DELETE FROM $this->table WHERE $this->lifetimeCol + $this->timeCol < :time";
+            } else {
+                $sql = "DELETE FROM $this->table WHERE $this->lifetimeCol < :time - $this->timeCol";
+            }
 
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindValue(':time', time(), \PDO::PARAM_INT);
@@ -504,6 +494,7 @@ class PdoSessionHandler implements \SessionHandlerInterface
         $selectSql = $this->getSelectSql();
         $selectStmt = $this->pdo->prepare($selectSql);
         $selectStmt->bindParam(':id', $sessionId, \PDO::PARAM_STR);
+        $insertStmt = null;
 
         do {
             $selectStmt->execute();
@@ -519,17 +510,16 @@ class PdoSessionHandler implements \SessionHandlerInterface
                 return is_resource($sessionRows[0][0]) ? stream_get_contents($sessionRows[0][0]) : $sessionRows[0][0];
             }
 
+            if (null !== $insertStmt) {
+                $this->rollback();
+                throw new \RuntimeException('Failed to read session: INSERT reported a duplicate id but next SELECT did not return any data.');
+            }
+
             if (self::LOCK_TRANSACTIONAL === $this->lockMode && 'sqlite' !== $this->driver) {
                 // Exclusive-reading of non-existent rows does not block, so we need to do an insert to block
                 // until other connections to the session are committed.
                 try {
-                    $insertStmt = $this->pdo->prepare(
-                        "INSERT INTO $this->table ($this->idCol, $this->dataCol, $this->lifetimeCol, $this->timeCol) VALUES (:id, :data, :lifetime, :time)"
-                    );
-                    $insertStmt->bindParam(':id', $sessionId, \PDO::PARAM_STR);
-                    $insertStmt->bindValue(':data', '', \PDO::PARAM_LOB);
-                    $insertStmt->bindValue(':lifetime', 0, \PDO::PARAM_INT);
-                    $insertStmt->bindValue(':time', time(), \PDO::PARAM_INT);
+                    $insertStmt = $this->getInsertStatement($sessionId, '', 0);
                     $insertStmt->execute();
                 } catch (\PDOException $e) {
                     // Catch duplicate key error because other connection created the session already.
@@ -568,23 +558,25 @@ class PdoSessionHandler implements \SessionHandlerInterface
     {
         switch ($this->driver) {
             case 'mysql':
+                // MySQL 5.7.5 and later enforces a maximum length on lock names of 64 characters. Previously, no limit was enforced.
+                $lockId = \substr($sessionId, 0, 64);
                 // should we handle the return value? 0 on timeout, null on error
                 // we use a timeout of 50 seconds which is also the default for innodb_lock_wait_timeout
                 $stmt = $this->pdo->prepare('SELECT GET_LOCK(:key, 50)');
-                $stmt->bindValue(':key', $sessionId, \PDO::PARAM_STR);
+                $stmt->bindValue(':key', $lockId, \PDO::PARAM_STR);
                 $stmt->execute();
 
                 $releaseStmt = $this->pdo->prepare('DO RELEASE_LOCK(:key)');
-                $releaseStmt->bindValue(':key', $sessionId, \PDO::PARAM_STR);
+                $releaseStmt->bindValue(':key', $lockId, \PDO::PARAM_STR);
 
                 return $releaseStmt;
             case 'pgsql':
                 // Obtaining an exclusive session level advisory lock requires an integer key.
-                // So we convert the HEX representation of the session id to an integer.
-                // Since integers are signed, we have to skip one hex char to fit in the range.
-                if (4 === PHP_INT_SIZE) {
-                    $sessionInt1 = hexdec(substr($sessionId, 0, 7));
-                    $sessionInt2 = hexdec(substr($sessionId, 7, 7));
+                // When session.sid_bits_per_character > 4, the session id can contain non-hex-characters.
+                // So we cannot just use hexdec().
+                if (4 === \PHP_INT_SIZE) {
+                    $sessionInt1 = $this->convertStringToInt($sessionId);
+                    $sessionInt2 = $this->convertStringToInt(substr($sessionId, 4, 4));
 
                     $stmt = $this->pdo->prepare('SELECT pg_advisory_lock(:key1, :key2)');
                     $stmt->bindValue(':key1', $sessionInt1, \PDO::PARAM_INT);
@@ -595,7 +587,7 @@ class PdoSessionHandler implements \SessionHandlerInterface
                     $releaseStmt->bindValue(':key1', $sessionInt1, \PDO::PARAM_INT);
                     $releaseStmt->bindValue(':key2', $sessionInt2, \PDO::PARAM_INT);
                 } else {
-                    $sessionBigInt = hexdec(substr($sessionId, 0, 15));
+                    $sessionBigInt = $this->convertStringToInt($sessionId);
 
                     $stmt = $this->pdo->prepare('SELECT pg_advisory_lock(:key)');
                     $stmt->bindValue(':key', $sessionBigInt, \PDO::PARAM_INT);
@@ -611,6 +603,27 @@ class PdoSessionHandler implements \SessionHandlerInterface
             default:
                 throw new \DomainException(sprintf('Advisory locks are currently not implemented for PDO driver "%s".', $this->driver));
         }
+    }
+
+    /**
+     * Encodes the first 4 (when PHP_INT_SIZE == 4) or 8 characters of the string as an integer.
+     *
+     * Keep in mind, PHP integers are signed.
+     *
+     * @param string $string
+     *
+     * @return int
+     */
+    private function convertStringToInt($string)
+    {
+        if (4 === \PHP_INT_SIZE) {
+            return (ord($string[3]) << 24) + (ord($string[2]) << 16) + (ord($string[1]) << 8) + ord($string[0]);
+        }
+
+        $int1 = (ord($string[7]) << 24) + (ord($string[6]) << 16) + (ord($string[5]) << 8) + ord($string[4]);
+        $int2 = (ord($string[3]) << 24) + (ord($string[2]) << 16) + (ord($string[1]) << 8) + ord($string[0]);
+
+        return $int2 + ($int1 << 32);
     }
 
     /**
@@ -644,6 +657,72 @@ class PdoSessionHandler implements \SessionHandlerInterface
     }
 
     /**
+     * Returns an insert statement supported by the database for writing session data.
+     *
+     * @param string $sessionId   Session ID
+     * @param string $sessionData Encoded session data
+     * @param int    $maxlifetime session.gc_maxlifetime
+     *
+     * @return \PDOStatement The insert statement
+     */
+    private function getInsertStatement($sessionId, $sessionData, $maxlifetime)
+    {
+        switch ($this->driver) {
+            case 'oci':
+                $data = fopen('php://memory', 'r+');
+                fwrite($data, $sessionData);
+                rewind($data);
+                $sql = "INSERT INTO $this->table ($this->idCol, $this->dataCol, $this->lifetimeCol, $this->timeCol) VALUES (:id, EMPTY_BLOB(), :lifetime, :time) RETURNING $this->dataCol into :data";
+                break;
+            default:
+                $data = $sessionData;
+                $sql = "INSERT INTO $this->table ($this->idCol, $this->dataCol, $this->lifetimeCol, $this->timeCol) VALUES (:id, :data, :lifetime, :time)";
+                break;
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':id', $sessionId, \PDO::PARAM_STR);
+        $stmt->bindParam(':data', $data, \PDO::PARAM_LOB);
+        $stmt->bindParam(':lifetime', $maxlifetime, \PDO::PARAM_INT);
+        $stmt->bindValue(':time', time(), \PDO::PARAM_INT);
+
+        return $stmt;
+    }
+
+    /**
+     * Returns an update statement supported by the database for writing session data.
+     *
+     * @param string $sessionId   Session ID
+     * @param string $sessionData Encoded session data
+     * @param int    $maxlifetime session.gc_maxlifetime
+     *
+     * @return \PDOStatement The update statement
+     */
+    private function getUpdateStatement($sessionId, $sessionData, $maxlifetime)
+    {
+        switch ($this->driver) {
+            case 'oci':
+                $data = fopen('php://memory', 'r+');
+                fwrite($data, $sessionData);
+                rewind($data);
+                $sql = "UPDATE $this->table SET $this->dataCol = EMPTY_BLOB(), $this->lifetimeCol = :lifetime, $this->timeCol = :time WHERE $this->idCol = :id RETURNING $this->dataCol into :data";
+                break;
+            default:
+                $data = $sessionData;
+                $sql = "UPDATE $this->table SET $this->dataCol = :data, $this->lifetimeCol = :lifetime, $this->timeCol = :time WHERE $this->idCol = :id";
+                break;
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':id', $sessionId, \PDO::PARAM_STR);
+        $stmt->bindParam(':data', $data, \PDO::PARAM_LOB);
+        $stmt->bindParam(':lifetime', $maxlifetime, \PDO::PARAM_INT);
+        $stmt->bindValue(':time', time(), \PDO::PARAM_INT);
+
+        return $stmt;
+    }
+
+    /**
      * Returns a merge/upsert (i.e. insert or update) statement when supported by the database for writing session data.
      *
      * @param string $sessionId   Session ID
@@ -654,17 +733,10 @@ class PdoSessionHandler implements \SessionHandlerInterface
      */
     private function getMergeStatement($sessionId, $data, $maxlifetime)
     {
-        $mergeSql = null;
         switch (true) {
             case 'mysql' === $this->driver:
                 $mergeSql = "INSERT INTO $this->table ($this->idCol, $this->dataCol, $this->lifetimeCol, $this->timeCol) VALUES (:id, :data, :lifetime, :time) ".
                     "ON DUPLICATE KEY UPDATE $this->dataCol = VALUES($this->dataCol), $this->lifetimeCol = VALUES($this->lifetimeCol), $this->timeCol = VALUES($this->timeCol)";
-                break;
-            case 'oci' === $this->driver:
-                // DUAL is Oracle specific dummy table
-                $mergeSql = "MERGE INTO $this->table USING DUAL ON ($this->idCol = ?) ".
-                    "WHEN NOT MATCHED THEN INSERT ($this->idCol, $this->dataCol, $this->lifetimeCol, $this->timeCol) VALUES (?, ?, ?, ?) ".
-                    "WHEN MATCHED THEN UPDATE SET $this->dataCol = ?, $this->lifetimeCol = ?, $this->timeCol = ?";
                 break;
             case 'sqlsrv' === $this->driver && version_compare($this->pdo->getAttribute(\PDO::ATTR_SERVER_VERSION), '10', '>='):
                 // MERGE is only available since SQL Server 2008 and must be terminated by semicolon
@@ -680,29 +752,30 @@ class PdoSessionHandler implements \SessionHandlerInterface
                 $mergeSql = "INSERT INTO $this->table ($this->idCol, $this->dataCol, $this->lifetimeCol, $this->timeCol) VALUES (:id, :data, :lifetime, :time) ".
                     "ON CONFLICT ($this->idCol) DO UPDATE SET ($this->dataCol, $this->lifetimeCol, $this->timeCol) = (EXCLUDED.$this->dataCol, EXCLUDED.$this->lifetimeCol, EXCLUDED.$this->timeCol)";
                 break;
+            default:
+                // MERGE is not supported with LOBs: http://www.oracle.com/technetwork/articles/fuecks-lobs-095315.html
+                return null;
         }
 
-        if (null !== $mergeSql) {
-            $mergeStmt = $this->pdo->prepare($mergeSql);
+        $mergeStmt = $this->pdo->prepare($mergeSql);
 
-            if ('sqlsrv' === $this->driver || 'oci' === $this->driver) {
-                $mergeStmt->bindParam(1, $sessionId, \PDO::PARAM_STR);
-                $mergeStmt->bindParam(2, $sessionId, \PDO::PARAM_STR);
-                $mergeStmt->bindParam(3, $data, \PDO::PARAM_LOB);
-                $mergeStmt->bindParam(4, $maxlifetime, \PDO::PARAM_INT);
-                $mergeStmt->bindValue(5, time(), \PDO::PARAM_INT);
-                $mergeStmt->bindParam(6, $data, \PDO::PARAM_LOB);
-                $mergeStmt->bindParam(7, $maxlifetime, \PDO::PARAM_INT);
-                $mergeStmt->bindValue(8, time(), \PDO::PARAM_INT);
-            } else {
-                $mergeStmt->bindParam(':id', $sessionId, \PDO::PARAM_STR);
-                $mergeStmt->bindParam(':data', $data, \PDO::PARAM_LOB);
-                $mergeStmt->bindParam(':lifetime', $maxlifetime, \PDO::PARAM_INT);
-                $mergeStmt->bindValue(':time', time(), \PDO::PARAM_INT);
-            }
-
-            return $mergeStmt;
+        if ('sqlsrv' === $this->driver) {
+            $mergeStmt->bindParam(1, $sessionId, \PDO::PARAM_STR);
+            $mergeStmt->bindParam(2, $sessionId, \PDO::PARAM_STR);
+            $mergeStmt->bindParam(3, $data, \PDO::PARAM_LOB);
+            $mergeStmt->bindParam(4, $maxlifetime, \PDO::PARAM_INT);
+            $mergeStmt->bindValue(5, time(), \PDO::PARAM_INT);
+            $mergeStmt->bindParam(6, $data, \PDO::PARAM_LOB);
+            $mergeStmt->bindParam(7, $maxlifetime, \PDO::PARAM_INT);
+            $mergeStmt->bindValue(8, time(), \PDO::PARAM_INT);
+        } else {
+            $mergeStmt->bindParam(':id', $sessionId, \PDO::PARAM_STR);
+            $mergeStmt->bindParam(':data', $data, \PDO::PARAM_LOB);
+            $mergeStmt->bindParam(':lifetime', $maxlifetime, \PDO::PARAM_INT);
+            $mergeStmt->bindValue(':time', time(), \PDO::PARAM_INT);
         }
+
+        return $mergeStmt;
     }
 
     /**

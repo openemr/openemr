@@ -28,6 +28,8 @@ require_once(dirname(__FILE__) . "/pnotes.inc");
 require_once(dirname(__FILE__) . "/documents.php");
 require_once(dirname(__FILE__) . "/gprelations.inc.php");
 
+use PHPMailer\PHPMailer\PHPMailer;
+
 /**
  * Connect to a phiMail Direct Messaging server
  */

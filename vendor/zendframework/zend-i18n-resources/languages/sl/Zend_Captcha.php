@@ -10,7 +10,7 @@
 /**
  * EN-Revision: 30.Jul.2011
  */
-return array(
+return [
     // Zend\Captcha\ReCaptcha
     "Missing captcha fields" => "Manjka varnostna koda",
     "Failed to validate captcha" => "Varnostne kode ni bilo mogoče preveriti",
@@ -20,4 +20,4 @@ return array(
     "Empty captcha value" => "Prazna varnostna koda",
     "Captcha ID field is missing" => "Polje ID varnostne kode manjka",
     "Captcha value is wrong" => "Varnostna koda je napačna",
-);
+];

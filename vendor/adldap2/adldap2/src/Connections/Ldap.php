@@ -4,6 +4,13 @@ namespace Adldap\Connections;
 
 use Adldap\AdldapException;
 
+/**
+ * Class Ldap
+ *
+ * A class that abstracts PHP's LDAP functions and stores the bound connection.
+ *
+ * @package Adldap\Connections
+ */
 class Ldap implements ConnectionInterface
 {
     use LdapFunctionSupportTrait;
@@ -225,25 +232,25 @@ class Ldap implements ConnectionInterface
     /**
      * {@inheritdoc}
      */
-    public function search($dn, $filter, array $fields)
+    public function search($dn, $filter, array $fields, $onlyAttributes = false, $size = 0, $time = 0)
     {
-        return ldap_search($this->getConnection(), $dn, $filter, $fields);
+        return ldap_search($this->getConnection(), $dn, $filter, $fields, $onlyAttributes, $size, $time);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function listing($dn, $filter, array $attributes)
+    public function listing($dn, $filter, array $fields, $onlyAttributes = false, $size = 0, $time = 0)
     {
-        return ldap_list($this->getConnection(), $dn, $filter, $attributes);
+        return ldap_list($this->getConnection(), $dn, $filter, $fields, $onlyAttributes, $size, $time);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function read($dn, $filter, array $fields)
+    public function read($dn, $filter, array $fields, $onlyAttributes = false, $size = 0, $time = 0)
     {
-        return ldap_read($this->getConnection(), $dn, $filter, $fields);
+        return ldap_read($this->getConnection(), $dn, $filter, $fields, $onlyAttributes, $size, $time);
     }
 
     /**
@@ -349,9 +356,9 @@ class Ldap implements ConnectionInterface
             return ldap_control_paged_result_response($this->getConnection(), $result, $cookie);
         }
 
-        $message = 'LDAP Pagination is not supported on your current PHP installation.';
-
-        throw new AdldapException($message);
+        throw new AdldapException(
+            'LDAP Pagination is not supported on your current PHP installation.'
+        );
     }
 
     /**

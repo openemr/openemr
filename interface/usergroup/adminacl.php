@@ -39,13 +39,13 @@ if (!isset($phpgacl_location)) {
 
     <script type="text/JavaScript">
         $(document).ready(function(){
+            //using jquery-ui-1-12-1 tooltip instead of bootstrap tooltip
             var groupTitle = "<?php echo xla('This section allows you to create and remove groups and modify or grant access privileges to existing groups. Check the check box to display section'); ?>";
-            $('#advanced-tooltip').tooltip({title: "<?php echo xla('Click to manually configure access control, recommended for advanced users'); ?>"});
-            $('#user-tooltip').tooltip({title: "<?php echo xla('Click the pencil icon to grant and remove access privileges to the selected user'); ?>"});
-            $('#group-tooltip').tooltip({title: groupTitle});
-            $('#new-group-tooltip').tooltip({title: "<?php echo xla('Enter values in this section to create a new group also known as Access Request Object (ARO)'); ?>"});
-            $('#remove-group-tooltip').tooltip({title: "<?php echo xla('Use this section to delete existing groups or Access Request Objects (AROs)'); ?>"});
-
+            $('#advanced-tooltip').attr( "title", "<?php echo xla('Click to manually configure access control, recommended for advanced users'); ?>" ).tooltip();
+            $('#user-tooltip').attr("title", "<?php echo xla('Click the pencil icon to grant and remove access privileges to the selected user'); ?>" ).tooltip();
+            $('#group-tooltip').attr("title", groupTitle).tooltip();
+            $('#new-group-tooltip').attr("title", "<?php echo xla('Enter values in this section to create a new group also known as Access Request Object (ARO)'); ?>").tooltip();
+            $('#remove-group-tooltip').attr("title", "<?php echo xla('Use this section to delete existing groups or Access Request Objects (AROs)'); ?>").tooltip();
             //Show membership section by default
             $("#membership_show").click();
             membership_show();
@@ -491,48 +491,22 @@ if (!isset($phpgacl_location)) {
             }
         });
     </script>
-
-    <style type="text/css">
-        body {
-            padding: 5pt 15pt 5pt 5pt;
-            margin: 0pt;
-        }
-        .loading {
-            font-family: sans-serif;
-            text-decoration: blink;
-            font-size: 10pt;
-            color: red;
-            font-weight: bold;
-        }
-        .alert {
-            font-family: sans-serif;
-            font-size: 10pt;
-            color: red;
-            font-weight: bold;
-        }
-        .section {
-            border: solid;
-            border-width: 1px;
-            border-color: #0000ff;
-            margin: 10pt 0 10pt 0pt;
-            padding: 5pt;
-        }
-        select[multiple], select[size] {
-            height: auto !Important;
-            width: 400px;
-        }
-        .section a, .section a:visited, .section a:hover {
-            text-decoration:none;
-            color:#000000 ! Important;
-        }
-    </style>
+    <?php
+    if ($GLOBALS['enable_help'] == 1) {
+        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+    } elseif ($GLOBALS['enable_help'] == 2) {
+        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+    } elseif ($GLOBALS['enable_help'] == 0) {
+         $help_icon = '';
+    }
+    ?>
 </head>
 <body class="body_top">
     <div class="container">
         <div class="row">
             <div class="col-xs-12">
                 <div class="page-header clearfix">
-                    <h2 class="clearfix"><span id='header_text'><?php echo xlt("Access Control List Administration"); ?></span> &nbsp;&nbsp; <?php echo ($phpgacl_location) ? "<a href='../../gacl/admin/acl_admin.php' onclick='top.restoreSession()'><i id='advanced-tooltip' class='fa fa-external-link fa-2x small' aria-hidden='true'></i> </a>" : ""; ?><a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#000000"><i class="fa fa-question-circle" aria-hidden="true"></i></a></h2>
+                    <h2 class="clearfix"><span id='header_text'><?php echo xlt("Access Control List Administration"); ?></span> &nbsp;&nbsp; <?php echo ($phpgacl_location) ? "<a href='../../gacl/admin/acl_admin.php' onclick='top.restoreSession()'><i id='advanced-tooltip' class='fa fa-external-link fa-2x small' aria-hidden='true'></i> </a>" : ""; ?><?php echo $help_icon; ?></h2>
                 </div>
             </div>
         </div>
@@ -552,8 +526,8 @@ if (!isset($phpgacl_location)) {
                     <a class='link_submit btn btn-default btn-cancel' href='no_javascript' id='none_acl_list' style='display: none;' title='<?php echo xla('Remove Group'); ?>'><?php echo xlt('Remove Group'); ?></a>
                     <span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('LOADING'); ?>...</span>
                     <div id='acl_error'></div>
-                    <div id='div_acl_add_form'  style='display: none;'>
-                        <form action="no_javascript" class="section clearfix" id="acl_add_form" method="post" name="acl_add_form">
+                    <div id='div_acl_add_form' class='section' style='display: none;'>
+                        <form action="no_javascript" class="clearfix" id="acl_add_form" method="post" name="acl_add_form">
                             <span class='bold'><?php echo xlt('New Group Information'); ?></span>  <i id='new-group-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i>
                             <span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('LOADING'); ?>...</span>
                             <div class='col-xs-12'>
@@ -604,8 +578,8 @@ if (!isset($phpgacl_location)) {
                             </div>
                         </form>
                     </div>
-                    <div id='div_acl_remove_form' style='display: none;'>
-                        <form action="no_javascript" class="section clearfix" id="acl_remove_form" method="post" name="acl_remove_form">
+                    <div id='div_acl_remove_form' class='section' style='display: none;'>
+                        <form action="no_javascript" class="clearfix" id="acl_remove_form" method="post" name="acl_remove_form">
                             <div style='margin-bottom:5px'>
                                 <span class='bold'><?php echo xlt('Remove Group Form'); ?></span>   <i id='remove-group-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i>
                                 <span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('LOADING'); ?>...</span>
@@ -651,27 +625,15 @@ if (!isset($phpgacl_location)) {
             </div>
         </div>
     </div><!--end of container div-->
-     <div class="row">
-        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content oe-modal-content">
-                    <div class="modal-header clearfix"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="color:#000000; font-size:1.5em;">×</span></button></div>
-                    <div class="modal-body">
-                        <iframe src="" id="targetiframe" style="height:75%; width:100%; overflow-x: hidden; border:none" allowtransparency="true"></iframe>
-                    </div>
-                    <div class="modal-footer" style="margin-top:0px;">
-                       <button class="btn btn-link btn-cancel pull-right" data-dismiss="modal" type="button"><?php echo xlt('close'); ?></button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
-        $( document ).ready(function() {
-            $('#help-href').click (function(){
-                document.getElementById('targetiframe').src ='adminacl_help.php';
-            })
-        });
-    </script>
+    <br>
+    <?php
+    //home of the help modal ;)
+    //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
+    if ($GLOBALS['enable_help'] == 1) {
+        echo "<script>var helpFile = 'adminacl_help.php'</script>";
+        //help_modal.php lives in interface, set path accordingly
+        require "../help_modal.php";
+    }
+    ?> 
 </body>
 </html>

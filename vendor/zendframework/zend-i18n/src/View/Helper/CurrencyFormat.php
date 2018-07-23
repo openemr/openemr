@@ -151,7 +151,16 @@ class CurrencyFormat extends AbstractHelper
 
         $formattedNumber = $this->formatters[$formatterId]->formatCurrency($number, $currencyCode);
 
-        return $this->correctionNeeded ? $this->correctICUBug($formattedNumber, $this->formatters[$formatterId]) : $formattedNumber;
+        if ($this->correctionNeeded) {
+            $formattedNumber = $this->fixICUBugForNoDecimals(
+                $formattedNumber,
+                $this->formatters[$formatterId],
+                $locale,
+                $currencyCode
+            );
+        }
+
+        return $formattedNumber;
     }
 
     /**
@@ -249,14 +258,36 @@ class CurrencyFormat extends AbstractHelper
 
 
     /**
-     * @param string $formattedNumber
+     * @param string          $formattedNumber
      * @param NumberFormatter $formatter
+     * @param string          $locale
+     * @param string          $currencyCode
+     *
      * @return string
      */
-    private function correctICUBug($formattedNumber, NumberFormatter $formatter)
+    private function fixICUBugForNoDecimals($formattedNumber, NumberFormatter $formatter, $locale, $currencyCode)
     {
-        $pattern = sprintf('/\%s\d+$/', $formatter->getSymbol(NumberFormatter::DECIMAL_SEPARATOR_SYMBOL));
+        $pattern = sprintf(
+            '/\%s\d+(\s?%s)?$/u',
+            $formatter->getSymbol(NumberFormatter::DECIMAL_SEPARATOR_SYMBOL),
+            preg_quote($this->getCurrencySymbol($locale, $currencyCode))
+        );
 
-        return preg_replace($pattern, '', $formattedNumber);
+        return preg_replace($pattern, '$1', $formattedNumber);
+    }
+
+
+
+    /**
+     * @param string $locale
+     * @param string $currencyCode
+     *
+     * @return string
+     */
+    private function getCurrencySymbol($locale, $currencyCode)
+    {
+        $numberFormatter = new NumberFormatter($locale . '@currency=' . $currencyCode, NumberFormatter::CURRENCY);
+
+        return $numberFormatter->getSymbol(NumberFormatter::CURRENCY_SYMBOL);
     }
 }

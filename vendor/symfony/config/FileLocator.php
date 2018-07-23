@@ -21,8 +21,6 @@ class FileLocator implements FileLocatorInterface
     protected $paths;
 
     /**
-     * Constructor.
-     *
      * @param string|array $paths A path or an array of paths where to look for resources
      */
     public function __construct($paths = array())
@@ -81,10 +79,10 @@ class FileLocator implements FileLocatorInterface
      */
     private function isAbsolutePath($file)
     {
-        if ($file[0] === '/' || $file[0] === '\\'
+        if ('/' === $file[0] || '\\' === $file[0]
             || (strlen($file) > 3 && ctype_alpha($file[0])
-                && $file[1] === ':'
-                && ($file[2] === '\\' || $file[2] === '/')
+                && ':' === $file[1]
+                && ('\\' === $file[2] || '/' === $file[2])
             )
             || null !== parse_url($file, PHP_URL_SCHEME)
         ) {

@@ -109,7 +109,7 @@ $(function() {
             location.href = "{/literal}{$GLOBALS.webroot}{literal}/controller.php?document&list&patient_id="+sel.item.value+"&patient_name=" + sel.item.label;
             $("#pid").text(sel.item.value);
         },
-        minLength: 0
+        minLength: 3
     }).autocomplete("widget").addClass("fixed-height");
  });
 $(".pBtn").click(function(event) {

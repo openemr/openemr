@@ -24,7 +24,11 @@
  require_once("$srcdir/options.inc.php");
  use OpenEMR\Core\Header;
 
- $popup = empty($_GET['popup']) ? 0 : 1;
+$popup = empty($_GET['popup']) ? 0 : 1;
+$rtn_selection = 0;
+if ($popup) {
+    $rtn_selection = $_GET['popup'] == 2 ? 1 : 0;
+}
 
  $form_fname = trim($_POST['form_fname']);
  $form_lname = trim($_POST['form_lname']);
@@ -221,6 +225,10 @@ function doedclick_add(type) {
 
 // Process click to pop up the edit window.
 function doedclick_edit(userid) {
+    let rtn_selection = <?php echo $rtn_selection ?>;
+ if(rtn_selection) {
+    dlgclose('contactCallBack', userid);
+ }
  top.restoreSession();
  dlgopen('addrbook_edit.php?userid=' + userid, '_blank', 650, (screen.availHeight * 75/100));
 }

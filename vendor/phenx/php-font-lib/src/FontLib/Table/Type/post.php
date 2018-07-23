@@ -42,10 +42,7 @@ class post extends Table {
       case 2:
         $data["numberOfGlyphs"] = $font->readUInt16();
 
-        $glyphNameIndex = array();
-        for ($i = 0; $i < $data["numberOfGlyphs"]; $i++) {
-          $glyphNameIndex[] = $font->readUInt16();
-        }
+        $glyphNameIndex = $font->readUInt16Many($data["numberOfGlyphs"]);
 
         $data["glyphNameIndex"] = $glyphNameIndex;
 

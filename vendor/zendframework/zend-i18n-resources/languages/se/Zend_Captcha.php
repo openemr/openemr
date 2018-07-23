@@ -10,7 +10,7 @@
 /**
  * EN-Revision: 30.Jul.2011
  */
-return array(
+return [
     // Zend_Captcha_ReCaptcha
     "Missing captcha fields" => "Saknade captchafält",
     "Failed to validate captcha" => "Misslyckades att validera captcha",
@@ -20,4 +20,4 @@ return array(
     "Empty captcha value" => "Tomt captchavärde",
     "Captcha ID field is missing" => "Fältet för captcha ID saknas",
     "Captcha value is wrong" => "Captchavärdet är felaktigt",
-);
+];

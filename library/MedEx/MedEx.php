@@ -37,14 +37,22 @@
 
     $MedEx = new MedExApi\MedEx('MedExBank.com');
     $logged_in = $MedEx->login();
+    
 if (($logged_in) && (!empty($_POST['callback_key']))) {
+    $response = array();
     $data                   = json_decode($_POST, true);
     $token                  = $logged_in['token'];
-    $response['callback']   = $MedEx->callback->receive($data);
-    $response['practice']   = $MedEx->practice->sync($token);
-    $response['campaigns']  = $MedEx->campaign->events($token);
-    $response['generate']   = $MedEx->events->generate($token, $response['campaigns']['events']);
+      
+    $callback               = $MedEx->callback->receive($data);
+    $practice               = $MedEx->practice->sync($token);
+    $campaigns              = $MedEx->campaign->events($token);
+    $generate               = $MedEx->events->generate($token, $campaigns['events']);
+      
+    $response['generate']   = $generate;
+    $response['campaigns']  = $campaigns;
+    $response['practice']   = $practice;
     $response['success']    = "200";
+        
     header('Content-type: application/json');
     echo json_encode($response);
     exit;

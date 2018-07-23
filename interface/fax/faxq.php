@@ -29,7 +29,7 @@ $slines = array();
 if ($GLOBALS['enable_hylafax']) {
 // Get the recvq entries, parse and sort by filename.
     $statlines = array();
-    exec("faxstat -r -l -h " . $GLOBALS['hylafax_server'], $statlines);
+    exec("faxstat -r -l -h " . escapeshellarg($GLOBALS['hylafax_server']), $statlines);
     foreach ($statlines as $line) {
         // This gets pagecount, sender, time, filename.  We are expecting the
         // string to start with "-rw-rw-" so as to exclude faxes not yet fully
@@ -167,7 +167,7 @@ function dosvclick(sfname) {
 
 // Process click to pop up the fax dispatch window.
 function domclick(ffname) {
-    dlgopen('fax_dispatch.php?scan=' + ffname, '_blank', 850, 550, '', 'Fax Dispatch');
+    dlgopen('fax_dispatch.php?file=' + ffname, '_blank', 850, 550, '', 'Fax Dispatch');
 }
 
 // Process click to pop up the scanned document dispatch window.

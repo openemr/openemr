@@ -391,12 +391,14 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             $(".iframe_medium").on('click', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
+                let url = $(this).attr('href');
+                url = encodeURI(url);
                 dlgopen('', '', 950, 550, '', '', {
                     buttons: [
                         {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
                     ],
                     type: 'iframe',
-                    url: $(this).attr('href')
+                    url: url
                 });
             });
 
@@ -494,6 +496,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             current_sel_name = elem ? elem.name : '';
             var url = '<?php echo $rootdir ?>/patient_file/encounter/find_code_dynamic.php';
             if (codetype) url += '?codetype=' + codetype;
+            url = encodeURI(url);
             dlgopen(url, '_blank', 800, 500);
         }
 

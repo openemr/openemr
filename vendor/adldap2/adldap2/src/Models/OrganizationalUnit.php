@@ -2,8 +2,19 @@
 
 namespace Adldap\Models;
 
+use Adldap\Models\Concerns\HasDescription;
+
+/**
+ * Class OrganizationalUnit
+ *
+ * Represents an LDAP organizational unit.
+ *
+ * @package Adldap\Models
+ */
 class OrganizationalUnit extends Entry
 {
+    use HasDescription;
+
     /**
      * Retrieves the organization units OU attribute.
      *

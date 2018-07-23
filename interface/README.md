@@ -21,6 +21,14 @@ Files specific to different themes are named with the following conventions:
 * `themes/[component_name]` (e.g. `buttons` or `navigation-slide`) contain files named after each theme variant.
     * See TODOs on how we might be able to manage component-level styles in the future
 
+### Special Classes
+
+* `position-override` gives a hook for style to change placement of buttons. In light/manila style this is ignored and buttons go to left positioned under data entry field. Whereas in the other styles this is used to center the buttons.
+* `oe-opt-btn-group-pinch` gives a hook for style to pinch the buttons (i think make them more rounded). Not used in light/manila, but used in other styles.
+* `oe-opt-btn-separate-left` gives a hook to place a space between the buttons. Not used in light/manila, but used in other styles.
+* `oe-text-to-right` does as it says (and then does the opposite for RTL languages).
+* `oe-text-to-left` does as it says (and then does the opposite for RTL languages).
+
 ## Getting Started
 
 Combiling SASS files locally requires [node.js](http://nodejs.org) and [npm](https://www.npmjs.com/).
@@ -57,6 +65,8 @@ $ npm run build
 ```
 
 ## TODOs
+- [ ] Incorporate tabs_style_compact.css and tabs_style_full.css (and associated RTL) into scss
+- [ ] Don't require 2 build runs to build the rtl themes
 - [ ] Add built css (and other dependencies) to storybook .out directory
 - [ ] Add a lot of documentation on current component usage (starting with theme-only components)
 - [ ] Migrate style dependencies in the php code to use the components from the `interface` directory

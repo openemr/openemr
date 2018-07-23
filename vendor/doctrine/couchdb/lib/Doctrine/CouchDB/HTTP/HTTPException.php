@@ -5,7 +5,7 @@ namespace Doctrine\CouchDB\HTTP;
 /**
  * Base exception class for package Doctrine\ODM\CouchDB\HTTP
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @license     http://www.opensource.org/licenses/mit-license.php MIT
  * @link        www.doctrine-project.com
  * @since       1.0
  * @author      Kore Nordmann <kore@arbitracker.org>

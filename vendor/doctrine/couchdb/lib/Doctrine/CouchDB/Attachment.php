@@ -30,7 +30,7 @@ use Doctrine\CouchDB\HTTP\HTTPException;
  * TODO: This is a very inefficient first version implementation that saves both
  * binary and base64 data of everything if possible to ease the API.
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @license     http://www.opensource.org/licenses/mit-license.php MIT
  * @link        www.doctrine-project.com
  * @since       1.0
  * @author      Benjamin Eberlei <kontakt@beberlei.de>

@@ -10,7 +10,7 @@
 /**
  * EN-Revision: 16.Jul.2013
  */
-return array(
+return [
     // Zend\I18n\Validator\Alnum
     "Invalid type given. String, integer or float expected" => "Érvénytelen típus. Érvényes típusok: karakterláncok, egészek, tizedes törtek",
     "The input contains characters which are non alphabetic and no digits" => "A megadott érték tartalmaz betűkön és számjegyeken kívüli karaktereket",
@@ -286,4 +286,4 @@ return array(
     // Zend\Validator\Uri
     "Invalid type given. String expected" => "Érvénytelen típus. Érvényes típusok: karakterláncok",
     "The input does not appear to be a valid Uri" => "A megadott érték nem tűnik érvényes Uri-nak",
-);
+];

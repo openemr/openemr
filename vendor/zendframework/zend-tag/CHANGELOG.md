@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.7.0 - 2018-04-30
+
+### Added
+
+- [#21](https://github.com/zendframework/zend-tag/pull/21) adds support for PHP 7.1 and 7.2.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- [#21](https://github.com/zendframework/zend-tag/pull/21) removes support for PHP 5.5.
+
+- [#21](https://github.com/zendframework/zend-tag/pull/21) removes support for HHVM.
+
+### Fixed
+
+- Nothing.
+
 ## 2.6.1 - 2016-02-04
 
 ### Added

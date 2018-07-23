@@ -32,7 +32,7 @@ try {
     // We can now perform operations on the connection.
     $user = $provider->search()->users()->find('jdoe');
 
-} catch (\Adldap\Exceptions\Auth\BindException $e) {
+} catch (\Adldap\Auth\BindException $e) {
     die("Can't connect / bind to the LDAP server! Error: $e");
 }
 ```
@@ -48,7 +48,7 @@ $ad = new \Adldap\Adldap($config);
 
 try {
     $user = $ad->search()->users()->find('jdoe');
-} catch (\Adldap\Exceptions\Auth\BindException $e) {
+} catch (\Adldap\Auth\BindException $e) {
     //
 }
 ```

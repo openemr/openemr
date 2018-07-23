@@ -1,10 +1,8 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @see       https://github.com/zendframework/zend-tag for the canonical source repository
+ * @copyright Copyright (c) 2005-2018 Zend Technologies USA Inc. (https://www.zend.com)
+ * @license   https://github.com/zendframework/zend-tag/blob/master/LICENSE.md New BSD License
  */
 
 namespace Zend\Tag\Cloud\Decorator;
@@ -134,7 +132,7 @@ abstract class AbstractDecorator implements Decorator
      */
     protected function validateElementName($name)
     {
-        if (!preg_match('/^[a-z0-9]+$/i', $name)) {
+        if (! preg_match('/^[a-z0-9]+$/i', $name)) {
             throw new Exception\InvalidElementNameException(sprintf(
                 '%s: Invalid element name "%s" provided; please provide valid HTML element names',
                 __METHOD__,
@@ -151,7 +149,7 @@ abstract class AbstractDecorator implements Decorator
      */
     protected function validateAttributeName($name)
     {
-        if (!preg_match('/^[a-z_:][-a-z0-9_:.]*$/i', $name)) {
+        if (! preg_match('/^[a-z_:][-a-z0-9_:.]*$/i', $name)) {
             throw new Exception\InvalidAttributeNameException(sprintf(
                 '%s: Invalid HTML attribute name "%s" provided; please provide valid HTML attribute names',
                 __METHOD__,

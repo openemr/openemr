@@ -10,7 +10,7 @@
 /**
  * EN-Revision: 30.Jul.2011
  */
-return array(
+return [
     // Zend_Captcha_ReCaptcha
     "Missing captcha fields" => "كلمة التحقق مفقودة",
     "Failed to validate captcha" => "فشل في التحقق من صحة كلمة التحقق",
@@ -20,4 +20,4 @@ return array(
     "Empty captcha value" => "كلمة التحقق فارغة",
     "Captcha ID field is missing" => "معرف (ID) لكلمة التحقق مفقود",
     "Captcha value is wrong" => "كلمة التحقق خاطئة",
-);
+];

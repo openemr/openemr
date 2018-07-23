@@ -3,8 +3,9 @@
 namespace Illuminate\Contracts\Container;
 
 use Closure;
+use Psr\Container\ContainerInterface;
 
-interface Container
+interface Container extends ContainerInterface
 {
     /**
      * Determine if the given abstract type has been bound.
@@ -35,7 +36,7 @@ interface Container
     /**
      * Resolve all of the bindings for a given tag.
      *
-     * @param  array  $tag
+     * @param  string  $tag
      * @return array
      */
     public function tagged($tag);
@@ -43,7 +44,7 @@ interface Container
     /**
      * Register a binding with the container.
      *
-     * @param  string|array  $abstract
+     * @param  string  $abstract
      * @param  \Closure|string|null  $concrete
      * @param  bool  $shared
      * @return void
@@ -63,7 +64,7 @@ interface Container
     /**
      * Register a shared binding in the container.
      *
-     * @param  string|array  $abstract
+     * @param  string  $abstract
      * @param  \Closure|string|null  $concrete
      * @return void
      */
@@ -85,7 +86,7 @@ interface Container
      *
      * @param  string  $abstract
      * @param  mixed   $instance
-     * @return void
+     * @return mixed
      */
     public function instance($abstract, $instance);
 
@@ -109,9 +110,10 @@ interface Container
      * Resolve the given type from the container.
      *
      * @param  string  $abstract
+     * @param  array  $parameters
      * @return mixed
      */
-    public function make($abstract);
+    public function make($abstract, array $parameters = []);
 
     /**
      * Call the given Closure / class@method and inject its dependencies.
@@ -134,7 +136,7 @@ interface Container
     /**
      * Register a new resolving callback.
      *
-     * @param  string    $abstract
+     * @param  \Closure|string  $abstract
      * @param  \Closure|null  $callback
      * @return void
      */
@@ -143,7 +145,7 @@ interface Container
     /**
      * Register a new after resolving callback.
      *
-     * @param  string    $abstract
+     * @param  \Closure|string  $abstract
      * @param  \Closure|null  $callback
      * @return void
      */

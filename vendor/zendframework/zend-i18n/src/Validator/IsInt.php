@@ -22,6 +22,7 @@ class IsInt extends AbstractValidator
 {
     const INVALID = 'intInvalid';
     const NOT_INT = 'notInt';
+    const NOT_INT_STRICT = 'notIntStrict';
 
     /**
      * @var array
@@ -29,6 +30,7 @@ class IsInt extends AbstractValidator
     protected $messageTemplates = [
         self::INVALID => "Invalid type given. String or integer expected",
         self::NOT_INT => "The input does not appear to be an integer",
+        self::NOT_INT_STRICT => "The input is not strictly an integer",
     ];
 
     /**
@@ -37,6 +39,14 @@ class IsInt extends AbstractValidator
      * @var string|null
      */
     protected $locale;
+
+    /**
+     * Data type is not enforced by default, so the string '123' is considered an integer.
+     * Setting strict to true will enforce the integer data type.
+     *
+     * @var bool
+     */
+    protected $strict = false;
 
     /**
      * Constructor for the integer validator
@@ -59,6 +69,10 @@ class IsInt extends AbstractValidator
 
         if (array_key_exists('locale', $options)) {
             $this->setLocale($options['locale']);
+        }
+
+        if (array_key_exists('strict', $options)) {
+            $this->setStrict($options['strict']);
         }
 
         parent::__construct($options);
@@ -88,6 +102,33 @@ class IsInt extends AbstractValidator
     }
 
     /**
+     * Returns the strict option
+     *
+     * @return bool
+     */
+    public function getStrict()
+    {
+        return $this->strict;
+    }
+
+    /**
+     * Sets the strict option mode
+     *
+     * @param bool $strict
+     * @return self
+     * @throws Exception\InvalidArgumentException
+     */
+    public function setStrict($strict)
+    {
+        if (! is_bool($strict)) {
+            throw new Exception\InvalidArgumentException('Strict option must be a boolean');
+        }
+
+        $this->strict = $strict;
+        return $this;
+    }
+
+    /**
      * Returns true if and only if $value is a valid integer
      *
      * @param  string|int $value
@@ -103,6 +144,11 @@ class IsInt extends AbstractValidator
 
         if (is_int($value)) {
             return true;
+        }
+
+        if ($this->strict) {
+            $this->error(self::NOT_INT_STRICT);
+            return false;
         }
 
         $this->setValue($value);

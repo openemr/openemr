@@ -66,8 +66,8 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.11.x-dev",
-            "dev-develop": "2.12.x-dev"
+            "dev-master": "2.12.x-dev",
+            "dev-develop": "2.13.x-dev"
         },
         "zf": {
             "component": "Zend\\Form",
@@ -82,7 +82,6 @@
         "cs-check": "phpcs",
         "cs-fix": "phpcbf",
         "test": "phpunit --colors=always",
-        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml",
-        "upload-coverage": "coveralls -v"
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
     }
 }

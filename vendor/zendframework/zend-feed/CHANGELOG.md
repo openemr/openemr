@@ -2,6 +2,181 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.10.2 - 2018-06-18
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#81](https://github.com/zendframework/zend-feed/pull/81) updates the `Zend\Feed\Reader\Reader` and `Zend\Feed\Writer\Writer` classes to
+  conditionally register their respective "GooglePlayPodcast" extensions only if
+  their extension managers are aware of it. This is done due to the fact that
+  existing `ExtensionManagerInterface` implementations may not register it by
+  default as the extension did not exist in releases prior to 2.10.0. By having
+  the registration conditional, we prevent an exception from being raised; users
+  are not impacted by its absence, as the extension features were not exposed
+  previously.
+  
+  Both `Reader` and `Writer` emit an `E_USER_NOTICE` when the extension is not
+  found in the extension manager, indicating that the
+  `ExtensionManagerInterface` implementation should be updated to add entries
+  for the "GooglePlayPodcast" entry, feed, and/or renderer classes.
+
+## 2.10.1 - 2018-06-05
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#79](https://github.com/zendframework/zend-feed/pull/79) fixes an issue in the `setType()` method of the iTunes feed renderer whereby it was setting
+  the DOM content with an uninitialized variable.
+
+## 2.10.0 - 2018-05-24
+
+### Added
+
+- [#78](https://github.com/zendframework/zend-feed/pull/78) adds support for the Google Play Podcasts 1.0 DTD in both the Reader and
+  Writer subcomponents. The following new classes provide the support:
+
+  - `Zend\Feed\Reader\Extension\GooglePlayPodcast\Entry`
+  - `Zend\Feed\Reader\Extension\GooglePlayPodcast\Feed`
+  - `Zend\Feed\Writer\Extension\GooglePlayPodcast\Entry`
+  - `Zend\Feed\Writer\Extension\GooglePlayPodcast\Feed`
+  - `Zend\Feed\Writer\Extension\GooglePlayPodcast\Renderer\Entry`
+  - `Zend\Feed\Writer\Extension\GooglePlayPodcast\Renderer\Feed`
+
+  The extensions are registered by default with both `Zend\Feed\Reader\Reader`
+  and `Zend\Feed\Writer\Writer`.
+
+- [#77](https://github.com/zendframework/zend-feed/pull/77) adds support for `itunes:image` for each of:
+  - `Zend\Feed\Reader\Extension\Podcast\Entry`, via `getItunesImage()`; previously only the `Feed` supported it.
+  - `Zend\Feed\Writer\Extension\ITunes\Entry`, via `setItunesImage()`; previously only the `Feed` supported it.
+  - `Zend\Feed\Writer\Extension\ITunes\Renderer\Entry`; previously on the `Feed` supported it.
+
+- [#75](https://github.com/zendframework/zend-feed/pull/75) adds `Zend\Feed\Writer\Extension\ITunes\Entry::setItunesSeason()`, corresponding to the
+  `itunes:season` tag, and allowing setting the season number of the episode the
+  entry represents.
+
+- [#75](https://github.com/zendframework/zend-feed/pull/75) adds `Zend\Feed\Writer\Extension\ITunes\Entry::setItunesIsClosedCaptioned()`, corresponding to the
+  `itunes:isClosedCaptioned` tag, and allowing setting the status of closed
+  captioning support in the episode the entry represents.
+
+- [#75](https://github.com/zendframework/zend-feed/pull/75) adds `Zend\Feed\Writer\Extension\ITunes\Entry::setItunesEpisodeType()`, corresponding to the
+  `itunes:episodeType` tag, and allowing setting the type of episode the entry represents
+  (one of "full", "trailer", or "bonus", and defaulting to "full").
+
+- [#75](https://github.com/zendframework/zend-feed/pull/75) adds `Zend\Feed\Writer\Extension\ITunes\Entry::setEpisode()`, corresponding to the
+  `itunes:episode` tag, and allowing setting the number of the episode the entry represents.
+
+- [#75](https://github.com/zendframework/zend-feed/pull/75) adds `Zend\Feed\Writer\Extension\ITunes\Feed::setItunesComplete()`, corresponding to the
+  `itunes:complete` tag. It allows setting a boolean flag, indicating whether or not the
+  podcast is complete (will not air new episodes).
+
+- [#75](https://github.com/zendframework/zend-feed/pull/75) adds `Zend\Feed\Writer\Extension\ITunes\Feed::setItunesType()`, corresponding to the
+  `itunes:type` tag, and allowing setting the podcast type (one of "serial" or "episodic").
+
+- [#75](https://github.com/zendframework/zend-feed/pull/75) adds `Zend\Feed\Reader\Extension\Podcast\Entry::getEpisodeType()`, corresponding to the
+  `itunes:episodeType` tag, and returning the type of episode the entry represents
+  (one of "full", "trailer", or "bonus", and defaulting to "full").
+
+- [#75](https://github.com/zendframework/zend-feed/pull/75) adds `Zend\Feed\Reader\Extension\Podcast\Entry::getSeason()`, corresponding to the
+  `itunes:season` tag, and returning the season number of the episode the entry represents.
+
+- [#75](https://github.com/zendframework/zend-feed/pull/75) adds `Zend\Feed\Reader\Extension\Podcast\Entry::isClsoedCaptioned()`, corresponding to the
+  `itunes:isClosedCaptioned` tag, and returning the status of closed captioning
+  in the episode the entry represents.
+
+- [#75](https://github.com/zendframework/zend-feed/pull/75) adds `Zend\Feed\Reader\Extension\Podcast\Entry::getEpisode()`, corresponding to the
+  `itunes:episode` tag, and returning the number of the episode the entry represents.
+
+- [#75](https://github.com/zendframework/zend-feed/pull/75) adds `Zend\Feed\Reader\Extension\Podcast\Feed::isComplete()`, corresponding to the
+  `itunes:complete` tag. It returns a boolean, indicating whether or not the podcast is
+  complete (will not air new episodes).
+
+- [#75](https://github.com/zendframework/zend-feed/pull/75) adds `Zend\Feed\Reader\Extension\Podcast\Feed::getPodcastType()`, corresponding to the
+  `itunes:type` tag, and providing the podcast type (one of "serial" or "episodic", defaulting
+  to the latter).
+
+### Changed
+
+- [#77](https://github.com/zendframework/zend-feed/pull/77) updates URI validation for `Zend\Feed\Writer\Extension\ITunes\Feed::setItunesImage()` to
+  first check that we have received a string value before proceeding.
+
+### Deprecated
+
+- [#75](https://github.com/zendframework/zend-feed/pull/75) deprecates each of:
+  - `Zend\Feed\Reader\Extension\Podcast\Entry::getKeywords()`
+  - `Zend\Feed\Reader\Extension\Podcast\Feed::getKeywords()`
+  - `Zend\Feed\Writer\Extension\ITunes\Entry::setKeywords()`
+  - `Zend\Feed\Writer\Extension\ITunes\Feed::setKeywords()`
+  as the iTunes Podcast RSS specification no longer supports keywords.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
+## 2.9.1 - 2018-05-14
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- [#16](https://github.com/zendframework/zend-feed/pull/16) updates the `Zend\Feed\Pubsubhubbub\AbstractCallback` to no longer use the
+  `$GLOBALS['HTTP_RAW_POST_DATA']` value as a fallback when `php://input` is
+  empty. The fallback existed because, prior to PHP 5.6, `php://input` could
+  only be read once. As we now require PHP 5.6, the fallback is unnecessary,
+  and best removed as the globals value is deprecated.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#68](https://github.com/zendframework/zend-feed/pull/68) fixes the behavior of `Zend\Feed\Writer\AbstractFeed::setTitle()` and
+  `Zend\Feed\Writer\Entry::setTitle()` to accept the string `"0"`.
+
+- [#68](https://github.com/zendframework/zend-feed/pull/68) updates both `Zend\Feed\Writer\AbstractFeed` and `Zend\Feed\Writer\Entry`
+  to no longer throw an exception for entry titles which have a string value of `0`.
+
 ## 2.9.0 - 2017-12-04
 
 ### Added

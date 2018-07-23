@@ -34,6 +34,17 @@ abstract class AbstractCallback implements CallbackInterface
     protected $httpResponse = null;
 
     /**
+     * The input stream to use when retrieving the request body. Defaults to
+     * php://input, but can be set to another value in order to force usage
+     * of another input method. This should primarily be used for testing
+     * purposes.
+     *
+     * @var string|resource String indicates a filename or stream to open;
+     *     resource indicates an already created stream to use.
+     */
+    protected $inputStream = 'php://input';
+
+    /**
      * The number of Subscribers for which any updates are on behalf of.
      *
      * @var int
@@ -287,13 +298,10 @@ abstract class AbstractCallback implements CallbackInterface
     protected function _getRawBody()
     {
         // @codingStandardsIgnoreEnd
-        $body = file_get_contents('php://input');
-        if (strlen(trim($body)) == 0 && isset($GLOBALS['HTTP_RAW_POST_DATA'])) {
-            $body = $GLOBALS['HTTP_RAW_POST_DATA'];
-        }
-        if (strlen(trim($body)) > 0) {
-            return $body;
-        }
-        return false;
+        $body = is_resource($this->inputStream)
+            ? stream_get_contents($this->inputStream)
+            : file_get_contents($this->inputStream);
+
+        return strlen(trim($body)) > 0 ? $body : false;
     }
 }

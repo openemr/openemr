@@ -3,12 +3,13 @@
 namespace Knp\Snappy;
 
 use Knp\Snappy\Exception as Exceptions;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\Process\Process;
 
 /**
- * Base generator class for medias
+ * Base generator class for medias.
  *
- * @package Snappy
  *
  * @author  Matthieu Bontemps <matthieu.bontemps@knplabs.com>
  * @author  Antoine Hérault <antoine.herault@knplabs.com>
@@ -16,7 +17,7 @@ use Symfony\Component\Process\Process;
 abstract class AbstractGenerator implements GeneratorInterface
 {
     private $binary;
-    private $options = array();
+    private $options = [];
     private $env;
     private $timeout = false;
     private $defaultExtension;
@@ -29,24 +30,28 @@ abstract class AbstractGenerator implements GeneratorInterface
     /**
      * @var array
      */
-    public $temporaryFiles = array();
+    public $temporaryFiles = [];
 
     /**
-     * Constructor
-     *
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * @param string $binary
      * @param array  $options
      * @param array  $env
      */
-    public function __construct($binary, array $options = array(), array $env = null)
+    public function __construct($binary, array $options = [], array $env = null)
     {
         $this->configure();
 
+        $this->logger = new NullLogger();
         $this->setBinary($binary);
         $this->setOptions($options);
         $this->env = empty($env) ? null : $env;
 
-        register_shutdown_function(array($this, 'removeTemporaryFiles'));
+        register_shutdown_function([$this, 'removeTemporaryFiles']);
     }
 
     public function __destruct()
@@ -55,7 +60,17 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * This method must configure the media options
+     * Set the logger to use to log debugging data.
+     *
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
+    /**
+     * This method must configure the media options.
      *
      * @see AbstractGenerator::addOption()
      */
@@ -63,7 +78,7 @@ abstract class AbstractGenerator implements GeneratorInterface
 
     /**
      * Sets the default extension.
-     * Useful when letting Snappy deal with file creation
+     * Useful when letting Snappy deal with file creation.
      *
      * @param string $defaultExtension
      */
@@ -73,7 +88,7 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * Gets the default extension
+     * Gets the default extension.
      *
      * @return $string
      */
@@ -84,7 +99,7 @@ abstract class AbstractGenerator implements GeneratorInterface
 
     /**
      * Sets an option. Be aware that option values are NOT validated and that
-     * it is your responsibility to validate user inputs
+     * it is your responsibility to validate user inputs.
      *
      * @param string $name  The option to set
      * @param mixed  $value The value (NULL to unset)
@@ -98,12 +113,14 @@ abstract class AbstractGenerator implements GeneratorInterface
         }
 
         $this->options[$name] = $value;
+
+        $this->logger->debug(sprintf('Set option "%s".', $name), ['value' => $value]);
     }
 
     /**
-     * Sets the timeout. Be aware that option only works with symfony
+     * Sets the timeout.
      *
-     * @param integer $timeout The timeout to set
+     * @param int $timeout The timeout to set
      */
     public function setTimeout($timeout)
     {
@@ -111,7 +128,7 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * Sets an array of options
+     * Sets an array of options.
      *
      * @param array $options An associative array of options as name/value
      */
@@ -123,7 +140,7 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * Returns all the options
+     * Returns all the options.
      *
      * @return array
      */
@@ -133,9 +150,9 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
-    public function generate($input, $output, array $options = array(), $overwrite = false)
+    public function generate($input, $output, array $options = [], $overwrite = false)
     {
         if (null === $this->binary) {
             throw new \LogicException(
@@ -147,18 +164,42 @@ abstract class AbstractGenerator implements GeneratorInterface
 
         $command = $this->getCommand($input, $output, $options);
 
-        list($status, $stdout, $stderr) = $this->executeCommand($command);
-        $this->checkProcessStatus($status, $stdout, $stderr, $command);
+        $inputFiles = is_array($input) ? implode('", "', $input) : $input;
 
-        $this->checkOutput($output, $command);
+        $this->logger->info(sprintf('Generate from file(s) "%s" to file "%s".', $inputFiles, $output), [
+            'command' => $command,
+            'env'     => $this->env,
+            'timeout' => $this->timeout,
+        ]);
+
+        try {
+            list($status, $stdout, $stderr) = $this->executeCommand($command);
+            $this->checkProcessStatus($status, $stdout, $stderr, $command);
+            $this->checkOutput($output, $command);
+        } catch (\Exception $e) { // @TODO: should be replaced by \Throwable when support for php5.6 is dropped
+            $this->logger->error(sprintf('An error happened while generating "%s".', $output), [
+                'command' => $command,
+                'status'  => isset($status) ? $status : null,
+                'stdout'  => isset($stdout) ? $stdout : null,
+                'stderr'  => isset($stderr) ? $stderr : null,
+            ]);
+
+            throw $e;
+        }
+
+        $this->logger->info(sprintf('File "%s" has been successfully generated.', $output), [
+            'command' => $command,
+            'stdout'  => $stdout,
+            'stderr'  => $stderr,
+        ]);
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
-    public function generateFromHtml($html, $output, array $options = array(), $overwrite = false)
+    public function generateFromHtml($html, $output, array $options = [], $overwrite = false)
     {
-        $fileNames = array();
+        $fileNames = [];
         if (is_array($html)) {
             foreach ($html as $htmlInput) {
                 $fileNames[] = $this->createTemporaryFile($htmlInput, 'html');
@@ -171,9 +212,9 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
-    public function getOutput($input, array $options = array())
+    public function getOutput($input, array $options = [])
     {
         $filename = $this->createTemporaryFile(null, $this->getDefaultExtension());
 
@@ -185,11 +226,11 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
-    public function getOutputFromHtml($html, array $options = array())
+    public function getOutputFromHtml($html, array $options = [])
     {
-        $fileNames = array();
+        $fileNames = [];
         if (is_array($html)) {
             foreach ($html as $htmlInput) {
                 $fileNames[] = $this->createTemporaryFile($htmlInput, 'html');
@@ -204,7 +245,7 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * Defines the binary
+     * Defines the binary.
      *
      * @param string $binary The path/name of the binary
      */
@@ -214,7 +255,7 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * Returns the binary
+     * Returns the binary.
      *
      * @return string
      */
@@ -224,16 +265,16 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * Returns the command for the given input and output files
+     * Returns the command for the given input and output files.
      *
-     * @param array|string  $input      The input file
-     * @param string        $output     The ouput file
-     * @param array         $options    An optional array of options that will be used
-     *                                  only for this command
+     * @param array|string $input   The input file
+     * @param string       $output  The ouput file
+     * @param array        $options An optional array of options that will be used
+     *                              only for this command
      *
      * @return string
      */
-    public function getCommand($input, $output, array $options = array())
+    public function getCommand($input, $output, array $options = [])
     {
         $options = $this->mergeOptions($options);
 
@@ -241,7 +282,7 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * Adds an option
+     * Adds an option.
      *
      * @param string $name    The name
      * @param mixed  $default An optional default value
@@ -258,7 +299,7 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * Adds an array of options
+     * Adds an array of options.
      *
      * @param array $options
      */
@@ -273,7 +314,8 @@ abstract class AbstractGenerator implements GeneratorInterface
      * Merges the given array of options to the instance options and returns
      * the result options array. It does NOT change the instance options.
      *
-     * @param  array                     $options
+     * @param array $options
+     *
      * @throws \InvalidArgumentException
      *
      * @return array
@@ -294,7 +336,7 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * Checks the specified output
+     * Checks the specified output.
      *
      * @param string $output  The output filename
      * @param string $command The generation command
@@ -321,7 +363,7 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * Checks the process return status
+     * Checks the process return status.
      *
      * @param int    $status  The exit status code
      * @param string $stdout  The stdout content
@@ -334,10 +376,10 @@ abstract class AbstractGenerator implements GeneratorInterface
     {
         if (0 !== $status and '' !== $stderr) {
             throw new \RuntimeException(sprintf(
-                'The exit status code \'%s\' says something went wrong:'."\n"
-                .'stderr: "%s"'."\n"
-                .'stdout: "%s"'."\n"
-                .'command: %s.',
+                'The exit status code \'%s\' says something went wrong:' . "\n"
+                . 'stderr: "%s"' . "\n"
+                . 'stdout: "%s"' . "\n"
+                . 'command: %s.',
                 $status, $stderr, $stdout, $command
             ));
         }
@@ -345,7 +387,7 @@ abstract class AbstractGenerator implements GeneratorInterface
 
     /**
      * Creates a temporary file.
-     * The file is not created if the $content argument is null
+     * The file is not created if the $content argument is null.
      *
      * @param string $content   Optional content for the temporary file
      * @param string $extension An optional extension for the filename
@@ -367,7 +409,7 @@ abstract class AbstractGenerator implements GeneratorInterface
         $filename = $dir . DIRECTORY_SEPARATOR . uniqid('knp_snappy', true);
 
         if (null !== $extension) {
-            $filename .= '.'.$extension;
+            $filename .= '.' . $extension;
         }
 
         if (null !== $content) {
@@ -380,7 +422,7 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * Removes all temporary files
+     * Removes all temporary files.
      */
     public function removeTemporaryFiles()
     {
@@ -390,7 +432,7 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * Builds the command string
+     * Builds the command string.
      *
      * @param string       $binary  The binary path/name
      * @param string/array $input   Url(s) or file location(s) of the page(s) to process
@@ -399,7 +441,7 @@ abstract class AbstractGenerator implements GeneratorInterface
      *
      * @return string
      */
-    protected function buildCommand($binary, $input, $output, array $options = array())
+    protected function buildCommand($binary, $input, $output, array $options = [])
     {
         $command = $binary;
         $escapedBinary = escapeshellarg($binary);
@@ -409,32 +451,31 @@ abstract class AbstractGenerator implements GeneratorInterface
 
         foreach ($options as $key => $option) {
             if (null !== $option && false !== $option) {
-
                 if (true === $option) {
                     // Dont't put '--' if option is 'toc'.
                     if ($key == 'toc') {
-                        $command .= ' '.$key;
+                        $command .= ' ' . $key;
                     } else {
-                        $command .= ' --'.$key;
+                        $command .= ' --' . $key;
                     }
-
                 } elseif (is_array($option)) {
                     if ($this->isAssociativeArray($option)) {
                         foreach ($option as $k => $v) {
-                            $command .= ' --'.$key.' '.escapeshellarg($k).' '.escapeshellarg($v);
+                            $command .= ' --' . $key . ' ' . escapeshellarg($k) . ' ' . escapeshellarg($v);
                         }
                     } else {
                         foreach ($option as $v) {
-                            $command .= ' --'.$key.' '.escapeshellarg($v);
+                            $command .= ' --' . $key . ' ' . escapeshellarg($v);
                         }
                     }
-
                 } else {
                     // Dont't add '--' if option is "cover"  or "toc".
-                    if (in_array($key, array('toc', 'cover'))) {
-                        $command .= ' '.$key.' '.escapeshellarg($option);
+                    if (in_array($key, ['toc', 'cover'])) {
+                        $command .= ' ' . $key . ' ' . escapeshellarg($option);
+                    } elseif (in_array($key, ['image-dpi', 'image-quality'])) {
+                        $command .= ' --' . $key . ' ' . (int) $option;
                     } else {
-                        $command .= ' --'.$key.' '.escapeshellarg($option);
+                        $command .= ' --' . $key . ' ' . escapeshellarg($option);
                     }
                 }
             }
@@ -442,11 +483,11 @@ abstract class AbstractGenerator implements GeneratorInterface
 
         if (is_array($input)) {
             foreach ($input as $i) {
-                $command .= ' '.escapeshellarg($i).' ';
+                $command .= ' ' . escapeshellarg($i) . ' ';
             }
             $command .= escapeshellarg($output);
         } else {
-            $command .= ' '.escapeshellarg($input).' '.escapeshellarg($output);
+            $command .= ' ' . escapeshellarg($input) . ' ' . escapeshellarg($output);
         }
 
         return $command;
@@ -454,11 +495,11 @@ abstract class AbstractGenerator implements GeneratorInterface
 
     /**
      * Return true if the array is an associative array
-     * and not an indexed array
+     * and not an indexed array.
      *
      * @param array $array
      *
-     * @return boolean
+     * @return bool
      */
     protected function isAssociativeArray(array $array)
     {
@@ -467,7 +508,7 @@ abstract class AbstractGenerator implements GeneratorInterface
 
     /**
      * Executes the given command via shell and returns the complete output as
-     * a string
+     * a string.
      *
      * @param string $command
      *
@@ -483,19 +524,19 @@ abstract class AbstractGenerator implements GeneratorInterface
 
         $process->run();
 
-        return array(
+        return [
             $process->getExitCode(),
             $process->getOutput(),
             $process->getErrorOutput(),
-        );
+        ];
     }
 
     /**
-     * Prepares the specified output
+     * Prepares the specified output.
      *
-     * @param string  $filename  The output filename
-     * @param boolean $overwrite Whether to overwrite the file if it already
-     *                           exist
+     * @param string $filename  The output filename
+     * @param bool   $overwrite Whether to overwrite the file if it already
+     *                          exist
      *
      * @throws Exception\FileAlreadyExistsException
      * @throws \RuntimeException
@@ -531,7 +572,7 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * Get TemporaryFolder
+     * Get TemporaryFolder.
      *
      * @return string
      */
@@ -545,7 +586,7 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * Set temporaryFolder
+     * Set temporaryFolder.
      *
      * @param string $temporaryFolder
      *
@@ -559,7 +600,7 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * Wrapper for the "file_get_contents" function
+     * Wrapper for the "file_get_contents" function.
      *
      * @param string $filename
      *
@@ -571,11 +612,11 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * Wrapper for the "file_exists" function
+     * Wrapper for the "file_exists" function.
      *
      * @param string $filename
      *
-     * @return boolean
+     * @return bool
      */
     protected function fileExists($filename)
     {
@@ -583,23 +624,23 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * Wrapper for the "is_file" method
+     * Wrapper for the "is_file" method.
      *
      * @param string $filename
      *
-     * @return boolean
+     * @return bool
      */
     protected function isFile($filename)
     {
-        return is_file($filename);
+        return strlen($filename) <= PHP_MAXPATHLEN && is_file($filename);
     }
 
     /**
-     * Wrapper for the "filesize" function
+     * Wrapper for the "filesize" function.
      *
      * @param string $filename
      *
-     * @return integer or FALSE on failure
+     * @return int or FALSE on failure
      */
     protected function filesize($filename)
     {
@@ -607,11 +648,11 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * Wrapper for the "unlink" function
+     * Wrapper for the "unlink" function.
      *
      * @param string $filename
      *
-     * @return boolean
+     * @return bool
      */
     protected function unlink($filename)
     {
@@ -619,11 +660,11 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * Wrapper for the "is_dir" function
+     * Wrapper for the "is_dir" function.
      *
      * @param string $filename
      *
-     * @return boolean
+     * @return bool
      */
     protected function isDir($filename)
     {
@@ -631,11 +672,11 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * Wrapper for the mkdir function
+     * Wrapper for the mkdir function.
      *
      * @param string $pathname
      *
-     * @return boolean
+     * @return bool
      */
     protected function mkdir($pathname)
     {

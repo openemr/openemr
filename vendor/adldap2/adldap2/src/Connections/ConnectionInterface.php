@@ -238,8 +238,7 @@ interface ConnectionInterface
     public function setRebindCallback(callable $callback);
 
     /**
-     * Connects to the specified hostname using the
-     * specified port.
+     * Connects to the specified hostname using the specified port.
      *
      * @param string|array $hostname
      * @param int          $port
@@ -279,13 +278,18 @@ interface ConnectionInterface
     public function close();
 
     /**
+     * Performs a search on the current connection.
+     *
      * @param string $dn
      * @param string $filter
      * @param array  $fields
+     * @param bool   $onlyAttributes
+     * @param int    $size
+     * @param int    $time
      *
      * @return mixed
      */
-    public function search($dn, $filter, array $fields);
+    public function search($dn, $filter, array $fields, $onlyAttributes = false, $size = 0, $time = 0);
 
     /**
      * Reads an entry on the current connection.
@@ -293,10 +297,13 @@ interface ConnectionInterface
      * @param string $dn
      * @param $filter
      * @param array $fields
+     * @param bool   $onlyAttributes
+     * @param int    $size
+     * @param int    $time
      *
      * @return mixed
      */
-    public function read($dn, $filter, array $fields);
+    public function read($dn, $filter, array $fields, $onlyAttributes = false, $size = 0, $time = 0);
 
     /**
      * Performs a single level search on the current connection.
@@ -304,10 +311,13 @@ interface ConnectionInterface
      * @param string $dn
      * @param string $filter
      * @param array  $attributes
+     * @param bool   $onlyAttributes
+     * @param int    $size
+     * @param int    $time
      *
      * @return mixed
      */
-    public function listing($dn, $filter, array $attributes);
+    public function listing($dn, $filter, array $attributes, $onlyAttributes = false, $size = 0, $time = 0);
 
     /**
      * Adds an entry to the current connection.

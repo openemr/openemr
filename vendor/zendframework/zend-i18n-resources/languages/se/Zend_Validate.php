@@ -10,7 +10,7 @@
 /**
  * EN-Revision: 09.Sept.2012
  */
-return array(
+return [
     // Zend_I18n_Validator_Alnum
     "Invalid type given. String, integer or float expected" => "Ogiltig typ given. Sträng, heltal eller flyttal förväntat",
     "The input contains characters which are non alphabetic and no digits" => "Indatan innehåller tecken som är icke-alfabetiska och inga siffror",
@@ -276,4 +276,4 @@ return array(
     // Zend_Validator_Uri
     "Invalid type given. String expected" => "Ogiltig typ given. Sträng förväntad",
     "The input does not appear to be a valid Uri" => "Indatan tycks inte vara en giltig Uri",
-);
+];

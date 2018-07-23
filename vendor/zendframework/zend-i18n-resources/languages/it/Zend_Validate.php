@@ -10,19 +10,19 @@
 /**
  * IT-Revision: 04.Apr.2013
  */
-return array(
+return [
     // Zend\I18n\Validator\Alnum
     "Invalid type given. String, integer or float expected" => "Tipo di dato non valido. Era atteso un dato di tipo string, float o integer",
     "The input contains characters which are non alphabetic and no digits" => "L'input contiene caratteri che non sono alfanumerici",
     "The input is an empty string" => "L'input è una stringa vuota",
 
     // Zend\I18n\Validator\Alpha
-    "Invalid type given. String expected" => "Tipo di dato non valido. Era attesto un dato di tipo string",
+    "Invalid type given. String expected" => "Tipo di dato non valido. Era atteso un dato di tipo string",
     "The input contains non alphabetic characters" => "L'input contiene caratteri non alfabetici",
     "The input is an empty string" => "L'input è una stringa vuota",
 
     // Zend\I18n\Validator\DateTime
-    "Invalid type given. String expected" => "Tipo di dato non valido. Era attesto un dato di tipo string",
+    "Invalid type given. String expected" => "Tipo di dato non valido. Era atteso un dato di tipo string",
     "The input does not appear to be a valid datetime" => "L'input non sembra essere una combinazione valida di data e orario",
 
     // Zend\I18n\Validator\Float
@@ -36,18 +36,18 @@ return array(
     // Zend\I18n\Validator\PhoneNumber
     "The input does not match a phone number format" => "L'input non corrisponde ad un formato di numero telefonico",
     "The country provided is currently unsupported" => "La nazionalità fornita non è correntemente supportata",
-    "Invalid type given. String expected" => "Tipo di dato non valido. Era attesto un dato di tipo string",
+    "Invalid type given. String expected" => "Tipo di dato non valido. Era atteso un dato di tipo string",
 
     // Zend\I18n\Validator\PostCode
     "Invalid type given. String or integer expected" => "Tipo di dato non valido. Era atteso un dato di tipo string o integer",
     "The input does not appear to be a postal code" => "L'input non sembra essere un codice postale",
-    "An exception has been raised while validating the input" => "Un'eccezione è stata sollevada durante la validazione dell'input",
+    "An exception has been raised while validating the input" => "Un'eccezione è stata sollevata durante la validazione dell'input",
 
     // Zend\Validator\Barcode
     "The input failed checksum validation" => "L'input non ha un checksum valido",
     "The input contains invalid characters" => "L'input contiene caratteri non permessi",
     "The input should have a length of %length% characters" => "L'input non ha la lunghezza corretta di %length% caratteri",
-    "Invalid type given. String expected" => "Tipo di dato non valido. Era attesto un dato di tipo string",
+    "Invalid type given. String expected" => "Tipo di dato non valido. Era atteso un dato di tipo string",
 
     // Zend\Validator\Between
     "The input is not between '%min%' and '%max%', inclusively" => "L'input non è compreso tra '%min%' e '%max%', inclusi",
@@ -60,11 +60,11 @@ return array(
     // Zend\Validator\CreditCard
     "The input seems to contain an invalid checksum" => "L'input sembra avere un checksum non valido",
     "The input must contain only digits" => "L'input deve contenere solo cifre",
-    "Invalid type given. String expected" => "Tipo di dato non valido. Era attesto un dato di tipo string",
+    "Invalid type given. String expected" => "Tipo di dato non valido. Era atteso un dato di tipo string",
     "The input contains an invalid amount of digits" => "L'input contiene un numero non valido di cifre",
     "The input is not from an allowed institute" => "L'input proviene da un istituto non supportato",
     "The input seems to be an invalid credit card number" => "L'input sembra essere un numero di carta di credito non valido",
-    "An exception has been raised while validating the input" => "Un'eccezione è stata sollevada durante la validazione dell'input",
+    "An exception has been raised while validating the input" => "Un'eccezione è stata sollevata durante la validazione dell'input",
 
     // Zend\Validator\Csrf
     "The form submitted did not originate from the expected site" => "La form inviata non ha avuto origine dal luogo previsto",
@@ -79,7 +79,7 @@ return array(
 
     // Zend\Validator\Db\AbstractDb
     "No record matching the input was found" => "Non è stata trovata nessuna riga corrispondente all'input",
-    "A record matching the input was found" => "E' già stata trovata una riga corrispondente all'input",
+    "A record matching the input was found" => "È già stata trovata una riga corrispondente all'input",
 
     // Zend\Validator\Digits
     "The input must contain only digits" => "L'input deve contenere solo cifre",
@@ -87,10 +87,10 @@ return array(
     "Invalid type given. String, integer or float expected" => "Tipo di dato non valido. Era atteso un dato di tipo string, float o integer",
 
     // Zend\Validator\EmailAddress
-    "Invalid type given. String expected" => "Tipo di dato non valido. Era attesto un dato di tipo string",
+    "Invalid type given. String expected" => "Tipo di dato non valido. Era atteso un dato di tipo string",
     "The input is not a valid email address. Use the basic format local-part@hostname" => "L'input non è un indirizzo email valido nel formato base local-part@hostname",
     "'%hostname%' is not a valid hostname for the email address" => "'%hostname%' non è un hostname valido nell'indirizzo email",
-    "'%hostname%' does not appear to have any valid MX or A records for the email address" => "'%hostname%' non sembra avere un record MX o A valido nell'indirizzo email",
+    "'%hostname%' does not appear to have any valid MX or A records for the email address" => "'%hostname%' non sembra avere un record MX o A valido per l'indirizzo email",
     "'%hostname%' is not in a routable network segment. The email address should not be resolved from public network" => "'%hostname%' non è in un segmento di rete instradabile. L'indirizzo email non può essere risolto nella rete pubblica",
     "'%localPart%' can not be matched against dot-atom format" => "'%localPart%' non può essere validato nel formato dot-atom",
     "'%localPart%' can not be matched against quoted-string format" => "'%localPart%' non può essere validato nel formato quoted-string",
@@ -106,18 +106,18 @@ return array(
 
     // Zend\Validator\File\Crc32
     "File does not match the given crc32 hashes" => "Il file non ha un hash crc32 tra quelli consentiti",
-    "A crc32 hash could not be evaluated for the given file" => "L'hash crc32 non può essere calcolato per il file dato",
+    "A crc32 hash could not be evaluated for the given file" => "Non può essere calcolato un hash crc32 per il file dato",
     "File is not readable or does not exist" => "Il file non è leggibile o non esiste",
 
     // Zend\Validator\File\ExcludeExtension
-    "File has an incorrect extension" => "Il file ha un'estensione invalida",
+    "File has an incorrect extension" => "Il file ha un'estensione non valida",
     "File is not readable or does not exist" => "Il file non è leggibile o non esiste",
 
     // Zend\Validator\File\Exists
     "File does not exist" => "Il file non esiste",
 
     // Zend\Validator\File\Extension
-    "File has an incorrect extension" => "Il file ha un'estensione invalida",
+    "File has an incorrect extension" => "Il file ha un'estensione non valida",
     "File is not readable or does not exist" => "Il file non è leggibile o non esiste",
 
     // Zend\Validator\File\FilesSize
@@ -126,8 +126,8 @@ return array(
     "One or more files can not be read" => "Uno o più file non possono essere letti",
 
     // Zend\Validator\File\Hash
-    "File does not match the given hashes" => "I file non corrisponde agli hash dati",
-    "A hash could not be evaluated for the given file" => "Un hash non può essere valutato per il file dato",
+    "File does not match the given hashes" => "Il file non corrisponde agli hash dati",
+    "A hash could not be evaluated for the given file" => "Non può essere calcolato un hash per il file dato",
     "File is not readable or does not exist" => "Il file non è leggibile o non esiste",
 
     // Zend\Validator\File\ImageSize
@@ -150,11 +150,11 @@ return array(
 
     // Zend\Validator\File\Md5
     "File does not match the given md5 hashes" => "Il file non corrisponde agli hash md5 dati",
-    "An md5 hash could not be evaluated for the given file" => "Un hash md5 non può essere valutato per il file dato",
+    "An md5 hash could not be evaluated for the given file" => "Non può essere calcolato un hash md5 per il file dato",
     "File is not readable or does not exist" => "Il file non è leggibile o non esiste",
 
     // Zend\Validator\File\MimeType
-    "File has an incorrect mimetype of '%type%'" => "Il file ha un mimetype invalido: '%type%'",
+    "File has an incorrect mimetype of '%type%'" => "Il file ha un mimetype non valido: '%type%'",
     "The mimetype could not be detected from the file" => "Il mimetype del file non può essere rilevato",
     "File is not readable or does not exist" => "Il file non è leggibile o non esiste",
 
@@ -163,7 +163,7 @@ return array(
 
     // Zend\Validator\File\Sha1
     "File does not match the given sha1 hashes" => "Il file non corrisponde agli hash sha1 dati",
-    "A sha1 hash could not be evaluated for the given file" => "Un hash sha1 non può essere valutato per il file dato",
+    "A sha1 hash could not be evaluated for the given file" => "Non può essere calcolato un file sha1 per il file dato",
     "File is not readable or does not exist" => "Il file non è leggibile o non esiste",
 
     // Zend\Validator\File\Size
@@ -205,25 +205,25 @@ return array(
     "The input is not greater or equal than '%min%'" => "L'input non è maggiore o uguale a '%min%'",
 
     // Zend\Validator\Hex
-    "Invalid type given. String expected" => "Tipo di dato non valido. Era attesto un dato di tipo string",
-    "The input contains non-hexadecimal characters" => "L'input non è composto solo da caratteri esadecimali",
+    "Invalid type given. String expected" => "Tipo di dato non valido. Era atteso un dato di tipo string",
+    "The input contains non-hexadecimal characters" => "L'input contiene caratteri non esadecimali",
 
     // Zend\Validator\Hostname
     "The input appears to be a DNS hostname but the given punycode notation cannot be decoded" => "L'input sembra essere un hostname DNS ma la notazione punycode data non può essere decodificata",
-    "Invalid type given. String expected" => "Tipo di dato non valido. Era attesto un dato di tipo string",
+    "Invalid type given. String expected" => "Tipo di dato non valido. Era atteso un dato di tipo string",
     "The input appears to be a DNS hostname but contains a dash in an invalid position" => "L'input sembra essere un hostname DNS ma contiene un trattino in una posizione non valida",
-    "The input does not match the expected structure for a DNS hostname" => "L'input non sembra rispettare la struttura attesa per un hostname DNS",
+    "The input does not match the expected structure for a DNS hostname" => "L'input non rispetta la struttura attesa per un hostname DNS",
     "The input appears to be a DNS hostname but cannot match against hostname schema for TLD '%tld%'" => "L'input sembra essere un hostname DNS ma non rispetta lo schema per il TLD '%tld%'",
     "The input does not appear to be a valid local network name" => "L'input non sembra essere un nome valido per una rete locale",
     "The input does not appear to be a valid URI hostname" => "L'input non sembra essere un hostname URI valido",
     "The input appears to be an IP address, but IP addresses are not allowed" => "L'input sembra essere un indirizzo IP, ma gli indirizzi IP non sono consentiti",
-    "The input appears to be a local network name but local network names are not allowed" => "L'input sembra essere un nome di una rete locale e queste non sono consentite",
+    "The input appears to be a local network name but local network names are not allowed" => "L'input sembra essere un nome di una rete locale ma i nomi di reti locale non sono consentiti",
     "The input appears to be a DNS hostname but cannot extract TLD part" => "L'input sembra essere un hostname DNS ma non è possibile estrarne il TLD",
     "The input appears to be a DNS hostname but cannot match TLD against known list" => "L'input sembra essere un hostname DNS ma il suo TLD è sconosciuto",
 
     // Zend\Validator\Iban
     "Unknown country within the IBAN" => "Codice paese sconosciuto nell'IBAN fornito",
-    "Countries outside the Single Euro Payments Area (SEPA) are not supported" => "I paesi fuori dall'Area unica dei pagamenti in euro (SEPA) non sono supportati",
+    "Countries outside the Single Euro Payments Area (SEPA) are not supported" => "I paesi fuori dall'Area Unica dei Pagamenti in Euro (SEPA) non sono supportati",
     "The input has a false IBAN format" => "L'input ha un formato IBAN non valido",
     "The input has failed the IBAN check" => "L'input ha fallito il controllo IBAN",
 
@@ -235,7 +235,7 @@ return array(
     "The input was not found in the haystack" => "L'input non è stato trovato nell'array",
 
     // Zend\Validator\Ip
-    "Invalid type given. String expected" => "Tipo di dato non valido. Era attesto un dato di tipo string",
+    "Invalid type given. String expected" => "Tipo di dato non valido. Era atteso un dato di tipo string",
     "The input does not appear to be a valid IP address" => "L'input non sembra essere un indirizzo IP valido",
 
     // Zend\Validator\IsInstanceOf
@@ -260,30 +260,30 @@ return array(
 
     // Zend\Validator\Sitemap\Changefreq
     "The input is not a valid sitemap changefreq" => "L'input non è una sitemap changefreq valida",
-    "Invalid type given. String expected" => "Tipo di dato non valido. Era attesto un dato di tipo string",
+    "Invalid type given. String expected" => "Tipo di dato non valido. Era atteso un dato di tipo string",
 
     // Zend\Validator\Sitemap\Lastmod
-    "The input is not a valid sitemap lastmod" => "L'input non è un sitemap lastmod valido",
-    "Invalid type given. String expected" => "Tipo di dato non valido. Era attesto un dato di tipo string",
+    "The input is not a valid sitemap lastmod" => "L'input non è una sitemap lastmod valida",
+    "Invalid type given. String expected" => "Tipo di dato non valido. Era atteso un dato di tipo string",
 
     // Zend\Validator\Sitemap\Loc
     "The input is not a valid sitemap location" => "L'input non è una sitemap location valida",
-    "Invalid type given. String expected" => "Tipo di dato non valido. Era attesto un dato di tipo string",
+    "Invalid type given. String expected" => "Tipo di dato non valido. Era atteso un dato di tipo string",
 
     // Zend\Validator\Sitemap\Priority
     "The input is not a valid sitemap priority" => "L'input non è una sitemap priority valida",
-    "Invalid type given. Numeric string, integer or float expected" => "Tipo di dato non valido. Era atteso un dato di tipo stringa numerica, float o integer",
+    "Invalid type given. Numeric string, integer or float expected" => "Tipo di dato non valido. Era atteso un dato di tipo stringa numerica, integer o float",
 
     // Zend\Validator\Step
-    "Invalid value given. Scalar expected" => "Tipo di dato non valido. Era attesto un dato di tipo scalare",
+    "Invalid value given. Scalar expected" => "Tipo di dato non valido. Era atteso un numero scalare",
     "The input is not a valid step" => "L'input non è uno step valido",
 
     // Zend\Validator\StringLength
-    "Invalid type given. String expected" => "Tipo di dato non valido. Era attesto un dato di tipo string",
+    "Invalid type given. String expected" => "Tipo di dato non valido. Era atteso un dato di tipo string",
     "The input is less than %min% characters long" => "L'input è meno lungo di %min% caratteri",
     "The input is more than %max% characters long" => "L'input è più lungo di %max% caratteri",
 
     // Zend\Validator\Uri
-    "Invalid type given. String expected" => "Tipo di dato non valido. Era attesto un dato di tipo string",
+    "Invalid type given. String expected" => "Tipo di dato non valido. Era atteso un dato di tipo string",
     "The input does not appear to be a valid Uri" => "L'input non sembra essere un indirizzo URI valido",
-);
+];

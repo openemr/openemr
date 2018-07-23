@@ -13,6 +13,9 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Message\UriInterface;
 
+use function array_key_exists;
+use function is_array;
+
 /**
  * Server-side HTTP request
  *

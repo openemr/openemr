@@ -9,12 +9,27 @@ namespace Stripe;
  */
 class ApiRequestor
 {
+    /**
+     * @var string|null
+     */
     private $_apiKey;
 
+    /**
+     * @var string
+     */
     private $_apiBase;
 
+    /**
+     * @var HttpClient\ClientInterface
+     */
     private static $_httpClient;
 
+    /**
+     * ApiRequestor constructor.
+     *
+     * @param string|null $apiKey
+     * @param string|null $apiBase
+     */
     public function __construct($apiKey = null, $apiBase = null)
     {
         $this->_apiKey = $apiKey;
@@ -24,6 +39,13 @@ class ApiRequestor
         $this->_apiBase = $apiBase;
     }
 
+    /**
+     * @static
+     *
+     * @param ApiResource|bool|array|mixed $d
+     *
+     * @return ApiResource|array|string|mixed
+     */
     private static function _encodeObjects($d)
     {
         if ($d instanceof ApiResource) {
@@ -33,7 +55,7 @@ class ApiRequestor
         } elseif ($d === false) {
             return 'false';
         } elseif (is_array($d)) {
-            $res = array();
+            $res = [];
             foreach ($d as $k => $v) {
                 $res[$k] = self::_encodeObjects($v);
             }
@@ -44,27 +66,37 @@ class ApiRequestor
     }
 
     /**
-     * @param string $method
-     * @param string $url
+     * @param string     $method
+     * @param string     $url
      * @param array|null $params
      * @param array|null $headers
      *
      * @return array An array whose first element is an API response and second
      *    element is the API key used to make the request.
+     * @throws Error\Api
+     * @throws Error\Authentication
+     * @throws Error\Card
+     * @throws Error\InvalidRequest
+     * @throws Error\OAuth\InvalidClient
+     * @throws Error\OAuth\InvalidGrant
+     * @throws Error\OAuth\InvalidRequest
+     * @throws Error\OAuth\InvalidScope
+     * @throws Error\OAuth\UnsupportedGrantType
+     * @throws Error\OAuth\UnsupportedResponseType
+     * @throws Error\Permission
+     * @throws Error\RateLimit
+     * @throws Error\Idempotency
+     * @throws Error\ApiConnection
      */
     public function request($method, $url, $params = null, $headers = null)
     {
-        if (!$params) {
-            $params = array();
-        }
-        if (!$headers) {
-            $headers = array();
-        }
+        $params = $params ?: [];
+        $headers = $headers ?: [];
         list($rbody, $rcode, $rheaders, $myApiKey) =
         $this->_requestRaw($method, $url, $params, $headers);
         $json = $this->_interpretResponse($rbody, $rcode, $rheaders);
         $resp = new ApiResponse($rbody, $rcode, $rheaders, $json);
-        return array($resp, $myApiKey);
+        return [$resp, $myApiKey];
     }
 
     /**
@@ -80,6 +112,16 @@ class ApiRequestor
      *    permissions.
      * @throws Error\Card if the error is the error code is 402 (payment
      *    required)
+     * @throws Error\InvalidRequest if the error is caused by the user.
+     * @throws Error\Idempotency if the error is caused by an idempotency key.
+     * @throws Error\OAuth\InvalidClient
+     * @throws Error\OAuth\InvalidGrant
+     * @throws Error\OAuth\InvalidRequest
+     * @throws Error\OAuth\InvalidScope
+     * @throws Error\OAuth\UnsupportedGrantType
+     * @throws Error\OAuth\UnsupportedResponseType
+     * @throws Error\Permission if the error is caused by insufficient
+     *    permissions.
      * @throws Error\RateLimit if the error is caused by too many requests
      *    hitting the API.
      * @throws Error\Api otherwise.
@@ -105,11 +147,23 @@ class ApiRequestor
         throw $error;
     }
 
+    /**
+     * @static
+     *
+     * @param string $rbody
+     * @param int    $rcode
+     * @param array  $rheaders
+     * @param array  $resp
+     * @param array  $errorData
+     *
+     * @return Error\RateLimit|Error\Idempotency|Error\InvalidRequest|Error\Authentication|Error\Card|Error\Permission|Error\Api
+     */
     private static function _specificAPIError($rbody, $rcode, $rheaders, $resp, $errorData)
     {
         $msg = isset($errorData['message']) ? $errorData['message'] : null;
         $param = isset($errorData['param']) ? $errorData['param'] : null;
         $code = isset($errorData['code']) ? $errorData['code'] : null;
+        $type = isset($errorData['type']) ? $errorData['type'] : null;
 
         switch ($rcode) {
             case 400:
@@ -117,6 +171,9 @@ class ApiRequestor
                 // for API versions earlier than 2015-09-08
                 if ($code == 'rate_limit') {
                     return new Error\RateLimit($msg, $param, $rcode, $rbody, $resp, $rheaders);
+                }
+                if ($type == 'idempotency_error') {
+                    return new Error\Idempotency($msg, $rcode, $rbody, $resp, $rheaders);
                 }
 
                 // intentional fall-through
@@ -135,6 +192,17 @@ class ApiRequestor
         }
     }
 
+    /**
+     * @static
+     *
+     * @param string|bool $rbody
+     * @param int         $rcode
+     * @param array       $rheaders
+     * @param array       $resp
+     * @param string      $errorCode
+     *
+     * @return null|Error\OAuth\InvalidClient|Error\OAuth\InvalidGrant|Error\OAuth\InvalidRequest|Error\OAuth\InvalidScope|Error\OAuth\UnsupportedGrantType|Error\OAuth\UnsupportedResponseType
+     */
     private static function _specificOAuthError($rbody, $rcode, $rheaders, $resp, $errorCode)
     {
         $description = isset($resp['error_description']) ? $resp['error_description'] : $errorCode;
@@ -157,6 +225,13 @@ class ApiRequestor
         return null;
     }
 
+    /**
+     * @static
+     *
+     * @param null|array $appInfo
+     *
+     * @return null|string
+     */
     private static function _formatAppInfo($appInfo)
     {
         if ($appInfo !== null) {
@@ -173,6 +248,14 @@ class ApiRequestor
         }
     }
 
+    /**
+     * @static
+     *
+     * @param string $apiKey
+     * @param null   $clientInfo
+     *
+     * @return array
+     */
     private static function _defaultHeaders($apiKey, $clientInfo = null)
     {
         $uaString = 'Stripe/v1 PhpBindings/' . Stripe::VERSION;
@@ -181,13 +264,13 @@ class ApiRequestor
         $uname = php_uname();
 
         $appInfo = Stripe::getAppInfo();
-        $ua = array(
+        $ua = [
             'bindings_version' => Stripe::VERSION,
             'lang' => 'php',
             'lang_version' => $langVersion,
             'publisher' => 'stripe',
             'uname' => $uname,
-        );
+        ];
         if ($clientInfo) {
             $ua = array_merge($clientInfo, $ua);
         }
@@ -196,14 +279,25 @@ class ApiRequestor
             $ua['application'] = $appInfo;
         }
 
-        $defaultHeaders = array(
+        $defaultHeaders = [
             'X-Stripe-Client-User-Agent' => json_encode($ua),
             'User-Agent' => $uaString,
             'Authorization' => 'Bearer ' . $apiKey,
-        );
+        ];
         return $defaultHeaders;
     }
 
+    /**
+     * @param string $method
+     * @param string $url
+     * @param array  $params
+     * @param array  $headers
+     *
+     * @return array
+     * @throws Error\Api
+     * @throws Error\ApiConnection
+     * @throws Error\Authentication
+     */
     private function _requestRaw($method, $url, $params, $headers)
     {
         $myApiKey = $this->_apiKey;
@@ -256,7 +350,7 @@ class ApiRequestor
         }
 
         $combinedHeaders = array_merge($defaultHeaders, $headers);
-        $rawHeaders = array();
+        $rawHeaders = [];
 
         foreach ($combinedHeaders as $header => $value) {
             $rawHeaders[] = $header . ': ' . $value;
@@ -269,9 +363,16 @@ class ApiRequestor
             $params,
             $hasFile
         );
-        return array($rbody, $rcode, $rheaders, $myApiKey);
+        return [$rbody, $rcode, $rheaders, $myApiKey];
     }
 
+    /**
+     * @param resource $resource
+     * @param bool     $hasCurlFile
+     *
+     * @return \CURLFile|string
+     * @throws Error\Api
+     */
     private function _processResourceParam($resource, $hasCurlFile)
     {
         if (get_resource_type($resource) !== 'stream') {
@@ -295,6 +396,26 @@ class ApiRequestor
         }
     }
 
+    /**
+     * @param string $rbody
+     * @param int    $rcode
+     * @param array  $rheaders
+     *
+     * @return mixed
+     * @throws Error\Api
+     * @throws Error\Authentication
+     * @throws Error\Card
+     * @throws Error\InvalidRequest
+     * @throws Error\OAuth\InvalidClient
+     * @throws Error\OAuth\InvalidGrant
+     * @throws Error\OAuth\InvalidRequest
+     * @throws Error\OAuth\InvalidScope
+     * @throws Error\OAuth\UnsupportedGrantType
+     * @throws Error\OAuth\UnsupportedResponseType
+     * @throws Error\Permission
+     * @throws Error\RateLimit
+     * @throws Error\Idempotency
+     */
     private function _interpretResponse($rbody, $rcode, $rheaders)
     {
         $resp = json_decode($rbody, true);
@@ -311,11 +432,19 @@ class ApiRequestor
         return $resp;
     }
 
+    /**
+     * @static
+     *
+     * @param HttpClient\ClientInterface $client
+     */
     public static function setHttpClient($client)
     {
         self::$_httpClient = $client;
     }
 
+    /**
+     * @return HttpClient\ClientInterface
+     */
     private function httpClient()
     {
         if (!self::$_httpClient) {

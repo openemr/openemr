@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2018 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -38,6 +38,12 @@ class AdapterPluginManager extends AbstractPluginManager
         'dba'              => Adapter\Dba::class,
         'Dba'              => Adapter\Dba::class,
         'DBA'              => Adapter\Dba::class,
+        'ext_mongo_db'     => Adapter\ExtMongoDb::class,
+        'extmongodb'       => Adapter\ExtMongoDb::class,
+        'ExtMongoDb'       => Adapter\ExtMongoDb::class,
+        'ExtMongoDB'       => Adapter\ExtMongoDb::class,
+        'extMongoDb'       => Adapter\ExtMongoDb::class,
+        'extMongoDB'       => Adapter\ExtMongoDb::class,
         'filesystem'       => Adapter\Filesystem::class,
         'Filesystem'       => Adapter\Filesystem::class,
         'memcache'         => Adapter\Memcache::class,
@@ -81,6 +87,7 @@ class AdapterPluginManager extends AbstractPluginManager
         Adapter\Apcu::class                     => InvokableFactory::class,
         Adapter\BlackHole::class                => InvokableFactory::class,
         Adapter\Dba::class                      => InvokableFactory::class,
+        Adapter\ExtMongoDb::class               => InvokableFactory::class,
         Adapter\Filesystem::class               => InvokableFactory::class,
         Adapter\Memcache::class                 => InvokableFactory::class,
         Adapter\Memcached::class                => InvokableFactory::class,
@@ -98,6 +105,7 @@ class AdapterPluginManager extends AbstractPluginManager
         'zendcachestorageadapterapcu'           => InvokableFactory::class,
         'zendcachestorageadapterblackhole'      => InvokableFactory::class,
         'zendcachestorageadapterdba'            => InvokableFactory::class,
+        'zendcachestorageadapterextmongodb'     => InvokableFactory::class,
         'zendcachestorageadapterfilesystem'     => InvokableFactory::class,
         'zendcachestorageadaptermemcache'       => InvokableFactory::class,
         'zendcachestorageadaptermemcached'      => InvokableFactory::class,

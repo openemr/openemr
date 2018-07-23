@@ -12,6 +12,8 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
+use Mpdf\Mpdf;
+
 // Font size in points for table cell data.
 $FONTSIZE = 9;
 
@@ -71,28 +73,28 @@ $PDF_OUTPUT = ($formid && $isform) ? false : true;
 //$PDF_OUTPUT = false; // debugging
 
 if ($PDF_OUTPUT) {
-    $pdf = new mPDF(
-        $GLOBALS['pdf_language'],
-        $GLOBALS['pdf_size'],
-        '', // default font size (pt)
-        '',
-        $GLOBALS['pdf_left_margin'],
-        $GLOBALS['pdf_right_margin'],
-        $GLOBALS['pdf_top_margin'],
-        $GLOBALS['pdf_bottom_margin'],
-        '', // default header margin
-        '', // default footer margin
-        $GLOBALS['pdf_layout']
+    $config_mpdf = array(
+        'mode' => $GLOBALS['pdf_language'],
+        'format' => $GLOBALS['pdf_size'],
+        'default_font_size' => '',
+        'default_font' => '',
+        'margin_left' => $GLOBALS['pdf_left_margin'],
+        'margin_right' => $GLOBALS['pdf_right_margin'],
+        'margin_top' => $GLOBALS['pdf_top_margin'],
+        'margin_bottom' => $GLOBALS['pdf_bottom_margin'],
+        'margin_header' => '',
+        'margin_footer' => '',
+        'orientation' => $GLOBALS['pdf_layout'],
+        'shrink_tables_to_fit' => 1,
+        'use_kwt' => true,
+        'autoScriptToLang' => true,
+        'keep_table_proportions' => true
     );
+    $pdf = new mPDF($config_mpdf);
     $pdf->SetDisplayMode('real');
-    $pdf->shrink_tables_to_fit = 1;
-    $keep_table_proportions = true;
-    $pdf->use_kwt = true;
-    $pdf->autoScriptToLang = true;
     if ($_SESSION['language_direction'] == 'rtl') {
         $pdf->SetDirectionality('rtl');
     }
-    
     ob_start();
 }
 
@@ -465,7 +467,7 @@ while ($frow = sqlFetchArray($fres)) {
         } else {
             echo "<td colspan='" . attr($datacols) . "' class='dcols$datacols stuff under' style='";
         }
-        
+
         if ($cell_count > 0) {
             echo "padding-left:5pt;";
         }

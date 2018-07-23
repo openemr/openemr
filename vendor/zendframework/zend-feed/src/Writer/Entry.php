@@ -364,7 +364,7 @@ class Entry
      */
     public function setTitle($title)
     {
-        if (empty($title) || ! is_string($title)) {
+        if ((empty($title) && ! is_numeric($title)) || ! is_string($title)) {
             throw new Exception\InvalidArgumentException('Invalid parameter: parameter must be a non-empty string');
         }
         $this->data['title'] = $title;

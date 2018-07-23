@@ -10,7 +10,7 @@
 /**
  * EN-Revision: 22075
  */
-return array(
+return [
     // Zend\I18n\Validator\Alnum
     "Invalid type given. String, integer or float expected" => "El tipo especificado no es válido. El valor debe ser de tipo punto flotante, cadena de texto o entero",
     "The input contains characters which are non alphabetic and no digits" => "El valor especificado contiene caracteres que no son alfabéticos ni dígitos",
@@ -286,4 +286,4 @@ return array(
     // Zend\Validator\Uri
     "Invalid type given. String expected" => "El tipo especificado es incorrecto, el valor debería ser una cadena de texto",
     "The input does not appear to be a valid Uri" => "El valor especificado no parece ser un Uri válido",
-);
+];

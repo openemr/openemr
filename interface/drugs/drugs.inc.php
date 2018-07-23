@@ -9,8 +9,10 @@
 // Modified 7-2009 by BM in order to migrate using the form,
 // unit, route, and interval lists with the
 // functions in openemr/library/options.inc.php .
-// These lists are based on the constants found in the 
+// These lists are based on the constants found in the
 // openemr/library/classes/Prescription.class.php file.
+
+use PHPMailer\PHPMailer\PHPMailer;
 
 // Decision was made in June 2013 that a sale line item in the Fee Sheet may
 // come only from the specified warehouse. Set this to false if the decision
@@ -82,7 +84,7 @@ function sellDrug(
     "FROM drugs WHERE drug_id = ?", array($drug_id));
     $allow_combining = $rowdrug['allow_combining'];
     $dispensable     = $rowdrug['dispensable'];
-  
+
     if (!$dispensable) {
         // Non-dispensable is a much simpler case and does not touch inventory.
         if ($testonly) {
@@ -98,7 +100,7 @@ function sellDrug(
         );
         return $sale_id;
     }
-  
+
   // Combining is never allowed for prescriptions and will not work with
   // dispense_drug.php.
     if ($prescription_id) {
@@ -187,7 +189,7 @@ function sellDrug(
         // $qty_left, if positive, is the amount requested that could not be allocated.
         return $qty_left <= 0;
     }
-  
+
     if ($bad_lot_list) {
         send_drug_email(
             "Possible lot destruction needed",
@@ -283,7 +285,7 @@ function sellDrug(
   // TBD: If the above is un-commented, fix it to handle the case of
   // $GLOBALS['gbl_min_max_months'] being true.
   *******************************************************************/
-  
+
   // If combining is allowed then $sale_id will be just the last inserted ID,
   // and it serves only to indicate that everything worked.  Otherwise there
   // can be only one inserted row and this is its ID.

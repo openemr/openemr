@@ -15,14 +15,7 @@ interface ProviderInterface
       * @param ConnectionInterface|null  $connection
       * @param SchemaInterface|null      $schema
       */
-     public function __construct($configuration, ConnectionInterface $connection, SchemaInterface $schema = null);
-
-    /**
-     * Destructor.
-     *
-     * Closes the current LDAP connection if it exists.
-     */
-    public function __destruct();
+    public function __construct($configuration, ConnectionInterface $connection, SchemaInterface $schema = null);
 
     /**
      * Returns the current connection instance.
@@ -106,7 +99,7 @@ interface ProviderInterface
     /**
      * Returns a new Search factory instance.
      *
-     * @return \Adldap\Search\Factory
+     * @return \Adldap\Query\Factory
      */
     public function search();
 
@@ -126,7 +119,7 @@ interface ProviderInterface
      * @param string|null $username
      * @param string|null $password
      *
-     * @throws \Adldap\Auth\BindException
+     * @throws \Adldap\Auth\BindException When binding to your LDAP server fails.
      *
      * @return ProviderInterface
      */

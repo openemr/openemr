@@ -2,13 +2,13 @@
 
 ### Installation
 
-Insert Adldap2 into your `composer.json` file:
+Adldap2 requires [Composer](https://getcomposer.org/) for installation.
+
+Once you have composer installed, run the following command in the root directory of your project:
 
 ```
-"adldap2/adldap2": "v7.0.*"
+composer require adldap2/adldap2
 ```
-
-Run `composer update` in the root of your project.
 
 You're all set!
 
@@ -19,19 +19,18 @@ You're all set!
 $ad = new \Adldap\Adldap();
 
 // Create a configuration array.
-$config = [
-  // Your account suffix, for example: jdoe@corp.acme.org
-  'account_suffix'        => '@corp.acme.org',
+$config = [  
+  // The domain controllers option is an array of your LDAP hosts. You can
+  // use the either the host name or the IP address of your host.
+  'domain_controllers'    => ['ACME-DC01.corp.acme.org', '192.168.1.1'],
   
-  // You can use the host name or the IP address of your controllers.
-  'domain_controllers'    => ['ACME-DC01.corp.acme.org', '10.0.20.119'],
-  
-  // Your base DN.
+  // The base distinguished name of your domain.
   'base_dn'               => 'dc=corp,dc=acme,dc=org',
   
-  // The account to use for querying / modifying users. This
-  // does not need to be an actual admin account.
-  'admin_username'        => 'admin',
+  // The account to use for querying / modifying LDAP records. This
+  // does not need to be an actual admin account. This can also
+  // be a full distinguished name of the user account.
+  'admin_username'        => 'admin@corp.acme.org',
   'admin_password'        => 'password',
 ];
 
@@ -39,30 +38,30 @@ $config = [
 $ad->addProvider($config);
 
 try {
-    // If a successful connection is made, the provider will be returned.
+    // If a successful connection is made to your server, the provider will be returned.
     $provider = $ad->connect();
 
-    // Perform a query.
+    // Performing a query.
     $results = $provider->search()->where('cn', '=', 'John Doe')->get();
     
-    // Find a user.
+    // Finding a record.
     $user = $provider->search()->find('jdoe');
 
-    // Create a new LDAP entry. You can pass in attributes into the make methods.
+    // Creating a new LDAP entry. You can pass in attributes into the make methods.
     $user =  $provider->make()->user([
         'cn'          => 'John Doe',
         'title'       => 'Accountant',
         'description' => 'User Account',
     ]);
 
-    // Set a model's attribute.
+    // Setting a model's attribute.
     $user->cn = 'John Doe';
 
-    // Save the changes to your LDAP server.
+    // Saving the changes to your LDAP server.
     if ($user->save()) {
         // User was saved!
     }
-} catch (\Adldap\Exceptions\Auth\BindException $e) {
+} catch (\Adldap\Auth\BindException $e) {
 
     // There was an issue binding / connecting to the server.
 

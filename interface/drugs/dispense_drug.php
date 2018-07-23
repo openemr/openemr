@@ -12,6 +12,7 @@ require_once("drugs.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Services\FacilityService;
+use PHPMailer\PHPMailer\PHPMailer;
 
 $facilityService = new FacilityService();
 

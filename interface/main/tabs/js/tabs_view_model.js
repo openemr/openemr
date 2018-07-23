@@ -63,6 +63,7 @@ function activateTab(data)
 
 function activateTabByName(name,hideOthers)
 {
+
     for(var tabIdx=0;tabIdx<app_view_model.application_data.tabs.tabsList().length;tabIdx++)
     {
         var curTab=app_view_model.application_data.tabs.tabsList()[tabIdx];
@@ -115,18 +116,29 @@ function tabCloseByName(name)
     }
 }
 
-function navigateTab(url,name)
+function navigateTab(url,name,afterLoadFunction)
 {
+
     top.restoreSession();
     var curTab;
     if($("iframe[name='"+name+"']").length>0)
     {
+        if(typeof afterLoadFunction !== 'function'){
+            $( "body" ).off( "load", "iframe[name='"+name+"']");
+        } else {
+            $("iframe[name='"+name+"']").on('load', function () {
+                afterLoadFunction();
+            });
+        }
        $("iframe[name='"+name+"']").get(0).contentWindow.location=url;
     }
     else
     {
-        curTab=new tabStatus("New",url,name,true,false,false);
+        curTab=new tabStatus(xl_strings_tabs_view_model.new,url,name,true,false,false);
         app_view_model.application_data.tabs.tabsList.push(curTab);
+        if(typeof afterLoadFunction === 'function'){
+            afterLoadFunction();
+        }
     }
 }
 
@@ -172,15 +184,20 @@ function chooseEncounterEvent(data,evt)
 function goToEncounter(encId)
 {
     var url=webroot_url+'/interface/patient_file/encounter/encounter_top.php?set_encounter=' + encId;
-    navigateTab(url,"enc");
-    activateTabByName("enc",true);
+
+    navigateTab(url,"enc", function () {
+        activateTabByName("enc",true);
+    });
+
 }
 
 function reviewEncounter(encId)
 {
     var url=webroot_url+'/interface/patient_file/encounter/forms.php?review_id=' + encId;
-    navigateTab(url,"rev");
-    activateTabByName("rev",true);
+    navigateTab(url,"rev",function () {
+        activateTabByName("rev",true);
+    });
+
 }
 
 function reviewEncounterEvent(data,evt)
@@ -205,15 +222,18 @@ function clickNewGroupEncounter(data,evt)
 function newEncounter()
 {
     var url=webroot_url+'/interface/forms/newpatient/new.php?autoloaded=1&calenc='
-    navigateTab(url,"enc");
-    activateTabByName("enc",true);
+    navigateTab(url, "enc", function () {
+        activateTabByName("enc",true);
+    });
+
 }
 
 function newTherapyGroupEncounter()
 {
     var url=webroot_url+'/interface/forms/newGroupEncounter/new.php?autoloaded=1&calenc=='
-    navigateTab(url,"enc");
-    activateTabByName("enc",true);
+    navigateTab(url, "enc", function () {
+        activateTabByName("enc",true);
+    });
 }
 
 function clickEncounterList(data,evt)
@@ -223,32 +243,33 @@ function clickEncounterList(data,evt)
 function encounterList()
 {
     var url=webroot_url+'/interface/patient_file/history/encounters.php'
-    navigateTab(url,"enc");
-    activateTabByName("enc",true);
-
+    navigateTab(url, "enc", function () {
+        activateTabByName("enc",true);
+    });
 }
 
 function loadCurrentPatient()
 {
     var url=webroot_url+'/interface/patient_file/summary/demographics.php'
-    navigateTab(url,"pat");
-    activateTabByName("pat",true);
-
+    navigateTab(url, "pat", function () {
+        activateTabByName("pat",true);
+    });
 }
 
 function loadCurrentTherapyGroup() {
 
     var url=webroot_url+'/interface/therapy_groups/index.php?method=groupDetails&group_id=from_session'
-    navigateTab(url,"gdg");
-    activateTabByName("gdg",true);
+    navigateTab(url,"gdg", function () {
+        activateTabByName("gdg",true);
+    });
 }
 
 function loadCurrentEncounter()
 {
     var url=webroot_url+'/interface/patient_file/encounter/encounter_top.php';
-    navigateTab(url,"enc");
-    activateTabByName("enc",true);
-
+    navigateTab(url, "enc", function () {
+        activateTabByName("enc",true);
+    });
 }
 
 function popMenuDialog(url, title) {
@@ -300,8 +321,10 @@ function menuActionClick(data,evt)
             matches[1] + '&formdesc=' + encodeURIComponent(data.label());
         }
 
-        navigateTab(webroot_url + dataurl, data.target);
-        activateTabByName(data.target,true);
+        navigateTab(webroot_url + dataurl, data.target, function () {
+            activateTabByName(data.target,true);
+        });
+
         var par = $(evt.currentTarget).closest("ul.menuEntries");
         par.wrap("<ul class='timedReplace' style='display:none;'></ul>");
         par.detach();
@@ -332,8 +355,10 @@ function clearPatient()
     tabCloseByName('rev');
     tabCloseByName('pop');
     tabCloseByName('pat');
-    navigateTab(webroot_url+'/interface/main/finder/dynamic_finder.php','fin');
-    activateTabByName('fin',true);
+    navigateTab(webroot_url+'/interface/main/finder/dynamic_finder.php','fin', function () {
+        activateTabByName('fin',true);
+    });
+
     //Ajax call to clear active patient in session
     $.ajax({
         type: "POST",
@@ -353,8 +378,10 @@ function clearTherapyGroup()
     app_view_model.application_data.therapy_group(null);
     tabCloseByName('gdg');
     tabCloseByName('enc');
-    navigateTab(webroot_url+'/interface/therapy_groups/index.php?method=listGroups','gfn');
-    activateTabByName('gfn',true);
+    navigateTab(webroot_url+'/interface/therapy_groups/index.php?method=listGroups','gfn', function () {
+        activateTabByName('gfn',true);
+    });
+
     //Ajax call to clear active patient in session
     $.ajax({
         type: "POST",

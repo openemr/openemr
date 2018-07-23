@@ -560,7 +560,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
         if ($DEBUG) {
             $alertmsg = xl("Printing skipped; see test output in") .' '. $STMT_TEMP_FILE;
         } else {
-            exec("$STMT_PRINT_CMD $STMT_TEMP_FILE");
+            exec(escapeshellcmd($STMT_PRINT_CMD) . " " . escapeshellarg($STMT_TEMP_FILE));
             if ($_POST['form_without']) {
                 $alertmsg = xl('Now printing') .' '. $stmt_count .' '. xl('statements; invoices will not be updated.');
             } else {
@@ -631,12 +631,16 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
         height:10000px;
        }
     }
-    .superscript {
-        position: relative; 
-        top: -0.5em; 
-        font-size: 70%;
-    }
 </style>
+    <?php
+    if ($GLOBALS['enable_help'] == 1) {
+        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xl("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+    } elseif ($GLOBALS['enable_help'] == 2) {
+        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xl("Enable help in Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+    } elseif ($GLOBALS['enable_help'] == 0) {
+         $help_icon = '';
+    }
+?>
 
 </head>
 
@@ -644,7 +648,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
     <div class="container">
         <div class="row">
              <div class="page-header">
-                <h2 class="clearfix"><span id='header_text'><?php echo xlt('EOB Posting - Search'); ?></span>&nbsp;&nbsp;  <a href='sl_eob_search.php' onclick='top.restoreSession()'  title="<?php echo xlt('Reset'); ?>"><i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i> </a><a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#000000"><i class="fa fa-question-circle" aria-hidden="true"></i></a></h2>
+                <h2 class="clearfix"><span id='header_text'><?php echo xlt('EOB Posting - Search'); ?></span>&nbsp;&nbsp;  <a href='sl_eob_search.php' onclick='top.restoreSession()'  title="<?php echo xlt('Reset'); ?>"><i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i> </a><?php echo $help_icon; ?></h2>
             </div>
         </div>
         <div class="row">
@@ -698,16 +702,16 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                 </fieldset>
                 <fieldset id="search-upload">
                     <legend>
-                        &nbsp;<span><?php echo xlt('Select Method');?></span>&nbsp;<i id='select-method-tooltip' class="fa fa-info-circle superscript" aria-hidden="true"></i>
+                        &nbsp;<span><?php echo xlt('Select Method');?></span>&nbsp;<i id='select-method-tooltip' class="fa fa-info-circle oe-superscript" aria-hidden="true"></i>
                         <div id="radio-div" class="pull-right oe-legend-radio">
                                 <label class="radio-inline">
-                                  <input type="radio" id="invoice_search" name="radio-search" onclick="" value="inv-search"><?php echo xlt('Invoice Search'); ?> 
+                                  <input type="radio" id="invoice_search" name="radio-search" onclick="" value="inv-search"><?php echo xlt('Invoice Search'); ?>
                                 </label>
                                 <label class="radio-inline">
                                   <input type="radio" id="era_upload" name="radio-search" onclick=""  value="era-upld"><?php echo xlt('ERA Upload'); ?>
                                 </label>
                         </div>
-                        
+
                         <input type="hidden" id="hid1" value="<?php echo xlt('Invoice Search');?>">
                         <input type="hidden" id="hid2" value="<?php echo xlt('ERA Upload');?>">
                         <input type="hidden" id="hid3" value="<?php echo xlt('Select Method');?>">
@@ -751,11 +755,11 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                     </div>
                     <div class="col-xs-12 .oe-custom-line oe-show-hide" id = 'era-upld'>
                         <div class="form-group col-xs9 oe-file-div">
-                            <div class="input-group"> 
+                            <div class="input-group">
                                 <label class="input-group-btn">
                                     <span class="btn btn-default">
                                         Browse&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;" >
-                                        <input name="MAX_FILE_SIZE" type="hidden" value="5000000"> 
+                                        <input name="MAX_FILE_SIZE" type="hidden" value="5000000">
                                     </span>
                                 </label>
                                 <input type="text" class="form-control" placeholder="<?php echo xlt('Click Browse and select one Electronic Remittance Advice (ERA) file...'); ?>" readonly>
@@ -767,9 +771,9 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                 <div class="form-group clearfix">
                     <div class="col-sm-12 position-override oe-show-hide" id="search-btn">
                         <div class="btn-group" role="group">
-                            <button type='submit' class="btn btn-default btn-search oe-show-hide" name='form_search' 
+                            <button type='submit' class="btn btn-default btn-search oe-show-hide" name='form_search'
                             id="btn-inv-search" value='<?php echo xla("Search"); ?>'><?php echo xlt("Search"); ?></button>
-                            <button type='submit' class="btn btn-default btn-save oe-show-hide" name='form_search' 
+                            <button type='submit' class="btn btn-default btn-save oe-show-hide" name='form_search'
                             id="btn-era-upld" value='<?php echo xla("Upload"); ?>'><?php echo xlt("Upload"); ?></button>
                         </div>
                     </div>
@@ -798,7 +802,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                                     exec("unzip -p $tmp_name.zip > $tmp_name");
                                     unlink("$tmp_name.zip");
                                 }
-                                
+
                                 echo "<!-- Notes from ERA upload processing:\n";
                                 $alertmsg .= parse_era($tmp_name, 'era_callback');
                                 echo "-->\n";
@@ -1051,14 +1055,14 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                                 <button type="button" class="btn btn-default btn-undo" name="Submit2"
                                 onclick='checkAll(false)'><?php echo xlt('Clear All');?></button>
                                 <?php if ($GLOBALS['statement_appearance'] != '1') { ?>
-                                    <button type="submit" class="btn btn-default btn-print" name='form_print' 
+                                    <button type="submit" class="btn btn-default btn-print" name='form_print'
                                     value="<?php echo xla('Print Selected Statements'); ?>">
                                     <?php echo xlt('Print Selected Statements');?></button>
-                                    <button type="submit" class="btn btn-default btn-download" name='form_download' 
+                                    <button type="submit" class="btn btn-default btn-download" name='form_download'
                                     value="<?php echo xla('Download Selected Statements'); ?>">
                                     <?php echo xlt('Download Selected Statements');?></button>
                                 <?php } ?>
-                                    <button type="submit" class="btn btn-default btn-download" name='form_pdf' 
+                                    <button type="submit" class="btn btn-default btn-download" name='form_pdf'
                                     value="<?php echo xla('PDF Download Selected Statements'); ?>">
                                     <?php echo xlt('PDF Download Selected Statements');?></button>
                                     <button type="submit" class="btn btn-default btn-mail" name='form_download'
@@ -1080,21 +1084,16 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
             </form>
         </div>
     </div> <!--End of Container div-->
-    <div class="row">
-            <div aria-hidden="true" aria-labelledby="myModalLabel" class="modal fade" id="myModal" role="dialog" tabindex="-1">
-                <div class="modal-dialog modal-lg">
-                     <div class="modal-content oe-modal-content">
-                        <div class="modal-header clearfix"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="color:#000000; font-size:1.5em;">×</span></button></div>
-                        <div class="modal-body" id="modal-content" name="modal-content">
-                            <iframe src="" id="targetiframe" style="height:75%; width:100%; overflow-x: hidden; border:none" allowtransparency="true"></iframe>  
-                        </div>
-                        <div class="modal-footer" style="margin-top:0px;">
-                            <button class="btn btn-link btn-cancel pull-right" data-dismiss="modal" type="button"><?php echo xlt('close'); ?></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    </div>
+     <br>
+    <?php
+    //home of the help modal ;)
+    //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
+    if ($GLOBALS['enable_help'] == 1) {
+        echo "<script>var helpFile = 'sl_eob_help.php'</script>";
+        //help_modal.php lives in interface, set path accordingly
+        require_once "../help_modal.php";
+    }
+    ?>
     <script language="JavaScript">
     function processERA() {
      var f = document.forms[0];
@@ -1118,10 +1117,10 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
             $(':file').on('fileselect', function(event, numFiles, label) {
                 var input = $(this).parents('.input-group').find(':text'),
                 log = numFiles > 1 ? numFiles + ' files selected' : label;
-                
+
                 if( input.length ) {
                 input.val(log);
-                } 
+                }
                 else {
                 if( log ) alert(log);
                 }
@@ -1162,10 +1161,6 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                 $('#select-method-tooltip').show();
             }
         });
-        
-        
-            //if (post-btn == 'search'){$('#payment-allocate').show();}
-            //else if (post-btn == 'upload'){$('#payment-allocate').hide();}
     });
     <?php
     if ($alertmsg) {
@@ -1173,27 +1168,9 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
     }
 
     ?>
-    /*function loadiframe(htmlHref) //load iframe
-    {
-    document.getElementById('targetiframe').src = htmlHref;
-    }*/
-    
-    
     $( document ).ready(function() {
-        $('#help-href').click (function(){
-            var radioVal = $("input[name='radio-search']:checked").val();
-            
-            if (radioVal == 'inv-search'){
-                document.getElementById('targetiframe').src ='../../interface/billing/sl_eob_help.php#invoice_search';
-            }
-            else if (radioVal == 'era-upld'){
-                document.getElementById('targetiframe').src ='../../interface/billing/sl_eob_help.php#electonic_remits';
-            }
-            else{
-                document.getElementById('targetiframe').src ='../../interface/billing/sl_eob_help.php#entire_doc';
-            }
-        })
-        $('#select-method-tooltip').tooltip({title: "<?php echo xla(' Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>"});
+        //using jquery-ui-1-12-1 tooltip instead of bootstrap tooltip
+        $('#select-method-tooltip').attr( "title", "<?php echo xla(' Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>").tooltip();
     });
     </script>
     <?php
@@ -1219,6 +1196,6 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
     <?php
     }
     ?>
-    
+
 </body>
 </html>

@@ -44,10 +44,15 @@ class kern extends Table {
         $pairs = array();
         $tree  = array();
 
-        for ($i = 0; $i < $subtable["nPairs"]; $i++) {
-          $left  = $font->readUInt16();
-          $right = $font->readUInt16();
-          $value = $font->readInt16();
+        $values = $font->readUInt16Many($subtable["nPairs"] * 3);
+        for ($i = 0, $idx = 0; $i < $subtable["nPairs"]; $i++) {
+          $left  = $values[$idx++];
+          $right = $values[$idx++];
+          $value = $values[$idx++];
+
+          if ($value >= 0x8000) {
+            $value -= 0x10000;
+          }
 
           $pairs[] = array(
             "left"  => $left,

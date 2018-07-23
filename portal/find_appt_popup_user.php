@@ -49,8 +49,8 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 
 $ignoreAuth = 1;
 
- include_once("../interface/globals.php");
- include_once("$srcdir/patient.inc");
+ require_once("../interface/globals.php");
+ require_once("$srcdir/patient.inc");
 
  $input_catid = $_REQUEST['catid'];
 
@@ -103,7 +103,7 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
 
  $catslots = 1;
 if ($input_catid) {
-    $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = '$input_catid'");
+    $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = ?", array($input_catid));
     if ($srow['pc_duration']) {
         $catslots = ceil($srow['pc_duration'] / $slotsecs);
     }
@@ -162,12 +162,12 @@ if ($_REQUEST['startdate'] && preg_match(
     // Note there is no need to sort the query results.
     //  echo $sdate." -- ".$edate;
         $query = "SELECT pc_eventDate, pc_endDate, pc_startTime, pc_duration, " .
-        "pc_recurrtype, pc_recurrspec, pc_alldayevent, pc_catid, pc_prefcatid, pc_title " .
-        "FROM openemr_postcalendar_events " .
-        "WHERE pc_aid = '$providerid' AND " .
-        "((pc_endDate >= '$sdate' AND pc_eventDate < '$edate') OR " .
-        "(pc_endDate = '0000-00-00' AND pc_eventDate >= '$sdate' AND pc_eventDate < '$edate'))";
-        $res = sqlStatement($query);
+            "pc_recurrtype, pc_recurrspec, pc_alldayevent, pc_catid, pc_prefcatid, pc_title " .
+            "FROM openemr_postcalendar_events " .
+            "WHERE pc_aid = ? AND " .
+            "((pc_endDate >= ? AND pc_eventDate < ?) OR " .
+            "(pc_endDate = '0000-00-00' AND pc_eventDate >= ? AND pc_eventDate < ?))";
+        $res = sqlStatement($query, array($providerid, $sdate, $edate, $sdate, $edate));
    //  print_r($res);
 
         while ($row = sqlFetchArray($res)) {
@@ -318,7 +318,7 @@ if ($_REQUEST['startdate'] && preg_match(
 <html>
 <head>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-<title><?php xl('Find Available Appointments', 'e'); ?></title>
+<title><?php echo xlt('Find Available Appointments'); ?></title>
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
     <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
@@ -403,19 +403,19 @@ function setappt(year,mon,mday,hours,minutes) {
 <body class="body_top">
 
 <div id="searchCriteria">
-<form method='post' name='theform' action='./find_appt_popup_user.php?providerid=<?php echo $providerid ?>&catid=<?php echo $input_catid ?>'>
+<form method='post' name='theform' action='./find_appt_popup_user.php?providerid=<?php echo attr($providerid); ?>&catid=<?php echo attr($input_catid); ?>'>
    <input type="hidden" name='bypatient' />
 
-    <?php xl('Start date:', 'e'); ?>
+    <?php echo xlt('Start date:'); ?>
 
-   <input type='text' class='datepicker' name='startdate' id='startdate' size='10' value='<?php echo $sdate ?>'
+   <input type='text' class='datepicker' name='startdate' id='startdate' size='10' value='<?php echo attr($sdate); ?>'
     title='yyyy-mm-dd starting date for search'/>
 
-    <?php xl('for', 'e'); ?>
-   <input type='text' name='searchdays' size='3' value='<?php echo $searchdays ?>'
+    <?php echo xlt('for'); ?>
+   <input type='text' name='searchdays' size='3' value='<?php echo attr($searchdays); ?>'
     title='Number of days to search from the start date' />
-    <?php xl('days', 'e'); ?>&nbsp;
-   <input type='submit' value='<?php xl('Search', 'e'); ?>'>
+    <?php echo xlt('days'); ?>&nbsp;
+   <input type='submit' value='<?php echo xla('Search'); ?>'>
 </div>
 
 <?php if (!empty($slots)) : ?>
@@ -430,8 +430,8 @@ function setappt(year,mon,mday,hours,minutes) {
 <table class='table table-inversed table-bordered'>
     <thead id="searchResultsHeader">
     <tr>
-        <th class="srDate"><?php xl('Day', 'e'); ?></th>
-        <th class="srTimes"><?php xl('Available Times', 'e'); ?></th>
+        <th class="srDate"><?php echo xlt('Day'); ?></th>
+        <th class="srTimes"><?php echo xlt('Available Times'); ?></th>
     </tr>
     </thead>
 <?php
@@ -496,7 +496,7 @@ if ($lastdate) {
     echo "</td>\n";
     echo " </tr>\n";
 } else {
-    echo " <tr><td colspan='2'> " . xl('No openings were found for this period.', 'e') . "</td></tr>\n";
+    echo " <tr><td colspan='2'> " . xlt('No openings were found for this period.') . "</td></tr>\n";
 }
 ?>
 </table>

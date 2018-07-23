@@ -663,9 +663,9 @@ if (($config == 1) && ($state < 4)) {
             echo "<tr><td>register_globals   </td><td>Off</td><td>", ini_get('register_globals')?'On':'Off', "</td></tr>\n";
             echo "<tr><td>max_input_vars     </td><td>at least 3000</td><td>", ini_get('max_input_vars'), "</td></tr>\n";
             echo "<tr><td>max_execution_time </td><td>at least 60</td><td>", ini_get('max_execution_time'), "</td></tr>\n";
-            echo "<tr><td>max_input_time     </td><td>at least 90</td><td>", ini_get('max_input_time'), "</td></tr>\n";
+            echo "<tr><td>max_input_time     </td><td>at least 90 or -1</td><td>", ini_get('max_input_time'), "</td></tr>\n";
             echo "<tr><td>post_max_size      </td><td>at least 30M</td><td>", ini_get('post_max_size'), "</td></tr>\n";
-            echo "<tr><td>memory_limit       </td><td>at least 128M</td><td>", ini_get('memory_limit'), "</td></tr>\n";
+            echo "<tr><td>memory_limit       </td><td>at least 256M</td><td>", ini_get('memory_limit'), "</td></tr>\n";
             echo "</table>";
             echo "</li>";
 

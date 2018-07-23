@@ -16,13 +16,6 @@ interface SchemaInterface
     public function accountExpires();
 
     /**
-     * Returns a string value indicating that an account does not expire.
-     *
-     * @return string
-     */
-    public function neverExpiresDate();
-
-    /**
      * The logon name used to support clients and servers running earlier versions of the
      * operating system, such as Windows NT 4.0, Windows 95, Windows 98,
      * and LAN Manager. This attribute must be 20 characters or
@@ -110,6 +103,13 @@ interface SchemaInterface
     public function computer();
 
     /**
+     * The class name of the Computer model.
+     *
+     * @return string
+     */
+    public function computerModel();
+
+    /**
      * DN enterprise configuration naming context.
      *
      * @link https://support.microsoft.com/en-us/kb/219005
@@ -126,6 +126,20 @@ interface SchemaInterface
      * @return string
      */
     public function contact();
+
+    /**
+     * The class name of the Contact model.
+     *
+     * @return string
+     */
+    public function contactModel();
+
+    /**
+     * The class name of the Container model.
+     *
+     * @return string
+     */
+    public function containerModel();
 
     /**
      * The entry's country attribute.
@@ -307,11 +321,32 @@ interface SchemaInterface
     public function employeeType();
 
     /**
-     * The AD false bool in string form for conversion.
+     * The class name of the Entry model.
+     *
+     * @return string
+     */
+    public function entryModel();
+
+    /**
+     * The LDAP `false` boolean in string form for conversion.
      *
      * @return string
      */
     public function false();
+
+    /**
+     * The LDAP filter to query for enabled users.
+     *
+     * @return mixed
+     */
+    public function filterEnabled();
+
+    /**
+     * The LDAP filter to query for disabled users.
+     *
+     * @return mixed
+     */
+    public function filterDisabled();
 
     /**
      * Contains the given name (first name) of the user.
@@ -321,6 +356,13 @@ interface SchemaInterface
      * @return string
      */
     public function firstName();
+
+    /**
+     * The class name of the Group model.
+     *
+     * @return string
+     */
+    public function groupModel();
 
     /**
      * Contains a set of flags that define the type and scope of a group object.
@@ -346,6 +388,24 @@ interface SchemaInterface
      * @return string
      */
     public function homeMdb();
+
+    /**
+     * Specifies the drive letter to which to map the UNC path specified by homeDirectory.
+     * 
+     * @link https://msdn.microsoft.com/en-us/library/ms676191(v=vs.85).aspx
+     *
+     * @return string|null
+     */
+    public function homeDrive();
+
+    /**
+     * The home directory for the account.
+     * 
+     * @link https://msdn.microsoft.com/en-us/library/ms676190(v=vs.85).aspx
+     *
+     * @return string|null
+     */
+    public function homeDirectory();
 
     /**
      * The users extra notable information.
@@ -506,6 +566,27 @@ interface SchemaInterface
     public function member();
 
     /**
+     * The distinguished names of the groups to which this object belongs.
+     *
+     * @link https://msdn.microsoft.com/en-us/library/ms677099(v=vs.85).aspx
+     *
+     * @return string
+     */
+    public function memberOf();
+
+    /**
+     * The distinguished names of the groups to which this object belongs.
+     *
+     * This string contains a rule OID indicating the inclusion of ancestral and child members.
+     *
+     * @link https://msdn.microsoft.com/en-us/library/ms677099(v=vs.85).aspx
+     * @link https://msdn.microsoft.com/en-us/library/aa746475(v=vs.85).aspx
+     *
+     * @return string
+     */
+    public function memberOfRecursive();
+
+    /**
      * The range limited list of users that belong to the group. See range limit in Active Directory
      * (Range Retrieval of Attribute Values https://msdn.microsoft.com/en-us/library/cc223242.aspx)
      * Issue #342
@@ -518,15 +599,6 @@ interface SchemaInterface
      * @return string
      */
     public function memberRange($from, $to);
-
-    /**
-     * The distinguished name of the groups to which this object belongs.
-     *
-     * @link https://msdn.microsoft.com/en-us/library/ms677099(v=vs.85).aspx
-     *
-     * @return string
-     */
-    public function memberOf();
 
     /**
      * @link https://msdn.microsoft.com/en-us/library/ms981934(v=exchg.65).aspx
@@ -548,6 +620,13 @@ interface SchemaInterface
      * @return string
      */
     public function name();
+
+    /**
+     * Returns a string value indicating that an account does not expire.
+     *
+     * @return string
+     */
+    public function neverExpiresDate();
 
     /**
      * An object class name used to group objects of this or derived classes.
@@ -631,22 +710,6 @@ interface SchemaInterface
     public function objectClass();
 
     /**
-     * The person object class.
-     *
-     * Represents people who are associated with an organization in some way.
-     *
-     * @return string
-     */
-    public function objectClassPerson();
-
-    /**
-     * The user object class.
-     *
-     * @return string
-     */
-    public function objectClassUser();
-
-    /**
      * The computer object class.
      *
      * @return string
@@ -659,6 +722,13 @@ interface SchemaInterface
      * @return string
      */
     public function objectClassContact();
+
+    /**
+     * The container object class.
+     *
+     * @return string
+     */
+    public function objectClassContainer();
 
     /**
      * The group object class.
@@ -675,11 +745,13 @@ interface SchemaInterface
     public function objectClassOu();
 
     /**
-     * The container object class.
+     * The person object class.
+     *
+     * Represents people who are associated with an organization in some way.
      *
      * @return string
      */
-    public function objectClassContainer();
+    public function objectClassPerson();
 
     /**
      * The printer object class.
@@ -691,6 +763,13 @@ interface SchemaInterface
     public function objectClassPrinter();
 
     /**
+     * The user object class.
+     *
+     * @return string
+     */
+    public function objectClassUser();
+
+    /**
      * The unique identifier for an object.
      *
      * @link https://msdn.microsoft.com/en-us/library/ms679021(v=vs.85).aspx
@@ -698,6 +777,13 @@ interface SchemaInterface
      * @return string
      */
     public function objectGuid();
+
+    /**
+     * Determine whether the object GUID requires conversion from binary.
+     *
+     * @return bool
+     */
+    public function objectGuidRequiresConversion();
 
     /**
      * A binary value that specifies the security identifier (SID) of the user.
@@ -709,6 +795,13 @@ interface SchemaInterface
      * @return string
      */
     public function objectSid();
+
+    /**
+     * Determine whether the object SID requires conversion from binary.
+     *
+     * @return bool
+     */
+    public function objectSidRequiresConversion();
 
     /**
      * The Operating System name, for example, Windows Vista Enterprise.
@@ -738,6 +831,13 @@ interface SchemaInterface
     public function operatingSystemVersion();
 
     /**
+     * The RDN version of organization name for use in distinguished names.
+     *
+     * @return mixed
+     */
+    public function organizationName();
+
+    /**
      * This class is used for objects that contain organizational information about a user,
      * such as the employee number, department, manager, title, office address, and so on.
      *
@@ -757,18 +857,18 @@ interface SchemaInterface
     public function organizationalUnit();
 
     /**
+     * The class name of the Organizational Unit model.
+     *
+     * @return string
+     */
+    public function organizationalUnitModel();
+
+    /**
      * The RDN version of organizational unit for use in distinguished names.
      *
      * @return string
      */
     public function organizationalUnitShort();
-
-    /**
-     * The RDN version of organization name for use in distinguished names.
-     *
-     * @return mixed
-     */
-    public function organizationName();
 
     /**
      * Contains other additional mail addresses in a form such as CCMAIL: JohnDoe.
@@ -837,6 +937,15 @@ interface SchemaInterface
      * @return string
      */
     public function postalCode();
+
+    /**
+     * The post office box number for this object.
+     *
+     * @link https://msdn.microsoft.com/en-us/library/ms679367(v=vs.85).aspx
+     *
+     * @return string
+     */
+    public function postOfficeBox();
 
     /**
      * Contains the relative identifier (RID) for the primary group of the user.
@@ -911,6 +1020,13 @@ interface SchemaInterface
      * @return string
      */
     public function printerMemory();
+
+    /**
+     * The class name of the Printer model.
+     *
+     * @return string
+     */
+    public function printerModel();
 
     /**
      * The display name of an attached printer.
@@ -1130,7 +1246,7 @@ interface SchemaInterface
     public function top();
 
     /**
-     * The AD true bool in string form for conversion.
+     * The LDAP `true` boolean in string form for conversion.
      *
      * @return string
      */
@@ -1182,6 +1298,20 @@ interface SchemaInterface
     public function userAccountControl();
 
     /**
+     * The user ID attribute.
+     *
+     * @return string
+     */
+    public function userId();
+
+    /**
+     * The class name of the User model.
+     *
+     * @return string
+     */
+    public function userModel();
+
+    /**
      * This attribute contains the UPN that is an Internet-style login name for
      * a user based on the Internet standard RFC 822.
      *
@@ -1192,11 +1322,18 @@ interface SchemaInterface
     public function userPrincipalName();
 
     /**
-     * The user ID attribute.
+     * Contains the NetBIOS or DNS names of the computers running Windows NT Workstation
+     * or Windows 2000 Professional from which the user can log on.
+     *
+     * Each NetBIOS name is separated by a comma.
+     *
+     * Multiple names should be separated by commas.
+     *
+     * @link https://msdn.microsoft.com/en-us/library/ms680868(v=vs.85).aspx
      *
      * @return string
      */
-    public function userId();
+    public function userWorkstations();
 
     /**
      * A general purpose version number.

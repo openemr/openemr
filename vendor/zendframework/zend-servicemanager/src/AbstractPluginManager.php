@@ -355,6 +355,8 @@ abstract class AbstractPluginManager extends ServiceManager implements ServiceLo
         } elseif (is_array($callable)) {
             // reset both rewinds and returns the value of the first array element
             $factory = reset($callable);
+        } else {
+            $factory = null;
         }
 
         if ($factory instanceof Factory\InvokableFactory) {

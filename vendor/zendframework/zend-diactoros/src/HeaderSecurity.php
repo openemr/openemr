@@ -9,6 +9,17 @@ namespace Zend\Diactoros;
 
 use InvalidArgumentException;
 
+use function get_class;
+use function gettype;
+use function in_array;
+use function is_numeric;
+use function is_object;
+use function is_string;
+use function ord;
+use function preg_match;
+use function sprintf;
+use function strlen;
+
 /**
  * Provide security tools around HTTP headers to prevent common injection vectors.
  *

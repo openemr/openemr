@@ -36,8 +36,6 @@ class BinaryFileResponse extends Response
     protected $deleteFileAfterSend = false;
 
     /**
-     * Constructor.
-     *
      * @param \SplFileInfo|string $file               The file to stream
      * @param int                 $status             The response status code
      * @param array               $headers            An array of response headers
@@ -150,19 +148,19 @@ class BinaryFileResponse extends Response
      * Sets the Content-Disposition header with the given filename.
      *
      * @param string $disposition      ResponseHeaderBag::DISPOSITION_INLINE or ResponseHeaderBag::DISPOSITION_ATTACHMENT
-     * @param string $filename         Optionally use this filename instead of the real name of the file
+     * @param string $filename         Optionally use this UTF-8 encoded filename instead of the real name of the file
      * @param string $filenameFallback A fallback filename, containing only ASCII characters. Defaults to an automatically encoded filename
      *
      * @return $this
      */
     public function setContentDisposition($disposition, $filename = '', $filenameFallback = '')
     {
-        if ($filename === '') {
+        if ('' === $filename) {
             $filename = $this->file->getFilename();
         }
 
         if ('' === $filenameFallback && (!preg_match('/^[\x20-\x7e]*$/', $filename) || false !== strpos($filename, '%'))) {
-            $encoding = mb_detect_encoding($filename, null, true);
+            $encoding = mb_detect_encoding($filename, null, true) ?: '8bit';
 
             for ($i = 0, $filenameLength = mb_strlen($filename, $encoding); $i < $filenameLength; ++$i) {
                 $char = mb_substr($filename, $i, 1, $encoding);
@@ -214,7 +212,7 @@ class BinaryFileResponse extends Response
             if (false === $path) {
                 $path = $this->file->getPathname();
             }
-            if (strtolower($type) === 'x-accel-redirect') {
+            if ('x-accel-redirect' === strtolower($type)) {
                 // Do X-Accel-Mapping substitutions.
                 // @link http://wiki.nginx.org/X-accel#X-Accel-Redirect
                 foreach (explode(',', $request->headers->get('X-Accel-Mapping', '')) as $mapping) {
@@ -254,7 +252,7 @@ class BinaryFileResponse extends Response
                     if ($start < 0 || $end > $fileSize - 1) {
                         $this->setStatusCode(416);
                         $this->headers->set('Content-Range', sprintf('bytes */%s', $fileSize));
-                    } elseif ($start !== 0 || $end !== $fileSize - 1) {
+                    } elseif (0 !== $start || $end !== $fileSize - 1) {
                         $this->maxlen = $end < $fileSize ? $end - $start + 1 : -1;
                         $this->offset = $start;
 

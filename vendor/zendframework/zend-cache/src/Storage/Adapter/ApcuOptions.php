@@ -25,7 +25,7 @@ class ApcuOptions extends AdapterOptions
      * Set namespace separator
      *
      * @param  string $namespaceSeparator
-     * @return ApcuOptions
+     * @return ApcuOptions Provides a fluent interface
      */
     public function setNamespaceSeparator($namespaceSeparator)
     {

@@ -10,7 +10,7 @@
 /**
  * EN-Revision: 16.Jul.2013
  */
-return array(
+return [
     // Zend\I18n\Validator\Alnum
     "Invalid type given. String, integer or float expected" => "Tipus no vàlid donat. S'espera una cadena de text, un enter o un nombre de precisió simple",
     "The input contains characters which are non alphabetic and no digits" => "L'entrada conté caràcters que no són alfabètics ni dígits",
@@ -294,4 +294,4 @@ return array(
     // Zend\Validator\Uri
     "Invalid type given. String expected" => "Tipus no vàlid donat. S'espera una cadena de text",
     "The input does not appear to be a valid Uri" => "L'entrada no sembla ser un URI vàlid",
-);
+];

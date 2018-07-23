@@ -8,7 +8,7 @@ namespace Doctrine\CouchDB\HTTP;
 /**
  * Basic couch DB connection handling class
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @license     http://www.opensource.org/licenses/mit-license.php MIT
  * @link        www.doctrine-project.com
  * @since       1.0
  * @author      Kore Nordmann <kore@arbitracker.org>
@@ -25,10 +25,11 @@ abstract class AbstractHTTPClient implements Client
         'port'       => 5984,
         'ip'         => '127.0.0.1',
         'ssl'        => false,
-        'timeout'    => .01,
+        'timeout'    => 0.01,
         'keep-alive' => true,
         'username'   => null,
         'password'   => null,
+        'path'       => null,
     );
 
     /**
@@ -43,15 +44,18 @@ abstract class AbstractHTTPClient implements Client
      * @param string $password
      * @param string $ip
      * @param bool $ssl
+     * @param string $path
      * @return \Doctrine\CouchDB\HTTP\AbstractHTTPClient
      */
-    public function __construct( $host = 'localhost', $port = 5984, $username = null, $password = null, $ip = null , $ssl = false )
+    public function __construct($host = 'localhost', $port = 5984, $username = null, $password = null, $ip = null , $ssl = false, $path = null, $timeout = 0.01)
     {
         $this->options['host']     = (string) $host;
         $this->options['port']     = (int) $port;
         $this->options['ssl']      = $ssl;
         $this->options['username'] = $username;
         $this->options['password'] = $password;
+        $this->options['path']     = $path;
+        $this->options['timeout']  = (float) $timeout;
 
         if ($ip === null) {
             $this->options['ip'] = gethostbyname($this->options['host']);
@@ -90,6 +94,16 @@ abstract class AbstractHTTPClient implements Client
         default:
             throw new \InvalidArgumentException( "Unknown option $option." );
         }
+    }
+
+    /**
+     * Get the connection options.
+     *
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->options;
     }
 }
 

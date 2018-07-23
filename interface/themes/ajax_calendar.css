@@ -28,7 +28,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     float: right;
     width: 100%;
     border-bottom:1px solid black;
-	padding: 5px 0px 3px 0px; /*RP_ADDED_2017-02-19*/
+    padding: 5px 0px 3px 0px; /*RP_ADDED_2017-02-19*/
 }
 #dateNAV {
     float: left;

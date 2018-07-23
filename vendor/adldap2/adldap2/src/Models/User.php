@@ -3,19 +3,28 @@
 namespace Adldap\Models;
 
 use DateTime;
-use Exception;
 use Adldap\Utilities;
 use Adldap\AdldapException;
-use Adldap\Objects\AccountControl;
-use Adldap\Objects\BatchModification;
-use Adldap\Models\Traits\HasMemberOf;
-use Adldap\Models\Traits\HasDescription;
-use Adldap\Models\Traits\HasLastLogonAndLogOff;
+use Adldap\Schemas\ActiveDirectory;
+use Adldap\Models\Concerns\HasMemberOf;
+use Adldap\Models\Concerns\HasDescription;
+use Adldap\Models\Concerns\HasUserAccountControl;
+use Adldap\Models\Concerns\HasLastLogonAndLogOff;
 use Illuminate\Contracts\Auth\Authenticatable;
 
+/**
+ * Class User
+ *
+ * Represents an LDAP user.
+ *
+ * @package Adldap\Models
+ */
 class User extends Entry implements Authenticatable
 {
-    use HasDescription, HasMemberOf, HasLastLogonAndLogOff;
+    use HasDescription,
+        HasMemberOf,
+        HasLastLogonAndLogOff,
+        HasUserAccountControl;
 
     /**
      * Get the name of the unique identifier for the user.
@@ -24,7 +33,7 @@ class User extends Entry implements Authenticatable
      */
     public function getAuthIdentifierName()
     {
-        return $this->schema->objectSid();
+        return $this->schema->objectGuid();
     }
 
     /**
@@ -34,7 +43,7 @@ class User extends Entry implements Authenticatable
      */
     public function getAuthIdentifier()
     {
-        return $this->getConvertedSid();
+        return $this->getConvertedGuid();
     }
 
     /**
@@ -82,7 +91,7 @@ class User extends Entry implements Authenticatable
     /**
      * Returns the users department.
      *
-     * https://msdn.microsoft.com/en-us/library/ms675490(v=vs.85).aspx
+     * @link https://msdn.microsoft.com/en-us/library/ms675490(v=vs.85).aspx
      *
      * @return string
      */
@@ -128,7 +137,7 @@ class User extends Entry implements Authenticatable
     /**
      * Returns the users title.
      *
-     * https://msdn.microsoft.com/en-us/library/ms680037(v=vs.85).aspx
+     * @link https://msdn.microsoft.com/en-us/library/ms680037(v=vs.85).aspx
      *
      * @return string
      */
@@ -152,7 +161,7 @@ class User extends Entry implements Authenticatable
     /**
      * Returns the users first name.
      *
-     * https://msdn.microsoft.com/en-us/library/ms675719(v=vs.85).aspx
+     * @link https://msdn.microsoft.com/en-us/library/ms675719(v=vs.85).aspx
      *
      * @return mixed
      */
@@ -176,7 +185,7 @@ class User extends Entry implements Authenticatable
     /**
      * Returns the users last name.
      *
-     * https://msdn.microsoft.com/en-us/library/ms679872(v=vs.85).aspx
+     * @link https://msdn.microsoft.com/en-us/library/ms679872(v=vs.85).aspx
      *
      * @return mixed
      */
@@ -308,6 +317,28 @@ class User extends Entry implements Authenticatable
     }
 
     /**
+     * Get the users post office box.
+     *
+     * @return mixed
+     */
+    public function getPostOfficeBox()
+    {
+        return $this->getFirstAttribute($this->schema->postOfficeBox());
+    }
+
+    /**
+     * Sets the users post office box.
+     *
+     * @param string|int $box
+     *
+     * @return $this
+     */
+    public function setPostOfficeBox($box)
+    {
+        return $this->setFirstAttribute($this->schema->postOfficeBox(), $box);
+    }
+
+    /**
      * Returns the users physical delivery office name.
      *
      * @return string
@@ -332,7 +363,7 @@ class User extends Entry implements Authenticatable
     /**
      * Returns the users telephone number.
      *
-     * https://msdn.microsoft.com/en-us/library/ms680027(v=vs.85).aspx
+     * @link https://msdn.microsoft.com/en-us/library/ms680027(v=vs.85).aspx
      *
      * @return string
      */
@@ -351,6 +382,30 @@ class User extends Entry implements Authenticatable
     public function setTelephoneNumber($number)
     {
         return $this->setFirstAttribute($this->schema->telephone(), $number);
+    }
+
+    /**
+     * Returns the users facsimile number.
+     *
+     * @link https://msdn.microsoft.com/en-us/library/ms675675(v=vs.85).aspx
+     *
+     * @return string
+     */
+    public function getFacsimileNumber()
+    {
+        return $this->getFirstAttribute($this->schema->facsimile());
+    }
+
+    /**
+     * Sets the users facsimile number.
+     *
+     * @param string $number
+     *
+     * @return $this
+     */
+    public function setFacsimileNumber($number)
+    {
+        return $this->setFirstAttribute($this->schema->facsimile(), $number);
     }
 
     /**
@@ -378,7 +433,7 @@ class User extends Entry implements Authenticatable
     /**
      * Returns the users company.
      *
-     * https://msdn.microsoft.com/en-us/library/ms675457(v=vs.85).aspx
+     * @link https://msdn.microsoft.com/en-us/library/ms675457(v=vs.85).aspx
      *
      * @return string
      */
@@ -402,7 +457,7 @@ class User extends Entry implements Authenticatable
     /**
      * Returns the users primary email address.
      *
-     * https://msdn.microsoft.com/en-us/library/ms676855(v=vs.85).aspx
+     * @link https://msdn.microsoft.com/en-us/library/ms676855(v=vs.85).aspx
      *
      * @return string
      */
@@ -429,7 +484,7 @@ class User extends Entry implements Authenticatable
     /**
      * Returns the users email addresses.
      *
-     * https://msdn.microsoft.com/en-us/library/ms676855(v=vs.85).aspx
+     * @link https://msdn.microsoft.com/en-us/library/ms676855(v=vs.85).aspx
      *
      * @return array
      */
@@ -453,7 +508,7 @@ class User extends Entry implements Authenticatable
     /**
      * Returns the users other mailbox attribute.
      *
-     * https://msdn.microsoft.com/en-us/library/ms679091(v=vs.85).aspx
+     * @link https://msdn.microsoft.com/en-us/library/ms679091(v=vs.85).aspx
      *
      * @return array
      */
@@ -477,13 +532,61 @@ class User extends Entry implements Authenticatable
     /**
      * Returns the users mailbox store DN.
      *
-     * https://msdn.microsoft.com/en-us/library/aa487565(v=exchg.65).aspx
+     * @link https://msdn.microsoft.com/en-us/library/aa487565(v=exchg.65).aspx
      *
      * @return string
      */
     public function getHomeMdb()
     {
         return $this->getFirstAttribute($this->schema->homeMdb());
+    }
+
+    /**
+     * Sets the users home drive.
+     * 
+     * @link https://msdn.microsoft.com/en-us/library/ms676191(v=vs.85).aspx
+     * 
+     * @return $this
+     */
+    public function setHomeDrive($drive)
+    {
+        return $this->setAttribute($this->schema->homeDrive(), $drive);
+    }
+
+    /**
+     * Specifies the drive letter to which to map the UNC path specified by homeDirectory.
+     * 
+     * @link https://msdn.microsoft.com/en-us/library/ms676191(v=vs.85).aspx
+     *
+     * @return string|null
+     */
+    public function getHomeDrive()
+    {
+        return $this->getFirstAttribute($this->schema->homeDrive());
+    }
+
+    /**
+     * Sets the users home directory.
+     * 
+     * @link https://msdn.microsoft.com/en-us/library/ms676190(v=vs.85).aspx
+     * 
+     * @return $this
+     */
+    public function setHomeDirectory($directory)
+    {
+        return $this->setAttribute($this->schema->homeDirectory(), $directory);
+    }
+
+    /**
+     * The home directory for the account.
+     * 
+     * @link https://msdn.microsoft.com/en-us/library/ms676190(v=vs.85).aspx
+     *
+     * @return string|null
+     */
+    public function getHomeDirectory()
+    {
+        return $this->getFirstAttribute($this->schema->homeDirectory());
     }
 
     /**
@@ -501,7 +604,7 @@ class User extends Entry implements Authenticatable
      *
      * This is usually their email address.
      *
-     * https://msdn.microsoft.com/en-us/library/ms680857(v=vs.85).aspx
+     * @link https://msdn.microsoft.com/en-us/library/ms680857(v=vs.85).aspx
      *
      * @return string
      */
@@ -523,9 +626,39 @@ class User extends Entry implements Authenticatable
     }
 
     /**
+     * Returns an array of workstations the user is assigned to.
+     *
+     * @return array
+     */
+    public function getUserWorkstations()
+    {
+        $workstations = $this->getFirstAttribute($this->schema->userWorkstations());
+
+        return array_filter(explode(',', $workstations));
+    }
+
+    /**
+     * Sets the workstations the user can login to.
+     *
+     * @param string|array $workstations The names of the workstations the user can login to.
+     *                                   Must be an array of names, or a comma separated
+     *                                   list of names.
+     *
+     * @return $this
+     */
+    public function setUserWorkstations($workstations = [])
+    {
+        if (is_array($workstations)) {
+            $workstations = implode(',', $workstations);
+        }
+
+        return $this->setFirstAttribute($this->schema->userWorkstations(), $workstations);
+    }
+
+    /**
      * Returns the users proxy addresses.
      *
-     * https://msdn.microsoft.com/en-us/library/ms679424(v=vs.85).aspx
+     * @link https://msdn.microsoft.com/en-us/library/ms679424(v=vs.85).aspx
      *
      * @return array
      */
@@ -539,7 +672,7 @@ class User extends Entry implements Authenticatable
      *
      * This will remove all proxy addresses on the user and insert the specified addresses.
      *
-     * https://msdn.microsoft.com/en-us/library/ms679424(v=vs.85).aspx
+     * @link https://msdn.microsoft.com/en-us/library/ms679424(v=vs.85).aspx
      *
      * @param array $addresses
      *
@@ -569,7 +702,7 @@ class User extends Entry implements Authenticatable
     /**
      * Returns the users script path if the user has one.
      *
-     * https://msdn.microsoft.com/en-us/library/ms679656(v=vs.85).aspx
+     * @link https://msdn.microsoft.com/en-us/library/ms679656(v=vs.85).aspx
      *
      * @return string
      */
@@ -655,28 +788,6 @@ class User extends Entry implements Authenticatable
     }
 
     /**
-     * Returns the users user account control integer.
-     *
-     * @return string
-     */
-    public function getUserAccountControl()
-    {
-        return $this->getFirstAttribute($this->schema->userAccountControl());
-    }
-
-    /**
-     * Sets the users account control property.
-     *
-     * @param int|string|AccountControl $accountControl
-     *
-     * @return $this
-     */
-    public function setUserAccountControl($accountControl)
-    {
-        return $this->setAttribute($this->schema->userAccountControl(), (string) $accountControl);
-    }
-
-    /**
      * Returns the users profile file path.
      *
      * @return string
@@ -721,7 +832,7 @@ class User extends Entry implements Authenticatable
     /**
      * Sets the users account expiry date.
      *
-     * https://msdn.microsoft.com/en-us/library/ms675098(v=vs.85).aspx
+     * @link https://msdn.microsoft.com/en-us/library/ms675098(v=vs.85).aspx
      *
      * @param float $expiryTime
      *
@@ -758,17 +869,54 @@ class User extends Entry implements Authenticatable
     /**
      * Returns the users thumbnail photo base 64 encoded.
      *
+     * Suitable for inserting into an HTML image element.
+     *
      * @return null|string
      */
     public function getThumbnailEncoded()
     {
-        $thumb = $this->getThumbnail();
+        $data = base64_decode($this->getThumbnail());
 
-        return is_null($thumb) ? $thumb : 'data:image/jpeg;base64,'.base64_encode($thumb);
+        if ($data) {
+            // In case we don't have the file info extension enabled,
+            // we'll set the jpeg mime type as default.
+            $mime = 'image/jpeg';
+
+            $image = base64_encode($data);
+
+            if (function_exists('finfo_open')) {
+                $finfo = finfo_open();
+
+                $mime = finfo_buffer($finfo, $data, FILEINFO_MIME_TYPE);
+
+                return "data:$mime;base64,$image";
+            }
+
+            return "data:$mime;base64,$image";
+        }
     }
 
     /**
-     * Returns the users jpeg photo.
+     * Sets the users thumbnail photo.
+     *
+     * @param string $data
+     * @param bool   $encode
+     *
+     * @return $this
+     */
+    public function setThumbnail($data, $encode = true)
+    {
+        if ($encode && !base64_decode($data, $strict = true)) {
+            // If the string we're given is not base 64 encoded, then
+            // we will encode it before setting it on the user.
+            $data = base64_encode($data);
+        }
+
+        return $this->setAttribute($this->schema->thumbnail(), $data);
+    }
+
+    /**
+     * Returns the users JPEG photo.
      *
      * @return mixed
      */
@@ -778,7 +926,7 @@ class User extends Entry implements Authenticatable
     }
 
     /**
-     * Returns the users jpeg photo.
+     * Returns the users JPEG photo.
      *
      * @return null|string
      */
@@ -787,6 +935,22 @@ class User extends Entry implements Authenticatable
         $jpeg = $this->getJpegPhoto();
 
         return is_null($jpeg) ? $jpeg : 'data:image/jpeg;base64,'.base64_encode($jpeg);
+    }
+
+    /**
+     * Sets the users JPEG photo.
+     *
+     * @param string $string
+     *
+     * @return $this
+     */
+    public function setJpegPhoto($string)
+    {
+        if (!base64_decode($string, $strict = true)) {
+            $string = base64_encode($string);
+        }
+
+        return $this->setAttribute($this->schema->jpegPhoto(), $string);
     }
 
     /**
@@ -916,7 +1080,7 @@ class User extends Entry implements Authenticatable
      *
      * @param string $password
      *
-     * @throws AdldapException
+     * @throws AdldapException When no SSL or TLS secured connection is present.
      *
      * @return $this
      */
@@ -924,26 +1088,52 @@ class User extends Entry implements Authenticatable
     {
         $this->validateSecureConnection();
 
-        return $this->addModification(new BatchModification(
+        $mod = $this->newBatchModification(
             $this->schema->unicodePassword(),
             LDAP_MODIFY_BATCH_REPLACE,
             [Utilities::encodePassword($password)]
-        ));
+        );
+
+        return $this->addModification($mod);
     }
 
     /**
-     * Change the password of the current user. This must be performed over SSL.
+     * Sets the option to force the password change at the next logon.
+     *
+     * Does not work if the "Password never expires" option is enabled.
+     *
+     * @return $this
+     */
+    public function setEnableForcePasswordChange()
+    {
+        return $this->setFirstAttribute($this->schema->passwordLastSet(), 0);
+    }
+
+    /**
+     * Sets the option to disable forcing a password change at the next logon.
+     *
+     * @return $this
+     */
+    public function setDisableForcePasswordChange()
+    {
+        return $this->setFirstAttribute($this->schema->passwordLastSet(), -1);
+    }
+
+    /**
+     * Change the password of the current user. This must be performed over SSL / TLS.
+     *
+     * Throws an exception on failure.
      *
      * @param string $oldPassword      The new password
      * @param string $newPassword      The old password
      * @param bool   $replaceNotRemove Alternative password change method. Set to true if you're receiving 'CONSTRAINT'
      *                                 errors.
      *
-     * @throws UserPasswordPolicyException
-     * @throws UserPasswordIncorrectException
-     * @throws AdldapException
+     * @throws UserPasswordPolicyException When the new password does not match your password policy.
+     * @throws UserPasswordIncorrectException When the old password is incorrect.
+     * @throws AdldapException When an unknown cause of failure occurs.
      *
-     * @return bool
+     * @return true
      */
     public function changePassword($oldPassword, $newPassword, $replaceNotRemove = false)
     {
@@ -954,21 +1144,21 @@ class User extends Entry implements Authenticatable
         $modifications = [];
 
         if ($replaceNotRemove) {
-            $modifications[] = new BatchModification(
+            $modifications[] = $this->newBatchModification(
                 $attribute,
                 LDAP_MODIFY_BATCH_REPLACE,
                 [Utilities::encodePassword($newPassword)]
             );
         } else {
             // Create batch modification for removing the old password.
-            $modifications[] = new BatchModification(
+            $modifications[] = $this->newBatchModification(
                 $attribute,
                 LDAP_MODIFY_BATCH_REMOVE,
                 [Utilities::encodePassword($oldPassword)]
             );
 
             // Create batch modification for adding the new password.
-            $modifications[] = new BatchModification(
+            $modifications[] = $this->newBatchModification(
                 $attribute,
                 LDAP_MODIFY_BATCH_ADD,
                 [Utilities::encodePassword($newPassword)]
@@ -980,9 +1170,9 @@ class User extends Entry implements Authenticatable
             $this->addModification($modification);
         }
 
-        try {
-            return $this->update();
-        } catch (Exception $e) {
+        $result = @$this->update();
+
+        if (!$result) {
             // If the user failed to update, we'll see if we can
             // figure out why by retrieving the extended error.
             $error = $this->query->getConnection()->getExtendedError();
@@ -998,29 +1188,11 @@ class User extends Entry implements Authenticatable
                         "Error: $code. Your old password is incorrect."
                     );
                 default:
-                    throw new AdldapException("Error: $error");
+                    throw new AdldapException($error);
             }
         }
-    }
 
-    /**
-     * Returns if the user is disabled.
-     *
-     * @return bool
-     */
-    public function isDisabled()
-    {
-        return ($this->getUserAccountControl() & AccountControl::ACCOUNTDISABLE) === AccountControl::ACCOUNTDISABLE;
-    }
-
-    /**
-     * Returns if the user is enabled.
-     *
-     * @return bool
-     */
-    public function isEnabled()
-    {
-        return $this->getUserAccountControl() === null ? false : !$this->isDisabled();
+        return $result;
     }
 
     /**
@@ -1038,7 +1210,9 @@ class User extends Entry implements Authenticatable
 
         $unixTime = Utilities::convertWindowsTimeToUnixTime($accountExpiry);
 
-        return new DateTime(date($this->dateFormat, $unixTime));
+        $date = date($this->dateFormat, $unixTime);
+
+        return new DateTime($date);
     }
 
     /**
@@ -1074,6 +1248,38 @@ class User extends Entry implements Authenticatable
      */
     public function passwordExpired()
     {
-        return (int) $this->getPasswordLastSet() === 0;
+        $lastSet = (int) $this->getPasswordLastSet();
+
+        if ($lastSet === 0) {
+            // If the users last set time is zero, the password has
+            // been manually expired by an administrator.
+            return true;
+        }
+
+        // We'll check if we're using the ActiveDirectory schema to retrieve
+        // the max password age, as this is an AD-only feature.
+        if ($this->schema instanceof ActiveDirectory) {
+            $query = $this->query->newInstance();
+
+            // We need to get the root domain object to be able to
+            // retrieve the max password age on the domain.
+            $rootDomainObject = $query->select($this->schema->maxPasswordAge())
+                ->whereHas($this->schema->objectClass())
+                ->first();
+
+            // Get the users password expiry in Windows time.
+            $passwordExpiry = bcsub($lastSet, $rootDomainObject->getMaxPasswordAge());
+
+            // Convert the Windows time to unix.
+            $passwordExpiryTime = Utilities::convertWindowsTimeToUnixTime($passwordExpiry);
+
+            $expiresAt = (new DateTime())->setTimestamp($passwordExpiryTime);
+
+            // If our current time is greater than the users password
+            // expiry time, the users password has expired.
+            return (new DateTime())->getTimestamp() >= $expiresAt->getTimestamp();
+        }
+
+        return false;
     }
 }
