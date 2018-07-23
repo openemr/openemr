@@ -269,7 +269,11 @@ if ($_REQUEST['unlock'] == '1') {
     // if it's locked and they own it ($REQUEST[LOCKEDBY] == LOCKEDBY), they can unlock it
     $query = "SELECT LOCKED,LOCKEDBY,LOCKEDDATE from form_eye_locking WHERE ID=?";
     $lock = sqlQuery($query, array($form_id));
+<<<<<<< HEAD
     if (($lock['LOCKED'] > '')) { //&& ($_REQUEST['LOCKEDBY'] == $lock['LOCKEDBY'])) {
+=======
+    if (($lock['LOCKED'] > '') ) { //&& ($_REQUEST['LOCKEDBY'] == $lock['LOCKEDBY'])) {
+>>>>>>> Eye_innodb
         $query = "update form_eye_locking set LOCKED='',LOCKEDBY='' where id=?";
         sqlQuery($query, array($form_id));
     }
@@ -278,7 +282,13 @@ if ($_REQUEST['unlock'] == '1') {
 } elseif ($_REQUEST['acquire_lock'] == "1") {
     //we are taking over the form's active state, others will go read-only
     $query = "UPDATE form_eye_locking set LOCKED='1',LOCKEDBY=?,LOCKEDDATE=NOW() where id=?";//" and LOCKEDBY=?";
+<<<<<<< HEAD
     $result = sqlQuery($query, array($_REQUEST['uniqueID'], $form_id ));
+=======
+    echo $query."<br />";
+    $result = sqlQuery($query, array($_REQUEST['uniqueID'], $form_id ));
+    echo $query. " - - ".$_REQUEST['uniqueID'] . "----".$form_id ;
+>>>>>>> Eye_innodb
     exit;
 } else {
     $query = "SELECT LOCKED,LOCKEDBY,LOCKEDDATE from form_eye_locking WHERE ID=?";
@@ -329,6 +339,10 @@ if ($_REQUEST["mode"] == "new") {
         $query = "INSERT INTO " . $table_name . " ('id','pid') VALUES (?,?)";
         $result = sqlStatement($query, array($new_id,$pid));
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> Eye_innodb
 } elseif ($_REQUEST["mode"] == "update") {
     // The user has write privileges to work with...
 
@@ -567,8 +581,13 @@ if ($_REQUEST["mode"] == "new") {
             exit;
         } else {
             if ($form_type == 'ROS') { //ROS
+<<<<<<< HEAD
                 $query = "UPDATE form_eye_ros set ROSGENERAL=?,ROSHEENT=?,ROSCV=?,ROSPULM=?,ROSGI=?,ROSGU=?,ROSDERM=?,ROSNEURO=?,ROSPSYCH=?,ROSMUSCULO=?,ROSIMMUNO=?,ROSENDOCRINE=?,ROSCOMMENTS=?.pid=? where id=?";
                 sqlStatement($query, array($_REQUEST['ROSGENERAL'], $_REQUEST['ROSHEENT'], $_REQUEST['ROSCV'], $_REQUEST['ROSPULM'], $_REQUEST['ROSGI'], $_REQUEST['ROSGU'], $_REQUEST['ROSDERM'], $_REQUEST['ROSNEURO'], $_REQUEST['ROSPSYCH'], $_REQUEST['ROSMUSCULO'], $_REQUEST['ROSIMMUNO'], $_REQUEST['ROSENDOCRINE'], $_REQUEST['ROSCOMMENTS'],$pid, $form_id));
+=======
+                $query = "UPDATE form_eye_ros set ROSGENERAL=?,ROSHEENT=?,ROSCV=?,ROSPULM=?,ROSGI=?,ROSGU=?,ROSDERM=?,ROSNEURO=?,ROSPSYCH=?,ROSMUSCULO=?,ROSIMMUNO=?,ROSENDOCRINE=? where id=? and pid=?";
+                sqlStatement($query, array($_REQUEST['ROSGENERAL'], $_REQUEST['ROSHEENT'], $_REQUEST['ROSCV'], $_REQUEST['ROSPULM'], $_REQUEST['ROSGI'], $_REQUEST['ROSGU'], $_REQUEST['ROSDERM'], $_REQUEST['ROSNEURO'], $_REQUEST['ROSPSYCH'], $_REQUEST['ROSMUSCULO'], $_REQUEST['ROSIMMUNO'], $_REQUEST['ROSENDOCRINE'], $form_id, $pid));
+>>>>>>> Eye_innodb
                 $PMSFH = build_PMSFH($pid);
                 send_json_values($PMSFH);
                 exit;
@@ -625,6 +644,10 @@ if ($_REQUEST["mode"] == "new") {
                 usertext16=?,
                 usertext17=?,
                 usertext18=? where pid=?";
+<<<<<<< HEAD
+=======
+                //echo $_REQUEST['relatives_cancer'],$_REQUEST['relatives_diabetes'],$_REQUEST['relatives_high_blood_pressure'],$_REQUEST['relatives_heart_problems'],$_REQUEST['relatives_stroke'],$_REQUEST['relatives_epilepsy'],$_REQUEST['relatives_mental_illness'],$_REQUEST['relatives_suicide'],$_REQUEST['usertext11'],$_REQUEST['usertext12'],$_REQUEST['usertext13'],$_REQUEST['usertext14'],$_REQUEST['usertext15'],$_REQUEST['usertext16'],$_REQUEST['usertext17'],$_REQUEST['usertext18'],$pid;
+>>>>>>> Eye_innodb
                 $resFH = sqlStatement($query, array($_REQUEST['relatives_cancer'], $_REQUEST['relatives_diabetes'], $_REQUEST['relatives_high_blood_pressure'], $_REQUEST['relatives_heart_problems'], $_REQUEST['relatives_stroke'], $_REQUEST['relatives_epilepsy'], $_REQUEST['relatives_mental_illness'], $_REQUEST['relatives_suicide'], $_REQUEST['usertext11'], $_REQUEST['usertext12'], $_REQUEST['usertext13'], $_REQUEST['usertext14'], $_REQUEST['usertext15'], $_REQUEST['usertext16'], $_REQUEST['usertext17'], $_REQUEST['usertext18'], $pid));
                 $PMSFH = build_PMSFH($pid);
                 send_json_values($PMSFH);
@@ -806,7 +829,11 @@ if ($_REQUEST["mode"] == "new") {
                 $item["fee"] = $res["pr_price"];
             }
             $item["justify"] .= ":";
+<<<<<<< HEAD
             BillingUtilities::addBilling($encounter, $item["codetype"], $item["code"], $item["codedesc"], $pid, '1', $providerID, $item["modifier"], $item["units"], $item["fee"], $ndc_info, $item["justify"], $billed, '');
+=======
+            addBilling($encounter, $item["codetype"], $item["code"], $item["codedesc"], $pid, '1', $providerID, $item["modifier"], $item["units"], $item["fee"], $ndc_info, $item["justify"], $billed, '');
+>>>>>>> Eye_innodb
         }
         echo "OK";
         exit;
@@ -856,6 +883,7 @@ if ($_REQUEST["mode"] == "new") {
     $query = "select form_encounter.date as encounter_date from form_encounter where form_encounter.encounter =?";
     $encounter_data = sqlQuery($query, array($encounter));
     $dated = new DateTime($encounter_data['encounter_date']);
+<<<<<<< HEAD
     $visit_date = $dated->format('Y-m-d');
     
     $N = count($_POST['PLAN']);
@@ -869,10 +897,24 @@ if ($_REQUEST["mode"] == "new") {
             $fields['PLAN'] .= $_POST['PLAN'][$i] . "|"; //this makes an entry for form_eyemag: PLAN
             $ORDERS_sql = "INSERT INTO form_eye_mag_orders (form_id,pid,ORDER_DETAILS,ORDER_PRIORITY,ORDER_STATUS,ORDER_DATE_PLACED,ORDER_PLACED_BYWHOM) VALUES (?,?,?,?,?,?,?)";
             $okthen = sqlQuery($ORDERS_sql, array($form_id, $pid, $_POST['PLAN'][$i], $i, 'pending', $visit_date, $providerID));
+=======
+    $dated = $dated->format('Y-m-d');
+    $visit_date = oeFormatShortDate($dated);
+
+    $N = count($_POST['PLAN']);
+    $sql_clear = "DELETE from form_eye_mag_orders where ORDER_PID =? and ORDER_PLACED_BYWHOM=? and ORDER_DATE_PLACED=? and ORDER_STATUS ='pending'";
+    sqlQuery($sql_clear, array($pid, $providerID, $visit_date));
+    if ($N > '0') {
+        for ($i = 0; $i < $N; $i++) {
+            $fields['PLAN'] .= $_POST['PLAN'][$i] . "|"; //this makes an entry for form_eyemag: PLAN
+            $ORDERS_sql = "REPLACE INTO form_eye_mag_orders (ORDER_PID,ORDER_DETAILS,ORDER_STATUS,ORDER_DATE_PLACED,ORDER_PLACED_BYWHOM) VALUES (?,?,?,?,?)";
+            $okthen = sqlQuery($ORDERS_sql, array($pid, $_POST['PLAN'][$i], 'pending', $visit_date, $providerID));
+>>>>>>> Eye_innodb
         }
 
         $_POST['PLAN'] = mb_substr($fields['PLAN'], 0, -1); //get rid of trailing "|"
     }
+<<<<<<< HEAD
     
     $M = count($_POST['TEST']);
     if ($M > '0') {
@@ -984,6 +1026,126 @@ if ($_REQUEST["mode"] == "new") {
         'form_eye_external', 'form_eye_antseg','form_eye_postseg',
         'form_eye_neuro','form_eye_locking');
 
+=======
+
+    if ($_REQUEST['PLAN2']) {
+        $fields['PLAN'] .= $_REQUEST['PLAN2'];
+        //there is something in the "freeform" plan textarea... This was removed in 5.0.0, keep for legacy?
+        $ORDERS_sql = "REPLACE INTO form_eye_mag_orders (ORDER_PID,ORDER_DETAILS,ORDER_STATUS,ORDER_PRIORITY,ORDER_DATE_PLACED,ORDER_PLACED_BYWHOM) VALUES (?,?,?,?,?,?)";
+        $okthen = sqlQuery($ORDERS_sql, array($pid, $_POST['PLAN'][$i], 'pending', "PLAN2:$PLAN2", $visit_date, $providerID));
+    }
+
+    $M = count($_POST['TEST']);
+    if ($M > '0') {
+        for ($i = 0; $i < $M; $i++) {
+            $_POST['Resource'] .= $_POST['TEST'][$i] . "|"; //this makes an entry for form_eyemag: Resource
+        }
+
+        $_POST['Resource'] = mb_substr($_POST['Resource'], 0, -1); //get rid of trailing "|"
+    }
+
+    /** Empty Checkboxes need to be entered manually as they are only submitted via POST when they are checked
+     * If NOT checked on the form, they are sent via POST and thus are NOT overridden in the DB,
+     *  so DB won't change unless we define them into the $fields array as "0"...
+     */
+    if (!$_POST['alert']) {
+        $_POST['alert'] = '0';
+    }
+
+    if (!$_POST['oriented']) {
+        $_POST['oriented'] = '0';
+    }
+
+    if (!$_POST['confused']) {
+        $_POST['confused'] = '0';
+    }
+
+    if (!$_POST['PUPIL_NORMAL']) {
+        $_POST['PUPIL_NORMAL'] = '0';
+    }
+
+    if (!$_POST['MOTILITYNORMAL']) {
+        $_POST['MOTILITYNORMAL'] = '0';
+    }
+
+    if (!$_POST['ACT']) {
+        $_POST['ACT'] = 'off';
+    }
+
+    if (!$_POST['DIL_RISKS']) {
+        $_POST['DIL_RISKS'] = '0';
+    }
+
+    if (!$_POST['ATROPINE']) {
+        $_POST['ATROPINE'] = '0';
+    }
+
+    if (!$_POST['CYCLOGYL']) {
+        $_POST['CYCLOGYL'] = '0';
+    }
+
+    if (!$_POST['CYCLOMYDRIL']) {
+        $_POST['CYCLOMYDRIL'] = '0';
+    }
+
+    if (!$_POST['NEO25']) {
+        $_POST['NEO25'] = '0';
+    }
+
+    if (!$_POST['TROPICAMIDE']) {
+        $_POST['TROPICAMIDE'] = '0';
+    }
+
+    if (!$_POST['BALANCED']) {
+        $_POST['BALANCED'] = '0';
+    }
+
+    if (!$_POST['ODVF1']) {
+        $_POST['ODVF1'] = '0';
+    }
+
+    if (!$_POST['ODVF2']) {
+        $_POST['ODVF2'] = '0';
+    }
+
+    if (!$_POST['ODVF3']) {
+        $_POST['ODVF3'] = '0';
+    }
+
+    if (!$_POST['ODVF4']) {
+        $_POST['ODVF4'] = '0';
+    }
+
+    if (!$_POST['OSVF1']) {
+        $_POST['OSVF1'] = '0';
+    }
+
+    if (!$_POST['OSVF2']) {
+        $_POST['OSVF2'] = '0';
+    }
+
+    if (!$_POST['OSVF3']) {
+        $_POST['OSVF3'] = '0';
+    }
+
+    if (!$_POST['OSVF4']) {
+        $_POST['OSVF4'] = '0';
+    }
+
+    if (!$_POST['TEST']) {
+        $_POST['Resource'] = '';
+    }
+
+    if (!$_POST['PLAN']) {
+        $_POST['PLAN'] = ' ';
+    }
+
+    $tables = array('form_eye_hpi','form_eye_ros','form_eye_vitals',
+        'form_eye_acuity','form_eye_refraction','form_eye_biometrics',
+        'form_eye_external', 'form_eye_antseg','form_eye_postseg',
+        'form_eye_neuro','form_eye_locking');
+
+>>>>>>> Eye_innodb
     foreach ($tables as $table_name) {
         $query = "SHOW COLUMNS from " . $table_name . "";
         $result = sqlStatement($query);
@@ -996,6 +1158,11 @@ if ($_REQUEST["mode"] == "new") {
         $sql2 ='';
         if (sqlNumRows($result) > 0) {
             while ($row = sqlFetchArray($result)) {
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> Eye_innodb
                 //exclude critical columns/fields and those needing special processing from update
                 if ($row['Field'] == 'id' or
                     $row['Field'] == 'date' or
@@ -1018,7 +1185,11 @@ if ($_REQUEST["mode"] == "new") {
             $sql = substr($sql, 0, -1);
             $sql .= " where id=?";
             $fields[] = $form_id;
+<<<<<<< HEAD
             $success = sqlStatement($sql, $fields);
+=======
+            $success = sqlStatement($sql,$fields);
+>>>>>>> Eye_innodb
         }
     }
     //now save any Wear RXs (1-4) entered.
@@ -1045,9 +1216,15 @@ if ($_REQUEST["mode"] == "new") {
                 $_POST['ODMPDD_1'], $_POST['ODMPDN_1'], $_POST['OSMPDD_1'], $_POST['OSMPDN_1'], $_POST['BPDD_1'], $_POST['BPDN_1'], $_POST['LENS_MATERIAL_1'],
                 $LENS_TREATMENTS_1));
             $rx_number++;
+<<<<<<< HEAD
     } else {
         $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
         sqlQuery($query, array($encounter, $pid, $form_id, '1'));
+=======
+        } else {
+            $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
+            sqlQuery($query, array($encounter, $pid, $form_id, '1'));
+>>>>>>> Eye_innodb
     }
     if ($_POST['W_2'] == '1') {
         //store W_2

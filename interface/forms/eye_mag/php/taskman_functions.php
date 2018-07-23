@@ -286,8 +286,12 @@ function make_document($task)
                     forms.form_id=form_eye_postseg.id and
                     forms.form_id=form_eye_neuro.id and
                     forms.form_id=form_eye_locking.id and
+<<<<<<< HEAD
                     forms.form_id =? and
                     forms.pid=?";
+=======
+                    forms.form_id =? ";
+>>>>>>> Eye_innodb
     $encounter_data =sqlQuery($query, array($encounter,$task['PATIENT_ID']));
     @extract($encounter_data);
     $providerID  =  getProviderIdOfEncounter($encounter);

@@ -43,8 +43,11 @@ $form_name = "Eye Form";
 $form_folder = "eye_mag";
 require_once("php/" . $form_folder . "_functions.php");
 
+<<<<<<< HEAD
 $RX_expir = "+1 years";
 $CTL_expir = "+6 months";
+=======
+>>>>>>> Eye_innodb
 //echo "<pre>";var_dump($_REQUEST);exit;
 if (!$_REQUEST['pid'] && $_REQUEST['id']) {
     $_REQUEST['pid'] = $_REQUEST['id'];
@@ -96,7 +99,14 @@ $pat_data   = sqlQuery($query, array($data['pid']));
 
 $practice_data = $facilityService->getPrimaryBusinessEntity();
 
+<<<<<<< HEAD
 $visit_date = oeFormatShortDate($data['encounter_date']);
+=======
+$dated      = new DateTime($data['encounter_date']);
+$dated      = $dated->format('Y/m/d');
+$visit_date = oeFormatShortDate($dated);
+
+>>>>>>> Eye_innodb
 
 if ($_REQUEST['mode'] == "update") {  //store any changed fields in dispense table
     $table_name = "form_eye_mag_dispense";
@@ -123,10 +133,18 @@ if ($_REQUEST['mode'] == "update") {  //store any changed fields in dispense tab
             }
         }
         $fields['RXTYPE'] = $RXTYPE;
+<<<<<<< HEAD
+=======
+
+>>>>>>> Eye_innodb
         $insert_this_id = formUpdate($table_name, $fields, $_POST['id'], $_SESSION['userauthorized']);
     }
 
     exit;
+<<<<<<< HEAD
+=======
+
+>>>>>>> Eye_innodb
 } else if ($_REQUEST['mode'] == "remove") {
     $query = "DELETE FROM form_eye_mag_dispense where id=?";
     sqlStatement($query, array($_REQUEST['delete_id']));
@@ -138,7 +156,11 @@ if ($_REQUEST['mode'] == "update") {  //store any changed fields in dispense tab
     exit;
 }
 
+<<<<<<< HEAD
 formHeader("OpenEMR Eye: " . text($prov_data['facility']));
+=======
+formHeader("OpenEMR Eye: " . $prov_data[facility]);
+>>>>>>> Eye_innodb
 
 if ($_REQUEST['REFTYPE']) {
     $REFTYPE = $_REQUEST['REFTYPE'];
@@ -218,7 +240,11 @@ if ($_REQUEST['REFTYPE']) {
         $OSCYL      = $data['MROSCYL'];
         $OSAXIS     = $data['MROSAXIS'];
         $OSPRISM    = $data['MROSPRISM'];
+<<<<<<< HEAD
         $COMMENTS   = $data['CRCOMMENTS'];
+=======
+        $COMMENTS   = $data['CR_COMMENTS'];
+>>>>>>> Eye_innodb
         $ODADD2     = $data['MRODADD'];
         $OSADD2     = $data['MROSADD'];
         $Bifocal    = "checked='checked'";
@@ -253,7 +279,11 @@ if ($_REQUEST['REFTYPE']) {
         $OSADD      = $data['CTLOSADD'];
         $OSVA       = $data['CTLOSVA'];
 
+<<<<<<< HEAD
         $COMMENTS   = $data['COMMENTS'];//in form_eye_mag_dispense there is no leading 'CTL_'
+=======
+        $COMMENTS   = $data['CTL_COMMENTS'];
+>>>>>>> Eye_innodb
 
         $CTLMANUFACTUREROD  = getListItemTitle('CTLManufacturer', $data['CTLMANUFACTUREROD']);
         $CTLMANUFACTUREROS  = getListItemTitle('CTLManufacturer', $data['CTLMANUFACTUREROS']);
@@ -296,6 +326,7 @@ if ($_REQUEST['REFTYPE']) {
 }
 
 if ($_REQUEST['dispensed']) {
+<<<<<<< HEAD
     $query = "SELECT * from form_eye_mag_dispense where pid =? ORDER BY date DESC";
     $dispensed = sqlStatement($query, array($_REQUEST['pid']));
     ?><html>
@@ -399,6 +430,94 @@ if ($_REQUEST['dispensed']) {
     <script language="JavaScript">
         <?php
         require_once("$srcdir/restoreSession.php");  ?>
+=======
+    $query      = "SELECT * from form_eye_mag_dispense where pid =? ORDER BY date DESC";
+    $dispensed  = sqlStatement($query, array($_REQUEST['pid']));
+    //could put Robert's header here
+    ?>
+    <html>
+<title><?php echo xlt('Rx Dispensed History'); ?></title>
+<head>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-10-2/index.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+
+    <link rel="stylesheet"
+          href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
+    <link rel="stylesheet"
+          href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-10-4/themes/ui-lightness/jquery-ui.min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.css"/>
+    <link rel="stylesheet"
+          href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
+
+    <style>
+        .refraction {
+            top: 1in;
+            float: left;
+            min-height: 1.0in;
+            border: 1.00pt solid #000000;
+            padding: 5px;
+            border-radius: 8px;
+            margin: 5px auto;
+        }
+
+        .refraction td {
+            text-align: center;
+            font-size: 8pt;
+            padding: 2;
+            text-decoration: none;
+        }
+
+        table {
+            font-size: 1.0em;
+            padding: 2px;
+            color: black;
+            vertical-align: text-top;
+        }
+
+        input[type=text] {
+            text-align: right;
+            width: 50px;
+            background-color: white;
+        }
+
+        .refraction b {
+            text-decoration: bold;
+        }
+
+        .refraction td.right {
+            text-align: right;
+            text-decoration: none;
+            vertical-align: text-top;
+        }
+
+        .refraction td.left {
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .right {
+            text-align: right;
+            vertical-align: text-top;
+        }
+
+        .left {
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .title {
+            font-size: 0.9em;
+            font-weight: normal;
+        }
+    </style>
+    <script language="JavaScript">
+        <?php       require_once("$srcdir/restoreSession.php");  ?>
+>>>>>>> Eye_innodb
 
         function delete_me(delete_id) {
             top.restoreSession();
@@ -421,7 +540,11 @@ if ($_REQUEST['dispensed']) {
 </head>
 <?php echo report_header($pid, "web"); ?>
 <div class="row">
+<<<<<<< HEAD
     <div class="col-sm-8 offset-sm-2" style="margin:5;text-align:center;width:560px;">
+=======
+    <div class="col-sm-8 offset-sm-2" style="margin:5;text-align:center;">
+>>>>>>> Eye_innodb
         <table>
             <tr>
                 <td colspan="2"><h4 class="underline"><?php echo xlt('Rx History'); ?></h4></td>
@@ -455,6 +578,7 @@ if ($_REQUEST['dispensed']) {
                 $Progressive = "checked='checked'";
             }
 
+<<<<<<< HEAD
             $row['date'] = oeFormatShortDate(date('Y-m-d', strtotime($row['date'])));
             if ($row['REFTYPE'] == "CTL") {
                 $expir = date("Y-m-d", strtotime($CTL_expir, strtotime($row['REFDATE'])));
@@ -473,6 +597,26 @@ if ($_REQUEST['dispensed']) {
                 <table style="margin:2px auto;width:490px;">
                     <tr>
                         <td class="right bold" style="width:250px;"><b><?php echo xlt('RX Print Date'); ?>: </b></td>
+=======
+            $row['REFDATE'] = oeFormatShortDate($row['REFDATE']);
+            $row['date'] = oeFormatShortDate(date('Y-m-d', strtotime($row['date'])));
+            if ($REFTYPE == "CTL") {
+                $expir = date("Y-m-d", strtotime("+1 years", strtotime($row['REFDATE'])));
+            } else {
+                $expir = date("Y-m-d", strtotime("+6 months", strtotime($row['REFDATE'])));
+            }
+            $expir_date = oeFormatShortDate($expir);
+
+            ?>
+            <div id="RXID_<?php echo attr($row['id']); ?>"
+                 style="position:relative;text-align:center;width:80%;margin: 10 auto;">
+                <i class="pull-right fa fa-close"
+                   onclick="delete_me('<?php echo attr(addslashes($row['id'])); ?>');"
+                   title="<?php echo xla('Remove this Prescription from the list of RXs dispensed'); ?>"></i>
+                <table style="margin:2px auto;">
+                    <tr>
+                        <td class="right bold" style="width:250px;"><b><?php echo xlt('RX Date'); ?>: </b></td>
+>>>>>>> Eye_innodb
                         <td>&nbsp;&nbsp;<?php echo text($row['date']); ?></td>
                     </tr>
                     <tr>
@@ -490,6 +634,7 @@ if ($_REQUEST['dispensed']) {
                     <tr>
                         <td class="right bold"><?php echo xlt('Refraction Method'); ?>:</td>
                         <td>&nbsp;&nbsp;<?php
+<<<<<<< HEAD
                         if ($row['REFTYPE'] == "W") {
                             echo xlt('Duplicate Rx -- unchanged from current Rx{{The refraction did not change, New Rx=old Rx}}');
                         } else if ($row['REFTYPE'] == "CR") {
@@ -503,21 +648,49 @@ if ($_REQUEST['dispensed']) {
                         } else {
                             echo $row['REFTYPE'];
                         } ?>
+=======
+                            if ($row['REFTYPE'] == "W") {
+                                echo xlt('Duplicate Rx -- unchanged from current Rx{{The refraction did not change, New Rx=old Rx}}');
+                            } else if ($row['REFTYPE'] == "CR") {
+                                echo xlt('Cycloplegic (Wet) Refraction');
+                            } else if ($row['REFTYPE'] == "MR") {
+                                echo xlt('Manifest (Dry) Refraction');
+                            } else if ($row['REFTYPE'] == "AR") {
+                                echo xlt('Auto-Refraction');
+                            } else if ($row['REFTYPE'] == "CTL") {
+                                echo xlt('Contact Lens');
+                            } else {
+                                echo $row['REFTYPE'];
+                            } ?>
+>>>>>>> Eye_innodb
                             <input type="hidden" name="REFTYPE" value="<?php echo attr($row['REFTYPE']); ?>"/>
                         </td>
                     </tr>
                     <tr>
+<<<<<<< HEAD
                         <td colspan="2" class="text-center"> <?php
                         if ($row['REFTYPE'] != "CTL") { ?>
+=======
+                        <td colspan="2"> <?php
+                            if ($row['REFTYPE'] != "CTL") { ?>
+>>>>>>> Eye_innodb
                                 <table id="SpectacleRx" name="SpectacleRx" class="refraction" style="top:0px;">
                                     <tr style="font-style:bold;">
                                         <td></td>
                                         <td></td>
+<<<<<<< HEAD
                                         <td class="center bold underline"><?php echo xlt('Sph{{Sphere}}'); ?></td>
                                         <td class="center bold underline"><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
                                         <td class="center bold underline"><?php echo xlt('Axis{{Axis in a glasses prescription}}'); ?></td>
                                         <td rowspan="5" class="right bold underline" colspan="2"
                                             style="min-width:100px;font-weight:bold;">
+=======
+                                        <td class="center"><?php echo xlt('Sph{{Sphere}}'); ?></td>
+                                        <td class="center"><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
+                                        <td class="center"><?php echo xlt('Axis{{Axis in a glasses prescription}}'); ?></td>
+                                        <td rowspan="5" class="right bold underline" colspan="2"
+                                            style="min-width:200px;font-weight:bold;">
+>>>>>>> Eye_innodb
                                             <?php echo xlt('Rx Type'); ?><br/><br/>
                                             <?php echo xlt('Single'); ?>
                                             <input type="radio" disabled <?php echo text($Single); ?>><br/>
@@ -546,7 +719,11 @@ if ($_REQUEST['dispensed']) {
                                         <td><?php echo text($row['OSPRISM']); ?></td>
                                     </tr>
                                     <tr class="NEAR">
+<<<<<<< HEAD
                                         <td rowspan=2 nowrap><span class="bold"
+=======
+                                        <td rowspan=2 nowrap><span
+>>>>>>> Eye_innodb
                                                     style="text-decoration:none;"><?php echo xlt('ADD'); ?>
                                                 :<br/><?php echo xlt("Mid{{Middle segment in a trifocal glasses prescription}}"); ?>
                                                 /<?php echo xlt("Near"); ?></span></td>
@@ -564,12 +741,20 @@ if ($_REQUEST['dispensed']) {
                                             style="text-align:right;vertical-align:top;top:0px;font-weight:bold;"><?php echo xlt('Comments'); ?>
                                             :
                                         </td>
+<<<<<<< HEAD
                                         <td colspan="4" class="up left"></td>
                                             <?php echo text($row['CRCOMMENTS']); ?>
+=======
+                                        <td colspan="4" class="up"
+                                            style="text-align:left;vertical-align:middle;top:0px;">
+                                            <textarea style="width:100%;height:2.1em;" id="COMMENTS" disabled
+                                                      name="COMMENTS"><?php echo text($row['COMMENTS']); ?></textarea>
+>>>>>>> Eye_innodb
                                         </td>
                                     </tr>
                                 </table>
                                 <?php
+<<<<<<< HEAD
                         } else {
                             if (!empty($row['ODADD']) || !empty($row['OSADD'])) {
                                 $adds =1;
@@ -585,18 +770,37 @@ if ($_REQUEST['dispensed']) {
                                         </td>
                                     </tr>
                                     <tr class="bold underline">
+=======
+                            } else { ?>
+                                <table id="CTLRx" name="CTLRx" class="refraction">
+                                    <tr>
+                                        <td colspan="4"
+                                            class="bold underline left"><?php echo xlt('Right Lens'); ?></u></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="left"><?php echo text($row['CTLBRANDOD']); ?></td>
+                                    </tr>
+                                    <tr class="bold" style="text-decoration:underline;">
+>>>>>>> Eye_innodb
                                         <td></td>
                                         <td><?php echo xlt('Sph{{Sphere}}'); ?></td>
                                         <td><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
                                         <td><?php echo xlt('Axis{{Axis in a glasses prescription}}'); ?></td>
                                         <td><?php echo xlt('BC{{Base Curve}}'); ?></td>
                                         <td><?php echo xlt('Diam{{Diameter}}'); ?></td>
+<<<<<<< HEAD
                                         <?php
                                         if ($adds) {
                                             ?>
                                             <td><?php echo xlt('ADD'); ?></td>
                                             <?php }
                                         ?>
+=======
+                                        <td><?php echo xlt('ADD'); ?></td>
+                                        <td>
+                                        <td>
+                                        <td><?php echo xlt('Supplier'); ?></td>
+>>>>>>> Eye_innodb
                                     </tr>
                                     <tr>
                                         <td></td>
@@ -605,6 +809,7 @@ if ($_REQUEST['dispensed']) {
                                         <td><?php echo text($row['ODAXIS']); ?></td>
                                         <td><?php echo text($row['ODBC']); ?></td>
                                         <td><?php echo text($row['ODDIAM']); ?></td>
+<<<<<<< HEAD
                                         <?php
                                         if ($adds) {
                                         ?>
@@ -639,18 +844,39 @@ if ($_REQUEST['dispensed']) {
                                         </td>
                                     </tr>
                                     <tr class="bold underline">
+=======
+                                        <td><?php echo text($row['ODADD']); ?></td>
+                                        <td colspan="3" class="right"><?php echo text($row['CTLSUPPLIEROD']); ?></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" class="bold underline left">
+                                            <u><?php echo xlt('Left Lens'); ?></u>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="left"><?php echo text($row['CTLBRANDOS']); ?></td>
+                                    </tr>
+                                    <tr class="bold" style="text-decoration:underline;">
+>>>>>>> Eye_innodb
                                         <td></td>
                                         <td><?php echo xlt('Sph{{Sphere}}'); ?></td>
                                         <td><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
                                         <td><?php echo xlt('Axis{{Axis in a glasses prescription}}'); ?></td>
                                         <td><?php echo xlt('BC{{Base Curve}}'); ?></td>
                                         <td><?php echo xlt('Diam{{Diameter}}'); ?></td>
+<<<<<<< HEAD
                                         <?php
                                         if ($adds) {
                                             ?>
                                             <td><?php echo xlt('ADD'); ?></td>
                                             <?php }
                                         ?>
+=======
+                                        <td><?php echo xlt('ADD'); ?></td>
+                                        <td>
+                                        <td>
+                                        <td><?php echo xlt('Supplier'); ?></td>
+>>>>>>> Eye_innodb
                                     </tr>
                                     <tr>
                                         <td></td>
@@ -659,6 +885,7 @@ if ($_REQUEST['dispensed']) {
                                         <td><?php echo text($row['OSAXIS']); ?></td>
                                         <td><?php echo text($row['OSBC']); ?></td>
                                         <td><?php echo text($row['OSDIAM']); ?></td>
+<<<<<<< HEAD
                                         <?php
                                         if ($adds) {
                                             ?>
@@ -695,6 +922,16 @@ if ($_REQUEST['dispensed']) {
 
                                 <?php
                         } ?>
+=======
+                                        <td><?php echo text($row['OSADD']); ?></td>
+                                        <td colspan="3" class="right"><?php echo text($row['CTLSUPPLIEROS']); ?></td>
+
+                                    </tr>
+                                </table>
+
+                                <?php
+                            } ?>
+>>>>>>> Eye_innodb
                         </td>
                     </tr>
                 </table>
@@ -711,6 +948,7 @@ if ($_REQUEST['dispensed']) {
     exit;
 }
 
+<<<<<<< HEAD
    ob_start();
     ?>
     <html>
@@ -725,10 +963,30 @@ if ($_REQUEST['dispensed']) {
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure/0.5.0/pure-min.css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/qtip2-2-2-1/jquery.qtip.min.css" />
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome/css/font-awesome.min.css">
+=======
+ob_start();
+?>
+<html>
+<head>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-10-2/index.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.js"></script>
+
+    <link rel="stylesheet"
+          href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
+    <link rel="stylesheet"
+          href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-10-4/themes/ui-lightness/jquery-ui.min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.css"/>
+    <link rel="stylesheet"
+          href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
+>>>>>>> Eye_innodb
     <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
 
     <style>
         .title {
+<<<<<<< HEAD
             font-size:1em;
             position:absolute;
             right:10px;
@@ -764,10 +1022,55 @@ if ($_REQUEST['dispensed']) {
 
         .refraction b {
             font-weight: bold;
+=======
+            font-size: 1em;
+            position: absolute;
+            right: 10px;
+            top: 30px;
+            font-size: 1em;
+        }
+
+        .refraction {
+            top: 1in;
+            float: left;
+            min-height: 1.0in;
+            border: 1.00pt solid #000000;
+            padding: 5;
+            box-shadow: 10px 10px 5px #888888;
+            border-radius: 8px;
+            margin: 5 auto 10 10;
+            width: 5.0in;
+        }
+
+        .refraction td {
+            text-align: center;
+            font-size: 8pt;
+            padding: 5;
+            width: 0.35in;
+            vertical-align: text-middle;
+            text-decoration: none;
+        }
+
+        table {
+            font-size: 1.0em;
+            padding: 2px;
+            color: black;
+            vertical-align: text-top;
+        }
+
+        input[type=text] {
+            text-align: center;
+            width: 60px;
+        }
+
+        .refraction b {
+            text-decoration: bold;
+>>>>>>> Eye_innodb
         }
 
         .refraction td.right {
             text-align: right;
+<<<<<<< HEAD
             text-decoration: unset;
             width: 0.7in;
             vertical-align: middle;    font-size:12px;
@@ -777,14 +1080,33 @@ if ($_REQUEST['dispensed']) {
             vertical-align: middle;
             text-align: left;
             font-size:12px;
+=======
+            text-decoration: none;
+            width: 0.7in;
+            vertical-align: text-top;
+        }
+
+        .refraction td.left {
+            vertical-align: text-top;
+            text-align: left;
+>>>>>>> Eye_innodb
         }
 
         .right {
             text-align: right;
+<<<<<<< HEAD
             vertical-align: middle;}
 
         .left {
             vertical-align: middle;
+=======
+            vertical-align: text-top;
+            xwidth: 10%;
+        }
+
+        .left {
+            vertical-align: text-top;
+>>>>>>> Eye_innodb
             text-align: left;
         }
 
@@ -804,6 +1126,7 @@ if ($_REQUEST['dispensed']) {
         input[type="radio"] {
             width: 15px;
         }
+<<<<<<< HEAD
         .underline {
             text-decoration:underline !important
         }
@@ -819,6 +1142,8 @@ if ($_REQUEST['dispensed']) {
             font-size:12px;
         }
 
+=======
+>>>>>>> Eye_innodb
     </style>
     <!-- jQuery library -->
 
@@ -926,6 +1251,7 @@ if ($_REQUEST['dispensed']) {
     </script>
 </head>
 <body>
+<<<<<<< HEAD
 <?php echo report_header($pid, "web");  ?>
 <br/><br/>
 <?php
@@ -939,6 +1265,13 @@ if ($REFTYPE == "CTL") {
 <p><b><?php echo xlt('Expiration Date'); ?>: </b>
     &nbsp;&nbsp;     <?php echo text($expir_date); ?>
 
+=======
+<?php echo report_header($pid, "web");
+$visit = getEncounterDateByEncounter($encounter);
+$visit_date = $visit['date'];
+?>
+<br/><br/>
+>>>>>>> Eye_innodb
 <form method="post" action="<?php echo $rootdir; ?>/forms/<?php echo text($form_folder); ?>/SpectacleRx.php?mode=update"
       id="Spectacle" class="eye_mag pure-form" name="Spectacle" style="text-align:center;">
     <!-- start container for the main body of the form -->
@@ -949,12 +1282,22 @@ if ($REFTYPE == "CTL") {
     <input type="hidden" name="id" id="id" value="<?php echo attr($insert_this_id); ?>">
     <input type="hidden" name="encounter" id="encounter" value="<?php echo $encounter; ?>">
 
+<<<<<<< HEAD
     <div style="width: 650px;">
 
         <table style="margin: 0px auto;">
             <tr>
                 <td>
                     <?php
+=======
+    <div style="margin:5;text-align:center;display:inline-block;">
+
+        <table style="min-width:615px;">
+            <tr>
+                <td>
+                    <?php
+
+>>>>>>> Eye_innodb
                     if ($REFTYPE != "CTL") { ?>
                         <table id="SpectacleRx" name="SpectacleRx" class="refraction bordershadow"
                                style="min-width:610px;top:0px;">
@@ -964,8 +1307,13 @@ if ($REFTYPE == "CTL") {
                                 <td><?php echo xlt('Sph{{Sphere}}'); ?></td>
                                 <td><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
                                 <td><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
+<<<<<<< HEAD
                                 <td rowspan="5" class="right bold" colspan="1" >
                                     <b class="bold underline"><?php echo xlt('Rx Type'); ?></b><br/><br/>
+=======
+                                <td rowspan="5" class="right" colspan="3" style="min-width:200px;font-weight:bold;">
+                                    <b style="font-weight:bold;text-decoration:underline;"><?php echo xlt('Rx Type'); ?></b><br/><br/>
+>>>>>>> Eye_innodb
                                     <b id="SingleVision_span" name="SingleVision_span"><?php echo xlt('Single'); ?>
                                         <input type="radio"
                                                onclick="pick_rxType('Single','<?php echo attr(addslashes($insert_this_id)); ?>');"
@@ -986,34 +1334,56 @@ if ($REFTYPE == "CTL") {
                                                value="Progressive" id="RXTYPE"
                                                name="RXTYPE" <?php echo attr($Progressive); ?>></b><br/>
                                 </td>
+<<<<<<< HEAD
                                 <td></td>
                             </tr>
                             <tr class="center">
                                 <td rowspan="2" colspan="1" class="right bold"><?php echo xlt('Distance'); ?>: </td>
                                 <td class="right bold"><?php echo xlt('OD{{right eye}}'); ?></td>
+=======
+                            </tr>
+                            <tr class="center">
+                                <td rowspan="2"
+                                    style="text-align:right;font-weight:bold;"><?php echo xlt('Distance'); ?></td>
+                                <td style="text-align:right;font-weight:bold;"><?php echo xlt('OD{{right eye}}'); ?></td>
+>>>>>>> Eye_innodb
                                 <td><input type=text id="ODSPH" name="ODSPH" value="<?php echo attr($ODSPH); ?>"></td>
                                 <td><input type=text id="ODCYL" name="ODCYL" value="<?php echo attr($ODCYL); ?>"></td>
                                 <td><input type=text id="ODAXIS" name="ODAXIS" value="<?php echo attr($ODAXIS); ?>">
                                 </td>
                             </tr>
                             <tr class="center">
+<<<<<<< HEAD
                                 <td name="W_wide" class="right bold"><?php echo xlt('OS{{left eye}}'); ?></td>
+=======
+                                <td name="W_wide"
+                                    style="text-align:right;font-weight:bold;"><?php echo xlt('OS{{left eye}}'); ?></td>
+>>>>>>> Eye_innodb
                                 <td><input type=text id="OSSPH" name="OSSPH" value="<?php echo attr($OSSPH); ?>"></td>
                                 <td><input type=text id="OSCYL" name="OSCYL" value="<?php echo attr($OSCYL); ?>"></td>
                                 <td><input type=text id="OSAXIS" name="OSAXIS" value="<?php echo attr($OSAXIS); ?>">
                                 </td>
                             </tr>
                             <tr class="NEAR center">
+<<<<<<< HEAD
                                 <td rowspan="2" colspan="1" nowrap class="right bold"><?php echo xlt('ADD'); ?>:<br/>
                                     <?php echo xlt("Mid{{Middle segment in a trifocal glasses prescription}}"); ?>
                                     /<?php echo xlt("Near"); ?></td>
                                 <td class="right bold"><?php echo xlt('OD{{right eye}}'); ?></td>
+=======
+                                <td rowspan=2 nowrap
+                                    style="text-decoration:none;text-align:right;font-weight:bold;"><?php echo xlt('ADD'); ?>
+                                    :<br/><?php echo xlt("Mid{{Middle segment in a trifocal glasses prescription}}"); ?>
+                                    /<?php echo xlt("Near"); ?></td>
+                                <td style="text-align:right;font-weight:bold;"><?php echo xlt('OD{{right eye}}'); ?></td>
+>>>>>>> Eye_innodb
                                 <td name="COLADD1"><input type="text" id="ODMIDADD" name="ODMIDADD"
                                                           value="<?php echo attr($ODMIDADD); ?>"></td>
                                 <td class="WAdd2"><input type="text" id="ODADD2" name="ODADD2"
                                                          value="<?php echo attr($ODADD2); ?>"></td>
                             </tr>
                             <tr class="NEAR center">
+<<<<<<< HEAD
                                 <td class="right bold"><?php echo xlt('OS{{left eye}}'); ?></td>
                                 <td name="COLADD1">
                                     <input type="text" id="OSMIDADD" name="OSMIDADD" value="<?php echo attr($OSMIDADD); ?>"></td>
@@ -1025,12 +1395,28 @@ if ($REFTYPE == "CTL") {
                                 <td colspan="4">
                                     <textarea style="width:100%;height:3em;" id="CRCOMMENTS"
                                               name="CRCOMMENTS"><?php echo text($COMMENTS); ?></textarea>
+=======
+                                <td style="text-align:right;font-weight:bold;"><?php echo xlt('OS{{left eye}}'); ?></td>
+                                <td name="COLADD1"><input type="text" id="OSMIDADD" name="OSMIDADD"
+                                                          value="<?php echo attr($OSMIDADD); ?>"></td>
+                                <td class="WAdd2"><input type="text" id="OSADD2" name="OSADD2"
+                                                         value="<?php echo attr($OSADD2); ?>"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"
+                                    style="text-align:right;font-weight:bold;"><?php echo xlt('Comments'); ?>:
+                                </td>
+                                <td colspan="4">
+                                    <textarea style="width:100%;height:5em;" id="COMMENTS"
+                                              name="COMMENTS"><?php echo text($COMMENTS); ?></textarea>
+>>>>>>> Eye_innodb
                                 </td>
                             </tr>
                             <!-- start Dispense data -->
                             <tr class="header closeButton">
                                 <td colspan="9" class="right">
                                                 <span><?php
+<<<<<<< HEAD
                                                 if ($ODHPD || $ODHBASE || $ODVPD || $ODVBASE || $ODSLABOFF || $ODVERTEXDIST ||
                                                         $OSHPD || $OSHBASE || $OSVPD || $OSVBASE || $OSSLABOFF || $OSVERTEXDIST ||
                                                         $ODMPDD || $ODMPDN || $OSMPDD || $OSMPDN || $BPDD || $BPDN ||
@@ -1041,18 +1427,39 @@ if ($REFTYPE == "CTL") {
                                                     $detailed = '0';
                                                     ?><i class="fa fa-plus-square-o"></i><?php
                                                 }
+=======
+                                                    if ($ODHPD || $ODHBASE || $ODVPD || $ODVBASE || $ODSLABOFF || $ODVERTEXDIST ||
+                                                        $OSHPD || $OSHBASE || $OSVPD || $OSVBASE || $OSSLABOFF || $OSVERTEXDIST ||
+                                                        $ODMPDD || $ODMPDN || $OSMPDD || $OSMPDN || $BPDD || $BPDN ||
+                                                        $LENS_MATERIAL || $LENS_TREATMENTS) {
+                                                        $detailed = '1';
+                                                        ?><i class="fa fa-minus-square-o"></i><?php
+                                                    } else {
+                                                        $detailed = '0';
+                                                        ?><i class="fa fa-plus-square-o"></i><?php
+                                                    }
+>>>>>>> Eye_innodb
                                                     ?>
                                                 </span>
 
                                 </td>
                             </tr>
                             <tr>
+<<<<<<< HEAD
                                 <td colspan="7">
                                     <hr/>
                                 </td>
                             </tr>
                             <tr class="dispense_data" style="font-weight:bold;text-align:center;">
                                 <td name="W_wide" colspan="1"></td>
+=======
+                                <td colspan="9" class="right">
+                                    <xhr/>
+                                </td>
+                            </tr>
+                            <tr class="dispense_data" style="font-weight:bold;text-align:center;">
+                                <td name="W_wide" colspan="2"></td>
+>>>>>>> Eye_innodb
                                 <td name="W_wide"
                                     title="<?php echo xla('Horizontal Prism Power'); ?>"><?php echo xlt('Horiz Prism{{abbreviation for Horizontal Prism Power}}'); ?></td>
                                 <td name="W_wide"
@@ -1068,7 +1475,11 @@ if ($REFTYPE == "CTL") {
                             </tr>
                             <tr class="dispense_data">
                                 <td name="W_wide" style="text-align:right;font-weight:bold;"
+<<<<<<< HEAD
                                     colspan="1"><?php echo xlt('OD{{right eye}}'); ?></td>
+=======
+                                    colspan="2"><?php echo xlt('OD{{right eye}}'); ?></td>
+>>>>>>> Eye_innodb
                                 <td name="W_wide"><input type="text" class="prism" id="ODHPD" name="ODHPD"
                                                          value="<?php echo attr($ODHPD); ?>"></td>
                                 <td name="W_wide"><input type="text" class="prism" id="ODHBASE" name="ODHBASE"
@@ -1084,7 +1495,11 @@ if ($REFTYPE == "CTL") {
                             </tr>
                             <tr class="dispense_data">
                                 <td name="W_wide" style="text-align:right;font-weight:bold;"
+<<<<<<< HEAD
                                     colspan="1"><?php echo xlt('OS{{left eye}}'); ?></td>
+=======
+                                    colspan="2"><?php echo xlt('OS{{left eye}}'); ?></td>
+>>>>>>> Eye_innodb
                                 <td name="W_wide"><input type="text" class="prism" id="OSHPD" name="OSHPD"
                                                          value="<?php echo attr($OSHPD); ?>"></td>
                                 <td name="W_wide"><input type="text" class="prism" id="OSHBASE" name="OSHBASE"
@@ -1099,12 +1514,21 @@ if ($REFTYPE == "CTL") {
                                                          value="<?php echo attr($OSVERTEXDIST); ?>"></td>
                             </tr>
                             <tr class="dispense_data">
+<<<<<<< HEAD
                                 <td colspan="7" class="center">
                                     <hr/>
+=======
+                                <td colspan="9" class="center">
+                                    <xhr/>
+>>>>>>> Eye_innodb
                                 </td>
                             </tr>
                             <tr class="dispense_data" style="font-weight:bold;text-align:center;">
                                 <td></td>
+<<<<<<< HEAD
+=======
+                                <td></td>
+>>>>>>> Eye_innodb
                                 <td name="W_wide"
                                     title="<?php echo xla('Monocular Pupillary Diameter - Distance'); ?>"><?php echo xlt('MPD-D{{abbreviation for Monocular Pupillary Diameter - Distance}}'); ?></td>
                                 <td name="W_wide"
@@ -1118,7 +1542,11 @@ if ($REFTYPE == "CTL") {
                             </tr>
                             <tr>
                                 <td name="W_wide" style="text-align:right;font-weight:bold;"
+<<<<<<< HEAD
                                     colspan="1"><?php echo xlt('OD{{right eye}}'); ?></td>
+=======
+                                    colspan="2"><?php echo xlt('OD{{right eye}}'); ?></td>
+>>>>>>> Eye_innodb
                                 <td name="W_wide"><input type="text" class="prism" id="ODMPDD" name="ODMPDD"
                                                          value="<?php echo attr($ODMPDD); ?>"></td>
                                 <td name="W_wide"><input type="text" class="prism" id="ODMPDN" name="ODMPDN"
@@ -1142,17 +1570,30 @@ if ($REFTYPE == "CTL") {
                             </tr>
                             <tr>
                                 <td name="W_wide" style="text-align:right;font-weight:bold;"
+<<<<<<< HEAD
                                     colspan="1"><?php echo xlt('OS{{left eye}}'); ?></td>
+=======
+                                    colspan="2"><?php echo xlt('OS{{left eye}}'); ?></td>
+>>>>>>> Eye_innodb
                                 <td name="W_wide"><input type="text" class="prism" id="OSMPDD" name="OSMPDD"
                                                          value="<?php echo attr($OSMPDD); ?>"></td>
                                 <td name="W_wide"><input type="text" class="prism" id="OSMPDN" name="OSMPDN"
                                                          value="<?php echo attr($OSMPDN); ?>"></td>
                             </tr>
+<<<<<<< HEAD
+=======
+                            <tr class="dispense_data">
+                                <td colspan="9" class="center">
+                                    <xhr/>
+                                </td>
+                            </tr>
+>>>>>>> Eye_innodb
                             <tr style="font-weight:bold;text-align:center;">
                                 <td colspan="3"><?php echo xlt('Lens Treatments'); ?>
                                 </td>
                             </tr>
                             <tr style="text-align:left;vertical-align:top;">
+<<<<<<< HEAD
                                 <td colspan="4" class="bold left">
                                     <?php echo generate_lens_treatments($W, $LENS_TREATMENTS); ?>
                                 </td>
@@ -1176,16 +1617,47 @@ if ($REFTYPE == "CTL") {
                                     echo "(".text($CTLMANUFACTUREROD).")";} ?></td>
                             </tr>
                             <tr class="bold">
+=======
+                                <td colspan="5" style="font-weight:bold;text-align:left;">
+                                    <?php echo generate_lens_treatments($W, $LENS_TREATMENTS); ?>
+                                </td>
+                            </tr>
+                            <tr class="dispense_data">
+                                <td colspan="9" class="center">
+                                    <hr/>
+                                </td>
+                            </tr>
+
+                        </table>&nbsp;<br/><br/><br/>
+                        <?php
+                    } else { ?>
+                        <table id="CTLRx" name="CTLRx" class="refraction">
+                            <tr>
+                                <td class="right bold underline"><?php echo xlt('Right Lens'); ?></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="right bold"><?php echo xlt('Manufacturer'); ?>:</td>
+                                <td colspan="2" class="left"><?php echo text($CTLMANUFACTUREROD); ?></td>
+                                <td class="right bold"><?php echo xlt('Brand'); ?>:</td>
+                                <td colspan="2" class="left"><?php echo text($CTLBRANDOD); ?></td>
+                            </tr>
+                            <tr class="bold" style="line-height:0.3em;font-size:0.6em;">
+>>>>>>> Eye_innodb
                                 <td><?php echo xlt('SPH{{Sphere}}'); ?></td>
                                 <td><?php echo xlt('CYL{{Cylinder}}'); ?></td>
                                 <td><?php echo xlt('AXIS{{Axis of a glasses prescription}}'); ?></td>
                                 <td><?php echo xlt('BC{{Base Curve}}'); ?></td>
                                 <td><?php echo xlt('DIAM{{Diameter}}'); ?></td>
+<<<<<<< HEAD
                                 <?php
                                 if ($adds) {
                                 ?>
                                 <td><?php echo xlt('ADD{{Bifocal Add}}'); ?></td>
                                 <?php } ?>
+=======
+                                <td><?php echo xlt('ADD{{Bifocal Add}}'); ?></td>
+                                <td><?php echo xlt('ACUITY'); ?></td>
+>>>>>>> Eye_innodb
                             </tr>
                             <tr>
                                 <td><input type=text id="CTLODSPH" name="CTLODSPH" value="<?php echo attr($ODSPH); ?>">
@@ -1198,6 +1670,7 @@ if ($REFTYPE == "CTL") {
                                 </td>
                                 <td><input type=text id="CTLODDIAM" name="CTLODDIAM"
                                            value="<?php echo attr($ODDIAM); ?>"></td>
+<<<<<<< HEAD
                                 <?php
                                 if ($adds) {
                                 ?>
@@ -1221,6 +1694,26 @@ if ($REFTYPE == "CTL") {
                                 <td colspan="2" class="right bold text-uppercase"><?php echo xlt('Brand'); ?>:</td>
                                 <td colspan="4" class="left"><?php echo text($CTLBRANDOS); ?> <?php if ($CTLMANUFACTUREROS) {
                                     echo "(".text($CTLMANUFACTUREROS).")";} ?></td>
+=======
+                                <td><input type=text id="CTLODADD" name="CTLODADD" value="<?php echo attr($ODADD); ?>">
+                                </td>
+                                <td><input type=text id="CTLODVA" name="CTLODVA" value="<?php echo attr($ODVA); ?>">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="8">
+                                    <hr/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="right bold underline"><?php echo xlt('Left Lens'); ?></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="right bold"><?php echo xlt('Manufacturer'); ?>:</td>
+                                <td colspan="2" class="left"><?php echo text($CTLMANUFACTUREROS); ?></td>
+                                <td class="right bold"><?php echo xlt('Brand'); ?>:</td>
+                                <td colspan="2" class="left"><?php echo text($CTLBRANDOS); ?></td>
+>>>>>>> Eye_innodb
                             </tr>
                             <tr class="bold" style="line-height:0.3em;font-size:0.6em;">
                                 <td><?php echo xlt('SPH{{Sphere}}'); ?></td>
@@ -1228,11 +1721,16 @@ if ($REFTYPE == "CTL") {
                                 <td><?php echo xlt('AXIS{{Axis of a glasses prescription}}'); ?></td>
                                 <td><?php echo xlt('BC{{Base Curve}}'); ?></td>
                                 <td><?php echo xlt('DIAM{{Diameter}}'); ?></td>
+<<<<<<< HEAD
                                 <?php
                                 if ($adds) {
                                 ?>
                                 <td><?php echo xlt('ADD{{Bifocal Add}}'); ?></td>
                                 <?php } ?>
+=======
+                                <td><?php echo xlt('ADD{{Bifocal Add}}'); ?></td>
+                                <td><?php echo xlt('ACUITY'); ?></td>
+>>>>>>> Eye_innodb
                             </tr>
                             <tr>
                                 <td><input type=text id="CTLOSSPH" name="CTLOSSPH" value="<?php echo attr($OSSPH); ?>">
@@ -1245,6 +1743,7 @@ if ($REFTYPE == "CTL") {
                                 </td>
                                 <td><input type=text id="CTLOSDIAM" name="CTLOSDIAM"
                                            value="<?php echo attr($OSDIAM); ?>"></td>
+<<<<<<< HEAD
                                 <?php
                                 if ($adds) {
                                 ?>
@@ -1260,13 +1759,29 @@ if ($REFTYPE == "CTL") {
                                 <tr>
                                     <td colspan="7">
                                         <hr />
+=======
+                                <td><input type=text id="CTLOSADD" name="CTLOSADD" value="<?php echo attr($OSADD); ?>">
+                                </td>
+                                <td><input type=text id="CTLOSVA" name="CTLOSVA" value="<?php echo attr($OSVA); ?>">
+                                </td>
+                            </tr>
+                            <?php if ($COMMENTS > '') { ?>
+                                <tr>
+                                    <td colspan="8">
+                                        <hr/>
+>>>>>>> Eye_innodb
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="right bold red" colspan="2"
                                         style="vertical-align:top;"><?php echo xlt('Comments'); ?>:</u></td>
+<<<<<<< HEAD
                                     <td colspan="4" class="left">
                                         <textarea cols="30" rows="4" id="COMMENTS" name="COMMENTS"><?php echo text($CTL_COMMENTS); ?></textarea>
+=======
+                                    <td colspan="6" class="left">
+                                        <textarea cols="30" rows="4"><?php echo text($COMMENTS); ?></textarea>
+>>>>>>> Eye_innodb
                                     </td>
                                 </tr>
                             <?php } ?>
@@ -1276,6 +1791,7 @@ if ($REFTYPE == "CTL") {
                 </td>
             </tr>
             <tr>
+<<<<<<< HEAD
                 <?php
                     $signature = $GLOBALS['fileroot'] . "/interface/forms/eye_mag/images/sign_" . attr($_SESSION['authUserID']) . ".jpg";
                 if (file_exists($signature)) {
@@ -1293,6 +1809,20 @@ if ($REFTYPE == "CTL") {
                         <hr style="border:solid 1px black;width:50%;margin:0.5in auto 0;" />
                     <?php
                 } ?>
+=======
+                <td style="margin:25px auto;text-align:center;">
+                    <?php
+                    $signature = $GLOBALS["webserver_root"] . "/interface/forms/eye_mag/images/sign_" . attr($_SESSION['authUserID']) . ".jpg";
+                    if (file_exists($signature)) {
+                        ?>
+                        <span style="position:relative;padding-left:40px;">
+                                <img src='<?php echo $web_root; ?>/interface/forms/eye_mag/images/sign_<?php echo attr($_SESSION['authUserID']); ?>.jpg'
+                                     style="width:240px;height:85px;border-block-end: 1pt solid black;margin:5px;"/>
+                                    </span><br/>
+
+                        <?php
+                    } ?>
+>>>>>>> Eye_innodb
 
                     <?php echo xlt('Provider'); ?>
                     : <?php echo text($prov_data['fname']); ?> <?php echo text($prov_data['lname']);
@@ -1302,8 +1832,11 @@ if ($REFTYPE == "CTL") {
                     <small><?php echo xlt('e-signed'); ?> <input type="checkbox" checked="checked"></small>
                 </td>
             </tr>
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> Eye_innodb
         </table>
     </div>
 </form>

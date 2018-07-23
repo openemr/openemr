@@ -2764,6 +2764,7 @@ var allPanels = $('.building_blocks > dd').hide();
                                return false;
                                });
                   $("body").on("change", "select", function(e){
+<<<<<<< HEAD
 
                         if (this.name.match(/PRIOR_(.*)/)) {
                             var new_section = this.name.match(/PRIOR_(.*)/);
@@ -2806,6 +2807,46 @@ var allPanels = $('.building_blocks > dd').hide();
                                 submit_form("eye_mag");
                             });
 
+=======
+                               if (this.name.match(/PRIOR_(.*)/)) {
+                               var new_section = this.name.match(/PRIOR_(.*)/);
+                               if (new_section[1] =='') return;
+                               if (new_section[1] == /\_/){
+                               return;
+                               }
+                               var newValue = this.value;
+                               if (newValue == $("#form_id").val()) {
+                               if (new_section[1] =="ALL") {
+                                 //click updates prefs too
+                                 $('#EXAM_QP').trigger("click");
+
+                               } else {
+                                  $('#BUTTON_QP_'+new_section[1]).trigger("click");
+                                 }
+                                 $("#LayerTechnical_sections_1").css("clear","both");
+                                 return;
+                               }
+                               //now go get the prior page via ajax
+                               var newValue = this.value;
+                               $("#PRIORS_"+ new_section[1] +"_left_text").removeClass('nodisplay');
+                               $("#DRAWS_" + new_section[1] + "_right").addClass('nodisplay');
+                               $("#QP_" + new_section[1]).addClass('nodisplay');
+
+                               if (new_section[1] =="ALL") {
+                               show_PRIORS();
+                               show_PRIORS_section("ALL",newValue);
+                               show_PRIORS_section("EXT",newValue);
+                               show_PRIORS_section("ANTSEG",newValue);
+                               show_PRIORS_section("RETINA",newValue);
+                               show_PRIORS_section("NEURO",newValue);
+                               show_PRIORS_section("IMPPLAN",newValue);
+                               scrollTo("EXT_left");
+                               } else {
+                               show_PRIORS_section(new_section[1],newValue);
+                               }
+                               }
+                               });
+>>>>>>> Eye_innodb
                   $("body").on("click","[id^='Close_PRIORS_']", function() {
                                var new_section = this.id.match(/Close_PRIORS_(.*)$/)[1];
                                $("#PRIORS_"+ new_section +"_left_text").addClass('nodisplay');
@@ -3460,7 +3501,24 @@ var allPanels = $('.building_blocks > dd').hide();
                                                 $("#EXAM_TEXT").removeClass('button_selected');
                                                 update_PREFS();
                                                 }
+<<<<<<< HEAD
                                                 HPI_sync_heights();
+=======
+if ( ($('#PMSFH_block_1').height() > $('#PMH_left').height())||
+($('#PMSFH_block_2').height() > $('#PMH_left').height()) )
+{
+if ($('#PMSFH_block_1').height() > $('#PMSFH_block_2').height()) {
+heights = $('#PMSFH_block_1').height();
+} else {
+heights = $('#PMSFH_block_2').height();
+}
+$('#PMH_left').height(heights);
+$('#PMH_right').height(heights)
+$('#PMH_1').height(heights+20);
+} else {
+//$('#PMH_1').height($('#HPI_1').height());
+}
+>>>>>>> Eye_innodb
                                                 show_QP();
                                                 scrollTo("EXT_left");
                                                 });
@@ -3511,6 +3569,7 @@ var allPanels = $('.building_blocks > dd').hide();
                                                      } else {
                                                        $("#"+zone+"_right").addClass('nodisplay');
                                                        $("#PREFS_"+zone+"_RIGHT").val(1);
+//$("#PMH_left").height('0');
                                                      }
                                                      scrollTo(zone+"_left");
                                                      update_PREFS();

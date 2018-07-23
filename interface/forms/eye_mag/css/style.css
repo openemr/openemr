@@ -552,27 +552,25 @@ body
 .exam_section_left {
     top:0px;
     float:left;
-    min-height:400px;
+    min-height:415px;
     width: 550px;
     margin: 5px auto ;
     padding:10px;
 }
-.exam_section_left b {
-
-}
 .size100 {
     display:inline-block;
     vertical-align:top;
+    min-height:420px;
 }
 .size50 {
     display:inline-block;
     vertical-align:top;
-    min-height:385px;
+    min-height:420px;
 }
 .exam_section_right {
     top: 0px;
     float: left;
-    min-height: 400px;
+    min-height: 415px;
     width: 550px;
     margin: 5px auto;
     padding: 10px;
@@ -1749,6 +1747,12 @@ position: absolute;bottom:0.1in;clear:both;text-align:left;padding-left:25px;
     padding-left:10px;
     height:21px;
 }
+<<<<<<< HEAD
+=======
+#visit_codes { width: 250px;margin: 5px; }
+#code_me_now { width: 200px;float: unset; color:#000 !important; }
+#open_fee_sheet { width: 200px;float: unset; color:#000 !important; }
+>>>>>>> Eye_innodb
   .custom-combobox {
     position: relative;
     display: inline-block;
@@ -1860,14 +1864,20 @@ View.php
 #Lyr31 > font:nth-of-type(1) { font-face:'San Serif'; font-size:3.2em;}
 #Lyr31 > font:nth-of-type(2) { font-face:arial; font-size:0.9em;}
 #more_visions_1,#more_visions_2 { position: absolute;top:0.47in;left:-0.25in;font-size: 0.9em;padding-right:4px;}
+<<<<<<< HEAD
 #Visions_A > span:nth-of-type(2),#Visions_B > span:nth-of-type(2) { position:relative;left:0.31in;font-size: 0.8em;background-color: red:;}
 #Visions_A > span:nth-of-type(3),#Visions_B  > span:nth-of-type(3) { position:relative;left:0.59in;font-size: 0.8em;}
 #Visions_A > span:nth-of-type(4),#Visions_B > span:nth-of-type(4) { position:relative;left:.85in;font-size: 0.8em;}
+=======
+#Visions_A > span:nth-of-type(2),#Visions_B > span:nth-of-type(2) { position:absolute;left:0.35in;font-size: 0.8em;}
+#Visions_A > span:nth-of-type(3),#Visions_B  > span:nth-of-type(3) { position:absolute;left:0.77in;font-size: 0.8em;}
+#Visions_A > span:nth-of-type(4),#Visions_B > span:nth-of-type(4) { position:absolute;left:1.2in;font-size: 0.8em;}
+>>>>>>> Eye_innodb
 #Visions_A > input,#Visions_B > input { margin:2px;width: 0.35in; height: 0.19in; }
 #Visions_A,#Visions_B {
     position: absolute;
     top: 0.30in;
-    text-align: left;
+    text-align: right;
     left: 0.55in;
     padding: 0in;
     font-size: 0.9em;
@@ -1883,6 +1893,7 @@ View.php
     position:absolute;top:0.7in;font-size:0.9em;left:0.02in;"
 }
 #Lyr41 {
+<<<<<<< HEAD
     position: absolute; top: 0.18in; left: 0.09in; width: 0.37in;height: 0.45in; border: none; padding: 0in;
 }
 #Lyr41 > font:nth-of-type(1) {
@@ -1893,15 +1904,34 @@ View.php
 }
 #Lyr42 {
      position: absolute;top: 0.30in;text-align: left;left: 0.55in;padding: 0in;font-size: 0.9em;
+=======
+    position: absolute; top: 0.18in; left: 0.09in; width: 0.37in;height: 0.45in; border: none; padding: 0;
+    font-family: 'San Serif', serif;
+    font-size: 4.2em;
+}
+#Lyr41 > font:nth-of-type(1) {
+    font-family:arial,serif;
+    font-size: 0.9em;
+}
+#Lyr42 {
+     position: absolute;top: 0.30in;text-align: right;right: 0.1in;padding: 0;font-size: 0.9em;
+>>>>>>> Eye_innodb
 }
 #Lyr42 input {
     left: 0.5in; width: 0.25in; height: 0.18in;
 }
 #Lyr42 > span:nth-of-type(1) {
+<<<<<<< HEAD
     position: absolute;top:0.5in;left:0.29in;font-size: 0.8em;
 }
 #Lyr42 > span:nth-of-type(2) {
     position: absolute;top:0.5in;left:0.64in;font-size: 0.8em;
+=======
+    position: absolute;top:0.5in;left:0.3in;font-size: 0.8em;
+}
+#Lyr42 > span:nth-of-type(2) {
+    position: absolute;top:0.5in;left:0.65in;font-size: 0.8em;
+>>>>>>> Eye_innodb
 }
 #Lyr42 > span:nth-of-type(3) {
     position: absolute;top:0.5in;left:0.99in;font-size: 0.8em;
@@ -1917,8 +1947,14 @@ View.php
 .VF_2 { width:0.2in;border-left:1pt solid black;border-bottom:1pt solid black;}
 .VF_3 { width:0.2in;border-right:1pt solid black;}
 .VF_4 { width:0.2in;border-left:1pt solid black;}
+<<<<<<< HEAD
 #Lyr70,#Lyr71 { padding: 5px 10px 5px 0px; font-size: 0.8em; }
 #Lyr70 > th { width:0.2in;padding: 0.1;}
+=======
+#Lyr70 { padding: 1px 10px 5px 0; font-size: 0.8em; }
+#Lyr71 { padding: 20px 10px 5px 0; font-size: 0.8em; }
+#Lyr70 > th { width:0.2in;padding: 0.1in;}
+>>>>>>> Eye_innodb
 #Lyr70 > th:nth-of-type(2) { width:0.7in; }
 .pupil_1 { border-right:1pt solid black;border-bottom:1pt solid black;white-space: nowrap;}
 .pupil_2 { border-left:1pt solid black;border-right:1pt solid black;border-bottom:1pt solid black;}

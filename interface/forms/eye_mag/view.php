@@ -31,12 +31,10 @@
 
 
 require_once("../../globals.php");
-require_once("$srcdir/acl.inc");
-require_once("$srcdir/lists.inc");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
-require_once("$srcdir/patient.inc");
 require_once("$srcdir/FeeSheetHtml.class.php");
+
+use OpenEMR\Core\Header;
+
 
 $form_name = "eye_mag";
 $form_folder = "eye_mag";
@@ -69,6 +67,7 @@ while ($prefs= sqlFetchArray($result)) {
     $$LOCATION = text($prefs['GOVALUE']);
 }
 
+<<<<<<< HEAD
 $query = "SELECT * FROM patient_data where pid=?";
 $pat_data =  sqlQuery($query, array($pid));
 
@@ -95,6 +94,47 @@ $providerID   = findProvider($pid, $encounter);
 $providerNAME = getProviderName($providerID);
 $query        = "SELECT * FROM users where id = ?";
 $prov_data    =  sqlQuery($query, array($providerID));
+=======
+$query10 = "select  *,form_encounter.date as encounter_date
+              
+               from forms,form_encounter,form_eye_base, 
+                form_eye_hpi,form_eye_ros,form_eye_vitals,
+                form_eye_acuity,form_eye_refraction,form_eye_biometrics,
+                form_eye_external, form_eye_antseg,form_eye_postseg,
+                form_eye_neuro,form_eye_locking
+                    where
+                    forms.deleted != '1'  and
+                    forms.formdir='eye_mag' and
+                    forms.encounter=form_encounter.encounter  and
+                    forms.form_id=form_eye_base.id and
+                    forms.form_id=form_eye_hpi.id and
+                    forms.form_id=form_eye_ros.id and
+                    forms.form_id=form_eye_vitals.id and
+                    forms.form_id=form_eye_acuity.id and
+                    forms.form_id=form_eye_refraction.id and
+                    forms.form_id=form_eye_biometrics.id and
+                    forms.form_id=form_eye_external.id and
+                    forms.form_id=form_eye_antseg.id and
+                    forms.form_id=form_eye_postseg.id and
+                    forms.form_id=form_eye_neuro.id and
+                    forms.form_id=form_eye_locking.id and
+                    forms.form_id =? ";
+$encounter_data =sqlQuery($query10, array($id));
+@extract($encounter_data);
+$id = $form_id;
+if ($pid != $_SESSION['pid']) {
+    $_SESSION['pid'] = $pid;
+}
+
+$query = "SELECT * FROM patient_data where pid=?";
+$pat_data =  sqlQuery($query, array($pid));
+
+//$providerID   = findProvider($encounter);
+$providerID     = $provider_id;
+$providerNAME   = getProviderName($provider_id);
+$query          = "SELECT * FROM users where id = ?";
+$prov_data      =  sqlQuery($query, array($provider_id));
+>>>>>>> Eye_innodb
 
 // build $PMSFH array
 global $priors;
@@ -164,14 +204,9 @@ if ($refresh and $refresh != 'fullscreen') {
 ?><!DOCTYPE html>
 <html>
   <head>
-    <title> <?php echo xlt('Chart'); ?>: <?php echo text($pat_data['fname'])." ".text($pat_data['lname'])." ".text($visit_date); ?></title>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-10-2/index.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.js"></script>
-    <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jscolor-2-0-4/jscolor.js"></script>
 
+<<<<<<< HEAD
     <script language="JavaScript">
     <?php require_once("$srcdir/restoreSession.php");
     ?>
@@ -221,9 +256,20 @@ if ($refresh and $refresh != 'fullscreen') {
     } ?>
 
     </script>
+=======
+      <title> <?php echo xlt('Chart'); ?>: <?php echo text($pat_data['fname'])." ".text($pat_data['lname'])." ".text($visit_date); ?></title>
+      <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="description" content="OpenEMR: Eye Exam">
+      <meta name="author" content="OpenEMR: Ophthalmology">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+>>>>>>> Eye_innodb
 
-    <!-- Add Font stuff for the look and feel.  -->
+      <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor', 'qtip2' ]); ?>
+      <!-- Add Font stuff for the look and feel.  -->
 
+<<<<<<< HEAD
     <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/themes/excite-bike/jquery-ui.css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
@@ -231,70 +277,14 @@ if ($refresh and $refresh != 'fullscreen') {
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.css" />
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
     <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
+=======
+      <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
+      <Xscript src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-10-2/index.js"></Xscript>
+>>>>>>> Eye_innodb
 
-    <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="OpenEMR: Eye Exam">
-    <meta name="author" content="OpenEMR: Ophthalmology">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <script language="JavaScript">
-      function openNewForm(sel, label) {
-          top.restoreSession();
-            FormNameValueArray = sel.split('formname=');
-            if(FormNameValueArray[1] == 'newpatient' )
-            {
-              parent.frames[0].location.href = sel;
-            }
-            else
-            {
-                parent.twAddFrameTab('enctabs', label, sel);
-            }
-      }
-      /**
-       * Function to add a CODE to an IMPRESSION/PLAN item
-       * This is for callback by the find-code popup in IMPPLAN area.
-       * Appends to or erases the current list of diagnoses.
-       */
-      function set_related(codetype, code, selector, codedesc) {
-              //target is the index of IMPRESSION[index].code we are searching for.
-          var span = document.getElementById('CODE_'+IMP_target);
-          if ('textContent' in span) {
-              span.textContent = code;
-          } else {
-              span.innerText = code;
-          }
-          $('#CODE_'+IMP_target).attr('title',codetype + ':' + code + ' ('+codedesc+')');
-
-          obj.IMPPLAN_items[IMP_target].code = code;
-          obj.IMPPLAN_items[IMP_target].codetype = codetype;
-          obj.IMPPLAN_items[IMP_target].codedesc = codedesc;
-          obj.IMPPLAN_items[IMP_target].codetext = codetype + ':' + code + ' ('+codedesc+')';
-              // This lists the text for the CODE at the top of the PLAN_
-              // It is already there on mouseover the code itself and is printed in reports//faxes, so it was removed here
-              //  obj.IMPPLAN_items[IMP_target].plan = codedesc+"\r"+obj.IMPPLAN_items[IMP_target].plan;
-
-          if (obj.IMPPLAN_items[IMP_target].PMSFH_link > '') {
-              var data = obj.IMPPLAN_items[IMP_target].PMSFH_link.match(/(.*)_(.*)/);
-              if ((data[1] == "POH")||(data[1] == "PMH")) {
-                  obj.PMSFH[data[1]][data[2]].code= code;
-                  obj.PMSFH[data[1]][data[2]].codetype = codetype;
-                  obj.PMSFH[data[1]][data[2]].codedesc = codedesc;
-                  obj.PMSFH[data[1]][data[2]].description = codedesc;
-                  obj.PMSFH[data[1]][data[2]].diagnosis = codetype + ':' + code;
-                  obj.PMSFH[data[1]][data[2]].codetext = codetype + ':' + code + ' ('+codedesc+')';
-                  build_DX_list(obj);
-                  update_PMSFH_code(obj.PMSFH[data[1]][data[2]].issue,codetype + ':' +code);
-              }
-          }
-          store_IMPPLAN(obj.IMPPLAN_items,'1');
-       }
-    </script>
   </head>
   <!--Need a margin-top due to fixed nav-->
-  <body class="bgcolor2" background="<?php echo $GLOBALS['backpic']?>" style="margin:5px 0 0 0;">
+  <body data-find="ray" class="bgcolor2" background="<?php echo $GLOBALS['backpic']?>" style="margin:5px 0 0 0;">
     <?php
       $input_echo = menu_overhaul_top($pid, $encounter);
     ?><br /><br />
@@ -929,12 +919,12 @@ if ($refresh and $refresh != 'fullscreen') {
                     <font></font>
                   </div>
                   <div id="Visions_A" name="Visions_A">
-                      <b>OD </b>
+                      <b>OD</b>
                       <input type="TEXT" tabindex="40" id="SCODVA" name="SCODVA" value="<?php echo attr($SCODVA); ?>">
                       <input type="TEXT" tabindex="42" id="ODVA_1_copy" name="ODVA_1_copy" value="<?php echo attr($ODVA_1); ?>">
                       <input type="TEXT" tabindex="44" id="PHODVA_copy" name="PHODVA_copy" value="<?php echo attr($PHODVA); ?>">
                       <br />
-                      <b>OS </b>
+                      <b>OS</b>
                       <input type="TEXT" tabindex="41" id="SCOSVA" name="SCOSVA" value="<?php echo attr($SCOSVA); ?>">
                       <input type="TEXT" tabindex="43" id="OSVA_1_copy" name="OSVA_1_copy" value="<?php echo attr($OSVA_1); ?>">
                       <input type="TEXT" tabindex="45" id="PHOSVA_copy" name="PHOSVA_copy" value="<?php echo attr($PHOSVA); ?>">
@@ -985,7 +975,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           </span>
                       </div>
                       <div id="Lyr41">
-                          <font><?php echo xlt('T{{one letter abbreviation for Tension/Pressure}}'); ?></font>
+                          <?php echo xlt('T{{one letter abbreviation for Tension/Pressure}}'); ?>
                       </div>
                       <div id="Lyr42">
                           <b><?php echo xlt('OD{{right eye}}'); ?></b>
@@ -1264,6 +1254,42 @@ if ($refresh and $refresh != 'fullscreen') {
               <div class="loading" id="EXAM_sections_loading" name="REFRACTION_sections_loading"><i class="fa fa-spinner fa-spin"></i></div>
               <div id="REFRACTION_sections" name="REFRACTION_sections" class="row nodisplay clear_both">
                 <div id="LayerVision2">
+<<<<<<< HEAD
+=======
+                    <?php ($RXHX==1) ? ($display_Add = "") : ($display_Add = "nodisplay"); ?>
+                    <div id="LayerVision_RXHX" class="refraction borderShadow old_refractions ui-draggable ui-draggable-handle <?php echo $display_Add; ?>">
+                        <span title="<?php echo attr('Close this panel and make this a Preference to stay closed'); ?>" class="closeButton fa  fa-close" id="Close_RXHX" name="Close_RXHX"></span>
+                        <table class="GFS_table">
+                            <tr>
+                                <th class="text-center"><?php echo xlt('Prior Refractions'); ?></th>
+                            </tr>
+                        </table>
+        
+                        
+                        <div id="PRIORS_REFRACTIONS_left_text" name="PRIORS_REFRACTIONS_left_text">
+                            <?php
+                                $sql = "SELECT id FROM form_eye_acuity WHERE
+                                        pid=? AND id < ? AND
+                                        ( MRODVA  <> '' OR
+                                          MROSVA  <> '' OR
+                                          ARODVA  <> '' OR
+                                          AROSVA  <> '' OR
+                                          CRODVA  <> '' OR
+                                          CROSVA  <> '' OR
+                                          CTLODVA <> '' OR
+                                          CTLOSVA <> ''
+                                        )
+                                        ORDER BY id DESC LIMIT 3";
+                                $result = sqlStatement($sql, array($pid, $id));
+                                while ($visit= sqlFetchArray($result)) {
+                                    echo display_PRIOR_section('REFRACTIONS', $visit['id'], $visit['id'], $pid);
+                                }
+                                //display_PRIOR_section('REFRACTIONS', $id, $id, $pid, '1');
+                            ?>
+                        </div>
+
+                    </div>
+>>>>>>> Eye_innodb
                     <?php
                     ($W ==1) ? ($display_W = "") : ($display_W = "nodisplay");
                     ($W_width =='1') ? ($display_W_width = "refraction_wide") : ($display_W_width = "");
@@ -1882,11 +1908,11 @@ if ($refresh and $refresh != 'fullscreen') {
               <!-- end of the refraction box -->
               <!-- start of the exam selection/middle menu row -->
               <div class="sections" name="mid_menu" id="mid_menu">
-                <span id="EXAM_defaults" name="EXAM_defaults" value="Defaults" class="borderShadow"><i class="fa fa-newspaper-o"></i>&nbsp;<b><?php echo xlt('Defaults'); ?></b></span>
-                <span id="EXAM_TEXT" name="EXAM_TEXT" value="TEXT" class="borderShadow"><i class="fa fa-hospital-o"></i>&nbsp;<b><?php echo xlt('Text'); ?></b></span>
-                <span id="EXAM_DRAW" name="EXAM_DRAW" value="DRAW" class="borderShadow">
+                <span id="EXAM_defaults" name="EXAM_defaults" value="Defaults" class="btn btn-default"><i class="fa fa-newspaper-o"></i>&nbsp;<b><?php echo xlt('Defaults'); ?></b></span>
+                <span id="EXAM_TEXT" name="EXAM_TEXT" value="TEXT" class="btn btn-default"><i class="fa fa-hospital-o"></i>&nbsp;<b><?php echo xlt('Text'); ?></b></span>
+                <span id="EXAM_DRAW" name="EXAM_DRAW" value="DRAW" class="btn btn-default">
                   <i class="fa fa-paint-brush fa-sm"> </i>&nbsp;<b><?php echo xlt('Draw'); ?></b></span>
-                  <span id="EXAM_QP" name="EXAM_QP" title="<?php echo xla('Open the Quick Pick panels'); ?>" value="QP" class="borderShadow">
+                  <span id="EXAM_QP" name="EXAM_QP" title="<?php echo xla('Open the Quick Pick panels'); ?>" value="QP" class="btn btn-default">
                     <i class="fa fa-database fa-sm"> </i>&nbsp;<b><?php echo xlt('Quick Picks'); ?></b>
                   </span>
                     <?php
@@ -1894,7 +1920,7 @@ if ($refresh and $refresh != 'fullscreen') {
                   // $output = priors_select("ALL",$id,$id,$pid);
                     ($output_priors =='') ? ($title = "There are no prior visits documented to display for this patient.") : ($title="Display old exam findings and copy forward if desired");?>
                   <span id="PRIORS_ALL_left_text" name="PRIORS_ALL_left_text"
-                  class="borderShadow"><i class="fa fa-paste" title="<?php echo xla($title); ?>"></i>
+                  class="btn btn-default"><i class="fa fa-paste" title="<?php echo xla($title); ?>"></i>
                     <?php
                     if ($output_priors !='') {
                         echo $output_priors;
@@ -2730,7 +2756,8 @@ if ($refresh and $refresh != 'fullscreen') {
                                                                 <td style="border:1pt solid black;text-align:center;">
                                                                 <textarea id="ACT5CCNEAR" name="ACT5CCNEAR" class="neurosens2 ACT"><?php echo text($ACT5CCNEAR); ?></textarea></td>
                                                                 <td style="border:1pt solid black;border-right:0pt;text-align:left;">
-                                                                <textarea id="ACT6CCNEAR" name="ACT6CCNEAR" class="ACT"><?php echo text($ACT6CCNEAR); ?></textarea></td><td><i class="fa fa-reply flip-left"></i></td>
+                                                                <textarea id="ACT6CCNEAR" name="ACT6CCNEAR" class="ACT"><?php echo text($ACT6CCNEAR); ?></textarea></td>
+                                                                <td><i class="fa fa-reply flip-left"></i></td>
                                                             </tr>
                                                             <tr>
                                                                 <td style="border:0; border-top:2pt solid black;border-right:2pt solid black;text-align:right;">
@@ -3859,11 +3886,17 @@ if ($refresh and $refresh != 'fullscreen') {
                                                             <span id="status_Fax_ref"><i class="fa fa-fax fa-fw"></i></span>
                                                             <?php
                                                         }
+<<<<<<< HEAD
 } ?>
+=======
+                                                    } ?>
+                                                  </span>
+>>>>>>> Eye_innodb
                                               </td>
                                           </tr>
                                           <tr>
                                               <td class="top bold"><?php echo xlt('Address'); ?>:</td>
+<<<<<<< HEAD
                                               <td class="top"><?php
                                                 if ($pcp_data['organization'] >'') {
                                                     echo text($pcp_data['organization'])."<br />";
@@ -3936,6 +3969,85 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 if ($ref_data['zip2'] >'') {
                                                     echo text($ref_data['zip2'])."<br />";
                                                 }
+=======
+                                              <td class="top">
+                                                  <span id="pcp_address">
+                                                      <?php
+                                                        if ($pcp_data['organization'] >'') {
+                                                            echo text($pcp_data['organization'])."<br />";
+                                                        }
+                                                        if ($pcp_data['street'] >'') {
+                                                            echo text($pcp_data['street'])."<br />";
+                                                        }
+                                                        if ($pcp_data['streetb'] >'') {
+                                                            echo text($pcp_data['streetb'])."<br />";
+                                                        }
+                                                        if ($pcp_data['city'] >'') {
+                                                            echo text($pcp_data['city']).", ";
+                                                        }
+                                                        if ($pcp_data['state'] >'') {
+                                                            echo text($pcp_data['state'])." ";
+                                                        }
+                                                        if ($pcp_data['zip'] >'') {
+                                                            echo text($pcp_data['zip'])."<br />";
+                                                        }
+                                                    
+                                                        if ($pcp_data['street2'] >'') {
+                                                            echo "<br />".text($pcp_data['street2'])."<br />";
+                                                        }
+                                                        if ($pcp_data['streetb2'] >'') {
+                                                            echo text($pcp_data['streetb2'])."<br />";
+                                                        }
+                                                        if ($pcp_data['city2'] >'') {
+                                                            echo text($pcp_data['city2']).", ";
+                                                        }
+                                                        if ($pcp_data['state2'] >'') {
+                                                            echo text($pcp_data['state2'])." ";
+                                                        }
+                                                        if ($pcp_data['zip2'] >'') {
+                                                            echo text($pcp_data['zip2'])."<br />";
+                                                        }
+                                                        ?>
+                                                  </span>
+                                              </td>
+                                              <td class="top">
+                                                <span id="ref_address">
+                                                    <?php
+                                                        if ($ref_data['organization'] >'') {
+                                                            echo text($ref_data['organization'])."<br />";
+                                                        }
+                                                        if ($ref_data['street'] >'') {
+                                                            echo text($ref_data['street'])."<br />";
+                                                        }
+                                                        if ($ref_data['streetb'] >'') {
+                                                            echo text($ref_data['streetb'])."<br />";
+                                                        }
+                                                        if ($ref_data['city'] >'') {
+                                                            echo text($ref_data['city']).", ";
+                                                        }
+                                                        if ($ref_data['state'] >'') {
+                                                            echo text($ref_data['state'])." ";
+                                                        }
+                                                        if ($ref_data['zip'] >'') {
+                                                            echo text($ref_data['zip'])."<br />";
+                                                        }
+                                                    
+                                                        if ($ref_data['street2'] >'') {
+                                                            echo "<br />".text($ref_data['street2'])."<br />";
+                                                        }
+                                                        if ($ref_data['streetb2'] >'') {
+                                                            echo text($ref_data['streetb2'])."<br />";
+                                                        }
+                                                        if ($ref_data['city2'] >'') {
+                                                            echo text($ref_data['city2']).", ";
+                                                        }
+                                                        if ($ref_data['state2'] >'') {
+                                                            echo text($ref_data['state2'])." ";
+                                                        }
+                                                        if ($ref_data['zip2'] >'') {
+                                                            echo text($ref_data['zip2'])."<br />";
+                                                        }
+>>>>>>> Eye_innodb
                                                     ?>
                                               </td>
                                           </tr>
@@ -3970,7 +4082,101 @@ if ($refresh and $refresh != 'fullscreen') {
     <!-- Undo code -->
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/undone.js-0-0-1/undone.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/undone.js-0-0-1/jquery.undone.js"></script>
-    <script>
+    <script language="JavaScript">
+        function openNewForm(sel, label) {
+            top.restoreSession();
+            FormNameValueArray = sel.split('formname=');
+            if(FormNameValueArray[1] == 'newpatient' )
+            {
+                parent.frames[0].location.href = sel;
+            }
+            else
+            {
+                parent.twAddFrameTab('enctabs', label, sel);
+            }
+        }
+        /**
+         * Function to add a CODE to an IMPRESSION/PLAN item
+         * This is for callback by the find-code popup in IMPPLAN area.
+         * Appends to or erases the current list of diagnoses.
+         */
+        function set_related(codetype, code, selector, codedesc) {
+            //target is the index of IMPRESSION[index].code we are searching for.
+            var span = document.getElementById('CODE_'+IMP_target);
+            if ('textContent' in span) {
+                span.textContent = code;
+            } else {
+                span.innerText = code;
+            }
+            $('#CODE_'+IMP_target).attr('title',codetype + ':' + code + ' ('+codedesc+')');
+
+            obj.IMPPLAN_items[IMP_target].code = code;
+            obj.IMPPLAN_items[IMP_target].codetype = codetype;
+            obj.IMPPLAN_items[IMP_target].codedesc = codedesc;
+            obj.IMPPLAN_items[IMP_target].codetext = codetype + ':' + code + ' ('+codedesc+')';
+            // This lists the text for the CODE at the top of the PLAN_
+            // It is already there on mouseover the code itself and is printed in reports//faxes, so it was removed here
+            //  obj.IMPPLAN_items[IMP_target].plan = codedesc+"\r"+obj.IMPPLAN_items[IMP_target].plan;
+
+            if (obj.IMPPLAN_items[IMP_target].PMSFH_link > '') {
+                var data = obj.IMPPLAN_items[IMP_target].PMSFH_link.match(/(.*)_(.*)/);
+                if ((data[1] == "POH")||(data[1] == "PMH")) {
+                    obj.PMSFH[data[1]][data[2]].code= code;
+                    obj.PMSFH[data[1]][data[2]].codetype = codetype;
+                    obj.PMSFH[data[1]][data[2]].codedesc = codedesc;
+                    obj.PMSFH[data[1]][data[2]].description = codedesc;
+                    obj.PMSFH[data[1]][data[2]].diagnosis = codetype + ':' + code;
+                    obj.PMSFH[data[1]][data[2]].codetext = codetype + ':' + code + ' ('+codedesc+')';
+                    build_DX_list(obj);
+                    update_PMSFH_code(obj.PMSFH[data[1]][data[2]].issue,codetype + ':' +code);
+                }
+            }
+            store_IMPPLAN(obj.IMPPLAN_items,'1');
+        }
+        <?php require_once("$srcdir/restoreSession.php");
+        ?>
+        function dopclick(id) {
+            <?php if ($thisauth != 'write') : ?>
+            dlgopen('../../patient_file/summary/a_issue.php?issue=0&thistype=' + id, '_blank', 550, 400);
+            <?php else : ?>
+            alert("<?php echo xls('You are not authorized to add/edit issues'); ?>");
+            <?php endif; ?>
+        }
+        function doscript(type,id,encounter,rx_number) {
+            dlgopen('../../forms/eye_mag/SpectacleRx.php?REFTYPE=' + type + '&id='+id+'&encounter='+ encounter+'&form_id=<?php echo attr(addslashes($form_id)); ?>&rx_number='+rx_number, '_blank', 660, 590);
+        }
+
+        function dispensed(pid) {
+            dlgopen('../../forms/eye_mag/SpectacleRx.php?dispensed=1&pid='+pid, '_blank', 560, 590);
+        }
+        // This invokes the find-code popup.
+        function sel_diagnosis(target,term) {
+            if (target =='') {
+                target = "0";
+            }
+            IMP_target = target;
+            <?php
+            if ($irow['type'] == 'PMH') { //or POH
+            ?>
+            dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("medical_problem", "csv")) ?>&search_term='+encodeURI(term), '_blank', 600, 400);
+            <?php
+            } else {
+            ?>
+            dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")) ?>&search_term='+encodeURI(term), '_blank', 600, 400);
+            <?php
+            }
+            ?>
+        }
+
+        var obj =[];
+        <?php
+        //also add in any obj.Clinical data if the form was already opened
+        $codes_found = start_your_engines($encounter_data);
+        if ($codes_found) { ?>
+        obj.Clinical = [<?php echo json_encode($codes_found[0]); ?>];
+        <?php
+        } ?>
+
         $.undone();
 
         $("#undo, #redo, #clear").click(function(){
@@ -4013,7 +4219,6 @@ if ($refresh and $refresh != 'fullscreen') {
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/shortcut.js-2-01-B/shortcut.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jscolor-1-4-5/jscolor.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
     <div id="right-panel" name="right-panel" class="panel_side">
       <div style="margin-top:20px;text-align:center;font-size:1.2em;">
@@ -4058,6 +4263,5 @@ if ($refresh and $refresh != 'fullscreen') {
         }
         ?>
     </script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
   </body>
 </html>
