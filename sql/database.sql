@@ -8789,7 +8789,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `ac
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform_groups','/interface/main/calendar/add_edit_event.php?group=true',150, '{form_group:{presence: true}}', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform_prov', '/interface/main/calendar/add_edit_event.php?prov=true', 170, '{}',  1);
 
--- list_options for `form_eye_mag`
+-- list_options for `form_eye`
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'    ,'CTLManufacturer', 'Eye Contact Lens Manufacturer list', 1, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('CTLManufacturer', 'BNL', 'Bausch&Lomb', 10, 0);
@@ -10008,385 +10008,6 @@ CREATE TABLE `form_eye_mag_dispense` (
 -----------------------------------------------------------
 
 --
--- Table structure for table `form_eye_mag`
---
-
-DROP TABLE IF EXISTS `form_eye_mag`;
-CREATE TABLE `form_eye_mag` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `date` datetime DEFAULT NULL,
-  `pid` bigint(20) DEFAULT NULL,
-  `user` varchar(255) DEFAULT NULL,
-  `groupname` varchar(255) DEFAULT NULL,
-  `authorized` tinyint(4) DEFAULT NULL,
-  `activity` tinyint(4) DEFAULT NULL,
-  `Narrative` text,
-  `VISITTYPE` varchar(50) DEFAULT NULL,
-  `CC1` text,
-  `HPI1` text,
-  `QUALITY1` text,
-  `TIMING1` text,
-  `DURATION1` text,
-  `CONTEXT1` text,
-  `SEVERITY1` text,
-  `MODIFY1` text,
-  `ASSOCIATED1` text,
-  `LOCATION1` text,
-  `CHRONIC1`  text,
-  `CHRONIC2`text,
-  `CHRONIC3`text,
-  `CC2` text,
-  `HPI2` text,
-  `QUALITY2` text,
-  `TIMING2` text,
-  `DURATION2` text,
-  `CONTEXT2` text,
-  `SEVERITY2` text,
-  `MODIFY2` text,
-  `ASSOCIATED2` text,
-  `LOCATION2` text,
-  `CC3` text,
-  `HPI3` text,
-  `QUALITY3` text,
-  `TIMING3` text,
-  `DURATION3` text,
-  `CONTEXT3` text,
-  `SEVERITY3` text,
-  `MODIFY3` text,
-  `ASSOCIATED3` text,
-  `LOCATION3` text,
-  `ROSGENERAL` text,
-  `ROSHEENT` text,
-  `ROSCV` text,
-  `ROSPULM` text,
-  `ROSGI` text,
-  `ROSGU` text,
-  `ROSDERM` text,
-  `ROSNEURO` text,
-  `ROSPSYCH` text,
-  `ROSMUSCULO` text,
-  `ROSIMMUNO` text,
-  `ROSENDOCRINE` text,
-  `alert` char(3) DEFAULT 'yes',
-  `oriented` char(3) DEFAULT 'TPP',
-  `confused` char(3) DEFAULT 'nml',
-  `SCODVA` varchar(20) DEFAULT NULL,
-  `SCOSVA` varchar(20) DEFAULT NULL,
-  `PHODVA` varchar(20) DEFAULT NULL,
-  `PHOSVA` varchar(20) DEFAULT NULL,
-  `WODVA` varchar(20) DEFAULT NULL,
-  `WOSVA` varchar(20) DEFAULT NULL,
-  `CTLODVA` varchar(20) DEFAULT NULL,
-  `CTLOSVA` varchar(20) DEFAULT NULL,
-  `MRODVA` varchar(20) DEFAULT NULL,
-  `MROSVA` varchar(20) DEFAULT NULL,
-  `SCNEARODVA` varchar(20) DEFAULT NULL,
-  `SCNEAROSVA` varchar(20) DEFAULT NULL,
-  `WNEARODVA` varchar(10) DEFAULT NULL,
-  `WNEAROSVA` varchar(10) DEFAULT NULL,
-  `MRNEARODVA` varchar(20) DEFAULT NULL,
-  `MRNEAROSVA` varchar(20) DEFAULT NULL,
-  `GLAREODVA` varchar(20) DEFAULT NULL,
-  `GLAREOSVA` varchar(20) DEFAULT NULL,
-  `GLARECOMMENTS` varchar(100) DEFAULT NULL,
-  `ARODVA` varchar(20) DEFAULT NULL,
-  `AROSVA` varchar(20) DEFAULT NULL,
-  `CRODVA` varchar(20) DEFAULT NULL,
-  `CROSVA` varchar(20) DEFAULT NULL,
-  `CTLODVA1` varchar(20) DEFAULT NULL,
-  `CTLOSVA1` varchar(20) DEFAULT NULL,
-  `PAMODVA` varchar(20) DEFAULT NULL,
-  `PAMOSVA` varchar(20) DEFAULT NULL,
-  `LIODVA` varchar(20) DEFAULT NULL,
-  `LIOSVA` varchar(20) DEFAULT NULL,
-  `NVOCHECKED` varchar(20) DEFAULT NULL,
-  `ADDCHECKED` varchar(20) DEFAULT NULL,
-  `MRODSPH` varchar(20) DEFAULT NULL,
-  `MRODCYL` varchar(20) DEFAULT NULL,
-  `MRODAXIS` varchar(20) DEFAULT NULL,
-  `MRODPRISM` varchar(20) DEFAULT NULL,
-  `MRODBASE` varchar(20) DEFAULT NULL,
-  `MRODADD` varchar(20) DEFAULT NULL,
-  `MROSSPH` varchar(20) DEFAULT NULL,
-  `MROSCYL` varchar(20) DEFAULT NULL,
-  `MROSAXIS` varchar(20) DEFAULT NULL,
-  `MROSPRISM` varchar(20) DEFAULT NULL,
-  `MROSBASE` varchar(20) DEFAULT NULL,
-  `MROSADD` varchar(20) DEFAULT NULL,
-  `MRODNEARSPHERE` varchar(20) DEFAULT NULL,
-  `MRODNEARCYL` varchar(20) DEFAULT NULL,
-  `MRODNEARAXIS` varchar(20) DEFAULT NULL,
-  `MRODPRISMNEAR` varchar(20) DEFAULT NULL,
-  `MRODBASENEAR` varchar(20) DEFAULT NULL,
-  `MROSNEARSHPERE` varchar(20) DEFAULT NULL,
-  `MROSNEARCYL` varchar(20) DEFAULT NULL,
-  `MROSNEARAXIS` varchar(20) DEFAULT NULL,
-  `MROSPRISMNEAR` varchar(20) DEFAULT NULL,
-  `MROSBASENEAR` varchar(20) DEFAULT NULL,
-  `CRODSPH` varchar(20) DEFAULT NULL,
-  `CRODCYL` varchar(20) DEFAULT NULL,
-  `CRODAXIS` varchar(20) DEFAULT NULL,
-  `CROSSPH` varchar(20) DEFAULT NULL,
-  `CROSCYL` varchar(20) DEFAULT NULL,
-  `CROSAXIS` varchar(20) DEFAULT NULL,
-  `CRCOMMENTS` varchar(255) DEFAULT NULL,
-  `BALANCED` varchar(2) DEFAULT NULL,
-  `DIL_RISKS` varchar(2) DEFAULT 'on',
-  `WETTYPE` VARCHAR(10) DEFAULT NULL,
-  `ATROPINE` VARCHAR(25) DEFAULT NULL,
-  `CYCLOMYDRIL` VARCHAR(25) DEFAULT NULL,
-  `TROPICAMIDE` VARCHAR(25) DEFAULT NULL,
-  `CYCLOGYL` VARCHAR(25) DEFAULT NULL,
-  `NEO25` VARCHAR(25) DEFAULT NULL,
-  `ARODSPH` varchar(10) DEFAULT NULL,
-  `ARODCYL` varchar(10) DEFAULT NULL,
-  `ARODAXIS` varchar(10) DEFAULT NULL,
-  `AROSSPH` varchar(10) DEFAULT NULL,
-  `AROSCYL` varchar(10) DEFAULT NULL,
-  `AROSAXIS` varchar(10) DEFAULT NULL,
-  `ARODADD` varchar(10) DEFAULT NULL,
-  `AROSADD` varchar(10) DEFAULT NULL,
-  `ARNEARODVA` varchar(10) DEFAULT NULL,
-  `ARNEAROSVA` varchar(10) DEFAULT NULL,
-  `ARODPRISM` varchar(20) DEFAULT NULL,
-  `AROSPRISM` varchar(20) DEFAULT NULL,
-  `CTLODSPH` varchar(50) DEFAULT NULL,
-  `CTLODCYL` varchar(50) DEFAULT NULL,
-  `CTLODAXIS` varchar(50) DEFAULT NULL,
-  `CTLODBC` varchar(50) DEFAULT NULL,
-  `CTLODDIAM` varchar(50) DEFAULT NULL,
-  `CTLOSSPH` varchar(50) DEFAULT NULL,
-  `CTLOSCYL` varchar(50) DEFAULT NULL,
-  `CTLOSAXIS` varchar(50) DEFAULT NULL,
-  `CTLOSBC` varchar(50) DEFAULT NULL,
-  `CTLOSDIAM` varchar(50) DEFAULT NULL,
-  `CTL_COMMENTS` text,
-  `CTLMANUFACTUREROD` varchar(50) DEFAULT NULL,
-  `CTLSUPPLIEROD` varchar(50) DEFAULT NULL,
-  `CTLBRANDOD` varchar(50) DEFAULT NULL,
-  `CTLMANUFACTUREROS` varchar(50) DEFAULT NULL,
-  `CTLSUPPLIEROS` varchar(50) DEFAULT NULL,
-  `CTLBRANDOS` varchar(50) DEFAULT NULL,
-  `CTLODADD` varchar(50) DEFAULT NULL,
-  `CTLOSADD` varchar(50) DEFAULT NULL,
-  `ODIOPAP` varchar(50) DEFAULT NULL,
-  `OSIOPAP` varchar(50) DEFAULT NULL,
-  `ODIOPTPN` varchar(10) DEFAULT NULL,
-  `OSIOPTPN` varchar(10) DEFAULT NULL,
-  `ODIOPFTN` varchar(10) DEFAULT NULL,
-  `OSIOPFTN` varchar(10) DEFAULT NULL,
-  `ODIOPPOST`varchar(10) DEFAULT NULL,
-  `OSIOPPOST` varchar(10) DEFAULT NULL,
-  `ODIOPTARGET`varchar(10) DEFAULT NULL,
-  `OSIOPTARGET` varchar(10) DEFAULT NULL,
-  `IOPTIME` time DEFAULT NULL,
-  `IOPPOSTTIME` time DEFAULT NULL,
-  `AMSLEROD` smallint(1) DEFAULT NULL,
-  `AMSLEROS` smallint(1) DEFAULT NULL,
-  `ODK1` varchar(50) DEFAULT NULL,
-  `ODK2` varchar(50) DEFAULT NULL,
-  `ODK2AXIS` varchar(50) DEFAULT NULL,
-  `OSK1` varchar(50) DEFAULT NULL,
-  `OSK2` varchar(50) DEFAULT NULL,
-  `OSK2AXIS` varchar(50) DEFAULT NULL,
-  `ODAXIALLENGTH` varchar(50) DEFAULT NULL,
-  `OSAXIALLENGTH` varchar(50) DEFAULT NULL,
-  `ODACD` varchar(50) DEFAULT NULL,
-  `OSACD` varchar(50) DEFAULT NULL,
-  `ODW2W` varchar(10) DEFAULT NULL,
-  `OSW2W` varchar(10) DEFAULT NULL,
-  `ODLT` varchar(20) DEFAULT NULL,
-  `OSLT` varchar(20) DEFAULT NULL,
-  `ODPDMeasured` varchar(25) DEFAULT NULL,
-  `OSPDMeasured` varchar(25) DEFAULT NULL,
-  `ACT` char(3) DEFAULT 'on',
-  `ACT1CCDIST` varchar(50) DEFAULT NULL,
-  `ACT2CCDIST` varchar(50) DEFAULT NULL,
-  `ACT3CCDIST` varchar(50) DEFAULT NULL,
-  `ACT4CCDIST` varchar(50) DEFAULT NULL,
-  `ACT5CCDIST` varchar(50) DEFAULT NULL,
-  `ACT6CCDIST` varchar(50) DEFAULT NULL,
-  `ACT7CCDIST` varchar(50) DEFAULT NULL,
-  `ACT8CCDIST` varchar(50) DEFAULT NULL,
-  `ACT9CCDIST` varchar(50) DEFAULT NULL,
-  `ACT10CCDIST` varchar(50) DEFAULT NULL,
-  `ACT11CCDIST` varchar(50) DEFAULT NULL,
-  `ACT1SCDIST` varchar(50) DEFAULT NULL,
-  `ACT2SCDIST` varchar(50) DEFAULT NULL,
-  `ACT3SCDIST` varchar(50) DEFAULT NULL,
-  `ACT4SCDIST` varchar(50) DEFAULT NULL,
-  `ACT5SCDIST` varchar(50) DEFAULT NULL,
-  `ACT6SCDIST` varchar(50) DEFAULT NULL,
-  `ACT7SCDIST` varchar(50) DEFAULT NULL,
-  `ACT8SCDIST` varchar(50) DEFAULT NULL,
-  `ACT9SCDIST` varchar(50) DEFAULT NULL,
-  `ACT10SCDIST` varchar(50) DEFAULT NULL,
-  `ACT11SCDIST` varchar(50) DEFAULT NULL,
-  `ACT1SCNEAR` varchar(50) DEFAULT NULL,
-  `ACT2SCNEAR` varchar(50) DEFAULT NULL,
-  `ACT3SCNEAR` varchar(50) DEFAULT NULL,
-  `ACT4SCNEAR` varchar(50) DEFAULT NULL,
-  `ACT5SCNEAR` varchar(50) DEFAULT NULL,
-  `ACT6SCNEAR` varchar(50) DEFAULT NULL,
-  `ACT7SCNEAR` varchar(50) DEFAULT NULL,
-  `ACT8SCNEAR` varchar(50) DEFAULT NULL,
-  `ACT9SCNEAR` varchar(50) DEFAULT NULL,
-  `ACT10SCNEAR` varchar(50) DEFAULT NULL,
-  `ACT11SCNEAR` varchar(50) DEFAULT NULL,
-  `ACT1CCNEAR` varchar(50) DEFAULT NULL,
-  `ACT2CCNEAR` varchar(50) DEFAULT NULL,
-  `ACT3CCNEAR` varchar(50) DEFAULT NULL,
-  `ACT4CCNEAR` varchar(50) DEFAULT NULL,
-  `ACT5CCNEAR` varchar(50) DEFAULT NULL,
-  `ACT6CCNEAR` varchar(50) DEFAULT NULL,
-  `ACT7CCNEAR` varchar(50) DEFAULT NULL,
-  `ACT8CCNEAR` varchar(50) DEFAULT NULL,
-  `ACT9CCNEAR` varchar(50) DEFAULT NULL,
-  `ACT10CCNEAR` varchar(50) DEFAULT NULL,
-  `ACT11CCNEAR` varchar(50) DEFAULT NULL,
-  `ODVF1` tinyint(1) DEFAULT NULL,
-  `ODVF2` tinyint(1) DEFAULT NULL,
-  `ODVF3` tinyint(1) DEFAULT NULL,
-  `ODVF4` tinyint(1) DEFAULT NULL,
-  `OSVF1` tinyint(1) DEFAULT NULL,
-  `OSVF2` tinyint(1) DEFAULT NULL,
-  `OSVF3` tinyint(1) DEFAULT NULL,
-  `OSVF4` tinyint(1) DEFAULT NULL,
-  `MOTILITYNORMAL` char(3) DEFAULT 'on',
-  `MOTILITY_RS` int(1) DEFAULT NULL,
-  `MOTILITY_RI` int(1) DEFAULT NULL,
-  `MOTILITY_RR` int(1) DEFAULT NULL,
-  `MOTILITY_RL` int(1) DEFAULT NULL,
-  `MOTILITY_LS` int(1) DEFAULT NULL,
-  `MOTILITY_LI` int(1) DEFAULT NULL,
-  `MOTILITY_LR` int(1) DEFAULT NULL,
-  `MOTILITY_LL` int(1) DEFAULT NULL,
-  `MOTILITY_RRSO` int(1) DEFAULT NULL,
-  `MOTILITY_RLSO` int(1) DEFAULT NULL,
-  `MOTILITY_RRIO` int(1) DEFAULT NULL,
-  `MOTILITY_RLIO` int(1) DEFAULT NULL,
-  `MOTILITY_LRSO` int(1) DEFAULT NULL,
-  `MOTILITY_LLSO` int(1) DEFAULT NULL,
-  `MOTILITY_LRIO` int(1) DEFAULT NULL,
-  `MOTILITY_LLIO` int(1) DEFAULT NULL,
-  `STEREOPSIS` varchar(25) DEFAULT NULL,
-  `ODNPA` varchar(50) DEFAULT NULL,
-  `OSNPA` varchar(50) DEFAULT NULL,
-  `VERTFUSAMPS` varchar(50) DEFAULT NULL,
-  `DIVERGENCEAMPS` varchar(50) DEFAULT NULL,
-  `NPC` varchar(10) DEFAULT NULL,
-  `DACCDIST` varchar(10) DEFAULT NULL,
-  `DACCNEAR` varchar(10) DEFAULT NULL,
-  `CACCDIST` varchar(10) DEFAULT NULL,
-  `CACCNEAR` varchar(10) DEFAULT NULL,
-  `ODCOLOR` varchar(5) DEFAULT NULL,
-  `OSCOLOR` varchar(5) DEFAULT NULL,
-  `ODCOINS` varchar(5) DEFAULT NULL,
-  `OSCOINS` varchar(5) DEFAULT NULL,
-  `ODREDDESAT` varchar(10) DEFAULT NULL,
-  `OSREDDESAT` varchar(10) DEFAULT NULL,
-  `NEURO_COMMENTS` text,
-  `RUL` text,
-  `LUL` text,
-  `RLL` text,
-  `LLL` text,
-  `RBROW` text,
-  `LBROW` text,
-  `RMCT` text,
-  `LMCT` text,
-  `RADNEXA` varchar(255) DEFAULT NULL,
-  `LADNEXA` varchar(255) DEFAULT NULL,
-  `RMRD` varchar(25) DEFAULT NULL,
-  `LMRD` varchar(25) DEFAULT NULL,
-  `RLF` varchar(50) DEFAULT NULL,
-  `LLF` varchar(50) DEFAULT NULL,
-  `RVFISSURE` varchar(10) DEFAULT NULL,
-  `LVFISSURE` varchar(10) DEFAULT NULL,
-  `ODHERTEL` varchar(10) DEFAULT NULL,
-  `OSHERTEL` varchar(10) DEFAULT NULL,
-  `HERTELBASE` varchar(10) DEFAULT NULL,
-  `RCAROTID` varchar(50) DEFAULT NULL,
-  `LCAROTID` varchar(50) DEFAULT NULL,
-  `RTEMPART` varchar(50) DEFAULT NULL,
-  `LTEMPART` varchar(50) DEFAULT NULL,
-  `RCNV` varchar(50) DEFAULT NULL,
-  `LCNV` varchar(50) DEFAULT NULL,
-  `RCNVII` varchar(50) DEFAULT NULL,
-  `LCNVII` varchar(50) DEFAULT NULL,
-  `EXT_COMMENTS` text,
-  `ODSCHIRMER1` varchar(50) DEFAULT NULL,
-  `OSSCHRIMER1` varchar(50) DEFAULT NULL,
-  `ODSCHRIMER2` varchar(50) DEFAULT NULL,
-  `OSSCHRIMER2` varchar(50) DEFAULT NULL,
-  `OSCONJ` text,
-  `ODCONJ` text,
-  `ODCORNEA` text,
-  `OSCORNEA` text,
-  `ODAC` text,
-  `OSAC` text,
-  `ODLENS` text,
-  `OSLENS` text,
-  `ODIRIS` text,
-  `OSIRIS` text,
-  `ODKTHICKNESS` varchar(20) DEFAULT NULL,
-  `OSKTHICKNESS` varchar(20) DEFAULT NULL,
-  `ODGONIO` varchar(50) DEFAULT NULL,
-  `OSGONIO` varchar(50) DEFAULT NULL,
-  `ANTSEG_COMMENTS` text,
-  `PUPIL_NORMAL` varchar(2) DEFAULT '1',
-  `ODPUPILSIZE1` varchar(20) DEFAULT NULL,
-  `ODPUPILSIZE2` varchar(20) DEFAULT NULL,
-  `ODPUPILREACTIVITY` varchar(10) DEFAULT NULL,
-  `ODAPD` varchar(10) DEFAULT NULL,
-  `OSPUPILSIZE1` varchar(20) DEFAULT NULL,
-  `OSPUPILSIZE2` varchar(20) DEFAULT NULL,
-  `OSPUPILREACTIVITY` varchar(10) DEFAULT NULL,
-  `OSAPD` varchar(20) DEFAULT NULL,
-  `DIMODPUPILSIZE1` varchar(20) DEFAULT NULL,
-  `DIMODPUPILSIZE2` varchar(20) DEFAULT NULL,
-  `DIMODPUPILREACTIVITY` varchar(10) DEFAULT NULL,
-  `DIMOSPUPILSIZE1` varchar(20) DEFAULT NULL,
-  `DIMOSPUPILSIZE2` varchar(20) DEFAULT NULL,
-  `DIMOSPUPILREACTIVITY` varchar(10) DEFAULT NULL,
-  `PUPIL_COMMENTS` text,
-  `ODVFCONFRONTATION1` int(1) DEFAULT NULL,
-  `ODVFCONFRONTATION2` int(1) DEFAULT NULL,
-  `ODVFCONFRONTATION3` int(1) DEFAULT NULL,
-  `ODVFCONFRONTATION4` int(1) DEFAULT NULL,
-  `ODVFCONFRONTATION5` int(1) DEFAULT NULL,
-  `OSVFCONFRONTATION1` int(1) DEFAULT NULL,
-  `OSVFCONFRONTATION2` int(1) DEFAULT NULL,
-  `OSVFCONFRONTATION3` int(1) DEFAULT NULL,
-  `OSVFCONFRONTATION4` int(1) DEFAULT NULL,
-  `OSVFCONFRONTATION5` int(1) DEFAULT NULL,
-  `ODDISC` varchar(100) DEFAULT NULL,
-  `OSDISC` varchar(100) DEFAULT NULL,
-  `ODCUP` varchar(100) DEFAULT NULL,
-  `OSCUP` varchar(100) DEFAULT NULL,
-  `ODMACULA` varchar(100) DEFAULT NULL,
-  `OSMACULA` varchar(100) DEFAULT NULL,
-  `ODVESSELS` varchar(100) DEFAULT NULL,
-  `OSVESSELS` varchar(100) DEFAULT NULL,
-  `ODPERIPH` varchar(100) DEFAULT NULL,
-  `OSPERIPH` varchar(100) DEFAULT NULL,
-  `ODCMT` varchar(50) DEFAULT NULL,
-  `OSCMT` varchar(50) DEFAULT NULL,
-  `RETINA_COMMENTS` text,
-  `IMP` text,
-  `PLAN` text,
-  `Technician` varchar(50) DEFAULT NULL,
-  `Doctor` varchar(50) DEFAULT NULL,
-  `Resource` varchar(50) DEFAULT NULL,
-  `LOCKED` VARCHAR( 3 ) NULL DEFAULT NULL,
-  `LOCKEDDATE` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  `LOCKEDBY` varchar(50) DEFAULT NULL,
-  `FINISHED` varchar(25) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM;
-
------------------------------------------------------------
-
---
 -- Table structure for table `form_eye_mag_prefs`
 --
 
@@ -10900,3 +10521,533 @@ CREATE TABLE IF NOT EXISTS `medex_recalls` (
   PRIMARY KEY (`r_ID`),
   UNIQUE KEY `r_PRACTID` (`r_PRACTID`,`r_pid`)
 ) ENGINE=InnoDB;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `form_eye_base`
+--
+
+CREATE TABLE IF NOT EXISTS `form_eye_base` (
+  `id`         bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
+  `date` datetime DEFAULT NULL,
+  `pid`        bigint(20)   DEFAULT NULL,
+  `user`       varchar(255) DEFAULT NULL,
+  `groupname`  varchar(255) DEFAULT NULL,
+  `authorized` tinyint(4)   DEFAULT NULL,
+  `activity`   tinyint(4)   DEFAULT NULL
+) ENGINE = InnoDB;
+ALTER TABLE `form_eye_base`
+  ADD PRIMARY KEY `form_link` (`id`);
+ALTER TABLE `form_eye_base`
+  CHANGE `id` `id` BIGINT(20) NOT NULL AUTO_INCREMENT;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `form_eye_hpi`
+--
+
+CREATE TABLE IF NOT EXISTS `form_eye_hpi` (
+  `id`          bigint(20) NOT NULL
+  COMMENT 'Links to forms.form_id',
+  `pid`        bigint(20)   DEFAULT NULL,
+  `CC1`         varchar(255) DEFAULT NULL,
+  `HPI1`        text         DEFAULT NULL,
+  `QUALITY1`    varchar(255) DEFAULT NULL,
+  `TIMING1`     varchar(255) DEFAULT NULL,
+  `DURATION1`   varchar(255) DEFAULT NULL,
+  `CONTEXT1`    varchar(255) DEFAULT NULL,
+  `SEVERITY1`   varchar(255) DEFAULT NULL,
+  `MODIFY1`     varchar(255) DEFAULT NULL,
+  `ASSOCIATED1` varchar(255) DEFAULT NULL,
+  `LOCATION1`   varchar(255) DEFAULT NULL,
+  `CHRONIC1`    varchar(255) DEFAULT NULL,
+  `CHRONIC2`    varchar(255) DEFAULT NULL,
+  `CHRONIC3`    varchar(255) DEFAULT NULL,
+  `CC2`         text         DEFAULT NULL,
+  `HPI2`        text         DEFAULT NULL,
+  `QUALITY2`    text         DEFAULT NULL,
+  `TIMING2`     text         DEFAULT NULL,
+  `DURATION2`   text         DEFAULT NULL,
+  `CONTEXT2`    text         DEFAULT NULL,
+  `SEVERITY2`   text         DEFAULT NULL,
+  `MODIFY2`     text         DEFAULT NULL,
+  `ASSOCIATED2` text         DEFAULT NULL,
+  `LOCATION2`   text         DEFAULT NULL,
+  `CC3`         text         DEFAULT NULL,
+  `HPI3`        text         DEFAULT NULL,
+  `QUALITY3`    text         DEFAULT NULL,
+  `TIMING3`     text         DEFAULT NULL,
+  `DURATION3`   text         DEFAULT NULL,
+  `CONTEXT3`    text         DEFAULT NULL,
+  `SEVERITY3`   text         DEFAULT NULL,
+  `MODIFY3`     text         DEFAULT NULL,
+  `ASSOCIATED3` text         DEFAULT NULL,
+  `LOCATION3`   text         DEFAULT NULL
+)
+  ENGINE = InnoDB;
+ALTER TABLE `form_eye_hpi`
+  ADD PRIMARY KEY `hpi_link` (`id`);
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `form_eye_ros`
+--
+
+CREATE TABLE IF NOT EXISTS `form_eye_ros` (
+  `id`           bigint(20) NOT NULL
+  COMMENT 'Links to forms.form_id',
+  `pid`        bigint(20)   DEFAULT NULL,
+  `ROSGENERAL`   text DEFAULT NULL,
+  `ROSHEENT`     text DEFAULT NULL,
+  `ROSCV`        text DEFAULT NULL,
+  `ROSPULM`      text DEFAULT NULL,
+  `ROSGI`        text DEFAULT NULL,
+  `ROSGU`        text DEFAULT NULL,
+  `ROSDERM`      text DEFAULT NULL,
+  `ROSNEURO`     text DEFAULT NULL,
+  `ROSPSYCH`     text DEFAULT NULL,
+  `ROSMUSCULO`   text DEFAULT NULL,
+  `ROSIMMUNO`    text DEFAULT NULL,
+  `ROSENDOCRINE` text DEFAULT NULL
+)
+  ENGINE = InnoDB;
+ALTER TABLE `form_eye_ros`
+  ADD PRIMARY KEY `ros_link` (`id`);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `form_eye_vitals`
+--
+
+CREATE TABLE IF NOT EXISTS `form_eye_vitals` (
+  `id`          bigint(20)  NOT NULL
+  COMMENT 'Links to forms.form_id',
+  `pid`        bigint(20)   DEFAULT NULL,
+  `alert`       char(3)     DEFAULT 'yes',
+  `oriented`    char(3)     DEFAULT 'TPP',
+  `confused`    char(3)     DEFAULT 'nml',
+  `ODIOPAP`     varchar(10) DEFAULT NULL,
+  `OSIOPAP`     varchar(10) DEFAULT NULL,
+  `ODIOPTPN`    varchar(10) DEFAULT NULL,
+  `OSIOPTPN`    varchar(10) DEFAULT NULL,
+  `ODIOPFTN`    varchar(10) DEFAULT NULL,
+  `OSIOPFTN`    varchar(10) DEFAULT NULL,
+  `IOPTIME`     time        NOT NULL,
+  `ODIOPPOST`   varchar(10) NOT NULL,
+  `OSIOPPOST`   varchar(10) NOT NULL,
+  `IOPPOSTTIME` time        DEFAULT NULL,
+  `ODIOPTARGET` varchar(10) NOT NULL,
+  `OSIOPTARGET` varchar(10) NOT NULL,
+  `AMSLEROD`    smallint(1) DEFAULT NULL,
+  `AMSLEROS`    smallint(1) DEFAULT NULL,
+  `ODVF1`       tinyint(1)  DEFAULT NULL,
+  `ODVF2`       tinyint(1)  DEFAULT NULL,
+  `ODVF3`       tinyint(1)  DEFAULT NULL,
+  `ODVF4`       tinyint(1)  DEFAULT NULL,
+  `OSVF1`       tinyint(1)  DEFAULT NULL,
+  `OSVF2`       tinyint(1)  DEFAULT NULL,
+  `OSVF3`       tinyint(1)  DEFAULT NULL,
+  `OSVF4`       tinyint(1)  DEFAULT NULL
+);
+ALTER TABLE `form_eye_vitals`
+  ADD PRIMARY KEY `vitals_link` (`id`);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `form_eye_acuity`
+--
+
+CREATE TABLE IF NOT EXISTS `form_eye_acuity` (
+  `id`            bigint(20)  NOT NULL
+  COMMENT 'Links to forms.form_id',
+  `pid`        bigint(20)   DEFAULT NULL,
+  `SCODVA`        varchar(25)  DEFAULT NULL,
+  `SCOSVA`        varchar(25)  DEFAULT NULL,
+  `PHODVA`        varchar(25)  DEFAULT NULL,
+  `PHOSVA`        varchar(25)  DEFAULT NULL,
+  `CTLODVA`       varchar(25)  DEFAULT NULL,
+  `CTLOSVA`       varchar(25)  DEFAULT NULL,
+  `MRODVA`        varchar(25)  DEFAULT NULL,
+  `MROSVA`        varchar(25)  DEFAULT NULL,
+  `SCNEARODVA`    varchar(25)  DEFAULT NULL,
+  `SCNEAROSVA`    varchar(25)  DEFAULT NULL,
+  `MRNEARODVA`    varchar(25)  DEFAULT NULL,
+  `MRNEAROSVA`    varchar(25)  DEFAULT NULL,
+  `GLAREODVA`     varchar(25)  DEFAULT NULL,
+  `GLAREOSVA`     varchar(25)  DEFAULT NULL,
+  `GLARECOMMENTS` varchar(255) DEFAULT NULL,
+  `ARODVA`        varchar(25)  DEFAULT NULL,
+  `AROSVA`        varchar(25)  DEFAULT NULL,
+  `CRODVA`        varchar(25)  DEFAULT NULL,
+  `CROSVA`        varchar(25)  DEFAULT NULL,
+  `CTLODVA1`      varchar(25)  DEFAULT NULL,
+  `CTLOSVA1`      varchar(25)  DEFAULT NULL,
+  `PAMODVA`       varchar(25)  DEFAULT NULL,
+  `PAMOSVA`       varchar(25)  DEFAULT NULL,
+  `LIODVA`        varchar(25) NOT NULL,
+  `LIOSVA`        varchar(25) NOT NULL,
+  `WODVANEAR`     varchar(25)  DEFAULT NULL,
+  `OSVANEARCC`    varchar(25)  DEFAULT NULL
+);
+ALTER TABLE `form_eye_acuity`
+  ADD PRIMARY KEY `acuity_link` (`id`);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `form_eye_refraction`
+--
+
+CREATE TABLE IF NOT EXISTS `form_eye_refraction` (
+  `id`                bigint(20) NOT NULL
+  COMMENT 'Links to forms.form_id',
+  `pid`        bigint(20)   DEFAULT NULL,
+  `MRODSPH`           varchar(25)  DEFAULT NULL,
+  `MRODCYL`           varchar(25)  DEFAULT NULL,
+  `MRODAXIS`          varchar(25)  DEFAULT NULL,
+  `MRODPRISM`         varchar(25)  DEFAULT NULL,
+  `MRODBASE`          varchar(25)  DEFAULT NULL,
+  `MRODADD`           varchar(25)  DEFAULT NULL,
+  `MROSSPH`           varchar(25)  DEFAULT NULL,
+  `MROSCYL`           varchar(25)  DEFAULT NULL,
+  `MROSAXIS`          varchar(25)  DEFAULT NULL,
+  `MROSPRISM`         varchar(50)  DEFAULT NULL,
+  `MROSBASE`          varchar(50)  DEFAULT NULL,
+  `MROSADD`           varchar(25)  DEFAULT NULL,
+  `MRODNEARSPHERE`    varchar(25)  DEFAULT NULL,
+  `MRODNEARCYL`       varchar(25)  DEFAULT NULL,
+  `MRODNEARAXIS`      varchar(25)  DEFAULT NULL,
+  `MRODPRISMNEAR`     varchar(50)  DEFAULT NULL,
+  `MRODBASENEAR`      varchar(25)  DEFAULT NULL,
+  `MROSNEARSHPERE`    varchar(25)  DEFAULT NULL,
+  `MROSNEARCYL`       varchar(25)  DEFAULT NULL,
+  `MROSNEARAXIS`      varchar(125) DEFAULT NULL,
+  `MROSPRISMNEAR`     varchar(50)  DEFAULT NULL,
+  `MROSBASENEAR`      varchar(25)  DEFAULT NULL,
+  `CRODSPH`           varchar(25)  DEFAULT NULL,
+  `CRODCYL`           varchar(25)  DEFAULT NULL,
+  `CRODAXIS`          varchar(25)  DEFAULT NULL,
+  `CROSSPH`           varchar(25)  DEFAULT NULL,
+  `CROSCYL`           varchar(25)  DEFAULT NULL,
+  `CROSAXIS`          varchar(25)  DEFAULT NULL,
+  `CRCOMMENTS`        varchar(255) DEFAULT NULL,
+  `BALANCED`          char(2)    NOT NULL,
+  `ARODSPH`           varchar(25)  DEFAULT NULL,
+  `ARODCYL`           varchar(25)  DEFAULT NULL,
+  `ARODAXIS`          varchar(25)  DEFAULT NULL,
+  `AROSSPH`           varchar(25)  DEFAULT NULL,
+  `AROSCYL`           varchar(25)  DEFAULT NULL,
+  `AROSAXIS`          varchar(25)  DEFAULT NULL,
+  `ARODADD`           varchar(25)  DEFAULT NULL,
+  `AROSADD`           varchar(25)  DEFAULT NULL,
+  `ARNEARODVA`        varchar(25)  DEFAULT NULL,
+  `ARNEAROSVA`        varchar(25)  DEFAULT NULL,
+  `ARODPRISM`         varchar(50)  DEFAULT NULL,
+  `AROSPRISM`         varchar(50)  DEFAULT NULL,
+  `CTLODSPH`          varchar(25)  DEFAULT NULL,
+  `CTLODCYL`          varchar(25)  DEFAULT NULL,
+  `CTLODAXIS`         varchar(25)  DEFAULT NULL,
+  `CTLODBC`           varchar(25)  DEFAULT NULL,
+  `CTLODDIAM`         varchar(25)  DEFAULT NULL,
+  `CTLOSSPH`          varchar(25)  DEFAULT NULL,
+  `CTLOSCYL`          varchar(25)  DEFAULT NULL,
+  `CTLOSAXIS`         varchar(25)  DEFAULT NULL,
+  `CTLOSBC`           varchar(25)  DEFAULT NULL,
+  `CTLOSDIAM`         varchar(25)  DEFAULT NULL,
+  `CTL_COMMENTS`      text         DEFAULT NULL,
+  `CTLMANUFACTUREROD` varchar(50)  DEFAULT NULL,
+  `CTLSUPPLIEROD`     varchar(50)  DEFAULT NULL,
+  `CTLBRANDOD`        varchar(50)  DEFAULT NULL,
+  `CTLMANUFACTUREROS` varchar(50)  DEFAULT NULL,
+  `CTLSUPPLIEROS`     varchar(50)  DEFAULT NULL,
+  `CTLBRANDOS`        varchar(50)  DEFAULT NULL,
+  `CTLODADD`          varchar(25)  DEFAULT NULL,
+  `CTLOSADD`          varchar(25)  DEFAULT NULL,
+  `NVOCHECKED`        varchar(25)  DEFAULT NULL,
+  `ADDCHECKED`        varchar(25)  DEFAULT NULL
+);
+ALTER TABLE `form_eye_refraction`
+  ADD PRIMARY KEY `refraction_link` (`id`);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `form_eye_biometrics`
+--
+
+CREATE TABLE IF NOT EXISTS `form_eye_biometrics` (
+  `id` bigint (20) NOT NULL COMMENT 'Links to forms.form_id',
+  `pid`        bigint(20)   DEFAULT NULL,
+  `ODK1` varchar (10) DEFAULT NULL,
+  `ODK2` varchar (10) DEFAULT NULL,
+  `ODK2AXIS` varchar (10) DEFAULT NULL,
+  `OSK1` varchar (10) DEFAULT NULL,
+  `OSK2` varchar (10) DEFAULT NULL,
+  `OSK2AXIS` varchar (10) DEFAULT NULL,
+  `ODAXIALLENGTH` varchar (20) DEFAULT NULL,
+  `OSAXIALLENGTH` varchar (20) DEFAULT NULL,
+  `ODPDMeasured` varchar (20) DEFAULT NULL,
+  `OSPDMeasured` varchar (20) DEFAULT NULL,
+  `ODACD` varchar (20) DEFAULT NULL,
+  `OSACD` varchar (20) DEFAULT NULL,
+  `ODW2W` varchar (20) DEFAULT NULL,
+  `OSW2W` varchar (20) DEFAULT NULL,
+  `ODLT` varchar (20) DEFAULT NULL,
+  `OSLT` varchar (20) DEFAULT NULL
+);
+ALTER TABLE `form_eye_biometrics`
+  ADD PRIMARY KEY `biometrics_link` (`id`);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `form_eye_external`
+--
+
+CREATE TABLE IF NOT EXISTS `form_eye_external` (
+  `id`           bigint(20) NOT NULL
+  COMMENT 'Links to forms.form_id',
+  `pid`        bigint(20)   DEFAULT NULL,
+  `RUL`          text        DEFAULT NULL,
+  `LUL`          text        DEFAULT NULL,
+  `RLL`          text        DEFAULT NULL,
+  `LLL`          text        DEFAULT NULL,
+  `RBROW`        text        DEFAULT NULL,
+  `LBROW`        text        DEFAULT NULL,
+  `RMCT`         text        DEFAULT NULL,
+  `LMCT`         text        DEFAULT NULL,
+  `RADNEXA`      text        DEFAULT NULL,
+  `LADNEXA`      text        DEFAULT NULL,
+  `RMRD`         varchar(25) DEFAULT NULL,
+  `LMRD`         varchar(25) DEFAULT NULL,
+  `RLF`          varchar(25) DEFAULT NULL,
+  `LLF`          varchar(25) DEFAULT NULL,
+  `RVFISSURE`    varchar(25) DEFAULT NULL,
+  `LVFISSURE`    varchar(25) DEFAULT NULL,
+  `ODHERTEL`     varchar(25) DEFAULT NULL,
+  `OSHERTEL`     varchar(25) DEFAULT NULL,
+  `HERTELBASE`   varchar(25) DEFAULT NULL,
+  `RCAROTID`     text        DEFAULT NULL,
+  `LCAROTID`     text        DEFAULT NULL,
+  `RTEMPART`     text        DEFAULT NULL,
+  `LTEMPART`     text        DEFAULT NULL,
+  `RCNV`         text        DEFAULT NULL,
+  `LCNV`         text        DEFAULT NULL,
+  `RCNVII`       text        DEFAULT NULL,
+  `LCNVII`       text        DEFAULT NULL,
+  `EXT_COMMENTS` text        DEFAULT NULL
+);
+ALTER TABLE `form_eye_external`
+  ADD PRIMARY KEY `external_link` (`id`);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `form_eye_antseg`
+--
+
+CREATE TABLE IF NOT EXISTS `form_eye_antseg` (
+  `id`                   bigint(20) NOT NULL
+  COMMENT 'Links to forms.form_id',
+  `pid`        bigint(20)   DEFAULT NULL,
+  `ODSCHIRMER1`          varchar(25) DEFAULT NULL,
+  `OSSCHIRMER1`          varchar(25) DEFAULT NULL,
+  `ODSCHIRMER2`          varchar(25) DEFAULT NULL,
+  `OSSCHIRMER2`          varchar(25) DEFAULT NULL,
+  `ODTBUT`               varchar(25) DEFAULT NULL,
+  `OSTBUT`               varchar(25) DEFAULT NULL,
+  `OSCONJ`               varchar(25) DEFAULT NULL,
+  `ODCONJ`               text        DEFAULT NULL,
+  `ODCORNEA`             text        DEFAULT NULL,
+  `OSCORNEA`             text        DEFAULT NULL,
+  `ODAC`                 text        DEFAULT NULL,
+  `OSAC`                 text        DEFAULT NULL,
+  `ODLENS`               text        DEFAULT NULL,
+  `OSLENS`               text        DEFAULT NULL,
+  `ODIRIS`               text        DEFAULT NULL,
+  `OSIRIS`               text        DEFAULT NULL,
+  `PUPIL_NORMAL`         varchar(2)  DEFAULT '1',
+  `ODPUPILSIZE1`         varchar(25) DEFAULT NULL,
+  `ODPUPILSIZE2`         varchar(25) DEFAULT NULL,
+  `ODPUPILREACTIVITY`    char(25)    DEFAULT NULL,
+  `ODAPD`                varchar(25) DEFAULT NULL,
+  `OSPUPILSIZE1`         varchar(25) DEFAULT NULL,
+  `OSPUPILSIZE2`         varchar(25) DEFAULT NULL,
+  `OSPUPILREACTIVITY`    char(25)    DEFAULT NULL,
+  `OSAPD`                varchar(25) DEFAULT NULL,
+  `DIMODPUPILSIZE1`      varchar(25) DEFAULT NULL,
+  `DIMODPUPILSIZE2`      varchar(25) DEFAULT NULL,
+  `DIMODPUPILREACTIVITY` varchar(25) DEFAULT NULL,
+  `DIMOSPUPILSIZE1`      varchar(25) DEFAULT NULL,
+  `DIMOSPUPILSIZE2`      varchar(25) DEFAULT NULL,
+  `DIMOSPUPILREACTIVITY` varchar(25) DEFAULT NULL,
+  `PUPIL_COMMENTS`       text        DEFAULT NULL,
+  `ODKTHICKNESS`         varchar(25) DEFAULT NULL,
+  `OSKTHICKNESS`         varchar(25) DEFAULT NULL,
+  `ODGONIO`              varchar(25) DEFAULT NULL,
+  `OSGONIO`              varchar(25) DEFAULT NULL,
+  `ANTSEG_COMMENTS`      text        DEFAULT NULL
+);
+ALTER TABLE `form_eye_antseg`
+  ADD PRIMARY KEY `antseg_link` (`id`);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `form_eye_postseg`
+--
+
+CREATE TABLE IF NOT EXISTS `form_eye_postseg` (
+  `id`              bigint(20)  NOT NULL
+  COMMENT 'Links to forms.form_id',
+  `pid`        bigint(20)   DEFAULT NULL,
+  `ODDISC`          text                 DEFAULT NULL,
+  `OSDISC`          text                 DEFAULT NULL,
+  `ODCUP`           text                 DEFAULT NULL,
+  `OSCUP`           text                 DEFAULT NULL,
+  `ODMACULA`        text                 DEFAULT NULL,
+  `OSMACULA`        text                 DEFAULT NULL,
+  `ODVESSELS`       text                 DEFAULT NULL,
+  `OSVESSELS`       text                 DEFAULT NULL,
+  `ODVITREOUS`      text                 DEFAULT NULL,
+  `OSVITREOUS`      text                 DEFAULT NULL,
+  `ODPERIPH`        text                 DEFAULT NULL,
+  `OSPERIPH`        text                 DEFAULT NULL,
+  `ODCMT`           text                 DEFAULT NULL,
+  `OSCMT`           text                 DEFAULT NULL,
+  `RETINA_COMMENTS` text                 DEFAULT NULL,
+  `DIL_RISKS`       char(2)     NOT NULL DEFAULT 'on',
+  `DIL_MEDS`        mediumtext           DEFAULT NULL,
+  `WETTYPE`         varchar(10) NOT NULL,
+  `ATROPINE`        varchar(25) NOT NULL,
+  `CYCLOMYDRIL`     varchar(25) NOT NULL,
+  `TROPICAMIDE`     varchar(25) NOT NULL,
+  `CYCLOGYL`        varchar(25) NOT NULL,
+  `NEO25`           varchar(25) NOT NULL
+);
+ALTER TABLE `form_eye_postseg`
+  ADD PRIMARY KEY `postseg_link` (`id`);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `form_eye_neuro`
+--
+
+CREATE TABLE IF NOT EXISTS `form_eye_neuro` (
+  `id` bigint (20) NOT NULL COMMENT 'Links to forms.form_id',
+  `pid`        bigint(20)   DEFAULT NULL,
+  `ACT` char (3) NOT NULL DEFAULT 'on',
+  `ACT5CCDIST` varchar (50) DEFAULT NULL,
+  `ACT1CCDIST` varchar (50) DEFAULT NULL,
+  `ACT2CCDIST` varchar (50) DEFAULT NULL,
+  `ACT3CCDIST` varchar (50) DEFAULT NULL,
+  `ACT4CCDIST` varchar (50) DEFAULT NULL,
+  `ACT6CCDIST` varchar (50) DEFAULT NULL,
+  `ACT7CCDIST` varchar (50) DEFAULT NULL,
+  `ACT8CCDIST` varchar (50) DEFAULT NULL,
+  `ACT9CCDIST` varchar (50) DEFAULT NULL,
+  `ACT10CCDIST` varchar (50) DEFAULT NULL,
+  `ACT11CCDIST` varchar (50) DEFAULT NULL,
+  `ACT1SCDIST` varchar (50) DEFAULT NULL,
+  `ACT2SCDIST` varchar (50) DEFAULT NULL,
+  `ACT3SCDIST` varchar (50) DEFAULT NULL,
+  `ACT4SCDIST` varchar (50) DEFAULT NULL,
+  `ACT5SCDIST` varchar (50) DEFAULT NULL,
+  `ACT6SCDIST` varchar (50) DEFAULT NULL,
+  `ACT7SCDIST` varchar (50) DEFAULT NULL,
+  `ACT8SCDIST` varchar (50) DEFAULT NULL,
+  `ACT9SCDIST` varchar (50) DEFAULT NULL,
+  `ACT10SCDIST` varchar (50) DEFAULT NULL,
+  `ACT11SCDIST` varchar (50) DEFAULT NULL,
+  `ACT1SCNEAR` varchar (50) DEFAULT NULL,
+  `ACT2SCNEAR` varchar (50) DEFAULT NULL,
+  `ACT3SCNEAR` varchar (50) DEFAULT NULL,
+  `ACT4SCNEAR` varchar (50) DEFAULT NULL,
+  `ACT5CCNEAR` varchar (50) DEFAULT NULL,
+  `ACT6CCNEAR` varchar (50) DEFAULT NULL,
+  `ACT7CCNEAR` varchar (50) DEFAULT NULL,
+  `ACT8CCNEAR` varchar (50) DEFAULT NULL,
+  `ACT9CCNEAR` varchar (50) DEFAULT NULL,
+  `ACT10CCNEAR` varchar (50) DEFAULT NULL,
+  `ACT11CCNEAR` varchar (50) DEFAULT NULL,
+  `ACT5SCNEAR` varchar (50) DEFAULT NULL,
+  `ACT6SCNEAR` varchar (50) DEFAULT NULL,
+  `ACT7SCNEAR` varchar (50) DEFAULT NULL,
+  `ACT8SCNEAR` varchar (50) DEFAULT NULL,
+  `ACT9SCNEAR` varchar (50) DEFAULT NULL,
+  `ACT10SCNEAR` varchar (50) DEFAULT NULL,
+  `ACT11SCNEAR` varchar (50) DEFAULT NULL,
+  `ACT1CCNEAR` varchar (50) DEFAULT NULL,
+  `ACT2CCNEAR` varchar (50) DEFAULT NULL,
+  `ACT3CCNEAR` varchar (50) DEFAULT NULL,
+  `ACT4CCNEAR` varchar (50) DEFAULT NULL,
+  `MOTILITYNORMAL` char (3) NOT NULL DEFAULT 'on',
+  `MOTILITY_RS` char (1) DEFAULT '0',
+  `MOTILITY_RI` char (1) DEFAULT '0',
+  `MOTILITY_RR` char (1) DEFAULT '0',
+  `MOTILITY_RL` char (1) DEFAULT '0',
+  `MOTILITY_LS` char (1) DEFAULT '0',
+  `MOTILITY_LI` char (1) DEFAULT '0',
+  `MOTILITY_LR` char (1) DEFAULT '0',
+  `MOTILITY_LL` char (1) DEFAULT '0',
+  `MOTILITY_RRSO` int (1) DEFAULT NULL,
+  `MOTILITY_RLSO` int (1) DEFAULT NULL,
+  `MOTILITY_RRIO` int (1) DEFAULT NULL,
+  `MOTILITY_RLIO` int (1) DEFAULT NULL,
+  `MOTILITY_LRSO` int (1) DEFAULT NULL,
+  `MOTILITY_LLSO` int (1) DEFAULT NULL,
+  `MOTILITY_LRIO` int (1) DEFAULT NULL,
+  `MOTILITY_LLIO` int (1) DEFAULT NULL,
+  `NEURO_COMMENTS` text DEFAULT NULL,
+  `STEREOPSIS` varchar (25) DEFAULT NULL,
+  `ODNPA` varchar (50) DEFAULT NULL,
+  `OSNPA` varchar (50) DEFAULT NULL,
+  `VERTFUSAMPS` varchar (50) DEFAULT NULL,
+  `DIVERGENCEAMPS` varchar (50) DEFAULT NULL,
+  `NPC` varchar (10) DEFAULT NULL,
+  `DACCDIST` varchar (20) DEFAULT NULL,
+  `DACCNEAR` varchar (20) DEFAULT NULL,
+  `CACCDIST` varchar (20) DEFAULT NULL,
+  `CACCNEAR` varchar (20) DEFAULT NULL,
+  `ODCOLOR` varchar (50) DEFAULT NULL,
+  `OSCOLOR` varchar (50) DEFAULT NULL,
+  `ODCOINS` varchar (50) DEFAULT NULL,
+  `OSCOINS` varchar (50) DEFAULT NULL,
+  `ODREDDESAT` varchar (20) DEFAULT NULL,
+  `OSREDDESAT` varchar (20) DEFAULT NULL
+);
+ALTER TABLE `form_eye_neuro`
+  ADD PRIMARY KEY `neuro_link` (`id`);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `form_eye_locking`
+--
+
+CREATE TABLE IF NOT EXISTS `form_eye_locking` (
+  `id`         bigint(20) NOT NULL
+  COMMENT 'Links to forms.form_id',
+  `pid`        bigint(20)   DEFAULT NULL,
+  `IMP`        text                DEFAULT NULL,
+  `PLAN`       text                DEFAULT NULL,
+  `Resource`   varchar(50)         DEFAULT NULL,
+  `Technician` varchar(50)         DEFAULT NULL,
+  `LOCKED`     varchar(3)          DEFAULT NULL,
+  `LOCKEDDATE` timestamp  NOT NULL DEFAULT CURRENT_TIMESTAMP
+  ON UPDATE CURRENT_TIMESTAMP,
+  `LOCKEDBY`   varchar(50)         DEFAULT NULL
+)
+  ENGINE = innodb;
+ALTER TABLE `form_eye_locking`
+  ADD PRIMARY KEY `locking_link` (`id`);
+

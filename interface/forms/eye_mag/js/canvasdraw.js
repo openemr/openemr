@@ -71,7 +71,7 @@ function drawImage(zone) {
         // The PHP code determines which when the page is called
         // and stores it in this id-->
     image[zone].src = $("#url_"+zone).val();
-    $(image[zone]).load(function () {
+    $(image[zone]).on('load',function () { 
                         ctx[zone].drawImage(image[zone], 0, 0, 450, 225);
                         // using variable size canvas? -> adjust size for canvas
     cPush(zone);

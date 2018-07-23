@@ -113,6 +113,31 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag')
   form_eye_mag.id=forms.form_id and
   forms.pid =form_eye_mag.pid and
   form_eye_mag.pid=? ";
+  $query ="  select  *,form_encounter.date as encounter_date
+
+               from forms,form_encounter,form_eye_base,
+                form_eye_hpi,form_eye_ros,form_eye_vitals,
+                form_eye_acuity,form_eye_refraction,form_eye_biometrics,
+                form_eye_external, form_eye_antseg,form_eye_postseg,
+                form_eye_neuro,form_eye_locking
+                    where
+                    forms.deleted != '1'  and
+                    forms.formdir='eye_mag' and
+                    forms.encounter=form_encounter.encounter  and
+                    forms.form_id=form_eye_base.id and
+                    forms.form_id=form_eye_hpi.id and
+                    forms.form_id=form_eye_ros.id and
+                    forms.form_id=form_eye_vitals.id and
+                    forms.form_id=form_eye_acuity.id and
+                    forms.form_id=form_eye_refraction.id and
+                    forms.form_id=form_eye_biometrics.id and
+                    forms.form_id=form_eye_external.id and
+                    forms.form_id=form_eye_antseg.id and
+                    forms.form_id=form_eye_postseg.id and
+                    forms.form_id=form_eye_neuro.id and
+                    forms.form_id=form_eye_locking.id and
+                    forms.encounter=? and 
+                    forms.pid=? ";
     $objQuery =sqlQuery($query, array($encounter,$pid));
     @extract($objQuery);
 
@@ -222,6 +247,31 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
             form_eye_mag.id=forms.form_id and
             forms.deleted != '1' and
             form_eye_mag.pid=? ";
+    $query ="  select  *,form_encounter.date as encounter_date
+
+               from forms,form_encounter,form_eye_base,
+                form_eye_hpi,form_eye_ros,form_eye_vitals,
+                form_eye_acuity,form_eye_refraction,form_eye_biometrics,
+                form_eye_external, form_eye_antseg,form_eye_postseg,
+                form_eye_neuro,form_eye_locking
+                    where
+                    forms.deleted != '1'  and
+                    forms.formdir='eye_mag' and
+                    forms.encounter=form_encounter.encounter  and
+                    forms.form_id=form_eye_base.id and
+                    forms.form_id=form_eye_hpi.id and
+                    forms.form_id=form_eye_ros.id and
+                    forms.form_id=form_eye_vitals.id and
+                    forms.form_id=form_eye_acuity.id and
+                    forms.form_id=form_eye_refraction.id and
+                    forms.form_id=form_eye_biometrics.id and
+                    forms.form_id=form_eye_external.id and
+                    forms.form_id=form_eye_antseg.id and
+                    forms.form_id=form_eye_postseg.id and
+                    forms.form_id=form_eye_neuro.id and
+                    forms.form_id=form_eye_locking.id and
+                    forms.encounter=? and 
+                    forms.pid=? ";
 
     $encounter_data =sqlQuery($query, array($encounter,$pid));
     @extract($encounter_data);
@@ -1462,7 +1512,7 @@ if ($ANTSEG_COMMENTS) { ?>
                     <?php
                 }
 
-                if (isset($RMRD) || isset($LMRD)) { ?>
+                if ( isset($RMRD) || isset($LMRD) ) { ?>
                   <tr>
                     <td class="report_text right"><?php echo text($RMRD); ?></td>
                     <td class="middle" title="<?php echo xla('Marginal Reflex Distance'); ?>"><?php echo xlt('MRD{{marginal reflex distance}}'); ?></td>
@@ -1471,7 +1521,7 @@ if ($ANTSEG_COMMENTS) { ?>
                     <?php
                 }
 
-                if (isset($RVFISSURE) || isset($LVFISSURE)) { ?>
+                if ( isset($RVFISSURE) || isset($LVFISSURE) ) { ?>
                   <tr>
                     <td class="report_text right"><?php echo text($RVFISSURE); ?></td>
                     <td class="middle" title="<?php echo xla('Vertical Fissure: central height between lid margins'); ?>"><?php echo xlt('Vert Fissure{{vertical fissure}}'); ?></td>

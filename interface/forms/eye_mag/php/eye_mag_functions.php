@@ -44,42 +44,57 @@ $facilityService = new FacilityService();
  */
 function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
 {
-    global $form_folder;
-    global $form_name;
-    global $visit_date;
     global $priors;
     global $form_id;
     global $earlier;
-    $Form_Name = "Eye Exam";
+
+    $tables = array('form_eye_hpi','form_eye_ros','form_eye_vitals',
+                'form_eye_acuity','form_eye_refraction','form_eye_biometrics',
+                'form_eye_external', 'form_eye_antseg','form_eye_postseg',
+                'form_eye_neuro','form_eye_locking');
     $output_return ="<span id='".attr($zone)."_prefix_oldies' name='".attr($zone)."_prefix_oldies' class='oldies_prefix'>";
     $selected='';
     $current='';
-    if (!$priors) {
-        $query="select form_encounter.date as encounter_date,form_eye_mag.id as form_id, form_eye_mag.*
-                    from form_eye_mag,forms,form_encounter
+    if (!$priors) { //we have to build it
+        $query="select form_encounter.date as encounter_date,form_eye_base.id as form_id, form_eye_base.*
+                    from form_eye_base,forms,form_encounter
                     where
                     form_encounter.encounter = forms.encounter and
-                    form_eye_mag.id=forms.form_id and
-                    forms.form_name =? and
+                    form_eye_base.id=forms.form_id and
                     forms.deleted != '1' and
-                    forms.pid =form_eye_mag.pid and
-                    forms.formdir='eye_mag' and form_eye_mag.pid=? ORDER BY encounter_date DESC";
-                    //This is actually picking up every form_eye_mag variable from every visit for $pid.
-                    //We may need to put a LIMIT on this, or do we really need to retrieve form_eye_mag.*?
-                    //Say there were 100 visits and we have a 200 variables(?) in form_eye_mag, we
-                    //are probably going to be fine...  It'd be a big select list though...
-                    //Think Mister Geppetto. What would an AI do with this data for an end-user?
-                    //We already use it for the Orders placed on the prior visit.
-                    //If we passed this "priors" variable via JSON,
-                    // then we could do the following client side (wicked fast):
-                    //      Carry forward function
-                    //      build comparison lists, like the IOP graphs by date and by hour
-                    //      more?  Or do the current methods work well enough?  Need to ask a programmer.
+                    forms.pid =form_eye_base.pid and
+                    forms.formdir='eye_mag' and form_eye_base.pid=? ORDER BY encounter_date DESC";
+
+
+        $query10 = "select  *,form_encounter.date as encounter_date
+              
+               from forms,form_encounter,form_eye_base, 
+                form_eye_hpi,form_eye_ros,form_eye_vitals,
+                form_eye_acuity,form_eye_refraction,form_eye_biometrics,
+                form_eye_external, form_eye_antseg,form_eye_postseg,
+                form_eye_neuro,form_eye_locking
+                    where
+                    forms.deleted != '1'  and
+                    forms.formdir='eye_mag' and
+                    forms.encounter=form_encounter.encounter  and
+                    forms.form_id=form_eye_base.id and
+                    forms.form_id=form_eye_hpi.id and
+                    forms.form_id=form_eye_ros.id and
+                    forms.form_id=form_eye_vitals.id and
+                    forms.form_id=form_eye_acuity.id and
+                    forms.form_id=form_eye_refraction.id and
+                    forms.form_id=form_eye_biometrics.id and
+                    forms.form_id=form_eye_external.id and
+                    forms.form_id=form_eye_antseg.id and
+                    forms.form_id=form_eye_postseg.id and
+                    forms.form_id=form_eye_neuro.id and
+                    forms.form_id=form_eye_locking.id and
+                    forms.form_id =? ";
                     // Unlike the obj data(PMSFH,Clinical,IMPPLAN etc), this data is static.
                     // It only needs to be passed once to the client side.
-        $result = sqlStatement($query, array($Form_Name,$pid));
-        $counter = sqlNumRows($result);
-        $priors = array();
+        $result     = sqlStatement($query, array($pid));
+        $counter    = sqlNumRows($result);
+        $priors     = array();
         if ($counter < 2) {
             return;
         }
@@ -89,7 +104,17 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
             $dated = new DateTime($prior['encounter_date']);
             $dated = $dated->format('Y-m-d');
             $oeexam_date = oeFormatShortDate($dated);
+
+            foreach ($tables as $table) {
+                $sql = "SELECT * from ".$table." WHERE id=?";
+                $sub_data = sqlStatement($sql,array($prior['id']));
+                $data = sqlFetchArray($sub_data);
+                if ($data) {
+                   $prior = array_merge($prior, $data);
+                }
+            }
             $priors[$i] = $prior;
+
             $selected ='';
             $priors[$i]['visit_date'] = $prior['encounter_date'];
             $priors[$i]['exam_date'] = $oeexam_date;
@@ -221,10 +246,32 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
     }
 
     $query = "SELECT * FROM form_".$form_folder." where pid =? and id = ?";
+    $query = "SELECT  *
+              
+               from form_eye_base, 
+                form_eye_hpi,form_eye_ros,form_eye_vitals,
+                form_eye_acuity,form_eye_refraction,form_eye_biometrics,
+                form_eye_external, form_eye_antseg,form_eye_postseg,
+                form_eye_neuro,form_eye_locking
+              where
+                    form_eye_base.id=form_eye_hpi.id and
+                    form_eye_base.id=form_eye_ros.id and
+                    form_eye_base.id=form_eye_vitals.id and
+                    form_eye_base.id=form_eye_acuity.id and
+                    form_eye_base.id=form_eye_refraction.id and
+                    form_eye_base.id=form_eye_biometrics.id and
+                    form_eye_base.id=form_eye_external.id and
+                    form_eye_base.id=form_eye_antseg.id and
+                    form_eye_base.id=form_eye_postseg.id and
+                    form_eye_base.id=form_eye_neuro.id and
+                    form_eye_base.id=form_eye_locking.id and
+                    form_eye_base.pid =? and
+                    form_eye_base.id=?";
     $result = sqlQuery($query, array($pid,$id_to_show));
     @extract($result);
     ob_start();
     if ($zone == "REFRACTIONS") {
+        //TODO maybe just sql _refraction+acuity
         display_refractive_data($result);
     } elseif ($zone == "EXT") {
         if ($report =='0') {
@@ -1586,11 +1633,8 @@ function send_json_values($PMSFH = "")
  */
 function build_PMSFH($pid)
 {
-    global $form_folder;
     global $form_id;
-    global $id;
-    global $ISSUE_TYPES;
-    global $ISSUE_TYPE_STYLES;
+
     $PMSFH = [];
     $PMSFH['CHRONIC']=[];
     //Define the PMSFH array elements as you need them:
@@ -1962,10 +2006,10 @@ function build_PMSFH($pid)
 
     //define the ROS area to include = $given
     $given="ROSGENERAL,ROSHEENT,ROSCV,ROSPULM,ROSGI,ROSGU,ROSDERM,ROSNEURO,ROSPSYCH,ROSMUSCULO,ROSIMMUNO,ROSENDOCRINE";
-    $ROS_table = "form_eye_mag";
-    $query="SELECT $given from ". $ROS_table ." where id=? and pid=?";
+    $ROS_table = "form_eye_ros";
+    $query="SELECT $given from ". $ROS_table ." where id=?";
 
-    $ROS = sqlStatement($query, array($form_id,$pid));
+    $ROS = sqlStatement($query, array($form_id));
     while ($row = sqlFetchArray($ROS)) {
         foreach (explode(',', $given) as $item) {
             $PMSFH['ROS'][$item]['display']= $row[$item];
@@ -3011,13 +3055,38 @@ background-image: none;" />
 function copy_forward($zone, $copy_from, $copy_to, $pid)
 {
     global $form_id;
-    $query="select form_encounter.date as encounter_date,form_eye_mag.* from form_eye_mag ,forms,form_encounter
+    $query="select form_encounter.date as encounter_date,form_eye_base.* from form_eye_mag ,forms,form_encounter
                 where
                 form_encounter.encounter = forms.encounter and
                 form_eye_mag.id=forms.form_id and
                 forms.pid =form_eye_mag.pid and
                 form_eye_mag.pid=?
                 and form_eye_mag.id =? ";
+    $query = "select  *,form_encounter.date as encounter_date
+              
+               from forms,form_encounter,form_eye_base, 
+                form_eye_hpi,form_eye_ros,form_eye_vitals,
+                form_eye_acuity,form_eye_refraction,form_eye_biometrics,
+                form_eye_external, form_eye_antseg,form_eye_postseg,
+                form_eye_neuro,form_eye_locking
+                    where
+                    forms.deleted != '1'  and
+                    forms.formdir='eye_mag' and
+                    forms.encounter=form_encounter.encounter  and
+                    forms.form_id=form_eye_base.id and
+                    forms.form_id=form_eye_hpi.id and
+                    forms.form_id=form_eye_ros.id and
+                    forms.form_id=form_eye_vitals.id and
+                    forms.form_id=form_eye_acuity.id and
+                    forms.form_id=form_eye_refraction.id and
+                    forms.form_id=form_eye_biometrics.id and
+                    forms.form_id=form_eye_external.id and
+                    forms.form_id=form_eye_antseg.id and
+                    forms.form_id=form_eye_postseg.id and
+                    forms.form_id=form_eye_neuro.id and
+                    forms.form_id=form_eye_locking.id and
+                    forms.pid =? and
+                    forms.form_id =? ";
 
     $objQuery =sqlQuery($query, array($pid,$copy_from));
     if ($zone =="EXT") {
@@ -3196,16 +3265,6 @@ function copy_forward($zone, $copy_from, $copy_to, $pid)
         $result['DIMOSPUPILSIZE2']=$objQuery['DIMOSPUPILSIZE2'];
         $result['DIMOSPUPILREACTIVITY']=$objQuery['DIMOSPUPILREACTIVITY'];
         $result['PUPIL_COMMENTS']=$objQuery['PUPIL_COMMENTS'];
-        $result['ODVFCONFRONTATION1']=$objQuery['ODVFCONFRONTATION1'];
-        $result['ODVFCONFRONTATION2']=$objQuery['ODVFCONFRONTATION2'];
-        $result['ODVFCONFRONTATION3']=$objQuery['ODVFCONFRONTATION3'];
-        $result['ODVFCONFRONTATION4']=$objQuery['ODVFCONFRONTATION4'];
-        $result['ODVFCONFRONTATION5']=$objQuery['ODVFCONFRONTATION5'];
-        $result['OSVFCONFRONTATION1']=$objQuery['OSVFCONFRONTATION1'];
-        $result['OSVFCONFRONTATION2']=$objQuery['OSVFCONFRONTATION2'];
-        $result['OSVFCONFRONTATION3']=$objQuery['OSVFCONFRONTATION3'];
-        $result['OSVFCONFRONTATION4']=$objQuery['OSVFCONFRONTATION4'];
-        $result['OSVFCONFRONTATION5']=$objQuery['OSVFCONFRONTATION5'];
         $result["json"] = json_encode($result);
         echo json_encode($result);
     } elseif ($zone =="IMPPLAN") {
@@ -3362,16 +3421,6 @@ function copy_forward($zone, $copy_from, $copy_to, $pid)
         $result['DIMOSPUPILSIZE2']=$objQuery['DIMOSPUPILSIZE2'];
         $result['DIMOSPUPILREACTIVITY']=$objQuery['DIMOSPUPILREACTIVITY'];
         $result['PUPIL_COMMENTS']=$objQuery['PUPIL_COMMENTS'];
-        $result['ODVFCONFRONTATION1']=$objQuery['ODVFCONFRONTATION1'];
-        $result['ODVFCONFRONTATION2']=$objQuery['ODVFCONFRONTATION2'];
-        $result['ODVFCONFRONTATION3']=$objQuery['ODVFCONFRONTATION3'];
-        $result['ODVFCONFRONTATION4']=$objQuery['ODVFCONFRONTATION4'];
-        $result['ODVFCONFRONTATION5']=$objQuery['ODVFCONFRONTATION5'];
-        $result['OSVFCONFRONTATION1']=$objQuery['OSVFCONFRONTATION1'];
-        $result['OSVFCONFRONTATION2']=$objQuery['OSVFCONFRONTATION2'];
-        $result['OSVFCONFRONTATION3']=$objQuery['OSVFCONFRONTATION3'];
-        $result['OSVFCONFRONTATION4']=$objQuery['OSVFCONFRONTATION4'];
-        $result['OSVFCONFRONTATION5']=$objQuery['OSVFCONFRONTATION5'];
         $result['IMP']=$objQuery['IMP'];
         $result["json"] = json_encode($result);
         echo json_encode($result);
@@ -3665,12 +3714,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="container-fluid" style="margin-top:0px;padding:2px;">
             <div class="navbar-header brand" style="color:black;">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#oer-navbar-collapse-1">
-                    <span class="sr-only"><?php echo xlt("Toggle navigation"); ?></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
+
                 &nbsp;
                 <img src="<?php echo $GLOBALS['webroot']; ?>/sites/default/images/login_logo.gif" class="little_image">
                 <span class="brand"><?php echo xlt('Eye Exam'); ?></span>
@@ -4124,7 +4168,6 @@ function Menu_myGetRegistered($state = "1", $limit = "unlimited", $offset = "0")
  */
 function report_header($pid, $direction = 'shell')
 {
-    global $form_name;
     global $encounter;
     global $visit_date;
     global $facilityService;
@@ -4613,8 +4656,8 @@ function coding_carburetor($term, $field)
 /**
  *  This function prepares a code found in a clinical field and returns it in $codes_found format.
  *  @param $code is in the format code_type:code eg. ICD10:H34.811
- *  @param $location is the descruiptive name of the clinical field in question
- *  @param $side is optional.  Used as the descriptive text for the finding in the Builder
+ *  @param $location is the descriptive name of the clinical field in question
+ *  @param $side is optional.  Used as the descriptive text for finding in the Builder
  *      and IMP/Plan if selected from the Builder
  *  @return $subterm,$newdata.  $subterm is used to link items in IMP/PLAN back to its orgin.
  *          $newdata is the array of newly found items to include in the Builder.
@@ -4676,7 +4719,6 @@ function cmp($a, $b)
 function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 {
     global $PMSFH;
-    global $documents;
     global $form_folder;
     global $priors;
     global $providerID;
@@ -4706,7 +4748,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
     $i=0;
     //if there are no priors, this is the first visit, display a generic splash screen.
-    if ($priors) {
+        if ($priors) {
         foreach ($priors as $visit) {
             //we need to build the lists - dates_OU,times_OU,gonio_OU,OCT_OU,VF_OU,ODIOP,OSIOP,IOPTARGETS
             $old_date_timestamp = strtotime($visit['visit_date']);
@@ -5854,14 +5896,12 @@ function generate_specRx($W)
  * Function to display Refractive Data for an encounter
  * @param array $encounter_data, visit data for a given encounter
  */
-function display_refractive_data($encounter_data)
-{
+function display_refractive_data($encounter_data) {
     @extract($encounter_data);
     $count_rx = '0';
     
     $query = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? ORDER BY RX_NUMBER";
-    
-    //echo $query. "<br />PID=".$pid."<br />FORM_ID=".$id."<br />ENCOUNTER=".$encounter."<br />";
+
     $wear = sqlStatement($query, array($pid,$id));
     while ($wearing = sqlFetchArray($wear)) {
         $count_rx++;
@@ -5887,79 +5927,79 @@ function display_refractive_data($encounter_data)
         ${"RX_TYPE_$count_rx"} = $wearing['RX_TYPE'];
     }
     
-    if (!$ODVA||$OSVA||$ARODSPH||$AROSSPH||$MRODSPH||$MROSSPH||$CRODSPH||$CROSSPH||$CTLODSPH||$CTLOSSPH) { ?>
-        <table class="refraction_tables">
-           <tr class="text-center bold underline" style="background-color: #F3EEC7;">
-                <td ><?php echo oeFormatShortDate($date); ?></td>
-                <td ><?php echo xlt('Eye'); ?></td>
-                <td ><?php echo xlt('Sph{{Sphere}}'); ?></td>
-                <td ><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
-                <td ><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
-                <td ><?php echo xlt('Prism'); ?></td>
-                <td ><?php echo xlt('Acuity'); ?></td>
-                <td ><?php echo xlt('Mid{{Middle Distance Add}}'); ?></td>
-                <td ><?php echo xlt('ADD{{Near Add}}'); ?></td>
-                <td ><?php echo xlt('Acuity'); ?></td>
-            </tr>
-            <?php
+   if (!$ODVA||$OSVA||$ARODSPH||$AROSSPH||$MRODSPH||$MROSSPH||$CRODSPH||$CROSSPH||$CTLODSPH||$CTLOSSPH) { ?>
+       <table class="refraction_tables">
+          <tr class="text-center bold underline" style="background-color: #F3EEC7;">
+               <td ><?php echo oeFormatShortDate($date); ?></td>
+               <td ><?php echo xlt('Eye'); ?></td>
+               <td ><?php echo xlt('Sph{{Sphere}}'); ?></td>
+               <td ><?php echo xlt('Cyl{{Cylinder}}'); ?></td>
+               <td ><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
+               <td ><?php echo xlt('Prism'); ?></td>
+               <td ><?php echo xlt('Acuity'); ?></td>
+               <td ><?php echo xlt('Mid{{Middle Distance Add}}'); ?></td>
+               <td ><?php echo xlt('ADD{{Near Add}}'); ?></td>
+               <td ><?php echo xlt('Acuity'); ?></td>
+           </tr>
+           <?php
                //$count_rx++;
-            for ($i=1; $i <= $count_rx; $i++) {
-                if (${"RX_TYPE_$i"} =="0") {
-                    $RX_TYPE = '';
-                } else if (${"RX_TYPE_$i"} =="1") {
-                    $RX_TYPE = xlt('Bifocals');
-                } else if (${"RX_TYPE_$i"} =="2") {
-                    $RX_TYPE = xlt('Trifocals');
-                } else if (${"RX_TYPE_$i"} =="3") {
-                    $RX_TYPE = xlt('Progressive');
-                }
+               for ($i=1; $i <= $count_rx; $i++) {
+                   if (${"RX_TYPE_$i"} =="0") {
+                       $RX_TYPE = '';
+                   } else if (${"RX_TYPE_$i"} =="1") {
+                       $RX_TYPE = xlt('Bifocals');
+                   } else if (${"RX_TYPE_$i"} =="2") {
+                       $RX_TYPE = xlt('Trifocals');
+                   } else if (${"RX_TYPE_$i"} =="3") {
+                       $RX_TYPE = xlt('Progressive');
+                   }
                 
-                /*
-              Note html2pdf does not like the last field of a table to be blank.
-              If it is it will squish the lines together.
-              Work around: if the field is blank, then replace it with a "-" else echo it.
-              aka echo (text($field))?:"-");
-                */
-                ?>
-                <tr>
-                    <td class="bold"><?php echo xlt('Wear RX')." #".$i.": "; ?></td>
-                    <td class="bold"><?php echo xlt('OD{{right eye}}'); ?></td>
-                    <td ><?php echo (text(${"ODSPH_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"ODCYL_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"ODAXIS_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"ODPRISM_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"ODVA_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"ODMIDADD_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"ODADD_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"ODNEARVA_$i"})?:"-"); ?></td>
+                   /*
+                 Note html2pdf does not like the last field of a table to be blank.
+                 If it is it will squish the lines together.
+                 Work around: if the field is blank, then replace it with a "-" else echo it.
+                 aka echo (text($field))?:"-");
+                   */
+                   ?>
+                   <tr>
+                       <td class="bold"><?php echo xlt('Wear RX')." #".$i.": "; ?></td>
+                       <td class="bold"><?php echo xlt('OD{{right eye}}'); ?></td>
+                       <td ><?php echo (text(${"ODSPH_$i"})?:"-"); ?></td>
+                       <td ><?php echo (text(${"ODCYL_$i"})?:"-"); ?></td>
+                       <td ><?php echo (text(${"ODAXIS_$i"})?:"-"); ?></td>
+                       <td ><?php echo (text(${"ODPRISM_$i"})?:"-"); ?></td>
+                       <td ><?php echo (text(${"ODVA_$i"})?:"-"); ?></td>
+                       <td ><?php echo (text(${"ODMIDADD_$i"})?:"-"); ?></td>
+                       <td ><?php echo (text(${"ODADD_$i"})?:"-"); ?></td>
+                       <td ><?php echo (text(${"ODNEARVA_$i"})?:"-"); ?></td>
                    </tr>
                    <tr>
-                    <td><?php echo $RX_TYPE; ?></td>
-                    <td class="bold""><?php echo xlt('OS{{left eye}}'); ?></td>
-                    <td ><?php echo (text(${"OSSPH_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"OSCYL_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"OSAXIS_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"OSPRISM_$i"})?:"-");  ?></td>
-                    <td ><?php echo (text(${"OSVA_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"OSMIDADD_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"OSADD_$i"})?:"-"); ?></td>
-                    <td ><?php echo (text(${"OSNEARVA_$i"})?:"-"); ?></td>
+                       <td><?php echo $RX_TYPE; ?></td>
+                       <td class="bold""><?php echo xlt('OS{{left eye}}'); ?></td>
+                       <td ><?php echo (text(${"OSSPH_$i"})?:"-"); ?></td>
+                       <td ><?php echo (text(${"OSCYL_$i"})?:"-"); ?></td>
+                       <td ><?php echo (text(${"OSAXIS_$i"})?:"-"); ?></td>
+                       <td ><?php echo (text(${"OSPRISM_$i"})?:"-");  ?></td>
+                       <td ><?php echo (text(${"OSVA_$i"})?:"-"); ?></td>
+                       <td ><?php echo (text(${"OSMIDADD_$i"})?:"-"); ?></td>
+                       <td ><?php echo (text(${"OSADD_$i"})?:"-"); ?></td>
+                       <td ><?php echo (text(${"OSNEARVA_$i"})?:"-"); ?></td>
                    </tr>
-                    <?php
-                    if (${"COMMENTS_$i"}) {
-                        ?>
-                        <tr>
+                   <?php
+                   if (${"COMMENTS_$i"}) {
+                       ?>
+                       <tr>
                            <td></td>
                            <td colspan="2"><?php echo xlt('Comments'); ?>:</td>
                            <td colspan="7"><?php echo text(${"COMMENTS_$i"}); ?></td>
-                        </tr>
-                        <?php
-                    }
-                    ?><tr><td colspan="10">--------------------------------------------------------</td></tr>
-                    <?php
-            }
+                       </tr>
+                       <?php
+                   }
+                   ?><tr><td colspan="10">--------------------------------------------------------</td></tr>
+                   <?php
+               }
             
-            if ($ARODSPH||$AROSSPH) { ?>
+               if ($ARODSPH||$AROSSPH) { ?>
                    <tr style="border-bottom:1pt solid black;">
                        <td class="bold"><?php echo xlt('AutoRef'); ?></td>
                        <td class="bold"><?php echo xlt('OD{{right eye}}'); ?></td>
@@ -5984,21 +6024,21 @@ function display_refractive_data($encounter_data)
                        <td ><?php echo (text($AROSADD)?:"-");  ?></td>
                        <td ><?php echo (text($ARNEAROSVA)?:"-"); ?></td>
                    </tr>
-                    <?php
-                    if (${"COMMENTS_$i"}) {
-                        ?>
-                        <tr>
+                   <?php
+                   if (${"COMMENTS_$i"}) {
+                       ?>
+                       <tr>
                            <td></td><td></td>
                            <td>Comments:</td>
                            <td colspan="7"><?php echo text(${"COMMENTS_$i"}); ?></td>
-                        </tr>
-                        <?php
-                    }?>
+                       </tr>
+                       <?php
+                   }?>
                    <tr><td colspan="10">--------------------------------------------------------</td></tr>
-                    <?php
-            }
+                   <?php
+               }
             
-            if ($MRODSPH||$MROSSPH) { ?>
+               if ($MRODSPH||$MROSSPH) { ?>
                    <tr>
                        <td class="bold"><?php echo xlt('MR (Dry)'); ?></td>
                        <td class="bold"><?php echo xlt('OD{{right eye}}'); ?></td>
@@ -6024,10 +6064,10 @@ function display_refractive_data($encounter_data)
                        <td ><?php echo (text($MROSADD)?:"-");  ?></td>
                        <td ><?php echo (text($MRNEAROSVA)?:"-"); ?></td>
                    </tr>
-                    <?php
-            }
+                   <?php
+               }
             
-            if ($CRODSPH||$CROSSPH) { ?>
+               if ($CRODSPH||$CROSSPH) { ?>
                    <tr>
                        <td class="bold"><?php echo xlt('CR (Wet)'); ?></td>
                        <td class="bold"><?php echo xlt('OD{{right eye}}'); ?></td>
@@ -6052,10 +6092,10 @@ function display_refractive_data($encounter_data)
                        <td ><?php echo (text($CROSADD)?:"-");  ?></td>
                        <td ><?php echo (text($CRNEAROSVA)?:"-"); ?></td>
                    </tr>
-                    <?php
-            }
+                   <?php
+               }
             
-            if ($CTLODSPH||$CTLOSSPH) { ?>
+               if ($CTLODSPH||$CTLOSSPH) { ?>
                    <tr class="bold text-center underline">
                        <td></td>
                        <td><?php echo xlt('Eye'); ?></td>
@@ -6105,14 +6145,14 @@ function display_refractive_data($encounter_data)
                        <td colspan="3" class="bold text-left" style="font-size:10px;""><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROS)?:"-");  ?></td>
                    </tr>
                 
-                    <?php
-            }
-            ?>
-            <tr><td colspan="10">--------------------------------------------------------</td></tr>
-        </table>
+                   <?php
+               }
+           ?>
+           <tr><td colspan="10">--------------------------------------------------------</td></tr>
+       </table>
     
-        <?php
-    } ?>
+       <?php
+        } ?>
         
     <?php
     if ($GLAREODVA||$CONTRASTODVA||$ODK1||$ODK2||$LIODVA||$PAMODBA) { ?>

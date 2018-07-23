@@ -130,6 +130,7 @@ function submit_form(action) {
     var url = "../../forms/eye_mag/save.php?sub=1&mode=update&id=" + $("#form_id").val();
     if ($("#COPY_SECTION").value == "READONLY") return;
     formData = $("form#eye_mag").serialize();
+    if (formData =='') return;
     $("#menustate").val('0');
     top.restoreSession();
     $.ajax({
@@ -2742,21 +2743,8 @@ var allPanels = $('.building_blocks > dd').hide();
                                if (new_section[1] =="ALL") {
                                  //click updates prefs too
                                  $('#EXAM_QP').trigger("click");
-                                    if ( ($('#PMSFH_block_1').height() > $('#PMH_left').height())||
-                                         ($('#PMSFH_block_2').height() > $('#PMH_left').height()) )
-                                    {
-                                        if ($('#PMSFH_block_1').height() > $('#PMSFH_block_2').height()) {
-                                            heights = $('#PMSFH_block_1').height();
-                                        } else {
-                                            heights = $('#PMSFH_block_2').height();
-                                        }
-                                      $('#PMH_left').height(heights);
-                                      $('#PMH_right').height(heights)
-                                      $('#PMH_1').height(heights+20);
-                                    } else {
-                                        //$('#PMH_1').height($('#HPI_1').height());
-                                    }
-                                 } else {
+
+                               } else {
                                   $('#BUTTON_QP_'+new_section[1]).trigger("click");
                                  }
                                  $("#LayerTechnical_sections_1").css("clear","both");
@@ -3436,6 +3424,20 @@ var allPanels = $('.building_blocks > dd').hide();
                                                 $("#EXAM_TEXT").removeClass('button_selected');
                                                 update_PREFS();
                                                 }
+if ( ($('#PMSFH_block_1').height() > $('#PMH_left').height())||
+($('#PMSFH_block_2').height() > $('#PMH_left').height()) )
+{
+if ($('#PMSFH_block_1').height() > $('#PMSFH_block_2').height()) {
+heights = $('#PMSFH_block_1').height();
+} else {
+heights = $('#PMSFH_block_2').height();
+}
+$('#PMH_left').height(heights);
+$('#PMH_right').height(heights)
+$('#PMH_1').height(heights+20);
+} else {
+//$('#PMH_1').height($('#HPI_1').height());
+}
                                                 show_QP();
                                                 scrollTo("EXT_left");
                                                 });
@@ -3443,6 +3445,7 @@ var allPanels = $('.building_blocks > dd').hide();
                   $("#EXAM_TEXT,#PANEL_TEXT").click(function() {
 
                                                     // also hide QP, DRAWs, and PRIORS
+
                                                     hide_DRAW();
                                                     hide_QP();
                                                     hide_PRIORS();
@@ -3479,12 +3482,14 @@ var allPanels = $('.building_blocks > dd').hide();
                                                        $("#HPI_right").addClass('nodisplay');
                                                        $("#PREFS_HPI_RIGHT").val(1);
                                                        var reset = $("#HPI_1").height();
-                                                       $("#PMH_1").height(reset);
+                                                       $("#PMH_1").css("min-height",'0');
                                                        $("#PMH_left").height(reset-40);
+
                                                        $("#LayerTechnical_sections_1").css("clear","both");
                                                      } else {
                                                        $("#"+zone+"_right").addClass('nodisplay');
                                                        $("#PREFS_"+zone+"_RIGHT").val(1);
+//$("#PMH_left").height('0');
                                                      }
                                                      scrollTo(zone+"_left");
                                                      update_PREFS();
@@ -3874,7 +3879,6 @@ var allPanels = $('.building_blocks > dd').hide();
                                                            $(this).css("background-color","#F0F8FF");
                                                            if (this.name.match(/IOP/)) { color_IOP(this); }
                                                            if ( ($(this).id != 'IMP') &&
-                                                                (this.name != 'visit_status') &&
                                                                 (!this.name.match(/^inc_/)) &&
                                                                 (!this.name.match(/_modifier$/))
                                                               ) {

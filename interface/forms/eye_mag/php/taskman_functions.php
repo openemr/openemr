@@ -263,14 +263,30 @@ function make_document($task)
 
     $pt_name    = $patientData['fname'].' '.$patientData['lname'];
     $encounter = $task['ENC_ID'];
-    $query="select form_encounter.date as encounter_date,form_eye_mag.id as form_id,form_encounter.*, form_eye_mag.*
-            from form_eye_mag ,forms,form_encounter
-            where
-            form_encounter.encounter =? and
-            form_encounter.encounter = forms.encounter and
-            form_eye_mag.id=forms.form_id and
-            forms.deleted != '1' and
-            form_eye_mag.pid=? ";
+    $query = "select  *,form_encounter.date as encounter_date
+              
+               from forms,form_encounter,form_eye_base, 
+                form_eye_hpi,form_eye_ros,form_eye_vitals,
+                form_eye_acuity,form_eye_refraction,form_eye_biometrics,
+                form_eye_external, form_eye_antseg,form_eye_postseg,
+                form_eye_neuro,form_eye_locking
+                    where
+                    forms.deleted != '1'  and
+                    forms.formdir='eye_mag' and
+                    forms.encounter=form_encounter.encounter  and
+                    forms.form_id=form_eye_base.id and
+                    forms.form_id=form_eye_hpi.id and
+                    forms.form_id=form_eye_ros.id and
+                    forms.form_id=form_eye_vitals.id and
+                    forms.form_id=form_eye_acuity.id and
+                    forms.form_id=form_eye_refraction.id and
+                    forms.form_id=form_eye_biometrics.id and
+                    forms.form_id=form_eye_external.id and
+                    forms.form_id=form_eye_antseg.id and
+                    forms.form_id=form_eye_postseg.id and
+                    forms.form_id=form_eye_neuro.id and
+                    forms.form_id=form_eye_locking.id and
+                    forms.form_id =? ";
     $encounter_data =sqlQuery($query, array($encounter,$task['PATIENT_ID']));
     @extract($encounter_data);
     $providerID  =  getProviderIdOfEncounter($encounter);
@@ -278,7 +294,6 @@ function make_document($task)
     $dated = new DateTime($encounter_date);
     $dated = $dated->format('Y/m/d');
     $visit_date = oeFormatShortDate($dated);
-    //$visit_date = $encounter_date;
     $pid = $task['PATIENT_ID'];
     $PDF_OUTPUT='1';
 
