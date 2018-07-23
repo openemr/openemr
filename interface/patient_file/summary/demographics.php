@@ -1833,7 +1833,7 @@ foreach ($photos as $photo_doc_id) {
 
     if (isset($pid) && !$GLOBALS['disable_calendar'] && $showpast > 0 &&
       acl_check('patients', 'appt')) {
-        $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
+        $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, e.pc_recurrspec, " .
         "e.pc_startTime, e.pc_hometext, u.fname, u.lname, u.mname, " .
         "c.pc_catname, e.pc_apptstatus " .
         "FROM openemr_postcalendar_events AS e, users AS u, " .
@@ -1858,14 +1858,15 @@ foreach ($photos as $photo_doc_id) {
         expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
         $count = 0;
         while ($row = sqlFetchArray($pres)) {
-            $count++;
-            
+          
             //Exclude exdate appointments
             $oldRecurrspec = unserialize($row['pc_recurrspec']);
             $event_date = date("Ymd", strtotime($row['pc_eventDate']));
             if ($oldRecurrspec['exdate'] == $event_date)
                 continue;
 
+            $count++;
+            
             $dayname = date("l", strtotime($row['pc_eventDate']));
             $dispampm = "am";
             $disphour = substr($row['pc_startTime'], 0, 2) + 0;
