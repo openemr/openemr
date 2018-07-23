@@ -1859,6 +1859,13 @@ foreach ($photos as $photo_doc_id) {
         $count = 0;
         while ($row = sqlFetchArray($pres)) {
             $count++;
+            
+            //Exclude exdate appointments
+            $oldRecurrspec = unserialize($row['pc_recurrspec']);
+            $event_date = date("Ymd", strtotime($row['pc_eventDate']));
+            if ($oldRecurrspec['exdate'] == $event_date)
+                continue;
+
             $dayname = date("l", strtotime($row['pc_eventDate']));
             $dispampm = "am";
             $disphour = substr($row['pc_startTime'], 0, 2) + 0;
