@@ -40,8 +40,6 @@ class PdfTemplatesController extends PrescriptionTemplatesController
      */
     public function defaultAction()
     {
-        require_once $GLOBALS['fileroot'] . '/vendor/mpdf/mpdf/src/Mpdf.php';
-
         $id = $this->params()->fromQuery('id');
         $defaultHtml = $this->getDefaultTemplate($id);
 

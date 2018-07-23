@@ -2996,13 +2996,13 @@ $GLOBALS_METADATA = array(
         'rx_use_fax_template' => array(
             xl('Show button for download fax template'),
             'bool',                           // data type
-            '0',                              // default = false
+            '1',                              // default = true
             xl('Show button in the prescription list for download fax template')
         ),
         'rx_zend_html_template' => array(
             xl('Rx html print - zend module'),
             'bool',                           // data type
-            '1',                              // default = false
+            '0',                              // default = false
             xl('Use an html template from zend module')
         ),
         'rx_zend_html_action' => array(
