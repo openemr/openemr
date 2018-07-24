@@ -1863,7 +1863,7 @@ foreach ($photos as $photo_doc_id) {
             $oldRecurrspec = unserialize($row['pc_recurrspec']);
             $event_date = date("Ymd", strtotime($row['pc_eventDate']));
             $exEvents = explode(",",$oldRecurrspec['exdate']);
-            if (in_array($event_date,$exRvents))
+            if (in_array($event_date,$exEvents))
                 continue;
             
             $count++;
