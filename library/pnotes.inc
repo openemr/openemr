@@ -398,7 +398,10 @@ function addPnote(
 
     if (empty($datetime)) {
         $datetime = date('Y-m-d H:i:s');
+    } else {
+        $datetime = DateTimeToYYYYMMDDHHMMSS($datetime);
     }
+    $formatDate = oeFormatDateTime($datetime);
 
   // make inactive if set as Done
     if ($message_status == 'Done') {
@@ -406,7 +409,7 @@ function addPnote(
     }
 
     $user = ($background_user!="" ? $background_user : $_SESSION['authUser']);
-    $body = date('Y-m-d H:i') . ' (' . $user;
+    $body = $formatDate . ' (' . $user;
     if ($assigned_to) {
         $body .= " to $assigned_to";
     }
@@ -455,12 +458,19 @@ function addMailboxPnote(
     );
 }
 
-function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "")
+function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "", $datetime = "")
 {
     $row = getPnoteById($id);
     if (! $row) {
         die("updatePnote() did not find id '".text($id)."'");
     }
+
+    if (empty($datetime)) {
+        $datetime = date('Y-m-d H:i:s');
+    } else {
+        $datetime = DateTimeToYYYYMMDDHHMMSS($datetime);
+    }
+    $formatDate = oeFormatDateTime($datetime);
 
     $activity = $assigned_to ? '1' : '0';
 
@@ -469,7 +479,7 @@ function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "")
         $activity = 0;
     }
 
-    $body = $row['body'] . "\n" . date('Y-m-d H:i') .
+    $body = $row['body'] . "\n" . $formatDate .
     ' (' . $_SESSION['authUser'];
     if ($assigned_to) {
         $body .= " to $assigned_to";
@@ -477,21 +487,22 @@ function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "")
 
     $body = $body . ') ' . $newtext;
 
+
+    $sql = "UPDATE pnotes SET " .
+        "body = ?, activity = ?, title= ?, " .
+        "assigned_to = ?";
+    $bindingParams =  array($body, $activity, $title, $assigned_to);
     if ($message_status) {
-        sqlStatement(
-            "UPDATE pnotes SET " .
-            "body = ?, activity = ?, title= ?, " .
-            "assigned_to = ?, message_status = ? WHERE id = ?",
-            array($body, $activity, $title, $assigned_to, $message_status, $id)
-        );
-    } else {
-        sqlStatement(
-            "UPDATE pnotes SET " .
-            "body = ?, activity = ?, title= ?, " .
-            "assigned_to = ? WHERE id = ?",
-            array($body, $activity, $title, $assigned_to, $id)
-        );
+        $sql .= " ,message_status = ?";
+        $bindingParams[] = $message_status;
     }
+    if ($GLOBALS['messages_feature_date']) {
+        $sql .= " ,date = ?";
+        $bindingParams[] = $datetime;
+    }
+    $sql .= " WHERE id = ?";
+    $bindingParams[] = $id;
+    sqlStatement($sql, $bindingParams);
 }
 
 function updatePnoteMessageStatus($id, $message_status)

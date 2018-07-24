@@ -931,8 +931,13 @@ $GLOBALS_METADATA = array(
             ),                       // data type
             '1',                     // default = Print End of Day Report 1
             xl('This will allow the display of help modal on help enabled pages')
+        ),
+        'messages_feature_date' => array(
+            xl('Allow choose messages date'),
+            'bool',                           // data type
+            '0',                              // default false
+            xl('Enables changing date of the messages to future date')
         )
-
     ),
     // Report Tab
     //

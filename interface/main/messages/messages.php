@@ -291,9 +291,10 @@ if (!empty($_REQUEST['go'])) { ?>
                             $form_message_status = $_POST['form_message_status'];
                             $reply_to = explode(';', rtrim($_POST['reply_to'], ';'));
                             $assigned_to_list = explode(';', $_POST['assigned_to']);
+                            $datetime = isset($_POST['form_datetime']) ? $_POST['form_datetime'] : '';
                             foreach ($assigned_to_list as $assigned_to) {
                                 if ($noteid && $assigned_to != '-patient-') {
-                                    updatePnote($noteid, $note, $form_note_type, $assigned_to, $form_message_status);
+                                    updatePnote($noteid, $note, $form_note_type, $assigned_to, $form_message_status, $datetime);
                                     $noteid = '';
                                 } else {
                                     if ($noteid && $assigned_to == '-patient-') {
@@ -313,7 +314,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                     // There's no note ID, and/or it's assigned to the patient.
                                     // In these cases a new note is created.
                                     foreach ($reply_to as $patient) {
-                                        addPnote($patient, $note, $userauthorized, '1', $form_note_type, $assigned_to, '', $form_message_status);
+                                        addPnote($patient, $note, $userauthorized, '1', $form_note_type, $assigned_to, $datetime, $form_message_status);
                                     }
                                 }
                             }
@@ -349,6 +350,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                     $reply_to = $result['pid'];
                                 }
                                 $form_message_status = $result['message_status'];
+                                $datetime = $result['date'];
                             }
                             break;
                         case "delete":
@@ -440,13 +442,27 @@ if (!empty($_REQUEST['go'])) { ?>
                                     </div>
                                 </div>
                                 <div class="col-xs-8 oe-custom-line col-lg-offset-2">
+                                    <?php if ($GLOBALS['messages_feature_date']) { ?>
+                                    <div class="col-xs-3">
+                                        <label class="control-label" for="form_note_type"><?php echo xlt('Date'); ?>:</label>
+                                        <?php generate_form_field(array('data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'), empty($datetime) ? date('Y-m-d H:i') : $datetime) ?>
+                                    </div>
+                                    <?php } ?>
+                                    <?php if ($GLOBALS['messages_feature_date']) { ?>
+                                    <div class="col-xs-4">
+                                    <?php } else { ?>
                                     <div class="col-xs-6">
+                                    <?php } ?>
                                         <label class="control-label" for="assigned_to_text"><?php echo xlt('To'); ?>:</label>
                                         <input type='text' name='assigned_to_text' class='form-control oe-cursor-stop' id='assigned_to_text' readonly='readonly'
                                             value='' placeholder='<?php echo xla("SELECT Users FROM The Dropdown LIST"); ?>'>
                                         <input type='hidden' name='assigned_to' id='assigned_to'>
                                     </div>
+                                    <?php if ($GLOBALS['messages_feature_date']) { ?>
+                                    <div class="col-xs-4">
+                                    <?php } else { ?>
                                     <div class="col-xs-5">
+                                    <?php } ?>
                                         <label class="control-label" for="users">&nbsp;</label>
                                         <select name='users' id='users' class='form-control' onchange='addtolist(this);'>
                                             <?php
@@ -862,6 +878,14 @@ if (!empty($_REQUEST['go'])) { ?>
                 $("#li-reca").removeClass("active");
                 $("#li-sms").addClass("active");
             });
+
+            $('.datetimepicker').datetimepicker({
+                <?php $datetimepicker_timepicker = true; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                ,minDate : 0 //only future
+            })
             
         });
         $(document).ready(function(){
