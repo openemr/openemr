@@ -58,10 +58,8 @@ while ($row = sqlFetchArray($res)) {
     echo "<span class=\"plusminus\">";
     echo $iscontainer ? "+ " : '| ';
     echo "</span>";
-    if ($isOrder == 'ord') {
+    if ($isOrder == 'ord' || $isOrder == 'for') {
         echo "<mark class=\"oe-patient-background\">" . attr($row['name']) . "</mark></td>";
-    } elseif ($isOrder == 'for') {
-        echo "<mark class=\"oe-pink-background\">" . attr($row['name']) . "</mark></td>";
     } else {
         echo attr($row['name']) . "</td>";
     }
@@ -76,22 +74,14 @@ while ($row = sqlFetchArray($res)) {
 
             echo " />";
         } else {
-            if ($isOrder == 'ord') {
-                echo "<mark class=\"oe-patient-background\">" . xlt('Order') . "</mark>";
-            } elseif ($isOrder == 'for') {
-                echo "<mark class=\"oe-pink-background\">" . xlt('Custom Order') . "</mark>";
-            }
+            echo "<mark class=\"oe-patient-background\">" . xl('Order - Yes') . "</mark>";
         }
     } else {
         //echo '&nbsp;';
-        if ($isOrder == 'grp' && $row['parent'] == 0) {
-            echo  xlt('Top Group');
-        } elseif ($isOrder == 'fgp' && $row['parent'] == 0) {
-            echo "<mark class=\"oe-pink-background\">" . xl('Custom Top Group') . "</mark>";
-        } elseif ($isOrder == 'grp') {
+        if (($isOrder == 'grp' || $isOrder == 'fgp') && $row['parent'] == 0) {
+            echo  ($isOrder == 'grp') ? xlt('Top Group') : xlt('Custom Group');
+        } elseif ($isOrder == 'grp' || $isOrder == 'fgp') {
              echo  xlt('Sub Group');
-        } elseif ($isOrder == 'fgp') {
-            echo "<mark class=\"oe-pink-background\">" . xl('Custom Sub Group') . "</mark>";
         } elseif ($isOrder == 'res') {
             echo  xlt('Result');
         } elseif ($isOrder == 'rec') {
@@ -111,18 +101,16 @@ while ($row = sqlFetchArray($res)) {
     $thislab = $row['lab_id'] ? $row['lab_id'] + 0 : 0;
     if ($isOrder == 'fgp') {
         $typeIs = 1;
-    } elseif ($isOrder == 'for') {
+    } else if ($isOrder == 'for') {
         $typeIs = 2;
     }
     echo "<td class=\"col6\">" . attr($level + 1) . "</td>";
     echo "<td class=\"col4\">" . attr($row['description']) . "</td>";
     echo "<td class=\"col5\">";
     echo "<span style=\"color:#000000;\" onclick=\"handleNode($chid,$typeIs,false,$thislab)\" class=\"haskids fa fa-pencil fa-lg\" title=".xla("Edit")."></span>";
-    echo "</td>";
-    echo "<td class=\"col5\">";
-    //if ($isOrder != 'for') {//RP_MODIFIED 2018-08-03 to allow for manual lab entry
+    if ($isOrder != 'for') {
         echo "<span style=\"color:#000000; margin-left:30px\" onclick=\"handleNode($chid,$typeIs,true,$thislab)\" class=\"haskids fa fa-plus fa-lg\" title=" . xla("Add") . " ></span>";
-    //}//RP_MODIFIED 2018-08-03
+    }
     echo "</td>";
     echo "</tr>";
 }
