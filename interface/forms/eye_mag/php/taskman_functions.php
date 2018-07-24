@@ -325,6 +325,7 @@ function make_document($task)
     }
 
     $config_mpdf = array(
+        'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
         'mode' => $GLOBALS['pdf_language'],
         'format' => $GLOBALS['pdf_size'],
         'default_font_size' => '9',

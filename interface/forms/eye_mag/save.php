@@ -363,6 +363,7 @@ if ($_REQUEST["mode"] == "new") {
             $_SESSION['language_direction'] == 'rtl' ? true : false
         );*/
         $config_mpdf = array(
+            'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
             'mode' => $GLOBALS['pdf_language'],
             'format' => $GLOBALS['pdf_size'],
             'default_font_size' => '9',

@@ -17,8 +17,9 @@
 *
 * @package   OpenEMR
 * @author    Rod Roark <rod@sunsetsystems.com>
+* @author    Jerry Padgett <sjpadgett@gmail.com>
 */
-
+// updated 07/20/2018 sjpadgett
 /**
  * Generate HTML for the QOE form suitable for insertion into a <div>.
  * This HTML may contain single quotes but not unescaped double quotes.
@@ -29,6 +30,7 @@
  * @param  string  $formseq  Zero-relative occurrence number in the form.
  * @return string            The generated HTML.
  */
+
 function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
 {
     global $rootdir, $qoe_init_javascript;
@@ -40,8 +42,8 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
     if (empty($ptid)) {
         return $s;
     }
-
-    $s .= "<table>";
+    // container is div in form.
+    $s .= "<table class='table table-condensed bg-light qoe-table'>";
 
   // Get all the questions for the given procedure order type.
     $qres = sqlStatement("SELECT " .
@@ -58,6 +60,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
         $qfieldid = $prefix . attr(trim($qrow['question_code']));
         $fldtype = $qrow['fldtype'];
         $maxsize = 0 + $qrow['maxsize'];
+        $qrow['tips'] = text(str_ireplace("^", " ", $qrow['tips'])); // in case of HL7
 
         // Get answer value(s) to this question, if any.
         $answers = array();
@@ -71,7 +74,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
         }
 
         $s .= "<tr>";
-        $s .= "<td width='1%' valign='top' nowrap";
+        $s .= "<td valign='top'";
         if ($qrow['required']) {
             $s .= " style='color:#880000'"; // TBD: move to stylesheet
         }
@@ -81,36 +84,31 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
 
         if ($fldtype == 'T') {
             // Text Field.
-            $s .= "<input type='text' name='$qfieldid' size='50'";
+            $s .= "<input class='input-sm' type='text' name='$qfieldid'";
             $s .= " maxlength='" . ($maxsize ? $maxsize : 255) . "'";
             if (!empty($answers)) {
                 $s .= " value='" . attr($answers[0]) . "'";
             }
 
-            $s .= " />";
-            $s .= "&nbsp;" . text($qrow['tips']);
+            $s .= " title='" . $qrow['tips'] . "' placeholder='" . $qrow['tips'] . "' />";
         } else if ($fldtype == 'N') {
             // Numeric text Field.
             // TBD: Add some JavaScript validation for this.
-            $s .= "<input type='text' name='$qfieldid' maxlength='8'";
+            $s .= "<input class='input-sm' type='text' name='$qfieldid' maxlength='8'";
             if (!empty($answers)) {
                 $s .= " value='" . attr($answers[0]) . "'";
             }
 
-            $s .= " />";
-            $s .= "&nbsp;" . text($qrow['tips']);
+            $s .= " title='" . $qrow['tips'] . "' placeholder='" . $qrow['tips'] . "' />";
         } else if ($fldtype == 'D') {
             // Date Field.
-            $s .= "<input type='text' size='10' name='$qfieldid' id='$qfieldid'";
+            $s .= "<input type='text' name='$qfieldid' id='$qfieldid'";
             if (!empty($answers)) {
                 $s .= " value='" . attr($answers[0]) . "'";
             }
 
-            $s .= " onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />";
-            $s .= "<img src='$rootdir/pic/show_calendar.gif' align='absbottom' width='24' height='22'" .
-            " id='img_$qfieldid' border='0' alt='[?]' style='cursor:pointer'" .
-            " title='" . htmlspecialchars(xl('Click here to choose a date'), ENT_QUOTES) . "' />";
-            $qoe_init_javascript .= " Calendar.setup({inputField:'$qfieldid', ifFormat:'%Y-%m-%d', button:'img_$qfieldid'});";
+            $s .= " class='datepicker input-sm' title='" . htmlspecialchars(xl('Click here to choose a date'), ENT_QUOTES) . "' />";
+            /* Legacy calendar removed to update to current calendar 07/20/2018 sjp */
         } else if ($fldtype == 'G') {
             // Gestational age in weeks and days.
             $currweeks = -1;
@@ -120,7 +118,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
                 $currdays  = $answers[0] % 7;
             }
 
-            $s .= "<select name='G1_$qfieldid'>";
+            $s .= "<select class='input-sm' name='G1_$qfieldid'>";
             $s .= "<option value=''></option>";
             for ($i = 5; $i <= 21; ++$i) {
                 $s .= "<option value='$i'";
@@ -133,7 +131,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
 
             $s .= "</select>";
             $s .= " " . xlt('weeks') . " &nbsp;";
-            $s .= "<select name='G2_$qfieldid'>";
+            $s .= "<select class='input-sm' name='G2_$qfieldid'>";
             $s .= "<option value=''></option>";
             for ($i = 0; $i <= 6; ++$i) {
                 $s .= "<option value='$i'";
@@ -185,19 +183,19 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
                     $s .= "<br />";
                 }
 
-                $s .= "<input type='checkbox' name='$qfieldid[$i]' value='" . attr($code) . "'";
+                $s .= "<label class='radio-inline'><input class='input-sm' type='checkbox' name='$qfieldid[$i]' value='" . attr($code) . "'";
                 if (in_array($code, $answers)) {
                     $s .= " checked";
                 }
 
-                $s .= " />" . text($desc);
+                $s .= " />" . text($desc) . "</label>";
                 ++$i;
             }
         } else {
             // Radio buttons or drop-list, depending on the number of choices.
             $a = explode(';', $qrow['options']);
             if (count($a) > 5) {
-                $s .= "<select name='$qfieldid'";
+                $s .= "<select class='input-sm' name='$qfieldid'";
                 $s .= ">";
                 foreach ($a as $aval) {
                     list($desc, $code) = explode(':', $aval);
@@ -220,18 +218,21 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
                     list($desc, $code) = explode(':', $aval);
                     if (empty($code)) {
                         $code = $desc;
+                        if (empty($code)) {
+                            $desc = "No Answer";
+                        }
                     }
 
                     if ($i) {
                         $s .= "<br />";
                     }
 
-                    $s .= "<input type='radio' name='$qfieldid' value='" . attr($code) . "'";
+                    $s .= "<label class='radio-inline'><input type='radio' name='$qfieldid' value='" . attr($code) . "'";
                     if (in_array($code, $answers)) {
                         $s .= " checked";
                     }
 
-                    $s .= " />" . text($desc);
+                    $s .= " />" . text($desc) . "</label>";
                     ++$i;
                 }
             }
