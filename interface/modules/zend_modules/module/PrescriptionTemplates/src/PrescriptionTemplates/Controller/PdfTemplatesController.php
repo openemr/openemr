@@ -47,7 +47,7 @@ class PdfTemplatesController extends PrescriptionTemplatesController
         $htmlView = $renderer->render($defaultHtml);
 
         /* create pdf */
-        $mpdf = new Mpdf();
+        $mpdf = new Mpdf(array('tempDir' => $GLOBALS['MPDF_WRITE_DIR']));
         $mpdf->autoLangToFont = true;
         $mpdf->WriteHTML($htmlView);
         $mpdf->Output();
