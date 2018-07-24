@@ -128,7 +128,7 @@ if ($popup && $_POST['form_save']) {
             font-weight: 700;
         }
         .oe-grp {
-            font-size: 18px !important;
+            font-size: 16px !important;
             font-weight: 900;
             /*padding-left:0;*/
         }
@@ -200,7 +200,7 @@ if ($popup && $_POST['form_save']) {
     function nextOpen() {
       if (preopen.length) {
         var thisid = preopen.pop();
-      
+
       if (thisid == 0 || preopen.length > 0) {
        if (thisid > 0)
         toggle(thisid);
@@ -273,14 +273,17 @@ if ($popup && $_POST['form_save']) {
       recolor();
     }
 
-    // edit a node
-    function enode(id) {
-     dlgopen('types_edit.php?parent=0&typeid=' + id, '_blank', 800, 750);
-    }
+    // edit/add a node
+    function handleNode(id, type, add, lab) {
+        if (type > 0) {
+            type = (type === 1 && !add) ? 'fgp' : 'for';
+        }
+        let url = 'types_edit.php?addfav=' + type + '&labid=' + lab + '&parent=0&typeid=' + id;
+        if (add) {
+            url = 'types_edit.php?addfav=' + type + '&labid=' + lab + '&typeid=0&parent=' + id;
+        }
 
-    // add a node
-    function anode(id) {
-     dlgopen('types_edit.php?typeid=0&parent=' + id, '_blank', 800, 750);
+        dlgopen(url, '_blank', 800, 850);
     }
 
     // call this to alternate row colors when anything changes the number of rows
@@ -335,7 +338,7 @@ if ($popup && $_POST['form_save']) {
                     ?>'>
                     <div class="btn-group">
                         <button type="button" name="form_search" class="btn btn-default btn-refresh" onclick="refreshme()"><?php echo xlt('Refresh');?></button>
-                        <button type="button" class="btn btn-default btn-add" name='add_node_btn' id='add_node_button'  onclick='anode(0)'><?php echo xlt('Add Top Level');?></button>
+                        <button type="button" class="btn btn-default btn-add" name='add_node_btn' id='add_node_button'  onclick='handleNode(0,"","")'><?php echo xlt('Add Top Level');?></button>
                     </div>
                     <br>
                     <br>
@@ -399,7 +402,7 @@ if ($popup && $_POST['form_save']) {
             });
         });
     </script>
-    
+
 </body>
 </html>
 

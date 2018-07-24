@@ -7,8 +7,6 @@
 // of the License, or (at your option) any later version.
 require_once("../globals.php");
 
-use OpenEMR\Core\Header;
-
 $id = formData('id', 'G') + 0;
 $order = formData('order', 'G') + 0;
 $labid = formData('labid', 'G') + 0;
@@ -24,10 +22,11 @@ $res = sqlStatement("SELECT * FROM procedure_type WHERE parent = '$id' " .
   "ORDER BY seq, name, procedure_type_id");
 
 $encount = 0;
-
+$isOrder = "";
 // Generate a table row for each immediate child.
 while ($row = sqlFetchArray($res)) {
     $chid = $row['procedure_type_id'] + 0;
+    $isOrder = substr($row['procedure_type'], 0, 3);
 
   // Find out if this child has any children.
     $trow = sqlQuery("SELECT procedure_type_id FROM procedure_type WHERE parent = '$chid' LIMIT 1");
@@ -38,13 +37,13 @@ while ($row = sqlFetchArray($res)) {
         $classes .= ' haskids';
     }
     // for proper indentation
-    if (substr($row['procedure_type'], 0, 3) == 'grp' &&  $row['parent'] == 0) {
+    if (($isOrder == 'grp' || $isOrder == 'fgp') && $row['parent'] == 0) {
          $classes .= ' oe-grp';
          $classes .= ' oe-pl'.($level * 10) ;
-    } elseif (substr($row['procedure_type'], 0, 3) == 'grp' &&  $row['parent'] != 0) {
+    } elseif (($isOrder == 'grp' || $isOrder == 'fgp') && $row['parent'] != 0) {
         $classes .= ' oe-bold';
         $classes .= ' oe-pl'.($level * 10) ;
-    } elseif (substr($row['procedure_type'], 0, 3) == 'ord') {
+    } elseif ($isOrder == 'ord' || $isOrder == 'for') {
          $classes .= ' oe-ord';
           $classes .= ' oe-pl'.($level * 10) ;
     } else {
@@ -59,14 +58,14 @@ while ($row = sqlFetchArray($res)) {
     echo "<span class=\"plusminus\">";
     echo $iscontainer ? "+ " : '| ';
     echo "</span>";
-    if (substr($row['procedure_type'], 0, 3) == 'ord') {
+    if ($isOrder == 'ord' || $isOrder == 'for') {
         echo "<mark class=\"oe-patient-background\">" . attr($row['name']) . "</mark></td>";
     } else {
         echo attr($row['name']) . "</td>";
     }
   //
     echo "<td class=\"col2\">";
-    if (substr($row['procedure_type'], 0, 3) == 'ord') {
+    if ($isOrder == 'ord' || $isOrder == 'for') {
         if ($order && ($labid == 0 || $row['lab_id'] == $labid)) {
             echo "<input type=\"radio\" name=\"form_order\" value=\"$chid\"";
             if ($chid == $order) {
@@ -79,30 +78,39 @@ while ($row = sqlFetchArray($res)) {
         }
     } else {
         //echo '&nbsp;';
-        if (substr($row['procedure_type'], 0, 3) == 'grp' &&  $row['parent'] == 0) {
-            echo  xlt('Top Group');
-        } elseif (substr($row['procedure_type'], 0, 3) == 'grp') {
+        if (($isOrder == 'grp' || $isOrder == 'fgp') && $row['parent'] == 0) {
+            echo  ($isOrder == 'grp') ? xlt('Top Group') : xlt('Custom Group');
+        } elseif ($isOrder == 'grp' || $isOrder == 'fgp') {
              echo  xlt('Sub Group');
-        } elseif (substr($row['procedure_type'], 0, 3) == 'res') {
+        } elseif ($isOrder == 'res') {
             echo  xlt('Result');
-        } elseif (substr($row['procedure_type'], 0, 3) == 'rec') {
+        } elseif ($isOrder == 'rec') {
             echo  xlt('Recommendation');
         }
     }
 
     echo "</td>";
-    if (substr($row['procedure_type'], 0, 3) != 'grp' &&  !empty($row['procedure_code'])) {
+    if (($isOrder != 'grp' && $isOrder != 'fgp') &&  !empty($row['procedure_code'])) {
         echo "<td class=\"col3\">" . attr($row['procedure_code']) . "</td>";
-    } elseif (substr($row['procedure_type'], 0, 3) != 'grp' &&  empty($row['procedure_code'])) {
+    } elseif (($isOrder != 'grp' && $isOrder != 'fgp') &&  empty($row['procedure_code'])) {
         echo "<td class=\"col3\" style=\"padding-left:15px\"><span class=\"required-tooltip\" title=\"".xla("Missing Identifying Code")."\"><i class=\"fa fa-exclamation-triangle text-center oe-text-red\" aria-hidden=\"true\" > </i></span></td>";
-    } elseif (substr($row['procedure_type'], 0, 3) == 'grp') {
+    } elseif ($isOrder == 'grp' || $isOrder == 'fgp') {
         echo "<td class=\"col3\">" . attr($row['procedure_code']) . "</td>";
+    }
+    $typeIs = 0;
+    $thislab = $row['lab_id'] ? $row['lab_id'] + 0 : 0;
+    if ($isOrder == 'fgp') {
+        $typeIs = 1;
+    } else if ($isOrder == 'for') {
+        $typeIs = 2;
     }
     echo "<td class=\"col6\">" . attr($level + 1) . "</td>";
     echo "<td class=\"col4\">" . attr($row['description']) . "</td>";
     echo "<td class=\"col5\">";
-    echo "<span style=\"color:#000000;\" onclick=\"enode($chid)\" class=\"haskids fa fa-pencil fa-lg\" title=".xla("Edit")."></span>";
-    echo "<span style=\"color:#000000; margin-left:30px\" onclick=\"anode($chid)\" class=\"haskids fa fa-plus fa-lg\" title=".xla("Add")." ></span>";
+    echo "<span style=\"color:#000000;\" onclick=\"handleNode($chid,$typeIs,false,$thislab)\" class=\"haskids fa fa-pencil fa-lg\" title=".xla("Edit")."></span>";
+    if ($isOrder != 'for') {
+        echo "<span style=\"color:#000000; margin-left:30px\" onclick=\"handleNode($chid,$typeIs,true,$thislab)\" class=\"haskids fa fa-plus fa-lg\" title=" . xla("Add") . " ></span>";
+    }
     echo "</td>";
     echo "</tr>";
 }

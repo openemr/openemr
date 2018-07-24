@@ -13,6 +13,9 @@ use OpenEMR\Core\Header;
 
 $typeid = formData('typeid', 'R') + 0;
 $parent = formData('parent', 'R') + 0;
+$ordtype = isset($_REQUEST['addfav']) ? $_REQUEST['addfav'] : '';
+$disabled = $ordtype ? "disabled" : '';
+$labid = isset($_GET['labid']) ? $_GET['labid'] + 0 : 0;
 
 $info_msg = "";
 
@@ -82,6 +85,12 @@ function recursiveDelete($typeid)
 
 
 <style>
+.disabled {
+    pointer-events: none;
+    opacity: 0.50;
+    font-weight: bold;
+}
+
 td {
     font-size: 10pt;
 }
@@ -98,17 +107,17 @@ td {
 }
 
 .ordonly {
-    
+
 }
 
 .resonly {
-    
+
 }
 .label-div > a {
     display:none;
 }
 .label-div:hover > a {
-   display:inline-block; 
+   display:inline-block;
 }
 div[id$="_info"] {
     background: #F7FAB3;
@@ -166,9 +175,41 @@ function del_related(s) {
 
 // This invokes the find-code popup.
 function sel_related(varname) {
- if (typeof varname == 'undefined') varname = 'form_related_code';
- rcvarname = varname;
- dlgopen('../patient_file/encounter/find_code_dynamic.php', '_blank', 900, 600);
+    if (typeof varname == 'undefined') {
+        varname = 'form_related_code';
+    }
+    rcvarname = varname;
+    let url = '../patient_file/encounter/find_code_dynamic.php';
+    if (varname == 'form_diagnosis_code')
+        url = '../patient_file/encounter/find_code_dynamic.php?codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")); ?>';
+
+    dlgopen(url, '_codeslkup', 985, 800, '', '<?php echo xla("Select Default Codes"); ?>');
+}
+
+// call back for procedure picker
+function set_new_fav(result) {
+    var f = document.forms[0];
+    f.form_procedure_code.value = result.procedure_code;
+    f.form_name.value = result.name;
+    f.form_lab_id.value = result.lab_id;
+    f.form_procedure_code.value = result.procedure_code;
+    f.form_procedure_type.value = "for";
+    f.form_body_site.value = result.body_site;
+    f.form_specimen.value = result.specimen;
+    f.form_route_admin.value = result.route_admin;
+    f.form_laterality.value = result.laterality;
+    f.form_description.value = result.description;
+    f.form_units.value = result.units;
+    f.form_range.value = result.range;
+    f.form_standard_code.value = result.standard_code;
+
+}
+
+function doOrdPicker(e){
+    e.preventDefault();
+    let labid = $("#form_lab_id").val();
+    let title = '<?php echo xla("Find Procedure Order"); ?>';
+    dlgopen('find_order_popup.php?addfav=1&labid=' + labid, '_blank', 850, 500, '', title);
 }
 
 // Show or hide sections depending on procedure type.
@@ -181,12 +222,16 @@ function proc_type_changed() {
     var ptpfx = ptval.substring(0, 3);
     $('.ordonly').hide();
     $('.resonly').hide();
+    $('.fgponly').hide();
+    $('.foronly').hide();
     if (ptpfx == 'ord') $('.ordonly').show();
+    if (ptpfx == 'for') $('.foronly').show();
     if (ptpfx == 'res' || ptpfx == 'rec') $('.resonly').show();
-    if (ptpfx == 'grp') {
+    if (ptpfx == 'fgp') $('.fgponly').show(); // Favorites
+    if (ptpfx == 'grp' || ptpfx == 'fgp') {
         $('#form_legend').html(
             "<?php echo xlt('Enter Details for Group'); ?>" + "   <i id='grp' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
-    } else if (ptpfx == 'ord') {
+    } else if (ptpfx == 'ord' || ptpfx == 'for') {
         $('#form_legend').html(
             "<?php echo xlt('Enter Details for Individual Procedures'); ?>" + "   <i id='ord' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
     } else if (ptpfx == 'res') {
@@ -224,7 +269,7 @@ function proc_type_changed() {
             "units = " . invalue('form_units') . ", " .
             "`range` = " . invalue('form_range') . ", " .
             "standard_code = " . invalue('form_standard_code') . ", " .
-            "related_code = " . invalue('form_related_code') . ", " .
+            "related_code = " . (isset($_POST['form_diagnosis_code']) ? invalue('form_diagnosis_code') : invalue('form_related_code')) . ", " .
             "seq = " . invalue('form_seq');
 
             if ($typeid) {
@@ -276,17 +321,18 @@ function proc_type_changed() {
                      <div class="col-xs-12">
                         <div class="clearfix">
                             <div class="col-sm-12 label-div">
-                                <label class="control-label" for="form_procedure_type"><?php echo xlt('Procedure Tier'); ?>:</label> <a href="#procedure_type_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                <label class="control-label " for="form_procedure_type"><?php echo xlt('Procedure Tier'); ?>:</label> <a href="#procedure_type_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                             </div>
                             <div class="col-sm-12">
                                 <?php
+                                $ordd = $ordtype ? $ordtype : $row['procedure_type'];
                                 echo generate_select_list(
                                     'form_procedure_type',
                                     'proc_type',
-                                    $row['procedure_type'],
+                                    $ordd,
                                     xl('The type of this entity'),
                                     ' ',
-                                    '',
+                                    "$disabled",
                                     'proc_type_changed()'
                                 );
                                 ?>
@@ -362,21 +408,22 @@ function proc_type_changed() {
                             <p><?php echo xlt("If value is left as zero, will be sorted alphabetically");?></p>
                         </div>
                     </div>
-                    <div class="col-xs-12 ordonly">
+                    <div class="col-xs-12 ordonly  fgponly foronly">
                         <div class="col-sm-12 label-div">
                             <label class="control-label" for="form_lab_id"><?php echo xlt('Order From'); ?>:</label><a href="#order_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                         </div>
                         <div class="col-sm-12">
-                            <select name='form_lab_id' id='form_lab_id' class='form-control'
+                            <select name='form_lab_id' id='form_lab_id' class='form-control <?php echo $ordtype == 'for' ? $disabled : ''; ?>'
                                 title='<?php echo xla('The entity performing this procedure'); ?>'>
                                 <?php
                                 $ppres = sqlStatement("SELECT ppid, name FROM procedure_providers " . "ORDER BY name, ppid");
                                 while ($pprow = sqlFetchArray($ppres)) {
+                                    $row['lab_id'] = $labid ? $labid + 0 : $row['lab_id'];
                                     echo "<option value='" . attr($pprow['ppid']) . "'";
                                     if ($pprow['ppid'] == $row['lab_id']) {
                                         echo " selected";
                                     }
-                                    
+
                                     echo ">" . text($pprow['name']) . "</option>";
                                 }
                                 ?>
@@ -387,7 +434,7 @@ function proc_type_changed() {
                             <p><?php echo xlt("The entity performing this procedure");?></p>
                         </div>
                     </div>
-                    <div class="col-xs-12 ordonly resonly">
+                    <div class="col-xs-12 ordonly resonly fgponly foronly">
                         <div class="col-sm-12 label-div">
                             <label class="control-label" for="form_procedure_code"><?php echo xlt('Identifying Code'); ?>:</label><a href="#procedure_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                         </div>
@@ -404,7 +451,7 @@ function proc_type_changed() {
                             <p><?php echo xlt("For proper display of results this is a required field");?></p>
                         </div>
                     </div>
-                    <div class="col-xs-12 ordonly">
+                    <div class="col-xs-12 ordonly foronly">
                         <div class="col-sm-12 label-div">
                             <label class="control-label" for="form_standard_code"><?php echo xlt('Standard Code'); ?>:</label><a href="#standard_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                         </div>
@@ -421,7 +468,24 @@ function proc_type_changed() {
                             <p><?php echo xlt("Generally a good idea to include it");?></p>
                         </div>
                     </div>
-                    <div class="col-xs-12 ordonly">
+                    <div class="col-xs-12 foronly">
+                        <div class="col-sm-12 label-div">
+                            <label class="control-label" for="form_diagnosis_code"><?php echo xlt('Default Codes'); ?>:</label><a href="#related_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                        </div>
+                        <div class="col-sm-12">
+                            <input type='text'  name='form_diagnosis_code' id='form_related_code'
+                                   value='<?php echo attr($row['related_code']) ?>'
+                                   onclick='sel_related("form_diagnosis_code")'
+                                   title='<?php echo xla('Click to select diagnosis or procedure code to default to order'); ?>'
+                                   class='form-control' readonly />
+                        </div>
+                        <div id="related_code_info" class="col-sm-12 collapse">
+                            <a href="#related_code_info" data-toggle="collapse" class="pull-right"><i class="fa fa-times" style="color:gray" aria-hidden="true"></i></a>
+                            <p><?php echo xlt("Click to select diagnosis or procedure code to default to order");?></p>
+                            <p><?php echo xlt("This code is optional.");?></p>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 ordonly foronly">
                         <div class="col-sm-12 label-div">
                             <label class="control-label" for="form_body_site"><?php echo xlt('Body Site'); ?>:</label><a href="#body_site_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                         </div>
@@ -440,7 +504,7 @@ function proc_type_changed() {
                             <p><?php echo xlt("Enter the relevant site if applicable.");?></p>
                         </div>
                     </div>
-                    <div class="col-xs-12 ordonly">
+                    <div class="col-xs-12 ordonly foronly">
                         <div class="col-sm-12 label-div">
                             <label class="control-label" for="form_specimen"><?php echo xlt('Specimen Type'); ?>:</label><a href="#specimen_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                         </div>
@@ -460,7 +524,7 @@ function proc_type_changed() {
                             <p><?php echo xlt("This code is optional, but is a good practise to do so.");?></p>
                         </div>
                     </div>
-                    <div class="col-xs-12 ordonly">
+                    <div class="col-xs-12 ordonly foronly">
                         <div class="col-sm-12 label-div">
                             <label class="control-label" for="form_route_admin"><?php echo xlt('Administer Via'); ?>:</label><a href="#administer_via_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                         </div>
@@ -480,7 +544,7 @@ function proc_type_changed() {
                             <p><?php echo xlt("This code is optional.");?></p>
                         </div>
                     </div>
-                    <div class="col-xs-12 ordonly">
+                    <div class="col-xs-12 ordonly foronly">
                         <div class="col-sm-12 label-div">
                             <label class="control-label" for="form_laterality"><?php echo xlt('Laterality'); ?>:</label><a href="#laterality_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                         </div>
@@ -560,6 +624,9 @@ function proc_type_changed() {
                         <div class="btn-group btn-group-pinch" role="group">
                             <button type='submit' name='form_save'  class="btn btn-default btn-save"  value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
                             <button type="button" class="btn btn-link btn-cancel btn-separate-left" onclick='window.close()';><?php echo xlt('Cancel');?></button>
+                            <?php if ($ordtype == 'for') { ?>
+                                <button type='button' name='form_delete'  class="btn btn-default btn-search btn-separate-left" onclick="doOrdPicker(event)" ><?php echo xlt('Search'); ?></button>
+                            <?php } ?>
                             <?php if ($typeid) { ?>
                                 <button type='submit' name='form_delete'  class="btn btn-default btn-cancel btn-delete btn-separate-left" value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
                             <?php } ?>
