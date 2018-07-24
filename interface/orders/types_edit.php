@@ -13,6 +13,9 @@ use OpenEMR\Core\Header;
 
 $typeid = formData('typeid', 'R') + 0;
 $parent = formData('parent', 'R') + 0;
+$ordtype = isset($_REQUEST['addfav']) ? $_REQUEST['addfav'] : '';
+$disabled = $ordtype ? "disabled" : '';
+$labid = isset($_GET['labid']) ? $_GET['labid'] + 0 : 0;
 
 $info_msg = "";
 
@@ -82,6 +85,12 @@ function recursiveDelete($typeid)
 
 
 <style>
+.disabled {
+    pointer-events: none;
+    opacity: 0.50;
+    font-weight: bold;
+}
+
 td {
     font-size: 10pt;
 }
@@ -166,14 +175,41 @@ function del_related(s) {
 
 // This invokes the find-code popup.
 function sel_related(varname) {
-    if (typeof varname == 'undefined')
+    if (typeof varname == 'undefined') {
         varname = 'form_related_code';
+    }
     rcvarname = varname;
     let url = '../patient_file/encounter/find_code_dynamic.php';
     if (varname == 'form_diagnosis_code')
-        url = '../patient_file/encounter/find_code_dynamic.php?codetype=ICD10';
+        url = '../patient_file/encounter/find_code_dynamic.php?codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")); ?>';
 
-    dlgopen(url, '_codeslkup', 900, 800, '', '<?php echo xla("Select Diagnosis Codes"); ?>');
+    dlgopen(url, '_codeslkup', 985, 800, '', '<?php echo xla("Select Default Codes"); ?>');
+}
+
+// call back for procedure picker
+function set_new_fav(result) {
+    var f = document.forms[0];
+    f.form_procedure_code.value = result.procedure_code;
+    f.form_name.value = result.name;
+    f.form_lab_id.value = result.lab_id;
+    f.form_procedure_code.value = result.procedure_code;
+    f.form_procedure_type.value = "for";
+    f.form_body_site.value = result.body_site;
+    f.form_specimen.value = result.specimen;
+    f.form_route_admin.value = result.route_admin;
+    f.form_laterality.value = result.laterality;
+    f.form_description.value = result.description;
+    f.form_units.value = result.units;
+    f.form_range.value = result.range;
+    f.form_standard_code.value = result.standard_code;
+
+}
+
+function doOrdPicker(e){
+    e.preventDefault();
+    let labid = $("#form_lab_id").val();
+    let title = '<?php echo xla("Find Procedure Order"); ?>';
+    dlgopen('find_order_popup.php?addfav=1&labid=' + labid, '_blank', 850, 500, '', title);
 }
 
 // Show or hide sections depending on procedure type.
@@ -285,17 +321,18 @@ function proc_type_changed() {
                      <div class="col-xs-12">
                         <div class="clearfix">
                             <div class="col-sm-12 label-div">
-                                <label class="control-label" for="form_procedure_type"><?php echo xlt('Procedure Tier'); ?>:</label> <a href="#procedure_type_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                <label class="control-label " for="form_procedure_type"><?php echo xlt('Procedure Tier'); ?>:</label> <a href="#procedure_type_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                             </div>
                             <div class="col-sm-12">
                                 <?php
+                                $ordd = $ordtype ? $ordtype : $row['procedure_type'];
                                 echo generate_select_list(
                                     'form_procedure_type',
                                     'proc_type',
-                                    $row['procedure_type'],
+                                    $ordd,
                                     xl('The type of this entity'),
                                     ' ',
-                                    '',
+                                    "$disabled",
                                     'proc_type_changed()'
                                 );
                                 ?>
@@ -376,11 +413,12 @@ function proc_type_changed() {
                             <label class="control-label" for="form_lab_id"><?php echo xlt('Order From'); ?>:</label><a href="#order_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                         </div>
                         <div class="col-sm-12">
-                            <select name='form_lab_id' id='form_lab_id' class='form-control'
+                            <select name='form_lab_id' id='form_lab_id' class='form-control <?php echo $ordtype == 'for' ? $disabled : ''; ?>'
                                 title='<?php echo xla('The entity performing this procedure'); ?>'>
                                 <?php
                                 $ppres = sqlStatement("SELECT ppid, name FROM procedure_providers " . "ORDER BY name, ppid");
                                 while ($pprow = sqlFetchArray($ppres)) {
+                                    $row['lab_id'] = $labid ? $labid + 0 : $row['lab_id'];
                                     echo "<option value='" . attr($pprow['ppid']) . "'";
                                     if ($pprow['ppid'] == $row['lab_id']) {
                                         echo " selected";
@@ -432,7 +470,7 @@ function proc_type_changed() {
                     </div>
                     <div class="col-xs-12 foronly">
                         <div class="col-sm-12 label-div">
-                            <label class="control-label" for="form_diagnosis_code"><?php echo xlt('Diagnosis Codes'); ?>:</label><a href="#related_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                            <label class="control-label" for="form_diagnosis_code"><?php echo xlt('Default Codes'); ?>:</label><a href="#related_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                         </div>
                         <div class="col-sm-12">
                             <input type='text'  name='form_diagnosis_code' id='form_related_code'
@@ -586,6 +624,9 @@ function proc_type_changed() {
                         <div class="btn-group btn-group-pinch" role="group">
                             <button type='submit' name='form_save'  class="btn btn-default btn-save"  value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
                             <button type="button" class="btn btn-link btn-cancel btn-separate-left" onclick='window.close()';><?php echo xlt('Cancel');?></button>
+                            <?php if ($ordtype == 'for') { ?>
+                                <button type='button' name='form_delete'  class="btn btn-default btn-search btn-separate-left" onclick="doOrdPicker(event)" ><?php echo xlt('Search'); ?></button>
+                            <?php } ?>
                             <?php if ($typeid) { ?>
                                 <button type='submit' name='form_delete'  class="btn btn-default btn-cancel btn-delete btn-separate-left" value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
                             <?php } ?>

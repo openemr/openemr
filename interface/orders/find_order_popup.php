@@ -39,7 +39,7 @@ if (isset($_GET['typeid'])) {
         $name = addslashes($ptrow['name']);
         $codes = addslashes($ptrow['related_code']);
         if ($ptrow['procedure_type'] == 'fgp') {
-            $res = sqlStatement("SELECT * FROM procedure_type WHERE parent = '$typeid' && procedure_type = 'for' ORDER BY seq, name, procedure_type_id");
+            $res = sqlStatement("SELECT * FROM procedure_type WHERE parent = ? && procedure_type = 'for' ORDER BY seq, name, procedure_type_id", array($typeid));
             while ($row = sqlFetchArray($res)) {
                 $grporders[] = $row;
             }
@@ -48,11 +48,15 @@ if (isset($_GET['typeid'])) {
     ?>
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
     <script language="JavaScript">
-        if (opener.closed || !opener.set_proc_type) {
+        if (opener.closed) {
             alert('<?php xl('The destination form was closed; I cannot act on your selection.', 'e'); ?>');
         }
         else {
             <?php
+            if (isset($_GET['addfav'])) {
+                $order = json_encode($ptrow);
+                echo "opener.set_new_fav($order);\nwindow.close();";
+            }
             $i = 0;
             $t = 0;
             do {
@@ -101,8 +105,10 @@ if (isset($_GET['typeid'])) {
     <script language="JavaScript">
         // Reload the script with the select procedure type ID.
         function selcode(typeid) {
-            location.href = 'find_order_popup.php<?php
-                echo "?order=$order&labid=$labid";
+            location.href = 'find_order_popup.php<?php echo "?order=$order&labid=$labid";
+            if (isset($_GET['addfav'])) {
+                echo '&addfav=' . $_GET['addfav'];
+            }
             if (isset($_GET['formid'])) {
                 echo '&formid=' . $_GET['formid'];
             }
@@ -124,15 +130,21 @@ if (isset($_GET['typeid'])) {
     if (isset($_GET['formseq'])) {
         echo '&formseq=' . $_GET['formseq'];
     }
+    if (isset($_GET['addfav'])) {
+        echo '&addfav=' . $_GET['addfav'];
+    }
     ?>'>
         <div class="row">
             <div class="col-sm-8 col-sm-offset-2">
                 <div class="input-group">
+                    <input type="hidden" name='isfav' value='<?php echo attr($_REQUEST['ordLookup']); ?>'>
                     <input class="form-control" id='search_term' name='search_term' value='<?php echo attr($_REQUEST['search_term']); ?>'
                         title='<?php echo xla('Any part of the desired code or its description'); ?>' placeholder="<?php echo xla('Search for') ?>&hellip;"/>
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-default btn-search" name='bn_search' value="true"><?php echo xla('Search'); ?></button>
-                        <button type="submit" class="btn btn-default btn-search" name='bn_grpsearch' value="true"><?php echo xla('Favorites'); ?></button>
+                        <?php if (!isset($_REQUEST['addfav'])) { ?>
+                            <button type="submit" class="btn btn-default btn-search" name='bn_grpsearch' value="true"><?php echo xla('Favorites'); ?></button>
+                        <?php } ?>
                         <button type="button" class="btn btn-default btn-delete" onclick="selcode(0)"><?php echo xla('Erase'); ?></button>
                     </span>
                 </div>
@@ -151,11 +163,11 @@ if (isset($_GET['typeid'])) {
                     $query = "SELECT procedure_type_id, procedure_code, name " .
                         "FROM procedure_type WHERE " .
                         "lab_id = ? AND " .
-                        "procedure_type LIKE '$ord' AND " .
+                        "procedure_type LIKE ? AND " .
                         "activity = 1 AND " .
                         "(procedure_code LIKE ? OR name LIKE ?) " .
                         "ORDER BY seq, procedure_code";
-                    $res = sqlStatement($query, array($labid, $search_term, $search_term));
+                    $res = sqlStatement($query, array($labid, $ord, $search_term, $search_term));
 
                     while ($row = sqlFetchArray($res)) {
                         $itertypeid = $row['procedure_type_id'];

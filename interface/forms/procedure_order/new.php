@@ -394,7 +394,8 @@ function sel_related(varname) {
     // codetype is just to make things easier and avoid mistakes.
     // Might be nice to have a lab parameter for acceptable code types.
     // Also note the controlling script here runs from interface/patient_file/encounter/.
-    dlgopen('find_code_dynamic.php?codetype=ICD10', '_blank', 825, 750, '', '<?php echo xla("Select Diagnosis Codes"); ?>');
+    let title = '<?php echo xla("Select Diagnosis Codes"); ?>';
+    dlgopen('find_code_dynamic.php?codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")); ?>', '_blank', 985, 750, '', title);
 }
 
 // This is for callback by the find-code popup.
