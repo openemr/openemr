@@ -74,6 +74,7 @@ $PDF_OUTPUT = ($formid && $isform) ? false : true;
 
 if ($PDF_OUTPUT) {
     $config_mpdf = array(
+        'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
         'mode' => $GLOBALS['pdf_language'],
         'format' => $GLOBALS['pdf_size'],
         'default_font_size' => '',
