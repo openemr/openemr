@@ -1862,8 +1862,7 @@ foreach ($photos as $photo_doc_id) {
             //Exclude exdate appointments
             $oldRecurrspec = unserialize($row['pc_recurrspec']);
             $event_date = date("Ymd", strtotime($row['pc_eventDate']));
-            $exRvents = explode(",",$oldRecurrspec['exdate']);
-            
+            $exEvents = explode(",",$oldRecurrspec['exdate']);
             if (in_array($event_date,$exRvents))
                 continue;
             
