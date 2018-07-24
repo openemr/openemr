@@ -1862,15 +1862,17 @@ foreach ($photos as $photo_doc_id) {
             //Exclude exdate appointments
             $oldRecurrspec = unserialize($row['pc_recurrspec']);
             $event_date = date("Ymd", strtotime($row['pc_eventDate']));
-            if ($oldRecurrspec['exdate'] == $event_date)
+            $exRvents = explode(",",$oldRecurrspec['exdate']);
+            
+            if (in_array($event_date,$exRvents))
                 continue;
-
+            
             $count++;
             
             $dayname = date("l", strtotime($row['pc_eventDate']));
             $dispampm = "am";
             $disphour = substr($row['pc_startTime'], 0, 2) + 0;
-            $dispmin  = substr($row['pc_startTime'], 3, 2);
+            $dispmin = substr($row['pc_startTime'], 3, 2);
             if ($disphour >= 12) {
                 $dispampm = "pm";
                 if ($disphour > 12) {
