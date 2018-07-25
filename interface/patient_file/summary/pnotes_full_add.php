@@ -270,7 +270,7 @@ while ($urow = sqlFetchArray($ures)) {
 ?>
    <option value=''><?php echo htmlspecialchars(xl('Mark Note as Completed'), ENT_NOQUOTES); ?></option>
    </select>
-   <?php if ($GLOBALS['messages_feature_date']) { ?>
+   <?php if ($GLOBALS['messages_feature_date']) { // not in edit screen ?>
        <b><?php echo htmlspecialchars(xl('Date'), ENT_NOQUOTES); ?>:</b>
        <?php
        generate_form_field(array('data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'), empty($datetime) ? date('Y-m-d H:i') : $datetime);
@@ -284,7 +284,7 @@ while ($urow = sqlFetchArray($ures)) {
 if ($noteid) {
     $body = $prow['body'];
     $body = preg_replace(array('/(\sto\s)-patient-(\))/', '/(:\d{2}\s\()' . $patient_id . '(\sto\s)/'), '${1}' . $patientname . '${2}', $body);
-    $body = nl2br(htmlspecialchars($body, ENT_NOQUOTES));
+    $body = nl2br(htmlspecialchars(oeFormatPatientNote($body), ENT_NOQUOTES));
     echo "<div class='text'>".$body."</div>";
 }
 ?>

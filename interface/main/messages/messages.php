@@ -382,119 +382,117 @@ if (!empty($_REQUEST['go'])) { ?>
                         <div class='col-md-12'>
                             <fieldset>
                             <legend><?php echo attr($message_legend); ?></legend>
-                                <div class="col-xs-8 oe-custom-line col-lg-offset-2">
-                                    <div class="col-xs-3">
-                                        <label class="control-label" for="form_note_type"><?php echo xlt('Type'); ?>:</label>
-                                        <?php
-                                        if ($title == "") {
-                                            $title = "Unassigned";
-                                        }
-                                            // Added 6/2009 by BM to incorporate the patient notes into the list_options listings.
-                                            generate_form_field(array('data_type' => 1, 'field_id' => 'note_type', 'list_id' => 'note_type', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'), $title);
-                                            ?>
-                                    </div>
-                                    <div class="col-xs-3">
-                                            <label class="control-label" for="form_message_status"><?php echo xlt('Status'); ?>:</label>
-                                            <?php
-                                            if ($form_message_status == "") {
-                                                $form_message_status = 'New';
-                                            }
-                                            generate_form_field(array('data_type' => 1, 'field_id' => 'message_status', 'list_id' => 'message_status', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'), $form_message_status); ?>
-                                    </div>
-                                    <div class="col-xs-5">
-                                        <label class="control-label" for="form_patient">
-                                            <?php
-                                            if ($task != "addnew" && $result['pid'] != 0) { ?>
-                                                <a class="patLink"
-                                                   onclick="goPid('<?php echo attr($result['pid']); ?>')"><?php echo xlt('Patient'); ?>
-                                                    :</a>
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 oe-custom-line col-lg-offset-1">
+                                        <div class="row">
+                                            <div class="col-xs-3 col-sm-3">
+                                                <label class="control-label" for="form_note_type"><?php echo xlt('Type'); ?>:</label>
                                                 <?php
-                                            } else { ?>
-                                                <b class='<?php echo($task == "addnew" ? "required" : "") ?>'><?php echo xlt('Patient'); ?>
-                                                    :</b>
-                                                <?php
-                                            }
-                                            ?>
-                                        </label>
-                                        <?php
-                                        if ($reply_to) {
-                                            $prow = sqlQuery("SELECT lname, fname,pid, pubpid, DOB  " .
-                                                "FROM patient_data WHERE pid = ?", array($reply_to));
-                                            $patientname = $prow['lname'] . ", " . $prow['fname'];
-                                        }
-                                        if ($task == "addnew" || $result['pid']==0) {
-                                            $cursor = "oe-cursor-add";
-                                            $background = "oe-patient-background";
-                                        } elseif ($task == "edit") {
-                                             $cursor = "oe-cursor-stop";
-                                             $background = '';
-                                        }
-                                        ?>
-                                        <input type='text'  id='form_patient' name='form_patient' class='form-control <?php echo $cursor . " " .$background;?>' onclick="multi_sel_patient()" placeholder='<?php echo xla("Click to add patient"); ?>' value='<?php echo attr($patientname); ?>' readonly/>
-                                        <input type='hidden' class="form-control" name='reply_to' id='reply_to' value='<?php echo attr($reply_to); ?>'/>
-                                    </div>
-                                    <div class="col-xs-1">
-                                        <?php
-                                        if ($task=="addnew" || $result['pid']==0) {
-                                            echo "<label class='control-label' for='clear_patients'>&nbsp;</label>";
-                                            echo '<button type="button" id="clear_patients"  class="btn btn-default btn-undo" value="' . xla('Clear') .'">' . xlt("Clear") . '</button>';
-                                        } ?>
-                                    </div>
-                                </div>
-                                <div class="col-xs-8 oe-custom-line col-lg-offset-2">
-                                    <?php if ($GLOBALS['messages_feature_date']) { ?>
-                                    <div class="col-xs-3">
-                                        <label class="control-label" for="form_note_type"><?php echo xlt('Date'); ?>:</label>
-                                        <?php generate_form_field(array('data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'), empty($datetime) ? date('Y-m-d H:i') : $datetime) ?>
-                                    </div>
-                                    <?php } ?>
-                                    <?php if ($GLOBALS['messages_feature_date']) { ?>
-                                    <div class="col-xs-4">
-                                    <?php } else { ?>
-                                    <div class="col-xs-6">
-                                    <?php } ?>
-                                        <label class="control-label" for="assigned_to_text"><?php echo xlt('To'); ?>:</label>
-                                        <input type='text' name='assigned_to_text' class='form-control oe-cursor-stop' id='assigned_to_text' readonly='readonly'
-                                            value='' placeholder='<?php echo xla("SELECT Users FROM The Dropdown LIST"); ?>'>
-                                        <input type='hidden' name='assigned_to' id='assigned_to'>
-                                    </div>
-                                    <?php if ($GLOBALS['messages_feature_date']) { ?>
-                                    <div class="col-xs-4">
-                                    <?php } else { ?>
-                                    <div class="col-xs-5">
-                                    <?php } ?>
-                                        <label class="control-label" for="users">&nbsp;</label>
-                                        <select name='users' id='users' class='form-control' onchange='addtolist(this);'>
-                                            <?php
-                                            echo "<option value='--'";
-                                            echo ">" . xlt('Select User');
-                                            echo "</option>\n";
-                                            $ures = sqlStatement("SELECT username, fname, lname FROM users " .
-                                                "WHERE username != '' AND active = 1 AND " .
-                                                "( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
-                                                "ORDER BY lname, fname");
-                                            while ($urow = sqlFetchArray($ures)) {
-                                                echo "    <option value='" . attr($urow['username']) . "'";
-                                                echo ">" . text($urow['lname']);
-                                                if ($urow['fname']) {
-                                                    echo ", " . text($urow['fname']);
+                                                if ($title == "") {
+                                                    $title = "Unassigned";
                                                 }
-                                                echo "</option>\n";
-                                            }
-                                            if ($GLOBALS['portal_offsite_enable']) {
-                                                echo "<option value='-" . xla('patient') . "-'";
-                                                echo ">-" . xlt('Patient') . "-";
-                                                echo "</option>\n";
-                                            }
-                                            ?>
-                                        </select>
-                                    </div>
-                                    <div class="col-xs-1">
-                                        <label class="control-label" for="users">&nbsp;</label>
-                                        <button type="button" name="clear_user" id="clear_user" class="btn btn-default btn-undo" value="<?php echo xla('Clear'); ?>"><?php echo xlt('Clear'); ?></button>
+                                                // Added 6/2009 by BM to incorporate the patient notes into the list_options listings.
+                                                generate_form_field(array('data_type' => 1, 'field_id' => 'note_type', 'list_id' => 'note_type', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'), $title);
+                                                ?>
+                                            </div>
+                                            <div class="col-xs-3 col-sm-3">
+                                                <label class="control-label" for="form_message_status"><?php echo xlt('Status'); ?>:</label>
+                                                <?php
+                                                if ($form_message_status == "") {
+                                                    $form_message_status = 'New';
+                                                }
+                                                generate_form_field(array('data_type' => 1, 'field_id' => 'message_status', 'list_id' => 'message_status', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'), $form_message_status); ?>
+                                            </div>
+                                            <div class="col-xs-4">
+                                                <label class="control-label" for="form_patient">
+                                                    <?php
+                                                    if ($task != "addnew" && $result['pid'] != 0) { ?>
+                                                        <a class="patLink"
+                                                           onclick="goPid('<?php echo attr($result['pid']); ?>')"><?php echo xlt('Patient'); ?>
+                                                            :</a>
+                                                        <?php
+                                                    } else { ?>
+                                                        <b class='<?php echo($task == "addnew" ? "required" : "") ?>'><?php echo xlt('Patient'); ?>
+                                                            :</b>
+                                                        <?php
+                                                    }
+                                                    ?>
+                                                </label>
+                                                <?php
+                                                if ($reply_to) {
+                                                    $prow = sqlQuery("SELECT lname, fname,pid, pubpid, DOB  " .
+                                                        "FROM patient_data WHERE pid = ?", array($reply_to));
+                                                    $patientname = $prow['lname'] . ", " . $prow['fname'];
+                                                }
+                                                if ($task == "addnew" || $result['pid']==0) {
+                                                    $cursor = "oe-cursor-add";
+                                                    $background = "oe-patient-background";
+                                                } elseif ($task == "edit") {
+                                                    $cursor = "oe-cursor-stop";
+                                                    $background = '';
+                                                }
+                                                ?>
+                                                <input type='text'  id='form_patient' name='form_patient' class='form-control <?php echo $cursor . " " .$background;?>' onclick="multi_sel_patient()" placeholder='<?php echo xla("Click to add patient"); ?>' value='<?php echo attr($patientname); ?>' readonly/>
+                                                <input type='hidden' class="form-control" name='reply_to' id='reply_to' value='<?php echo attr($reply_to); ?>'/>
+                                            </div>
+                                            <div class="col-xs-2">
+                                                <?php
+                                                if ($task=="addnew" || $result['pid']==0) {
+                                                    echo "<label class='control-label oe-empty-label' for='clear_patients'></label>";
+                                                    echo '<button type="button" id="clear_patients"  class="btn btn-default btn-undo pull-left flip" value="' . xla('Clear') .'">' . xlt("Clear") . '</button>';
+                                                } ?>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class='col-xs-12 oe-margin-t-3'>
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 oe-custom-line col-lg-offset-1">
+                                        <div class="row">
+                                            <?php if ($GLOBALS['messages_feature_date']) { ?>
+                                            <div class="col-xs-6 col-sm-2">
+                                                <label class="control-label" for="form_note_type"><?php echo xlt('Date'); ?>:</label>
+                                                <?php generate_form_field(array('data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'), empty($datetime) ? date('Y-m-d H:i') : $datetime) ?>
+                                            </div>
+                                            <?php } ?>
+                                            <div class="col-xs-6 col-sm-4">
+                                                <label class="control-label" for="assigned_to_text"><?php echo xlt('To'); ?>:</label>
+                                                <input type='text' name='assigned_to_text' class='form-control oe-cursor-stop' id='assigned_to_text' readonly='readonly'
+                                                    value='' placeholder='<?php echo xla("SELECT Users FROM The Dropdown LIST"); ?>'>
+                                                <input type='hidden' name='assigned_to' id='assigned_to'>
+                                            </div>
+                                            <div class="col-xs-6 col-sm-4">
+                                                <label class="control-label" for="users"></label>
+                                                <select name='users' id='users' class='form-control' onchange='addtolist(this);'>
+                                                    <?php
+                                                    echo "<option value='--'";
+                                                    echo ">" . xlt('Select User');
+                                                    echo "</option>\n";
+                                                    $ures = sqlStatement("SELECT username, fname, lname FROM users " .
+                                                        "WHERE username != '' AND active = 1 AND " .
+                                                        "( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
+                                                        "ORDER BY lname, fname");
+                                                    while ($urow = sqlFetchArray($ures)) {
+                                                        echo "    <option value='" . attr($urow['username']) . "'";
+                                                        echo ">" . text($urow['lname']);
+                                                        if ($urow['fname']) {
+                                                            echo ", " . text($urow['fname']);
+                                                        }
+                                                        echo "</option>\n";
+                                                    }
+                                                    if ($GLOBALS['portal_offsite_enable']) {
+                                                        echo "<option value='-" . xla('patient') . "-'";
+                                                        echo ">-" . xlt('Patient') . "-";
+                                                        echo "</option>\n";
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div>
+                                            <div class="col-xs-6 col-sm-2">
+                                                <label class="control-label oe-empty-label" for="users"></label>
+                                                <button type="button" name="clear_user" id="clear_user" class="btn btn-default btn-undo pull-left flip" value="<?php echo xla('Clear'); ?>"><?php echo xlt('Clear'); ?></button>
+                                            </div>
+                                        </div>
+                                    <div class='col-xs-12 oe-margin-t-3'>
                                     <?php
                                     if ($noteid) {
                                         // Get the related document IDs if any.
@@ -545,37 +543,40 @@ if (!empty($_REQUEST['go'])) { ?>
                                     }
                                     ?>
                                 </div>
-                                <div class='col-xs-12'>
-                                    <?php
-
-                                    if ($noteid) {
-                                        $body = preg_replace('/(:\d{2}\s\()' . $result['pid'] . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
-                                        $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to') . '${3}', $body);
-                                        $body = nl2br(text($body));
-                                        echo "<div class='text oe-margin-t-3' style='background-color:white; color: gray; border:1px solid #999; padding: 5px;'>" . $body . "</div>";
-                                    }
-
-                                    ?>
-                                    <textarea name='note' id='note' class='form-control oe-margin-t-3'
-                                                  style='margin-left:-1px !important; background-color:white; color: gray; border:1px solid #999; padding: 5px; height:100px!important;'><?php echo nl2br(text($note)); ?></textarea>
                                 </div>
-                                <div class="col-xs-12 position-override oe-margin-t-10">
-                                    <?php if ($noteid) { ?>
-                                        <!-- This is for displaying an existing note. -->
-                                        <button type="button" class="btn btn-default btn-send-msg" id="newnote"
-                                               value="<?php echo xla('Send message'); ?>"><?php echo xlt('Send message'); ?></button>
-                                        <button type="button" class="btn btn-default btn-print" id="printnote"
-                                               value="<?php echo xla('Print message'); ?>"><?php echo xlt('Print message'); ?></button>
-                                        <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" id="cancel"
-                                               value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
-                                    <?php } else { ?>
-                                        <!-- This is for displaying a new note. -->
-                                        <button type="button" class="btn btn-default btn-send-msg" id="newnote"
-                                               value="<?php echo xla('Send message'); ?>"><?php echo xlt('Send message'); ?></button>
-                                        <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" id="cancel"
-                                               value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
-                                    <?php }
-                                    ?>
+                                <div class="row">
+                                    <div class='col-xs-12'>
+                                        <?php
+
+                                        if ($noteid) {
+                                            $body = preg_replace('/(:\d{2}\s\()' . $result['pid'] . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
+                                            $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to') . '${3}', $body);
+                                            $body =nl2br(htmlspecialchars(oeFormatPatientNote($body), ENT_NOQUOTES));
+                                            echo "<div class='text oe-margin-t-3' style='background-color:white; color: gray; border:1px solid #999; padding: 5px;'>" . $body . "</div>";
+                                        }
+
+                                        ?>
+                                        <textarea name='note' id='note' class='form-control oe-margin-t-3'
+                                                  style='margin-left:-1px !important; background-color:white; color: gray; border:1px solid #999; padding: 5px; height:100px!important;'><?php echo nl2br(text($note)); ?></textarea>
+                                    </div>
+                                    <div class="col-xs-12 position-override oe-margin-t-10">
+                                        <?php if ($noteid) { ?>
+                                            <!-- This is for displaying an existing note. -->
+                                            <button type="button" class="btn btn-default btn-send-msg" id="newnote"
+                                                    value="<?php echo xla('Send message'); ?>"><?php echo xlt('Send message'); ?></button>
+                                            <button type="button" class="btn btn-default btn-print" id="printnote"
+                                                    value="<?php echo xla('Print message'); ?>"><?php echo xlt('Print message'); ?></button>
+                                            <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" id="cancel"
+                                                    value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
+                                        <?php } else { ?>
+                                            <!-- This is for displaying a new note. -->
+                                            <button type="button" class="btn btn-default btn-send-msg" id="newnote"
+                                                    value="<?php echo xla('Send message'); ?>"><?php echo xlt('Send message'); ?></button>
+                                            <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" id="cancel"
+                                                    value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
+                                        <?php }
+                                        ?>
+                                    </div>
                                 </div>
                             </fieldset>
                         </div>

@@ -401,15 +401,13 @@ function addPnote(
     } else {
         $datetime = DateTimeToYYYYMMDDHHMMSS($datetime);
     }
-    $formatDate = oeFormatDateTime($datetime);
 
   // make inactive if set as Done
     if ($message_status == 'Done') {
         $activity = 0;
     }
-
     $user = ($background_user!="" ? $background_user : $_SESSION['authUser']);
-    $body = $formatDate . ' (' . $user;
+    $body = date('Y-m-d H:i') . ' (' . $user;
     if ($assigned_to) {
         $body .= " to $assigned_to";
     }
@@ -470,7 +468,6 @@ function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "", 
     } else {
         $datetime = DateTimeToYYYYMMDDHHMMSS($datetime);
     }
-    $formatDate = oeFormatDateTime($datetime);
 
     $activity = $assigned_to ? '1' : '0';
 
@@ -479,7 +476,7 @@ function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "", 
         $activity = 0;
     }
 
-    $body = $row['body'] . "\n" . $formatDate .
+    $body = $row['body'] . "\n" . date('Y-m-d H:i') .
     ' (' . $_SESSION['authUser'];
     if ($assigned_to) {
         $body .= " to $assigned_to";
