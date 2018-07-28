@@ -287,11 +287,16 @@ function make_document($task)
                     forms.form_id=form_eye_neuro.id and
                     forms.form_id=form_eye_locking.id and
 <<<<<<< HEAD
+<<<<<<< HEAD
                     forms.form_id =? and
                     forms.pid=?";
 =======
                     forms.form_id =? ";
 >>>>>>> Eye_innodb
+=======
+                    forms.form_id =? and
+                    forms.pid=?";
+>>>>>>> Near Completion Eye InnoDB
     $encounter_data =sqlQuery($query, array($encounter,$task['PATIENT_ID']));
     @extract($encounter_data);
     $providerID  =  getProviderIdOfEncounter($encounter);
@@ -343,7 +348,7 @@ function make_document($task)
         $sql = "DELETE from documents where documents.url like ?";
         sqlQuery($sql, array("%".$filename));
     }
-
+    
     $config_mpdf = array(
         'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
         'mode' => $GLOBALS['pdf_language'],
@@ -366,7 +371,14 @@ function make_document($task)
     if ($_SESSION['language_direction'] == 'rtl') {
         $pdf->SetDirectionality('rtl');
     }
+<<<<<<< HEAD
 
+=======
+    $pdf->shrink_tables_to_fit = 1;
+    $keep_table_proportions = true;
+    $pdf->use_kwt = true;
+    
+>>>>>>> Near Completion Eye InnoDB
     ob_start();
     ?><html>
     <head>

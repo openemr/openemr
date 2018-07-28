@@ -57,14 +57,18 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/report.inc");
 require_once("$srcdir/html2pdf/html2pdf.class.php");
 
+<<<<<<< HEAD
 use Mpdf\Mpdf;
 use OpenEMR\Billing\BillingUtilities;
 
+=======
+>>>>>>> Near Completion Eye InnoDB
 $returnurl = 'encounter_top.php';
 
 if (isset($_REQUEST['id'])) {
     $id = $_REQUEST['id'];
 }
+use Mpdf\Mpdf;
 
 if (!$id) {
     $id = $_REQUEST['pid'];
@@ -582,12 +586,17 @@ if ($_REQUEST["mode"] == "new") {
         } else {
             if ($form_type == 'ROS') { //ROS
 <<<<<<< HEAD
+<<<<<<< HEAD
                 $query = "UPDATE form_eye_ros set ROSGENERAL=?,ROSHEENT=?,ROSCV=?,ROSPULM=?,ROSGI=?,ROSGU=?,ROSDERM=?,ROSNEURO=?,ROSPSYCH=?,ROSMUSCULO=?,ROSIMMUNO=?,ROSENDOCRINE=?,ROSCOMMENTS=?.pid=? where id=?";
                 sqlStatement($query, array($_REQUEST['ROSGENERAL'], $_REQUEST['ROSHEENT'], $_REQUEST['ROSCV'], $_REQUEST['ROSPULM'], $_REQUEST['ROSGI'], $_REQUEST['ROSGU'], $_REQUEST['ROSDERM'], $_REQUEST['ROSNEURO'], $_REQUEST['ROSPSYCH'], $_REQUEST['ROSMUSCULO'], $_REQUEST['ROSIMMUNO'], $_REQUEST['ROSENDOCRINE'], $_REQUEST['ROSCOMMENTS'],$pid, $form_id));
 =======
                 $query = "UPDATE form_eye_ros set ROSGENERAL=?,ROSHEENT=?,ROSCV=?,ROSPULM=?,ROSGI=?,ROSGU=?,ROSDERM=?,ROSNEURO=?,ROSPSYCH=?,ROSMUSCULO=?,ROSIMMUNO=?,ROSENDOCRINE=? where id=? and pid=?";
                 sqlStatement($query, array($_REQUEST['ROSGENERAL'], $_REQUEST['ROSHEENT'], $_REQUEST['ROSCV'], $_REQUEST['ROSPULM'], $_REQUEST['ROSGI'], $_REQUEST['ROSGU'], $_REQUEST['ROSDERM'], $_REQUEST['ROSNEURO'], $_REQUEST['ROSPSYCH'], $_REQUEST['ROSMUSCULO'], $_REQUEST['ROSIMMUNO'], $_REQUEST['ROSENDOCRINE'], $form_id, $pid));
 >>>>>>> Eye_innodb
+=======
+                $query = "UPDATE form_eye_ros set ROSGENERAL=?,ROSHEENT=?,ROSCV=?,ROSPULM=?,ROSGI=?,ROSGU=?,ROSDERM=?,ROSNEURO=?,ROSPSYCH=?,ROSMUSCULO=?,ROSIMMUNO=?,ROSENDOCRINE=?,ROSCOMMENTS=?.pid=? where id=?";
+                sqlStatement($query, array($_REQUEST['ROSGENERAL'], $_REQUEST['ROSHEENT'], $_REQUEST['ROSCV'], $_REQUEST['ROSPULM'], $_REQUEST['ROSGI'], $_REQUEST['ROSGU'], $_REQUEST['ROSDERM'], $_REQUEST['ROSNEURO'], $_REQUEST['ROSPSYCH'], $_REQUEST['ROSMUSCULO'], $_REQUEST['ROSIMMUNO'], $_REQUEST['ROSENDOCRINE'], $_REQUEST['ROSCOMMENTS'],$pid, $form_id));
+>>>>>>> Near Completion Eye InnoDB
                 $PMSFH = build_PMSFH($pid);
                 send_json_values($PMSFH);
                 exit;
@@ -645,10 +654,14 @@ if ($_REQUEST["mode"] == "new") {
                 usertext17=?,
                 usertext18=? where pid=?";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
                 //echo $_REQUEST['relatives_cancer'],$_REQUEST['relatives_diabetes'],$_REQUEST['relatives_high_blood_pressure'],$_REQUEST['relatives_heart_problems'],$_REQUEST['relatives_stroke'],$_REQUEST['relatives_epilepsy'],$_REQUEST['relatives_mental_illness'],$_REQUEST['relatives_suicide'],$_REQUEST['usertext11'],$_REQUEST['usertext12'],$_REQUEST['usertext13'],$_REQUEST['usertext14'],$_REQUEST['usertext15'],$_REQUEST['usertext16'],$_REQUEST['usertext17'],$_REQUEST['usertext18'],$pid;
 >>>>>>> Eye_innodb
                 $resFH = sqlStatement($query, array($_REQUEST['relatives_cancer'], $_REQUEST['relatives_diabetes'], $_REQUEST['relatives_high_blood_pressure'], $_REQUEST['relatives_heart_problems'], $_REQUEST['relatives_stroke'], $_REQUEST['relatives_epilepsy'], $_REQUEST['relatives_mental_illness'], $_REQUEST['relatives_suicide'], $_REQUEST['usertext11'], $_REQUEST['usertext12'], $_REQUEST['usertext13'], $_REQUEST['usertext14'], $_REQUEST['usertext15'], $_REQUEST['usertext16'], $_REQUEST['usertext17'], $_REQUEST['usertext18'], $pid));
+=======
+               $resFH = sqlStatement($query, array($_REQUEST['relatives_cancer'], $_REQUEST['relatives_diabetes'], $_REQUEST['relatives_high_blood_pressure'], $_REQUEST['relatives_heart_problems'], $_REQUEST['relatives_stroke'], $_REQUEST['relatives_epilepsy'], $_REQUEST['relatives_mental_illness'], $_REQUEST['relatives_suicide'], $_REQUEST['usertext11'], $_REQUEST['usertext12'], $_REQUEST['usertext13'], $_REQUEST['usertext14'], $_REQUEST['usertext15'], $_REQUEST['usertext16'], $_REQUEST['usertext17'], $_REQUEST['usertext18'], $pid));
+>>>>>>> Near Completion Eye InnoDB
                 $PMSFH = build_PMSFH($pid);
                 send_json_values($PMSFH);
                 exit;
@@ -884,6 +897,7 @@ if ($_REQUEST["mode"] == "new") {
     $encounter_data = sqlQuery($query, array($encounter));
     $dated = new DateTime($encounter_data['encounter_date']);
 <<<<<<< HEAD
+<<<<<<< HEAD
     $visit_date = $dated->format('Y-m-d');
     
     $N = count($_POST['PLAN']);
@@ -901,19 +915,30 @@ if ($_REQUEST["mode"] == "new") {
     $dated = $dated->format('Y-m-d');
     $visit_date = oeFormatShortDate($dated);
 
+=======
+    $visit_date = $dated->format('Y-m-d');
+    
+>>>>>>> Near Completion Eye InnoDB
     $N = count($_POST['PLAN']);
-    $sql_clear = "DELETE from form_eye_mag_orders where ORDER_PID =? and ORDER_PLACED_BYWHOM=? and ORDER_DATE_PLACED=? and ORDER_STATUS ='pending'";
+    $sql_clear = "DELETE from form_eye_mag_orders where pid =? and ORDER_PLACED_BYWHOM=? and ORDER_DATE_PLACED=? and ORDER_STATUS ='pending'";
     sqlQuery($sql_clear, array($pid, $providerID, $visit_date));
     if ($N > '0') {
         for ($i = 0; $i < $N; $i++) {
+            if ($_POST['PLAN'][$i] =='') continue;
             $fields['PLAN'] .= $_POST['PLAN'][$i] . "|"; //this makes an entry for form_eyemag: PLAN
+<<<<<<< HEAD
             $ORDERS_sql = "REPLACE INTO form_eye_mag_orders (ORDER_PID,ORDER_DETAILS,ORDER_STATUS,ORDER_DATE_PLACED,ORDER_PLACED_BYWHOM) VALUES (?,?,?,?,?)";
             $okthen = sqlQuery($ORDERS_sql, array($pid, $_POST['PLAN'][$i], 'pending', $visit_date, $providerID));
 >>>>>>> Eye_innodb
+=======
+            $ORDERS_sql = "INSERT INTO form_eye_mag_orders (form_id,pid,ORDER_DETAILS,ORDER_PRIORITY,ORDER_STATUS,ORDER_DATE_PLACED,ORDER_PLACED_BYWHOM) VALUES (?,?,?,?,?,?,?)";
+            $okthen = sqlQuery($ORDERS_sql, array($form_id, $pid, $_POST['PLAN'][$i], $i, 'pending', $visit_date, $providerID));
+>>>>>>> Near Completion Eye InnoDB
         }
 
         $_POST['PLAN'] = mb_substr($fields['PLAN'], 0, -1); //get rid of trailing "|"
     }
+<<<<<<< HEAD
 <<<<<<< HEAD
     
     $M = count($_POST['TEST']);
@@ -1035,6 +1060,9 @@ if ($_REQUEST["mode"] == "new") {
         $okthen = sqlQuery($ORDERS_sql, array($pid, $_POST['PLAN'][$i], 'pending', "PLAN2:$PLAN2", $visit_date, $providerID));
     }
 
+=======
+    
+>>>>>>> Near Completion Eye InnoDB
     $M = count($_POST['TEST']);
     if ($M > '0') {
         for ($i = 0; $i < $M; $i++) {
@@ -1161,8 +1189,11 @@ if ($_REQUEST["mode"] == "new") {
 <<<<<<< HEAD
 =======
 
+<<<<<<< HEAD
 
 >>>>>>> Eye_innodb
+=======
+>>>>>>> Near Completion Eye InnoDB
                 //exclude critical columns/fields and those needing special processing from update
                 if ($row['Field'] == 'id' or
                     $row['Field'] == 'date' or

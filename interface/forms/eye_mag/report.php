@@ -105,6 +105,7 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag')
    * linked to encounter in form_encounter
    * whose encounter is linked to id in forms.
    */
+<<<<<<< HEAD
 
 <<<<<<< HEAD
     $query ="  select  *,form_encounter.date as encounter_date
@@ -117,6 +118,9 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag')
   form_eye_mag.id=forms.form_id and
   forms.pid =form_eye_mag.pid and
   form_eye_mag.pid=? ";
+=======
+  
+>>>>>>> Near Completion Eye InnoDB
   $query ="  select  *,form_encounter.date as encounter_date
 >>>>>>> Eye_innodb
 
@@ -245,6 +249,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
   //if $cols == 'Fax', we are here from taskman, making a fax and this a one page short form - leave out PMSFH, prescriptions
   //and any clinical area that is blank.
 <<<<<<< HEAD
+<<<<<<< HEAD
      $query ="  select  *,form_encounter.date as encounter_date
 =======
     $query="select form_encounter.date as encounter_date,form_eye_mag.id as form_id,form_encounter.*, form_eye_mag.*
@@ -257,6 +262,9 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
             form_eye_mag.pid=? ";
     $query ="  select  *,form_encounter.date as encounter_date
 >>>>>>> Eye_innodb
+=======
+     $query ="  select  *,form_encounter.date as encounter_date
+>>>>>>> Near Completion Eye InnoDB
 
                from forms,form_encounter,form_eye_base,
                 form_eye_hpi,form_eye_ros,form_eye_vitals,
@@ -2046,15 +2054,26 @@ if ($ODCMT||$OSCMT) { ?>
                 }
                 $query = "SELECT * FROM form_eye_mag_orders where form_id=? and pid=? ORDER BY id ASC";
                 $PLAN_results = sqlStatement($query, array($form_id, $pid ));
+<<<<<<< HEAD
 
 
                 if ($PLAN_results) { ?>
+=======
+                
+    
+                    if ($PLAN_results) { ?>
+>>>>>>> Near Completion Eye InnoDB
                     <b><?php echo xlt('Orders')."/".xlt('Next Visit'); ?>:</b>
                     <br />
                     <div style="padding-left:15px;padding-bottom:10px;width:400px;">
                         <?php
+<<<<<<< HEAD
                         while ($plan_row = sqlFetchArray($PLAN_results)) {
                             echo  $plan_row['ORDER_DETAILS']."<br />";
+=======
+                            while ($plan_row = sqlFetchArray($PLAN_results)) {
+                                echo  $plan_row['ORDER_DETAILS']."<br />";
+>>>>>>> Near Completion Eye InnoDB
                         }
                         ?>
                     </div>
@@ -2072,7 +2091,11 @@ if ($ODCMT||$OSCMT) { ?>
             if ($PDF_OUTPUT) {
                 //display a stored optional electronic sig for this providerID, ie the patient's Doc not the tech
                 //Isn't there a place in sites/..default../images for a jpg signature file for Rx printing or some other openEMR task?
+<<<<<<< HEAD
                 $from_file = $GLOBALS['fileroot'] ."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
+=======
+                $from_file = $GLOBALS["webserver_root"] ."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
+>>>>>>> Near Completion Eye InnoDB
                 if (file_exists($from_file)) {
                     echo "<img style='width:50mm;' src='$from_file'><hr style='width:40mm;' />";
                 }
@@ -2080,15 +2103,27 @@ if ($ODCMT||$OSCMT) { ?>
                 $signature = $GLOBALS['fileroot']."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
                 if (file_exists($signature)) {
                         echo "<img style='width:50mm;' src='".$GLOBALS['web_root']."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg'><hr style='width:40mm;' />";
+<<<<<<< HEAD
                 }
             }
             echo "<br /><i style='font-size:9px;'>".xlt('electronically signed on')." ".oeFormatShortDate()."</i>";
 
+=======
+                
+                }
+            }
+            echo "<br /><i style='font-size:9px;'>".xlt('electronically signed on')." ".oeFormatShortDate()."</i>";
+            
+>>>>>>> Near Completion Eye InnoDB
             ?>
               <br />
               <span style="padding-left:30px;"><?php echo text($providerNAME); ?></span>
                 <?php
+<<<<<<< HEAD
 
+=======
+           
+>>>>>>> Near Completion Eye InnoDB
             ?>
 
 

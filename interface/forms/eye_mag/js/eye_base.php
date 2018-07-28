@@ -1842,6 +1842,7 @@ function openImage() {
 
 // Called to open a document in another tab for this encounter.
 function openDocumentNewTab(doc_id) {
+<<<<<<< HEAD
     var url = '../../interface/patient_file/encounter/view_form.php?formname=' + formdir + '&id=' + formid;
     if (formdir == 'newpatient' || !parent.twAddFrameTab) {
         top.restoreSession();
@@ -1850,6 +1851,18 @@ function openDocumentNewTab(doc_id) {
         parent.twAddFrameTab('enctabs', formname, url);
     }
     return false;
+=======
+var url = '/openemr/interface/patient_file/encounter/view_form.php?formname=' +
+formdir + '&id=' + formid;
+if (formdir == 'newpatient' || !parent.twAddFrameTab) {
+top.restoreSession();
+location.href = url;
+}
+else {
+parent.twAddFrameTab('enctabs', formname, url);
+}
+return false;
+>>>>>>> Near Completion Eye InnoDB
 }
 
 function HPI_sync_heights() {
@@ -2759,7 +2772,10 @@ var allPanels = $('.building_blocks > dd').hide();
                                var imagine = $("#PREFS_"+header+"_VIEW").val();
                                imagine ^= true;
                                $("#PREFS_"+header+"_VIEW").val(imagine);
+<<<<<<< HEAD
                                update_PREFS();
+=======
+>>>>>>> Near Completion Eye InnoDB
                               }
                                return false;
                                });
@@ -3502,6 +3518,7 @@ var allPanels = $('.building_blocks > dd').hide();
                                                 update_PREFS();
                                                 }
 <<<<<<< HEAD
+<<<<<<< HEAD
                                                 HPI_sync_heights();
 =======
 if ( ($('#PMSFH_block_1').height() > $('#PMH_left').height())||
@@ -3519,6 +3536,9 @@ $('#PMH_1').height(heights+20);
 //$('#PMH_1').height($('#HPI_1').height());
 }
 >>>>>>> Eye_innodb
+=======
+                                                HPI_sync_heights();
+>>>>>>> Near Completion Eye InnoDB
                                                 show_QP();
                                                 scrollTo("EXT_left");
                                                 });
@@ -3549,6 +3569,10 @@ $('#PMH_1').height(heights+20);
                                                   $("#"+zone+"_left").removeClass('display');
                                                   $("#"+zone+"_left_text").removeClass('display');
                                                   $("#PREFS_"+zone+"_RIGHT").val(0);
+<<<<<<< HEAD
+=======
+                                                //  update_PREFS();
+>>>>>>> Near Completion Eye InnoDB
                                                   }
                                                   show_TEXT();
                                                   scrollTo("EXT_left");
@@ -3569,8 +3593,7 @@ $('#PMH_1').height(heights+20);
                                                      } else {
                                                        $("#"+zone+"_right").addClass('nodisplay');
                                                        $("#PREFS_"+zone+"_RIGHT").val(1);
-//$("#PMH_left").height('0');
-                                                     }
+                                                    }
                                                      scrollTo(zone+"_left");
                                                      update_PREFS();
                                                    }
@@ -3825,7 +3848,11 @@ $('#PMH_1').height(heights+20);
                                                     show_QP();
                                                 } else if (zone == 'IMPPLAN') {
                                                     show_QP_section('IMPPLAN');
+<<<<<<< HEAD
 
+=======
+                                                    
+>>>>>>> Near Completion Eye InnoDB
                                                 }
 update_PREFS();
                                                 });
@@ -3838,6 +3865,13 @@ update_PREFS();
                   $("[id$='_loading']").addClass('nodisplay');
                   $("[id$='_sections']").removeClass('nodisplay');
 
+<<<<<<< HEAD
+=======
+                /*  if ($('#PMH_right').height() > $('#PMH_left').height()) {
+                  $('#PMH_left').height($('#PMH_right').height());
+                  } else { $('#PMH_1').height($('#HPI_1').height()); }
+*/
+>>>>>>> Near Completion Eye InnoDB
                   $('#left-panel').css("right","0px");
                   $('#EXAM_KB').css({position: 'fixed', top: '29px'});
                   $('#EXAM_KB').css('display', 'block');
