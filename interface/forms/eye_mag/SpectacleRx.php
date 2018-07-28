@@ -851,10 +851,7 @@ ob_start();
     </script>
 </head>
 <body>
-<?php echo report_header($pid, "web");
-$visit = getEncounterDateByEncounter($encounter);
-$visit_date = $visit['date'];
-?>
+<?php echo report_header($pid, "web");  ?>
 <br/><br/>
 <form method="post" action="<?php echo $rootdir; ?>/forms/<?php echo text($form_folder); ?>/SpectacleRx.php?mode=update"
       id="Spectacle" class="eye_mag pure-form" name="Spectacle" style="text-align:center;">

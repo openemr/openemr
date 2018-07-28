@@ -3491,7 +3491,6 @@ var allPanels = $('.building_blocks > dd').hide();
                                                   $("#"+zone+"_left").removeClass('display');
                                                   $("#"+zone+"_left_text").removeClass('display');
                                                   $("#PREFS_"+zone+"_RIGHT").val(0);
-                                                //  update_PREFS();
                                                   }
                                                   show_TEXT();
                                                   scrollTo("EXT_left");
@@ -3780,10 +3779,6 @@ update_PREFS();
                   $("[id$='_loading']").addClass('nodisplay');
                   $("[id$='_sections']").removeClass('nodisplay');
 
-                /*  if ($('#PMH_right').height() > $('#PMH_left').height()) {
-                  $('#PMH_left').height($('#PMH_right').height());
-                  } else { $('#PMH_1').height($('#HPI_1').height()); }
-*/
                   $('#left-panel').css("right","0px");
                   $('#EXAM_KB').css({position: 'fixed', top: '29px'});
                   $('#EXAM_KB').css('display', 'block');
