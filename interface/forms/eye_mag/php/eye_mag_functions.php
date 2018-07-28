@@ -3626,17 +3626,6 @@ function display($pid, $encounter, $category_value)
                 <img onclick=\"return showpnotes('". $id_to_show ."')\" src='../../forms/".$form_folder."/images/upload_multi.png' class='little_image'>
         </td>
         <td>";
-        // Choose how to display: AnythingSlider or OpenEMR Douments file.
-        //open via anything Slider
-        /*
-         
-         if (count($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]) > '0') {
-            $episode .= '<a href="../../forms/' . $form_folder . '/php/Anything_simple.php?display=i&category_id=' . attr($documents['zones'][$category_value][$j]['id']) . '&encounter=' . $encounter . '&category_name=' . urlencode(xla($category_value)) . '"
-                    onclick="return dopopup(\'../../forms/' . $form_folder . '/php/Anything_simple.php?display=i&category_id=' . attr($documents['zones'][$category_value][$j]['id']) . '&encounter=' . $encounter . '&category_name=' . urlencode(xla($category_value)) . '\')">
-                    <img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" /></a>';
-        }
-        */
-    
         //open via OpenEMR Documents with treemenu
     
         if ($count_here > '0') {
@@ -3755,129 +3744,11 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                             } ?>
                         </ul>
                     </li>
-                    <li class="dropdown tabHide">
-                        <a class="dropdown-toggle"  class="disabled" role="button" id="menu_dropdown_patients" data-toggle="dropdown"><?php echo xlt("Patients"); ?> </a>
-                        <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
-                          <li role="presentation"><a role="menuitem" tabindex="-1" target="RTop" href="<?php echo $GLOBALS['webroot']; ?>/interface/main/finder/dynamic_finder.php">
-                            <i class="fa fa-angle-double-up" title="<?php echo xla('Opens in Top frame'); ?>"></i>
-                            <?php echo xlt('Patients'); ?></a></li>
-                          <li role="presentation"><a tabindex="-1" target="RTop" href="<?php echo $GLOBALS['webroot']; ?>/interface/new/new.php">
-                            <i class="fa fa-angle-double-up" title="<?php echo xla('Opens in Top frame'); ?>"></i>
-                            <?php echo xlt("New/Search"); ?></a> </li>
-                          <li role="presentation"><a role="menuitem" tabindex="-1" target="RTop" href="<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php">
-                            <i class="fa fa-angle-double-up" title="<?php echo xla('Opens in Top frame'); ?>"></i>
-                            <?php echo xlt("Summary"); ?></a></li>
-                          <!--    <li role="presentation" class="divider"></li>
-                          <li role="presentation"><a role="menuitem" tabindex="-1" href="#"><?php echo xlt("Create Visit"); ?></a></span></li>
-                          <li class="active"><a role="menuitem" id="BUTTON_DRAW_menu" tabindex="-1" href="<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/encounter/forms.php">  <?php echo xlt("Current"); ?></a></li>
-                          <li role="presentation"><a role="menuitem" tabindex="-1" href="<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/history/encounters.php"><?php echo xlt("Visit History"); ?></a></li>
-                          -->
-                          <li role="presentation" class="divider"></li>
-                          <li role="presentation"><a role="menuitem" tabindex="-1" target="RTop" href="<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/transaction/record_request.php">
-                            <i class="fa fa-angle-double-up" title="<?php echo xla('Opens in Top frame'); ?>"></i>
-                            <?php echo xlt("Record Request"); ?></a></li>
-                          <li role="presentation" class="divider"></li>
-                          <li role="presentation"><a role="menuitem" tabindex="-1" target="RTop" href="<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/ccr_import.php">
-                            <i class="fa fa-angle-double-up" title="<?php echo xla('Opens in Top frame'); ?>"></i>
-                            <?php echo xlt("Upload Item"); ?></a></li>
-                          <li role="presentation" ><a role="menuitem" tabindex="-1" target="RTop" href="<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/ccr_pending_approval.php">
-                            <i class="fa fa-angle-double-up" title="<?php echo xla('Opens in Top frame'); ?>"></i>
-                            <?php echo xlt("Pending Approval"); ?></a></li>
-                        </ul>
-                    </li>
-                    <!--
-                    <li class="dropdown">
-                        <a class="dropdown-toggle" role="button" id="menu_dropdown_clinical" data-toggle="dropdown"><?php echo xlt("Encounter"); ?></a>
-                        <?php
-                        /*
-                         *  Here we need to incorporate the menu from openEMR too.  What Forms are active for this installation?
-                         *  openEMR uses Encounter Summary - Administrative - Clinical.  Think about the menu as a new entity with
-                         *  this + new functionaity.  It is OK to keep or consider changing any NAMES when creating the menu.  I assume
-                         *  a consensus will develop.
-                        */
-                        ?>
-                        <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
-                            <li role="presentation" class="disabled"><a role="menuitem" tabindex="-1" href="#"><?php echo xlt("Eye Exam"); ?></a></li>
-                            <li role="presentation" class="disabled"><a role="menuitem" tabindex="-1" href="#"><?php echo xlt("Documents"); ?></a></li>
-                            <li role="presentation" class="disabled"><a role="menuitem" tabindex="-1" href="#"><?php echo xlt("Imaging"); ?></a></li>
-                            <li role="presentation" class="divider"></li>
-                            <li role="presentation" class="disabled"><a role="menuitem" tabindex="-1" href="#IOP_CHART"><?php echo xlt("IOP Chart"); ?></a></li>
-                        </ul>
-                    </li>
-                    -->
-
-                   <!-- let's import the original openEMR menu_bar here.  Needs to add restoreSession stuff? -->
-                    <?php
-                        $reg = Menu_myGetRegistered();
-                    if (!empty($reg)) {
-                        $StringEcho= '<li class="dropdown tabHide">';
-                        if ($encounterLocked === false || !(isset($encounterLocked))) {
-                            foreach ($reg as $entry) {
-                                $new_category = trim($entry['category']);
-                                $new_nickname = trim($entry['nickname']);
-                                if ($new_category == '') {
-                                    $new_category = xlt('Miscellaneous');
-                                }
-
-                                if ($new_nickname != '') {
-                                    $nickname = $new_nickname;
-                                } else {
-                                    $nickname = $entry['name'];
-                                }
-
-                                if ($old_category != $new_category) { //new category, new menu section
-                                    $new_category_ = $new_category;
-                                    $new_category_ = str_replace(' ', '_', $new_category_);
-                                    if ($old_category != '') {
-                                        $StringEcho.= "
-                                            </ul>
-                                        </li>
-                                        <li class='dropdown'>
-                                        ";
-                                    }
-
-                                    $StringEcho.= '
-                                    <a class="dropdown-toggle tabHide" data-toggle="dropdown"
-                                    id="menu_dropdown_'.xla($new_category_).'" role="button"
-                                    aria-expanded="false">'.xlt($new_category).' </a>
-                                    <ul class="dropdown-menu" role="menu">
-                                    ';
-                                    $old_category = $new_category;
-                                }
-
-                                $StringEcho.= "<li>
-                                <a role='menuitem' tabindex='-1' href='".$GLOBALS['webroot']."/interface/patient_file/encounter/load_form.php?formname=" .urlencode($entry['directory'])."'>
-                                <i class='fa fa-angle-double-down' title='". xla('Opens in Bottom frame')."'></i>".
-                                xlt($nickname) . "</a></li>";
-                            }
-                        }
-
-                        $StringEcho.= '
-                            </ul>
-                          </li>
-                          ';
-                    }
-
-                        echo $StringEcho;
-                    ?>
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown"
                            id="menu_dropdown_library" role="button"
                            aria-expanded="true"><?php echo xlt("Library"); ?> </a>
                         <ul class="dropdown-menu" role="menu">
-                            <li role="presentation" class="tabHide"><a role="menuitem" tabindex="-1" target="RTop"
-                            href="<?php echo $GLOBALS['webroot']; ?>/interface/main/calendar/index.php?module=PostCalendar&viewtype=day&func=view&framewidth=1020">
-                            <i class="fa fa-angle-double-up" title="<?php echo xla('Opens in Top frame'); ?>"></i>&nbsp;<?php echo xlt("Calendar"); ?><span class="menu_icon"><i class="fa fa-calendar"></i>  </span></a></li>
-                            <li role="presentation" class="divider tabHide"></li>
-                            <li role="presentation" class="tabHide"><a role="menuitem" tabindex="-1"
-                                Xhref="<?php echo $GLOBALS['webroot']; ?>/controller.php?document&list&patient_id=<?php echo xla($pid); ?>">
-                                <i class="fa fa-angle-double-up" title="<?php echo xla('Opens in Top frame'); ?>"></i>
-                                <?php echo xlt("Documents"); ?></a></li>
-                <!--           <li> <?php echo $episode .= '<a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.$pid.'&doc_id='.$id_to_show.'\',\'Documents\');"><img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" /></a>';
-                           ?></li>
-                            <li><?php echo  $episode .= '<a href="'.$GLOBALS['webroot'].'/interface/forms/'.$form_folder.'/php/Anything_simple.php?display=i&encounter='.$encounter.'&category_name=OTHER&panel1-1">
-                            Imaging<span class="menu_icon"><img src="'.$GLOBALS['webroot'].'/interface/forms/'.$form_folder.'/images/jpg.png" class="little_image" />'; ?></span></a></li>
--->                            <li role="presentation" class="divider tabHide"></li>
                             <li id="menu_IOP_graph" name="menu_IOP_graph" ><a><?php echo xlt("IOP Graph"); ?></a></li>
                         </ul>
                     </li>
@@ -3912,7 +3783,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
 }
 /**
  *  This is currently a floating div top with patient demographics and such.
- *  Used in fullscreen mode at the top and in AnythingSlider at the bottom.
+ *  Used in fullscreen mode at the top.
  *  Moving towards containing info similar to main_title.php.
  *
  *  @param string $pid patient_id
@@ -5070,14 +4941,13 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                             //    $episode .= '<a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.$pid.'&doc_id='.$id_to_show.'\',\'Documents\');"><img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" /></a>';
     
                             $current_VF = '<tr><td colspan="3" class="GFS_td_1 blue">
-<a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.$pid.'&doc_id='.$id_to_show.'\',\'Documents\');">
-
-<a href="../../forms/'.$form_folder.'/php/Anything_simple.php?display=i&category_id='.attr($VF['parent']).'&encounter='.$encounter.'&category_name=VF" '.
-                            $VF['encounter_date'].'&nbsp;<img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a></td></tr>';
+                                <a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.attr($pid).'&doc_id='.attr($VF['id']).'\',\'Documents\');">
+                                <img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
+                                </td></tr>';
                         } else {
-                            $old_VFs .= '<tr><td colspan="3" class="GFS_td_1 hideme_VFs nodisplay""><a href="../../forms/'.$form_folder.'/php/Anything_simple.php?display=i&category_id='.attr($VF['parent']).'&encounter='.$encounter.'&category_name=VF" '.
-                            'onclick="return dopopup(\'../../forms/'.$form_folder.'/php/Anything_simple.php?display=i&category_id='.attr($VF['parent']).'&encounter='.$encounter.'&category_name=VF">
-                            '.$VF['encounter_date'].'&nbsp;<img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a></td></tr>';
+                            $old_VFs .= '<tr><td colspan="3" class="GFS_td_1 hideme_VFs nodisplay"">
+                                <a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.attr($pid).'&doc_id='.attr($VF['id']).'\',\'Documents\');">
+                                <img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a></td></tr>';
                         }
 
                         $count++;
@@ -5109,13 +4979,13 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                 if ($count < 1) {
                                     $current_OCT = '<tr>
                                             <td colspan="3" class="GFS_td_1">
-                                            <a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.$pid.'&doc_id='.attr($OCT['id']).'\',\'Documents\');"><img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
+                                            <a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.attr($pid).'&doc_id='.attr($OCT['id']).'\',\'Documents\');"><img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
                                             </td>
                                         </tr>
                                         ';
                                 } else {
                                     $old_OCTs .= '<tr><td class="hideme_OCTs nodisplay GFS_td_1" colspan="3">
-                                                <a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.$pid.'&doc_id='.attr($OCT['id']).'\',\'Documents\');"><img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
+                                                <a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.attr($pid).'&doc_id='.attr($OCT['id']).'\',\'Documents\');"><img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
                                             ';
                                 }
                                 $count++;

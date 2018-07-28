@@ -48,7 +48,7 @@ CREATE TABLE `amc_misc_data` (
 --
 
 DROP TABLE IF EXISTS `amendments`;
-CREATE TABLE `amendments` (
+CREATE TABLE IF NOT EXISTS `amendments` (
   `amendment_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Amendment ID',
   `amendment_date` date NOT NULL COMMENT 'Amendement request date',
   `amendment_by` varchar(50) NOT NULL COMMENT 'Amendment requested from',
@@ -70,7 +70,7 @@ CREATE TABLE `amendments` (
 --
 
 DROP TABLE IF EXISTS `amendments_history`;
-CREATE TABLE `amendments_history` (
+CREATE TABLE IF NOT EXISTS `amendments_history` (
   `amendment_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Amendment ID',
   `amendment_note` text COMMENT 'Amendment requested from',
   `amendment_status` VARCHAR(50) NULL COMMENT 'Amendment Request Status',
@@ -1546,7 +1546,7 @@ CREATE  TABLE `erx_ttl_touch` (
 --
 
 DROP TABLE IF EXISTS `erx_drug_paid`;
-CREATE TABLE `erx_drug_paid` (
+CREATE TABLE IF NOT EXISTS `erx_drug_paid` (
   `drugid` int(11) NOT NULL AUTO_INCREMENT,
   `drug_label_name` varchar(45) NOT NULL,
   `ahfs_descr` varchar(45) NOT NULL,
@@ -1566,7 +1566,7 @@ CREATE TABLE `erx_drug_paid` (
 --
 
 DROP TABLE IF EXISTS `erx_rx_log`;
-CREATE TABLE `erx_rx_log` (
+CREATE TABLE IF NOT EXISTS `erx_rx_log` (
  `id` int(20) NOT NULL AUTO_INCREMENT,
  `prescription_id` int(6) NOT NULL,
  `date` varchar(25) NOT NULL,
@@ -1585,7 +1585,7 @@ CREATE TABLE `erx_rx_log` (
 --
 
 DROP TABLE IF EXISTS `erx_narcotics`;
-CREATE TABLE `erx_narcotics` (
+CREATE TABLE IF NOT EXISTS `erx_narcotics` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `drug` varchar(255) NOT NULL,
   `dea_number` varchar(5) NOT NULL,
@@ -3956,8 +3956,6 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','ord','Procedure Order',20,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','res','Discrete Result',30,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','rec','Recommendation' ,40,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','fgp','Custom Favorite Group' ,50,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','for','Custom Favorite Item' ,60,0);
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','proc_body_site','Procedure Body Sites', 1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_body_site','arm'    ,'Arm'    ,10,0);
@@ -5157,7 +5155,6 @@ CREATE TABLE `lists` (
   `modifydate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `severity_al` VARCHAR( 50 ) DEFAULT NULL,
   `external_id` VARCHAR(20) DEFAULT NULL,
-  `list_option_id` VARCHAR(100) DEFAULT NULL COMMENT 'Reference to list_options table',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`),
   KEY `type` (`type`)
@@ -5438,7 +5435,7 @@ CREATE TABLE `onsite_messages` (
   `message` longtext,
   `ip` varchar(15) NOT NULL,
   `date` datetime NOT NULL,
-  `sender_id` VARCHAR(64) NULL COMMENT 'who sent id',
+  `sender_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'who sent id',
   `recip_id` varchar(255) NOT NULL COMMENT 'who to id array',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB COMMENT='Portal messages' AUTO_INCREMENT=1 ;
@@ -5949,7 +5946,7 @@ CREATE TABLE  `patient_access_offsite` (
 --
 
 DROP TABLE IF EXISTS `patient_tracker`;
-CREATE TABLE `patient_tracker` (
+CREATE TABLE IF NOT EXISTS `patient_tracker` (
   `id`                     bigint(20)   NOT NULL auto_increment,
   `date`                   datetime     DEFAULT NULL,
   `apptdate`               date         DEFAULT NULL,
@@ -5971,7 +5968,7 @@ CREATE TABLE `patient_tracker` (
 --
 
 DROP TABLE IF EXISTS `patient_tracker_element`;
-CREATE TABLE `patient_tracker_element` (
+CREATE TABLE IF NOT EXISTS `patient_tracker_element` (
   `pt_tracker_id`      bigint(20)   NOT NULL default '0' COMMENT 'maps to id column in patient_tracker table',
   `start_datetime`     datetime     DEFAULT NULL,
   `room`               varchar(20)  NOT NULL default '',
@@ -6202,8 +6199,6 @@ CREATE TABLE `pnotes` (
   `message_status` VARCHAR(20) NOT NULL DEFAULT 'New',
   `portal_relation` VARCHAR(100) NULL,
   `is_msg_encrypted` TINYINT(2) DEFAULT '0' COMMENT 'Whether messsage encrypted 0-Not encrypted, 1-Encrypted',
-  `update_by` INT NOT NULL,
-  `update_date` DATETIME DEFAULT NULL,
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
@@ -7152,8 +7147,6 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 ('ICD10', 'CMS', '2017-10-01', '2018-ICD-10-Code-Descriptions.zip', '6f9c77440132e30f565222ca9bb6599c');
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2017-10-01', '2018-ICD-10-PCS-General-Equivalence-Mappings.zip', 'bb73c80e272da28712887d7979b1cebf');
-INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2018-10-01', '2019-ICD-10-CM-Code-Descriptions.zip', 'b23e0128eb2dce0cb007c31638a8dc00');
-INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2018-10-01', '2019-ICD-10-PCS-Order-File.zip', 'eb545fe61ada9efad0ad97a669f8671f');
 
 -----------------------------------------------------------
 
@@ -7268,8 +7261,6 @@ CREATE TABLE `users_secure` (
   `salt_history1` varchar(255),
   `password_history2` varchar(255),
   `salt_history2` varchar(255),
-  `last_challenge_response` datetime DEFAULT NULL,
-  `login_work_area` text,
   PRIMARY KEY (`id`),
   UNIQUE KEY `USERNAME_ID` (`id`,`username`)
 ) ENGINE=InnoDb;
@@ -8783,21 +8774,20 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_date', 'deposit_date', 'Deposit Date', 30, 0);
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'page_validation', 'Page Validation', 298);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_issue#theform', '/interface/patient_file/summary/add_edit_issue.php', 10, '{"form_title":{"presence": true}}', 0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'common#new_encounter', '/interface/forms/newpatient/common.php', 50, '{"pc_catid":{"exclusion": ["_blank"]}}', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform', '/interface/main/calendar/add_edit_event.php', 30, '{"form_patient":{"presence": {"message": "Patient Name Required"}}}', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'usergroup_admin_add#new_user', '/interface/usergroup/usergroup_admin_add.php', 70, '{"rumple":{"presence": {"message":"Required field missing: Please enter the User Name"}}, "stiltskin":{"presence": {"message":"Please enter the password"}}, "fname":{"presence": {"message":"Required field missing: Please enter the First name"}}, "lname":{"presence": {"message":"Required field missing: Please enter the Last name"}}}', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'user_admin#user_form', '/interface/usergroup/user_admin.php', 80, '{"fname":{"presence": {"message":"Required field missing: Please enter the First name"}}, "lname":{"presence": {"message":"Required field missing: Please enter the Last name"}}}', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'facility_admin#facility-form', '/interface/usergroup/facility_admin.php', 90, '{"facility":{"presence": true}, "ncolor":{"presence": true}}', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'facilities_add#facility-add', '/interface/usergroup/facilities_add.php', 100, '{"facility":{"presence": true}, "ncolor":{"presence": true}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_issue#theform', '/interface/patient_file/summary/add_edit_issue.php', 10, '{form_title:{presence: true}}', 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'common#new_encounter', '/interface/forms/newpatient/common.php', 50, '{pc_catid:{exclusion: ["_blank"]}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform', '/interface/main/calendar/add_edit_event.php', 30, '{form_patient:{presence: {message: "Patient Name Required"}}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'usergroup_admin_add#new_user', '/interface/usergroup/usergroup_admin_add.php', 70, '{rumple:{presence: {message:"Required field missing: Please enter the User Name"}}, stiltskin:{presence: {message:"Please enter the password"}}, fname:{presence: {message:"Required field missing: Please enter the First name"}}, lname:{presence: {message:"Required field missing: Please enter the Last name"}}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'user_admin#user_form', '/interface/usergroup/user_admin.php', 80, '{fname:{presence: {message:"Required field missing: Please enter the First name"}}, lname:{presence: {message:"Required field missing: Please enter the Last name"}}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'facility_admin#facility-form', '/interface/usergroup/facility_admin.php', 90, '{facility:{presence: true}, ncolor:{presence: true}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'facilities_add#facility-add', '/interface/usergroup/facilities_add.php', 100, '{facility:{presence: true}, ncolor:{presence: true}}', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'addrbook_edit#theform', '/interface/usergroup/addrbook_edit.php', 110, '{}', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'therapy_groups_add#addGroup', '/interface/therapy_groups/index.php?method=addGroup', 120, '{"group_name":{"presence": true}}', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'therapy_groups_edit#editGroup', '/interface/therapy_groups/index.php?method=groupDetails', 125, '{"group_name":{"presence": true}}', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'tg_add#add-participant-form', '/interface/therapy_groups/index.php?method=groupParticipants', 130, '{"participant_name":{"presence": true}, "group_patient_start":{"presence": true}}', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'common#new-encounter-form', '/interface/forms/newGroupEncounter/common.php', 160, '{"pc_catid":{"exclusion": ["_blank"]}}', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform_groups','/interface/main/calendar/add_edit_event.php?group=true',150, '{"form_group":{"presence": true}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'therapy_groups_add#addGroup', '/interface/therapy_groups/index.php?method=addGroup', 120, '{group_name:{presence: true}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'therapy_groups_edit#editGroup', '/interface/therapy_groups/index.php?method=groupDetails', 125, '{group_name:{presence: true}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'tg_add#add-participant-form', '/interface/therapy_groups/index.php?method=groupParticipants', 130, '{participant_name:{presence: true}, group_patient_start:{presence: true}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'common#new-encounter-form', '/interface/forms/newGroupEncounter/common.php', 160, '{pc_catid:{exclusion: ["_blank"]}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform_groups','/interface/main/calendar/add_edit_event.php?group=true',150, '{form_group:{presence: true}}', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform_prov', '/interface/main/calendar/add_edit_event.php?prov=true', 170, '{}',  1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'messages#new_note','/interface/main/messages/messages.php',150, '{"form_datetime":{"futureDate":{"message": "Must be future date"}}, "reply_to":{"presence": {"message": "Please choose a patient"}}}', 1);
 
 -- list_options for `form_eye`
 
@@ -9179,7 +9169,6 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_QP_EXT_defaults', 'LLL_nev', 'LL: ecchymosis', 1080, 0, 0, 'LL', 'ecchymosis', '', 0, 0, 0, 'L'),
 ('Eye_QP_EXT_defaults', 'BLL_nev', 'LL: ecchymosis', 1090, 0, 0, 'LL', 'ecchymosis', '', 0, 0, 0, 'B'),
 ('Eye_QP_EXT_defaults', 'RLL_chalazion', 'LL: chalazion', 1100, 0, 0, 'LL', 'chalazion', '', 0, 0, 0, 'R'),
-('Eye_QP_EXT_defaults', 'LLL_chalazion', 'LL: chalazion', 1105, 0, 0, 'LL', 'chalazion', '', 0, 0, 0, 'L'),
 ('Eye_QP_EXT_defaults', 'BLL_chalazion', 'LL: chalazion', 1110, 0, 0, 'LL', 'chalazion', '', 0, 0, 0, 'B'),
 ('Eye_QP_EXT_defaults', 'RLL_stye', 'LL: stye', 1120, 0, 0, 'LL', 'stye', '', 0, 0, 0, 'R'),
 ('Eye_QP_EXT_defaults', 'LLL_stye', 'LL: stye', 1130, 0, 0, 'LL', 'stye', '', 0, 0, 0, 'L'),
@@ -9332,60 +9321,60 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists' ,'Eye_Defaults_for_GENERAL', 'Eye Exam Default Values for New Providers', 1, 0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
-('Eye_Defaults_for_GENERAL', 'LBROW', 'no brow ptosis', 60, 0, 0, '', 'EXT', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'LLF', '17', 140, 0, 0, '', 'EXT', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'LLL', 'good tone', 40, 0, 0, '', 'EXT', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'LMCT', 'no masses', 80, 0, 0, '', 'EXT', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'LMRD', '+3', 120, 0, 0, '', 'EXT', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'LUL', 'normal lids and lashes', 20, 0, 0, '', 'EXT', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODAC', 'deep and quiet', 190, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODAPD', '0', 280, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODCONJ', 'quiet', 160, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODCORNEA', 'clear', 170, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODCUP', '0.3', 450, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODDISC', 'pink', 430, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODIOPTARGET', '21', 530, 0, 0, '', 'GLAUCOMA', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODIRIS', 'round', 230, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODLENS', 'clear', 210, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODMACULA', 'flat', 470, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODPERIPH', 'flat', 510, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODPUPILREACTIVITY', '+2', 270, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODPUPILSIZE1', '3', 250, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODPUPILSIZE2', '2', 260, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODVESSELS', '2:3', 490, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODVFCONFRONTATION1', '0', 330, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODVFCONFRONTATION2', '0', 340, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODVFCONFRONTATION3', '0', 350, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODVFCONFRONTATION4', '0', 360, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODVFCONFRONTATION5', '0', 370, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSAC', 'deep and quiet', 200, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSAPD', '0', 320, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSCONJ', 'quiet', 150, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSCORNEA', 'clear', 180, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSCUP', '0.3', 460, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSDISC', 'pink', 440, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSIOPTARGET', '21', 540, 0, 0, '', 'GLAUCOMA', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSIRIS', 'round', 240, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSLENS', 'clear', 220, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSMACULA', 'flat', 480, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSPERIPH', 'flat', 520, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSPUPILREACTIVITY', '+2', 310, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSPUPILSIZE1', '3', 290, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSPUPILSIZE2', '2', 300, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSVESSELS', '2:3', 500, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSVFCONFRONTATION1', '0', 380, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSVFCONFRONTATION2', '0', 390, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSVFCONFRONTATION3', '0', 400, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSVFCONFRONTATION4', '0', 410, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSVFCONFRONTATION5', '0', 420, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'RADNEXA', 'normal lacrimal gland and orbit', 90, 0, 0, '', 'EXT', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'LADNEXA', 'normal lacrimal gland and orbit', 91, 0, 0, '', 'EXT', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'RBROW', 'no brow ptosis', 50, 0, 0, '', 'EXT', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'RLF', '17', 130, 0, 0, '', 'EXT', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'RLL', 'good tone', 30, 0, 0, '', 'EXT', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'RMCT', 'no masses', 70, 0, 0, '', 'EXT', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'RMRD', '+3', 110, 0, 0, '', 'EXT', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'RUL', 'normal lids and lashes', 10, 0, 0, '', 'EXT', '', 0, 0, 1, '');
+('Eye_Defaults_for_GENERAL', 'LBROW', 'no brow ptosis', 60, 0, 0, '', 'EXT', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'LLF', '17', 140, 0, 0, '', 'EXT', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'LLL', 'good tone', 40, 0, 0, '', 'EXT', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'LMCT', 'no masses', 80, 0, 0, '', 'EXT', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'LMRD', '+3', 120, 0, 0, '', 'EXT', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'LUL', 'normal lids and lashes', 20, 0, 0, '', 'EXT', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'ODAC', 'deep and quiet', 190, 0, 0, '', 'ANTSEG', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'ODAPD', '0', 280, 0, 0, '', 'NEURO', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'ODCONJ', 'quiet', 160, 0, 0, '', 'ANTSEG', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'ODCORNEA', 'clear', 170, 0, 0, '', 'ANTSEG', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'ODCUP', '0.3', 450, 0, 0, '', 'RETINA', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'ODDISC', 'pink', 430, 0, 0, '', 'RETINA', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'ODIOPTARGET', '21', 530, 0, 0, '', 'GLAUCOMA', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'ODIRIS', 'round', 230, 0, 0, '', 'ANTSEG', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'ODLENS', 'clear', 210, 0, 0, '', 'ANTSEG', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'ODMACULA', 'flat', 470, 0, 0, '', 'RETINA', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'ODPERIPH', 'flat', 510, 0, 0, '', 'RETINA', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'ODPUPILREACTIVITY', '+2', 270, 0, 0, '', 'NEURO', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'ODPUPILSIZE1', '3', 250, 0, 0, '', 'NEURO', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'ODPUPILSIZE2', '2', 260, 0, 0, '', 'NEURO', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'ODVESSELS', '2:3', 490, 0, 0, '', 'RETINA', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'ODVFCONFRONTATION1', '0', 330, 0, 0, '', 'NEURO', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'ODVFCONFRONTATION2', '0', 340, 0, 0, '', 'NEURO', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'ODVFCONFRONTATION3', '0', 350, 0, 0, '', 'NEURO', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'ODVFCONFRONTATION4', '0', 360, 0, 0, '', 'NEURO', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'ODVFCONFRONTATION5', '0', 370, 0, 0, '', 'NEURO', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'OSAC', 'deep and quiet', 200, 0, 0, '', 'ANTSEG', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'OSAPD', '0', 320, 0, 0, '', 'NEURO', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'OSCONJ', 'quiet', 150, 0, 0, '', 'ANTSEG', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'OSCORNEA', 'clear', 180, 0, 0, '', 'ANTSEG', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'OSCUP', '0.3', 460, 0, 0, '', 'RETINA', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'OSDISC', 'pink', 440, 0, 0, '', 'RETINA', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'OSIOPTARGET', '21', 540, 0, 0, '', 'GLAUCOMA', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'OSIRIS', 'round', 240, 0, 0, '', 'ANTSEG', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'OSLENS', 'clear', 220, 0, 0, '', 'ANTSEG', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'OSMACULA', 'flat', 480, 0, 0, '', 'RETINA', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'OSPERIPH', 'flat', 520, 0, 0, '', 'RETINA', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'OSPUPILREACTIVITY', '+2', 310, 0, 0, '', 'NEURO', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'OSPUPILSIZE1', '3', 290, 0, 0, '', 'NEURO', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'OSPUPILSIZE2', '2', 300, 0, 0, '', 'NEURO', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'OSVESSELS', '2:3', 500, 0, 0, '', 'RETINA', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'OSVFCONFRONTATION1', '0', 380, 0, 0, '', 'NEURO', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'OSVFCONFRONTATION2', '0', 390, 0, 0, '', 'NEURO', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'OSVFCONFRONTATION3', '0', 400, 0, 0, '', 'NEURO', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'OSVFCONFRONTATION4', '0', 410, 0, 0, '', 'NEURO', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'OSVFCONFRONTATION5', '0', 420, 0, 0, '', 'NEURO', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'RADNEXA', 'normal lacrimal gland and orbit', 90, 0, 0, '', 'EXT', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'LADNEXA', 'normal lacrimal gland and orbit', 91, 0, 0, '', 'EXT', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'RBROW', 'no brow ptosis', 50, 0, 0, '', 'EXT', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'RLF', '17', 130, 0, 0, '', 'EXT', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'RLL', 'good tone', 30, 0, 0, '', 'EXT', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'RMCT', 'no masses', 70, 0, 0, '', 'EXT', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'RMRD', '+3', 110, 0, 0, '', 'EXT', '', 0, 0, 0, ''),
+('Eye_Defaults_for_GENERAL', 'RUL', 'normal lids and lashes', 10, 0, 0, '', 'EXT', '', 0, 0, 0, '');
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists' ,'Eye_Lens_Material', 'Eye Lens Material', 1, 0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES
@@ -9580,7 +9569,7 @@ CREATE TABLE `esign_signatures` (
 --
 
 DROP TABLE IF EXISTS `log_comment_encrypt`;
-CREATE TABLE `log_comment_encrypt` (
+CREATE TABLE IF NOT EXISTS `log_comment_encrypt` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `log_id` int(11) NOT NULL,
   `encrypt` enum('Yes','No') NOT NULL DEFAULT 'No',
@@ -10006,8 +9995,6 @@ CREATE TABLE `form_eye_mag_dispense` (
   `CTLSUPPLIEROS` varchar(25) DEFAULT NULL,
   `CTLBRANDOD` varchar(50) DEFAULT NULL,
   `CTLBRANDOS` varchar(50) DEFAULT NULL,
-  `CTLODQUANTITY` varchar(255) DEFAULT NULL,
-  `CTLOSQUANTITY` varchar(255) DEFAULT NULL,
   `ODDIAM` varchar(50) DEFAULT NULL,
   `ODBC` varchar(50) DEFAULT NULL,
   `OSDIAM` varchar(50) DEFAULT NULL,
@@ -10093,8 +10080,7 @@ INSERT INTO `form_eye_mag_prefs` (`PEZONE`, `LOCATION`, `LOCATION_text`, `id`, `
 DROP TABLE IF EXISTS `form_eye_mag_orders`;
 CREATE TABLE `form_eye_mag_orders` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `form_id` int(20) NOT NULL,
-  `pid` bigint(20) NOT NULL,
+  `ORDER_PID` bigint(20) NOT NULL,
   `ORDER_DETAILS` varchar(255) NOT NULL,
   `ORDER_STATUS` varchar(50) DEFAULT NULL,
   `ORDER_PRIORITY` varchar(50) DEFAULT NULL,
@@ -10103,7 +10089,7 @@ CREATE TABLE `form_eye_mag_orders` (
   `ORDER_DATE_COMPLETED` date DEFAULT NULL,
   `ORDER_COMPLETED_BYWHOM` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `VISIT_ID` (`pid`,`ORDER_DETAILS`,`ORDER_DATE_PLACED`)
+  UNIQUE KEY `VISIT_ID` (`ORDER_PID`,`ORDER_DETAILS`,`ORDER_DATE_PLACED`,`ORDER_PLACED_BYWHOM`,`ORDER_DATE_COMPLETED`)
 ) ENGINE=InnoDB;
 
 -----------------------------------------------------------
@@ -10413,8 +10399,8 @@ CREATE TABLE `patient_birthday_alert` (
 --
 -- Table structure for table `medex_icons`
 --
-DROP TABLE IF EXISTS `medex_icons`;
-CREATE TABLE `medex_icons` (
+
+CREATE TABLE IF NOT EXISTS `medex_icons` (
   `i_UID` int(11) NOT NULL AUTO_INCREMENT,
   `msg_type` varchar(50) NOT NULL,
   `msg_status` varchar(10) NOT NULL,
@@ -10471,8 +10457,9 @@ INSERT INTO `medex_icons` (`i_UID`, `msg_type`, `msg_status`, `i_description`, `
 
 --
 -- Table structure for table `medex_outgoing`
-DROP TABLE IF EXISTS `medex_outgoing`;
-CREATE TABLE `medex_outgoing` (
+--
+
+CREATE TABLE IF NOT EXISTS `medex_outgoing` (
   `msg_uid` int(11) NOT NULL AUTO_INCREMENT,
   `msg_pid` int(11) NOT NULL,
   `msg_pc_eid` varchar(11) NOT NULL,
@@ -10496,8 +10483,8 @@ CREATE TABLE `medex_outgoing` (
 --
 -- Table structure for table `medex_prefs`
 --
-DROP TABLE IF EXISTS `medex_prefs`;
-CREATE TABLE `medex_prefs` (
+
+CREATE TABLE IF NOT EXISTS `medex_prefs` (
   `MedEx_id` int(11) DEFAULT '0',
   `ME_username` varchar(100) DEFAULT NULL,
   `ME_api_key` text,
@@ -10512,7 +10499,6 @@ CREATE TABLE `medex_prefs` (
   `LABELS_choice` varchar(50) DEFAULT NULL,
   `combine_time` tinyint(4) DEFAULT NULL,
   `postcard_top` varchar(255) DEFAULT NULL,
-  `status` text,
   `MedEx_lastupdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY `ME_username` (`ME_username`)
 ) ENGINE=InnoDB;
@@ -10522,8 +10508,8 @@ CREATE TABLE `medex_prefs` (
 --
 -- Table structure for table `medex_recalls`
 --
-DROP TABLE IF EXISTS `medex_recalls`;
-CREATE TABLE `medex_recalls` (
+
+CREATE TABLE IF NOT EXISTS `medex_recalls` (
   `r_ID` int(11) NOT NULL AUTO_INCREMENT,
   `r_PRACTID` int(11) NOT NULL,
   `r_pid` int(11) NOT NULL COMMENT 'PatientID from pat_data',
@@ -10542,34 +10528,17 @@ CREATE TABLE `medex_recalls` (
 --
 -- Table structure for table `form_eye_base`
 --
-<<<<<<< HEAD
-DROP TABLE IF EXISTS `form_eye_base`;
-CREATE TABLE `form_eye_base` (
-  `id`         bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Links to forms.form_id',
-  `date`       datetime DEFAULT NULL,
-=======
 
 CREATE TABLE IF NOT EXISTS `form_eye_base` (
-  `id`         bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
-  `date` datetime DEFAULT NULL,
->>>>>>> Eye_innodb
+  `id`         bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Links to forms.form_id',
+  `date`       datetime DEFAULT NULL,
   `pid`        bigint(20)   DEFAULT NULL,
   `user`       varchar(255) DEFAULT NULL,
   `groupname`  varchar(255) DEFAULT NULL,
   `authorized` tinyint(4)   DEFAULT NULL,
-<<<<<<< HEAD
   `activity`   tinyint(4)   DEFAULT NULL,
   PRIMARY KEY `form_link` (`id`)
 ) ENGINE = InnoDB;
-=======
-  `activity`   tinyint(4)   DEFAULT NULL
-) ENGINE = InnoDB;
-ALTER TABLE `form_eye_base`
-  ADD PRIMARY KEY `form_link` (`id`);
-ALTER TABLE `form_eye_base`
-  CHANGE `id` `id` BIGINT(20) NOT NULL AUTO_INCREMENT;
-
->>>>>>> Eye_innodb
 
 -- --------------------------------------------------------
 
@@ -10577,21 +10546,11 @@ ALTER TABLE `form_eye_base`
 -- Table structure for table `form_eye_hpi`
 --
 
-<<<<<<< HEAD
-DROP TABLE IF EXISTS `form_eye_hpi`;
-CREATE TABLE `form_eye_hpi` (
+CREATE TABLE IF NOT EXISTS `form_eye_hpi` (
   `id`          bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
   `pid`         bigint(20)   DEFAULT NULL,
   `CC1`         varchar(255) DEFAULT NULL,
-  `HPI1`        text,
-=======
-CREATE TABLE IF NOT EXISTS `form_eye_hpi` (
-  `id`          bigint(20) NOT NULL
-  COMMENT 'Links to forms.form_id',
-  `pid`        bigint(20)   DEFAULT NULL,
-  `CC1`         varchar(255) DEFAULT NULL,
   `HPI1`        text         DEFAULT NULL,
->>>>>>> Eye_innodb
   `QUALITY1`    varchar(255) DEFAULT NULL,
   `TIMING1`     varchar(255) DEFAULT NULL,
   `DURATION1`   varchar(255) DEFAULT NULL,
@@ -10603,31 +10562,6 @@ CREATE TABLE IF NOT EXISTS `form_eye_hpi` (
   `CHRONIC1`    varchar(255) DEFAULT NULL,
   `CHRONIC2`    varchar(255) DEFAULT NULL,
   `CHRONIC3`    varchar(255) DEFAULT NULL,
-<<<<<<< HEAD
-  `CC2`         text,
-  `HPI2`        text,
-  `QUALITY2`    text,
-  `TIMING2`     text,
-  `DURATION2`   text,
-  `CONTEXT2`    text,
-  `SEVERITY2`   text,
-  `MODIFY2`     text,
-  `ASSOCIATED2` text,
-  `LOCATION2`   text,
-  `CC3`         text,
-  `HPI3`        text,
-  `QUALITY3`    text,
-  `TIMING3`     text,
-  `DURATION3`   text,
-  `CONTEXT3`    text,
-  `SEVERITY3`   text,
-  `MODIFY3`     text,
-  `ASSOCIATED3` text,
-  `LOCATION3`   text,
-  PRIMARY KEY `hpi_link` (`id`),
-  UNIQUE KEY `id_pid` (`id`,`pid`)
-)  ENGINE = InnoDB;
-=======
   `CC2`         text         DEFAULT NULL,
   `HPI2`        text         DEFAULT NULL,
   `QUALITY2`    text         DEFAULT NULL,
@@ -10647,12 +10581,10 @@ CREATE TABLE IF NOT EXISTS `form_eye_hpi` (
   `SEVERITY3`   text         DEFAULT NULL,
   `MODIFY3`     text         DEFAULT NULL,
   `ASSOCIATED3` text         DEFAULT NULL,
-  `LOCATION3`   text         DEFAULT NULL
-)
-  ENGINE = InnoDB;
-ALTER TABLE `form_eye_hpi`
-  ADD PRIMARY KEY `hpi_link` (`id`);
->>>>>>> Eye_innodb
+  `LOCATION3`   text         DEFAULT NULL,
+  PRIMARY KEY `hpi_link` (`id`),
+  UNIQUE KEY `id_pid` (`id`,`pid`)
+)  ENGINE = InnoDB;
 
 
 -- --------------------------------------------------------
@@ -10660,34 +10592,10 @@ ALTER TABLE `form_eye_hpi`
 --
 -- Table structure for table `form_eye_ros`
 --
-<<<<<<< HEAD
-DROP TABLE IF EXISTS `form_eye_ros`;
-CREATE TABLE `form_eye_ros` (
-  `id`           bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
-  `pid`          bigint(20)   DEFAULT NULL,
-  `ROSGENERAL`   text,
-  `ROSHEENT`     text,
-  `ROSCV`        text,
-  `ROSPULM`      text,
-  `ROSGI`        text,
-  `ROSGU`        text,
-  `ROSDERM`      text,
-  `ROSNEURO`     text,
-  `ROSPSYCH`     text,
-  `ROSMUSCULO`   text,
-  `ROSIMMUNO`    text,
-  `ROSENDOCRINE` text,
-  `ROSCOMMENTS`  text,
-  PRIMARY KEY `ros_link` (`id`),
-  UNIQUE KEY `id_pid` (`id`,`pid`)
-  )
-  ENGINE = InnoDB;
-=======
 
 CREATE TABLE IF NOT EXISTS `form_eye_ros` (
-  `id`           bigint(20) NOT NULL
-  COMMENT 'Links to forms.form_id',
-  `pid`        bigint(20)   DEFAULT NULL,
+  `id`           bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
+  `pid`          bigint(20)   DEFAULT NULL,
   `ROSGENERAL`   text DEFAULT NULL,
   `ROSHEENT`     text DEFAULT NULL,
   `ROSCV`        text DEFAULT NULL,
@@ -10699,12 +10607,12 @@ CREATE TABLE IF NOT EXISTS `form_eye_ros` (
   `ROSPSYCH`     text DEFAULT NULL,
   `ROSMUSCULO`   text DEFAULT NULL,
   `ROSIMMUNO`    text DEFAULT NULL,
-  `ROSENDOCRINE` text DEFAULT NULL
-)
+  `ROSENDOCRINE` text DEFAULT NULL,
+  `ROSCOMMENTS`  text DEFAULT NULL,
+  PRIMARY KEY `ros_link` (`id`),
+  UNIQUE KEY `id_pid` (`id`,`pid`)
+  )
   ENGINE = InnoDB;
-ALTER TABLE `form_eye_ros`
-  ADD PRIMARY KEY `ros_link` (`id`);
->>>>>>> Eye_innodb
 
 -- --------------------------------------------------------
 
@@ -10712,17 +10620,9 @@ ALTER TABLE `form_eye_ros`
 -- Table structure for table `form_eye_vitals`
 --
 
-<<<<<<< HEAD
-DROP TABLE IF EXISTS `form_eye_vitals`;
-CREATE TABLE `form_eye_vitals` (
+CREATE TABLE IF NOT EXISTS `form_eye_vitals` (
   `id`          bigint(20)  NOT NULL COMMENT 'Links to forms.form_id',
   `pid`         bigint(20)   DEFAULT NULL,
-=======
-CREATE TABLE IF NOT EXISTS `form_eye_vitals` (
-  `id`          bigint(20)  NOT NULL
-  COMMENT 'Links to forms.form_id',
-  `pid`        bigint(20)   DEFAULT NULL,
->>>>>>> Eye_innodb
   `alert`       char(3)     DEFAULT 'yes',
   `oriented`    char(3)     DEFAULT 'TPP',
   `confused`    char(3)     DEFAULT 'nml',
@@ -10747,18 +10647,11 @@ CREATE TABLE IF NOT EXISTS `form_eye_vitals` (
   `OSVF1`       tinyint(1)  DEFAULT NULL,
   `OSVF2`       tinyint(1)  DEFAULT NULL,
   `OSVF3`       tinyint(1)  DEFAULT NULL,
-<<<<<<< HEAD
   `OSVF4`       tinyint(1)  DEFAULT NULL,
   PRIMARY KEY `vitals_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
   )
   ENGINE = InnoDB;
-=======
-  `OSVF4`       tinyint(1)  DEFAULT NULL
-);
-ALTER TABLE `form_eye_vitals`
-  ADD PRIMARY KEY `vitals_link` (`id`);
->>>>>>> Eye_innodb
 
 -- --------------------------------------------------------
 
@@ -10766,17 +10659,9 @@ ALTER TABLE `form_eye_vitals`
 -- Table structure for table `form_eye_acuity`
 --
 
-<<<<<<< HEAD
-DROP TABLE IF EXISTS `form_eye_acuity`;
-CREATE TABLE `form_eye_acuity` (
+CREATE TABLE IF NOT EXISTS `form_eye_acuity` (
   `id`            bigint(20)  NOT NULL COMMENT 'Links to forms.form_id',
   `pid`           bigint(20)   DEFAULT NULL,
-=======
-CREATE TABLE IF NOT EXISTS `form_eye_acuity` (
-  `id`            bigint(20)  NOT NULL
-  COMMENT 'Links to forms.form_id',
-  `pid`        bigint(20)   DEFAULT NULL,
->>>>>>> Eye_innodb
   `SCODVA`        varchar(25)  DEFAULT NULL,
   `SCOSVA`        varchar(25)  DEFAULT NULL,
   `PHODVA`        varchar(25)  DEFAULT NULL,
@@ -10803,36 +10688,21 @@ CREATE TABLE IF NOT EXISTS `form_eye_acuity` (
   `LIODVA`        varchar(25) NOT NULL,
   `LIOSVA`        varchar(25) NOT NULL,
   `WODVANEAR`     varchar(25)  DEFAULT NULL,
-<<<<<<< HEAD
   `OSVANEARCC`    varchar(25)  DEFAULT NULL,
   PRIMARY KEY `acuity_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
   )
   ENGINE = InnoDB;
-=======
-  `OSVANEARCC`    varchar(25)  DEFAULT NULL
-);
-ALTER TABLE `form_eye_acuity`
-  ADD PRIMARY KEY `acuity_link` (`id`);
->>>>>>> Eye_innodb
 
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `form_eye_refraction`
 --
-<<<<<<< HEAD
-DROP TABLE IF EXISTS `form_eye_refraction`;
-CREATE TABLE `form_eye_refraction` (
-  `id`                bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
-  `pid`               bigint(20)   DEFAULT NULL,
-=======
 
 CREATE TABLE IF NOT EXISTS `form_eye_refraction` (
-  `id`                bigint(20) NOT NULL
-  COMMENT 'Links to forms.form_id',
-  `pid`        bigint(20)   DEFAULT NULL,
->>>>>>> Eye_innodb
+  `id`                bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
+  `pid`               bigint(20)   DEFAULT NULL,
   `MRODSPH`           varchar(25)  DEFAULT NULL,
   `MRODCYL`           varchar(25)  DEFAULT NULL,
   `MRODAXIS`          varchar(25)  DEFAULT NULL,
@@ -10885,11 +10755,7 @@ CREATE TABLE IF NOT EXISTS `form_eye_refraction` (
   `CTLOSAXIS`         varchar(25)  DEFAULT NULL,
   `CTLOSBC`           varchar(25)  DEFAULT NULL,
   `CTLOSDIAM`         varchar(25)  DEFAULT NULL,
-<<<<<<< HEAD
-  `CTL_COMMENTS`      text,
-=======
   `CTL_COMMENTS`      text         DEFAULT NULL,
->>>>>>> Eye_innodb
   `CTLMANUFACTUREROD` varchar(50)  DEFAULT NULL,
   `CTLSUPPLIEROD`     varchar(50)  DEFAULT NULL,
   `CTLBRANDOD`        varchar(50)  DEFAULT NULL,
@@ -10899,18 +10765,11 @@ CREATE TABLE IF NOT EXISTS `form_eye_refraction` (
   `CTLODADD`          varchar(25)  DEFAULT NULL,
   `CTLOSADD`          varchar(25)  DEFAULT NULL,
   `NVOCHECKED`        varchar(25)  DEFAULT NULL,
-<<<<<<< HEAD
   `ADDCHECKED`        varchar(25)  DEFAULT NULL,
   PRIMARY KEY `refraction_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
   )
   ENGINE = InnoDB;
-=======
-  `ADDCHECKED`        varchar(25)  DEFAULT NULL
-);
-ALTER TABLE `form_eye_refraction`
-  ADD PRIMARY KEY `refraction_link` (`id`);
->>>>>>> Eye_innodb
 
 -- --------------------------------------------------------
 
@@ -10918,9 +10777,7 @@ ALTER TABLE `form_eye_refraction`
 -- Table structure for table `form_eye_biometrics`
 --
 
-<<<<<<< HEAD
-DROP TABLE IF EXISTS `form_eye_biometrics`;
-CREATE TABLE `form_eye_biometrics` (
+CREATE TABLE IF NOT EXISTS `form_eye_biometrics` (
   `id`            bigint (20) NOT NULL COMMENT 'Links to forms.form_id',
   `pid`           bigint(20)   DEFAULT NULL,
   `ODK1`          varchar (10) DEFAULT NULL,
@@ -10941,32 +10798,8 @@ CREATE TABLE `form_eye_biometrics` (
   `OSLT`          varchar (20) DEFAULT NULL,
   PRIMARY KEY `biometrics_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
-)
+) 
   ENGINE = InnoDB;
-=======
-CREATE TABLE IF NOT EXISTS `form_eye_biometrics` (
-  `id` bigint (20) NOT NULL COMMENT 'Links to forms.form_id',
-  `pid`        bigint(20)   DEFAULT NULL,
-  `ODK1` varchar (10) DEFAULT NULL,
-  `ODK2` varchar (10) DEFAULT NULL,
-  `ODK2AXIS` varchar (10) DEFAULT NULL,
-  `OSK1` varchar (10) DEFAULT NULL,
-  `OSK2` varchar (10) DEFAULT NULL,
-  `OSK2AXIS` varchar (10) DEFAULT NULL,
-  `ODAXIALLENGTH` varchar (20) DEFAULT NULL,
-  `OSAXIALLENGTH` varchar (20) DEFAULT NULL,
-  `ODPDMeasured` varchar (20) DEFAULT NULL,
-  `OSPDMeasured` varchar (20) DEFAULT NULL,
-  `ODACD` varchar (20) DEFAULT NULL,
-  `OSACD` varchar (20) DEFAULT NULL,
-  `ODW2W` varchar (20) DEFAULT NULL,
-  `OSW2W` varchar (20) DEFAULT NULL,
-  `ODLT` varchar (20) DEFAULT NULL,
-  `OSLT` varchar (20) DEFAULT NULL
-);
-ALTER TABLE `form_eye_biometrics`
-  ADD PRIMARY KEY `biometrics_link` (`id`);
->>>>>>> Eye_innodb
 
 -- --------------------------------------------------------
 
@@ -10974,26 +10807,9 @@ ALTER TABLE `form_eye_biometrics`
 -- Table structure for table `form_eye_external`
 --
 
-<<<<<<< HEAD
-DROP TABLE IF EXISTS `form_eye_external`;
-CREATE TABLE `form_eye_external` (
+CREATE TABLE IF NOT EXISTS `form_eye_external` (
   `id`           bigint(20)  NOT NULL COMMENT 'Links to forms.form_id',
   `pid`          bigint(20)  DEFAULT NULL,
-  `RUL`          text,
-  `LUL`          text,
-  `RLL`          text,
-  `LLL`          text,
-  `RBROW`        text,
-  `LBROW`        text,
-  `RMCT`         text,
-  `LMCT`         text,
-  `RADNEXA`      text,
-  `LADNEXA`      text,
-=======
-CREATE TABLE IF NOT EXISTS `form_eye_external` (
-  `id`           bigint(20) NOT NULL
-  COMMENT 'Links to forms.form_id',
-  `pid`        bigint(20)   DEFAULT NULL,
   `RUL`          text        DEFAULT NULL,
   `LUL`          text        DEFAULT NULL,
   `RLL`          text        DEFAULT NULL,
@@ -11004,7 +10820,6 @@ CREATE TABLE IF NOT EXISTS `form_eye_external` (
   `LMCT`         text        DEFAULT NULL,
   `RADNEXA`      text        DEFAULT NULL,
   `LADNEXA`      text        DEFAULT NULL,
->>>>>>> Eye_innodb
   `RMRD`         varchar(25) DEFAULT NULL,
   `LMRD`         varchar(25) DEFAULT NULL,
   `RLF`          varchar(25) DEFAULT NULL,
@@ -11014,21 +10829,6 @@ CREATE TABLE IF NOT EXISTS `form_eye_external` (
   `ODHERTEL`     varchar(25) DEFAULT NULL,
   `OSHERTEL`     varchar(25) DEFAULT NULL,
   `HERTELBASE`   varchar(25) DEFAULT NULL,
-<<<<<<< HEAD
-  `RCAROTID`     text,
-  `LCAROTID`     text,
-  `RTEMPART`     text,
-  `LTEMPART`     text,
-  `RCNV`         text,
-  `LCNV`         text,
-  `RCNVII`       text,
-  `LCNVII`       text,
-  `EXT_COMMENTS` text,
-  PRIMARY KEY `external_link` (`id`),
-  UNIQUE KEY `id_pid` (`id`,`pid`)
-)
-  ENGINE = InnoDB;
-=======
   `RCAROTID`     text        DEFAULT NULL,
   `LCAROTID`     text        DEFAULT NULL,
   `RTEMPART`     text        DEFAULT NULL,
@@ -11037,11 +10837,11 @@ CREATE TABLE IF NOT EXISTS `form_eye_external` (
   `LCNV`         text        DEFAULT NULL,
   `RCNVII`       text        DEFAULT NULL,
   `LCNVII`       text        DEFAULT NULL,
-  `EXT_COMMENTS` text        DEFAULT NULL
-);
-ALTER TABLE `form_eye_external`
-  ADD PRIMARY KEY `external_link` (`id`);
->>>>>>> Eye_innodb
+  `EXT_COMMENTS` text        DEFAULT NULL,
+  PRIMARY KEY `external_link` (`id`),
+  UNIQUE KEY `id_pid` (`id`,`pid`)
+) 
+  ENGINE = InnoDB;
 
 -- --------------------------------------------------------
 
@@ -11049,17 +10849,9 @@ ALTER TABLE `form_eye_external`
 -- Table structure for table `form_eye_antseg`
 --
 
-<<<<<<< HEAD
-DROP TABLE IF EXISTS `form_eye_antseg`;
-CREATE TABLE `form_eye_antseg` (
+CREATE TABLE IF NOT EXISTS `form_eye_antseg` (
   `id`                   bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
   `pid`                  bigint(20)   DEFAULT NULL,
-=======
-CREATE TABLE IF NOT EXISTS `form_eye_antseg` (
-  `id`                   bigint(20) NOT NULL
-  COMMENT 'Links to forms.form_id',
-  `pid`        bigint(20)   DEFAULT NULL,
->>>>>>> Eye_innodb
   `ODSCHIRMER1`          varchar(25) DEFAULT NULL,
   `OSSCHIRMER1`          varchar(25) DEFAULT NULL,
   `ODSCHIRMER2`          varchar(25) DEFAULT NULL,
@@ -11067,17 +10859,6 @@ CREATE TABLE IF NOT EXISTS `form_eye_antseg` (
   `ODTBUT`               varchar(25) DEFAULT NULL,
   `OSTBUT`               varchar(25) DEFAULT NULL,
   `OSCONJ`               varchar(25) DEFAULT NULL,
-<<<<<<< HEAD
-  `ODCONJ`               text,
-  `ODCORNEA`             text,
-  `OSCORNEA`             text,
-  `ODAC`                 text,
-  `OSAC`                 text,
-  `ODLENS`               text,
-  `OSLENS`               text,
-  `ODIRIS`               text,
-  `OSIRIS`               text,
-=======
   `ODCONJ`               text        DEFAULT NULL,
   `ODCORNEA`             text        DEFAULT NULL,
   `OSCORNEA`             text        DEFAULT NULL,
@@ -11087,7 +10868,6 @@ CREATE TABLE IF NOT EXISTS `form_eye_antseg` (
   `OSLENS`               text        DEFAULT NULL,
   `ODIRIS`               text        DEFAULT NULL,
   `OSIRIS`               text        DEFAULT NULL,
->>>>>>> Eye_innodb
   `PUPIL_NORMAL`         varchar(2)  DEFAULT '1',
   `ODPUPILSIZE1`         varchar(25) DEFAULT NULL,
   `ODPUPILSIZE2`         varchar(25) DEFAULT NULL,
@@ -11103,28 +10883,17 @@ CREATE TABLE IF NOT EXISTS `form_eye_antseg` (
   `DIMOSPUPILSIZE1`      varchar(25) DEFAULT NULL,
   `DIMOSPUPILSIZE2`      varchar(25) DEFAULT NULL,
   `DIMOSPUPILREACTIVITY` varchar(25) DEFAULT NULL,
-<<<<<<< HEAD
-  `PUPIL_COMMENTS`       text,
-=======
   `PUPIL_COMMENTS`       text        DEFAULT NULL,
->>>>>>> Eye_innodb
   `ODKTHICKNESS`         varchar(25) DEFAULT NULL,
   `OSKTHICKNESS`         varchar(25) DEFAULT NULL,
   `ODGONIO`              varchar(25) DEFAULT NULL,
   `OSGONIO`              varchar(25) DEFAULT NULL,
-<<<<<<< HEAD
-  `ANTSEG_COMMENTS`      text,
+  `ANTSEG_COMMENTS`      text        DEFAULT NULL,
   PRIMARY KEY `antseg_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
- )
+ ) 
   ENGINE = InnoDB;
 
-=======
-  `ANTSEG_COMMENTS`      text        DEFAULT NULL
-);
-ALTER TABLE `form_eye_antseg`
-  ADD PRIMARY KEY `antseg_link` (`id`);
->>>>>>> Eye_innodb
 
 -- --------------------------------------------------------
 
@@ -11132,33 +10901,9 @@ ALTER TABLE `form_eye_antseg`
 -- Table structure for table `form_eye_postseg`
 --
 
-<<<<<<< HEAD
-DROP TABLE IF EXISTS `form_eye_postseg`;
-CREATE TABLE `form_eye_postseg` (
+CREATE TABLE IF NOT EXISTS `form_eye_postseg` (
   `id`              bigint(20)  NOT NULL COMMENT 'Links to forms.form_id',
   `pid`             bigint(20)   DEFAULT NULL,
-  `ODDISC`          text,
-  `OSDISC`          text,
-  `ODCUP`           text,
-  `OSCUP`           text,
-  `ODMACULA`        text,
-  `OSMACULA`        text,
-  `ODVESSELS`       text,
-  `OSVESSELS`       text,
-  `ODVITREOUS`      text,
-  `OSVITREOUS`      text,
-  `ODPERIPH`        text,
-  `OSPERIPH`        text,
-  `ODCMT`           text,
-  `OSCMT`           text,
-  `RETINA_COMMENTS` text,
-  `DIL_RISKS`       char(2)     NOT NULL DEFAULT 'on',
-  `DIL_MEDS`        mediumtext,
-=======
-CREATE TABLE IF NOT EXISTS `form_eye_postseg` (
-  `id`              bigint(20)  NOT NULL
-  COMMENT 'Links to forms.form_id',
-  `pid`        bigint(20)   DEFAULT NULL,
   `ODDISC`          text                 DEFAULT NULL,
   `OSDISC`          text                 DEFAULT NULL,
   `ODCUP`           text                 DEFAULT NULL,
@@ -11176,25 +10921,17 @@ CREATE TABLE IF NOT EXISTS `form_eye_postseg` (
   `RETINA_COMMENTS` text                 DEFAULT NULL,
   `DIL_RISKS`       char(2)     NOT NULL DEFAULT 'on',
   `DIL_MEDS`        mediumtext           DEFAULT NULL,
->>>>>>> Eye_innodb
   `WETTYPE`         varchar(10) NOT NULL,
   `ATROPINE`        varchar(25) NOT NULL,
   `CYCLOMYDRIL`     varchar(25) NOT NULL,
   `TROPICAMIDE`     varchar(25) NOT NULL,
   `CYCLOGYL`        varchar(25) NOT NULL,
-<<<<<<< HEAD
   `NEO25`           varchar(25) NOT NULL,
   PRIMARY KEY `postseg_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
- )
+ ) 
   ENGINE = InnoDB;
 
-=======
-  `NEO25`           varchar(25) NOT NULL
-);
-ALTER TABLE `form_eye_postseg`
-  ADD PRIMARY KEY `postseg_link` (`id`);
->>>>>>> Eye_innodb
 
 -- --------------------------------------------------------
 
@@ -11202,18 +10939,10 @@ ALTER TABLE `form_eye_postseg`
 -- Table structure for table `form_eye_neuro`
 --
 
-<<<<<<< HEAD
-DROP TABLE IF EXISTS `form_eye_neuro`;
-CREATE TABLE `form_eye_neuro` (
+CREATE TABLE IF NOT EXISTS `form_eye_neuro` (
   `id`         bigint (20) NOT NULL COMMENT 'Links to forms.form_id',
   `pid`        bigint(20)   DEFAULT NULL,
   `ACT`        char (3) NOT NULL DEFAULT 'on',
-=======
-CREATE TABLE IF NOT EXISTS `form_eye_neuro` (
-  `id` bigint (20) NOT NULL COMMENT 'Links to forms.form_id',
-  `pid`        bigint(20)   DEFAULT NULL,
-  `ACT` char (3) NOT NULL DEFAULT 'on',
->>>>>>> Eye_innodb
   `ACT5CCDIST` varchar (50) DEFAULT NULL,
   `ACT1CCDIST` varchar (50) DEFAULT NULL,
   `ACT2CCDIST` varchar (50) DEFAULT NULL,
@@ -11275,11 +11004,7 @@ CREATE TABLE IF NOT EXISTS `form_eye_neuro` (
   `MOTILITY_LLSO` int (1) DEFAULT NULL,
   `MOTILITY_LRIO` int (1) DEFAULT NULL,
   `MOTILITY_LLIO` int (1) DEFAULT NULL,
-<<<<<<< HEAD
-  `NEURO_COMMENTS` text,
-=======
   `NEURO_COMMENTS` text DEFAULT NULL,
->>>>>>> Eye_innodb
   `STEREOPSIS` varchar (25) DEFAULT NULL,
   `ODNPA` varchar (50) DEFAULT NULL,
   `OSNPA` varchar (50) DEFAULT NULL,
@@ -11295,19 +11020,12 @@ CREATE TABLE IF NOT EXISTS `form_eye_neuro` (
   `ODCOINS` varchar (50) DEFAULT NULL,
   `OSCOINS` varchar (50) DEFAULT NULL,
   `ODREDDESAT` varchar (20) DEFAULT NULL,
-<<<<<<< HEAD
   `OSREDDESAT` varchar (20) DEFAULT NULL,
   PRIMARY KEY `neuro_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
- )
+ ) 
   ENGINE = InnoDB;
 
-=======
-  `OSREDDESAT` varchar (20) DEFAULT NULL
-);
-ALTER TABLE `form_eye_neuro`
-  ADD PRIMARY KEY `neuro_link` (`id`);
->>>>>>> Eye_innodb
 
 -- --------------------------------------------------------
 
@@ -11315,63 +11033,19 @@ ALTER TABLE `form_eye_neuro`
 -- Table structure for table `form_eye_locking`
 --
 
-<<<<<<< HEAD
-DROP TABLE IF EXISTS `form_eye_locking`;
-CREATE TABLE `form_eye_locking` (
+CREATE TABLE IF NOT EXISTS `form_eye_locking` (
   `id`         bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
   `pid`        bigint(20)          DEFAULT NULL,
-  `IMP`        text,
-  `PLAN`       text,
-=======
-CREATE TABLE IF NOT EXISTS `form_eye_locking` (
-  `id`         bigint(20) NOT NULL
-  COMMENT 'Links to forms.form_id',
-  `pid`        bigint(20)   DEFAULT NULL,
   `IMP`        text                DEFAULT NULL,
   `PLAN`       text                DEFAULT NULL,
->>>>>>> Eye_innodb
   `Resource`   varchar(50)         DEFAULT NULL,
   `Technician` varchar(50)         DEFAULT NULL,
   `LOCKED`     varchar(3)          DEFAULT NULL,
   `LOCKEDDATE` timestamp  NOT NULL DEFAULT CURRENT_TIMESTAMP
   ON UPDATE CURRENT_TIMESTAMP,
-<<<<<<< HEAD
   `LOCKEDBY`   varchar(50)         DEFAULT NULL,
   PRIMARY KEY `locking_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
-  )
+  ) 
   ENGINE = InnoDB;
 
-CREATE TABLE `login_mfa_registrations` (
-  `user_id`         bigint(20)     NOT NULL,
-  `name`            varchar(30)    NOT NULL,
-  `last_challenge`  datetime       DEFAULT NULL,
-  `method`          varchar(31)    NOT NULL COMMENT 'Q&A, U2F, TOTP etc.',
-  `var1`            varchar(4096)  NOT NULL DEFAULT '' COMMENT 'Question, U2F registration etc.',
-  `var2`            varchar(256)   NOT NULL DEFAULT '' COMMENT 'Answer etc.',
-  PRIMARY KEY (`user_id`, `name`)
-) ENGINE=InnoDB;
-
-
--- --------------------------------------------------------
-
---
--- Table structure for table `api_token`
---
-
-DROP TABLE IF EXISTS `api_token`;
-CREATE TABLE `api_token` (
-    `id`           bigint(20) NOT NULL AUTO_INCREMENT,
-    `user_id`      bigint(20) NOT NULL,
-    `token`        varchar(256) DEFAULT NULL,
-    `expiry`       datetime NULL,
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB;
-=======
-  `LOCKEDBY`   varchar(50)         DEFAULT NULL
-)
-  ENGINE = innodb;
-ALTER TABLE `form_eye_locking`
-  ADD PRIMARY KEY `locking_link` (`id`);
-
->>>>>>> Eye_innodb
