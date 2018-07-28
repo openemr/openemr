@@ -3570,9 +3570,12 @@ $('#PMH_1').height(heights+20);
                                                   $("#"+zone+"_left_text").removeClass('display');
                                                   $("#PREFS_"+zone+"_RIGHT").val(0);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
                                                 //  update_PREFS();
 >>>>>>> Near Completion Eye InnoDB
+=======
+>>>>>>> Housekeeping
                                                   }
                                                   show_TEXT();
                                                   scrollTo("EXT_left");
@@ -3866,12 +3869,15 @@ update_PREFS();
                   $("[id$='_sections']").removeClass('nodisplay');
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
                 /*  if ($('#PMH_right').height() > $('#PMH_left').height()) {
                   $('#PMH_left').height($('#PMH_right').height());
                   } else { $('#PMH_1').height($('#HPI_1').height()); }
 */
 >>>>>>> Near Completion Eye InnoDB
+=======
+>>>>>>> Housekeeping
                   $('#left-panel').css("right","0px");
                   $('#EXAM_KB').css({position: 'fixed', top: '29px'});
                   $('#EXAM_KB').css('display', 'block');

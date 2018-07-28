@@ -1252,6 +1252,7 @@ ob_start();
 </head>
 <body>
 <<<<<<< HEAD
+<<<<<<< HEAD
 <?php echo report_header($pid, "web");  ?>
 <br/><br/>
 <?php
@@ -1270,6 +1271,9 @@ if ($REFTYPE == "CTL") {
 $visit = getEncounterDateByEncounter($encounter);
 $visit_date = $visit['date'];
 ?>
+=======
+<?php echo report_header($pid, "web");  ?>
+>>>>>>> Housekeeping
 <br/><br/>
 >>>>>>> Eye_innodb
 <form method="post" action="<?php echo $rootdir; ?>/forms/<?php echo text($form_folder); ?>/SpectacleRx.php?mode=update"
