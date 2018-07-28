@@ -88,26 +88,26 @@
 UPDATE `background_services` SET `require_once`='/library/MedEx/MedEx_background.php' WHERE `name`='MedEx';
 
 #IfNotTable form_eye_base
+DROP TABLE IF EXISTS `form_eye_base`;
 CREATE TABLE `form_eye_base` (
-  `id`         bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
-  `date` datetime DEFAULT NULL,
+  `id`         bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Links to forms.form_id',
+  `date`       datetime DEFAULT NULL,
   `pid`        bigint(20)   DEFAULT NULL,
   `user`       varchar(255) DEFAULT NULL,
   `groupname`  varchar(255) DEFAULT NULL,
   `authorized` tinyint(4)   DEFAULT NULL,
-  `activity`   tinyint(4)   DEFAULT NULL
+  `activity`   tinyint(4)   DEFAULT NULL,
+  PRIMARY KEY `form_link` (`id`),
+  UNIQUE KEY `id_date` (`id`,`date`)
 ) ENGINE = InnoDB;
-ALTER TABLE `form_eye_base`
-  ADD PRIMARY KEY `form_link` (`id`);
-ALTER TABLE `form_eye_base`
-  CHANGE `id` `id` BIGINT(20) NOT NULL AUTO_INCREMENT;
 #EndIf
 
 #IfNotTable form_eye_hpi
+
+DROP TABLE IF EXISTS `form_eye_hpi`;
 CREATE TABLE `form_eye_hpi` (
-  `id`          bigint(20) NOT NULL
-  COMMENT 'Links to forms.form_id',
-  `pid`        bigint(20)   DEFAULT NULL,
+  `id`          bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
+  `pid`         bigint(20)   DEFAULT NULL,
   `CC1`         varchar(255) DEFAULT NULL,
   `HPI1`        text         DEFAULT NULL,
   `QUALITY1`    varchar(255) DEFAULT NULL,
@@ -140,17 +140,16 @@ CREATE TABLE `form_eye_hpi` (
   `SEVERITY3`   text         DEFAULT NULL,
   `MODIFY3`     text         DEFAULT NULL,
   `ASSOCIATED3` text         DEFAULT NULL,
-  `LOCATION3`   text         DEFAULT NULL
-)
-  ENGINE = InnoDB;
-ALTER TABLE `form_eye_hpi`
-  ADD PRIMARY KEY `hpi_link` (`id`);
+  `LOCATION3`   text         DEFAULT NULL,
+  PRIMARY KEY `hpi_link` (`id`),
+  UNIQUE KEY `id_pid` (`id`,`pid`)
+  ) ENGINE = InnoDB;
 #EndIf
 
 #IfNotTable form_eye_ros
+DROP TABLE IF EXISTS `form_eye_ros`;
 CREATE TABLE `form_eye_ros` (
-  `id`           bigint(20) NOT NULL
-  COMMENT 'Links to forms.form_id',
+  `id`           bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
   `pid`        bigint(20)   DEFAULT NULL,
   `ROSGENERAL`   text DEFAULT NULL,
   `ROSHEENT`     text DEFAULT NULL,
@@ -163,17 +162,16 @@ CREATE TABLE `form_eye_ros` (
   `ROSPSYCH`     text DEFAULT NULL,
   `ROSMUSCULO`   text DEFAULT NULL,
   `ROSIMMUNO`    text DEFAULT NULL,
-  `ROSENDOCRINE` text DEFAULT NULL
-)
-  ENGINE = InnoDB;
-ALTER TABLE `form_eye_ros`
-  ADD PRIMARY KEY `ros_link` (`id`);
+  `ROSENDOCRINE` text DEFAULT NULL,
+  PRIMARY KEY `ros_link` (`id`),
+  UNIQUE KEY `id_pid` (`id`,`pid`)
+  ) ENGINE = InnoDB;
 #EndIf
 
 #IfNotTable form_eye_vitals
+DROP TABLE IF EXISTS `form_eye_vitals`;
 CREATE TABLE `form_eye_vitals` (
-  `id`          bigint(20)  NOT NULL
-  COMMENT 'Links to forms.form_id',
+  `id`          bigint(20)  NOT NULL COMMENT 'Links to forms.form_id',
   `pid`        bigint(20)   DEFAULT NULL,
   `alert`       char(3)     DEFAULT 'yes',
   `oriented`    char(3)     DEFAULT 'TPP',
@@ -199,17 +197,17 @@ CREATE TABLE `form_eye_vitals` (
   `OSVF1`       tinyint(1)  DEFAULT NULL,
   `OSVF2`       tinyint(1)  DEFAULT NULL,
   `OSVF3`       tinyint(1)  DEFAULT NULL,
-  `OSVF4`       tinyint(1)  DEFAULT NULL
-);
-ALTER TABLE `form_eye_vitals`
-  ADD PRIMARY KEY `vitals_link` (`id`);
+  `OSVF4`       tinyint(1)  DEFAULT NULL,
+  PRIMARY KEY `vitals_link` (`id`),
+  UNIQUE KEY `id_pid` (`id`,`pid`)
+  ) ENGINE = InnoDB;
 #EndIf
 
 #IfNotTable form_eye_acuity
+DROP TABLE IF EXISTS `form_eye_acuity`;
 CREATE TABLE `form_eye_acuity` (
-  `id`            bigint(20)  NOT NULL
-  COMMENT 'Links to forms.form_id',
-  `pid`        bigint(20)   DEFAULT NULL,
+  `id`            bigint(20)  NOT NULL COMMENT 'Links to forms.form_id',
+  `pid`           bigint(20)   DEFAULT NULL,
   `SCODVA`        varchar(25)  DEFAULT NULL,
   `SCOSVA`        varchar(25)  DEFAULT NULL,
   `PHODVA`        varchar(25)  DEFAULT NULL,
@@ -236,17 +234,17 @@ CREATE TABLE `form_eye_acuity` (
   `LIODVA`        varchar(25) NOT NULL,
   `LIOSVA`        varchar(25) NOT NULL,
   `WODVANEAR`     varchar(25)  DEFAULT NULL,
-  `OSVANEARCC`    varchar(25)  DEFAULT NULL
-);
-ALTER TABLE `form_eye_acuity`
-  ADD PRIMARY KEY `acuity_link` (`id`);
+  `OSVANEARCC`    varchar(25)  DEFAULT NULL,
+  PRIMARY KEY `acuity_link` (`id`),
+  UNIQUE KEY `id_pid` (`id`,`pid`)
+  ) ENGINE = InnoDB;
 #EndIf
 
 #IfNotTable form_eye_refraction
+DROP TABLE IF EXISTS `form_eye_refraction`;
 CREATE TABLE `form_eye_refraction` (
-  `id`                bigint(20) NOT NULL
-  COMMENT 'Links to forms.form_id',
-  `pid`        bigint(20)   DEFAULT NULL,
+  `id`                bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
+  `pid`               bigint(20)   DEFAULT NULL,
   `MRODSPH`           varchar(25)  DEFAULT NULL,
   `MRODCYL`           varchar(25)  DEFAULT NULL,
   `MRODAXIS`          varchar(25)  DEFAULT NULL,
@@ -309,13 +307,14 @@ CREATE TABLE `form_eye_refraction` (
   `CTLODADD`          varchar(25)  DEFAULT NULL,
   `CTLOSADD`          varchar(25)  DEFAULT NULL,
   `NVOCHECKED`        varchar(25)  DEFAULT NULL,
-  `ADDCHECKED`        varchar(25)  DEFAULT NULL
-);
-ALTER TABLE `form_eye_refraction`
-  ADD PRIMARY KEY `refraction_link` (`id`);
+  `ADDCHECKED`        varchar(25)  DEFAULT NULL,
+  PRIMARY KEY `refraction_link` (`id`),
+  UNIQUE KEY `id_pid` (`id`,`pid`)
+  ) ENGINE = InnoDB;
 #EndIf
 
 #IfNotTable form_eye_biometrics
+DROP TABLE IF EXISTS `form_eye_biometrics`;
 CREATE TABLE `form_eye_biometrics` (
   `id` bigint (20) NOT NULL COMMENT 'Links to forms.form_id',
   `pid`        bigint(20)   DEFAULT NULL,
@@ -334,16 +333,16 @@ CREATE TABLE `form_eye_biometrics` (
   `ODW2W` varchar (20) DEFAULT NULL,
   `OSW2W` varchar (20) DEFAULT NULL,
   `ODLT` varchar (20) DEFAULT NULL,
-  `OSLT` varchar (20) DEFAULT NULL
-);
-ALTER TABLE `form_eye_biometrics`
-  ADD PRIMARY KEY `biometrics_link` (`id`);
+  `OSLT` varchar (20) DEFAULT NULL,
+  PRIMARY KEY `biometrics_link` (`id`),
+  UNIQUE KEY `id_pid` (`id`,`pid`)
+  ) ENGINE = InnoDB;
 #EndIf
 
 #IfNotTable form_eye_external
+DROP TABLE IF EXISTS `form_eye_external`;
 CREATE TABLE `form_eye_external` (
-  `id`           bigint(20) NOT NULL
-  COMMENT 'Links to forms.form_id',
+  `id`           bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
   `pid`        bigint(20)   DEFAULT NULL,
   `RUL`          text        DEFAULT NULL,
   `LUL`          text        DEFAULT NULL,
@@ -372,17 +371,17 @@ CREATE TABLE `form_eye_external` (
   `LCNV`         text        DEFAULT NULL,
   `RCNVII`       text        DEFAULT NULL,
   `LCNVII`       text        DEFAULT NULL,
-  `EXT_COMMENTS` text        DEFAULT NULL
-);
-ALTER TABLE `form_eye_external`
-  ADD PRIMARY KEY `external_link` (`id`);
+  `EXT_COMMENTS` text        DEFAULT NULL,
+  PRIMARY KEY `external_link` (`id`),
+  UNIQUE KEY `id_pid` (`id`,`pid`)
+  ) ENGINE = InnoDB;
 #EndIf
 
 #IfNotTable form_eye_antseg
+DROP TABLE IF EXISTS `form_eye_antseg`;
 CREATE TABLE `form_eye_antseg` (
-  `id`                   bigint(20) NOT NULL
-  COMMENT 'Links to forms.form_id',
-  `pid`        bigint(20)   DEFAULT NULL,
+  `id`                   bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
+  `pid`                  bigint(20)   DEFAULT NULL,
   `ODSCHIRMER1`          varchar(25) DEFAULT NULL,
   `OSSCHIRMER1`          varchar(25) DEFAULT NULL,
   `ODSCHIRMER2`          varchar(25) DEFAULT NULL,
@@ -419,17 +418,17 @@ CREATE TABLE `form_eye_antseg` (
   `OSKTHICKNESS`         varchar(25) DEFAULT NULL,
   `ODGONIO`              varchar(25) DEFAULT NULL,
   `OSGONIO`              varchar(25) DEFAULT NULL,
-  `ANTSEG_COMMENTS`      text        DEFAULT NULL
-);
-ALTER TABLE `form_eye_antseg`
-  ADD PRIMARY KEY `antseg_link` (`id`);
+  `ANTSEG_COMMENTS`      text        DEFAULT NULL,
+  PRIMARY KEY `antseg_link` (`id`),
+  UNIQUE KEY `id_pid` (`id`,`pid`)
+  ) ENGINE = InnoDB;
 #EndIf
 
 #IfNotTable form_eye_postseg
+DROP TABLE IF EXISTS `form_eye_postseg`;
 CREATE  TABLE `form_eye_postseg` (
-  `id`              bigint(20)  NOT NULL
-  COMMENT 'Links to forms.form_id',
-  `pid`        bigint(20)   DEFAULT NULL,
+  `id`              bigint(20)  NOT NULL COMMENT 'Links to forms.form_id',
+  `pid`             bigint(20)   DEFAULT NULL,
   `ODDISC`          text                 DEFAULT NULL,
   `OSDISC`          text                 DEFAULT NULL,
   `ODCUP`           text                 DEFAULT NULL,
@@ -452,17 +451,18 @@ CREATE  TABLE `form_eye_postseg` (
   `CYCLOMYDRIL`     varchar(25) NOT NULL,
   `TROPICAMIDE`     varchar(25) NOT NULL,
   `CYCLOGYL`        varchar(25) NOT NULL,
-  `NEO25`           varchar(25) NOT NULL
-);
-ALTER TABLE `form_eye_postseg`
-  ADD PRIMARY KEY `postseg_link` (`id`);
+  `NEO25`           varchar(25) NOT NULL,
+  PRIMARY KEY `postseg_link` (`id`),
+  UNIQUE KEY `id_pid` (`id`,`pid`)
+  ) ENGINE = InnoDB;
 #EndIf
 
 #IfNotTable form_eye_neuro
+DROP TABLE IF EXISTS `form_eye_neuro`;
 CREATE  TABLE `form_eye_neuro` (
-  `id` bigint (20) NOT NULL COMMENT 'Links to forms.form_id',
+  `id`         bigint (20) NOT NULL COMMENT 'Links to forms.form_id',
   `pid`        bigint(20)   DEFAULT NULL,
-  `ACT` char (3) NOT NULL DEFAULT 'on',
+  `ACT`        char (3) NOT NULL DEFAULT 'on',
   `ACT5CCDIST` varchar (50) DEFAULT NULL,
   `ACT1CCDIST` varchar (50) DEFAULT NULL,
   `ACT2CCDIST` varchar (50) DEFAULT NULL,
@@ -540,16 +540,16 @@ CREATE  TABLE `form_eye_neuro` (
   `ODCOINS` varchar (50) DEFAULT NULL,
   `OSCOINS` varchar (50) DEFAULT NULL,
   `ODREDDESAT` varchar (20) DEFAULT NULL,
-  `OSREDDESAT` varchar (20) DEFAULT NULL
-);
-ALTER TABLE `form_eye_neuro`
-  ADD PRIMARY KEY `neuro_link` (`id`);
+  `OSREDDESAT` varchar (20) DEFAULT NULL,
+  PRIMARY KEY `neuro_link` (`id`),
+  UNIQUE KEY `id_pid` (`id`,`pid`)
+) ENGINE = InnoDB;
 #EndIf
 
 #IfNotTable form_eye_locking
+DROP TABLE IF EXISTS `form_eye_locking`;
 CREATE  TABLE `form_eye_locking` (
-  `id`         bigint(20) NOT NULL
-  COMMENT 'Links to forms.form_id',
+  `id`         bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
   `pid`        bigint(20)   DEFAULT NULL,
   `IMP`        text                DEFAULT NULL,
   `PLAN`       text                DEFAULT NULL,
@@ -558,11 +558,11 @@ CREATE  TABLE `form_eye_locking` (
   `LOCKED`     varchar(3)          DEFAULT NULL,
   `LOCKEDDATE` timestamp  NOT NULL DEFAULT CURRENT_TIMESTAMP
   ON UPDATE CURRENT_TIMESTAMP,
-  `LOCKEDBY`   varchar(50)         DEFAULT NULL
-)
-  ENGINE = innodb;
-ALTER TABLE `form_eye_locking`
-  ADD PRIMARY KEY `locking_link` (`id`);
+  `LOCKEDBY`   varchar(50)         DEFAULT NULL,
+  PRIMARY KEY `locking_link` (`id`),
+  UNIQUE KEY `id_pid` (`id`,`pid`)
+) ENGINE = InnoDB;
+
 #EndIf
 
 #IfTable form_eye_mag
@@ -573,7 +573,7 @@ INSERT INTO `form_eye_hpi` (  `id`,`pid`, `CC1`, `HPI1`, `QUALITY1` , `TIMING1`,
   select `id`,`pid`, `CC1`, `HPI1`, `QUALITY1` , `TIMING1`, `DURATION1`, `CONTEXT1`, `SEVERITY1`, `MODIFY1`, `ASSOCIATED1` , `LOCATION1` , `CHRONIC1` , `CHRONIC2` , `CHRONIC3` , `CC2` , `HPI2` , `QUALITY2` , `TIMING2` , `DURATION2` , `CONTEXT2` , `SEVERITY2` , `MODIFY2` , `ASSOCIATED2` , `LOCATION2` , `CC3` , `HPI3` , `QUALITY3` , `TIMING3` , `DURATION3` ,  `CONTEXT3` , `SEVERITY3` , `MODIFY3` , `ASSOCIATED3` , `LOCATION3`
   from `form_eye_mag`;
 
-INSERT INTO f`orm_eye_ros` ( `id`,`pid`,`ROSGENERAL`, `ROSHEENT`, `ROSCV`, `ROSPULM`, `ROSGI`, `ROSGU`,`ROSDERM`, `ROSNEURO` , `ROSPSYCH` , `ROSMUSCULO`, `ROSIMMUNO`, `ROSENDOCRINE` )
+INSERT INTO `form_eye_ros` ( `id`,`pid`,`ROSGENERAL`, `ROSHEENT`, `ROSCV`, `ROSPULM`, `ROSGI`, `ROSGU`,`ROSDERM`, `ROSNEURO` , `ROSPSYCH` , `ROSMUSCULO`, `ROSIMMUNO`, `ROSENDOCRINE` )
   select `id`,`pid`,`ROSGENERAL`, `ROSHEENT`, `ROSCV`, `ROSPULM`, `ROSGI`, `ROSGU`,
     `ROSDERM`, `ROSNEURO` , `ROSPSYCH` , `ROSMUSCULO`, `ROSIMMUNO`, `ROSENDOCRINE` from `form_eye_mag`;
 
@@ -612,7 +612,7 @@ INSERT INTO `form_eye_neuro` (`id`, `pid`, `ACT`, `ACT5CCDIST`, `ACT1CCDIST`, `A
 INSERT INTO `form_eye_locking` (`id`, `pid`, `IMP`, `PLAN`, `Resource`, `Technician`, `LOCKED`, `LOCKEDDATE`, `LOCKEDBY`)
   SELECT `id`, `pid`, `IMP`, `PLAN`, `Resource`, `Technician`, `LOCKED`, `LOCKEDDATE`, `LOCKEDBY` FROM `form_eye_mag`;
 
-RENAME TABLE `openemr`.`form_eye_mag` TO `openemr`.`form_eye_mag_bk`;
+RENAME TABLE `form_eye_mag` TO `form_eye_mag_bk`;
 #EndIf
 
 

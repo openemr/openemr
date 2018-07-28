@@ -1691,7 +1691,6 @@ View.php
 
 
 #DA_EXAM_sections { text-align: center;display:inline-table;max-width: 93%;}
-#DA_EXAM_sections input[type="text"] { margin: 1px 0px !important; }
 .jscolor input[type="text"] { margin: 26px 2px 0px !important; }
 #LayerVision { width: 2.2in; min-height: 1.05in;padding: 0.02in; border: 1.00pt solid #000000;float:left;}
 #tabs { font-size:0.5em;}
