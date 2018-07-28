@@ -14,6 +14,15 @@ Community and Professional support can be found [here](http://open-emr.org/wiki/
 
 Extensive documentation and forums can be found on the [OpenEMR website](http://open-emr.org).
 
+### Reporting Issues and Bugs
+
+Report these on the [Issue Tracker](https://github.com/openemr/openemr/issues). If you are unsure if it is an issue/bug, then always feel free to use the [Forum](https://community.open-emr.org/) and [Chat](https://chat.open-emr.org/).
+
+
+### Reporting Security Vulnerabilities
+
+Send an email to brady.g.miller@gmail.com . If possible, please encrypt your email via PGP with this [public key](https://pgp.mit.edu/pks/lookup?op=get&search=0x27DEF05B1A8A6D4F).
+
 ### Contributors
 
 This project exists thanks to all the people who contribute. [[Contribute]](CONTRIBUTING.md).
