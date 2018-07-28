@@ -214,7 +214,7 @@ function getEvents($params)
         }
 
         if ($sortby != "") {
-            $sql .= " ORDER BY ".$sortby."  ".escape_sort_order($direction); // descending order
+            $sql .= " ORDER BY " . escape_sql_column_name($sortby, array('log')) . "  ".escape_sort_order($direction); // descending order
         }
 
         $sql .= " LIMIT 5000";
