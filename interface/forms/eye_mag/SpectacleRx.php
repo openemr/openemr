@@ -94,10 +94,7 @@ $pat_data   = sqlQuery($query, array($data['pid']));
 
 $practice_data = $facilityService->getPrimaryBusinessEntity();
 
-$dated      = new DateTime($data['encounter_date']);
-$dated      = $dated->format('Y/m/d');
-$visit_date = oeFormatShortDate($dated);
-
+$visit_date = oeFormatShortDate($data['encounter_date']);
 
 if ($_REQUEST['mode'] == "update") {  //store any changed fields in dispense table
     $table_name = "form_eye_mag_dispense";
