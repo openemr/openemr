@@ -61,7 +61,7 @@ while ($prefs= sqlFetchArray($result)) {
 
 $query10 = "select  *,form_encounter.date as encounter_date
               
-               from forms,form_encounter,form_eye_base, 
+               from forms,form_encounter,form_eye_base,
                 form_eye_hpi,form_eye_ros,form_eye_vitals,
                 form_eye_acuity,form_eye_refraction,form_eye_biometrics,
                 form_eye_external, form_eye_antseg,form_eye_postseg,
@@ -82,19 +82,27 @@ $query10 = "select  *,form_encounter.date as encounter_date
                     forms.form_id=form_eye_postseg.id and
                     forms.form_id=form_eye_neuro.id and
                     forms.form_id=form_eye_locking.id and
+                    forms.pid=form_eye_base.pid and
+                    forms.pid=form_eye_hpi.pid and
+                    forms.pid=form_eye_ros.pid and
+                    forms.pid=form_eye_vitals.pid and
+                    forms.pid=form_eye_acuity.pid and
+                    forms.pid=form_eye_refraction.pid and
+                    forms.pid=form_eye_biometrics.pid and
+                    forms.pid=form_eye_external.pid and
+                    forms.pid=form_eye_antseg.pid and
+                    forms.pid=form_eye_postseg.pid and
+                    forms.pid=form_eye_neuro.pid and
+                    forms.pid=form_eye_locking.pid and
                     forms.form_id =? ";
+
 $encounter_data =sqlQuery($query10, array($id));
 @extract($encounter_data);
 $id = $form_id;
-if ($pid != $_SESSION['pid']) {
-    $_SESSION['pid'] = $pid;
-}
 
 $query = "SELECT * FROM patient_data where pid=?";
 $pat_data =  sqlQuery($query, array($pid));
 
-//$providerID   = findProvider($encounter);
-$providerID     = $provider_id;
 $providerNAME   = getProviderName($provider_id);
 $query          = "SELECT * FROM users where id = ?";
 $prov_data      =  sqlQuery($query, array($provider_id));
@@ -116,7 +124,7 @@ $fs = new FeeSheetHtml();
   LOCKEDBY is changed to their uniqueID,
   Any other instance of the form cannot save data, and if they try,
   they will receive a popup saying hey buddy, you lost ownership, entering READ-ONLY mode.
-  "Do you want to take control" is offered, should they wish to regain write priviledges.
+  "Do you want to take control" is offered, should they wish to regain write privileges
   If they stay in READ-ONLY mode, the fields are locked and submit_form is not allowed...
   In READ-ONLY mode, the form is refreshed via ajax every 15 seconds with changed fields' css
   background-color attribute set to purple.
@@ -137,9 +145,10 @@ if (!$LOCKED||!$LOCKEDBY) { //no one else has write privs.
     $take_ownership = $uniqueID;
 }
 
-//drop TIME from encounter_date (which is in DATETIME format)
-//since OpenEMR assumes input is yyyy-mm-dd
-//we could do this by changing the MYSQL query in the first place too.  Which is better?
+/**
+ * Remove TIME component from $encounter_date (which is in DATETIME format) to just get the date,
+ * since OpenEMR assumes input is yyyy-mm-dd.
+ */
 $dated = new DateTime($encounter_data['encounter_date']);
 $dated = $dated->format('Y-m-d');
 $visit_date = oeFormatShortDate($dated);
@@ -148,8 +157,6 @@ if (!$form_id && !$encounter) {
     echo text($encounter)."-".text($form_id).xlt('No encounter...');
     exit;
 }
-
-//ideally this would point to an error databased by problem #, cause it'd be a problem.
 
 if ($refresh and $refresh != 'fullscreen') {
     if ($refresh == "PMSFH") {
@@ -161,14 +168,11 @@ if ($refresh and $refresh != 'fullscreen') {
     } else if ($refresh == "GFS") {
         echo display_GlaucomaFlowSheet($pid);
     }
-
     exit;
 }
 ?><!DOCTYPE html>
 <html>
   <head>
-
-
       <title> <?php echo xlt('Chart'); ?>: <?php echo text($pat_data['fname'])." ".text($pat_data['lname'])." ".text($visit_date); ?></title>
       <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
       <meta charset="utf-8">
@@ -178,14 +182,12 @@ if ($refresh and $refresh != 'fullscreen') {
       <meta name="viewport" content="width=device-width, initial-scale=1">
 
       <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor', 'qtip2' ]); ?>
-      <!-- Add Font stuff for the look and feel.  -->
 
       <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
-      <Xscript src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-10-2/index.js"></Xscript>
-
+    
   </head>
-  <!--Need a margin-top due to fixed nav-->
-  <body data-find="ray" class="bgcolor2" background="<?php echo $GLOBALS['backpic']?>" style="margin:5px 0 0 0;">
+  <!--Need a margin-top due to fixed nav, move to style.css to separate view stuff? Long way from that... -->
+  <body class="bgcolor2" background="<?php echo $GLOBALS['backpic']?>" style="margin:5px 0 0 0;">
     <?php
       $input_echo = menu_overhaul_top($pid, $encounter);
     ?><br /><br />
@@ -196,12 +198,6 @@ if ($refresh and $refresh != 'fullscreen') {
       <div id="Layer3" name="Layer3" class="container-fluid">
         <?php
         $output_priors = priors_select("ALL", $id, $id, $pid);
-
-        if ($output_priors != '') {
-          // get any orders from the last visit for this visit
-          // $priors[earlier]['PLAN'] contains the orders from last visit
-          // explode '|' and display as needed
-        }
 
         menu_overhaul_left($pid, $encounter);
         ?>
@@ -1203,12 +1199,12 @@ if ($refresh and $refresh != 'fullscreen') {
                     <div id="LayerVision_W_1" name="currentRX" class="refraction current_W borderShadow <?php echo $display_W_width; ?>">
                       <i class="closeButton fa fa-close" id="Close_W_1" name="Close_W_1"
                         title="<?php echo xla('Close All Current Rx Panels and make this a Preference to stay closed'); ?>"></i>
-                      <i class="closeButton2 fa fa-arrows-h " id="W_width_display_1" name="W_width_display"
+                      <i class="closeButton_2 fa fa-arrows-h " id="W_width_display_1" name="W_width_display"
                         title="<?php echo xla("Rx Details"); ?>" ></i>
                       <i onclick="top.restoreSession();  doscript('W','<?php echo attr($pid); ?>','<?php echo attr($encounter); ?>','1'); return false;"
-                        title="<?php echo xla("Dispense this Rx"); ?>" class="closeButton3 fa fa-print"></i>
+                        title="<?php echo xla("Dispense this Rx"); ?>" class="closeButton_3 fa fa-print"></i>
                       <i onclick="top.restoreSession();  dispensed('<?php echo attr($pid); ?>');return false;"
-                         title="<?php echo xla("List of previously dispensed Spectacle and Contact Lens Rxs"); ?>" class="closeButton4 fa fa-list-ul"></i>
+                         title="<?php echo xla("List of previously dispensed Spectacle and Contact Lens Rxs"); ?>" class="closeButton_4 fa fa-list-ul"></i>
                       <table id="wearing_1">
                         <tr>
                           <th colspan="7"><?php echo xlt('Current Glasses'); ?>: #1
@@ -1352,8 +1348,8 @@ if ($refresh and $refresh != 'fullscreen') {
                     <?php ($MR==1) ? ($display_AR = "") : ($display_AR = "nodisplay");?>
                   <div id="LayerVision_MR" class="refraction manifest borderShadow <?php echo $display_AR; ?>">
                     <i onclick="top.restoreSession();  dispensed('<?php echo attr($pid); ?>');return false;"
-                     title="<?php echo xla("List of previously dispensed Spectacle and Contact Lens Rxs"); ?>" class="closeButton3 fa fa-list-ul"></i>
-                    <span class="closeButton2 fa fa-print" title="<?php echo xla('Dispense this Rx'); ?>" onclick="top.restoreSession();doscript('MR',<?php echo attr($pid); ?>,<?php echo attr($encounter); ?>);return false;"></span>
+                     title="<?php echo xla("List of previously dispensed Spectacle and Contact Lens Rxs"); ?>" class="closeButton_3 fa fa-list-ul"></i>
+                    <span class="closeButton_2 fa fa-print" title="<?php echo xla('Dispense this Rx'); ?>" onclick="top.restoreSession();doscript('MR',<?php echo attr($pid); ?>,<?php echo attr($encounter); ?>);return false;"></span>
                     <span class="closeButton fa  fa-close" id="Close_MR" name="Close_MR" title="<?php echo xla('Close this panel and make this a Preference to stay closed'); ?>"></span>
                     <table id="dry_wet_refraction">
                       <th colspan="5"><?php echo xlt('Manifest (Dry) Refraction'); ?></th>
@@ -1456,7 +1452,7 @@ if ($refresh and $refresh != 'fullscreen') {
 
                     <?php ($CR==1)  ? ($display_Cyclo = "") : ($display_Cyclo = "nodisplay"); ?>
                   <div id="LayerVision_CR" class="refraction autoref borderShadow <?php echo $display_Cyclo; ?>">
-                    <i title="<?php echo xla('Dispense this Rx'); ?>" class="closeButton2 fa fa-print" onclick="top.restoreSession();doscript('AR',<?php echo attr($pid); ?>,<?php echo attr($encounter); ?>);return false;"></i>
+                    <i title="<?php echo xla('Dispense this Rx'); ?>" class="closeButton_2 fa fa-print" onclick="top.restoreSession();doscript('AR',<?php echo attr($pid); ?>,<?php echo attr($encounter); ?>);return false;"></i>
                     <span title="<?php echo xla('Close this panel and make this a Preference to stay closed'); ?>" class="closeButton fa  fa-close" id="Close_CR" name="Close_CR"></span>
                     <table id="autorefraction">
                       <th colspan="9"><?php echo xlt('Auto Refraction'); ?></th>
@@ -1502,7 +1498,7 @@ if ($refresh and $refresh != 'fullscreen') {
 
                     <?php ($CTL==1) ? ($display_CTL = "") : ($display_CTL = "nodisplay"); ?>
                   <div id="LayerVision_CTL" class="refraction CTL borderShadow <?php echo $display_CTL; ?>">
-                    <i title="<?php echo xla('Dispense this RX'); ?>" class="closeButton2 fa fa-print" onclick="top.restoreSession();doscript('CTL',<?php echo attr($pid); ?>,<?php echo attr($encounter); ?>);return false;"></i>
+                    <i title="<?php echo xla('Dispense this RX'); ?>" class="closeButton_2 fa fa-print" onclick="top.restoreSession();doscript('CTL',<?php echo attr($pid); ?>,<?php echo attr($encounter); ?>);return false;"></i>
                     <span title="<?php echo xla('Close this panel and make this a Preference to stay closed'); ?>" class="closeButton fa  fa-close" id="Close_CTL" name="Close_CTL"></span>
                     <table id="CTL">
                       <th colspan="9"><?php echo xlt('Contact Lens Refraction'); ?></th>
@@ -2043,7 +2039,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <div id="EXT_QP_block1" name="EXT_QP_block1" class="QP_block borderShadow text_clinical" >
 
                             <?php
-                            echo $QP_ANTSEG = display_QP("EXT", $providerID); ?>
+                            echo $QP_ANTSEG = display_QP("EXT", $provider_id); ?>
                           </div>
                       </div>
                   </div>
@@ -2252,7 +2248,7 @@ if ($refresh and $refresh != 'fullscreen') {
 
                           </div>
                           <div class="QP_block borderShadow text_clinical " >
-                            <?php echo $QP_ANTSEG = display_QP("ANTSEG", $providerID); ?>
+                            <?php echo $QP_ANTSEG = display_QP("ANTSEG", $provider_id); ?>
                           </div>
                           <span class="closeButton fa fa-close pull-right z100" id="BUTTON_TEXTD_ANTSEG" name="BUTTON_TEXTD_ANTSEG"></span>
                       </div>
@@ -2417,7 +2413,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <span class="eye_button" id="RETINA_prefix_clear" name="RETINA_prefix_clear" title="<?php echo xla('This will clear the data from all Retina Exam fields'); ?>" onclick="$('#RETINA_prefix').val('clear').trigger('change');"><?php echo xlt('clear'); ?></span>
                       </div>
                       <div class="QP_block borderShadow text_clinical" >
-                        <?php echo $QP_RETINA = display_QP("RETINA", $providerID); ?>
+                        <?php echo $QP_RETINA = display_QP("RETINA", $provider_id); ?>
                       </div>
                       <span class="closeButton fa fa-close pull-right z100" id="BUTTON_TEXTD_RETINA" name="BUTTON_TEXTD_RETINA" value="1"></span>
                     </div>
@@ -2489,7 +2485,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           </table>
                         </div>
                         <div class="borderShadow" id="NEURO_11">
-                          <i class="fa fa-th fa-fw closeButton2" id="Close_ACTMAIN" name="Close_ACTMAIN"></i>
+                          <i class="fa fa-th fa-fw closeButton_2" id="Close_ACTMAIN" name="Close_ACTMAIN"></i>
                           <table class="ACT_top">
                             <tr>
                                 <td >
@@ -3382,7 +3378,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                    *  Active coding system = $default_search_type;
                                    *  We present the $default_search_type codes found in the Imp/Plan.
                                    *  Perhaps a minor procedure/test was performed?
-                                   *  Select options drawn from Eye_todo_done_".$providerID list with a CODE
+                                   *  Select options drawn from Eye_todo_done_".$provider_id list with a CODE
                                    *  TODO: Finally we have the "Prior Visit" functionality of the form.
                                    *  We should be able to look past codes and perhaps carry this forward?
                                    */
@@ -3495,7 +3491,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                           <tr>
                                               <td style="padding-top:10px;" colspan="3">
                                                   <b><u><?php echo xlt('Tests Performed'); ?>:</u></b>&nbsp;
-                                                  <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_todo_done_<?php echo attr($providerID); ?>" target="RTop"
+                                                  <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_todo_done_<?php echo attr($provider_id); ?>" target="RTop"
                                                      title="<?php echo xla('Click here to Edit this Doctor\'s Plan options').". \n". xlt('Only entries with a Code are billable').". "; ?>"
                                                      name="provider_testing_codes" style="color:black;font-weight:600;"><i class="fa fa-pencil fa-fw"></i> </a>
                                               </td>
@@ -3510,7 +3506,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                               $count='0';
                                                               $arrTESTS = explode("|", $Resource); //form_eye_mag:Resource = billable things (not visit code) performed today
                                                               $query = "select * from list_options where list_id=? and activity='1' order by seq";
-                                                              $TODO_data = sqlStatement($query, array("Eye_todo_done_".$providerID));
+                                                              $TODO_data = sqlStatement($query, array("Eye_todo_done_".$provider_id));
                                                             while ($row = sqlFetchArray($TODO_data)) {
                                                                 if ($row['codes'] ==='') {
                                                                     continue;
@@ -3611,7 +3607,7 @@ if ($refresh and $refresh != 'fullscreen') {
                     
                                 <?php
                                   /*
-                                  *  This a provider-specific PLAN list of items that the user can define.
+                                  *  This a provider-specific ORDER list of items that the user can define.
                                   *  Pencil icon links to 'list_options' in DB which opens in the RTop frame.
                                   *  If the provider-specific list does not exist, create it and populate it
                                   *  with generic starter items from list_options list "Eye_todo_done_defaults".
@@ -3619,12 +3615,12 @@ if ($refresh and $refresh != 'fullscreen') {
                                   *  is also listed as a billable item/TEST in the CODING ENGINE.
                                   */
                                   $query = "select * from list_options where list_id=? and activity='1' order by seq";
-                                  $TODO_data = sqlStatement($query, array("Eye_todo_done_".$providerID));
+                                  $TODO_data = sqlStatement($query, array("Eye_todo_done_".$provider_id));
                                 if (sqlNumRows($TODO_data) < '1') {
                                     // Provider list is not created yet, or was deleted.
                                     // Create it fom defaults...
                                     $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`) VALUES ('lists', ?, ?, '0', '1', '0', '', '', '', '0')";
-                                    sqlStatement($query, array('Eye_todo_done_'.$providerID,'Eye Orders '.$prov_data['lname']));
+                                    sqlStatement($query, array('Eye_todo_done_'.$provider_id,'Eye Orders '.$prov_data['lname']));
                                     $SQL_INSERT = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `mapping`, `notes`, `codes`, `activity`, `subtype`) VALUES ";
                                     $number_rows=0;
                                     $query = "SELECT * FROM list_options where list_id =? ORDER BY seq";
@@ -3632,9 +3628,9 @@ if ($refresh and $refresh != 'fullscreen') {
                                     while ($TODO= sqlFetchArray($TODO_data)) {
                                         if ($number_rows > 0) {
                                             $SQL_INSERT .= ",
-                            ";
+                                            ";
                                         }
-                                        $SQL_INSERT .= "('Eye_todo_done_".add_escape_custom($providerID)."','".add_escape_custom($TODO['option_id'])."','".add_escape_custom($TODO['title'])."','".add_escape_custom($TODO['seq'])."','".add_escape_custom($TODO['mapping'])."','".add_escape_custom($TODO['notes'])."','".add_escape_custom($TODO['codes'])."','".add_escape_custom($TODO['activity'])."','".add_escape_custom($TODO['subtype'])."')";
+                                        $SQL_INSERT .= "('Eye_todo_done_".add_escape_custom($provider_id)."','".add_escape_custom($TODO['option_id'])."','".add_escape_custom($TODO['title'])."','".add_escape_custom($TODO['seq'])."','".add_escape_custom($TODO['mapping'])."','".add_escape_custom($TODO['notes'])."','".add_escape_custom($TODO['codes'])."','".add_escape_custom($TODO['activity'])."','".add_escape_custom($TODO['subtype'])."')";
                                         $number_rows++;
                                     }
                                     sqlStatement($SQL_INSERT.";");
@@ -3642,7 +3638,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                 ?>
                               <dt class="borderShadow">
                                   <span><?php echo xlt('Next Visit Orders'); ?></span>
-                                  <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_todo_done_<?php echo attr($providerID); ?>" target="RTop"
+                                  <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_todo_done_<?php echo attr($provider_id); ?>" target="RTop"
                                      title="<?php echo xla('Click here to Edit this Doctor\'s Plan options'); ?>"
                                      name="provider_todo" style="color:black;font-weight:600;"><i class="fa fa-pencil fa-fw"></i> </a>
                               </dt>
@@ -3654,12 +3650,15 @@ if ($refresh and $refresh != 'fullscreen') {
                                       <tr>
                                           <td style="padding-right:20px;padding-left:20px;">
                                                 <?php
-                                                  // Iterate through this "provider's" PLAN/to_do list of options.
-                                                  //could maybe use options.inc checkbox type 21?
+                                                  // Iterate through this "provider's" orders and compare to list of options.
                                                   $count=0;
                                                   $counter=0;
-                                                  $PLAN_arr = explode("|", $PLAN);
-                                                while ($row = sqlFetchArray($TODO_data)) {
+                                                  $query = "SELECT * FROM form_eye_mag_orders where form_id=? and pid=? ORDER BY id ASC";
+                                                  $PLAN_results = sqlStatement($query, array($form_id, $pid ));
+                                                  while ($plan_row = sqlFetchArray($PLAN_results)) {
+                                                      $PLAN_arr[]=$plan_row;
+                                                  }
+                                                  while ($row = sqlFetchArray($TODO_data)) {
                                                     $arrPLAN[$counter]['option_id'] = $row['option_id'];
                                                     $arrPLAN[$counter]['title'] = $row['title'];
                                                     $arrPLAN[$counter]['option_value'] = $row['option_value'];
@@ -3669,8 +3668,9 @@ if ($refresh and $refresh != 'fullscreen') {
                                                     $arrPLAN[$counter]['subtype'] = $row['subtype'];
                                                     $checked ='';
                                                     $title=$row['title'];
-                                                    if (in_array($title, $PLAN_arr)) {
+                                                    if ($here = in_array_r($title, $PLAN_arr)) {
                                                         $checked = "checked='yes'";
+                                                        $found++;
                                                     }
                                                     // <!-- <i title="Build your plan." class="fa fa-mail-forward fa-flip-horizontal" id="make_blank_PLAN" name="make_blank_PLAN"></i>-->
                                                     echo "<input type='checkbox' id='PLAN$counter' name='PLAN[]' $checked value='".attr($row[title])."'> ";
@@ -3694,8 +3694,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                       </tr>
                                       <tr>
                                           <td colspan="3" style="padding-left:20px;padding-top:4px;">
-                                <textarea id="Plan<?php echo $counter; ?>" name="PLAN[]" style="width: 440px;height: 44px;"><?php if (($PLAN) && ($PLAN_arr[count($PLAN_arr)-1] > '')) {
-                                        echo $PLAN_arr[count($PLAN_arr)-1];} ?></textarea>
+                                <textarea id="Plan<?php echo $counter; ?>" name="PLAN[]" style="width: 440px;height: 44px;"><?php if ($found < count($PLAN_arr)) { echo $PLAN_arr[count($PLAN_arr)-1]['ORDER_DETAILS']; } ?></textarea>
                                           </td>
                                       </tr>
                                   </table>
@@ -4037,9 +4036,8 @@ if ($refresh and $refresh != 'fullscreen') {
     </script>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/shorthand_eye.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/shortcut.js-2-01-B/shortcut.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($provider_id); ?>"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
     <div id="right-panel" name="right-panel" class="panel_side">
       <div style="margin-top:20px;text-align:center;font-size:1.2em;">
         <span class="fa fa-file-text-o" id="PANEL_TEXT" name="PANEL_TEXT" style="margin:2px;"></span>

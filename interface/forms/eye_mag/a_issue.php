@@ -79,8 +79,8 @@ if (!empty($irow['type'])) {
     }
 }
 
-$given="ROSGENERAL,ROSHEENT,ROSCV,ROSPULM,ROSGI,ROSGU,ROSDERM,ROSNEURO,ROSPSYCH,ROSMUSCULO,ROSIMMUNO,ROSENDOCRINE";
-$query="SELECT $given from form_eye_mag where id=? and pid=?";
+$given="ROSGENERAL,ROSHEENT,ROSCV,ROSPULM,ROSGI,ROSGU,ROSDERM,ROSNEURO,ROSPSYCH,ROSMUSCULO,ROSIMMUNO,ROSENDOCRINE,ROSCOMMENTS";
+$query="SELECT $given from form_eye_ros where id=? and pid=?";
 $rres = sqlQuery($query, array($form_id,$pid));
 foreach (explode(',', $given) as $item) {
     $$item = $rres[$item];
@@ -587,6 +587,7 @@ foreach (explode(',', $given) as $item) {
           .issues {
             font-size:0.8em;
             text-align: center;
+              width:500px;
           }
          select {
             text-align: left;
@@ -1312,7 +1313,11 @@ foreach (explode(',', $given) as $item) {
 } ?>>
               <input type="text" name="ROSENDOCRINE" id="ROSENDOCRINE" onclick='clear_option(this)' value="<?php echo attr($ROSENDOCRINE); ?>"></td>
             </tr>
-          <tr><td></td></tr>
+            <tr>
+                <td colspan="4"><label>Comments:</label><br />
+                    <textarea name="ROSCOMMENTS" id="ROSCOMMENTS" ><?php echo $ROSCOMMENTS; ?></textarea>
+                </td>
+            </tr>
         </table>
         <table id="row_PLACEHOLDER" name="row_PLACEHOLDER" width="90%">
           <tr>

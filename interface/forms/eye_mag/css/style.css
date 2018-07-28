@@ -92,14 +92,10 @@ a:active {
 
 .text_clinical {
     text-decoration: none;
-    color: #000000;
-    font-family:Arial,sans-serif;
 }
 
 .text_clinical a b {
     text-decoration: none;
-    color: #000000;
-    font-family: Arial,sans-serif;
 }
 
 .text_clinical a:hover
@@ -286,7 +282,6 @@ input[type=text] {
     min-height:2.2in;
     margin: 1px auto;
     font-size: 1.0em;
-    font-family: Arial, Arial,sans-serif;
     max-width:90%;
     padding:0;
 }
@@ -418,7 +413,6 @@ input[type=text] {
     margin: 1px auto; 
     border: 1.00pt solid #000000; 
     background: #ffffff;
-    font-family: "FontAwesome",Arial,serif;
     padding: 6px 10px;
     border-radius: 6px;
 }
@@ -624,7 +618,6 @@ textarea.ANTSEGTEXT {
     background: #C0C0C0;
     color:#000000;
     height:0.05in;
-    font-family:  Arial,serif;
     font-size: 8pt;
 
 }
@@ -639,9 +632,8 @@ textarea.ANTSEGTEXT {
     color:#050;
     font: bold 84% Arial, 'trebuchet ms',helvetica,sans-serif;
 }
-
-#tabs_container {
-    border-bottom: none;
+ button {
+    color: black !important;
 }
 #tabs {
     list-style: none;
@@ -846,7 +838,6 @@ margin-bottom: -3px;
     box-shadow:inset 0 1px 0 0 #97c4fe;
     text-indent:0;
     display:inline-block;
-    font-family:Arial,serif;
     font-size:11px;
     font-weight:400;
     line-height:12px;
@@ -1018,50 +1009,30 @@ margin-bottom: -3px;
         font-size: 0.8em;
         margin: 0px !important;
      }
-    .closeButton2 {
-        display:inline-block;
-        position:absolute;
-        top:8px;
-        right:24px;
-        font-size: 0.8em;
-    }
-    .closeButton3 {
-        display:inline-block;
-        position:absolute;
-        top:8px;
-        right:44px;
-        font-size: 0.8em;
-    }
-    .closeButton4 {
-        display:inline-block;
-        position:absolute;
-        top:8px;
-        right:64px;
-        font-size: 0.8em;
-    }
+
     .closeButton {
         display:inline-block;
         float:right;
         position:absolute;
         top:8px;
         right:8px;
-        padding-left: 10px;
+        padding: 0px 5px;
         font-size: 0.8em;
      }
     .closeButton:hover {
-        color:grey;
         cursor:pointer;
         border: 0 solid grey;
         text-decoration: none;
+        background-color: yellow;
     }
     .closeButton:hover a {
-    text-decoration: none;
-    color: #000000;
-}
+        text-decoration: none;
+        background-color: yellow;
+    }
     .closeButton a:link {
-    outline:none;
-    color:black;
-}
+        outline:none;
+        color:black;
+    }
 
     .closeButton_2 {
         display:inline-block;
@@ -1069,14 +1040,15 @@ margin-bottom: -3px;
         position:absolute;
         top:8px;
         right:30px;
-        padding-left: 10px;
+        padding: 0px 5px;
         font-size:12px;
       }
     .closeButton_2:hover {
-        color:grey;
         cursor:pointer;
         border: 0 solid grey;
         text-decoration: none;
+        background-color: yellow;
+
     }
     .closeButton_3 {
         display:inline-block;
@@ -1084,14 +1056,15 @@ margin-bottom: -3px;
         position:absolute;
         top:8px;
         right:52px;
-        padding-left: 10px;
+        padding: 0px 5px;
         font-size:12px;
       }
     .closeButton_3:hover {
-        color:grey;
         cursor:pointer;
         border: 0 solid grey;
         text-decoration: none;
+        background-color: yellow;
+
     }
     .closeButton_4 {
         display:inline-block;
@@ -1099,14 +1072,14 @@ margin-bottom: -3px;
         position:absolute;
         top:8px;
         right:74px;
-        padding-left: 10px;
+        padding: 0px 5px;
         font-size:12px;
       }
     .closeButton_4:hover {
-        color:grey;
         cursor:pointer;
         border: 0 solid grey;
         text-decoration: none;
+        background-color: yellow;
     }
 /* testing out the tabs header stuff for ACT */
     #header ul {
@@ -1469,6 +1442,7 @@ a:hover, a:focus {
     overflow:auto;
     padding-top:22px;
     text-align:left;
+    border: 1pt #c6bbbb solid;
 }
 .panel_title {
     font-weight:600;
@@ -1587,7 +1561,6 @@ a:hover, a:focus {
 .building_blocks dt {
     background: #C9DBF2 none repeat scroll 0 0;
     font-size: 0.9em;
-    font-family: "FontAwesome",arial,serif;
     border:1pt solid #c0c0c0;
 }
 .building_blocks dd {
@@ -1653,7 +1626,6 @@ li .handle { display: inline-block; padding: 0.4em; }
     display: inline-block;
     padding: 0.2em;
     margin-left: 0;
-    font-family: inherit;
     font-size: inherit;
     line-height: inherit;
     vertical-align: top;

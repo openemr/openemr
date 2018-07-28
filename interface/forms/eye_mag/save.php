@@ -37,18 +37,17 @@
  */
 
 
+$table_name = "form_eye_mag";
+$form_name = "eye_mag";
+$form_folder = "eye_mag";
 
-
-$table_name   = "form_eye_mag";
-$form_name    = "eye_mag";
-$form_folder  = "eye_mag";
 
 require_once("../../globals.php");
 
 require_once("$srcdir/html2pdf/vendor/autoload.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
-require_once("php/".$form_name."_functions.php");
+require_once("php/" . $form_name . "_functions.php");
 require_once($srcdir . "/../controllers/C_Document.class.php");
 require_once($srcdir . "/documents.php");
 require_once("$srcdir/patient.inc");
@@ -58,13 +57,12 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/report.inc");
 require_once("$srcdir/html2pdf/html2pdf.class.php");
 
-use Mpdf\Mpdf;
-
 $returnurl = 'encounter_top.php';
 
 if (isset($_REQUEST['id'])) {
     $id = $_REQUEST['id'];
 }
+use Mpdf\Mpdf;
 
 if (!$id) {
     $id = $_REQUEST['pid'];
@@ -569,8 +567,8 @@ if ($_REQUEST["mode"] == "new") {
             exit;
         } else {
             if ($form_type == 'ROS') { //ROS
-                $query = "UPDATE form_eye_ros set ROSGENERAL=?,ROSHEENT=?,ROSCV=?,ROSPULM=?,ROSGI=?,ROSGU=?,ROSDERM=?,ROSNEURO=?,ROSPSYCH=?,ROSMUSCULO=?,ROSIMMUNO=?,ROSENDOCRINE=? where id=? and pid=?";
-                sqlStatement($query, array($_REQUEST['ROSGENERAL'], $_REQUEST['ROSHEENT'], $_REQUEST['ROSCV'], $_REQUEST['ROSPULM'], $_REQUEST['ROSGI'], $_REQUEST['ROSGU'], $_REQUEST['ROSDERM'], $_REQUEST['ROSNEURO'], $_REQUEST['ROSPSYCH'], $_REQUEST['ROSMUSCULO'], $_REQUEST['ROSIMMUNO'], $_REQUEST['ROSENDOCRINE'], $form_id, $pid));
+                $query = "UPDATE form_eye_ros set ROSGENERAL=?,ROSHEENT=?,ROSCV=?,ROSPULM=?,ROSGI=?,ROSGU=?,ROSDERM=?,ROSNEURO=?,ROSPSYCH=?,ROSMUSCULO=?,ROSIMMUNO=?,ROSENDOCRINE=?,ROSCOMMENTS=?.pid=? where id=?";
+                sqlStatement($query, array($_REQUEST['ROSGENERAL'], $_REQUEST['ROSHEENT'], $_REQUEST['ROSCV'], $_REQUEST['ROSPULM'], $_REQUEST['ROSGI'], $_REQUEST['ROSGU'], $_REQUEST['ROSDERM'], $_REQUEST['ROSNEURO'], $_REQUEST['ROSPSYCH'], $_REQUEST['ROSMUSCULO'], $_REQUEST['ROSIMMUNO'], $_REQUEST['ROSENDOCRINE'], $_REQUEST['ROSCOMMENTS'],$pid, $form_id));
                 $PMSFH = build_PMSFH($pid);
                 send_json_values($PMSFH);
                 exit;
@@ -586,7 +584,7 @@ if ($_REQUEST["mode"] == "new") {
                         $newdata[$field_id] = get_layout_form_value($frow);
                     }
                 }
-
+                //have to figure where to put comments in this next line for the rest of openemr
                 updateHistoryData($pid, $newdata);
                 if ($_REQUEST['marital_status'] > '') {
                     // have to match input with list_option for marital to not break openEMR
@@ -627,8 +625,7 @@ if ($_REQUEST["mode"] == "new") {
                 usertext16=?,
                 usertext17=?,
                 usertext18=? where pid=?";
-                //echo $_REQUEST['relatives_cancer'],$_REQUEST['relatives_diabetes'],$_REQUEST['relatives_high_blood_pressure'],$_REQUEST['relatives_heart_problems'],$_REQUEST['relatives_stroke'],$_REQUEST['relatives_epilepsy'],$_REQUEST['relatives_mental_illness'],$_REQUEST['relatives_suicide'],$_REQUEST['usertext11'],$_REQUEST['usertext12'],$_REQUEST['usertext13'],$_REQUEST['usertext14'],$_REQUEST['usertext15'],$_REQUEST['usertext16'],$_REQUEST['usertext17'],$_REQUEST['usertext18'],$pid;
-                $resFH = sqlStatement($query, array($_REQUEST['relatives_cancer'], $_REQUEST['relatives_diabetes'], $_REQUEST['relatives_high_blood_pressure'], $_REQUEST['relatives_heart_problems'], $_REQUEST['relatives_stroke'], $_REQUEST['relatives_epilepsy'], $_REQUEST['relatives_mental_illness'], $_REQUEST['relatives_suicide'], $_REQUEST['usertext11'], $_REQUEST['usertext12'], $_REQUEST['usertext13'], $_REQUEST['usertext14'], $_REQUEST['usertext15'], $_REQUEST['usertext16'], $_REQUEST['usertext17'], $_REQUEST['usertext18'], $pid));
+               $resFH = sqlStatement($query, array($_REQUEST['relatives_cancer'], $_REQUEST['relatives_diabetes'], $_REQUEST['relatives_high_blood_pressure'], $_REQUEST['relatives_heart_problems'], $_REQUEST['relatives_stroke'], $_REQUEST['relatives_epilepsy'], $_REQUEST['relatives_mental_illness'], $_REQUEST['relatives_suicide'], $_REQUEST['usertext11'], $_REQUEST['usertext12'], $_REQUEST['usertext13'], $_REQUEST['usertext14'], $_REQUEST['usertext15'], $_REQUEST['usertext16'], $_REQUEST['usertext17'], $_REQUEST['usertext18'], $pid));
                 $PMSFH = build_PMSFH($pid);
                 send_json_values($PMSFH);
                 exit;
@@ -670,11 +667,11 @@ if ($_REQUEST["mode"] == "new") {
                 $form_begin = DateToYYYYMMDD($_REQUEST['form_begin']);
                 $form_end   = DateToYYYYMMDD($_REQUEST['form_end']);
 
-                /*
-               *  When adding an issue, see if the issue is already here.
-               *  If so we need to update it.  If not we are adding it.
-               *  Check the PMSFH array first by title.
-               *  If not present in PMSFH, check the DB to be sure.
+                /**
+                 *  When adding an issue, see if the issue is already here.
+                 *  If so we need to update it.  If not we are adding it.
+                 *  Check the PMSFH array first by title.
+                 *  If not present in PMSFH, check the DB to be sure.
                  */
                 foreach ($PMSFH[$form_type] as $item) {
                     if ($item['title'] == $_REQUEST['form_title']) {
@@ -859,29 +856,22 @@ if ($_REQUEST["mode"] == "new") {
     $query = "select form_encounter.date as encounter_date from form_encounter where form_encounter.encounter =?";
     $encounter_data = sqlQuery($query, array($encounter));
     $dated = new DateTime($encounter_data['encounter_date']);
-    $dated = $dated->format('Y-m-d');
-    $visit_date = oeFormatShortDate($dated);
-
+    $visit_date = $dated->format('Y-m-d');
+    
     $N = count($_POST['PLAN']);
-    $sql_clear = "DELETE from form_eye_mag_orders where ORDER_PID =? and ORDER_PLACED_BYWHOM=? and ORDER_DATE_PLACED=? and ORDER_STATUS ='pending'";
+    $sql_clear = "DELETE from form_eye_mag_orders where pid =? and ORDER_PLACED_BYWHOM=? and ORDER_DATE_PLACED=? and ORDER_STATUS ='pending'";
     sqlQuery($sql_clear, array($pid, $providerID, $visit_date));
     if ($N > '0') {
         for ($i = 0; $i < $N; $i++) {
+            if ($_POST['PLAN'][$i] =='') continue;
             $fields['PLAN'] .= $_POST['PLAN'][$i] . "|"; //this makes an entry for form_eyemag: PLAN
-            $ORDERS_sql = "REPLACE INTO form_eye_mag_orders (ORDER_PID,ORDER_DETAILS,ORDER_STATUS,ORDER_DATE_PLACED,ORDER_PLACED_BYWHOM) VALUES (?,?,?,?,?)";
-            $okthen = sqlQuery($ORDERS_sql, array($pid, $_POST['PLAN'][$i], 'pending', $visit_date, $providerID));
+            $ORDERS_sql = "INSERT INTO form_eye_mag_orders (form_id,pid,ORDER_DETAILS,ORDER_PRIORITY,ORDER_STATUS,ORDER_DATE_PLACED,ORDER_PLACED_BYWHOM) VALUES (?,?,?,?,?,?,?)";
+            $okthen = sqlQuery($ORDERS_sql, array($form_id, $pid, $_POST['PLAN'][$i], $i, 'pending', $visit_date, $providerID));
         }
 
         $_POST['PLAN'] = mb_substr($fields['PLAN'], 0, -1); //get rid of trailing "|"
     }
-
-    if ($_REQUEST['PLAN2']) {
-        $fields['PLAN'] .= $_REQUEST['PLAN2'];
-        //there is something in the "freeform" plan textarea... This was removed in 5.0.0, keep for legacy?
-        $ORDERS_sql = "REPLACE INTO form_eye_mag_orders (ORDER_PID,ORDER_DETAILS,ORDER_STATUS,ORDER_PRIORITY,ORDER_DATE_PLACED,ORDER_PLACED_BYWHOM) VALUES (?,?,?,?,?,?)";
-        $okthen = sqlQuery($ORDERS_sql, array($pid, $_POST['PLAN'][$i], 'pending', "PLAN2:$PLAN2", $visit_date, $providerID));
-    }
-
+    
     $M = count($_POST['TEST']);
     if ($M > '0') {
         for ($i = 0; $i < $M; $i++) {
@@ -1004,7 +994,6 @@ if ($_REQUEST["mode"] == "new") {
         $sql2 ='';
         if (sqlNumRows($result) > 0) {
             while ($row = sqlFetchArray($result)) {
-
 
                 //exclude critical columns/fields and those needing special processing from update
                 if ($row['Field'] == 'id' or

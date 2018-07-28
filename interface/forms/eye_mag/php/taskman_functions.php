@@ -286,7 +286,8 @@ function make_document($task)
                     forms.form_id=form_eye_postseg.id and
                     forms.form_id=form_eye_neuro.id and
                     forms.form_id=form_eye_locking.id and
-                    forms.form_id =? ";
+                    forms.form_id =? and
+                    forms.pid=?";
     $encounter_data =sqlQuery($query, array($encounter,$task['PATIENT_ID']));
     @extract($encounter_data);
     $providerID  =  getProviderIdOfEncounter($encounter);
@@ -338,7 +339,7 @@ function make_document($task)
         $sql = "DELETE from documents where documents.url like ?";
         sqlQuery($sql, array("%".$filename));
     }
-
+    
     $config_mpdf = array(
         'mode' => $GLOBALS['pdf_language'],
         'format' => $GLOBALS['pdf_size'],
@@ -355,10 +356,15 @@ function make_document($task)
         'use_kwt' => true,
         'keep_table_proportions' => true
     );
+
     $pdf = new mPDF($config_mpdf);
     if ($_SESSION['language_direction'] == 'rtl') {
         $pdf->SetDirectionality('rtl');
     }
+    $pdf->shrink_tables_to_fit = 1;
+    $keep_table_proportions = true;
+    $pdf->use_kwt = true;
+    
     ob_start();
     ?><html>
     <head>
