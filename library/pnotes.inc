@@ -398,8 +398,6 @@ function addPnote(
 
     if (empty($datetime)) {
         $datetime = date('Y-m-d H:i:s');
-    } else {
-        $datetime = DateTimeToYYYYMMDDHHMMSS($datetime);
     }
 
   // make inactive if set as Done
@@ -465,8 +463,6 @@ function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "", 
 
     if (empty($datetime)) {
         $datetime = date('Y-m-d H:i:s');
-    } else {
-        $datetime = DateTimeToYYYYMMDDHHMMSS($datetime);
     }
 
     $activity = $assigned_to ? '1' : '0';

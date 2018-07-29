@@ -291,7 +291,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             $form_message_status = $_POST['form_message_status'];
                             $reply_to = explode(';', rtrim($_POST['reply_to'], ';'));
                             $assigned_to_list = explode(';', $_POST['assigned_to']);
-                            $datetime = isset($_POST['form_datetime']) ? $_POST['form_datetime'] : '';
+                            $datetime = isset($_POST['form_datetime']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_datetime']) : '';
                             foreach ($assigned_to_list as $assigned_to) {
                                 if ($noteid && $assigned_to != '-patient-') {
                                     updatePnote($noteid, $note, $form_note_type, $assigned_to, $form_message_status, $datetime);
