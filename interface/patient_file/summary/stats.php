@@ -403,7 +403,7 @@ while ($row_currentMed=sqlFetchArray($res)) {
     }
 
     $bodyClass = "summary_item small";
-    $widgetAuth=acl_check('patients', 'rx', '', 'write');
+    $widgetAuth=acl_check('patients', 'rx', '', array('write','addonly'));
     $fixedWidth = false;
     expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
 } else { ?>
