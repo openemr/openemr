@@ -398,11 +398,12 @@ while ($row_currentMed=sqlFetchArray($res)) {
         $widgetButtonLabel = xl("Edit");
         $oeLink = $GLOBALS['webroot'] . "/controller.php?prescription&list&id=" . attr($pid);
         $widgetButtonLink = 'editScripts("' . $oeLink . '")';
+
         $widgetButtonClass = "iframe rx_modal";
     }
 
     $bodyClass = "summary_item small";
-    $widgetAuth = true;
+    $widgetAuth=acl_check('patients', 'rx', '', array('write','addonly'));
     $fixedWidth = false;
     expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
 } else { ?>
