@@ -5,6 +5,7 @@ var browserSync = require('browser-sync');
 var csso = require('gulp-csso');
 var del = require('del');
 var fs = require('fs');
+var glob = require('glob');
 var gap = require('gulp-append-prepend');
 var gulp = require('gulp');
 var argv = require('minimist')(process.argv.slice(2));
@@ -20,6 +21,8 @@ var packages = require('./package.json');
 
 // configuration
 var config = {
+    all : [], // must always be empty
+
     /* Command Line Arguments */
     dev: argv['dev'],
     build: argv['b'],
@@ -31,8 +34,8 @@ var config = {
         styles: {
             style_uni: 'interface/themes/style_*.scss',
             style_color: 'interface/themes/colors/*.scss',
-            all: 'public/themes/**/style_*.css',
-            all_rtl: 'public/themes/**/*style_*.css',
+            rtl: 'interface/themes/rtl.scss',
+            all: 'public/themes/**/*style_*.css',
         }
     },
     dist: {
@@ -49,12 +52,12 @@ var config = {
  * Clean up lingering static assets 
  */
 gulp.task('clean', function () {
-    del.sync([config.dest.themes + "/*"]);
-    
     if (config.dev) {
         let ignore = "!" + config.dist.storybook + '.gitignore';
         del.sync([config.dist.storybook + "*", ignore]);
     }
+
+    return del.sync([config.dest.themes + "/*"]);
 });
 
 
@@ -75,7 +78,7 @@ gulp.task('ingest', function() {
  * - Runs task(styles) first
  * - Includes hack to dump fontawesome to the storybook dist
  */
-gulp.task('sync', ['styles'], function() {
+gulp.task('sync', function() {
     if (config.proxy) {
         browserSync.init({
             proxy: "127.0.0.1:" + config.proxy
@@ -145,35 +148,52 @@ gulp.task('styles:style_color', function () {
 });
 
 /**
- * append rtl css
- * TODO fix sourcemapping and/or convert to scss import
- * Have to since rtl isn't working at the moment
+ * append rtl css to all style themes
+ * also, create list of all themes for style_list to use
  */
 gulp.task('styles:rtl', function () {
-    gulp.src(config.src.styles.all)
-        .pipe(sourcemaps.init())
-        .pipe(sass().on('error', sass.logError))
-        .pipe(prefix('last 1 version'))
-        .pipe(gulpif(!config.dev, csso()))
-        .pipe(gap.appendFile('interface/themes/rtl.css'))
-        .pipe(rename({
-            dirname: "",
-            prefix:"rtl_"
-        }))
-        .pipe(gulp.dest(config.dest.themes))
-        .pipe(gulpif(config.dev && config.build, gulp.dest(config.dist.storybook + config.dest.themes)))
-        .pipe(gulpif(config.dev, reload({stream:true})));
+    var uni = glob.sync(config.src.styles.style_uni);
+    var colors = glob.sync(config.src.styles.style_color);
+    config.all = uni.concat(colors);
+
+    for (var i=0; i<config.all.length; i++) {
+        var name = config.all[i].split('themes/')[1];
+        gulp.src(config.src.styles.rtl)
+        .pipe(gap.prependText('@import "' + name + '";\n'))
+            .pipe(sourcemaps.init())
+            .pipe(sass().on('error', sass.logError))
+            .pipe(prefix('last 1 version'))
+            .pipe(gulpif(!config.dev, csso()))
+            .pipe(gulpif(!name.startsWith('colors'), rename({
+                basename: name.slice(0,-5), // remove suffix from name
+                prefix:"rtl_"
+            })))
+            .pipe(gulpif(name.startsWith('colors'), rename({
+                basename: name.slice(7,-5), // remove prefix and suffix from name
+                prefix:"rtl_"
+            })))
+            .pipe(gulp.dest(config.dest.themes))
+            .pipe(gulpif(config.dev && config.build, gulp.dest(config.dist.storybook + config.dest.themes)))
+            .pipe(gulpif(config.dev, reload({stream:true})));
+    }
+    
 });
 
-// TODO make this dev only
-gulp.task('styles:style_list', function () {
-    gulp.src(config.src.styles.all_rtl)
-        .pipe(require('gulp-filelist')('themeOptions.json', {flatten: true, removeExtensions: true}))
-        .pipe(gulp.dest('.storybook'));
-});
-
-gulp.task('styles', ['styles:style_uni', 'styles:style_color', 'styles:rtl', 'styles:style_list']);
+gulp.task('styles', ['styles:style_uni', 'styles:style_color', 'styles:rtl']);
 // END style task definitions
+
+/*
+* Create a JSON for storybook to use
+*/
+gulp.task('style_list', function () {
+    var style_list = [];
+    for (var i=0; i<config.all.length; i++) {
+        var theme_name = "style_" + config.all[i].split('style_')[1].slice(0,-5);
+        style_list.push(theme_name);
+        style_list.push('rtl_' + theme_name);
+    }
+    fs.writeFileSync('.storybook/themeOptions.json', JSON.stringify(style_list), 'utf8');
+});
 
 
 /**
@@ -211,11 +231,9 @@ gulp.task('install', function() {
  */
 if (config.install) {
     gulp.task('default', [ 'install' ]);
-} else if (config.dev && !config.build) {
-    gulp.task('default', [ 'ingest', 'sync' ]);
 } else {
     gulp.task('default', function (callback) {
-        runSequence('clean', ['sync'], callback)
+        runSequence(['ingest', 'clean'], [ 'styles', 'sync' ], 'style_list', callback)
     });
 }
 
