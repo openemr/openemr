@@ -10482,7 +10482,7 @@ CREATE TABLE `medex_outgoing` (
 --
 -- Table structure for table `medex_prefs`
 --
-DROP TABLE IF EXISTS `medex_prefs`
+DROP TABLE IF EXISTS `medex_prefs`;
 CREATE TABLE `medex_prefs` (
   `MedEx_id` int(11) DEFAULT '0',
   `ME_username` varchar(100) DEFAULT NULL,
