@@ -2122,7 +2122,7 @@ fieldset {
 legend {
   border-bottom: 2px solid #C45520 !important;
   background: #C45520 !important;
-  padding-left: 10px !important;
+  padding: 0 10px !important;
   color: #000000 !important; }
 
 label {
@@ -2349,6 +2349,15 @@ th.currentvalues, th.historicalvalues {
   top: -0.5em;
   font-size: 70% !important; }
 
+.oe-pull-toward {
+  float: left !important; }
+
+.oe-pull-away {
+  float: right !important; }
+
+.oe-margin-toward {
+  margin-left: 30px; }
+
 /*-----------------------openemr5.0.2 help files styling---------------------- */
 /*---------------------------openemr5.0.2 messages--------------------------- */
 .oe-margin-t-3 {
@@ -2406,3 +2415,46 @@ a.arrowhead, a:hover.arrowhead, a:visited.arrowhead {
   color: #000000 !important; }
 
 /*-------------------openemr ACL-------------------*/
+/*-----------------------openemr5.0.2 procedures styling---------------------- */
+.oe-bold {
+  font-weight: 700; }
+
+.oe-grp {
+  font-size: 16px !important;
+  font-weight: 900; }
+
+.oe-ord {
+  font-weight: 800; }
+
+.oe-pink-background {
+  background: #ffd2da !important; }
+
+.oe-pl0 {
+  padding-left: 0 !important; }
+
+.oe-pl10 {
+  padding-left: 10px; }
+
+.oe-pl20 {
+  padding-left: 20px; }
+
+.oe-pl30 {
+  padding-left: 30px; }
+
+.oe-pl40 {
+  padding-left: 40px; }
+
+.oe-pl50 {
+  padding-left: 50px; }
+
+.oe-pl60 {
+  padding-left: 60px; }
+
+.oe-pl-final {
+  padding-left: 70px; }
+
+.oe-help-x {
+  color: gray;
+  padding: 0 5px; }
+
+/*-----------------------openemr5.0.2 procedures styling---------------------- */

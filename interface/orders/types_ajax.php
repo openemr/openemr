@@ -22,7 +22,7 @@ $res = sqlStatement("SELECT * FROM procedure_type WHERE parent = '$id' " .
   "ORDER BY seq, name, procedure_type_id");
 
 $encount = 0;
-$isOrder = "";
+
 // Generate a table row for each immediate child.
 while ($row = sqlFetchArray($res)) {
     $chid = $row['procedure_type_id'] + 0;
@@ -58,8 +58,10 @@ while ($row = sqlFetchArray($res)) {
     echo "<span class=\"plusminus\">";
     echo $iscontainer ? "+ " : '| ';
     echo "</span>";
-    if ($isOrder == 'ord' || $isOrder == 'for') {
+    if ($isOrder == 'ord') {
         echo "<mark class=\"oe-patient-background\">" . attr($row['name']) . "</mark></td>";
+    } elseif ($isOrder == 'for') {
+        echo "<mark class=\"oe-pink-background\">" . attr($row['name']) . "</mark></td>";
     } else {
         echo attr($row['name']) . "</td>";
     }
@@ -74,14 +76,33 @@ while ($row = sqlFetchArray($res)) {
 
             echo " />";
         } else {
-            echo "<mark class=\"oe-patient-background\">" . xl('Order - Yes') . "</mark>";
+            if ($isOrder == 'ord') {
+                echo "<mark class=\"oe-patient-background\">" . xlt('Order') . "</mark>";
+            } elseif ($isOrder == 'for') {
+                echo "<mark class=\"oe-pink-background\">" . xlt('Custom Order') . "</mark>";
+            }
         }
     } else {
-        //echo '&nbsp;';
-        if (($isOrder == 'grp' || $isOrder == 'fgp') && $row['parent'] == 0) {
-            echo  ($isOrder == 'grp') ? xlt('Top Group') : xlt('Custom Group');
-        } elseif ($isOrder == 'grp' || $isOrder == 'fgp') {
+        echo '&nbsp;';
+        // if (($isOrder == 'grp' || $isOrder == 'fgp') && $row['parent'] == 0) {
+            // echo  xlt('Top Group');
+        // } elseif ($isOrder == 'grp' || $isOrder == 'fgp') {
+             // echo  xlt('Sub Group');
+        // } elseif ($isOrder == 'res') {
+            // echo  xlt('Result');
+        // } elseif ($isOrder == 'rec') {
+            // echo  xlt('Recommendation');
+        // }
+        if ($isOrder == 'grp' && $row['parent'] == 0) {
+            echo  xlt('Top Group');
+        } elseif ($isOrder == 'fgp' && $row['parent'] == 0) {
+            //echo  xlt('Custom Top Group');
+            echo "<mark class=\"oe-pink-background\">" . xl('Custom Top Group') . "</mark>";
+        } elseif ($isOrder == 'grp') {
              echo  xlt('Sub Group');
+        } elseif ($isOrder == 'fgp') {
+            //echo  xlt('Custom Sub Group');
+            echo "<mark class=\"oe-pink-background\">" . xl('Custom Sub Group') . "</mark>";
         } elseif ($isOrder == 'res') {
             echo  xlt('Result');
         } elseif ($isOrder == 'rec') {
@@ -97,20 +118,14 @@ while ($row = sqlFetchArray($res)) {
     } elseif ($isOrder == 'grp' || $isOrder == 'fgp') {
         echo "<td class=\"col3\">" . attr($row['procedure_code']) . "</td>";
     }
-    $typeIs = 0;
-    $thislab = $row['lab_id'] ? $row['lab_id'] + 0 : 0;
-    if ($isOrder == 'fgp') {
-        $typeIs = 1;
-    } else if ($isOrder == 'for') {
-        $typeIs = 2;
-    }
     echo "<td class=\"col6\">" . attr($level + 1) . "</td>";
     echo "<td class=\"col4\">" . attr($row['description']) . "</td>";
     echo "<td class=\"col5\">";
-    echo "<span style=\"color:#000000;\" onclick=\"handleNode($chid,$typeIs,false,$thislab)\" class=\"haskids fa fa-pencil fa-lg\" title=".xla("Edit")."></span>";
-    if ($isOrder != 'for') {
-        echo "<span style=\"color:#000000; margin-left:30px\" onclick=\"handleNode($chid,$typeIs,true,$thislab)\" class=\"haskids fa fa-plus fa-lg\" title=" . xla("Add") . " ></span>";
-    }
+    echo "<span style=\"color:#000000;\" onclick=\"enode($chid)\" class=\"haskids fa fa-pencil fa-lg\" title=".xla("Edit")."></span>";
+    //echo "<span style=\"color:#000000; margin-left:30px\" onclick=\"anode($chid)\" class=\"haskids fa fa-plus fa-lg\" title=".xla("Add")." ></span>";
+    echo "</td>";
+    echo "<td class=\"col5\">";
+    echo "<span style=\"color:#000000;\" onclick=\"anode($chid)\" class=\"haskids fa fa-plus fa-lg\" title=".xla("Add")." ></span>";
     echo "</td>";
     echo "</tr>";
 }

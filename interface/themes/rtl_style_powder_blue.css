@@ -2133,7 +2133,7 @@ fieldset {
 legend {
   border-bottom: 2px solid #728DCC !important;
   background: #728DCC !important;
-  padding-left: 10px !important;
+  padding: 0 10px !important;
   color: #000000 !important; }
 
 label {
@@ -2360,6 +2360,15 @@ th.currentvalues, th.historicalvalues {
   top: -0.5em;
   font-size: 70% !important; }
 
+.oe-pull-toward {
+  float: left !important; }
+
+.oe-pull-away {
+  float: right !important; }
+
+.oe-margin-toward {
+  margin-left: 30px; }
+
 /*-----------------------openemr5.0.2 help files styling---------------------- */
 /*---------------------------openemr5.0.2 messages--------------------------- */
 .oe-margin-t-3 {
@@ -2417,6 +2426,49 @@ a.arrowhead, a:hover.arrowhead, a:visited.arrowhead {
   color: #000000 !important; }
 
 /*-------------------openemr ACL-------------------*/
+/*-----------------------openemr5.0.2 procedures styling---------------------- */
+.oe-bold {
+  font-weight: 700; }
+
+.oe-grp {
+  font-size: 16px !important;
+  font-weight: 900; }
+
+.oe-ord {
+  font-weight: 800; }
+
+.oe-pink-background {
+  background: #ffd2da !important; }
+
+.oe-pl0 {
+  padding-left: 0 !important; }
+
+.oe-pl10 {
+  padding-left: 10px; }
+
+.oe-pl20 {
+  padding-left: 20px; }
+
+.oe-pl30 {
+  padding-left: 30px; }
+
+.oe-pl40 {
+  padding-left: 40px; }
+
+.oe-pl50 {
+  padding-left: 50px; }
+
+.oe-pl60 {
+  padding-left: 60px; }
+
+.oe-pl-final {
+  padding-left: 70px; }
+
+.oe-help-x {
+  color: gray;
+  padding: 0 5px; }
+
+/*-----------------------openemr5.0.2 procedures styling---------------------- */
 
 /*
     RTL adjustments for style*.css files
@@ -2469,6 +2521,46 @@ body {
 .oe-text-to-left{
     text-align: right;
 }
+.oe-pull-toward {
+    float:right !important;
+}
+.oe-pull-away {
+    float:left !important;
+}
+.oe-margin-toward {
+    margin-right:30px;
+}
+
+/*------------------procedures rtl openemr 5.0.2---------------------*/
+.oe-pl0 {
+    padding-right: 0 !important;
+}
+.oe-pl10 {
+    padding-right: 10px;
+}
+.oe-pl20 {
+    padding-right: 20px;
+}
+.oe-pl30 {
+    padding-right: 30px;
+}
+.oe-pl40 {
+    padding-right: 40px;
+}
+.oe-pl50 {
+    padding-right: 50px;
+}
+.oe-pl60 {
+    padding-right: 60px;
+}
+.oe-pl-final {
+    padding-right: 70px;
+}
+/*Bootstrap 3 classes modified for rtl*/
+.text-center {
+    text-align: center !important;
+}
+
 /*=============================================================
  * This section relates to the custom layouts that can be made
  * using the OEMR tool in the Admin section. For example, the

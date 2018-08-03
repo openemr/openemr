@@ -86,10 +86,10 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("This is required for both manual lab result entry and for electronic ordering tests and receiving results");?>.
             </div>
             <div class= "row" id="section1">
-                <h4 class="oe-help-heading"><?php echo xlt("Define lab service locations"); ?><a href="#top_section"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("Define lab service locations"); ?><a href="#top_section"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><i class="fa fa-exclamation-triangle  oe-text-red" aria-hidden="true"></i> <strong><?php echo xlt("You need administrator privileges to perform this action"); ?>.</strong>
                 
-                <p><i class="fa fa-exclamation-circle  oe-text-orange" aria-hidden="true"></i>&nbsp <?php echo xlt("To use this help file as an instruction manual it is suggested that you reduce the size of the browser to cover half the viewport, resize the help pop-up by clicking and dragging the bottom right corner of the pop-up. Open another instance of the browser and resize it to cover the other half of the viewport, login to openEMR");?>.
+                <p><i class="fa fa-lightbulb-o fa-lg  oe-text-green" aria-hidden="true"></i>&nbsp <?php echo xlt("To use this help file as an instruction manual it is suggested that you reduce the size of the browser to cover half the viewport, resize the help pop-up by clicking and dragging the bottom right corner of the pop-up. Open another instance of the browser and resize it to cover the other half of the viewport, login to openEMR");?>.
                 
                 <p><?php echo xlt("Go to Administration > Address Book > Add New");?>.
                 
@@ -127,7 +127,7 @@ require_once("../../interface/globals.php");
                 
             </div>
             <div class= "row" id="section2">
-                <h4 class="oe-help-heading"><?php echo xlt("Check and adjust the settings in the standard release"); ?><a href="#top_section"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("Check and adjust the settings in the standard release"); ?><a href="#top_section"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><?php echo xlt("Before proceeding to configuring the tests themselves you would need to review the values included in the standard release and make changes according to need");?>.
                 
                 <p><?php echo xlt("The values listed here will show up in the drop-down boxes that will be used to process orders");?>.
@@ -191,7 +191,7 @@ require_once("../../interface/globals.php");
 
             </div>
             <div class= "row" id="section3">
-                <h4 class="oe-help-heading"><?php echo xlt("Configure the lab test structure"); ?><a href="#top_section"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
+                <h4 class="oe-help-heading"><?php echo xlt("Configure the lab test structure"); ?><a href="#top_section"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><?php echo xlt("To configure the lab test go to Procedures > Configuration");?>.
                                 
                 <p><?php echo xlt("The help file there will guide you on further steps in setting up the lab tests");?>.

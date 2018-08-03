@@ -119,47 +119,12 @@ if ($popup && $_POST['form_save']) {
             width: 28%
         }
         .col5 {
-            width: 10%
+            width: 5%
         }
         .col6 {
             width: 8%
         }
-        .oe-bold {
-            font-weight: 700;
-        }
-        .oe-grp {
-            font-size: 16px !important;
-            font-weight: 900;
-            /*padding-left:0;*/
-        }
-        .oe-ord {
-            font-weight: 800;
-        }
-        .oe-pl0 {
-            padding-left: 0 !important;
-        }
-        .oe-pl10 {
-            padding-left: 10px;
-        }
-        .oe-pl20 {
-            padding-left: 20px;
-        }
-        .oe-pl30 {
-            padding-left: 30px;
-        }
-        .oe-pl40 {
-            padding-left: 40px;
-        }
-        .oe-pl50 {
-            padding-left: 50px;
-        }
-        .oe-pl60 {
-            padding-left: 60px;
-        }
-        .oe-pl-final {
-            padding-left: 70px;
-        }
-    </style>
+       </style>
 
 
     <?php
@@ -234,7 +199,7 @@ if ($popup && $_POST['form_save']) {
       recolor();
      }
      else {
-      td1.parent().after('<tr class="outertr"><td colspan="6" id="con' + id + '" style="padding:0">Loading...</td></tr>');
+      td1.parent().after('<tr class="outertr"><td colspan="7" id="con' + id + '" style="padding:0">Loading...</td></tr>');
       td1.addClass('isExpanded');
       swapsign(td1, '+', '-');
       $.getScript('types_ajax.php?id=' + id + '&order=<?php echo $order; ?>' + '&labid=<?php echo $labid; ?>');
@@ -262,7 +227,7 @@ if ($popup && $_POST['form_save']) {
        swapsign(td1, '|', '+');
       }
       if (haskids) {
-       td1.parent().after('<tr class="outertr"><td colspan="6" id="con' + id + '" style="padding:0">Loading...</td></tr>');
+       td1.parent().after('<tr class="outertr"><td colspan="7" id="con' + id + '" style="padding:0">Loading...</td></tr>');
        td1.addClass('isExpanded');
        swapsign(td1, '+', '-');
       }
@@ -273,19 +238,16 @@ if ($popup && $_POST['form_save']) {
       recolor();
     }
 
-    // edit/add a node
-    function handleNode(id, type, add, lab) {
-        if (type > 0) {
-            type = (type === 1 && !add) ? 'fgp' : 'for';
-        }
-        let url = 'types_edit.php?addfav=' + type + '&labid=' + lab + '&parent=0&typeid=' + id;
-        if (add) {
-            url = 'types_edit.php?addfav=' + type + '&labid=' + lab + '&typeid=0&parent=' + id;
-        }
-
-        dlgopen(url, '_blank', 800, 850);
+    // edit a node
+    function enode(id) {
+        dlgopen('types_edit.php?parent=0&typeid=' + id, '_blank', 800, 750, false, '&nbsp;&nbsp;&nbsp;<i class="fa fa-pencil"  aria-hidden="true"></i>&nbsp;' + '<?php echo xlt("Edit Mode"); ?>&nbsp;&nbsp;&nbsp;');
     }
 
+    // add a node
+    function anode(id) {
+        dlgopen('types_edit.php?typeid=0&parent=' + id, '_blank', 800, 750, false, '&nbsp;&nbsp;&nbsp;<i class="fa fa-plus"  aria-hidden="true"></i>&nbsp;' + '<?php echo xlt("Add Mode"); ?>&nbsp;&nbsp;&nbsp;');
+    }
+    
     // call this to alternate row colors when anything changes the number of rows
     function recolor() {
      var i = 0;
@@ -308,9 +270,9 @@ if ($popup && $_POST['form_save']) {
 <body class="body_nav">
     <?php
     if ($GLOBALS['enable_help'] == 1) {
-        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 2) {
-        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 0) {
         $help_icon = '';
     }
@@ -338,7 +300,7 @@ if ($popup && $_POST['form_save']) {
                     ?>'>
                     <div class="btn-group">
                         <button type="button" name="form_search" class="btn btn-default btn-refresh" onclick="refreshme()"><?php echo xlt('Refresh');?></button>
-                        <button type="button" class="btn btn-default btn-add" name='add_node_btn' id='add_node_button'  onclick='handleNode(0,"","")'><?php echo xlt('Add Top Level');?></button>
+                        <button type="button" class="btn btn-default btn-add" name='add_node_btn' id='add_node_button'  onclick='anode(0)'><?php echo xlt('Add Top Level');?></button>
                     </div>
                     <br>
                     <br>
@@ -351,7 +313,8 @@ if ($popup && $_POST['form_save']) {
                                     <td class='col3 oe-pl0' align='left'><?php echo xlt('Code') ?> <i id="code-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
                                     <td class='col6 oe-pl0' align='left'><?php echo xlt('Tier') ?> <i id="tier-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
                                     <td class='col4 oe-pl0' align='left'><?php echo xlt('Description') ?></td>
-                                    <td class='col5 oe-pl0' align='left' style='padding-left:0px'><?php echo xlt('Edit/Add') ?></td>
+                                    <td class='col5 oe-pl0' align='left'><?php echo xlt('Edit') ?></td>
+                                    <td class='col5 oe-pl0' align='left'><?php echo xlt('Add') ?></td>
                                 </tr>
                             </thead>
                         </table>
@@ -359,7 +322,7 @@ if ($popup && $_POST['form_save']) {
                     <div id="con0"></div>
                     <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
                     <div class="form-group clearfix">
-                        <div class="col-sm-12 text-left position-override">
+                        <div class="col-sm-12 oe-text-left position-override">
                             <div class="btn-group btn-group-pinch" role="group">
                                 <?php if ($popup) { ?>
                                     <button type="submit" class="btn btn-default btn-save" name='form_save' value='<?php echo xla('Save'); ?>'><?php echo xlt('Save');?></button>
@@ -388,7 +351,7 @@ if ($popup && $_POST['form_save']) {
             //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
             // the relevant css file needs to be called i.e. jquery-ui-darkness - to get a black tooltip
             $('#name-tooltip').attr( "title", "<?php echo xla('The actual tests or procedures that can be searched for and ordered are highlighted in yellow'); ?>" +  ". "  + "<?php echo xla('Click on the blue plus sign under Name to reveal test names'); ?>").tooltip();
-            $('#order-tooltip').attr( "title", "<?php echo xla('The entries marked yes can be ordered as a test or procedure'); ?>" +  ". "  + "<?php echo xla('Click on the blue plus sign under Name to reveal test names'); ?>"  ).tooltip();
+            $('#order-tooltip').attr( "title", "<?php echo xla('The entries highlighted in yellow can be ordered as a test or procedure, those in pink can be ordered as a group'); ?>" +  ". "  + "<?php echo xla('Click on the blue plus sign under Name to reveal test names'); ?>"  ).tooltip();
             $('#code-tooltip').attr( "title", "<?php echo xla('Category - Order, Result and Recommendation need an identifying code');?>" + ". " + "<?php echo xla('Red Triangle indicates a required code that is missing')?>.").
             tooltip();
             $('#tier-tooltip').attr( "title", "<?php echo xla('Shows the hierarchal level of this line');?>" + ". " + "<?php echo xla('Tier 1 entries should be of Category Top Group')?>.").
