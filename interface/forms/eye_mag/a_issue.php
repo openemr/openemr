@@ -1315,7 +1315,7 @@ foreach (explode(',', $given) as $item) {
             </tr>
             <tr>
                 <td colspan="4"><label>Comments:</label><br />
-                    <textarea name="ROSCOMMENTS" id="ROSCOMMENTS" ><?php echo $ROSCOMMENTS; ?></textarea>
+                    <textarea name="ROSCOMMENTS" id="ROSCOMMENTS" ><?php echo text($ROSCOMMENTS); ?></textarea>
                 </td>
             </tr>
         </table>

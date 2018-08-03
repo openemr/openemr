@@ -57,12 +57,13 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/report.inc");
 require_once("$srcdir/html2pdf/html2pdf.class.php");
 
+use Mpdf\Mpdf;
+
 $returnurl = 'encounter_top.php';
 
 if (isset($_REQUEST['id'])) {
     $id = $_REQUEST['id'];
 }
-use Mpdf\Mpdf;
 
 if (!$id) {
     $id = $_REQUEST['pid'];
@@ -276,9 +277,7 @@ if ($_REQUEST['unlock'] == '1') {
 } elseif ($_REQUEST['acquire_lock'] == "1") {
     //we are taking over the form's active state, others will go read-only
     $query = "UPDATE form_eye_locking set LOCKED='1',LOCKEDBY=?,LOCKEDDATE=NOW() where id=?";//" and LOCKEDBY=?";
-    echo $query."<br />";
     $result = sqlQuery($query, array($_REQUEST['uniqueID'], $form_id ));
-    echo $query. " - - ".$_REQUEST['uniqueID'] . "----".$form_id ;
     exit;
 } else {
     $query = "SELECT LOCKED,LOCKEDBY,LOCKEDDATE from form_eye_locking WHERE ID=?";

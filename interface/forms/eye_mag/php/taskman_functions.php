@@ -361,10 +361,7 @@ function make_document($task)
     if ($_SESSION['language_direction'] == 'rtl') {
         $pdf->SetDirectionality('rtl');
     }
-    $pdf->shrink_tables_to_fit = 1;
-    $keep_table_proportions = true;
-    $pdf->use_kwt = true;
-    
+
     ob_start();
     ?><html>
     <head>

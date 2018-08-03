@@ -1844,16 +1844,14 @@ function openImage() {
 
 // Called to open a document in another tab for this encounter.
 function openDocumentNewTab(doc_id) {
-var url = '/openemr/interface/patient_file/encounter/view_form.php?formname=' +
-formdir + '&id=' + formid;
-if (formdir == 'newpatient' || !parent.twAddFrameTab) {
-top.restoreSession();
-location.href = url;
-}
-else {
-parent.twAddFrameTab('enctabs', formname, url);
-}
-return false;
+    var url = '../../interface/patient_file/encounter/view_form.php?formname=' + formdir + '&id=' + formid;
+    if (formdir == 'newpatient' || !parent.twAddFrameTab) {
+        top.restoreSession();
+        location.href = url;
+    } else {
+        parent.twAddFrameTab('enctabs', formname, url);
+    }
+    return false;
 }
 
 function HPI_sync_heights() {
@@ -2106,7 +2104,7 @@ function color_IOP(IOP){
 function showpnotes(docid) {
     if (top.tab_mode) {
         let btnClose = 'Done';
-        let url = top.webroot_url + '/interface/patient_file/summary/pnotes.php?docid=' + docid;
+        let url = '../../interface/patient_file/summary/pnotes.php?docid=' + docid;
         dlgopen(url, 'pno1', 'modal-xl', 500, '', '', {
             buttons: [
                     {text: btnClose, close: true, style: 'default btn-xs'}
@@ -3511,11 +3509,11 @@ var allPanels = $('.building_blocks > dd').hide();
                                                      } else {
                                                        $("#"+zone+"_right").addClass('nodisplay');
                                                        $("#PREFS_"+zone+"_RIGHT").val(1);
-                                                    }
+                                                     }
                                                      scrollTo(zone+"_left");
                                                      update_PREFS();
                                                    }
-                                                   });
+                                                  });
 
                   $("#EXAM_TEXT").addClass('button_selected');
                   if (($("#PREFS_CLINICAL").val() !='1')) {

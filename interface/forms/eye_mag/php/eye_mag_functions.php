@@ -4728,7 +4728,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         if ($encounter_data['OSIOPTARGET']) {
             $OSIOPTARGETS[$i] = $encounter_data['ODIOPTARGET'];
         } else if (!$OSIOPTARGETS[$i] > '') {
-            $query = "SELECT *  FROM `list_options` WHERE `list_id` LIKE 'Eye_defaults_".$provider_id."' and (option_id = 'ODIOPTARGET' OR  option_id = 'OSIOPTARGET')";
+            $query = "SELECT *  FROM `list_options` WHERE `list_id` LIKE 'Eye_defaults_".add_escape_custom($provider_id)."' and (option_id = 'ODIOPTARGET' OR  option_id = 'OSIOPTARGET')";
             $result = sqlQuery($query);
             while ($default_TARGETS = sqlFetchArray($result)) {
                 if ($default_TARGETS['option_id']=='OSIOPTARGET') {
