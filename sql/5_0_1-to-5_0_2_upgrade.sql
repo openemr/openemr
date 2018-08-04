@@ -528,6 +528,14 @@ CREATE  TABLE `form_eye_locking` (
   UNIQUE KEY `id_pid` (`id`,`pid`)
 ) ENGINE = InnoDB;
 
+ALTER TABLE `form_eye_mag_orders`
+    CHANGE `id` `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+    CHANGE ORDER_PID to pid BIGINT(20) NOT NULL,
+    ADD `form_id` bigint(20) NOT NULL AFTER `id`,
+    DROP INDEX `VISIT_ID`;
+ALTER TABLE `form_eye_mag_orders`
+    ADD UNIQUE `VISIT_ID` (`pid`, `ORDER_DETAILS`, `ORDER_DATE_PLACED`);
+
 INSERT into `form_eye_base` (`id`,`date`,`pid`,`user`,`groupname`,`authorized`, `activity`)
   select `id`,`date`,`pid`,`user`,`groupname`,`authorized`, `activity` from `form_eye_mag`;
 
