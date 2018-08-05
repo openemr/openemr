@@ -276,9 +276,9 @@ while ($urow = sqlFetchArray($ures)) {
  <tr>
      <td>
          <b><?php echo htmlspecialchars(xl('Due date'), ENT_NOQUOTES); ?>:</b>
-         <?php
-         generate_form_field(array('data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'), empty($datetime) ? date('Y-m-d H:i') : $datetime);
-         ?>
+        <?php
+        generate_form_field(array('data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'), empty($datetime) ? date('Y-m-d H:i') : $datetime);
+        ?>
      </td>
  </tr>
 <?php
