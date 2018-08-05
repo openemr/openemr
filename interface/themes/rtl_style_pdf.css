@@ -1415,10 +1415,6 @@ div.tab table td {
     float: right !important;
 }
 
-form#new_note div{
-
-    float: none !important;
-}
 /* record_disclosure.php */
 #record-disclosure, #record-disclosure>div {
 
