@@ -270,14 +270,20 @@ while ($urow = sqlFetchArray($ures)) {
 ?>
    <option value=''><?php echo htmlspecialchars(xl('Mark Note as Completed'), ENT_NOQUOTES); ?></option>
    </select>
-    <?php if ($GLOBALS['messages_feature_date']) { // not in edit screen ?>
-       <b><?php echo htmlspecialchars(xl('Date'), ENT_NOQUOTES); ?>:</b>
-        <?php
-        generate_form_field(array('data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'), empty($datetime) ? date('Y-m-d H:i') : $datetime);
-}
-    ?>
   </td>
  </tr>
+<?php if ($GLOBALS['messages_due_date']) { ?>
+ <tr>
+     <td>
+         <b><?php echo htmlspecialchars(xl('Due date'), ENT_NOQUOTES); ?>:</b>
+         <?php
+         generate_form_field(array('data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'), empty($datetime) ? date('Y-m-d H:i') : $datetime);
+         ?>
+     </td>
+ </tr>
+<?php
+}
+?>
  <tr>
   <td>
 <?php

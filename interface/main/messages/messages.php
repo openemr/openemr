@@ -448,9 +448,9 @@ if (!empty($_REQUEST['go'])) { ?>
                                 <div class="row">
                                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 oe-custom-line col-lg-offset-1">
                                         <div class="row">
-                                            <?php if ($GLOBALS['messages_feature_date']) { ?>
+                                            <?php if ($GLOBALS['messages_due_date']) { ?>
                                             <div class="col-xs-6 col-sm-2">
-                                                <label class="control-label" for="form_note_type"><?php echo xlt('Date'); ?>:</label>
+                                                <label class="control-label" for="form_note_type"><?php echo xlt('Due date'); ?>:</label>
                                                 <?php generate_form_field(array('data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'), empty($datetime) ? date('Y-m-d H:i') : $datetime) ?>
                                             </div>
                                             <?php } ?>
@@ -648,7 +648,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                                             <td style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\" class=bold>&nbsp;<b>" .
                                                     xlt('Type') . "</b> $sortlink[2]</td>
                                                                             <td width=\"15%\" style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\" class=bold>&nbsp;<b>" .
-                                                    xlt('Date') . "</b> $sortlink[3]</td>
+                                                    xlt($GLOBALS['messages_due_date'] ? 'Due date' : 'Date') . "</b> $sortlink[3]</td>
                                                                             <td width=\"15%\" style=\"border-bottom: 1px #000000 solid; \" class=bold>&nbsp;<b>" .
                                                     xlt('Status') . "</b> $sortlink[4]</td>
                                                 </tr>";
