@@ -1407,7 +1407,7 @@ status="status_on";
                 justify_btn = '&nbsp;<span class="modifier '+status+'" id="TEST_'+index+'_just_'+i+'" name="TEST_'+index+'_justifiers" value="" data-justcode="'+item2+'" title="'+item2+'">'+(i+1)+'</span>';
                 herenow.append(justify_btn);
 }
-        
+
         });
 
             // The IMPRESSION DXs are "contenteditable" spans.
@@ -3234,7 +3234,7 @@ var allPanels = $('.building_blocks > dd').hide();
                                               // subspecialty of the doctor. ie. Eye_defaults_for_GENERAL (the only one that exists today)
                                               // or Eye_defaults_for_CORNEA, RETINA, NEURO, PLASTICS, REFRACTIVE, PEDS, UVEITIS
                                               // Let's see if the public likes the form itself before developing these subspecialty lists...
-                                                
+
                                                 //Copy the Eye_Defaults_for_GENERAL to Eye_defaults_$providerID
                                                 $sql="SELECT * from list_options where list_id = 'Eye_Defaults_for_GENERAL'";
                                                 $start= sqlStatement($sql);
@@ -3764,7 +3764,7 @@ var allPanels = $('.building_blocks > dd').hide();
                                                     show_QP();
                                                 } else if (zone == 'IMPPLAN') {
                                                     show_QP_section('IMPPLAN');
-                                                    
+
                                                 }
 update_PREFS();
                                                 });
@@ -4026,7 +4026,7 @@ update_PREFS();
                         }
                     build_CODING_list();
                   });
-                  
+
                   build_IMPPLAN(obj.IMPPLAN_items);
                   scroll='1';
                     <?php if ($GLOBALS['new_tabs_layout'] !=='1') {

@@ -28,24 +28,22 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/FeeSheetHtml.class.php");
+include_once("../../forms/eye_mag/php/eye_mag_functions.php");
 
 use OpenEMR\Core\Header;
 
 
-$form_name = "eye_mag";
+$form_name   = "eye_mag";
 $form_folder = "eye_mag";
-$Form_Name = "Eye Exam";
+$Form_Name   = "Eye Exam";
+$form_id     = $_REQUEST['id'];
+$action      = $_REQUEST['action'];
+$finalize    = $_REQUEST['finalize'];
+$id          = $_REQUEST['id'];
+$display     = $_REQUEST['display'];
+$pid         = $_REQUEST['pid'];
+$refresh     = $_REQUEST['refresh'];
 
-//since we come through the controller
-include_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
-
-$form_id    = $_REQUEST['id'];
-$action     = $_REQUEST['action'];
-$finalize   = $_REQUEST['finalize'];
-$id         = $_REQUEST['id'];
-$display    = $_REQUEST['display'];
-$pid        = $_REQUEST['pid'];
-$refresh    = $_REQUEST['refresh'];
 if ($_REQUEST['url']) {
     redirector($_REQUEST['url']);
     exit;
@@ -100,12 +98,14 @@ $encounter_data =sqlQuery($query10, array($id));
 @extract($encounter_data);
 $id = $form_id;
 
-$query = "SELECT * FROM patient_data where pid=?";
-$pat_data =  sqlQuery($query, array($pid));
+list($ODIOPTARGET,$OSIOPTARGET) = getIOPTARGETS($pid,$id,$provider_id);
+
+$query          = "SELECT * FROM patient_data where pid=?";
+$pat_data       =  sqlQuery($query, array($pid));
 
 $providerNAME   = getProviderName($provider_id);
 $query          = "SELECT * FROM users where id = ?";
-$prov_data      =  sqlQuery($query, array($provider_id));
+$prov_data      = sqlQuery($query, array($provider_id));
 
 // build $PMSFH array
 global $priors;
