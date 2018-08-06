@@ -346,6 +346,7 @@ if (!empty($glrow)) {
         } elseif ($gl_name == 'css_header') {
             //Escape css file name using 'attr' for security (prevent XSS).
             $GLOBALS[$gl_name] = $rootdir.'/themes/'.attr($gl_value).'?v='.$v_js_includes;
+            $css_header = $GLOBALS[$gl_name];
             $temp_css_theme_name = $gl_value;
         } elseif ($gl_name == 'weekend_days') {
             $GLOBALS[$gl_name] = explode(',', $gl_value);
@@ -427,6 +428,7 @@ if (!empty($glrow)) {
         if (file_exists($include_root.'/themes/'.$new_theme)) {
             //Escape css file name using 'attr' for security (prevent XSS).
             $GLOBALS['css_header'] = $rootdir.'/themes/'.attr($new_theme).'?v='.$v_js_includes;
+            $css_header = $GLOBALS['css_header'];
         } else {
             // throw a warning if rtl'ed file does not exist.
             error_log("Missing theme file ".text($include_root).'/themes/'.text($new_theme));
@@ -535,7 +537,6 @@ if (!empty($version)) {
 
 $srcdir = $GLOBALS['srcdir'];
 $login_screen = $GLOBALS['login_screen'];
-$GLOBALS['css_header'] = $css_header;
 $GLOBALS['backpic'] = $backpic;
 
 // 1 = send email message to given id for Emergency Login user activation,
