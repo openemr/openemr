@@ -723,17 +723,17 @@ if (!($portalUserSetting)) : // Show that the patient has not authorized portal 
 <?php endif;
         //Patient Portal
 
-        // If patient is deceased, then show this (along with the number of days patient has been deceased for)
+        // If patient is deceased, then show this (along with the deceased date if greater than 90 days)
         $days_deceased = is_patient_deceased($pid);
 if ($days_deceased != null) : ?>
             <td class="deceased" style="padding-left:1em;font-weight:bold;color:red">
                 <?php
-                if ($days_deceased == 0) {
-                    echo xlt("DECEASED (Today)");
-                } else if ($days_deceased == 1) {
-                    echo xlt("DECEASED (1 day ago)");
+                if ($days_deceased['days_deceased'] <= 90) {
+                    echo xlt("Recently deceased") . " (" .
+                        text(date("F jS, Y", strtotime($days_deceased['date_deceased']))) . ")";
                 } else {
-                    echo xlt("DECEASED") . " (" . text($days_deceased) . " " . xlt("days ago") . ")";
+                    echo xlt("Deceased") . " (" .
+                        text(date("F jS, Y", strtotime($days_deceased['date_deceased']))) . ")";
                 } ?>
             </td>
 <?php endif; ?>
