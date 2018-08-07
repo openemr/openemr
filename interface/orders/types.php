@@ -119,46 +119,19 @@ if ($popup && $_POST['form_save']) {
             width: 28%
         }
         .col5 {
-            width: 10%
+            width: 5%
         }
         .col6 {
             width: 8%
         }
-        .oe-bold {
-            font-weight: 700;
+        
+        @media only screen and (max-width: 768px) {
+           [class*="col-"] {
+           width: 100%;
+           /*text-align:left!important;*/
+            }
         }
-        .oe-grp {
-            font-size: 16px !important;
-            font-weight: 900;
-            /*padding-left:0;*/
-        }
-        .oe-ord {
-            font-weight: 800;
-        }
-        .oe-pl0 {
-            padding-left: 0 !important;
-        }
-        .oe-pl10 {
-            padding-left: 10px;
-        }
-        .oe-pl20 {
-            padding-left: 20px;
-        }
-        .oe-pl30 {
-            padding-left: 30px;
-        }
-        .oe-pl40 {
-            padding-left: 40px;
-        }
-        .oe-pl50 {
-            padding-left: 50px;
-        }
-        .oe-pl60 {
-            padding-left: 60px;
-        }
-        .oe-pl-final {
-            padding-left: 70px;
-        }
+        
     </style>
 
 
@@ -234,7 +207,7 @@ if ($popup && $_POST['form_save']) {
       recolor();
      }
      else {
-      td1.parent().after('<tr class="outertr"><td colspan="6" id="con' + id + '" style="padding:0">Loading...</td></tr>');
+      td1.parent().after('<tr class="outertr"><td colspan="7" id="con' + id + '" style="padding:0">Loading...</td></tr>');
       td1.addClass('isExpanded');
       swapsign(td1, '+', '-');
       $.getScript('types_ajax.php?id=' + id + '&order=<?php echo $order; ?>' + '&labid=<?php echo $labid; ?>');
@@ -262,7 +235,7 @@ if ($popup && $_POST['form_save']) {
        swapsign(td1, '|', '+');
       }
       if (haskids) {
-       td1.parent().after('<tr class="outertr"><td colspan="6" id="con' + id + '" style="padding:0">Loading...</td></tr>');
+       td1.parent().after('<tr class="outertr"><td colspan="7" id="con' + id + '" style="padding:0">Loading...</td></tr>');
        td1.addClass('isExpanded');
        swapsign(td1, '+', '-');
       }
@@ -275,15 +248,19 @@ if ($popup && $_POST['form_save']) {
 
     // edit/add a node
     function handleNode(id, type, add, lab) {
+        var editTitle = '<i class="fa fa-pencil" style="width:20px;" aria-hidden="true"></i> ' + '<?php echo xlt("Edit Mode"); ?> ';
+        var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + '<?php echo xlt("Add Mode"); ?>';
         if (type > 0) {
             type = (type === 1 && !add) ? 'fgp' : 'for';
         }
         let url = 'types_edit.php?addfav=' + type + '&labid=' + lab + '&parent=0&typeid=' + id;
+        
         if (add) {
             url = 'types_edit.php?addfav=' + type + '&labid=' + lab + '&typeid=0&parent=' + id;
+            dlgopen(url, '_blank', 800, 750, false, addTitle);
+        } else {
+            dlgopen(url, '_blank', 800, 750, false, editTitle);
         }
-
-        dlgopen(url, '_blank', 800, 850);
     }
 
     // call this to alternate row colors when anything changes the number of rows
@@ -308,23 +285,23 @@ if ($popup && $_POST['form_save']) {
 <body class="body_nav">
     <?php
     if ($GLOBALS['enable_help'] == 1) {
-        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 2) {
-        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 0) {
         $help_icon = '';
     }
     ?>
     <div class="container">
         <div class="row">
-             <div class="col-xs-12">
+             <div class="col-sm-12">
                 <div class="page-header clearfix">
                     <h2 id="header_title" class="clearfix"><span id='header_text'><?php echo xlt('Configure Orders and Results');?></span><?php echo $help_icon; ?></h2>
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-sm-12">
                 <form method='post' name='theform'
                     action='types.php?popup=<?php echo $popup ?>&order=<?php
                     echo $order;
@@ -351,7 +328,8 @@ if ($popup && $_POST['form_save']) {
                                     <td class='col3 oe-pl0' align='left'><?php echo xlt('Code') ?> <i id="code-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
                                     <td class='col6 oe-pl0' align='left'><?php echo xlt('Tier') ?> <i id="tier-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
                                     <td class='col4 oe-pl0' align='left'><?php echo xlt('Description') ?></td>
-                                    <td class='col5 oe-pl0' align='left' style='padding-left:0px'><?php echo xlt('Edit/Add') ?></td>
+                                    <td class='col5 oe-pl0' align='left'><?php echo xlt('Edit') ?></td>
+                                    <td class='col5 oe-pl0' align='center'><?php echo xlt('Add') ?></td>
                                 </tr>
                             </thead>
                         </table>
