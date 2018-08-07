@@ -548,7 +548,7 @@ function setMyPatient() {
     "'," . addslashes($pid) . ",'" . addslashes($result['pubpid']) .
     "','', ' " . xls('DOB') . ": " . addslashes(oeFormatShortDate($result['DOB_YMD'])) . " ";
     $date_of_death = is_patient_deceased($pid)['date_deceased'];
-    if(empty($date_of_death)) {
+    if (empty($date_of_death)) {
         echo xls('Age') . ": " . addslashes(getPatientAgeDisplay($result['DOB_YMD'])) . "'";
     } else {
         echo xls('Age at time of death') . ": " . addslashes(oeFormatAge($result['DOB_YMD'], $date_of_death)) . "'";
@@ -736,12 +736,12 @@ if (!($portalUserSetting)) : // Show that the patient has not authorized portal 
 if ($days_deceased) : ?>
             <td class="deceased" style="padding-left:1em;font-weight:bold;color:red">
                 <?php
-                    if ($days_deceased['days_deceased'] <= 90) {
+                if ($days_deceased['days_deceased'] <= 90) {
                         echo xlt("Recently deceased");
-                    } else {
+                } else {
                         echo xlt("Deceased");
-                    }
-                    echo  " (" . text(oeFormatShortDate($days_deceased['date_deceased'])) . ")";
+                }
+                echo  " (" . text(oeFormatShortDate($days_deceased['date_deceased'])) . ")";
                 ?>
             </td>
 <?php endif; ?>
