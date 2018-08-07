@@ -87,6 +87,14 @@
 
 UPDATE `background_services` SET `require_once`='/library/MedEx/MedEx_background.php' WHERE `name`='MedEx';
 
+#IfNotRow2Dx2 list_options list_id proc_type option_id fgp title Custom Favorite Group
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','fgp','Custom Favorite Group' ,50,0);
+#EndIf
+
+#IfNotRow2Dx2 list_options list_id proc_type option_id for title Custom Favorite Item
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','for','Custom Favorite Item' ,60,0);
+#EndIf
+
 #IfNotTable form_eye_base
 CREATE TABLE `form_eye_base` (
   `id`         bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Links to forms.form_id',
@@ -584,5 +592,3 @@ INSERT INTO `form_eye_locking` (`id`, `pid`, `IMP`, `PLAN`, `Resource`, `Technic
 
 DROP TABLE `form_eye_mag`;
 #EndIf
-
-

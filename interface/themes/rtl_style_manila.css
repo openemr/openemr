@@ -144,6 +144,10 @@ body {
   width: 100%;
   border-collapse: collapse; }
 
+.oe-empty-label {
+  display: inline-block;
+  width: 100%; }
+
 /*
  * closeDlgIframe common styles
  */
@@ -2299,10 +2303,6 @@ div.tab table td {
     float: right !important;
 }
 
-form#new_note div{
-
-    float: none !important;
-}
 /* record_disclosure.php */
 #record-disclosure, #record-disclosure>div {
 

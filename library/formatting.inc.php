@@ -146,7 +146,7 @@ function oeFormatPatientNote($note)
             $note = substr($note, 0, $i) . oeFormatShortDate(substr($note, $i, 10)) . substr($note, $i + 10);
         }
 
-        $i = strpos("\n", $note, $i);
+        $i = strpos($note, "\n", $i);
         if ($i !== false) {
             ++$i;
         }

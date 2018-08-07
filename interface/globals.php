@@ -196,23 +196,11 @@ $GLOBALS['login_screen'] = $GLOBALS['rootdir'] . "/login_screen.php";
 // Variable set for Eligibility Verification [EDI-271] path
 $GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/edi/";
 
-//  Check necessary writeable paths exist for mPDF tool
-if (is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/')) {
-    if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/')) {
-        mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/', 0755);
-    }
-
-    if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/')) {
-        mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/', 0755);
-    }
-} else {
-    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/', 0755, true);
-    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/', 0755);
+//  Set and check that necessary writeable path exist for mPDF tool
+$GLOBALS['MPDF_WRITE_DIR'] = $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp';
+if (! is_dir($GLOBALS['MPDF_WRITE_DIR'])) {
+    mkdir($GLOBALS['MPDF_WRITE_DIR'], 0755, true);
 }
-
-// Safe bet support directories exist, define them.
-define("_MPDF_TEMP_PATH", $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/');
-define("_MPDF_TTFONTDATAPATH", $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/');
 
 // Includes composer autoload
 // Note this also brings in following library files:
@@ -358,6 +346,7 @@ if (!empty($glrow)) {
         } elseif ($gl_name == 'css_header') {
             //Escape css file name using 'attr' for security (prevent XSS).
             $GLOBALS[$gl_name] = $rootdir.'/themes/'.attr($gl_value).'?v='.$v_js_includes;
+            $css_header = $GLOBALS[$gl_name];
             $temp_css_theme_name = $gl_value;
         } elseif ($gl_name == 'weekend_days') {
             $GLOBALS[$gl_name] = explode(',', $gl_value);
@@ -439,6 +428,7 @@ if (!empty($glrow)) {
         if (file_exists($include_root.'/themes/'.$new_theme)) {
             //Escape css file name using 'attr' for security (prevent XSS).
             $GLOBALS['css_header'] = $rootdir.'/themes/'.attr($new_theme).'?v='.$v_js_includes;
+            $css_header = $GLOBALS['css_header'];
         } else {
             // throw a warning if rtl'ed file does not exist.
             error_log("Missing theme file ".text($include_root).'/themes/'.text($new_theme));
@@ -547,7 +537,6 @@ if (!empty($version)) {
 
 $srcdir = $GLOBALS['srcdir'];
 $login_screen = $GLOBALS['login_screen'];
-$GLOBALS['css_header'] = $css_header;
 $GLOBALS['backpic'] = $backpic;
 
 // 1 = send email message to given id for Emergency Login user activation,
