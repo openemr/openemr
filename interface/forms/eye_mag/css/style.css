@@ -1017,7 +1017,7 @@ margin-bottom: -3px;
         top:8px;
         right:8px;
         padding: 0px 5px;
-        font-size: 0.8em;
+        font-size:12px;
      }
     .closeButton:hover {
         cursor:pointer;
@@ -1663,7 +1663,7 @@ View.php
 #page-wrapper { margin: 0 0 0 0;text-align:center;}
 #id { text-align:center;padding: 0 30px;}
 #warning { padding-top:10px;margin: 0 auto;width:50%;}
-#first { display:inline-block;width:90%;}
+#first { display:inline-block;}
 #HPIPMH_sections { display:inline-block;margin: 10px auto;text-align:center; }
 #HPI_left_text { height: 315px;text-align:left;}
 #tabs_container { z-index:3;margin-top:5px;}
@@ -1771,7 +1771,7 @@ View.php
 .border-top { border-top:1pt solid black;white-space: nowrap;}
 .pupil_dim_comments { position:absolute;  top: 0.2in; left: 1.1in; border: none;padding: auto;}
 #PUPIL_COMMENTS { height:0.50in;width:0.8in;font-size:0.8em; }
-#LayerVision_IOP { display:inline-block;text-align:left;width:83%;}
+#LayerVision_IOP { display:inline-block;text-align:left;width:83%;max-width: 1000px;}
 #LayerVision2 { display:inline-block;text-align:center;width:100%;}
 #Add_Glasses { font-size:0.7em;margin-left:30px;background:#C9DBF2;}
 #wearing_1,#wearing_2,#wearing_3,#wearing_4 { width:100%;}

@@ -1280,7 +1280,7 @@ function build_IMPPLAN(items,nodisplay) {
       $('#Coding_DX_Codes').html("");
       $('#visit_justification').html("");
 
-    if ((items == null) || ( (typeof items == "undefined") || (items.length =='0') ) ) {
+    if ((items == null) || ((typeof items == "undefined")|| (items.length =='0'))) {
         items = [];
         $('#IMPPLAN_text').removeClass('nodisplay'); //Display Builder instructions for starting out
         $('#IMPPLAN_zone').addClass('nodisplay');
@@ -1297,24 +1297,21 @@ function build_IMPPLAN(items,nodisplay) {
               value.code="<i class='fa fa-search-plus'></i>&nbsp;Code";
             } else {
               count_dx++;
-
               if (value.code.match(/\,/g)) {
                 // If there is a comma in there, there is more than one code present for this item. Split them out.
                 // If code is manually changed or copied from a prior visit - item will not have a PMSFH_link
                 // PMSFH_link is only present when the Builder was used to make the entry.
-                
-                // So if there is no PMSFH_link and it is not generated from a clinical field:
-                if ( ((typeof value.PMSFH_link !== "undefined") || (value.PMSFH_link !== null)) && (!value.PMSFH_link.match(/Clinical_(.*)/)) ) {
-                    //The Title should have the description.
-                    var CodeArr =  value.code.split(",");
-                    var TitleArr = value.codedesc.split("\r");//I don't see a second codedesc being adding in for this yet...
+                if ((typeof value.PMSFH_link !== "undefined") || (value.PMSFH_link !== null)) {
+                  //The Title should have the description.
+                  var CodeArr =  value.code.split(",");
+                  var TitleArr = value.codedesc.split("\r");
                     for (i=0;i < CodeArr.length;i++) {
-                      if (CodeArr.length == (TitleArr.length-1)) { //there is a trailing \r but second codedesc should have "\r" also
+                      if (CodeArr.length == (TitleArr.length-1)) { //there is a trailing \r
                         $('#Coding_DX_Codes').append(count_dx +'. '+CodeArr[i]+': '+TitleArr[i]+'<br />');
 
                         justify_btn = '<span class="modifier status_on" name="visit_justifier" id="visit_just_'+count_dx+'" value="" data-justcode="'+value.codetype+'|'+value.code+'" title="'+value.codedesc+'">'+count_dx+'</span>';
                         $('#visit_justification').append(justify_btn);
-                        visit_justifier.push(value.codetype+'|'+value.code[i]);
+                        visit_justifier.push(value.codetype+'|'+value.code);
                       } else {
                         //just look it up via ajax or tell them to code it manually on the feesheet ;).
                         $('#Coding_DX_Codes').append(CodeArr[i]+': <?php echo xlt('Manually retrieve description on Fee Sheet'); ?> <br />');
@@ -1324,24 +1321,25 @@ function build_IMPPLAN(items,nodisplay) {
                         $('#visit_justification').append(justify_btn);
                         visit_justifier.push(value.codetype+'|'+value.code);
                       }
-                      count_dx++;
                     }
-                } else {
-                    // So there IS a PMSFH_link or it was generated from a clinical field:
-
-                    //this works for Clinical-derived terms with more than one Dx Code (found in more than one location/field)
+                } else  {
+                 //this works for Clinical-derived terms with more than one Dx Code (found in more than one location/field)
                   if (value.PMSFH_link.match(/Clinical_(.*)/)) {
                     if (typeof obj.Clinical !== "undefined") {
                       var location = value.PMSFH_link.match(/Clinical_(.*)/)[1];
                       if (obj.Clinical[location]!=null ) {
-                        for (i=0; i < obj.Clinical[location].length; i++) {
-                            $('#Coding_DX_Codes').append(count_dx +'. '+obj.Clinical[location][i].code+': '+obj.Clinical[location][i].codedesc+'<br />');
-                            justify_btn = '<span class="modifier status_on" id="visit_just_'+count_dx+'" name="visit_justifier" value="" data-justcode="'+obj.Clinical[location][i].codetype+'|'+obj.Clinical[location][i].code+'" title="'+obj.Clinical[location][i].codedesc+'">'+count_dx+'</span>';
-                            count_dx++;
-                            $('#visit_justification').append(justify_btn);
+                        for (i=0; i< obj.Clinical[location].length; i++) {
+                          $('#Coding_DX_Codes').append(count_dx +'. '+obj.Clinical[location][i].code+': '+obj.Clinical[location][i].codedesc+'<br />');
 
-                            visit_justifier.push(obj.Clinical[location][i].codetype+'|'+obj.Clinical[location][i].code);
+                          justify_btn = '<span class="modifier status_on" id="visit_just_'+count_dx+'" name="visit_justifier" value="" data-justcode="'+obj.Clinical[location][i].codetype+'|'+obj.Clinical[location][i].code+'" title="'+vobj.Clinical[location][i].codedesc+'">'+count_dx+'</span>';
+
+                        $('#visit_justification').append(justify_btn);
+                           visit_justifier.push(vbj.Clinical[location][i].code+'|'+obj.Clinical[location][i].codedes);
+
                         }
+                      } else {
+                        //item has a PMSFH_link but it is not from a Clinical field
+                        alert("Houston, we have a problem!");
                       }
                     }
                   }
@@ -1353,6 +1351,16 @@ function build_IMPPLAN(items,nodisplay) {
                 $('#visit_justification').append(justify_btn);
                 //we assume the visit code will use this as a justification in billing so activate that link now.
                 visit_justifier.push(value.codetype+'|'+value.code);
+                //if there are TESTS performed they must be linked to a code too.  Often this means we will need a 25 modifier to the visit code
+                //and the visit code will need a second/different Dx code to be paid.
+                //So if a TEST is performed, select modifier 25 = status_on
+                //$('#visit_mod_25').addClass('status_on');
+                //Let's start with the addition of this code to each of the TESTS.
+                //Since the Dx codes are loaded on start-up and after the initial run as the Imp/Plan is being built,
+                //we need to build these each time the IMP/PLAN changes...
+                //And here we are so...
+                //$('.TESTS_justify').each
+
               }
             }
 
@@ -1385,18 +1393,21 @@ function build_IMPPLAN(items,nodisplay) {
             $( this ).html('');
             var herenow = $("#TEST_"+index+"_justify");
 
-            for (var i = 0, length = visit_justifier.length; i < length; i++) {
-                item2 = visit_justifier[i];
-                status ='';
-                for (var j=0;j< CODING_items.length; j++) {
-                    if (CODING_items[j].justify == item2) {
-                        status="status_on";
-                    }
-                }
-                //if item2 is in CODING_items, it will have class=status_on and we need modifier 25, maybe 59 if there are two or more?
+for (var i = 0, length = visit_justifier.length; i < length; i++) {
+item2 = visit_justifier[i];
+status ='';
+for (var j=0;j< CODING_items.length; j++) {
+console.log(CODING_items[j].justify);
+if (CODING_items[j].justify == item2) {
+status="status_on";
+}
+}
+//if item2 is in CODING_items, it will have class=status_on and we need modifier 25, maybe 59 if there are two or more?
+
                 justify_btn = '&nbsp;<span class="modifier '+status+'" id="TEST_'+index+'_just_'+i+'" name="TEST_'+index+'_justifiers" value="" data-justcode="'+item2+'" title="'+item2+'">'+(i+1)+'</span>';
                 herenow.append(justify_btn);
-            }
+}
+
         });
 
             // The IMPRESSION DXs are "contenteditable" spans.
@@ -1405,15 +1416,6 @@ function build_IMPPLAN(items,nodisplay) {
                                     e.preventDefault();
                                     var item = this.id.match(/IMPRESSION_(.*)/)[1];
                                     var content = this.innerText || this.innerHTML;
-
-                                    if (pmsfh_here = obj.IMPPLAN_items[item].PMSFH_link.match(/(.*)\_(.*)/)) {
-                                        //we are going to change how this appears in PMH too.
-                                        var pmsfh_zone = pmsfh_here[1];
-                                        var pmsfh_item = pmsfh_here[2];
-                                        obj.PMSFH[pmsfh_zone][pmsfh_item].title = content;
-                                        alter_issue2(obj.PMSFH[pmsfh_zone][pmsfh_item].issue,pmsfh_zone,pmsfh_item);
-                                    }
-
                                     obj.IMPPLAN_items[item].title = content;
                                     store_IMPPLAN(obj.IMPPLAN_items,'1');
                                     //$(this).css('background-color','#F0F8FF');
@@ -1842,7 +1844,6 @@ function openImage() {
 
 // Called to open a document in another tab for this encounter.
 function openDocumentNewTab(doc_id) {
-<<<<<<< HEAD
     var url = '../../interface/patient_file/encounter/view_form.php?formname=' + formdir + '&id=' + formid;
     if (formdir == 'newpatient' || !parent.twAddFrameTab) {
         top.restoreSession();
@@ -1851,18 +1852,6 @@ function openDocumentNewTab(doc_id) {
         parent.twAddFrameTab('enctabs', formname, url);
     }
     return false;
-=======
-var url = '/openemr/interface/patient_file/encounter/view_form.php?formname=' +
-formdir + '&id=' + formid;
-if (formdir == 'newpatient' || !parent.twAddFrameTab) {
-top.restoreSession();
-location.href = url;
-}
-else {
-parent.twAddFrameTab('enctabs', formname, url);
-}
-return false;
->>>>>>> Near Completion Eye InnoDB
 }
 
 function HPI_sync_heights() {
@@ -1981,6 +1970,7 @@ function update_DOCS() {
  *  Initial use:  update data returned from an ajax call.
  */
 function build_DOCS(DOCS) {
+    console.log(DOCS);
     if (DOCS['pcp']) {
         $("#pcp_name").html(DOCS['pcp']['name']);
         $("#pcp_address").html(DOCS['pcp']['address']);
@@ -2114,7 +2104,7 @@ function color_IOP(IOP){
 function showpnotes(docid) {
     if (top.tab_mode) {
         let btnClose = 'Done';
-        let url = base+'/interface/patient_file/summary/pnotes.php?docid=' + docid;
+        let url = '../../interface/patient_file/summary/pnotes.php?docid=' + docid;
         dlgopen(url, 'pno1', 'modal-xl', 500, '', '', {
             buttons: [
                     {text: btnClose, close: true, style: 'default btn-xs'}
@@ -2631,7 +2621,7 @@ var allPanels = $('.building_blocks > dd').hide();
                                                                      var axis = $(this).val();
                                                                      var group = this.name.replace("AXIS", "CYL");;
                                                                      var cyl = $("#"+group).val();
-                                                                     if ( ( (cyl > '') && (cyl != 'SPH') ) || (this.name.match(/K2AXIS/) ) ) {
+                                                                     if ((cyl > '') && (cyl != 'SPH')) {
                                                                      if (!axis.match(/\d\d\d/)) {
                                                                      if (!axis.match(/\d\d/)) {
                                                                      if (!axis.match(/\d/)) {
@@ -2772,58 +2762,10 @@ var allPanels = $('.building_blocks > dd').hide();
                                var imagine = $("#PREFS_"+header+"_VIEW").val();
                                imagine ^= true;
                                $("#PREFS_"+header+"_VIEW").val(imagine);
-<<<<<<< HEAD
-                               update_PREFS();
-=======
->>>>>>> Near Completion Eye InnoDB
                               }
                                return false;
                                });
                   $("body").on("change", "select", function(e){
-<<<<<<< HEAD
-
-                        if (this.name.match(/PRIOR_(.*)/)) {
-                            var new_section = this.name.match(/PRIOR_(.*)/);
-                            if (new_section[1] =='') return;
-                            if (new_section[1] == /\_/){
-                                return;
-                            }
-                            var newValue = this.value;
-
-                           if (newValue == $("#form_id").val()) {
-                                if (new_section[1] =="ALL") {
-                                    //click updates prefs too
-                                    $('#EXAM_QP').trigger("click");
-                                } else {
-                                    $('#BUTTON_QP_'+new_section[1]).trigger("click");
-                                }
-                                $("#LayerTechnical_sections_1").css("clear","both");
-                                return;
-                           }
-                           //now go get the prior page via ajax
-                           var newValue = this.value;
-                           $("#PRIORS_"+ new_section[1] +"_left_text").removeClass('nodisplay');
-                           $("#DRAWS_" + new_section[1] + "_right").addClass('nodisplay');
-                           $("#QP_" + new_section[1]).addClass('nodisplay');
-
-                                    if (new_section[1] =="ALL") {
-                                       show_PRIORS();
-                                       show_PRIORS_section("ALL",newValue);
-                                       show_PRIORS_section("EXT",newValue);
-                                       show_PRIORS_section("ANTSEG",newValue);
-                                       show_PRIORS_section("RETINA",newValue);
-                                       show_PRIORS_section("NEURO",newValue);
-                                       show_PRIORS_section("IMPPLAN",newValue);
-                                       scrollTo("EXT_left");
-                                    } else {
-                                        show_PRIORS_section(new_section[1],newValue);
-                                    }
-                                    return;
-                                }
-                                submit_form("eye_mag");
-                            });
-
-=======
                                if (this.name.match(/PRIOR_(.*)/)) {
                                var new_section = this.name.match(/PRIOR_(.*)/);
                                if (new_section[1] =='') return;
@@ -2862,7 +2804,6 @@ var allPanels = $('.building_blocks > dd').hide();
                                }
                                }
                                });
->>>>>>> Eye_innodb
                   $("body").on("click","[id^='Close_PRIORS_']", function() {
                                var new_section = this.id.match(/Close_PRIORS_(.*)$/)[1];
                                $("#PRIORS_"+ new_section +"_left_text").addClass('nodisplay');
@@ -3298,7 +3239,7 @@ var allPanels = $('.building_blocks > dd').hide();
                                                 $sql="SELECT * from list_options where list_id = 'Eye_Defaults_for_GENERAL'";
                                                 $start= sqlStatement($sql);
                                                 while ($val= sqlFetchArray($start)) {
-                                                    $add_fields .= "('Eye_defaults_".$providerID."','".$val['option_id']."','".$val['title']."','".$val['notes']."','1','".$val['seq']."'),";
+                                                    $add_fields .= "('Eye_defaults_".$providerID."','".$val['option_id']."','".$val['title']."','".$val['notes']."','".$val['activity']."','".$val['seq']."'),";
                                                 }
                                                 $add_fields = rtrim($add_fields, ",");
                                                 $query = "SELECT max(seq) as maxseq FROM list_options WHERE list_id= 'lists'";
@@ -3517,28 +3458,7 @@ var allPanels = $('.building_blocks > dd').hide();
                                                 $("#EXAM_TEXT").removeClass('button_selected');
                                                 update_PREFS();
                                                 }
-<<<<<<< HEAD
-<<<<<<< HEAD
                                                 HPI_sync_heights();
-=======
-if ( ($('#PMSFH_block_1').height() > $('#PMH_left').height())||
-($('#PMSFH_block_2').height() > $('#PMH_left').height()) )
-{
-if ($('#PMSFH_block_1').height() > $('#PMSFH_block_2').height()) {
-heights = $('#PMSFH_block_1').height();
-} else {
-heights = $('#PMSFH_block_2').height();
-}
-$('#PMH_left').height(heights);
-$('#PMH_right').height(heights)
-$('#PMH_1').height(heights+20);
-} else {
-//$('#PMH_1').height($('#HPI_1').height());
-}
->>>>>>> Eye_innodb
-=======
-                                                HPI_sync_heights();
->>>>>>> Near Completion Eye InnoDB
                                                 show_QP();
                                                 scrollTo("EXT_left");
                                                 });
@@ -3569,13 +3489,6 @@ $('#PMH_1').height(heights+20);
                                                   $("#"+zone+"_left").removeClass('display');
                                                   $("#"+zone+"_left_text").removeClass('display');
                                                   $("#PREFS_"+zone+"_RIGHT").val(0);
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-                                                //  update_PREFS();
->>>>>>> Near Completion Eye InnoDB
-=======
->>>>>>> Housekeeping
                                                   }
                                                   show_TEXT();
                                                   scrollTo("EXT_left");
@@ -3596,7 +3509,7 @@ $('#PMH_1').height(heights+20);
                                                      } else {
                                                        $("#"+zone+"_right").addClass('nodisplay');
                                                        $("#PREFS_"+zone+"_RIGHT").val(1);
-                                                    }
+                                                     }
                                                      scrollTo(zone+"_left");
                                                      update_PREFS();
                                                    }
@@ -3851,11 +3764,7 @@ $('#PMH_1').height(heights+20);
                                                     show_QP();
                                                 } else if (zone == 'IMPPLAN') {
                                                     show_QP_section('IMPPLAN');
-<<<<<<< HEAD
 
-=======
-                                                    
->>>>>>> Near Completion Eye InnoDB
                                                 }
 update_PREFS();
                                                 });
@@ -3868,16 +3777,6 @@ update_PREFS();
                   $("[id$='_loading']").addClass('nodisplay');
                   $("[id$='_sections']").removeClass('nodisplay');
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-                /*  if ($('#PMH_right').height() > $('#PMH_left').height()) {
-                  $('#PMH_left').height($('#PMH_right').height());
-                  } else { $('#PMH_1').height($('#HPI_1').height()); }
-*/
->>>>>>> Near Completion Eye InnoDB
-=======
->>>>>>> Housekeeping
                   $('#left-panel').css("right","0px");
                   $('#EXAM_KB').css({position: 'fixed', top: '29px'});
                   $('#EXAM_KB').css('display', 'block');
