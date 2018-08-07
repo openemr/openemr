@@ -106,7 +106,7 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag')
    * whose encounter is linked to id in forms.
    */
   
-  $query ="  select  *,form_encounter.date as encounter_date
+    $query ="  select  *,form_encounter.date as encounter_date
 
                from forms,form_encounter,form_eye_base,
                 form_eye_hpi,form_eye_ros,form_eye_vitals,
@@ -1497,7 +1497,7 @@ if ($ANTSEG_COMMENTS) { ?>
                     <?php
                 }
 
-                if ( isset($RMRD) || isset($LMRD) ) { ?>
+                if (isset($RMRD) || isset($LMRD)) { ?>
                   <tr>
                     <td class="report_text right"><?php echo text($RMRD); ?></td>
                     <td class="middle" title="<?php echo xla('Marginal Reflex Distance'); ?>"><?php echo xlt('MRD{{marginal reflex distance}}'); ?></td>
@@ -1506,7 +1506,7 @@ if ($ANTSEG_COMMENTS) { ?>
                     <?php
                 }
 
-                if ( isset($RVFISSURE) || isset($LVFISSURE) ) { ?>
+                if (isset($RVFISSURE) || isset($LVFISSURE)) { ?>
                   <tr>
                     <td class="report_text right"><?php echo text($RVFISSURE); ?></td>
                     <td class="middle" title="<?php echo xla('Vertical Fissure: central height between lid margins'); ?>"><?php echo xlt('Vert Fissure{{vertical fissure}}'); ?></td>
@@ -2024,13 +2024,13 @@ if ($ODCMT||$OSCMT) { ?>
                 $PLAN_results = sqlStatement($query, array($form_id, $pid ));
                 
     
-                    if ($PLAN_results) { ?>
+                if ($PLAN_results) { ?>
                     <b><?php echo xlt('Orders')."/".xlt('Next Visit'); ?>:</b>
                     <br />
                     <div style="padding-left:15px;padding-bottom:10px;width:400px;">
                         <?php
-                            while ($plan_row = sqlFetchArray($PLAN_results)) {
-                                echo  $plan_row['ORDER_DETAILS']."<br />";
+                        while ($plan_row = sqlFetchArray($PLAN_results)) {
+                            echo  $plan_row['ORDER_DETAILS']."<br />";
                         }
                         ?>
                     </div>
@@ -2056,7 +2056,6 @@ if ($ODCMT||$OSCMT) { ?>
                 $signature = $GLOBALS["webserver_root"]."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
                 if (file_exists($signature)) {
                         echo "<img style='width:50mm;' src='".$GLOBALS['web_root']."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg'><hr style='width:40mm;' />";
-                
                 }
             }
             echo "<br /><i style='font-size:9px;'>".xlt('electronically signed on')." ".oeFormatShortDate()."</i>";

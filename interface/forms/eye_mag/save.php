@@ -268,7 +268,7 @@ if ($_REQUEST['unlock'] == '1') {
     // if it's locked and they own it ($REQUEST[LOCKEDBY] == LOCKEDBY), they can unlock it
     $query = "SELECT LOCKED,LOCKEDBY,LOCKEDDATE from form_eye_locking WHERE ID=?";
     $lock = sqlQuery($query, array($form_id));
-    if (($lock['LOCKED'] > '') ) { //&& ($_REQUEST['LOCKEDBY'] == $lock['LOCKEDBY'])) {
+    if (($lock['LOCKED'] > '')) { //&& ($_REQUEST['LOCKEDBY'] == $lock['LOCKEDBY'])) {
         $query = "update form_eye_locking set LOCKED='',LOCKEDBY='' where id=?";
         sqlQuery($query, array($form_id));
     }
@@ -328,7 +328,6 @@ if ($_REQUEST["mode"] == "new") {
         $query = "INSERT INTO " . $table_name . " ('id','pid') VALUES (?,?)";
         $result = sqlStatement($query, array($new_id,$pid));
     }
-
 } elseif ($_REQUEST["mode"] == "update") {
     // The user has write privileges to work with...
 
@@ -625,7 +624,7 @@ if ($_REQUEST["mode"] == "new") {
                 usertext16=?,
                 usertext17=?,
                 usertext18=? where pid=?";
-               $resFH = sqlStatement($query, array($_REQUEST['relatives_cancer'], $_REQUEST['relatives_diabetes'], $_REQUEST['relatives_high_blood_pressure'], $_REQUEST['relatives_heart_problems'], $_REQUEST['relatives_stroke'], $_REQUEST['relatives_epilepsy'], $_REQUEST['relatives_mental_illness'], $_REQUEST['relatives_suicide'], $_REQUEST['usertext11'], $_REQUEST['usertext12'], $_REQUEST['usertext13'], $_REQUEST['usertext14'], $_REQUEST['usertext15'], $_REQUEST['usertext16'], $_REQUEST['usertext17'], $_REQUEST['usertext18'], $pid));
+                $resFH = sqlStatement($query, array($_REQUEST['relatives_cancer'], $_REQUEST['relatives_diabetes'], $_REQUEST['relatives_high_blood_pressure'], $_REQUEST['relatives_heart_problems'], $_REQUEST['relatives_stroke'], $_REQUEST['relatives_epilepsy'], $_REQUEST['relatives_mental_illness'], $_REQUEST['relatives_suicide'], $_REQUEST['usertext11'], $_REQUEST['usertext12'], $_REQUEST['usertext13'], $_REQUEST['usertext14'], $_REQUEST['usertext15'], $_REQUEST['usertext16'], $_REQUEST['usertext17'], $_REQUEST['usertext18'], $pid));
                 $PMSFH = build_PMSFH($pid);
                 send_json_values($PMSFH);
                 exit;
@@ -863,7 +862,9 @@ if ($_REQUEST["mode"] == "new") {
     sqlQuery($sql_clear, array($pid, $providerID, $visit_date));
     if ($N > '0') {
         for ($i = 0; $i < $N; $i++) {
-            if ($_POST['PLAN'][$i] =='') continue;
+            if ($_POST['PLAN'][$i] =='') {
+                continue;
+            }
             $fields['PLAN'] .= $_POST['PLAN'][$i] . "|"; //this makes an entry for form_eyemag: PLAN
             $ORDERS_sql = "INSERT INTO form_eye_mag_orders (form_id,pid,ORDER_DETAILS,ORDER_PRIORITY,ORDER_STATUS,ORDER_DATE_PLACED,ORDER_PLACED_BYWHOM) VALUES (?,?,?,?,?,?,?)";
             $okthen = sqlQuery($ORDERS_sql, array($form_id, $pid, $_POST['PLAN'][$i], $i, 'pending', $visit_date, $providerID));
@@ -994,7 +995,6 @@ if ($_REQUEST["mode"] == "new") {
         $sql2 ='';
         if (sqlNumRows($result) > 0) {
             while ($row = sqlFetchArray($result)) {
-
                 //exclude critical columns/fields and those needing special processing from update
                 if ($row['Field'] == 'id' or
                     $row['Field'] == 'date' or
@@ -1017,7 +1017,7 @@ if ($_REQUEST["mode"] == "new") {
             $sql = substr($sql, 0, -1);
             $sql .= " where id=?";
             $fields[] = $form_id;
-            $success = sqlStatement($sql,$fields);
+            $success = sqlStatement($sql, $fields);
         }
     }
     //now save any Wear RXs (1-4) entered.
@@ -1044,9 +1044,9 @@ if ($_REQUEST["mode"] == "new") {
                 $_POST['ODMPDD_1'], $_POST['ODMPDN_1'], $_POST['OSMPDD_1'], $_POST['OSMPDN_1'], $_POST['BPDD_1'], $_POST['BPDN_1'], $_POST['LENS_MATERIAL_1'],
                 $LENS_TREATMENTS_1));
             $rx_number++;
-        } else {
-            $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
-            sqlQuery($query, array($encounter, $pid, $form_id, '1'));
+    } else {
+        $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
+        sqlQuery($query, array($encounter, $pid, $form_id, '1'));
     }
     if ($_POST['W_2'] == '1') {
         //store W_2

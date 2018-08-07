@@ -126,7 +126,6 @@ if ($_REQUEST['mode'] == "update") {  //store any changed fields in dispense tab
     }
 
     exit;
-
 } else if ($_REQUEST['mode'] == "remove") {
     $query = "DELETE FROM form_eye_mag_dispense where id=?";
     sqlStatement($query, array($_REQUEST['delete_id']));
@@ -473,25 +472,25 @@ if ($_REQUEST['dispensed']) {
                     <tr>
                         <td class="right bold"><?php echo xlt('Refraction Method'); ?>:</td>
                         <td>&nbsp;&nbsp;<?php
-                            if ($row['REFTYPE'] == "W") {
-                                echo xlt('Duplicate Rx -- unchanged from current Rx{{The refraction did not change, New Rx=old Rx}}');
-                            } else if ($row['REFTYPE'] == "CR") {
-                                echo xlt('Cycloplegic (Wet) Refraction');
-                            } else if ($row['REFTYPE'] == "MR") {
-                                echo xlt('Manifest (Dry) Refraction');
-                            } else if ($row['REFTYPE'] == "AR") {
-                                echo xlt('Auto-Refraction');
-                            } else if ($row['REFTYPE'] == "CTL") {
-                                echo xlt('Contact Lens');
-                            } else {
-                                echo $row['REFTYPE'];
-                            } ?>
+                        if ($row['REFTYPE'] == "W") {
+                            echo xlt('Duplicate Rx -- unchanged from current Rx{{The refraction did not change, New Rx=old Rx}}');
+                        } else if ($row['REFTYPE'] == "CR") {
+                            echo xlt('Cycloplegic (Wet) Refraction');
+                        } else if ($row['REFTYPE'] == "MR") {
+                            echo xlt('Manifest (Dry) Refraction');
+                        } else if ($row['REFTYPE'] == "AR") {
+                            echo xlt('Auto-Refraction');
+                        } else if ($row['REFTYPE'] == "CTL") {
+                            echo xlt('Contact Lens');
+                        } else {
+                            echo $row['REFTYPE'];
+                        } ?>
                             <input type="hidden" name="REFTYPE" value="<?php echo attr($row['REFTYPE']); ?>"/>
                         </td>
                     </tr>
                     <tr>
                         <td colspan="2"> <?php
-                            if ($row['REFTYPE'] != "CTL") { ?>
+                        if ($row['REFTYPE'] != "CTL") { ?>
                                 <table id="SpectacleRx" name="SpectacleRx" class="refraction" style="top:0px;">
                                     <tr style="font-style:bold;">
                                         <td></td>
@@ -555,11 +554,11 @@ if ($_REQUEST['dispensed']) {
                                     </tr>
                                 </table>
                                 <?php
-                            } else { ?>
+                        } else { ?>
                                 <table id="CTLRx" name="CTLRx" class="refraction">
                                     <tr>
                                         <td colspan="4"
-                                            class="bold underline left"><?php echo xlt('Right Lens'); ?></u></td>
+                                        class="bold underline left"><?php echo xlt('Right Lens'); ?></u></td>
                                     </tr>
                                     <tr>
                                         <td colspan="3" class="left"><?php echo text($row['CTLBRANDOD']); ?></td>
@@ -588,7 +587,7 @@ if ($_REQUEST['dispensed']) {
                                     </tr>
                                     <tr>
                                         <td colspan="4" class="bold underline left">
-                                            <u><?php echo xlt('Left Lens'); ?></u>
+                                        <u><?php echo xlt('Left Lens'); ?></u>
                                         </td>
                                     </tr>
                                     <tr>
@@ -620,7 +619,7 @@ if ($_REQUEST['dispensed']) {
                                 </table>
 
                                 <?php
-                            } ?>
+                        } ?>
                         </td>
                     </tr>
                 </table>
@@ -947,16 +946,16 @@ ob_start();
                             <tr class="header closeButton">
                                 <td colspan="9" class="right">
                                                 <span><?php
-                                                    if ($ODHPD || $ODHBASE || $ODVPD || $ODVBASE || $ODSLABOFF || $ODVERTEXDIST ||
+                                                if ($ODHPD || $ODHBASE || $ODVPD || $ODVBASE || $ODSLABOFF || $ODVERTEXDIST ||
                                                         $OSHPD || $OSHBASE || $OSVPD || $OSVBASE || $OSSLABOFF || $OSVERTEXDIST ||
                                                         $ODMPDD || $ODMPDN || $OSMPDD || $OSMPDN || $BPDD || $BPDN ||
                                                         $LENS_MATERIAL || $LENS_TREATMENTS) {
-                                                        $detailed = '1';
+                                                          $detailed = '1';
                                                         ?><i class="fa fa-minus-square-o"></i><?php
-                                                    } else {
-                                                        $detailed = '0';
-                                                        ?><i class="fa fa-plus-square-o"></i><?php
-                                                    }
+                                                } else {
+                                                    $detailed = '0';
+                                                    ?><i class="fa fa-plus-square-o"></i><?php
+                                                }
                                                     ?>
                                                 </span>
 

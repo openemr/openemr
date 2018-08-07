@@ -32,7 +32,6 @@ include_once("../../forms/eye_mag/php/eye_mag_functions.php");
 
 use OpenEMR\Core\Header;
 
-
 $form_name   = "eye_mag";
 $form_folder = "eye_mag";
 $Form_Name   = "Eye Exam";
@@ -98,7 +97,7 @@ $encounter_data =sqlQuery($query10, array($id));
 @extract($encounter_data);
 $id = $form_id;
 
-list($ODIOPTARGET,$OSIOPTARGET) = getIOPTARGETS($pid,$id,$provider_id);
+list($ODIOPTARGET,$OSIOPTARGET) = getIOPTARGETS($pid, $id, $provider_id);
 
 $query          = "SELECT * FROM patient_data where pid=?";
 $pat_data       =  sqlQuery($query, array($pid));
@@ -181,7 +180,7 @@ if ($refresh and $refresh != 'fullscreen') {
       <meta name="author" content="OpenEMR: Ophthalmology">
       <meta name="viewport" content="width=device-width, initial-scale=1">
 
-      <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor', 'qtip2' ]); ?>
+        <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor', 'qtip2' ]); ?>
 
       <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
     
@@ -877,7 +876,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           </span>
                       </div>
                       <div id="Lyr41">
-                          <?php echo xlt('T{{one letter abbreviation for Tension/Pressure}}'); ?>
+                            <?php echo xlt('T{{one letter abbreviation for Tension/Pressure}}'); ?>
                       </div>
                       <div id="Lyr42">
                           <b><?php echo xlt('OD{{right eye}}'); ?></b>
@@ -1182,9 +1181,9 @@ if ($refresh and $refresh != 'fullscreen') {
                                         )
                                         ORDER BY id DESC LIMIT 3";
                                 $result = sqlStatement($sql, array($pid, $id));
-                                while ($visit= sqlFetchArray($result)) {
-                                    echo display_PRIOR_section('REFRACTIONS', $visit['id'], $visit['id'], $pid);
-                                }
+                            while ($visit= sqlFetchArray($result)) {
+                                echo display_PRIOR_section('REFRACTIONS', $visit['id'], $visit['id'], $pid);
+                            }
                                 //display_PRIOR_section('REFRACTIONS', $id, $id, $pid, '1');
                             ?>
                         </div>
@@ -3655,10 +3654,10 @@ if ($refresh and $refresh != 'fullscreen') {
                                                   $counter=0;
                                                   $query = "SELECT * FROM form_eye_mag_orders where form_id=? and pid=? ORDER BY id ASC";
                                                   $PLAN_results = sqlStatement($query, array($form_id, $pid ));
-                                                  while ($plan_row = sqlFetchArray($PLAN_results)) {
-                                                      $PLAN_arr[]=$plan_row;
-                                                  }
-                                                  while ($row = sqlFetchArray($TODO_data)) {
+                                                while ($plan_row = sqlFetchArray($PLAN_results)) {
+                                                    $PLAN_arr[]=$plan_row;
+                                                }
+                                                while ($row = sqlFetchArray($TODO_data)) {
                                                     $arrPLAN[$counter]['option_id'] = $row['option_id'];
                                                     $arrPLAN[$counter]['title'] = $row['title'];
                                                     $arrPLAN[$counter]['option_value'] = $row['option_value'];
@@ -3694,7 +3693,8 @@ if ($refresh and $refresh != 'fullscreen') {
                                       </tr>
                                       <tr>
                                           <td colspan="3" style="padding-left:20px;padding-top:4px;">
-                                <textarea id="Plan<?php echo $counter; ?>" name="PLAN[]" style="width: 440px;height: 44px;"><?php if ($found < count($PLAN_arr)) { echo $PLAN_arr[count($PLAN_arr)-1]['ORDER_DETAILS']; } ?></textarea>
+                                <textarea id="Plan<?php echo $counter; ?>" name="PLAN[]" style="width: 440px;height: 44px;"><?php if ($found < count($PLAN_arr)) {
+                                    echo $PLAN_arr[count($PLAN_arr)-1]['ORDER_DETAILS']; } ?></textarea>
                                           </td>
                                       </tr>
                                   </table>
@@ -3784,7 +3784,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                             <span id="status_Fax_ref"><i class="fa fa-fax fa-fw"></i></span>
                                                             <?php
                                                         }
-                                                    } ?>
+} ?>
                                                   </span>
                                               </td>
                                           </tr>
@@ -3792,7 +3792,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                               <td class="top bold"><?php echo xlt('Address'); ?>:</td>
                                               <td class="top">
                                                   <span id="pcp_address">
-                                                      <?php
+                                                        <?php
                                                         if ($pcp_data['organization'] >'') {
                                                             echo text($pcp_data['organization'])."<br />";
                                                         }
@@ -3833,40 +3833,40 @@ if ($refresh and $refresh != 'fullscreen') {
                                               <td class="top">
                                                 <span id="ref_address">
                                                     <?php
-                                                        if ($ref_data['organization'] >'') {
-                                                            echo text($ref_data['organization'])."<br />";
-                                                        }
-                                                        if ($ref_data['street'] >'') {
-                                                            echo text($ref_data['street'])."<br />";
-                                                        }
-                                                        if ($ref_data['streetb'] >'') {
-                                                            echo text($ref_data['streetb'])."<br />";
-                                                        }
-                                                        if ($ref_data['city'] >'') {
-                                                            echo text($ref_data['city']).", ";
-                                                        }
-                                                        if ($ref_data['state'] >'') {
-                                                            echo text($ref_data['state'])." ";
-                                                        }
-                                                        if ($ref_data['zip'] >'') {
-                                                            echo text($ref_data['zip'])."<br />";
-                                                        }
+                                                    if ($ref_data['organization'] >'') {
+                                                        echo text($ref_data['organization'])."<br />";
+                                                    }
+                                                    if ($ref_data['street'] >'') {
+                                                        echo text($ref_data['street'])."<br />";
+                                                    }
+                                                    if ($ref_data['streetb'] >'') {
+                                                        echo text($ref_data['streetb'])."<br />";
+                                                    }
+                                                    if ($ref_data['city'] >'') {
+                                                        echo text($ref_data['city']).", ";
+                                                    }
+                                                    if ($ref_data['state'] >'') {
+                                                        echo text($ref_data['state'])." ";
+                                                    }
+                                                    if ($ref_data['zip'] >'') {
+                                                        echo text($ref_data['zip'])."<br />";
+                                                    }
                                                     
-                                                        if ($ref_data['street2'] >'') {
-                                                            echo "<br />".text($ref_data['street2'])."<br />";
-                                                        }
-                                                        if ($ref_data['streetb2'] >'') {
-                                                            echo text($ref_data['streetb2'])."<br />";
-                                                        }
-                                                        if ($ref_data['city2'] >'') {
-                                                            echo text($ref_data['city2']).", ";
-                                                        }
-                                                        if ($ref_data['state2'] >'') {
-                                                            echo text($ref_data['state2'])." ";
-                                                        }
-                                                        if ($ref_data['zip2'] >'') {
-                                                            echo text($ref_data['zip2'])."<br />";
-                                                        }
+                                                    if ($ref_data['street2'] >'') {
+                                                        echo "<br />".text($ref_data['street2'])."<br />";
+                                                    }
+                                                    if ($ref_data['streetb2'] >'') {
+                                                        echo text($ref_data['streetb2'])."<br />";
+                                                    }
+                                                    if ($ref_data['city2'] >'') {
+                                                        echo text($ref_data['city2']).", ";
+                                                    }
+                                                    if ($ref_data['state2'] >'') {
+                                                        echo text($ref_data['state2'])." ";
+                                                    }
+                                                    if ($ref_data['zip2'] >'') {
+                                                        echo text($ref_data['zip2'])."<br />";
+                                                    }
                                                     ?>
                                                 </span>
                                               </td>
