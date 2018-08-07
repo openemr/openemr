@@ -1979,7 +1979,7 @@ function is_patient_deceased($pid, $date = '')
     $date = (!empty($date)) ? $date : date('Y-m-d H:i:s');
 
   // Query for deceased status (if person is deceased gets days_deceased and date_deceased)
-    $results = sqlQuery("SELECT DATEDIFF(?,`deceased_date`) AS `days_deceased`, `deceased_date`AS `date_deceased` " .
+    $results = sqlQuery("SELECT DATEDIFF(?,`deceased_date`) AS `days_deceased`, `deceased_date` AS `date_deceased` " .
                       "FROM `patient_data` " .
                       "WHERE `pid` = ? AND `deceased_date` IS NOT NULL AND `deceased_date` != '0000-00-00 00:00:00' AND 
                       `deceased_date` <= ?", array($date,$pid,$date));
