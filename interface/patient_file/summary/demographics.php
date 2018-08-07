@@ -551,7 +551,7 @@ function setMyPatient() {
     if (empty($date_of_death)) {
         echo xls('Age') . ": " . addslashes(getPatientAgeDisplay($result['DOB_YMD'])) . "'";
     } else {
-        echo xls('Age at time of death') . ": " . addslashes(oeFormatAge($result['DOB_YMD'], $date_of_death)) . "'";
+        echo xls('Age at death') . ": " . addslashes(oeFormatAge($result['DOB_YMD'], $date_of_death)) . "'";
     }?>);
  var EncounterDateArray = new Array;
  var CalendarCategoryArray = new Array;
