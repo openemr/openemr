@@ -65,12 +65,12 @@ function make_task($ajax_req)
     if ($task['ID'] && $task['COMPLETED'] =='2') {
         $send['comments'] = xlt('This fax has already been sent.')." ".
                             xlt('If you made changes and want to re-send it, delete the original (in Communications) or wait 60 seconds, and try again.')." ".
-                            xlt('Filename').": ".$filename;
+                            xlt('Filename').": ". text($filename);
         echo json_encode($send);
         exit;
     } else if ($task['ID'] && $task['COMPLETED'] =='1') {
         if ($task['DOC_TYPE'] == 'Fax') {
-            $send['DOC_link'] = "<a href='".$webroot."/openemr/controller.php?document&view&patient_id=".$task['PATIENT_ID']."&doc_id=".$task['DOC_ID']."'
+            $send['DOC_link'] = "<a href='".$webroot."/openemr/controller.php?document&view&patient_id=".attr($task['PATIENT_ID'])."&doc_id=".attr($task['DOC_ID'])."'
 								target='_blank' title='".xla('View the Summary Report sent to Fax Server.')."'>
 								<i class='fa fa-file-pdf-o fa-fw'></i></a>
 								<i class='fa fa-repeat fa-fw'
@@ -94,8 +94,8 @@ function make_task($ajax_req)
     } else if (!$task['ID']) {
         $sql = "INSERT into form_taskman
 				(REQ_DATE, FROM_ID,  TO_ID,  PATIENT_ID,  DOC_TYPE,  DOC_ID,  ENC_ID) VALUES
-				(NOW(), '$from_id', '$to_id','$patient_id','$doc_type','$doc_id','$enc')";
-        sqlQuery($sql);
+				(NOW(), ?, ?, ?, ?, ?, ?)";
+        sqlQuery($sql, array($from_id, $to_id, $patient_id, $doc_type, $doc_id, $enc));
     } else {
         $send['comments'] = xlt('Currently working on making this document')."...\n";
     }
@@ -121,7 +121,7 @@ function process_tasks($task)
 
     if ($task['DOC_TYPE'] == "Fax") {
         //now return any objects you need to Eye Form
-        $send['DOC_link'] = "<a href='".$webroot."/openemr/controller.php?document&view&patient_id=".$task['PATIENT_ID']."&doc_id=".$task['DOC_ID']."'
+        $send['DOC_link'] = "<a href='".$webroot."/openemr/controller.php?document&view&patient_id=".attr($task['PATIENT_ID'])."&doc_id=".attr($task['DOC_ID'])."'
 								target='_blank' title=".xlt('Report was faxed. Click to view.').">
 								<i class='fa fa-file-pdf-o fa-fw'></i>
 							</a>";
@@ -339,7 +339,7 @@ function make_document($task)
         $sql = "DELETE from documents where documents.url like ?";
         sqlQuery($sql, array("%".$filename));
     }
-    
+
     $config_mpdf = array(
         'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
         'mode' => $GLOBALS['pdf_language'],
@@ -465,7 +465,7 @@ function make_document($task)
                         <td class='col1'>
                             <?php echo xlt('Comments'); ?>:
                         </td>
-                        <td class='col2'><?php echo xlt('Report of visit'); ?>: <?php echo text($pt_name); ?> on <?php echo $visit_date; ?>
+                        <td class='col2'><?php echo xlt('Report of visit'); ?>: <?php echo text($pt_name); ?> on <?php echo text($visit_date); ?>
                         </td>
                     </tr>
             </table>
