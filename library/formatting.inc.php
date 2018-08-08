@@ -51,7 +51,7 @@ function oeFormatShortDate($date = 'today', $showYear = true)
             $newDate = substr($date, 5, 2) . '-' . substr($date, 8, 2);
         } else { // $GLOBALS['date_display_format'] == 0
             // keep the year (so will simply be the original $date)
-            $newDate = $date;
+            $newDate = substr($date, 0, 10);
         }
 
         return $newDate;

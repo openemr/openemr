@@ -6,9 +6,11 @@
  * @package OpenEMR
  * @link    http://www.open-emr.org
  * @author  Brady Miller <brady.g.miller@gmail.com>
- * @author    Sharon Cohen <sharonco@matrix.co.il>
+ * @author  Sharon Cohen <sharonco@matrix.co.il>
+ * @author  Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Sharon Cohen <sharonco@matrix.co.il>
+ * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -544,7 +546,13 @@ function setMyPatient() {
 <?php if (isset($_GET['set_pid'])) { ?>
  parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) .
     "'," . addslashes($pid) . ",'" . addslashes($result['pubpid']) .
-    "','', ' " . xls('DOB') . ": " . addslashes(oeFormatShortDate($result['DOB_YMD'])) . " " . xls('Age') . ": " . addslashes(getPatientAgeDisplay($result['DOB_YMD'])) . "'"; ?>);
+    "','', ' " . xls('DOB') . ": " . addslashes(oeFormatShortDate($result['DOB_YMD'])) . " ";
+    $date_of_death = is_patient_deceased($pid)['date_deceased'];
+    if (empty($date_of_death)) {
+        echo xls('Age') . ": " . addslashes(getPatientAgeDisplay($result['DOB_YMD'])) . "'";
+    } else {
+        echo xls('Age at death') . ": " . addslashes(oeFormatAge($result['DOB_YMD'], $date_of_death)) . "'";
+    }?>);
  var EncounterDateArray = new Array;
  var CalendarCategoryArray = new Array;
  var EncounterIdArray = new Array;
@@ -723,18 +731,18 @@ if (!($portalUserSetting)) : // Show that the patient has not authorized portal 
 <?php endif;
         //Patient Portal
 
-        // If patient is deceased, then show this (along with the number of days patient has been deceased for)
+        // If patient is deceased, then show this (along with the deceased date if greater than 90 days)
         $days_deceased = is_patient_deceased($pid);
-if ($days_deceased != null) : ?>
+if ($days_deceased) : ?>
             <td class="deceased" style="padding-left:1em;font-weight:bold;color:red">
                 <?php
-                if ($days_deceased == 0) {
-                    echo xlt("DECEASED (Today)");
-                } else if ($days_deceased == 1) {
-                    echo xlt("DECEASED (1 day ago)");
+                if ($days_deceased['days_deceased'] <= 90) {
+                        echo xlt("Recently deceased");
                 } else {
-                    echo xlt("DECEASED") . " (" . text($days_deceased) . " " . xlt("days ago") . ")";
-                } ?>
+                        echo xlt("Deceased");
+                }
+                echo  " (" . text(oeFormatShortDate($days_deceased['date_deceased'])) . ")";
+                ?>
             </td>
 <?php endif; ?>
     </tr>
