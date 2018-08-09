@@ -318,7 +318,7 @@ require_once("../../interface/globals.php");
                     <button type="button" class="btn btn-default btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
                     <button type="button" class="btn btn-default btn-sm btn-refresh oe-no-float" ><?php echo xlt('Refresh');?></button>
                     
-                    <p><?php echo xlt("If you drill down to the Electrolyte Panel line you should see it have a Category of Order - Yes and be highlighted in yellow indicating that it is a search-able and valid order and has a Tier value of 3");?>.
+                    <p><?php echo xlt("If you drill down to the Electrolyte Panel line you should see it have a Category of Order and be highlighted in yellow indicating that it is a search-able and valid order and has a Tier value of 3");?>.
                     
                     <p><?php echo xlt("The results, Discrete Result, will be the fruit on this branch and we will create one such Discrete Result for each of the component tests, Sodium, Potassium, Chloride and Carbon Dioxide");?>.
                     

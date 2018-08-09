@@ -178,7 +178,9 @@ require_once("../../interface/globals.php");
                     
                     <p><?php echo xlt("Procedure Specimen Types - Blood, Saliva, Urine and Other");?>.
                     
-                    <p><i class="fa fa-exclamation-circle  oe-text-orange" aria-hidden="true"></i>&nbsp<?php echo xlt("Procedure Types - Group, Procedure Order, Discrete Result and Recommendation. Used in the next step - Configure the lab test structure");?>.
+                    <p><i class="fa fa-exclamation-circle  oe-text-orange" aria-hidden="true"></i>&nbsp<?php echo xlt("Procedure Types - Group, Procedure Order, Discrete Result, Recommendation, Custom Favorite Group and Custom Favorite Item. Used in the next step - Configure the lab test structure");?>.
+                    
+                    <p><?php echo xlt("Custom Favorite Group and Custom Favorite Item is used to create customized groups of orders");?>. <i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i>&nbsp;<strong><?php echo xlt("New in openEMR ver 5.0.2 "); ?></strong></li>
                     
                     <p><?php echo xlt("Procedure Units - various units needed to define result values - may need to add to this list depending on the tests that are included, will vary according to need");?>.
                     
