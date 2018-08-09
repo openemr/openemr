@@ -448,7 +448,7 @@ function proc_type_changed() {
                                                 title='<?php echo attr($title); ?>'>
                                                 <?php
                                                 if ($ordtype) {
-                                                    $ppres = sqlStatement("SELECT ppid, name FROM procedure_providers WHERE ppid = $labid " . "ORDER BY name, ppid");
+                                                    $ppres = sqlStatement("SELECT ppid, name FROM procedure_providers WHERE ppid = ? ORDER BY name, ppid", array($labid));
                                                 } else {
                                                     $ppres = sqlStatement("SELECT ppid, name FROM procedure_providers " . "ORDER BY name, ppid");
                                                 }
