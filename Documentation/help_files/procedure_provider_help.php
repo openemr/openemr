@@ -19,15 +19,6 @@ require_once("../../interface/globals.php");
     <head>
     <?php Header::setupHeader();?>
     <title><?php echo xlt("Message Center Help");?></title>
-    
-    <style>
-        @media only screen and (max-width: 768px) {
-           [class*="col-"] {
-           width: 100%;
-           /*text-align:left!important;*/
-            }
-        }
-    </style>
     </head>
     <body>
         <div class="container oe-help-container">
