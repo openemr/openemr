@@ -128,8 +128,7 @@ if ($popup && $_POST['form_save']) {
         @media only screen and (max-width: 768px) {
            [class*="col-"] {
            width: 100%;
-           /*text-align:left!important;*/
-            }
+           }
         }
         
     </style>
@@ -366,7 +365,7 @@ if ($popup && $_POST['form_save']) {
             //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
             // the relevant css file needs to be called i.e. jquery-ui-darkness - to get a black tooltip
             $('#name-tooltip').attr( "title", "<?php echo xla('The actual tests or procedures that can be searched for and ordered are highlighted in yellow'); ?>" +  ". "  + "<?php echo xla('Click on the blue plus sign under Name to reveal test names'); ?>").tooltip();
-            $('#order-tooltip').attr( "title", "<?php echo xla('The entries marked yes can be ordered as a test or procedure'); ?>" +  ". "  + "<?php echo xla('Click on the blue plus sign under Name to reveal test names'); ?>"  ).tooltip();
+            $('#order-tooltip').attr( "title", "<?php echo xla('The entries highlighted in yellow can be ordered as a test or procedure those highlighted in pink can be ordered as a Custom Group'); ?>" +  ". "  + "<?php echo xla('Click on the blue plus sign under Name to reveal test names'); ?>"  ).tooltip();
             $('#code-tooltip').attr( "title", "<?php echo xla('Category - Order, Result and Recommendation need an identifying code');?>" + ". " + "<?php echo xla('Red Triangle indicates a required code that is missing')?>.").
             tooltip();
             $('#tier-tooltip').attr( "title", "<?php echo xla('Shows the hierarchal level of this line');?>" + ". " + "<?php echo xla('Tier 1 entries should be of Category Top Group')?>.").

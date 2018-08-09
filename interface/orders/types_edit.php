@@ -350,17 +350,22 @@ function proc_type_changed() {
                                     <div id="procedure_type_info" class="collapse">
                                         <a href="#procedure_type_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p><?php echo xlt("In order to properly store and retrieve test results and place new orders, tests/orders have to be setup in 
-                                            a hierarchical manner");?>.</p>
-                                        <p><?php echo xlt("Group - First tier - For a group of tests e.g. Organ/Disease Panel");?></p>
-                                        <p><?php echo xlt("Procedure Type - Second Tier - For a Test containing a collection of tests e.g. Electrolyte Panel");?></p>
-                                        <p><?php echo xlt("Discrete Result - Third Tier - The actual test names to hold the results returned Na, K, Cl, CO2 and Default Units, Default Range etc");?></p>
+                                            a hierarchical manner");?></p>
+                                        <p><strong><?php echo xlt("Single Tests");?>:</strong></p>
+                                        <p><?php echo xlt("Group > Procedure Order > Discrete Result");?></p>
+                                        <p><?php echo xlt("Tier 1 - Group - e.g. Serum Chemistry");?></p>
+                                        <p><?php echo xlt("Tier 2 - Procedure Order - e.g. Serum Uric Acid");?></p>
+                                        <p><?php echo xlt("Tier 3 - Discrete Result - e.g. Serum Uric Acid - will hold the returned result value and Default Units, Default Range etc");?></p>
                                         <p><?php echo xlt("Recommendation - Optional");?></p>
-                                        <p><?php echo xlt("For single tests: Group >Procedure Type > Discrete results");?></p>
-                                        <p><?php echo xlt("Group - Individual Tests");?></p>
-                                        <p><?php echo xlt("Procedure Order - Serum Uric Acid");?></p>
-                                        <p><?php echo xlt("Discrete Result - Serum Uric Acid - will hold the returned result value");?></p>
+                                        <p><strong><?php echo xlt("For a Recognized Panel of Tests");?>:</strong></p>
+                                        <p><?php echo xlt("Group > Group > Procedure Order > Discrete Result");?></p>
+                                        <p><?php echo xlt("Tier 1 - Group - e.g. Serum Chemistry");?></p>
+                                        <p><?php echo xlt("Tier 2 - Group (will display in category column as Sub Group) - e.g. Organ/Disease Panel");?></p>
+                                        <p><?php echo xlt("Tier 3 - Procedure Type - e.g. Electrolyte Panel");?></p>
+                                        <p><?php echo xlt("Tier 4 - Discrete Result - The actual test names to hold the results returned Na, K, Cl, CO2 and Default Units, Default Range etc");?></p>
                                         <p><?php echo xlt("The difference between the two is that for a panel of tests that are ordered together the individual tests are represented by Discrete Result only and these tests cannot be ordered separately unless they have also been setup as single tests");?></p>
-                                        <p><?php echo xlt("For Custom Groups: Custom Favorite Group > Custom Favorite Item > Discrete results");?> <i class="fa fa-exclamation-circle oe-text-red" aria-hidden="true"></i>&nbsp;<strong><?php echo xlt("New in openEMR ver 5.0.2 "); ?></strong></p>
+                                        <p><strong><?php echo xlt("For Custom Groups");?>: <i class="fa fa-exclamation-circle oe-text-red" aria-hidden="true"></i>&nbsp;<?php echo xlt("New in openEMR ver 5.0.2 "); ?></strong></p>
+                                        <p><?php echo xlt("Custom Favorite Group > Custom Favorite Item > Discrete results");?></p>
                                         <p><?php echo xlt("As the fist step choose Group or Custom Favorite Group, as the case may be, as the Top Level Tier 1 and fill in the required details");?></p>
                                         <p><?php echo xlt("For detailed instructions close the 'Enter Details' pop-up and click on the Help icon on the main form. ");?><i class="fa fa-question-circle" aria-hidden="true"></i></p>
                                     </div>
