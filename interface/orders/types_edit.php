@@ -361,7 +361,7 @@ function proc_type_changed() {
                                         <p><?php echo xlt("Group > Group > Procedure Order > Discrete Result");?></p>
                                         <p><?php echo xlt("Tier 1 - Group - e.g. Serum Chemistry");?></p>
                                         <p><?php echo xlt("Tier 2 - Group (will display in category column as Sub Group) - e.g. Organ/Disease Panel");?></p>
-                                        <p><?php echo xlt("Tier 3 - Procedure Type - e.g. Electrolyte Panel");?></p>
+                                        <p><?php echo xlt("Tier 3 - Procedure Order - e.g. Electrolyte Panel");?></p>
                                         <p><?php echo xlt("Tier 4 - Discrete Result - The actual test names to hold the results returned Na, K, Cl, CO2 and Default Units, Default Range etc");?></p>
                                         <p><?php echo xlt("The difference between the two is that for a panel of tests that are ordered together the individual tests are represented by Discrete Result only and these tests cannot be ordered separately unless they have also been setup as single tests");?></p>
                                         <p><strong><?php echo xlt("For Custom Groups");?>: <i class="fa fa-exclamation-circle oe-text-red" aria-hidden="true"></i>&nbsp;<?php echo xlt("New in openEMR ver 5.0.2 "); ?></strong></p>
