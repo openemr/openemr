@@ -163,6 +163,7 @@ CREATE TABLE `form_eye_ros` (
   `ROSMUSCULO`   text,
   `ROSIMMUNO`    text,
   `ROSENDOCRINE` text,
+  `ROSCOMMENTS`  text,
   PRIMARY KEY `ros_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
   ) ENGINE = InnoDB;
@@ -538,7 +539,7 @@ CREATE  TABLE `form_eye_locking` (
 
 ALTER TABLE `form_eye_mag_orders`
     CHANGE `id` `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-    CHANGE ORDER_PID to pid BIGINT(20) NOT NULL,
+    CHANGE `ORDER_PID` `pid` BIGINT(20) NOT NULL,
     ADD `form_id` bigint(20) NOT NULL AFTER `id`,
     DROP INDEX `VISIT_ID`;
 ALTER TABLE `form_eye_mag_orders`
