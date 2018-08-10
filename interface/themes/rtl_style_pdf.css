@@ -1147,6 +1147,46 @@ body {
 .oe-text-to-left{
     text-align: right;
 }
+.oe-pull-toward {
+    float:right !important;
+}
+.oe-pull-away {
+    float:left !important;
+}
+.oe-margin-toward {
+    margin-right:30px;
+}
+
+/*------------------procedures rtl openemr 5.0.2---------------------*/
+.oe-pl0 {
+    padding-right: 0 !important;
+}
+.oe-pl10 {
+    padding-right: 10px;
+}
+.oe-pl20 {
+    padding-right: 20px;
+}
+.oe-pl30 {
+    padding-right: 30px;
+}
+.oe-pl40 {
+    padding-right: 40px;
+}
+.oe-pl50 {
+    padding-right: 50px;
+}
+.oe-pl60 {
+    padding-right: 60px;
+}
+.oe-pl-final {
+    padding-right: 70px;
+}
+/*Bootstrap 3 classes modified for rtl*/
+.text-center {
+    text-align: center !important;
+}
+
 /*=============================================================
  * This section relates to the custom layouts that can be made
  * using the OEMR tool in the Admin section. For example, the
