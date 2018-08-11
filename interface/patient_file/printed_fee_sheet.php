@@ -393,7 +393,7 @@ foreach ($pid_list as $pid) {
             $html .= ":<br />";
 
             if ($form_fill) {
-                $html .= $patdata['fname'] . ' ' . $patdata['mname'] . ' ' . $patdata['lname'] . "<br />\n";
+                $html .= text($patdata['fname'] . ' ' . $patdata['mname'] . ' ' . $patdata['lname']) . "<br />\n";
                 $html .= $patdata['street'] . "<br />\n";
                 $html .= $patdata['city'] . ', ' . $patdata['state'] . ' ' . $patdata['postal_code'] . "\n";
             }
