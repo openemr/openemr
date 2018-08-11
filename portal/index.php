@@ -349,7 +349,7 @@ $(document).ready(function() {
 
 <?php // if something went wrong
 if (isset($_GET['requestNew'])) {
-    $_SESSION['patient_portal_onsite_two'] = true;
+    $_SESSION['register'] = true;
     $_SESSION['authUser'] = 'portal-user';
     $_SESSION['pid'] = true;
     ?>

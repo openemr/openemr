@@ -169,7 +169,7 @@ class ApplicationTable
                 $logsql = "update onsite_portal_activity set date=?, patient_id=?, activity=?, require_audit=?,".
                         "            pending_action=?, action_taken=?,status=?, narrative=?, table_action=?, table_args=?,".
                                         "action_user=?, action_taken_time=?, checksum=? ";
-                $logsql .= "where id=".$rec ." And patient_id=".$audit['patient_id'];
+                $logsql .= "where id='" . add_escape_custom($rec) . "' And patient_id='" . add_escape_custom($audit['patient_id']) . "'";
             }
 
             $return = sqlStatementNoLog($logsql, $audit);

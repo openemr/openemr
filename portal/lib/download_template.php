@@ -128,10 +128,10 @@ function doSubs($s)
     $nextLocation = 0;
     $groupLevel = 0;
     $groupCount = 0;
-    
+
     while (($keyLocation = strpos($s, '{', $nextLocation)) !== false) {
         $nextLocation = $keyLocation + 1;
-        
+
         if (keySearch($s, '{PatientSignature}')) {
             $fn = $GLOBALS['web_root'] . '/portal/sign/assets/signhere.png';
             $sigfld = '<span>';
@@ -231,7 +231,7 @@ function doSubs($s)
             $patientid = $ptrow['pid'];
             $DOS = substr($enrow['date'], 0, 10);
             // Prefer appointment comment if one is present.
-            $evlist = fetchEvents($DOS, $DOS, " AND pc_pid = '$patientid' ");
+            $evlist = fetchEvents($DOS, $DOS, " AND pc_pid = ? ", null, false, 0, array($patientid));
             foreach ($evlist as $tmp) {
                 if ($tmp['pc_pid'] == $pid && ! empty($tmp['pc_hometext'])) {
                     $cc = $tmp['pc_hometext'];
@@ -345,7 +345,7 @@ function doSubs($s)
             $s = keyReplace($s, dataFixup($data, $title));
         }
     } // End if { character found.
-    
+
     return $s;
 }
 // Get patient demographic info.
@@ -368,10 +368,10 @@ if ($encounter) {
 }
 
 $templatedir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates';
-$templatepath = "$templatedir/$form_filename";
+$templatepath = "$templatedir/" . check_file_dir_name($form_filename);
 // test if this is folder with template, if not, must be for a specific patient
 if (! file_exists($templatepath)) {
-    $templatepath = "$templatedir/" . $pid . "/$form_filename";
+    $templatepath = "$templatedir/" . check_file_dir_name($pid) . "/" . check_file_dir_name($form_filename);
 }
 
 // Create a temporary file to hold the output.
