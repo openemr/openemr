@@ -1,7 +1,8 @@
 <?php
 /**
-* Function to check and/or sanitize things for security such as
-* directories names, file names, etc.
+ * Function to check and/or sanitize things for security such as
+ * directories names, file names, etc.
+ * Also including csrf token management functions.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -12,6 +13,27 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+
+// Function to create a csrf_token
+function createCsrfToken()
+{
+    if (!extension_loaded('openssl')) {
+        error_log("OpenEMR Error : OpenEMR is not working because missing openssl extension.");
+        return false;
+    } else {
+        return base64_encode(openssl_random_pseudo_bytes(32));
+    }
+}
+
+// Function to verify a csrf_token
+function verifyCsrfToken($token)
+{
+    if ($_SESSION['csrf_token'] == $token) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 // If the label contains any illegal characters, then the script will die.
 function check_file_dir_name($label)

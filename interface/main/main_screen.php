@@ -38,6 +38,11 @@ if (isset($_POST['new_login_session_management'])) {
   // This is not a new login, so create a new session id and do NOT remove the old session
     session_regenerate_id(false);
 }
+// Create the csrf_token
+$_SESSION['csrf_token'] = createCsrfToken();
+if (empty($_SESSION['csrf_token'])) {
+    die(xlt("OpenEMR Error : OpenEMR is not working because missing openssl extension."));
+}
 
 $_SESSION["encounter"] = '';
 
