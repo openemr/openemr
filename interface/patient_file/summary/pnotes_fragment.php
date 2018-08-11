@@ -110,7 +110,7 @@ if (isset($_GET['docUpdateId'])) {
                 echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
                 echo "</b></td>\n";
 
-                echo "  <td valign='top' class='text'>$body</td>\n";
+                echo "  <td valign='top' class='text'>" . text($body) . "</td>\n";
                 echo "<td valign='top' class='text'><button data-id='" . attr($iter['id']) . "' class='complete_btn'>" . xlt('Completed') . "</button></td>\n";
                 echo " </tr>\n";
 
@@ -203,7 +203,7 @@ if (isset($_GET['docUpdateId'])) {
                             echo "  <td valign='top' class='text'><b>";
                             echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
                             echo "</b></td>\n";
-                            echo "  <td valign='top' class='text'>$body</td>\n";
+                            echo "  <td valign='top' class='text'>" . text($body) . "</td>\n";
                             echo " </tr>\n";
                             $notes_sent_count++;
                         }
