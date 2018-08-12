@@ -1505,11 +1505,6 @@ a:hover, a:focus {
 .building_blocks dt, dd:last-of-type {
      border: 1px solid black;
  }
-span {
-    display: block;
-    color: white;
-}
-
 .IMPPLAN_class {
     width:95%;
 }

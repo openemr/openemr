@@ -85,7 +85,11 @@ if (isset($_GET['docUpdateId'])) {
             echo "<tr class='text' style='border-bottom:2px solid #000;' >\n";
             echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('From'), ENT_NOQUOTES) ."</b></td>\n";
             echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('To'), ENT_NOQUOTES) ."</b></td>\n";
-            echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('Date'), ENT_NOQUOTES) ."</b></td>\n";
+            if ($GLOBALS['messages_due_date']) {
+                echo "<td valign='top' class='text' ><b>". xlt('Due date') ."</b></td>\n";
+            } else {
+                echo "<td valign='top' class='text' ><b>". xlt('Date') ."</b></td>\n";
+            }
             echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('Subject'), ENT_NOQUOTES) ."</b></td>\n";
             echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('Content'), ENT_NOQUOTES) ."</b></td>\n";
             echo "<td valign='top' class='text' ></td>\n";
@@ -106,7 +110,7 @@ if (isset($_GET['docUpdateId'])) {
                 echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
                 echo "</b></td>\n";
 
-                echo "  <td valign='top' class='text'>$body</td>\n";
+                echo "  <td valign='top' class='text'>" . text($body) . "</td>\n";
                 echo "<td valign='top' class='text'><button data-id='" . attr($iter['id']) . "' class='complete_btn'>" . xlt('Completed') . "</button></td>\n";
                 echo " </tr>\n";
 
@@ -171,7 +175,11 @@ if (isset($_GET['docUpdateId'])) {
                         $notes_sent_count = 0;//number of notes so far displayed
                         echo "<tr class='text' style='border-bottom:2px solid #000;' >\n";
                         echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('To'), ENT_NOQUOTES) ."</b></td>\n";
-                        echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('Date'), ENT_NOQUOTES) ."</b></td>\n";
+                        if ($GLOBALS['messages_due_date']) {
+                            echo "<td valign='top' class='text' ><b>". xlt('Due date') ."</b></td>\n";
+                        } else {
+                            echo "<td valign='top' class='text' ><b>". xlt('Date') ."</b></td>\n";
+                        }
                         echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('Subject'), ENT_NOQUOTES) ."</b></td>\n";
                         echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('Content'), ENT_NOQUOTES) ."</b></td>\n";
                         echo "</tr>\n";
@@ -195,7 +203,7 @@ if (isset($_GET['docUpdateId'])) {
                             echo "  <td valign='top' class='text'><b>";
                             echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
                             echo "</b></td>\n";
-                            echo "  <td valign='top' class='text'>$body</td>\n";
+                            echo "  <td valign='top' class='text'>" . text($body) . "</td>\n";
                             echo " </tr>\n";
                             $notes_sent_count++;
                         }

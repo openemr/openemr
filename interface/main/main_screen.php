@@ -38,6 +38,9 @@ if (isset($_POST['new_login_session_management'])) {
   // This is not a new login, so create a new session id and do NOT remove the old session
     session_regenerate_id(false);
 }
+// Create the csrf_token
+$_SESSION['csrf_token'] = createCsrfToken();
+
 
 $_SESSION["encounter"] = '';
 

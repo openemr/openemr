@@ -778,7 +778,7 @@ $enrow = sqlQuery(
 $name = $enrow['fname'] . ' ';
 $name .= (!empty($enrow['mname'])) ? $enrow['mname'] . ' ' . $enrow['lname'] : $enrow['lname'];
 $date = xl('for Encounter on') . ' ' . oeFormatShortDate(substr($enrow['date'], 0, 10));
-$title = array(xl('Fee Sheet for'), $name, $date);
+$title = array(xl('Fee Sheet for'), text($name), text($date));
 //echo join(" ", $title);
 
 if ($GLOBALS['enable_help'] == 1) {
@@ -796,20 +796,20 @@ if ($GLOBALS['enable_help'] == 1) {
 <body class="body_top">
     <div class="container">
          <div class="row">
-            
+
                 <div class="page-header clearfix">
                    <h2 id="header_title" class="clearfix"><span id='header_text'><?php echo join(" ", $title); ?></span><?php echo $help_icon; ?></h2>
                 </div>
-           
+
            </div>
         <div class="row">
             <form method="post" name="fee_sheet_form" id="fee_sheet_form" action="<?php echo $rootdir; ?>/forms/fee_sheet/new.php?<?php
             echo "rde=" . urlencode($rapid_data_entry) . "&addmore=" . urlencode($add_more_items); ?>"
             onsubmit="return validate(this)">
                 <input type='hidden' name='newcodes' value=''>
-                
-                
-                
+
+
+
                 <?php
                     $isBilled = !$add_more_items && isEncounterBilled($fs->pid, $fs->encounter);
                 if ($isBilled) {
@@ -818,7 +818,7 @@ if ($GLOBALS['enable_help'] == 1) {
                     "</font></p>\n";
                 } else { // the encounter is not yet billed
                     ?>
-                    
+
                     <?php
                     // Allow the patient price level to be fixed here.
                     echo "<fieldset>";
@@ -848,7 +848,7 @@ if ($GLOBALS['enable_help'] == 1) {
                     echo "</div>";
                     echo "</fieldset>";
                 ?>
-                    
+
                 <fieldset>
                 <legend><?php echo xlt("Select Code")?></legend>
                 <div class='text-center'>
@@ -856,7 +856,7 @@ if ($GLOBALS['enable_help'] == 1) {
                         <?php
                             $i = 0;
                             $last_category = '';
-                                    
+
                             // Create drop-lists based on the fee_sheet_options table.
                             $res = sqlStatement("SELECT * FROM fee_sheet_options " .
                             "ORDER BY fs_category, fs_option");
@@ -880,7 +880,7 @@ if ($GLOBALS['enable_help'] == 1) {
                             echo "    <option value='" . attr($fs_codes) . "'>" . xlt(substr($fs_option, $cleave_opt)) . "</option>\n";
                         }
                             endFSCategory();
-                                    
+
                             // Create drop-lists based on categories defined within the codes.
                             $pres = sqlStatement("SELECT option_id, title FROM list_options " .
                             "WHERE list_id = 'superbill' AND activity = 1 ORDER BY seq");
@@ -909,7 +909,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                 $i = 0;
                             }
                         }
-                                    
+
                             // Create one more drop-list, for Products.
                         if ($GLOBALS['sell_non_drug_products']) {
                             ++$i;
@@ -936,25 +936,25 @@ if ($GLOBALS['enable_help'] == 1) {
                                 $i = 0;
                             }
                         }
-                                    
+
                             $search_type = $default_search_type;
                         if ($_POST['search_type']) {
                             $search_type = $_POST['search_type'];
                         }
-                                    
+
                             $ndc_applies = true; // Assume all payers require NDC info.
-                                    
+
                             echo $i ? "  <td></td>\n </tr>\n" : "";
                             ?>
-                                
+
                             </table>
                         </div>
                     </fieldset>
-                    
+
                     <fieldset>
                         <legend><?php echo xlt("Search for Additional Codes")?></legend>
                             <div class="col-lg-8 col-sm-12 text-center">
-                            <div class="form-group"> 
+                            <div class="form-group">
                             <?php
                                 $nofs_code_types = array();
                             foreach ($code_types as $key => $value) {
@@ -965,7 +965,7 @@ if ($GLOBALS['enable_help'] == 1) {
                             }
                                 $size_select = (count($nofs_code_types) < 5) ? count($nofs_code_types) : 5;
                                 ?>
-                                    
+
                                 <?php
                                 foreach ($nofs_code_types as $key => $value) {
                                     echo"<label class='radio-inline'>";
@@ -977,25 +977,25 @@ if ($GLOBALS['enable_help'] == 1) {
                                     echo " </label>";
                                 }
                                 ?>
-                                </div>    
+                                </div>
                             </div>
-                            
-                            <div class="col-lg-4 col-sm-12 clearfix">    
-                                <div class="form-group clearfix"> 
+
+                            <div class="col-lg-4 col-sm-12 clearfix">
+                                <div class="form-group clearfix">
                                 <div class="col-xs-8">
                                 <input type='text' class="form-control" name='search_term' value=''>
                                 </div>
                                 <div class="col-xs-1">
                                 <input type='submit'  name='bn_search' value='<?php echo xla('Search');?>' onclick='return this.clicked = true;'>
-                                        
+
                                 </div>
                                 </div>
                             </div>
-                                      
+
                             <div class="col-sm-12 text-center">
                                 <?php
                                 echo "<td colspan='" . attr($FEE_SHEET_COLUMNS) . "' align='center' nowrap>\n";
-                                    
+
                                 // If Search was clicked, do it and write the list of results here.
                                 // There's no limit on the number of results!
                                 //
@@ -1013,9 +1013,9 @@ if ($GLOBALS['enable_help'] == 1) {
                                     echo "   <select name='Search Results' style='width:98%; background:yellow' " .
                                     "onchange='codeselect(this)' >\n";
                                 }
-                                    
+
                                 echo "    <option value=''> " . xlt("Search Results") . " ($numrows " . xlt("items") . ")\n";
-                                    
+
                                 if ($numrows) {
                                     while ($row = sqlFetchArray($res)) {
                                         $code = $row['code'];
@@ -1026,17 +1026,17 @@ if ($GLOBALS['enable_help'] == 1) {
                                         text($row['code_text']) . "</option>\n";
                                     }
                                 }
-                                    
+
                                 echo "   </select>\n";
                                 ?>
                             </div>
                     </fieldset>
-                    
+
                 <?php } // end encounter not billed ?>
                 <fieldset>
                     <legend><?php echo xlt("Selected Fee Sheet Codes and Charges for Current Encounter")?></legend>
                     <div class='col-xs-12 '>
-                        
+
                         <table  class = "table" name='copay_review' id='copay_review' >
                             <tr>
                                 <?php
@@ -1049,7 +1049,7 @@ if ($GLOBALS['enable_help'] == 1) {
                             </tr>
                         </table>
                     </div>
-                    <div class='col-xs-12 text-center table-responsive'>                            
+                    <div class='col-xs-12 text-center table-responsive'>
                         <table name='selected_codes' id='selected_codes' class="table" cellspacing='5'>
                             <tr>
                                 <td class='billcell'><b><?php echo xlt('Type');?></b></td>
@@ -1076,13 +1076,13 @@ if ($GLOBALS['enable_help'] == 1) {
                                 <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Auth');?></b></td>
                                 <?php if ($GLOBALS['gbl_auto_create_rx']) { ?>
                                     <td class='billcell' align='center'><b><?php echo xlt('Rx'); ?></b></td>
-                                <?php } ?>  
+                                <?php } ?>
                                 <td class='billcell' align='center'><b><?php echo xlt('Delete');?></b></td>
                             </tr>
-                            
+
                             <?php
                                 $justinit = "var f = document.forms[0];\n";
-                                
+
                                 // Generate lines for items already in the billing table for this encounter,
                                 // and also set the rendering provider if we come across one.
                                 //
@@ -1113,7 +1113,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                         $justify = substr(str_replace(':', ',', $justify), 0, strlen($justify) - 1);
                                     }
                                     $provider_id = $iter['provider_id'];
-                                        
+
                                     // Also preserve other items from the form, if present.
                                     if ($bline['id'] && !$iter["billed"]) {
                                         if ($institutional) {
@@ -1132,11 +1132,11 @@ if ($GLOBALS['enable_help'] == 1) {
                                         $notecodes  = trim($bline['notecodes']);
                                          $provider_id = 0 + (int)$bline['provid'];
                                     }
-                                        
+
                                     if ($iter['code_type'] == 'COPAY') { // moved copay display to below
                                         continue;
                                     }
-                                        
+
                                     $fs->addServiceLineItem(array(
                                     'codetype'    => $iter['code_type'],
                                     'code'        => trim($iter['code']),
@@ -1157,7 +1157,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                     ));
                                 }
                             }
-                                
+
                                 $resMoneyGot = sqlStatement(
                                     "SELECT pay_amount as PatientPay,session_id as id,date(post_time) as date ".
                                     "FROM ar_activity where pid =? and encounter =? and payer_type=0 and account_code='PCP'",
@@ -1178,7 +1178,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                     'id'          => $id,
                                     ));
                                 }
-                                
+
                                 // Echo new billing items from this form here, but omit any line
                                 // whose Delete checkbox is checked.
                                 //
@@ -1222,7 +1222,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                         ));
                                     }
                                 }
-                                
+
                                 // Generate lines for items already in the drug_sales table for this encounter.
                                 //
                                 $query = "SELECT ds.*, di.warehouse_id FROM drug_sales AS ds, drug_inventory AS di WHERE " .
@@ -1263,7 +1263,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                     'warehouse_id' => $warehouse_id,
                                     ));
                                 }
-                                
+
                                 // Echo new product items from this form here, but omit any line
                                 // whose Delete checkbox is checked.
                                 //
@@ -1290,12 +1290,12 @@ if ($GLOBALS['enable_help'] == 1) {
                                         ));
                                     }
                                 }
-                                
+
                                 // If new billing code(s) were <select>ed, add their line(s) here.
                                 //
                                 if ($_POST['newcodes'] && !$alertmsg) {
                                     $arrcodes = explode('~', $_POST['newcodes']);
-                                    
+
                                     // A first pass here checks for any sex restriction errors.
                                     foreach ($arrcodes as $codestring) {
                                         if ($codestring === '') {
@@ -1313,7 +1313,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                             }
                                         }
                                     }
-                                    
+
                                     if (!$alertmsg) {
                                         foreach ($arrcodes as $codestring) {
                                             if ($codestring === '') {
@@ -1371,7 +1371,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                         }
                                     }
                                 }
-                                
+
                                 // Write the form's line items.
                                 echoServiceLines();
                                 echoProductLines();
@@ -1380,8 +1380,8 @@ if ($GLOBALS['enable_help'] == 1) {
                             ?>
                         </table>
                     </div>
-                    
-                    
+
+
                 </fieldset>
                 <fieldset>
                     <legend><?php echo xlt("Select Providers"); ?></legend>
@@ -1409,7 +1409,7 @@ if ($GLOBALS['enable_help'] == 1) {
                         </div>
                     </div>
                 </fieldset>
-                
+
                 <?php
                 if ($fs->contraception_code && !$isBilled) {
                   // This will give the form save logic the associated contraceptive method.
@@ -1418,7 +1418,7 @@ if ($GLOBALS['enable_help'] == 1) {
                     echo $fs->generateContraceptionSelector();
                 }
                 ?>
-                
+
                 <!--&nbsp; &nbsp; &nbsp;-->
                 <div class="form-group">
                     <div class="col-sm-12 position-override">
@@ -1458,7 +1458,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                 <input type='hidden' name='form_has_charges' value='<?php echo $fs->hasCharges ? 1 : 0; ?>' />
                                 <input type='hidden' name='form_checksum' value='<?php echo $current_checksum; ?>' />
                                 <input type='hidden' name='form_alertmsg' value='<?php echo attr($alertmsg); ?>' />
-                        </div> 
+                        </div>
                     </div>
                 </div>
             </form>
@@ -1474,7 +1474,7 @@ if ($GLOBALS['enable_help'] == 1) {
         //help_modal.php lives in interface, set path accordingly
         require_once "../../help_modal.php";
     }
-    ?> 
+    ?>
     <script>
     $( document ).ready(function() {
         $('select').addClass("form-control");
@@ -1511,7 +1511,7 @@ if ($GLOBALS['enable_help'] == 1) {
 
         $("[name=search_term]").focus();
     </script>
-    
+
     <?php
     $search_term = $_POST['search_term'];
     if ($numrows && $_POST['bn_search']) {

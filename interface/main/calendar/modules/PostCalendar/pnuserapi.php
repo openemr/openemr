@@ -505,7 +505,7 @@ function postcalendar_userapi_buildView($args)
         if (isset($calendarView)) {
             $tpl->assign_by_ref('CAL_FORMAT', $calendarView);
         }
-        
+
         if ($viewtype == "week") {
             $last_blocks = array();
             foreach ($eventsByDate as $cdate => $day) {
@@ -878,7 +878,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
   //echo "<Br />sql: $sql<br />";
     $result = $dbconn->Execute($sql);
     if ($dbconn->ErrorNo() != 0) {
-        die($dbconn->ErrorMsg());
+        die(text($dbconn->ErrorMsg()));
     }
 
   // put the information into an array for easy access
@@ -1202,7 +1202,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
     $result = $dbconn->Execute($sql);
     if ($dbconn->ErrorNo() != 0) {
-        die($dbconn->ErrorMsg());
+        die(text($dbconn->ErrorMsg()));
     }
 
   // put the information into an array for easy access
@@ -1391,7 +1391,7 @@ function &postcalendar_userapi_pcGetEvents($args)
 {
     $s_keywords = $s_category = $s_topic = '';
     extract($args);
-    
+
     $date =postcalendar_getDate();
     $cy = substr($date, 0, 4);
     $cm = substr($date, 4, 2);
@@ -1420,7 +1420,7 @@ function &postcalendar_userapi_pcGetEvents($args)
         $start_date = $sy.'-'.$sm.'-'.$sd;
         $end_date = $ey.'-'.$em.'-'.$ed;
     }
-    
+
     if ($faFlag && !isset($events)) {
         $a = array('faFlag' => true,'start'=>$start_date,'end'=>$end_date,'s_keywords'=>$s_keywords,'s_category'=>$s_category,'s_topic'=>$s_topic,'viewtype'=>$viewtype, 'provider_id' => $provider_id, 'event_status' => $event_status);
         $events = pnModAPIFunc(__POSTCALENDAR__, 'user', '<strong></strong>pcQueryEventsFA', $a);

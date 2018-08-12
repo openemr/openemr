@@ -315,8 +315,8 @@ body
 .menuSection > .menuEntries .menuEntries {
     display: none;
     position: absolute;
-    top: -3px;
-    left: 161px;
+    top: -4px;
+    left: 159px;
     transition: 2s background-color;
 }
 .menuSection:hover > .menuEntries{

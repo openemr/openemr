@@ -2,6 +2,9 @@
 require_once("../../globals.php");
 require_once("$srcdir/billing.inc");
 
+$mode = $_GET['mode'];
+$id   = $_GET['id'];
+
 if (isset($mode)) {
     if ($mode == "add") {
         addBilling($encounter, $type, $code, strip_escape_custom($text), $pid, $userauthorized, $_SESSION['authUserID']);

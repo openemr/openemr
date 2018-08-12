@@ -42,8 +42,8 @@
 [-/if-]
 <br>
 [-php-] xl('between','e'); [-/php-]
-<input type="text" class='datepicker' name="start" id="start" value="[-$DATE_START-]" size="10"/>
-<input type="text" class='datepicker' name="end" id="end" value="[-$DATE_END-]" size="10"/>
+<input type="text" class='datepicker' name="start" id="start" value="[-$DATE_START|escape:'html'-]" size="10"/>
+<input type="text" class='datepicker' name="end" id="end" value="[-$DATE_END|escape:'html'-]" size="10"/>
 <br>
 [-php-] xl('for','e'); [-/php-]
 <select name="provider_id" id="provider_id">
@@ -115,7 +115,7 @@ foreach ($this->get_template_vars('A_EVENTS') as $eDate => $date_events) {
 
         // patient
         echo "<td class='calsearch_patient'>";
-        echo $event['patient_name'];
+        echo text($event['patient_name']);
         echo "</td>";
 /*
         echo "<td>";

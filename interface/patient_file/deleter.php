@@ -160,6 +160,16 @@ function form_delete($formdir, $formid, $patient_id, $encounter_id)
         row_delete("procedure_order", "procedure_order_id = '" . add_escape_custom($formid) . "'");
     } else if ($formdir == 'physical_exam') {
         row_delete("form_$formdir", "forms_id = '" . add_escape_custom($formid) . "'");
+    } else if ($formdir == 'eye_mag') {
+        $tables = array('form_eye_base','form_eye_hpi','form_eye_ros','form_eye_vitals',
+            'form_eye_acuity','form_eye_refraction','form_eye_biometrics',
+            'form_eye_external', 'form_eye_antseg','form_eye_postseg',
+            'form_eye_neuro','form_eye_locking','form_eye_mag_orders');
+        foreach ($tables as $table_name) {
+            row_delete($table_name, "id = '" . add_escape_custom($formid) . "'");
+        }
+        row_delete("form_eye_mag_impplan", "form_id = '" . add_escape_custom($formid) . "'");
+        row_delete("form_eye_mag_wearing", "FORM_ID = '" . add_escape_custom($formid) . "'");
     } else {
         row_delete("form_$formdir", "id = '" . add_escape_custom($formid) . "'");
     }
