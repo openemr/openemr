@@ -40,9 +40,7 @@ if (isset($_POST['new_login_session_management'])) {
 }
 // Create the csrf_token
 $_SESSION['csrf_token'] = createCsrfToken();
-if (empty($_SESSION['csrf_token'])) {
-    die(xlt("OpenEMR Error : OpenEMR is not working because missing openssl extension."));
-}
+
 
 $_SESSION["encounter"] = '';
 

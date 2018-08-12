@@ -19,10 +19,17 @@ function createCsrfToken()
 {
     if (!extension_loaded('openssl')) {
         error_log("OpenEMR Error : OpenEMR is not working because missing openssl extension.");
-        return false;
-    } else {
-        return base64_encode(openssl_random_pseudo_bytes(32));
+        die("OpenEMR Error : OpenEMR is not working because missing openssl extension.");
     }
+
+    $csrfToken = base64_encode(openssl_random_pseudo_bytes(32));
+
+    if (empty($csrfToken)) {
+        error_log("OpenEMR Error : OpenEMR is not working because CSRF token is not being formed correctly.");
+        die("OpenEMR Error : OpenEMR is not working because CSRF token is not being formed correctly.");
+    }
+
+    return $csrfToken;
 }
 
 // Function to verify a csrf_token

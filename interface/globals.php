@@ -218,9 +218,6 @@ require_once $GLOBALS['vendor_dir'] ."/autoload.php";
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = createCsrfToken();
 }
-if (empty($_SESSION['csrf_token'])) {
-    die(xlt("OpenEMR Error : OpenEMR is not working because missing openssl extension."));
-}
 
 /**
  * @var Dotenv Allow a `.env` file to be read in and applied as $_SERVER variables.
