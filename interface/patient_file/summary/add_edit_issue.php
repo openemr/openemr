@@ -296,6 +296,7 @@ if ($_POST['form_save']) {
         "destination = '" . add_escape_custom($_POST['form_destination'])   . "', " .
         "reaction ='"     . add_escape_custom($_POST['form_reaction'])     . "', " .
         "severity_al ='"     . add_escape_custom($_POST['form_severity_id'])     . "', " .
+        "external_id ='"     . add_escape_custom($_POST['form_title_id'])     . "', " .
         "erx_uploaded = '0', " .
         "modifydate = NOW() " .
         "WHERE id = '" . add_escape_custom($issue) . "'";
@@ -311,7 +312,7 @@ if ($_POST['form_save']) {
         "date, pid, type, title, activity, comments, begdate, enddate, returndate, " .
         "diagnosis, occurrence, classification, referredby, user, groupname, " .
         "outcome, destination, reinjury_id, injury_grade, injury_part, injury_type, " .
-        "reaction, severity_al " .
+        "reaction, severity_al, external_id " .
         ") VALUES ( " .
         "NOW(), " .
         "'" . add_escape_custom($thispid) . "', " .
@@ -335,7 +336,8 @@ if ($_POST['form_save']) {
         "'" . add_escape_custom($form_injury_part)          . "', " .
         "'" . add_escape_custom($form_injury_type)          . "', " .
         "'" . add_escape_custom($_POST['form_reaction'])         . "', " .
-        "'" . add_escape_custom($_POST['form_severity_id'])         . "' " .
+        "'" . add_escape_custom($_POST['form_severity_id'])         . "', " .
+        "'" . add_escape_custom($_POST['form_title_id'])         . "' " .
         ")");
     }
 
@@ -539,6 +541,7 @@ if ($ISSUE_TYPES['ippf_gcac'] && !$_POST['form_save']) {
  function set_text() {
   var f = document.forms[0];
   f.form_title.value = f.form_titles.options[f.form_titles.selectedIndex].text;
+  f.form_title_id.value = f.form_titles.options[f.form_titles.selectedIndex].value;
   f.form_diagnosis.value = f.form_titles.options[f.form_titles.selectedIndex].getAttribute('data-code');
   f.form_titles.selectedIndex = -1;
  }
@@ -766,6 +769,7 @@ foreach ($ISSUE_TYPES as $key => $value) {
   <td valign='top' id='title_diagnosis' nowrap><b><?php echo xlt('Title'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_title' value='<?php echo attr($irow['title']) ?>' style='width:100%' />
+   <input type='hidden' name='form_title_id' value='<?php echo attr($irow['external_id']) ?>'/>
   </td>
  </tr>
 
