@@ -170,8 +170,8 @@ $rootdir = $GLOBALS['rootdir'];
 $GLOBALS['srcdir'] = "$webserver_root/library";
 // Absolute path to the location of documentroot directory for use with include statements:
 $GLOBALS['fileroot'] = "$webserver_root";
-// Absolute path to the location of public directory for use with include statements:
-$include_root = "$webserver_root/public";
+// Absolute path to the location of interface directory for use with include statements:
+$include_root = "$webserver_root/interface";
 // Absolute path to the location of documentroot directory for use with include statements:
 $GLOBALS['webroot'] = $web_root;
 
@@ -189,7 +189,7 @@ $GLOBALS['images_static_absolute'] = "$webserver_root/public/images";
 $GLOBALS['vendor_dir'] = "$webserver_root/vendor";
 $GLOBALS['fonts_dir'] = "{$web_root}/public/fonts";
 $GLOBALS['template_dir'] = $GLOBALS['fileroot'] . "/templates/";
-$GLOBALS['incdir'] = "$webserver_root/interface";
+$GLOBALS['incdir'] = $include_root;
 // Location of the login screen file
 $GLOBALS['login_screen'] = $GLOBALS['rootdir'] . "/login_screen.php";
 
@@ -352,7 +352,7 @@ if (!empty($glrow)) {
             $GLOBALS['language_menu_show'][] = $gl_value;
         } elseif ($gl_name == 'css_header') {
             //Escape css file name using 'attr' for security (prevent XSS).
-            $GLOBALS[$gl_name] = $rootdir.'/themes/'.attr($gl_value).'?v='.$v_js_includes;
+            $GLOBALS[$gl_name] = $web_root.'/public/themes/'.attr($gl_value).'?v='.$v_js_includes;
             $css_header = $GLOBALS[$gl_name];
             $temp_css_theme_name = $gl_value;
         } elseif ($gl_name == 'weekend_days') {
@@ -432,13 +432,13 @@ if (!empty($glrow)) {
         $new_theme = 'rtl_' . $temp_css_theme_name;
 
         // Check file existance
-        if (file_exists($include_root.'/themes/'.$new_theme)) {
+        if (file_exists($webserver_root.'/public/themes/'.$new_theme)) {
             //Escape css file name using 'attr' for security (prevent XSS).
-            $GLOBALS['css_header'] = $rootdir.'/themes/'.attr($new_theme).'?v='.$v_js_includes;
+            $GLOBALS['css_header'] = $web_root.'/public/themes/'.attr($new_theme).'?v='.$v_js_includes;
             $css_header = $GLOBALS['css_header'];
         } else {
             // throw a warning if rtl'ed file does not exist.
-            error_log("Missing theme file ".text($include_root).'/themes/'.text($new_theme));
+            error_log("Missing theme file ".text($webserver_root).'/public/themes/'.text($new_theme));
         }
     }
 
@@ -463,7 +463,7 @@ if (!empty($glrow)) {
     $GLOBALS['translate_appt_categories'] = true;
     $timeout = 7200;
     $openemr_name = 'OpenEMR';
-    $css_header = "$rootdir/themes/style_default.css";
+    $css_header = "$web_root/public/themes/style_default.css";
     $GLOBALS['css_header'] = $css_header;
     $GLOBALS['schedule_start'] = 8;
     $GLOBALS['schedule_end'] = 17;
