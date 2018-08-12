@@ -37,6 +37,12 @@ if (!isset($phpgacl_location)) {
     exit;
 }
 
+//ensure no csrf
+if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+    echo error_xml(xl('Authentication Error'));
+    exit;
+}
+
 //Display red alert if Emergency Login ACL is activated for a user.
 if ($_POST["action"] == "add") {
     if (is_array($_POST["selection"]) && in_array("Emergency Login", $_POST["selection"])) {
