@@ -368,10 +368,13 @@ if ($encounter) {
 }
 
 $templatedir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates';
-$templatepath = "$templatedir/" . check_file_dir_name($form_filename);
+
+check_file_dir_name($form_filename);
+$templatepath = "$templatedir/$form_filename";
 // test if this is folder with template, if not, must be for a specific patient
 if (! file_exists($templatepath)) {
-    $templatepath = "$templatedir/" . check_file_dir_name($pid) . "/" . check_file_dir_name($form_filename);
+    check_file_dir_name($pid);
+    $templatepath = "$templatedir/" . $pid . "/$form_filename";
 }
 
 // Create a temporary file to hold the output.
