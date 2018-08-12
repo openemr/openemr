@@ -97,6 +97,7 @@ if (!isset($phpgacl_location)) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
+                        csrf_token_form: "<?php echo $_SESSION['csrf_token'] ?>",
                         control: "acl",
                         action: "add",
                         title: title,
@@ -168,6 +169,7 @@ if (!isset($phpgacl_location)) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
+                        csrf_token_form: "<?php echo $_SESSION['csrf_token'] ?>",
                         control: "acl",
                         action: "remove",
                         title: title,
@@ -217,6 +219,7 @@ if (!isset($phpgacl_location)) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
+                        csrf_token_form: "<?php echo $_SESSION['csrf_token'] ?>",
                         control: "username",
                         action: "list"
                     },
@@ -265,6 +268,7 @@ if (!isset($phpgacl_location)) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
+                        csrf_token_form: "<?php echo $_SESSION['csrf_token'] ?>",
                         control: "acl",
                         action: "list"
                     },
@@ -362,6 +366,7 @@ if (!isset($phpgacl_location)) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
+                        csrf_token_form: "<?php echo $_SESSION['csrf_token'] ?>",
                         name: identityFormatted,
                         control: control,
                         action: action,

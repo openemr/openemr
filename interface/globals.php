@@ -217,6 +217,13 @@ define("_MPDF_TTFONTDATAPATH", $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfont
 //  library/translation.inc.php - Includes translation functions
 require_once $GLOBALS['vendor_dir'] ."/autoload.php";
 
+// Set up csrf token
+// This is done in cases where it is not yet set for the session
+// (note this is permanently done for the session in the main_screen.php script)
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = createCsrfToken();
+}
+
 /**
  * @var Dotenv Allow a `.env` file to be read in and applied as $_SERVER variables.
  *
