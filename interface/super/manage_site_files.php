@@ -46,7 +46,6 @@ $imagedir     = "$OE_SITE_DIR/images";
 $educationdir = "$OE_SITE_DIR/documents/education";
 
 if (!empty($_POST['bn_save'])) {
-
     //verify csrf
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
         die(xlt('Authentication Error'));
@@ -128,7 +127,6 @@ if (!empty($_POST['bn_save'])) {
  */
 
 if (isset($_POST['generate_thumbnails'])) {
-
     //verify csrf
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
         die(xlt('Authentication Error'));
@@ -194,7 +192,6 @@ if ($GLOBALS['secure_upload']) {
     curl_close($curl);
 
     if (isset($_POST['submit_form'])) {
-
         //verify csrf
         if (!verifyCsrfToken($_POST["csrf_token_form"])) {
             die(xlt('Authentication Error'));
