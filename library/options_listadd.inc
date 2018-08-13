@@ -1,8 +1,8 @@
 <?php
 /* This include is just a HTML and JS *fragment* it CANNOT stand alone
- * 
+ *
  * This file is used to include the capability to have a pop-up DIV in which
- * a user can add a new option to a list box. Primarily this is for the 
+ * a user can add a new option to a list box. Primarily this is for the
  * demographics, history, and referral screens. This code could be used elsewhere
  * as long as it had the required supporting HTML and JS
  *
@@ -33,7 +33,7 @@
 
     // collect the custom state widget flag
     var stateCustomFlag = "<?php echo $GLOBALS['state_custom_addlist_widget']; ?>"
-    
+
     // generic form for input box
     var generic = "<input type='textbox' name='newlistitem_value' id='newlistitem_value' size='20' maxlength='50'>"
 
@@ -58,7 +58,7 @@ $(document).ready(function(){
     /********************************************************/
     /************ List-box modification functions ***********/
     /********************************************************/
-   
+
     $("#newlistitem").keypress(function(evt) { if (evt.keyCode == 13) { SaveNewListItem(this, evt); return false; }});
     $(".addtolist").click(function(evt) { AddToList(this, evt); });
     $("#newlistitem_submit").click(function(evt) { SaveNewListItem(this, evt); });
@@ -72,7 +72,7 @@ $(document).ready(function(){
 
         // REMOVE previous form
     $("#specificForm").empty();
-    
+
     // INSERT the selected form
     if (($("#newlistitem_listid").val() == "state") && (stateCustomFlag)) {
      // insert state form and clear values
@@ -85,7 +85,7 @@ $(document).ready(function(){
      $("#specificForm").append(generic);
      $('#newlistitem_value').val("");
         }
-    
+
         // make the item visible before setting its x,y location
         $('#newlistitem').css('display', 'inline');
         //getting height and width of the message box
@@ -98,12 +98,12 @@ $(document).ready(function(){
         $('#newlistitem').css({left:leftVal,top:topVal}).show();
         $('#newlistitem_value').focus();
     };
-   
+
     // hide the add-to-list DIV and clear its textbox
     var CancelAddToList = function(btnObj, e) {
         $('#newlistitem').hide();
     }
-    
+
     // save the new list item to the given list
     var SaveNewListItem = function(btnObj, e) {
     // VALIDATE the selected form
@@ -142,7 +142,7 @@ $(document).ready(function(){
         var listid = $("#newlistitem_listid").val();
         var newitem = $('#newlistitem_value').val();
         var newitem_abbr = $('#newlistitem_abbr').val();
-        
+
     }
     else {
         // process generic form
@@ -154,10 +154,11 @@ $(document).ready(function(){
     }
 
         // make the AJAX call to save the new value to the specified list
-        // upon returning successfully, refresh the list box and select 
+        // upon returning successfully, refresh the list box and select
         // the new list item
         $.getJSON("<?php echo $GLOBALS['webroot']; ?>/library/ajax/addlistitem.php",
-                    {listid: listid,
+                    {csrf_token_form: "<?php echo attr($_SESSION['csrf_token']); ?>",
+                    listid: listid,
              newitem: newitem,
              newitem_abbr: newitem_abbr},
                     function(jsondata, txtresponse) {
@@ -184,13 +185,13 @@ $(document).ready(function(){
                                         pointer.val(currentselected);
                     }
                 }
-                            }); 
+                            });
             });
-        
+
                         // now hide the DIV
                         $('#newlistitem').hide();
              }else{
-                
+
                  alert( jsondata.error );
              }
                     }
@@ -198,6 +199,6 @@ $(document).ready(function(){
 
     }  // end SaveNewListItem
 
-}); // end jQuery .ready 
+}); // end jQuery .ready
 </script>
 

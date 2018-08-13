@@ -46,6 +46,11 @@ $imagedir     = "$OE_SITE_DIR/images";
 $educationdir = "$OE_SITE_DIR/documents/education";
 
 if (!empty($_POST['bn_save'])) {
+    //verify csrf
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
     if ($form_filename) {
         // Textareas, at least in Firefox, return a \r\n at the end of each line
         // even though only \n was originally there.  For consistency with
@@ -122,6 +127,11 @@ if (!empty($_POST['bn_save'])) {
  */
 
 if (isset($_POST['generate_thumbnails'])) {
+    //verify csrf
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
     $thumb_generator = new ThumbnailGenerator();
     $results = $thumb_generator->generate_all();
 
@@ -182,6 +192,11 @@ if ($GLOBALS['secure_upload']) {
     curl_close($curl);
 
     if (isset($_POST['submit_form'])) {
+        //verify csrf
+        if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+            die(xlt('Authentication Error'));
+        }
+
         $new_white_list = empty($_POST['white_list']) ? array() : $_POST['white_list'];
 
         // truncate white list from list_options table
@@ -333,6 +348,7 @@ foreach ($imageslist as $sfname) {
 </table>
 
 <p>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr($_SESSION['csrf_token']); ?>" />
 <input type='submit' name='bn_save' value='<?php echo htmlspecialchars(xl('Save')) ?>' />
 </p>
 
@@ -351,6 +367,7 @@ foreach ($imageslist as $sfname) {
             </td>
             <td  class="thumb_form" style="width:17%;border-right:none">
                 <form method='post' action='manage_site_files.php#generate_thumb'>
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr($_SESSION['csrf_token']); ?>" />
                     <input style="margin-top: 10px" type="submit" name="generate_thumbnails" value="<?php echo xla('Generate') ?>">
                 </form>
             </td>
@@ -402,6 +419,7 @@ foreach ($imageslist as $sfname) {
         <div class="subject-info-save">
             <input type="button" id="submit-whitelist" value="<?php echo xlt('Save'); ?>" />
             <input type="hidden" name="submit_form" value="1" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr($_SESSION['csrf_token']); ?>" />
         </div>
     </form>
 
