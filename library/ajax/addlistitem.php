@@ -16,6 +16,12 @@
 
 include_once("../../interface/globals.php");
 
+//verify csrf
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    echo json_encode(array("error"=> xl('Authentication Error') ));
+    exit;
+}
+
 // check for required values
 if ($_GET['listid'] == "" || trim($_GET['newitem']) == "" || trim($_GET['newitem_abbr']) == "") {
     exit;
