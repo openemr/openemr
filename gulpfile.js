@@ -186,13 +186,15 @@ gulp.task('styles', ['styles:style_uni', 'styles:style_color', 'styles:rtl']);
 * Create a JSON for storybook to use
 */
 gulp.task('style_list', function () {
-    var style_list = [];
-    for (var i=0; i<config.all.length; i++) {
-        var theme_name = "style_" + config.all[i].split('style_')[1].slice(0,-5);
-        style_list.push(theme_name);
-        style_list.push('rtl_' + theme_name);
+    if (config.dev) {
+        var style_list = [];
+        for (var i=0; i<config.all.length; i++) {
+            var theme_name = "style_" + config.all[i].split('style_')[1].slice(0,-5);
+            style_list.push(theme_name);
+            style_list.push('rtl_' + theme_name);
+        }
+        fs.writeFileSync('.storybook/themeOptions.json', JSON.stringify(style_list), 'utf8');
     }
-    fs.writeFileSync('.storybook/themeOptions.json', JSON.stringify(style_list), 'utf8');
 });
 
 
