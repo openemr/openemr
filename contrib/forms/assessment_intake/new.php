@@ -19,7 +19,7 @@ formHeader("Form: assessment_intake");
 
 <?php $res = sqlStatement("SELECT fname,mname,lname,ss,street,city,state,postal_code,phone_home,DOB FROM patient_data WHERE pid = ?", array($pid));
 $result = SqlFetchArray($res); ?>
-<b>Name:</b>&nbsp; <?php text(echo $result['fname']) . '&nbsp' . text($result['mname']) . '&nbsp;' . text($result['lname']);?>
+<b>Name:</b>&nbsp; <?php echo text($result['fname']) . '&nbsp' . text($result['mname']) . '&nbsp;' . text($result['lname']);?>
 <img src="../../../images/space.gif" width="572" height="1">
 <b>Date:</b>&nbsp; <?php print date('m/d/y'); ?><br><br>
 <b>SSN:</b>&nbsp;<?php echo text($result['ss']);?><img src="../../../images/space.gif" width="172" height="1">

@@ -14,7 +14,7 @@ if ($_GET["mode"] == "new") {
     addForm($encounter, "Assessment and Intake", $newid, "assessment_intake", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
     sqlInsert("update form_assessment_intake set pid = '" . add_escape_custom($_SESSION["pid"]) . "',groupname='" . add_escape_custom($_SESSION["authProvider"]) . "',user='" . add_escape_custom($_SESSION["authUser"]) . "',authorized='" . add_escape_custom($userauthorized) . "',activity=1, date = NOW(), 
-dcn='".add_escape_custom($_POST["dcn"]."', 
+dcn='".add_escape_custom($_POST["dcn"])."', 
 location='".add_escape_custom($_POST["location"])."',
 time_in='".add_escape_custom($_POST["time_in"])."',
 time_out='".add_escape_custom($_POST["time_out"])."',
