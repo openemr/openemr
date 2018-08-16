@@ -80,7 +80,7 @@ function postcalendar_user_view()
     if (!isset($viewtype)) {
         $viewtype = _SETTING_DEFAULT_VIEW;
     }
-    
+
     // added to allow the view & providers to remain as the user last saw it -- JRM
     if ($_SESSION['viewtype']) {
         $viewtype = $_SESSION['viewtype'];
@@ -929,7 +929,7 @@ function postcalendar_user_submit($args)
                 $Date=$year=$month=$day=$pc_html_or_text=$event_patient_name=$evnet_pid=null;
                 $is_update = false;
                 $pc_event_id = 0;
-    
+
                 //$_SESSION['category'] = "";
                 // lets wrap all the data into array for passing to submit and preview functions
                 $eventdata = compact(
@@ -1266,7 +1266,7 @@ function postcalendar_user_search()
 
 
         if (!empty($pc_category)) {
-            $s_category = "a.pc_catid = '$pc_category'";
+            $s_category = "a.pc_catid = '".add_escape_custom($pc_category)."'";
         }
 
         if (!empty($pc_topic)) {
@@ -1285,7 +1285,7 @@ function postcalendar_user_search()
         if (!empty($s_topic)) {
             $searchargs['s_topic'] = $s_topic;
         }
-    
+
         // some new search parameters introduced in the ajax_search form...  JRM March 2008
 
         // the ajax_search form has form parameters for 'start' and 'end' already built in
