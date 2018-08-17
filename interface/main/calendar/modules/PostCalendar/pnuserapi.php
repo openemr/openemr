@@ -831,10 +831,10 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
     "LEFT JOIN users as u ON a.pc_aid = u.id " .
     "LEFT JOIN users as u2 ON a.pc_aid = u2.id " .
     "LEFT JOIN patient_data as pd ON a.pc_pid=pd.pid " .
-    "WHERE a.pc_eventstatus = $eventstatus " .
-    "AND (a.pc_endDate >= '$start' OR a.pc_endDate = '0000-00-00') " .
-    "AND a.pc_eventDate <= '$end' " .
-    "AND (a.pc_aid = '" . $provider_id . "' OR a.pc_aid = '')";
+    "WHERE a.pc_eventstatus = '" . pnVarPrepForStore($eventstatus) . "' " .
+    "AND (a.pc_endDate >= '" . pnVarPrepForStore($start) . "' OR a.pc_endDate = '0000-00-00') " .
+    "AND a.pc_eventDate <= '" . pnVarPrepForStore($end) . "' " .
+    "AND (a.pc_aid = '" . pnVarPrepForStore($provider_id) . "' OR a.pc_aid = '')";
 
   //======================================================================
   //  START SEARCH FUNCTIONALITY
@@ -852,7 +852,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
     }
 
     if (!empty($collide_etime) && !empty($collide_stime)) {
-        $sql .= "AND NOT ((pc_endTime <= '$collide_stime') OR (pc_startTime >= '$collide_etime')) AND pc_endTime IS NOT NULL ";
+        $sql .= "AND NOT ((pc_endTime <= '" . pnVarPrepForStore($collide_stime) . "') OR (pc_startTime >= '" . pnVarPrepForStore($collide_etime) . "')) AND pc_endTime IS NOT NULL ";
     }
 
     if (!empty($category)) {
@@ -1103,21 +1103,21 @@ function &postcalendar_userapi_pcQueryEvents($args)
     "LEFT JOIN users as u2 ON a.pc_aid = u2.id " .
     "LEFT JOIN patient_data as pd ON a.pc_pid = pd.pid " .
     "LEFT JOIN therapy_groups as tg ON a.pc_gid = tg.group_id " .
-    "WHERE  a.pc_eventstatus = $eventstatus " .
-    "AND ((a.pc_endDate >= '$start' AND a.pc_eventDate <= '$end') OR " .
-    "(a.pc_endDate = '0000-00-00' AND a.pc_eventDate >= '$start' AND " .
-    "a.pc_eventDate <= '$end')) ";
+    "WHERE  a.pc_eventstatus = '" . pnVarPrepForStore($eventstatus) . "' " .
+    "AND ((a.pc_endDate >= '" . pnVarPrepForStore($start) . "' AND a.pc_eventDate <= '" . pnVarPrepForStore($end) . "') OR " .
+    "(a.pc_endDate = '0000-00-00' AND a.pc_eventDate >= '" . pnVarPrepForStore($start) . "' AND " .
+    "a.pc_eventDate <= '" . pnVarPrepForStore($end) . "')) ";
 
   //==================================
   //FACILITY FILTERING (lemonsoftware)(CHEMED)
     if ($_SESSION['pc_facility']) {
             $pc_facility = $_SESSION['pc_facility'];
-            $sql .= " AND a.pc_facility = $pc_facility "; /*
+            $sql .= " AND a.pc_facility = '" . pnVarPrepForStore($pc_facility) . "' "; /*
                       AND u.facility_id = $pc_facility
                       AND u2.facility_id = $pc_facility "; */
     } else if ($pc_facility) {
         // pc_facility could be provided in the search arguments -- JRM March 2008
-        $sql .= " AND a.pc_facility = $pc_facility "; /*.
+        $sql .= " AND a.pc_facility = '" . pnVarPrepForStore($pc_facility) . "' "; /*.
                 " AND u.facility_id = $pc_facility".
                 " AND u2.facility_id = $pc_facility "; */
     }
@@ -1142,14 +1142,14 @@ function &postcalendar_userapi_pcQueryEvents($args)
     if (isset($ruserid)) {
         // get all events for the specified username
         if ($ruserid == -1) {
-            $sql .= "AND (a.pc_sharing = '" . SHARING_BUSY . "' ";
-            $sql .= "OR a.pc_sharing = '" . SHARING_PUBLIC . "') ";
+            $sql .= "AND (a.pc_sharing = '" . pnVarPrepForStore(SHARING_BUSY) . "' ";
+            $sql .= "OR a.pc_sharing = '" . pnVarPrepForStore(SHARING_PUBLIC) . "') ";
         } else {
-            $sql .= "AND a.pc_aid IN (0, " . $ruserid . ") ";
+            $sql .= "AND a.pc_aid IN (0, " . pnVarPrepForStore($ruserid) . ") ";
         }
     } elseif (!pnUserLoggedIn()) {
         // get all events for anonymous users
-        $sql .= "AND a.pc_sharing = '" . SHARING_GLOBAL . "' ";
+        $sql .= "AND a.pc_sharing = '" . pnVarPrepForStore(SHARING_GLOBAL) . "' ";
     } elseif (!empty($provider_id)) {
         // get all events for a variety of provider IDs -- JRM
         if ($provider_id[0] != "_ALL_") {
@@ -1158,7 +1158,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
         }
     } else {
         // get all events for logged in user plus global events
-        $sql .= "AND (a.pc_aid IN (0," . $_SESSION['authUserID'] . ") OR a.pc_sharing = '" . SHARING_GLOBAL . "') ";
+        $sql .= "AND (a.pc_aid IN (0," . pnVarPrepForStore($_SESSION['authUserID']) . ") OR a.pc_sharing = '" . pnVarPrepForStore(SHARING_GLOBAL) . "') ";
     }
 
   //======================================================================
