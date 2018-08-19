@@ -57,12 +57,13 @@ class C_FormEvaluation extends Controller
         addForm($GLOBALS['encounter'], "Evaluation Form", $this->evaluation->id, "evaluation", $GLOBALS['pid'], $_SESSION['userauthorized']);
 
         if (!empty($_POST['cpt_code'])) {
-            $sql = "select * from codes where code ='" . add_escape_custom($_POST['cpt_code']) . "' order by id";
-
-            $results = sqlQ($sql);
+            $sql = "select * from codes where code = ? ORDER BY id";
+            
+            $results = sqlQ($sql,array(add_escape_custom($_POST['cpt_code'])));
 
             $row = sqlFetchArray($results);
             if (!empty($row)) {
+                // ## Analyze - DE
                 addBilling(date("Ymd"), 'CPT4', $row['code'], $row['code_text'], $_SESSION['pid'], $_SESSION['userauthorized'], $_SESSION['authUserID'], $row['modifier'], $row['units'], $row['fee']);
             }
         }

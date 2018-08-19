@@ -63,8 +63,8 @@ class FormEvaluation extends ORDataObject
     {
         parent::populate();
 
-        $sql = "SELECT name from form_evaluation_checks where foreign_id = '" . add_escape_custom($this->id) . "'";
-        $results = sqlQ($sql);
+        $sql = "SELECT name from form_evaluation_checks where foreign_id = ?";
+        $results = sqlQ($sql, array(add_escape_custom($this->id)));
 
         while ($row = sqlFetchArray($results)) {
             $this->checks[] = $row['name'];
@@ -216,8 +216,8 @@ class FormEvaluation extends ORDataObject
         $this->hpi = $string;
     }
 
-    function get_hpi()
-    {
+    function get_hpi() {
+    
         return $this->hpi;
     }
 
@@ -286,12 +286,12 @@ class FormEvaluation extends ORDataObject
 
         parent::persist();
         if (is_numeric($this->id) and !empty($this->checks)) {
-            $sql = "delete FROM form_evaluation_checks where foreign_id = '" . $this->id . "'";
-            sqlQuery($sql);
+            $sql = "delete FROM form_evaluation_checks WHERE foreign_id = ?";
+            sqlQuery($sql, array($this->id));
             foreach ($this->checks as $check) {
                 if (!empty($check)) {
-                    $sql = "INSERT INTO form_evaluation_checks set foreign_id='"  . add_escape_custom($this->id) . "', name = '" . add_escape_custom($check) . "'";
-                    sqlQuery($sql);
+                    $sql = "INSERT INTO form_evaluation_checks set foreign_id= ?, name = ?";
+                    sqlQuery($sql, array(add_escape_custom($this->id), add_escape_custom($check)));
                     //echo "$sql<br>";
                 }
             }
