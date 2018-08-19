@@ -29,7 +29,7 @@ if (!empty($_GET['desktop'])) {
 }
 
 // If “Go to full website” link is clicked, redirect mobile user to main website
-if (!empty($_SESSION['desktop']) || ($device_type == 'Xphone')) {
+if (!empty($_SESSION['desktop']) || ($device_type == 'computer') ) {
     $desktop_url = $GLOBALS['webroot']."/interface/main/tabs/main.php";
     header("Location:" . $desktop_url);
 }

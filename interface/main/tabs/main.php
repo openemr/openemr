@@ -30,12 +30,43 @@ use OpenEMR\Core\Header;
 require_once('../../globals.php');
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 
+   require_once '/var/www/openemr/vendor/mobiledetect/mobiledetectlib/Mobile_Detect.php';
+    
+    $detect = new Mobile_Detect;
+    $device_type = ($detect->isMobile() ? ($detect->isTablet() ? 'tablet' : 'phone') : 'computer');
+    $script_version = $detect->getScriptVersion();
+    
+    if (!empty($_GET['desktop'])) {
+        $desktop = $_GET['desktop'];
+        if($desktop == 1) {
+            $_SESSION['desktop'] = 1;
+        }
+    }
+    // If “Go to full website” link is clicked, redirect mobile user to main website
+    
+   // var_dump($device_type);
+    // User is using a mobile phone, redirect him to mobile version of the website
+    if( ( ($device_type == 'phone') || ($device_type == 'tablet')) && $desktop != 1 && $_SESSION['desktop'] != 1) {
+        //$url = current_url();
+        //$mobile_url = str_replace('http://www','http://m',$url);
+        $_SESSION['desktop'] = '';
+        $mobile_url = $GLOBALS['webroot']."/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&show=new";
+        $mobile_url = $GLOBALS['webroot']."/interface/main/mobile/camera.php";
+        header("Location:".$mobile_url);
+    }
+
 $esignApi = new Api();
 
-?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+//<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+?>
+<!DOCTYPE html>
 <html>
 <head>
-<title><?php echo text($openemr_name); ?></title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><?php echo text($openemr_name); ?></title>
 
 <script type="text/javascript">
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
@@ -124,8 +155,7 @@ var jsLanguageDirection = "<?php echo $_SESSION["language_direction"]; ?>";
 var xl_strings_tabs_view_model = <?php echo json_encode(array(
     'encounter_locked' => xla('This encounter is locked. No new forms can be added.'),
     'must_select_patient'  => $GLOBALS['enable_group_therapy'] ? xla('You must first select or add a patient or therapy group.') : xla('You must first select or add a patient.'),
-    'must_select_encounter'    => xla('You must first select or create an encounter.'),
-    'new' => xla('New')
+    'must_select_encounter'    => xla('You must first select or create an encounter.')
 ));
 ?>;
 </script>
@@ -167,11 +197,14 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters', 'notes', '', 'writ
         app_view_model.application_data.tabs.tabsList()[0].url(<?php echo json_encode("../".$_SESSION['frame1url']); ?>);
         app_view_model.application_data.tabs.tabsList()[0].name(<?php echo json_encode($_SESSION['frame1target']); ?>);
     <?php } ?>
-
+    <?php unset($_SESSION['frame1url']); ?>
+    <?php unset($_SESSION['frame1target']); ?>
     <?php if (!empty($_SESSION['frame2url']) && !empty($_SESSION['frame2target'])) { ?>
     app_view_model.application_data.tabs.tabsList()[1].url(<?php echo json_encode("../".$_SESSION['frame2url']); ?>);
     app_view_model.application_data.tabs.tabsList()[1].name(<?php echo json_encode($_SESSION['frame2target']); ?>);
     <?php } ?>
+    <?php unset($_SESSION['frame2url']); ?>
+    <?php unset($_SESSION['frame2target']); ?>
 
     app_view_model.application_data.user(new user_data_view_model(<?php echo json_encode($_SESSION{"authUser"})
         .',' . json_encode($userQuery['fname'])

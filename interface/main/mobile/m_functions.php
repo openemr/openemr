@@ -10,7 +10,7 @@
             
             <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-cupertino', 'font-awesome-4-6-3']); ?>
     
-            <title>Oculoplastics, LLC</title>
+            <title>OpenEMR Mobile</title>
             <meta content="width=device-width,initial-scale=1.0" name="viewport">
             <meta charset="utf-8">
             <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -874,34 +874,7 @@
     
     function common_header($display='') { ?>
         <header>
-            <div style="display:none;">
-                <div jscontroller="rQSi2" jsdata="yiZYyd;;ChDk9k" jsaction="rcuQ6b:npT2md">
-                    <style>.bars {
-                            position: absolute;
-                            top: 0;
-                            right:0;
-                            padding: 12px 10px;
-                            display:none;
-                        }
-
-                        .bars:focus {
-                            outline: none
-                        }
-
-                        
-                    </style>
-                    <div class="bars" aria-label="Main menu" role="button" tabindex="0" >
-                        <svg style="fill:#0088cc;width:24px;height:24px" viewBox="0 0 24 24"
-                             xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
-                        </svg>
-                    </div>
-                   
-                </div>
-            </div>
             <div id="menu_top">
-                <a style="display:none;" class="active" href="https://www.google.com/webhp?output=search">All</a>
                 <a <?php
                 if ($display =='photo') {
                     echo ' class="active" ';
@@ -911,18 +884,18 @@
                     if ($display == 'cal') {
                         echo ' class="active" ';
                     } ?>
-                        href="https://www.oculoplasticsllc.com/openemr/interface/main/calendar/index.php?module=PostCalendar&viewtype=day&func=view">Calendar</a>
+                        href="<?php echo $GLOBALS['webroot']; ?>/interface/main/calendar/index.php?module=PostCalendar&viewtype=day&func=view">Calendar</a>
                 <a <?php
                     if ($display =='flow') {
                         echo ' class="active" ';
                     } ?>
-                        href="https://www.oculoplasticsllc.com/openemr/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1">Flow</a>
+                        href="<?php echo $GLOBALS['webroot']; ?>/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1">Flow</a>
                 <?php if ($GLOBALS['medex_enable'] =='1') { ?>
                 <a <?php
                     if ($display =='sms') {
                         echo ' class="active" ';
                     } ?>
-                        href="https://www.oculoplasticsllc.com/openemr/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=new">SMS</a>
+                        href="<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=new">SMS</a>
                 <?php } ?>
             </div>
         </header>
@@ -1173,7 +1146,7 @@
                     <a class="Fx4vi"
                        href="//en.wikipedia.org/wiki/GNU_General_Public_License">License</a>
                     <a class="Fx4vi"
-                       href="https://www.oculoplasticsllc.com/openemr/interface/main/tabs/main.php?desktop=1">Desktop site</a>
+                       href="<?php echo $GLOBALS['webroot']; ?>/interface/main/tabs/main.php?desktop=1">Desktop site</a>
                 </span>
             </div>
         </div>
