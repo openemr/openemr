@@ -33,7 +33,8 @@
         "ezyang/htmlpurifier" : "4.10.0",
         "knplabs/knp-snappy" : "1.0.4",
         "stripe/stripe-php" : "6.10.0",
-        "phpoffice/phpspreadsheet": "1.3.1"
+        "phpoffice/phpspreadsheet": "1.3.1",
+        "mobiledetect/mobiledetectlib": "2.8.32"
     },
     "require-dev" : {
     },
