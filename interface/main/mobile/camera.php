@@ -78,9 +78,8 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
         border-radius: 5px;
         margin: 8px auto;
         text-align: center;
-        Xheight: 190px;
-        background-color: #2d98cf66;
-        box-shadow: 1px 3px 9px #c0c0c0;
+       background-color: #2d98cf66;
+        box-shadow: 1px 1px 3px #c0c0c0;
     }
     .fa {
         padding-right:2px;
@@ -206,7 +205,7 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
     ?>
 </script>
 
-<body style="background-color: #F8EDDF;" >
+<body style="background-color: #fff;" >
 <?php common_header("photo"); ?>
 <div id="gb-main" class="container-fluid">
     <form id="save_media" name="save_media" action="" method="post" enctype="multipart/form-data">
@@ -218,7 +217,7 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
             <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
                 <div class="row text-center">
                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 custom-file-upload">
-                            <span class="text-left bold"><u>Select Patient</u></span><br /><br />
+                            <span class="text-left bold" style="font-size:1.2em;text-decoration:underline;">Select Patient<br />
                             <div class="btn-group" data-toggle="buttons">
                                 <button class="btn btn-primary" id="byRoom">By Room</button>
                                 <button class="btn btn-primary" id="byName">By Name</button>
@@ -272,7 +271,7 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
             
                         </div>
                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 custom-file-upload">
-                            <span class="text-left bold "><u>Document Category</u></span><br /><br />
+                            <span class="text-left bold "style="font-size:1.2em;text-decoration:underline;">Document Category</span><br /><br />
                             <select id="category" name="category" class="form-control ui-autocomplete-input">
                                 <?php
                                     $categories =  sqlStatement("Select * from categories");
