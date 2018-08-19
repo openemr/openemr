@@ -29,11 +29,10 @@ use OpenEMR\Core\Header;
 /* Include our required headers */
 require_once('../../globals.php');
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
+require_once $GLOBALS['srcdir']."/../vendor/mobiledetect/mobiledetectlib/Mobile_Detect.php";
 
-   require_once '/var/www/openemr/vendor/mobiledetect/mobiledetectlib/Mobile_Detect.php';
-    
     $detect = new Mobile_Detect;
-    $device_type = ($detect->isMobile() ? ($detect->isTablet() ? 'tablet' : 'phone') : 'computer');
+     $device_type = ($detect->isMobile() ? ($detect->isTablet() ? 'tablet' : 'phone') : 'computer');
     $script_version = $detect->getScriptVersion();
     
     if (!empty($_GET['desktop'])) {
@@ -42,15 +41,16 @@ require_once $GLOBALS['srcdir'].'/ESign/Api.php';
             $_SESSION['desktop'] = 1;
         }
     }
-    // If “Go to full website” link is clicked, redirect mobile user to main website
-    
-   // var_dump($device_type);
-    // User is using a mobile phone, redirect him to mobile version of the website
-    if( ( ($device_type == 'phone') || ($device_type == 'tablet')) && $desktop != 1 && $_SESSION['desktop'] != 1) {
-        //$url = current_url();
-        //$mobile_url = str_replace('http://www','http://m',$url);
+    /**
+     * May need a global here to disable mobile for those who prefer full desktop for their device
+     *      on a regular login, or have a check box at login to set or unset $_SESSION['desktop']?
+     * Otherwise a user on a mobile phone/tablet is auto-redirected to this limited mobile version of the website.
+     * In the footer of the mobile website is a "Desktop" link.
+     * If “Go to full website” link is clicked from Mobile site, it'll redirect mobile user to main website
+     *      by setting $_SESSION['desktop'] above and by-passing this next piece of code.
+     */
+    if( ( ($device_type != 'computer') ) && $desktop != 1 && $_SESSION['desktop'] != 1) {
         $_SESSION['desktop'] = '';
-        $mobile_url = $GLOBALS['webroot']."/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&show=new";
         $mobile_url = $GLOBALS['webroot']."/interface/main/mobile/camera.php";
         header("Location:".$mobile_url);
     }
