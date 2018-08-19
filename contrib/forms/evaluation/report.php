@@ -1,16 +1,16 @@
 <?php
 //------------Forms generated from formsWiz
-include_once("../../globals.php");
-include_once($GLOBALS["srcdir"]."/api.inc");
+require_once("../../globals.php");
+require_once($GLOBALS["srcdir"]."/api.inc");
 function evaluation_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
     $data = formFetch("form_evaluation", $id);
-    $sql = "SELECT name from form_evaluation_checks where foreign_id = '" . add_escape_custom($id) . "'";
-    $results = sqlQ($sql);
+    $sql = "SELECT name from form_evaluation_checks WHERE foreign_id = ?";
+    $results = sqlQ($sql, array(add_escape_custom($id)));
     $data2 = array();
     while ($row = sqlFetchArray($results)) {
-        $data2[] = $row['name'];
+        $data2[] = text($row['name']);
     }
 
     $data = array_merge($data, $data2);

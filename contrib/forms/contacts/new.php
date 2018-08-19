@@ -17,15 +17,15 @@
 ?>
 <!-- Form generated from formsWiz -->
 <?php
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
 formHeader("Form: contacts");
 ?>
 <html><head>
 <?php html_header_show();?>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?php echo attr($top_bg_line);?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <form method=post action="<?php echo $rootdir;?>/forms/contacts/save.php?mode=new" name="my_form">
 <span class="title">Contacts</span><br><br>
 <table>

@@ -17,7 +17,7 @@
 ?>
 <!-- Forms generated from formsWiz -->
 <?php
-include_once("../../globals.php");
+require_once("../../globals.php");
 ?>
 <html><head>
 <?php html_header_show();?>
@@ -25,7 +25,7 @@ include_once("../../globals.php");
 </head>
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <?php
-include_once("$srcdir/api.inc");
+require_once("$srcdir/api.inc");
 $obj = formFetch("form_contacts", $_GET["id"]);
 ?>
 <form method=post action="<?php echo $rootdir?>/forms/contacts/save.php?mode=update&id=<?php echo $_GET["id"];?>" name="my_form">
@@ -67,7 +67,7 @@ $obj = formFetch("form_contacts", $_GET["id"]);
 <table>
 <tr>
 <td valign=top>
-<span class=text>Additional Notes: </span><br><textarea cols=40 rows=8 wrap=virtual name="additional_notes" ><?php echo $obj{"additional_notes"};?></textarea><br>
+<span class=text>Additional Notes: </span><br><textarea cols=40 rows=8 wrap=virtual name="additional_notes" ><?php echo text($obj{"additional_notes"});?></textarea><br>
 </td>
 </tr>
 </table>

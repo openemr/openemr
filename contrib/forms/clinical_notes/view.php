@@ -18,9 +18,9 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
-include_once("$srcdir/forms.inc");
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
+require_once("$srcdir/forms.inc");
 
 $row = array();
 
@@ -35,7 +35,7 @@ function rbvalue($rbname)
         $tmp = '0';
     }
 
-    return "'$tmp'";
+    return "$tmp";
 }
 
 function cbvalue($cbname)
@@ -46,7 +46,7 @@ function cbvalue($cbname)
 function rbinput($name, $value, $desc, $colname)
 {
     global $row;
-    $ret  = "<input type='radio' name='$name' value='$value'";
+    $ret  = "<input type='radio' name=" . attr($name) . " value=" . attr($value);
     if ($row[$colname] == $value) {
         $ret .= " checked";
     }
@@ -63,7 +63,7 @@ function rbcell($name, $value, $desc, $colname)
 function cbinput($name, $colname)
 {
     global $row;
-    $ret  = "<input type='checkbox' name='$name' value='1'";
+    $ret  = "<input type='checkbox' name=".attr($name)." value='1'";
     if ($row[$colname]) {
         $ret .= " checked";
     }
@@ -87,32 +87,23 @@ if ($_POST['bn_save']) {
  // If updating an existing form...
  //
     if ($formid) {
-        $query = "UPDATE form_clinical_notes SET "      .
-         "history = '"          . $_POST['form_history']     . "', " .
-         "examination = '"      . $_POST['form_examination'] . "', " .
-         "plan = '"             . $_POST['form_plan']        . "', " .
-         "followup_required = " . rbvalue('fu_required')     . ", "  .
-         "followup_timing = '$fu_timing'"                    . " "   .
-      // "outcome = "           . rbvalue('outcome')         . ", "  .
-      // "destination = "       . rbvalue('destination')     . " "   .
-         "WHERE id = '$formid'";
-        sqlStatement($query);
+       $query = "UPDATE form_clinical_notes SET
+         history = ?, 
+         examination = ?,      
+         plan = ?,           
+         followup_required = ?,
+         followup_timing = ?,
+         WHERE id = ?";
+         
+        sqlStatement($query, array($_POST['form_history'], $_POST['form_examination'], $_POST['form_plan'], rbvalue('fu_required'), $fu_timing, $formid));
     } // If adding a new form...
  //
     else {
         $query = "INSERT INTO form_clinical_notes ( " .
-         "history, examination, plan, followup_required, followup_timing " .
-      // ",outcome, destination " .
-         ") VALUES ( " .
-         "'" . $_POST['form_history']     . "', " .
-         "'" . $_POST['form_examination'] . "', " .
-         "'" . $_POST['form_plan']        . "', " .
-         rbvalue('fu_required')           . ", "  .
-         "'$fu_timing'"                   . " "   .
-      // rbvalue('outcome')               . ", "  .
-      // rbvalue('destination')           . " "   .
-         ")";
-        $newid = sqlInsert($query);
+         "history, examination, plan, followup_required, followup_timing 
+         ) VALUES ( ?, ?, ?, ?, ? )";
+        
+        $newid = sqlInsert($query, array($_POST['form_history'], $_POST['form_examination'], $_POST['form_plan'], rbvalue('fu_required'), $fu_timing));
         addForm($encounter, "Clinical Notes", $newid, "clinical_notes", $pid, $userauthorized);
     }
 
@@ -124,7 +115,7 @@ if ($_POST['bn_save']) {
 
 if ($formid) {
     $row = sqlQuery("SELECT * FROM form_clinical_notes WHERE " .
-    "id = '$formid' AND activity = '1'") ;
+    "id = ? AND activity = '1'", array($formid)) ;
 }
 ?>
 <html>
@@ -137,7 +128,7 @@ if ($formid) {
 
 <body <?php echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2"
  bottommargin="0" marginwidth="2" marginheight="0">
-<form method="post" action="<?php echo $rootdir ?>/forms/clinical_notes/new.php?id=<?php echo $formid ?>"
+<form method="post" action="<?php echo $rootdir ?>/forms/clinical_notes/new.php?id=<?php echo attr($formid) ?>"
  onsubmit="return top.restoreSession()">
 
 <center>
@@ -152,21 +143,21 @@ if ($formid) {
  <tr>
   <td width='5%'  nowrap> History </td>
   <td width='95%' nowrap>
-   <textarea name='form_history' rows='7' style='width:100%'><?php echo $row['history'] ?></textarea>
+   <textarea name='form_history' rows='7' style='width:100%'><?php echo text($row['history']) ?></textarea>
   </td>
  </tr>
 
  <tr>
   <td nowrap> Examination </td>
   <td nowrap>
-   <textarea name='form_examination' rows='7' style='width:100%'><?php echo $row['examination'] ?></textarea>
+   <textarea name='form_examination' rows='7' style='width:100%'><?php echo text($row['examination']) ?></textarea>
   </td>
  </tr>
 
  <tr>
   <td nowrap> Plan </td>
   <td nowrap>
-   <textarea name='form_plan' rows='7' style='width:100%'><?php echo $row['plan'] ?></textarea>
+   <textarea name='form_plan' rows='7' style='width:100%'><?php echo text($row['plan']) ?></textarea>
   </td>
  </tr>
 
@@ -181,7 +172,7 @@ if ($formid) {
      <td nowrap>
       <input type='text' name='fu_timing' size='10' style='width:100%'
        title='When to follow up'
-       value='<?php echo addslashes($row['followup_timing']) ?>' />
+       value='<?php echo text($row['followup_timing']) ?>' />
      </td>
     </tr>
     <tr>
