@@ -144,6 +144,10 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
     .card-title {
         overflow:hidden;
     }
+    .jumbotronA {
+        min-height:400px;
+        margin:8px;
+    }
     @media (min-width:1200px){
         .auto-clear .col-lg-1:nth-child(12n+1){clear:left;}
         .auto-clear .col-lg-2:nth-child(6n+1){clear:left;}
@@ -165,17 +169,52 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
         .auto-clear .col-sm-4:nth-child(3n+1){clear:left;}
         .auto-clear .col-sm-6:nth-child(odd){clear:left;}
     }
-    @media (max-width:767px){
-        .auto-clear .col-xs-1:nth-child(12n+1){clear:left;}
-        .auto-clear .col-xs-2:nth-child(6n+1){clear:left;}
-        .auto-clear .col-xs-3:nth-child(4n+1){clear:left;}
-        .auto-clear .col-xs-4:nth-child(3n+1){clear:left;}
-        .auto-clear .col-xs-6:nth-child(odd){clear:left;}
-        .jumbotron { display:none; }
-        #head_img {
-            margin-top: 2vH;
-            max-height: 10VH;
+    @media (max-width:767px) {
+        .auto-clear .col-xs-1:nth-child(12n+1) {
+            clear: left;
         }
+
+        .auto-clear .col-xs-2:nth-child(6n+1) {
+            clear: left;
+        }
+
+        .auto-clear .col-xs-3:nth-child(4n+1) {
+            clear: left;
+        }
+
+        .auto-clear .col-xs-4:nth-child(3n+1) {
+            clear: left;
+        }
+
+        .auto-clear .col-xs-6:nth-child(odd) {
+            clear: left;
+        }
+
+        .jumbotronA {
+            display:none;
+            margin: 8px auto;
+        }
+        }
+        #head_img {
+            margin: 2vH 0 0 0;
+            max-height: 15vH;
+        }
+    }
+    
+    @media (max-width:400px){
+            .auto-clear .col-xs-1:nth-child(12n+1){clear:left;}
+            .auto-clear .col-xs-2:nth-child(6n+1){clear:left;}
+            .auto-clear .col-xs-3:nth-child(4n+1){clear:left;}
+            .auto-clear .col-xs-4:nth-child(3n+1){clear:left;}
+            .auto-clear .col-xs-6:nth-child(odd){clear:left;}
+            .jumbotronA {
+                display:none;
+                margin: 8px auto;
+            }
+            #head_img {
+                margin: 2vH 0 0 0;
+                max-height: 10vH;
+            }
     }
 
 </style>
@@ -287,18 +326,14 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
                                 <i class="fa fa-cloud-upload"></i> Upload Document
                             </label>
                         </div>
-                    <div id="div_response" class="text-center"><br /></div>
+                    <div id="div_response" class="text-center"><br />&nbsp;</div>
                 </div>
             </div>
-            <div id="div_response" class=""><br /></div>
-            <div class="col-xs-12 col-sm-7 col-md-7 col-lg-7 col-sm-offset-1 col-md-offset-1 col-lg-offset-1 jumbotron"
-                 style="min-height:400px;background-color: #2d98cf66;box-shadow: 1px 3px 9px #c0c0c0;margin-top:5px;">
+            <div class="col-xs-12 col-sm-7 col-md-7 col-lg-7 col-sm-offset-1 col-md-offset-1 col-lg-offset-1 jumbotronA custom-file-upload">
                 <div id="preview" class=""><br /></div>
             </div>
             
                 <hr />
-    
-    
             <input id="file-upload-c" name="file" type="file" onchange="handleFiles(this.files)" />
             <input type="hidden" id="pid" name="pid" value="<?php echo attr($pid); ?>" />
         </div>
@@ -346,7 +381,7 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
         //alert("sending"+files.length);
         //console.log(FileList);
         //console.log(files);
-        $(".jumbotron").show();
+        $(".jumbotronA").show();
         for (var i = 0; i < files.length; i++) {
             var file = files[i];
             //alert(file.type);
