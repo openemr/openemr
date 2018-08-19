@@ -217,7 +217,7 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
             <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
                 <div class="row text-center">
                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 custom-file-upload">
-                            <span class="text-left bold" style="font-size:1.2em;text-decoration:underline;">Select Patient<br />
+                        <span class="text-left bold" style="font-size:1.2em;text-decoration:underline;">Select Patient</span><br />
                             <div class="btn-group" data-toggle="buttons">
                                 <button class="btn btn-primary" id="byRoom">By Room</button>
                                 <button class="btn btn-primary" id="byName">By Name</button>
