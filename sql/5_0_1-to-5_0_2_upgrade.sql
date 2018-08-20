@@ -593,3 +593,7 @@ INSERT INTO `form_eye_locking` (`id`, `pid`, `IMP`, `PLAN`, `Resource`, `Technic
 
 DROP TABLE `form_eye_mag`;
 #EndIf
+
+#IfNotRow2D list_options list_id page_validation option_id messages#new_note
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'messages#new_note','/interface/main/messages/messages.php',150, '{form_datetime:{futureDate:{message: "Must be future date"}}, reply_to:{presence: {message: "Please choose a patient"}}}', 1);
+#EndIf
