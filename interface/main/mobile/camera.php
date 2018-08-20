@@ -1,10 +1,10 @@
 <?php
 
-require_once('../../globals.php');
+require_once "../../globals.php";
 require_once "$srcdir/patient.inc";
 require_once "$srcdir/options.inc.php";
-require_once '/var/www/openemr/vendor/mobiledetect/mobiledetectlib/Mobile_Detect.php';
-include_once("m_functions.php");
+require_once $GLOBALS['srcdir']."/../vendor/mobiledetect/mobiledetectlib/Mobile_Detect.php";
+require_once "m_functions.php";
 
 $detect = new Mobile_Detect;
 $device_type = ($detect->isMobile() ? ($detect->isTablet() ? 'tablet' : 'phone') : 'computer');
