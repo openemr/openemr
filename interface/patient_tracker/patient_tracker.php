@@ -431,30 +431,28 @@ if (!$_REQUEST['flb_table']) {
                     </div>
                 </div>
                 <div id="flb_table" name="flb_table">
-          <?php
-
+            <?php
 } else {
 //end of if !$_REQUEST['flb_table'] - this is the table we fetch via ajax during a refreshMe() call
 // get all appts for date range and refine view client side.  very fast...
-$appointments = array();
-$datetime = date("Y-m-d H:i:s");
-$appointments = fetch_Patient_Tracker_Events($from_date, $to_date, '', '', '', '', $form_patient_name, $form_patient_id);
-$appointments = sortAppointments($appointments, 'date', 'time');
-//grouping of the count of every status
-$appointments_status = getApptStatus($appointments);
+    $appointments = array();
+    $datetime = date("Y-m-d H:i:s");
+    $appointments = fetch_Patient_Tracker_Events($from_date, $to_date, '', '', '', '', $form_patient_name, $form_patient_id);
+    $appointments = sortAppointments($appointments, 'date', 'time');
+    //grouping of the count of every status
+    $appointments_status = getApptStatus($appointments);
 
-
-$chk_prov = array();  // list of providers with appointments
-// Scan appointments for additional info
-foreach ($appointments as $apt) {
-    $chk_prov[$apt['uprovider_id']] = $apt['ulname'] . ', ' . $apt['ufname'] . ' ' . $apt['umname'];
-}
+    $chk_prov = array();  // list of providers with appointments
+    // Scan appointments for additional info
+    foreach ($appointments as $apt) {
+        $chk_prov[$apt['uprovider_id']] = $apt['ulname'] . ', ' . $apt['ufname'] . ' ' . $apt['umname'];
+    }
 
                 ?>
                 <div class="col-sm-12 text-center" style='margin:5px;'>
                 <span class="hidden-xs" id="status_summary">
                     <?php
-                    $statuses_output = "<span style='margin:0 10px;'><em>" . xlt('Total patients') . ':</em> <span class="badge">' . text($appointments_status['count_all']) . "</span></span>";
+                    $statuses_output = "<span style='margin:0 10px;'><em>" . xlt('v  patients') . ':</em> <span class="badge">' . text($appointments_status['count_all']) . "</span></span>";
                     unset($appointments_status['count_all']);
                     foreach ($appointments_status as $status_symbol => $count) {
                         $statuses_output .= " | <span style='margin:0 10px;'><em>" . text(xl_list_label($statuses_list[$status_symbol])) . ":</em> <span class='badge'>" . text($count) . "</span></span>";
@@ -919,9 +917,9 @@ if ($appointment['room'] > '') {
                     </tbody>
                 </table>
 
-                <?php
-                }
-                if (!$_REQUEST['flb_table']) { ?>
+<?php
+}
+if (!$_REQUEST['flb_table']) { ?>
                    </div>
                 </div>
             </div>
@@ -937,13 +935,13 @@ if ($appointment['room'] > '') {
     <?php echo myLocalJS(); ?>
 </body>
 </html>
-    <?php
-                } //end of second !$_REQUEST['flb_table']
+<?php
+} //end of second !$_REQUEST['flb_table']
 
-    //$content = ob_get_clean();
-    //echo $content;
+//$content = ob_get_clean();
+//echo $content;
 
-                exit;
+exit;
 
                 function myLocalJS()
                 {
@@ -961,7 +959,7 @@ if ($appointment['room'] > '') {
                         if ($_REQUEST['kiosk'] == '1') { ?>
                         $("[name='kiosk_hide']").hide();
                         $("[name='kiosk_show']").show();
-                        <?php } else { ?>
+        <?php } else { ?>
                         $("[name='kiosk_hide']").show();
                         $("[name='kiosk_show']").hide();
                         <?php  }   ?>
@@ -1272,6 +1270,6 @@ if ($appointment['room'] > '') {
 
                                 </script>
                                 <?php
-                }
+}
 
-    ?>
+?>
