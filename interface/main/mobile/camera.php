@@ -6,39 +6,46 @@ require_once "$srcdir/options.inc.php";
 require_once $GLOBALS['srcdir']."/../vendor/mobiledetect/mobiledetectlib/Mobile_Detect.php";
 require_once "m_functions.php";
 
-$detect = new Mobile_Detect;
-$device_type = ($detect->isMobile() ? ($detect->isTablet() ? 'tablet' : 'phone') : 'computer');
-$script_version = $detect->getScriptVersion();
+$detect             = new Mobile_Detect;
+$device_type        = ($detect->isMobile() ? ($detect->isTablet() ? 'tablet' : 'phone') : 'computer');
+$script_version     = $detect->getScriptVersion();
 
-$uspfx = substr(__FILE__, strlen($webserver_root)) . '.';
-$setting_mFind = prevSetting('', 'setting_mFind', 'setting_mFind', 'byRoom');
-$setting_mRoom = prevSetting('', 'setting_mRoom', 'setting_mRoom', '');
-$setting_mCategory = prevSetting('', 'setting_mCategories', 'setting_mCategories', '');
-
+$uspfx              = substr(__FILE__, strlen($webserver_root)) . '.';
+$setting_mFind      = prevSetting('', 'setting_mFind', 'setting_mFind', 'byRoom');
+$setting_mRoom      = prevSetting('', 'setting_mRoom', 'setting_mRoom', '');
+$setting_mCategory  = prevSetting('', 'setting_mCategories', 'setting_mCategories', '');
 if (($_POST['setting_new_window']) ||
     ($_POST['setting_mFind'])) {
     exit();
 }
-$desktop ="";
-$categories = array();
-$display="cam";
-$doc =array();
 
 if (!empty($_GET['desktop'])) {
     $desktop = $_GET['desktop'];
+} else {
+    $desktop        = "";
 }
+$categories         = array();
+$doc                = array();
+$display            = "photo";
 
 // If “Go to full website” link is clicked, redirect mobile user to main website
+        //Would this file be helpful to desktop users?
+        //it would if we added the webcam access here.
+        //OK, will work on adding webcam here too for computer people...
+        //if we are going to let desktop users use this we need to change the session['desktop'] logic too
 if (!empty($_SESSION['desktop']) || ($device_type == 'computer') ) {
     $desktop_url = $GLOBALS['webroot']."/interface/main/tabs/main.php";
     header("Location:" . $desktop_url);
 }
 
 if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
-    //we have a preference to take the photo of the person in a specific room
-    //who is in that room?  Is there more than one 'cause patient_tracker is not up-to-date?
-    //presume one for now and select them without user input.
-    //we need the fname,lname and pid for person in Room X
+    /**
+     * We have a preference to take the photo of the person in a specific room
+     * Who is in that room?  Is there more than one 'cause patient_tracker is not up-to-date?
+     * Pesume one for now and select them without user input.
+     * We need the fname,lname and pid for person in Room X.
+     * Let's get those data points now.
+     */
     $query = "select fname,lname,pid from patient_data
               where pid in (
                 SELECT pc_pid FROM `openemr_postcalendar_events`
@@ -51,12 +58,11 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
 }
 
 ?><!doctype html>
-<html style="cursor: pointer;" lang="en">
+<html style="cursor: pointer;">
 <?php
     common_head();
 ?>
 <style>
-    
     #autocomplete {
         background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
         border: 1px solid rgba(0, 0, 0, 0.25);
@@ -88,7 +94,6 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
         text-align: center;
     }
     #preview  img {
-        margin:2%;
         vertical-align: top;
         width: 85%;
         margin: 0px auto;
@@ -99,42 +104,9 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
         vertical-align: top;
         text-align: center;
     }
-
-    .closeButton {
-        display:inline-block;
-        float:right;
-        position:absolute;
-        top:8px;
-        right:8px;
-        padding: 0px 5px;
-        font-size:12px;
-    }
-    .closeButton:hover {
-        cursor:pointer;
-        border: 0 solid grey;
-        text-decoration: none;
-        background-color: yellow;
-    }
-    .closeButton:hover a {
-        text-decoration: none;
-        background-color: yellow;
-    }
-    .closeButton a:link {
-        outline:none;
-        color:black;
-    }
     label input {
         padding:left:30px;
-
     }
-    .radio_cats {
-        text-align: center;
-        vertical-align: text-top;
-        max-width: 30%;
-        display: inline-block;
-        padding: 0px 2px;
-    }
-
     .byCatDisplay {
         display:none;
     }
@@ -170,35 +142,13 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
         .auto-clear .col-sm-6:nth-child(odd){clear:left;}
     }
     @media (max-width:767px) {
-        .auto-clear .col-xs-1:nth-child(12n+1) {
-            clear: left;
-        }
-
-        .auto-clear .col-xs-2:nth-child(6n+1) {
-            clear: left;
-        }
-
-        .auto-clear .col-xs-3:nth-child(4n+1) {
-            clear: left;
-        }
-
-        .auto-clear .col-xs-4:nth-child(3n+1) {
-            clear: left;
-        }
-
-        .auto-clear .col-xs-6:nth-child(odd) {
-            clear: left;
-        }
-
-        .jumbotronA {
-            display:none;
-            margin: 8px auto;
-        }
-        }
-        #head_img {
-            margin: 2vH 0 0 0;
-            max-height: 15vH;
-        }
+        .auto-clear .col-xs-1:nth-child(12n+1) {clear: left;}
+        .auto-clear .col-xs-2:nth-child(6n+1) {clear: left;}
+        .auto-clear .col-xs-3:nth-child(4n+1) {clear: left;}
+        .auto-clear .col-xs-4:nth-child(3n+1) {clear: left;}
+        .auto-clear .col-xs-6:nth-child(odd) {clear: left;}
+        .jumbotronA {display:none;margin: 8px auto;}
+        #head_img {margin: 2vH 0 0 0;max-height: 15vH;}
     }
     
     @media (max-width:400px){
@@ -207,16 +157,10 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
             .auto-clear .col-xs-3:nth-child(4n+1){clear:left;}
             .auto-clear .col-xs-4:nth-child(3n+1){clear:left;}
             .auto-clear .col-xs-6:nth-child(odd){clear:left;}
-            .jumbotronA {
-                display:none;
-                margin: 8px auto;
-            }
-            #head_img {
-                margin: 2vH 0 0 0;
-                max-height: 10vH;
-            }
+            .jumbotronA {display:none;margin: 8px auto;}
+            #head_img {margin: 2vH 0 0 0;max-height: 10vH;}
     }
-
+    .section_title {font-size:1.2em;text-decoration:underline;font-weight:600;margin-bottom:8px;}
 </style>
 <script>
     var projects = [
@@ -235,112 +179,123 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
         ?>
     ];
     
-    var mRoom;
-    var reply;
+    
+    var reply = [];
     <?php
     if (!empty($setting_mRoom)) {
         echo "var mRoom = ".text($setting_mRoom).";";
+    } else {
+        echo "var mRoom;";
     }
     ?>
 </script>
 
 <body style="background-color: #fff;" >
-<?php common_header("photo"); ?>
+<?php common_header($display); ?>
 <div id="gb-main" class="container-fluid">
     <form id="save_media" name="save_media" action="" method="post" enctype="multipart/form-data">
 
-        <div class="row Xoe-display">
+        <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
-                <img src="/openemr/interface/main/mobile/photobooth.png" id="head_img" alt="Photo Booth">
+                <img src="<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/photobooth.png" id="head_img" alt="<?php echo xla('File Uploader'); ?>">
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
                 <div class="row text-center">
                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 custom-file-upload">
-                        <span class="text-left bold" style="font-size:1.2em;text-decoration:underline;">Select Patient</span><br />
-                            <div class="btn-group" data-toggle="buttons">
-                                <button class="btn btn-primary" id="byRoom">By Room</button>
-                                <button class="btn btn-primary" id="byName">By Name</button>
-                            </div>
-                            <br /><br />
-                            <select id="findRoom" name="findRoom" type="text"
-                                    class="form-control byNameDisplay">
-                                <?php
-                                    $rows = sqlStatement("SELECT * FROM list_options WHERE " .
-                                        "list_id = ? AND activity = 1 ", array('patient_flow_board_rooms'));
-                                    while ($row = sqlFetchArray($rows) ) {
-                                        $selected = ( ($row['option_id'] == $setting_mRoom) ? ' selected' : '');
-                                        echo "<option value='" . $row['option_id'] ."' ".$selected.">". $row['title'] . "</option>\n";
-                                    }
-                                ?></select>
+                        <span class="section_title"><?php echo xlt('Select Patient'); ?></span>
+                        <br />
+                        <div class="btn-group" data-toggle="buttons">
+                            <button class="btn btn-primary" id="byRoom"><?php echo xlt('By Room'); ?></button>
+                            <button class="btn btn-primary" id="byName"><?php echo xlt('By Name'); ?></button>
+                        </div>
+                        <br /><br />
+                        <select id="findRoom" name="findRoom" type="text"
+                                class="form-control byNameDisplay">
                             <?php
-                                /**
-                                 * Logic to select patient who owns this data we are going to upload
-                                 */
-                                
-                                if (!empty($results_byRoom)) {
-                                    //we have a preference to select patient by Room, and we have a room, and we know who is in it!
-                                    // $results_byRoom is the array holding these answers...
-                                    $size = sqlNumRows($results_byRoom);
-                                    if ($size == '1') {
-                                        $row = sqlFetchArray($results_byRoom);
-                                        $occupant = $row['fname'] . " " . $row['lname'];
-                                        $pid = $row['pid'];
-                                        $patList_visible = "style='display:none;'";
-                                        $patList = "<option value='".$row['pid']."'>".$row['fname']." ".$row['lname']."</option>\n";
-                                    } else if ($size > '1') {
-                                        //build a select list
-                                        while ($row = sqlFetchArray($results_byRoom)) {
-                                            $patList .= "<option value='".$row['pid']."'>".$row['fname']." ".$row['lname']."</option>\n";
-                                        }
-                                    }
-                                } else {
+                                $rows = sqlStatement("SELECT * FROM list_options WHERE " .
+                                    "list_id = ? AND activity = 1 ", array('patient_flow_board_rooms'));
+                                while ($row = sqlFetchArray($rows) ) {
+                                    $selected = ( ($row['option_id'] == $setting_mRoom) ? ' selected' : '');
+                                    echo "<option value='" . attr($row['option_id']) ."' ".$selected.">". text($row['title']) . "</option>\n";
+                                }
+                            ?></select>
+                        <?php
+                            /**
+                             * Logic to select patient who owns this data we are going to upload
+                             */
+                            
+                            if (!empty($results_byRoom)) {
+                                //we have a preference to select patient by Room, and we have a room, and we know who is in it!
+                                // $results_byRoom is the array holding these answers...
+                                $size = sqlNumRows($results_byRoom);
+                                if ($size == '1') {
+                                    $row = sqlFetchArray($results_byRoom);
+                                    $occupant = text($row['fname'] . " " . $row['lname']);
+                                    $pid = $row['pid'];
                                     $patList_visible = "style='display:none;'";
+                                    $patList = "<option value='".attr($row['pid'])."'>".$occupant."</option>\n";
+                                } else if ($size > '1') {
+                                    //build a select list
+                                    while ($row = sqlFetchArray($results_byRoom)) {
+                                        $patList .= "<option value='".attr($row['pid'])."'>".text($row['fname']." ".$row['lname'])."</option>\n";
+                                    }
+                                }
+                            } else {
+                                $patList_visible = "style='display:none;'";
+                            }
+                        ?>
+                        <input id="findPatient" type="text" class="form-control ui-autocomplete-input byNameDisplay"
+                               placeholder="<?php echo xla("Patient Name"); ?>" value="<?php echo $occupant; ?>" />
+
+
+                        <select id="patient_matches" name="patient_matches" type="text" <?php echo $patList_visible; ?>
+                                class="form-control byNameDisplay">
+                            <?php
+                                echo $patList;
+                            ?>
+                        </select>
+
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 custom-file-upload">
+                        <span class="section_title"><?php echo xlt('Document Category'); ?></span><br /><br />
+                        <select id="category" name="category" class="form-control ui-autocomplete-input">
+                            <?php
+                                $categories =  sqlStatement("Select * from categories");
+                                while ($cat = sqlFetchArray($categories)) {
+                                    if ($cat['name'] == 'Categories') continue;
+                                    $selected = ( ($cat['id'] == $setting_mCategory) ? ' selected' : '');
+                                    echo '<option value="'.attr($cat['id']).'" '.$selected.'>'. text($cat['name']) .'</option>\n';
                                 }
                             ?>
-                            <input id="findPatient" type="text" class="form-control ui-autocomplete-input byNameDisplay"
-                                   placeholder="<?php echo xla("Patient Name"); ?>" value="<?php echo $occupant; ?>" />
-                        
-            
-                            <select id="patient_matches" name="patient_matches" type="text" <?php echo $patList_visible; ?>
-                                    class="form-control byNameDisplay">
-                                <?php
-                                    echo $patList;
-                                ?>
-                            </select>
-            
-                        </div>
-                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 custom-file-upload">
-                            <span class="text-left bold "style="font-size:1.2em;text-decoration:underline;">Document Category</span><br /><br />
-                            <select id="category" name="category" class="form-control ui-autocomplete-input">
-                                <?php
-                                    $categories =  sqlStatement("Select * from categories");
-                                    while ($cat = sqlFetchArray($categories)) {
-                                        if ($cat['name'] == 'Categories') continue;
-                                        $selected = ( ($cat['id'] == $setting_mCategory) ? ' selected' : '');
-                                        echo '<option value="'.$cat['id'].'" '.$selected.'>'. $cat['name'] .'</option>\n';
-                                    }
-                                ?>
-                            </select>
-                            <br />
-                            <label for="file-upload-c" class="btn btn-primary">
-                                <i class="fa fa-cloud-upload"></i> Upload Document
-                            </label>
-                        </div>
-                    <div id="div_response" class="text-center"><br />&nbsp;</div>
+                        </select>
+                        <br />
+                        <label for="file-upload-a" class="btn btn-primary">
+                            <i class="fa fa-camera"></i> <?php echo xlt('Photo'); ?>
+                            <input type="file" id="file-upload-a" accept="image/*" capture="camera" onchange="handleFiles(this.files)"  />
+                        </label>
+                        <label for="file-upload-b" class="btn btn-primary"><i class="fa fa-film"></i> <?php echo xlt('Video'); ?>
+                            <input type="file" id="file-upload-b" accept="video/*" capture="camera" onchange="handleFiles(this.files)" />
+                        </label>
+                        <label for="file-upload-c" class="btn btn-primary">
+                            <i class="fa fa-cloud-upload"></i> <?php echo xlt('Document'); ?>
+                            <input id="file-upload-c" name="file" type="file" onchange="handleFiles(this.files)" multiple />
+                        </label>
+                    </div>
+                    <div id="div_response" class="text-center"></div>
                 </div>
             </div>
             <div class="col-xs-12 col-sm-7 col-md-7 col-lg-7 col-sm-offset-1 col-md-offset-1 col-lg-offset-1 jumbotronA custom-file-upload">
-                <div id="preview" class=""><br /></div>
+                <div id="preview" class=""></div>
             </div>
+
             
-                <hr />
-            <input id="file-upload-c" name="file" type="file" onchange="handleFiles(this.files)" />
+            
             <input type="hidden" id="pid" name="pid" value="<?php echo attr($pid); ?>" />
         </div>
     </form>
-
-
-<?php common_footer($display); ?>
+    
+    
+    <?php common_footer($display); ?>
 
 </div>
 
@@ -368,29 +323,23 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
                    processData: false
                }).done(function (result) {
                     reply = JSON.parse(result);
-                    //alert(reply.message+ " = "+reply.DOC_ID);
-                    $("#div_response").html('<span style="color:red;">' + reply.message + '.</span>');
+                   $("#div_response").html('<span style="color:red;">' + reply.message + '.</span>');
                     setTimeout(function () {
                         $("#div_response").html('<br />&nbsp;');
                     }, 5000);
         });
+        
     }
     
     function handleFiles(files) {
         send_form();
-        //alert("sending"+files.length);
-        //console.log(FileList);
-        //console.log(files);
         $(".jumbotronA").show();
         for (var i = 0; i < files.length; i++) {
             var file = files[i];
-            //alert(file.type);
-            
             if (file.type.startsWith('image/')) {
                 var img = document.createElement("img");
                 img.classList.add("obj");
                 img.file = file;
-                
                 
                 var card = document.createElement('div');
                 card.classList.add('card');
@@ -414,9 +363,9 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
                 var reader = new FileReader();
                 reader.onload = (function(aImg) { return function(e) { aImg.src = e.target.result; }; })(img);
                 reader.readAsDataURL(file);
+                
             } else if (file.type.startsWith('video/')) {
                 var obj = document.createElement('video');
-                //$(obj).attr('id', 'example_video_'+Math.random() );
                 $(obj).attr('class', 'video-js vjs-default-skin');
                 $(obj).attr('controls','');
     
@@ -451,21 +400,19 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
                 $(source).attr('type', file.type );
                 $(obj).append(source);
                 
-                //preview.append(obj);
             } else  {
                 
                 var obj = document.createElement('div');
-                //$(obj).attr('id', 'example_video_'+Math.random() );
-                //$(obj).attr('class', 'video-js vjs-default-skin');
-                //$(obj).attr('controls','');
-    
+           
                 var card = document.createElement('div');
                 card.classList.add('card');
                 card.appendChild(obj);
     
                 var named = document.createElement('a');
                 named.classList.add('card-title');
-                named.href = "<?php echo $$GLOBALS['webroot']; ?>/controller.php?document&view&patient_id="+pid+"&doc_id="+reply['DOC_ID'];
+                console.log(reply.DOC_ID);
+                console.log(pid.value);
+                named.href = "<?php echo $GLOBALS['webroot']; ?>/controller.php?document&view&patient_id="+pid+"&doc_id="+reply;
                 named.insertAdjacentHTML('beforeend', file.name);
                 
                 var card_body = document.createElement('div');
@@ -478,23 +425,6 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
                 wrapper.appendChild(card);
     
                 preview.appendChild(wrapper); // Assuming that "preview" is the div output where the content will be displayed.
-    
-                var source = document.createElement('source');
-                
-                var blob = new Blob([file], { type: file.type });
-                var objectUrl = URL.createObjectURL(blob);
-                
-                var reader = new FileReader();
-                /*reader.onload = (function (source) {
-                    return function (e) {
-                        source.src = e.target.result;
-                    };
-                })(obj);*/
-                reader.onload = receivedText;
-                arrayBuffer =  reader.readAsBinaryString(file);
-                reader.readAsBinaryString(file);
-                $(source).attr('type', file.type );
-                $(obj).append(source);
             }
         }
         $(".fbar").height(0);
@@ -513,10 +443,12 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
         $( "#pid" ).val(pid);
         <?php
         } else if ($size > 1) {
+            //More than one person is in that room...
         ?>
         $( "#patient_matches" ).show();
         pid = $( "#patient_matches" ).val();
         $( "#pid" ).val(pid);
+        $( "#patient_matches" ).focus();
         <?php
         } else { ?>
         $( "#patient_matches" ).hide();
@@ -527,6 +459,7 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
         if ($setting_mFind=="byName") { ?>
         $( "#findPatient" ).show();
         $( "#findRoom" ).hide();
+        $( "#findPatient" ).focus();
         <?php } ?>
         
         $("#findPatient").autocomplete({
@@ -554,6 +487,7 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
             $("#findPatient").show();
             $("#findRoom").hide();
             $( "#patient_matches" ).hide();
+            $( "#findPatient" ).focus();
             $.post("<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/camera.php", {
                 'setting_mFind': 'byName',
                 success: function (data) {
@@ -601,27 +535,25 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
             $.ajax({
                        type: 'POST',
                        url: url,
-                       // Form data
-                //dataType : 'json',
                        data: {
                            go: 'byRoom',
                            room: $("#findRoom").val(),
                            setting_mRoom: $("#findRoom").val()
                        }
                    }).done(function (result) {
-                $("#div_response").html('');
-                if (result === 'null') { return null;}
-                obj = JSON.parse(result);
-                $("#patient_matches").html('<br />&nbsp;');
-                count = "0";
-                $.map(obj, function(elem) {
-                    count++;
-                    $("#patient_matches").append("<option value='" + elem.pid + "'>" + elem.fname + " " + elem.lname + "</option>");
-                });
-                $( "#patient_matches" ).show();
-                $( "#findPatient" ).hide();
-                $("#pid").val($("#patient_matches").val());
-            });
+                       $("#div_response").html('');
+                       if (result === 'null') { return null;}
+                       obj = JSON.parse(result);
+                       $("#patient_matches").html('<br />&nbsp;');
+                       count = "0";
+                       $.map(obj, function(elem) {
+                            count++;
+                            $("#patient_matches").append("<option value='" + elem.pid + "'>" + elem.fname + " " + elem.lname + "</option>");
+                       });
+                       $( "#patient_matches" ).show();
+                       $( "#findPatient" ).hide();
+                       $("#pid").val($("#patient_matches").val());
+                   });
         });
         
         $( "#patient_matches" ).on('change', function(e) {
