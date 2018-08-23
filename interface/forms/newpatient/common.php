@@ -94,7 +94,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
       var s = document.forms[0]['issues[]'];
       s.options[s.options.length] = new Option(title, issue, true, true);
      }
-     
+
     <?php
     //Gets validation rules from Page Validation list.
     //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
@@ -119,9 +119,9 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
         $(".enc_issue").on('click', function(e) {
            e.preventDefault();e.stopPropagation();
            dlgopen('', '', 700, 650, '', '', {
-                         
+
                buttons: [{text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}],
-                 
+
                allowResize: true,
                allowDrag: true,
                dialogId: '',
@@ -173,13 +173,13 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
         location.href = '<?php echo "$rootdir/patient_file/encounter/forms.php"; ?>';
         return false;
     }
-    
+
 </script>
 <style>
 @media only screen and (max-width: 1024px) {
     #visit-details [class*="col-"], #visit-issues [class*="col-"]{
     width: 100%;
-    text-align:left!Important;
+    text-align: <?php echo ($_SESSION['language_direction'] == 'rtl') ? 'right ': 'left '?> !Important;
 }
 </style>
 <?php
@@ -317,7 +317,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                         <?php
                                     } else {
                                     ?>
-                                            
+
                                     <?php
                                     }
                                     ?>
@@ -331,7 +331,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                         value='<?php echo $viewmode ? attr(oeFormatShortDate(substr($result['date'], 0, 10))) : oeFormatShortDate(date('Y-m-d')); ?>'
                                         title='<?php echo xla('Date of service'); ?>'/>
                                     </div>
-                                
+
                                     <div
                                         <?php
                                         if ($GLOBALS['ippf_specific']) {
@@ -533,7 +533,7 @@ if ($GLOBALS['enable_help'] == 1) {
         //help_modal.php lives in interface, set path accordingly
         require "../../help_modal.php";
     }
-    ?> 
+    ?>
 </body>
 <script language="javascript">
 <?php
@@ -611,7 +611,7 @@ $(document).ready(function(){
     $('#sensitivity-tooltip').attr( "title", "<?php echo xla('If set as high will restrict visibility of encounter to users belonging to certain groups (AROs). By default - Physicians and Administrators'); ?>" );
     $('#sensitivity-tooltip').tooltip();
     $('#onset-tooltip').attr( "title", "<?php echo xla('Hospital date needed for successful billing of hospital encounters'); ?>" );
-    $('#onset-tooltip').tooltip(); 
+    $('#onset-tooltip').tooltip();
 });
 </script>
 </html>
