@@ -3,7 +3,7 @@ version: '3.1'
 services:
   mysql:
     restart: always
-    image: mysql
+    image: mysql:5.7
     command: ['mysqld','--character-set-server=utf8']
     environment:
       MYSQL_ROOT_PASSWORD: wtr&5YU
