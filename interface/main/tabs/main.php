@@ -35,12 +35,12 @@ require_once $GLOBALS['srcdir']."/../vendor/mobiledetect/mobiledetectlib/Mobile_
      $device_type = ($detect->isMobile() ? ($detect->isTablet() ? 'tablet' : 'phone') : 'computer');
     $script_version = $detect->getScriptVersion();
     
-    if (!empty($_GET['desktop'])) {
-        $desktop = $_GET['desktop'];
-        if($desktop == 1) {
-            $_SESSION['desktop'] = 1;
-        }
+if (!empty($_GET['desktop'])) {
+    $desktop = $_GET['desktop'];
+    if ($desktop == 1) {
+        $_SESSION['desktop'] = 1;
     }
+}
     /**
      * May need a global here to disable mobile for those who prefer full desktop for their device
      *      on a regular login, or have a check box at login to set or unset $_SESSION['desktop']?
@@ -49,11 +49,11 @@ require_once $GLOBALS['srcdir']."/../vendor/mobiledetect/mobiledetectlib/Mobile_
      * If “Go to full website” link is clicked from Mobile site, it'll redirect mobile user to main website
      *      by setting $_SESSION['desktop'] above and by-passing this next piece of code.
      */
-    if( ( ($device_type != 'computer') ) && $desktop != 1 && $_SESSION['desktop'] != 1) {
-        $_SESSION['desktop'] = '';
-        $mobile_url = $GLOBALS['webroot']."/interface/main/mobile/camera.php";
-        header("Location:".$mobile_url);
-    }
+if (( ($device_type != 'computer') ) && $desktop != 1 && $_SESSION['desktop'] != 1) {
+    $_SESSION['desktop'] = '';
+    $mobile_url = $GLOBALS['webroot']."/interface/main/mobile/camera.php";
+    header("Location:".$mobile_url);
+}
 
 $esignApi = new Api();
 

@@ -25,7 +25,7 @@ if (!empty($_GET['desktop'])) {
 }
 
 // If “Go to full website” link is clicked, redirect mobile user to main website
-if (!empty($_SESSION['desktop']) || ($device_type == 'computer') ) {
+if (!empty($_SESSION['desktop']) || ($device_type == 'computer')) {
     $desktop_url = $GLOBALS['webroot']."/interface/main/tabs/main.php";
     header("Location:" . $desktop_url);
 }
@@ -35,6 +35,4 @@ if ($GLOBALS['medex_enable'] == '1') {
     $MedEx->display->SMS_bot($logged_in);
     exit;
 } else {
-
 }
-?>

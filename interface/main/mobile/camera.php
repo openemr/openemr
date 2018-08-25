@@ -31,7 +31,7 @@ $display            = "photo";
 $pid                = "";
 
 // If “Go to full website” link is clicked, redirect mobile user to main website
-if (!empty($_SESSION['desktop']) || ($device_type == 'computer') ) {
+if (!empty($_SESSION['desktop']) || ($device_type == 'computer')) {
     $desktop_url = $GLOBALS['webroot']."/interface/main/tabs/main.php";
     header("Location:" . $desktop_url);
 }
@@ -42,7 +42,7 @@ if (!empty($_SESSION['desktop']) || ($device_type == 'computer') ) {
  * We need the fname,lname and pid(s) for person(s) in Room X.
  * Let's get those data points now.
  */
-if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
+if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
     $query = "select fname,lname,pid from patient_data
               where pid in (
                 SELECT pc_pid FROM `openemr_postcalendar_events`
@@ -51,7 +51,7 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
                   WHERE list_id = 'apptstat' and toggle_setting_1 ='1' and activity='1'
                 ) and
                 pc_eventDate = CURDATE() )";
-    $results_byRoom = sqlStatement($query,array($setting_mRoom));
+    $results_byRoom = sqlStatement($query, array($setting_mRoom));
 }
 
 ?><!doctype html>
@@ -217,7 +217,7 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
                             <?php
                                 $rows = sqlStatement("SELECT * FROM list_options WHERE " .
                                     "list_id = ? AND activity = 1 ", array('patient_flow_board_rooms'));
-                                while ($row = sqlFetchArray($rows) ) {
+                                while ($row = sqlFetchArray($rows)) {
                                     $selected = ( ($row['option_id'] == $setting_mRoom) ? ' selected' : '');
                                     echo "<option value='" . attr($row['option_id']) ."' ".$selected.">". text($row['title']) . "</option>\n";
                                 }
@@ -227,25 +227,25 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
                              * Logic to select patient who owns this data we are going to upload
                              */
                             
-                            if (!empty($results_byRoom)) {
-                                //we have a preference to select patient by Room, and we have a room, and we know who is in it!
-                                // $results_byRoom is the array holding these answers...
-                                $size = sqlNumRows($results_byRoom);
-                                if ($size == '1') {
-                                    $row = sqlFetchArray($results_byRoom);
-                                    $occupant = text($row['fname'] . " " . $row['lname']);
-                                    $pid = $row['pid'];
-                                    $patList_visible = "style='display:none;'";
-                                    $patList = "<option value='".attr($row['pid'])."'>".$occupant."</option>\n";
-                                } else if ($size > '1') {
-                                    //build a select list
-                                    while ($row = sqlFetchArray($results_byRoom)) {
-                                        $patList .= "<option value='".attr($row['pid'])."'>".text($row['fname']." ".$row['lname'])."</option>\n";
-                                    }
-                                }
-                            } else {
+                        if (!empty($results_byRoom)) {
+                            //we have a preference to select patient by Room, and we have a room, and we know who is in it!
+                            // $results_byRoom is the array holding these answers...
+                            $size = sqlNumRows($results_byRoom);
+                            if ($size == '1') {
+                                $row = sqlFetchArray($results_byRoom);
+                                $occupant = text($row['fname'] . " " . $row['lname']);
+                                $pid = $row['pid'];
                                 $patList_visible = "style='display:none;'";
+                                $patList = "<option value='".attr($row['pid'])."'>".$occupant."</option>\n";
+                            } elseif ($size > '1') {
+                                //build a select list
+                                while ($row = sqlFetchArray($results_byRoom)) {
+                                    $patList .= "<option value='".attr($row['pid'])."'>".text($row['fname']." ".$row['lname'])."</option>\n";
+                                }
                             }
+                        } else {
+                            $patList_visible = "style='display:none;'";
+                        }
                         ?>
                         
                         <input id="findPatient" name="findPatient" type="text" class="form-control ui-autocomplete-input byNameDisplay"
@@ -265,11 +265,13 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
                         <select id="category" name="category" class="form-control ui-autocomplete-input">
                             <?php
                                 $categories =  sqlStatement("Select * from categories");
-                                while ($cat = sqlFetchArray($categories)) {
-                                    if ($cat['name'] == 'Categories') continue;
-                                    $selected = ( ($cat['id'] == $setting_mCategory) ? ' selected' : '');
-                                    echo '<option value="'.attr($cat['id']).'" '.$selected.'>'. text($cat['name']) .'</option>\n';
+                            while ($cat = sqlFetchArray($categories)) {
+                                if ($cat['name'] == 'Categories') {
+                                    continue;
                                 }
+                                $selected = ( ($cat['id'] == $setting_mCategory) ? ' selected' : '');
+                                echo '<option value="'.attr($cat['id']).'" '.$selected.'>'. text($cat['name']) .'</option>\n';
+                            }
                             ?>
                         </select>
                                <label for="file-upload-a" class="btn btn-primary">
@@ -462,7 +464,7 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
                 pid = $( "#patient_matches" ).val();
                  $( "#pid" ).val(pid);
             <?php
-            } else if ($size > 1) {
+            } elseif ($size > 1) {
             //More than one person is in that room...
                 ?>
                 $( "#patient_matches" ).show();
