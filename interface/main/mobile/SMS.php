@@ -1,5 +1,30 @@
 <?php
-
+    /**
+     *  /interface/main/mobile/SMS.php
+     *
+     *  Live SMS interface for OpenEMR via MedEx
+     *
+     * Copyright (C) 2018 Raymond Magauran <magauran@MedExBank.com>
+     *
+     * LICENSE: This program is free software: you can redistribute it and/or modify
+     *  it under the terms of the GNU Affero General Public License as
+     *  published by the Free Software Foundation, either version 3 of the
+     *  License, or (at your option) any later version.
+     *
+     *  This program is distributed in the hope that it will be useful,
+     *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+     *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     *  GNU Affero General Public License for more details.
+     *
+     *  You should have received a copy of the GNU Affero General Public License
+     *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+     *
+     * @package OpenEMR
+     * @author Ray Magauran <magauran@MedExBank.com>
+     * @link http://www.open-emr.org
+     * @copyright Copyright (c) 2018 MedEx <magauran@MedExBank.com>
+     * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
+     */
 require_once('../../globals.php');
 require_once "$srcdir/patient.inc";
 require_once "$srcdir/options.inc.php";

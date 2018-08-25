@@ -1,5 +1,30 @@
 <?php
-    
+    /**
+     * interface/main/mobile/m_functions.php
+     *
+     * Common mobile items.
+     *
+     * Copyright (C) 2018 Raymond Magauran <magauran@MedExBank.com>
+     *
+     * LICENSE: This program is free software: you can redistribute it and/or modify
+     *  it under the terms of the GNU Affero General Public License as
+     *  published by the Free Software Foundation, either version 3 of the
+     *  License, or (at your option) any later version.
+     *
+     *  This program is distributed in the hope that it will be useful,
+     *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+     *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     *  GNU Affero General Public License for more details.
+     *
+     *  You should have received a copy of the GNU Affero General Public License
+     *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+     *
+     * @package OpenEMR
+     * @author Ray Magauran <magauran@MedExBank.com>
+     * @link http://www.open-emr.org
+     * @copyright Copyright (c) 2018 MedEx <magauran@MedExBank.com>
+     * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
+     */
     use OpenEMR\Core\Header;
 
 function common_head()
@@ -10,7 +35,7 @@ function common_head()
             
         <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-cupertino', 'font-awesome-4-6-3']); ?>
     
-        <title>OpenEMR Mobile</title>
+        <title><?php echo xlt('OpenEMR Mobile'); ?></title>
         <meta content="width=device-width,initial-scale=1.0" name="viewport">
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -154,12 +179,12 @@ function common_header($display = '')
                 if ($display =='photo') {
                     echo ' class="active" ';
                 } ?>
-                        href="/openemr/interface/main/mobile/camera.php?v=<?php echo mt_rand(); ?>"><?php echo xlt('Upload'); ?></a>
+                        href="<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/camera.php?v=<?php echo mt_rand(); ?>"><?php echo xlt('Upload'); ?></a>
                 <a <?php
                 if ($display == 'cal') {
                     echo ' class="active" ';
                 } ?>
-                        href="<?php echo $GLOBALS['webroot']; ?>/interface/main/calendar/index.php?module=PostCalendar&viewtype=day&func=view"><?php echo xlt('Calendar'); ?></a>
+                        href="<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/m_cal.php?v=<?php echo mt_rand(); ?>"><?php echo xlt('Calendar'); ?></a>
                 <a <?php
                 if ($display =='flow') {
                     echo ' class="active" ';
