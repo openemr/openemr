@@ -46,17 +46,17 @@ if (($_POST['setting_new_window']) ||
 }
 
 if (!empty($_GET['desktop'])) {
-    $desktop = $_GET['desktop'];
+    $_SESSION['desktop'] = $_GET['desktop'];
 } else {
-    $desktop        = "";
+    $_SESSION['desktop'] = "";
 }
 $categories         = array();
 $doc                = array();
 $display            = "photo";
-$pid                = "";
+$pid                = $_SESION['pid'];
 
 // If “Go to full website” link is clicked, redirect mobile user to main website
-if (!empty($_SESSION['desktop']) || ($device_type == 'computer')) {
+if (!empty($_SESSION['desktop'])) {
     $desktop_url = $GLOBALS['webroot']."/interface/main/tabs/main.php";
     header("Location:" . $desktop_url);
 }
