@@ -28,8 +28,8 @@
         ?>
         <style>
             #head_img {
-                margin: 2vH;
-                max-height: 15VH;
+                margin: 2vh;
+                max-height: 15vh;
             }
             
             //bootstrap 4.1 not in codebase yet 8.17.18
@@ -76,10 +76,6 @@
                 -ms-user-select: none;
                 user-select: none;
                 border: 1px solid transparent;
-                border-top-color: transparent;
-                border-right-color: transparent;
-                border-bottom-color: transparent;
-                border-left-color: transparent;
                 padding: .375rem .75rem;
                 font-size: 1rem;
                 line-height: 1.5;
@@ -96,7 +92,6 @@
             }
             #gb-main {
                 display: -webkit-box;
-                display: flex;
                 display: -ms-flexbox;
                 display: flex;
                 -webkit-box-orient: vertical;
@@ -107,7 +102,6 @@
             
             header {
                 display: -webkit-box;
-                display: flex;
                 display: -ms-flexbox;
                 display: flex;
                 height: 48px;
@@ -116,7 +110,6 @@
 
             #menu_top {
                 display: -webkit-box;
-                display: flex;
                 display: -ms-flexbox;
                 display: flex;
                 padding-left: 10px;
@@ -126,7 +119,6 @@
                 color: #757575;
                 display: block;
                 -webkit-box-flex: 0;
-                flex: 0 0 auto;
                 flex: 0 0 auto;
                 font-size: 12px;
                 font-weight: 600;
@@ -147,6 +139,11 @@
         <?php
     }
     
+    /**
+     * Common header for mobile pages.
+     * This was build from Google's mobile page.
+     * If the goal is pure bootstrap, this would be the place to start it off.
+     */
     function common_header($display='') { ?>
         <header>
             <div id="menu_top">

@@ -14,6 +14,7 @@ $uspfx              = substr(__FILE__, strlen($webserver_root)) . '.';
 $setting_mFind      = prevSetting('', 'setting_mFind', 'setting_mFind', 'byRoom');
 $setting_mRoom      = prevSetting('', 'setting_mRoom', 'setting_mRoom', '');
 $setting_mCategory  = prevSetting('', 'setting_mCategories', 'setting_mCategories', '');
+
 if (($_POST['setting_new_window']) ||
     ($_POST['setting_mFind'])) {
     exit();
@@ -27,25 +28,21 @@ if (!empty($_GET['desktop'])) {
 $categories         = array();
 $doc                = array();
 $display            = "photo";
+$pid                = "";
 
 // If “Go to full website” link is clicked, redirect mobile user to main website
-        //Would this file be helpful to desktop users?
-        //it would if we added the webcam access here.
-        //OK, will work on adding webcam here too for computer people...
-        //if we are going to let desktop users use this we need to change the session['desktop'] logic too
 if (!empty($_SESSION['desktop']) || ($device_type == 'computer') ) {
     $desktop_url = $GLOBALS['webroot']."/interface/main/tabs/main.php";
     header("Location:" . $desktop_url);
 }
 
+/**
+ * We have a preference to take the photo of the person in a specific room
+ * Who is in that room?  Is there more than one 'cause patient_tracker is not up-to-date?
+ * We need the fname,lname and pid(s) for person(s) in Room X.
+ * Let's get those data points now.
+ */
 if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
-    /**
-     * We have a preference to take the photo of the person in a specific room
-     * Who is in that room?  Is there more than one 'cause patient_tracker is not up-to-date?
-     * Pesume one for now and select them without user input.
-     * We need the fname,lname and pid for person in Room X.
-     * Let's get those data points now.
-     */
     $query = "select fname,lname,pid from patient_data
               where pid in (
                 SELECT pc_pid FROM `openemr_postcalendar_events`
@@ -103,6 +100,11 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
         max-width: 8em;
         vertical-align: top;
         text-align: center;
+    }
+    label {
+        margin:5px;
+        padding:5px 20px;
+        box-shadow: 1px 1px 2px #938282;
     }
     label input {
         padding:left:30px;
@@ -192,8 +194,9 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
 
 <body style="background-color: #fff;" >
 <?php common_header($display); ?>
+
 <div id="gb-main" class="container-fluid">
-    <form id="save_media" name="save_media" action="" method="post" enctype="multipart/form-data">
+    <form id="save_media" name="save_media" action="#" method="post" enctype="multipart/form-data">
 
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
@@ -244,7 +247,8 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
                                 $patList_visible = "style='display:none;'";
                             }
                         ?>
-                        <input id="findPatient" type="text" class="form-control ui-autocomplete-input byNameDisplay"
+                        
+                        <input id="findPatient" name="findPatient" type="text" class="form-control ui-autocomplete-input byNameDisplay"
                                placeholder="<?php echo xla("Patient Name"); ?>" value="<?php echo $occupant; ?>" />
 
 
@@ -268,18 +272,18 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
                                 }
                             ?>
                         </select>
-                        <br />
-                        <label for="file-upload-a" class="btn btn-primary">
-                            <i class="fa fa-camera"></i> <?php echo xlt('Photo'); ?>
-                            <input type="file" id="file-upload-a" accept="image/*" capture="camera" onchange="handleFiles(this.files)"  />
-                        </label>
-                        <label for="file-upload-b" class="btn btn-primary"><i class="fa fa-film"></i> <?php echo xlt('Video'); ?>
-                            <input type="file" id="file-upload-b" accept="video/*" capture="camera" onchange="handleFiles(this.files)" />
-                        </label>
-                        <label for="file-upload-c" class="btn btn-primary">
-                            <i class="fa fa-cloud-upload"></i> <?php echo xlt('Document'); ?>
-                            <input id="file-upload-c" name="file" type="file" onchange="handleFiles(this.files)" multiple />
-                        </label>
+                               <label for="file-upload-a" class="btn btn-primary">
+                                    <i class="fa fa-camera"></i> <?php echo xlt('Photo'); ?>
+                                </label>
+                                <label for="file-upload-b" class="btn btn-primary"><i class="fa fa-film"></i> <?php echo xlt('Video'); ?>
+                                </label>
+        
+                                <label for="file-upload-c" class="btn btn-primary">
+                                    <i class="fa fa-cloud-upload"></i> <?php echo xlt('Other'); ?>
+                                </label>
+                                <input type="hidden" id="pid" name="pid" value="<?php echo attr($pid); ?>" />
+                                <input type="hidden" id="go" name="go" value="save_media" />
+                            
                     </div>
                     <div id="div_response" class="text-center"></div>
                 </div>
@@ -287,52 +291,60 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
             <div class="col-xs-12 col-sm-7 col-md-7 col-lg-7 col-sm-offset-1 col-md-offset-1 col-lg-offset-1 jumbotronA custom-file-upload">
                 <div id="preview" class=""></div>
             </div>
-
-            
-            
-            <input type="hidden" id="pid" name="pid" value="<?php echo attr($pid); ?>" />
         </div>
+        <input type="file" id="file-upload-a" name="file2" accept="image/*" capture="camera" onchange="handleFiles(this.files);"  />
+        <input type="file" id="file-upload-b" name="file3" accept="video/*" capture="camera" onchange="handleFiles(this.files);" />
+        <input type="file" id="file-upload-c" name="file4" onchange="handleFiles(this.files);" multiple />
     </form>
     
     
     <?php common_footer($display); ?>
 
 </div>
-
+<br />
+&nbsp;
+<br />
 <script>
     
-    function send_form() {
-        //alert('Testing values first needed.');
+    function send_form(files) {
+        console.log(files);
         var category = $("#category").val();
         var pid = $("#pid").val();
-        if ( (pid =='')||(category =='')) {
-            alert("Please select a patient and a category");
+        
+        if ( (pid <='0')||(category <='0')) {
+            alert("<?php echo xla('Please select a patient and a category'); ?>");
             return;
         }
-        var form = document.forms.namedItem("save_media");
-        var formData = new FormData(form);
-        formData.append("go","save_media");
+        var formData = new FormData();
+        formData.append('go', 'save_media');
+        formData.append('pid', $("#pid").val());
+        formData.append('category', $("#category").val());
+        jQuery.each(files, function(i, file) {
+            formData.append('file-'+i, file);
+        });
+        
         var url = "<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/m_save.php";
         top.restoreSession();
+        $("#div_response").html('<span style="color:red;"><?php echo xla('loading'); ?>...</span>');
         $.ajax({
                    type: 'POST',
                    url: url,
+                   headers: { "cache-control": "no-cache" },
                    data: formData,
                    cache: false,
                    contentType: false,
                    processData: false
+                   
                }).done(function (result) {
                     reply = JSON.parse(result);
                    $("#div_response").html('<span style="color:red;">' + reply.message + '.</span>');
-                    setTimeout(function () {
-                        $("#div_response").html('<br />&nbsp;');
-                    }, 5000);
+                   
         });
         
     }
     
     function handleFiles(files) {
-        send_form();
+        send_form(files);
         $(".jumbotronA").show();
         for (var i = 0; i < files.length; i++) {
             var file = files[i];
@@ -410,10 +422,8 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
     
                 var named = document.createElement('a');
                 named.classList.add('card-title');
-                console.log(reply.DOC_ID);
-                console.log(pid.value);
-                named.href = "<?php echo $GLOBALS['webroot']; ?>/controller.php?document&view&patient_id="+pid+"&doc_id="+reply;
-                named.insertAdjacentHTML('beforeend', file.name);
+                named.href = "<?php echo $GLOBALS['webroot']; ?>/controller.php?document&view&patient_id="+pid+"&doc_id="+reply.DOC_ID;
+                named.insertAdjacentHTML('beforeend', file.name.substring(0,5)+'...');
                 
                 var card_body = document.createElement('div');
                 card_body.classList.add('card-body');
@@ -427,40 +437,52 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
                 preview.appendChild(wrapper); // Assuming that "preview" is the div output where the content will be displayed.
             }
         }
+        //files.reset();
         $(".fbar").height(0);
+    }
+    function label_enable() {
+        if ( ($("#pid").val() <='0')||( $("#category").val() <='0') ) {
+            $("label").addClass('disabled');
+            $("[name^=upload]").prop('disabled', true);
+        } else {
+            $("label").removeClass('disabled');
+            $("[name^=upload]").prop('disabled', false);
+        }
     }
     
     $(document).ready(function () {
         $( "#findPatient" ).hide();
         <?php
         if ($setting_mFind=="byRoom") { ?>
-        $("#findRoom").show();
-        <?php
-        if ($size == 1) { ?>
-        $( "#findPatient" ) . show();
-        $( "#patient_matches" ).hide();
-        pid = $( "#patient_matches" ).val();
-        $( "#pid" ).val(pid);
-        <?php
-        } else if ($size > 1) {
+            $("#findRoom").show();
+            <?php
+            if ($size == 1) { ?>
+                $( "#findPatient" ) . show();
+                $( "#patient_matches" ).hide();
+                pid = $( "#patient_matches" ).val();
+                 $( "#pid" ).val(pid);
+            <?php
+            } else if ($size > 1) {
             //More than one person is in that room...
-        ?>
-        $( "#patient_matches" ).show();
-        pid = $( "#patient_matches" ).val();
-        $( "#pid" ).val(pid);
-        $( "#patient_matches" ).focus();
-        <?php
-        } else { ?>
-        $( "#patient_matches" ).hide();
-        <?php
-        }
+                ?>
+                $( "#patient_matches" ).show();
+                pid = $( "#patient_matches" ).val();
+                $( "#pid" ).val(pid);
+                $( "#patient_matches" ).focus();
+                <?php
+            } else { ?>
+                $( "#patient_matches" ).hide();
+                <?php
+            }
         }
         
         if ($setting_mFind=="byName") { ?>
-        $( "#findPatient" ).show();
-        $( "#findRoom" ).hide();
-        $( "#findPatient" ).focus();
-        <?php } ?>
+            $( "#findPatient" ).show();
+            $( "#findRoom" ).hide();
+            $( "#findPatient" ).focus();
+            <?php
+        } ?>
+        label_enable();
         
         $("#findPatient").autocomplete({
                                            source: "<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/m_save.php?go=pat_search&here=2",
@@ -474,14 +496,10 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
                                                event.preventDefault();
                                                $("#findPatient").val(ui.item.label);
                                                $("#pid").val(ui.item.pid);
+                                               label_enable();
                                            }
                                        }).off('mouseenter');
-        
-        $("#upload").on('click', function (e) {
-            //alert("Uploading");
-            //send_form();
-        });
-        
+    
         $("#byName").on('click', function() {
             top.restoreSession();
             $("#findPatient").show();
@@ -495,7 +513,9 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
                     $("#findPatient").show();
                 }
             });
+            label_enable();
         });
+        
         $("#category").on('change', function() {
             top.restoreSession();
             var catValue = $("#category").val();
@@ -505,11 +525,13 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
                    // alert('cat change ok');
                 }
             });
+            label_enable();
         });
+        
         /**
-         * When byRoom is pressed, if a room preference exists, perform the search on the server.
-         * If not don't until #findRoom changes.
-         * Save byRoom as the prefererence
+         * When byRoom is pressed, perform the search on the server.
+         *  using the current or default room.
+         * Save byRoom as a prefererence
          */
         $("#byRoom").on('click', function() {
             top.restoreSession();
@@ -531,6 +553,7 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
             $("#findPatient").hide();
             $( "#patient_matches" ).hide();
             $("#pid").val('');
+            label_enable();
             var url = "<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/m_save.php";
             $.ajax({
                        type: 'POST',
@@ -548,17 +571,20 @@ if ( ($setting_mFind == 'byRoom') && (!empty($setting_mRoom)) ) {
                        count = "0";
                        $.map(obj, function(elem) {
                             count++;
+                            //need to escape these?
                             $("#patient_matches").append("<option value='" + elem.pid + "'>" + elem.fname + " " + elem.lname + "</option>");
                        });
                        $( "#patient_matches" ).show();
                        $( "#findPatient" ).hide();
                        $("#pid").val($("#patient_matches").val());
+                       label_enable();
                    });
         });
         
         $( "#patient_matches" ).on('change', function(e) {
             pid = $( "#patient_matches" ).val();
             $( "#pid" ).val(pid);
+            label_enable();
         });
     });
 </script>
