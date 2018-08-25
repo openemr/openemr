@@ -288,11 +288,6 @@ $setting_mCategory  = prevSetting('', 'setting_mCategories', 'setting_mCategorie
 
                             </table>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
             
                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 custom-file-upload">
                             <?php
@@ -402,7 +397,14 @@ WHERE pc_eventDate = \"$thisyear-$thismonth-$today\"";
                                 $output .= "* Implies note for patient";
                                 echo $output;
                             ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 
+<?php common_footer($display); ?>
 </body>
 
 </html>
