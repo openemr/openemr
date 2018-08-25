@@ -139,7 +139,7 @@ $setting_mCategory  = prevSetting('', 'setting_mCategories', 'setting_mCategorie
         .auto-clear .col-xs-3:nth-child(4n+1) {clear: left;}
         .auto-clear .col-xs-4:nth-child(3n+1) {clear: left;}
         .auto-clear .col-xs-6:nth-child(odd) {clear: left;}
-        .jumbotronA {display:none;margin: 8px auto;}
+        .jumbotronA {margin: 8px auto;}
         #head_img {margin: 2vH 0 0 0;max-height: 15vH;}
     }
 
@@ -149,7 +149,7 @@ $setting_mCategory  = prevSetting('', 'setting_mCategories', 'setting_mCategorie
         .auto-clear .col-xs-3:nth-child(4n+1){clear:left;}
         .auto-clear .col-xs-4:nth-child(3n+1){clear:left;}
         .auto-clear .col-xs-6:nth-child(odd){clear:left;}
-        .jumbotronA {display:none;margin: 8px auto;}
+        .jumbotronA {margin: 8px auto;}
         #head_img {margin: 2vH 0 0 0;max-height: 10vH;}
     }
     .section_title {font-size:1.2em;text-decoration:underline;font-weight:600;margin-bottom:8px;}
@@ -288,119 +288,119 @@ $setting_mCategory  = prevSetting('', 'setting_mCategories', 'setting_mCategorie
 
                             </table>
                         </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7 col-lg-7 col-sm-offset-1 col-md-offset-1 col-lg-offset-1 jumbotronA custom-file-upload">
+                    <?php
             
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 custom-file-upload">
-                            <?php
-                                
-                                //query the providers
-                                $qs = "SELECT concat(fname,' ',lname) as name, id FROM users WHERE authorized = 1";
-                                
-                                
-                                //die($qs);
-                                //$qy = $db->addQuery($qs);
-                                $rs = sqlStatement($qs);
-                                
-                                if (is_null($rs))
-                                {
-                                    die("ERROR: Couldn't execute query.");
-                                }
-                                //create the providers table
-                                while ($row = sqlFetchArray($orders)) {
-                                    @extract($row);
-                                    
-                                    $output = '<TABLE WIDTH="100%"><TR><TD  bgcolor="#C0C0C0">Providers</TD></TR>';
-                                    $output .= "<tr><td align=center";
-                                    if($provider==-1) $output .= " bgcolor=\"#FF0000\" ";
-                                    $output .= "><a href=m_cal.php?day=$today&month=$thismonth&provider=-1>All Providers</a></td></tr>";
-                                    
-                                    $output .= "<TR>";
-                                    $output .= "<td align=center";
-                                    if ($provider == $row["id"]) {
-                                        $output .= " bgcolor=\"#FF0000\" ";
-                                    }
-                                    $output .= "><a href=m_cal.php?day=$today&month=$thismonth&provider=" . $row["id"] . ">" . $row["name"] . "</a></td>";
-                                    $output .= "</TR>";
-                                }
-                                $output .= "</TABLE>";
-                                echo $output;
-                                
-                                //query to get the appointments based on provider and day
-                                $qs = "SELECT pc_eid, concat(fname,' ',lname) as name, pc_startTime, pc_hometext, pc_catname, pc_catcolor FROM openemr_postcalendar_events
+                        //query the providers
+                        $qs = "SELECT concat(fname,' ',lname) as name, id FROM users WHERE authorized = 1";
+            
+            
+                        //die($qs);
+                        //$qy = $db->addQuery($qs);
+                        $rs = sqlStatement($qs);
+            
+                        if (is_null($rs))
+                        {
+                            die("ERROR: Couldn't execute query.");
+                        }
+                        //create the providers table
+                        while ($row = sqlFetchArray($orders)) {
+                            @extract($row);
+                
+                            $output = '<TABLE WIDTH="100%"><TR><TD  bgcolor="#C0C0C0">Providers</TD></TR>';
+                            $output .= "<tr><td align=center";
+                            if($provider==-1) $output .= " bgcolor=\"#FF0000\" ";
+                            $output .= "><a href=m_cal.php?day=$today&month=$thismonth&provider=-1>All Providers</a></td></tr>";
+                
+                            $output .= "<TR>";
+                            $output .= "<td align=center";
+                            if ($provider == $row["id"]) {
+                                $output .= " bgcolor=\"#FF0000\" ";
+                            }
+                            $output .= "><a href=m_cal.php?day=$today&month=$thismonth&provider=" . $row["id"] . ">" . $row["name"] . "</a></td>";
+                            $output .= "</TR>";
+                        }
+                        $output .= "</TABLE>";
+                        echo $output;
+            
+                        //query to get the appointments based on provider and day
+                        $qs = "SELECT pc_eid, concat(fname,' ',lname) as name, pc_startTime, pc_hometext, pc_catname, pc_catcolor FROM openemr_postcalendar_events
 LEFT JOIN patient_data ON openemr_postcalendar_events.pc_pid = patient_data.pid
 LEFT JOIN openemr_postcalendar_categories ON  openemr_postcalendar_events.pc_catid = openemr_postcalendar_categories.pc_catid
 WHERE pc_eventDate = \"$thisyear-$thismonth-$today\"";
-                                
-                                if($provider>-1) $qs .= " AND pc_aid=$provider";
-                                
-                                $qs .= " ORDER BY pc_startTime asc";
-                                
-                                //die($qs);
-                                //$qy = $db->addQuery($qs);
-                                $qy = sqlStatement($qs);
-                                
-                                if (is_null($qy))
-                                {
-                                    die("ERROR: Couldn't execute query.");
-                                }
-                                
-                                $output = '<TABLE WIDTH="100%">';
-                                //if no appointments are found, output a notice
-                                //if($rs->eof()) $output .= "<TR><TD>No Patients Found</TD></TR>";
-                                $p_count = 0;
-                                while ($row = sqlFetchArray($qy)) {
-                                    
-                                    $output .= "<TR>";
+            
+                        if($provider>-1) $qs .= " AND pc_aid=$provider";
+            
+                        $qs .= " ORDER BY pc_startTime asc";
+            
+                        //die($qs);
+                        //$qy = $db->addQuery($qs);
+                        $qy = sqlStatement($qs);
+            
+                        if (is_null($qy))
+                        {
+                            die("ERROR: Couldn't execute query.");
+                        }
+            
+                        $output = '<TABLE WIDTH="100%">';
+                        //if no appointments are found, output a notice
+                        //if($rs->eof()) $output .= "<TR><TD>No Patients Found</TD></TR>";
+                        $p_count = 0;
+                        while ($row = sqlFetchArray($qy)) {
+                
+                            $output .= "<TR>";
 
 //save the hometext (note)
-                                    $hometext = $row["pc_hometext"];
+                            $hometext = $row["pc_hometext"];
 //check to see if the appoitment is for a person or location
-                                    if(is_null($row["name"])){
-                                        //if it is for a location, use the category name
-                                        $output .= "<TD ALIGN=center bgcolor=".$row["pc_catcolor"].">";
-                                        //check if the appointment has a note
-                                        if(!empty($hometext)){
-                                            //change the name to have a * meaning a note is present
-                                            $output .= "<a href=m_cal.php?day=$today&month=$thismonth&provider=$provider&eid=".$row["pc_eid"]."&offset=".$p_count.">";
-                                            $output .= $row["pc_catname"]." *</TD>";
-                                        }
-                                        //no note
-                                        else $output .= $row["pc_catname"]."</TD>";
-                                    }
-                                    else {
-                                        //otherwise this is a patient
-                                        $output .= "<TD ALIGN=center bgcolor=".$row["pc_catcolor"].">";
-                                        if(!empty($hometext)){
-                                            //change the name to have a * meaning a note is present
-                                            $output .= "<a href=m_cal.php?day=$today&month=$thismonth&provider=$provider&eid=".$row["pc_eid"]."&offset=".$p_count.">";
-                                            $output .= $row["name"]." *</TD>";
-                                        }
-                                        else {
-                                            //no note
-                                            $output .= $row["name"]."</TD>";
-                                        }
-                                    }
+                            if(is_null($row["name"])){
+                                //if it is for a location, use the category name
+                                $output .= "<TD ALIGN=center bgcolor=".$row["pc_catcolor"].">";
+                                //check if the appointment has a note
+                                if(!empty($hometext)){
+                                    //change the name to have a * meaning a note is present
+                                    $output .= "<a href=m_cal.php?day=$today&month=$thismonth&provider=$provider&eid=".$row["pc_eid"]."&offset=".$p_count.">";
+                                    $output .= $row["pc_catname"]." *</TD>";
+                                }
+                                //no note
+                                else $output .= $row["pc_catname"]."</TD>";
+                            }
+                            else {
+                                //otherwise this is a patient
+                                $output .= "<TD ALIGN=center bgcolor=".$row["pc_catcolor"].">";
+                                if(!empty($hometext)){
+                                    //change the name to have a * meaning a note is present
+                                    $output .= "<a href=m_cal.php?day=$today&month=$thismonth&provider=$provider&eid=".$row["pc_eid"]."&offset=".$p_count.">";
+                                    $output .= $row["name"]." *</TD>";
+                                }
+                                else {
+                                    //no note
+                                    $output .= $row["name"]."</TD>";
+                                }
+                            }
 //output the time in a clear format
-                                    $output .= "<TD ALIGN=center bgcolor=".$row["pc_catcolor"].">".date("g:i a", strtotime($row["pc_startTime"]))."</TD>";
+                            $output .= "<TD ALIGN=center bgcolor=".$row["pc_catcolor"].">".date("g:i a", strtotime($row["pc_startTime"]))."</TD>";
 
 //if the user wants to view a note, show it
-                                    if($eid == $row["pc_eid"]){
-                                        $output .= "</TR><TR><TD COLSPAN=2>".$row["pc_hometext"]."</TD>";
-                                    }
-                                    
-                                    $output .= "</TR>";
-                                    $p_count++;
-                                    
-                                }
-                                $output .= "</TABLE>";
-                                
-                                
-                                $output .= "* Implies note for patient";
-                                echo $output;
-                            ?>
-                        </div>
-                    </div>
+                            if($eid == $row["pc_eid"]){
+                                $output .= "</TR><TR><TD COLSPAN=2>".$row["pc_hometext"]."</TD>";
+                            }
+                
+                            $output .= "</TR>";
+                            $p_count++;
+                
+                        }
+                        $output .= "</TABLE>";
+            
+            
+                        $output .= " ";
+                        echo $output;
+                    ?>
                 </div>
             </div>
+            
         </form>
     </div>
 
