@@ -219,7 +219,7 @@ $setting_mCategory  = prevSetting('', 'setting_mCategories', 'setting_mCategorie
 
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
-                    <img src="<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/calendar.png" id="head_img" alt="<?php echo xla('File Uploader'); ?>">
+                    <img src="<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/calendar.png" id="head_img" alt="<?php echo xla('OpenEMR Calendar'); ?>">
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
                     <div class="row text-center">
