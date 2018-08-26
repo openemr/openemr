@@ -207,7 +207,9 @@ at Administration->Globals->Documents:
 Developers are currently working on integrating the Orthanc PACS server into OpenEMR. This
 feature is currently under development. Although it is not yet integrated with OpenEMR yet,
 you can connect to the Orthanc application gui via http://localhost:8042/ with username `orthanc`
-and password `orthanc`.
+and password `orthanc`. The nginx docker has also been set up to work as a reverse proxy
+with orthanc to allow ongoing development via http://localhost:8090/orthanc/ (Note this reverse
+proxy is still a work in progress)
 
 ## The Docker Development Environment is a work in progress
 
