@@ -31,9 +31,9 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     ```
     Server Host: mysql
     Server Port: 3306
-    Database Name: openerm
+    Database Name: openemr
     Login Name: openemr
-    Password: ANYTHING YOU WNAT
+    Password: ANYTHING YOU WANT
     Name for Root Account: root
     Root Pass: root
     User Hostname: %
