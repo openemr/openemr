@@ -31,9 +31,9 @@ require_once('../../globals.php');
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 require_once $GLOBALS['srcdir']."/../vendor/mobiledetect/mobiledetectlib/Mobile_Detect.php";
 
-    $detect = new Mobile_Detect;
-     $device_type = ($detect->isMobile() ? ($detect->isTablet() ? 'tablet' : 'phone') : 'computer');
-    $script_version = $detect->getScriptVersion();
+$detect = new Mobile_Detect;
+$device_type = ($detect->isMobile() ? ($detect->isTablet() ? 'tablet' : 'phone') : 'computer');
+$script_version = $detect->getScriptVersion();
     
 if (!empty($_GET['desktop'])) {
     $desktop = $_GET['desktop'];

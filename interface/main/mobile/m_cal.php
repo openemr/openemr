@@ -38,11 +38,12 @@ $device_type        = ($detect->isMobile() ? ($detect->isTablet() ? 'tablet' : '
 $script_version     = $detect->getScriptVersion();
 $display = "cal";
 
-//deletable
+/*/remember state long after session
 $uspfx              = substr(__FILE__, strlen($webserver_root)) . '.';
-$setting_mFind      = prevSetting('', 'setting_mFind', 'setting_mFind', 'byRoom');
-$setting_mRoom      = prevSetting('', 'setting_mRoom', 'setting_mRoom', '');
-$setting_mCategory  = prevSetting('', 'setting_mCategories', 'setting_mCategories', '');
+$setting_date       = prevSetting($uspfx, 'setting_date', 'setting_date', $day);
+$setting_month      = prevSetting($uspfx, 'setting_month', 'setting_month', $month);
+$setting_year       = prevSetting($uspfx, 'setting_year', 'setting_year', $year);
+*/
 ?><!doctype html>
 <html style="cursor: pointer;">
 <?php
@@ -50,112 +51,7 @@ $setting_mCategory  = prevSetting('', 'setting_mCategories', 'setting_mCategorie
 ?>
 
 <style>
-    #autocomplete {
-        background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
-        border: 1px solid rgba(0, 0, 0, 0.25);
-        border-radius: 4px;
-        box-shadow: 0 0 5px rgba(0, 0, 0, 0.4) inset, 0 1px 0 rgba(255, 255, 255, 0.1);
-        color: #fff;
-        text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.796), 0 0 10px rgba(255, 255, 255, 0.298);
-        padding: 10px;
-        margin: 10px 0;
-    }
-    input[type="file"] {
-        display: none;
-    }
-    .custom-file-upload {
-        border: 1px solid #ccc;
-        display: inline-block;
-        padding: 12px 12px;
-        cursor: pointer;
-        border-radius: 5px;
-        margin: 8px auto;
-        text-align: center;
-        background-color: #2d98cf66;
-        box-shadow: 1px 1px 3px #c0c0c0;
-    }
-    .fa {
-        padding-right:2px;
-    }
-    #preview {
-        text-align: center;
-    }
-    #preview  img {
-        vertical-align: top;
-        width: 85%;
-        margin: 0px auto;
-    }
-    obj, audio, canvas, progress, video {
-        margin:2%;
-        max-width: 8em;
-        vertical-align: top;
-        text-align: center;
-    }
-    label {
-        margin:5px;
-        padding:5px 20px;
-        box-shadow: 1px 1px 2px #938282;
-    }
-    label input {
-        padding:left:30px;
-    }
-    .byCatDisplay {
-        display:none;
-    }
-    .btn {
-        font-size: 1.5rem;
-    }
-    .card-title {
-        overflow:hidden;
-    }
-    .jumbotronA {
-        min-height:400px;
-        margin:8px;
-    }
-    td {
-        text-align: center;
-    }
-    @media (min-width:1200px){
-        .auto-clear .col-lg-1:nth-child(12n+1){clear:left;}
-        .auto-clear .col-lg-2:nth-child(6n+1){clear:left;}
-        .auto-clear .col-lg-3:nth-child(4n+1){clear:left;}
-        .auto-clear .col-lg-4:nth-child(3n+1){clear:left;}
-        .auto-clear .col-lg-6:nth-child(odd){clear:left;}
-    }
-    @media (min-width:992px) and (max-width:1199px){
-        .auto-clear .col-md-1:nth-child(12n+1){clear:left;}
-        .auto-clear .col-md-2:nth-child(6n+1){clear:left;}
-        .auto-clear .col-md-3:nth-child(4n+1){clear:left;}
-        .auto-clear .col-md-4:nth-child(3n+1){clear:left;}
-        .auto-clear .col-md-6:nth-child(odd){clear:left;}
-    }
-    @media (min-width:768px) and (max-width:991px){
-        .auto-clear .col-sm-1:nth-child(12n+1){clear:left;}
-        .auto-clear .col-sm-2:nth-child(6n+1){clear:left;}
-        .auto-clear .col-sm-3:nth-child(4n+1){clear:left;}
-        .auto-clear .col-sm-4:nth-child(3n+1){clear:left;}
-        .auto-clear .col-sm-6:nth-child(odd){clear:left;}
-    }
-    @media (max-width:767px) {
-        .auto-clear .col-xs-1:nth-child(12n+1) {clear: left;}
-        .auto-clear .col-xs-2:nth-child(6n+1) {clear: left;}
-        .auto-clear .col-xs-3:nth-child(4n+1) {clear: left;}
-        .auto-clear .col-xs-4:nth-child(3n+1) {clear: left;}
-        .auto-clear .col-xs-6:nth-child(odd) {clear: left;}
-        .jumbotronA {margin: 8px auto;}
-        #head_img {margin: 2vH 0 0 0;max-height: 15vH;}
-    }
-
-    @media (max-width:400px){
-        .auto-clear .col-xs-1:nth-child(12n+1){clear:left;}
-        .auto-clear .col-xs-2:nth-child(6n+1){clear:left;}
-        .auto-clear .col-xs-3:nth-child(4n+1){clear:left;}
-        .auto-clear .col-xs-4:nth-child(3n+1){clear:left;}
-        .auto-clear .col-xs-6:nth-child(odd){clear:left;}
-        .jumbotronA {margin: 8px auto;}
-        #head_img {margin: 2vH 0 0 0;max-height: 10vH;}
-    }
-    .section_title {font-size:1.2em;text-decoration:underline;font-weight:600;margin-bottom:8px;}
+    .jumbotronA {margin: 8px auto 40px;display:inherit;}
 </style>
 <body style="background-color: #fff;" >
 <?php common_header($display); ?>
@@ -169,12 +65,7 @@ $setting_mCategory  = prevSetting('', 'setting_mCategories', 'setting_mCategorie
         $month      = $_GET['month'];
         $provider   = $_GET['provider'];
         $eid        = $_GET['eid'];
-        
-        $day        = text($day);
-        $month      = text($month);
-        $provider   = text($provider);
-        $eid        = text($eid);
-        
+
         //if no provider is assigned, return all appointments
     if (is_null($provider) && empty($provider) || !is_numeric($provider)) {
         $provider = '';
@@ -207,7 +98,7 @@ $setting_mCategory  = prevSetting('', 'setting_mCategories', 'setting_mCategorie
 
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
-                    <img src="<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/calendar.png" id="head_img" alt="<?php echo xla('OpenEMR Calendar'); ?>">
+                    <img src="<?php echo $GLOBALS['webroot']; ?>/public/images/calendar.png" id="head_img" alt="OpenEMR <?php echo xla('Calendar'); ?>">
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
                     <div class="row text-center">
@@ -219,13 +110,13 @@ $setting_mCategory  = prevSetting('', 'setting_mCategories', 'setting_mCategorie
                                     <td colspan="2" bgcolor="#C0C0C0"><div align="center"><a href=m_cal.php?provider=<?php $provider ?>&day=<?php echo $today ?>&month=<?php echo $thismonth+1 ?>><?php echo jdmonthname(cal_to_jd(CAL_GREGORIAN, $thismonth+1, date(1), $thisyear), 0) ?></a></div></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>S</strong></td>
-                                    <td><strong>M</strong></td>
-                                    <td><strong>T</strong></td>
-                                    <td><strong>W</strong></td>
-                                    <td><strong>T</strong></td>
-                                    <td><strong>F</strong></td>
-                                    <td><strong>S</strong></td>
+                                    <td><strong><?php echo xlt('S{{Sunday}}'); ?></strong></td>
+                                    <td><strong><?php echo xlt('M{{Monday}}'); ?></strong></td>
+                                    <td><strong><?php echo xlt('T{{Tuesday}}'); ?></strong></td>
+                                    <td><strong><?php echo xlt('W{{Wednesday}}'); ?></strong></td>
+                                    <td><strong><?php echo xlt('T{{Thursday}}'); ?></strong></td>
+                                    <td><strong><?php echo xlt('F{{Friday}}'); ?></strong></td>
+                                    <td><strong><?php echo xlt('S{{Saturday}}'); ?></strong></td>
                                 </tr>
                                 <tr>
                                     <?php
@@ -233,7 +124,7 @@ $setting_mCategory  = prevSetting('', 'setting_mCategories', 'setting_mCategorie
                                         $emptycells = 0;
                                         
                                     for ($counter = 0; $counter <  $startday; $counter ++) {
-                                        echo "\t\t<td>-</td>\n";
+                                        echo "<td>-</td>\n";
                                         $emptycells ++;
                                     }
                                         
@@ -243,144 +134,125 @@ $setting_mCategory  = prevSetting('', 'setting_mCategories', 'setting_mCategorie
                                         
                                     for ($counter = 1; $counter <= $numdaysinmonth; $counter ++) {
                                         $rowcounter ++;
-                                        //don't make a link for today
+                                        
                                         if ($counter == $today) {
-                                            echo "\t\t<td bgcolor=\"#FF0000\">$counter</td>\n";
-                                        } //don't make a link for the weekends
-                                        elseif ($rowcounter % $numinrow == 0 || $rowcounter ==1) {
-                                            echo "\t\t<td>$counter</td>\n";
-                                        } //create a link to switch days
-                                        else {
-                                            echo "\t\t<td><a href=m_cal.php?provider=$provider&day=$counter&month=$thismonth>$counter</a></td>\n";
+                                            echo "<td bgcolor=\"#FF0000\">$counter</td>\n";
+                                        } else {
+                                            echo "<td><a href=m_cal.php?provider=$provider&day=$counter&month=$thismonth>$counter</a></td>\n";
                                         }
                                             
                                         if ($rowcounter % $numinrow == 0) {
-                                            echo "\t</tr>\n";
+                                            echo "</tr>\n";
                                                 
                                             if ($counter < $numdaysinmonth) {
-                                                echo "\t<tr>\n";
+                                                echo "<tr>\n";
                                             }
                                                 
                                             $rowcounter = 0;
                                         }
                                     }
-                                        
                                         // clean up
                                         $numcellsleft = $numinrow - $rowcounter;
                                         
                                     if ($numcellsleft != $numinrow) {
                                         for ($counter = 0; $counter < $numcellsleft; $counter ++) {
-                                            echo "\t\t<td>-</td>\n";
+                                            echo "<td>-</td>\n";
                                             $emptycells ++;
                                         }
                                     }
                                     ?>
                                 </tr>
-
                             </table>
                         </div>
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-7 col-md-7 col-lg-7 col-sm-offset-1 col-md-offset-1 col-lg-offset-1 jumbotronA custom-file-upload">
-                    <?php
-            
-                        //query the providers
-                        $query = "SELECT concat(fname,' ',lname) as name, id FROM users WHERE authorized = 1";
-                        $prov_results = sqlStatement($query);
-            
-                    if (is_null($prov_results)) {
-                        die("ERROR: Couldn't execute query.");
-                    }
-                        //create the providers table
-                    while ($row = sqlFetchArray($prov_results)) {
-                        @extract($row);
+                     <div class="visit">
+                         <span class="section_title"><?php echo xlt('Schedule'); ?></span>
+                         <br />
+                         <?php
+                            $query = "SELECT concat(fname,' ',lname) as name, id FROM users WHERE authorized = 1";
+                            $prov_results = sqlStatement($query);
+                            
+                            if (is_null($prov_results)) {
+                                die("ERROR: Couldn't find any providers!");
+                            }
+                        
+                            if (sqlNumRows($prov_results) ==1) {
+                                $row = sqlFetchArray($prov_results);
+                                echo "<div class='prov_line white'><a href='m_cal.php?day=$today&month=$thismonth&provider=" . attr($row["id"]) . "'>" . text($row["name"]) . "</a></div>";
+                            } else {
+                                ?>
+                                <div class="visit <?php echo ((empty($provider) ? 'white' : '')); ?>">
+                                <?php
+                                    echo "<ax href='m_cal.php?day=$today&month=$thismonth'>". xlt('All Providers') ."</ax>";
+                                    ?>
+                                </div>
+                                <?php
+                            }
+                            while ($row = sqlFetchArray($prov_results)) {
+                                ?>
+                                <div class="visit <?php echo(($provider == $row["id"]) ? 'white' : ''); ?>">
+                                    <?php
+                                        echo "<ax href='m_cal.php?day=$today&month=$thismonth&provider=" . attr($row["id"]) . "'>" . text($row["name"]) . "</a>";
+                                    ?>
+                                </div>
+                                <?php
+                            }
+                            
+                            //Need to incorporate acl here - user might not have privileges to see all schedules...
+                            //query to get the appointments based on provider and day
+                            $query = "SELECT pc_eid, concat(fname,' ',lname) as name, pc_startTime, pc_hometext, pc_catname, pc_catcolor
+                                    FROM openemr_postcalendar_events as e
+                                    LEFT OUTER JOIN patient_data as p ON e.pc_pid = p.pid
+                                    LEFT JOIN openemr_postcalendar_categories as c ON  e.pc_catid = c.pc_catid
+                                    WHERE pc_eventDate =?";
                 
-                        $output = '<table width="100%"><tr><td bgcolor="#C0C0C0">Providers</td></tr>';
-                        $output .= "<tr><td ";
-                        if (empty($provider)) {
-                            $output .= " bgcolor='#FF0000' ";
-                        }
-                        $output .= "><a href='m_cal.php?day=$today&month=$thismonth&provider=0'>All Providers</a></td></tr>";
+                            if (!empty($provider)) {
+                                $query .= " AND e.pc_aid=$provider";
+                            }
                 
-                        $output .= "<tr>";
-                        $output .= "<td ";
-                        if ($provider == $row["id"]) {
-                            $output .= " bgcolor=\"#FF0000\" ";
-                        }
-                        $output .= "><a href=m_cal.php?day=$today&month=$thismonth&provider=" . $row["id"] . ">" . $row["name"] . "</a></td>";
-                        $output .= "</tr>";
-                    }
-                        $output .= "</table>";
-                        echo $output;
-            
-                        //query to get the appointments based on provider and day
-                        $query = "SELECT pc_eid, concat(fname,' ',lname) as name, pc_startTime, pc_hometext, pc_catname, pc_catcolor
-                                FROM openemr_postcalendar_events as e
-                                LEFT OUTER JOIN patient_data as p ON e.pc_pid = p.pid
-                                LEFT JOIN openemr_postcalendar_categories as c ON  e.pc_catid = c.pc_catid
-                                WHERE pc_eventDate = \"$thisyear-$thismonth-$today\"";
-            
-                    if (!empty($provider)) {
-                        $query .= " AND e.pc_aid=$provider";
-                    }
-            
-                        $query .= " ORDER BY e.pc_startTime asc";
-                        $result = sqlStatement($query);
-            
-                        $output = '<table width="100%">';
-                        //if no appointments are found, output a notice
-                    if (!$result) {
-                        $output .= "<tr><td>No Patients Found</td></tr>";
-                    }
-                        $p_count = 0;
-                    while ($row = sqlFetchArray($result)) {
-                        $output .= "<tr>";
-                        $hometext = $row["pc_hometext"];
-                        //check to see if the appointment is for a person or location
-                        if (is_null($row["name"])) {
-                            //if it is for a location, use the category name
-                            $output .= "<td bgcolor=".$row["pc_catcolor"].">";
+                            $query .= " ORDER BY e.pc_startTime asc";
+                            $result = sqlStatement($query, array($thisyear."-".$thismonth."-".$today));
+                //continue BS4 construct
+                            //if no appointments are found, output a notice
+                            if (sqlNumRows($result) < 1) {
+                                echo "<div class='col-xs-12 alert alert-success'>". xlt('No Appointments Found') ."</div>";
+                            } else {
+                                //echo "<div class='alert alert-success'>".sqlNumRows($result)." ". xlt('Appointments Found') ."</div>";
+                            }
+                            $p_count = 0;
+                            echo "</div>";
+                        while ($row = sqlFetchArray($result)) {
+                            if (is_null($row["name"])) {
+                                echo '<div class="cal_cat" style="background-color:' . $row["pc_catcolor"] . '">';
+                                echo $row["pc_catname"] . "</div>";
+                                continue;
+                            }
+                            echo '<div class="col-xs-12 visit" style="background-color:' . $row["pc_catcolor"] . '">';
                             //check if the appointment has a note
-                            if (!empty($hometext)) {
-                                //change the name to have a * meaning a note is present
-                                $output .= "<a href='m_cal.php?day=$today&month=$thismonth&provider=$provider&eid=".$row["pc_eid"]."&offset=".$p_count."'>";
-                                $output .= $row["pc_catname"]." *</TD>";
+                            echo '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">';
+                            if (!empty($row["pc_hometext"])) {
+                                //plan to hide reason on small screen and display via js when clicked...  TODO
+                                echo "<ax href='m_cal.php?day=$today&month=$thismonth&provider=$provider&eid=" . $row["pc_eid"] . "&offset=" . $p_count . "'>";
+                                echo $row["name"];
                             } //no note
                             else {
-                                $output .= $row["pc_catname"]."</TD>";
+                                echo $row["name"];
                             }
-                        } else {
-                            //otherwise this is a patient
-                            $output .= "<td bgcolor=".$row["pc_catcolor"].">";
-                            if (!empty($hometext)) {
-                                //change the name to have a * meaning a note is present
-                                $output .= "<a href='m_cal.php?day=$today&month=$thismonth&provider=$provider&eid=".$row["pc_eid"]."&offset=".$p_count."''>";
-                                $output .= $row["name"]." *</td>";
-                            } else {
-                                //no note
-                                $output .= $row["name"]."</td>";
-                            }
+    
+                            echo "</ax></div>";
+                             //if the user wants to view a note, show it
+                            echo '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">' . $row["pc_hometext"] . "</div>";
+                            //output the time in a clear format
+                            echo '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">'. date("g:i a", strtotime($row["pc_startTime"])) . "</div>";
+    echo "</div>";
+    
                         }
-//output the time in a clear format
-                        $output .= "<td bgcolor=".$row["pc_catcolor"].">".date("g:i a", strtotime($row["pc_startTime"]))."</td>";
-
-//if the user wants to view a note, show it
-                        if ($eid == $row["pc_eid"]) {
-                            $output .= "</tr><tr><td colspan='2'>".$row["pc_hometext"]."</td>";
-                        }
-                
-                        $output .= "</tr>";
-                        $p_count++;
-                    }
-                        $output .= "</table>";
-            
-            
-                        $output .= " ";
-                        echo $output;
-                    ?>
-                </div>
+                        ?>
+                     </div>
+                     </div>
             </div>
-            
         </form>
     </div>
 

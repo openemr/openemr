@@ -53,7 +53,7 @@ if (!empty($_GET['desktop'])) {
 $categories         = array();
 $doc                = array();
 $display            = "photo";
-$pid                = $_SESION['pid'];
+$pid                = '';
 
 // If “Go to full website” link is clicked, redirect mobile user to main website
 if (!empty($_SESSION['desktop'])) {
@@ -84,123 +84,19 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
 <?php
     common_head();
 ?>
-<style>
-    #autocomplete {
-        background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
-        border: 1px solid rgba(0, 0, 0, 0.25);
-        border-radius: 4px;
-        box-shadow: 0 0 5px rgba(0, 0, 0, 0.4) inset, 0 1px 0 rgba(255, 255, 255, 0.1);
-        color: #fff;
-        text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.796), 0 0 10px rgba(255, 255, 255, 0.298);
-        padding: 10px;
-        margin: 10px 0;
-    }
-    input[type="file"] {
-        display: none;
-    }
-    .custom-file-upload {
-        border: 1px solid #ccc;
-        display: inline-block;
-        padding: 12px 12px;
-        cursor: pointer;
-        border-radius: 5px;
-        margin: 8px auto;
-        text-align: center;
-       background-color: #2d98cf66;
-        box-shadow: 1px 1px 3px #c0c0c0;
-    }
-    .fa {
-        padding-right:2px;
-    }
-    #preview {
-        text-align: center;
-    }
-    #preview  img {
-        vertical-align: top;
-        width: 85%;
-        margin: 0px auto;
-    }
-    obj, audio, canvas, progress, video {
-        margin:2%;
-        max-width: 8em;
-        vertical-align: top;
-        text-align: center;
-    }
-    label {
-        margin:5px;
-        padding:5px 20px;
-        box-shadow: 1px 1px 2px #938282;
-    }
-    label input {
-        padding:left:30px;
-    }
-    .byCatDisplay {
-        display:none;
-    }
-    .btn {
-        font-size: 1.5rem;
-    }
-    .card-title {
-        overflow:hidden;
-    }
-    .jumbotronA {
-        min-height:400px;
-        margin:8px;
-    }
-    @media (min-width:1200px){
-        .auto-clear .col-lg-1:nth-child(12n+1){clear:left;}
-        .auto-clear .col-lg-2:nth-child(6n+1){clear:left;}
-        .auto-clear .col-lg-3:nth-child(4n+1){clear:left;}
-        .auto-clear .col-lg-4:nth-child(3n+1){clear:left;}
-        .auto-clear .col-lg-6:nth-child(odd){clear:left;}
-    }
-    @media (min-width:992px) and (max-width:1199px){
-        .auto-clear .col-md-1:nth-child(12n+1){clear:left;}
-        .auto-clear .col-md-2:nth-child(6n+1){clear:left;}
-        .auto-clear .col-md-3:nth-child(4n+1){clear:left;}
-        .auto-clear .col-md-4:nth-child(3n+1){clear:left;}
-        .auto-clear .col-md-6:nth-child(odd){clear:left;}
-    }
-    @media (min-width:768px) and (max-width:991px){
-        .auto-clear .col-sm-1:nth-child(12n+1){clear:left;}
-        .auto-clear .col-sm-2:nth-child(6n+1){clear:left;}
-        .auto-clear .col-sm-3:nth-child(4n+1){clear:left;}
-        .auto-clear .col-sm-4:nth-child(3n+1){clear:left;}
-        .auto-clear .col-sm-6:nth-child(odd){clear:left;}
-    }
-    @media (max-width:767px) {
-        .auto-clear .col-xs-1:nth-child(12n+1) {clear: left;}
-        .auto-clear .col-xs-2:nth-child(6n+1) {clear: left;}
-        .auto-clear .col-xs-3:nth-child(4n+1) {clear: left;}
-        .auto-clear .col-xs-4:nth-child(3n+1) {clear: left;}
-        .auto-clear .col-xs-6:nth-child(odd) {clear: left;}
-        .jumbotronA {display:none;margin: 8px auto;}
-        #head_img {margin: 2vH 0 0 0;max-height: 15vH;}
-    }
-    
-    @media (max-width:400px){
-            .auto-clear .col-xs-1:nth-child(12n+1){clear:left;}
-            .auto-clear .col-xs-2:nth-child(6n+1){clear:left;}
-            .auto-clear .col-xs-3:nth-child(4n+1){clear:left;}
-            .auto-clear .col-xs-4:nth-child(3n+1){clear:left;}
-            .auto-clear .col-xs-6:nth-child(odd){clear:left;}
-            .jumbotronA {display:none;margin: 8px auto;}
-            #head_img {margin: 2vH 0 0 0;max-height: 10vH;}
-    }
-    .section_title {font-size:1.2em;text-decoration:underline;font-weight:600;margin-bottom:8px;}
-</style>
+
 <script>
     var projects = [
         {
-            label: "<?php echo xlt('Select Document Category'); ?>"
+            label: "<?php echo xla('Select Document Category'); ?>"
         }<?php
         $categories =  sqlStatement("Select * from categories");
         
         while ($row1 = sqlFetchArray($categories)) {
             echo ',
                 {
-                    label: "'.text($row1['name']).'",
-                    catID: "'.text($row1['id']).'"
+                    label: "'.attr($row1['name']).'",
+                    catID: "'.attr($row1['id']).'"
                 }';
         }
         ?>
@@ -210,7 +106,7 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
     var reply = [];
     <?php
     if (!empty($setting_mRoom)) {
-        echo "var mRoom = ".text($setting_mRoom).";";
+        echo "var mRoom = ".attr($setting_mRoom).";";
     } else {
         echo "var mRoom;";
     }
@@ -225,7 +121,7 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
 
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
-                <img src="<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/photobooth.png" id="head_img" alt="<?php echo xla('File Uploader'); ?>">
+                <img src="<?php echo $GLOBALS['webroot']; ?>/public/images/uploads.png" id="head_img" alt="<?php echo xla('File Uploader'); ?>">
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
                 <div class="row text-center">
@@ -258,10 +154,10 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
                             $size = sqlNumRows($results_byRoom);
                             if ($size == '1') {
                                 $row = sqlFetchArray($results_byRoom);
-                                $occupant = text($row['fname'] . " " . $row['lname']);
+                                $occupant = $row['fname'] . " " . $row['lname'];
                                 $pid = $row['pid'];
                                 $patList_visible = "style='display:none;'";
-                                $patList = "<option value='".attr($row['pid'])."'>".$occupant."</option>\n";
+                                $patList = "<option value='".attr($row['pid'])."'>".text($occupant)."</option>\n";
                             } elseif ($size > '1') {
                                 //build a select list
                                 while ($row = sqlFetchArray($results_byRoom)) {
@@ -274,7 +170,7 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
                         ?>
                         
                         <input id="findPatient" name="findPatient" type="text" class="form-control ui-autocomplete-input byNameDisplay"
-                               placeholder="<?php echo xla("Patient Name"); ?>" value="<?php echo $occupant; ?>" />
+                               placeholder="<?php echo xla("Patient Name"); ?>" value="<?php echo attr($occupant); ?>" />
 
 
                         <select id="patient_matches" name="patient_matches" type="text" <?php echo $patList_visible; ?>
@@ -299,13 +195,13 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
                             }
                             ?>
                         </select>
-                               <label for="file-upload-a" class="btn btn-primary">
+                               <label for="file-upload-a" class="btn btn-primary disabled">
                                     <i class="fa fa-camera"></i> <?php echo xlt('Photo'); ?>
                                 </label>
-                                <label for="file-upload-b" class="btn btn-primary"><i class="fa fa-film"></i> <?php echo xlt('Video'); ?>
+                                <label for="file-upload-b" class="btn btn-primary disabled"><i class="fa fa-film"></i> <?php echo xlt('Video'); ?>
                                 </label>
         
-                                <label for="file-upload-c" class="btn btn-primary">
+                                <label for="file-upload-c" class="btn btn-primary disabled">
                                     <i class="fa fa-cloud-upload"></i> <?php echo xlt('Other'); ?>
                                 </label>
                                 <input type="hidden" id="pid" name="pid" value="<?php echo attr($pid); ?>" />
@@ -329,17 +225,16 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
 
 </div>
 <br />
-&nbsp;
+&nbsp; &nbsp;
 <br />
 <script>
     
     function send_form(files) {
-        console.log(files);
         var category = $("#category").val();
         var pid = $("#pid").val();
         
         if ( (pid <='0')||(category <='0')) {
-            alert("<?php echo xla('Please select a patient and a category'); ?>");
+            alert("<?php echo xls('Please select a patient and a category'); ?>");
             return;
         }
         var formData = new FormData();
@@ -352,7 +247,7 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
         
         var url = "<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/m_save.php";
         top.restoreSession();
-        $("#div_response").html('<span style="color:red;"><?php echo xla('loading'); ?>...</span>');
+        $("#div_response").html('<span style="color:red;"><?php echo xla('Loading'); ?>...</span>');
         $.ajax({
                    type: 'POST',
                    url: url,
@@ -367,7 +262,6 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
                    $("#div_response").html('<span style="color:red;">' + reply.message + '.</span>');
                    
         });
-        
     }
     
     function handleFiles(files) {
@@ -447,10 +341,13 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
                 card.classList.add('card');
                 card.appendChild(obj);
     
-                var named = document.createElement('a');
+                var named = document.createElement('b');
                 named.classList.add('card-title');
-                named.href = "<?php echo $GLOBALS['webroot']; ?>/controller.php?document&view&patient_id="+pid+"&doc_id="+reply.DOC_ID;
-                named.insertAdjacentHTML('beforeend', file.name.substring(0,5)+'...');
+                // we do not have the doc_ID back since it it ajax and asynchronous.
+                // so comment out for now
+                // named.href = "<?php echo $GLOBALS['webroot']; ?>/controller.php?document&retrieve&patient_id="+pid.value+"&doc_id="+reply.DOC_ID+"&as_file=true&show_original=true";
+                //named.onclick = function() { top.restoreSession(); }
+                named.insertAdjacentHTML('beforeend', file.name.substring(0,18)+'...');
                 
                 var card_body = document.createElement('div');
                 card_body.classList.add('card-body');
@@ -512,12 +409,14 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
         label_enable();
         
         $("#findPatient").autocomplete({
-                                           source: "<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/m_save.php?go=pat_search&here=2",
-                                           minLength: 2,
+                                           source: "<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/m_save.php?go=pat_search",
+                                           minLength: 3,
                                            open: function( event, ui ) {
+                                               //turns off double touch needed: single touch works as user expects
                                                if (navigator.userAgent.match(/(iPod|iPhone|iPad)/)) {
                                                    $('.ui-autocomplete').off('menufocus hover mouseover mouseenter');
                                                }
+                                               top.restoreSession();
                                            },
                                            select: function (event, ui) {
                                                event.preventDefault();

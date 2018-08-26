@@ -26,21 +26,22 @@
      * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
      */
     use OpenEMR\Core\Header;
-
-function common_head()
+    use OpenEMR\Services\VersionService;
+    
+    function common_head()
 {
     ?>
         
     <head>
             
-        <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-cupertino', 'font-awesome-4-6-3']); ?>
+        <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-cupertino' ]); ?>
     
-        <title><?php echo xlt('OpenEMR Mobile'); ?></title>
+        <title><?php echo "OpenEMR ". xlt('Mobile'); ?></title>
         <meta content="width=device-width,initial-scale=1.0" name="viewport">
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="description" content="OpenEMR: Eye Exam">
-        <meta name="author" content="OpenEMR: Ophthalmology">
+        <meta name="description" content="OpenEMR: Mobile">
+        <meta name="author" content="OpenEMR: Mobile Group">
         <?php common_style(); ?>
         <script type="text/javascript">
             <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
@@ -57,9 +58,7 @@ function common_style()
             margin: 2vh;
             max-height: 15vh;
         }
-            
-        //bootstrap 4.1 not in codebase yet 8.17.18
-
+        
         .btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle) {
             border-top-right-radius: 0;
             border-bottom-right-radius: 0;
@@ -160,6 +159,173 @@ function common_style()
             color: #4285f4;
             border-bottom: 2px solid #4285f4
         }
+
+        #autocomplete {
+            background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+            border: 1px solid rgba(0, 0, 0, 0.25);
+            border-radius: 4px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.4) inset, 0 1px 0 rgba(255, 255, 255, 0.1);
+            color: #fff;
+            text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.796), 0 0 10px rgba(255, 255, 255, 0.298);
+            padding: 10px;
+            margin: 10px 0;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .custom-file-upload {
+            border: 1px solid #ccc;
+            display: inline-block;
+            padding: 12px 12px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 8px auto;
+            text-align: center;
+            background-color: #2d98cf66;
+            box-shadow: 1px 1px 3px #c0c0c0;
+        }
+        .fa {
+            padding-right:2px;
+        }
+        #preview {
+            text-align: center;
+        }
+        #preview  img {
+            vertical-align: top;
+            width: 85%;
+            margin: 0px auto;
+        }
+        obj, audio, canvas, progress, video {
+            margin:2%;
+            max-width: 8em;
+            vertical-align: top;
+            text-align: center;
+        }
+        label {
+            margin:5px;
+            padding:5px 20px;
+            box-shadow: 1px 1px 2px #938282;
+        }
+        label input {
+            padding:left:30px;
+        }
+        .byCatDisplay {
+            display:none;
+        }
+        .btn {
+            font-size: 1.5rem;
+        }
+        .card-title {
+            overflow:hidden;
+        }
+        .jumbotronA {
+            min-height:400px;
+            margin:8px;
+            margin-bottom: 40px;
+        }
+        td {
+            text-align: center;
+        }
+        @media (min-width:1200px){
+            .auto-clear .col-lg-1:nth-child(12n+1){clear:left;}
+            .auto-clear .col-lg-2:nth-child(6n+1){clear:left;}
+            .auto-clear .col-lg-3:nth-child(4n+1){clear:left;}
+            .auto-clear .col-lg-4:nth-child(3n+1){clear:left;}
+            .auto-clear .col-lg-6:nth-child(odd){clear:left;}
+        }
+        @media (min-width:992px) and (max-width:1199px){
+            .auto-clear .col-md-1:nth-child(12n+1){clear:left;}
+            .auto-clear .col-md-2:nth-child(6n+1){clear:left;}
+            .auto-clear .col-md-3:nth-child(4n+1){clear:left;}
+            .auto-clear .col-md-4:nth-child(3n+1){clear:left;}
+            .auto-clear .col-md-6:nth-child(odd){clear:left;}
+        }
+        @media (min-width:768px) and (max-width:991px){
+            .auto-clear .col-sm-1:nth-child(12n+1){clear:left;}
+            .auto-clear .col-sm-2:nth-child(6n+1){clear:left;}
+            .auto-clear .col-sm-3:nth-child(4n+1){clear:left;}
+            .auto-clear .col-sm-4:nth-child(3n+1){clear:left;}
+            .auto-clear .col-sm-6:nth-child(odd){clear:left;}
+        }
+        @media (max-width:767px) {
+            .auto-clear .col-xs-1:nth-child(12n+1) {clear: left;}
+            .auto-clear .col-xs-2:nth-child(6n+1) {clear: left;}
+            .auto-clear .col-xs-3:nth-child(4n+1) {clear: left;}
+            .auto-clear .col-xs-4:nth-child(3n+1) {clear: left;}
+            .auto-clear .col-xs-6:nth-child(odd) {clear: left;}
+            .jumbotronA {display:none;margin: 8px auto;}
+            #head_img {margin: 2vH 0 0 0;max-height: 15vH;}
+        }
+
+        @media (max-width:400px){
+            .auto-clear .col-xs-1:nth-child(12n+1){clear:left;}
+            .auto-clear .col-xs-2:nth-child(6n+1){clear:left;}
+            .auto-clear .col-xs-3:nth-child(4n+1){clear:left;}
+            .auto-clear .col-xs-4:nth-child(3n+1){clear:left;}
+            .auto-clear .col-xs-6:nth-child(odd){clear:left;}
+            .jumbotronA {display:none;margin: 8px auto;}
+            #head_img {margin: 2vH 0 0 0;max-height: 10vH;}
+        }
+        .section_title {font-size:1.2em;text-decoration:underline;font-weight:600;margin-bottom:8px;}
+       
+          .fbar {
+              background: #f2f2f2;
+              line-height: 20px;
+              text-align: center;
+              margin-left: -27px;
+              font-size: small;
+              position:fixed;
+              left:0px;
+              bottom:0px;
+          }
+        .fbar a {
+            text-decoration: none;
+            white-space: nowrap;
+            color: #777;
+        }
+
+        .fbar a:hover {
+            color: #333;
+        }
+
+        .M6hT6 {
+            background: #f2f2f2;
+            left: 0;
+            right: 0;
+            -webkit-text-size-adjust: none;
+        }
+        .M6hT6 a {
+            text-decoration: none;
+        }
+
+        .As6eLe {
+            padding-bottom: 5px;
+        }
+
+        html, body {
+            height: 100%
+        }
+        .JQyAhb {
+            border-top: 1px solid #e4e4e4;
+            padding-top: 10px
+        }
+        .Fx4vi {
+            padding-left: 27px;
+            margin: 0 !important
+        }
+        .white{
+            background-color: #FFF;
+        }
+        .prov_line {
+            border:1.5pt groove #c0c0c0;
+        }
+        .cal_cat {
+            border:1.5pt inset #c0c0c0;
+        }
+        .visit {
+            border-bottom:1.0pt solid #c0c0c0;
+        }
+        //end footer
     </style>
     
     <?php
@@ -206,75 +372,26 @@ function common_header($display = '')
     
 function common_footer($display = "")
 {
+    $versionService = new VersionService();
+    $version = $versionService->fetch();
     ?>
-        
-        <div class="fbar M6hT6 As6eLe" style="position:fixed;
-   left:0px;
-   bottom:0px;
-   ">
-            <style>
-                .fbar {
-                    background: #f2f2f2;
-                    line-height: 20px;
-                    padding: 0px 20px;
-                    text-align: center;
-                    margin-left: -27px;
-                    font-size: small;
-                }
-                .fbar a {
-                    text-decoration: none;
-                    white-space: nowrap;
-                    color: #777;
-                }
-
-                .fbar a:hover {
-                    color: #333;
-                }
-                
-                .M6hT6 {
-                    background: #f2f2f2;
-                    left: 0;
-                    right: 0;
-                    -webkit-text-size-adjust: none;
-                }
-                .M6hT6 a {
-                    text-decoration: none;
-                }
-                
-                .As6eLe {
-                    padding-bottom: 5px;
-                }
-                
-                html, body {
-                    height: 100%
-                }
-                .JQyAhb {
-                    border-top: 1px solid #e4e4e4;
-                    padding-top: 10px
-                }
-                .Fx4vi {
-                    padding-left: 27px;
-                    margin: 0 !important
-                }
-
-
-            </style>
+        <div class="fbar M6hT6 As6eLe">
             <div class="JQyAhb" >
-                <span style="display:inline-block;position:relative">
+                <span style="display:inline-block;position:relative; text-align:center;">
                     <a class="Fx4vi"
-                       href="https://open-emr.org"><?php echo xlt('openEMR'); ?></a>
+                       href="https://open-emr.org">OpenEMR</a>
                     <a class="Fx4vi"
                        href="//community.open-emr.org/"><?php echo xlt('Forum'); ?></a>
                     <a class="Fx4vi"
                        href="//chat.open-emr.org/home"><?php echo xlt('Chat'); ?></a>
                     <a class="Fx4vi"
-                       href="//www.open-emr.org/wiki/index.php/OpenEMR_5.0.1_Users_Guide"><?php echo xlt('User Manuals'); ?></a>
+                       href="//www.open-emr.org/wiki/index.php/OpenEMR_<?php echo attr($version->getMajor()).".".attr($version->getMinor()).".".attr($version->getPatch()); ?>_Users_Guide"><?php echo xlt('User Manuals'); ?></a>
                     <a class="Fx4vi"
                        href="//www.open-emr.org/blog/"><?php echo xlt('Blog'); ?></a>
                     <a class="Fx4vi"
-                       href="//en.wikipedia.org/wiki/GNU_General_Public_License"><?php echo xlt('License'); ?></a>
+                       href="../../../acknowledge_license_cert.html"><?php echo xlt('License'); ?></a>
                     <a class="Fx4vi"
-                       href="<?php echo $GLOBALS['webroot']; ?>/interface/main/tabs/main.php?desktop=1"><?php echo xlt('Desktop site'); ?></a>
+                       href="main.php?desktop=1"><?php echo xlt('Desktop site'); ?></a>
                 </span>
             </div>
         </div>

@@ -131,7 +131,8 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'checkout_roll_off',
     'patient_birthday_alert',
     'patient_birthday_alert_manual_off',
-    'erx_import_status_message');
+    'erx_import_status_message',
+    'mobile_interface');
 
 // Gets array of time zones supported by PHP.
 //
@@ -488,12 +489,19 @@ $GLOBALS_METADATA = array(
             '0',                              // default = false
             xl('Show Mini Logo 1')
         ),
-
+    
         'tiny_logo_2' => array(
             xl('Show Mini Logo 2'),
             'bool',                           // data type
             '0',                              // default = false
             xl('Show Mini Logo 2')
+        ),
+        
+        'mobile_interface' => array(
+            xl('Support Mobile Version'),
+            'bool',                           // data type
+            '1',                              // default = false
+            xl('When logging in from a mobile device, display mobile view.  Uncheck to display desktop interface for all devices.')
         ),
 
     ),
