@@ -2,6 +2,58 @@ Thank you for your contribution. OpenEMR (and global healthcare) continues to ge
 
 The maintainers of OpenEMR want to get your pull request in as seamlessly as possible, so please ensure your code is consistent with our [development policies](http://open-emr.org/wiki/index.php/Development_Policies).
 
+## Code Contributions (local development)
+You will need a "local" version of OpenEMR to make changes to the source code. The easiest way to do this is with [Docker](https://hub.docker.com/r/openemr/openemr/):
+
+1. [Create your own fork of OpenEMR](https://github.com/openemr/openemr/fork) (you will need a GitHub account) and `git clone` it to your local machine.
+    - It's best to also add an `upstream` origin to keep your local fork up to date. [Check out this guide](https://oneemptymind.wordpress.com/2018/07/11/keeping-a-fork-up-to-date/) for more info.
+2. Navigate to `[my_cloned_directory]/contrib/util/docker`
+    - If you haven't already, [install Docker](https://docs.docker.com/install/) for your system
+3. Edit `docker-compose.yml` to use your fork's git url and branch name for `FLEX_REPOSITORY` and `FLEX_REPOSITORY_BRANCH`
+    - For example:
+    ```
+    FLEX_REPOSITORY: https://github.com/[my_user_name]/openemr.git
+    FLEX_REPOSITORY_BRANCH: master
+    ```
+4. Run `docker-compose up` from your command line
+    - You'll get some errors from rsync and chown. You can ignore those.
+    - When the build is done, you'll see the following message:
+    ```
+    openemr_1  | Love OpenEMR? You can now support the project via the open collective:
+    openemr_1  |  > https://opencollective.com/openemr/donate
+    openemr_1  |
+    openemr_1  | Starting cron daemon!
+    openemr_1  | Starting apache!
+    ```
+5. Navigate to `http://localhost/` to complete the setup
+    - Hit "Continue" on the first two screens
+    - For "Step 2", enter the following info:
+    ```
+    Server Host: mysql
+    Server Port: 3306
+    Database Name: openerm
+    Login Name: openemr
+    Password: ANYTHING YOU WNAT
+    Name for Root Account: root
+    Root Pass: root
+    User Hostname: %
+    UTF-8 Collation: General
+
+    OPENEMR USER:
+        WHATEVER YOU WANT. Just remember what you type in here...
+    ```
+    - Click "Continue" and wait for a few seconds (or minutes), depending on your machine's speed
+    - You should see "Step 3" with a bunch of "OK"s next to each setup step.
+    - Click "Continue" on the rest of the screens to complete the setup.
+6. Make changes to any files on your local file system. Most changes will appear after a refresh of the page or iFrame you're working on...
+    - Note that changes to SCSS files will not automatically show unless the node build process is running. For more info on this, see the [README.md in /interface](interface/README.md)
+7. When you're done, it's best to clean up after yourself with `docker-compose down -v`
+    - If you don't want to build from scratch every time, just use `docker-compose down` so your next `docker-compose up` will use the cached volumes.
+8. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into openemr/openemr#master!
+
+We look forward to your contribution...
+
+If you do not want to use Docker, you can always install OpenEMR directly on your local environment. This will require installing additional dependencies for your operating system. For more info see [OpenEMR Development Versions](https://open-emr.org/wiki/index.php/OpenEMR_Installation_Guides#OpenEMR_Development_Versions) on the wiki.
 
 ## Financial contributions
 

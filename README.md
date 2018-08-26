@@ -8,6 +8,8 @@
 ### Contributing
 OpenEMR is a leader in healthcare open source software. Costly proprietary EMRs are no longer the only option. [Learn how to start contributing today!](http://open-emr.org/wiki/index.php/FAQ#How_do_I_begin_to_volunteer_for_the_OpenEMR_project.3F)
 
+> Already comfortable with git? Check out [CONTRIBUTING.md](CONTRIBUTING.md) for quick setup instructions
+
 ### Support
 
 Community and Professional support can be found [here](http://open-emr.org/wiki/index.php/OpenEMR_Support_Guide).
