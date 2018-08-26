@@ -112,6 +112,9 @@ $setting_mCategory  = prevSetting('', 'setting_mCategories', 'setting_mCategorie
         min-height:400px;
         margin:8px;
     }
+    td {
+        text-align: center;
+    }
     @media (min-width:1200px){
         .auto-clear .col-lg-1:nth-child(12n+1){clear:left;}
         .auto-clear .col-lg-2:nth-child(6n+1){clear:left;}
@@ -158,61 +161,46 @@ $setting_mCategory  = prevSetting('', 'setting_mCategories', 'setting_mCategorie
 <?php common_header($display); ?>
 
     <?php
-        if($_GET['eid'])
-            echo "<script>$(document).ready(function () { ScrollIt(); }); </script>";
+    if ($_GET['eid']) {
+        echo "<script>$(document).ready(function () { ScrollIt(); }); </script>";
+    }
         
-        //require_once($_SERVER['DOCUMENT_ROOT']."/mobile/db/dbfunc.php");
-        //import the needed variables
-        $day = $_GET['day'];
-        $month = $_GET['month'];
-        $provider = $_GET['provider'];
-        $eid = $_GET['eid'];
+        $day        = $_GET['day'];
+        $month      = $_GET['month'];
+        $provider   = $_GET['provider'];
+        $eid        = $_GET['eid'];
         
-        //check for bad data
-        $day = stripslashes($day);
-        $month = stripslashes($month);
-        //$day = mysql_real_escape_string($day);
-        //$month = mysql_real_escape_string($month);
-        $provider = stripslashes($provider);
-        $eid = stripslashes($eid);
-        //$provider = mysql_real_escape_string($provider);
-        //$eid = mysql_real_escape_string($eid);
+        $day        = text($day);
+        $month      = text($month);
+        $provider   = text($provider);
+        $eid        = text($eid);
         
         //if no provider is assigned, return all appointments
-        if(is_null($provider) && empty($provider) || !is_numeric($provider)) {
-            $provider = -1;
-        }
+    if (is_null($provider) && empty($provider) || !is_numeric($provider)) {
+        $provider = '';
+    }
         
         //if no day and month are provided, use the current date
-        if((is_null($day) || empty($day) && is_null($month) || empty($month)) || !is_numeric($day) || !is_numeric($month) ) {
-            $thismonth = ( int ) date("m");
-            $thisyear = date( "Y" );
-            $today = date("j");
-        }
-        
-        else {
-            $thismonth = $month;
-            $thisyear = date( "Y" );
-            $today = $day;
-        }
-        
-        
-        
-        // get this month and this years as an int
-        //$thismonth = ( int ) date("m");
-        //$thisyear = date( "Y" );
-        //$today = date("j");
+    if ((is_null($day) || empty($day) && is_null($month) || empty($month)) || !is_numeric($day) || !is_numeric($month)) {
+        $thismonth  = ( int ) date("m");
+        $thisyear   = date("Y");
+        $today      = date("j");
+    } else {
+        $thismonth = $month;
+        $thisyear = date("Y");
+        $today = $day;
+    }
         // find out the number of days in the month
-        $numdaysinmonth = cal_days_in_month( CAL_GREGORIAN, $thismonth, $thisyear );
+        $numdaysinmonth = cal_days_in_month(CAL_GREGORIAN, $thismonth, $thisyear);
         
         // create a calendar object
-        $jd = cal_to_jd( CAL_GREGORIAN, $thismonth ,date( 1 ), $thisyear );
+        $jd = cal_to_jd(CAL_GREGORIAN, $thismonth, date(1), $thisyear);
         
         // get the start day as an int (0 = Sunday, 1 = Monday, etc)
-        $startday = jddayofweek( $jd , 0 );
+        $startday = jddayofweek($jd, 0);
         
         // get the month as a name
-        $monthname = jdmonthname( $jd, 1 )
+        $monthname = jdmonthname($jd, 1)
     ?>
     <div id="gb-main" class="container-fluid">
         <form id="save_media" name="save_media" action="#" method="post" enctype="multipart/form-data">
@@ -226,9 +214,9 @@ $setting_mCategory  = prevSetting('', 'setting_mCategories', 'setting_mCategorie
                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 custom-file-upload">
                             <table WIDTH="100%">
                                 <tr>
-                                    <td colspan="2" bgcolor="#C0C0C0"><div align="center"><a href=m_cal.php?provider=<?php echo $provider ?>&day=<?php echo $today ?>&month=<?php echo $thismonth-1 ?>><?php echo jdmonthname(cal_to_jd( CAL_GREGORIAN, $thismonth-1 ,date( 1 ), $thisyear ),0) ?></a></div></td>
+                                    <td colspan="2" bgcolor="#C0C0C0"><div align="center"><a href=m_cal.php?provider=<?php echo $provider ?>&day=<?php echo $today ?>&month=<?php echo $thismonth-1 ?>><?php echo jdmonthname(cal_to_jd(CAL_GREGORIAN, $thismonth-1, date(1), $thisyear), 0) ?></a></div></td>
                                     <td colspan="3" bgcolor="#C0C0C0"><div align="center"><strong><?php echo $monthname ?></strong></div></td>
-                                    <td colspan="2" bgcolor="#C0C0C0"><div align="center"><a href=m_cal.php?provider=<?php $provider ?>&day=<?php echo $today ?>&month=<?php echo $thismonth+1 ?>><?php echo jdmonthname(cal_to_jd( CAL_GREGORIAN, $thismonth+1 ,date( 1 ), $thisyear ),0) ?></a></div></td>
+                                    <td colspan="2" bgcolor="#C0C0C0"><div align="center"><a href=m_cal.php?provider=<?php $provider ?>&day=<?php echo $today ?>&month=<?php echo $thismonth+1 ?>><?php echo jdmonthname(cal_to_jd(CAL_GREGORIAN, $thismonth+1, date(1), $thisyear), 0) ?></a></div></td>
                                 </tr>
                                 <tr>
                                     <td><strong>S</strong></td>
@@ -244,45 +232,48 @@ $setting_mCategory  = prevSetting('', 'setting_mCategories', 'setting_mCategorie
                                         // put render empty cells
                                         $emptycells = 0;
                                         
-                                        for( $counter = 0; $counter <  $startday; $counter ++ ) {
-                                            echo "\t\t<td>-</td>\n";
-                                            $emptycells ++;
-                                        }
+                                    for ($counter = 0; $counter <  $startday; $counter ++) {
+                                        echo "\t\t<td>-</td>\n";
+                                        $emptycells ++;
+                                    }
                                         
                                         // renders the days
                                         $rowcounter = $emptycells;
                                         $numinrow = 7;
                                         
-                                        for( $counter = 1; $counter <= $numdaysinmonth; $counter ++ ) {
-                                            $rowcounter ++;
-                                            //don't make a link for today
-                                            if($counter == $today) echo "\t\t<td bgcolor=\"#FF0000\">$counter</td>\n";
-                                            //don't make a link for the weekends
-                                            else if($rowcounter % $numinrow == 0 || $rowcounter ==1) echo "\t\t<td>$counter</td>\n";
-                                            //create a link to switch days
-                                            else echo "\t\t<td><a href=m_cal.php?provider=$provider&day=$counter&month=$thismonth>$counter</a></td>\n";
-                                            
-                                            if( $rowcounter % $numinrow == 0 ) {
-                                                echo "\t</tr>\n";
-                                                
-                                                if( $counter < $numdaysinmonth ) {
-                                                    echo "\t<tr>\n";
-                                                }
-                                                
-                                                $rowcounter = 0;
-                                            }
+                                    for ($counter = 1; $counter <= $numdaysinmonth; $counter ++) {
+                                        $rowcounter ++;
+                                        //don't make a link for today
+                                        if ($counter == $today) {
+                                            echo "\t\t<td bgcolor=\"#FF0000\">$counter</td>\n";
+                                        } //don't make a link for the weekends
+                                        elseif ($rowcounter % $numinrow == 0 || $rowcounter ==1) {
+                                            echo "\t\t<td>$counter</td>\n";
+                                        } //create a link to switch days
+                                        else {
+                                            echo "\t\t<td><a href=m_cal.php?provider=$provider&day=$counter&month=$thismonth>$counter</a></td>\n";
                                         }
+                                            
+                                        if ($rowcounter % $numinrow == 0) {
+                                            echo "\t</tr>\n";
+                                                
+                                            if ($counter < $numdaysinmonth) {
+                                                echo "\t<tr>\n";
+                                            }
+                                                
+                                            $rowcounter = 0;
+                                        }
+                                    }
                                         
                                         // clean up
                                         $numcellsleft = $numinrow - $rowcounter;
                                         
-                                        if( $numcellsleft != $numinrow ) {
-                                            
-                                            for( $counter = 0; $counter < $numcellsleft; $counter ++ ) {
-                                                echo "\t\t<td>-</td>\n";
-                                                $emptycells ++;
-                                            }
+                                    if ($numcellsleft != $numinrow) {
+                                        for ($counter = 0; $counter < $numcellsleft; $counter ++) {
+                                            echo "\t\t<td>-</td>\n";
+                                            $emptycells ++;
                                         }
+                                    }
                                     ?>
                                 </tr>
 
@@ -294,105 +285,94 @@ $setting_mCategory  = prevSetting('', 'setting_mCategories', 'setting_mCategorie
                     <?php
             
                         //query the providers
-                        $qs = "SELECT concat(fname,' ',lname) as name, id FROM users WHERE authorized = 1";
+                        $query = "SELECT concat(fname,' ',lname) as name, id FROM users WHERE authorized = 1";
+                        $prov_results = sqlStatement($query);
             
-            
-                        //die($qs);
-                        //$qy = $db->addQuery($qs);
-                        $rs = sqlStatement($qs);
-            
-                        if (is_null($rs))
-                        {
-                            die("ERROR: Couldn't execute query.");
-                        }
+                    if (is_null($prov_results)) {
+                        die("ERROR: Couldn't execute query.");
+                    }
                         //create the providers table
-                        while ($row = sqlFetchArray($orders)) {
-                            @extract($row);
+                    while ($row = sqlFetchArray($prov_results)) {
+                        @extract($row);
                 
-                            $output = '<TABLE WIDTH="100%"><TR><TD  bgcolor="#C0C0C0">Providers</TD></TR>';
-                            $output .= "<tr><td align=center";
-                            if($provider==-1) $output .= " bgcolor=\"#FF0000\" ";
-                            $output .= "><a href=m_cal.php?day=$today&month=$thismonth&provider=-1>All Providers</a></td></tr>";
-                
-                            $output .= "<TR>";
-                            $output .= "<td align=center";
-                            if ($provider == $row["id"]) {
-                                $output .= " bgcolor=\"#FF0000\" ";
-                            }
-                            $output .= "><a href=m_cal.php?day=$today&month=$thismonth&provider=" . $row["id"] . ">" . $row["name"] . "</a></td>";
-                            $output .= "</TR>";
+                        $output = '<table width="100%"><tr><td bgcolor="#C0C0C0">Providers</td></tr>';
+                        $output .= "<tr><td ";
+                        if (empty($provider)) {
+                            $output .= " bgcolor='#FF0000' ";
                         }
-                        $output .= "</TABLE>";
+                        $output .= "><a href='m_cal.php?day=$today&month=$thismonth&provider=0'>All Providers</a></td></tr>";
+                
+                        $output .= "<tr>";
+                        $output .= "<td ";
+                        if ($provider == $row["id"]) {
+                            $output .= " bgcolor=\"#FF0000\" ";
+                        }
+                        $output .= "><a href=m_cal.php?day=$today&month=$thismonth&provider=" . $row["id"] . ">" . $row["name"] . "</a></td>";
+                        $output .= "</tr>";
+                    }
+                        $output .= "</table>";
                         echo $output;
             
                         //query to get the appointments based on provider and day
-                        $qs = "SELECT pc_eid, concat(fname,' ',lname) as name, pc_startTime, pc_hometext, pc_catname, pc_catcolor FROM openemr_postcalendar_events
-LEFT JOIN patient_data ON openemr_postcalendar_events.pc_pid = patient_data.pid
-LEFT JOIN openemr_postcalendar_categories ON  openemr_postcalendar_events.pc_catid = openemr_postcalendar_categories.pc_catid
-WHERE pc_eventDate = \"$thisyear-$thismonth-$today\"";
+                        $query = "SELECT pc_eid, concat(fname,' ',lname) as name, pc_startTime, pc_hometext, pc_catname, pc_catcolor
+                                FROM openemr_postcalendar_events as e
+                                LEFT OUTER JOIN patient_data as p ON e.pc_pid = p.pid
+                                LEFT JOIN openemr_postcalendar_categories as c ON  e.pc_catid = c.pc_catid
+                                WHERE pc_eventDate = \"$thisyear-$thismonth-$today\"";
             
-                        if($provider>-1) $qs .= " AND pc_aid=$provider";
+                    if (!empty($provider)) {
+                        $query .= " AND e.pc_aid=$provider";
+                    }
             
-                        $qs .= " ORDER BY pc_startTime asc";
+                        $query .= " ORDER BY e.pc_startTime asc";
+                        $result = sqlStatement($query);
             
-                        //die($qs);
-                        //$qy = $db->addQuery($qs);
-                        $qy = sqlStatement($qs);
-            
-                        if (is_null($qy))
-                        {
-                            die("ERROR: Couldn't execute query.");
-                        }
-            
-                        $output = '<TABLE WIDTH="100%">';
+                        $output = '<table width="100%">';
                         //if no appointments are found, output a notice
-                        //if($rs->eof()) $output .= "<TR><TD>No Patients Found</TD></TR>";
+                    if (!$result) {
+                        $output .= "<tr><td>No Patients Found</td></tr>";
+                    }
                         $p_count = 0;
-                        while ($row = sqlFetchArray($qy)) {
-                
-                            $output .= "<TR>";
-
-//save the hometext (note)
-                            $hometext = $row["pc_hometext"];
-//check to see if the appoitment is for a person or location
-                            if(is_null($row["name"])){
-                                //if it is for a location, use the category name
-                                $output .= "<TD ALIGN=center bgcolor=".$row["pc_catcolor"].">";
-                                //check if the appointment has a note
-                                if(!empty($hometext)){
-                                    //change the name to have a * meaning a note is present
-                                    $output .= "<a href=m_cal.php?day=$today&month=$thismonth&provider=$provider&eid=".$row["pc_eid"]."&offset=".$p_count.">";
-                                    $output .= $row["pc_catname"]." *</TD>";
-                                }
-                                //no note
-                                else $output .= $row["pc_catname"]."</TD>";
-                            }
+                    while ($row = sqlFetchArray($result)) {
+                        $output .= "<tr>";
+                        $hometext = $row["pc_hometext"];
+                        //check to see if the appointment is for a person or location
+                        if (is_null($row["name"])) {
+                            //if it is for a location, use the category name
+                            $output .= "<td bgcolor=".$row["pc_catcolor"].">";
+                            //check if the appointment has a note
+                            if (!empty($hometext)) {
+                                //change the name to have a * meaning a note is present
+                                $output .= "<a href='m_cal.php?day=$today&month=$thismonth&provider=$provider&eid=".$row["pc_eid"]."&offset=".$p_count."'>";
+                                $output .= $row["pc_catname"]." *</TD>";
+                            } //no note
                             else {
-                                //otherwise this is a patient
-                                $output .= "<TD ALIGN=center bgcolor=".$row["pc_catcolor"].">";
-                                if(!empty($hometext)){
-                                    //change the name to have a * meaning a note is present
-                                    $output .= "<a href=m_cal.php?day=$today&month=$thismonth&provider=$provider&eid=".$row["pc_eid"]."&offset=".$p_count.">";
-                                    $output .= $row["name"]." *</TD>";
-                                }
-                                else {
-                                    //no note
-                                    $output .= $row["name"]."</TD>";
-                                }
+                                $output .= $row["pc_catname"]."</TD>";
                             }
+                        } else {
+                            //otherwise this is a patient
+                            $output .= "<td bgcolor=".$row["pc_catcolor"].">";
+                            if (!empty($hometext)) {
+                                //change the name to have a * meaning a note is present
+                                $output .= "<a href='m_cal.php?day=$today&month=$thismonth&provider=$provider&eid=".$row["pc_eid"]."&offset=".$p_count."''>";
+                                $output .= $row["name"]." *</td>";
+                            } else {
+                                //no note
+                                $output .= $row["name"]."</td>";
+                            }
+                        }
 //output the time in a clear format
-                            $output .= "<TD ALIGN=center bgcolor=".$row["pc_catcolor"].">".date("g:i a", strtotime($row["pc_startTime"]))."</TD>";
+                        $output .= "<td bgcolor=".$row["pc_catcolor"].">".date("g:i a", strtotime($row["pc_startTime"]))."</td>";
 
 //if the user wants to view a note, show it
-                            if($eid == $row["pc_eid"]){
-                                $output .= "</TR><TR><TD COLSPAN=2>".$row["pc_hometext"]."</TD>";
-                            }
-                
-                            $output .= "</TR>";
-                            $p_count++;
-                
+                        if ($eid == $row["pc_eid"]) {
+                            $output .= "</tr><tr><td colspan='2'>".$row["pc_hometext"]."</td>";
                         }
-                        $output .= "</TABLE>";
+                
+                        $output .= "</tr>";
+                        $p_count++;
+                    }
+                        $output .= "</table>";
             
             
                         $output .= " ";
