@@ -1,0 +1,96 @@
+/**
+ * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
+ * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Kevin Yeh <kevin.y@integralemr.com>
+ * @author  Robert Down <robertdown@live.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @link    http://www.open-emr.org
+ */
+
+#mainBox
+{
+    padding: 0px 5px 0px 0px;
+}
+
+#mainBox .logo {
+    margin:3px 10px 0px 4px;
+    float: right;
+}
+
+#attendantData .patientDataColumn:nth-child(1) span {
+    float: right;
+    margin-right: 5px;
+    margin-left: 12px;
+}
+
+#attendantData .patientDataColumn{
+    float:right;
+}
+
+#attendantData .patientDataColumn:nth-child(1) .patientInfo .ptName span {
+    float: none;
+}
+
+#attendantData .patientDataColumn:nth-child(1) .patientInfo .ptName span:nth-child(2) {
+    margin: 2px;
+}
+
+.appMenu {
+    position: relative;
+    float: right;
+    margin-right: 0px;
+    display: flex;
+    flex-direction: row;
+}
+
+.btn-group.dropdown {
+    float: right;
+    direction: ltr;
+}
+
+.closeButton {
+    display: inline-block;
+    float: left;
+    position: relative;
+    top: 12px;
+    left: 5px;
+    right: 0;
+    transform: scaleX(-1);
+    padding-right: 7px;
+}
+
+#userData
+{
+    float: left;
+}
+.userSection
+{
+    right: 0;
+}
+
+.messagesColumn
+{
+    float: left;
+    padding-left: 20px;
+}
+
+.float-element {
+    float: right;
+}
+
+.menuSection > .menuEntries .menuEntries {
+    right: 161px;
+}

@@ -41,10 +41,10 @@ assets:
         autoload: true
         allowNoLoad: true
     tabs-theme:
-        basePath: %webroot%/interface/themes/
+        basePath: %webroot%/public/themes/
         link: %theme_tabs_layout%
         rtl:
-            basePath: %webroot%/interface/themes/
+            basePath: %webroot%/public/themes/
             link: rtl_%theme_tabs_layout%
     knockout:
         basePath: %assets_static_relative%/knockout/build/output/
