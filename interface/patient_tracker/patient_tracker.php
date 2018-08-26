@@ -943,7 +943,8 @@ if (!$_REQUEST['flb_table']) { ?>
 
 exit;
 
-function myLocalJS() {
+function myLocalJS()
+{
                     ?>
                     <script type="text/javascript">
                         var auto_refresh = null;
@@ -955,10 +956,10 @@ function myLocalJS() {
                              $(this).attr('allowFullscreen', 'true');
                         }
                         <?php
-        if ($_REQUEST['kiosk'] == '1') { ?>
+                        if ($_REQUEST['kiosk'] == '1') { ?>
                         $("[name='kiosk_hide']").hide();
                         $("[name='kiosk_show']").show();
-        <?php } else { ?>
+                        <?php } else { ?>
                         $("[name='kiosk_hide']").show();
                         $("[name='kiosk_show']").hide();
                         <?php  }   ?>
