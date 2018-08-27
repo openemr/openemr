@@ -94,3 +94,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 #IfNotRow2Dx2 list_options list_id proc_type option_id for title Custom Favorite Item
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','for','Custom Favorite Item' ,60,0);
 #EndIf
+
+#IfMissingColumn lists list_option_id
+ALTER TABLE `lists` ADD `list_option_id` VARCHAR (100) DEFAULT NULL COMMENT 'Reference to list_options table' AFTER `external_id`;
+#EndIf
