@@ -170,9 +170,8 @@ if (($_REQUEST['pid']) && ($_REQUEST['action'] == "new_recall")) {
      */
     $query = "SELECT ORDER_DETAILS FROM form_eye_mag_orders WHERE PID=? AND ORDER_DATE_PLACED < NOW() ORDER BY ORDER_DATE_PLACED DESC LIMIT 1";
     $result2 = sqlQuery($query, array($_REQUEST['pid']));
-    if ($result2) {
-        $result['PLAN'] = str_replace("|", " - ", $result2['ORDER_DETAILS']);
-        $result['PLAN'] = rtrim($result['PLAN'], "- ");
+    if (!empty($result2)) {
+        $result['PLAN'] = $result2['ORDER_DETAILS']);
     }
     
     $query = "SELECT * FROM openemr_postcalendar_events WHERE pc_pid =? ORDER BY pc_eventDate DESC LIMIT 1";
