@@ -3897,8 +3897,13 @@ if ($refresh and $refresh != 'fullscreen') {
         echo $output;
     }
     ?>
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-panelslider-0-1-1/jquery.panelslider.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-panelslider/jquery.panelslider.js"></script>
     <!-- Undo code -->
+<<<<<<< HEAD
+    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/undone.js-0-0-1/undone.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/undone.js-0-0-1/jquery.undone.js"></script>
+    <script>
+=======
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/undone.js-0-0-1/undone.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/undone.js-0-0-1/jquery.undone.js"></script>
     <script language="JavaScript">
@@ -3996,6 +4001,7 @@ if ($refresh and $refresh != 'fullscreen') {
         <?php
         } ?>
 
+>>>>>>> master
         $.undone();
 
         $("#undo, #redo, #clear").click(function(){

@@ -1,4 +1,17 @@
-/vendor/**/.git
+# logs
 /logs
+
+# environment vars
 .env
+
+# vendor and assets
+node_modules
+/vendor/*
+/public/assets/*
+/public/themes/*
+!/public/assets/manual-added-packages
+!/public/assets/modified
+/.docs/.out/*
+
+# dev editor configs
 /.idea/*

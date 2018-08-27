@@ -295,52 +295,33 @@ if ($_REQUEST['REFTYPE']) {
 }
 
 if ($_REQUEST['dispensed']) {
-    $query      = "SELECT * from form_eye_mag_dispense where pid =? ORDER BY date DESC";
-    $dispensed  = sqlStatement($query, array($_REQUEST['pid']));
-    //could put Robert's header here
-    ?>
-    <html>
-<title><?php echo xlt('Rx Dispensed History'); ?></title>
-<head>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-10-2/index.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.js"></script>
+    $query = "SELECT * from form_eye_mag_dispense where pid =? ORDER BY date DESC";
+    $dispensed = sqlStatement($query, array($_REQUEST['pid']));
+    ?><html>
+    <title><?php echo xlt('Rx Dispensed History'); ?></title>
+    <head>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-1-10-2/jquery.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/qtip2-2-2-1/jquery.qtip.min.js"></script>
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 
-    <link rel="stylesheet"
-          href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
-    <link rel="stylesheet"
-          href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-10-4/themes/ui-lightness/jquery-ui.min.css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.css"/>
-    <link rel="stylesheet"
-          href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-themes-1-10-4/themes/ui-lightness/jquery-ui.min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure/0.5.0/pure-min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/qtip2-2-2-1/jquery.qtip.min.css" />
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
 
     <style>
         .refraction {
-            top: 1in;
-            float: left;
-            min-height: 1.0in;
+            top:1in;
+            float:left;
+            min-height:1.0in;
             border: 1.00pt solid #000000;
-            padding: 5px;
+            padding: 5;
             border-radius: 8px;
-            margin: 5px auto;
-        }
-
-        .refraction td {
-            text-align: center;
-            font-size: 8pt;
-            padding: 2;
-            text-decoration: none;
-        }
-
-        table {
-            font-size: 1.0em;
-            padding: 2px;
-            color: black;
-            vertical-align: text-top;
+            margin: 5 auto;
         }
 
         input[type=text] {
@@ -636,55 +617,49 @@ if ($_REQUEST['dispensed']) {
     exit;
 }
 
-ob_start();
-?>
-<html>
-<head>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-10-2/index.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.js"></script>
+   ob_start();
+    ?>
+    <html>
+    <head>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-1-10-2/jquery.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/qtip2-2-2-1/jquery.qtip.min.js"></script>
 
-    <link rel="stylesheet"
-          href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
-    <link rel="stylesheet"
-          href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-10-4/themes/ui-lightness/jquery-ui.min.css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.css"/>
-    <link rel="stylesheet"
-          href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-themes-1-10-4/themes/ui-lightness/jquery-ui.min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure/0.5.0/pure-min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/qtip2-2-2-1/jquery.qtip.min.css" />
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
 
     <style>
         .title {
-            font-size: 1em;
-            position: absolute;
-            right: 10px;
-            top: 30px;
+            font-size:1em;
+            position:absolute;
+            right:10px;
+            top:30px;
             font-size: 1em;
         }
-
         .refraction {
-            top: 1in;
-            float: left;
-            min-height: 1.0in;
+            top:1in;
+            float:left;
+            min-height:1.0in;
             border: 1.00pt solid #000000;
             padding: 5;
             box-shadow: 10px 10px 5px #888888;
             border-radius: 8px;
             margin: 5 auto 10 10;
-            width: 5.0in;
+            width:5.0in;
         }
-
         .refraction td {
-            text-align: center;
-            font-size: 8pt;
-            padding: 5;
-            width: 0.35in;
+            text-align:center;
+            font-size:8pt;
+            padding:5;
+            width:0.35in;
             vertical-align: text-middle;
             text-decoration: none;
         }
-
         table {
             font-size: 1.0em;
             padding: 2px;
