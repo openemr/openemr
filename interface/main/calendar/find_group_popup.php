@@ -168,7 +168,7 @@ if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
     </style>
 
     <script type="text/javascript"
-            src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
+            src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/jquery-min-1-2-2/index.js"></script>
     <!-- ViSolve: Verify the noresult parameter -->
     <?php
     if (isset($_GET["res"])) {

@@ -608,7 +608,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                     if ($userMode) {
                         $globalTitle = $globalValue;
                     }
-                    $themedir = "$webserver_root/interface/themes";
+                    $themedir = "$webserver_root/public/themes";
                     $dh = opendir($themedir);
                     if ($dh) {
                         // Collect styles

@@ -1,9 +1,0 @@
-{
-    "title": "Zend\\Code",
-    "target": "html/",
-    "content": [
-        "book/zend.code.generator.introduction.md",
-        "book/zend.code.generator.reference.md",
-        "book/zend.code.generator.examples.md"
-    ]
-}

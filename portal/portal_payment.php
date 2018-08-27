@@ -343,7 +343,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
 
 <title><?php echo xlt('Receipt for Payment'); ?></title>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-11-3/jquery.js"></script>
 <script type="text/javascript">
 $( document ).ready();
 function goHome(){
@@ -441,7 +441,7 @@ body {
     font-weight: normal
 }
 </style>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-creditcardvalidator-1-1-0/jquery.creditCardValidator.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript">

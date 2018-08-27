@@ -7,7 +7,7 @@ include_once("../../../custom/code_types.inc.php");
 <?php html_header_show();?>
 
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/jquery-min-1-2-2/index.js"></script>
 
 <!-- DBC STUFF ================ -->
 
