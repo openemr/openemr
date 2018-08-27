@@ -2762,6 +2762,7 @@ var allPanels = $('.building_blocks > dd').hide();
                                var imagine = $("#PREFS_"+header+"_VIEW").val();
                                imagine ^= true;
                                $("#PREFS_"+header+"_VIEW").val(imagine);
+                               update_PREFS();
                               }
                                return false;
                                });
@@ -3239,7 +3240,7 @@ var allPanels = $('.building_blocks > dd').hide();
                                                 $sql="SELECT * from list_options where list_id = 'Eye_Defaults_for_GENERAL'";
                                                 $start= sqlStatement($sql);
                                                 while ($val= sqlFetchArray($start)) {
-                                                    $add_fields .= "('Eye_defaults_".$providerID."','".$val['option_id']."','".$val['title']."','".$val['notes']."','".$val['activity']."','".$val['seq']."'),";
+                                                    $add_fields .= "('Eye_defaults_".$providerID."','".$val['option_id']."','".$val['title']."','".$val['notes']."','1','".$val['seq']."'),";
                                                 }
                                                 $add_fields = rtrim($add_fields, ",");
                                                 $query = "SELECT max(seq) as maxseq FROM list_options WHERE list_id= 'lists'";
