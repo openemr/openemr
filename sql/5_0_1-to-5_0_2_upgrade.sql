@@ -96,5 +96,5 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 #EndIf
 
 #IfMissingColumn lists list_option_id
-ALTER TABLE `lists` ADD `list_option_id` VARCHAR (100) DEFAULT NULL COMMENT 'Reference to list_options table' AFTER `external_id`;
+ALTER TABLE `lists` ADD `list_option_id` VARCHAR (100) DEFAULT NULL COMMENT 'Reference to list_options table';
 #EndIf
