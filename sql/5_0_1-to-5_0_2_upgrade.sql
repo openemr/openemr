@@ -593,3 +593,7 @@ INSERT INTO `form_eye_locking` (`id`, `pid`, `IMP`, `PLAN`, `Resource`, `Technic
 
 DROP TABLE `form_eye_mag`;
 #EndIf
+
+#IfMissingColumn lists list_option_id
+ALTER TABLE `lists` ADD `list_option_id` VARCHAR (100) DEFAULT NULL COMMENT 'Reference to list_options table';
+#EndIf
