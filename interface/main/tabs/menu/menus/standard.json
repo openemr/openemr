@@ -39,8 +39,8 @@
         "children": [],
         "requirement": 0,
         "acl_req": [
-          "patients",
-          "appt"
+          "menu",
+          "recall_board"
         ],
     "global_req_strict": [
       "!disable_rcb"

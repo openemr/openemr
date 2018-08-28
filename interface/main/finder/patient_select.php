@@ -140,8 +140,6 @@ if ($popup) {
   // Construct WHERE clause and save search parameters as form fields.
     $sqlBindArray = array();
     $where = "1 = 1";
-// put check for administrator here
-//admin sees all patients, everybody else sees just their own
     $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
     "ORDER BY group_id, seq");
