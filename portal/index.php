@@ -110,9 +110,9 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
         Header::setupHeader(['datetime-picker']);
         //$GLOBALS['css_header'] = $css;
     ?>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery.gritter-1-7-4/js/jquery.gritter.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery.gritter-1-7-4/css/jquery.gritter.css" />
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/emodal-1-2-65/dist/eModal.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/gritter/js/jquery.gritter.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['assets_static_relative']; ?>/gritter/css/jquery.gritter.css" />
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/emodal-1-2-65/dist/eModal.js"></script>
     <link rel="stylesheet" type="text/css" href="assets/css/base.css?v=<?php echo $v_js_includes; ?>" />
     <link rel="stylesheet" type="text/css" href="assets/css/register.css?v=<?php echo $v_js_includes; ?>" />
 <script type="text/javascript">
@@ -349,7 +349,7 @@ $(document).ready(function() {
 
 <?php // if something went wrong
 if (isset($_GET['requestNew'])) {
-    $_SESSION['patient_portal_onsite_two'] = true;
+    $_SESSION['register'] = true;
     $_SESSION['authUser'] = 'portal-user';
     $_SESSION['pid'] = true;
     ?>

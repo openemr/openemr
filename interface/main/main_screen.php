@@ -38,6 +38,9 @@ if (isset($_POST['new_login_session_management'])) {
   // This is not a new login, so create a new session id and do NOT remove the old session
     session_regenerate_id(false);
 }
+// Create the csrf_token
+$_SESSION['csrf_token'] = createCsrfToken();
+
 
 $_SESSION["encounter"] = '';
 
@@ -146,7 +149,7 @@ if ($GLOBALS['new_tabs_layout']) {
 <title>
 <?php echo text($openemr_name) ?>
 </title>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-9-1/jquery.min.js"></script>
 <script type="text/javascript" src="../../library/topdialog.js"></script>
     <script type="text/javascript" src="tabs/js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
 

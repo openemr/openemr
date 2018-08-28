@@ -302,7 +302,7 @@ height: ${page_height}pt;
 </style>";
 
 $html .= "<title>" . htmlspecialchars($frow['name']) . "</title>
-<script type='text/javascript' src='" . $GLOBALS['assets_static_relative'] . "/jquery-min-1-2-2/index.js'></script>
+<script type='text/javascript' src='" . $GLOBALS['assets_static_relative'] . "/manual-added-packages/jquery-min-1-2-2/index.js'></script>
 <script type=\"text/javascript\" src=\"../../library/dialog.js?v=" . $v_js_includes . "\"></script>
 <script language=\"JavaScript\">";
 
@@ -393,7 +393,7 @@ foreach ($pid_list as $pid) {
             $html .= ":<br />";
 
             if ($form_fill) {
-                $html .= $patdata['fname'] . ' ' . $patdata['mname'] . ' ' . $patdata['lname'] . "<br />\n";
+                $html .= text($patdata['fname'] . ' ' . $patdata['mname'] . ' ' . $patdata['lname']) . "<br />\n";
                 $html .= $patdata['street'] . "<br />\n";
                 $html .= $patdata['city'] . ', ' . $patdata['state'] . ' ' . $patdata['postal_code'] . "\n";
             }

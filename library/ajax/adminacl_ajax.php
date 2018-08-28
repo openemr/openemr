@@ -24,7 +24,12 @@ header("Cache-Control: no-cache");
 //initiate error array
 $error = array();
 
-//PENDING, need to clean this up on client side
+//verify csrf
+if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+    echo error_xml(xl('Authentication Error'));
+    exit;
+}
+
 //ensure user has proper access
 if (!acl_check('admin', 'acl')) {
     echo error_xml(xl('ACL Administration Not Authorized'));

@@ -52,7 +52,7 @@ if (trim($_POST['contextname'])!='' && $_POST['action']=='add') {
         .class2{background-color:#b1c0a5}
         </style>
         <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
         <script type="text/javascript">
             $(document).ready(function() {
             $('#contextadd').hide();

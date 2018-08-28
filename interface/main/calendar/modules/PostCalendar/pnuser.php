@@ -80,7 +80,7 @@ function postcalendar_user_view()
     if (!isset($viewtype)) {
         $viewtype = _SETTING_DEFAULT_VIEW;
     }
-    
+
     // added to allow the view & providers to remain as the user last saw it -- JRM
     if ($_SESSION['viewtype']) {
         $viewtype = $_SESSION['viewtype'];
@@ -239,8 +239,8 @@ function postcalendar_user_deleteevents()
     $events_column = &$pntable['postcalendar_events_column'];
     //hipaa doesn't allow for actual deletes, so just change to inactive
     //$sql = "DELETE FROM $events_table WHERE $events_column[eid] = '$pc_eid'";
-    $sql = "UPDATE $events_table SET pc_eventstatus = 0 WHERE $events_column[eid] = '$pc_eid'";
-    $dbconn->Execute($sql);
+    $sql = "UPDATE $events_table SET pc_eventstatus = 0 WHERE $events_column[eid] = ?";
+    $dbconn->Execute($sql, array($pc_eid));
     $tpl = new pcSmarty();
     $template_name = _SETTING_TEMPLATE;
     if (!isset($template_name)) {
@@ -276,8 +276,8 @@ function delete_event($title)
     $events_column = &$pntable['postcalendar_events_column'];
     //this function is only used by the system to delete temp events used in certain
     //collision calculations
-    $sql = "DELETE FROM $events_table WHERE pc_eventstatus = " ._EVENT_TEMPORARY ." AND pc_title = '$title'";
-    $dbconn->Execute($sql);
+    $sql = "DELETE FROM $events_table WHERE pc_eventstatus = ? AND pc_title = ?";
+    $dbconn->Execute($sql, array(_EVENT_TEMPORARY, $title));
     if ($dbconn->ErrorNo() != 0) {
         return 0;
     } else {
@@ -789,7 +789,7 @@ function postcalendar_user_submit($args)
             $old_dur_hours = $eventdata['event_dur_hours'];
             $old_dur_min = $eventdata['event_dur_minutes'];
             $old_duration = $eventdata['event_duration'];
-            $eventdata['event_subject'] = add_escape_custom($ekey);
+            $eventdata['event_subject'] = $ekey;
             $eventdata['event_status'] = _EVENT_TEMPORARY;
 
             if (!pnModAPIFunc(__POSTCALENDAR__, 'user', 'submitEvent', $eventdata)) {
@@ -800,7 +800,7 @@ function postcalendar_user_submit($args)
                 $error_msg .= $output->Text($dbconn->ErrorMsg());
             }
 
-            $searchargs['s_keywords'] = " (a.pc_catid = 2 OR a.pc_catid = 3) AND a.pc_title = '" . $eventdata['event_subject']  . "' ";
+            $searchargs['s_keywords'] = " (a.pc_catid = 2 OR a.pc_catid = 3) AND a.pc_title = '" . add_escape_custom($eventdata['event_subject'])  . "' ";
             $searchargs['event_status'] = _EVENT_TEMPORARY;
             $submitEventByDate =& postcalendar_userapi_pcGetEvents($searchargs);
 
@@ -929,7 +929,7 @@ function postcalendar_user_submit($args)
                 $Date=$year=$month=$day=$pc_html_or_text=$event_patient_name=$evnet_pid=null;
                 $is_update = false;
                 $pc_event_id = 0;
-    
+
                 //$_SESSION['category'] = "";
                 // lets wrap all the data into array for passing to submit and preview functions
                 $eventdata = compact(
@@ -1004,7 +1004,7 @@ function postcalendar_user_search()
     }
 
     $tpl = new pcSmarty();
-    $k = formData("pc_keywords", "R"); //from library/formdata.inc.php
+    $k = isset($_REQUEST['pc_keywords']) ? pnVarCleanFromInput($_REQUEST['pc_keywords']) : '';
     $k_andor = pnVarCleanFromInput('pc_keywords_andor');
     $pc_category = pnVarCleanFromInput('pc_category');
     $pc_facility = pnVarCleanFromInput('pc_facility');
@@ -1020,12 +1020,12 @@ function postcalendar_user_search()
     $cat_options = '';
     foreach ($categories as $category) {
         $selected = "";
-        if ($pc_category == $category[id]) {
+        if ($pc_category == $category['id']) {
             $selected = " SELECTED ";
         }
 
     //modified 8/09 by BM to allow translation if applicable
-        $cat_options .= "<option value=\"$category[id]\" $selected>" . xl_appt_category($category[name]) . "</option>";
+        $cat_options .= "<option value=\"" . attr($category['id']) . "\" $selected>" . text(xl_appt_category($category[name])) . "</option>";
     }
 
     $tpl->assign_by_ref('CATEGORY_OPTIONS', $cat_options);
@@ -1064,7 +1064,7 @@ function postcalendar_user_search()
         $provider_options .= " SELECTED ";
     }
 
-    $provider_options .= ">" . xl('All Providers') . "</option>";
+    $provider_options .= ">" . xlt('All Providers') . "</option>";
     foreach ($provinfo as $provider) {
         $selected = "";
         // if we don't have a ProviderID chosen, pick the first one from the
@@ -1078,23 +1078,23 @@ function postcalendar_user_search()
             $selected = " SELECTED ";
         }
 
-        $provider_options .= "<option value=\"".$provider['id']."\" ".$selected.">";
-        $provider_options .= $provider['lname'].", ".$provider['fname']."</option>";
+        $provider_options .= "<option value=\"" . attr($provider['id']) . "\" ".$selected.">";
+        $provider_options .= text($provider['lname']).", ".text($provider['fname'])."</option>";
     }
 
     $tpl->assign_by_ref('PROVIDER_OPTIONS', $provider_options);
 
     // build a list of facility options for the select box on the input form -- JRM
     $facilities = getFacilities();
-    $fac_options = "<option value=''>" . xl('All Facilities') . "</option>";
+    $fac_options = "<option value=''>" . xlt('All Facilities') . "</option>";
     foreach ($facilities as $facility) {
         $selected = "";
         if ($facility['id'] == $pc_facility) {
             $selected = " SELECTED ";
         }
 
-        $fac_options .= "<option value=\"".$facility['id']."\" ".$selected.">";
-        $fac_options .= $facility['name']."</option>";
+        $fac_options .= "<option value=\"" . attr($facility['id']) . "\" ".$selected.">";
+        $fac_options .= text($facility['name']) . "</option>";
     }
 
     $tpl->assign_by_ref('FACILITY_OPTIONS', $fac_options);
@@ -1174,7 +1174,7 @@ function postcalendar_user_search()
         $topics = postcalendar_userapi_getTopics();
         $top_options = '';
         foreach ($topics as $topic) {
-            $top_options .= "<option value=\"$topic[id]\">$topic[text]</option>";
+            $top_options .= "<option value=\"" . attr($topic['id']) . "\">" . text($topic['text']) . "</option>";
         }
 
         $tpl->assign_by_ref('TOPIC_OPTIONS', $top_options);
@@ -1232,7 +1232,7 @@ function postcalendar_user_search()
         $searchargs['patient_id'] = pnVarCleanFromInput("patient_id");
         $searchargs['listappsFlag'] = true;
 
-        $sqlKeywords .= "(a.pc_pid = '" . pnVarCleanFromInput("patient_id") . "' )";
+        $sqlKeywords .= "(a.pc_pid = '" . add_escape_custom(pnVarCleanFromInput("patient_id")) . "' )";
 
         $searchargs['s_keywords'] = $sqlKeywords;
         //print_r($searchargs);
@@ -1254,23 +1254,23 @@ function postcalendar_user_search()
             }
 
             $sqlKeywords .= '(';
-            $sqlKeywords .= "pd.lname LIKE '%$word%' OR ";
-            $sqlKeywords .= "pd.fname LIKE '%$word%' OR ";
-            $sqlKeywords .= "u.lname LIKE '%$word%' OR ";
-            $sqlKeywords .= "u.fname LIKE '%$word%' OR ";
-            $sqlKeywords .= "a.pc_title LIKE '%$word%' OR ";
-            $sqlKeywords .= "a.pc_hometext LIKE '%$word%' OR ";
-            $sqlKeywords .= "a.pc_location LIKE '%$word%'";
+            $sqlKeywords .= "pd.lname LIKE '%" . add_escape_custom($word) . "%' OR ";
+            $sqlKeywords .= "pd.fname LIKE '%" . add_escape_custom($word) . "%' OR ";
+            $sqlKeywords .= "u.lname LIKE '%" . add_escape_custom($word) . "%' OR ";
+            $sqlKeywords .= "u.fname LIKE '%" . add_escape_custom($word) . "%' OR ";
+            $sqlKeywords .= "a.pc_title LIKE '%" . add_escape_custom($word) . "%' OR ";
+            $sqlKeywords .= "a.pc_hometext LIKE '%" . add_escape_custom($word) . "%' OR ";
+            $sqlKeywords .= "a.pc_location LIKE '%" . add_escape_custom($word) . "%'";
             $sqlKeywords .= ') ';
         }
 
 
         if (!empty($pc_category)) {
-            $s_category = "a.pc_catid = '$pc_category'";
+            $s_category = "a.pc_catid = '" . add_escape_custom($pc_category) . "'";
         }
 
         if (!empty($pc_topic)) {
-            $s_topic = "a.pc_topic = '$pc_topic'";
+            $s_topic = "a.pc_topic = '" . add_escape_custom($pc_topic) . "'";
         }
 
         $searchargs = array();
@@ -1285,7 +1285,7 @@ function postcalendar_user_search()
         if (!empty($s_topic)) {
             $searchargs['s_topic'] = $s_topic;
         }
-    
+
         // some new search parameters introduced in the ajax_search form...  JRM March 2008
 
         // the ajax_search form has form parameters for 'start' and 'end' already built in
@@ -1346,13 +1346,13 @@ function checkCategoryLimits($eventdata)
             $stime = date("H:i:00", strtotime($limit['startTime']));
             $etime = date("H:i:00", strtotime($limit['endTime']));
             if ($is_update) {
-                $searchText = "a.pc_eid != '$pc_event_id' AND ";
+                $searchText = "a.pc_eid != '" . add_escape_custom($pc_event_id) . "' AND ";
             }
 
             //echo "stime is: $stime, etime is: $etime sdate is: $sdate edate is: $edate<br />";
-            $a = array('s_category' => " a.pc_catid = $event_category",'start'=>$edate,
+            $a = array('s_category' => " a.pc_catid = '" . add_escape_custom($event_category) . "'",'start'=>$edate,
                 'end'=>$sdate, 'stime' => $stime, 'etime' => $etime,'providerID'=>$event_userid,
-                's_keywords'=>$searchText."a.pc_starttime >= '$stime' AND a.pc_endtime <= '$etime'");
+                's_keywords'=>$searchText."a.pc_starttime >= '" . add_escape_custom($stime) . "' AND a.pc_endtime <= '" . add_escape_custom($etime) . "'");
             $eventsByDate =& postcalendar_userapi_pcGetEvents($a);
             //print_r($eventsByDate);
             $ret = null;

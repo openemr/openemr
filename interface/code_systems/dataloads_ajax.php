@@ -50,7 +50,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
 <link rel='stylesheet' href='../../library/css/jquery-ui-1.8.21.custom.css' type='text/css'/>
 
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-7-2/jquery.min.js"></script>
 <script type="text/javascript" src="../../library/js/jquery-ui-1.8.21.custom.min.js"></script>
 <script>
 

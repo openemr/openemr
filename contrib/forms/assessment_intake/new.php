@@ -1,6 +1,6 @@
 <?php
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
 formHeader("Form: assessment_intake");
 ?>
 <html><head>
@@ -17,23 +17,23 @@ formHeader("Form: assessment_intake");
  onclick="top.restoreSession()">[Don't Save]</a></center>
 <br>
 
-<?php $res = sqlStatement("SELECT fname,mname,lname,ss,street,city,state,postal_code,phone_home,DOB FROM patient_data WHERE pid = $pid");
+<?php $res = sqlStatement("SELECT fname,mname,lname,ss,street,city,state,postal_code,phone_home,DOB FROM patient_data WHERE pid = ?", array($pid));
 $result = SqlFetchArray($res); ?>
-<b>Name:</b>&nbsp; <?php echo $result['fname'] . '&nbsp' . $result['mname'] . '&nbsp;' . $result['lname'];?> 
+<b>Name:</b>&nbsp; <?php echo text($result['fname']) . '&nbsp' . text($result['mname']) . '&nbsp;' . text($result['lname']);?>
 <img src="../../../images/space.gif" width="572" height="1">
 <b>Date:</b>&nbsp; <?php print date('m/d/y'); ?><br><br>
-<b>SSN:</b>&nbsp;<?php echo $result['ss'];?><img src="../../../images/space.gif" width="172" height="1">
+<b>SSN:</b>&nbsp;<?php echo text($result['ss']);?><img src="../../../images/space.gif" width="172" height="1">
 <label><b>DCN:</b>&nbsp;<input type="text" name="dcn"></label><img src="../../../images/space.gif" width="125" height="1">
 <label><b>Location:</b>&nbsp;<input type="text" name="location"></label><br><br>
-<b>Address:</b>&nbsp; <?php echo $result['street'] . ',&nbsp' . $result['city']  . ',&nbsp' . $result['state'] . '&nbsp;' . $result['postal_code'];?><br><br>
-<b>Telephone Number:</b>&nbsp; <?php echo $result['phone_home'];?><img src="../../../images/space.gif" width="400" height="1"> 
-<b>Date of Birth:</b>&nbsp;<?php echo $result['DOB'];?><br><br>
+<b>Address:</b>&nbsp; <?php echo text($result['street']) . ',&nbsp' . text($result['city'])  . ',&nbsp' . text($result['state']) . '&nbsp;' . text($result['postal_code']);?><br><br>
+<b>Telephone Number:</b>&nbsp; <?php echo text($result['phone_home']);?><img src="../../../images/space.gif" width="400" height="1">
+<b>Date of Birth:</b>&nbsp;<?php echo text($result['DOB']);?><br><br>
 <label><b>Time In:</b>&nbsp;<input type="text" name="time_in"></label><img src="../../../images/space.gif" width="65" height="1">
 <label><b>Time Out:</b>&nbsp;<input type="text" name="time_out"></label><img src="../../../images/space.gif" width="65" height="1">
 <label><b>Referral Source:</b>&nbsp;<input type="text" name="referral_source"></label><br><br>
 <b>Purpose:</b>&nbsp; <input type=checkbox name='new_client_eval'  ><b>New client evaluation</b><img src="../../../images/space.gif" width="10" height="1">
 <input type=checkbox name='readmission'  ><b>Readmission</b><img src="../../../images/space.gif" width="35" height="1">
-<input type=checkbox name='consultation' ><b>Consultation</b><br><br> 
+<input type=checkbox name='consultation' ><b>Consultation</b><br><br>
 <label><b>Copy sent to:</b>&nbsp;<input type="text" name="copy_sent_to"></label><br><br>
 <b>Why is Assessment being requested (Goals and treatment expectations of the individual requesting services):</b><br>
 <textarea cols=100 rows=3 wrap=virtual name="reason_why" ></textarea><br>
@@ -127,7 +127,7 @@ $result = SqlFetchArray($res); ?>
     <input type=checkbox name='risk_homocide_iwom'  >&nbsp;<b>Intent without means</b>
     <img src="../../../images/space.gif" width="5" height="1">
     <input type=checkbox name='risk_homocide_iwm'  >&nbsp;<b>Intent with means</b><br>
-<br>	
+<br>
 <b>Compliance with treatment:</b><br><input type=checkbox name='risk_compliance_na'  >&nbsp;<b>Not Assessed</b>
     <img src="../../../images/space.gif" width="5" height="1">
     <input type=checkbox name='risk_compliance_fc'  >&nbsp;<b>Full compliance</b>
@@ -139,7 +139,7 @@ $result = SqlFetchArray($res); ?>
     <input type=checkbox name='risk_compliance_var'  >&nbsp;<b>Variable</b>
     <img src="../../../images/space.gif" width="5" height="1">
     <input type=checkbox name='risk_compliance_no'  >&nbsp;<b>Little or no compliance</b><br>
-<br>	
+<br>
 <b>Substance Abuse:</b><br><input type=checkbox name='risk_substance_na'  >&nbsp;<b>Not Assessed</b>
     <img src="../../../images/space.gif" width="5" height="1">
     <input type=checkbox name='risk_substance_none'  >&nbsp;<b>None/normal use:</b><br>
@@ -151,7 +151,7 @@ $result = SqlFetchArray($res); ?>
     <input type=checkbox name='risk_substance_ur'  >&nbsp;<b>Unstable remission of abuse</b>
     <img src="../../../images/space.gif" width="5" height="1">
     <input type=checkbox name='risk_substance_ab'  >&nbsp;<b>Abuse</b><br>
-<br>	
+<br>
 <b>Current physical or sexual abuse:</b><br><input type=checkbox name='risk_sexual_na'  >&nbsp;<b>Not Assessed</b>
     <img src="../../../images/space.gif" width="5" height="1">
     <input type=checkbox name='risk_sexual_y'>&nbsp;<b>Yes</b>
@@ -192,10 +192,10 @@ $result = SqlFetchArray($res); ?>
     <input type=checkbox name='risk_exists_o'>&nbsp;<b>others</b>
     <img src="../../../images/space.gif" width="5" height="1">
     <input type=checkbox name='risk_exists_b'>&nbsp;<b>both</b><br><br>
-    
+
     <b>Risk to community (criminal):</b><br>
     <textarea cols=100 rows=3 wrap=virtual name="risk_community" ></textarea><br>
-    
+
 <b><u>Assessment Recommendations:</u></b><br><br>
 
 <b>Outpatient Psychotherapy:</b>
@@ -229,7 +229,7 @@ $result = SqlFetchArray($res); ?>
     <textarea cols=100 rows=1 wrap=virtual name="supervision_res" ></textarea><br>
     <b>Support services needed:</b><br>
     <textarea cols=100 rows=1 wrap=virtual name="supervision_services" ></textarea><br>
-        
+
     <input type=checkbox name='support_ps'>&nbsp;<b>Parenting skills/child management</b>
     <img src="../../../images/space.gif" width="5" height="1">
     <input type=checkbox name='support_cs'>&nbsp;<b>Communication skills</b>
@@ -240,7 +240,7 @@ $result = SqlFetchArray($res); ?>
     <img src="../../../images/space.gif" width="5" height="1">
     <input type=checkbox name='support_o'>&nbsp;<b>Other</b><br>
     <textarea cols=100 rows=1 wrap=virtual name="support_ol" ></textarea><br><br>
-    
+
 <b>Legal Services:</b>
     <img src="../../../images/space.gif" width="5" height="1">
     <input type=checkbox name='legal_op'>&nbsp;<b>Offender program</b>
@@ -248,7 +248,7 @@ $result = SqlFetchArray($res); ?>
     <input type=checkbox name='legal_so'>&nbsp;<b>Sex Offender Groups</b>
     <img src="../../../images/space.gif" width="5" height="1">
     <input type=checkbox name='legal_sa'>&nbsp;<b>Substance abuse</b><br>
-    
+
     <input type=checkbox name='legal_ve'>&nbsp;<b>Victum empathy group</b>
     <img src="../../../images/space.gif" width="5" height="1">
     <input type=checkbox name='legal_ad'>&nbsp;<b>Referral to advocate</b>
@@ -256,12 +256,12 @@ $result = SqlFetchArray($res); ?>
     <input type=text name='legal_adl'>
     <img src="../../../images/space.gif" width="5" height="1"><br>
     <input type=checkbox name='legal_o'>&nbsp;<b>Other:</b>
-    
+
     <br>
 
     <b>Other:</b><br>
     <textarea cols=100 rows=1 wrap=virtual name="legal_ol" ></textarea><br><br>
-    
+
 <b><u>Referrals for Continuing Services</u></b><br><br>
 
 <b>Psychiatric Evaluation Psychotropic Medications:</b><br>
@@ -269,19 +269,19 @@ $result = SqlFetchArray($res); ?>
 
 <b>Medical Care:</b><br>
     <textarea cols=100 rows=2 wrap=virtual name="referrals_mc" ></textarea><br><br>
-    
+
 <b>Educational/vocational services:</b><br>
     <textarea cols=100 rows=2 wrap=virtual name="referrals_vt" ></textarea><br><br>
-    
+
 <b>Other:</b><br>
     <textarea cols=100 rows=2 wrap=virtual name="referrals_o" ></textarea><br><br>
 
 <b>Current use of resources/services from other community agencies:</b><br>
     <textarea cols=100 rows=2 wrap=virtual name="referrals_cu" ></textarea><br><br>
-    
+
 <b>Documents to be obtainded (Release of Information Required):</b><br>
     <textarea cols=100 rows=2 wrap=virtual name="referrals_docs" ></textarea><br><br>
-    
+
 <b>Other needed resources and services:</b><br>
     <textarea cols=100 rows=2 wrap=virtual name="referrals_or" ></textarea><br><br>
 

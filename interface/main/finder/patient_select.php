@@ -93,7 +93,7 @@ form {
 }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
 
 <?php if ($popup) { ?>
 <script type="text/javascript" src="../../../library/topdialog.js"></script>

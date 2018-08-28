@@ -376,3 +376,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     width:100% !important;
 }
 
+.pop-up img {
+    width: 150px;
+    margin: 10px;
+}

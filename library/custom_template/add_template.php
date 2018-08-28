@@ -34,7 +34,7 @@ $list_id = $_REQUEST['list_id'];
     <head>
         <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
         <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
         <script type="text/javascript">
         function add_template(){
             top.restoreSession();

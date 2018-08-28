@@ -389,7 +389,7 @@ function process_form($ar)
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript"
-    src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
+    src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-9-1/jquery.min.js"></script>
 <script>
     $(document).ready( function() {
         $("#close-link").click( function() {

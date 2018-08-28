@@ -131,7 +131,7 @@ if (isset($mode)) {
     } elseif ($mode == "new") {
         $note = $_POST['note'];
         if ($noteid) {
-            updatePnote($noteid, $note, $_POST['form_note_type'], $_POST['assigned_to']);
+            updatePnote($noteid, $note, $_POST['form_note_type'], $_POST['assigned_to'], '', !empty($_POST['form_datetime']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_datetime']) : '');
         } else {
             $noteid = addPnote(
                 $patient_id,
@@ -139,7 +139,8 @@ if (isset($mode)) {
                 $userauthorized,
                 '1',
                 $_POST['form_note_type'],
-                $_POST['assigned_to']
+                $_POST['assigned_to'],
+                !empty($_POST['form_datetime']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_datetime']) : ''
             );
         }
 

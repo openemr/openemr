@@ -33,7 +33,7 @@ switch ($action) {
     case "getNonCQMPlans":
         $plans = getNonCQMPlans();
 
-        echo json_encode($plans);
+        echo text(json_encode($plans));
 
         break;
 
@@ -96,7 +96,7 @@ switch ($action) {
             } catch (Exception $e) {
                 $status_mssg = $e->getMessage();
                 $status_code = '001';
-                
+
                 if ($e->getMessage() == "002") {
                     //Plan Name Taken
                     $status_code = '002';
@@ -108,8 +108,8 @@ switch ($action) {
                 }
 
                 $status = array('status_code'=>$status_code, 'status_message'=>$status_mssg, 'plan_id'=>$plan_id, 'plan_title'=>$plan_name);
-                echo json_encode($status);
-                
+                echo text(json_encode($status));
+
                 break;
             }
         } else if (strlen($plan_id) > 0) {
@@ -117,7 +117,7 @@ switch ($action) {
         }
 
         $status = array('status_code'=>'000', 'status_message'=>'Success', 'plan_id'=>$plan_id, 'plan_title'=>$plan_name);
-        echo json_encode($status);
+        echo text(json_encode($status));
 
         break;
 
@@ -153,7 +153,7 @@ switch ($action) {
             }
         }
         break;
-         
+
     case "getPlanStatus":
         $plan_id = $_GET["plan_id"];
 

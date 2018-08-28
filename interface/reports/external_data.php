@@ -40,7 +40,7 @@ $records2 = array();
     <head>
         <?php html_header_show(); ?>
         <title><?php echo xlt('External Data'); ?></title>
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-3-2/jquery.js"></script>
         <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
         <script>
             $(document).ready(function() {

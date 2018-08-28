@@ -130,6 +130,7 @@ function submit_form(action) {
     var url = "../../forms/eye_mag/save.php?sub=1&mode=update&id=" + $("#form_id").val();
     if ($("#COPY_SECTION").value == "READONLY") return;
     formData = $("form#eye_mag").serialize();
+    if (formData =='') return;
     $("#menustate").val('0');
     top.restoreSession();
     $.ajax({
@@ -300,45 +301,48 @@ function submit_canvas(zone) {
  *  Function to update the user's preferences
  */
 function update_PREFS() {
-    var url = "../../forms/eye_mag/save.php";
-    var formData = {
-        'AJAX_PREFS'            : "1",
-        'PREFS_VA'              : $('#PREFS_VA').val(),
-        'PREFS_W'               : $('#PREFS_W').val(),
-        'PREFS_MR'              : $('#PREFS_MR').val(),
-        'PREFS_W_width'         : $('#PREFS_W_width').val(),
-        'PREFS_MR_width'        : $('#PREFS_MR_width').val(),
-        'PREFS_CR'              : $('#PREFS_CR').val(),
-        'PREFS_CTL'             : $('#PREFS_CTL').val(),
-        'PREFS_ADDITIONAL'      : $('#PREFS_ADDITIONAL').val(),
-        'PREFS_VAX'             : $('#PREFS_VAX').val(),
-        'PREFS_IOP'             : $('#PREFS_IOP').val(),
-        'PREFS_CLINICAL'        : $('#PREFS_CLINICAL').val(),
-        'PREFS_EXAM'            : $('#PREFS_EXAM').val(),
-        'PREFS_CYL'             : $('#PREFS_CYL').val(),
-        'PREFS_EXT_VIEW'        : $('#PREFS_EXT_VIEW').val(),
-        'PREFS_ANTSEG_VIEW'     : $('#PREFS_ANTSEG_VIEW').val(),
-        'PREFS_RETINA_VIEW'     : $('#PREFS_RETINA_VIEW').val(),
-        'PREFS_NEURO_VIEW'      : $('#PREFS_NEURO_VIEW').val(),
-        'PREFS_ACT_VIEW'        : $('#PREFS_ACT_VIEW').val(),
-        'PREFS_ACT_SHOW'        : $('#PREFS_ACT_SHOW').val(),
-        'PREFS_HPI_RIGHT'       : $('#PREFS_HPI_RIGHT').val(),
-        'PREFS_PMH_RIGHT'       : $('#PREFS_PMH_RIGHT').val(),
-        'PREFS_EXT_RIGHT'       : $('#PREFS_EXT_RIGHT').val(),
-        'PREFS_ANTSEG_RIGHT'    : $('#PREFS_ANTSEG_RIGHT').val(),
-        'PREFS_RETINA_RIGHT'    : $('#PREFS_RETINA_RIGHT').val(),
-        'PREFS_NEURO_RIGHT'     : $('#PREFS_NEURO_RIGHT').val(),
-        'PREFS_PANEL_RIGHT'     : $('#PREFS_PANEL_RIGHT').val(),
-        'PREFS_IMPPLAN_RIGHT'   : $('#PREFS_IMPPLAN_DRAW').val(),
-        'PREFS_KB'              : $('#PREFS_KB').val(),
-        'PREFS_TOOLTIPS'        : $('#PREFS_TOOLTIPS').val()
-    };
-    top.restoreSession();
-    $.ajax({
-           type     : 'POST',
-           url      : url,
-           data     : formData
-           });
+    var checker = $('#PREFS_TOOLTIPS').val();
+    if (checker > '') {
+        var url = "../../forms/eye_mag/save.php";
+        var formData = {
+            'AJAX_PREFS'            : "1",
+            'PREFS_VA'              : $('#PREFS_VA').val(),
+            'PREFS_W'               : $('#PREFS_W').val(),
+            'PREFS_MR'              : $('#PREFS_MR').val(),
+            'PREFS_W_width'         : $('#PREFS_W_width').val(),
+            'PREFS_MR_width'        : $('#PREFS_MR_width').val(),
+            'PREFS_CR'              : $('#PREFS_CR').val(),
+            'PREFS_CTL'             : $('#PREFS_CTL').val(),
+            'PREFS_ADDITIONAL'      : $('#PREFS_ADDITIONAL').val(),
+            'PREFS_VAX'             : $('#PREFS_VAX').val(),
+            'PREFS_IOP'             : $('#PREFS_IOP').val(),
+            'PREFS_CLINICAL'        : $('#PREFS_CLINICAL').val(),
+            'PREFS_EXAM'            : $('#PREFS_EXAM').val(),
+            'PREFS_CYL'             : $('#PREFS_CYL').val(),
+            'PREFS_EXT_VIEW'        : $('#PREFS_EXT_VIEW').val(),
+            'PREFS_ANTSEG_VIEW'     : $('#PREFS_ANTSEG_VIEW').val(),
+            'PREFS_RETINA_VIEW'     : $('#PREFS_RETINA_VIEW').val(),
+            'PREFS_NEURO_VIEW'      : $('#PREFS_NEURO_VIEW').val(),
+            'PREFS_ACT_VIEW'        : $('#PREFS_ACT_VIEW').val(),
+            'PREFS_ACT_SHOW'        : $('#PREFS_ACT_SHOW').val(),
+            'PREFS_HPI_RIGHT'       : $('#PREFS_HPI_RIGHT').val(),
+            'PREFS_PMH_RIGHT'       : $('#PREFS_PMH_RIGHT').val(),
+            'PREFS_EXT_RIGHT'       : $('#PREFS_EXT_RIGHT').val(),
+            'PREFS_ANTSEG_RIGHT'    : $('#PREFS_ANTSEG_RIGHT').val(),
+            'PREFS_RETINA_RIGHT'    : $('#PREFS_RETINA_RIGHT').val(),
+            'PREFS_NEURO_RIGHT'     : $('#PREFS_NEURO_RIGHT').val(),
+            'PREFS_PANEL_RIGHT'     : $('#PREFS_PANEL_RIGHT').val(),
+            'PREFS_IMPPLAN_RIGHT'   : $('#PREFS_IMPPLAN_DRAW').val(),
+            'PREFS_KB'              : $('#PREFS_KB').val(),
+            'PREFS_TOOLTIPS'        : $('#PREFS_TOOLTIPS').val()
+        };
+        top.restoreSession();
+        $.ajax({
+               type     : 'POST',
+               url      : url,
+               data     : formData
+               });
+    }
 }
 /*
  *  Function to unlock the form - remove temporary lock at DB level.
@@ -1403,7 +1407,7 @@ status="status_on";
                 justify_btn = '&nbsp;<span class="modifier '+status+'" id="TEST_'+index+'_just_'+i+'" name="TEST_'+index+'_justifiers" value="" data-justcode="'+item2+'" title="'+item2+'">'+(i+1)+'</span>';
                 herenow.append(justify_btn);
 }
-        
+
         });
 
             // The IMPRESSION DXs are "contenteditable" spans.
@@ -1837,7 +1841,38 @@ function goto_url(url) {
 function openImage() {
     dlgopen(base+'/controller.php?document&retrieve&patient_id=3&document_id=10&as_file=false', '_blank', 600, 475);
 }
-/*
+
+// Called to open a document in another tab for this encounter.
+function openDocumentNewTab(doc_id) {
+    var url = '../../interface/patient_file/encounter/view_form.php?formname=' + formdir + '&id=' + formid;
+    if (formdir == 'newpatient' || !parent.twAddFrameTab) {
+        top.restoreSession();
+        location.href = url;
+    } else {
+        parent.twAddFrameTab('enctabs', formname, url);
+    }
+    return false;
+}
+
+function HPI_sync_heights() {
+    if ( ($('#PMSFH_block_1').height() > $('#PMH_left').height() ) ||
+         ($('#PMSFH_block_2').height() > $('#PMH_left').height()) )
+    {
+        if ($('#PMSFH_block_1').height() > $('#PMSFH_block_2').height()) {
+            heights = $('#PMSFH_block_1').height();
+        } else {
+            heights = $('#PMSFH_block_2').height();
+        }
+        $('#PMH_left').height(heights);
+        $('#PMH_right').height(heights)
+        $('#PMH_1').height(heights+20);
+    } else if ( $("#PMH_2").hasClass('nodisplay') ) {
+        $('#PMH_1').height($('#HPI_1').height());
+    } else {
+        $('#PMH_1').height($('#PMH_2').height());
+    }
+}
+/**
  *  Keyboard shortcut commands.
  */
 
@@ -2069,7 +2104,7 @@ function color_IOP(IOP){
 function showpnotes(docid) {
     if (top.tab_mode) {
         let btnClose = 'Done';
-        let url = top.webroot_url + '/interface/patient_file/summary/pnotes.php?docid=' + docid;
+        let url = '../../interface/patient_file/summary/pnotes.php?docid=' + docid;
         dlgopen(url, 'pno1', 'modal-xl', 500, '', '', {
             buttons: [
                     {text: btnClose, close: true, style: 'default btn-xs'}
@@ -2127,6 +2162,7 @@ var allPanels = $('.building_blocks > dd').hide();
                   $('#form_PCP,#form_rDOC').change(function() {
                                                    update_DOCS();
                                                    });
+
                   $('#tooltips_status').html($('#PREFS_TOOLTIPS').val());
                   if ($("#PREFS_TOOLTIPS").val() == "<?php echo xla('Off'); ?>") {
                   $('[title]').qtip('disable');
@@ -2727,7 +2763,7 @@ var allPanels = $('.building_blocks > dd').hide();
                                imagine ^= true;
                                $("#PREFS_"+header+"_VIEW").val(imagine);
                                update_PREFS();
-                               }
+                              }
                                return false;
                                });
                   $("body").on("change", "select", function(e){
@@ -2742,21 +2778,8 @@ var allPanels = $('.building_blocks > dd').hide();
                                if (new_section[1] =="ALL") {
                                  //click updates prefs too
                                  $('#EXAM_QP').trigger("click");
-                                    if ( ($('#PMSFH_block_1').height() > $('#PMH_left').height())||
-                                         ($('#PMSFH_block_2').height() > $('#PMH_left').height()) )
-                                    {
-                                        if ($('#PMSFH_block_1').height() > $('#PMSFH_block_2').height()) {
-                                            heights = $('#PMSFH_block_1').height();
-                                        } else {
-                                            heights = $('#PMSFH_block_2').height();
-                                        }
-                                      $('#PMH_left').height(heights);
-                                      $('#PMH_right').height(heights)
-                                      $('#PMH_1').height(heights+20);
-                                    } else {
-                                        //$('#PMH_1').height($('#HPI_1').height());
-                                    }
-                                 } else {
+
+                               } else {
                                   $('#BUTTON_QP_'+new_section[1]).trigger("click");
                                  }
                                  $("#LayerTechnical_sections_1").css("clear","both");
@@ -3212,12 +3235,12 @@ var allPanels = $('.building_blocks > dd').hide();
                                               // subspecialty of the doctor. ie. Eye_defaults_for_GENERAL (the only one that exists today)
                                               // or Eye_defaults_for_CORNEA, RETINA, NEURO, PLASTICS, REFRACTIVE, PEDS, UVEITIS
                                               // Let's see if the public likes the form itself before developing these subspecialty lists...
-                                                
+
                                                 //Copy the Eye_Defaults_for_GENERAL to Eye_defaults_$providerID
                                                 $sql="SELECT * from list_options where list_id = 'Eye_Defaults_for_GENERAL'";
                                                 $start= sqlStatement($sql);
                                                 while ($val= sqlFetchArray($start)) {
-                                                    $add_fields .= "('Eye_defaults_".$providerID."','".$val['option_id']."','".$val['title']."','".$val['notes']."','".$val['activity']."','".$val['seq']."'),";
+                                                    $add_fields .= "('Eye_defaults_".$providerID."','".$val['option_id']."','".$val['title']."','".$val['notes']."','1','".$val['seq']."'),";
                                                 }
                                                 $add_fields = rtrim($add_fields, ",");
                                                 $query = "SELECT max(seq) as maxseq FROM list_options WHERE list_id= 'lists'";
@@ -3436,6 +3459,7 @@ var allPanels = $('.building_blocks > dd').hide();
                                                 $("#EXAM_TEXT").removeClass('button_selected');
                                                 update_PREFS();
                                                 }
+                                                HPI_sync_heights();
                                                 show_QP();
                                                 scrollTo("EXT_left");
                                                 });
@@ -3443,6 +3467,7 @@ var allPanels = $('.building_blocks > dd').hide();
                   $("#EXAM_TEXT,#PANEL_TEXT").click(function() {
 
                                                     // also hide QP, DRAWs, and PRIORS
+
                                                     hide_DRAW();
                                                     hide_QP();
                                                     hide_PRIORS();
@@ -3465,7 +3490,6 @@ var allPanels = $('.building_blocks > dd').hide();
                                                   $("#"+zone+"_left").removeClass('display');
                                                   $("#"+zone+"_left_text").removeClass('display');
                                                   $("#PREFS_"+zone+"_RIGHT").val(0);
-                                                  update_PREFS();
                                                   }
                                                   show_TEXT();
                                                   scrollTo("EXT_left");
@@ -3479,8 +3503,9 @@ var allPanels = $('.building_blocks > dd').hide();
                                                        $("#HPI_right").addClass('nodisplay');
                                                        $("#PREFS_HPI_RIGHT").val(1);
                                                        var reset = $("#HPI_1").height();
-                                                       $("#PMH_1").height(reset);
+                                                       $("#PMH_1").css("min-height",'0');
                                                        $("#PMH_left").height(reset-40);
+
                                                        $("#LayerTechnical_sections_1").css("clear","both");
                                                      } else {
                                                        $("#"+zone+"_right").addClass('nodisplay');
@@ -3488,9 +3513,8 @@ var allPanels = $('.building_blocks > dd').hide();
                                                      }
                                                      scrollTo(zone+"_left");
                                                      update_PREFS();
-
                                                    }
-                                                   });
+                                                  });
 
                   $("#EXAM_TEXT").addClass('button_selected');
                   if (($("#PREFS_CLINICAL").val() !='1')) {
@@ -3698,7 +3722,6 @@ var allPanels = $('.building_blocks > dd').hide();
                                                   $("#Draw_"+zone).removeClass('nodisplay');
                                                   $("#PREFS_"+zone+"_RIGHT").val('DRAW');
                                                   scrollTo(zone+"_left");
-                                                  //alert("ok?");
                                                   update_PREFS();
                                                   }
                                                   });
@@ -3724,13 +3747,8 @@ var allPanels = $('.building_blocks > dd').hide();
                                                         $("#PREFS_HPI_RIGHT").val('QP');
                                                     }
                                                 }
-                                                if ($('#PMH_right').height() > $('#PMH_left').height()) {
-                                                    $('#PMH_left').height($('#PMH_right').height());
-                                                    $('#PMH_1').height($('#PMH_right').height()+20);
-                                                } else {
-                                                    $('#PMH_1').height($('#HPI_1').height());
-                                                }
-                                                
+
+                                                HPI_sync_heights();
                                                 if (zone == 'HPIx') {
                                                     if ($('#PMH_right').css('display') == 'none') {
                                                         $("#PRIORS_PMH_left_text").addClass('nodisplay');
@@ -3747,8 +3765,9 @@ var allPanels = $('.building_blocks > dd').hide();
                                                     show_QP();
                                                 } else if (zone == 'IMPPLAN') {
                                                     show_QP_section('IMPPLAN');
-                                                    update_PREFS();
+
                                                 }
+update_PREFS();
                                                 });
 
                   // set default to ccDist.  Change as desired.
@@ -3758,10 +3777,6 @@ var allPanels = $('.building_blocks > dd').hide();
                   }
                   $("[id$='_loading']").addClass('nodisplay');
                   $("[id$='_sections']").removeClass('nodisplay');
-
-                  if ($('#PMH_right').height() > $('#PMH_left').height()) {
-                  $('#PMH_left').height($('#PMH_right').height());
-                  } else { $('#PMH_1').height($('#HPI_1').height()); }
 
                   $('#left-panel').css("right","0px");
                   $('#EXAM_KB').css({position: 'fixed', top: '29px'});
@@ -3874,7 +3889,6 @@ var allPanels = $('.building_blocks > dd').hide();
                                                            $(this).css("background-color","#F0F8FF");
                                                            if (this.name.match(/IOP/)) { color_IOP(this); }
                                                            if ( ($(this).id != 'IMP') &&
-                                                                (this.name != 'visit_status') &&
                                                                 (!this.name.match(/^inc_/)) &&
                                                                 (!this.name.match(/_modifier$/))
                                                               ) {
@@ -4013,7 +4027,7 @@ var allPanels = $('.building_blocks > dd').hide();
                         }
                     build_CODING_list();
                   });
-                  
+
                   build_IMPPLAN(obj.IMPPLAN_items);
                   scroll='1';
                     <?php if ($GLOBALS['new_tabs_layout'] !=='1') {

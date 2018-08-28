@@ -1,12 +1,8 @@
 <?php
 //------------Forms generated from formsWiz
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
-include_once("$srcdir/forms.inc");
-foreach ($_POST as $k => $var) {
-    $_POST[$k] = add_escape_custom($var);
-    echo "$var\n";
-}
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
+require_once("$srcdir/forms.inc");
 
 if ($encounter == "") {
     $encounter = date("Ymd");
@@ -16,7 +12,22 @@ if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_vision", $_POST, $_GET["id"], $userauthorized);
     addForm($encounter, "Vision", $newid, "vision", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
-    sqlInsert("update form_vision set pid = {$_SESSION["pid"]},groupname='".$_SESSION["authProvider"]."',user='".$_SESSION["authUser"]."',authorized=$userauthorized,activity=1, date = NOW(), od_k1='".$_POST["od_k1"]."', od_k1_axis='".$_POST["od_k1_axis"]."', od_k2='".$_POST["od_k2"]."', od_k2_axis='".$_POST["od_k2_axis"]."', od_testing_status='".$_POST["od_testing_status"]."', os_k1='".$_POST["os_k1"]."', os_k1_axis='".$_POST["os_k1_axis"]."', os_k2='".$_POST["os_k2"]."', os_k2_axis='".$_POST["os_k2_axis"]."', os_testing_status='".$_POST["os_testing_status"]."', additional_notes='".$_POST["additional_notes"]."' where id=$id");
+    sqlInsert("update form_vision set pid = '" . add_escape_custom($_SESSION["pid"]) .
+        "', groupname='" . add_escape_custom($_SESSION["authProvider"]) .
+        "', `user`='" . add_escape_custom($_SESSION["authUser"]) .
+        "', authorized='" . add_escape_custom($userauthorized) .
+        "', activity=1, date = NOW(), od_k1='" . add_escape_custom($_POST["od_k1"]) .
+        "', od_k1_axis='" . add_escape_custom($_POST["od_k1_axis"]) .
+        "', od_k2='" . add_escape_custom($_POST["od_k2"]) .
+        "', od_k2_axis='" . add_escape_custom($_POST["od_k2_axis"]) .
+        "', od_testing_status='" . add_escape_custom($_POST["od_testing_status"]) .
+        "', os_k1='" . add_escape_custom($_POST["os_k1"]) .
+        "', os_k1_axis='" . add_escape_custom($_POST["os_k1_axis"]) .
+        "', os_k2='" . add_escape_custom($_POST["os_k2"]) .
+        "', os_k2_axis='" . add_escape_custom($_POST["os_k2_axis"]) .
+        "', os_testing_status='" . add_escape_custom($_POST["os_testing_status"]) .
+        "', additional_notes='" . add_escape_custom($_POST["additional_notes"]) .
+        "' where id='" . add_escape_custom($id) . "'");
 }
 
 $_SESSION["encounter"] = $encounter;

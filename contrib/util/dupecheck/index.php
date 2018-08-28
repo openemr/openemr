@@ -29,7 +29,7 @@ $oemrdb = $GLOBALS['dbh'];
 
 <html>
 <head>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/jquery-min-1-2-2/index.js"></script>
 <style>
 body {
     font-family: arial, helvetica, times new roman;
