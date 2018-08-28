@@ -9,6 +9,8 @@
 
 require_once("../../globals.php");
 require_once($GLOBALS['srcdir']."/options.inc.php");
+require_once($GLOBALS['fileroot']."/library/acl.inc");
+session_start();
 
 $popup = empty($_REQUEST['popup']) ? 0 : 1;
 
@@ -71,6 +73,9 @@ if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
 
 // Column-specific filtering.
 //
+
+
+
 for ($i = 0; $i < count($aColumns); ++$i) {
     $colname = $aColumns[$i];
     if (isset($_GET["bSearchable_$i"]) && $_GET["bSearchable_$i"] == "true" && $_GET["sSearch_$i"] != '') {
@@ -86,6 +91,15 @@ for ($i = 0; $i < count($aColumns); ++$i) {
         }
     }
 }
+$authID = $_SESSION['authId'];
+//dh 8/27/2018
+//add filter for provider column
+//need to add aclcheck for admin and globals check for only own patients list
+if (!acl_check('patients', 'p_list')){
+    $where .= $where ? ' AND' : 'WHERE';
+    $where .= " `" . escape_sql_column_name("providerID", array('patient_data')) . "` = '$authID'";
+}
+
 
 // Compute list of column names for SELECT clause.
 // Always includes pid because we need it for row identification.
