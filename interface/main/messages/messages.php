@@ -28,6 +28,17 @@ require_once("$srcdir/MedEx/API.php");
 
 use OpenEMR\Core\Header;
 
+//validation library
+$use_validate_js = 1;
+require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php");
+//Gets validation rules from Page Validation list.
+$collectthis = collectValidationPageRules("/interface/main/messages/messages.php");
+if (empty($collectthis)) {
+    $collectthis = "{}";
+} else {
+    $collectthis = $collectthis[array_keys($collectthis)[0]]["rules"];
+}
+
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 
 if ($GLOBALS['medex_enable'] == '1') {
@@ -834,6 +845,9 @@ if (!empty($_REQUEST['go'])) { ?>
     }
     ?>
     <script language="javascript">
+
+        var collectvalidation = <?php echo($collectthis); ?>;
+
         $(document).ready(function(){
             $("#reminders-div").hide();
             $("#recalls-div").hide();
@@ -921,8 +935,8 @@ if (!empty($_REQUEST['go'])) { ?>
             ul.outerWidth(this.element.outerWidth());
         };
         $(document).ready(function () {
-            $("#newnote").click(function () {
-                NewNote();
+            $("#newnote").click(function (event) {
+                NewNote(event);
             });
             $("#printnote").click(function () {
                 PrintNote();
@@ -950,15 +964,22 @@ if (!empty($_REQUEST['go'])) { ?>
             });
         });
 
-        var NewNote = function () {
+        var NewNote = function (event) {
             top.restoreSession();
-            var f = document.getElementById('new_note');
-            if (f.reply_to.value.length === 0 || f.reply_to.value === '0') {
-                alert('<?php echo xls('Please choose a patient'); ?>');
+            if(document.getElementById("form_message_status").value !== 'Done'){
+                collectvalidation.assigned_to = {
+                    presence: {message: "<?php echo xls('Recipient required unless status is Done'); ?>"}
+                }
             }
-            else if (f.assigned_to.value.length === 0 &&
-                document.getElementById("form_message_status").value !== 'Done') {
-                alert('<?php echo xls('Recipient required unless status is Done'); ?>');
+            else{
+                delete collectvalidation.assigned_to;
+            }
+
+            $('#newnote').attr('disabled', true);
+
+            var submit = submitme(1, event, 'new_note', collectvalidation);
+            if(!submit){
+                $('#newnote').attr('disabled', false);
             }
             else {
                 $("#new_note").submit();
@@ -1063,6 +1084,7 @@ if (!empty($_REQUEST['go'])) { ?>
         }
         
         function multi_sel_patient() {
+            $('#reply_to').trigger('click');
             var url = '../../main/finder/multi_patients_finder.php'
             // for edit selected list
             if($('#reply_to').val() !== ''){
@@ -1072,6 +1094,7 @@ if (!empty($_REQUEST['go'])) { ?>
         }
 
         function addtolist(sel) {
+            $('#assigned_to').trigger("click");
             var itemtext = document.getElementById('assigned_to_text');
             var item = document.getElementById('assigned_to');
             if (sel.value !== '--') {
