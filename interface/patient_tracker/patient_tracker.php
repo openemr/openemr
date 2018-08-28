@@ -452,7 +452,7 @@ if (!$_REQUEST['flb_table']) {
                 <div class="col-sm-12 text-center" style='margin:5px;'>
                 <span class="hidden-xs" id="status_summary">
                     <?php
-                    $statuses_output = "<span style='margin:0 10px;'><em>" . xlt('Total  patients') . ':</em> <span class="badge">' . text($appointments_status['count_all']) . "</span></span>";
+                    $statuses_output = "<span style='margin:0 10px;'><em>" . xlt('Total patients') . ':</em> <span class="badge">' . text($appointments_status['count_all']) . "</span></span>";
                     unset($appointments_status['count_all']);
                     foreach ($appointments_status as $status_symbol => $count) {
                         $statuses_output .= " | <span style='margin:0 10px;'><em>" . text(xl_list_label($statuses_list[$status_symbol])) . ":</em> <span class='badge'>" . text($count) . "</span></span>";
