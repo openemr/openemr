@@ -34,10 +34,10 @@ class BaseController extends AbstractActionController
      */
     protected $jsFiles = array(
         //jquery
-        '/jquery-min-1-9-1/index.js',
+        '/jquery-1-9-1/jquery.min.js',
         //bootstrap
-        '/bootstrap-3-3-4/dist/js/bootstrap.min.js',
-        '/jquery-validation-1-13-0/dist/jquery.validate.min.js',
+        '/bootstrap/dist/js/bootstrap.min.js',
+        '/jquery-validation/dist/jquery.validate.min.js',
 
     );
 
@@ -47,7 +47,7 @@ class BaseController extends AbstractActionController
      */
     protected $cssFiles = array(
         //bootstrap
-        '/bootstrap-3-3-4/dist/css/bootstrap.min.css',
+        '/bootstrap/dist/css/bootstrap.min.css',
     );
 
     public function __construct()

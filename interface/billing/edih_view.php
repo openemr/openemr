@@ -39,14 +39,14 @@ if (!acl_check('acct', 'eob')) {
     <title><?php echo xlt("edi history"); ?></title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <!-- jQuery-ui and datatables -->
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/themes/sunny/jquery-ui.min.css" />
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui-1-10-13/css/dataTables.jqueryui.min.css" />
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller-jqui-1-4-2/css/scroller.jqueryui.min.css" />
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-themes-1-10-4/themes/sunny/jquery-ui.min.css" />
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui/css/dataTables.jqueryui.css" />
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller-jqui-1-4-2/css/scroller.jqueryui.css" />
 
     <!-- edi_history css -->
     <link rel="stylesheet" href="<?php echo $web_root?>/library/css/edi_history_v2.css" type="text/css" />
 
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
 </head>
 <!-- style for OpenEMR color -->
@@ -301,12 +301,12 @@ if (!acl_check('acct', 'eob')) {
 </div>
 <!-- End tabs section -->
 <!--  -->
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-10-2/index.js" type="text/javascript"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-10-2/jquery.js" type="text/javascript"></script>
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/ui/minified/jquery-ui.custom.min.js" type="text/javascript"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-1-10-13/js/jquery.dataTables.min.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui-1-10-13/js/dataTables.jqueryui.min.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller-1-4-2/js/dataTables.scroller.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net/js/jquery.dataTables.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui/js/dataTables.jqueryui.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller-1-4-2/js/dataTables.scroller.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 <script type="text/javascript" src="<?php echo $web_root?>/library/textformat.js"></script>
 
 <!-- end DataTables js Begin local js -->

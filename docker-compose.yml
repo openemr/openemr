@@ -15,10 +15,12 @@
 #        http://localhost:8091 (with Nginx and PHP-FPM 7.0)
 #        http://localhost:8092 (with Nginx and PHP-FPM 7.1)
 #        http://localhost:8093 (with Nginx and PHP-FPM 7.2)
-#        http://localhost:8094 (with Nginx and PHP-FPM 5.6 with redis)
-#        http://localhost:8095 (with Nginx and PHP-FPM 7.0 with redis)
-#        http://localhost:8096 (with Nginx and PHP-FPM 7.1 with redis)
-#        http://localhost:8097 (with Nginx and PHP-FPM 7.2 with redis)
+#        http://localhost:8094 (with Nginx and PHP-FPM 7.3)
+#        http://localhost:8095 (with Nginx and PHP-FPM 5.6 with redis)
+#        http://localhost:8096 (with Nginx and PHP-FPM 7.0 with redis)
+#        http://localhost:8097 (with Nginx and PHP-FPM 7.1 with redis)
+#        http://localhost:8098 (with Nginx and PHP-FPM 7.2 with redis)
+#        http://localhost:8099 (with Nginx and PHP-FPM 7.3 with redis)
 #        https://localhost:9080 with SSL (with Apache and PHP 7.1)
 #        https://localhost:9081 with SSL (with Apache and PHP 7.2)
 #        https://localhost:9082 with SSL (with Apache and PHP 7.1 with redis)
@@ -27,10 +29,12 @@
 #        https://localhost:9091 with SSL (with Nginx and PHP-FPM 7.0)
 #        https://localhost:9092 with SSL (with Nginx and PHP-FPM 7.1)
 #        https://localhost:9093 with SSL (with Nginx and PHP-FPM 7.2)
-#        https://localhost:9094 with SSL (with Nginx and PHP-FPM 5.6 with redis)
-#        https://localhost:9095 with SSL (with Nginx and PHP-FPM 7.0 with redis)
-#        https://localhost:9096 with SSL (with Nginx and PHP-FPM 7.1 with redis)
-#        https://localhost:9097 with SSL (with Nginx and PHP-FPM 7.2 with redis)
+#        https://localhost:9094 with SSL (with Nginx and PHP-FPM 7.3)
+#        https://localhost:9095 with SSL (with Nginx and PHP-FPM 5.6 with redis)
+#        https://localhost:9096 with SSL (with Nginx and PHP-FPM 7.0 with redis)
+#        https://localhost:9097 with SSL (with Nginx and PHP-FPM 7.1 with redis)
+#        https://localhost:9098 with SSL (with Nginx and PHP-FPM 7.2 with redis)
+#        https://localhost:9099 with SSL (with Nginx and PHP-FPM 7.3 with redis)
 #
 #    On the main setup input screen:
 #     1. for Server Host, use either 'mariadb' or 'mysql' or `mariadb-dev` or 'mysql-dev' or 'mysql-old' or 'mysql-very-old' or 'mariadb-old' or 'mariadb-very-old' or 'mariadb-very-very-old'  (have both mariadb/mysql/mariadb-dev/mysql-dev dockers ready to go make testing either one easy; mysql is version 5.7; mysql-dev is version 8; mysql-old is version 5.6; mysql-very-old is version 5.5; mariadb is version 10.2 and mariadb-dev is version 10.3; mariadb-old is version 10.1; mariadb-very-old is version 10.0; mariadb-very-very-old is version 5.5)
@@ -184,6 +188,10 @@ services:
     - 9096:449
     - 8097:87
     - 9097:450
+    - 8098:88
+    - 9098:451
+    - 8099:89
+    - 9099:452
     volumes:
     - .:/usr/share/nginx/html/openemr
     - ./contrib/util/docker/dockers/dev-nginx/nginx.conf:/etc/nginx/nginx.conf:ro
@@ -194,10 +202,12 @@ services:
     - dev-php-fpm-7-0
     - dev-php-fpm-7-1
     - dev-php-fpm-7-2
+    - dev-php-fpm-7-3
     - dev-php-fpm-5-6-redis
     - dev-php-fpm-7-0-redis
     - dev-php-fpm-7-1-redis
     - dev-php-fpm-7-2-redis
+    - dev-php-fpm-7-3-redis
   dev-php-fpm-5-6:
     restart: always
     image: openemr/dev-php-fpm:5.6
@@ -222,6 +232,12 @@ services:
     volumes:
     - .:/usr/share/nginx/html/openemr
     - ./contrib/util/docker/dockers/dev-php-fpm-7-2/php.ini:/usr/local/etc/php/php.ini:ro
+  dev-php-fpm-7-3:
+    restart: always
+    image: openemr/dev-php-fpm:7.3
+    volumes:
+    - .:/usr/share/nginx/html/openemr
+    - ./contrib/util/docker/dockers/dev-php-fpm-7-3/php.ini:/usr/local/etc/php/php.ini:ro
   dev-php-fpm-5-6-redis:
     restart: always
     image: openemr/dev-php-fpm:5.6-redis
@@ -246,6 +262,12 @@ services:
     volumes:
     - .:/usr/share/nginx/html/openemr
     - ./contrib/util/docker/dockers/dev-php-fpm-7-2-redis/php.ini:/usr/local/etc/php/php.ini:ro
+  dev-php-fpm-7-3-redis:
+    restart: always
+    image: openemr/dev-php-fpm:7.3-redis
+    volumes:
+    - .:/usr/share/nginx/html/openemr
+    - ./contrib/util/docker/dockers/dev-php-fpm-7-3-redis/php.ini:/usr/local/etc/php/php.ini:ro
   redis:
     restart: always
     image: redis

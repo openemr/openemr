@@ -140,7 +140,7 @@ td input  { background-color:transparent; }
 </style>
 
 <script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/jquery-min-1-2-2/index.js"></script>
 
 <script language="JavaScript">
 

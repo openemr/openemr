@@ -34,9 +34,9 @@ class BaseController extends AbstractActionController
      */
     protected $jsFiles = array(
         //jquery
-        '/jquery-min-1-9-1/index.js',
+        '/jquery-1-9-1/jquery.min.js',
         //bootstrap
-        '/bootstrap-3-3-4/dist/js/bootstrap.min.js',
+        '/bootstrap/dist/js/bootstrap.min.js',
 
     );
 
@@ -46,7 +46,7 @@ class BaseController extends AbstractActionController
      */
     protected $cssFiles = array(
         //bootstrap
-        '/bootstrap-3-3-4/dist/css/bootstrap.min.css',
+        '/bootstrap/dist/css/bootstrap.min.css',
     );
 
     public function __construct()
@@ -63,8 +63,8 @@ class BaseController extends AbstractActionController
     protected function getJsFiles()
     {
 
-                $this->jsFiles[] = '/datatables.net-1-10-13/js/jquery.dataTables.min.js';
-                $this->jsFiles[] = '/datatables.net-bs-1-10-13/js/dataTables.bootstrap.min.js';
+                $this->jsFiles[] = '/datatables.net/js/jquery.dataTables.js';
+                $this->jsFiles[] = '/datatables.net-bs/js/dataTables.bootstrap.js';
 
         return $this->jsFiles;
     }
@@ -79,11 +79,11 @@ class BaseController extends AbstractActionController
 
         //adding bootstrap rtl for rtl languages
         if ($_SESSION['language_direction'] == 'rtl') {
-            $this->cssFiles[] = '/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css';
+            $this->cssFiles[] = '/bootstrap-rtl/dist/css/bootstrap-rtl.min.css';
         }
 
 
-                $this->cssFiles[] = '/datatables.net-bs-1-10-13/css/dataTables.bootstrap.min.css';
+                $this->cssFiles[] = '/datatables.net-bs/css/dataTables.bootstrap.min.css';
 
 
         return $this->cssFiles;
