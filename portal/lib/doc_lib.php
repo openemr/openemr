@@ -50,7 +50,7 @@ $dispose = $_POST['handler'];
 $cpid = $_REQUEST['cpid'] ? $_REQUEST['cpid'] : $GLOBALS['pid'];
 
 try {
-    $form_filename = $_REQUEST['docid'] . '_' . $cpid . '.pdf';
+    $form_filename = convert_safe_file_dir_name($_REQUEST['docid']) . '_' . convert_safe_file_dir_name($cpid) . '.pdf';
     $templatedir = $GLOBALS['OE_SITE_DIR'] . "/documents/onsite_portal_documents/patient_documents";
     $templatepath = "$templatedir/$form_filename";
     $htmlout = '';
