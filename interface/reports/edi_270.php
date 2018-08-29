@@ -86,6 +86,7 @@ if ($exclude_policy != "") {
 								   p.sex,
 								   p.pid,
 								   p.pubpid,
+								   i.subscriber_ss,
 								   i.policy_number,
 								   i.provider as payer_id,
 								   i.subscriber_relationship,
