@@ -93,7 +93,7 @@ if ($exclude_policy != "") {
 								   i.subscriber_fname,
 								   i.subscriber_mname,
 								   DATE_FORMAT(i.subscriber_dob, '%%m/%%d/%%Y') as subscriber_dob,
-								   i.subscriber_ss,
+								   i.policy_number,
 								   i.subscriber_sex,
 								   DATE_FORMAT(i.date,'%%Y%%m%%d') as date,
 								   d.lname as provider_lname,
@@ -135,7 +135,7 @@ if ($exclude_policy != "") {
     if (isset($_POST['form_savefile']) && !empty($_POST['form_savefile']) && $res) {
         header('Content-Type: text/plain');
         header(sprintf(
-            'Content-Disposition: attachment; filename="elig-270..%s.%s.txt"',
+            'Content-Disposition: attachment; filename="elig-270.%s.%s.txt"',
             $from_date,
             $to_date
         ));
