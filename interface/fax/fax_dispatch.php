@@ -78,6 +78,7 @@ function mergeTiffs()
     $tmp2 = 0;
   // form_images are the checkboxes to the right of the images.
     foreach ($_POST['form_images'] as $inbase) {
+        check_file_dir_name($inbase);
         $inames .= ' ' . escapeshellarg("$inbase.tif");
     }
 
@@ -332,7 +333,8 @@ if ($_POST['form_save']) {
   // If deleting selected, do it and then check if any are left.
     if ($form_cb_delete == '1' && !$info_msg) {
         foreach ($_POST['form_images'] as $inbase) {
-            unlink("$faxcache/" . check_file_dir_name($inbase) . ".jpg");
+            check_file_dir_name($inbase);
+            unlink($faxcache . "/" . $inbase . ".jpg");
             $action_taken = true;
         }
 
