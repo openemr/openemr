@@ -506,7 +506,7 @@ if (!isset($phpgacl_location)) {
     }
     ?>
 </head>
-<body class="body_top">
+<body id="adminacl" class="body_top">
     <div class="container">
         <div class="row">
             <div class="col-xs-12">
