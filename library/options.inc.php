@@ -2037,7 +2037,7 @@ function generate_display_field($frow, $currvalue)
         // If match is not found in main and backup lists, return the key with exclamation mark
         if ($s == '') {
             $s = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES)).
-            '<sup><i class="fa fas fa-exclamation-circle ml-1"></i></sup>';
+            '<sup> <i class="fa fas fa-exclamation-circle ml-1"></i></sup>';
         }
     } // simple text field
     elseif ($data_type == 2) {
@@ -3814,6 +3814,18 @@ function getListItemTitle($list, $option)
     }
 
     return xl_list_label($row['title']);
+}
+
+//function to get the translated title value in Patient Transactions
+function getLayoutTitle($list, $option)
+{
+    $row = sqlQuery("SELECT grp_title FROM layout_group_properties " .
+    "WHERE grp_mapping = ? AND grp_form_id = ? ", array($list, $option));
+    
+    if (empty($row['grp_title'])) {
+        return $option;
+    }
+    return xl_list_label($row['grp_title']);
 }
 //Added on 5-jun-2k14 (regarding get the smoking code descriptions)
 function getSmokeCodes()
