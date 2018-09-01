@@ -48,6 +48,11 @@ function applyCode($layoutid, $codetype, $code, $description)
 <?php
 // Handle uploads.
 if (!empty($_POST['bn_upload'])) {
+    //verify csrf
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
     $thecodes = array();
     $tmp_name = $_FILES['form_file']['tmp_name'];
 
@@ -125,6 +130,7 @@ if (!empty($_POST['bn_upload'])) {
 ?>
 <form method='post' action='layout_service_codes.php' enctype='multipart/form-data'
  onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr($_SESSION['csrf_token']); ?>" />
 
 <center>
 
@@ -137,7 +143,7 @@ if (!empty($_POST['bn_upload'])) {
  </tr>
  <tr>
   <td class='detail' nowrap>
-    <?php echo htmlspecialchars(xl('Source CSV File')); ?>
+    <?php echo xlt('Source CSV File'); ?>
    <input type="hidden" name="MAX_FILE_SIZE" value="350000000" />
   </td>
   <td class='detail' nowrap>
