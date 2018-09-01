@@ -458,7 +458,8 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         '?codetype=' + encodeURIComponent(codetype) +
                         '&code=' + encodeURIComponent(code) +
                         '&selector=' + encodeURIComponent(selector) +
-                        '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""));
+                        '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
+                        '&csrf_token_form=' + encodeURIComponent(<?php echo attr($_SESSION['csrf_token']); ?>));
                 }
                 return '';
             }
@@ -629,7 +630,8 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php' +
                 '?codetype=' + encodeURIComponent(a[0]) +
                 '&code=' + encodeURIComponent(a[1]) +
-                '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel.value));
+                '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel.value) +
+                '&csrf_token_form=' + encodeURIComponent(<?php echo attr($_SESSION['csrf_token']); ?>));
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific product.
@@ -655,7 +657,8 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 '?codetype=' + encodeURIComponent(a[0]) +
                 '&code=' + encodeURIComponent(a[1]) +
                 '&selector=' + encodeURIComponent(a[2]) +
-                '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel.value));
+                '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel.value) +
+                '&csrf_token_form=' + encodeURIComponent(<?php echo attr($_SESSION['csrf_token']); ?>));
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific diagnosis.
@@ -680,7 +683,8 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php' +
                 '?codetype=' + encodeURIComponent(a[0]) +
                 '&code=' + encodeURIComponent(a[1]) +
-                '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""));
+                '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
+                '&csrf_token_form=' + encodeURIComponent(<?php echo attr($_SESSION['csrf_token']); ?>));
         }
 
         // Respond to selecting a package of codes.
@@ -690,7 +694,8 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             if (sel.value) {
                 $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php' +
                     '?list=' + encodeURIComponent(sel.value) +
-                    '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""));
+                    '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
+                    '&csrf_token_form=' + encodeURIComponent(<?php echo attr($_SESSION['csrf_token']); ?>));
             }
             sel.selectedIndex = 0;
         }

@@ -26,6 +26,11 @@
 
 require_once("../globals.php");
 
+//verify csrf
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    die(xlt('Authentication Error'));
+}
+
 $listid  = $_GET['listid'];
 $target  = $_GET['target'];
 $current = $_GET['current'];

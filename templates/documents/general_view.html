@@ -113,10 +113,11 @@ function ImgProcedure() {literal}{{/literal}
     type: "POST",
     dataType: "html",
     data:
-    {
+    {{/literal}
+      csrf_token_form : "{$csrf_token_form|escape:'html'}",
       ccr_ajax : "yes",
-      document_id : docid,
-    },
+      document_id : docid
+    {literal}},
     success: function(data){
       alert(data);
       top.restoreSession();
