@@ -7,10 +7,10 @@ function evaluation_report($pid, $encounter, $cols, $id)
     $count = 0;
     $data = formFetch("form_evaluation", $id);
     $sql = "SELECT name from form_evaluation_checks WHERE foreign_id = ?";
-    $results = sqlQ($sql, array(add_escape_custom($id)));
+    $results = sqlQ($sql, array($id));
     $data2 = array();
     while ($row = sqlFetchArray($results)) {
-        $data2[] = text($row['name']);
+        $data2[] = $row['name'];
     }
 
     $data = array_merge($data, $data2);
@@ -30,7 +30,7 @@ function evaluation_report($pid, $encounter, $cols, $id)
                 $key = "check";
             }
 
-            print "<td><span class=bold>$key: </span><span class=text>$value</span></td>";
+            print "<td><span class=bold>" . text($key) . ": </span><span class=text>" . text($value) . "</span></td>";
             $count++;
             if ($count == $cols) {
                 $count = 0;

@@ -56,28 +56,32 @@ $formid = $_GET['id'];
 // If Save was clicked, save the info.
 //
 if ($_POST['bn_save']) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
  // If updating an existing form...
  //
     if ($formid) {
         $query = "UPDATE form_body_composition SET 
         body_type = ?, height = ?, weight = ?, bmi = ?, bmr = ?, impedance = ?, 
         fat_pct = ?, fat_mass = ?, ffm = ?, tbw = ?, other = ? WHERE id = ?";
-         
-        sqlStatement($query, array(rbvalue('form_body_type'),  trim($_POST['form_height']), trim($_POST['form_weight']), trim($_POST['form_bmi']), 
-         trim($_POST['form_bmr']), trim($_POST['form_impedance']), trim($_POST['form_fat_pct']), trim($_POST['form_fat_mass']),  trim($_POST['form_ffm']), 
+
+        sqlStatement($query, array(rbvalue('form_body_type'),  trim($_POST['form_height']), trim($_POST['form_weight']), trim($_POST['form_bmi']),
+         trim($_POST['form_bmr']), trim($_POST['form_impedance']), trim($_POST['form_fat_pct']), trim($_POST['form_fat_mass']),  trim($_POST['form_ffm']),
          trim($_POST['form_tbw']), trim($_POST['form_other']), $formid ));
-         
+
     } // If adding a new form...
- //"
+ //
     else {
         $query = 'INSERT INTO form_body_composition (
          body_type, height, weight, bmi, bmr, impedance, fat_pct, fat_mass, ffm, tbw, other
          ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-         
-        $newid = sqlInsert($query, array(rbvalue('form_body_type'), trim($_POST['form_height']), trim($_POST['form_weight']), trim($_POST['form_bmi']), 
-         trim($_POST['form_bmr']), trim($_POST['form_impedance']), trim($_POST['form_fat_pct']), trim($_POST['form_fat_mass']), 
+
+        $newid = sqlInsert($query, array(rbvalue('form_body_type'), trim($_POST['form_height']), trim($_POST['form_weight']), trim($_POST['form_bmi']),
+         trim($_POST['form_bmr']), trim($_POST['form_impedance']), trim($_POST['form_fat_pct']), trim($_POST['form_fat_mass']),
          trim($_POST['form_ffm']), trim($_POST['form_tbw']), trim($_POST['form_other'])));
-         
+
         addForm($encounter, "Body Composition", $newid, "body_composition", $pid, $userauthorized);
     }
 
@@ -119,6 +123,7 @@ if ($formid) {
 <body <?php echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">
 <form method="post" action="<?php echo $rootdir ?>/forms/body_composition/new.php?id=<?php echo attr($formid) ?>"
  onsubmit="return top.restoreSession()">
+<input type="hidden" name="csrf_token_form" value="<?php echo attr($_SESSION['csrf_token']); ?>" />
 
 <center>
 
@@ -157,7 +162,7 @@ if ($formid) {
   <td align='center' nowrap>
 <?php
 if ($scale_file_age >= 0) {
-    echo "<font color='blue'>This reading was taken " . text($scale_file_age) . "minutes ago.</font>\n";
+    echo "<font color='blue'>This reading was taken " . text($scale_file_age) . " minutes ago.</font>\n";
 } else {
     echo "&nbsp;\n";
 }
