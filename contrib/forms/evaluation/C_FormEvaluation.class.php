@@ -16,6 +16,7 @@ class C_FormEvaluation extends Controller
         $this->assign("FORM_ACTION", $GLOBALS['web_root']);
         $this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
         $this->assign("STYLE", $GLOBALS['style']);
+        $this->assign("CSRF_TOKEN_FORM", $_SESSION['csrf_token']);
     }
 
     function default_action()
@@ -58,12 +59,11 @@ class C_FormEvaluation extends Controller
 
         if (!empty($_POST['cpt_code'])) {
             $sql = "select * from codes where code = ? ORDER BY id";
-            
-            $results = sqlQ($sql,array(add_escape_custom($_POST['cpt_code'])));
+
+            $results = sqlQ($sql, array($_POST['cpt_code']));
 
             $row = sqlFetchArray($results);
             if (!empty($row)) {
-                // ## Analyze - DE
                 addBilling(date("Ymd"), 'CPT4', $row['code'], $row['code_text'], $_SESSION['pid'], $_SESSION['userauthorized'], $_SESSION['authUserID'], $row['modifier'], $row['units'], $row['fee']);
             }
         }

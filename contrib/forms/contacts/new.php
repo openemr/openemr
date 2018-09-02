@@ -25,8 +25,9 @@ formHeader("Form: contacts");
 <?php html_header_show();?>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body <?php echo attr($top_bg_line);?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <form method=post action="<?php echo $rootdir;?>/forms/contacts/save.php?mode=new" name="my_form">
+<input type="hidden" name="csrf_token_form" value="<?php echo attr($_SESSION['csrf_token']); ?>" />
 <span class="title">Contacts</span><br><br>
 <table>
 <tr>

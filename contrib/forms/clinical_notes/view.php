@@ -46,12 +46,12 @@ function cbvalue($cbname)
 function rbinput($name, $value, $desc, $colname)
 {
     global $row;
-    $ret  = "<input type='radio' name=" . attr($name) . " value=" . attr($value);
+    $ret  = "<input type='radio' name='" . attr($name) . "' value='" . attr($value) . "'";
     if ($row[$colname] == $value) {
         $ret .= " checked";
     }
 
-    $ret .= " />$desc";
+    $ret .= " />" . text($desc);
     return $ret;
 }
 
@@ -63,7 +63,7 @@ function rbcell($name, $value, $desc, $colname)
 function cbinput($name, $colname)
 {
     global $row;
-    $ret  = "<input type='checkbox' name=".attr($name)." value='1'";
+    $ret  = "<input type='checkbox' name='".attr($name)."' value='1'";
     if ($row[$colname]) {
         $ret .= " checked";
     }
@@ -83,6 +83,9 @@ $formid = $_GET['id'];
 //
 if ($_POST['bn_save']) {
     $fu_timing = $_POST['fu_timing'];
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
 
  // If updating an existing form...
  //
@@ -94,7 +97,7 @@ if ($_POST['bn_save']) {
          followup_required = ?,
          followup_timing = ?,
          WHERE id = ?";
-         
+
         sqlStatement($query, array($_POST['form_history'], $_POST['form_examination'], $_POST['form_plan'], rbvalue('fu_required'), $fu_timing, $formid));
     } // If adding a new form...
  //
@@ -102,7 +105,7 @@ if ($_POST['bn_save']) {
         $query = "INSERT INTO form_clinical_notes ( " .
          "history, examination, plan, followup_required, followup_timing 
          ) VALUES ( ?, ?, ?, ?, ? )";
-        
+
         $newid = sqlInsert($query, array($_POST['form_history'], $_POST['form_examination'], $_POST['form_plan'], rbvalue('fu_required'), $fu_timing));
         addForm($encounter, "Clinical Notes", $newid, "clinical_notes", $pid, $userauthorized);
     }
@@ -130,6 +133,7 @@ if ($formid) {
  bottommargin="0" marginwidth="2" marginheight="0">
 <form method="post" action="<?php echo $rootdir ?>/forms/clinical_notes/new.php?id=<?php echo attr($formid) ?>"
  onsubmit="return top.restoreSession()">
+<input type="hidden" name="csrf_token_form" value="<?php echo attr($_SESSION['csrf_token']); ?>" />
 
 <center>
 
@@ -172,7 +176,7 @@ if ($formid) {
      <td nowrap>
       <input type='text' name='fu_timing' size='10' style='width:100%'
        title='When to follow up'
-       value='<?php echo text($row['followup_timing']) ?>' />
+       value='<?php echo attr($row['followup_timing']) ?>' />
      </td>
     </tr>
     <tr>
