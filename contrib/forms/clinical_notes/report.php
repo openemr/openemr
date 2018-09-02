@@ -6,8 +6,8 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-include_once("../../globals.php");
-include_once($GLOBALS["srcdir"] . "/api.inc");
+require_once("../../globals.php");
+require_once($GLOBALS["srcdir"] . "/api.inc");
 
 function clinical_notes_report($pid, $encounter, $cols, $id)
 {
@@ -15,7 +15,7 @@ function clinical_notes_report($pid, $encounter, $cols, $id)
     $count = 0;
     $data = sqlQuery("SELECT * " .
     "FROM form_clinical_notes WHERE " .
-    "id = '$id' AND activity = '1'");
+    "id = ? AND activity = '1'", array($id));
     if ($data) {
         print "<table cellpadding='0' cellspacing='0'>\n<tr>\n";
         foreach ($data as $key => $value) {
@@ -54,7 +54,7 @@ function clinical_notes_report($pid, $encounter, $cols, $id)
             ****/
 
             $key=ucwords(str_replace("_", " ", $key));
-            print "<td valign='top'><span class='bold'>$key: </span><span class='text'>$value &nbsp;</span></td>\n";
+            print "<td valign='top'><span class='bold'>" .text($key). ": </span><span class='text'>" .text($value). "&nbsp;</span></td>\n";
             $count++;
             if ($count == $cols) {
                 $count = 0;

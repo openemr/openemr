@@ -111,19 +111,19 @@ function calculate_bmi(button) {
 
 	<td>
 
-		<span class=text>TEMP: </span><input size=3 type=entry name="temp" value="{$evaluation->get_temp()}" ></input>
+		<span class=text>TEMP: </span><input size=3 type=entry name="temp" value="{$evaluation->get_temp()|escape:'html'}" ></input>
 
-		<span class=text>P: </span><input size=3 type=entry name="p" value="{$evaluation->get_p()}" ></input>
+		<span class=text>P: </span><input size=3 type=entry name="p" value="{$evaluation->get_p()|escape:'html'}" ></input>
 
-		<span class=text>R: </span><input size=3 type=entry name="r" value="{$evaluation->get_r()}" ></input>
+		<span class=text>R: </span><input size=3 type=entry name="r" value="{$evaluation->get_r()|escape:'html'}" ></input>
 
-		<span class=text>BP: </span><input size=3 type=entry name="bp" value="{$evaluation->get_bp()}" ></input>
+		<span class=text>BP: </span><input size=3 type=entry name="bp" value="{$evaluation->get_bp()|escape:'html'}" ></input>
 
-		<span class=text>HT: </span><input size=3 type=entry name="ht" value="{$evaluation->get_ht()}" ></input>
+		<span class=text>HT: </span><input size=3 type=entry name="ht" value="{$evaluation->get_ht()|escape:'html'}" ></input>
 
-		<span class=text>WT: </span><input size=3 type=entry name="wt" value="{$evaluation->get_wt()}" ></input>
+		<span class=text>WT: </span><input size=3 type=entry name="wt" value="{$evaluation->get_wt()|escape:'html'}" ></input>
 
-		<span class=text>LMP: </span><input size=10 type=entry name="lmp" value="{$evaluation->get_lmp()}" ></input>
+		<span class=text>LMP: </span><input size=10 type=entry name="lmp" value="{$evaluation->get_lmp()|escape:'html'}" ></input>
 
 	</td>
 
@@ -131,7 +131,7 @@ function calculate_bmi(button) {
 
 	<td>
 
-		<span class=text>BMI: </span><input size=5 type=entry name="bmi" value="{$evaluation->get_bmi()}" ></input>
+		<span class=text>BMI: </span><input size=5 type=entry name="bmi" value="{$evaluation->get_bmi()|escape:'html'}" ></input>
 
 		<input type="button" onClick="calculate_bmi(this);" value="Calculate">
 
@@ -153,7 +153,7 @@ function calculate_bmi(button) {
 
 <tr>
 
-	<td><p><textarea name="complaint" cols="75" rows="3" wrap="virtual" >{$evaluation->get_complaint()}</textarea></p><br /></td>
+	<td><p><textarea name="complaint" cols="75" rows="3" wrap="virtual" >{$evaluation->get_complaint()|escape:'html'}</textarea></p><br /></td>
 
 </tr>
 
@@ -165,7 +165,7 @@ function calculate_bmi(button) {
 
 <tr>
 
-	<td><p><textarea name="hpi" cols="75" rows="3" wrap="virtual" >{$evaluation->get_hpi()}</textarea></p><br /></td>
+	<td><p><textarea name="hpi" cols="75" rows="3" wrap="virtual" >{$evaluation->get_hpi()|escape:'html'}</textarea></p><br /></td>
 
 </tr>
 
@@ -183,7 +183,7 @@ function calculate_bmi(button) {
 
 		{if $smarty.foreach.loops.first ne 1}<br>{/if}
 
-		{$title}
+		{$title|escape:'html'}
 
 	</td>
 
@@ -199,7 +199,7 @@ function calculate_bmi(button) {
 
 				{if !is_numeric($row_title)}
 
-					<td>{$row_title}</td>
+					<td>{$row_title|escape:'html'}</td>
 
 					<td class="form_text">{html_checkboxes name="checks" options=$row selected=$evaluation->checks separator="&nbsp;</td><td class=\"form_text\">"}</td>
 
@@ -209,11 +209,11 @@ function calculate_bmi(button) {
 
 					<td colspan="6"><table><tr><td class="form_text">
 
-					
+
 
 					{html_checkboxes name="checks" options=$row selected=$evaluation->checks separator="&nbsp;&nbsp;&nbsp;</td><td class=\"form_text\">"}
 
-					
+
 
 					</td></tr></table></td>
 
@@ -225,23 +225,23 @@ function calculate_bmi(button) {
 
 						<td></td>
 
-						<td class="form_text">OD 20/<input type="text" name="eyes_od" size="4" value="{$evaluation->get_eyes_od()}"></td>
+						<td class="form_text">OD 20/<input type="text" name="eyes_od" size="4" value="{$evaluation->get_eyes_od()|escape:'html'}"></td>
 
-						<td class="form_text">OS 20/<input type="text" name="eyes_os" size="4" value="{$evaluation->get_eyes_os()}"></td>
+						<td class="form_text">OS 20/<input type="text" name="eyes_os" size="4" value="{$evaluation->get_eyes_os()|escape:'html'}"></td>
 
-						<td class="form_text">OU 20/<input type="text" name="eyes_ou" size="4" value="{$evaluation->get_eyes_ou()}"></td>
+						<td class="form_text">OU 20/<input type="text" name="eyes_ou" size="4" value="{$evaluation->get_eyes_ou()|escape:'html'}"></td>
 
 					{/if}
 
 				{/if}
 
-				
+
 
 			</tr>
 
 	  {/foreach}
 
-	  
+
 
 	</td>
 
@@ -263,7 +263,7 @@ function calculate_bmi(button) {
 
 <tr>
 
-	<td><textarea name="comments" wrap="virtual" cols="75" rows="8">{$evaluation->get_comments()}</textarea></td>
+	<td><textarea name="comments" wrap="virtual" cols="75" rows="8">{$evaluation->get_comments()|escape:'html'}</textarea></td>
 
 </tr>
 
@@ -275,7 +275,7 @@ function calculate_bmi(button) {
 
 <tr>
 
-	<td><textarea name="assesment" wrap="virtual" cols="75" rows="8">{$evaluation->get_assesment()}</textarea></td>
+	<td><textarea name="assesment" wrap="virtual" cols="75" rows="8">{$evaluation->get_assesment()|escape:'html'}</textarea></td>
 
 </tr>
 
@@ -293,13 +293,15 @@ function calculate_bmi(button) {
 
 </table>
 
-<input type="hidden" name="id" value="{$evaluation->get_id()}" />
+<input type="hidden" name="id" value="{$evaluation->get_id()|escape:'html'}" />
 
-<input type="hidden" name="activity" value="{$evaluation->get_activity()}">
+<input type="hidden" name="activity" value="{$evaluation->get_activity()|escape:'html'}">
 
-<input type="hidden" name="pid" value="{$evaluation->get_pid()}">
+<input type="hidden" name="pid" value="{$evaluation->get_pid()|escape:'html'}">
 
 <input type="hidden" name="process" value="true">
+
+<input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|escape:'html'}">
 
 </form>
 
