@@ -216,7 +216,8 @@ class FormEvaluation extends ORDataObject
         $this->hpi = $string;
     }
 
-    function get_hpi() {
+    function get_hpi()
+    {
 
         return $this->hpi;
     }
