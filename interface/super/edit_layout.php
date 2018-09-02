@@ -1181,7 +1181,7 @@ function setListItemOptions(lino, seq, init) {
     '?listid='  + encodeURIComponent(list_id) +
     '&target='  + encodeURIComponent(target)  +
     '&current=' + encodeURIComponent(current) +
-    '&csrf_token_form=' + encodeURIComponent(<?php echo attr($_SESSION['csrf_token']); ?>));
+    '&csrf_token_form=' + encodeURIComponent('<?php echo attr($_SESSION['csrf_token']); ?>'));
 }
 
 // This is called whenever a condition's field ID selection is changed.
