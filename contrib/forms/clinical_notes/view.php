@@ -90,7 +90,7 @@ if ($_POST['bn_save']) {
  // If updating an existing form...
  //
     if ($formid) {
-       $query = "UPDATE form_clinical_notes SET
+        $query = "UPDATE form_clinical_notes SET
          history = ?, 
          examination = ?,      
          plan = ?,           

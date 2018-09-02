@@ -76,7 +76,6 @@ if ($_POST['bn_save']) {
     } // If adding a new form...
  //
     else {
-
         $query = "INSERT INTO form_body_composition 
           ( body_type, height, weight, bmi, bmr, impedance, 
           fat_pct, fat_mass, ffm, tbw, other ) 
