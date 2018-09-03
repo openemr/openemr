@@ -32,15 +32,21 @@ function createCsrfToken()
     return $csrfToken;
 }
 
+// Function to collect the csrf token
+function collectCsrfToken()
+{
+    return $_SESSION['csrf_token'];
+}
+
 // Function to verify a csrf_token
 function verifyCsrfToken($token)
 {
-    if (empty($_SESSION['csrf_token'])) {
+    if (empty(collectCsrfToken())) {
         error_log("OpenEMR Error : OpenEMR is potentially not secure because CSRF token was not formed correctly.");
         return false;
     } elseif (empty($token)) {
         return false;
-    } elseif ($_SESSION['csrf_token'] == $token) {
+    } elseif (collectCsrfToken() == $token) {
         return true;
     } else {
         return false;

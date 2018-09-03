@@ -157,7 +157,7 @@ $(document).ready(function(){
         // upon returning successfully, refresh the list box and select
         // the new list item
         $.getJSON("<?php echo $GLOBALS['webroot']; ?>/library/ajax/addlistitem.php",
-                    {csrf_token_form: "<?php echo attr($_SESSION['csrf_token']); ?>",
+                    {csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>",
                     listid: listid,
              newitem: newitem,
              newitem_abbr: newitem_abbr},

@@ -348,7 +348,7 @@ foreach ($imageslist as $sfname) {
 </table>
 
 <p>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr($_SESSION['csrf_token']); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <input type='submit' name='bn_save' value='<?php echo htmlspecialchars(xl('Save')) ?>' />
 </p>
 
@@ -367,7 +367,7 @@ foreach ($imageslist as $sfname) {
             </td>
             <td  class="thumb_form" style="width:17%;border-right:none">
                 <form method='post' action='manage_site_files.php#generate_thumb'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr($_SESSION['csrf_token']); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                     <input style="margin-top: 10px" type="submit" name="generate_thumbnails" value="<?php echo xla('Generate') ?>">
                 </form>
             </td>
@@ -419,7 +419,7 @@ foreach ($imageslist as $sfname) {
         <div class="subject-info-save">
             <input type="button" id="submit-whitelist" value="<?php echo xlt('Save'); ?>" />
             <input type="hidden" name="submit_form" value="1" />
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr($_SESSION['csrf_token']); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
         </div>
     </form>
 

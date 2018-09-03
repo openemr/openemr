@@ -338,7 +338,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
       type: "POST",
       url: "<?php echo $GLOBALS['webroot']?>/library/ajax/offsite_portal_ajax.php",
       data: {
-        csrf_token_form: '<?php echo attr($_SESSION['csrf_token']); ?>',
+        csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>',
         action: 'check_file'
       },
       cache: false,
@@ -371,7 +371,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
 <?php } else { ?>
   <form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php' onsubmit='return top.restoreSession()'>
 <?php } ?>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr($_SESSION['csrf_token']); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <div class="container">
     <div class="row">
