@@ -21,7 +21,7 @@ if (preg_match("/^[\s\\r\\n\\\\r\\\\n]*$/", $field_names['content']) == 0) { //m
   //   before being submitted to the database. Will also continue to support placeholder conversion on report
   //   views to support notes within database that still contain placeholders (ie. notes that were created previous to
   //   version 4.0).
-    $field_names['content'] = add_escape_custom(replace($pid, $encounter, $field_names['content']));
+    $field_names['content'] = replace($pid, $encounter, $field_names['content']);
     reset($field_names);
     $newid = formSubmit("form_CAMOS", $field_names, $_GET["id"], $userauthorized);
     addForm($encounter, $CAMOS_form_name, $newid, "CAMOS", $pid, $userauthorized);
