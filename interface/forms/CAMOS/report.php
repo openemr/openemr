@@ -28,6 +28,6 @@ function CAMOS_report($pid, $encounter, $cols, $id)
         echo "<a href='" . $GLOBALS['webroot'] .
         "/interface/forms/CAMOS/notegen.php' target=_new>" . xl('Print Any Encounter') . "</a></div>\n";
     //    echo "<pre>".wordwrap(stripslashes(content_parser($data['content'])))."</pre><hr>\n";
-        echo "<pre>".wordwrap(stripslashes(replace($pid, $encounter, $data['content'])))."</pre><hr>\n";
+        echo "<pre>".wordwrap(str_replace("\\n", "\n", (replace($pid, $encounter, $data['content']))))."</pre><hr>\n";
     }
 }
