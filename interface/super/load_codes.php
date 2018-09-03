@@ -51,8 +51,13 @@ $code_type = empty($_POST['form_code_type']) ? '' : $_POST['form_code_type'];
 <?php
 // Handle uploads.
 if (!empty($_POST['bn_upload'])) {
+    //verify csrf
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
     if (empty($code_types[$code_type])) {
-        die(xlt('Code type not yet defined') . ": '$code_type'");
+        die(xlt('Code type not yet defined') . ": '" . text($code_type) . "'");
     }
 
     $code_type_id = $code_types[$code_type]['id'];
@@ -156,6 +161,7 @@ if (!empty($_POST['bn_upload'])) {
 ?>
 <form method='post' action='load_codes.php' enctype='multipart/form-data'
  onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <center>
 
@@ -174,7 +180,7 @@ if (!empty($_POST['bn_upload'])) {
    <select name='form_code_type'>
 <?php
 foreach (array('RXCUI') as $codetype) {
-    echo "    <option value='$codetype'>$codetype</option>\n";
+    echo "    <option value='" . attr($codetype) . "'>" . text($codetype) . "</option>\n";
 }
 ?>
    </select>
@@ -182,7 +188,7 @@ foreach (array('RXCUI') as $codetype) {
  </tr>
  <tr>
   <td class='detail' nowrap>
-    <?php echo htmlspecialchars(xl('Source File')); ?>
+    <?php echo xlt('Source File'); ?>
    <input type="hidden" name="MAX_FILE_SIZE" value="350000000" />
   </td>
   <td class='detail' nowrap>

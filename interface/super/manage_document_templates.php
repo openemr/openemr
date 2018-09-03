@@ -120,7 +120,7 @@ if (!empty($_POST['bn_upload'])) {
 <body class="body_top">
 <form method='post' action='manage_document_templates.php' enctype='multipart/form-data'
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr($_SESSION['csrf_token']); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <center>
 

@@ -98,14 +98,6 @@ if ($GLOBALS['ptkr_date_range']) {
 $form_patient_name = !is_null($_POST['form_patient_name']) ? $_POST['form_patient_name'] : null;
 $form_patient_id = !is_null($_POST['form_patient_id']) ? $_POST['form_patient_id'] : null;
 
-// get all appts for date range and refine view client side.  very fast...
-$appointments = array();
-$datetime = date("Y-m-d H:i:s");
-$appointments = fetch_Patient_Tracker_Events($from_date, $to_date, '', '', '', '', $form_patient_name, $form_patient_id);
-$appointments = sortAppointments($appointments, 'date', 'time');
-//grouping of the count of every status
-$appointments_status = getApptStatus($appointments);
-
 
 $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ? AND activity=1", array('apptstat'));
 while ($lrow = sqlFetchArray($lres)) {
@@ -118,12 +110,6 @@ while ($lrow = sqlFetchArray($lres)) {
         $title = $lrow['title'];
     }
     $statuses_list[$lrow['option_id']] = $title;
-}
-
-$chk_prov = array();  // list of providers with appointments
-// Scan appointments for additional info
-foreach ($appointments as $apt) {
-    $chk_prov[$apt['uprovider_id']] = $apt['ulname'] . ', ' . $apt['ufname'] . ' ' . $apt['umname'];
 }
 
 if ($GLOBALS['medex_enable'] == '1') {
@@ -403,7 +389,7 @@ if (!$_REQUEST['flb_table']) {
                                         <td class="text-center" colspan="2">
                                             <input href="#"
                                                    class="btn btn-primary"
-                                                   type="submit" id="filter_submit"
+                                                   id="filter_submit"
                                                    value="<?php echo xla('Filter'); ?>">
                                             <input type="hidden" id="kiosk" name="kiosk"
                                                    value="<?php echo attr($_REQUEST['kiosk']); ?>">
@@ -434,9 +420,36 @@ if (!$_REQUEST['flb_table']) {
             </form>
         </div>
     </div>
+
     <div class="row-fluid">
-        <div class="row divTable">
-            <div class="col-sm-12 text-center" style='margin:5px;'>
+        <div class="col-md-12">
+            <div class=" text-center row divTable" style="width: 85%;padding: 10px 10px 0;margin: 10px auto;">
+                <div class="col-sm-12" id="loader">
+                    <div class="text-center">
+                        <i class="fa fa-spinner fa-pulse fa-fw" style="font-size: 140px; color: #0000cc; padding: 20px"></i>
+                        <h2 ><?php echo xlt('Loading data'); ?>...</h2>
+                    </div>
+                </div>
+                <div id="flb_table" name="flb_table">
+            <?php
+} else {
+//end of if !$_REQUEST['flb_table'] - this is the table we fetch via ajax during a refreshMe() call
+// get all appts for date range and refine view client side.  very fast...
+    $appointments = array();
+    $datetime = date("Y-m-d H:i:s");
+    $appointments = fetch_Patient_Tracker_Events($from_date, $to_date, '', '', '', '', $form_patient_name, $form_patient_id);
+    $appointments = sortAppointments($appointments, 'date', 'time');
+    //grouping of the count of every status
+    $appointments_status = getApptStatus($appointments);
+
+    $chk_prov = array();  // list of providers with appointments
+    // Scan appointments for additional info
+    foreach ($appointments as $apt) {
+        $chk_prov[$apt['uprovider_id']] = $apt['ulname'] . ', ' . $apt['ufname'] . ' ' . $apt['umname'];
+    }
+
+                ?>
+                <div class="col-sm-12 text-center" style='margin:5px;'>
                 <span class="hidden-xs" id="status_summary">
                     <?php
                     $statuses_output = "<span style='margin:0 10px;'><em>" . xlt('Total patients') . ':</em> <span class="badge">' . text($appointments_status['count_all']) . "</span></span>";
@@ -472,12 +485,9 @@ if (!$_REQUEST['flb_table']) {
                 </span>
             </div>
 
-            <div class="col-sm-12 textclear" id="flb_table" name="flb_table">
-                <?php
-}
-                //end of if !$_REQUEST['flb_table'] - this is the table we fetch via ajax during a refreshMe() call
-                ?>
-                <table class="table table-responsive table-condensed table-hover table-bordered">
+                <div class="col-sm-12 textclear" >
+
+                    <table class="table table-responsive table-condensed table-hover table-bordered">
                     <thead>
                     <tr bgcolor="#cccff" class="small bold  text-center">
                         <?php if ($GLOBALS['ptkr_show_pid']) { ?>
@@ -906,8 +916,12 @@ if ($appointment['room'] > '') {
                     ?>
                     </tbody>
                 </table>
-                <?php
-                if (!$_REQUEST['flb_table']) { ?>
+
+<?php
+}
+if (!$_REQUEST['flb_table']) { ?>
+                   </div>
+                </div>
             </div>
         </div>
     </div><?php //end container ?>
@@ -921,16 +935,16 @@ if ($appointment['room'] > '') {
     <?php echo myLocalJS(); ?>
 </body>
 </html>
-    <?php
-                } //end of second !$_REQUEST['flb_table']
+<?php
+} //end of second !$_REQUEST['flb_table']
 
-    //$content = ob_get_clean();
-    //echo $content;
+//$content = ob_get_clean();
+//echo $content;
 
-                exit;
+exit;
 
-                function myLocalJS()
-                {
+function myLocalJS()
+{
                     ?>
                     <script type="text/javascript">
                         var auto_refresh = null;
@@ -946,9 +960,9 @@ if ($appointment['room'] > '') {
                         $("[name='kiosk_hide']").hide();
                         $("[name='kiosk_show']").show();
                         <?php } else { ?>
-            $("[name='kiosk_hide']").show();
-            $("[name='kiosk_show']").hide();
-            <?php  }   ?>
+                        $("[name='kiosk_hide']").show();
+                        $("[name='kiosk_show']").hide();
+                        <?php  }   ?>
                                     function print_FLB() {
                                         window.print();
                                     }
@@ -978,7 +992,15 @@ if ($appointment['room'] > '') {
                                     /**
                                      * This function refreshes the whole flb_table according to our to/from dates.
                                      */
-                                    function refreshMe() {
+                                    function refreshMe(fromTimer) {
+
+                                        if(typeof fromTimer === 'undefined' || !fromTimer) {
+                                            //Show loader in the first loading or manual loading not by timer
+                                            $("#flb_table").html('');
+                                            $('#loader').show();
+                                        }
+
+                                        var startRequestTime = Date.now();
                                         top.restoreSession();
                                         var posting = $.post('../patient_tracker/patient_tracker.php', {
                                             flb_table: '1',
@@ -993,18 +1015,33 @@ if ($appointment['room'] > '') {
                                             kiosk: $("#kiosk").val()
                                         }).done(
                                             function (data) {
-                                                $("#flb_table").html(data);
-                                                if ($("#kiosk").val() === '') {
-                                                    $("[name='kiosk_hide']").show();
-                                                    $("[name='kiosk_show']").hide();
+                                                //minimum 400 ms of loader (In the first loading or manual loading not by timer)
+                                                if((typeof fromTimer === 'undefined' || !fromTimer) && Date.now() - startRequestTime < 400 ){
+                                                    setTimeout(drawTable, 500, data);
                                                 } else {
-                                                    $("[name='kiosk_hide']").hide();
-                                                    $("[name='kiosk_show']").show();
+                                                    drawTable(data)
                                                 }
-
-                                                refineMe();
                                             });
                                     }
+
+                                    function drawTable(data) {
+
+                                        $('#loader').hide();
+                                        $("#flb_table").html(data);
+                                        if ($("#kiosk").val() === '') {
+                                        $("[name='kiosk_hide']").show();
+                                        $("[name='kiosk_show']").hide();
+                                        } else {
+                                        $("[name='kiosk_hide']").hide();
+                                        $("[name='kiosk_show']").show();
+                                        }
+
+                                        refineMe();
+
+                                        initTableButtons();
+
+                                    }
+
                                     function refreshme() {
                                         // Just need this to support refreshme call from the popup used for recurrent appt
                                         refreshMe();
@@ -1120,7 +1157,7 @@ if ($appointment['room'] > '') {
                                     }
 
                                     $(document).ready(function () {
-                                        refineMe();
+                                        refreshMe();
                                         $("#kiosk").val('');
                                         $("[name='kiosk_hide']").show();
                                         $("[name='kiosk_show']").hide();
@@ -1151,17 +1188,16 @@ if ($appointment['room'] > '') {
                                         if ($GLOBALS['pat_trkr_timer'] != '0') {
                                         ?>
                                         var reftime = "<?php echo attr($GLOBALS['pat_trkr_timer']); ?>";
-                            var parsetime = reftime.split(":");
-                            parsetime = (parsetime[0] * 60) + (parsetime[1] * 1) * 1000;
-                            if (auto_refresh) clearInteral(auto_refresh);
-                            auto_refresh = setInterval(function () {
-                                refreshMe() // this will run after every parsetime seconds
-                            }, parsetime);
+                                        var parsetime = reftime.split(":");
+                                        parsetime = (parsetime[0] * 60) + (parsetime[1] * 1) * 1000;
+                                        if (auto_refresh) clearInteral(auto_refresh);
+                                        auto_refresh = setInterval(function () {
+                                            refreshMe(true) // this will run after every parsetime seconds
+                                        }, parsetime);
                             <?php
                                         }
                                         ?>
 
-                                        $('#settings').css("display", "none");
                                         $('.js-blink-infinite').each(function () {
                                             // set up blinking text
                                             var elem = $(this);
@@ -1197,15 +1233,6 @@ if ($appointment['room'] > '') {
                                 });
                             });
 
-                            $('#setting_cog').click(function () {
-                                $(this).css("display", "none");
-                                $('#settings').css("display", "inline");
-                            });
-
-                            $('#refreshme').click(function () {
-                                refreshMe();
-                                refineMe();
-                            });
 
                             $('#filter_submit').click(function (e) {
                                 e.preventDefault;
@@ -1224,8 +1251,25 @@ if ($appointment['room'] > '') {
                             });
 
                                     });
+
+                            function initTableButtons() {
+                                $('#refreshme').click(function () {
+                                    refreshMe();
+                                    refineMe();
+                                });
+
+                                $('#setting_cog').click(function () {
+                                    $(this).css("display", "none");
+                                    $('#settings').css("display", "inline");
+                                });
+
+                                 $('#settings').css("display", "none");
+                            }
+
+                            initTableButtons();
+
                                 </script>
                                 <?php
-                }
+}
 
-    ?>
+?>

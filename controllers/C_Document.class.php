@@ -341,6 +341,8 @@ class C_Document extends Controller
         $d = new Document($doc_id);
         $notes = $d->get_notes();
 
+        $this->assign("csrf_token_form", collectCsrfToken());
+
         $this->assign("file", $d);
         $this->assign("web_path", $this->_link("retrieve") . "document_id=" . $d->get_id() . "&");
         $this->assign("NOTE_ACTION", $this->_link("note"));

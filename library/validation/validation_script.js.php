@@ -240,6 +240,12 @@ function submitme(new_validate,e,form_id, constraints) {
                         return '<?php echo xla('Required field missing: Please enter the First name');?>';
                     case 'Required field missing: Please enter the Last name':
                         return '<?php echo xla('Required field missing: Please enter the Last name');?>';
+                    case 'Please choose a patient':
+                        return '<?php echo xla('Please choose a patient');?>';
+                    case 'Must be future date':
+                        return '<?php echo xla('Must be future date');?>';
+                    case 'Recipient required unless status is Done':
+                        return '<?php echo xla('Recipient required unless status is Done');?>';
                     default:
                        return '<?php echo xla('is not valid');?>';
                 }

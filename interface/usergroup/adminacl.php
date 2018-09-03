@@ -97,7 +97,7 @@ if (!isset($phpgacl_location)) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: "<?php echo attr($_SESSION['csrf_token']); ?>",
+                        csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>",
                         control: "acl",
                         action: "add",
                         title: title,
@@ -169,7 +169,7 @@ if (!isset($phpgacl_location)) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: "<?php echo attr($_SESSION['csrf_token']); ?>",
+                        csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>",
                         control: "acl",
                         action: "remove",
                         title: title,
@@ -219,7 +219,7 @@ if (!isset($phpgacl_location)) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: "<?php echo attr($_SESSION['csrf_token']); ?>",
+                        csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>",
                         control: "username",
                         action: "list"
                     },
@@ -268,7 +268,7 @@ if (!isset($phpgacl_location)) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: "<?php echo attr($_SESSION['csrf_token']); ?>",
+                        csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>",
                         control: "acl",
                         action: "list"
                     },
@@ -366,7 +366,7 @@ if (!isset($phpgacl_location)) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: "<?php echo attr($_SESSION['csrf_token']); ?>",
+                        csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>",
                         name: identityFormatted,
                         control: control,
                         action: action,
@@ -506,7 +506,7 @@ if (!isset($phpgacl_location)) {
     }
     ?>
 </head>
-<body class="body_top">
+<body id="adminacl" class="body_top">
     <div class="container">
         <div class="row">
             <div class="col-xs-12">

@@ -29,7 +29,7 @@ $alertmsg = "";
 // Check authorization.
 $thisauth = acl_check('admin', 'super');
 if (!$thisauth) {
-    die(xl('Not authorized'));
+    die(xlt('Not authorized'));
 }
 
 $layout_id = empty($_GET['layout_id']) ? '' : $_GET['layout_id'];
@@ -53,8 +53,6 @@ td { font-size:10pt; }
 <script language="JavaScript">
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
-
-var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
 // The name of the input element to receive a found code.
 var current_sel_name = '';
@@ -111,6 +109,10 @@ function get_related() {
 
 <?php
 if ($_POST['form_submit'] && !$alertmsg) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
     if ($group_id) {
         $sets =
             "grp_subtitle = ?, "   .
@@ -227,6 +229,7 @@ if ($layout_id) {
 ?>
 
 <form method='post' action='edit_layout_props.php?<?php echo "layout_id=" . attr($layout_id) . "&group_id=" . attr($group_id); ?>'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <center>
 
 <table border='0' width='100%'>
@@ -318,11 +321,11 @@ if ($layout_id) {
 <?php
   echo "<option value='0'>" . xlt('Default') . "</option>\n";
 for ($cols = 2; $cols <= 10; ++$cols) {
-    echo "<option value='$cols'";
+    echo "<option value='" . attr($cols) . "'";
     if ($cols == $row['grp_columns']) {
         echo " selected";
     }
-    echo ">$cols</option>\n";
+    echo ">" . text($cols) . "</option>\n";
 }
 ?>
    </select>
@@ -340,11 +343,11 @@ for ($cols = 2; $cols <= 10; ++$cols) {
 <?php
   echo "<option value='0'>" . xlt('Default') . "</option>\n";
 for ($size = 5; $size <= 15; ++$size) {
-    echo "<option value='$size'";
+    echo "<option value='" . attr($size) . "'";
     if ($size == $row['grp_size']) {
         echo " selected";
     }
-    echo ">$size</option>\n";
+    echo ">" . text($size) . "</option>\n";
 }
 ?>
    </select>

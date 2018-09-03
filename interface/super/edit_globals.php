@@ -115,6 +115,11 @@ function checkBackgroundServices()
 // If we are saving user_specific globals.
 //
 if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
+    //verify csrf
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
     $i = 0;
     foreach ($GLOBALS_METADATA as $grpname => $grparr) {
         if (in_array($grpname, $USER_SPECIFIC_TABS)) {
@@ -149,6 +154,11 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
 }
 
 if (array_key_exists('form_download', $_POST) && $_POST['form_download']) {
+    //verify csrf
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
     $client = portal_connection();
     try {
         $response = $client->getPortalConnectionFiles($credentials);
@@ -193,6 +203,11 @@ if (array_key_exists('form_download', $_POST) && $_POST['form_download']) {
 // If we are saving main globals.
 //
 if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) {
+    //verify csrf
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
     $force_off_enable_auditlog_encryption = true;
   // Need to force enable_auditlog_encryption off if the php openssl module
   // is not installed or the AES-256-CBC cipher is not available.
@@ -323,6 +338,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
       type: "POST",
       url: "<?php echo $GLOBALS['webroot']?>/library/ajax/offsite_portal_ajax.php",
       data: {
+        csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>',
         action: 'check_file'
       },
       cache: false,
@@ -355,6 +371,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
 <?php } else { ?>
   <form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php' onsubmit='return top.restoreSession()'>
 <?php } ?>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <div class="container">
     <div class="row">

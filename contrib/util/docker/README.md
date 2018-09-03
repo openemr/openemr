@@ -52,10 +52,12 @@ options to choose from:
 - http://localhost:8091 (with Nginx and PHP-FPM 7.0)
 - http://localhost:8092 (with Nginx and PHP-FPM 7.1)
 - http://localhost:8093 (with Nginx and PHP-FPM 7.2)
-- http://localhost:8094 (with Nginx and PHP-FPM 5.6 with redis)
-- http://localhost:8095 (with Nginx and PHP-FPM 7.0 with redis)
-- http://localhost:8096 (with Nginx and PHP-FPM 7.1 with redis)
-- http://localhost:8097 (with Nginx and PHP-FPM 7.2 with redis)
+- http://localhost:8094 (with Nginx and PHP-FPM 7.3)
+- http://localhost:8095 (with Nginx and PHP-FPM 5.6 with redis)
+- http://localhost:8096 (with Nginx and PHP-FPM 7.0 with redis)
+- http://localhost:8097 (with Nginx and PHP-FPM 7.1 with redis)
+- http://localhost:8098 (with Nginx and PHP-FPM 7.2 with redis)
+- http://localhost:8099 (with Nginx and PHP-FPM 7.3 with redis)
 - https://localhost:9080 with SSL (with Apache and PHP 7.1)
 - https://localhost:9081 with SSL (with Apache and PHP 7.2)
 - https://localhost:9082 with SSL (with Apache and PHP 7.1 with redis)
@@ -64,10 +66,12 @@ options to choose from:
 - https://localhost:9091 with SSL (with Nginx and PHP-FPM 7.0)
 - https://localhost:9092 with SSL (with Nginx and PHP-FPM 7.1)
 - https://localhost:9093 with SSL (with Nginx and PHP-FPM 7.2)
-- https://localhost:9094 with SSL (with Nginx and PHP-FPM 5.6 with redis)
-- https://localhost:9095 with SSL (with Nginx and PHP-FPM 7.0 with redis)
-- https://localhost:9096 with SSL (with Nginx and PHP-FPM 7.1 with redis)
-- https://localhost:9097 with SSL (with Nginx and PHP-FPM 7.2 with redis)
+- https://localhost:9094 with SSL (with Nginx and PHP-FPM 7.3)
+- https://localhost:9095 with SSL (with Nginx and PHP-FPM 5.6 with redis)
+- https://localhost:9096 with SSL (with Nginx and PHP-FPM 7.0 with redis)
+- https://localhost:9097 with SSL (with Nginx and PHP-FPM 7.1 with redis)
+- https://localhost:9098 with SSL (with Nginx and PHP-FPM 7.2 with redis)
+- https://localhost:9099 with SSL (with Nginx and PHP-FPM 7.3 with redis)
 
 **Step 4.** Setup up OpenEMR. The first time you run OpenEMR (and whenever you clear and replace your
 synchronized openemr directory and restart the development docker). On the main
@@ -207,7 +211,9 @@ at Administration->Globals->Documents:
 Developers are currently working on integrating the Orthanc PACS server into OpenEMR. This
 feature is currently under development. Although it is not yet integrated with OpenEMR yet,
 you can connect to the Orthanc application gui via http://localhost:8042/ with username `orthanc`
-and password `orthanc`.
+and password `orthanc`. The nginx docker has also been set up to work as a reverse proxy
+with orthanc to allow ongoing development via http://localhost:8090/orthanc/ (Note this reverse
+proxy is still a work in progress)
 
 ## The Docker Development Environment is a work in progress
 
@@ -217,3 +223,7 @@ docker-compose.yml script or this documentation. Also feel free to post
 updates on the openemr/openemr:flex or openemr/openemr:flex-edge dockers
 which can be found at
 https://github.com/openemr/openemr-devops/tree/master/docker/openemr
+
+## Stuff that needs fixing
+1. The reverse proxy for orthanc
+2. zip packages in the php 7.3 fpm dockers are not working. Will try to bring in zip intermittently.
