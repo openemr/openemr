@@ -229,7 +229,7 @@ if ($layout_id) {
 ?>
 
 <form method='post' action='edit_layout_props.php?<?php echo "layout_id=" . attr($layout_id) . "&group_id=" . attr($group_id); ?>'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr($_SESSION['csrf_token']); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <center>
 
 <table border='0' width='100%'>

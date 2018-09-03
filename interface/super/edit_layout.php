@@ -1213,7 +1213,7 @@ function setListItemOptions(lino, seq, init) {
     '?listid='  + encodeURIComponent(list_id) +
     '&target='  + encodeURIComponent(target)  +
     '&current=' + encodeURIComponent(current) +
-    '&csrf_token_form=' + encodeURIComponent('<?php echo attr($_SESSION['csrf_token']); ?>'));
+    '&csrf_token_form=' + encodeURIComponent('<?php echo attr(collectCsrfToken()); ?>'));
 }
 
 // This is called whenever a condition's field ID selection is changed.
@@ -1277,7 +1277,7 @@ function myChangeCheck() {
 <body class="body_top admin-layout">
 <div class="container-responsive">
 <form method='post' name='theform' id='theform' action='edit_layout.php'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr($_SESSION['csrf_token']); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <input type="hidden" name="formaction" id="formaction" value="">
 <!-- elements used to identify a field to delete -->
 <input type="hidden" name="deletefieldid" id="deletefieldid" value="">

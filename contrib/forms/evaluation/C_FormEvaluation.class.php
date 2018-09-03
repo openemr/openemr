@@ -16,7 +16,7 @@ class C_FormEvaluation extends Controller
         $this->assign("FORM_ACTION", $GLOBALS['web_root']);
         $this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
         $this->assign("STYLE", $GLOBALS['style']);
-        $this->assign("CSRF_TOKEN_FORM", $_SESSION['csrf_token']);
+        $this->assign("CSRF_TOKEN_FORM", collectCsrfToken());
     }
 
     function default_action()
