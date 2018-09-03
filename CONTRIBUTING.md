@@ -7,7 +7,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
 
 1. [Create your own fork of OpenEMR](https://github.com/openemr/openemr/fork) (you will need a GitHub account) and `git clone` it to your local machine.
     - It's best to also add an `upstream` origin to keep your local fork up to date. [Check out this guide](https://oneemptymind.wordpress.com/2018/07/11/keeping-a-fork-up-to-date/) for more info.
-2. Navigate to `[my_cloned_directory]/contrib/util/docker`
+2. `cd openemr` (the directory you cloned the code into)
     - If you haven't already, [install Docker](https://docs.docker.com/install/) for your system
 3. Edit `docker-compose.yml` to use your fork's git url and branch name for `FLEX_REPOSITORY` and `FLEX_REPOSITORY_BRANCH`
     - For example:
@@ -29,7 +29,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     - Note that changes to SCSS files will not automatically show unless the node build process is running. For more info on this, see the [README.md in /interface](interface/README.md)
 7. When you're done, it's best to clean up after yourself with `docker-compose down -v`
     - If you don't want to build from scratch every time, just use `docker-compose down` so your next `docker-compose up` will use the cached volumes.
-8. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into openemr/openemr#master!
+8. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
 
 We look forward to your contribution...
 
