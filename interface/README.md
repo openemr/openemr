@@ -43,27 +43,7 @@ From here you can either:
     * `http://localhost:3000` will refresh css automatically with [BrowserSync](http://www.browsersync.io/) after every change.
 * `npm run dev` - just compiles the local `.scss` files and recompiles them whenever they are changed.
 * `npm run dev-sync` (EXPERIMENTAL*) - loads your local OpenEMR instance using BrowserSync (port 3000) in front of 80 (feel free to edit the package.json to change the port)
-
-`dev-sync` in action:
-![dev-sync](https://i.imgur.com/Pt54dpd.mp4)
-
-**If you're using docker** or other locally-hosted development environment, it is recommended that you automatically copy files to a mounted volume instead of mounting your working directory. See ["Option 2" in this doc](/contrib/util/docker/README.md) for more info.
-
-### Development Environment Features
-
-- Live preview sever
-- CSS Autoprefixing
-- Sass compilation (not yet using in our current themes)
-- Browserify bundling
-- Image optimization
-
-## Build
-
-**Build before you make your final css commit:**
-
-```
-$ npm run build
-```
+    * [See video of `dev-sync` in action](https://imgur.com/a/C0dVnfq)
 
 ## TODOs
 - [ ] Incorporate tabs_style_compact.css and tabs_style_full.css (and associated RTL) into scss
