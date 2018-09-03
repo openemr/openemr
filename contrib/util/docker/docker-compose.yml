@@ -15,37 +15,13 @@ services:
       MYSQL_ROOT_PASSWORD: root
   openemr:
     restart: always
-    image: openemr/openemr:flex-edge
+    # image: openemr/openemr:flex-edge
+    build: ../../../../openemr-devops/docker/openemr/flex-edge/
     ports:
     - 80:80
     - 443:443
     volumes:
-    - ../../../Documentation:/var/www/localhost/htdocs/openemr/Documentation:ro
-    - ../../../ccr:/var/www/localhost/htdocs/openemr/ccr:ro
-    - ../../../cloud:/var/www/localhost/htdocs/openemr/cloud:ro
-    - ../../../config:/var/www/localhost/htdocs/openemr/config:ro
-    - ../../../controllers:/var/www/localhost/htdocs/openemr/controllers:ro
-    - ../../../entities:/var/www/localhost/htdocs/openemr/entities:ro
-    - ../../../images:/var/www/localhost/htdocs/openemr/images:ro
-    - ../../../library:/var/www/localhost/htdocs/openemr/library:ro
-    - ../../../myportal:/var/www/localhost/htdocs/openemr/myportal:ro
-    - ../../../phpfhir:/var/www/localhost/htdocs/openemr/phpfhir:ro
-    - ../../../services:/var/www/localhost/htdocs/openemr/services:ro
-    - ../../../sql:/var/www/localhost/htdocs/openemr/sql:ro
-    - ../../../tests:/var/www/localhost/htdocs/openemr/tests:ro
-    - ../../../ccdaservice:/var/www/localhost/htdocs/openemr/ccdaservice:ro
-    - ../../../ci:/var/www/localhost/htdocs/openemr/ci:ro
-    - ../../../common:/var/www/localhost/htdocs/openemr/common:ro
-    - ../../../contrib:/var/www/localhost/htdocs/openemr/contrib:ro
-    - ../../../custom:/var/www/localhost/htdocs/openemr/custom:ro
-    - ../../../gacl:/var/www/localhost/htdocs/openemr/gacl:ro
-    - ../../../interface:/var/www/localhost/htdocs/openemr/interface:ro
-    - ../../../modules:/var/www/localhost/htdocs/openemr/modules:ro
-    - ../../../patients:/var/www/localhost/htdocs/openemr/patients:ro
-    - ../../../portal:/var/www/localhost/htdocs/openemr/portal:ro
-    - ../../../repositories:/var/www/localhost/htdocs/openemr/repositories:ro
-    - ../../../sites:/var/www/localhost/htdocs/openemr/sites:ro
-    - ../../../templates:/var/www/localhost/htdocs/openemr/templates:ro
+    - ../../..:/var/www/localhost/htdocs/openemr:rw
     - assetsvolume01:/var/www/localhost/htdocs/openemr/public:rw
     - cachevolume01:/var/www/localhost/htdocs/openemr/gacl/admin/templates_c:rw
     - cachevolume02:/var/www/localhost/htdocs/openemr/interface/main/calendar/modules/PostCalendar/pntemplates/compiled:rw
@@ -53,8 +29,9 @@ services:
     - configvolume01:/var/www/localhost/htdocs/openemr/sites/default:rw
     - configvolume02:/var/www/localhost/htdocs/openemr/interface/modules/zend_modules/config:rw
     - logvolume01:/var/log
+    - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
+    - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
     environment:
-      MANUAL_SETUP: "yes"
       MYSQL_HOST: mysql
       MYSQL_ROOT_PASS: root
       MYSQL_USER: openemr
@@ -63,6 +40,7 @@ services:
       OE_PASS: pass
       FLEX_REPOSITORY: https://github.com/d3sandoval/openemr.git
       FLEX_REPOSITORY_BRANCH: 1600-move-away-from-bower-direct
+      NO_CHMOD: "yes"
     depends_on:
     - mysql
 volumes:
@@ -73,4 +51,6 @@ volumes:
   configvolume01: {}
   configvolume02: {}
   logvolume01: {}
+  nodemodules: {}
+  vendordir: {}
   databasevolume: {}

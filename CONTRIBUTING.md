@@ -16,7 +16,6 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     FLEX_REPOSITORY_BRANCH: master
     ```
 4. Run `docker-compose up` from your command line
-    - You'll get some errors from rsync and chown. You can ignore those.
     - When the build is done, you'll see the following message:
     ```
     openemr_1  | Love OpenEMR? You can now support the project via the open collective:
@@ -25,26 +24,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     openemr_1  | Starting cron daemon!
     openemr_1  | Starting apache!
     ```
-5. Navigate to `http://localhost/` to complete the setup
-    - Hit "Continue" on the first two screens
-    - For "Step 2", enter the following info:
-    ```
-    Server Host: mysql
-    Server Port: 3306
-    Database Name: openemr
-    Login Name: openemr
-    Password: ANYTHING YOU WANT
-    Name for Root Account: root
-    Root Pass: root
-    User Hostname: %
-    UTF-8 Collation: General
-
-    OPENEMR USER:
-        WHATEVER YOU WANT. Just remember what you type in here...
-    ```
-    - Click "Continue" and wait for a few seconds (or minutes), depending on your machine's speed
-    - You should see "Step 3" with a bunch of "OK"s next to each setup step.
-    - Click "Continue" on the rest of the screens to complete the setup.
+5. Navigate to `http://localhost/` to login as `admin`. Password is `pass`.
 6. Make changes to any files on your local file system. Most changes will appear after a refresh of the page or iFrame you're working on...
     - Note that changes to SCSS files will not automatically show unless the node build process is running. For more info on this, see the [README.md in /interface](interface/README.md)
 7. When you're done, it's best to clean up after yourself with `docker-compose down -v`
