@@ -13,5 +13,8 @@ node_modules
 !/public/assets/modified
 /.docs/.out/*
 
+# ccda service build
+ccdaservice/node_modules
+
 # dev editor configs
 /.idea/*
