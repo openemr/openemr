@@ -269,7 +269,8 @@ function replace($pid, $enc, $content)
         array($name,$age,strtolower($gender),$doctorname),
         $content
     );
-    return $ret;
+    //Below will fix blocks that were inadvertently double escaped in openemr versions 5.0.1.0 - 5.0.1.5
+    return str_replace("\\n", "\n", $ret);
 }
 function patient_age($birthday, $date)
 {
