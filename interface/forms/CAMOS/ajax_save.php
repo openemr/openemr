@@ -1,9 +1,13 @@
 <?php
 //------------This file inserts your field data into the MySQL database
-include_once("../../globals.php");
-include_once("../../../library/api.inc");
-include_once("../../../library/forms.inc");
-include_once("content_parser.php");
+require_once("../../globals.php");
+require_once("../../../library/api.inc");
+require_once("../../../library/forms.inc");
+require_once("content_parser.php");
+
+if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+    die(xlt('Authentication Error'));
+}
 
 $field_names = array('category' => $_POST["category"], 'subcategory' => $_POST["subcategory"], 'item' => $_POST["item"], 'content' => $_POST['content']);
 $camos_array = array();
@@ -46,4 +50,4 @@ foreach ($camos_array as $val) {
     }
 }
 
-echo "<font color=red><b>" . xl('submitted') . ": " . time() . "</b></font>";
+echo "<font color=red><b>" . xlt('submitted') . ": " . text(time()) . "</b></font>";
