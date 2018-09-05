@@ -406,7 +406,7 @@ $query = "SELECT id, category FROM ".mitigateSqlTableUpperCase("form_CAMOS_categ
 $statement = sqlStatement($query);
 $i = 0;
 while ($result = sqlFetchArray($statement)) {
-    echo "array1[" . attr(addslashes($i)) . "] = new Array(\"".attr(addslashes($result['category']))."\",\"".attr(addslashes($result['id']))."\", new Array());\n";
+    echo "array1[" . attr(addslashes($i)) . "] = new Array(\"".fixquotes($result['category'])."\",\"".attr(addslashes($result['id']))."\", new Array());\n";
     $i++;
 }
 
@@ -414,7 +414,7 @@ $i=0;
 $query = "SELECT id, subcategory, category_id FROM ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." ORDER BY subcategory";
 $statement = sqlStatement($query);
 while ($result = sqlFetchArray($statement)) {
-    echo "array2[".attr(addslashes($i))."] = new Array(\"".attr(addslashes($result['subcategory']))."\", \"".attr(addslashes($result['category_id']))."\", \"".attr(addslashes($result['id']))."\", new Array());\n";
+    echo "array2[".attr(addslashes($i))."] = new Array(\"".fixquotes($result['subcategory'])."\", \"".attr(addslashes($result['category_id']))."\", \"".attr(addslashes($result['id']))."\", new Array());\n";
     $i++;
 }
 
@@ -422,7 +422,7 @@ $i=0;
 $query = "SELECT id, item, content, subcategory_id FROM ".mitigateSqlTableUpperCase("form_CAMOS_item")." ORDER BY item";
 $statement = sqlStatement($query);
 while ($result = sqlFetchArray($statement)) {
-    echo "array3[".attr(addslashes($i))."] = new Array(\"".attr(addslashes($result['item']))."\", \"".attr(addslashes(str_replace($quote_search_content, $quote_replace_content, strip_tags($result['content'], "<b>,<i>"))))."\", \"".attr(addslashes($result['subcategory_id'])).
+    echo "array3[".attr(addslashes($i))."] = new Array(\"".fixquotes($result['item'])."\", \"".fixquotes(str_replace($quote_search_content, $quote_replace_content, strip_tags($result['content'], "<b>,<i>")))."\", \"".attr(addslashes($result['subcategory_id'])).
     "\",\"".attr(addslashes($result['id']))."\");\n";
     $i++;
 }
@@ -724,7 +724,7 @@ if ($preselect_category_override != '') {
     $preselect_category = $preselect_category_override;
 }
 ?>
-  if (select_word("<?php echo attr(addslashes($temp_preselect_mode))."\", \"".attr(addslashes($preselect_category)); ?>" ,f2.select_category)) {
+  if (select_word("<?php echo fixquotes($temp_preselect_mode)."\", \"".fixquotes($preselect_category); ?>" ,f2.select_category)) {
     click_category();
   }
 <?php
@@ -734,7 +734,7 @@ if (substr($_POST['hidden_mode'], 0, 5) == 'clone') {
 //  echo "f2.textarea_content.value += '/* count = ".count($clone_data_array)."*/\\n$break\\n';";
     echo "f2.textarea_content.value += '/* count = ".count($clone_data_array)."*/\\n$break\\n';";
     foreach ($clone_data_array as $key => $val) {
-        echo "f2.textarea_content.value = f2.textarea_content.value + \"".attr(addslashes(str_replace($quote_search, $quote_replace, $val)))."\\n$break\\n\"\n";
+        echo "f2.textarea_content.value = f2.textarea_content.value + \"".fixquotes(str_replace($quote_search, $quote_replace, $val))."\\n$break\\n\"\n";
     }
 }
 
@@ -766,7 +766,7 @@ if ($preselect_subcategory_override != '') {
     $preselect_subcategory = $preselect_subcategory_override;
 }
 ?>
-  if (select_word("<?php echo attr(addslashes($temp_preselect_mode))."\", \"".attr(addslashes($preselect_subcategory)); ?>" ,f2.select_subcategory)) {
+  if (select_word("<?php echo fixquotes($temp_preselect_mode)."\", \"".fixquotes($preselect_subcategory); ?>" ,f2.select_subcategory)) {
     click_subcategory();
   }
 }
@@ -794,7 +794,7 @@ if ($preselect_item_override != '') {
     $preselect_item = $preselect_item_override;
 }
 ?>
-  if (select_word("<?php echo attr(addslashes($temp_preselect_mode))."\", \"".attr(addslashes($preselect_item)); ?>" ,f2["select_item[]"])) {
+  if (select_word("<?php echo fixquotes($temp_preselect_mode)."\", \"".fixquotes($preselect_item); ?>" ,f2["select_item[]"])) {
     click_item();
     preselect_off = true;
   }
@@ -1259,6 +1259,15 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
 formFooter();
 
 //PHP FUNCTIONS
+
+function fixquotes($string)
+{
+// this function is needed to treat a string before php echos it in the process of generating javascript.
+// commented out below line because I have replaced single quotes around php that generates javascript with double quotes so single quotes don't have to be 'fixed'.
+//  $string =  preg_replace('/([\\\])*\'/', "\\\'", $string);
+    $string =  preg_replace('/([\\\])*\"/', "\\\"", $string);
+    return $string;
+}
 
 function searchName($string)
 {

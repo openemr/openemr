@@ -37,8 +37,8 @@ $sigline['signed'] =
     "<div class='sig'>"
   . "<img src='./sig.jpg'>"
   . "</div>\n";
-$query = sqlStatement("select fname,lname,street,city,state,postal_code,phone_home,DATE_FORMAT(DOB,'%m/%d/%y') as DOB from patient_data where pid =?");
-if ($result = sqlFetchArray($query, array($_SESSION['pid']))) {
+$query = sqlStatement("select fname,lname,street,city,state,postal_code,phone_home,DATE_FORMAT(DOB,'%m/%d/%y') as DOB from patient_data where pid =?", array($_SESSION['pid']));
+if ($result = sqlFetchArray($query)) {
     $patient_name = $result['fname'] . ' ' . $result['lname'];
     $patient_address = $result['street'];
     $patient_city = $result['city'];
