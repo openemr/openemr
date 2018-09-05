@@ -1,6 +1,5 @@
 <?php
 
-require_once("../../globals.php");
 require_once("../../../library/api.inc");
 
 function addAppt($days, $time)

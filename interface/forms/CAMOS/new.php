@@ -1155,7 +1155,7 @@ if (myAuth() == 1) {//root user only can see administration option
     <input type=text name=change_category><br>
     <input type=button name=add1 value='<?php echo xla('add'); ?>' onClick="js_button('add','change_category')">
     <input type=button name=alter1 value='<?php echo xla('alter'); ?>' onClick="js_button('alter','change_category')">
-    <input type=button name=del1 value='<?php echo xl('del'); ?>' onClick="js_button('delete','change_category')"><br>
+    <input type=button name=del1 value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_category')"><br>
 <?php
 }
 ?>
@@ -1324,8 +1324,8 @@ function getMyPatientData($form_id, $show_phone_flag)
     "date_format(t1.DOB,'%m-%d-%y') as DOB, date_format(t2.date,'%m-%d-%y') as date, " .
     "datediff(current_date(),t2.date) as days " .
     "from patient_data as t1 join forms as t2 on (t1.pid = t2.pid) where t2.form_id=? " .
-    "and form_name like 'CAMOS%'");
-    if ($results = sqlFetchArray($query, array($form_id))) {
+    "and form_name like 'CAMOS%'", array($form_id));
+    if ($results = sqlFetchArray($query)) {
         $pid = $results['pid'];
         $fname = $results['fname'];
         $mname = $results['mname'];
