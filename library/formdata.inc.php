@@ -285,18 +285,3 @@ function strip_escape_custom($s)
       //magic quotes is gone as of php 5.4, so just return the value
       return $s;
 }
-
-/**
- * (Note this function is deprecated for new scripts and is only utilized to support legacy scripts)
- * This function is only being kept to support
- * previous functionality. If you want to trim
- * variables, this should be done using above
- * functions.
- *
- * @param string $s
- * @return string
- */
-function formTrim($s)
-{
-    return formDataCore($s, true);
-}
