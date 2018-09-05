@@ -1,7 +1,14 @@
 <?php
 require_once('../../globals.php');
+require_once("$srcdir/acl.inc");
 ?>
 <?php
+// Check authorization.
+if (!acl_check('admin', 'super')) {
+    die(xlt('Not authorized'));
+}
+
+
 if ($_POST['export']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
         die(xlt('Authentication Error'));
