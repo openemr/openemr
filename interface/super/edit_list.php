@@ -47,9 +47,9 @@ if ($_POST['formaction'] == 'save' && $list_id) {
         sqlStatement("DELETE FROM fee_sheet_options");
         for ($lino = 1; isset($opt["$lino"]['category']); ++$lino) {
             $iter = $opt["$lino"];
-            $category = formTrim($iter['category']);
-            $option = formTrim($iter['option']);
-            $codes = formTrim($iter['codes']);
+            $category = trim($iter['category']);
+            $option = trim($iter['option']);
+            $codes = trim($iter['codes']);
             if (strlen($category) > 0 && strlen($option) > 0) {
                 sqlInsert("INSERT INTO fee_sheet_options ( " .
                     "fs_category, fs_option, fs_codes " .
@@ -61,19 +61,19 @@ if ($_POST['formaction'] == 'save' && $list_id) {
         sqlStatement("DELETE FROM code_types");
         for ($lino = 1; isset($opt["$lino"]['ct_key']); ++$lino) {
             $iter = $opt["$lino"];
-            $ct_key = formTrim($iter['ct_key']);
-            $ct_id = formTrim($iter['ct_id']) + 0;
-            $ct_seq = formTrim($iter['ct_seq']) + 0;
-            $ct_mod = formTrim($iter['ct_mod']) + 0;
-            $ct_just = formTrim($iter['ct_just']);
-            $ct_mask = formTrim($iter['ct_mask']);
+            $ct_key = trim($iter['ct_key']);
+            $ct_id = trim($iter['ct_id']) + 0;
+            $ct_seq = trim($iter['ct_seq']) + 0;
+            $ct_mod = trim($iter['ct_mod']) + 0;
+            $ct_just = trim($iter['ct_just']);
+            $ct_mask = trim($iter['ct_mask']);
             $ct_fee = empty($iter['ct_fee']) ? 0 : 1;
             $ct_rel = empty($iter['ct_rel']) ? 0 : 1;
             $ct_nofs = empty($iter['ct_nofs']) ? 0 : 1;
             $ct_diag = empty($iter['ct_diag']) ? 0 : 1;
             $ct_active = empty($iter['ct_active']) ? 0 : 1;
-            $ct_label = formTrim($iter['ct_label']);
-            $ct_external = formTrim($iter['ct_external']) + 0;
+            $ct_label = trim($iter['ct_label']);
+            $ct_external = trim($iter['ct_external']) + 0;
             $ct_claim = empty($iter['ct_claim']) ? 0 : 1;
             $ct_proc = empty($iter['ct_proc']) ? 0 : 1;
             $ct_term = empty($iter['ct_term']) ? 0 : 1;
@@ -112,22 +112,22 @@ if ($_POST['formaction'] == 'save' && $list_id) {
         sqlStatement("DELETE FROM issue_types");
         for ($lino = 1; isset($opt["$lino"]['category']); ++$lino) {
             $iter = $opt["$lino"];
-            $it_category = formTrim($iter['category']);
-            $it_type = formTrim($iter['type']);
+            $it_category = trim($iter['category']);
+            $it_type = trim($iter['type']);
             if ((strlen($it_category) > 0) && (strlen($it_type) > 0)) {
                 sqlInsert("INSERT INTO issue_types (" .
                     "`active`,`category`,`ordering`, `type`, `plural`, `singular`, `abbreviation`, `style`, " .
                     "`force_show`, `aco_spec`) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", array(
-                    formTrim($iter['active']),
+                    trim($iter['active']),
                     $it_category,
-                    formTrim($iter['ordering']),
+                    trim($iter['ordering']),
                     $it_type,
-                    formTrim($iter['plural']),
-                    formTrim($iter['singular']),
-                    formTrim($iter['abbreviation']),
-                    formTrim($iter['style']),
-                    formTrim($iter['force_show']),
-                    formTrim($iter['aco_spec']),
+                    trim($iter['plural']),
+                    trim($iter['singular']),
+                    trim($iter['abbreviation']),
+                    trim($iter['style']),
+                    trim($iter['force_show']),
+                    trim($iter['aco_spec']),
                 ));
             }
         }
@@ -142,8 +142,8 @@ if ($_POST['formaction'] == 'save' && $list_id) {
         sqlStatement("DELETE FROM list_options WHERE list_id = ?", array($list_id));
         for ($lino = 1; isset($opt["$lino"]['id']); ++$lino) {
             $iter = $opt["$lino"];
-            $value = empty($iter['value']) ? 0 : (formTrim($iter['value']) + 0);
-            $id = formTrim($iter['id']);
+            $value = empty($iter['value']) ? 0 : (trim($iter['value']) + 0);
+            $id = trim($iter['id']);
             if (strlen($id) > 0) {
                 // Special processing for the immunizations list
                 // Map the entered cvx codes into the immunizations table cvx_code
@@ -179,9 +179,9 @@ if ($_POST['formaction'] == 'save' && $list_id) {
                 }
 
                 if ($list_id == 'apptstat' || $list_id == 'groupstat') {
-                    $notes = formTrim($iter['apptstat_color']) . '|' . formTrim($iter['apptstat_timealert']);
+                    $notes = trim($iter['apptstat_color']) . '|' . trim($iter['apptstat_timealert']);
                 } else {
-                    $notes = formTrim($iter['notes']);
+                    $notes = trim($iter['notes']);
                 }
                 // Insert the list item
                 sqlInsert(
@@ -191,17 +191,17 @@ if ($_POST['formaction'] == 'save' && $list_id) {
                     array(
                         $list_id,
                         $id,
-                        formTrim($iter['title']),
-                        formTrim($iter['seq']),
-                        formTrim($iter['default']),
+                        trim($iter['title']),
+                        trim($iter['seq']),
+                        trim($iter['default']),
                         $value,
-                        formTrim($iter['mapping']),
+                        trim($iter['mapping']),
                         $notes,
-                        formTrim($iter['codes']),
-                        formTrim($iter['toggle_setting_1']),
-                        formTrim($iter['toggle_setting_2']),
-                        formTrim($iter['activity']),
-                        formTrim($iter['subtype'])
+                        trim($iter['codes']),
+                        trim($iter['toggle_setting_1']),
+                        trim($iter['toggle_setting_2']),
+                        trim($iter['activity']),
+                        trim($iter['subtype'])
                     )
                 );
             }
