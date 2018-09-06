@@ -378,7 +378,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt'] || $_REQUEST['lastpmt']) {
         // mdsupport - Intended for reprint (before other payments are posted)
         $form_pid = $_GET['patient'];
         $lastpmt = sqlQuery('SELECT dtime from payments WHERE pid=? ORDER BY dtime DESC', array($form_pid));
-        // Let subsequent(standard) logic process case of not-found 
+        // Let subsequent(standard) logic process case of not-found
         $timestamp = $lastpmt['dtime'];
     }
 
