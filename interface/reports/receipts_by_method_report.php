@@ -341,7 +341,7 @@ $form_proc_code = $tmp_code_array[1];
             </td>
 
             <td>
-            <?php dropdown_facility(strip_escape_custom($form_facility), 'form_facility', false); ?>
+            <?php dropdown_facility($form_facility, 'form_facility', false); ?>
             </td>
 
             <td class='control-label'>
