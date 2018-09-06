@@ -267,7 +267,7 @@ foreach($field_names as $key=>$val)
 //end special processing
 foreach ($field_names as $k => $var) {
   #if (strtolower($k) == strtolower($var)) {unset($field_names[$k]);}
-  $field_names[$k] = formDataCore($var);
+  $field_names[$k] = add_escape_custom($var);
 echo "$var\n";
 }
 if ($encounter == "")
