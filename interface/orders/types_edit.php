@@ -20,7 +20,7 @@ $info_msg = "";
 
 function QuotedOrNull($fld)
 {
-    $fld = formDataCore($fld, true);
+    $fld = add_escape_custom(trim($fld));
     if ($fld) {
         return "'$fld'";
     }
@@ -258,11 +258,11 @@ function proc_type_changed() {
             //
             if ($_POST['form_save']) {
                 $p_procedure_code = invalue('form_procedure_code');
-                
+
                 if ($_POST['form_procedure_type'] == 'grp') {
                     $p_procedure_code = "''";
                 }
-                
+
                 $sets =
                 "name = " . invalue('form_name') . ", " .
                 "lab_id = " . invalue('form_lab_id') . ", " .
@@ -458,7 +458,7 @@ function proc_type_changed() {
                                                     $ppres = sqlStatement("SELECT ppid, name FROM procedure_providers " . "ORDER BY name, ppid");
                                                 }
 
-                                                
+
                                                 while ($pprow = sqlFetchArray($ppres)) {
                                                     echo "<option value='" . attr($pprow['ppid']) . "'";
                                                     if ($pprow['ppid'] == $row['lab_id']) {

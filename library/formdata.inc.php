@@ -248,6 +248,7 @@ function formData($name, $type = 'P', $isTrim = false)
 
 /**
  * (Note this function is deprecated for new scripts and is only utilized to support legacy scripts)
+ * NEED TO KEEP THIS FUNCTION TO ENSURE LEGACY FORMS ARE SUPPORTED
  * Core function that will be called by formData.
  * Note it can also be called directly if preparing
  * normal variables (not GET,POST, or REQUEST)

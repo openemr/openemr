@@ -137,7 +137,7 @@ foreach($field_names as $key=>$val)
 
 /* escape form data for entry to the database. */
 foreach ($field_names as $k => $var) {
-  $field_names[$k] = formDataCore($var);
+  $field_names[$k] = add_escape_custom($var);
 }
 
 if ($encounter == '') $encounter = date('Ymd');
