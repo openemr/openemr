@@ -370,10 +370,16 @@ if ($_POST['form_save']) {
     }//if ($_POST['form_upay'])
 }//if ($_POST['form_save'])
 
-if ($_POST['form_save'] || $_REQUEST['receipt']) {
+if ($_POST['form_save'] || $_REQUEST['receipt'] || $_REQUEST['lastpmt']) {
     if ($_REQUEST['receipt']) {
         $form_pid = $_GET['patient'];
         $timestamp = decorateString('....-..-.. ..:..:..', $_GET['time']);
+    } elseif ($_REQUEST['lastpmt']) {
+        // mdsupport - Intended for reprint (before other payments are posted)
+        $form_pid = $_GET['patient'];
+        $lastpmt = sqlQuery('SELECT dtime from payments WHERE pid=? ORDER BY dtime DESC', array($form_pid));
+        // Let subsequent(standard) logic process case of not-found 
+        $timestamp = $lastpmt['dtime'];
     }
 
     // Get details for what we guess is the primary facility.
