@@ -315,7 +315,7 @@ if ($encounter) {
     "encounter = ?", array($pid, $encounter));
 }
 
-$form_filename = strip_escape_custom($_REQUEST['form_filename']);
+$form_filename = $_REQUEST['form_filename'];
 $templatedir   = "$OE_SITE_DIR/documents/doctemplates";
 $templatepath  = "$templatedir/$form_filename";
 

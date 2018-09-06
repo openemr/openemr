@@ -149,7 +149,7 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
             "procedure_code = (SELECT procedure_code FROM procedure_type WHERE procedure_type_id = ?), " .
             "procedure_name = (SELECT name FROM procedure_type WHERE procedure_type_id = ?)," .
             "procedure_order_seq = ? ",
-            array($formid, strip_escape_custom($_POST['form_proc_type_diag'][$i]), strip_escape_custom($_POST['form_proc_order_title'][$i]), $ptid, $ptid, $procedure_order_seq['increment'])
+            array($formid, $_POST['form_proc_type_diag'][$i], $_POST['form_proc_order_title'][$i], $ptid, $ptid, $procedure_order_seq['increment'])
         );
         sqlCommitTrans();
 
@@ -196,7 +196,7 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
                     "question_code = ?, " .
                     "answer_seq = ?, " .
                     "answer = ?",
-                    array($formid, $poseq, $qcode, $answer_seq['increment'], strip_escape_custom($datum))
+                    array($formid, $poseq, $qcode, $answer_seq['increment'], $datum)
                 );
                 sqlCommitTrans();
             }

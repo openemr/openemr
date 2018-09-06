@@ -64,13 +64,13 @@ if (!$form_batch && !$pid && !$form_review) {
 function oresRawData($name, $index)
 {
     $s = isset($_POST[$name][$index]) ? $_POST[$name][$index] : '';
-    return trim(strip_escape_custom($s));
+    return trim($s);
 }
 
 function oresData($name, $index)
 {
     $s = isset($_POST[$name][$index]) ? $_POST[$name][$index] : '';
-    return formDataCore($s, true);
+    return add_escape_custom(trim($s));
 }
 
 function QuotedOrNull($fld)

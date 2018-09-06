@@ -24,7 +24,7 @@
 [-php-] xl('Return to calendar','e'); [-/php-]</a>
 <div id="calsearch_params">
 <form name="theform" id="theform" action="[-$FORM_ACTION-]" method="POST"> <!-- onsubmit="return top.restoreSession()"> -->
-[-php-] xl('Keywords','e'); [-/php-]: <input type="text" name="pc_keywords" id="pc_keywords" value="[-php-]echo htmlspecialchars(strip_escape_custom($_POST['pc_keywords']),ENT_QUOTES);[-/php-]" />
+[-php-] xl('Keywords','e'); [-/php-]: <input type="text" name="pc_keywords" id="pc_keywords" value="[-php-]echo htmlspecialchars($_POST['pc_keywords'],ENT_QUOTES);[-/php-]" />
 <select name="pc_keywords_andor">
     <option value="AND">[-php-] xl('AND','e'); [-/php-]</option>
     <option value="OR">[-php-] xl('OR','e'); [-/php-]</option>
