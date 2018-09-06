@@ -7,7 +7,7 @@ $id   = $_GET['id'];
 
 if (isset($mode)) {
     if ($mode == "add") {
-        addBilling($encounter, $type, $code, strip_escape_custom($text), $pid, $userauthorized, $_SESSION['authUserID']);
+        addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $_SESSION['authUserID']);
     } elseif ($mode == "delete") {
         deleteBilling($id);
     } elseif ($mode == "clear") {

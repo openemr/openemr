@@ -263,25 +263,7 @@ function formDataCore($s, $isTrim = false)
         $s = trim($s);
     }
 
-      //strip escapes
-      $s = strip_escape_custom($s);
       //add escapes for safe database insertion
       $s = add_escape_custom($s);
-      return $s;
-}
-
-/**
- * (Note this function is deprecated for new scripts and is only utilized to support legacy scripts)
- * Will remove escapes if needed (ie magic quotes turned on) from string
- * Called by above formDataCore() function to prepare for database insertion.
- * Can also be called directly if simply need to remove escaped characters
- * from a string before processing.
- *
- * @param string $s
- * @return string
- */
-function strip_escape_custom($s)
-{
-      //magic quotes is gone as of php 5.4, so just return the value
       return $s;
 }
