@@ -1877,13 +1877,13 @@ function genCcda(pd) {
             return console.log(err);
         }
         console.log("Json saved!");
-    });*/
+    });
     fs.writeFile("bbtest.xml", xml, function (err) {
         if (err) {
             return console.log(err);
         }
         console.log("Xml saved!");
-    });
+    });*/
 
     return xml;
 }
