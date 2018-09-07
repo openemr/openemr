@@ -110,7 +110,7 @@ function fDate(str) {
     str = String(str); // at least ensure string so cast it...
 
     if (Number(str) === 0) {
-        return '';
+        return (new Date()).toISOString().slice(0,10).replace(/-/g,"");
     }
     if (str.length === 8 || (str.length === 14 && (1 * str.substring(12, 14)) === 0)) {
         return [str.slice(0, 4), str.slice(4, 6), str.slice(6, 8)].join('-')
@@ -141,10 +141,7 @@ function getPrecision(str) {
 }
 
 function templateDate(date, precision) {
-    if (!fDate(date)) {
-        return "";
-    }
-    return [{'date': date, 'precision': precision}]
+    return [{'date': fDate(date), 'precision': precision}]
 }
 
 function cleanCode(code) {
@@ -241,7 +238,7 @@ function populateDemographic(pd, g) {
         "attributed_provider": {
             "identity": [
                 {
-                    "root": oidFacility || "2.16.840.1.113883.4.6",
+                    "root": "2.16.840.1.113883.4.6",
                     "extension": npiFacility || "UNK"
                 }
             ],
@@ -550,8 +547,8 @@ function populateEncounter(pd) {
         }],
         "date_time": {
             "point": {
-                "date": fDate(pd.date_formatted),
-                "precision": getPrecision(fDate(pd.date_formatted))
+                "date": fDate(pd.date),
+                "precision": "second" //getPrecision(fDate(pd.date_formatted))
             }
         },
         "performers": [{
@@ -1131,8 +1128,8 @@ function populateVital(pd) {
 function populateSocialHistory(pd) {
     return {
         "date_time": {
-            "low": templateDate(pd.date_formatted, "day")
-            //"high": templateDate(pd.date_formatted, "day")
+            "low": templateDate(pd.date, "day")
+            //"high": templateDate(pd.date, "day")
         },
         "identifiers": [{
             "identifier": pd.sha_extension,
@@ -1201,7 +1198,7 @@ function populateImmunization(pd) {
             }],
             "organization": [{
                 "identifiers": [{
-                    "identifier": oidFacility,
+                    "identifier": "2.16.840.1.113883.4.6",
                     "extension": npiFacility
                 }],
                 "name": [pd.facility_name]
@@ -1368,7 +1365,7 @@ function populateHeader(pd) {
     var head = {
         "identifiers": [
             {
-                "identifier": "2.16.840.1.113883.19.5.99999.1",
+                "identifier": oidFacility,
                 "extension": "TT988"
             }
         ],
@@ -1417,7 +1414,7 @@ function populateHeader(pd) {
                     "phone": [
                         {
                             "number": pd.author.telecom,
-                            "type": "work place"
+                            "use": "work place"
                         }
                     ],
                     "code": [
@@ -1430,8 +1427,8 @@ function populateHeader(pd) {
                         {
                             "identity": [
                                 {
-                                    "root": "2.16.840.1.113883.19.5.9999.1393",
-                                    "extension": pd.encounter_provider.facility_id || "UNK"
+                                    "root": "2.16.840.1.113883.4.6",
+                                    "extension": npiFacility || "UNK"
                                 }
                             ],
                             "name": [
@@ -1451,7 +1448,7 @@ function populateHeader(pd) {
                             "phone": [
                                 {
                                     "number": pd.encounter_provider.facility_phone,
-                                    "type": "primary work"
+                                    "type": "work primary"
                                 }
                             ]
                         }
@@ -1459,7 +1456,35 @@ function populateHeader(pd) {
                 }
             ]
         },
-        "data_enterer": {
+        "custodian": {
+            "identity": [
+                {
+                    "root": "2.16.840.1.113883.4.6",
+                    "extension": npiFacility || "UNK"
+                }
+            ],
+            "name": [
+                pd.encounter_provider.facility_name
+            ],
+            "address": [
+                {
+                    "street_lines": [
+                        pd.encounter_provider.facility_street
+                    ],
+                    "city": pd.encounter_provider.facility_city,
+                    "state": pd.encounter_provider.facility_state,
+                    "zip": pd.encounter_provider.facility_postal_code,
+                    "country": pd.encounter_provider.facility_country_code
+                }
+            ],
+            "phone": [
+                {
+                    "number": pd.encounter_provider.facility_phone,
+                    "type": "work primary"
+                }
+            ]
+        },
+        /*"data_enterer": {
             "identifiers": [
                 {
                     "identifier": "2.16.840.1.113883.4.6",
@@ -1520,7 +1545,7 @@ function populateHeader(pd) {
                     "type": "work place"
                 }
             ]
-        },
+        },*/
         "service_event": { // @todo maybe move this to attributed or write z-schema template
             "code": {
                 "name": "",
@@ -1631,7 +1656,7 @@ function getMeta(pd) {
             }
         ],
         "confidentiality": "Normal",
-        "setId": {
+        "set_id": {
             "identifier": "2.16.840.1.113883.19.5.99999.19",
             "extension": "sTT988"
         }
@@ -1852,13 +1877,13 @@ function genCcda(pd) {
             return console.log(err);
         }
         console.log("Json saved!");
-    });
+    });*/
     fs.writeFile("bbtest.xml", xml, function (err) {
         if (err) {
             return console.log(err);
         }
         console.log("Xml saved!");
-    });*/
+    });
 
     return xml;
 }
@@ -1866,7 +1891,7 @@ function genCcda(pd) {
 function processConnection(connection) {
     conn = connection; // make it global
     var remoteAddress = conn.remoteAddress + ':' + conn.remotePort;
-    console.log(remoteAddress);
+    //console.log(remoteAddress);
     conn.setEncoding('utf8');
 
     function eventData(xml) {
