@@ -112,7 +112,7 @@ function getAuthPortalUsers()
     rel="stylesheet" type="text/css" />
 <?php } ?>
 <script type='text/javascript'
-    src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-11-3/jquery.js"></script>
+    src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-11-3/dist/jquery.js"></script>
 <script type='text/javascript'
     src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.min.js"></script>
 <link rel="stylesheet"

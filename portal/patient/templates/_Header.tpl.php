@@ -45,7 +45,7 @@
 
         <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
         <script type="text/javascript">
-            $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-11-3/jquery.js").wait()
+            $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-11-3/dist/jquery.js").wait()
                 .script("<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.min.js")
                 .script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment/moment.js")
                 .script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js")
