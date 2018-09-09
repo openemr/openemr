@@ -290,7 +290,7 @@ $urlparms = "docid=$docid_esc&orderid=$orderid_esc";
     <div>
         <span class="title"><?php echo xlt('Patient Messages') . $title_docname; ?></span>
     </div>
-    <div id='namecontainer_pnotes' class='namecontainer_pnotes' style='float:left;margin-right:10px'>
+    <div id='namecontainer_pnotes' class='namecontainer_pnotes'>
         <?php echo htmlspecialchars(xl('for'), ENT_NOQUOTES);?>&nbsp;<span class="title">
       <a href="../summary/demographics.php" onclick="return top.restoreSession()"><?php echo htmlspecialchars(getPatientName($patient_id), ENT_NOQUOTES); ?></a></span>
     </div>
