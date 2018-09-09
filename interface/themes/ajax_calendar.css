@@ -23,6 +23,9 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     padding: 0px 5px 0px 5px;
     margin-right: 0%; /* added because of the width issue above */
 }
+.rtl #functions{
+    float: right;
+}
 
 #topToolbarRight {
     float: right;
@@ -30,19 +33,31 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     border-bottom:1px solid black;
     padding: 5px 0px 3px 0px; /*RP_ADDED_2017-02-19*/
 }
+.rtl #topToolbarRight {
+    float: right;
+}
 #dateNAV {
     float: left;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 14pt;
+}
+.rtl #dateNAV {
+    float: right;
 }
 #dateDisplay {
     float: left;
     padding-left: 10px;
     font-family: Arial, Helvetica, sans-serif;
 }
+.rtl #dateDisplay{
+    float: right;
+}
 #viewPicker {
     float: right;
     margin-right: 10px;
+}
+.rtl #viewPicker {
+    float: left;
 }
 #bigCalHeader {
     width:70%;
@@ -50,6 +65,9 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     text-align:center;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 14pt;
+}
+.rtl #bigCalHeader {
+    float: left;
 }
 #providerPicker {
     font-family: Arial, Helvetica, sans-serif;

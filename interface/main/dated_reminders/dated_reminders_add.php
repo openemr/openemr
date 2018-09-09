@@ -397,7 +397,7 @@ if (isset($this_message['pid'])) {
                 <label class="control-label text-right" for="message"><?php echo xlt('Type Your message here');?>:</label>
                 <textarea onKeyDown="limitText(this.form.message,this.form.countdown,<?php echo $max_reminder_words ?>);"
                     onKeyUp="limitText(this.form.message,this.form.countdown,<?php echo $max_reminder_words ?>);"
-                    class="form-control text-left" style= "height:75px !Important" name="message" id="message"
+                    class="form-control oe-text-to-left" style= "height:75px !Important" name="message" id="message"
                     placeholder="<?php echo xlt('Maximum characters') ?> : <?php echo $max_reminder_words ?>"><?php echo text($this_message['dr_message_text']);?></textarea>
                 </div>
             </div>

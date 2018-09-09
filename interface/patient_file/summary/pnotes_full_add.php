@@ -204,7 +204,7 @@ $urlparms = "docid=$docid&orderid=$orderid";
 <form border='0' method='post' name='new_note' id="new_note" action='pnotes_full.php?<?php echo $urlparms; ?>'>
 
     <div>
-        <div style='float:left; margin-right: 5px'>
+        <div id="pnotes_title">
             <span class="title"><?php echo xlt('Patient Note') . $title_docname; ?></span>
         </div>
         <div>
