@@ -63,7 +63,7 @@ if (!$docid) {
         <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
         <script type="text/javascript">
             $LAB.setGlobalDefaults({BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"});
-            $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-11-3/jquery.js")
+            $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-11-3/dist/jquery.js")
                 .script("<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signpad.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
                 .script("<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
                 .script("<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.min.js")
