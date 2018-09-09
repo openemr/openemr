@@ -472,7 +472,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 <input type='hidden' name='assigned_to' id='assigned_to'>
                                             </div>
                                             <div class="col-xs-6 col-sm-4">
-                                                <label class="control-label" for="users"></label>
+                                                <label class="control-label oe-empty-label" for="users"></label>
                                                 <select name='users' id='users' class='form-control' onchange='addtolist(this);'>
                                                     <?php
                                                     echo "<option value='--'";
@@ -625,6 +625,10 @@ if (!empty($_REQUEST['go'])) { ?>
                         $next = $begin + $listnumber;
                         $start = $begin + 1;
                         $end = $listnumber + $start - 1;
+
+                        $chevron_icon_left = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
+                        $chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
+
                         if ($end >= $total) {
                             $end = $total;
                         }
@@ -632,15 +636,15 @@ if (!empty($_REQUEST['go'])) { ?>
                             $start = 0;
                         }
                         if ($prev >= 0) {
-                            $prevlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($prev) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><i class=\"fa fa-chevron-circle-left chevron_color\" aria-hidden=\"true\"></i></a>";
+                            $prevlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($prev) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><i class=\"fa " . $chevron_icon_left . " chevron_color\" aria-hidden=\"true\"></i></a>";
                         } else {
-                            $prevlink = "<i class=\"fa fa-chevron-circle-left \" style=\"color:grey\" aria-hidden=\"true\" title=\"". xla("On first page") . "\"></i>";
+                            $prevlink = "<i class=\"fa ". $chevron_icon_left ." \" style=\"color:grey\" aria-hidden=\"true\" title=\"". xla("On first page") . "\"></i>";
                         }
 
                         if ($next < $total) {
-                            $nextlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($next) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><i class=\"fa fa-chevron-circle-right chevron_color\" aria-hidden=\"true\"></i></a>";
+                            $nextlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($next) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><i class=\"fa . $chevron_icon_right . chevron_color\" aria-hidden=\"true\"></i></a>";
                         } else {
-                            $nextlink = "<i class=\"fa fa-chevron-circle-right\" style=\"color:grey\" aria-hidden=\"true\" title=\"". xla("On first page") . "\"></i>";
+                            $nextlink = "<i class=\"fa . $chevron_icon_right .\" style=\"color:grey\" aria-hidden=\"true\" title=\"". xla("On first page") . "\"></i>";
                         }
                     // Display the Messages table header.
                         echo "
@@ -721,7 +725,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             <div class=\"col-xs-12 col-md-12 col-lg-12\"><a href=\"messages.php?showall=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($begin) . "&task=addnew&$activity_string_html\" class=\"btn btn-default btn-add\" onclick=\"top.restoreSession()\">" .
                                             xlt('Add New') . "</a> &nbsp; <a href=\"javascript:confirmDeleteSelected()\" class=\"btn btn-default btn-delete\" onclick=\"top.restoreSession()\">" .
                                             xlt('Delete') . "</a>
-                                            <div  class=\"text-right\">$prevlink &nbsp; $end of $total &nbsp; $nextlink</div>
+                                            <div  class=\"text-right\">$prevlink &nbsp; $end " .xlt('of') . " $total &nbsp; $nextlink</div>
                                             </div>
                                         </div>
                                     </td>

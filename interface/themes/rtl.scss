@@ -654,3 +654,12 @@ div.formname{
 .select2-search, .select2-results{
     direction: rtl !important;
 }
+
+#membership_show, #acl_show {
+    margin-left:4px;
+}
+
+
+#pnotes #pnotes_title, #pnotes #namecontainer_pnotes {
+    float:right;
+}

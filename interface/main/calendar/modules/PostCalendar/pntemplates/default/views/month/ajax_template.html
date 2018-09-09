@@ -154,6 +154,10 @@ if ( $_SESSION['pc_facility'] ) {
  }
  //EOS FACILITY FILTERING (CHEMED)
  //==================================
+
+$chevron_icon_left = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
+$chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
+
 [-/php-]
 <div id="topToolbarRight" class="bgcolor2">  <!-- this wraps some of the top toolbar items -->
 <div id="functions">
@@ -175,10 +179,10 @@ echo "   <a href='#' title='" . xl("Search Appointment") . "'
 <a href='#' name='bnsubmit' value='[-php-]echo xl ("Today")[-/php-]' onClick='GoToToday(theform);'  class='css_button'/><span>[-php-] echo xl("Today")[-/php-]</span></a>
 [-php-]
 echo "   <a id='prevmonth' href='$PREV_MONTH_URL' onclick='top.restoreSession()' title='" . xl("Previous Month") . "'>
-            <i class='fa fa-chevron-circle-left chevron_color' aria-hidden='true'></i></a>\n";;
+            <i class='fa ".$chevron_icon_left." chevron_color' aria-hidden='true'></i></a>\n";;
 echo xl(date('F', strtotime($Date))) . " " . date('Y', strtotime($Date));
 echo "   <a id='nextmonth' href='$NEXT_MONTH_URL' onclick='top.restoreSession()' title='" . xl("Next Month") . "'>
-           <i class= 'fa fa-chevron-circle-right chevron_color' aria-hidden='true'></i></a>\n";
+           <i class= 'fa ".$chevron_icon_right." chevron_color' aria-hidden='true'></i></a>\n";
 [-/php-]
 </div>
 
