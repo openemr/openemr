@@ -1018,7 +1018,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                                     <td align="center" class="detail"><?php echo $duncount ? text($duncount) : "&nbsp;" ?></td>
                                     <?php if (!$eracount) { ?>
                                     <td class="detail" align="left">
-                                        <input type='checkbox' name='form_cb[<?php attr(echo($row['id'])) ?>]'<?php echo text($isduept); ?> />
+                                        <input type='checkbox' name='form_cb[<?php echo attr($row['id']) ?>]'<?php echo text($isduept); ?> />
                                         <?php
                                         if ($in_collections) {
                                             echo "<b><font color='red'>IC</font></b>";
