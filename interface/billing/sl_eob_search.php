@@ -686,16 +686,16 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label" for="form_paydate"><?php echo xlt('Pay Date'); ?>:</label>
-                            <input type='text' name='form_paydate' id='form_paydate' class='form-control datepicker' value='<?php echo attr($_POST['form_paydate']); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php xla("Date of payment yyyy-mm-dd"); ?>'>
+                            <input type='text' name='form_paydate' id='form_paydate' class='form-control datepicker' value='<?php echo attr($_POST['form_paydate']); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla("Date of payment yyyy-mm-dd"); ?>'>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label oe-large" for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
                             <label class="control-label oe-small" for="form_deposit_date"><?php echo xlt('Dep Date'); ?>:</label>
-                            <input type='text' name='form_deposit_date' id=='form_deposit_date' class='form-control datepicker' value='<?php echo attr($_POST['form_deposit_date']); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php xla("Date of bank deposit yyyy-mm-dd"); ?>'>
+                            <input type='text' name='form_deposit_date' id=='form_deposit_date' class='form-control datepicker' value='<?php echo attr($_POST['form_deposit_date']); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla("Date of bank deposit yyyy-mm-dd"); ?>'>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label" for="form_amount"><?php echo xlt('Amount'); ?>:</label>
-                            <input type='text' name='form_amount' id='form_amount'  class='form-control' value='<?php echo attr($_POST['form_amount']); ?>' title='<?php xla("Paid amount that you will allocate"); ?>'>
+                            <input type='text' name='form_amount' id='form_amount'  class='form-control' value='<?php echo attr($_POST['form_amount']); ?>' title='<?php echo xla("Paid amount that you will allocate"); ?>'>
                         </div>
                         <div class="col-xs-1">
                             <label class="control-label oe-large" for="only_with_debt"><?php echo xlt('Pt Debt');?>:</label>
