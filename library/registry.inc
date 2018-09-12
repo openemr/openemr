@@ -5,7 +5,7 @@
 
 function registerForm($directory, $sql_run = 0, $unpackaged = 1, $state = 0)
 {
-    $check = sqlQuery("select state from registry where directory='$directory'");
+    $check = sqlQuery("select state from registry where directory=?", array($directory));
     if ($check == false) {
         $lines = @file($GLOBALS['srcdir']."/../interface/forms/$directory/info.txt");
         if ($lines) {
@@ -15,13 +15,13 @@ function registerForm($directory, $sql_run = 0, $unpackaged = 1, $state = 0)
         }
 
         return sqlInsert("insert into registry set
-			name='$name',
-			state='$state',
-			directory='".add_escape_custom($directory)."',
-			sql_run='$sql_run',
-			unpackaged='$unpackaged',
+			name=?,
+			state=?,
+			directory=?,
+			sql_run=?,
+			unpackaged=?,
 			date=NOW()
-		");
+		", array($name, $state, $directory, $sql_run, $unpackaged));
     }
 
     return false;
@@ -29,22 +29,17 @@ function registerForm($directory, $sql_run = 0, $unpackaged = 1, $state = 0)
 
 function updateRegistered($id, $mod)
 {
-    return sqlInsert("update registry set
-		$mod,
-		date=NOW()
-	where
-		id='$id'
-	");
+    return sqlInsert("update registry set $mod, date=NOW() where id=?", array($id));
 }
 
 function getRegistered($state = "1", $limit = "unlimited", $offset = "0")
 {
-    $sql = "select * from registry where state like \"$state\" order by priority, name";
+    $sql = "select * from registry where state like ? order by priority, name";
     if ($limit != "unlimited") {
-        $sql .= " limit $limit, $offset";
+        $sql .= " limit " . escape_limit($limit) . ", " . escape_limit($offset);
     }
 
-    $res = sqlStatement($sql);
+    $res = sqlStatement($sql, array($state));
     if ($res) {
         for ($iter=0; $row=sqlFetchArray($res); $iter++) {
             $all[$iter] = $row;
@@ -101,10 +96,8 @@ function installSQL($dir)
  */
 function isRegistered($directory, $state = 1)
 {
-    $sql = "select id from registry where ".
-            "directory='".$directory.
-            "' and state=".$state;
-    $result = sqlQuery($sql);
+    $sql = "select id from registry where directory=? and state=?";
+    $result = sqlQuery($sql, array($directory, $state));
     if ($result['id'] != '') {
         return true;
     }
