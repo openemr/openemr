@@ -638,3 +638,7 @@ div.formname{
 #pnotes #pnotes_title, #pnotes #namecontainer_pnotes {
     float:right;
 }
+
+[name="userlist"] .checkbox input[type=checkbox]{
+    margin-left: 0px !important;
+}
