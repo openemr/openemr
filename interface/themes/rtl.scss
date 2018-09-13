@@ -224,7 +224,7 @@ body {
 */
 .css_button_small {
     float: right;
-    margin-right: 3px;
+    margin-left: 3px;
     padding-right: 10px; /* sliding doors padding */
 }
 
@@ -473,31 +473,6 @@ td.amount-msg{
 .ui-dialog .ui-dialog-title{
 
     float: none !important;
-}
-
-
-/*  /library/js/datatables/media/css/demo_table.css */
-
-#pt_table_paginate #pt_table_next{
-
-    float: none !important;
-    background: url('../../library/css/images/back_disabled.png') no-repeat top left !important;
-    display: inline-block;
-    width: 54px !important;
-    padding-left: 20px !important;
-    padding-right: 5px !important;
-
-}
-
-#pt_table_paginate #pt_table_previous{
-
-    float: none !important;
-    background: url('../../library/css/images/forward_disabled.png') no-repeat top right !important;
-    display: inline-block;
-    width: 54px !important;
-    padding-right: 20px !important;
-    padding-left: 5px !important;
-
 }
 
 .cancel-float{
