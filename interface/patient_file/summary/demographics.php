@@ -36,26 +36,35 @@ if (isset($_GET['set_pid'])) {
     setpid($_GET['set_pid']);
 }
 
-  $active_reminders = false;
-  $all_allergy_alerts = false;
+// Container to pass popup alerts to client
+// Ajax requests should deal directly with the javascript object
+// Expected to be associative array -
+$localAlerts = array();
+function addPtAlertLocal($aCat, $aMsg)
+{
+    if (empty($localAlerts[$aCat])) {
+        $localAlerts[$aCat] = array();
+    }
+    $localAlerts[$aCat][] = $aMsg;
+}
+
+$active_reminders = false;
+$all_allergy_alerts = false;
 if ($GLOBALS['enable_cdr']) {
     //CDR Engine stuff
     if ($GLOBALS['enable_allergy_check'] && $GLOBALS['enable_alert_log']) {
-      //Check for new allergies conflicts and throw popup if any exist(note need alert logging to support this)
+        //Check for new allergies conflicts and throw popup if any exist(note need alert logging to support this)
         $new_allergy_alerts = allergy_conflict($pid, 'new', $_SESSION['authUser']);
         if (!empty($new_allergy_alerts)) {
-            $pop_warning = '<script type="text/javascript">alert(\'' . xls('WARNING - FOLLOWING ACTIVE MEDICATIONS ARE ALLERGIES') . ':\n';
+            // If this inline call is made ajax, use standard addPtAlert alert processing approach.
             foreach ($new_allergy_alerts as $new_allergy_alert) {
-                $pop_warning .= addslashes($new_allergy_alert) . '\n';
+                addPtAlertLocal(xls('ACTIVE MEDICATIONS ALLERGIES'), addslashes($new_allergy_alert));
             }
-
-            $pop_warning .= '\')</script>';
-            echo $pop_warning;
         }
     }
-
+    
     if ((!isset($_SESSION['alert_notify_pid']) || ($_SESSION['alert_notify_pid'] != $pid)) && isset($_GET['set_pid']) && $GLOBALS['enable_cdr_crp']) {
-      // showing a new patient, so check for active reminders and allergy conflicts, which use in active reminder popup
+        // showing a new patient, so check for active reminders and allergy conflicts, which use in active reminder popup
         $active_reminders = active_alert_summary($pid, "reminders-due", '', 'default', $_SESSION['authUser'], true);
         if ($GLOBALS['enable_allergy_check']) {
             $all_allergy_alerts = allergy_conflict($pid, 'all', $_SESSION['authUser'], true);
@@ -71,7 +80,7 @@ function print_as_money($money)
     if ($ccheck[0] == ",") {
         $tmp = substr($ccheck, 1, strlen($ccheck)-1);
     }
-
+    
     if ($moneymatches[2] != "") {
         return "$ " . strrev($tmp) . "." . $moneymatches[2];
     } else {
@@ -84,45 +93,45 @@ function pic_array($pid, $picture_directory)
 {
     $pics = array();
     $sql_query = "select documents.id from documents join categories_to_documents " .
-                 "on documents.id = categories_to_documents.document_id " .
-                 "join categories on categories.id = categories_to_documents.category_id " .
-                 "where categories.name like ? and documents.foreign_id = ?";
+        "on documents.id = categories_to_documents.document_id " .
+        "join categories on categories.id = categories_to_documents.category_id " .
+        "where categories.name like ? and documents.foreign_id = ?";
     if ($query = sqlStatement($sql_query, array($picture_directory,$pid))) {
         while ($results = sqlFetchArray($query)) {
             array_push($pics, $results['id']);
         }
     }
-
+    
     return ($pics);
 }
 // Get the document ID of the first document in a specific catg.
 function get_document_by_catg($pid, $doc_catg)
 {
-
+    
     $result = array();
-
+    
     if ($pid and $doc_catg) {
         $result = sqlQuery("SELECT d.id, d.date, d.url FROM " .
-        "documents AS d, categories_to_documents AS cd, categories AS c " .
-        "WHERE d.foreign_id = ? " .
-        "AND cd.document_id = d.id " .
-        "AND c.id = cd.category_id " .
-        "AND c.name LIKE ? " .
-        "ORDER BY d.date DESC LIMIT 1", array($pid, $doc_catg));
+            "documents AS d, categories_to_documents AS cd, categories AS c " .
+            "WHERE d.foreign_id = ? " .
+            "AND cd.document_id = d.id " .
+            "AND c.id = cd.category_id " .
+            "AND c.name LIKE ? " .
+            "ORDER BY d.date DESC LIMIT 1", array($pid, $doc_catg));
     }
-
+    
     return($result['id']);
 }
 
 // Display image in 'widget style'
 function image_widget($doc_id, $doc_catg)
 {
-        global $pid, $web_root;
-        $docobj = new Document($doc_id);
-        $image_file = $docobj->get_url_file();
-        $image_width = $GLOBALS['generate_doc_thumb'] == 1 ? '' : 'width=100';
-        $extension = substr($image_file, strrpos($image_file, "."));
-        $viewable_types = array('.png','.jpg','.jpeg','.png','.bmp','.PNG','.JPG','.JPEG','.PNG','.BMP');
+    global $pid, $web_root;
+    $docobj = new Document($doc_id);
+    $image_file = $docobj->get_url_file();
+    $image_width = $GLOBALS['generate_doc_thumb'] == 1 ? '' : 'width=100';
+    $extension = substr($image_file, strrpos($image_file, "."));
+    $viewable_types = array('.png','.jpg','.jpeg','.png','.bmp','.PNG','.JPG','.JPEG','.PNG','.BMP');
     if (in_array($extension, $viewable_types)) { // extention matches list
         $to_url = "<td> <a href = $web_root" .
         "/controller.php?document&retrieve&patient_id=$pid&document_id=$doc_id&as_file=false&original_file=true&disable_exit=false&show_original=true" .
@@ -142,15 +151,15 @@ function image_widget($doc_id, $doc_catg)
             htmlspecialchars("$doc_catg - $image_file", ENT_QUOTES) .
             "</span> </td>";
     }
-
-        echo "<table><tr>";
-        echo $to_url;
-        echo "</tr></table>";
+    
+    echo "<table><tr>";
+    echo $to_url;
+    echo "</tr></table>";
 }
 
 // Determine if the Vitals form is in use for this site.
 $tmp = sqlQuery("SELECT count(*) AS count FROM registry WHERE " .
-  "directory = 'vitals' AND state = 1");
+    "directory = 'vitals' AND state = 1");
 $vitals_is_registered = $tmp['count'];
 
 // Get patient/employer/insurance information.
@@ -167,7 +176,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 
 <head>
 
-    <?php Header::setupHeader(['common']); ?>
+    <?php Header::setupHeader(['common', 'qtip2']); ?>
 
 <script type="text/javascript" language="JavaScript">
 
@@ -349,24 +358,7 @@ $(document).ready(function(){
     $("#disclosures_ps_expand").load("disc_fragment.php");
 
     <?php if ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw']) { ?>
-      top.restoreSession();
-      $("#clinical_reminders_ps_expand").load("clinical_reminders_fragment.php", { 'embeddedScreen' : true }, function() {
-          // (note need to place javascript code here also to get the dynamic link to work)
-          $(".medium_modal").on('click', function(e) {
-              e.preventDefault();e.stopPropagation();
-              dlgopen('', '', 800, 200, '', '', {
-                  buttons: [
-                      {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
-                  ],
-                  onClosed: 'refreshme',
-                  allowResize: false,
-                  allowDrag: true,
-                  dialogId: 'demreminder',
-                  type: 'iframe',
-                  url: $(this).attr('href')
-              });
-          });
-      });
+      ajaxLoad("#clinical_reminders_ps_expand", "clinical_reminders_fragment.php");
     <?php } // end crw?>
 
     <?php if ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_prw']) { ?>
@@ -494,20 +486,23 @@ while ($gfrow = sqlFetchArray($gfres)) {
       });
   });
 
-  function openReminderPopup() {
-      top.restoreSession()
-      dlgopen('', 'reminders', 500, 250, '', '', {
-          buttons: [
-              {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
-          ],
-          allowResize: true,
-          allowDrag: true,
-          dialogId: '',
-          type: 'iframe',
-          url: $("#reminder_popup_link").attr('href')
+  function getCdrActive() {
+      ajaxCalls++;
+      top.restoreSession();
+      $.getJSON("../../../library/ajax/cdr_active.php", function( cdrAlerts ) {
+          $.each( cdrAlerts, function( strCat, listAlert ) {
+              listAlert.forEach(function(strAlert) {
+                  addPtAlert(strCat, strAlert);
+              });
+          });
+          ajaxCalls--;
+          showPtAlerts();
       });
   }
 
+<?php if ($active_reminders || $all_allergy_alerts) { ?>
+          getCdrActive();
+<?php } ?>
 
 <?php if ($GLOBALS['patient_birthday_alert']) {
     // To display the birthday alert:
@@ -526,12 +521,8 @@ while ($gfrow = sqlFetchArray($gfres)) {
         url: $("#birthday_popup").attr('href')
     });
 
-    <?php } elseif ($active_reminders || $all_allergy_alerts) { ?>
-    openReminderPopup();
-    <?php }?>
-<?php } elseif ($active_reminders || $all_allergy_alerts) { ?>
-    openReminderPopup();
-<?php }?>
+    <?php }
+    } ?>
 
 });
 
@@ -599,7 +590,7 @@ $(window).on('load', function() {
 
 </script>
 
-<style type="css/text">
+<style type="text/css">
 
 #pnotes_ps_expand {
   height:auto;
@@ -628,13 +619,15 @@ if (!empty($grparr['']['grp_size'])) {
 }
 <?php } ?>
 
+/* qTip2 seems to ignore width setting suggested in documentation without this */
+.qtip-custom {
+    max-width: none !important;
+}
 </style>
 
 </head>
 
 <body class="body_top patient-demographics">
-
-<a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='display: none;' onclick='top.restoreSession()'></a>
 
 <a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr($pid); ?>&user_id=<?php echo attr($_SESSION['authId']); ?>' id='birthday_popup' style='display: none;' onclick='top.restoreSession()'></a>
 <?php
@@ -659,6 +652,11 @@ if ($thisauth) : ?>
             <span class='title'>
                 <?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES); ?>
             </span>
+            <strong>
+                <a id="pt-alerts" href="#" class="text-warning" data-popover-content="#pt-alerts-content" style="margin-left: 16px;"><?php echo xlt("Alerts") ?>
+                    <span class="badge">0</span>
+                </a>
+            </strong>
         </td>
         <?php if (acl_check('admin', 'super') && $GLOBALS['allow_pat_delete']) : ?>
         <td style='padding-left:1em;' class="delete">
@@ -1969,6 +1967,112 @@ var skipArray = [
 <?php echo $condition_str; ?>
 ];
 checkSkipConditions();
+
+function ajaxLoad(jqSel, datSrc, objArgs, fnCallback) {
+    ajaxCalls++;
+    top.restoreSession();
+    $(jqSel).load(datSrc, objArgs, function() {
+        ajaxCalls--;
+        if (typeof fnCallback === "function") {
+            fnCallback;
+        }
+        showPtAlerts();
+    });
+}
+ // Use AddAlert function to populate the following object
+var intAlerts = 0;
+var objAlerts = {}
+var ajaxCalls = 0;
+var alertsAPI;
+//Setup an alert by providing two objects with minimum property as 
+//Category - id, txt
+//Alert - seq(numeric), txt
+//Allows strings as lazy arguments 
+function addPtAlert(objCat, objAlert) {
+  if (typeof(objCat) === 'string') {
+      objCat = { txt: objCat };
+  }
+  if (typeof(objAlert) === 'string') {
+      objAlert = { txt: objAlert };
+  }
+  var catId = (("id" in objCat) ? objCat.id : objCat.txt );
+  if (!(catId in objAlerts)) {
+      objAlerts[catId] = objCat;
+  }
+  if (!("catAlerts" in objAlerts[catId])) {
+      objAlerts[catId]["catAlerts"] = [];
+  }
+  if ("seq" in objAlert) {
+      objAlerts[catId]["catAlerts"][objAlert.seq] = objAlert;
+  } else {
+      objAlerts[catId]["catAlerts"].push(objAlert);
+  }
+  intAlerts++;
+  $("#pt-alerts .badge").html(intAlerts);
+}
+function listPtAlerts() {
+    var htmReturn = '';
+    for (var cat in objAlerts) {
+        var objCat = objAlerts[cat];
+        if ("isHtml" in objCat) {
+            htmReturn += objCat.txt;
+        } else {
+            htmReturn += '<tr><th>'+objCat.txt+'</th></tr><tr><td>';
+        }
+        var seq = 0;
+        var seqMax = objCat.catAlerts.length;
+        while (seq < seqMax ) {
+            if ("isHtml" in objCat.catAlerts[seq]) {
+                htmReturn += objCat.catAlerts[seq].txt;
+            } else {
+                htmReturn += '<div>'+objCat.catAlerts[seq].txt+'</div>';
+            }
+            seq++;
+        }
+        htmReturn += '</td></tr>';
+    }
+    if (intAlerts > 0) {
+        htmReturn = '<small><table class="table table-condensed table-striped">'+htmReturn+'</table></small>';
+    } else {
+        htmReturn = '<?php echo xlt('None') ?>';
+    }
+    return htmReturn;
+}
+function showPtAlerts() {
+    setTimeout(function() {
+        // console.log ("Show alerts "+ajaxCalls+" / "+intAlerts+" "+((ajaxCalls == 0) && (intAlerts > 0)));
+        if ((ajaxCalls == 0) && (intAlerts > 0)) {
+            $("#pt-alerts").qtip().show();
+        }
+    }, 3000);
+}
+<?php 
+//Create the tooltips with all alerts
+foreach ($localAlerts as $aCat => $aMsgList) {
+    foreach ($aMsgList as $aMsg) {
+        printf('addPtAlert("%s","%s");%s', $aCat, $aMsg, "\n");
+    }
+    echo 'showPtAlerts();\n';
+}
+?>
+$(document).ready(function() {
+    $("#pt-alerts").qtip({
+        content: {
+            text: listPtAlerts,
+            title: '<strong><?php echo xlt('Alerts').' / '.xlt('Reminders') ?></strong>',
+            button: '<?php echo xlt('Close')?>'
+        },
+        hide: {
+            delay: 3000
+        },
+        style: {
+            classes: 'qtip-bootstrap qtip-custom',
+            width: 600,
+        }
+    });
+    alertsAPI = $("#pt-alerts").qtip('api');
+    showPtAlerts();
+});
 </script>
 
 </body>
