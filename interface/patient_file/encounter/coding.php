@@ -1,6 +1,6 @@
 <?php
-include_once("../../globals.php");
-include_once("../../../custom/code_types.inc.php");
+require_once("../../globals.php");
+require_once("../../../custom/code_types.inc.php");
 ?>
 <html>
 <head>
@@ -16,12 +16,12 @@ $(document).ready(function(){
 
 $('#closeztn').bind('click', function(){
     if ( confirm("Do you really want to close the ZTN?") ) {
-        $.ajax({ 
+        $.ajax({
             type: 'POST',
             url: 'as.php',
             data: 'cztn=1',
             async: false
-        }); 
+        });
     }
     window.location.reload(true);
 });
@@ -56,28 +56,28 @@ $pres = "prescription";
 ?>
 
 <dl>
-<dt><span href="coding.php" class="title"><?php xl('Coding', 'e'); ?></span></dt>
+<dt><span href="coding.php" class="title"><?php echo xlt('Coding'); ?></span></dt>
 
 <dd><a class="text" href="superbill_codes.php"
  target="_parent"
  onclick="top.restoreSession()">
-<?php xl('Superbill', 'e'); ?></a></dd>
+<?php echo xlt('Superbill'); ?></a></dd>
 
 <?php foreach ($code_types as $key => $value) { ?>
-<dd><a class="text" href="search_code.php?type=<?php echo $key ?>"
+<dd><a class="text" href="search_code.php?type=<?php echo attr(urlencode($key)); ?>"
  target="Codes" onclick="top.restoreSession()">
-<?php echo $key; ?> <?php xl('Search', 'e'); ?></a></dd>
+<?php echo $key; ?> <?php echo xlt('Search'); ?></a></dd>
 <?php } ?>
 
-<dd><a class="text" href="copay.php" target="Codes" onclick="top.restoreSession()"><?php xl('Copay', 'e'); ?></a></dd>
-<dd><a class="text" href="other.php" target="Codes" onclick="top.restoreSession()"><?php xl('Other', 'e'); ?></a></dd><br />
+<dd><a class="text" href="copay.php" target="Codes" onclick="top.restoreSession()"><?php echo xlt('Copay'); ?></a></dd>
+<dd><a class="text" href="other.php" target="Codes" onclick="top.restoreSession()"><?php echo xlt('Other'); ?></a></dd><br />
 
 <?php if (!$GLOBALS['disable_prescriptions']) { ?>
-<dt><span href="coding.php" class="title"><?php xl('Prescriptions', 'e'); ?></span></dt>
-<dd><a class="text" href="<?php echo $GLOBALS['webroot']?>/controller.php?<?php echo $pres?>&list&id=<?php echo $pid?>"
- target="Codes" onclick="top.restoreSession()"><?php xl('List Prescriptions', 'e'); ?></a></dd>
-<dd><a class="text" href="<?php echo $GLOBALS['webroot']?>/controller.php?<?php echo $pres?>&edit&id=&pid=<?php echo $pid?>"
- target="Codes" onclick="top.restoreSession()"><?php xl('Add Prescription', 'e'); ?></a></dd>
+<dt><span href="coding.php" class="title"><?php echo xlt('Prescriptions'); ?></span></dt>
+<dd><a class="text" href="<?php echo $GLOBALS['webroot']?>/controller.php?<?php echo attr(urlencode($pres)); ?>&list&id=<?php echo attr(urlencode($pid)); ?>"
+ target="Codes" onclick="top.restoreSession()"><?php echo xlt('List Prescriptions'); ?></a></dd>
+<dd><a class="text" href="<?php echo $GLOBALS['webroot']?>/controller.php?<?php echo attr(urlencode($pres)); ?>&edit&id=&pid=<?php echo attr(urlencode($pid)); ?>"
+ target="Codes" onclick="top.restoreSession()"><?php echo xlt('Add Prescription'); ?></a></dd>
 <?php }; // if (!$GLOBALS['disable_prescriptions']) ?>
 </dl>
 
