@@ -17,6 +17,7 @@ var runSequence = require('run-sequence');
 var sass = require('gulp-sass');
 var sourcemaps = require('gulp-sourcemaps');
 
+
 var packages = require('./package.json');
 
 // configuration
@@ -26,6 +27,7 @@ var config = {
     /* Command Line Arguments */
     dev: argv['dev'],
     build: argv['b'],
+    syncOnly: argv['sync-only'],
     proxy: argv['p'],
     install: argv['i'],
     
@@ -78,31 +80,22 @@ gulp.task('ingest', function() {
  * - Runs task(styles) first
  * - Includes hack to dump fontawesome to the storybook dist
  */
-gulp.task('sync', function() {
+gulp.task('sync', ['ingest', 'styles'], function() {
     if (config.proxy) {
         browserSync.init({
             proxy: "127.0.0.1:" + config.proxy
         });
     }
 
-
-    if (config.build) {
-        if (config.dev) {
-            // if building storybook, grab the public folder
-            gulp.src(['./public/**/*'], {"base" : "."})
-                .pipe(gulp.dest(config.dist.storybook));
-        } else {
-            // copy all leftover root-level components to the theme directory
-            // hoping this is only temporary
-            gulp.src(['interface/themes/*.{css,php}'])
-                .pipe(gulp.dest(config.dest.themes));
-        }
-    } else {
-        if (config.dev) {
-            // watch for changes and run styles on change
-            gulp.watch('inteface/themes/**/*.scss', ['styles']);
-        }
+    if (config.dev) {
+        // if building storybook, grab the public folder
+        gulp.src(['./public/**/*'], {"base" : "."})
+            .pipe(gulp.dest(config.dist.storybook));
     }
+    // copy all leftover root-level components to the theme directory
+    // hoping this is only temporary
+    gulp.src(['interface/themes/*.{css,php}'])
+        .pipe(gulp.dest(config.dest.themes));
 });
 
 // definition of header for all compiled css
@@ -185,7 +178,7 @@ gulp.task('styles', ['styles:style_uni', 'styles:style_color', 'styles:rtl']);
 /*
 * Create a JSON for storybook to use
 */
-gulp.task('style_list', function () {
+gulp.task('style_list', ['styles'], function () {
     if (config.dev) {
         var style_list = [];
         for (var i=0; i<config.all.length; i++) {
@@ -227,15 +220,29 @@ gulp.task('install', function() {
     }
 });
 
+gulp.task('watch', function() {
+    // watch all changes and re-run styles
+    gulp.watch('./interface/**/*.scss', {interval: 1000, mode: 'poll'}, ['styles']);
+});
+
+gulp.task('sync-only', function () {
+    browserSync.init({
+        proxy: "127.0.0.1:" + config.proxy,
+        open: false
+    });
+})
+
  /**
  * Default config
  * - runs by default when `gulp` is called from CLI
  */
 if (config.install) {
     gulp.task('default', [ 'install' ]);
+} else if (config.syncOnly && config.proxy) {
+    gulp.task('default', ['sync-only', 'watch']);
 } else {
     gulp.task('default', function (callback) {
-        runSequence(['ingest', 'clean'], [ 'styles', 'sync' ], 'style_list', callback)
+        runSequence('clean', ['sync'], 'style_list', callback)
     });
 }
 
