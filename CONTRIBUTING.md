@@ -24,7 +24,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     openemr_1  | Starting cron daemon!
     openemr_1  | Starting apache!
     ```
-5. Navigate to `http://localhost/` to login as `admin`. Password is `pass`.
+5. Navigate to `http://localhost:8300/` to login as `admin`. Password is `pass`.
 6. Make changes to any files on your local file system. Most changes will appear after a refresh of the page or iFrame you're working on...
     - Note that changes to SCSS files will not automatically show unless the node build process is running. For more info on this, see the [README.md in /interface](interface/README.md)
 7. When you're done, it's best to clean up after yourself with `docker-compose down -v`
