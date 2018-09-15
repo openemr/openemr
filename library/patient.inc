@@ -318,16 +318,9 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
     $param2 = "";
     if ($facility) {
         if ($GLOBALS['restrict_user_facility']) {
-            $param2 = " AND (facility_id = $facility
-          OR  $facility IN
-	        (select facility_id
-	        from users_facility
-	        where tablename = 'users'
-	        and table_id = id)
-	        )
-          ";
+            $param2 = " AND (facility_id = '" . add_escape_custom($facility) . "' OR  '" . add_escape_custom($facility) . "' IN (select facility_id from users_facility where tablename = 'users' and table_id = id))";
         } else {
-            $param2 = " AND facility_id = $facility ";
+            $param2 = " AND facility_id = '" . add_escape_custom($facility) . "'' ";
         }
     }
 
@@ -802,7 +795,7 @@ function getPatientPID($args)
         $command = "like";
     }
 
-    $sql="select $given from patient_data where pid $command '$pid' order by $orderby";
+    $sql="select $given from patient_data where pid $command '" . add_escape_custom($pid) . "' order by $orderby";
     if ($limit != "all") {
         $sql .= " limit " . escape_limit($start) . ", " . escape_limit($limit);
     }
@@ -972,11 +965,11 @@ function newPatientData(
     $fitness = 0;
     $referral_source = '';
     if ($pid) {
-        $rez = sqlQuery("select id, fitness, referral_source from patient_data where pid = $pid");
+        $rez = sqlQuery("select id, fitness, referral_source from patient_data where pid = ?", array($pid));
         // Check for brain damage:
         if ($db_id != $rez['id']) {
             $errmsg = "Internal error: Attempt to change patient_data.id from '" .
-              $rez['id'] . "' to '$db_id' for pid '$pid'";
+              text($rez['id']) . "' to '" . text($db_id) . "' for pid '" . text($pid) . "'";
             die($errmsg);
         }
 
@@ -990,56 +983,56 @@ function newPatientData(
     $pricelevel = empty($lrow['option_id']) ? '' : $lrow['option_id'];
 
     $query = ("replace into patient_data set
-        id='$db_id',
-        title='$title',
-        fname='$fname',
-        lname='$lname',
-        mname='$mname',
-        sex='$sex',
-        DOB='$DOB',
-        street='$street',
-        postal_code='$postal_code',
-        city='$city',
-        state='$state',
-        country_code='$country_code',
-        drivers_license='$drivers_license',
-        ss='$ss',
-        occupation='$occupation',
-        phone_home='$phone_home',
-        phone_biz='$phone_biz',
-        phone_contact='$phone_contact',
-        status='$status',
-        contact_relationship='$contact_relationship',
-        referrer='$referrer',
-        referrerID='$referrerID',
-        email='$email',
-        language='$language',
-        ethnoracial='$ethnoracial',
-        interpretter='$interpretter',
-        migrantseasonal='$migrantseasonal',
-        family_size='$family_size',
-        monthly_income='$monthly_income',
-        homeless='$homeless',
-        financial_review='$financial_review',
-        pubpid='$pubpid',
-        pid = $pid,
-        providerID = '$providerID',
-        genericname1 = '$genericname1',
-        genericval1 = '$genericval1',
-        genericname2 = '$genericname2',
-        genericval2 = '$genericval2',
-        billing_note= '$billing_note',
-        phone_cell = '$phone_cell',
-        pharmacy_id = '$pharmacy_id',
-        hipaa_mail = '$hipaa_mail',
-        hipaa_voice = '$hipaa_voice',
-        hipaa_notice = '$hipaa_notice',
-        hipaa_message = '$hipaa_message',
-        squad = '$squad',
-        fitness='$fitness',
-        referral_source='$referral_source',
-        regdate='$regdate',
-        pricelevel='$pricelevel',
+        id='" . add_escape_custom($db_id) . "',
+        title='" . add_escape_custom($title) . "',
+        fname='" . add_escape_custom($fname) . "',
+        lname='" . add_escape_custom($lname) . "',
+        mname='" . add_escape_custom($mname) . "',
+        sex='" . add_escape_custom($sex) . "',
+        DOB='" . add_escape_custom($DOB) . "',
+        street='" . add_escape_custom($street) . "',
+        postal_code='" . add_escape_custom($postal_code) . "',
+        city='" . add_escape_custom($city) . "',
+        state='" . add_escape_custom($state) . "',
+        country_code='" . add_escape_custom($country_code) . "',
+        drivers_license='" . add_escape_custom($drivers_license) . "',
+        ss='" . add_escape_custom($ss) . "',
+        occupation='" . add_escape_custom($occupation) . "',
+        phone_home='" . add_escape_custom($phone_home) . "',
+        phone_biz='" . add_escape_custom($phone_biz) . "',
+        phone_contact='" . add_escape_custom($phone_contact) . "',
+        status='" . add_escape_custom($status) . "',
+        contact_relationship='" . add_escape_custom($contact_relationship) . "',
+        referrer='" . add_escape_custom($referrer) . "',
+        referrerID='" . add_escape_custom($referrerID) . "',
+        email='" . add_escape_custom($email) . "',
+        language='" . add_escape_custom($language) . "',
+        ethnoracial='" . add_escape_custom($ethnoracial) . "',
+        interpretter='" . add_escape_custom($interpretter) . "',
+        migrantseasonal='" . add_escape_custom($migrantseasonal) . "',
+        family_size='" . add_escape_custom($family_size) . "',
+        monthly_income='" . add_escape_custom($monthly_income) . "',
+        homeless='" . add_escape_custom($homeless) . "',
+        financial_review='" . add_escape_custom($financial_review) . "',
+        pubpid='" . add_escape_custom($pubpid) . "',
+        pid= '" . add_escape_custom($pid) . "',
+        providerID = '" . add_escape_custom($providerID) . "',
+        genericname1 = '" . add_escape_custom($genericname1) . "',
+        genericval1 = '" . add_escape_custom($genericval1) . "',
+        genericname2 = '" . add_escape_custom($genericname2) . "',
+        genericval2 = '" . add_escape_custom($genericval2) . "',
+        billing_note= '" . add_escape_custom($billing_note) . "',
+        phone_cell = '" . add_escape_custom($phone_cell) . "',
+        pharmacy_id = '" . add_escape_custom($pharmacy_id) . "',
+        hipaa_mail = '" . add_escape_custom($hipaa_mail) . "',
+        hipaa_voice = '" . add_escape_custom($hipaa_voice) . "',
+        hipaa_notice = '" . add_escape_custom($hipaa_notice) . "',
+        hipaa_message = '" . add_escape_custom($hipaa_message) . "',
+        squad = '" . add_escape_custom($squad) . "',
+        fitness='" . add_escape_custom($fitness) . "',
+        referral_source='" . add_escape_custom($referral_source) . "',
+        regdate='" . add_escape_custom($regdate) . "',
+        pricelevel='" . add_escape_custom($pricelevel) . "',
         date=NOW()");
 
     $id = sqlInsert($query);
@@ -1049,7 +1042,7 @@ function newPatientData(
         $db_id = getSqlLastID();
     }
 
-    $foo = sqlQuery("select pid from patient_data where id='$id' order by date limit 0,1");
+    $foo = sqlQuery("select pid from patient_data where id=? order by date limit 0,1", array($id));
 
     return $foo['pid'];
 }
@@ -1167,13 +1160,13 @@ function newEmployerData(
 ) {
 
     return sqlInsert("insert into employer_data set
-        name='$name',
-        street='$street',
-        postal_code='$postal_code',
-        city='$city',
-        state='$state',
-        country='$country',
-        pid='$pid',
+        name='" . add_escape_custom($name) . "',
+        street='" . add_escape_custom($street) . "',
+        postal_code='" . add_escape_custom($postal_code) . "',
+        city='" . add_escape_custom($city) . "',
+        state='" . add_escape_custom($state) . "',
+        country='" . add_escape_custom($country) . "',
+        pid='" . add_escape_custom($pid) . "',
         date=NOW()
         ");
 }
@@ -1657,10 +1650,10 @@ function dropdown_countries($selected = 0, $name = 'country_code')
 {
     $r = sqlStatement("SELECT * FROM geo_country_reference ORDER BY countries_name");
 
-    $string = "<select name='$name' id='$name'>";
+    $string = "<select name='" . attr($name) . "' id='" . attr($name) . "'>";
     while ($row = sqlFetchArray($r)) {
         $sufix = ( $selected == $row['countries_id']) ? 'selected="selected"' : '';
-        $string .= "<option value='{$row['countries_id']}' $sufix>{$row['countries_name']}</option>";
+        $string .= "<option value='" . attr($row['countries_id']) . "' $sufix>" . text($row['countries_name']) . "</option>";
     }
 
     $string .= '</select>';
@@ -1680,7 +1673,7 @@ function dropdown_countries($selected = 0, $name = 'country_code')
  */
 function dropdown_yesno($selected = 0, $name = 'yesno')
 {
-    $string = "<select name='$name' id='$name'>";
+    $string = "<select name='" . attr($name) . "' id='" . attr($name) . "'>";
 
     $selected = (int)$selected;
     if ($selected == 0) {
@@ -1691,8 +1684,8 @@ function dropdown_yesno($selected = 0, $name = 'yesno')
         $sel1 = '';
     }
 
-        $string .= "<option value='0' $sel1>" .xl('No'). "</option>";
-        $string .= "<option value='1' $sel2>" .xl('Yes'). "</option>";
+        $string .= "<option value='0' $sel1>" .xlt('No'). "</option>";
+        $string .= "<option value='1' $sel2>" .xlt('Yes'). "</option>";
         $string .= '</select>';
 
         echo $string;
@@ -1710,7 +1703,7 @@ function dropdown_yesno($selected = 0, $name = 'yesno')
  */
 function dropdown_sex($selected = 0, $name = 'sex')
 {
-    $string = "<select name='$name' id='$name'>";
+    $string = "<select name='" . attr($name) . "' id='" . attr($name) . "'>";
 
     if ($selected == 1) {
         $sel1 = 'selected="selected"';
@@ -1726,9 +1719,9 @@ function dropdown_sex($selected = 0, $name = 'sex')
             $sel2 = '';
     }
 
-        $string .= "<option value='0' $sel0>" .xl('Unselected'). "</option>";
-        $string .= "<option value='1' $sel1>" .xl('Male'). "</option>";
-        $string .= "<option value='2' $sel2>" .xl('Female'). "</option>";
+        $string .= "<option value='0' $sel0>" .xlt('Unselected'). "</option>";
+        $string .= "<option value='1' $sel1>" .xlt('Male'). "</option>";
+        $string .= "<option value='2' $sel2>" .xlt('Female'). "</option>";
         $string .= '</select>';
 
         echo $string;
@@ -1746,13 +1739,13 @@ function dropdown_sex($selected = 0, $name = 'sex')
  */
 function dropdown_marital($selected = 0, $name = 'status')
 {
-    $string = "<select name='$name' id='$name'>";
+    $string = "<select name='" . attr($name) . "' id='" . attr($name) . "'>";
 
     $statii = array('married','single','divorced','widowed','separated','domestic partner');
 
     foreach ($statii as $st) {
         $sel = ( $st == $selected ) ? 'selected="selected"' : '';
-        $string .= '<option value="' .$st. '" '.$sel.' >' .xl($st). '</option>';
+        $string .= '<option value="' . attr($st) . '" '.$sel.' >' .xlt($st). '</option>';
     }
 
     $string .= '</select>';
@@ -1774,11 +1767,11 @@ function dropdown_providers($selected = 0, $name = 'status')
 {
     $provideri = getProviderInfo();
 
-    $string = "<select name='$name' id='$name'>";
-    $string .= '<option value="">' .xl('Unassigned'). '</option>';
+    $string = "<select name='" . attr($name) . "' id='" . attr($name) . "'>";
+    $string .= '<option value="">' .xlt('Unassigned'). '</option>';
     foreach ($provideri as $s) {
         $sel = ( $s['id'] == $selected ) ? 'selected="selected"' : '';
-        $string .= '<option value="' .$s['id']. '" '.$sel.' >' .ucwords($s['fname']." ".$s['lname']). '</option>';
+        $string .= '<option value="' . attr($s['id']) . '" '.$sel.' >' . text(ucwords($s['fname']." ".$s['lname'])) . '</option>';
     }
 
     $string .= '</select>';
@@ -1800,11 +1793,11 @@ function dropdown_insurance($selected = 0, $name = 'iprovider')
 {
     $insurancei = getInsuranceProviders();
 
-    $string = "<select name='$name' id='$name'>";
+    $string = "<select name='" . attr($name) . "' id='" . attr($name) . "'>";
     $string .= '<option value="0">Onbekend</option>';
     foreach ($insurancei as $iid => $iname) {
         $sel = ( strtolower($iid) == strtolower($selected) ) ? 'selected="selected"' : '';
-        $string .= '<option value="' .$iid. '" '.$sel.' >' .$iname. '(' .$iid. ')</option>';
+        $string .= '<option value="' . attr($iid) . '" '.$sel.' >' . text($iname) . '(' . text($iid) . ')</option>';
     }
 
     $string .= '</select>';
@@ -1826,14 +1819,17 @@ function dropdown_insurance($selected = 0, $name = 'iprovider')
 function country_code($country_code = 0, $country_name = '')
 {
     $strint = '';
+    $sqlBindArray = array();
     if ($country_code) {
-        $sql = "SELECT countries_name AS res FROM geo_country_reference WHERE countries_id = '$country_code'";
+        $sql = "SELECT countries_name AS res FROM geo_country_reference WHERE countries_id = ?";
+        array_push($sqlBindArray, $country_code);
     } else {
-        $sql = "SELECT countries_id AS res FROM geo_country_reference WHERE countries_name = '$country_name'";
+        $sql = "SELECT countries_id AS res FROM geo_country_reference WHERE countries_name = ?";
+        array_push($sqlBindArray, $country_name);
     }
 
     $db = $GLOBALS['adodb']['db'];
-    $result = $db->Execute($sql);
+    $result = $db->Execute($sql, $sqlBindArray);
     if ($result && !$result->EOF) {
         $strint = $result->fields['res'];
     }
@@ -1894,7 +1890,7 @@ function getAllinsurances($pid)
            ON a.provider = c.foreign_id
            WHERE a.pid = ? ";
     $inco = sqlStatement($sql, array($pid));
-   
+
     while ($icl = sqlFetchArray($inco)) {
         $insarr[] = $icl;
     }
