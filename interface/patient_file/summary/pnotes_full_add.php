@@ -165,14 +165,14 @@ $result = getPnotesByDate(
 <?php html_header_show();?>
 
 <link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css" type="text/css">
 
 <!-- supporting javascript code -->
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <!--<script type="text/javascript" src="../../../library/dialog.js?v=<?php /*echo $v_js_includes; */?>"></script>-->
 <script type="text/javascript" src="../../../library/js/common.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
 
 <script type="text/javascript">
@@ -204,7 +204,7 @@ $urlparms = "docid=$docid&orderid=$orderid";
 <form border='0' method='post' name='new_note' id="new_note" action='pnotes_full.php?<?php echo $urlparms; ?>'>
 
     <div>
-        <div style='float:left; margin-right: 5px'>
+        <div id="pnotes_title">
             <span class="title"><?php echo xlt('Patient Note') . $title_docname; ?></span>
         </div>
         <div>

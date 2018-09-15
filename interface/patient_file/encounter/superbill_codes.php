@@ -17,11 +17,11 @@ $text     = $_GET['text'];
 if (isset($mode)) {
     if ($mode == "add") {
         if (strtolower($type) == "copay") {
-            addBilling($encounter, $type, sprintf("%01.2f", $code), strip_escape_custom($text), $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, sprintf("%01.2f", 0 - $code));
+            addBilling($encounter, $type, sprintf("%01.2f", $code), $text, $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, sprintf("%01.2f", 0 - $code));
         } elseif (strtolower($type) == "other") {
-            addBilling($encounter, $type, $code, strip_escape_custom($text), $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, sprintf("%01.2f", $fee));
+            addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, sprintf("%01.2f", $fee));
         } else {
-            addBilling($encounter, $type, $code, strip_escape_custom($text), $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, $fee);
+            addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, $fee);
         }
     }
 }

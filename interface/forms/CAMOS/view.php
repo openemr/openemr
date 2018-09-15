@@ -74,16 +74,17 @@ function show_edit(t) {
 </head>
 <body class="body_top">
 <form method=post action="<?php echo $rootdir?>/forms/CAMOS/save.php?mode=delete&id=<?php echo attr($_GET["id"]); ?>" name="my_form">
-<h1> <?php xl('CAMOS', 'e'); ?> </h1>
-<input type="submit" name="delete" value="<?php xl('Delete Selected Items', 'e'); ?>" />
-<input type="submit" name="update" value="<?php xl('Update Selected Items', 'e'); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<h1> <?php echo xlt('CAMOS'); ?> </h1>
+<input type="submit" name="delete" value="<?php echo xla('Delete Selected Items'); ?>" />
+<input type="submit" name="update" value="<?php echo xla('Update Selected Items'); ?>" />
 <?php
 echo "<a href='{$GLOBALS['form_exit_url']}'>[" . xlt('do nothing') . "]</a>";
 ?>
 <br/><br/>
-<input type='button' value='<?php xl('Select All', 'e'); ?>'
+<input type='button' value='<?php echo xla('Select All'); ?>'
   onClick='checkall()'>
-<input type='button' value='<?php xl('Unselect All', 'e'); ?>'
+<input type='button' value='<?php echo xla('Unselect All'); ?>'
   onClick='uncheckall()'>
 <br/><br/>
 <?php
@@ -94,14 +95,14 @@ $encounter = $GLOBALS['encounter'];
 
 $query = "select t1.id, t1.content from ".mitigateSqlTableUpperCase("form_CAMOS")." as t1 join forms as t2 " .
   "on (t1.id = t2.form_id) where t2.form_name like 'CAMOS%' " .
-  "and t2.encounter like $encounter and t2.pid = $pid";
+  "and t2.encounter like ? and t2.pid = ?";
 
-$statement = sqlStatement($query);
+$statement = sqlStatement($query, array($encounter, $pid));
 while ($result = sqlFetchArray($statement)) {
-    print "<input type=button value='" . xl('Edit') . "' onClick='show_edit(\"id_textarea_".$result['id']."\")'>";
-    print "<input type=checkbox name='ch_".$result['id']."'> ".$result['content']."<br/>";
-    print "<div id=id_textarea_".$result['id']." style='display:none'>";
-    print "<textarea name=textarea_".$result['id']." cols=$textarea_cols rows= $textarea_rows onFocus='content_focus()' onBlur='content_blur()' >".$result['content']."</textarea><br/>";
+    print "<input type=button value='" . xla('Edit') . "' onClick='show_edit(\"id_textarea_" . attr(addslashes($result['id'])) . "\")'>";
+    print "<input type=checkbox name='ch_" . attr($result['id']) . "'> " . text($result['content']) . "<br/>";
+    print "<div id=id_textarea_" . attr($result['id']) . " style='display:none'>";
+    print "<textarea name=textarea_" . attr($result['id']) . " cols=" . attr($textarea_cols) . " rows=" . attr($textarea_rows) . " onFocus='content_focus()' onBlur='content_blur()' >" . text($result['content']) . "</textarea><br/>";
     print "</div>";
 }
 

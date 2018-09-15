@@ -444,7 +444,10 @@ while ($result4 = sqlFetchArray($res4)) {
     }
 
         // if ($auth_notes_a || ($auth_notes && $result4['user'] == $_SESSION['authUser']))
+    if (!empty($result4{"reason"})) {
         $reason_string .= htmlspecialchars($result4{"reason"}, ENT_NOQUOTES) . "<br>\n";
+    }
+
         // else
         //   $reason_string = "(No access)";
 

@@ -15,7 +15,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-use OpenEMR\Core\Header;
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -30,6 +29,8 @@ require_once("$srcdir/../controllers/C_Document.class.php");
 require_once("$srcdir/documents.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
+
+use OpenEMR\Core\Header;
 
 $DEBUG = 0; // set to 0 for production, 1 to test
 
@@ -142,14 +143,14 @@ function era_callback(&$out)
             $where .= ' OR ';
         }
 
-        $where .= "( f.pid = '$pid' AND f.encounter = '$encounter' )";
+        $where .= "( f.pid = '" . add_escape_custom($pid) . "' AND f.encounter = '" . add_escape_custom($encounter) . "' )";
     }
 }
 
 function bucks($amount)
 {
     if ($amount) {
-        echo oeFormatMoney($amount);
+        return oeFormatMoney($amount);
     }
 }
 
@@ -345,6 +346,10 @@ $today = date("Y-m-d");
   // Print or download statements if requested.
   //
 if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || $_POST['form_pdf']) || $_POST['form_portalnotify'] && $_POST['form_cb']) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
     $fhprint = fopen($STMT_TEMP_FILE, 'w');
 
     $sqlBindArray = array();
@@ -503,8 +508,8 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
         // Record that this statement was run.
         if (! $DEBUG && ! $_POST['form_without']) {
             sqlStatement("UPDATE form_encounter SET " .
-            "last_stmt_date = '$today', stmt_count = stmt_count + 1 " .
-            "WHERE id = " . $row['id']);
+            "last_stmt_date = ?, stmt_count = stmt_count + 1 " .
+            "WHERE id = ?", array($today, $row['id']));
         }
         $inv_count += 1;
         if ($_POST['form_portalnotify']) {
@@ -531,7 +536,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
             if ($inv_pid[$inv_count] != $inv_pid[$inv_count + 1]) {
                 $tmp = make_statement($stmt);
                 if (empty($tmp)) {
-                    $tmp = xlt("This EOB item does not meet minimum print requirements setup in Globals or there is an unknown error.") . " " . xlt("EOB Id") . ":" . $inv_pid[$inv_count] . " " . xlt("Encounter") . ":" . $stmt[encounter] . "\n";
+                    $tmp = xlt("This EOB item does not meet minimum print requirements setup in Globals or there is an unknown error.") . " " . xlt("EOB Id") . ":" . text($inv_pid[$inv_count]) . " " . xlt("Encounter") . ":" . text($stmt[encounter]) . "\n";
                     $tmp .= "<br />\n\014<br /><br />";
                 }
                 fwrite($fhprint, $tmp);
@@ -573,7 +578,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
   <html>
   <head>
         <?php Header::setupHeader(['datetime-picker']);?>
-    <title><?php xl('EOB Posting - Search', 'e'); ?></title>
+    <title><?php echo xlt('EOB Posting - Search'); ?></title>
     <script language="JavaScript">
     var mypcc = '1';
 
@@ -634,9 +639,9 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
 </style>
     <?php
     if ($GLOBALS['enable_help'] == 1) {
-        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xl("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 2) {
-        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xl("Enable help in Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("Enable help in Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 0) {
          $help_icon = '';
     }
@@ -648,11 +653,12 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
     <div class="container">
         <div class="row">
              <div class="page-header">
-                <h2 class="clearfix"><span id='header_text'><?php echo xlt('EOB Posting - Search'); ?></span>&nbsp;&nbsp;  <a href='sl_eob_search.php' onclick='top.restoreSession()'  title="<?php echo xlt('Reset'); ?>"><i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i> </a><?php echo $help_icon; ?></h2>
+                <h2 class="clearfix"><span id='header_text'><?php echo xlt('EOB Posting - Search'); ?></span>&nbsp;&nbsp;  <a href='sl_eob_search.php' onclick='top.restoreSession()'  title="<?php echo xla('Reset'); ?>"><i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i> </a><?php echo $help_icon; ?></h2>
             </div>
         </div>
         <div class="row">
             <form action='sl_eob_search.php' enctype='multipart/form-data' method='post'>
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                 <fieldset id="payment-allocate" class="oe-show-hide">
                     <legend>
                         &nbsp;<?php echo xlt('Post Item');?><i id="payment-info-do-not-remove"> </i>
@@ -663,33 +669,33 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                             <?php
                                 $insurancei = getInsuranceProviders();
                                 echo "   <select name='form_payer_id'id='form_payer_id' class='form-control'>\n";
-                                echo "    <option value='0'>-- " . xl('Patient') . " --</option>\n";
+                                echo "    <option value='0'>-- " . xlt('Patient') . " --</option>\n";
                             foreach ($insurancei as $iid => $iname) {
-                                echo "<option value='$iid'";
+                                echo "<option value='" . attr($iid) . "'";
                                 if ($iid == $_POST['form_payer_id']) {
                                     echo " selected";
                                 }
-                                echo ">" . $iname . "</option>\n";
+                                echo ">" . text($iname) . "</option>\n";
                             }
                                 echo "   </select>\n";
                             ?>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label" for="form_source"><?php echo xlt('Source'); ?>:</label>
-                            <input type='text' name='form_source' id='form_source' class='form-control' value='<?php echo attr($_POST['form_source']); ?>' title='<?php echo xlt("A check number or claim number to identify the payment"); ?>'>
+                            <input type='text' name='form_source' id='form_source' class='form-control' value='<?php echo attr($_POST['form_source']); ?>' title='<?php echo xla("A check number or claim number to identify the payment"); ?>'>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label" for="form_paydate"><?php echo xlt('Pay Date'); ?>:</label>
-                            <input type='text' name='form_paydate' id='form_paydate' class='form-control datepicker' value='<?php echo attr($_POST['form_paydate']); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php xlt("Date of payment yyyy-mm-dd"); ?>'>
+                            <input type='text' name='form_paydate' id='form_paydate' class='form-control datepicker' value='<?php echo attr($_POST['form_paydate']); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla("Date of payment yyyy-mm-dd"); ?>'>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label oe-large" for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
                             <label class="control-label oe-small" for="form_deposit_date"><?php echo xlt('Dep Date'); ?>:</label>
-                            <input type='text' name='form_deposit_date' id=='form_deposit_date' class='form-control datepicker' value='<?php echo attr($_POST['form_deposit_date']); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php xlt("Date of bank deposit yyyy-mm-dd"); ?>'>
+                            <input type='text' name='form_deposit_date' id=='form_deposit_date' class='form-control datepicker' value='<?php echo attr($_POST['form_deposit_date']); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla("Date of bank deposit yyyy-mm-dd"); ?>'>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label" for="form_amount"><?php echo xlt('Amount'); ?>:</label>
-                            <input type='text' name='form_amount' id='form_amount'  class='form-control' value='<?php echo attr($_POST['form_amount']); ?>' title='<?php xlt("Paid amount that you will allocate"); ?>'>
+                            <input type='text' name='form_amount' id='form_amount'  class='form-control' value='<?php echo attr($_POST['form_amount']); ?>' title='<?php echo xla("Paid amount that you will allocate"); ?>'>
                         </div>
                         <div class="col-xs-1">
                             <label class="control-label oe-large" for="only_with_debt"><?php echo xlt('Pt Debt');?>:</label>
@@ -712,42 +718,42 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                                 </label>
                         </div>
 
-                        <input type="hidden" id="hid1" value="<?php echo xlt('Invoice Search');?>">
-                        <input type="hidden" id="hid2" value="<?php echo xlt('ERA Upload');?>">
-                        <input type="hidden" id="hid3" value="<?php echo xlt('Select Method');?>">
+                        <input type="hidden" id="hid1" value="<?php echo xla('Invoice Search');?>">
+                        <input type="hidden" id="hid2" value="<?php echo xla('ERA Upload');?>">
+                        <input type="hidden" id="hid3" value="<?php echo xla('Select Method');?>">
                     </legend>
                     <div class="col-xs-12 .oe-custom-line oe-show-hide" id = 'inv-search'>
                         <div class="col-xs-3">
                             <label class="control-label" for="form_name"><?php echo xlt('Name'); ?>:</label>
-                            <input type='text' name='form_name' id='form_name' class='form-control' value='<?php echo attr($_POST['form_name']); ?>' title='<?php xl("Any part of the patient name, or \"last,first\", or \"X-Y\"", "e"); ?>' placeholder= '<?php echo xlt('Last name, First name');?>'>
+                            <input type='text' name='form_name' id='form_name' class='form-control' value='<?php echo attr($_POST['form_name']); ?>' title='<?php echo xla("Any part of the patient name, or \"last,first\", or \"X-Y\""); ?>' placeholder= '<?php echo xla('Last name, First name');?>'>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label" for="form_pid"><?php echo xlt('Chart ID'); ?>:</label>
-                            <input type='text' name='form_pid' id='form_pid' class='form-control' value='<?php echo attr($_POST['form_pid']); ?>' title='<?php xl("Patient chart ID", "e"); ?>'>
+                            <input type='text' name='form_pid' id='form_pid' class='form-control' value='<?php echo attr($_POST['form_pid']); ?>' title='<?php echo xla("Patient chart ID"); ?>'>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label" for="form_encounter"><?php echo xlt('Encounter'); ?>:</label>
-                            <input type='text' name='form_encounter' id='form_encounter' class='form-control' value='<?php echo attr($_POST['form_encounter']); ?>' title='<?php xl("Encounter number", "e"); ?>'>
+                            <input type='text' name='form_encounter' id='form_encounter' class='form-control' value='<?php echo attr($_POST['form_encounter']); ?>' title='<?php echo xla("Encounter number"); ?>'>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label oe-large" for="form_date"><?php echo xlt('Service Date From'); ?>:</label>
                             <label class="control-label oe-small" for="form_date"><?php echo xlt('Svc Date'); ?>:</label>
-                            <input type='text' name='form_date' id='form_date' class='form-control datepicker' value='<?php echo attr($_POST['form_date']); ?>' title='<?php xl("Date of service mm/dd/yyyy", "e"); ?>'>
+                            <input type='text' name='form_date' id='form_date' class='form-control datepicker' value='<?php echo attr($_POST['form_date']); ?>' title='<?php echo xla("Date of service mm/dd/yyyy"); ?>'>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label" for="form_to_date"><?php echo xlt('Service Date To'); ?>:</label>
-                            <input type='text' name='form_to_date' id='form_to_date' class='form-control datepicker' value='<?php echo attr($_POST['form_to_date']); ?>' title='<?php xl("Ending DOS mm/dd/yyyy if you wish to enter a range", "e"); ?>'>
+                            <input type='text' name='form_to_date' id='form_to_date' class='form-control datepicker' value='<?php echo attr($_POST['form_to_date']); ?>' title='<?php echo xla("Ending DOS mm/dd/yyyy if you wish to enter a range"); ?>'>
                         </div>
                         <div class="col-xs-1" style="padding-right:0px">
                             <label class="control-label" for="type_name"><?php echo xlt('Type'); ?>:</label>
                             <select name='form_category' id='form_category' class='form-control'>
                                 <?php
                                 foreach (array(xl('Open'), xl('All'), xl('Due Pt'), xl('Due Ins')) as $value) {
-                                    echo "    <option value='$value'";
+                                    echo "    <option value='" . attr($value) . "'";
                                     if ($_POST['form_category'] == $value) {
                                         echo " selected";
                                     }
-                                    echo ">$value</option>\n";
+                                    echo ">" . text($value) . "</option>\n";
                                 }
                                 ?>
                             </select>
@@ -762,7 +768,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                                         <input name="MAX_FILE_SIZE" type="hidden" value="5000000">
                                     </span>
                                 </label>
-                                <input type="text" class="form-control" placeholder="<?php echo xlt('Click Browse and select one Electronic Remittance Advice (ERA) file...'); ?>" readonly>
+                                <input type="text" class="form-control" placeholder="<?php echo xla('Click Browse and select one Electronic Remittance Advice (ERA) file...'); ?>" readonly>
                             </div>
                         </div>
                     </div>
@@ -783,6 +789,10 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                     <div class = "table-responsive">
                         <?php
                         if ($_POST['form_search'] || $_POST['form_print']) {
+                            if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+                                die(xlt('Authentication Error'));
+                            }
+
                             $form_name      = trim($_POST['form_name']);
                             $form_pid       = trim($_POST['form_pid']);
                             $form_encounter = trim($_POST['form_encounter']);
@@ -799,7 +809,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                                 // Handle .zip extension if present.  Probably won't work on Windows.
                                 if (strtolower(substr($_FILES['form_erafile']['name'], -4)) == '.zip') {
                                     rename($tmp_name, "$tmp_name.zip");
-                                    exec("unzip -p $tmp_name.zip > $tmp_name");
+                                    exec("unzip -p " .  escapeshellarg($tmp_name.".zip") . " > " .  escapeshellarg($tmp_name));
                                     unlink("$tmp_name.zip");
                                 }
 
@@ -831,44 +841,44 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                                     }
                                     // Allow the last name to be followed by a comma and some part of a first name.
                                     if (preg_match('/^(.*\S)\s*,\s*(.*)/', $form_name, $matches)) {
-                                        $where .= "p.lname LIKE '" . $matches[1] . "%' AND p.fname LIKE '" . $matches[2] . "%'";
+                                        $where .= "p.lname LIKE '" . add_escape_custom($matches[1]) . "%' AND p.fname LIKE '" . add_escape_custom($matches[2]) . "%'";
                                         // Allow a filter like "A-C" on the first character of the last name.
                                     } elseif (preg_match('/^(\S)\s*-\s*(\S)$/', $form_name, $matches)) {
                                         $tmp = '1 = 2';
                                         while (ord($matches[1]) <= ord($matches[2])) {
-                                            $tmp .= " OR p.lname LIKE '" . $matches[1] . "%'";
+                                            $tmp .= " OR p.lname LIKE '" . add_escape_custom($matches[1]) . "%'";
                                             $matches[1] = chr(ord($matches[1]) + 1);
                                         }
                                         $where .= "( $tmp ) ";
                                     } else {
-                                        $where .= "p.lname LIKE '%$form_name%'";
+                                        $where .= "p.lname LIKE '%" . add_escape_custom($form_name) . "%'";
                                     }
                                 }
                                 if ($form_pid) {
                                     if ($where) {
                                         $where .= " AND ";
                                     }
-                                    $where .= "f.pid = '$form_pid'";
+                                    $where .= "f.pid = '" . add_escape_custom($form_pid) . "'";
                                 }
                                 if ($form_encounter) {
                                     if ($where) {
                                         $where .= " AND ";
                                     }
-                                    $where .= "f.encounter = '$form_encounter'";
+                                    $where .= "f.encounter = '" . add_escape_custom($form_encounter) . "'";
                                 }
                                 if ($form_date) {
                                     if ($where) {
                                         $where .= " AND ";
                                     }
                                     if ($form_to_date) {
-                                        $where .= "f.date >= '$form_date' AND f.date <= '$form_to_date'";
+                                        $where .= "f.date >= '" . add_escape_custom($form_date) . "' AND f.date <= '" . add_escape_custom($form_to_date) . "'";
                                     } else {
-                                        $where .= "f.date = '$form_date'";
+                                        $where .= "f.date = '" . add_escape_custom($form_date) . "'";
                                     }
                                 }
                                 if (! $where) {
                                     if ($_POST['form_category'] == 'All') {
-                                        die(xl("At least one search parameter is required if you select All."));
+                                        die(xlt("At least one search parameter is required if you select All."));
                                     } else {
                                         $where = "1 = 1";
                                     }
@@ -911,20 +921,20 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th class="id dehead"><?php xl('id', 'e');?></th>
-                                    <th class="dehead">&nbsp;<?php xl('Patient', 'e'); ?></th>
-                                    <th class="dehead">&nbsp;<?php xl('Invoice', 'e'); ?></th>
-                                    <th class="dehead">&nbsp;<?php xl('Svc Date', 'e'); ?></th>
-                                    <th class="dehead">&nbsp;<?php xl('Last Stmt', 'e'); ?></th>
-                                    <th align="right" class="dehead"><?php xl('Charge', 'e'); ?>&nbsp;</th>
-                                    <th align="right" class="dehead"><?php xl('Adjust', 'e'); ?>&nbsp;</th>
-                                    <th align="right" class="dehead"><?php xl('Paid', 'e'); ?>&nbsp;</th>
-                                    <th align="right" class="dehead"><?php xl('Balance', 'e'); ?>&nbsp;</th>
-                                    <th align="center" class="dehead"><?php xl('Prv', 'e'); ?></th>
+                                    <th class="id dehead"><?php echo xlt('id');?></th>
+                                    <th class="dehead">&nbsp;<?php echo xlt('Patient'); ?></th>
+                                    <th class="dehead">&nbsp;<?php echo xlt('Invoice'); ?></th>
+                                    <th class="dehead">&nbsp;<?php echo xlt('Svc Date'); ?></th>
+                                    <th class="dehead">&nbsp;<?php echo xlt('Last Stmt'); ?></th>
+                                    <th align="right" class="dehead"><?php echo xlt('Charge'); ?>&nbsp;</th>
+                                    <th align="right" class="dehead"><?php echo xlt('Adjust'); ?>&nbsp;</th>
+                                    <th align="right" class="dehead"><?php echo xlt('Paid'); ?>&nbsp;</th>
+                                    <th align="right" class="dehead"><?php echo xlt('Balance'); ?>&nbsp;</th>
+                                    <th align="center" class="dehead"><?php echo xlt('Prv'); ?></th>
                                     <?php
                                     if (!$eracount) { ?>
-                                    <th align="left" class="dehead"><?php xl('Sel', 'e'); ?></th>
-                                    <th align="center" class="dehead"><?php xl('Email', 'e'); ?></th>
+                                    <th align="left" class="dehead"><?php echo xlt('Sel'); ?></th>
+                                    <th align="center" class="dehead"><?php echo xlt('Email'); ?></th>
                                     <?php
                                     } ?>
                                 </tr>
@@ -991,24 +1001,24 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                             ?>
                                 <tr bgcolor='<?php echo $bgcolor ?>'>
                                     <td class="detail">
-                                        <a href="" onclick="return npopup(<?php echo $row['pid'] ?>)"><?php echo $row['pid'];?></a>
+                                        <a href="" onclick="return npopup(<?php echo attr(addslashes($row['pid'])) ?>)"><?php echo text($row['pid']); ?></a>
                                     </td>
                                     <td class="detail">
-                                        &nbsp;<a href="" onclick="return npopup(<?php echo $row['pid'] ?>)"><?php echo $row['lname'] . ', ' . $row['fname']; ?></a>
+                                        &nbsp;<a href="" onclick="return npopup(<?php echo attr(addslashes($row['pid'])) ?>)"><?php echo text($row['lname']) . ', ' . text($row['fname']); ?></a>
                                     </td>
                                     <td class="detail">
-                                        &nbsp;<a href="sl_eob_invoice.php?id=<?php echo $row['id'] ?>" target="_blank"><?php echo $row['pid'] . '.' . $row['encounter']; ?></a>
+                                        &nbsp;<a href="sl_eob_invoice.php?id=<?php echo attr(urlencode($row['id'])); ?>" target="_blank"><?php echo text($row['pid']) . '.' . text($row['encounter']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;<?php echo text(oeFormatShortDate($svcdate)); ?></td>
                                     <td class="detail">&nbsp;<?php echo text(oeFormatShortDate($last_stmt_date)); ?></td>
-                                    <td align="right" class="detail"><?php bucks($row['charges']) ?>&nbsp;</td>
-                                    <td align="right" class="detail"><?php bucks($row['adjustments']) ?>&nbsp;</td>
-                                    <td align="right" class="detail"><?php bucks($row['payments'] - $row['copays']); ?>&nbsp;</td>
-                                    <td align="right" class="detail"><?php bucks($balance); ?>&nbsp;</td>
-                                    <td align="center" class="detail"><?php echo $duncount ? $duncount : "&nbsp;" ?></td>
+                                    <td align="right" class="detail"><?php echo text(bucks($row['charges'])); ?>&nbsp;</td>
+                                    <td align="right" class="detail"><?php echo text(bucks($row['adjustments'])); ?>&nbsp;</td>
+                                    <td align="right" class="detail"><?php echo text(bucks($row['payments'] - $row['copays'])); ?>&nbsp;</td>
+                                    <td align="right" class="detail"><?php echo text(bucks($balance)); ?>&nbsp;</td>
+                                    <td align="center" class="detail"><?php echo $duncount ? text($duncount) : "&nbsp;" ?></td>
                                     <?php if (!$eracount) { ?>
                                     <td class="detail" align="left">
-                                        <input type='checkbox' name='form_cb[<?php echo($row['id']) ?>]'<?php echo $isduept ?> />
+                                        <input type='checkbox' name='form_cb[<?php echo attr($row['id']) ?>]'<?php echo text($isduept); ?> />
                                         <?php
                                         if ($in_collections) {
                                             echo "<b><font color='red'>IC</font></b>";
@@ -1016,7 +1026,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                                         <?php
                                         if (function_exists('is_auth_portal') ? is_auth_portal($row['pid']) : false) {
                                             echo(' PPt');
-                                            echo("<input type='hidden' name='form_invpids[". $row['id'] ."][". $row['pid'] ."]' />");
+                                            echo("<input type='hidden' name='form_invpids[". attr($row['id']) ."][". attr($row['pid']) ."]' />");
                                             $is_portal = true;
                                         }?>
                                     </td>
@@ -1077,7 +1087,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                                     }
                             }
                         ?>
-                            <input type='checkbox' class="btn-separate-left" name='form_without'    value='1' /><?php xl('Without Update', 'e');?>
+                            <input type='checkbox' class="btn-separate-left" name='form_without'    value='1' /><?php echo xlt('Without Update');?>
                         </div>
                     </div>
                 </div>
@@ -1099,7 +1109,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
      var f = document.forms[0];
      var debug = f.form_without.checked ? '1' : '0';
      var paydate = f.form_paydate.value;
-     window.open('sl_eob_process.php?eraname=<?php echo $eraname ?>&debug=' + debug + '&paydate=' + paydate + '&original=original', '_blank');
+     window.open('sl_eob_process.php?eraname=<?php echo attr(urlencode($eraname)); ?>&debug=' + debug + '&paydate=' + paydate + '&original=original', '_blank');
      return false;
     }
     $(function() {
@@ -1164,13 +1174,13 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
     });
     <?php
     if ($alertmsg) {
-        echo "alert('" . htmlentities($alertmsg) . "');\n";
+        echo "alert('" . addslashes($alertmsg) . "');\n";
     }
 
     ?>
     $( document ).ready(function() {
         //using jquery-ui-1-12-1 tooltip instead of bootstrap tooltip
-        $('#select-method-tooltip').attr( "title", "<?php echo xla(' Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>").tooltip();
+        $('#select-method-tooltip').attr( "title", "<?php echo xla('Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>").tooltip();
     });
     </script>
     <?php

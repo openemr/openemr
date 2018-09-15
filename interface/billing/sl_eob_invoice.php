@@ -24,7 +24,7 @@
  * @link    http://www.open-emr.org
  */
     use OpenEMR\Core\Header;
-    
+
     require_once("../globals.php");
     require_once("$srcdir/log.inc");
     require_once("$srcdir/patient.inc");
@@ -220,7 +220,7 @@ $(document).ready(function() {
     }
     .table {
        margin: auto;
-       width: 90% !important; 
+       width: 90% !important;
     }
     @media (min-width: 992px){
         .modal-lg {
@@ -267,7 +267,7 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
         if ($debug) {
             echo xl("This module is in test mode. The database will not be changed.", '', '<p><b>', "</b><p>\n");
         }
-                
+
         $session_id = arGetSession($form_payer_id, $form_reference, $form_check_date, $form_deposit_date, $form_pay_total);
         // The sl_eob_search page needs its invoice links modified to invoke
         // javascript to load form parms for all the above and submit.
@@ -275,7 +275,7 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
         // openemr database exclusively.
         // And back to the sl_eob_invoice page, I think we may want to move
         // the source input fields from row level to header level.
-                
+
         // Handle deletes. row_delete() is borrowed from deleter.php.
         if ($ALLOW_DELETE && !$debug) {
             if (is_array($_POST['form_del'])) {
@@ -284,15 +284,15 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
                 }
             }
         }
-                
+
         $paytotal = 0;
         foreach ($_POST['form_line'] as $code => $cdata) {
             $thispay      = trim($cdata['pay']);
             $thisadj      = trim($cdata['adj']);
             $thisins      = trim($cdata['ins']);
             $thiscodetype = trim($cdata['code_type']);
-            $reason       = strip_escape_custom($cdata['reason']);
-                    
+            $reason       = $cdata['reason'];
+
             // Get the adjustment reason type.  Possible values are:
             // 1 = Charge adjustment
             // 2 = Coinsurance
@@ -314,16 +314,16 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
                     $reason_type = $tmp['option_value'];
                 }
             }
-                    
+
             if (!$thisins) {
                 $thisins = 0;
             }
-                    
+
             if ($thispay) {
                 arPostPayment($patient_id, $encounter_id, $session_id, $thispay, $code, $payer_type, '', $debug, '', $thiscodetype);
                 $paytotal += $thispay;
             }
-                    
+
             // Be sure to record adjustment reasons, even for zero adjustments if
             // they happen to be comments.
             if ($thisadj || ($reason && $reason_type == 5)) {
@@ -352,13 +352,13 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
                 arPostAdjustment($patient_id, $encounter_id, $session_id, $thisadj, $code, $payer_type, $reason, $debug, '', $thiscodetype);
             }
         }
-                
+
         // Maintain which insurances are marked as finished.
-                
+
         $form_done       = 0 + $_POST['form_done'];
         $form_stmt_count = 0 + $_POST['form_stmt_count'];
         sqlStatement("UPDATE form_encounter " . "SET last_level_closed = $form_done, " . "stmt_count = $form_stmt_count WHERE " . "pid = '$patient_id' AND encounter = '$encounter_id'");
-                
+
         if ($_POST['form_secondary']) {
             arSetupSecondary($patient_id, $encounter_id, $debug);
         }
@@ -467,7 +467,7 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
                             <div style="padding-left:15px">
                                 <?php
                                   // TBD: check the first not-done-with insurance, not always Ins1!
-                                ?> 
+                                ?>
                                     <label class="radio-inline">
                                       <input checked name='form_insurance' onclick='setins("Ins1")' type='radio' value='Ins1'><?php xl('Ins1', 'e')?>
                                     </label>
@@ -478,11 +478,11 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
                                       <input name='form_insurance' onclick='setins("Ins3")' type='radio' value='Ins3'><?php xl('Ins3', 'e')?>
                                     </label>
                                     <label class="radio-inline">
-                                      <input name='form_insurance' onclick='setins("Pt")' type='radio' value='Pt'><?php xl('Patient', 'e')?> 
+                                      <input name='form_insurance' onclick='setins("Pt")' type='radio' value='Pt'><?php xl('Patient', 'e')?>
                                     </label>
                                 <?php
                                   // TBD: I think the following is unused and can be removed.
-                                ?> 
+                                ?>
                                 <input name='form_eobs' type='hidden'value='<?php echo addslashes($arrow['shipvia']) ?>'/>
                             </div>
                         </div>
@@ -512,7 +512,7 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
                             </label>
                         </div>
                     </div>
-                    
+
                 </fieldset>
                 <fieldset>
                     <legend><?php echo xlt('Invoice Details'); ?></legend>
@@ -542,7 +542,7 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
                                     ++$encount;
                                     $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
                                     $dispcode = $code;
-                                    
+
                                     // remember the index of the first entry whose code is not "CO-PAY", i.e. it's a legitimate proc code
                                     if ($firstProcCodeIndex == -1 && strcmp($code, "CO-PAY") !=0) {
                                         $firstProcCodeIndex = $encount;
@@ -633,7 +633,7 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
                                         echo ">" . htmlspecialchars($orow['title']) . "</option>\n";
                                     }
                                     ?>
-                                    </select> 
+                                    </select>
                                     <?php
                                     // TBD: Maybe a comment field would be good here, for appending
                                     // to the reason.

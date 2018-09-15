@@ -30,14 +30,6 @@ class ORDataObject
             if (is_callable(array($this,$func))) {
                 $val = call_user_func(array($this,$func));
 
-                                //modified 01-2010 by BGM to centralize to formdata.inc.php
-                    // have place several debug statements to allow standardized testing over next several months
-                if (!is_array($val)) {
-                        //DEBUG LINE - error_log("ORDataObject persist before strip: ".$val, 0);
-                    $val = strip_escape_custom($val);
-                        //DEBUG LINE - error_log("ORDataObject persist after strip: ".$val, 0);
-                }
-
                 if (in_array($field, $pkeys)  && empty($val)) {
                     $last_id = generate_id();
                     call_user_func(array(&$this,"set_".$field), $last_id);

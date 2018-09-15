@@ -248,6 +248,7 @@ function formData($name, $type = 'P', $isTrim = false)
 
 /**
  * (Note this function is deprecated for new scripts and is only utilized to support legacy scripts)
+ * NEED TO KEEP THIS FUNCTION TO ENSURE LEGACY FORMS ARE SUPPORTED
  * Core function that will be called by formData.
  * Note it can also be called directly if preparing
  * normal variables (not GET,POST, or REQUEST)
@@ -263,40 +264,7 @@ function formDataCore($s, $isTrim = false)
         $s = trim($s);
     }
 
-      //strip escapes
-      $s = strip_escape_custom($s);
       //add escapes for safe database insertion
       $s = add_escape_custom($s);
       return $s;
-}
-
-/**
- * (Note this function is deprecated for new scripts and is only utilized to support legacy scripts)
- * Will remove escapes if needed (ie magic quotes turned on) from string
- * Called by above formDataCore() function to prepare for database insertion.
- * Can also be called directly if simply need to remove escaped characters
- * from a string before processing.
- *
- * @param string $s
- * @return string
- */
-function strip_escape_custom($s)
-{
-      //magic quotes is gone as of php 5.4, so just return the value
-      return $s;
-}
-
-/**
- * (Note this function is deprecated for new scripts and is only utilized to support legacy scripts)
- * This function is only being kept to support
- * previous functionality. If you want to trim
- * variables, this should be done using above
- * functions.
- *
- * @param string $s
- * @return string
- */
-function formTrim($s)
-{
-    return formDataCore($s, true);
 }

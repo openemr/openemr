@@ -1,17 +1,13 @@
 <?php
 
-include_once("../../globals.php");
+require_once("../../../library/api.inc");
 
 function addAppt($days, $time)
 {
-    $days = formDataCore($days);
-    $time = formDataCore($time);
-
     $sql = "insert into openemr_postcalendar_events (pc_pid, pc_eventDate," .
-    "pc_comments, pc_aid,pc_startTime) values (" .
-    $_SESSION['pid'] . ", date_add(current_date(), interval " . $days .
-    " day),'from CAMOS', " . $_SESSION['authId'] . ",'$time')";
-    return sqlInsert($sql);
+    "pc_comments, pc_aid,pc_startTime) values (?, date_add(current_date(), interval " . add_escape_custom($days) .
+    " day),'from CAMOS', ?, ?)";
+    return sqlInsert($sql, array($_SESSION['pid'], $_SESSION['authId'], $time));
 }
 function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp)
 {
@@ -24,7 +20,6 @@ function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp)
     $_POST['bpd'] = $diastolic;
     $_POST['pulse'] = $pulse;
     $_POST['temperature'] = $temp;
-    include_once("../../../library/api.inc");
     require("../vitals/C_FormVitals.class.php");
     $c = new C_FormVitals();
     echo $c->default_action_process($_POST);
@@ -44,22 +39,14 @@ function addBilling2($encounter, $code_type, $code, $code_text, $modifier = "", 
         $justify_string = implode(":", $justify_trimmed).":";
     }
 
-    $code_type = formDataCore($code_type);
-    $code = formDataCore($code);
-    $code_text = formDataCore($code_text);
-    $modifier = formDataCore($modifier);
-    $units = formDataCore($units);
-    $fee = formDataCore($fee);
-    $justify_string = formDataCore($justify_string);
-
   // set to authorize billing codes as default - bm
   //  could place logic here via acls to control who
   //  can authorize as a feature in the future
     $authorized=1;
 
-    $sql = "insert into billing (date, encounter, code_type, code, code_text, pid, authorized, user, groupname,activity,billed,provider_id,modifier,units,fee,justify) values (NOW(), '".$_SESSION['encounter']."', '$code_type', '$code', '$code_text', '".$_SESSION['pid']."', '$authorized', '" . $_SESSION['authId'] . "', '" . $_SESSION['authProvider'] . "',1,0,".$_SESSION['authUserID'].",'$modifier','$units','$fee','$justify_string')";
+    $sql = "insert into billing (date, encounter, code_type, code, code_text, pid, authorized, user, groupname,activity,billed,provider_id,modifier,units,fee,justify) values (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?, ?, ?, ?)";
 
-    return sqlInsert($sql);
+    return sqlInsert($sql, array($_SESSION['encounter'], $code_type, $code, $code_text, $_SESSION['pid'], $authorized, $_SESSION['authId'], $_SESSION['authProvider'], $_SESSION['authUserID'], $modifier, $units, $fee, $justify_string));
 }
 
 function content_parser($input)
@@ -102,13 +89,11 @@ function process_commands(&$string_to_process, &$camos_return_data)
                 $comm_array = explode('::', $comm); //array where first element is command and rest are args
                 $replacement_item = trim($comm_array[1]); //this is the item name to search for in the database.  easy.
                 $replacement_text = '';
-                $query = "SELECT content FROM form_CAMOS_item WHERE item like '".$replacement_item."'";
-                $statement = sqlStatement($query);
+                $query = "SELECT content FROM form_CAMOS_item WHERE item like ?";
+                $statement = sqlStatement($query, array($replacement_item));
                 if ($result = sqlFetchArray($statement)) {
                     $replacement_text = $result['content'];
                 }
-
-                $replacement_text = formDataCore($replacement_text);
                 $string_to_process = str_replace($val, $replacement_text, $string_to_process);
             }
         } else {
@@ -124,8 +109,8 @@ function process_commands(&$string_to_process, &$camos_return_data)
     if (preg_match("/\/\*\s*date_add\s*::\s*(.*?)\s*\*\//", $string_to_process, $matches)) {
         $to_replace = $matches[0];
         $days = $matches[1];
-        $query = "select date_format(date_add(date, interval $days day),'%W, %m-%d-%Y') as date from form_encounter where " . "pid = " . $_SESSION['pid'] . " and encounter = " . $_SESSION['encounter'];
-        $statement = sqlStatement($query);
+        $query = "select date_format(date_add(date, interval " . add_escape_custom($days) . " day),'%W, %m-%d-%Y') as date from form_encounter where pid = ? and encounter = ?";
+        $statement = sqlStatement($query, array($_SESSION['pid'], $_SESSION['encounter']));
         if ($result = sqlFetchArray($statement)) {
             $string_to_process = str_replace($to_replace, $result['date'], $string_to_process);
         }
@@ -134,8 +119,8 @@ function process_commands(&$string_to_process, &$camos_return_data)
     if (preg_match("/\/\*\s*date_sub\s*::\s*(.*?)\s*\*\//", $string_to_process, $matches)) {
         $to_replace = $matches[0];
         $days = $matches[1];
-        $query = "select date_format(date_sub(date, interval $days day),'%W, %m-%d-%Y') as date from form_encounter where " . "pid = " . $_SESSION['pid'] . " and encounter = " . $_SESSION['encounter'];
-        $statement = sqlStatement($query);
+        $query = "select date_format(date_sub(date, interval " . add_escape_custom($days) . " day),'%W, %m-%d-%Y') as date from form_encounter where pid = ? and encounter = ?";
+        $statement = sqlStatement($query, array($_SESSION['pid'], $_SESSION['encounter']));
         if ($result = sqlFetchArray($statement)) {
             $string_to_process = str_replace($to_replace, $result['date'], $string_to_process);
         }
@@ -240,7 +225,8 @@ function replace($pid, $enc, $content)
         "t2.date " .
         "from patient_data as t1 join form_encounter as t2 on " .
         "(t1.pid = t2.pid) " .
-        "where t2.pid = ".$pid." and t2.encounter = ".$enc
+        "where t2.pid = ? and t2.encounter = ?",
+        array($pid, $enc)
     );
     if ($results = sqlFetchArray($query1)) {
         $fname = $results['fname'];
@@ -259,7 +245,7 @@ function replace($pid, $enc, $content)
     }
 
     $query1 = sqlStatement("select t1.lname from users as t1 join forms as " .
-    "t2 on (t1.username like t2.user) where t2.encounter = ".$enc);
+    "t2 on (t1.username like t2.user) where t2.encounter = ?", array($enc));
     if ($results = sqlFetchArray($query1)) {
         $doctorname = "Dr. ".$results['lname'];
     }
@@ -269,7 +255,8 @@ function replace($pid, $enc, $content)
         array($name,$age,strtolower($gender),$doctorname),
         $content
     );
-    return $ret;
+    //Below will fix blocks that were inadvertently double escaped in openemr versions 5.0.1.0 - 5.0.1.5
+    return str_replace("\\n", "\n", $ret);
 }
 function patient_age($birthday, $date)
 {
