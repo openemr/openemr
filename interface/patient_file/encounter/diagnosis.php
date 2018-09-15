@@ -338,7 +338,7 @@ if ($result = getBillingByEncounter($pid, $encounter, "*")) {
 
     $billing_html["CPT4"] .= "<tr><td>" . xlt('total') . ":</td><td>" . text(oeFormatMoney($total)) . "</td></tr>\n";
     foreach ($billing_html as $key => $val) {
-        print "<tr><td>" . text($key) . "</td><td><table>" . text($val) . "</table><td></tr><tr><td height=\"5\"></td></tr>\n";
+        print "<tr><td>" . text($key) . "</td><td><table>" . $val . "</table><td></tr><tr><td height=\"5\"></td></tr>\n";
     }
 }
 ?>

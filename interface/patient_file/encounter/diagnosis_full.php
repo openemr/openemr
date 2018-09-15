@@ -84,7 +84,7 @@ if ($result = getBillingByEncounter($pid, $encounter, "*")) {
     }
 
     foreach ($billing_html as $key => $val) {
-        print "<tr><td>" . text($key) . "</td><td><table>" . text($val) . "</table><td></tr><tr><td height=\"5\"></td></tr>\n";
+        print "<tr><td>" . text($key) . "</td><td><table>" . $val . "</table><td></tr><tr><td height=\"5\"></td></tr>\n";
     }
 }
 
