@@ -1,8 +1,8 @@
 <?php
 // Cloned from patient_encounter.php.
 
-include_once("../../globals.php");
-include_once("$srcdir/encounter.inc");
+require_once("../../globals.php");
+require_once("$srcdir/encounter.inc");
 ?>
 <html>
 <head>

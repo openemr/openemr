@@ -24,30 +24,30 @@
  * @link    http://www.open-emr.org
  */
 
-use OpenEMR\Core\Header;
-
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/log.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/sl_eob.inc.php');
 
- $patient     = $_REQUEST['patient'];
- $encounterid = $_REQUEST['encounterid'];
- $formid      = $_REQUEST['formid'];
- $issue       = $_REQUEST['issue'];
- $document    = $_REQUEST['document'];
- $payment     = $_REQUEST['payment'];
- $billing     = $_REQUEST['billing'];
- $transaction = $_REQUEST['transaction'];
+use OpenEMR\Core\Header;
 
- $info_msg = "";
+$patient     = $_REQUEST['patient'];
+$encounterid = $_REQUEST['encounterid'];
+$formid      = $_REQUEST['formid'];
+$issue       = $_REQUEST['issue'];
+$document    = $_REQUEST['document'];
+$payment     = $_REQUEST['payment'];
+$billing     = $_REQUEST['billing'];
+$transaction = $_REQUEST['transaction'];
 
- // Delete rows, with logging, for the specified table using the
- // specified WHERE clause.
- //
+$info_msg = "";
+
+// Delete rows, with logging, for the specified table using the
+// specified WHERE clause.
+//
 function row_delete($table, $where)
 {
-    $tres = sqlStatement("SELECT * FROM $table WHERE $where");
+    $tres = sqlStatement("SELECT * FROM " . escape_table_name($table) . " WHERE $where");
     $count = 0;
     while ($trow = sqlFetchArray($tres)) {
         $logstring = "";
@@ -68,7 +68,7 @@ function row_delete($table, $where)
     }
 
     if ($count) {
-        $query = "DELETE FROM $table WHERE $where";
+        $query = "DELETE FROM " . escape_table_name($table) . " WHERE $where";
         if (!$GLOBALS['sql_string_no_show_screen']) {
             echo text($query) . "<br>\n";
         }
@@ -82,9 +82,9 @@ function row_delete($table, $where)
  //
 function row_modify($table, $set, $where)
 {
-    if (sqlQuery("SELECT * FROM $table WHERE $where")) {
+    if (sqlQuery("SELECT * FROM " . escape_table_name($table) . " WHERE $where")) {
         newEvent("deactivate", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $where");
-        $query = "UPDATE $table SET $set WHERE $where";
+        $query = "UPDATE " . escape_table_name($table) . " SET $set WHERE $where";
         if (!$GLOBALS['sql_string_no_show_screen']) {
             echo text($query) . "<br>\n";
         }
@@ -211,6 +211,7 @@ function delete_document($document)
 <script language="javascript">
 function submit_form()
 {
+top.restoreSession();
 document.deletefrm.submit();
 }
 // Java script function for closing the popup
@@ -225,9 +226,13 @@ function popup_close() {
  // If the delete is confirmed...
  //
 if ($_POST['form_submit']) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
     if ($patient) {
         if (!acl_check('admin', 'super') || !$GLOBALS['allow_pat_delete']) {
-            die("Not authorized!");
+            die(xlt("Not authorized!"));
         }
 
         row_modify("billing", "activity = 0", "pid = '" . add_escape_custom($patient) . "'");
@@ -429,9 +434,9 @@ if ($_POST['form_submit']) {
         echo " dlgclose('imdeleted',false);\n";
     } else {
         if ($GLOBALS['sql_string_no_show_screen']) {
-            echo " dlgclose('imdeleted', $encounterid);\n";
+            echo " dlgclose('imdeleted', " . attr(addslashes($encounterid)) . ");\n";
         } else { // this allows dialog to stay open then close with button or X.
-            echo " opener.dlgSetCallBack('imdeleted', $encounterid);\n";
+            echo " opener.dlgSetCallBack('imdeleted', " . attr(addslashes($encounterid)) . ");\n";
         }
     }
     echo "</script></body></html>\n";
@@ -440,7 +445,7 @@ if ($_POST['form_submit']) {
 ?>
 
 <form method='post' name="deletefrm" action='deleter.php?patient=<?php echo attr($patient) ?>&encounterid=<?php echo attr($encounterid) ?>&formid=<?php echo attr($formid) ?>&issue=<?php echo attr($issue) ?>&document=<?php echo attr($document) ?>&payment=<?php echo attr($payment) ?>&billing=<?php echo attr($billing) ?>&transaction=<?php echo attr($transaction) ?>' onsubmit="javascript:alert('1');document.deleform.submit();">
-
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <p class="lead">&nbsp;<br><?php echo xlt('Do you really want to delete'); ?>
 
 <?php
@@ -466,7 +471,7 @@ if ($patient) {
     <a href="#" onclick="submit_form()" class="btn btn-lg btn-save btn-default"><?php echo xlt('Yes, Delete and Log'); ?></a>
     <a href='#' class="btn btn-lg btn-link btn-cancel" onclick="popup_close();"><?php echo xlt('No, Cancel');?></a>
 </div>
-<input type='hidden' name='form_submit' value='<?php echo xla('Yes, Delete and Log'); ?>'/>
+<input type='hidden' name='form_submit' value='Yes, Delete and Log'/>
 </form>
 </body>
 </html>
