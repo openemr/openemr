@@ -39,7 +39,8 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         header('Location: '.$landingpage);
         exit;
     }
-    $admin = sqlQueryNoLog("SELECT CONCAT(users.fname,' ',users.lname) as user_name FROM users WHERE id = ?",
+    $admin = sqlQueryNoLog(
+        "SELECT CONCAT(users.fname,' ',users.lname) as user_name FROM users WHERE id = ?",
         array($_SESSION['authUserID'])
     );
     define('ADMIN_USERNAME', $admin['user_name']);
@@ -506,22 +507,22 @@ $msgApp = new Controller();
     <title><?php echo xlt('Secure Patient Chat'); ?></title>
     <meta name="author" content="Jerry Padgett sjpadgett{{at}} gmail {{dot}} com">
 
-    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-11-3/dist/jquery.js"></script>
+    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js"></script>
 
-    <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
-        <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
+        <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
     <?php } ?>
 
-    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
 
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote/dist/summernote.css" />
-    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote/dist/summernote.js"></script>
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote-0-8-2/dist/summernote.css" />
+    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote-0-8-2/dist/summernote.js"></script>
 
-    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/angular/angular.min.js"></script>
-    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/angular-summernote/dist/angular-summernote.js"></script>
-     <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/angular-sanitize/angular-sanitize.min.js"></script>
-    <script src='<?php echo $GLOBALS['assets_static_relative']; ?>/checklist-model/checklist-model.js'></script>
+    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/angular-1-5-8/angular.min.js"></script>
+    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/angular-summernote-0-8-1/dist/angular-summernote.js"></script>
+     <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/angular-sanitize-1-5-8/angular-sanitize.min.js"></script>
+    <script src='<?php echo $GLOBALS['assets_static_relative']; ?>/checklist-model-0-10-0/checklist-model.js'></script>
 
 </head>
 <script type="text/javascript">

@@ -65,7 +65,7 @@ $query = "SELECT pao.portal_username as recip_id, Concat_Ws(' ', patient_data.fn
     "LEFT JOIN patient_access_onsite pao ON pao.pid = patient_data.pid " .
     "WHERE patient_data.pid = ? AND pao.portal_pwd_status = 1";
 $portalPatient = sqlQueryNoLog($query, $pid);
-if($_SESSION['authUserID']) {
+if ($_SESSION['authUserID']) {
     $query = "SELECT users.username as recip_id, users.authorized as dash, CONCAT(users.fname,' ',users.lname) as username  " .
         "FROM users WHERE id = ?";
     $adminUser = sqlQueryNoLog($query, $_SESSION['authUserID']);
@@ -466,7 +466,7 @@ body {
     font-weight: normal
 }
 </style>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-creditcardvalidator-1-1-0/jquery.creditCardValidator.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript">
