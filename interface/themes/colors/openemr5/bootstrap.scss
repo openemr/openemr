@@ -93,10 +93,10 @@ textarea.form-control {
     padding: 0px 6px !important;
 }
 .checkbox input[type=checkbox], .checkbox-inline input[type=checkbox], .radio input[type=radio], .radio-inline input[type=radio] {
-    margin-left: -20px !important;
+    margin-left: -20px;
 }
 .checkbox label, .radio label {
-    padding-left: 20px !important;
+    padding-left: 20px;
 }
 .position-override {
     text-align: center !important;
