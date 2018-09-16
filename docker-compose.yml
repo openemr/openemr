@@ -17,7 +17,7 @@ services:
   openemr:
     restart: always
     # use an image if you're not changing the build steps:
-    image: openemr/openemr:flex-edge
+    image: openemr/openemr:flex
     # if editing the Dockerfile, clone the devops repo and point to the path:
     # build: ../openemr-devops/docker/openemr/flex-edge/
     ports:
@@ -36,6 +36,7 @@ services:
     - logvolume01:/var/log
     - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
+    - ccdamodule:/var/www/localhost/htdocs/openemr/ccdaservice:rw
     environment:
       MYSQL_HOST: mysql
       MYSQL_ROOT_PASS: root
@@ -59,3 +60,4 @@ volumes:
   logvolume01: {}
   nodemodules: {}
   vendordir: {}
+  ccdamodule: {}
