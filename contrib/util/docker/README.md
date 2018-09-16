@@ -12,10 +12,6 @@ The Insane Development Docker Environment will load up about 30 separate dockers
 test almost any version of mysql/mariadb/php, however it is not nearly as easy to use as the above Easy Development
 Docker Environment. See below for instructions of use of the Insane Development Docker Environment.
 
-_Note: This is only to be used for local development purposes. For
-production-grade docker deployment options, please check out
-[openemr-devops](https://github.com/openemr/openemr-devops)._
-
 #### Setup
 
 **Step 1.** Install [git](https://git-scm.com/downloads),
