@@ -6,8 +6,9 @@
 #
 # Brief instructions on how to use (for fuller instructions and examples,
 #  see the document at contrib/util/docker/README.md):
-#   1. docker-compose up -d
-#   2. Choose one of any of the following links:
+#   1. go to contrib/util/docker directory
+#   2. docker-compose up -d
+#   3. Choose one of any of the following links:
 #        http://localhost:8080 (with Apache and PHP 7.1)
 #        http://localhost:8081 (with Apache and PHP 7.2)
 #        http://localhost:8082 (with Apache and PHP 7.1 with redis)
