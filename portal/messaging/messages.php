@@ -135,22 +135,22 @@ function getAuthPortalUsers()
 (function() {
     var app = angular.module("emrMessageApp",['ngSanitize','summernote',"checklist-model"]);
     app.controller('inboxCtrl', ['$scope', '$filter','$http','$window', function ($scope, $filter,$http,$window) {
-        $scope.date = new Date;
-        $scope.sortingOrder = 'id';
-        $scope.pageSizes = [5,10,20,50,100];
-        $scope.reverse = false;
-        $scope.filteredItems = [];
-        $scope.groupedItems = [];
-        $scope.itemsPerPage = 8;
-        $scope.pagedItems = [];
-        $scope.compose = [];
-        $scope.selrecip = [];
-        $scope.currentPage = 0;
-        $scope.sentItems = [];
-        $scope.allItems = [];
-        $scope.deletedItems = [];
-        $scope.inboxItems = [];
-        $scope.inboxItems = <?php echo json_encode($theresult);?>;
+    $scope.date = new Date;
+    $scope.sortingOrder = 'id';
+    $scope.pageSizes = [5,10,20,50,100];
+    $scope.reverse = false;
+    $scope.filteredItems = [];
+    $scope.groupedItems = [];
+    $scope.itemsPerPage = 8;
+    $scope.pagedItems = [];
+    $scope.compose = [];
+    $scope.selrecip = [];
+    $scope.currentPage = 0;
+    $scope.sentItems = [];
+    $scope.allItems = [];
+    $scope.deletedItems = [];
+    $scope.inboxItems = [];
+    $scope.inboxItems = <?php echo json_encode($theresult);?>;
     $scope.userproper = "<?php echo $_SESSION['ptName'] ? $_SESSION['ptName'] : ($dashuser['fname'] . ' ' . $dashuser['lname']) ;?>";
     $scope.isPortal = "<?php echo IS_PORTAL;?>" ;
     $scope.isDashboard = "<?php echo IS_DASHBOARD ? IS_DASHBOARD : 0;?>" ;
@@ -534,8 +534,7 @@ function getAuthPortalUsers()
     <div class="container" id='main' style="display: none">
         <div class='header logo'>
             <h2>
-                <img style='width: 25%; height: auto;' class='logo'
-                    src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png' />  <?php echo xlt('Patient Messaging'); ?></h2>
+                <i style='width: auto; height: auto;' class='glyphicon glyphicon-envelope'></i>  <?php echo xlt('Patient Secure Mail'); ?></h2>
         </div>
         <div class="row" ng-controller="inboxCtrl">
             <aside class="col-md-1"
@@ -644,12 +643,11 @@ function getAuthPortalUsers()
                             </h4>
                         </div>-->
                             <div class="col-md-9">
-                                <blockquote class="bg-warning">
-                                    <a href="javascript:;" ng-click="groupToPages()"><?php echo xlt('Conversation'); ?></a>
-                                    <span><?php //echo xlt('Seleted Message id'); ?>
-                                        <!-- :{{selected.id}} --> <?php echo xlt('from'); ?> </span> <strong>{{selected.sender_name}}</strong>
+                                <span class="bg-warning">
+                                    <a href="javascript:;" ng-click="groupToPages()"><?php echo xlt('Conversation from'); ?></a>
+                                    <strong>{{selected.sender_name}}</strong>
                                 <?php echo xlt('regarding'); ?> {{selected.title}} <?php echo xlt('on'); ?> &lt;{{selected.date | date:'yyyy-MM-dd hh:mm'}}&gt;
-                            </blockquote>
+                            </span>
                             </div>
                             <div class="col-md-3">
                                 <div class="btn-group btn-group pull-right">

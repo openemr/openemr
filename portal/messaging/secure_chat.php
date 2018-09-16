@@ -39,11 +39,15 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         header('Location: '.$landingpage);
         exit;
     }
-
-    define('IS_DASHBOARD', $_SESSION['authUserID']);
+    $admin = sqlQueryNoLog("SELECT CONCAT(users.fname,' ',users.lname) as user_name FROM users WHERE id = ?",
+        array($_SESSION['authUserID'])
+    );
+    define('ADMIN_USERNAME', $admin['user_name']);
+    define('IS_DASHBOARD', $_SESSION['authUser']);
     define('IS_PORTAL', false);
     $_SERVER[REMOTE_ADDR] = 'admin::' . $_SERVER[REMOTE_ADDR];
 }
+
 
 define('C_USER', IS_PORTAL ?  IS_PORTAL : IS_DASHBOARD);
 
@@ -271,19 +275,29 @@ class Model extends SMA_Common\Model
 {
     public function getAuthUsers()
     {
-        $response = sqlStatementNoLog("SELECT patient_data.pid as recip_id, Concat_Ws(' ', patient_data.fname, patient_data.lname) as username FROM patient_data WHERE allow_patient_portal = 'YES'");
-        $resultpd = array ();
-        while ($row = sqlFetchArray($response)) {
-            $resultpd[] = $row;
+        $resultpd = array();
+        $result = array();
+        if (!IS_PORTAL) {
+            $query = "SELECT patient_data.pid as recip_id, Concat_Ws(' ', patient_data.fname, patient_data.lname) as username FROM patient_data " .
+                "LEFT JOIN patient_access_onsite pao ON pao.pid = patient_data.pid " .
+                "WHERE patient_data.pid = pao.pid AND pao.portal_pwd_status = 1";
+            $response = sqlStatementNoLog($query);
+            while ($row = sqlFetchArray($response)) {
+                $resultpd[] = $row;
+            }
         }
+        if (IS_PORTAL) {
+            $query = "SELECT users.username as recip_id, users.authorized as dash, CONCAT(users.fname,' ',users.lname) as username  " .
+                "FROM users WHERE active = 1 AND username > ''";
+            $response = sqlStatementNoLog($query);
 
-        $response = sqlStatementNoLog("SELECT users.id as recip_id, users.authorized as dash, CONCAT(users.fname,' ',users.lname) as username  FROM users WHERE authorized = 1");
-        $result = array ();
-        while ($row = sqlFetchArray($response)) {
-            $result[] = $row;
+            while ($row = sqlFetchArray($response)) {
+                $result[] = $row;
+            }
         }
+        $all = array_merge($result, $resultpd);
 
-        return json_encode(array_merge($result, $resultpd));
+        return json_encode($all);
     }
     public function getMessages($limit = CHAT_HISTORY, $reverse = true)
     {
@@ -292,7 +306,7 @@ class Model extends SMA_Common\Model
 
         $result = array();
         while ($row = sqlFetchArray($response)) {
-            if (IS_PORTAL) {
+            if (IS_PORTAL || IS_DASHBOARD) {
                 $u = json_decode($row['recip_id'], true);
                 if (!is_array($u)) {
                     continue;
@@ -571,12 +585,13 @@ $msgApp = new Controller();
         $scope.lastMessageId = null;
         $scope.historyFromId = null;
         $scope.onlines = []; // all online users id and ip's
-        $scope.user = "<?php echo $_SESSION['ptName'] ? $_SESSION['ptName'] : $_SESSION['authUser'];?>" // current user - dashboard user is from session authUserID
-        $scope.userid = "<?php echo IS_PORTAL ? $_SESSION['pid'] : $_SESSION['authUserID'];?>"
-        $scope.isPortal = "<?php echo IS_PORTAL;?>" ;
+        $scope.user = "<?php echo $_SESSION['ptName'] ? $_SESSION['ptName'] : ADMIN_USERNAME;?>";// current user - dashboard user is from session authUserID
+        $scope.userid = "<?php echo IS_PORTAL ? $_SESSION['pid'] : $_SESSION['authUser'];?>";
+        $scope.isPortal = "<?php echo IS_PORTAL;?>";
         $scope.isFullScreen = "<?php echo IS_FULLSCREEN; ?>";
         $scope.pusers = []; // selected recipients for chat
         $scope.chatusers = []; // authorize chat recipients for dashboard user
+
         $scope.me = {
             username: $scope.user,
             message: null,
@@ -695,7 +710,7 @@ $msgApp = new Controller();
                     var timmer = setInterval(function() {
                         notify && notify.close();
                         typeof timmer !== 'undefined' && window.clearInterval(timmer);
-                    }, 10000);
+                    }, 60000);
                 }
             });
         };
@@ -719,14 +734,14 @@ $msgApp = new Controller();
                     $scope.onNewMessage(wasListingForMySubmission);
                 }
                 $scope.lastMessageId = lastMessageId;
-                if($scope.pusers == ''){ // overkill but may need later
-                       angular.forEach($filter('unique')($scope.messages,'sender_id'), function(m,k){
-                       var flg = false;
-                       angular.forEach($scope.pusers, function(id) {
-                               if(id == m.sender_id){ flg = true; }
-                           });
-                          if(!flg) $scope.pusers.push(m.sender_id);
+                if($scope.pusers === ''){ // refresh current in chat list.
+                   angular.forEach($filter('unique')($scope.messages,'sender_id'), function(m,k){
+                   var flg = false;
+                   angular.forEach($scope.pusers, function(id) {
+                           if(id === m.sender_id){ flg = true; }
                        });
+                      if(!flg) $scope.pusers.push(m.sender_id);
+                   });
                }
                 $scope.getOnlines();
             });
@@ -743,12 +758,14 @@ $msgApp = new Controller();
                 $scope.pageTitleNotificator.off();
             });
         };
+
         $scope.getAuthUsers = function() {
             $scope.chatusers = [];
             return $http.post($scope.urlGetAuthUsers, {}).success(function(data) {
                 $scope.chatusers = data;
             });
         };
+
         $scope.pingServer = function(msgItem) {
             return $http.post($scope.urlListOnlines+'&username='+$scope.user, {}).success(function(data) {
                 $scope.online = data;
@@ -811,7 +828,7 @@ $msgApp = new Controller();
     position:relative;
     padding:5px 10px;
     background:#FBFBFB;
-    border:1px solid #C2C6CE;
+    border:1px solid #6a6a6a;
     margin:5px 0 0 50px;
     color:#444;
 }
@@ -871,8 +888,8 @@ $msgApp = new Controller();
     pointer-events:none;
 }
 .direct-chat-warning .right>.direct-chat-text {
-    background:#fef7ec;
-    border-color:#F39C12;
+    background: rgba(251, 255, 178, 0.34);
+    border-color: #f30d1b;
     color:#000;
 }
 .right .direct-chat-text {
@@ -917,23 +934,29 @@ input,button,.alert,.modal-content {
     margin-left:5px;
 }
 .sidebar{
-    background-color: lightgrey;
+    background-color: ghostwhite;
     height:100%;
     margin-top:5px;
     margin-right:0;
     padding-right:5px;
-    max-height: 530px;
+    /*max-height: 730px;*/
+    height: calc(100vh - 100px);
     overflow: auto;
 }
 .rtsidebar{
-    background-color: lightgrey;
+    background-color: ghostwhite;
     height:100%;
     margin-top:5px;
     margin-right:0;
+    height: calc(100vh - 100px);
+    overflow: auto;
 }
 .fixed-panel{
-    height: 100%;
+   height: 100%;
    padding: 5px 5px 0 5px;
+}
+h5 {
+    font-size:16px !important;
 }
 label {display: block;}
 legend{
@@ -954,11 +977,11 @@ background:#fff;
         <!-- <h2 class="hidden-xs">Secure Chat</h2> -->
         <div class="row">
             <div class="col-md-2 sidebar">
-                <h4><span class="label label-danger"><?php echo xlt('In Current Chat'); ?></span></h4>
+                <h5><span class="label label-default"><?php echo xlt('Current Recipients'); ?></span></h5>
                 <label ng-repeat="user in chatusers | unique : 'username'" ng-if="pusers.indexOf(user.recip_id) !== -1 && user.recip_id != me.sender_id">
                     <input type="checkbox" data-checklist-model="pusers" data-checklist-value="user.recip_id"> {{user.username}}
                 </label>
-                <h4><span class="label label-warning"><?php echo xlt('Authorized Users'); ?></span></h4>
+                <h5><span class="label label-default"><?php echo xlt('Available Recipients'); ?></span></h5>
                 <span>
                     <button id="chkall" class="btn btn-xs btn-success" ng-show="!isPortal" ng-click="checkAll()" type="button"><?php echo xlt('All'); ?></button>
                     <button id="chknone" class="btn btn-xs btn-success" ng-show="!isPortal" ng-click="uncheckAll()" type="button"><?php echo xlt('None'); ?></button>
@@ -968,10 +991,10 @@ background:#fff;
                 </label>
             </div>
             <div class="col-md-8 fixed-panel">
-                <div class="panel panel-warning direct-chat direct-chat-warning">
+                <div class="panel direct-chat direct-chat-warning">
                     <div class="panel-heading">
                         <div class="clearfix">
-                            <a class="btn btn-sm btn-primary pull-right ml10" href=""
+                            <a class="btn btn-sm btn-primary ml10" href=""
                                 data-toggle="modal" data-target="#clear-history"><?php echo xlt('Clear history'); ?></a>
                             <a class="btn btn-sm btn-success pull-left ml10" href="./../patient/provider" ng-show="!isPortal"><?php echo xlt('Home'); ?></a>
                             <a class="btn btn-sm btn-success pull-left ml10" href="./../home.php" ng-show="isFullScreen"><?php echo xlt('Home'); ?></a>
@@ -981,26 +1004,25 @@ background:#fff;
                         <div class="direct-chat-messages">
                             <div class="direct-chat-msg" ng-repeat="message in messages" ng-if="historyFromId < message.id" ng-class="{'right':!message.me}">
                                 <div class="direct-chat-info clearfix">
-                                    <span class="direct-chat-name"
-                                        ng-class="{'pull-left':message.me, 'pull-right':!message.me}">{{message.username }}</span>
-                                        <span class="direct-chat-timestamp "
-                                        ng-class="{'pull-left':!message.me, 'pull-right':message.me}">{{message.date }}</span>
+                                    <span class="direct-chat-name" ng-class="{'pull-left':message.me,'pull-right':!message.me}">{{message.username }}</span>
+                                    <span class="direct-chat-timestamp " ng-class="{'pull-left':!message.me,'pull-right':message.me}">{{message.date }}</span>
                                 </div>
-                                <img class="direct-chat-img" ng-show="!message.me"
-                                    src="./../images/Unknown-person.gif"
-                                    alt="">
-                                <img class="direct-chat-img" ng-show="message.me")
-                                    src="<?php echo $GLOBALS['images_static_relative']; ?>/favicon-32x32.png"
-                                    alt="">
+                                <i class="direct-chat-img glyphicon glyphicon-hand-left" style="font-size:24px" ng-show="!message.me"></i>
+                                <i class="direct-chat-img glyphicon glyphicon-hand-right" style="font-size:24px" ng-show="message.me"></i>
+
                                 <div class="direct-chat-text right">
-                                    <div style="padding-left: 0px; padding-right: 0px;" title="<?php echo xlt('Click to make chat this current recipient only...'); ?>" ng-click="makeCurrent(message)" ng-bind-html=renderMessageBody(message.message)></div>
+                                    <div style="padding-left: 0px; padding-right: 0px;"
+                                         title="<?php echo xlt('Click to select and send to this recipient only...'); ?>"
+                                         ng-click="makeCurrent(message)"
+                                         ng-bind-html=renderMessageBody(message.message)></div>
                                 </div>
                             </div>
                         </div>
                         <div class="panel-footer box-footer-hide">
                             <form id='msgfrm' ng-submit="saveMessage()">
                                 <div class="input-group">
-                                    <input type="text" placeholder="Type message..." id="msgedit" autofocus="autofocus" class="form-control" ng-model="me.message" ng-enter="saveMessage()">
+                                    <input type="text" placeholder="Type message..." id="msgedit" autofocus="autofocus"
+                                           class="form-control" ng-model="me.message" ng-enter="saveMessage()">
                                     <span class="input-group-btn">
                                         <button type="submit" class="btn btn-danger btn-flat"><?php echo xlt('Send'); ?></button>
                                         <button type="button" class="btn btn-success btn-flat" ng-click="openModal(event)"><?php echo xlt('Edit'); ?></button>
@@ -1012,11 +1034,12 @@ background:#fff;
             </div>
         </div>
         <div class="col-md-2 rtsidebar">
-                <h4><span class="label label-info"><?php echo xlt('Online'); ?> : {{ online.total || '0' }}</span></h4>
-                <label ng-repeat="ol in onlines | unique : 'username'">
-                    <input type="checkbox" data-checklist-model="onlines" data-checklist-value="ol"> {{ol.username}}
-                </label>
-            </div>
+            <h5><span class="label label-default"><?php echo xlt('Whose Online'); ?> : {{ online.total || '0' }}</span>
+            </h5>
+            <label ng-repeat="ol in onlines | unique : 'username'">
+                <input type="checkbox" data-checklist-model="onlines" data-checklist-value="ol"> {{ol.username}}
+            </label>
+        </div>
     </div>
 
     <div class="modal modal-wide fade" id="popeditor">
