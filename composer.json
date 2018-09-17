@@ -36,6 +36,11 @@
         "vlucas/phpdotenv" : "2.4.0",
         "zendframework/zendframework" : "2.5.3"
     },
+    "config": {
+        "platform": {
+            "php": "5.6"
+        }
+    },
     "require-dev" : {
     },
     "repositories" : [{
