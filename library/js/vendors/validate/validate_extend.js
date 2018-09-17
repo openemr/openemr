@@ -153,8 +153,14 @@ function dateValidation(value, options, type){
     switch(format) {
         // case date format is dd/mm/YYYY
         case "2":
-            var dateParts = value.split("/");
-            var date = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+            var datetimeParts = value.split(" ");
+            var dateParts = datetimeParts[0].split("/");
+            if(typeof datetimeParts[1] === 'undefined') {
+                var date = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+            } else {
+                var hoursMinutesParts = datetimeParts[1].split(":");
+                var date = new Date(dateParts[2], dateParts[1] - 1, dateParts[0], hoursMinutesParts[0], hoursMinutesParts[1] + 1);
+            }
             break;
         default:
             date =  new Date(value);
