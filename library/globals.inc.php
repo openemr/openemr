@@ -578,12 +578,12 @@ $GLOBALS_METADATA = array(
             '1',                              // default = true
             xl('Are appointment category names to be translated?')
         ),
-
-        'npi_validate' => array(
-            xl('Validate NPI'),
+        
+        'gbl_npi_validate' => array(
+            xl('NPI Syntax Validation'),
             'bool',                           // data type
             '0',                              // default = false
-            xl('Check to enable NPI validation for Users and Address Book entries.')
+            xl('NPI syntax validation for Users and in Address Book. It does not ensure the data entered matches the provider, only that the syntax is correct. (US only)')
         ),
     
         'units_of_measurement' => array(
