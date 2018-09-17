@@ -578,7 +578,14 @@ $GLOBALS_METADATA = array(
             '1',                              // default = true
             xl('Are appointment category names to be translated?')
         ),
-
+        
+        'gbl_npi_validate' => array(
+            xl('NPI Syntax Validation'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Validate for correct NPI format on data entry. (U.S.A Only)')
+        ),
+    
         'units_of_measurement' => array(
             xl('Units for Visit Forms'),
             array(
