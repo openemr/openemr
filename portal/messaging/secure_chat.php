@@ -39,7 +39,8 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         header('Location: '.$landingpage);
         exit;
     }
-    $admin = sqlQueryNoLog("SELECT CONCAT(users.fname,' ',users.lname) as user_name FROM users WHERE id = ?",
+    $admin = sqlQueryNoLog(
+        "SELECT CONCAT(users.fname,' ',users.lname) as user_name FROM users WHERE id = ?",
         array($_SESSION['authUserID'])
     );
     define('ADMIN_USERNAME', $admin['user_name']);
