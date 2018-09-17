@@ -273,7 +273,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     // but better to continue than stop because of a dependency...
     //
     let jqurl = top.webroot_url + '/public/assets/jquery-1-9-1/jquery.min.js';
-    if (typeof jQuery.fn.jquery === 'undefined') {
+    if (typeof jQuery === 'undefined') {
         includeScript(jqurl, false, 'script'); // true is async
     }
     jQuery(function () {
