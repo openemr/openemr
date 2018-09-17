@@ -25,7 +25,7 @@
  */
 
 
-/*LBF form take the valude from the global $GLOBALS['new_validate'];*/
+/*LBF form take the value from the global $GLOBALS['new_validate'];*/
 /*Other pages depend if the page in the lists options (page validation)is active and exists)*/
 if ($use_validate_js) {
 ?>
@@ -48,9 +48,10 @@ function submitme(new_validate,e,form_id, constraints) {
 
         top.restoreSession();
 
-        //Use the old validation script if no parameter sent (backward compatibility)
-        //if we want to use the "old" validate function (set in globals) the validate function that will be called is the one that
-        // was on code up to today (the validate library was not loaded ( look at the top of this file)
+        // Use the old validation script if no parameter sent (backward compatibility)
+        // if we want to use the "old" validate function (set in globals)
+        // the validate function that will be called is the one that
+        // was on code up to today (the validate library was not loaded ( look at the top of this file) )
         if (new_validate !== 1) {
             var f = document.forms[0];
             if (validate(f)) {
@@ -62,14 +63,14 @@ function submitme(new_validate,e,form_id, constraints) {
         } else { //If the new validation library is used :
 
             //Variables used for the validation library and validation mechanism
-            /*Get the constraint from the DB-> LBF forms accordinf the form_id*/
+            /*Get the constraint from the DB-> LBF forms according the form_id*/
             if(constraints==undefined || constraints=='') {
                 <?php  $constraints = LBF_Validation::generate_validate_constraints($form_id);?>
                  constraints = <?php echo $constraints;?>;
             }
             var valid = true ;
 
-            //We use a common error for all the errors because of the multilanguage capability of openemr
+            //We use a common error for all the errors because of the multi-language capability of openemr
             var form = document.querySelector("form#"+form_id);
             //gets all the "elements" in the form and sends them to the validate library
             //for more information @see https://validatejs.org/
@@ -78,7 +79,7 @@ function submitme(new_validate,e,form_id, constraints) {
 
             //before catch all values - clear filed that in display none, this will enable to fail on this fields.
             for(var key in elements){
-                    //catch th element with the name because the id of select-multiple contain '[]'
+                    //catch the element with the name because the id of select-multiple contain '[]'
                    // and jquery throws error in those situation
                     element = $('[name="'+ key + '"]');
                     if(!$(element).is('select[multiple]')) {
@@ -90,7 +91,7 @@ function submitme(new_validate,e,form_id, constraints) {
                     }
                 }
 
-            //get the input value after romoving hide fields
+            //get the input value after removing hidden fields
             elements = validate.collectFormValues(form);
             //custom validate for multiple select(failed validate.js)
             //the validate js cannot handle the LBF multiple select fields
@@ -249,7 +250,7 @@ function submitme(new_validate,e,form_id, constraints) {
                     case 'NPI is not valid':
                         return '<?php echo xla('NPI is not valid');?>';
                     default:
-                       return '<?php echo xla('is not valid');?>';
+                       return '<?php echo xla('This value is not valid');?>';
                 }
             }
             //the result of validation

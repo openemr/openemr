@@ -412,6 +412,11 @@ function writeOptionLine(
         echo "<input type='text' name='opt[" . attr($opt_line_no) . "][apptstat_timealert]' value='" .
             attr($apptstat_timealert) . "' size='2' maxlength='2' class='optin' />";
         echo "</td>\n";
+    } elseif ($list_id == 'page_validation') {
+        echo "  <td>";
+        echo "<textarea name='opt[$opt_line_no][notes]' rows='3' cols='30'>" .
+            attr($notes). "</textarea>";
+        echo "</td>\n";
     } else {
         echo "  <td>";
         echo "<input type='text' name='opt[" . attr($opt_line_no) . "][notes]' value='" .

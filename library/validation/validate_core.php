@@ -76,6 +76,13 @@ function validateUsingPageRules($fileNamePath)
         echo ("$(document).ready(function(){");
         echo("\r\n");
         foreach ($collectThis as $key => $value) {
+            if ($GLOBALS['npi_validate'] !=='1') {
+                if ((($key == 'theform') && (preg_match('/form_npi/',$collectThis[$key]['rules']))) ||
+                    (($key == 'user_form') && (preg_match('/npi/', $collectThis[$key]['rules']))))
+                {
+                    continue;
+                }
+            }
             echo("try{");
             echo("\r\n");
             echo('if(document.getElementsByName("' . $key . '").length>0)');

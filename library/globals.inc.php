@@ -579,6 +579,13 @@ $GLOBALS_METADATA = array(
             xl('Are appointment category names to be translated?')
         ),
 
+        'npi_validate' => array(
+            xl('Validate NPI'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Check to enable NPI validation for Users and Address Book entries.')
+        ),
+    
         'units_of_measurement' => array(
             xl('Units for Visit Forms'),
             array(
