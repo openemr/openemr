@@ -354,7 +354,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
 
 <title><?php echo xlt('Receipt for Payment'); ?></title>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-11-3/dist/jquery.js"></script>
 <script type="text/javascript">
 $( document ).ready();
 function goHome(){
