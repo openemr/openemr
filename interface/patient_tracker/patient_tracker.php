@@ -390,6 +390,7 @@ if (!$_REQUEST['flb_table']) {
                                             <input href="#"
                                                    class="btn btn-primary"
                                                    id="filter_submit"
+                                                   readonly="readonly"
                                                    value="<?php echo xla('Filter'); ?>">
                                             <input type="hidden" id="kiosk" name="kiosk"
                                                    value="<?php echo attr($_REQUEST['kiosk']); ?>">
