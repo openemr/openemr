@@ -246,8 +246,10 @@ function submitme(new_validate,e,form_id, constraints) {
                         return '<?php echo xla('Must be future date');?>';
                     case 'Recipient required unless status is Done':
                         return '<?php echo xla('Recipient required unless status is Done');?>';
+                    case 'NPI is not valid':
+                        return '<?php echo xla('The NPI syntax is not valid.  Please enter a valid NPI.');?>';
                     default:
-                       return '<?php echo xla('is not valid');?>';
+                       return '<?php echo xla('This value is not valid');?>';
                 }
             }
             //the result of validation
