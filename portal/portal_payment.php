@@ -56,9 +56,20 @@ require_once("$srcdir/log.inc");
 require_once("$srcdir/crypto.php");
 
 $appsql = new ApplicationTable();
-
+$pid = isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $pid;
 $pid = $_REQUEST['hidden_patient_code'] > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
+$adminUser = '';
+$portalPatient = '';
 
+$query = "SELECT pao.portal_username as recip_id, Concat_Ws(' ', patient_data.fname, patient_data.lname) as username FROM patient_data " .
+    "LEFT JOIN patient_access_onsite pao ON pao.pid = patient_data.pid " .
+    "WHERE patient_data.pid = ? AND pao.portal_pwd_status = 1";
+$portalPatient = sqlQueryNoLog($query, $pid);
+if ($_SESSION['authUserID']) {
+    $query = "SELECT users.username as recip_id, users.authorized as dash, CONCAT(users.fname,' ',users.lname) as username  " .
+        "FROM users WHERE id = ?";
+    $adminUser = sqlQueryNoLog($query, $_SESSION['authUserID']);
+}
 $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
 $ccdata = array();
 $invdata = array();
@@ -350,17 +361,31 @@ function goHome(){
      window.location.replace("./patient/onsiteactivityviews");
 }
 function notifyPatient(){
-    var pid = <?php echo attr($pid);?>;
-    var note = $('#pop_receipt').text();
-    var formURL = './messaging/handle_note.php';
+    let pid = <?php echo attr($pid);?>;
+    let note = $('#pop_receipt').html();
+    let formURL = './messaging/handle_note.php';
+    let owner = '<?php echo attr($adminUser['recip_id']); ?>';
+    let sn = '<?php echo attr($adminUser['username']); ?>';
+    let rid = '<?php echo attr($portalPatient['recip_id']); ?>';
+    let rn = '<?php echo attr($portalPatient['username']); ?>';
     $.ajax({
         url: formURL,
         type: "POST",
-        data: {'task':'add', 'pid':pid, 'inputBody':note, 'title':'Bill/Collect', 'sendto':'-patient-','noteid':'0'},
-        success: function(data, textStatus, jqXHR) {
+        data: {
+            'task': 'add',
+            'owner': owner,
+            'pid': pid,
+            'inputBody': note,
+            'title': 'Bill/Collect',
+            'recipient_name': rn,
+            'recipient_id': rid,
+            'sender_id': owner,
+            'sender_name': sn
+        },
+        success: function (data, textStatus, jqXHR) {
             alert('Receipt sent to patient via Messages.')
         },
-        error: function(jqXHR, status, error) {
+        error: function (jqXHR, status, error) {
             console.log(status + ": " + error);
         }
     });

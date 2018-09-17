@@ -118,9 +118,11 @@ var page = {
         this.modelView.on('rendered',function () {
             docid = page.onsiteDocument.get('docType');
             if ( cuser != '-patient-') {
-				function todocument(docid) {
-                      h = webRoot+'/controller.php?document&view&patient_id=30&doc_id=' + docid;
-                      location.href = h;
+                function todocument(docid)
+                {
+                    // not used
+                  h = webRoot+'/controller.php?document&view&patient_id=30&doc_id=' + docid;
+                  location.href = h;
                 }
                 $("#signTemplate").hide();
                 $("#printTemplate").hide();
@@ -394,6 +396,9 @@ var page = {
                 page.deleteModel();
 
             });
+            // disable admin signature in patient view
+            // @todo do better disable check as may want to delete in dashboard someday.
+            $('#adminSignature').prop("onclick", null);
         } else {
             // no point in initializing the click handlers if we don't show the button
             $('#patientSignature').prop("onclick", null);

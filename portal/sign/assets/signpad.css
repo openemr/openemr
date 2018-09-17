@@ -42,7 +42,7 @@
 }
 .sigPad label {
   float: left;
- //margin: 10 0 0.515em;
+  /*margin: 10 0 0.515em;*/
   padding: 0;
 
   color: #000;
@@ -56,7 +56,7 @@
 .sigPad input {
   margin: 3px;
   padding: 0.2em 0;
- border: 1px solid #666;
+  border: 1px solid #666;
 
   font-size: 1em;
 }
@@ -67,17 +67,16 @@
 
 .sigPad button {
   margin: 1em 0 0 0;
-  padding: 0.5em 0.5em 0.6em;
-
+  /*padding: 0.5em 0.5em 0.6em;
   background-color: #ccc;
-  border: 1;
+  border: 1;*/
   -moz-border-radius: 8px;
   -webkit-border-radius: 8px;
   border-radius: 8px;
 
   cursor: pointer;
 
-  color: rgba(179, 34, 10, 0.95);
+  /*color: rgba(179, 34, 10, 0.95);*/
   font: bold 1em/1.375 sans-serif;
   text-align: left;
 }
@@ -96,7 +95,7 @@
   display: none;
   height: 2.25em;
   margin: 0;
-  //padding: 0;
+  /*padding: 0;*/
   position: relative;
 
   list-style-type: none;
