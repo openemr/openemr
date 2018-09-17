@@ -11,6 +11,8 @@
  require_once("drugs.inc.php");
  require_once("$srcdir/options.inc.php");
 
+ use OpenEMR\Core\Header;
+
  $alertmsg = '';
  $drug_id = $_REQUEST['drug'];
  $info_msg = "";
@@ -43,10 +45,10 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
 
     echo " <tr>\n";
     echo "  <td class='tmplcell drugsonly'>";
-    echo "<input type='text' name='form_tmpl[$tmpl_line_no][selector]' value='" . attr($selector) . "' size='8' maxlength='100'>";
+    echo "<input class='form-control' name='form_tmpl[$tmpl_line_no][selector]' value='" . attr($selector) . "' size='8' maxlength='100'>";
     echo "</td>\n";
     echo "  <td class='tmplcell drugsonly'>";
-    echo "<input type='text' name='form_tmpl[$tmpl_line_no][dosage]' value='" . attr($dosage) . "' size='6' maxlength='10'>";
+    echo "<input class='form-control' name='form_tmpl[$tmpl_line_no][dosage]' value='" . attr($dosage) . "' size='6' maxlength='10'>";
     echo "</td>\n";
     echo "  <td class='tmplcell drugsonly'>";
     generate_form_field(array(
@@ -57,14 +59,14 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
     ), $period);
     echo "</td>\n";
     echo "  <td class='tmplcell drugsonly'>";
-    echo "<input type='text' name='form_tmpl[$tmpl_line_no][quantity]' value='" . attr($quantity) . "' size='3' maxlength='7'>";
+    echo "<input class='form-control' name='form_tmpl[$tmpl_line_no][quantity]' value='" . attr($quantity) . "' size='3' maxlength='7'>";
     echo "</td>\n";
     echo "  <td class='tmplcell drugsonly'>";
-    echo "<input type='text' name='form_tmpl[$tmpl_line_no][refills]' value='" . attr($refills) . "' size='3' maxlength='5'>";
+    echo "<input class='form-control' name='form_tmpl[$tmpl_line_no][refills]' value='" . attr($refills) . "' size='3' maxlength='5'>";
     echo "</td>\n";
     foreach ($prices as $pricelevel => $price) {
         echo "  <td class='tmplcell'>";
-        echo "<input type='text' name='form_tmpl[$tmpl_line_no][price][" . attr($pricelevel) . "]' value='" . attr($price) . "' size='6' maxlength='12'>";
+        echo "<input class='form-control' name='form_tmpl[$tmpl_line_no][price][" . attr($pricelevel) . "]' value='" . attr($price) . "' size='6' maxlength='12'>";
         echo "</td>\n";
     }
 
@@ -118,11 +120,7 @@ td { font-size:10pt; }
 <?php } ?>
 
 </style>
-
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-<script type="text/javascript" src="../../library/topdialog.js"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
+    <?php Header::setupHeader(["jquery-ui","opener"]); ?>
 
 <script language="JavaScript">
 
@@ -156,7 +154,7 @@ function del_related(s) {
 
 // This invokes the find-code popup.
 function sel_related() {
- dlgopen('../patient_file/encounter/find_code_dynamic.php', '_blank', 900, 600);
+ dlgopen('../patient_file/encounter/find_code_dynamic.php', '_blank', 900, 800);
 }
 
 </script>
@@ -335,15 +333,15 @@ if ($drug_id) {
 }
 ?>
 
-<form method='post' name='theform' action='add_edit_drug.php?drug=<?php echo $drug_id; ?>'>
+<form class="form" method='post' name='theform' action='add_edit_drug.php?drug=<?php echo $drug_id; ?>'>
 <center>
 
-<table border='0' width='100%'>
+<table class="table" border='0' width='100%'>
 
  <tr>
   <td valign='top' nowrap><b><?php echo xlt('Name'); ?>:</b></td>
   <td>
-   <input type='text' size='40' name='form_name' maxlength='80' value='<?php echo attr($row['name']) ?>' style='width:100%' />
+   <input class="form-control" size='40' name='form_name' maxlength='80' value='<?php echo attr($row['name']) ?>' style='width:100%' />
   </td>
  </tr>
 
@@ -376,7 +374,7 @@ if ($drug_id) {
  <tr>
   <td valign='top' nowrap><b><?php echo xlt('NDC Number'); ?>:</b></td>
   <td>
-   <input type='text' size='40' name='form_ndc_number' maxlength='20'
+   <input class="form-control" size='40' name='form_ndc_number' maxlength='20'
     value='<?php echo attr($row['ndc_number']) ?>' style='width:100%'
     onkeyup='maskkeyup(this,"<?php echo addslashes($GLOBALS['gbl_mask_product_id']); ?>")'
     onblur='maskblur(this,"<?php echo addslashes($GLOBALS['gbl_mask_product_id']); ?>")'
@@ -386,7 +384,7 @@ if ($drug_id) {
 <tr>
   <td valign='top' nowrap><b><?php echo xlt('Drug Code'); ?>:</b></td>
   <td>
-   <input type='text' size='5' name='form_drug_code' maxlength='10'
+   <input class="form-control" size='5' name='form_drug_code' maxlength='10'
     value='<?php echo attr($row['drug_code']) ?>'
     />
   </td>
@@ -394,7 +392,7 @@ if ($drug_id) {
  <tr>
   <td valign='top' nowrap><b><?php echo xlt('On Order'); ?>:</b></td>
   <td>
-   <input type='text' size='5' name='form_on_order' maxlength='7' value='<?php echo attr($row['on_order']) ?>' />
+   <input class="form-control" size='5' name='form_on_order' maxlength='7' value='<?php echo attr($row['on_order']) ?>' />
   </td>
  </tr>
 
@@ -428,7 +426,7 @@ while ($pwrow = sqlFetchArray($pwres)) {
     <tr>
      <td valign='top' nowrap><?php echo xlt('Min'); ?>&nbsp;</td>
      <td valign='top'>
-      <input type='text' size='5' name='form_reorder_point' maxlength='7'
+      <input class="form-control" size='5' name='form_reorder_point' maxlength='7'
        value='<?php echo attr($row['reorder_point']) ?>'
        title='<?php echo xla('Reorder point, 0 if not applicable'); ?>'
        />&nbsp;&nbsp;
@@ -436,7 +434,7 @@ while ($pwrow = sqlFetchArray($pwres)) {
 <?php
 foreach ($pwarr as $pwrow) {
     echo "     <td valign='top'>";
-    echo "<input type='text' name='form_wh_min[" .
+    echo "<input class='form-control' name='form_wh_min[" .
     attr($pwrow['option_id']) .
     "]' value='" . attr(0 + $pwrow['pw_min_level']) . "' size='5' " .
     "title='" . xla('Warehouse minimum, 0 if not applicable') . "' />";
@@ -447,7 +445,7 @@ foreach ($pwarr as $pwrow) {
     <tr>
      <td valign='top' nowrap><?php echo xlt('Max'); ?>&nbsp;</td>
      <td>
-      <input type='text' size='5' name='form_max_level' maxlength='7'
+      <input class='form-control' size='5' name='form_max_level' maxlength='7'
        value='<?php echo attr($row['max_level']) ?>'
        title='<?php echo xla('Maximum reasonable inventory, 0 if not applicable'); ?>'
        />
@@ -455,7 +453,7 @@ foreach ($pwarr as $pwrow) {
 <?php
 foreach ($pwarr as $pwrow) {
     echo "     <td valign='top'>";
-    echo "<input type='text' name='form_wh_max[" .
+    echo "<input class='form-control' name='form_wh_max[" .
     htmlspecialchars($pwrow['option_id']) .
     "]' value='" . attr(0 + $pwrow['pw_max_level']) . "' size='5' " .
     "title='" . xla('Warehouse maximum, 0 if not applicable') . "' />";
@@ -479,7 +477,7 @@ foreach ($pwarr as $pwrow) {
  <tr class='drugsonly'>
   <td valign='top' nowrap><b><?php echo xlt('Pill Size'); ?>:</b></td>
   <td>
-   <input type='text' size='5' name='form_size' maxlength='7' value='<?php echo attr($row['size']) ?>' />
+   <input class="form-control" size='5' name='form_size' maxlength='7' value='<?php echo attr($row['size']) ?>' />
   </td>
  </tr>
 
@@ -504,14 +502,14 @@ foreach ($pwarr as $pwrow) {
  <tr class='ippfonly'>
   <td valign='top' nowrap><b><?php echo xlt('CYP Factor'); ?>:</b></td>
   <td>
-   <input type='text' size='10' name='form_cyp_factor' maxlength='20' value='<?php echo attr($row['cyp_factor']) ?>' />
+   <input class="form-control" size='10' name='form_cyp_factor' maxlength='20' value='<?php echo attr($row['cyp_factor']) ?>' />
   </td>
  </tr>
 
  <tr>
   <td valign='top' nowrap><b><?php echo xlt('Relate To'); ?>:</b></td>
   <td>
-   <input type='text' size='50' name='form_related_code'
+   <input class="form-control" type='text' size='50' name='form_related_code'
     value='<?php echo attr($row['related_code']) ?>' onclick='sel_related()'
     title='<?php echo xla('Click to select related code'); ?>'
     style='width:100%' readonly />
