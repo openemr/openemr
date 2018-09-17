@@ -583,7 +583,7 @@ $GLOBALS_METADATA = array(
             xl('NPI Syntax Validation'),
             'bool',                           // data type
             '0',                              // default = false
-            xl('NPI syntax validation for Users and in Address Book. It does not ensure the data entered matches the provider, only that the syntax is correct. (US only)')
+            xl('Validate for correct NPI format on data entry. (U.S.A Only)')
         ),
     
         'units_of_measurement' => array(
