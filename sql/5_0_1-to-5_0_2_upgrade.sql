@@ -594,6 +594,7 @@ INSERT INTO `form_eye_locking` (`id`, `pid`, `IMP`, `PLAN`, `Resource`, `Technic
 DROP TABLE `form_eye_mag`;
 #EndIf
 
+UPDATE `list_options` set `notes`=`{form_npi: {numericality: {onlyInteger: true}, NPI: {message:"NPI is not valid"}}}` where `list_id`=`page_validation` and `option_id`=`addrbook_edit#theform` and `notes`=`{}`;
 #IfMissingColumn lists list_option_id
 ALTER TABLE `lists` ADD `list_option_id` VARCHAR (100) DEFAULT NULL COMMENT 'Reference to list_options table';
 #EndIf

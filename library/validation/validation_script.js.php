@@ -246,6 +246,8 @@ function submitme(new_validate,e,form_id, constraints) {
                         return '<?php echo xla('Must be future date');?>';
                     case 'Recipient required unless status is Done':
                         return '<?php echo xla('Recipient required unless status is Done');?>';
+                    case 'NPI is not valid':
+                        return '<?php echo xla('NPI is not valid');?>';
                     default:
                        return '<?php echo xla('is not valid');?>';
                 }

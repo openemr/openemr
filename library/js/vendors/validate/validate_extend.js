@@ -230,7 +230,53 @@ validate.validators.luhn = function(value, options) {
             return 'Invalid luhn algorithm';
         }
     }
-}
+};
+
+/**
+ * Luhn algorithm in JavaScript: validate NPI number supplied as string of numbers
+ * by prepending '80840' to the NPI number before processing
+ * @author ShirtlessKirk. https://gist.github.com/ShirtlessKirk/2134376
+ * @author Ray Magauran <magauran@medexbank.com>
+ * you can specify the message option {luhn:{message:'text example'}}
+ * Translation for 'NPI is not valid' occurs in library/validation/validation_script.js.php
+ */
+validate.validators.NPI = function(value, options) {
+    
+    //calculate Luhn algorithm
+    var luhnChk = (function (arr) {
+        return function (NPINum) {
+            NPINum = "80840"+NPINum.toString();
+            var
+                len = NPINum.length,
+                bit = 1,
+                sum = 0,
+                val;
+            
+            while (len) {
+                val = parseInt(NPINum.charAt(--len), 10);
+                sum += (bit ^= 1) ? arr[val] : val;
+            }
+            
+            return sum && sum % 10 === 0;
+        };
+    }([0, 2, 4, 6, 8, 1, 3, 5, 7, 9]));
+    
+    //exit if empty value
+    if(validate.isEmpty(value)) { return; }
+    // exit if options = false
+    if(!options) return;
+    
+    var valid = luhnChk(value);
+    
+    if(!valid) {
+        if(validate.isObject(options) && options.message != undefined) {
+            return options.message;
+        } else {
+            return 'NPI is not valid';
+        }
+    }
+};
+
 
 
 
