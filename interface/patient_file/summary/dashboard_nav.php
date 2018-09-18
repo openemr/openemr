@@ -1,3 +1,16 @@
+<?php
+/**
+ * Dash Board nav.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author Ranganath Pathak <pathak@scrs1.org>
+ * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
+ * @version 1.0.0
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+    ?>
+
 <nav class="navbar navbar-default navbar-color navbar-static-top" >
     <div class="container-fluid">
         <div class="navbar-header">
