@@ -28,18 +28,20 @@ use OpenEMR\Core\Header;
 // Functions to support MFA.
 ///////////////////////////////////////////////////////////////////////
 
-function posted_to_hidden($name) {
+function posted_to_hidden($name)
+{
     if (isset($_POST[$name])) {
         echo "<input type='hidden' name='" . attr($name) . "' value='" . attr($_POST[$name]) . "' />\n";
     }
 }
 
-function generate_html_start($title) {
+function generate_html_start($title)
+{
     global $appId, $css_header;
-?>
+    ?>
 <html>
 <head>
-<?php Header::setupHeader(); ?>
+    <?php Header::setupHeader(); ?>
 <title><?php echo text($title); ?></title>
 <script src="<?php echo $GLOBALS['webroot'] ?>/library/js/u2f-api.js"></script>
 <script>
@@ -75,7 +77,7 @@ function doAuth() {
 <form method="post"
  action="main_screen.php?auth=login&site=<?php echo $_GET['site']; ?>"
  target="_top" name="challenge_form">
-<?php
+    <?php
     posted_to_hidden('new_login_session_management');
     posted_to_hidden('authProvider');
     posted_to_hidden('languageChoice');
@@ -83,7 +85,8 @@ function doAuth() {
     posted_to_hidden('clearPass');
 }
 
-function generate_html_end() {
+function generate_html_end()
+{
     echo "</form></center></body></html>\n";
     session_unset();
     session_destroy();
@@ -99,9 +102,11 @@ $errormsg = '';
 
 $regs = array();          // for mapping device handles to their names
 $registrations = array(); // the array of stored registration objects
-$res1 = sqlStatement("SELECT a.name, a.var1 FROM login_mfa_registrations AS a " .
+$res1 = sqlStatement(
+    "SELECT a.name, a.var1 FROM login_mfa_registrations AS a " .
     "WHERE a.user_id = ? AND a.method = 'U2F' ORDER BY a.name",
-    array($_SESSION['authId']));
+    array($_SESSION['authId'])
+);
 while ($row1 = sqlFetchArray($res1)) {
     $regobj = json_decode($row1['var1']);
     $regs[json_encode($regobj->keyHandle)] = $row1['name'];
@@ -122,22 +127,25 @@ if (!empty($registrations)) {
                 json_decode($tmprow['login_work_area']), // these are the original challenge requests
                 $registrations,
                 json_decode($_POST['form_response'])
-          );
-          // Stored registration data needs to be updated because the usage count has changed.
-          // We have to use the matching registered key.
-          $strhandle = json_encode($registration->keyHandle);
-          if (isset($regs[$strhandle])) {
-              sqlStatement("UPDATE login_mfa_registrations SET `var1` = ? WHERE " .
-                  "`user_id` = ? AND `method` = 'U2F' AND `name` = ?",
-                  array(json_encode($registration), $userid, $regs[$strhandle]));
-          }
-          else {
-              error_log("Unexpected keyHandle returned from doAuthenticate(): '$strhandle'");
-          }
-          // Keep track of when questions were last answered correctly.
-          sqlStatement("UPDATE users_secure SET last_challenge_response = NOW() WHERE id = ?",
-              array($_SESSION['authId']));
-        } catch(u2flib_server\Error $e) {
+            );
+            // Stored registration data needs to be updated because the usage count has changed.
+            // We have to use the matching registered key.
+            $strhandle = json_encode($registration->keyHandle);
+            if (isset($regs[$strhandle])) {
+                sqlStatement(
+                    "UPDATE login_mfa_registrations SET `var1` = ? WHERE " .
+                    "`user_id` = ? AND `method` = 'U2F' AND `name` = ?",
+                    array(json_encode($registration), $userid, $regs[$strhandle])
+                );
+            } else {
+                error_log("Unexpected keyHandle returned from doAuthenticate(): '$strhandle'");
+            }
+            // Keep track of when questions were last answered correctly.
+            sqlStatement(
+                "UPDATE users_secure SET last_challenge_response = NOW() WHERE id = ?",
+                array($_SESSION['authId'])
+            );
+        } catch (u2flib_server\Error $e) {
             // Authentication failed so build the U2F form again.
             $form_response = '';
             $errormsg = xl('Authentication error') . ": " . $e->getMessage();
@@ -147,7 +155,10 @@ if (!empty($registrations)) {
         // There is no key data yet or authentication failed, so we need to solicit it.
         $requests = json_encode($u2f->getAuthenticateData($registrations));
         // Persist the challenge also in the database because the browser is untrusted.
-        sqlStatement("UPDATE users_secure SET login_work_area = ? WHERE id = ?", array($requests, $userid));
+        sqlStatement(
+            "UPDATE users_secure SET login_work_area = ? WHERE id = ?",
+            array($requests, $userid)
+        );
         generate_html_start(xl('U2F Key Verification'));
         echo "<p>\n";
         echo xlt('Insert your key into a USB port and click the Authenticate button below.');
@@ -356,26 +367,23 @@ if (empty($GLOBALS['gbl_tall_nav_area'])) {
 <frameset rows='<?php echo attr($GLOBALS['titleBarHeight']) + 5 ?>,*' frameborder='1' border='1' framespacing='1' onunload='imclosing()'>
  <frame src='main_title.php' name='Title' scrolling='no' frameborder='1' noresize />
     <?php if ($lang_dir != 'rtl') { ?>
-
      <frameset cols='<?php echo attr($nav_area_width) . ',*'; ?>' id='fsbody' frameborder='1' border='4' framespacing='4'>
         <?php echo $sidebar_tpl ?>
         <?php echo $main_tpl ?>
      </frameset>
 
     <?php } else { ?>
-
      <frameset cols='<?php echo  '*,' . attr($nav_area_width); ?>' id='fsbody' frameborder='1' border='4' framespacing='4'>
         <?php echo $main_tpl ?>
         <?php echo $sidebar_tpl ?>
      </frameset>
 
-    <?php }?>
+    <?php } ?>
 
  </frameset>
 </frameset>
 
 <?php } else { // use tall nav area ?>
-
 <frameset cols='<?php echo attr($nav_area_width); ?>,*' id='fsbody' frameborder='1' border='4' framespacing='4' onunload='imclosing()'>
  <frameset rows='*,0' frameborder='0' border='0' framespacing='0'>
   <frame src='left_nav.php' name='left_nav' />

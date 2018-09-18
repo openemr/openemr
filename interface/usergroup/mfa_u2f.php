@@ -12,7 +12,6 @@
 require_once('../globals.php');
 
 use OpenEMR\Core\Header;
-use u2flib_server;
 
 $scheme = isset($_SERVER['HTTPS']) ? "https://" : "http://";
 $appId = $scheme . $_SERVER['HTTP_HOST'];
@@ -67,8 +66,8 @@ function docancel() {
 ///////////////////////////////////////////////////////////////////////
 
 if ($action == 'reg1') {
-  list ($request, $signs) = $u2f->getRegisterData();
-?>
+    list ($request, $signs) = $u2f->getRegisterData();
+    ?>
 <div class="container">
   <div class="row">
     <div class="col-xs-12">
@@ -110,32 +109,31 @@ if ($action == 'reg1') {
     </div>
   </div>
 </div>
-<?php
-}
-
-///////////////////////////////////////////////////////////////////////
-
-else if ($action == 'reg2') {
-  try {
-    $data = $u2f->doRegister(json_decode($_POST['form_request']), json_decode($_POST['form_registration']));
-  } catch(u2flib_server\Error $e) {
-    die(xlt('Registration error') . ': ' . $e->getMessage());
-  }
-  echo "<script>\n";
-  $row = sqlQuery("SELECT COUNT(*) AS count FROM login_mfa_registrations WHERE " .
-    "`user_id` = ? AND `name` = ?",
-    array($userid, $_POST['form_name']));
-  if (empty($row['count'])) {
-    sqlStatement("INSERT INTO login_mfa_registrations " .
-      "(`user_id`, `method`, `name`, `var1`, `var2`) VALUES " .
-      "(?, 'U2F', ?, ?, ?)",
-      array($userid, $_POST['form_name'], json_encode($data), ''));
-  }
-  else {
-    echo " alert('" . xls('This key name is already in use by you. Try again.') . "');\n";
-  }
-  echo " window.location.href = 'mfa_registrations.php';\n";
-  echo "</script>\n";
+    <?php
+} else if ($action == 'reg2') {
+    try {
+        $data = $u2f->doRegister(json_decode($_POST['form_request']), json_decode($_POST['form_registration']));
+    } catch (u2flib_server\Error $e) {
+        die(xlt('Registration error') . ': ' . $e->getMessage());
+    }
+    echo "<script>\n";
+    $row = sqlQuery(
+        "SELECT COUNT(*) AS count FROM login_mfa_registrations WHERE " .
+        "`user_id` = ? AND `name` = ?",
+        array($userid, $_POST['form_name'])
+    );
+    if (empty($row['count'])) {
+        sqlStatement(
+            "INSERT INTO login_mfa_registrations " .
+            "(`user_id`, `method`, `name`, `var1`, `var2`) VALUES " .
+            "(?, 'U2F', ?, ?, ?)",
+            array($userid, $_POST['form_name'], json_encode($data), '')
+        );
+    } else {
+        echo " alert('" . xls('This key name is already in use by you. Try again.') . "');\n";
+    }
+    echo " window.location.href = 'mfa_registrations.php';\n";
+    echo "</script>\n";
 }
 
 ///////////////////////////////////////////////////////////////////////

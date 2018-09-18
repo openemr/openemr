@@ -13,7 +13,8 @@ require_once('../globals.php');
 
 use OpenEMR\Core\Header;
 
-function writeRow($method, $name) {
+function writeRow($method, $name)
+{
     echo "        <tr><td>&nbsp;";
     echo text($method);
     echo "&nbsp;</td><td>&nbsp;";
@@ -29,8 +30,10 @@ $userid = $_SESSION['authId'];
 $message = '';
 if (!empty($_POST['form_delete_method'])) {
     // Delete the indicated MFA instance.
-    sqlStatement("DELETE FROM login_mfa_registrations WHERE user_id = ? AND method = ? AND name = ?",
-        array($userid, $_POST['form_delete_method'], $_POST['form_delete_name']));
+    sqlStatement(
+        "DELETE FROM login_mfa_registrations WHERE user_id = ? AND method = ? AND name = ?",
+        array($userid, $_POST['form_delete_method'], $_POST['form_delete_name'])
+    );
     $message = xl('Delete successful.');
 }
 ?>
