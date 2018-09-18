@@ -79,12 +79,12 @@ if ($action == 'reg1') {
   <div class="row">
     <div class="col-xs-12">
       <p>
-      <?php echo xlt('This will register a new U2F USB key.'); ?>
-      <?php echo xlt('Type a name for your key, insert it into a USB port and click the Register button below.'); ?>
-      <?php echo xlt('Then press the flashing button on your key within 1 minute to complete registration.'); ?>
+        <?php echo xlt('This will register a new U2F USB key.'); ?>
+        <?php echo xlt('Type a name for your key, insert it into a USB port and click the Register button below.'); ?>
+        <?php echo xlt('Then press the flashing button on your key within 1 minute to complete registration.'); ?>
       </p>
       <table><tr><td>
-      <?php echo xlt('Please give this key a name'); ?>:
+        <?php echo xlt('Please give this key a name'); ?>:
       <input type='text' name='form_name' value='' size='16' />&nbsp;</td>
       <td><input type='button' value='<?php echo xla('Register'); ?>' onclick='doregister()' />
       <input type='button' value='<?php echo xla('Cancel'); ?>' onclick='docancel()'   />
@@ -94,15 +94,15 @@ if ($action == 'reg1') {
       </td></tr></table>
       &nbsp;<br />
       <p>
-      <?php echo xlt('A secure (HTTPS) web connection is required for U2F. Firefox and Chrome are known to work.'); ?>
+        <?php echo xlt('A secure (HTTPS) web connection is required for U2F. Firefox and Chrome are known to work.'); ?>
       </p>
       <p>
-      <?php echo xlt('For U2F support on Linux see:'); ?>
+        <?php echo xlt('For U2F support on Linux see:'); ?>
       <a href='https://www.key-id.com/enable-fido-u2f-linux/' target='_blank'>
       https://www.key-id.com/enable-fido-u2f-linux/</a>
       </p>
       <p>
-      <?php echo xlt('For Firefox see:'); ?>
+        <?php echo xlt('For Firefox see:'); ?>
       <a href='https://www.trishtech.com/2018/07/enable-fido-u2f-security-key-yubikey-in-mozilla-firefox/' target='_blank'>
       https://www.trishtech.com/2018/07/enable-fido-u2f-security-key-yubikey-in-mozilla-firefox/</a>
       </p>
