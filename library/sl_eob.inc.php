@@ -6,9 +6,9 @@
   // as published by the Free Software Foundation; either version 2
   // of the License, or (at your option) any later version.
 
-  include_once("patient.inc");
-  include_once("billing.inc");
-  include_once("invoice_summary.inc.php");
+  require_once("patient.inc");
+  require_once("billing.inc");
+  require_once("invoice_summary.inc.php");
 
   $chart_id_cash   = 0;
   $chart_id_ar     = 0;
@@ -34,14 +34,14 @@ function slInvoiceNumber(&$out)
     } else if ($acount == 3) {
         $pid = $atmp[0];
         $brow = sqlQuery("SELECT encounter FROM billing WHERE " .
-        "pid = '$pid' AND encounter = '" . $atmp[1] . "' AND activity = 1");
-        
+        "pid = '$pid' AND encounter = ? AND activity = 1", array($atmp[1]));
+
         $encounter = $brow['encounter'];
     } else if ($acount == 1) {
         $pres = sqlStatement("SELECT pid FROM patient_data WHERE " .
-        "lname LIKE '" . addslashes($out['patient_lname']) . "' AND " .
-        "fname LIKE '" . addslashes($out['patient_fname']) . "' " .
-        "ORDER BY pid DESC");
+        "lname LIKE ? AND " .
+        "fname LIKE ? " .
+        "ORDER BY pid DESC", array($out['patient_lname'], $out['patient_fname']));
         while ($prow = sqlFetchArray($pres)) {
             if (strpos($invnumber, $prow['pid']) === 0) {
                 $pid = $prow['pid'];
@@ -70,9 +70,9 @@ function arGetSession($payer_id, $reference, $check_date, $deposit_date = '', $p
 
     if ($payer_id) {
         $row = sqlQuery("SELECT session_id FROM ar_session WHERE " .
-        "payer_id = '$payer_id' AND reference = '$reference' AND " .
-        "check_date = '$check_date' AND deposit_date = '$deposit_date' " .
-        "ORDER BY session_id DESC LIMIT 1");
+        "payer_id = ? AND reference = ? AND " .
+        "check_date = ? AND deposit_date = ? " .
+        "ORDER BY session_id DESC LIMIT 1", array($payer_id, $reference, $check_date, $deposit_date));
         if (!empty($row['session_id'])) {
             return $row['session_id'];
         }
@@ -80,38 +80,22 @@ function arGetSession($payer_id, $reference, $check_date, $deposit_date = '', $p
 
     return sqlInsert("INSERT INTO ar_session ( " .
     "payer_id, user_id, reference, check_date, deposit_date, pay_total " .
-    ") VALUES ( " .
-    "'$payer_id', " .
-    "'" . $_SESSION['authUserID'] . "', " .
-    "'$reference', " .
-    "'$check_date', " .
-    "'$deposit_date', " .
-    "'$pay_total' " .
-    ")");
+    ") VALUES ( ?, ?, ?, ?, ?, ? )", array($payer_id, $_SESSION['authUserID'], $reference, $check_date, $deposit_date, $pay_total));
 }
   //writing the check details to Session Table on ERA proxcessing
 function arPostSession($payer_id, $check_number, $check_date, $pay_total, $post_to_date, $deposit_date, $debug)
 {
       $query = "INSERT INTO ar_session( " .
       "payer_id,user_id,closed,reference,check_date,pay_total,post_to_date,deposit_date,patient_id,payment_type,adjustment_code,payment_method " .
-      ") VALUES ( " .
-      "'$payer_id'," .
-      $_SESSION['authUserID']."," .
-      "0," .
-      "'ePay - $check_number'," .
-      "'$check_date', " .
-      "$pay_total, " .
-      "'$post_to_date','$deposit_date', " .
-      "0,'insurance','insurance_payment','electronic'" .
-        ")";
+      ") VALUES (?, ?, 0, ?, ?, ?, ? ,?, 0, 'insurance', 'insurance_payment', 'electronic')";
     if ($debug) {
-        echo $query . "<br>\n";
+        echo text($query) . "<br>\n";
     } else {
-        $sessionId=sqlInsert($query);
+        $sessionId=sqlInsert($query, array($payer_id, $_SESSION['authUserID'], 'ePay - '.$check_number, $check_date, $pay_total, $post_to_date, $deposit_date));
         return $sessionId;
     }
 }
-  
+
   // Post a payment, new style.
   //
 function arPostPayment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $memo, $debug, $time = '', $codetype = '')
@@ -133,21 +117,8 @@ function arPostPayment($patient_id, $encounter_id, $session_id, $amount, $code, 
     $query = "INSERT INTO ar_activity ( " .
     "pid, encounter, sequence_no, code_type, code, modifier, payer_type, post_time, post_user, " .
     "session_id, memo, pay_amount " .
-    ") VALUES ( " .
-    "'$patient_id', " .
-    "'$encounter_id', " .
-    "'{$sequence_no['increment']}', " .
-    "'$codetype', " .
-    "'$codeonly', " .
-    "'$modifier', " .
-    "'$payer_type', " .
-    "'$time', " .
-    "'" . $_SESSION['authUserID'] . "', " .
-    "'$session_id', " .
-    "'$memo', " .
-    "'$amount' " .
-    ")";
-    sqlStatement($query);
+    ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    sqlStatement($query, array($patient_id, $encounter_id, $sequence_no['increment'], $codetype, $codeonly, $modifier, $payer_type, $time, $_SESSION['authUserID'], $session_id, $memo, $amount));
     sqlCommitTrans();
     return;
 }
@@ -222,21 +193,8 @@ function arPostAdjustment($patient_id, $encounter_id, $session_id, $amount, $cod
     $query = "INSERT INTO ar_activity ( " .
     "pid, encounter, sequence_no, code_type, code, modifier, payer_type, post_user, post_time, " .
     "session_id, memo, adj_amount " .
-    ") VALUES ( " .
-    "'$patient_id', " .
-    "'$encounter_id', " .
-    "'{$sequence_no['increment']}', " .
-    "'$codetype', " .
-    "'$codeonly', " .
-    "'$modifier', " .
-    "'$payer_type', " .
-    "'" . $_SESSION['authUserID'] . "', " .
-    "'$time', " .
-    "'$session_id', " .
-    "'$reason', " .
-    "'$amount' " .
-    ")";
-    sqlStatement($query);
+    ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    sqlStatement($query, array($patient_id, $encounter_id, $sequence_no['increment'], $codetype, $codeonly, $modifier, $payer_type, $_SESSION['authUserID'], $time, $session_id, $reason, $amount));
     sqlCommitTrans();
     return;
 }
@@ -274,7 +232,7 @@ function arSetupSecondary($patient_id, $encounter_id, $debug, $crossover = 0)
     // Determine the next insurance level to be billed.
     $ferow = sqlQuery("SELECT date, last_level_billed " .
     "FROM form_encounter WHERE " .
-    "pid = '$patient_id' AND encounter = '$encounter_id'");
+    "pid = ? AND encounter = ?", array($patient_id, $encounter_id));
     $date_of_service = substr($ferow['date'], 0, 10);
     $new_payer_type = 0 + $ferow['last_level_billed'];
     if ($new_payer_type < 3 && !empty($ferow['last_level_billed']) || $new_payer_type == 0) {

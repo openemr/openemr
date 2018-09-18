@@ -25,12 +25,16 @@
  * @author Jerry Padgett <sjpadgett@gmail.com>
  * @link http://www.open-emr.org
  */
-include_once("../globals.php");
-include_once("$srcdir/patient.inc");
-include_once("$srcdir/billrep.inc");
-include_once("$srcdir/billing.inc");
-include_once("$srcdir/gen_x12_837.inc.php");
-include_once("$srcdir/gen_hcfa_1500.inc.php");
+require_once("../globals.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/billrep.inc");
+require_once("$srcdir/billing.inc");
+require_once("$srcdir/gen_x12_837.inc.php");
+require_once("$srcdir/gen_hcfa_1500.inc.php");
+
+if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+    die(xlt('Authentication Error'));
+}
 
 if ($GLOBALS['ub04_support']) {
     require_once("./ub04_dispose.php");
@@ -223,7 +227,7 @@ function process_form($ar)
             }
 
             if (! $tmp) {
-                die(xl("Claim ") . $claimid . xl(" update failed, not in database?"));
+                die(xlt("Claim ") . text($claimid) . xlt(" update failed, not in database?"));
             } else {
                 if (isset($ar['bn_mark'])) {
                     $bill_info[] = xl("Claim ") . $claimid . xl(" was marked as billed only.") . "\n";

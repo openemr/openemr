@@ -1,36 +1,36 @@
 <?php
 /*
  * test_278_parse.php
- * 
+ *
  * Copyright 2016 Kevin McCormick <kevin@kt61p>
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
- * 
- * 
+ *
+ *
  */
 
 //
 //require_once("$srcdir/edihistory/codes/edih_271_code_class.php");
 //
 /*
- * HTML display of x12 278 file 
+ * HTML display of x12 278 file
  *  SV3 and TOO segments (Dental) are ignored
- * 
+ *
  * @uses edih_271_codes()
- * 
+ *
  * @param object   edih_x12_file
  * $param string   BHT03 value to identify transaction
  * @return string
@@ -54,8 +54,8 @@ function edih_278_transaction_html($obj278, $bht03)
     $cls ='';
     $capstr = 'Services Review (Cert/Auth)';
     //
-    $hdr_html = "<table class='h278' columns=4><caption>$capstr</caption>";
-    $hdr_html .= "<thead><tr><th>Reference</th><th>Information</th><th colspan=2>$fn</th></tr></thead>".PHP_EOL;
+    $hdr_html = "<table class='h278' columns=4><caption>" . text($capstr) . "</caption>";
+    $hdr_html .= "<thead><tr><th>Reference</th><th>Information</th><th colspan=2>" . text($fn) . "</th></tr></thead>".PHP_EOL;
     $hdr_html .= "<tbody>".PHP_EOL;
     $str_html = "";
     $src_html = "";
@@ -89,11 +89,11 @@ function edih_278_transaction_html($obj278, $bht03)
                 //
                 $elem06 = (isset($sar[6]) && $sar[6]) ? $cd27x->get_271_code('BHT06', $sar[6]) : "";
                 //
-                $hdr_html .= "<tr><td colspan=2><em>Transaction ID:</em> $elem03 </td><td colspan=2><em>Sequence:</em> $elem01</td></tr>".PHP_EOL;
+                $hdr_html .= "<tr><td colspan=2><em>Transaction ID:</em> " . text($elem03) . " </td><td colspan=2><em>Sequence:</em> " . text($elem01) . "</td></tr>".PHP_EOL;
                 if ($elem06) {
-                    $hdr_html .= "<tr><td colspan=2><em>Transaction Date:</em> $elem04 </td><td colspan=2>$elem02 <em>Type:</em> $elem06</td></tr>".PHP_EOL;
+                    $hdr_html .= "<tr><td colspan=2><em>Transaction Date:</em> " . text($elem04) . " </td><td colspan=2>" . text($elem02) . " <em>Type:</em> " . text($elem06) . "</td></tr>".PHP_EOL;
                 } else {
-                    $hdr_html .= "<tr><td colspan=2><em>Transaction Date:</em> $elem04 </td><td colspan=2><em>Type:</em> $elem02</td></tr>".PHP_EOL;
+                    $hdr_html .= "<tr><td colspan=2><em>Transaction Date:</em> " . text($elem04) . " </td><td colspan=2><em>Type:</em> " . text($elem02) . "</td></tr>".PHP_EOL;
                 }
 
                 //
@@ -110,27 +110,27 @@ function edih_278_transaction_html($obj278, $bht03)
                 if ($sar[3] == '20') {                      // level code
                     $loopid = '2000A';
                     $cls = 'src';                   // info source (payer)
-                    $src_html .= "<tr class='$cls'><td colspan=4><b>Information Source</b></td></tr>".PHP_EOL;
+                    $src_html .= "<tr class='" . attr($cls) . "'><td colspan=4><b>Information Source</b></td></tr>".PHP_EOL;
                 } elseif ($sar[3] == '21') {
                     $loopid = '2000B';
                     $cls = 'rcv';                           // info receiver (clinic)
-                    $rcv_html .= "<tr class='$cls'><td colspan=4><b>Information Receiver</b></td></tr>".PHP_EOL;
+                    $rcv_html .= "<tr class='" . attr($cls) . "'><td colspan=4><b>Information Receiver</b></td></tr>".PHP_EOL;
                 } elseif ($sar[3] == '22') {
                     $loopid = '2000C';                      // subscriber
                     $cls = 'sbr';
-                    $sbr_nm1_html .= "<tr class='$cls'><td colspan=4><b>Subscriber</b></td></tr>".PHP_EOL;
+                    $sbr_nm1_html .= "<tr class='" . attr($cls) . "'><td colspan=4><b>Subscriber</b></td></tr>".PHP_EOL;
                 } elseif ($sar[3] == '23') {
                     $loopid = '2000D';                      // dependent
                     $cls = 'dep';
-                    $dep_nm1_html .= "<tr class='$cls'><td colspan=4><b>Dependent</b></td></tr>".PHP_EOL;
+                    $dep_nm1_html .= "<tr class='" . attr($cls) . "'><td colspan=4><b>Dependent</b></td></tr>".PHP_EOL;
                 } elseif ($sar[3] == 'EV') {
                     $loopid = '2000E';                      // patient event
                     $cls = 'evt';
-                    $evt_html .= "<tr class='$cls'><td colspan=4><b>Patient Event</b></td></tr>".PHP_EOL;
+                    $evt_html .= "<tr class='" . attr($cls) . "'><td colspan=4><b>Patient Event</b></td></tr>".PHP_EOL;
                 } elseif ($sar[3] == 'SS') {
                     $loopid = '2000F';                      // service
                     $cls = 'svc';
-                    $svc_html .= "<tr class='$cls'><td colspan=4><b>Service</b></td></tr>".PHP_EOL;
+                    $svc_html .= "<tr class='" . attr($cls) . "'><td colspan=4><b>Service</b></td></tr>".PHP_EOL;
                 }
 
                 //
@@ -152,26 +152,26 @@ function edih_278_transaction_html($obj278, $bht03)
                 $idtype = (isset($sar[8]) && $sar[8] ) ? $cd27x->get_271_code('NM108', $sar[8]) : "";
                 //
                 if ($loopid == '2000A') {
-                    $src_html .= "<tr class='$cls'><td title='$idtype'>$nm109</td><td colspan=3 title='$descr'>$name</td></tr>" .PHP_EOL;
+                    $src_html .= "<tr class='" . attr($cls) . "'><td title='" . attr($idtype) . "'>" . text($nm109) . "</td><td colspan=3 title='" . attr($descr) . "'>" . text($name) . "</td></tr>" .PHP_EOL;
                     $loopid = '2010A';
                 } elseif ($loopid == '2000B') {
-                    $rcv_html .= "<tr class='$cls'><td title='$idtype'>$nm109</td><td colspan=3 title='$descr'>$name</td></tr>" .PHP_EOL;
+                    $rcv_html .= "<tr class='" . attr($cls) . "'><td title='" . attr($idtype) . "'>" . text($nm109) . "</td><td colspan=3 title='" . attr($descr) . "'>" . text($name) . "</td></tr>" .PHP_EOL;
                     $loopid = '2010B';
                 } elseif ($loopid == '2000C') {
-                    $sbr_nm1_html .= "<tr class='$cls'><td title='$idtype'>$nm109</td><td colspan=3 title='$descr'>$name</td></tr>" .PHP_EOL;
+                    $sbr_nm1_html .= "<tr class='" . attr($cls) . "'><td title='" . attr($idtype) . "'>" . text($nm109) . "</td><td colspan=3 title='" . attr($descr) . "'>" . text($name) . "</td></tr>" .PHP_EOL;
                     $loopid = '2010C';
                 } elseif ($loopid == '2000D') {
-                    $dep_nm1_html .= "<tr class='$cls'><td title='$idtype'>$nm109</td><td colspan=3 title='$descr'>$name</td></tr>" .PHP_EOL;
+                    $dep_nm1_html .= "<tr class='" . attr($cls) . "'><td title='" . attr($idtype) . "'>" . text($nm109) . "</td><td colspan=3 title='" . attr($descr) . "'>" . text($name) . "</td></tr>" .PHP_EOL;
                     $loopid = '2010D';
                 } elseif ($loopid == '2000E' || strpos($loopid, '010E')) {
                     $loopid = (strpos('|71|72|73|77|AAJ|DD|DK|DN|FA|G3|P3|QB|QV|SJ', $nm101) ) ? '2010EA' : $loopid;
                     $loopid = (strpos('|45|FS|ND|PW|R3', $nm101) ) ? '2010EB' : $loopid;
                     $loopid = ($nm101 == 'L5') ? '2010EC' : $loopid;
-                    $evt_html .= "<tr class='$cls'><td title='$idtype'>$nm109</td><td colspan=3 title='$descr'>$descr $name</td></tr>" .PHP_EOL;
+                    $evt_html .= "<tr class='" . attr($cls) . "'><td title='" . attr($idtype) . "'>" . text($nm109) . "</td><td colspan=3 title='" . attr($descr) . "'>" . text($descr . " " . $name) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2000F' || strpos($loopid, '010F')) {
                     $loopid = (strpos('|71|72|73|77|AAJ|DD|DK|DN|FA|G3|P3|QB|QV|SJ', $nm101) ) ? '2010FA' : $loopid;
                     $loopid = ($nm101 == 'L5') ? '2010FB' : $loopid;
-                    $svc_html .= "<tr class='$cls'><td title='$idtype'>$nm109</td><td colspan=3 title='$descr'>$descr $name</td></tr>" .PHP_EOL;
+                    $svc_html .= "<tr class='" . attr($cls) . "'><td title='" . attr($idtype) . "'>" . text($nm109) . "</td><td colspan=3 title='" . attr($descr) . "'>" . text($descr . " " . $name) . "</td></tr>" .PHP_EOL;
                 }
 
                 //
@@ -185,15 +185,15 @@ function edih_278_transaction_html($obj278, $bht03)
                 $addr .= (isset($sar[2])) ? " {$sar[2]}" : "";
                 //
                 if ($loopid == '2010B') {
-                    $rcv_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>$addr</td></tr>" .PHP_EOL;
+                    $rcv_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($addr) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2010C') {
-                    $sbr_nm1_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>$addr</td></tr>" .PHP_EOL;
+                    $sbr_nm1_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($addr) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2010D') {
-                    $dep_nm1_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>$addr</td></tr>" .PHP_EOL;
+                    $dep_nm1_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($addr) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2010EA' || $loopid == '2010EC') {
-                    $evt_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>$addr</td></tr>" .PHP_EOL;
+                    $evt_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($addr) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2010FA') {
-                    $svc_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>$addr</td></tr>" .PHP_EOL;
+                    $svc_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($addr) . "</td></tr>" .PHP_EOL;
                 }
 
                 continue;
@@ -203,15 +203,15 @@ function edih_278_transaction_html($obj278, $bht03)
             if (strncmp('N4'.$de, $seg, 3) === 0) {
                 $sar = explode($de, $seg);
                 if ($loopid == '2010B') {
-                    $rcv_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>{$sar[1]} {$sar[2]} {$sar[3]}</td></tr>" .PHP_EOL;
+                    $rcv_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($sar[1] . " " . $sar[2] . " " . $sar[3]) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2010C') {
-                    $sbr_nm1_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>{$sar[1]} {$sar[2]} {$sar[3]}</td></tr>" .PHP_EOL;
+                    $sbr_nm1_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($sar[1] . " " . $sar[2] . " " . $sar[3]) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2010D') {
-                    $dep_nm1_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>{$sar[1]} {$sar[2]} {$sar[3]}</td></tr>" .PHP_EOL;
+                    $dep_nm1_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($sar[1] . " " . $sar[2] . " " . $sar[3]) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2010EA' || $loopid == '2010EC') {
-                    $evt_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>{$sar[1]} {$sar[2]} {$sar[3]}</td></tr>" .PHP_EOL;
+                    $evt_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($sar[1] . " " . $sar[2] . " " . $sar[3]) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2010FA' || $loopid == '2010FB') {
-                    $svc_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>{$sar[1]} {$sar[2]} {$sar[3]}</td></tr>" .PHP_EOL;
+                    $svc_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($sar[1] . " " . $sar[2] . " " . $sar[3]) . "</td></tr>" .PHP_EOL;
                 }
 
                 continue;
@@ -229,16 +229,16 @@ function edih_278_transaction_html($obj278, $bht03)
                 $elem07 = (isset($sar[7])) ? $cd27x->get_271_code('PER03', $sar[7]) : "";
                 $elem08 = (isset($sar[8])) ? $sar[8] : '';
                 $elem09 = (isset($sar[9])) ? $sar[9] : '';
-                
+
                 $idtype = ($sar[3]) ? $cd27x->get_271_code('PER03', $sar[3]) : "";
                 if ($loopid == '2010A') {
-                    $src_html .= "<tr class='$cls'><td colspan=2>$elem02</td><td colspan=2 title='$elem03 $elem05 $elem07'>$elem04 $elem06 $elem08</td></tr>" .PHP_EOL;
+                    $src_html .= "<tr class='" . text($cls) . "'><td colspan=2>" . text($elem02) . "</td><td colspan=2 title='" . attr($elem03 . " " . $elem05 . " " . $elem07) . "'>" . text($elem04 . " " . $elem06 . " " . $elem08) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2010B') {
-                    $rcv_html .= "<tr class='$cls'><td colspan=2>$elem02</td><td colspan=2 title='$elem03 $elem05 $elem07'>$elem04 $elem06 $elem08</td></tr>" .PHP_EOL;
+                    $rcv_html .= "<tr class='" . attr($cls) . "'><td colspan=2>" . text($elem02) . "</td><td colspan=2 title='" . attr($elem03 . " " . $elem05 . " " . $elem07) . "'>" . text($elem04 . " " . $elem06 . " " . $elem08) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2010EA') {
-                    $evt_html .= "<tr class='$cls'><td colspan=2>$elem02</td><td colspan=2 title='$elem03 $elem05 $elem07'>$elem04 $elem06 $elem08</td></tr>" .PHP_EOL;
+                    $evt_html .= "<tr class='" . attr($cls) . "'><td colspan=2>" . text($elem02) . "</td><td colspan=2 title='" . attr($elem03 . " " . $elem05 . " " . $elem07) . "'>" . text($elem04 . " " . $elem06 . " " . $elem08) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2010FA') {
-                    $svc_html .="<tr class='$cls'><td colspan=2>$elem02</td><td colspan=2 title='$elem03 $elem05 $elem07'>$elem04 $elem06 $elem08</td></tr>" .PHP_EOL;
+                    $svc_html .="<tr class='" . attr($cls) . "'><td colspan=2>" . text($elem02) . "</td><td colspan=2 title='" . attr($elem03 . " " . $elem05 . " " . $elem07) . "'>" . text($elem04 . " " . $elem06 . " " . $elem08) . "</td></tr>" .PHP_EOL;
                 }
 
                 //
@@ -252,27 +252,27 @@ function edih_278_transaction_html($obj278, $bht03)
                 $rej_reason = $cd27x->get_271_code('AAA03', $sar[3]);
                 $follow = $cd27x->get_271_code('AAA04', $sar[4]);
                 if ($loopid == '2000A') {
-                    $src_html .= "<tr class='$cls'><td><em><b>Rejection:</b></em></td><td colspan=3 title='$follow'>$rej_reason</td></tr>" .PHP_EOL;
+                    $src_html .= "<tr class='" . attr($cls) . "'><td><em><b>Rejection:</b></em></td><td colspan=3 title='" . attr($follow) . "'>" . text($rej_reason) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2010A') {
-                    $src_html .= "<tr class='$cls'><td><em><b>Rejection:</b></em></td><td colspan=3 title='$follow'>$rej_reason</td></tr>" .PHP_EOL;
+                    $src_html .= "<tr class='" . attr($cls) . "'><td><em><b>Rejection:</b></em></td><td colspan=3 title='" . attr($follow) . "'>" . text($rej_reason) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2000B') {
-                    $rcv_html .= "<tr class='$cls'><td><em><b>Rejection:</b></em></td><td colspan=3 title='$follow'>$rej_reason</td></tr>" .PHP_EOL;
+                    $rcv_html .= "<tr class='" . attr($cls) . "'><td><em><b>Rejection:</b></em></td><td colspan=3 title='" . attr($follow) . "'>" . text($rej_reason) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2010B') {
-                    $sbr_eb_html .= "<tr class='$cls'><td><em><b>Rejection:</b></em></td><td colspan=3 title='$follow'>$rej_reason</td></tr>" .PHP_EOL;
+                    $sbr_eb_html .= "<tr class='" . attr($cls) . "'><td><em><b>Rejection:</b></em></td><td colspan=3 title='" . attr($follow) . "'>" . text($rej_reason) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2000C') {
-                    $sbr_nm1_html .= "<tr class='$cls'><td><em><b>Rejection:</b></em></td><td colspan=3 title='$follow'>$rej_reason</td></tr>" .PHP_EOL;
+                    $sbr_nm1_html .= "<tr class='" . attr($cls) . "'><td><em><b>Rejection:</b></em></td><td colspan=3 title='" . attr($follow) . "'>" . text($rej_reason) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2010C') {
-                    $sbr_eb_html .= "<tr class='$cls'><td><em><b>Rejection:</b></em></td><td colspan=3 title='$follow'>$rej_reason</td></tr>" .PHP_EOL;
+                    $sbr_eb_html .= "<tr class='" . attr($cls) . "'><td><em><b>Rejection:</b></em></td><td colspan=3 title='" . attr($follow) . "'>" . text($rej_reason) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2000D') {
-                    $dep_nm1_html .= "<tr class='$cls'><td><em><b>Rejection:</b></em></td><td colspan=3 title='$follow'>$rej_reason</td></tr>" .PHP_EOL;
+                    $dep_nm1_html .= "<tr class='" . attr($cls) . "'><td><em><b>Rejection:</b></em></td><td colspan=3 title='" . attr($follow) . "'>" . text($rej_reason) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2010D') {
-                    $dep_eb_html .= "<tr class='$cls'><td><em><b>Rejection:</b></em></td><td colspan=3 title='$follow'>$rej_reason</td></tr>" .PHP_EOL;
+                    $dep_eb_html .= "<tr class='" . attr($cls) . "'><td><em><b>Rejection:</b></em></td><td colspan=3 title='" . attr($follow) . "'>" . text($rej_reason) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2010EA' || $loopid == '2010EC') {
-                    $evt_html .= "<tr class='$cls'><td><em><b>Rejection:</b></em></td><td colspan=3 title='$follow'>$rej_reason</td></tr>" .PHP_EOL;
+                    $evt_html .= "<tr class='" . attr($cls) . "'><td><em><b>Rejection:</b></em></td><td colspan=3 title='" . attr($follow) . "'>" . text($rej_reason) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2010FA') {
-                    $svc_html .= "<tr class='$cls'><td><em><b>Rejection:</b></em></td><td colspan=3 title='$follow'>$rej_reason</td></tr>" .PHP_EOL;
+                    $svc_html .= "<tr class='" . attr($cls) . "'><td><em><b>Rejection:</b></em></td><td colspan=3 title='" . attr($follow) . "'>" . text($rej_reason) . "</td></tr>" .PHP_EOL;
                 } else {
-                    $hdr_html .= "<tr class='$cls'><td>$loopid <em><b>Rejection:</b></em></td><td colspan=3 title='$follow'>$rej_reason</td></tr>" .PHP_EOL;
+                    $hdr_html .= "<tr class='" . attr($cls) . "'><td>" . text($loopid) . " <em><b>Rejection:</b></em></td><td colspan=3 title='" . attr($follow) . "'>" . text($rej_reason) . "</td></tr>" .PHP_EOL;
                 }
 
                 continue;
@@ -289,9 +289,9 @@ function edih_278_transaction_html($obj278, $bht03)
                 //
                 $trctp = ($elem01 == '2') ? 'Reference ' : 'Current ';
                 if ($loopid == '2000E') {
-                    $evt_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3><em>$trctp tracking no:</em> $elem02 (by $elem03 $elem04)</td></tr>" .PHP_EOL;
+                    $evt_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3><em>" . text($trctp) . " tracking no:</em> " . text($elem02) . " (by " . text($elem03 . " " . $elem04) . ")</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2000F') {
-                    $svc_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3><em>$trctp tracking no:</em> $elem02 (by $elem03 $elem04)</td></tr>" .PHP_EOL;
+                    $svc_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3><em>" . text($trctp) . " tracking no:</em> " . text($elem02) . " (by " . text($elem03 . " " . $elem04) . ")</td></tr>" .PHP_EOL;
                 }
 
                 continue;
@@ -337,11 +337,11 @@ function edih_278_transaction_html($obj278, $bht03)
                 //$elem08 = (isset($sar[8])) ? $cd27x->get_271_code('UM08', $sar[8]) : '';
                 //
                 if ($loopid == '2000E') {
-                    $evt_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem01 <em>Certification Type:</em> $elem02</td></tr>".PHP_EOL;
-                    $evt_html .= ($elem03 || $elem04a || $elem06) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem03 $elem04a ($elem06)</td></tr>".PHP_EOL : "";
+                    $evt_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem01) . " <em>Certification Type:</em> " . text($elem02) . "</td></tr>".PHP_EOL;
+                    $evt_html .= ($elem03 || $elem04a || $elem06) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem03 . " " . $elem04a) . " (" . text($elem06) . ")</td></tr>".PHP_EOL : "";
                 } elseif ($loopid == '2000F') {
-                    $svc_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem01 <em>Certification Type:</em> $elem02</td></tr>".PHP_EOL;
-                    $svc_html .= ($elem03 || $elem04a || $elem06) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem03 $elem04a ($elem06)</td></tr>".PHP_EOL : "";
+                    $svc_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem01) . " <em>Certification Type:</em> " . text($elem02) . "</td></tr>".PHP_EOL;
+                    $svc_html .= ($elem03 || $elem04a || $elem06) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem03 . " " . $elem04a) . " (" . text($elem06) . ")</td></tr>".PHP_EOL : "";
                 }
 
                 continue;
@@ -360,13 +360,13 @@ function edih_278_transaction_html($obj278, $bht03)
                 }
                 //
                 if ($loopid == '2000E') {
-                    $evt_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem01 $elem02</td></tr>".PHP_EOL;
-                    $evt_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem03</td></tr>".PHP_EOL;
-                    $evt_html .= ($elem04) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem04</td></tr>".PHP_EOL : "";
+                    $evt_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem01 . " " . $elem02) . "</td></tr>".PHP_EOL;
+                    $evt_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem03) . "</td></tr>".PHP_EOL;
+                    $evt_html .= ($elem04) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem04) . "</td></tr>".PHP_EOL : "";
                 } elseif ($loopid == '2000F') {
-                    $svc_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem01 $elem02</td></tr>".PHP_EOL;
-                    $svc_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem03</td></tr>".PHP_EOL;
-                    $svc_html .= ($elem04) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem04</td></tr>".PHP_EOL : "";
+                    $svc_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem01 . " " . $elem02) . "</td></tr>".PHP_EOL;
+                    $svc_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem03) . "</td></tr>".PHP_EOL;
+                    $svc_html .= ($elem04) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem04) . "</td></tr>".PHP_EOL : "";
                 }
 
                 //
@@ -383,19 +383,19 @@ function edih_278_transaction_html($obj278, $bht03)
                 $elem03 = (isset($sar[3])) ? $sar[2] : '';
                 //
                 if ($loopid == '2010B') {
-                    $rcv_html .= "<tr class='$cls'><td>&gt;</td><td colspan=2><em>$elem01</em> $elem02</td><td>$elem03</td></tr>".PHP_EOL;
+                    $rcv_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=2><em>" . text($elem01) . "</em> " . text($elem02) . "</td><td>" . text($elem03) . "</td></tr>".PHP_EOL;
                 } elseif ($loopid == '2010C') {
-                    $sbr_nm1_html .= "<tr class='$cls'><td>&gt;</td><td colspan=2><em>$elem01</em> $elem02</td><td>$elem03</td></tr>".PHP_EOL;
+                    $sbr_nm1_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=2><em>" . text($elem01) . "</em> " . text($elem02) . "</td><td>" . text($elem03) . "</td></tr>".PHP_EOL;
                 } elseif ($loopid == '2010D') {
-                    $dep_nm1_html .= "<tr class='$cls'><td>&gt;</td><td colspan=2><em>$elem01</em> $elem02</td><td>$elem03</td></tr>".PHP_EOL;
+                    $dep_nm1_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=2><em>" . text($elem01) . "</em> " . text($elem02) . "</td><td>" . text($elem03) . "</td></tr>".PHP_EOL;
                 } elseif ($loopid == '2000E') {
-                    $evt_html .= "<tr class='$cls'><td>&gt;</td><td colspan=2><em>$elem01</em> $elem02</td><td>$elem03</td></tr>".PHP_EOL;
+                    $evt_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=2><em>" . text($elem01) . "</em> " . text($elem02) . "</td><td>" . text($elem03) . "</td></tr>".PHP_EOL;
                 } elseif ($loopid == '2010E') {
-                    $evt_html .= "<tr class='$cls'><td>&gt;</td><td colspan=2><em>$elem01</em> $elem02</td><td>$elem03</td></tr>".PHP_EOL;
+                    $evt_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=2><em>" . text($elem01) . "</em> " . text($elem02) . "</td><td>" . text($elem03) . "</td></tr>".PHP_EOL;
                 } elseif ($loopid == '2000F') {
-                    $svc_html .= "<tr class='$cls'><td>&gt;</td><td colspan=2><em>$elem01</em> $elem02</td><td>$elem03</td></tr>".PHP_EOL;
+                    $svc_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=2><em>" . text($elem01) . "</em> " . text($elem02) . "</td><td>" . text($elem03) . "</td></tr>".PHP_EOL;
                 } elseif ($loopid == '2010FA') {
-                    $svc_html .= "<tr class='$cls'><td>&gt;</td><td colspan=2><em>$elem01</em> $elem02</td><td>$elem03</td></tr>".PHP_EOL;
+                    $svc_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=2><em>" . text($elem01) . "</em> " . text($elem02) . "</td><td>" . text($elem03) . "</td></tr>".PHP_EOL;
                 }
 
                 //
@@ -417,9 +417,9 @@ function edih_278_transaction_html($obj278, $bht03)
                 }
 
                 if ($loopid == '2010C') {
-                    $sbr_nm1_html .= "<tr class='$cls'><td>&gt;</td><td>$elem03</td><td colspan=2><em>Date of Birth</em> $elem02</td></tr>" .PHP_EOL;
+                    $sbr_nm1_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td>" . text($elem03) . "</td><td colspan=2><em>Date of Birth</em> " . text($elem02) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2010D') {
-                    $dep_nm1_html .= "<tr class='$cls'><td>&gt;</td><td>$elem03</td><td colspan=2><em>Date of Birth</em> $elem02</td></tr>" .PHP_EOL;
+                    $dep_nm1_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td>" . text($elem03) . "</td><td colspan=2><em>Date of Birth</em> " . text($elem02) . "</td></tr>" .PHP_EOL;
                 }
 
                 continue;
@@ -435,9 +435,9 @@ function edih_278_transaction_html($obj278, $bht03)
                 $elem17 = (isset($sar[17]) && $sar[17]) ? $sar[17] : "";
                 //
                 if ($loopid == '2010C') {
-                    $sbr_nm1_html .= "<tr class='$cls'><td>&gt;</td><td>$elem01 $elem17</td><td>$elem02</td><td>$elem03 $elem04</td></tr>" .PHP_EOL;
+                    $sbr_nm1_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td>" . text($elem01 . " " . $elem17) . "</td><td>" . text($elem02) . "</td><td>" . text($elem03 . " " . $elem04) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2010D') {
-                    $dep_nm1_html .= "<tr class='$cls'><td>&gt;</td><td>$elem01 $elem17</td><td>$elem02</td><td>$elem03 $elem04</td></tr>" .PHP_EOL;
+                    $dep_nm1_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td>" . text($elem01 . " " . $elem17) . "</td><td>" . text($elem02) . "</td><td>" . text($elem03 . " " . $elem04) . "</td></tr>" .PHP_EOL;
                 }
 
                 continue;
@@ -461,9 +461,9 @@ function edih_278_transaction_html($obj278, $bht03)
                 }
 
                 if ($loopid == '2000E') {
-                    $evt_html .= "<tr class='$cls'><td>&gt;</td><td>$idtype</td><td colspan=2>$var</td></tr>" .PHP_EOL;
+                    $evt_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td>" . text($idtype) . "</td><td colspan=2>" . text($var) . "</td></tr>" .PHP_EOL;
                 } elseif ($loopid == '2000F') {
-                    $svc_html .= "<tr class='$cls'><td>&gt;</td><td>$idtype</td><td colspan=2>$var</td></tr>" .PHP_EOL;
+                    $svc_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td>" . text($idtype) . "</td><td colspan=2>" . text($var) . "</td></tr>" .PHP_EOL;
                 }
 
                 continue;
@@ -494,7 +494,7 @@ function edih_278_transaction_html($obj278, $bht03)
                         $hi_str .= $hi.' ';
                     }
 
-                    $tr_str .= "<tr class='$cls'><td><em>Codes</em></td><td colspan=3>$hi_str</td></tr>".PHP_EOL;
+                    $tr_str .= "<tr class='" . attr($cls) . "'><td><em>Codes</em></td><td colspan=3>" . text($hi_str) . "</td></tr>".PHP_EOL;
                 }
 
                 //
@@ -525,12 +525,12 @@ function edih_278_transaction_html($obj278, $bht03)
                 $elem08 = (isset($sar[8]) && $sar[8]) ? $cd27x->get_271_code('HSD08', $sar[8]) : '';    // delivery
                 //
                 if (($elem01 || $elem02) && !$elem08) {
-                    $tr_str .= ($elem03 && $elem04 && $elem06) ? "<tr class='$cls'><td><em>$id</em></td><td colspan=3>$elem02 $elem01 per every $elem04 $elem03 for $elem06 $elem05 $elem07</td></tr>".PHP_EOL : "";
-                    $tr_str .= ($elem03 && $elem04 && !$elem06) ? "<tr class='$cls'><td><em>$id</em></td><td colspan=3>$elem02 $elem01 per every $elem04 $elem03 $elem07</td></tr>".PHP_EOL : "";
-                    $tr_str .= ($elem03 && !$elem04 && $elem06) ? "<tr class='$cls'><td><em>$id</em></td><td colspan=3>$elem02 $elem01 for $elem06 $elem05 $elem07</td></tr>".PHP_EOL : "";
-                    $tr_str .= ($elem03 && !$elem04 && !$elem06) ? "<tr class='$cls'><td><em>$id</em></td><td colspan=3>$elem02 $elem01 $elem07</td></tr>".PHP_EOL : "";
+                    $tr_str .= ($elem03 && $elem04 && $elem06) ? "<tr class='" . attr($cls) . "'><td><em>" . text($id) . "</em></td><td colspan=3>" . text($elem02 . " " . $elem01) . " per every " . text($elem04 . " " . $elem03) . " for " . text($elem06 . " " . $elem05 . " " . $elem07) . "</td></tr>".PHP_EOL : "";
+                    $tr_str .= ($elem03 && $elem04 && !$elem06) ? "<tr class='" . attr($cls) . "'><td><em>" . text($id) . "</em></td><td colspan=3>" . text($elem02 . " " . $elem01) . " per every " . text($elem04 . " " . $elem03 . " " . $elem07) . "</td></tr>".PHP_EOL : "";
+                    $tr_str .= ($elem03 && !$elem04 && $elem06) ? "<tr class='" . attr($cls) . "'><td><em>" . text($id) . "</em></td><td colspan=3>" . text($elem02 . " " . $elem01) . " for " . text($elem06 . " " . $elem05 . " " . $elem07) . "</td></tr>".PHP_EOL : "";
+                    $tr_str .= ($elem03 && !$elem04 && !$elem06) ? "<tr class='" . attr($cls) . "'><td><em>" . text($id) . "</em></td><td colspan=3>" . text($elem02 . " " . $elem01 . " " . $elem07) . "</td></tr>".PHP_EOL : "";
                 } else {
-                    $tr_str .= "<tr class='$cls'><td><em>$id</em></td><td colspan=3>$elem02 $elem01 $elem07 $elem08</td></tr>" .PHP_EOL;
+                    $tr_str .= "<tr class='" . attr($cls) . "'><td><em>" . text($id) . "</em></td><td colspan=3>" . text($elem02 . " " . $elem01 . " " . $elem07 . " " . $elem08) . "</td></tr>" .PHP_EOL;
                 }
 
                 //
@@ -556,12 +556,12 @@ function edih_278_transaction_html($obj278, $bht03)
                 $elem06 = (isset($sar[6]) && $sar[6]) ? $cd27x->get_271_code('CRC03', $sar[6]) : '';    // condition descripter
                 $elem07 = (isset($sar[7]) && $sar[7]) ? $cd27x->get_271_code('CRC03', $sar[7]) : '';    // condition descripter
                 //
-                $evt_html .= ($elem01) ? "<tr class='$cls'><td><em>$elem01</em></td><td colspan=3><em>Conditions Apply:</em> $elem02</td></tr>".PHP_EOL : "";
-                $evt_html .= ($elem03) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem03</td></tr>".PHP_EOL : "";
-                $evt_html .= ($elem04) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem04</td></tr>".PHP_EOL : "";
-                $evt_html .= ($elem05) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem05</td></tr>".PHP_EOL : "";
-                $evt_html .= ($elem06) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem06</td></tr>".PHP_EOL : "";
-                $evt_html .= ($elem07) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem07</td></tr>".PHP_EOL : "";
+                $evt_html .= ($elem01) ? "<tr class='" . attr($cls) . "'><td><em>" . text($elem01) . "</em></td><td colspan=3><em>Conditions Apply:</em> " . text($elem02) . "</td></tr>".PHP_EOL : "";
+                $evt_html .= ($elem03) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem03) . "</td></tr>".PHP_EOL : "";
+                $evt_html .= ($elem04) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem04) . "</td></tr>".PHP_EOL : "";
+                $evt_html .= ($elem05) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem05) . "</td></tr>".PHP_EOL : "";
+                $evt_html .= ($elem06) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem06) . "</td></tr>".PHP_EOL : "";
+                $evt_html .= ($elem07) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem07) . "</td></tr>".PHP_EOL : "";
                 //
                 continue;
             }
@@ -576,8 +576,8 @@ function edih_278_transaction_html($obj278, $bht03)
                 $elem02 = (isset($sar[2]) && $sar[2]) ? $cd27x->get_271_code('CL102', $sar[2]) : '';    // admission source code
                 $elem03 = (isset($sar[3]) && $sar[3]) ? $cd27x->get_271_code('CL103', $sar[3]) : '';    // patient status code
                 //
-                $tr_str .= "<tr class='$cls'><td><em>Hospital</em> </td><td colspan=3>$elem01 $elem02</td></tr>".PHP_EOL;
-                $tr_str .= ($elem03) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem03</td></tr>".PHP_EOL : "";
+                $tr_str .= "<tr class='" . attr($cls) . "'><td><em>Hospital</em> </td><td colspan=3>" . text($elem01  . " " . $elem02) . "</td></tr>".PHP_EOL;
+                $tr_str .= ($elem03) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem03) . "</td></tr>".PHP_EOL : "";
                 //
                 if ($loopid == '2000E') {
                     $evt_html .= $tr_str;
@@ -608,7 +608,7 @@ function edih_278_transaction_html($obj278, $bht03)
 
                 $elem06 = (isset($sar[6])) ? $sar[6] : "";
                 //
-                $evt_html .= "<tr class='$cls'><td><em>Ambulance:</em></td><td colspan=3>$elem03 $elem06 $elem05</td></tr>".PHP_EOL;
+                $evt_html .= "<tr class='" . attr($cls) . "'><td><em>Ambulance:</em></td><td colspan=3>" . text($elem03 . " " . $elem06 . " " . $elem05) . "</td></tr>".PHP_EOL;
                 //
                 continue;
             }
@@ -625,7 +625,7 @@ function edih_278_transaction_html($obj278, $bht03)
                 $elem04 = ($elem04) ? "-- ".$elem04 : "";
                 // elem05 -- elem12 not used
                 //
-                $evt_html .= "<tr class='$cls'><td><em>Spinal:</em></td><td colspan=3> $elem01 $elem02 $elem03 $elem04</td></tr>".PHP_EOL;
+                $evt_html .= "<tr class='" . attr($cls) . "'><td><em>Spinal:</em></td><td colspan=3> " . text($elem01 . " " . $elem02 . " " . $elem03 . " " . $elem04) . "</td></tr>".PHP_EOL;
                 //
                 continue;
             }
@@ -649,14 +649,14 @@ function edih_278_transaction_html($obj278, $bht03)
                 $title = "Descriptors and Rates/times per edi guide. <b>Do not rely on these!</b>".PHP_EOL;
                 $t2 = "Descriptors per edi companion guide. <b>Do not rely on these!</b>".PHP_EOL;
                 //
-                $tr_str .= "<tr class='$cls'><td><em>Oxygen</em></td><td colspan=3><b>You must independently verify this information!</b></td></tr>".PHP_EOL;
-                $tr_str .= "<tr class='$cls'><td>&gt;</td><td colspan=3>$title</td></tr>".PHP_EOL;
-                $tr_str .= ($elem03 || $elem04 ) ? "<tr class='$cls'><td>&gt;</td><td colspan=3 title='$t2'><em>Equipment Type: </em>$elem03 $elem04</td></tr>".PHP_EOL : "";
-                $tr_str .= ($elem06 || $elem07 || $elem08) ? "<tr class='$cls'><td>&gt;</td><td colspan=3 title='$title'>$elem06 $elem07 $elem08</td></tr>".PHP_EOL : "";
-                $tr_str .= ($elem09) ? "<tr class='$cls'><td>&gt;</td><td colspan=3><em>Therapist: </em>$elem09</td></tr>".PHP_EOL : "";
-                $tr_str .= ($elem16) ? "<tr class='$cls'><td>&gt;</td><td colspan=3 title='$title'>$elem16</td></tr>".PHP_EOL : "";
-                $tr_str .= ($elem17) ? "<tr class='$cls'><td>&gt;</td><td colspan=3 title='$t2'><em>Delivery: </em>$elem17</td></tr>".PHP_EOL : "";
-                $tr_str .= ($elem18) ? "<tr class='$cls'><td>&gt;</td><td colspan=3 title='$t2'><em>Equipment Type: </em>$elem18</td></tr>".PHP_EOL : "";
+                $tr_str .= "<tr class='" . attr($cls) . "'><td><em>Oxygen</em></td><td colspan=3><b>You must independently verify this information!</b></td></tr>".PHP_EOL;
+                $tr_str .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>$title</td></tr>".PHP_EOL;
+                $tr_str .= ($elem03 || $elem04 ) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3 title='$t2'><em>Equipment Type: </em>" . text($elem03 . " " . $elem04) . "</td></tr>".PHP_EOL : "";
+                $tr_str .= ($elem06 || $elem07 || $elem08) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3 title='$title'>" . text($elem06 . " " . $elem07 . " " . $elem08) . "</td></tr>".PHP_EOL : "";
+                $tr_str .= ($elem09) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3><em>Therapist: </em>" . text($elem09) . "</td></tr>".PHP_EOL : "";
+                $tr_str .= ($elem16) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3 title='$title'>" . text($elem16) . "</td></tr>".PHP_EOL : "";
+                $tr_str .= ($elem17) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3 title='$t2'><em>Delivery: </em>" . text($elem17) . "</td></tr>".PHP_EOL : "";
+                $tr_str .= ($elem18) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3 title='$t2'><em>Equipment Type: </em>" . text($elem18) . "</td></tr>".PHP_EOL : "";
                 //
                 $evt_html .= $tr_str;
                 //
@@ -682,9 +682,9 @@ function edih_278_transaction_html($obj278, $bht03)
                 $elem07 = (isset($sar[7]) && $sar[7]) ? $cd27x->get_271_code('HCR04', $sar[8]) : "";
                 $elem08 = (isset($sar[8]) && $sar[8]) ? $cd27x->get_271_code('CR608', $sar[8]) : "";    // certification type code
                 //
-                $evt_html .= "<tr class='$cls'><td><em>Home Health</em></td><td><em>HH Began</em> $elem02</td><td colspan=2>$elem01</td></tr>".PHP_EOL;
-                $evt_html .= ($elem03 || $elem04) ? "<tr class='$cls'><td>&gt;</td><td colspan=2><em>Period</em> $elem04</td><td>(MCR) $elem07</td></tr>".PHP_EOL : "";
-                $evt_html .= ($elem08) ?  "<tr class='$cls'><td>&gt;</td><td colspan=2><em>Period</em> $elem08</td><td>(MCR) $elem05</td></tr>".PHP_EOL : "";
+                $evt_html .= "<tr class='" . attr($cls) . "'><td><em>Home Health</em></td><td><em>HH Began</em> " . text($elem02) . "</td><td colspan=2>" . text($elem01) . "</td></tr>".PHP_EOL;
+                $evt_html .= ($elem03 || $elem04) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=2><em>Period</em> " . text($elem04) . "</td><td>(MCR) " . text($elem07) . "</td></tr>".PHP_EOL : "";
+                $evt_html .= ($elem08) ?  "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=2><em>Period</em> " . text($elem08) . "</td><td>(MCR) " . attr($elem05) . "</td></tr>".PHP_EOL : "";
                 //
                 continue;
             }
@@ -702,9 +702,9 @@ function edih_278_transaction_html($obj278, $bht03)
                 $elem06 = (isset($sar[6]) && $sar[6]) ? $sar[6] : "";
                 $elem07 = (isset($sar[7]) && $sar[7]) ? $sar[7] : "";
                 //
-                $tr_str .= "<tr class='$cls'><td><em>Paperwork</em></td><td colspan=3>$elem01 $elem02</td></tr>".PHP_EOL;
-                $tr_str .= ($elem05) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem05 $elem06</td></tr>".PHP_EOL : "";
-                $tr_str .= ($elem07) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem07</td></tr>".PHP_EOL : "";
+                $tr_str .= "<tr class='" . attr($cls) . "'><td><em>Paperwork</em></td><td colspan=3>" . text($elem01 . " " . $elem02) . "</td></tr>".PHP_EOL;
+                $tr_str .= ($elem05) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem05 . " " . $elem06) . "</td></tr>".PHP_EOL : "";
+                $tr_str .= ($elem07) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem07) . "</td></tr>".PHP_EOL : "";
                 //
                 if ($loopid == '2000E') {
                     $evt_html .= $tr_str;
@@ -723,9 +723,9 @@ function edih_278_transaction_html($obj278, $bht03)
                 $elem01 = (isset($sar[1]) && $sar[1]) ? $sar[1] : "";
                 //
                 if ($loopid == '2000E') {
-                    $evt_html .= ($elem01) ? "<tr class='$cls'><td><em>Message</em></td><td colspan=3>$elem01</td></tr>".PHP_EOL : "";
+                    $evt_html .= ($elem01) ? "<tr class='" . attr($cls) . "'><td><em>Message</em></td><td colspan=3>" . text($elem01) . "</td></tr>".PHP_EOL : "";
                 } elseif ($loopid == '2000F') {
-                    $svc_html .= ($elem01) ? "<tr class='$cls'><td><em>Message</em></td><td colspan=3>$elem01</td></tr>".PHP_EOL : "";
+                    $svc_html .= ($elem01) ? "<tr class='" . attr($cls) . "'><td><em>Message</em></td><td colspan=3>" . text($elem01) . "</td></tr>".PHP_EOL : "";
                 }
 
                 continue;
@@ -749,7 +749,7 @@ function edih_278_transaction_html($obj278, $bht03)
                     } else {
                         $elem01 .= " ".$ar01[1];
                     }
-                        
+
                     if ($elem01 && $ct > 2) {
                         for ($i=2; $i<$ct;
                         $i++) {
@@ -768,8 +768,8 @@ function edih_278_transaction_html($obj278, $bht03)
                 //
                 $elem11 = ($elem11) ? "<em>EPSDT</em> ".$elem11 : "";
                 //
-                $svc_html .= ($elem01) ? "<tr class='$cls'><td><em>Professional Svc</em></td><td colspan=3>$elem01 $elem02</td></tr>".PHP_EOL : "";
-                $svc_html .= ($elem03 ||$elem04 || $elem11) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem03 $elem04 $elem11</td></tr>".PHP_EOL : "";
+                $svc_html .= ($elem01) ? "<tr class='" . attr($cls) . "'><td><em>Professional Svc</em></td><td colspan=3>" . text($elem01 . " " . $elem02) . "</td></tr>".PHP_EOL : "";
+                $svc_html .= ($elem03 ||$elem04 || $elem11) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem03 . " " . $elem04 . " " . $elem11) . "</td></tr>".PHP_EOL : "";
                 $svc_html .= ($elem20) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem20</td></tr>".PHP_EOL : "";
                 //
                 continue;
@@ -793,7 +793,7 @@ function edih_278_transaction_html($obj278, $bht03)
                     } else {
                         $elem01 .= " ".$ar01[1];
                     }
-                        
+
                     if ($elem01 && count($ar01) > 2) {
                         for ($i=2; $i<$ct;
                         $i++) {
@@ -811,9 +811,9 @@ function edih_278_transaction_html($obj278, $bht03)
                 $elem06 = (isset($sar[6]) && $sar[6]) ? edih_format_money($sar[6]) : "";
                 $elem10 = (isset($sar[20]) && $sar[20]) ? $cd27x->get_271_code('SV120', $ar01[20]) : "";
                 //
-                $svc_html .= ($elem01) ? "<tr class='$cls'><td><em>Inst Service</em></td><td colspan=3>$elem01 $elem02</td></tr>".PHP_EOL : "";
-                $svc_html .= ($elem03 ||$elem04) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem03 $elem04 $elem05 $elem06</td></tr>".PHP_EOL : "";
-                $svc_html .= ($elem10) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem10</td></tr>".PHP_EOL : "";
+                $svc_html .= ($elem01) ? "<tr class='" . attr($cls) . "'><td><em>Inst Service</em></td><td colspan=3>" . text($elem01 . " " . $elem02) . "</td></tr>".PHP_EOL : "";
+                $svc_html .= ($elem03 ||$elem04) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem03 . " " . $elem04 . " " . $elem05 . " " . $elem06) . "</td></tr>".PHP_EOL : "";
+                $svc_html .= ($elem10) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3>" . text($elem10) . "</td></tr>".PHP_EOL : "";
                 //
                 continue;
             }
@@ -834,7 +834,7 @@ function edih_278_transaction_html($obj278, $bht03)
     //
     return $str_html;
 }
-                        
+
 /**
  * create a display for an individual authorization response
  *
@@ -866,7 +866,7 @@ function edih_278_html($filename, $bht03 = '')
                 $env_ar = $obj278->edih_envelopes();
                 if (!isset($env_ar['ST'])) {
                     $html_str .= "<p>edih_278_html: file parse error, envelope error</p>".PHP_EOL;
-                    $html_str .= $obj278->edih_message();
+                    $html_str .= text($obj278->edih_message());
                     return $html_str;
                 } else {
                     $html_str .= "<div id='accordion'>".PHP_EOL;
@@ -888,8 +888,8 @@ function edih_278_html($filename, $bht03 = '')
                     //
                     // get each transaction
                     foreach ($st['bht03'] as $bht) {
-                        $html_str .= "<h3>$bht Services Review</h3>".PHP_EOL;
-                        $html_str .= "<div id='ac_$bht'>".PHP_EOL;
+                        $html_str .= "<h3>" . text($bht) . " Services Review</h3>".PHP_EOL;
+                        $html_str .= "<div id='ac_" . attr($bht) . "'>".PHP_EOL;
                         //
                         $html_str .= edih_278_transaction_html($obj278, $bht);
                         //
