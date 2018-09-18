@@ -296,7 +296,6 @@ if ($_POST['form_save']) {
         "destination = '" . add_escape_custom($_POST['form_destination'])   . "', " .
         "reaction ='"     . add_escape_custom($_POST['form_reaction'])     . "', " .
         "severity_al ='"     . add_escape_custom($_POST['form_severity_id'])     . "', " .
-        "list_option_id ='"     . add_escape_custom($_POST['form_title_id'])     . "', " .
         "erx_uploaded = '0', " .
         "modifydate = NOW() " .
         "WHERE id = '" . add_escape_custom($issue) . "'";
@@ -312,7 +311,7 @@ if ($_POST['form_save']) {
         "date, pid, type, title, activity, comments, begdate, enddate, returndate, " .
         "diagnosis, occurrence, classification, referredby, user, groupname, " .
         "outcome, destination, reinjury_id, injury_grade, injury_part, injury_type, " .
-        "reaction, severity_al, list_option_id " .
+        "reaction, severity_al " .
         ") VALUES ( " .
         "NOW(), " .
         "'" . add_escape_custom($thispid) . "', " .
@@ -336,8 +335,7 @@ if ($_POST['form_save']) {
         "'" . add_escape_custom($form_injury_part)          . "', " .
         "'" . add_escape_custom($form_injury_type)          . "', " .
         "'" . add_escape_custom($_POST['form_reaction'])         . "', " .
-        "'" . add_escape_custom($_POST['form_severity_id'])         . "', " .
-        "'" . add_escape_custom($_POST['form_title_id'])         . "' " .
+        "'" . add_escape_custom($_POST['form_severity_id'])         . "' " .
         ")");
     }
 
@@ -390,7 +388,7 @@ if ($issue) {
     if (!acl_check_issue($irow['type'], '', 'write')) {
         die(xlt("Edit is not authorized!"));
     }
-} else if ($thistype) {
+} elseif ($thistype) {
     $irow['type'] = $thistype;
 }
 
@@ -541,7 +539,6 @@ if ($ISSUE_TYPES['ippf_gcac'] && !$_POST['form_save']) {
  function set_text() {
   var f = document.forms[0];
   f.form_title.value = f.form_titles.options[f.form_titles.selectedIndex].text;
-  f.form_title_id.value = f.form_titles.options[f.form_titles.selectedIndex].value;
   f.form_diagnosis.value = f.form_titles.options[f.form_titles.selectedIndex].getAttribute('data-code');
   f.form_titles.selectedIndex = -1;
  }
@@ -630,14 +627,15 @@ if ($irow['type'] == 'medical_problem') {
         if ($tmp) {
             $url .= ",$tmp";
         }
-    } else if ($irow['type'] == 'medication') {
+    } elseif ($irow['type'] == 'medication') {
         if ($tmp) {
             $url .= ",$tmp&default=$tmp";
         }
     }
 }
 ?>
- dlgopen('<?php echo $url; ?>', '_blank', 800, 725);
+//dlgopen('<?php echo $url; ?>', '_blank', 800, 725);
+dlgopen('<?php echo $url; ?>', '_blank', 985, 800, '', '<?php echo xla("Select Codes"); ?>');
 }
 
 // Check for errors when the form is submitted.
@@ -769,7 +767,6 @@ foreach ($ISSUE_TYPES as $key => $value) {
   <td valign='top' id='title_diagnosis' nowrap><b><?php echo xlt('Title'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_title' value='<?php echo attr($irow['title']) ?>' style='width:100%' />
-   <input type='hidden' name='form_title_id' value='<?php echo attr($irow['list_option_id']) ?>'/>
   </td>
  </tr>
 
@@ -895,9 +892,10 @@ foreach ($ISSUE_CLASSIFICATIONS as $key => $value) {
   </td>
  </tr>
 
- <tr<?php if ($GLOBALS['ippf_specific']) {
+ <tr<?php
+    if ($GLOBALS['ippf_specific']) {
         echo " style='display:none;'";
-} ?>>
+    } ?>>
   <td valign='top' nowrap><b><?php echo xlt('Outcome'); ?>:</b></td>
   <td>
     <?php
@@ -906,9 +904,10 @@ foreach ($ISSUE_CLASSIFICATIONS as $key => $value) {
   </td>
  </tr>
 
- <tr<?php if ($GLOBALS['ippf_specific']) {
+ <tr<?php
+    if ($GLOBALS['ippf_specific']) {
         echo " style='display:none;'";
-} ?>>
+    } ?>>
   <td valign='top' nowrap><b><?php echo xlt('Destination'); ?>:</b></td>
   <td>
 <?php if (true) { ?>
