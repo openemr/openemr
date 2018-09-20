@@ -6,11 +6,10 @@
  * @link      http://www.open-emr.org
  * @author Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
- * @version 1.0.0
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
     ?>
-/
+//erx account status and patient portal username generator popup modals
 $(document).ready(function(){
     $(".iframe1").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
