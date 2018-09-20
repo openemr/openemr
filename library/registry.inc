@@ -32,9 +32,26 @@ function updateRegistered($id, $mod)
     return sqlInsert("update registry set $mod, date=NOW() where id=?", array($id));
 }
 
-function getRegistered($state = "1", $limit = "unlimited", $offset = "0")
+/**
+ * @param string $state
+ * @param string $limit
+ * @param string $offset
+ * @param string $encounterType all|patient|therapy_group
+ */
+function getRegistered($state = "1", $limit = "unlimited", $offset = "0", $encounterType = 'all')
 {
-    $sql = "select * from registry where state like ? order by priority, name";
+    $sql = "select * from registry where state like ? ";
+    if ($encounterType !== 'all') {
+        switch ($encounterType){
+            case 'patient':
+                $sql .= 'AND patient_encounter = 1 ';
+                break;
+            case 'therapy_group':
+                $sql .= 'AND therapy_group_encounter = 1 ';
+                break;
+        }
+    }
+    $sql .= "order by priority, name ";
     if ($limit != "unlimited") {
         $sql .= " limit " . escape_limit($limit) . ", " . escape_limit($offset);
     }
