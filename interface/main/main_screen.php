@@ -115,7 +115,8 @@ while ($row1 = sqlFetchArray($res1)) {
 }
 if (!empty($registrations)) {
     // There is at least one U2F key registered so we have to request or verify key data.
-    $scheme = isset($_SERVER['HTTPS']) ? "https://" : "http://";
+    // https is required, and with a proxy the server might not see it.
+    $scheme = "https://"; // isset($_SERVER['HTTPS']) ? "https://" : "http://";
     $appId = $scheme . $_SERVER['HTTP_HOST'];
     $u2f = new u2flib_server\U2F($appId);
     $userid = $_SESSION['authId'];
