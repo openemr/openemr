@@ -98,7 +98,8 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
                 reportID: reportID,
                 counter: counter,
                 ruleID: $("#text" + counter).val(),
-                provider_id: provider_id
+                provider_id: provider_id,
+                csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>'
             },
             context: document.body,
             success :
@@ -119,7 +120,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
                 if ( zipFileArray.length ) {
                     var zipFiles = zipFileArray.join(",");
                     //console.log(zipFiles);
-                    window.location = 'ajax_download.php?fileName=' + zipFiles;
+                    window.location = 'ajax_download.php?fileName=' + encodeURIComponent(zipFiles) + '&csrf_token_form=' + encodeURIComponent('<?php echo attr($_SESSION['csrf_token']); ?>');
                     zipFileArray.length = 0;
                 }
                 if ( failureMessage ) {
