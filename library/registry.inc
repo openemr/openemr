@@ -42,7 +42,7 @@ function getRegistered($state = "1", $limit = "unlimited", $offset = "0", $encou
 {
     $sql = "select * from registry where state like ? ";
     if ($encounterType !== 'all') {
-        switch ($encounterType){
+        switch ($encounterType) {
             case 'patient':
                 $sql .= 'AND patient_encounter = 1 ';
                 break;
