@@ -206,9 +206,9 @@ if (!empty($report_id)) {
       //QRDA Category III Export
       if(sNested == "QRDA"){
         var form_rule_filter = theform.form_rule_filter.value
-        var sLoc = '../../custom/export_qrda_xml.php?target_date=' + DateToYYYYMMDDHHMMSS_js(theform.form_target_date.value) + '&qrda_version=3&rule_filter=cqm_2014&form_provider='+theform.form_provider.value+"&report_id=<?php echo attr($report_id);?>";
+        var sLoc = '../../custom/export_qrda_xml.php?target_date=' + DateToYYYYMMDDHHMMSS_js(theform.form_target_date.value) + '&qrda_version=3&rule_filter=cqm_2014&form_provider='+theform.form_provider.value+"&report_id=<?php echo attr(urlencode($report_id)); ?>&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>";
       }else{
-        var sLoc = '../../custom/export_registry_xml.php?&target_date=' + DateToYYYYMMDDHHMMSS_js(theform.form_target_date.value) + '&nested=' + sNested;
+        var sLoc = '../../custom/export_registry_xml.php?&target_date=' + DateToYYYYMMDDHHMMSS_js(theform.form_target_date.value) + '&nested=' + sNested + "&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>";
       }
       dlgopen(sLoc, '_blank', 600, 500);
       return false;
