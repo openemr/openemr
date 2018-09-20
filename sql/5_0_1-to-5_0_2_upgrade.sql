@@ -612,11 +612,11 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 #IfNotTable login_mfa_registrations
 CREATE TABLE `login_mfa_registrations` (
   `user_id`         bigint(20)     NOT NULL,
-  `name`            varchar(256)   NOT NULL,
+  `name`            varchar(30)    NOT NULL,
   `last_challenge`  datetime       DEFAULT NULL,
   `method`          varchar(31)    NOT NULL COMMENT 'Q&A, U2F, TOTP etc.',
-  `var1`            text           COMMENT 'Question, U2F registration etc.',
-  `var2`            varchar(256)   NOT NULL DEFAULT '' COMMENT 'Answer, last U2F count etc.',
+  `var1`            varchar(4096)  NOT NULL DEFAULT '' COMMENT 'Question, U2F registration etc.',
+  `var2`            varchar(256)   NOT NULL DEFAULT '' COMMENT 'Answer etc.',
   PRIMARY KEY (`user_id`, `name`)
 ) ENGINE=InnoDB;
 #EndIf

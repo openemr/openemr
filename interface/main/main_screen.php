@@ -23,6 +23,7 @@
 require_once('../globals.php');
 
 use OpenEMR\Core\Header;
+use u2flib_server\U2F;
 
 ///////////////////////////////////////////////////////////////////////
 // Functions to support MFA.
@@ -37,7 +38,7 @@ function posted_to_hidden($name)
 
 function generate_html_start($title)
 {
-    global $appId, $css_header;
+    global $appId;
     ?>
 <html>
 <head>
@@ -60,7 +61,7 @@ function doAuth() {
     registeredKeys,
     function(data) {
       if(data.errorCode && data.errorCode != 0) {
-        alert('<?php echo xla("Key access failed with error"); ?> ' + data.errorCode);
+        alert('<?php echo xls("Key access failed with error"); ?> ' + data.errorCode);
         return;
       }
       f.form_response.value = JSON.stringify(data);
@@ -75,7 +76,7 @@ function doAuth() {
 <center>
 <h2><?php echo text($title); ?></h2>
 <form method="post"
- action="main_screen.php?auth=login&site=<?php echo $_GET['site']; ?>"
+ action="main_screen.php?auth=login&site=<?php echo attr(urlencode($_GET['site'])); ?>"
  target="_top" name="challenge_form">
     <?php
     posted_to_hidden('new_login_session_management');
@@ -140,13 +141,13 @@ if (!empty($registrations)) {
             } else {
                 error_log("Unexpected keyHandle returned from doAuthenticate(): '$strhandle'");
             }
-            // Keep track of when questions were last answered correctly.
+            // Keep track of when challenges were last answered correctly.
             sqlStatement(
                 "UPDATE users_secure SET last_challenge_response = NOW() WHERE id = ?",
                 array($_SESSION['authId'])
             );
         } catch (u2flib_server\Error $e) {
-            // Authentication failed so build the U2F form again.
+            // Authentication failed so we will build the U2F form again.
             $form_response = '';
             $errormsg = xl('Authentication error') . ": " . $e->getMessage();
         }
@@ -163,7 +164,7 @@ if (!empty($registrations)) {
         echo "<p>\n";
         echo xlt('Insert your key into a USB port and click the Authenticate button below.');
         echo " " . xlt('Then press the flashing button on your key within 1 minute.') . "</p>\n";
-        echo "</p><table><tr><td>\n";
+        echo "<table><tr><td>\n";
         echo "<input type='button' value='" . xla('Authenticate') . "' onclick='doAuth()' />\n";
         echo "<input type='hidden' name='form_requests' value='" . attr($requests) . "' />\n";
         echo "<input type='hidden' name='form_response' value='' />\n";

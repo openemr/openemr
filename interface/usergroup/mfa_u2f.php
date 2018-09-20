@@ -30,7 +30,7 @@ $action = $_REQUEST['action'];
 function doregister() {
   var f = document.forms[0];
   if (f.form_name.value.trim() == '') {
-    alert('<?php echo xla("Please enter a name for this key."); ?>');
+    alert('<?php echo xls("Please enter a name for this key."); ?>');
     return;
   }
   var request = JSON.parse(f.form_request.value);
@@ -40,7 +40,7 @@ function doregister() {
     [],
     function(data) {
       if(data.errorCode && data.errorCode != 0) {
-        alert('<?php echo xla("Registration failed with error"); ?> ' + data.errorCode);
+        alert('<?php echo xls("Registration failed with error"); ?> ' + data.errorCode);
         return;
       }
       f.form_registration.value = JSON.stringify(data);
@@ -60,6 +60,7 @@ function docancel() {
 </head>
 <body class="body_top">
 <form method='post' action='mfa_u2f.php' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <?php
 
@@ -97,12 +98,12 @@ if ($action == 'reg1') {
         <?php echo xlt('A secure (HTTPS) web connection is required for U2F. Firefox and Chrome are known to work.'); ?>
       </p>
       <p>
-        <?php echo xlt('For U2F support on Linux see:'); ?>
+        <?php echo xlt('For U2F support on Linux see'); ?>:
       <a href='https://www.key-id.com/enable-fido-u2f-linux/' target='_blank'>
       https://www.key-id.com/enable-fido-u2f-linux/</a>
       </p>
       <p>
-        <?php echo xlt('For Firefox see:'); ?>
+        <?php echo xlt('For Firefox see'); ?>:
       <a href='https://www.trishtech.com/2018/07/enable-fido-u2f-security-key-yubikey-in-mozilla-firefox/' target='_blank'>
       https://www.trishtech.com/2018/07/enable-fido-u2f-security-key-yubikey-in-mozilla-firefox/</a>
       </p>
@@ -111,10 +112,13 @@ if ($action == 'reg1') {
 </div>
     <?php
 } else if ($action == 'reg2') {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
     try {
         $data = $u2f->doRegister(json_decode($_POST['form_request']), json_decode($_POST['form_registration']));
     } catch (u2flib_server\Error $e) {
-        die(xlt('Registration error') . ': ' . $e->getMessage());
+        die(xlt('Registration error') . ': ' . text($e->getMessage()));
     }
     echo "<script>\n";
     $row = sqlQuery(

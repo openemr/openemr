@@ -11073,6 +11073,6 @@ CREATE TABLE `login_mfa_registrations` (
   `last_challenge`  datetime       DEFAULT NULL,
   `method`          varchar(31)    NOT NULL COMMENT 'Q&A, U2F, TOTP etc.',
   `var1`            varchar(4096)  NOT NULL DEFAULT '' COMMENT 'Question, U2F registration etc.',
-  `var2`            varchar(256)   NOT NULL DEFAULT '' COMMENT 'Answer, last U2F count etc.',
+  `var2`            varchar(256)   NOT NULL DEFAULT '' COMMENT 'Answer etc.',
   PRIMARY KEY (`user_id`, `name`)
 ) ENGINE=InnoDB;

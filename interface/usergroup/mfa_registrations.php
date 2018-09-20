@@ -20,8 +20,8 @@ function writeRow($method, $name)
     echo "&nbsp;</td><td>&nbsp;";
     echo text($name);
     echo "&nbsp;</td><td>";
-    echo "<input type='button' onclick='delclick(\"" . attr($method) . "\", \"" .
-        attr($name) . "\")' value='" . xla('Delete') . "' />";
+    echo "<input type='button' onclick='delclick(\"" . attr(addslashes($method)) . "\", \"" .
+        attr(addslashes($name)) . "\")' value='" . xla('Delete') . "' />";
     echo "</td></tr>\n";
 }
 
@@ -29,6 +29,9 @@ $userid = $_SESSION['authId'];
 
 $message = '';
 if (!empty($_POST['form_delete_method'])) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
     // Delete the indicated MFA instance.
     sqlStatement(
         "DELETE FROM login_mfa_registrations WHERE user_id = ? AND method = ? AND name = ?",
@@ -68,6 +71,7 @@ function addclick(sel) {
 </head>
 <body class="body_top">
 <form method='post' action='mfa_registrations.php' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <div class="container">
   <div class="row">
