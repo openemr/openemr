@@ -143,6 +143,10 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
             "' WHERE id = '" . formData('id', 'P') . "'");
         }
 
+        if (!empty($_POST['clear_2fa'])) {
+            sqlStatement("DELETE FROM login_mfa_registrations WHERE user_id = ?", array($_POST['id']));
+        }
+
         if ($_POST["adminPass"] && $_POST["clearPass"]) {
               require_once("$srcdir/authentication/password_change.php");
               $clearAdminPass=$_POST['adminPass'];

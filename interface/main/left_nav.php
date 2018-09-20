@@ -116,6 +116,7 @@ $primary_docs = array(
 'aop' => array(xl('Portal Dashboard')  , 0, '../portal/patient/provider'),
 'msg' => array(xl('Messages')  , 0, 'main/messages/messages.php?form_active=1'),
 'pwd' => array(xl('Password')  , 0, 'usergroup/user_info.php'),
+'mfa' => array(xl('MFA Management'), 0, 'usergroup/mfa_registrations.php'),
 'prf' => array(xl('Preferences')  , 0, 'super/edit_globals.php?mode=user'),
 'adm' => array(xl('Admin')     , 0, 'usergroup/admin_frameset.php'),
 'rep' => array(xl('Reports')   , 0, 'reports/index.php'),
@@ -1844,6 +1845,7 @@ if ($reglastcat) {
         <?php if (!$GLOBALS['use_active_directory']) {
             genTreeLink('RTop', 'pwd', xl('Password'));
 } ?>
+        <?php genTreeLink('RTop', 'mfa', xl('MFA Manaagement')); ?>
         <?php genMiscLink('RTop', 'prf', '0', xl('Preferences'), 'super/edit_globals.php?mode=user'); ?>
         <?php if (acl_check('patients', 'docs', '', 'write') || acl_check('patients', 'docs', '', 'addonly')) {
             genMiscLink('RTop', 'adm', '0', xl('New Documents'), '../controller.php?document&list&patient_id=00');

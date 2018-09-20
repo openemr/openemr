@@ -7266,6 +7266,8 @@ CREATE TABLE `users_secure` (
   `salt_history1` varchar(255),
   `password_history2` varchar(255),
   `salt_history2` varchar(255),
+  `last_challenge_response` datetime DEFAULT NULL,
+  `login_work_area` text,
   PRIMARY KEY (`id`),
   UNIQUE KEY `USERNAME_ID` (`id`,`username`)
 ) ENGINE=InnoDb;
@@ -11065,3 +11067,12 @@ CREATE TABLE `form_eye_locking` (
   ) 
   ENGINE = InnoDB;
 
+CREATE TABLE `login_mfa_registrations` (
+  `user_id`         bigint(20)     NOT NULL,
+  `name`            varchar(30)    NOT NULL,
+  `last_challenge`  datetime       DEFAULT NULL,
+  `method`          varchar(31)    NOT NULL COMMENT 'Q&A, U2F, TOTP etc.',
+  `var1`            varchar(4096)  NOT NULL DEFAULT '' COMMENT 'Question, U2F registration etc.',
+  `var2`            varchar(256)   NOT NULL DEFAULT '' COMMENT 'Answer etc.',
+  PRIMARY KEY (`user_id`, `name`)
+) ENGINE=InnoDB;
