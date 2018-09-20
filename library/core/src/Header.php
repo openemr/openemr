@@ -103,6 +103,7 @@ class Header
         $map = self::readConfigFile("{$GLOBALS['fileroot']}/config/config.yaml");
         $scripts = [];
         $links = [];
+        $objJs = [];
 
         foreach ($map as $k => $opts) {
             $autoload = (isset($opts['autoload'])) ? $opts['autoload'] : false;
@@ -117,13 +118,21 @@ class Header
                 }
 
                 $tmp = self::buildAsset($opts, $alreadyBuilt);
-
-                foreach ($tmp['scripts'] as $s) {
-                    $scripts[] = $s;
+                if (count($tmp['scripts']) > 0) {
+                    $objJs[$k]['scripts'] = [];
+                }
+                if (count($tmp['links']) > 0) {
+                    $objJs[$k]['links'] = [];
                 }
 
-                foreach ($tmp['links'] as $l) {
+                foreach ($tmp['scripts'] as $osrc => $s) {
+                    $scripts[] = $s;
+                    $objJs[$k]['scripts'][] = $osrc;
+                }
+
+                foreach ($tmp['links'] as $oref => $l) {
                     $links[] = $l;
+                    $objJs[$k]['links'][] = $oref;
                 }
 
                 if ($rtl && $_SESSION['language_direction'] == 'rtl') {
@@ -141,7 +150,8 @@ class Header
 
         $linksStr = implode("", $links);
         $scriptsStr = implode("", $scripts);
-        return "\n{$linksStr}\n{$scriptsStr}\n";
+        $objJsBlock = sprintf('<script>var included_assets = %s;console.log(included_assets);</script>', json_encode($objJs));
+        return "\n{$linksStr}\n{$scriptsStr}\n{$objJsBlock}\n";
     }
 
     /**
@@ -175,7 +185,7 @@ class Header
             } else {
                 $path = self::createFullPath($basePath, $script);
             }
-            $scripts[] = self::createElement($path, 'script');
+            $scripts[$path] = self::createElement($path, 'script');
         }
 
         if ($link) {
@@ -194,7 +204,7 @@ class Header
                 } else {
                     $path = self::createFullPath($basePath, $l);
                 }
-                $links[] = self::createElement($path, 'link');
+                $links[$path] = self::createElement($path, 'link');
             }
         }
 
