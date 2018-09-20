@@ -30,6 +30,10 @@ require_once "$srcdir/report_database.inc";
 require_once("$srcdir/options.inc.php");
 require_once("qrda_category1.inc");
 
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    die(xlt('Authentication Error'));
+}
+
 $report_id = (isset($_GET['report_id'])) ? trim($_GET['report_id']) : "";
 $provider_id = (isset($_GET['provider_id'])) ? trim($_GET['provider_id']) : "";
 
@@ -120,7 +124,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
                 if ( zipFileArray.length ) {
                     var zipFiles = zipFileArray.join(",");
                     //console.log(zipFiles);
-                    window.location = 'ajax_download.php?fileName=' + encodeURIComponent(zipFiles) + '&csrf_token_form=' + encodeURIComponent('<?php echo attr($_SESSION['csrf_token']); ?>');
+                    window.location = 'ajax_download.php?fileName=' + encodeURIComponent(zipFiles) + '&csrf_token_form=' + '<?php echo attr(urlencode($_SESSION['csrf_token'])); ?>';
                     zipFileArray.length = 0;
                 }
                 if ( failureMessage ) {
