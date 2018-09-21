@@ -824,6 +824,22 @@ function getPatientName($pid)
     return $patientName;
 }
 
+/* return a patient's name in the format LAST, FIRST */
+function getPatientNameFirstLast($pid)
+{
+    if (empty($pid)) {
+        return "";
+    }
+
+    $patientData = getPatientPID(array("pid"=>$pid));
+    if (empty($patientData[0]['lname'])) {
+        return "";
+    }
+
+    $patientName =  $patientData[0]['fname'] . " " . $patientData[0]['lname'];
+    return $patientName;
+}
+
 /* find patient data by DOB */
 function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
