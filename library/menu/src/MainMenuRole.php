@@ -275,7 +275,7 @@ class MainMenuRole extends MenuRole
         }
 
         // Traditional forms
-        $reg = getRegistered();
+        $reg = getRegistered(1, 'unlimited', 0, 'patient');
         if (!empty($reg)) {
             foreach ($reg as $entry) {
                 $option_id = $entry['directory'];
