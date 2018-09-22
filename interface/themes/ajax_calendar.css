@@ -356,6 +356,23 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     color: red;
 }
 
+.show-appointment {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-family: 'FontAwesome';
+}
+
+.show-appointment.unshown::before {
+    cursor: pointer;
+    content: "\f06e";
+}
+
+.show-appointment.shown::before {
+    cursor: pointer;
+    content: "\f070";
+}
+
 .view1 {
     font-size:10px;
 }

@@ -777,8 +777,8 @@ foreach ($providers as $provider) {
                         }
                     }
                     if ($catid == 1) $content .= "</strike>";
-
                     $content .= "</a>";
+                    $content .= '<a class="show-appointment shown"></a>';
                 }
                 elseif($groupid){
                     $divTitle .= "\n" . getTypeName($grouptype) . "\n";
@@ -916,6 +916,16 @@ foreach ($providers as $provider) {
         $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });
         $(".event").mouseout(function() { $(this).toggleClass("event_highlight"); });
 
+        $(".show-appointment").on('click', function() {
+            var self = $( this );
+            if (self.hasClass('shown')) {
+                self.parent().parent('.event_appointment').css('opacity' , '0.1').css('pointer-events' , 'none');
+                self.removeClass('shown').addClass('unshown').css('pointer-events' , 'all');
+            } else {
+                self.parent().parent('.event_appointment').css('opacity' , '1').css('pointer-events' , 'unset');
+                self.removeClass('unshown').addClass('shown').css('pointer-events' , 'unset');
+            }
+        })
 
         $(".tdMonthName-small").click(function() {
 

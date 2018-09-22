@@ -12,6 +12,7 @@
     "dev-sync": "gulp --dev --sync-only --p 80",
     "gulp-build": "gulp -b --dev",
     "gulp-docs": "gulp -p 9001 --dev",
+    "gulp-watch": "gulp watch",
     "test": "echo \"Error: no test specified\" && exit 1",
     "storybook": "start-storybook -s ./,./interface -p 9001 -c .storybook",
     "storybook-build": "build-storybook -c .storybook -o .docs/.out"
@@ -36,6 +37,7 @@
     "gulp-rename": "^1.2.3",
     "gulp-sass": "^4.0.1",
     "gulp-sourcemaps": "^2.6.4",
+    "gulp-watch": "^5.0.1",
     "minimist": "^1.2.0",
     "napa": "^3.0.0",
     "npm-run-all": "^4.1.3",
