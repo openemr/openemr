@@ -16,6 +16,7 @@ var rename = require('gulp-rename');
 var runSequence = require('run-sequence');
 var sass = require('gulp-sass');
 var sourcemaps = require('gulp-sourcemaps');
+var watch = require('gulp-watch');
 
 
 var packages = require('./package.json');
@@ -223,6 +224,10 @@ gulp.task('install', function() {
 gulp.task('watch', function() {
     // watch all changes and re-run styles
     gulp.watch('./interface/**/*.scss', {interval: 1000, mode: 'poll'}, ['styles']);
+
+    // watch all changes to css/php files in themes and copy to public  
+    return watch('./interface/themes/*.{css,php}', { ignoreInitial: false })
+        .pipe(gulp.dest(config.dest.themes)); 
 });
 
 gulp.task('sync-only', function () {
