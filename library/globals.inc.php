@@ -1353,6 +1353,35 @@ $GLOBALS_METADATA = array(
         ),
 
     ),
+
+    //NLP Tab
+    'NLP' => array(
+        'ctakes_host' => array(
+            xl('cTAKES HostName'),
+            'text',
+            'localhost',
+            xl('cTAKES host'),
+        ),
+        'ctakes_user' => array(
+            xl('cTAKES UserName'),
+            'text',
+            '',
+            xl('Username to authenticate against cTAKES'),
+        ),
+        'ctakes_pass' => array(
+            xl('cTAKES Password'),
+            'text',
+            '',
+            xl('Password to authenticate against cTAKES'),
+        ),
+        'ctakes_port' => array(
+            xl('cTAKES Port'),
+            'text',
+            '8080',
+            xl('cTAKES port'),
+        ),
+    ),
+
     //Documents Tab
     'Documents' => array(
 

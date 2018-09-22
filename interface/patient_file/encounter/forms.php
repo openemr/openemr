@@ -22,6 +22,7 @@ require_once("$srcdir/../controllers/C_Document.class.php");
 
 use ESign\Api;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\NlpService;
 
 $reviewMode = false;
 if (!empty($_REQUEST['review_id'])) {
@@ -271,6 +272,18 @@ if (!isset($_GET['attachid'])) {
  // Process click on Delete link.
  function deleteme() {
   dlgopen('../deleter.php?encounterid=<?php echo $encounter; ?>', '_blank', 500, 200, '', '', {
+      buttons: [
+          {text: '<?php echo xla('Done'); ?>', close: true, style: 'primary btn-sm'}
+      ],
+      allowResize: false,
+      allowDrag: true,
+  });
+  return false;
+ }
+
+ // Process click on Show Codes button.
+ function showcodes(formid) {
+  dlgopen('../showcodes.php?formid=' + formid, '_blank', 500, 200, '', '', {
       buttons: [
           {text: '<?php echo xla('Done'); ?>', close: true, style: 'primary btn-sm'}
       ],
@@ -1021,6 +1034,15 @@ if ($pass_sens_squad &&
             if (!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '', 'write')) {
                 echo $esign->buttonHtml();
             }
+        }
+
+        $nlpService = new NlpService();
+        if ($form_name === "SOAP" && $nlpService->is_ctakes_setup()) {
+            echo "<a class='css_button_small' " .
+                "href='#' " .
+                "title='" . xla('Show Codes') . "' " .
+                "onclick='return showcodes(" . attr($iter['form_id']) . ")'>" .
+                "<span>Show Codes</span></a>";
         }
 
         if (substr($formdir, 0, 3) == 'LBF') {
