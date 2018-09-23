@@ -1285,7 +1285,7 @@ function edih_archive_main($period)
                 // $rndir = mkdir($tmpdir.DS.$fdir);
                 csv_edihist_log("edih_archive_main: $ft now moving old files ");
                 $del = edih_archive_move_old($p, $fn_ar);
-                $out_html .= "Archive moved " . text($del $ft) . " type files<br>".PHP_EOL;
+                $out_html .= "Archive moved " . text($del . " " . $ft) . " type files<br>".PHP_EOL;
                 //
             } else {
                 csv_edihist_log("edih_archive_main: type $ft error in creating archive");
