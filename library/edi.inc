@@ -232,7 +232,7 @@ function create_NM1($row, $nm1Cast, $X12info, $segTer, $compEleSep)
         $NM1[6] = "";                       // data element
         $NM1[7] = "";                       // data element
         $NM1[8] = "MI";                         // Identification Code Qualifier
-        $NM1[9] = $row['subscriber_ss'];            // Identification Code
+        $NM1[9] = $row['policy_number'];            // Identification Code
     }
 
     $NM1['Created'] = implode('*', $NM1);               // Data Element Separator
