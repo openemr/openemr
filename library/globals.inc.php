@@ -198,7 +198,7 @@ $GLOBALS_METADATA = array(
         'css_header' => array(
             xl('General Theme (need to logout/login after change this setting)'),
             'css',
-            'style_light.css',
+            'style_mustard_green.css',
             xl('Pick a general theme (need to logout/login after change this setting).')
         ),
 
@@ -937,6 +937,13 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',                              // default false
             xl('Enables choose due date to message')
+        ),
+
+        'expand_form' => array(
+            xl('Expand Form'),
+            'bool',                           // data type
+            '0',                              // default false
+            xl('Open all expandable forms in expanded state')
         )
     ),
     // Report Tab
