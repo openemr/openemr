@@ -1,5 +1,5 @@
 <?php
-  /**
+ /**
  * Dash Board Header Simple.
  *
  * @package   OpenEMR

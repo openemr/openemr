@@ -296,6 +296,7 @@ if ($_POST['form_save']) {
         "destination = '" . add_escape_custom($_POST['form_destination'])   . "', " .
         "reaction ='"     . add_escape_custom($_POST['form_reaction'])     . "', " .
         "severity_al ='"     . add_escape_custom($_POST['form_severity_id'])     . "', " .
+        "list_option_id ='"     . add_escape_custom($_POST['form_title_id'])     . "', " .
         "erx_uploaded = '0', " .
         "modifydate = NOW() " .
         "WHERE id = '" . add_escape_custom($issue) . "'";
@@ -311,7 +312,7 @@ if ($_POST['form_save']) {
         "date, pid, type, title, activity, comments, begdate, enddate, returndate, " .
         "diagnosis, occurrence, classification, referredby, user, groupname, " .
         "outcome, destination, reinjury_id, injury_grade, injury_part, injury_type, " .
-        "reaction, severity_al " .
+        "reaction, severity_al, list_option_id " .
         ") VALUES ( " .
         "NOW(), " .
         "'" . add_escape_custom($thispid) . "', " .
@@ -335,7 +336,8 @@ if ($_POST['form_save']) {
         "'" . add_escape_custom($form_injury_part)          . "', " .
         "'" . add_escape_custom($form_injury_type)          . "', " .
         "'" . add_escape_custom($_POST['form_reaction'])         . "', " .
-        "'" . add_escape_custom($_POST['form_severity_id'])         . "' " .
+        "'" . add_escape_custom($_POST['form_severity_id'])         . "', " .
+        "'" . add_escape_custom($_POST['form_title_id'])         . "' " .
         ")");
     }
 
@@ -388,7 +390,7 @@ if ($issue) {
     if (!acl_check_issue($irow['type'], '', 'write')) {
         die(xlt("Edit is not authorized!"));
     }
-} elseif ($thistype) {
+} else if ($thistype) {
     $irow['type'] = $thistype;
 }
 
@@ -430,6 +432,10 @@ ul.tabNav li.current a { background:#ffffff; }
 </style>
 
 <script language="JavaScript">
+    $(document).ready(function(){//RP_DELETE
+        //$('#row_comments').hide();
+    });
+    
 
  var aitypes = new Array(); // issue type attributes
  var aopts   = new Array(); // Option objects
@@ -490,11 +496,14 @@ ActiveIssueCodeRecycleFn($thispid, $ISSUE_TYPES);
    listBoxOpts2[ix].title = listBoxOptions2[index][ix].text;
   }
   document.getElementById('row_codeSelect2').style.display = ix ? '' : 'none';
+
   //////////////////////
   //
   // Show or hide various rows depending on issue type, except do not
   // hide the comments or referred-by fields if they have data.
-  var comdisp = (aitypes[index] == 1) ? 'none' : '';
+ 
+ $(document).ready(function(){
+ var comdisp = (aitypes[index] == 1) ? 'none' : '';
   var revdisp = (aitypes[index] == 1) ? '' : 'none';
   var injdisp = (aitypes[index] == 2) ? '' : 'none';
   var nordisp = (aitypes[index] == 0) ? '' : 'none';
@@ -512,9 +521,9 @@ ActiveIssueCodeRecycleFn($thispid, $ISSUE_TYPES);
   document.getElementById('row_severity'      ).style.display = alldisp;
   document.getElementById('row_reaction'      ).style.display = alldisp;
   document.getElementById('row_referredby'    ).style.display = (f.form_referredby.value) ? '' : comdisp;
-  document.getElementById('row_comments'      ).style.display = (f.form_comments.value  ) ? '' : revdisp;
+  //document.getElementById('row_comments'      ).style.display = (f.form_comments.value) ? '' : revdisp;
   document.getElementById('row_referredby'    ).style.display = (f.form_referredby.value) ? '' : comdisp;
-
+ });
 <?php
 if ($ISSUE_TYPES['football_injury']) {
     // Generate more of these for football injury fields.
@@ -539,6 +548,7 @@ if ($ISSUE_TYPES['ippf_gcac'] && !$_POST['form_save']) {
  function set_text() {
   var f = document.forms[0];
   f.form_title.value = f.form_titles.options[f.form_titles.selectedIndex].text;
+  f.form_title_id.value = f.form_titles.options[f.form_titles.selectedIndex].value;
   f.form_diagnosis.value = f.form_titles.options[f.form_titles.selectedIndex].getAttribute('data-code');
   f.form_titles.selectedIndex = -1;
  }
@@ -627,14 +637,13 @@ if ($irow['type'] == 'medical_problem') {
         if ($tmp) {
             $url .= ",$tmp";
         }
-    } elseif ($irow['type'] == 'medication') {
+    } else if ($irow['type'] == 'medication') {
         if ($tmp) {
             $url .= ",$tmp&default=$tmp";
         }
     }
 }
 ?>
-//dlgopen('<?php echo $url; ?>', '_blank', 800, 725);
 dlgopen('<?php echo $url; ?>', '_blank', 985, 800, '', '<?php echo xla("Select Codes"); ?>');
 }
 
@@ -673,13 +682,13 @@ $(document).ready(function() {
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });
-
+$('div').hide();
 </script>
 
 </head>
 
 <body class="body_top" style="padding-right:0.5em">
-
+<div class="container">
 <ul class="tabNav">
  <li class='current'><a href='#'><?php echo xlt('Issue'); ?></a></li>
 <?php
@@ -710,258 +719,229 @@ if ($issue) {
 ?>
 </ul>
 
+
 <div class="tabContainer">
-<div class='tab current' style='height:auto;width:97%;'>
+    <div class='tab current' style='height:auto;width:97%;'>
+        <div class='col-sm-12'>
+            <form class="form-horizontal" name='theform' method="post" onsubmit='return validate()'>
+                <?php
+                // action setting not required in html5.  By default form will submit to itself.
+                // Provide key values previously passed as part of action string.
+                foreach (array('issue'=>$issue, 'thispid'=>$thispid, 'thisenc'=>$thisenc) as $fldName => $fldVal) {
+                    printf('<input name="%s" type="hidden" value="%s"/>%s', $fldName, attr($fldVal), PHP_EOL);
+                }
+                ?>
+                <div class="form-group">
+                    <label for="" class="control-label col-xs-2"><?php echo xlt('Type'); ?>:</label>
+                    <div class="col-xs-10">
+                        <?php
+                         $index = 0;
+                        foreach ($ISSUE_TYPES as $key => $value) {
+                            if ($issue || $thistype) {
+                                if ($index == $type_index) {
+                                    echo text($value[1]);
+                                    echo "<input type='hidden' name='form_type' value='".attr($index)."'>\n";
+                                }
+                            } else {
+                                echo "   <input type='radio' name='form_type' value='".attr($index)."' onclick='newtype($index)'";
+                                if ($index == $type_index) {
+                                    echo " checked";
+                                }
 
-<form method='post' name='theform' onsubmit='return validate()'>
+                                if (!acl_check_issue($key, '', array('write','addonly'))) {
+                                    echo " disabled";
+                                }
 
-<?php
-// action setting not required in html5.  By default form will submit to itself.
-// Provide key values previously passed as part of action string.
-foreach (array('issue'=>$issue, 'thispid'=>$thispid, 'thisenc'=>$thisenc) as $fldName => $fldVal) {
-    printf('<input name="%s" type="hidden" value="%s"/>%s', $fldName, attr($fldVal), PHP_EOL);
-}
-?>
+                                echo " />" . text($value[1]) . "&nbsp;\n";
+                            }
 
-<table border='0' width='100%'>
+                            ++$index;
+                        }
+                        ?>
+                    </div>
+                </div>
+                <div class="form-group" id='row_titles'>
+                    <label for="form_titles" class="control-label col-xs-2"> </label>
+                    <div class="col-xs-10">
+                        <select name='form_titles' id='form_titles' style="width:100%;" size='4' onchange='set_text()'></select>
+                        <p><?php echo xlt('(Select one of these, or type your own title)'); ?></p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-xs-2" for="title_diagnosis"><?php echo xlt('Title'); ?>:</label>
+                    <div class="col-xs-10">
+                        <input type='text' class="form-control" name='form_title' id='form_title' value='<?php echo attr($irow['title']) ?>'>
+                        <input type='hidden' name='form_title_id' value='<?php echo attr($irow['list_option_id']) ?>'>
+                    </div>
+                </div>
+                <div class="form-group" id='row_codeSelect2'>
+                    <label for="form_codeSelect2" class="control-label col-xs-2"><?php echo xlt('Active Issue Codes'); ?>:</label>
+                    <div class="col-xs-10">
+                        <select name='form_codeSelect2' id='form_codeSelect2' size='4' onchange="codeBoxFunction2()" style="width:100%;"></select>
+                    </div>
+                </div>
+                <div class="form-group" id='row_diagnosis'>
+                    <label class="control-label col-xs-2" for="form_diagnosis"><?php echo xlt('Coding'); ?>:</label>
+                    <div class="col-xs-10">
+                        <input type='text' class="form-control" name='form_diagnosis' id='form_diagnosis'
+                        value='<?php echo attr($irow['diagnosis']) ?>' onclick='sel_diagnosis()'
+                        title='<?php echo xla('Click to select or change coding'); ?>' readonly >
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-xs-2" for="form_begin"><?php echo xlt('Begin Date'); ?>:</label>
+                    <div class="col-xs-10">
+                        <input type='text' class='datepicker form-control' style="width:50%" name='form_begin' id='form_begin'
+                        value='<?php echo attr($irow['begdate']) ?>'
+                        title='<?php echo xla('yyyy-mm-dd date of onset, surgery or start of medication'); ?>'>
+                    </div>
+                </div>
+                <div class="form-group" id='row_enddate'>
+                    <label class="control-label col-xs-2" for="form_begin"><?php echo xlt('End Date'); ?>:</label>
+                    <div class="col-xs-10">
+                        <input type='text' class='datepicker form-control' style="width:50%" name='form_end' id='form_end'
+                        value='<?php echo attr($irow['enddate']) ?>'
+                        title='<?php echo xla('yyyy-mm-dd date of recovery or end of medication'); ?>' />
+                        &nbsp;(<?php echo xlt('leave blank if still active'); ?>)
+                    </div>
+                </div>
+                <div class="form-group" id='row_active'>
+                    <label class="control-label col-xs-2" for="form_active"><?php echo xlt('Active'); ?>: </label>
+                    <div class="col-xs-10">
+                        <div class="checkbox">
+                            <label><input type='checkbox' name='form_active' id=='form_active' value='1' <?php echo attr($irow['enddate']) ? "" : "checked"; ?>
+                            onclick='activeClicked(this);'
+                            title='<?php echo xla('Indicates if this issue is currently active'); ?>'></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group " id='row_returndate'>
+                    <input type='hidden'  name='form_return' id='form_return' />
+                    <input type='hidden'  name='row_reinjury_id' id='row_reinjury_id' />
+                    <img id='img_return'/>
+                </div>
+                <div class="form-group"id='row_occurrence'>
+                    <label class="control-label col-xs-2" for="form_occur"><?php echo xlt('Occurrence'); ?>:</label>
+                    <div class="col-xs-10">
+                        <?php
+                        // Modified 6/2009 by BM to incorporate the occurrence items into the list_options listings
+                        generate_form_field(array('data_type'=>1,'field_id'=>'occur','list_id'=>'occurrence','empty_title'=>'SKIP'), $irow['occurrence']);
+                        ?>
+                    </div>
+                </div>
+                <div class="form-group" id='row_classification'>
+                    <label class="control-label col-xs-2" for="form_classification"><?php echo xlt('Classification'); ?>:</label>
+                    <div class="col-xs-10">
+                       <select name='form_classification' id='form_classification' class='form-control'>
+                            <?php
+                            foreach ($ISSUE_CLASSIFICATIONS as $key => $value) {
+                                echo "   <option value='".attr($key)."'";
+                                if ($key == $irow['classification']) {
+                                    echo " selected";
+                                }
+                                echo ">".text($value)."\n";
+                            }
+                            ?>
+                       </select>
+                    </div>
+                </div>
+                <!-- Reaction For Medication Allergy -->
+                <div class="form-group" id='row_severity'>
+                    <label class="control-label col-xs-2" for="form_severity_id"><?php echo xlt('Severity'); ?>:</label>
+                    <div class="col-xs-10">
+                        <?php
+                            $severity=$irow['severity_al'];
+                            generate_form_field(array('data_type'=>1,'field_id'=>'severity_id','list_id'=>'severity_ccda','empty_title'=>'SKIP'), $severity);
+                        ?>
+                    </div>
+                </div>
+                <div class="form-group" id='row_reaction'>
+                    <label class="control-label col-xs-2" for="form_reaction"><?php echo xlt('Reaction'); ?>:</label>
+                    <div class="col-xs-10">
+                        <?php
+                            echo generate_select_list('form_reaction', 'reaction', $irow['reaction'], '', '', '', '');
+                        ?>
+                    </div>
+                </div>
+                <!-- End of reaction -->
+                <div class="form-group"id='row_referredby'>
+                    <label class="control-label col-xs-2" for="form_referredby"><?php echo xlt('Referred by'); ?>:</label>
+                    <div class="col-xs-10">
+                        <input type='text' name='form_referredby' id='form_referredby' class='form-control' value='<?php echo attr($irow['referredby']) ?>'
+                        title='<?php echo xla('Referring physician and practice'); ?>' />
+                    </div>
+                </div>
+                <div class="form-group" id='row_comments'>
+                    <label class="control-label col-xs-2" for="form_comments"><?php echo xlt('Comments'); ?>:</label>
+                    <div class="col-xs-10">
+                      <textarea class="form-control" name='form_comments' id='form_comments' rows="4" id='form_comments'><?php echo text($irow['comments']) ?></textarea>
+                    </div>
+                </div>
+                <div class="form-group"
+                <?php
+                if ($GLOBALS['ippf_specific']) {
+                        echo " style='display:none;'";
+                } ?>>
+                    <label class="control-label col-xs-2" for="form_outcome"><?php echo xlt('Outcome'); ?>:</label>
+                    <div class="col-xs-10">
+                        <?php
+                            echo generate_select_list('form_outcome', 'outcome', $irow['outcome'], '', '', '', 'outcomeClicked(this);');
+                        ?>
+                    </div>
+                </div>
+                <div class="form-group"
+                <?php
+                if ($GLOBALS['ippf_specific']) {
+                        echo " style='display:none;'";
+                } ?>>
+                    <label class="control-label col-xs-2" for="form_destination"><?php echo xlt('Destination'); ?>:</label>
+                    <div class="col-xs-10">
+                        <?php if (true) { ?>
+                           <input type='text' class='form-control' name='form_destination' id='form_destination' value='<?php echo attr($irow['destination']) ?>'
+                            style='width:100%' title='GP, Secondary care specialist, etc.' />
+                        <?php } else { // leave this here for now, please -- Rod ?>
+                            <?php echo rbinput('form_destination', '1', 'GP', 'destination') ?>&nbsp;
+                            <?php echo rbinput('form_destination', '2', 'Secondary care spec', 'destination') ?>&nbsp;
+                            <?php echo rbinput('form_destination', '3', 'GP via physio', 'destination') ?>&nbsp;
+                            <?php echo rbinput('form_destination', '4', 'GP via podiatry', 'destination') ?>
+                        <?php } ?>
+                    </div>
+                </div>
+                <br>
+                <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets ?>
+                    <div class="form-group clearfix" id="button-container">
+                        <div class="col-sm-12 text-left position-override">
+                            <div class="btn-group btn-group-pinch" role="group">
+                                <button type='submit' name='form_save'  class="btn btn-default btn-save"  value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
+                                <button type="button" class="btn btn-link btn-cancel btn-separate-left" onclick='closeme();'><?php echo xlt('Cancel');?></button>
+                                <?php
+                                if ($issue && acl_check('admin', 'super')) { ?>
+                                    <button type='submit' name='form_delete'  class="btn btn-default btn-cancel btn-delete btn-separate-left" onclick='deleteme()' value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
+                                <?php
+                                } ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php
+                if ($ISSUE_TYPES['football_injury']) {
+                    issue_football_injury_form($issue);
+                }
 
- <tr>
-  <td valign='top' width='1%' nowrap><b><?php echo xlt('Type'); ?>:</b></td>
-  <td>
-<?php
- $index = 0;
-foreach ($ISSUE_TYPES as $key => $value) {
-    if ($issue || $thistype) {
-        if ($index == $type_index) {
-            echo text($value[1]);
-            echo "<input type='hidden' name='form_type' value='".attr($index)."'>\n";
-        }
-    } else {
-        echo "   <input type='radio' name='form_type' value='".attr($index)."' onclick='newtype($index)'";
-        if ($index == $type_index) {
-            echo " checked";
-        }
+                if ($ISSUE_TYPES['ippf_gcac']) {
+                    if (empty($issue) || $irow['type'] == 'ippf_gcac') {
+                        issue_ippf_gcac_form($issue, $thispid);
+                    }
 
-        if (!acl_check_issue($key, '', array('write','addonly'))) {
-            echo " disabled";
-        }
-
-        echo " />" . text($value[1]) . "&nbsp;\n";
-    }
-
-    ++$index;
-}
-?>
-  </td>
- </tr>
-
- <tr id='row_titles'>
-  <td valign='top' nowrap>&nbsp;</td>
-  <td valign='top'>
-   <select name='form_titles' size='4' onchange='set_text()'></select>
-   <p><?php echo xlt('(Select one of these, or type your own title)'); ?></p>
-  </td>
- </tr>
-
- <tr>
-  <td valign='top' id='title_diagnosis' nowrap><b><?php echo xlt('Title'); ?>:</b></td>
-  <td>
-   <input type='text' size='40' name='form_title' value='<?php echo attr($irow['title']) ?>' style='width:100%' />
-  </td>
- </tr>
-
- <tr id='row_codeSelect2'>
- <td><b><?php echo xlt('Active Issue Codes'); ?>:</b>
- </td>
- <td>
-  <select name='form_codeSelect2' size='4' onchange="codeBoxFunction2()" style="max-width:100%;">
-  </select>
- </td>
- </tr>
-
- <tr id='row_diagnosis'>
-  <td valign='top' nowrap><b><?php echo xlt('Coding'); ?>:</b></td>
-  <td>
-   <input type='text' size='50' name='form_diagnosis'
-    value='<?php echo attr($irow['diagnosis']) ?>' onclick='sel_diagnosis()'
-    title='<?php echo xla('Click to select or change coding'); ?>'
-    style='width:100%' readonly />
-  </td>
- </tr>
-
- <tr>
-  <td valign='top' nowrap><b><?php echo xlt('Begin Date'); ?>:</b></td>
-  <td>
-
-   <input type='text' size='10' class='datepicker' name='form_begin' id='form_begin'
-    value='<?php echo attr($irow['begdate']) ?>'
-    title='<?php echo xla('yyyy-mm-dd date of onset, surgery or start of medication'); ?>' />
-  </td>
- </tr>
-
- <tr id='row_enddate'>
-  <td valign='top' nowrap><b><?php echo xlt('End Date'); ?>:</b></td>
-  <td>
-   <input type='text' size='10' class='datepicker' name='form_end' id='form_end'
-    value='<?php echo attr($irow['enddate']) ?>'
-    title='<?php echo xla('yyyy-mm-dd date of recovery or end of medication'); ?>' />
-    &nbsp;(<?php echo xlt('leave blank if still active'); ?>)
-  </td>
- </tr>
-
- <tr id='row_active'>
-  <td valign='top' nowrap><b><?php echo xlt('Active'); ?>:</b></td>
-  <td>
-   <input type='checkbox' name='form_active' value='1' <?php echo attr($irow['enddate']) ? "" : "checked"; ?>
-    onclick='activeClicked(this);'
-    title='<?php echo xla('Indicates if this issue is currently active'); ?>' />
-  </td>
- </tr>
-
- <tr id='row_returndate'>
-   <td>
-   <input type='hidden'  name='form_return' id='form_return' />
-   <input type='hidden'  name='row_reinjury_id' id='row_reinjury_id' />
-  <img
-    id='img_return'/>
-  </td>
- </tr>
-
-
-
- <tr id='row_occurrence'>
-  <td valign='top' nowrap><b><?php echo xlt('Occurrence'); ?>:</b></td>
-  <td>
-    <?php
-    // Modified 6/2009 by BM to incorporate the occurrence items into the list_options listings
-    generate_form_field(array('data_type'=>1,'field_id'=>'occur','list_id'=>'occurrence','empty_title'=>'SKIP'), $irow['occurrence']);
-    ?>
-  </td>
- </tr>
-
- <tr id='row_classification'>
-
-  <td valign='top' nowrap><b><?php echo xlt('Classification'); ?>:</b></td>
-  <td>
-   <select name='form_classification'>
-<?php
-foreach ($ISSUE_CLASSIFICATIONS as $key => $value) {
-    echo "   <option value='".attr($key)."'";
-    if ($key == $irow['classification']) {
-        echo " selected";
-    }
-
-    echo ">".text($value)."\n";
-}
-?>
-   </select>
-  </td>
- </tr>
-
- <!-- Reaction For Medication Allergy -->
-  <tr id='row_severity'>
-    <td valign='top' nowrap><b><?php echo xlt('Severity'); ?>:</b></td>
-    <td><?php
-        $severity=$irow['severity_al'];
-        generate_form_field(array('data_type'=>1,'field_id'=>'severity_id','list_id'=>'severity_ccda','empty_title'=>'SKIP'), $severity);
-        ?>
-    </td>
-  </tr>
-  <tr id='row_reaction'>
-   <td valign='top' nowrap><b><?php echo xlt('Reaction'); ?>:</b></td>
-   <td>
-        <?php
-        echo generate_select_list('form_reaction', 'reaction', $irow['reaction'], '', '', '', '');
-        ?>
-   </td>
-  </tr>
- <!-- End of reaction -->
-
- <tr id='row_referredby'>
-  <td valign='top' nowrap><b><?php echo xlt('Referred by'); ?>:</b></td>
-  <td>
-   <input type='text' size='40' name='form_referredby' value='<?php echo attr($irow['referredby']) ?>'
-    style='width:100%' title='<?php echo xla('Referring physician and practice'); ?>' />
-  </td>
- </tr>
-
- <tr id='row_comments'>
-  <td valign='top' nowrap><b><?php echo xlt('Comments'); ?>:</b></td>
-  <td>
-   <textarea name='form_comments' rows='4' cols='40' wrap='virtual' style='width:100%'><?php echo text($irow['comments']) ?></textarea>
-  </td>
- </tr>
-
- <tr<?php
-    if ($GLOBALS['ippf_specific']) {
-        echo " style='display:none;'";
-    } ?>>
-  <td valign='top' nowrap><b><?php echo xlt('Outcome'); ?>:</b></td>
-  <td>
-    <?php
-    echo generate_select_list('form_outcome', 'outcome', $irow['outcome'], '', '', '', 'outcomeClicked(this);');
-    ?>
-  </td>
- </tr>
-
- <tr<?php
-    if ($GLOBALS['ippf_specific']) {
-        echo " style='display:none;'";
-    } ?>>
-  <td valign='top' nowrap><b><?php echo xlt('Destination'); ?>:</b></td>
-  <td>
-<?php if (true) { ?>
-   <input type='text' size='40' name='form_destination' value='<?php echo attr($irow['destination']) ?>'
-    style='width:100%' title='GP, Secondary care specialist, etc.' />
-<?php } else { // leave this here for now, please -- Rod ?>
-    <?php echo rbinput('form_destination', '1', 'GP', 'destination') ?>&nbsp;
-    <?php echo rbinput('form_destination', '2', 'Secondary care spec', 'destination') ?>&nbsp;
-    <?php echo rbinput('form_destination', '3', 'GP via physio', 'destination') ?>&nbsp;
-    <?php echo rbinput('form_destination', '4', 'GP via podiatry', 'destination') ?>
-<?php } ?>
-  </td>
- </tr>
-
-</table>
-
-<?php
-if ($ISSUE_TYPES['football_injury']) {
-    issue_football_injury_form($issue);
-}
-
-if ($ISSUE_TYPES['ippf_gcac']) {
-    if (empty($issue) || $irow['type'] == 'ippf_gcac') {
-        issue_ippf_gcac_form($issue, $thispid);
-    }
-
-    if (empty($issue) || $irow['type'] == 'contraceptive') {
-        issue_ippf_con_form($issue, $thispid);
-    }
-}
-?>
-
-<center>
-<p>
-
-<input type='submit' name='form_save' value='<?php echo xla('Save'); ?>' />
-
-<?php if ($issue && acl_check('admin', 'super')) { ?>
-&nbsp;
-<input type='button' value='<?php echo xla('Delete'); ?>' style='color:red' onclick='deleteme()' />
-<?php } ?>
-
-&nbsp;
-<input type='button' value='<?php echo xla('Cancel'); ?>' onclick='closeme();' />
-
-</p>
-</center>
-
-</form>
-
+                    if (empty($issue) || $irow['type'] == 'contraceptive') {
+                        issue_ippf_con_form($issue, $thispid);
+                    }
+                }
+                ?>
+            </form>
+        </div>
+    </div>
+    <?php echo $tabcontents; ?>
 </div>
-
-<?php echo $tabcontents; ?>
-
 </div>
 
 <script language='JavaScript'>

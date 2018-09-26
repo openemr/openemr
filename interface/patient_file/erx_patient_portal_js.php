@@ -1,5 +1,5 @@
 <?php
-  /**
+ /**
  * erx account status and patient portal username generator popup modals
  *
  * @package   OpenEMR
