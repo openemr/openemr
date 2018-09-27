@@ -27,7 +27,7 @@
 //===============================================================================
 //Electronic posting is handled here.
 //===============================================================================
-use OpenEMR\Core\Header;
+
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -35,6 +35,15 @@ require_once("$srcdir/invoice_summary.inc.php");
 require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
 require_once("$srcdir/parse_era.inc.php");
 require_once("$srcdir/sl_eob.inc.php");
+
+use OpenEMR\Core\Header;
+
+$hidden_type_code = isset($_POST['hidden_type_code']) ? $_POST['hidden_type_code'] : '';
+$check_date = isset($_POST['check_date']) ? $_POST['check_date'] : '';
+$post_to_date = isset($_POST['post_to_date']) ? $_POST['post_to_date'] : '';
+$deposit_date = isset($_POST['deposit_date']) ? $_POST['deposit_date'] : '';
+$type_code = isset($_POST['type_code']) ? $_POST['type_code'] : '';
+
 //===============================================================================
 // This is called back by parse_era() if we are processing X12 835's.
 $alertmsg = '';
@@ -53,17 +62,21 @@ function era_callback(&$out)
         if ($where) {
             $where .= ' OR ';
         }
-        $where .= "( f.pid = '$pid' AND f.encounter = '$encounter' )";
+        $where .= "( f.pid = '" . add_escape_custom($pid) . "' AND f.encounter = '" . add_escape_custom($encounter) . "' )";
     }
 }
 //===============================================================================
   // Handle X12 835 file upload.
 if ($_FILES['form_erafile']['size']) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
     $tmp_name = $_FILES['form_erafile']['tmp_name'];
     // Handle .zip extension if present.  Probably won't work on Windows.
     if (strtolower(substr($_FILES['form_erafile']['name'], -4)) == '.zip') {
         rename($tmp_name, "$tmp_name.zip");
-        exec("unzip -p $tmp_name.zip > $tmp_name");
+        exec("unzip -p " . escapeshellarg($tmp_name.".zip") . " > " . escapeshellarg($tmp_name));
         unlink("$tmp_name.zip");
     }
     $alertmsg .= parse_era($tmp_name, 'era_callback');
@@ -87,27 +100,24 @@ if ($_FILES['form_erafile']['size']) {
 <html>
 <head>
     <?php Header::setupHeader(['datetime-picker', 'common']);?>
-    <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
-    <script language='JavaScript'>
-    var mypcc = '1';
-    </script>
+    <?php require_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
     <script language="javascript" type="text/javascript">
     function Validate()
     {
      if(document.getElementById('uploadedfile').value=='')
       {
-       alert("<?php echo htmlspecialchars(xl('Please Choose a file'), ENT_QUOTES) ?>");
+       alert("<?php echo xls('Please Choose a file');?>");
        return false;
       }
      if(document.getElementById('hidden_type_code').value=='')
       {
-       alert("<?php echo htmlspecialchars(xl('Select Insurance, by typing'), ENT_QUOTES) ?>");
+       alert("<?php echo xls('Select Insurance, by typing'); ?>");
        document.getElementById('type_code').focus();
        return false;
       }
      if(document.getElementById('hidden_type_code').value!=document.getElementById('div_insurance_or_patient').innerHTML)
       {
-       alert("<?php echo htmlspecialchars(xl('Take Insurance, from Drop Down'), ENT_QUOTES) ?>");
+       alert("<?php echo xls('Take Insurance, from Drop Down'); ?>");
        document.getElementById('type_code').focus();
        return false;
       }
@@ -125,11 +135,11 @@ if ($_FILES['form_erafile']['size']) {
         if ($_FILES['form_erafile']['size']) {
             ?>
             var f = document.forms[0];
-            var debug = <?php echo htmlspecialchars($_REQUEST['form_without']*1);?> ;
+            var debug = <?php echo attr($_REQUEST['form_without']*1); ?> ;
          var paydate = f.check_date.value;
          var post_to_date = f.post_to_date.value;
          var deposit_date = f.deposit_date.value;
-         window.open('sl_eob_process.php?eraname=<?php echo htmlspecialchars($eraname); ?>&debug=' + debug + '&paydate=' + paydate + '&post_to_date=' + post_to_date + '&deposit_date=' + deposit_date + '&original=original' + '&InsId=<?php echo htmlspecialchars(formData('hidden_type_code')); ?>' , '_blank');
+         window.open('sl_eob_process.php?eraname=<?php echo attr(urlencode($eraname)); ?>&debug=' + debug + '&paydate=' + paydate + '&post_to_date=' + post_to_date + '&deposit_date=' + deposit_date + '&original=original' + '&InsId=<?php echo attr(urlencode($hidden_type_code)); ?>' + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>' , '_blank');
          return false;
         <?php
         }
@@ -203,8 +213,8 @@ if ($_FILES['form_erafile']['size']) {
             color: #000000 !Important;
         }
     }
-    
-    
+
+
     @media only screen and (max-width: 700px) {
         [class*="col-"] {
         width: 100%;
@@ -213,7 +223,7 @@ if ($_FILES['form_erafile']['size']) {
         #form_without{
         margin-left:0px !Important;
         }
-        
+
     }
     .input-group .form-control{
         margin-bottom: 3px;
@@ -254,48 +264,49 @@ if ($_FILES['form_erafile']['size']) {
                 </div>
             </nav>
         </div>
-        
+
         <div class = "row">
             <form action='era_payments.php' enctype="multipart/form-data" method='post' style="display:inline">
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                 <fieldset>
                     <div class="col-xs-12 oe-custom-line">
                         <div class="form-group col-xs9 oe-file-div">
-                            <div class="input-group"> 
+                            <div class="input-group">
                                 <label class="input-group-btn">
                                     <span class="btn btn-default">
                                         <?php echo xlt('Browse'); ?>&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;" >
-                                        <input name="MAX_FILE_SIZE" type="hidden" value="5000000"> 
+                                        <input name="MAX_FILE_SIZE" type="hidden" value="5000000">
                                     </span>
                                 </label>
-                                <input type="text" class="form-control" placeholder="<?php echo xlt('Click Browse and select one Electronic Remittance Advice (ERA) file...'); ?>" readonly>
+                                <input type="text" class="form-control" placeholder="<?php echo xla('Click Browse and select one Electronic Remittance Advice (ERA) file...'); ?>" readonly>
                             </div>
                         </div>
                     </div>
                     <div class="col-xs-12 oe-custom-line">
                         <div class="form-group col-xs-3">
                             <label class="control-label" for="check_date"><?php echo xlt('Date'); ?>:</label>
-                            <input class="form-control datepicker" id='check_date' name='check_date' onkeydown="PreventIt(event)" type='text' value="<?php echo formData('check_date') ?>">
+                            <input class="form-control datepicker" id='check_date' name='check_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($check_date); ?>">
                         </div>
                         <div class="form-group col-xs-3">
                             <label class="control-label" for="post_to_date"><?php echo xlt('Post To Date'); ?>:</label>
-                            <input class="form-control datepicker" id='post_to_date' name='post_to_date' onkeydown="PreventIt(event)" type='text' value="<?php echo formData('post_to_date') ?>">
+                            <input class="form-control datepicker" id='post_to_date' name='post_to_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($post_to_date); ?>">
                         </div>
                         <div class="form-group col-xs-3 clearfix">
                             <label class="control-label" for="form_without"><?php echo xlt('Select'); ?>:</label>
                             <label class="checkbox">
-                                <input name='form_without'  id='form_without' type='checkbox' value='1'> <span class="oe-ckbox-label"><?php echo htmlspecialchars(xl('Without Update'), ENT_QUOTES); ?></span>
+                                <input name='form_without'  id='form_without' type='checkbox' value='1'> <span class="oe-ckbox-label"><?php echo xlt('Without Update'); ?></span>
                             </label>
                         </div>
                         <div class="form-group col-xs-3">
                             <label class="control-label" for="deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
-                            <input class="form-control datepicker" id='deposit_date' name='deposit_date' onkeydown="PreventIt(event)" type='text' value="<?php echo formData('deposit_date') ?>">
+                            <input class="form-control datepicker" id='deposit_date' name='deposit_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($deposit_date); ?>">
                         </div>
                     </div>
                     <div class="col-xs-12 oe-custom-line">
                         <div class="form-group col-xs-6">
                             <label class="control-label" for="type_code"><?php echo xlt('Insurance'); ?>:</label>
-                            <input id="hidden_ajax_close_value" type="hidden" value="<?php echo formData('type_code') ?>">
-                            <input autocomplete="off" class="form-control" id='type_code' name='type_code' onkeydown="PreventIt(event)"  type="text" value="<?php echo formData('type_code') ?>"><br>
+                            <input id="hidden_ajax_close_value" type="hidden" value="<?php echo attr($type_code); ?>">
+                            <input autocomplete="off" class="form-control" id='type_code' name='type_code' onkeydown="PreventIt(event)"  type="text" value="<?php echo attr($type_code); ?>"><br>
                             <!--onKeyUp="ajaxFunction(event,'non','search_payments.php');"-->
                             <div id='ajax_div_insurance_section'>
                                 <div id='ajax_div_insurance_error'></div>
@@ -305,7 +316,7 @@ if ($_FILES['form_erafile']['size']) {
                         <div class="form-group col-xs-3">
                             <label class="control-label" for="div_insurance_or_patient"><?php echo xlt('Insurance ID'); ?>:</label>
                             <div class="form-control" id="div_insurance_or_patient" >
-                                <?php echo formData('hidden_type_code') ?>
+                                <?php echo text($hidden_type_code); ?>
                             </div>
                             <input id="description" name="description" type="hidden">
                         </div>
@@ -319,8 +330,8 @@ if ($_FILES['form_erafile']['size']) {
                         </div>
                     </div>
                 </div>
-                <input type="hidden" name="after_value" id="after_value" value="<?php echo htmlspecialchars($alertmsg, ENT_QUOTES);?>"/>
-                <input type="hidden" name="hidden_type_code" id="hidden_type_code" value="<?php echo formData('hidden_type_code') ?>"/>
+                <input type="hidden" name="after_value" id="after_value" value="<?php echo attr($alertmsg); ?>"/>
+                <input type="hidden" name="hidden_type_code" id="hidden_type_code" value="<?php echo attr($hidden_type_code); ?>"/>
                 <input type='hidden' name='ajax_mode' id='ajax_mode' value='' />
             </form>
         </div>
@@ -341,10 +352,10 @@ if ($_FILES['form_erafile']['size']) {
                 $(':file').on('fileselect', function(event, numFiles, label) {
                     var input = $(this).parents('.input-group').find(':text'),
                     log = numFiles > 1 ? numFiles + ' files selected' : label;
-                    
+
                     if( input.length ) {
                     input.val(log);
-                    } 
+                    }
                     else {
                     if( log ) alert(log);
                     }

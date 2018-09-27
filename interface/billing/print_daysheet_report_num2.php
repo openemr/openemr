@@ -26,11 +26,11 @@
 
 
 
-include_once("../globals.php");
+require_once("../globals.php");
 
-include_once("$srcdir/patient.inc");
-include_once("$srcdir/../interface/reports/report.inc.php");
-include_once("$srcdir/daysheet.inc.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/../interface/reports/report.inc.php");
+require_once("$srcdir/daysheet.inc.php");
 
 //global variables:
 if (!isset($_GET["mode"])) {

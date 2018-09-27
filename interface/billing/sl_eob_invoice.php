@@ -23,30 +23,32 @@
  * @author  Terry Hill <terry@lillysystems.com>
  * @link    http://www.open-emr.org
  */
-    use OpenEMR\Core\Header;
-
-    require_once("../globals.php");
-    require_once("$srcdir/log.inc");
-    require_once("$srcdir/patient.inc");
-    require_once("$srcdir/forms.inc");
-    require_once("$srcdir/sl_eob.inc.php");
-    require_once("$srcdir/invoice_summary.inc.php");
-    require_once("../../custom/code_types.inc.php");
-
-    $debug = 0; // set to 1 for debugging mode
 
 
-  // If we permit deletion of transactions.  Might change this later.
-  $ALLOW_DELETE = true;
+require_once("../globals.php");
+require_once("$srcdir/log.inc");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/forms.inc");
+require_once("$srcdir/sl_eob.inc.php");
+require_once("$srcdir/invoice_summary.inc.php");
+require_once("../../custom/code_types.inc.php");
 
-  $info_msg = "";
+use OpenEMR\Core\Header;
 
-  // Format money for display.
-  //
+$debug = 0; // set to 1 for debugging mode
+
+
+// If we permit deletion of transactions.  Might change this later.
+$ALLOW_DELETE = true;
+
+$info_msg = "";
+
+// Format money for display.
+//
 function bucks($amount)
 {
     if ($amount) {
-        printf("%.2f", $amount);
+        return sprintf("%.2f", $amount);
     }
 }
 
@@ -77,7 +79,7 @@ function row_delete($table, $where)
 
     if ($count) {
         $query = "DELETE FROM $table WHERE $where";
-        echo $query . "<br>\n";
+        echo text($query) . "<br>\n";
         sqlStatement($query);
     }
 }
@@ -85,7 +87,7 @@ function row_delete($table, $where)
 <html>
 <head>
 <?php Header::setupHeader(['datetime-picker']);?>
-    <title><?php xl('EOB Posting - Invoice', 'e')?></title>
+    <title><?php echo xlt('EOB Posting - Invoice')?></title>
 <script language="JavaScript">
 
 // An insurance radio button is selected.
@@ -123,34 +125,34 @@ function validate(f) {
         if (f[pfx + '[pay]'].value || f[pfx + '[adj]'].value) {
             allempty = false;
             if (!f[pfx + '[date]'].value) {
-                alert('<?php xl('Date is missing for code ', 'e')?>' + code);
+                alert('<?php echo xls('Date is missing for code ')?>' + code);
                 return false;
             }
         }
         if (f[pfx + '[pay]'].value && isNaN(parseFloat(f[pfx + '[pay]'].value))) {
-            alert('<?php xl('Payment value for code ', 'e') ?>' + code + '<?php xl(' is not a number', 'e') ?>');
+            alert('<?php echo xls('Payment value for code ') ?>' + code + '<?php echo xls(' is not a number') ?>');
             return false;
         }
         if (f[pfx + '[adj]'].value && isNaN(parseFloat(f[pfx + '[adj]'].value))) {
-            alert('<?php xl('Adjustment value for code ', 'e') ?>' + code + '<?php xl(' is not a number', 'e') ?>');
+            alert('<?php echo xls('Adjustment value for code ') ?>' + code + '<?php echo xls(' is not a number') ?>');
             return false;
         }
         if (f[pfx + '[adj]'].value && !f[pfx + '[reason]'].value) {
-            alert('<?php xl('Please select an adjustment reason for code ', 'e') ?>' + code);
+            alert('<?php echo xls('Please select an adjustment reason for code ') ?>' + code);
             return false;
         }
         // TBD: validate the date format
     }
     // Check if save is clicked with nothing to post.
     if (allempty && delcount === 0) {
-        alert('<?php xl('Nothing to Post! Please review entries or use Cancel to exit transaction', 'e')?>');
+        alert('<?php echo xls('Nothing to Post! Please review entries or use Cancel to exit transaction')?>');
         return false;
     }
     // Demand confirmation if deleting anything.
     if (delcount > 0) {
-        if (!confirm('<?php echo xl('Really delete'); ?> ' + delcount +
-                ' <?php echo xl('transactions'); ?>?' +
-                ' <?php echo xl('This action will be logged'); ?>!')
+        if (!confirm('<?php echo xls('Really delete'); ?> ' + delcount +
+                ' <?php echo xls('transactions'); ?>?' +
+                ' <?php echo xls('This action will be logged'); ?>!')
         ) return false;
     }
     return true;
@@ -240,13 +242,13 @@ $(document).ready(function() {
 <?php
         $trans_id = 0 + $_GET['id'];
 if (!$trans_id) {
-    die(xl("You cannot access this page directly."));
+    die(xlt("You cannot access this page directly."));
 }
 
         // A/R case, $trans_id matches form_encounter.id.
-        $ferow = sqlQuery("SELECT e.*, p.fname, p.mname, p.lname " . "FROM form_encounter AS e, patient_data AS p WHERE " . "e.id = '$trans_id' AND p.pid = e.pid");
+        $ferow = sqlQuery("SELECT e.*, p.fname, p.mname, p.lname FROM form_encounter AS e, patient_data AS p WHERE e.id = ? AND p.pid = e.pid", array($trans_id));
 if (empty($ferow)) {
-    die("There is no encounter with form_encounter.id = '$trans_id'.");
+    die("There is no encounter with form_encounter.id = '" . text($trans_id) . "'.");
 }
         $patient_id        = 0 + $ferow['pid'];
         $encounter_id      = 0 + $ferow['encounter'];
@@ -264,8 +266,12 @@ if (preg_match('/^Ins(\d)/i', $_POST['form_insurance'], $matches)) {
 
 if ($_POST['form_save'] || $_POST['form_cancel']) {
     if ($_POST['form_save']) {
+        if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+            die(xlt('Authentication Error'));
+        }
+
         if ($debug) {
-            echo xl("This module is in test mode. The database will not be changed.", '', '<p><b>', "</b><p>\n");
+            echo "<p><b>" . xlt("This module is in test mode. The database will not be changed.") . "</b><p>\n";
         }
 
         $session_id = arGetSession($form_payer_id, $form_reference, $form_check_date, $form_deposit_date, $form_pay_total);
@@ -280,7 +286,7 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
         if ($ALLOW_DELETE && !$debug) {
             if (is_array($_POST['form_del'])) {
                 foreach ($_POST['form_del'] as $arseq => $dummy) {
-                    row_delete("ar_activity", "pid = '$patient_id' AND " . "encounter = '$encounter_id' AND sequence_no = '$arseq'");
+                    row_delete("ar_activity", "pid = '" . add_escape_custom($patient_id) . "' AND " . "encounter = '" . add_escape_custom($encounter_id) . "' AND sequence_no = '" . add_escape_custom($arseq) . "'");
                 }
             }
         }
@@ -301,7 +307,7 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
             // 5 = Comment
             $reason_type = '1';
             if ($reason) {
-                $tmp = sqlQuery("SELECT option_value FROM list_options WHERE " . "list_id = 'adjreason' AND activity = 1 AND " . "option_id = '" . add_escape_custom($reason) . "'");
+                $tmp = sqlQuery("SELECT option_value FROM list_options WHERE list_id = 'adjreason' AND activity = 1 AND option_id = ?", array($reason));
                 if (empty($tmp['option_value'])) {
                     // This should not happen but if it does, apply old logic.
                     if (preg_match("/To copay/", $reason)) {
@@ -357,7 +363,7 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
 
         $form_done       = 0 + $_POST['form_done'];
         $form_stmt_count = 0 + $_POST['form_stmt_count'];
-        sqlStatement("UPDATE form_encounter " . "SET last_level_closed = $form_done, " . "stmt_count = $form_stmt_count WHERE " . "pid = '$patient_id' AND encounter = '$encounter_id'");
+        sqlStatement("UPDATE form_encounter SET last_level_closed = ?, stmt_count = ? WHERE pid = ? AND encounter = ?", array($form_done, $form_stmt_count, $patient_id, $encounter_id));
 
         if ($_POST['form_secondary']) {
             arSetupSecondary($patient_id, $encounter_id, $debug);
@@ -365,7 +371,7 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
         echo "<script language='JavaScript'>\n";
         echo " if (opener.document.forms[0] !== undefined) {\n";
         echo "   if (opener.document.forms[0].form_amount) {\n";
-        echo "     var tmp = opener.document.forms[0].form_amount.value - $paytotal;\n";
+        echo "     var tmp = opener.document.forms[0].form_amount.value - " . attr($paytotal) . ";\n";
         echo "     opener.document.forms[0].form_amount.value = Number(tmp).toFixed(2);\n";
         echo "   }\n";
         echo " }\n";
@@ -385,7 +391,7 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
         // Get invoice charge details.
         $codes = ar_get_invoice_summary($patient_id, $encounter_id, true);
 
-        $pdrow = sqlQuery("select billing_note " . "from patient_data where pid = '$patient_id' limit 1");
+        $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1", array($patient_id));
     ?>
 
     <div class = "container">
@@ -395,34 +401,35 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
             </div>
         </div>
         <div class="row">
-            <form action='sl_eob_invoice.php?id=<?php echo $trans_id ?>' method='post' onsubmit='return validate(this)'>
+            <form action='sl_eob_invoice.php?id=<?php echo attr(urlencode($trans_id)); ?>' method='post' onsubmit='return validate(this)'>
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                 <fieldset>
                     <legend><?php echo xlt('Invoice Particulars'); ?></legend>
                     <div class="col-xs-12 oe-custom-line">
                         <div class="col-xs-3">
                             <label class="control-label" for="form_name"><?php echo xlt('Patient'); ?>:</label>
-                            <input type="text" class="form-control" id='form_name' name='form_name'   value="<?php echo $ferow['fname'] . ' ' . $ferow['mname'] . ' ' . $ferow['lname']; ?>" disabled>
+                            <input type="text" class="form-control" id='form_name' name='form_name'   value="<?php echo attr($ferow['fname']) . ' ' . attr($ferow['mname']) . ' ' . attr($ferow['lname']); ?>" disabled>
                         </div>
                         <div class="col-xs-3">
                             <label class="control-label" for="form_provider"><?php echo xlt('Provider'); ?>:</label>
                             <?php
                                 $tmp = sqlQuery("SELECT fname, mname, lname " .
-                                "FROM users WHERE id = " . $ferow['provider_id']);
+                                "FROM users WHERE id = ?", array($ferow['provider_id']));
                                 $provider = text($tmp['fname']) . ' ' . text($tmp['mname']) . ' ' . text($tmp['lname']);
                                 $tmp = sqlQuery("SELECT bill_date FROM billing WHERE " .
-                                "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
-                                "activity = 1 ORDER BY fee DESC, id ASC LIMIT 1");
+                                "pid = ? AND encounter = ? AND " .
+                                "activity = 1 ORDER BY fee DESC, id ASC LIMIT 1", array($patient_id, $encounter_id));
                                 $billdate = substr(($tmp['bill_date'] . "Not Billed"), 0, 10);
                             ?>
-                            <input type="text" class="form-control" id='form_provider' name='form_provider'   value="<?php echo $provider; ?>" disabled>
+                            <input type="text" class="form-control" id='form_provider' name='form_provider'   value="<?php echo attr($provider); ?>" disabled>
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label" for="form_invoice"><?php echo xlt('Invoice'); ?>:</label>
-                            <input type="text" class="form-control" id='form_provider' name='form_provider'   value='<?php echo $patient_id.".".$encounter_id; ?>' disabled >
+                            <input type="text" class="form-control" id='form_provider' name='form_provider'   value='<?php echo attr($patient_id) . "." . attr($encounter_id); ?>' disabled >
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label" for="svc_date"><?php echo xlt('Svc Date'); ?>:</label>
-                            <input type="text" class="form-control" id='svc_date' name='form_provider'   value='<?php echo $svcdate; ?>' disabled >
+                            <input type="text" class="form-control" id='svc_date' name='form_provider'   value='<?php echo attr($svcdate); ?>' disabled >
                         </div>
                         <div class="col-xs-2">
                             <label class="control-label" for="insurance_name"><?php echo xlt('Insurance'); ?>:</label>
@@ -430,18 +437,18 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
                             for ($i = 1; $i <= 3; ++$i) {
                                 $payerid = arGetPayerID($patient_id, $svcdate, $i);
                                 if ($payerid) {
-                                    $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE id = $payerid");
+                                    $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE id = ?", array($payerid));
                                     $insurance .= "$i: " . $tmp['name'] . "\n";
                                 }
                             }
                             ?>
-                            <textarea  name="insurance_name" id="insurance_name" class="form-control" cols="5" rows="2" readonly ><?php echo $insurance; ?></textarea>
+                            <textarea  name="insurance_name" id="insurance_name" class="form-control" cols="5" rows="2" readonly ><?php echo attr($insurance); ?></textarea>
                         </div>
                     </div>
                     <div class="col-xs-12 oe-custom-line">
                         <div class="col-xs-3">
                             <label class="control-label" for="form_stmt_count"><?php echo xlt('Statements Sent'); ?>:</label>
-                            <input type='text' name='form_stmt_count' id='form_stmt_count' class="form-control" value='<?php echo (0 + $ferow['stmt_count']) ?>' />
+                            <input type='text' name='form_stmt_count' id='form_stmt_count' class="form-control" value='<?php echo attr((0 + $ferow['stmt_count'])); ?>' />
                         </div>
                         <div class="col-xs-3">
                             <label class="control-label" for="form_reference"><?php echo xlt('Check/EOB No.'); ?>:</label>
@@ -469,21 +476,21 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
                                   // TBD: check the first not-done-with insurance, not always Ins1!
                                 ?>
                                     <label class="radio-inline">
-                                      <input checked name='form_insurance' onclick='setins("Ins1")' type='radio' value='Ins1'><?php xl('Ins1', 'e')?>
+                                      <input checked name='form_insurance' onclick='setins("Ins1")' type='radio' value='Ins1'><?php echo xlt('Ins1')?>
                                     </label>
                                     <label class="radio-inline">
-                                      <input name='form_insurance' onclick='setins("Ins2")' type='radio' value='Ins2'><?php xl('Ins2', 'e')?>
+                                      <input name='form_insurance' onclick='setins("Ins2")' type='radio' value='Ins2'><?php echo xlt('Ins2')?>
                                     </label>
                                     <label class="radio-inline">
-                                      <input name='form_insurance' onclick='setins("Ins3")' type='radio' value='Ins3'><?php xl('Ins3', 'e')?>
+                                      <input name='form_insurance' onclick='setins("Ins3")' type='radio' value='Ins3'><?php echo xlt('Ins3')?>
                                     </label>
                                     <label class="radio-inline">
-                                      <input name='form_insurance' onclick='setins("Pt")' type='radio' value='Pt'><?php xl('Patient', 'e')?>
+                                      <input name='form_insurance' onclick='setins("Pt")' type='radio' value='Pt'><?php echo xlt('Patient')?>
                                     </label>
                                 <?php
                                   // TBD: I think the following is unused and can be removed.
                                 ?>
-                                <input name='form_eobs' type='hidden'value='<?php echo addslashes($arrow['shipvia']) ?>'/>
+                                <input name='form_eobs' type='hidden' value='<?php echo attr($arrow['shipvia']) ?>'/>
                             </div>
                         </div>
                         <div class="col-xs-3">
@@ -499,7 +506,7 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
                                     }
                                     $checked = ($last_level_closed == $key) ? " checked" : "";
                                     echo "<label class='radio-inline'>";
-                                    echo "<input type='radio' name='form_done' value='$key'$checked />$value";
+                                    echo "<input type='radio' name='form_done' value='" . attr($key) . "'$checked />" . text($value);
                                     echo "</label>";
                                 }
                                 ?>
@@ -508,7 +515,7 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
                         <div class="col-xs-3 clearfix">
                             <label class="control-label" for="form_secondary"><?php echo xlt('Secondary billing'); ?>:</label>
                             <label class="checkbox" style="margin-left:15px">
-                                <input name="form_secondary" type="checkbox" value="1"><span style="font-weight:400"><?php xl('Needs secondary billing', 'e')?></span>
+                                <input name="form_secondary" type="checkbox" value="1"><span style="font-weight:400"><?php echo xlt('Needs secondary billing')?></span>
                             </label>
                         </div>
                     </div>
@@ -520,17 +527,17 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
                         <table class= "table">
                             <thead>
                                 <tr bgcolor="#CCCCCC">
-                                    <th class="dehead"><?php xl('Code', 'e')?></th>
-                                    <th align="right" class="dehead"><?php xl('Charge', 'e')?></th>
-                                    <th align="right" class="dehead"><?php xl('Balance', 'e')?>&nbsp;</th>
-                                    <th class="dehead"><?php xl('By/Source', 'e')?></th>
-                                    <th class="dehead"><?php xl('Date', 'e')?></th>
-                                    <th class="dehead"><?php xl('Pay', 'e')?></th>
-                                    <th class="dehead"><?php xl('Adjust', 'e')?></th>
-                                    <th class="dehead"><?php xl('Reason', 'e')?></th>
+                                    <th class="dehead"><?php echo xlt('Code')?></th>
+                                    <th align="right" class="dehead"><?php echo xlt('Charge')?></th>
+                                    <th align="right" class="dehead"><?php echo xlt('Balance')?>&nbsp;</th>
+                                    <th class="dehead"><?php echo xlt('By/Source')?></th>
+                                    <th class="dehead"><?php echo xlt('Date')?></th>
+                                    <th class="dehead"><?php echo xlt('Pay')?></th>
+                                    <th class="dehead"><?php echo xlt('Adjust')?></th>
+                                    <th class="dehead"><?php echo xlt('Reason')?></th>
                                     <?php
                                     if ($ALLOW_DELETE) { ?>
-                                    <th class="dehead"><?php xl('Del', 'e')?></th>
+                                    <th class="dehead"><?php echo xlt('Del')?></th>
                                     <?php
                                     } ?>
                                 </tr>
@@ -572,8 +579,8 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
                                         }
                                     ?>
                                 <tr bgcolor='<?php echo $bgcolor ?>'>
-                                    <td class="detail"><?php echo $dispcode; $dispcode = "" ?></td>
-                                    <td align="right" class="detail"><?php bucks($tmpchg) ?></td>
+                                    <td class="detail"><?php echo text($dispcode); $dispcode = "" ?></td>
+                                    <td align="right" class="detail"><?php echo text(bucks($tmpchg)); ?></td>
                                     <td align="right" class="detail">&nbsp;</td>
                                     <td class="detail">
                                         <?php
@@ -581,22 +588,22 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
                                             if (!$ddata['plv']) {
                                                 echo 'Pt/';
                                             } else {
-                                                echo 'Ins' . $ddata['plv'] . '/';
+                                                echo 'Ins' . text($ddata['plv']) . '/';
                                             }
                                         }
-                                            echo $ddata['src'];
+                                            echo text($ddata['src']);
                                         ?>
                                     </td>
-                                    <td class="detail"><?php echo $ddate ?></td>
-                                    <td class="detail"><?php bucks($ddata['pmt']) ?></td>
-                                    <td class="detail"><?php bucks($tmpadj) ?></td>
-                                    <td class="detail"><?php echo $ddata['rsn'] ?></td>
+                                    <td class="detail"><?php echo text($ddate); ?></td>
+                                    <td class="detail"><?php echo text(bucks($ddata['pmt'])); ?></td>
+                                    <td class="detail"><?php echo text(bucks($tmpadj)); ?></td>
+                                    <td class="detail"><?php echo text($ddata['rsn']); ?></td>
                                         <?php
                                         if ($ALLOW_DELETE) { ?>
                                     <td class="detail">
                                         <?php
                                         if (!empty($ddata['arseq'])) { ?>
-                                                <input name="form_del[<?php echo $ddata['arseq']; ?>]" type="checkbox">
+                                                <input name="form_del[<?php echo attr($ddata['arseq']); ?>]" type="checkbox">
                                             <?php
                                         } else {
                                             ?> &nbsp;
@@ -609,28 +616,28 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
                                     } // end of prior detail line
                             ?>
                             <tr bgcolor='<?php echo $bgcolor ?>'>
-                            <td class="detail"><?php echo $dispcode; $dispcode = "" ?></td>
+                            <td class="detail"><?php echo text($dispcode); $dispcode = "" ?></td>
                             <td align="right" class="detail">&nbsp;</td>
-                            <td align="right" class="detail"><input name="form_line[<?php echo $code ?>][bal]" type="hidden" value="<?php bucks($cdata['bal']) ?>"> <input name="form_line[<?php echo $code ?>][ins]" type="hidden" value="<?php echo $cdata['ins'] ?>"> <input name="form_line[<?php echo $code ?>][code_type]" type="hidden" value="<?php echo $cdata['code_type'] ?>"> <?php printf("%.2f", $cdata['bal']) ?>&nbsp;</td>
+                            <td align="right" class="detail"><input name="form_line[<?php echo attr($code); ?>][bal]" type="hidden" value="<?php echo attr(bucks($cdata['bal'])); ?>"> <input name="form_line[<?php echo attr($code); ?>][ins]" type="hidden" value="<?php echo attr($cdata['ins']); ?>"> <input name="form_line[<?php echo attr($code); ?>][code_type]" type="hidden" value="<?php echo attr($cdata['code_type']); ?>"> <?php echo text(sprintf("%.2f", $cdata['bal'])); ?>&nbsp;</td>
                             <td class="detail"></td>
                             <td class="detail"></td>
-                            <td class="detail"><input name="form_line[<?php echo $code ?>][pay]" onkeyup="updateFields(document.forms[0]['form_line[<?php echo $code ?>][pay]'], document.forms[0]['form_line[<?php echo $code ?>][adj]'], document.forms[0]['form_line[<?php echo $code ?>][bal]'], document.forms[0]['form_line[CO-PAY][bal]'], <?php echo ($firstProcCodeIndex == $encount) ? 1 : 0 ?>)" size="10" style="background-color:<?php echo $bgcolor ?>" type="text"></td>
+                            <td class="detail"><input name="form_line[<?php echo attr($code); ?>][pay]" onkeyup="updateFields(document.forms[0]['form_line[<?php echo attr(addslashes($code)); ?>][pay]'], document.forms[0]['form_line[<?php echo attr(addslashes($code)); ?>][adj]'], document.forms[0]['form_line[<?php echo attr(addslashes($code)); ?>][bal]'], document.forms[0]['form_line[CO-PAY][bal]'], <?php echo ($firstProcCodeIndex == $encount) ? 1 : 0 ?>)" size="10" style="background-color:<?php echo $bgcolor ?>" type="text"></td>
                             <td class="detail">
-                                <input name="form_line[<?php echo $code ?>][adj]" size="10" style="background-color:<?php echo $bgcolor ?>" type="text" value='<?php echo $totalAdjAmount ?>'> &nbsp; <a href="" onclick="return writeoff('<?php echo $code ?>')">W</a>
+                                <input name="form_line[<?php echo attr($code); ?>][adj]" size="10" style="background-color:<?php echo $bgcolor ?>" type="text" value='<?php echo attr($totalAdjAmount); ?>'> &nbsp; <a href="" onclick="return writeoff('<?php echo attr(addslashes($code)); ?>')">W</a>
                             </td>
                             <td class="detail">
-                                <select name="form_line[<?php echo $code ?>][reason]" style="background-color:<?php echo $bgcolor ?>">
+                                <select name="form_line[<?php echo attr($code); ?>][reason]" style="background-color:<?php echo $bgcolor ?>">
                                     <?php
                                     // Adjustment reasons are now taken from the list_options table.
                                     echo "    <option value=''></option>\n";
                                         $ores = sqlStatement("SELECT option_id, title, is_default FROM list_options " .
                                         "WHERE list_id = 'adjreason' AND activity = 1 ORDER BY seq, title");
                                     while ($orow = sqlFetchArray($ores)) {
-                                        echo "    <option value='" . htmlspecialchars($orow['option_id'], ENT_QUOTES) . "'";
+                                        echo "    <option value='" . attr($orow['option_id']) . "'";
                                         if ($orow['is_default']) {
                                             echo " selected";
                                         }
-                                        echo ">" . htmlspecialchars($orow['title']) . "</option>\n";
+                                        echo ">" . text($orow['title']) . "</option>\n";
                                     }
                                     ?>
                                     </select>

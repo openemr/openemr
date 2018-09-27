@@ -1,31 +1,31 @@
 <?php
 /*
  * edih_segments.php
- * 
+ *
  * Copyright 2016 Kevin McCormick <kevin@kt61p>
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
- * 
+ *
  * @author Kevin McCormick
  * @link: http://www.open-emr.org
  * @package OpenEMR
  * @subpackage ediHistory
  */
 
- 
+
 /**
  * increment loop values ($lpval is a reference)
  *
@@ -552,7 +552,7 @@ function edih_271_text($segments, $delimiter, $err_seg = '')
     //
     return $str_html;
 }
-    
+
 
 function edih_835_text($segments, $delimiter, $err_seg = '')
 {
@@ -1092,7 +1092,7 @@ function edih_997_text($segments, $delimiter)
     //
     return $str_html;
 }
-        
+
 /**
  * Display of x12 edi transaction listing or all segments in the files.
  * When using $err_info, you must use the filepath of the submitted file
@@ -1136,7 +1136,7 @@ function edih_display_text($filepath, $filetype = '', $claimid = '', $trace = fa
 
         if (!is_array($segs_ar) || !count($segs_ar)) {
             // unknown error
-            $str_html = "<p>unknown error retrieving segments for $fn</p>".PHP_EOL;
+            $str_html = "<p>unknown error retrieving segments for " . text($fn) . "</p>".PHP_EOL;
             $str_html .= $x12obj->edih_message().PHP_EOL;
             return $str_html;
         }
@@ -1193,12 +1193,12 @@ function edih_display_text($filepath, $filetype = '', $claimid = '', $trace = fa
     // now check if we have segments
     if (empty($segments) || !count($segments)) {
         if ($claimid) {
-            $str_html = "<p>error: transaction $claimid not found in $fn</p>".PHP_EOL;
+            $str_html = "<p>error: transaction " . text($claimid) . " not found in " . text($fn) . "</p>".PHP_EOL;
             $str_html .= $x12obj->edih_message().PHP_EOL;
             return $str_html;
         } else {
             // unknown error
-            $str_html = "<p>unknown error retrieving segments for $fn</p>".PHP_EOL;
+            $str_html = "<p>unknown error retrieving segments for " . text($fn) . "</p>".PHP_EOL;
             $str_html .= $x12obj->edih_message().PHP_EOL;
             return $str_html;
         }
@@ -1267,12 +1267,12 @@ function edih_display_text($filepath, $filetype = '', $claimid = '', $trace = fa
     }
 
     //
-    $capstr .= ($claimid) ? " <em>ID:</em> $claimid" : "";
+    $capstr .= ($claimid) ? " <em>ID:</em> " . text($claimid) : "";
     //
     $str_html .= "<table id=$tbl_id cols=3 class='segtxt'><caption>$capstr</caption>".PHP_EOL;
     $str_html .= "<thead>".PHP_EOL;
     $str_html .= "<tr><th class='btloop'>Loop</th><th class='btloop'>Num</th>";
-    $str_html .= "<th class='segtxt'>Segment (<em>File:</em> $fn)</th></tr>".PHP_EOL;
+    $str_html .= "<th class='segtxt'>Segment (<em>File:</em> " . text($fn) . ")</th></tr>".PHP_EOL;
     $str_html .= "</thead>".PHP_EOL."<tbody>".PHP_EOL;
     //
     $str_html .= $trn_html;

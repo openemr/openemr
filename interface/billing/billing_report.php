@@ -46,6 +46,10 @@ if ($GLOBALS['use_custom_daysheet'] != 0) {
 $alertmsg = '';
 
 if (isset($_POST['mode'])) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
     if ($_POST['mode'] == 'export') {
         $sql = ReturnOFXSql();
         $db = get_db();
@@ -290,7 +294,7 @@ $oauthorized = $my_authorized;
                 if (ele) {
                     ele.style.display = "inline";
                     text.innerHTML =
-                        "<?php echo htmlspecialchars(xl('Collapse'), ENT_QUOTES); ?>";
+                        "<?php echo xla('Collapse'); ?>";
                 }
             }
         } else {
@@ -302,7 +306,7 @@ $oauthorized = $my_authorized;
                 if (ele) {
                     ele.style.display = "none";
                     text.innerHTML =
-                        "<?php echo htmlspecialchars(xl('Expand'), ENT_QUOTES); ?>";
+                        "<?php echo xla('Expand'); ?>";
                 }
             }
         }
@@ -315,11 +319,11 @@ $oauthorized = $my_authorized;
             if (ele.style.display == "inline") {
                 ele.style.display = "none";
                 text.innerHTML =
-                    "<?php echo htmlspecialchars(xl('Expand'), ENT_QUOTES); ?>";
+                    "<?php echo xla('Expand'); ?>";
             } else {
                 ele.style.display = "inline";
                 text.innerHTML =
-                    "<?php echo htmlspecialchars(xl('Collapse'), ENT_QUOTES); ?>";
+                    "<?php echo xla('Collapse'); ?>";
             }
         }
     }
@@ -335,19 +339,19 @@ $oauthorized = $my_authorized;
             }
         }
         if (Type == 1) {
-            Message = '<?php echo htmlspecialchars(xl('After saving your batch, click[View Log] to check for errors.'), ENT_QUOTES); ?>';
+            Message = '<?php echo xla('After saving your batch, click[View Log] to check for errors.'); ?>';
         }
         if (Type == 2) {
-            Message = '<?php echo htmlspecialchars(xl('After saving the PDF, click[View Log] to check for errors.'), ENT_QUOTES); ?>';
+            Message = '<?php echo xla('After saving the PDF, click[View Log] to check for errors.'); ?>';
         }
         if (Type == 3) {
-            Message = '<?php echo htmlspecialchars(xl('After saving the TEXT file(s), click[View Log] to check for errors.'), ENT_QUOTES); ?>';
+            Message = '<?php echo xla('After saving the TEXT file(s), click[View Log] to check for errors.'); ?>';
         }
-        if (confirm(Message + "\n\n\n<?php echo addslashes(xl('Total')); ?>" + ' ' +
+        if (confirm(Message + "\n\n\n<?php echo xls('Total'); ?>" + ' ' +
                 CheckBoxBillingCount + ' ' +
-                "<?php echo addslashes(xl('Selected')); ?>\n" +
-                "<?php echo addslashes(xl('Would You Like them to be Marked as Cleared.')); ?>\n" +
-                "<?php echo addslashes(xl('Click OK to Clear or Cancel to continue processing.')); ?>"
+                "<?php echo xls('Selected'); ?>\n" +
+                "<?php echo xls('Would You Like them to be Marked as Cleared.'); ?>\n" +
+                "<?php echo xls('Click OK to Clear or Cancel to continue processing.'); ?>"
             )) {
             document.getElementById('HiddenMarkAsCleared').value = 'yes';
         } else {
@@ -419,9 +423,7 @@ $oauthorized = $my_authorized;
 </div>
 <div class="row">
     <form name='the_form' method='post' action='billing_report.php' onsubmit='return top.restoreSession()' style="display:inline">
-        <script language='JavaScript'>
-            var mypcc = '1';
-        </script>
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
         <input type='hidden' name='mode' value='change'>
         <div class="col-xs-9">
             <!-- ============================================================================================================================================= -->
@@ -553,7 +555,7 @@ $oauthorized = $my_authorized;
         </div>
         <div class="form-group col-xs-3 hideaway">
             <fieldset>
-                <legend><?php echo htmlspecialchars(xl('Select Action'), ENT_QUOTES) ?></legend>
+                <legend><?php echo xlt('Select Action'); ?></legend>
                 <div class="form-group col-xs-12">
                     <div class='text'>
                         <ul>
@@ -597,6 +599,7 @@ $oauthorized = $my_authorized;
 </div>
 <div class="row">
     <form class="form-inline" name='update_form' method='post' action='billing_process.php' onsubmit='return top.restoreSession()' style="display:inline">
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
         <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets ?>
         <div class="form-group clearfix">
             <div class="btn-group btn-group-pinch position-override" role="group">
@@ -686,7 +689,7 @@ $oauthorized = $my_authorized;
                 <?php } ?>
                 <button class="btn btn-default btn-download" data-open-popup="true" name="bn_mark"
                         title="<?php echo xla('Post to accounting and mark as billed') ?>"
-                        type="submit"><?php echo xlt('Mark as Cleared') ?></button>
+                        type="submit"><?php echo xla('Mark as Cleared') ?></button>
                 <button class="btn btn-default btn-undo" data-open-popup="true" name="bn_reopen"
                         title="<?php echo xla('Mark as not billed') ?>"
                         type="submit"><?php echo xla('Re-Open') ?></button>
@@ -799,11 +802,11 @@ $oauthorized = $my_authorized;
                                 <tr>
                                     <td width="100" id='ExpandAll'><a
                                             onclick="expandcollapse('expand');" class='small'
-                                            href="JavaScript:void(0);"><?php echo '(' . htmlspecialchars(xl('Expand All'), ENT_QUOTES) . ')' ?></a>
+                                            href="JavaScript:void(0);"><?php echo '(' . xla('Expand All') . ')' ?></a>
                                     </td>
                                     <td width="100" id='CollapseAll'><a
                                             onclick="expandcollapse('collapse');" class='small'
-                                            href="JavaScript:void(0);"><?php echo '(' . htmlspecialchars(xl('Collapse All'), ENT_QUOTES) . ')' ?></a>
+                                            href="JavaScript:void(0);"><?php echo '(' . xla('Collapse All') . ')' ?></a>
                                     </td>
                                     <td width="50">&nbsp;</td>
                                 </tr>
@@ -862,7 +865,7 @@ $oauthorized = $my_authorized;
                                         $lhtml .= '</div>';
                                         $DivPut = 'no';
                                     }
-                                    echo "<tr bgcolor='$bgcolor'>\n<td rowspan='$rcount' valign='top'>\n$lhtml</td>$rhtml\n";
+                                    echo "<tr bgcolor='$bgcolor'>\n<td rowspan='" . attr($rcount) . "' valign='top'>\n$lhtml</td>$rhtml\n";
                                     echo "<tr bgcolor='$bgcolor'><td colspan='9' height='5'></td></tr>\n\n";
                                     ++$encount;
                                 }
@@ -950,10 +953,10 @@ $oauthorized = $my_authorized;
                         <?php
                         while ($rowresult4 = sqlFetchArray($result4)) {
                         ?>
-                        EncounterIdArray[<?php echo attr($iter['enc_pid']); ?>][Count] = '<?php echo htmlspecialchars($rowresult4['encounter'], ENT_QUOTES); ?>';
-                        EncounterDateArray[<?php echo attr($iter['enc_pid']); ?>][Count] = '<?php echo htmlspecialchars(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date']))), ENT_QUOTES); ?>';
-                        CalendarCategoryArray[<?php echo attr($iter['enc_pid']); ?>][Count] = '<?php echo htmlspecialchars(xl_appt_category($rowresult4['pc_catname']), ENT_QUOTES); ?>';
-                        EncounterNoteArray[<?php echo attr($iter['enc_pid']); ?>][Count] = '<?php echo htmlspecialchars($rowresult4['billing_note'], ENT_QUOTES); ?>';
+                        EncounterIdArray[<?php echo attr($iter['enc_pid']); ?>][Count] = '<?php echo attr($rowresult4['encounter']); ?>';
+                        EncounterDateArray[<?php echo attr($iter['enc_pid']); ?>][Count] = '<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>';
+                        CalendarCategoryArray[<?php echo attr($iter['enc_pid']); ?>][Count] = '<?php echo attr(xl_appt_category($rowresult4['pc_catname'])); ?>';
+                        EncounterNoteArray[<?php echo attr($iter['enc_pid']); ?>][Count] = '<?php echo attr($rowresult4['billing_note']); ?>';
                         Count++;
                         <?php
                         $enc_billing_note = $rowresult4['billing_note'];
@@ -963,15 +966,15 @@ $oauthorized = $my_authorized;
                         <?php
                         $lhtml .= "<div class='button-group'>";
                         // Not sure why the next section seems to do nothing except post "To Encounter" button 2/17/09 JCH
-                        $lhtml .= "<a class=\"btn btn-xs btn-default\" role=\"button\" " . "href=\"javascript:window.toencounter(" . $iter['enc_pid'] . ",'" . addslashes($name['pubpid']) . "','" . addslashes($ptname) . "'," . $iter['enc_encounter'] . ",'" . addslashes(oeFormatShortDate($raw_encounter_date)) . "',' " . xl('DOB') . ": " . addslashes(oeFormatShortDate($name['DOB_YMD'])) . " " . xl('Age') . ": " . getPatientAge($name['DOB_YMD']) . "');
-                     top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . $iter['enc_pid'] . "],EncounterDateArray[" . $iter['enc_pid'] . "], CalendarCategoryArray[" . $iter['enc_pid'] . "])\">" . xlt('Encounter') . " " . text(oeFormatShortDate($raw_encounter_date)) . "</a>";
+                        $lhtml .= "<a class=\"btn btn-xs btn-default\" role=\"button\" " . "href=\"javascript:window.toencounter(" . attr(addslashes($iter['enc_pid'])) . ",'" . attr(addslashes($name['pubpid'])) . "','" . attr(addslashes($ptname)) . "'," . attr(addslashes($iter['enc_encounter'])) . ",'" . attr(addslashes(oeFormatShortDate($raw_encounter_date))) . "',' " . attr(xls('DOB')) . ": " . attr(addslashes(oeFormatShortDate($name['DOB_YMD']))) . " " . attr(xls('Age')) . ": " . attr(addslashes(getPatientAge($name['DOB_YMD']))) . "');
+                     top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr(addslashes($iter['enc_pid'])) . "],EncounterDateArray[" . attr(addslashes($iter['enc_pid'])) . "], CalendarCategoryArray[" . attr(addslashes($iter['enc_pid'])) . "])\">" . xlt('Encounter') . " " . text(oeFormatShortDate($raw_encounter_date)) . "</a>";
 
                         // Changed "To xxx" buttons to allow room for encounter date display 2/17/09 JCH
-                        $lhtml .= "<a class=\"btn btn-xs btn-default\" role=\"button\" " . "href=\"javascript:window.topatient(" . $iter['enc_pid'] . ",'" . addslashes($name['pubpid']) . "','" . addslashes($ptname) . "'," . $iter['enc_encounter'] . ",'" . addslashes(oeFormatShortDate($raw_encounter_date)) . "',' " . xl('DOB') . ": " . addslashes(oeFormatShortDate($name['DOB_YMD'])) . " " . xl('Age') . ": " . getPatientAge($name['DOB_YMD']) . "');
-                    top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . $iter['enc_pid'] . "],EncounterDateArray[" . $iter['enc_pid'] . "], CalendarCategoryArray[" . $iter['enc_pid'] . "])\">" . xlt('Patient') . "</a>";
+                        $lhtml .= "<a class=\"btn btn-xs btn-default\" role=\"button\" " . "href=\"javascript:window.topatient(" . attr(addslashes($iter['enc_pid'])) . ",'" . attr(addslashes($name['pubpid'])) . "','" . attr(addslashes($ptname)) . "'," . attr(addslashes($iter['enc_encounter'])) . ",'" . attr(addslashes(oeFormatShortDate($raw_encounter_date))) . "',' " . attr(xls('DOB')) . ": " . attr(addslashes(oeFormatShortDate($name['DOB_YMD']))) . " " . attr(xls('Age')) . ": " . attr(addslashes(getPatientAge($name['DOB_YMD']))) . "');
+                    top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr(addslashes($iter['enc_pid'])) . "],EncounterDateArray[" . attr(addslashes($iter['enc_pid'])) . "], CalendarCategoryArray[" . attr(addslashes($iter['enc_pid'])) . "])\">" . xlt('Patient') . "</a>";
                         $is_edited = $iter['mboid'] ? 'btn-success' : 'btn-default';
                         $title = $iter['mboid'] ? xlt("This claim has HCFA 1500 miscellaneous billing options") : xlt("Click to add HCFA 1500 miscellaneous billing options");
-                        $lhtml .= "<a class='btn btn-xs $is_edited' role='button' title='$title' onclick='popMBO(" . $iter['enc_pid'] . "," . $iter['enc_encounter'] . "," . $iter['mboid'] . "); return false;'>" . xlt('MBO ') . "</a>";
+                        $lhtml .= "<a class='btn btn-xs $is_edited' role='button' title='" . attr($title) . "' onclick='popMBO(" . attr(addslashes($iter['enc_pid'])) . "," . attr(addslashes($iter['enc_encounter'])) . "," . attr(addslashes($iter['mboid'])) . "); return false;'>" . xlt('MBO ') . "</a>";
                         if ($ub04_support && isset($iter['billed'])) {
                             $c = sqlQuery(
                                 "SELECT submitted_claim AS status FROM claims WHERE " .
@@ -984,12 +987,12 @@ $oauthorized = $my_authorized;
                                 )
                             );
                             $is_edited = $c['status'] ? 'btn-success' : 'btn-warning';
-                            $bname = $c['status'] ? xlt('Reviewed') : xlt('Review UB04');
-                            $lhtml .= "<a class='btn btn-xs $is_edited' role='button' onclick='popUB04(" . $iter['enc_pid'] . "," . $iter['enc_encounter'] . "); return false;'>" . $bname . "</a>";
+                            $bname = $c['status'] ? xl('Reviewed') : xl('Review UB04');
+                            $lhtml .= "<a class='btn btn-xs $is_edited' role='button' onclick='popUB04(" . attr(addslashes($iter['enc_pid'])) . "," . attr(addslashes($iter['enc_encounter'])) . "); return false;'>" . text($bname) . "</a>";
                         }
                         $lhtml .= "</div>";
                         $divnos = $divnos + 1;
-                        $lhtml .= "&nbsp;&nbsp;&nbsp;<a onclick='divtoggle(\"spanid_$divnos\",\"divid_$divnos\");' class='small' id='aid_$divnos' href=\"JavaScript:void(0);" . "\">(<span id=spanid_$divnos class=\"indicator\">" . htmlspecialchars(xl('Expand'), ENT_QUOTES) . '</span>)<br></a>';
+                        $lhtml .= "&nbsp;&nbsp;&nbsp;<a onclick='divtoggle(\"spanid_" . attr(addslashes($divnos)) . "\",\"divid_" . attr(addslashes($divnos)) . "\");' class='small' id='aid_" . attr($divnos) . "' href=\"JavaScript:void(0);" . "\">(<span id=spanid_" . attr($divnos) . " class=\"indicator\">" . xlt('Expand') . '</span>)<br></a>';
                         if ($GLOBALS['notes_to_display_in_Billing'] == 2 || $GLOBALS['notes_to_display_in_Billing'] == 3) {
                             $lhtml .= '<span style="margin-left: 20px; font-weight: bold; color: red">' . text($billing_note) . '</span>';
                         }
@@ -997,7 +1000,7 @@ $oauthorized = $my_authorized;
                         if ($iter['id']) {
                             $lcount += 2;
                             $lhtml .= "<br />\n";
-                            $lhtml .= "&nbsp;<span class='form-group'>Bill: ";
+                            $lhtml .= "&nbsp;<span class='form-group'>" . xlt('Bill') . ": ";
                             $lhtml .= "<select name='claims[" . attr($this_encounter_id) . "][payer]' style='background-color:$bgcolor'>";
 
                             $query = "SELECT id.provider AS id, id.type, id.date, " .
@@ -1061,7 +1064,7 @@ $oauthorized = $my_authorized;
                             }
                             $lhtml .= "<br>\n&nbsp;<div id='divid_$divnos' style='display:none'>" . text(oeFormatShortDate(substr($iter['date'], 0, 10))) . text(substr($iter['date'], 10, 6)) . " " . xlt("Encounter was coded");
 
-                            $query = "SELECT * FROM claims WHERE " . "patient_id = ? AND " . "encounter_id = ? " . "ORDER BY version";
+                            $query = "SELECT * FROM claims WHERE patient_id = ? AND encounter_id = ? ORDER BY version";
                             $cres = sqlStatement(
                                 $query,
                                 array(
@@ -1095,36 +1098,36 @@ $oauthorized = $my_authorized;
                                     ++$lcount;
                                 } elseif ($crow['status'] < 6) {
                                     if ($crow['status'] > 1) {
-                                        $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . htmlspecialchars(xl("Marked as cleared"), ENT_QUOTES);
+                                        $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("Marked as cleared");
                                         ++$lcount;
                                     } else {
-                                        $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . htmlspecialchars(xl("Re-opened"), ENT_QUOTES);
+                                        $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("Re-opened");
                                         ++$lcount;
                                     }
                                 } elseif ($crow['status'] == 6) {
-                                    $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . htmlspecialchars(xl("This claim has been forwarded to next level."), ENT_QUOTES);
+                                    $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("This claim has been forwarded to next level.");
                                     ++$lcount;
                                 } elseif ($crow['status'] == 7) {
-                                    $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . htmlspecialchars(xl("This claim has been denied.Reason:-"), ENT_QUOTES);
+                                    $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("This claim has been denied.Reason:-");
                                     if ($crow['process_file']) {
                                         $code_array = explode(',', $crow['process_file']);
                                         foreach ($code_array as $code_key => $code_value) {
                                             $lhtml .= "<br>\n&nbsp;&nbsp;&nbsp;";
                                             $reason_array = explode('_', $code_value);
                                             if (!isset($adjustment_reasons[$reason_array[3]])) {
-                                                $lhtml .= htmlspecialchars(xl("For code"), ENT_QUOTES) . ' [' . text($reason_array[0]) . '] ' . htmlspecialchars(xl("and modifier"), ENT_QUOTES) . ' [' . text($reason_array[1]) . '] ' . htmlspecialchars(xl("the Denial code is"), ENT_QUOTES) . ' [' . text($reason_array[2]) . ' ' . text($reason_array[3]) . ']';
+                                                $lhtml .= xlt("For code") . ' [' . text($reason_array[0]) . '] ' . xlt("and modifier") . ' [' . text($reason_array[1]) . '] ' . xlt("the Denial code is") . ' [' . text($reason_array[2]) . ' ' . text($reason_array[3]) . ']';
                                             } else {
-                                                $lhtml .= htmlspecialchars(xl("For code"), ENT_QUOTES) . ' [' . text($reason_array[0]) . '] ' . htmlspecialchars(xl("and modifier"), ENT_QUOTES) . ' [' . text($reason_array[1]) . '] ' . htmlspecialchars(xl("the Denial Group code is"), ENT_QUOTES) . ' [' . text($reason_array[2]) . '] ' . htmlspecialchars(xl("and the Reason is"), ENT_QUOTES) . ':- ' . text($adjustment_reasons[$reason_array[3]]);
+                                                $lhtml .= xlt("For code") . ' [' . text($reason_array[0]) . '] ' . xlt("and modifier") . ' [' . text($reason_array[1]) . '] ' . xlt("the Denial Group code is") . ' [' . text($reason_array[2]) . '] ' . xlt("and the Reason is") . ':- ' . text($adjustment_reasons[$reason_array[3]]);
                                             }
                                         }
                                     } else {
-                                        $lhtml .= htmlspecialchars(xl("Not Specified."), ENT_QUOTES);
+                                        $lhtml .= xlt("Not Specified.");
                                     }
                                     ++$lcount;
                                 }
 
                                 if ($crow['process_time']) {
-                                    $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['process_time'], 0, 10))) . text(substr($crow['process_time'], 10, 6)) . " " . xlt("Claim was generated to file") . " " . "<a href='get_claim_file.php?key=" . attr($crow['process_file']) . "' onclick='top.restoreSession()'>" . text($crow['process_file']) . "</a>";
+                                    $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['process_time'], 0, 10))) . text(substr($crow['process_time'], 10, 6)) . " " . xlt("Claim was generated to file") . " " . "<a href='get_claim_file.php?key=" . attr($crow['process_file']) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' onclick='top.restoreSession()'>" . text($crow['process_file']) . "</a>";
                                     ++$lcount;
                                 }
 
@@ -1296,7 +1299,7 @@ $oauthorized = $my_authorized;
                                 $lhtml .= '</div>';
                                 $DivPut = 'no';
                             }
-                            echo "<tr bgcolor='$bgcolor'>\n<td rowspan='$rcount' valign='top' width='25%'>\n$lhtml</td>$rhtml\n";
+                            echo "<tr bgcolor='$bgcolor'>\n<td rowspan='" . attr($rcount) . "' valign='top' width='25%'>\n$lhtml</td>$rhtml\n";
                             echo "<tr bgcolor='$bgcolor'><td colspan='9' height='5'></td></tr>\n";
                         }
                     }

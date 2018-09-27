@@ -44,7 +44,7 @@
  * </pre>
  *
  * The claim_history x12 files are claim (837) acknowledgement (997/999) claim status (277) and claim payment (835)
- * Also eligibility request (270) and eligibility response (271)  
+ * Also eligibility request (270) and eligibility response (271)
  *
  * <pre>
  * Basic workflow:
@@ -146,7 +146,7 @@ function csv_log_html($logname = '')
         $fh = fopen($fp, 'r');
         if ($fh !== false) {
             while (($buffer = fgets($fh)) !== false) {
-                $html_str .= "<li>".$buffer."</li>".PHP_EOL;
+                $html_str .= "<li>" . text($buffer) . "</li>".PHP_EOL;
             }
 
             $html_str .= "</ol>".PHP_EOL."</div>".PHP_EOL;
@@ -318,7 +318,7 @@ function csv_notes_file($content = '', $open = true)
             $ftxt = '## '. date("F j, Y, g:i a");
         }
 
-        $str_html .= PHP_EOL.$ftxt.PHP_EOL;
+        $str_html .= PHP_EOL . text($ftxt) . PHP_EOL;
     // next stanza for saving content
     } elseif (strlen($content)) {
         //echo "csv_notes_file: we have content<br>".PHP_EOL;
@@ -328,14 +328,14 @@ function csv_notes_file($content = '', $open = true)
             $mimeinfo = $finfo->buffer($content);
             if (strncmp($mimeinfo, 'text/plain; charset=us-ascii', 28) !== 0) {
                 csv_edihist_log('csv_notes_file: invalid mime-type '.$mimeinfo);
-                $str_html = 'csv_notes_file: invalid mime-type <br>'.$mimeinfo;
+                $str_html = 'csv_notes_file: invalid mime-type <br>' . text($mimeinfo);
                 //
                 return $str_html;
             }
         } elseif (preg_match('/[^\x20-\x7E\x0A\x0D]|(<\?)|(<%)|(<asp)|(<ASP)|(#!)|(\$\{)|(<scr)|(<SCR)/', $content, $matches, PREG_OFFSET_CAPTURE)) {
             csv_edihist_log('csv_notes_file: Filtered character in file content -- character: '.$matches[0][0].' position: '.$matches[0][1]);
             $str_html .= 'Filtered character in file content not accepted <br>'. PHP_EOL;
-            $str_html .= ' character: ' . $matches[0][0] . '  position: ' . $matches[0][1] . '<br>' . PHP_EOL;
+            $str_html .= ' character: ' . text($matches[0][0]) . '  position: ' . text($matches[0][1]) . '<br>' . PHP_EOL;
             //
             return $str_html;
         }
@@ -434,22 +434,22 @@ function csv_setup()
         $isOK = true;
         //csv_edihist_log('setup: directory '.$basedir);
         $out_str .= 'EDI_History Setup should not overwrite existing data.<br>'.PHP_EOL;
-        $out_str .= 'Setup: directory '.$basedir.'<br>'.PHP_EOL;
+        $out_str .= 'Setup: directory ' . text($basedir) . '<br>'.PHP_EOL;
         //
         if (is_dir($edihist_dir) || mkdir($edihist_dir, 0755)) {
-            $out_str .= 'created folder '.$edihist_dir.'<br>'.PHP_EOL;
+            $out_str .= 'created folder ' . text($edihist_dir) . '<br>'.PHP_EOL;
             $isOK = true;
             if (is_dir($csv_dir) || mkdir($csv_dir, 0755)) {
-                $out_str .= 'created folder '.$csv_dir.'<br>'.PHP_EOL;
+                $out_str .= 'created folder ' . text($csv_dir) . '<br>'.PHP_EOL;
                 $isOK = true;
             } else {
                 $isOK = false;
                 $out_str .= 'Setup: Failed to create csv folder... '.'<br>'.PHP_EOL;
-                die('Failed to create csv folder... '.$archive_dir);
+                die('Failed to create csv folder... ' . text($archive_dir));
             }
 
             if (is_dir($archive_dir) || mkdir($archive_dir, 0755)) {
-                $out_str .= 'created folder '.$archive_dir.'<br>'.PHP_EOL;
+                $out_str .= 'created folder ' . text($archive_dir) . '<br>'.PHP_EOL;
                 $isOK = true;
             } else {
                 $isOK = false;
@@ -458,7 +458,7 @@ function csv_setup()
             }
 
             if (is_dir($log_dir) || mkdir($log_dir, 0755)) {
-                $out_str .= 'created folder '.$log_dir.'<br>'.PHP_EOL;
+                $out_str .= 'created folder ' . text($log_dir) . '<br>'.PHP_EOL;
                 $isOK = true;
             } else {
                 $isOK = false;
@@ -467,7 +467,7 @@ function csv_setup()
             }
 
             if (is_dir($tmp_dir) || mkdir($tmp_dir, 0755)) {
-                $out_str .= 'created folder '.$tmp_dir.PHP_EOL;
+                $out_str .= 'created folder ' . text($tmp_dir) . PHP_EOL;
                 $isOK = true;
             } else {
                 $isOK = false;
@@ -476,13 +476,13 @@ function csv_setup()
             }
         } else {
             $isOK = false;
-            $out_str .= 'Setup failed: cannot write to folder '.$basedir.'<br>'.PHP_EOL;
-            die('Setup failed: cannot write to '.$basedir);
+            $out_str .= 'Setup failed: cannot write to folder ' . text($basedir) . '<br>'.PHP_EOL;
+            die('Setup failed: cannot write to ' . text($basedir));
         }
     } else {
         $isOK = false;
         $out_str .= 'Setup: Failed to create history folder... '.'<br>'.PHP_EOL;
-        die('Failed to create history folder... '.$edihist_dir);
+        die('Failed to create history folder... ' . text($edihist_dir));
     }
 
     if ($isOK) {
@@ -496,9 +496,9 @@ function csv_setup()
                         if (is_file($csv_dir.DS.$file) && strpos($file, 'csv')) {
                             $rn = rename($csv_dir.DS.$file, $csv_dir.DS.'old_'.$file);
                             if ($rn) {
-                                $out_str .= 'renamed csv/'.$file.' to old_'.$file.'<br />'.PHP_EOL;
+                                $out_str .= 'renamed csv/' . text($file) . ' to old_' . text($file) . '<br />'.PHP_EOL;
                             } else {
-                                $out_str .= 'attempt to rename csv/'.$file.' failed<br />'.PHP_EOL;
+                                $out_str .= 'attempt to rename csv/' . text($file) . ' failed<br />'.PHP_EOL;
                             }
                         }
                     }
@@ -511,7 +511,7 @@ function csv_setup()
             $type_dir = $p_ar[$key]['directory'];
             //
             if (is_dir($type_dir)) {
-                $out_str .= 'folder for '.$tp.' exists '.$type_dir.'<br>'.PHP_EOL;
+                $out_str .= 'folder for ' . text($tp) . ' exists ' . text($type_dir) . '<br>'.PHP_EOL;
             } elseif (mkdir($type_dir, 0755)) {
                 if ($tp == 'f835') {
                     // in upgrade case the f835 directory should not exist
@@ -529,19 +529,19 @@ function csv_setup()
                             }
                         }
 
-                        $out_str .= 'created type folder '.$type_dir.' and moved '.$fct.' of '.$rct.' files from /era<br>'.PHP_EOL;
+                        $out_str .= 'created type folder ' . text($type_dir) . ' and moved ' . text($fct) . ' of ' . text($rct) . ' files from /era<br>'.PHP_EOL;
                     }
                 } else {
-                    $out_str .= 'created type folder '.$type_dir.'<br>'.PHP_EOL;
+                    $out_str .= 'created type folder ' . text($type_dir) . '<br>'.PHP_EOL;
                 }
             } else {
-                $out_str .= 'Setup failed to create directory for '.$tp.'<br>'.PHP_EOL;
+                $out_str .= 'Setup failed to create directory for ' . text($tp) . '<br>'.PHP_EOL;
             }
         }
     } else {
         $out_str .= 'Setup failed: Can not create directories <br>'.PHP_EOL;
     }
- 
+
     if ($isOK) {
         csv_edihist_log($out_str);
         return true;
@@ -1262,7 +1262,7 @@ function csv_thead_html($file_type, $csv_type, $tblhd = null)
 
     $str_html .= "<thead>".PHP_EOL."<tr>".PHP_EOL;
     foreach ($hvals as $val) {
-        $str_html .="<th>$val</th>";
+        $str_html .="<th>" . text($val) . "</th>";
     }
 
     $str_html .= PHP_EOL."</tr>".PHP_EOL."</thead>".PHP_EOL;
@@ -1466,7 +1466,7 @@ function csv_singlerecord_test($array)
 
 /*
  * give first and last index keys for an array
- * 
+ *
  * @param array
  * @return array
  */
@@ -1492,7 +1492,7 @@ function csv_array_bounds($array)
  * the first row is the header or array keys for the row
  * array structure:
  *  array[i]=>array(hdr0=>csvrow[0], hdr1=>csvrow[1], hdr2=>csvrow[2], ...)
- * 
+ *
  * @param string   file type e.g. f837
  * @param string   csv type claim or file
  * @return array
@@ -1833,7 +1833,7 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
         $srchtype = 'pid';
     } else {
         csv_edihist_log('csv_file_by_enctr: unable to determine encounter value '.$clm01);
-        return 'unable to determine encounter value '.$clm01.'<br />'.PHP_EOL;
+        return 'unable to determine encounter value ' . text($clm01) . '<br />'.PHP_EOL;
     }
 
     // OpenEMR creates CLM01 as nnn-nnn in genX12 batch
@@ -1894,7 +1894,7 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
     return $ret_ar;
 }
 
-   
+
 /**
  * get the x12 file containing the control_num ISA13
  *
