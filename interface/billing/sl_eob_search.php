@@ -1109,7 +1109,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
      var f = document.forms[0];
      var debug = f.form_without.checked ? '1' : '0';
      var paydate = f.form_paydate.value;
-     window.open('sl_eob_process.php?eraname=<?php echo attr(urlencode($eraname)); ?>&debug=' + debug + '&paydate=' + paydate + '&original=original', '_blank');
+     window.open('sl_eob_process.php?eraname=<?php echo attr(urlencode($eraname)); ?>&debug=' + debug + '&paydate=' + paydate + '&original=original' + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>', '_blank');
      return false;
     }
     $(function() {

@@ -571,7 +571,7 @@ document.onclick=HideTheAjaxDivs;
                         <tr bgcolor='<?php echo $bgcolor; ?>' class="text">
                         <td class="<?php echo $StringClass; ?>">
                             <!--<a href="#" onclick="javascript:return DeletePayments(&lt;?php echo htmlspecialchars($RowSearch['session_id']); ?&gt;);"><img border="0" src="../pic/Delete.gif"></a>-->
-                                 
+
                             <a href="#" onclick="javascript:return DeletePayments(<?php echo htmlspecialchars($RowSearch['session_id']); ?>);"><img border="0" src="../pic/Delete.gif"></a>
                         </td>
                         <td class="<?php echo $StringClass; ?>">
@@ -666,7 +666,7 @@ document.onclick=HideTheAjaxDivs;
                 </div>
             </form>
         </div>
-        
+
     </div>
     <div class="row">
         <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -674,7 +674,7 @@ document.onclick=HideTheAjaxDivs;
                 <div class="modal-content oe-modal-content">
                     <!--<div class="modal-header" style="border:hidden"></div>-->
                     <div class="modal-body">
-                        <iframe src="" id="targetiframe" style="height:650px; width:100%; overflow-x: hidden; border:none" allowtransparency="true"></iframe> 
+                        <iframe src="" id="targetiframe" style="height:650px; width:100%; overflow-x: hidden; border:none" allowtransparency="true"></iframe>
                     </div>
                     <div class="modal-footer" style="margin-top:0px;">
                        <button class="btn btn-link btn-cancel pull-right" data-dismiss="modal" type="button"><?php echo xlt('close'); ?></button>
