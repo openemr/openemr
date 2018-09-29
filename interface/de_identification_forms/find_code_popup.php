@@ -23,7 +23,7 @@ $form_code_type = $_POST['form_code_type'];
 <html>
 <head>
 <?php html_header_show(); ?>
-<title><?php xl('Code Finder', 'e'); ?></title>
+<title><?php echo xlt('Code Finder'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
@@ -57,9 +57,9 @@ td { font-size:10pt; }
    }
   }
   if(!str)
-    alert('<?php echo xl("Select Diagnosis");?>');
+    alert('<?php echo xls("Select Diagnosis");?>');
   if (opener.closed || ! opener.set_related)
-   alert("<?php echo xl('The destination form was closed');?>");
+   alert("<?php echo xls('The destination form was closed');?>");
   else
    opener.set_related(str,"diagnosis");
 
@@ -103,7 +103,7 @@ function check_search_str()
  var search_str = document.getElementById('search_term').value;
  if(search_str.length < 3)
  {
-  alert('<?php echo xl("Search string should have at least three characters");?>');
+  alert('<?php echo xls("Search string should have at least three characters");?>');
   return false;
  }
  top.restoreSession();
@@ -114,6 +114,7 @@ function check_search_str()
 </head>
 <body class="body_top">
 <form method='post' name='theform'  action='find_code_popup.php' onsubmit="return check_search_str();">
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <center>
  <input type="hidden" name="search_status" id="search_status" value=1;>
 <table border='0' cellpadding='5' cellspacing='0'>
@@ -131,12 +132,12 @@ if ($codetype) {
     echo "   <select name='form_code_type'";
     echo ">\n";
     foreach ($code_types as $key => $value) {
-        echo "    <option value='$key'";
+        echo "    <option value='" . attr($key) . "'";
         if ($codetype == $key || $form_code_type == $key) {
             echo " selected";
         }
 
-        echo ">$key</option>\n";
+        echo ">" . text($key) . "</option>\n";
     }
 
     echo "    <option value='PROD'";
@@ -148,11 +149,11 @@ if ($codetype) {
     echo "   </select>&nbsp;&nbsp;\n";
 }
 ?>
-    <?php xl('Search for', 'e'); ?>
+    <?php echo xlt('Search for'); ?>
    <input type='text' name='search_term' id='search_term' size='12' value='<?php echo attr($_REQUEST['search_term']); ?>'
-    title='<?php xl('Any part of the desired code or its description', 'e'); ?>' />
+    title='<?php xla('Any part of the desired code or its description'); ?>' />
    &nbsp;
-   <input type='submit' name='bn_search' id='bn_search' value='<?php xl('Search', 'e'); ?>' />
+   <input type='submit' name='bn_search' id='bn_search' value='<?php echo xla('Search'); ?>' />
    </b>
   </td>
  </tr>
@@ -168,6 +169,10 @@ if ($codetype) {
  <tr>
  <td colspan="4">
 <?php if ($_REQUEST['bn_search']) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
     $search_term = $_REQUEST['search_term'];
     if ($form_code_type == 'PROD') {
         $query = "SELECT dt.drug_id, dt.selector, d.name " .
@@ -180,11 +185,11 @@ if ($codetype) {
         $row_count = 0;
         while ($row = sqlFetchArray($res)) {
             $row_count = $row_count + 1;
-            $drug_id = addslashes($row['drug_id']);
-            $selector = addslashes($row['selector']);
-            $desc = addslashes($row['name']);
+            $drug_id = $row['drug_id'];
+            $selector = $row['selector'];
+            $desc = $row['name'];
             ?>
-             <input type="checkbox" name="diagnosis[row_count]" value= "<?php echo $desc; ?>" > <?php echo $drug_id."    ".$selector."     ".$desc."</br>";
+             <input type="checkbox" name="diagnosis[row_count]" value="<?php echo attr($desc); ?>" > <?php echo text($drug_id) . "    " . text($selector) . "     " . text($desc) . "</br>";
         }
     } else {
         $query = "SELECT count(*) as count FROM codes " .
@@ -192,13 +197,13 @@ if ($codetype) {
         "code LIKE ?) " ;
         $res = sqlStatement($query, array('%'.$search_term.'%', '%'.$search_term.'%'));
         if ($row = sqlFetchArray($res)) {
-            $no_of_items = addslashes($row['count']);
+            $no_of_items = $row['count'];
             if ($no_of_items < 1) {
                 ?>
              <script language='JavaScript'>
-            alert("<?php echo xl('Search string does not match with list in database');
+            alert("<?php echo xls('Search string does not match with list in database');
             echo '\n';
-            echo xl('Please enter new search string');?>");
+            echo xls('Please enter new search string');?>");
           document.theform.search_term.value=" ";
              document.theform.search_term.focus();
              </script>
@@ -214,10 +219,10 @@ if ($codetype) {
             $row_count = 0;
             while ($row = sqlFetchArray($res)) {
                 $row_count = $row_count + 1;
-                $itercode = addslashes($row['code']);
-                $itertext = addslashes(ucfirst(strtolower(trim($row['code_text']))));
+                $itercode = $row['code'];
+                $itertext = ucfirst(strtolower(trim($row['code_text'])));
                 ?>
-                 <input type="checkbox" id="chkbox" value= "<?php echo $form_code_type.":".$itercode."-".$itertext; ?>" > <?php echo $itercode."    ".$itertext."</br>";
+                 <input type="checkbox" id="chkbox" value= "<?php echo attr($form_code_type) . ":" . attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "</br>";
             }
         }
     }
@@ -227,13 +232,13 @@ if ($codetype) {
  </table>
 <center>
 </br>
- <input type='button' id='select_all' value='<?php xl('Select All', 'e'); ?>' onclick="chkbox_select_all(document.select_diagonsis.chkbox);"/>
+ <input type='button' id='select_all' value='<?php echo xla('Select All'); ?>' onclick="chkbox_select_all(document.select_diagonsis.chkbox);"/>
 
- <input type='button' id='unselect_all' value='<?php xl('Unselect All', 'e'); ?>' onclick="chkbox_select_none(document.select_diagonsis.chkbox);"/>
+ <input type='button' id='unselect_all' value='<?php echo xla('Unselect All'); ?>' onclick="chkbox_select_none(document.select_diagonsis.chkbox);"/>
 
- <input type='button' id='submit' value='<?php xl('Submit', 'e'); ?>' onclick="window_submit(document.select_diagonsis.chkbox);"/>
+ <input type='button' id='submit' value='<?php echo xla('Submit'); ?>' onclick="window_submit(document.select_diagonsis.chkbox);"/>
 
- <input type='button' id='cancel' value='<?php xl('Cancel', 'e'); ?>' onclick="window_close();"/>
+ <input type='button' id='cancel' value='<?php echo xla('Cancel'); ?>' onclick="window_close();"/>
 
 </center>
 <?php } ?>
