@@ -50,6 +50,8 @@ $dispose = $_POST['handler'];
 $cpid = $_REQUEST['cpid'] ? $_REQUEST['cpid'] : $GLOBALS['pid'];
 
 try {
+    $result = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", array("Reviewed"));
+    $category = $result['id'] ? $result['id'] : 3;
     $form_filename = convert_safe_file_dir_name($_REQUEST['docid']) . '_' . convert_safe_file_dir_name($cpid) . '.pdf';
     $templatedir = $GLOBALS['OE_SITE_DIR'] . "/documents/onsite_portal_documents/patient_documents";
     $templatepath = "$templatedir/$form_filename";
@@ -85,7 +87,7 @@ try {
             echo xla("ERROR Missing Patient ID");
             exit();
         }
-        $rc = $d->createDocument($cpid, 29, $form_filename, 'application/pdf', $data);
+        $rc = $d->createDocument($cpid, $category, $form_filename, 'application/pdf', $data);
         ob_clean();
         echo $rc;
         $logit->portalLog('chart document', $cpid, ('document:'.$form_filename));
