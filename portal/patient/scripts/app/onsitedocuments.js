@@ -248,6 +248,13 @@ var page = {
             }
                 pageAudit.fetchParams.doc = page.onsiteDocument.get('id')
                 pageAudit.fetchOnsitePortalActivities(pageAudit.fetchParams);
+
+            if ( cuser != '-patient-') {
+                // disable admin signature in patient view
+                $('#patientSignature').prop("onclick", null);
+            } else {
+                $('#adminSignature').prop("onclick", null);
+            }
         });
     },
 
@@ -331,6 +338,7 @@ var page = {
                         $("#submitTemplate").hide();
                         $("#sendTemplate").hide();
                         page.onsiteDocument.set('fullDocument',templateHtml);
+                        $('#adminSignature').prop("onclick", null);
                     }
                 }
             });
@@ -394,16 +402,12 @@ var page = {
             $('#confirmDeleteOnsiteDocumentButton').click(function (e) {
                 e.preventDefault();
                 page.deleteModel();
-
             });
-            // disable admin signature in patient view
-            // @todo do better disable check as may want to delete in dashboard someday.
-            $('#adminSignature').prop("onclick", null);
         } else {
             // no point in initializing the click handlers if we don't show the button
-            $('#patientSignature').prop("onclick", null);
             $('#deleteOnsiteDocumentButtonContainer').hide();
         }
+
     },
 
     /**
