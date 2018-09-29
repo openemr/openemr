@@ -660,7 +660,7 @@ if ($_POST['form_save'] || $_POST['form_cancel']) {
                 <div class="form-group clearfix">
                     <div class="col-sm-12 text-left position-override" id="search-btn">
                         <div class="btn-group" role="group">
-                            <button type='submit' class="btn btn-default btn-save" name='form_save' id="btn-save" ><?php  echo xlt("Save"); ?></button>
+                            <button type='submit' class="btn btn-default btn-save" name='form_save' id="btn-save" onclick="this.value='1';"><?php  echo xlt("Save"); ?></button>
                             <button type='submit' class="btn btn-link btn-cancel btn-separate-left" name='form_cancel' id="btn-cancel"  onclick='window.close();'><?php echo xlt("Cancel"); ?></button>
                         </div>
                     </div>
