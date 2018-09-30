@@ -53,7 +53,7 @@ function upgradeFromSqlFile_de($filename)
         echo xlt("Error, unable to open file");
         echo " " . text($fullname) . "\n";
         flush();
-        break;
+        exit();
     }
 
     $query = "";
@@ -169,7 +169,7 @@ if (!empty($_POST['form_submit'])) {
     if ($dbh == false) {
         echo "\n";
         echo "<p>" . text(getSqlLastError()) . " (#" . text(getSqlLastErrorNo()) . ")\n";
-        break;
+        exit();
     }  $login=$sqlconf["login"];
     $loginhost=$sqlconf["host"];
     generic_sql_select_db($sqlconf['dbase']) or die(text(getSqlLastError()));
@@ -179,7 +179,7 @@ if (!empty($_POST['form_submit'])) {
         echo "<p>" . text(getSqlLastError()) . " (#" . text(getSqlLastErrorNo()) . ")\n";
         echo xlt("Error");
         echo "\n";
-        break;
+        exit();
     } else {
         echo "<font color='green'>";
     }
