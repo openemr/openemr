@@ -16,13 +16,22 @@
  * along with this program; if not, write to the Free Software                  *
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
  \********************************************************************************/
+
+
 require_once("../globals.php");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
-?>
-<?php
+
+if (!acl_check('admin', 'super')) {
+    die(xlt('Not authorized'));
+}
+
+if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+    die(xlt('Authentication Error'));
+}
+
 /*executes the De Identification process, using the parameters chosen from the
 de_identification_screen1.php  */
 $begin_date = $_POST["begin_date"];
@@ -73,7 +82,7 @@ $immunization_text = $_POST["immunization_text"];
 $query = "select status from de_identification_status";
 $res = sqlStatement($query);
 if ($row = sqlFetchArray($res)) {
-    $deIdentificationStatus = addslashes($row['status']);
+    $deIdentificationStatus = $row['status'];
  /* $deIdentificationStatus:
  *  0 - There is no De Identification in progress. (start new De Identification process)
  *  1 - A De Identification process is currently in progress.
@@ -104,7 +113,7 @@ if ($deIdentificationStatus == 0) {
     $query = "SELECT count(*) as count FROM metadata_de_identification";
     $res = sqlStatement($query);
     if ($row = sqlFetchArray($res)) {
-        $no_of_items = addslashes($row['count']);
+        $no_of_items = $row['count'];
         if ($no_of_items == 0) {
             $cmd="cp " . escapeshellarg($GLOBALS['webserver_root']."/sql/metadata_de_identification.txt") . " " . escapeshellarg($GLOBALS['temporary_files_dir']."/metadata_de_identification.txt");
             $output3=shell_exec($cmd);
@@ -121,14 +130,14 @@ if ($deIdentificationStatus == 0) {
     $query = "delete from param_include_tables";
     $res = sqlStatement($query);
 
-    $query = "insert into param_include_tables values ('$include_tables','$include_unstructured')";
-    $res = sqlStatement($query);
+    $query = "insert into param_include_tables values (?, ?)";
+    $res = sqlStatement($query, array($include_tables, $include_unstructured));
 
     $query = "delete from param_filter_pid";
     $res = sqlStatement($query);
 
-    $query = "insert into param_filter_pid values ('$begin_date', '$end_date', '$diagnosis_text', '$drug_text', '$immunization_text')";
-    $res = sqlStatement($query);
+    $query = "insert into param_filter_pid values (?, ?, ?, ?, ?)";
+    $res = sqlStatement($query, array($begin_date, $end_date, $diagnosis_text, $drug_text, $immunization_text));
 
     //process running
     $query = "update de_identification_status set status = 1";
@@ -136,21 +145,21 @@ if ($deIdentificationStatus == 0) {
 
     try {
         //call procedure - execute in background
-        $sh_cmd='./de_identification_procedure.sh '.$sqlconf["host"].' '.$sqlconf["login"].' '.$sqlconf["pass"].' '.$sqlconf["dbase"].' &';
+        $sh_cmd='./de_identification_procedure.sh ' . escapeshellarg($sqlconf["host"]) . ' ' . escapeshellarg($sqlconf["login"]) . ' ' . escapeshellarg($sqlconf["pass"]) . ' ' . escapeshellarg($sqlconf["dbase"]) . ' &';
         system($sh_cmd);
 
 
         $query = "SELECT status FROM de_identification_status ";
         $res = sqlStatement($query);
         if ($row = sqlFetchArray($res)) {
-            $de_identification_status = addslashes($row['status']);
+            $de_identification_status = $row['status'];
             if ($de_identification_status == 2 || $de_identification_status == 3) {
              //2 - The De Identification process completed and xls file is ready to download
              //3 - The De Identification process completed with error
                 $query = "SELECT count(*) as count FROM de_identified_data ";
                 $res = sqlStatement($query);
                 if ($row = sqlFetchArray($res)) {
-                    $no_of_items = addslashes($row['count']);
+                    $no_of_items = $row['count'];
                     if ($no_of_items <= 1) {
                         ?>
     <table>
@@ -168,9 +177,9 @@ if ($deIdentificationStatus == 0) {
 
         <td>&nbsp;</td>
         <td rowspan="3"><br>
-        <?php echo xl('No Patient record found for given Selection criteria');
+        <?php echo xlt('No Patient record found for given Selection criteria');
         echo "</br></br>";
-        echo xl('Please start new De Identification process');
+        echo xlt('Please start new De Identification process');
         echo "</br>";   ?> </br>
         </td>
         <td>&nbsp;</td>
@@ -197,14 +206,14 @@ if ($deIdentificationStatus == 0) {
                         $query = "select now() as timestamp";
                         $res = sqlStatement($query);
                         if ($row = sqlFetchArray($res)) {
-                            $timestamp = addslashes($row['timestamp']);
+                            $timestamp = $row['timestamp'];
                         }
 
                         $timestamp = str_replace(" ", "_", $timestamp);
                         $de_identified_file = $GLOBALS['temporary_files_dir']."/de_identified_data".$timestamp.".xls";
-                        $query = "update de_identification_status set last_available_de_identified_data_file = '" . add_escape_custom($de_identified_file) . "'";
-                        $res = sqlStatement($query);
-                        $query = "select * from de_identified_data into outfile '$de_identified_file' ";
+                        $query = "update de_identification_status set last_available_de_identified_data_file = ?";
+                        $res = sqlStatement($query, array($de_identified_file));
+                        $query = "select * from de_identified_data into outfile '" . add_escape_custom($de_identified_file) . "' ";
                         $res = sqlStatement($query);
                         ?>
     <table>
@@ -221,9 +230,9 @@ if ($deIdentificationStatus == 0) {
     <tr valign="top">
         <td>&nbsp;</td>
         <td rowspan="3"><br>
-        <?php echo xl('De Identification Process is ongoing');
+        <?php echo xlt('De Identification Process is ongoing');
         echo "</br></br>";
-        echo xl('Please visit De Identification screen after some time');
+        echo xlt('Please visit De Identification screen after some time');
         echo "</br>";   ?> </br>
         </td>
         <td>&nbsp;</td>
@@ -259,7 +268,7 @@ if ($deIdentificationStatus == 0) {
     $query = "select last_available_de_identified_data_file from de_identification_status";
     $res = sqlStatement($query);
     if ($row = sqlFetchArray($res)) {
-        $filename = addslashes($row['last_available_de_identified_data_file']);
+        $filename = $row['last_available_de_identified_data_file'];
     }
 
     ob_end_clean();

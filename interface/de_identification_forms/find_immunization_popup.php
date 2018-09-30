@@ -23,7 +23,7 @@ $form_code_type = $_POST['form_code_type'];
 <html>
 <head>
 <?php html_header_show(); ?>
-<title><?php xl('Immunization', 'e'); ?></title>
+<title><?php echo xlt('Immunization'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <style>
 td { font-size:10pt; }
@@ -55,9 +55,9 @@ td { font-size:10pt; }
    }
   }
   if(!str)
-    alert('<?php echo xl("Select Immunizations");?>');
+    alert('<?php echo xls("Select Immunizations");?>');
   if (opener.closed || ! opener.set_related)
-   alert("<?php echo xl('The destination form was closed');?>");
+   alert("<?php echo xls('The destination form was closed');?>");
   else
    opener.set_related(str,"immunizations");
 
@@ -101,7 +101,7 @@ function check_search_str()
  var search_str = document.getElementById('search_term').value;
  if(search_str.length < 3)
  {
-  alert('<?php echo xl("Search string should have at least three characters");?>');
+  alert('<?php echo xls("Search string should have at least three characters");?>');
   return false;
  }
  top.restoreSession();
@@ -111,6 +111,8 @@ function check_search_str()
 </head>
 <body class="body_top">
 <form method='post' name='theform'  action='find_immunization_popup.php' onsubmit="return check_search_str();">
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+
 <center>
 <table border='0' cellpadding='5' cellspacing='0'>
  <tr>
@@ -120,11 +122,11 @@ function check_search_str()
  <tr>
   <td>
    <b>
-    <?php xl('Search for', 'e'); ?>
+    <?php echo xlt('Search for'); ?>
    <input type='text' name='search_term' id='search_term' size='12' value='<?php echo attr($_REQUEST['search_term']); ?>'
-    title='<?php xl('Any part of the immunization id or immunization name', 'e'); ?>' />
+    title='<?php echo xla('Any part of the immunization id or immunization name'); ?>' />
    &nbsp;
-   <input type='submit' name='bn_search' value='<?php xl('Search', 'e'); ?>' />
+   <input type='submit' name='bn_search' value='<?php echo xla('Search'); ?>' />
    </b>
   </td>
  </tr>
@@ -137,6 +139,12 @@ function check_search_str()
 </form>
 <form method='post' name='select_immunization'>
 <?php if ($_REQUEST['bn_search']) { ?>
+    <?php
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+    ?>
+
 <table border='0'>
  <tr>
   <td colspan="4">
@@ -147,13 +155,13 @@ function check_search_str()
       "WHERE (list_id = 'immunizations' and title LIKE ? AND activity = 1) " ;
     $res = sqlStatement($query, array('%'.$search_term.'%'));
 if ($row = sqlFetchArray($res)) {
-    $no_of_items = addslashes($row['count']);
+    $no_of_items = $row['count'];
     if ($no_of_items < 1) {
         ?>
      <script language='JavaScript'>
-        alert("<?php echo xl('Search string does not match with list in database');
+        alert("<?php echo xls('Search string does not match with list in database');
         echo '\n';
-        echo xl('Please enter new search string');?>");
+        echo xls('Please enter new search string');?>");
      document.theform.search_term.value=" ";
      document.theform.search_term.focus();
      </script>
@@ -167,10 +175,10 @@ if ($row = sqlFetchArray($res)) {
     $row_count = 0;
     while ($row = sqlFetchArray($res)) {
         $row_count = $row_count + 1;
-        $itercode = addslashes($row['option_id']);
-        $itertext = addslashes(ucfirst(strtolower(trim($row['title']))));
+        $itercode = $row['option_id'];
+        $itertext = ucfirst(strtolower(trim($row['title'])));
         ?>
-       <input type="checkbox" id="chkbox" value= "<?php echo $itercode."-".$itertext; ?>" > <?php echo $itercode."    ".$itertext."</br>";
+       <input type="checkbox" id="chkbox" value= "<?php echo attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "</br>";
     }
 }
 
@@ -180,13 +188,13 @@ if ($row = sqlFetchArray($res)) {
 </tr>
  </table>
 <center>
- <input type='button' name='select_all' value='<?php xl('Select All', 'e'); ?>' onclick="chkbox_select_all(document.select_immunization.chkbox);"/>
+ <input type='button' name='select_all' value='<?php echo xla('Select All'); ?>' onclick="chkbox_select_all(document.select_immunization.chkbox);"/>
 
- <input type='button' name='select_none' value='<?php xl('Unselect All', 'e'); ?>' onclick="chkbox_select_none(document.select_immunization.chkbox);"/>
+ <input type='button' name='select_none' value='<?php echo xla('Unselect All'); ?>' onclick="chkbox_select_none(document.select_immunization.chkbox);"/>
 
- <input type='button' name='submit' value='<?php xl('Submit', 'e'); ?>' onclick="window_submit(document.select_immunization.chkbox);"/>
+ <input type='button' name='submit' value='<?php echo xla('Submit'); ?>' onclick="window_submit(document.select_immunization.chkbox);"/>
 
- <input type='button' name='cancel' value='<?php xl('Cancel', 'e'); ?>' onclick="window_close();"/>
+ <input type='button' name='cancel' value='<?php echo xla('Cancel'); ?>' onclick="window_close();"/>
 
  </center>
 <?php } ?>
