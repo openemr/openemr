@@ -102,6 +102,7 @@ if (stristr(PHP_OS, 'WIN')) {
 // List of user specific tabs and globals
 $USER_SPECIFIC_TABS = array('Appearance',
     'Locale',
+    'Features',
     'Report',
     'Calendar',
     'CDR',
@@ -119,6 +120,9 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'us_weight_format',
     'date_display_format',
     'time_display_format',
+    'enable_help',
+    'messages_due_date',
+    'expand_form',
     'ledger_begin_date',
     'print_next_appointment_on_ledger',
     'calendar_view_type',
@@ -198,7 +202,7 @@ $GLOBALS_METADATA = array(
         'css_header' => array(
             xl('General Theme (need to logout/login after change this setting)'),
             'css',
-            'style_light.css',
+            'style_sienna.css',
             xl('Pick a general theme (need to logout/login after change this setting).')
         ),
 
@@ -937,6 +941,13 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',                              // default false
             xl('Enables choose due date to message')
+        ),
+
+        'expand_form' => array(
+            xl('Expand Form'),
+            'bool',                           // data type
+            '0',                              // default false
+            xl('Open all expandable forms in expanded state')
         )
     ),
     // Report Tab

@@ -38,6 +38,7 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/billrep.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/payment.inc.php");
+
 //===============================================================================
     $screen='new_payment';
 //===============================================================================
@@ -369,123 +370,137 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
             color: #000000 !Important;
         }
     }
-    */ .navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:focus, .navbar-default .navbar-nav>.active>a:hover {
-        color: #000000 !Important;
-        background-color: /*#F5D6D8 !Important;
-        font-weight: 900 !Important;
-    }*/
-    .navbar-default .navbar-nav>li>a {
-        color: #000000 !Important;
-        font-weight: 700 !Important;
-    }
-    /*.btn-file {
-        position: relative;
-        overflow: hidden;
-    }
-    .btn-file input[type=file] {
-        position: absolute;
-        top: 0;
-        right: 0;
-        min-width: 100%;
-        min-height: 100%;
-        font-size: 100px;
-        text-align: right;
-        filter: alpha(opacity=0);
-        opacity: 0;
-        outline: none;
-        background: white;
-        cursor: inherit;
-        display: block;
-    }*/
-    
     nav.navbar.navbar-default.navbar-color {
         background: #c1c1c1;
     }
     </style>
+    <?php
+    //to determine and set the form to open in the desired state - expanded or centered
+    // any selection the user makes will become the user-specific default for that page
+    
+    $current_filename = 'new_payment';
+       
+    if (getUserSetting($current_filename) > -1) {
+        $user_value = getUserSetting($current_filename);
+    } elseif ($GLOBALS['expand_form']) {
+        $user_value = $GLOBALS['expand_form'];
+    } else {
+        $user_value = 0;
+    }
+    
+    //the linked files that would need to open in the same state, expanded or centered, as the current page
+    // if no linked files comment out next 4 lines
+    $filenames = array("new_payment", "search_payments", "era_payments");
+    foreach ($filenames as $filename) {
+        setUserSetting($filename, $user_value);
+    }
+    
+    $current_state = $user_value;
+    if ($current_state == 1) {
+        $container = 'container-fluid';
+        $expand_title = xl('Click to Contract and set to henceforth open in Centered mode');
+        $expand_icon_class = 'fa-compress';
+    } else {
+        $container = 'container';
+        $expand_title = xl('Click to Expand and set to henceforth open in Expanded mode');
+        $expand_icon_class = 'fa-expand';
+    }
+    
+    ?>
     <title><?php echo xlt('New Payment'); ?></title>
 </head>
 <body class="body_top" onload="OnloadAction()">
-    <div class="container">
+    <div class="<?php echo $container;?> expandable">
         <div class="row">
-            <div class="page-header">
-                <h2><?php echo xlt('Payments'); ?></h2>
+            <div class="col-sm-12">
+                <div class="page-header">
+                    <h2>
+                        <?php echo xlt('Payments'); ?> <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract" 
+                        title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i>
+                    </h2>
+                </div>
             </div>
         </div>
-        <div class="row" >
-            <nav class="navbar navbar-default navbar-color navbar-static-top" >
-                <div class="container-fluid">
-                    <div class="navbar-header">
-                        <button class="navbar-toggle" data-target="#myNavbar" data-toggle="collapse" type="button"><span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span></button>
+        <div class="row">
+            <div class="col-sm-12">
+                <nav class="navbar navbar-default navbar-color navbar-static-top" >
+                    <div class="container-fluid-fluid">
+                        <div class="navbar-header">
+                            <button class="navbar-toggle" data-target="#myNavbar" data-toggle="collapse" type="button"><span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span></button>
+                        </div>
+                        <div class="collapse navbar-collapse" id="myNavbar" >
+                            <ul class="nav navbar-nav" >
+                                <li class="active oe-bold-black">
+                                    <a href='new_payment.php' style="font-weight:700; color:#000000"><?php echo xlt('New Payment'); ?></a>
+                                </li>
+                                <li class="oe-bold-black" >
+                                    <a href='search_payments.php' style="font-weight:700; color:#000000"><?php echo xlt('Search Payment'); ?></a>
+                                </li>
+                                <li class="oe-bold-black">
+                                    <a href='era_payments.php' style="font-weight:700; color:#000000"><?php echo xlt('ERA Posting'); ?></a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="collapse navbar-collapse" id="myNavbar" >
-                        <ul class="nav navbar-nav" >
-                            <li class="active oe-bold-black">
-                                <a href='new_payment.php' style="font-weight:700; color:#000000"><?php echo xlt('New Payment'); ?></a>
-                            </li>
-                            <li class="oe-bold-black" >
-                                <a href='search_payments.php' style="font-weight:700; color:#000000"><?php echo xlt('Search Payment'); ?></a>
-                            </li>
-                            <li class="oe-bold-black">
-                                <a href='era_payments.php' style="font-weight:700; color:#000000"><?php echo xlt('ERA Posting'); ?></a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
+                </nav>
+            </div>
         </div>
-        <div class="row" >        
-            <form action="new_payment.php" id="new_payment" method='post' name='new_payment' onsubmit="
-            <?php
-            if ($payment_id*1==0) {
-                echo 'top.restoreSession();return SavePayment();';
-            } else {
-                echo 'return false;';
-            }?>" style="display:inline">
-                <fieldset>
-                    <?php
-                        require_once("payment_master.inc.php"); //Check/cash details are entered here.
-                    ?>
-                    <br>
-                    <?php
-                    if ($payment_id*1>0) {
-                    ?>
+        <div class="row">
+            <div class="col-sm-12">
+                <form action="new_payment.php" id="new_payment" method='post' name='new_payment' onsubmit="
+                    
+                <?php
+                if ($payment_id*1==0) {
+                    echo 'top.restoreSession();return SavePayment();';
+                } else {
+                    echo 'return false;';
+                }?>" style="display:inline">
+                    <fieldset>
                         <?php
-                        if ($PaymentType=='patient' && $default_search_patient != "default_search_patient") {
-                            $default_search_patient = "default_search_patient";
-                            $_POST['default_search_patient'] = $default_search_patient;
-                            $hidden_patient_code=$TypeCode;
-                            $_REQUEST['hidden_patient_code']=$hidden_patient_code;
-                            $_REQUEST['RadioPaid']='Show_Paid';
-                        }
-                            require_once("payment_pat_sel.inc.php"); //Patient ajax section and listing of charges.
+                            require_once("payment_master.inc.php"); //Check/cash details are entered here.
                         ?>
+                        <br>
                         <?php
-                        if ($CountIndexBelow>0) {
+                        if ($payment_id*1>0) {
                         ?>
-                        <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
-                        <div class="form-group clearfix">
-                        <div class="col-sm-12 text-left position-override">
-                            <div class="btn-group btn-group-pinch" role="group">
-                                <button class="btn btn-default btn-save" href="#" onclick="return PostPayments();"><?php echo xlt('Post Payments');?></button>
-                                <button class="btn btn-default btn-save" href="#" onclick="return FinishPayments();"><?php echo xlt('Finish Payments');?></button>
-                                <button class="btn btn-link btn-cancel btn-separate-left" href="#" onclick="CancelDistribute()"><?php echo xlt('Cancel');?></button>
+                            <?php
+                            if ($PaymentType=='patient' && $default_search_patient != "default_search_patient") {
+                                $default_search_patient = "default_search_patient";
+                                $_POST['default_search_patient'] = $default_search_patient;
+                                $hidden_patient_code=$TypeCode;
+                                $_REQUEST['hidden_patient_code']=$hidden_patient_code;
+                                $_REQUEST['RadioPaid']='Show_Paid';
+                            }
+                                require_once("payment_pat_sel.inc.php"); //Patient ajax section and listing of charges.
+                            ?>
+                            <?php
+                            if ($CountIndexBelow>0) {
+                            ?>
+                            <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
+                            <div class="form-group clearfix">
+                            <div class="col-sm-12 text-left position-override">
+                                <div class="btn-group btn-group-pinch" role="group">
+                                    <button class="btn btn-default btn-save" href="#" onclick="return PostPayments();"><?php echo xlt('Post Payments');?></button>
+                                    <button class="btn btn-default btn-save" href="#" onclick="return FinishPayments();"><?php echo xlt('Finish Payments');?></button>
+                                    <button class="btn btn-link btn-cancel btn-separate-left" href="#" onclick="CancelDistribute()"><?php echo xlt('Cancel');?></button>
+                                </div>
                             </div>
-                        </div>
-                        </div>
+                            </div>
+                            <?php
+                            }//if($CountIndexBelow>0)
+                            ?>
                         <?php
-                        }//if($CountIndexBelow>0)
-                        ?>
-                    <?php
-                    }
-                    ?> 
-                </fieldset>
-                <input id="hidden_patient_code" name="hidden_patient_code" type="hidden" value="<?php echo htmlspecialchars($hidden_patient_code);?>"> <input id='mode' name='mode' type='hidden' value=''> 
-                <input id='default_search_patient' name='default_search_patient' type='hidden' value='<?php echo $default_search_patient ?>'> 
-                <input id='ajax_mode' name='ajax_mode' type='hidden' value=''> 
-                <input id="after_value" name="after_value" type="hidden" value="<?php echo htmlspecialchars($mode);?>"> 
-                <input id="payment_id" name="payment_id" type="hidden" value="<?php echo htmlspecialchars($payment_id);?>"> <input id="hidden_type_code" name="hidden_type_code" type="hidden" value="<?php echo htmlspecialchars($hidden_type_code);?>"> 
-                <input id='global_amount' name='global_amount' type='hidden' value=''>
-            </form>
+                        }
+                        ?> 
+                    </fieldset>
+                    <input id="hidden_patient_code" name="hidden_patient_code" type="hidden" value="<?php echo htmlspecialchars($hidden_patient_code);?>"> <input id='mode' name='mode' type='hidden' value=''> 
+                    <input id='default_search_patient' name='default_search_patient' type='hidden' value='<?php echo $default_search_patient ?>'> 
+                    <input id='ajax_mode' name='ajax_mode' type='hidden' value=''> 
+                    <input id="after_value" name="after_value" type="hidden" value="<?php echo htmlspecialchars($mode);?>"> 
+                    <input id="payment_id" name="payment_id" type="hidden" value="<?php echo htmlspecialchars($payment_id);?>"> <input id="hidden_type_code" name="hidden_type_code" type="hidden" value="<?php echo htmlspecialchars($hidden_type_code);?>"> 
+                    <input id='global_amount' name='global_amount' type='hidden' value=''>
+                </form>
+            </div>
         </div><!-- end of row div -->
         <div class="clearfix">.</div>
     </div><!-- end of container div -->
@@ -523,6 +538,14 @@ $(function() {
 $(document).ready(function() {
     $('select').removeClass('class1 text')
 });
+</script>
+<script>
+<?php
+    // jQuery script to change state dynamically
+    $user_settings_php_path = '../../library/ajax/user_settings.php';
+    $arr_files = '"new_payment", "search_payments", "era_payments"'; // the linked files that need to have same state, if none comment out line
+    require_once("../expand_contract_js.php")
+?>
 </script>
 
 </body>
