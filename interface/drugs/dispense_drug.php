@@ -33,7 +33,7 @@ function send_email($subject, $body)
     $mail->Subject = $subject;
     $mail->AddAddress($recipient);
     if (!$mail->Send()) {
-        error_log(xl('There has been a mail error sending to', '', '', ' ') . $recipient .
+        error_log('There has been a mail error sending to' . " " . $recipient .
         " " . $mail->ErrorInfo);
     }
 }
@@ -173,9 +173,9 @@ if ($dconfig['disclaimer']) {
 $label_text = $row['fname'] . ' ' . $row['lname'] . ' ' . $row['date_modified'] .
 ' RX#' . sprintf('%06u', $row['prescription_id']) . "\n" .
 $row['name'] . ' ' . $row['size'] . ' ' .
-generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['unit']) .
-xl('QTY', '', ' ', ' ') . $row['quantity'] . "\n" .
-xl('Take', '', '', ' ') . $row['dosage'] . ' ' .
+generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['unit']) . ' ' .
+xl('QTY') . ' ' . $row['quantity'] . "\n" .
+xl('Take') . ' ' . $row['dosage'] . ' ' .
 generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
 ($row['dosage'] > 1 ? 's ' : ' ') .
 generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), $row['interval']) .
