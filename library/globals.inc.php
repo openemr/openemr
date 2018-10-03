@@ -29,6 +29,7 @@
 //   Bahasa Indonesia               // xl('Bahasa Indonesia')
 //   Bengali                        // xl('Bengali')
 //   Bosnian                        // xl('Bosnian')
+//   Bulgarian                      // xl('Bulgarian')
 //   Chinese (Simplified)           // xl('Chinese (Simplified)')
 //   Chinese (Traditional)          // xl('Chinese (Traditional)')
 //   Croatian                       // xl('Croatian')
