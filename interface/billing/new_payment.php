@@ -25,8 +25,6 @@
  *           Paul Simon K <paul@zhservices.com>
  *
  */
-use OpenEMR\Core\Header;
-
 require_once("../globals.php");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once("$srcdir/sl_eob.inc.php");
@@ -38,6 +36,8 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/billrep.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/payment.inc.php");
+
+use OpenEMR\Core\Header;
 
 //===============================================================================
     $screen='new_payment';
@@ -370,6 +370,35 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
             color: #000000 !Important;
         }
     }
+    */ .navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:focus, .navbar-default .navbar-nav>.active>a:hover {
+        color: #000000 !Important;
+        background-color: /*#F5D6D8 !Important;
+        font-weight: 900 !Important;
+    }*/
+    .navbar-default .navbar-nav>li>a {
+        color: #000000 !Important;
+        font-weight: 700 !Important;
+    }
+    /*.btn-file {
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-file input[type=file] {
+        position: absolute;
+        top: 0;
+        right: 0;
+        min-width: 100%;
+        min-height: 100%;
+        font-size: 100px;
+        text-align: right;
+        filter: alpha(opacity=0);
+        opacity: 0;
+        outline: none;
+        background: white;
+        cursor: inherit;
+        display: block;
+    }*/
+    
     nav.navbar.navbar-default.navbar-color {
         background: #c1c1c1;
     }
@@ -377,35 +406,13 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
     <?php
     //to determine and set the form to open in the desired state - expanded or centered
     // any selection the user makes will become the user-specific default for that page
+    // first argument - name of current file, second - array with names of files that need to be in the same state as current file, can be empty
+    // third argument - global value either set by admin/user, once user chooses the state of individual page it is then set to that state
     
-    $current_filename = 'new_payment';
-       
-    if (getUserSetting($current_filename) > -1) {
-        $user_value = getUserSetting($current_filename);
-    } elseif ($GLOBALS['expand_form']) {
-        $user_value = $GLOBALS['expand_form'];
-    } else {
-        $user_value = 0;
-    }
-    
-    //the linked files that would need to open in the same state, expanded or centered, as the current page
-    // if no linked files comment out next 4 lines
-    $filenames = array("new_payment", "search_payments", "era_payments");
-    foreach ($filenames as $filename) {
-        setUserSetting($filename, $user_value);
-    }
-    
-    $current_state = $user_value;
-    if ($current_state == 1) {
-        $container = 'container-fluid';
-        $expand_title = xl('Click to Contract and set to henceforth open in Centered mode');
-        $expand_icon_class = 'fa-compress';
-    } else {
-        $container = 'container';
-        $expand_title = xl('Click to Expand and set to henceforth open in Expanded mode');
-        $expand_icon_class = 'fa-expand';
-    }
-    
+    $current_filename = 'new_payment_xpd'; // needed for jquey script as well
+    $current_state = collectAndOrganizeExpandSetting($current_filename, array("new_payment_xpd", "search_payments_xpd", "era_payments_xpd"), $GLOBALS['expand_form']);
+    require_once("$srcdir/expand_contract_inc.php");
+      
     ?>
     <title><?php echo xlt('New Payment'); ?></title>
 </head>
@@ -424,7 +431,7 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
         <div class="row">
             <div class="col-sm-12">
                 <nav class="navbar navbar-default navbar-color navbar-static-top" >
-                    <div class="container-fluid-fluid">
+                    <div class="container-fluid">
                         <div class="navbar-header">
                             <button class="navbar-toggle" data-target="#myNavbar" data-toggle="collapse" type="button"><span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span></button>
                         </div>
@@ -448,7 +455,6 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
         <div class="row">
             <div class="col-sm-12">
                 <form action="new_payment.php" id="new_payment" method='post' name='new_payment' onsubmit="
-                    
                 <?php
                 if ($payment_id*1==0) {
                     echo 'top.restoreSession();return SavePayment();';
@@ -543,7 +549,7 @@ $(document).ready(function() {
 <?php
     // jQuery script to change state dynamically
     $user_settings_php_path = '../../library/ajax/user_settings.php';
-    $arr_files = '"new_payment", "search_payments", "era_payments"'; // the linked files that need to have same state, if none comment out line
+    $arr_files = '"new_payment_xpd", "search_payments_xpd", "era_payments_xpd"'; // the linked files that need to have same state, if none comment out line
     require_once("../expand_contract_js.php")
 ?>
 </script>

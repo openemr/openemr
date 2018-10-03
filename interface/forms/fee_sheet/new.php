@@ -794,34 +794,12 @@ if ($GLOBALS['enable_help'] == 1) {
 
 //to determine and set the form to open in the desired state - expanded or centered
 // any selection the user makes will become the user-specific default for that page
+// first argument - name of current file ends with _xpd, second - array with names of files, all ending with _xpd, that need to be in the same state as current file, can be empty
+// third argument - global value either set by admin/user, once user chooses the state of individual page it is then set to that state
 
-$current_filename = 'fee_sheet_new';
-   
-if (getUserSetting($current_filename) > -1) {
-    $user_value = getUserSetting($current_filename);
-} elseif ($GLOBALS['expand_form']) {
-    $user_value = $GLOBALS['expand_form'];
-} else {
-    $user_value = 0;
-}
-
-//the linked files that would need to open in the same state, expanded or centered, as the current page 
-// if no linked files comment out next 4 lines
-// $filenames = array("new_payment", "search_payments", "era_payments");
-// foreach ($filenames as $filename){
-  // setUserSetting($filename, $user_value);
-// }
-
-$current_state = $user_value;
-if ($current_state == 1) {
-    $container = 'container-fluid';
-    $expand_title = xl('Click to Contract and set to henceforth open in Centered mode');
-    $expand_icon_class = 'fa-compress';
-} else {
-    $container = 'container';
-    $expand_title = xl('Click to Expand and set to henceforth open in Expanded mode');
-    $expand_icon_class = 'fa-expand';
-}
+$current_filename = 'fee_sheet_new_xpd'; // needed for jquey script as well
+$current_state = collectAndOrganizeExpandSetting($current_filename, array(), $GLOBALS['expand_form']);
+require_once("$srcdir/expand_contract_inc.php");
 ?>
 </head>
 

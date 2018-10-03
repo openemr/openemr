@@ -250,14 +250,14 @@ $(document).ready(function() {
   {//Search  validations.
     if(document.getElementById('FromDate').value=='' && document.getElementById('ToDate').value=='' && document.getElementById('PaymentStatus').selectedIndex==0 && document.getElementById('payment_method').selectedIndex==0 && document.getElementById('type_name').selectedIndex==0 && document.getElementById('adjustment_code').selectedIndex==0 && document.getElementById('check_number').value==''  && document.getElementById('payment_amount').value==''  && document.getElementById('hidden_type_code').value=='' )
      {
-        alert("<?php echo xlt('Please select any Search Option.'); ?>");
+        alert("<?php echo htmlspecialchars(xl('Please select any Search Option.'), ENT_QUOTES) ?>");
         return false;
      }
     if(document.getElementById('FromDate').value!='' && document.getElementById('ToDate').value!='')
      {
         if(!DateCheckGreater(document.getElementById('FromDate').value,document.getElementById('ToDate').value,'<?php echo DateFormatRead();?>'))
          {
-            alert("<?php echo xlt('From Date Cannot be Greater than To Date.'); ?>");
+            alert("<?php echo htmlspecialchars(xl('From Date Cannot be Greater than To Date.'), ENT_QUOTES) ?>");
             document.getElementById('FromDate').focus();
             return false;
          }
@@ -268,7 +268,7 @@ $(document).ready(function() {
   }
 function DeletePayments(DeleteId)
  {//Confirms deletion of payment and all its distribution.
-    if(confirm("<?php echo xlt('Would you like to Delete Payments?'); ?>"))
+    if(confirm("<?php echo htmlspecialchars(xl('Would you like to Delete Payments?'), ENT_QUOTES) ?>"))
      {
         document.getElementById('mode').value='DeletePayments';
         document.getElementById('DeletePaymentId').value=DeleteId;
@@ -283,7 +283,7 @@ function OnloadAction()
   after_value=document.getElementById('after_value').value;
   if(after_value=='Delete')
    {
-    alert("<?php echo xlt('Successfully Deleted'); ?>")
+    alert("<?php echo htmlspecialchars(xl('Successfully Deleted'), ENT_QUOTES) ?>")
    }
  }
 function SearchPayingEntityAction()
@@ -407,40 +407,17 @@ document.onclick=HideTheAjaxDivs;
 <?php
 //to determine and set the form to open in the desired state - expanded or centered
 // any selection the user makes will become the user-specific default for that page
+// first argument - name of current file, second - array with names of files that need to be in the same state as current file, can be empty
+// third argument - global value either set by admin/user, once user chooses the state of individual page it is then set to that state 
 
-$current_filename = 'search_payments';
-   
-if (getUserSetting($current_filename) > -1) {
-    $user_value = getUserSetting($current_filename);
-} elseif ($GLOBALS['expand_form']) {
-    $user_value = $GLOBALS['expand_form'];
-} else {
-    $user_value = 0;
-}
-
-//the linked files that would need to open in the same state, expanded or centered, as the current page 
-// if no linked files comment out next 4 lines
-$filenames = array("new_payment", "search_payments", "era_payments");
-foreach ($filenames as $filename) {
-    setUserSetting($filename, $user_value);
-}
-
-$current_state = $user_value;
-if ($current_state == 1) {
-    $container = 'container-fluid';
-    $expand_title = xl('Click to Contract and set to henceforth open in Centered mode');
-    $expand_icon_class = 'fa-compress';
-} else {
-    $container = 'container';
-    $expand_title = xl('Click to Expand and set to henceforth open in Expanded mode');
-    $expand_icon_class = 'fa-expand';
-}
-
+$current_filename = 'search_payments_xpd'; // needed for jquey script as well
+$current_state = collectAndOrganizeExpandSetting($current_filename, array("new_payment_xpd", "search_payments_xpd", "era_payments_xpd"), $GLOBALS['expand_form']);
+require_once("$srcdir/expand_contract_inc.php");
+  
 ?>
-<title><?php echo xlt('Search Payments'); ?></title>
 </head>
 <body class="body_top" onload="OnloadAction()">
-      <div class="<?php echo $container;?> expandable">
+    <div class="<?php echo $container;?> expandable">
         <div class="row">
             <div class="col-sm-12">
                 <div class="page-header">
@@ -463,7 +440,7 @@ if ($current_state == 1) {
                                 <li class="oe-bold-black">
                                     <a href='new_payment.php' style="font-weight:700; color:#000000"><?php echo xlt('New Payment'); ?></a>
                                 </li>
-                                <li class="active oe-bold-black?" >
+                                <li class="active oe-bold-black" >
                                     <a href='search_payments.php' style="font-weight:700; color:#000000"><?php echo xlt('Search Payment'); ?></a>
                                 </li>
                                 <li class="oe-bold-black">
@@ -501,13 +478,13 @@ if ($current_state == 1) {
                             </div>
                             <div class="forms col-xs-3">
                                 <label class="control-label" for="check_number"><?php echo xlt('Check Number'); ?>:</label>
-                                <input autocomplete="off" class="form-control" id="check_number" name="check_number" type="text" value="<?php echo attr(formData('check_number'));?>">
+                                <input autocomplete="off" class="form-control" id="check_number" name="check_number" type="text" value="<?php echo htmlspecialchars(formData('check_number'));?>">
                             </div>
                         </div>
                         <div class="col-xs-12 oe-custom-line">
                             <div class="forms col-xs-4">
                                 <label class="control-label" for="payment_method"><?php echo xlt('Payment Amount'); ?>:</label>
-                                <input autocomplete="off" class="form-control" id="payment_amount" name="payment_amount" onkeyup="ValidateNumeric(this);"  type="text" value="<?php echo attr(formData('payment_amount'));?>">
+                                <input autocomplete="off" class="form-control" id="payment_amount" name="payment_amount" onkeyup="ValidateNumeric(this);"  type="text" value="<?php echo htmlspecialchars(formData('payment_amount'));?>">
                             </div>
                             <div class="forms col-xs-2">
                                 <label class="control-label" for="type_name"><?php echo xlt('Paying Entity'); ?>:</label>
@@ -525,8 +502,8 @@ if ($current_state == 1) {
                         <div class="col-xs-12 oe-custom-line">
                             <div class="forms col-xs-4">
                                 <label class="control-label" for="type_code"><?php echo xlt('Payment From'); ?>:</label>
-                                <input id="hidden_ajax_close_value" type="hidden" value="<?php echo attr($div_after_save);?>">
-                                <input autocomplete="off" class="form-control" id='type_code' name='type_code' onkeydown="PreventIt(event)" type="text" value="<?php echo attr($div_after_save);?>">
+                                <input id="hidden_ajax_close_value" type="hidden" value="<?php echo htmlspecialchars($div_after_save);?>">
+                                <input autocomplete="off" class="form-control" id='type_code' name='type_code' onkeydown="PreventIt(event)" type="text" value="<?php echo htmlspecialchars($div_after_save);?>">
                                 <!--onKeyUp="ajaxFunction(event,'non','search_payments.php');"-->
                                 <div id='ajax_div_insurance_section'>
                                     <div id='ajax_div_insurance_error'></div>
@@ -535,7 +512,7 @@ if ($current_state == 1) {
                             </div>
                             <div class="forms col-xs-2">
                                 <label class="control-label" for="div_insurance_or_patient"><?php echo xlt('Payor ID'); ?>:</label>
-                                <div class="form-control" id="div_insurance_or_patient"><?php echo attr(formData('hidden_type_code'));?></div>
+                                <div class="form-control" id="div_insurance_or_patient"><?php echo htmlspecialchars(formData('hidden_type_code'));?></div>
                                 <input id="description" name="description" type="hidden">
                                 <input id="deposit_date" name="deposit_date" style="display:none" type="text">
                             </div>
@@ -564,16 +541,16 @@ if ($current_state == 1) {
                     ?>
                   <thead bgcolor="#DDDDDD" class="">
                     <td class="left top" width="25">&nbsp;</td>
-                    <td class="left top"><?php echo xlt('ID'); ?></td>
-                        <td class="left top" ><?php echo xlt('Date'); ?></td>
-                        <td class="left top" ><?php echo xlt('Paying Entity'); ?></td>
-                        <td class="left top" ><?php echo xlt('Payer'); ?></td>
-                        <td class="left top" ><?php echo xlt('Ins Code'); ?></td>
-                        <td class="left top" ><?php echo xlt('Payment Method'); ?></td>
-                        <td class="left top" ><?php echo xlt('Check Number'); ?></td>
-                        <td class="left top" ><?php echo xlt('Pay Status'); ?></td>
-                        <td class="left top" ><?php echo xlt('Payment'); ?></td>
-                        <td class="left top right" ><?php echo xlt('Undistributed'); ?></td>
+                    <td class="left top"><?php echo htmlspecialchars(xl('ID'), ENT_QUOTES) ?></td>
+                        <td class="left top" ><?php echo htmlspecialchars(xl('Date'), ENT_QUOTES) ?></td>
+                        <td class="left top" ><?php echo htmlspecialchars(xl('Paying Entity'), ENT_QUOTES) ?></td>
+                        <td class="left top" ><?php echo htmlspecialchars(xl('Payer'), ENT_QUOTES) ?></td>
+                        <td class="left top" ><?php echo htmlspecialchars(xl('Ins Code'), ENT_QUOTES) ?></td>
+                        <td class="left top" ><?php echo htmlspecialchars(xl('Payment Method'), ENT_QUOTES) ?></td>
+                        <td class="left top" ><?php echo htmlspecialchars(xl('Check Number'), ENT_QUOTES) ?></td>
+                        <td class="left top" ><?php echo htmlspecialchars(xl('Pay Status'), ENT_QUOTES) ?></td>
+                        <td class="left top" ><?php echo htmlspecialchars(xl('Payment'), ENT_QUOTES) ?></td>
+                        <td class="left top right" ><?php echo htmlspecialchars(xl('Undistributed'), ENT_QUOTES) ?></td>
                         </thead>
                         <?php
                         $CountIndex=0;
@@ -582,14 +559,14 @@ if ($current_state == 1) {
                             if ($RowSearch['payer_id']*1 >0) {
                                //-------------------
                                 $res = sqlStatement("SELECT insurance_companies.name FROM insurance_companies
-													where insurance_companies.id ='{$RowSearch['payer_id']}'");
+                                                    where insurance_companies.id ='{$RowSearch['payer_id']}'");
                                 $row = sqlFetchArray($res);
                                 $Payer=$row['name'];
                           //-------------------
                             } elseif ($RowSearch['patient_id']*1 >0) {
                                //-------------------
                                 $res = sqlStatement("SELECT fname,lname,mname FROM patient_data
-													where pid ='{$RowSearch['patient_id']}'");
+                                                    where pid ='{$RowSearch['patient_id']}'");
                                 $row = sqlFetchArray($res);
                                 $fname=$row['fname'];
                                 $lname=$row['lname'];
@@ -612,18 +589,18 @@ if ($current_state == 1) {
                             ?>
                             <tr bgcolor='<?php echo $bgcolor; ?>' class="text">
                             <td class="<?php echo $StringClass; ?>">
-                                <!--<a href="#" onclick="javascript:return DeletePayments(&lt;?php echo attr($RowSearch['session_id']); ?&gt;);"><img border="0" src="../pic/Delete.gif"></a>-->
-                                     
-                                <a href="#" onclick="javascript:return DeletePayments(<?php echo attr($RowSearch['session_id']); ?>);"><img border="0" src="../pic/Delete.gif"></a>
+                                <!--<a href="#" onclick="javascript:return DeletePayments(&lt;?php echo htmlspecialchars($RowSearch['session_id']); ?&gt;);"><img border="0" src="../pic/Delete.gif"></a>-->
+
+                                <a href="#" onclick="javascript:return DeletePayments(<?php echo htmlspecialchars($RowSearch['session_id']); ?>);"><img border="0" src="../pic/Delete.gif"></a>
                             </td>
                             <td class="<?php echo $StringClass; ?>">
-                                <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr($RowSearch['session_id']); ?>')"><?php echo attr($RowSearch['session_id']); ?></a>
+                                <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>')"><?php echo htmlspecialchars($RowSearch['session_id']); ?></a>
                             </td>
                             <td class="<?php echo $StringClass; ?>">
-                                <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr($RowSearch['session_id']); ?>')"><?php echo $RowSearch['check_date']=='0000-00-00' ? '&nbsp;' : attr(oeFormatShortDate($RowSearch['check_date'])); ?></a>
+                                <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>')"><?php echo $RowSearch['check_date']=='0000-00-00' ? '&nbsp;' : htmlspecialchars(oeFormatShortDate($RowSearch['check_date'])); ?></a>
                             </td>
                             <td class="<?php echo $StringClass; ?>">
-                                <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr($RowSearch['session_id']); ?>')">
+                                <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>')">
                                 <?php
                                 $frow['data_type']=1;
                                 $frow['list_id']='payment_type';
@@ -639,19 +616,19 @@ if ($current_state == 1) {
                                 ?></a>
                                 </td>
                                 <td class="<?php echo $StringClass; ?>">
-                                <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo attr($RowSearch['session_id']); ?>"><?php echo  $Payer=='' ? '&nbsp;' : attr($Payer) ;?></a>-->
-                                <a class="" data-target="#myModal" data-toggle="modal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr($RowSearch['session_id']); ?>')"><?php echo  $Payer=='' ? '&nbsp;' : attr($Payer) ;?></a><!--link to iframe-->
+                                <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"><?php echo  $Payer=='' ? '&nbsp;' : htmlspecialchars($Payer) ;?></a>-->
+                                <a class="" data-target="#myModal" data-toggle="modal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>')"><?php echo  $Payer=='' ? '&nbsp;' : htmlspecialchars($Payer) ;?></a><!--link to iframe-->
                                 </td>
                                 <td class="<?php echo $StringClass; ?>">
-                                <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr($RowSearch['session_id']); ?>')"><?php echo $RowSearch['payer_id']*1 >0 ? attr($RowSearch['payer_id']) : '&nbsp;'; ?></a>
+                                <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>')"><?php echo $RowSearch['payer_id']*1 >0 ? htmlspecialchars($RowSearch['payer_id']) : '&nbsp;'; ?></a>
                                 </td>
                                 <td align="left" class="<?php echo $StringClass; ?>">
-                                <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo attr($RowSearch['session_id']); ?>"><?php
+                                <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"><?php
                                                             $frow['data_type']=1;
                                                             $frow['list_id']='payment_method';
                                                             generate_print_field($frow, $RowSearch['payment_method']);
                                                 ?></a>-->
-                                        <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr($RowSearch['session_id']); ?>')">
+                                        <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>')">
                                         <?php
                                         $frow['data_type']=1;
                                         $frow['list_id']='payment_method';
@@ -659,27 +636,26 @@ if ($current_state == 1) {
                                         ?></a>
                                     </td>
                                     <td align="left" class="<?php echo $StringClass; ?>">
-                                    <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo attr($RowSearch['session_id']); ?>"><?php echo $RowSearch['reference']=='' ? '&nbsp;' : attr($RowSearch['reference']); ?></a>-->
-                                    <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr($RowSearch['session_id']); ?>')"><?php echo $RowSearch['reference']=='' ? '&nbsp;' : attr($RowSearch['reference']); ?></a>
+                                    <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"><?php echo $RowSearch['reference']=='' ? '&nbsp;' : htmlspecialchars($RowSearch['reference']); ?></a>-->
+                                    <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>')"><?php echo $RowSearch['reference']=='' ? '&nbsp;' : htmlspecialchars($RowSearch['reference']); ?></a>
                                     </td>
                                     <td align="left" class="<?php echo $StringClass; ?>">
-                                       <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr($RowSearch['session_id']); ?>')">
-                                        <?php
-                                            $rs= sqlStatement("select pay_total,global_amount from ar_session where session_id='".$RowSearch['session_id']."'");
-                                            $row=sqlFetchArray($rs);
-                                            $pay_total=$row['pay_total'];
-                                            $global_amount=$row['global_amount'];
-                                            $rs= sqlStatement("select sum(pay_amount) sum_pay_amount from ar_activity where session_id='".$RowSearch['session_id']."'");
-                                            $row=sqlFetchArray($rs);
-                                            $pay_amount=$row['sum_pay_amount'];
-                                            $UndistributedAmount=$pay_total-$pay_amount-$global_amount;
-                                            echo $UndistributedAmount*1==0 ? xla('Fully Paid') : xla('Unapplied'); ?></a>
+                                       <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>')"><?php
+                                                            $rs= sqlStatement("select pay_total,global_amount from ar_session where session_id='".$RowSearch['session_id']."'");
+                                                            $row=sqlFetchArray($rs);
+                                                            $pay_total=$row['pay_total'];
+                                                            $global_amount=$row['global_amount'];
+                                                            $rs= sqlStatement("select sum(pay_amount) sum_pay_amount from ar_activity where session_id='".$RowSearch['session_id']."'");
+                                                            $row=sqlFetchArray($rs);
+                                                            $pay_amount=$row['sum_pay_amount'];
+                                                            $UndistributedAmount=$pay_total-$pay_amount-$global_amount;
+                                                            echo $UndistributedAmount*1==0 ? htmlspecialchars(xl('Fully Paid'), ENT_QUOTES) : htmlspecialchars(xl('Unapplied'), ENT_QUOTES); ?></a>
                                     </td>
                                     <td align="right" class="<?php echo $StringClass; ?>">
-                                        <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr($RowSearch['session_id']); ?>')"><?php echo attr($RowSearch['pay_total']); ?></a>
+                                        <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>')"><?php echo htmlspecialchars($RowSearch['pay_total']); ?></a>
                                     </td>
                                     <td align="right" class="<?php echo $StringClass; ?>right">
-                                        <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr($RowSearch['session_id']); ?>')"><?php echo attr(number_format($UndistributedAmount, 2)); ?></a>
+                                        <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>')"><?php echo htmlspecialchars(number_format($UndistributedAmount, 2)); ?></a>
                                     </td>
                                 </tr>
                                 <?php
@@ -688,7 +664,7 @@ if ($current_state == 1) {
                 else {
                         ?>
                       <tr>
-                      <td class="text" colspan="11"><?php echo xlt('No Result Found, for the above search criteria.'); ?></td>
+                      <td class="text" colspan="11"><?php echo htmlspecialchars(xl('No Result Found, for the above search criteria.'), ENT_QUOTES) ?></td>
                             </tr>
                             <?php
                 }// End of else
@@ -701,16 +677,16 @@ if ($current_state == 1) {
                     <div class="row">
                         <input id='mode' name='mode' type='hidden' value=''>
                         <input id='ajax_mode' name='ajax_mode' type='hidden' value=''>
-                        <input id="hidden_type_code" name="hidden_type_code" type="hidden" value="<?php echo attr(formData('hidden_type_code'));?>">
+                        <input id="hidden_type_code" name="hidden_type_code" type="hidden" value="<?php echo htmlspecialchars(formData('hidden_type_code'));?>">
                         <input id='DeletePaymentId' name='DeletePaymentId' type='hidden' value=''>
                         <input id='SortFieldOld' name='SortFieldOld' type='hidden' value='<?php echo attr($PaymentSortBy);?>'>
                         <input id='Sort' name='Sort' type='hidden' value='<?php echo attr($Sort);?>'>
-                        <input id="after_value" name="after_value" type="hidden" value="<?php echo attr($Message);?>">
+                        <input id="after_value" name="after_value" type="hidden" value="<?php echo htmlspecialchars($Message);?>">
                     </div>
                 </form>
             </div>
         </div>
-        
+
     </div>
     <div class="row">
         <div class="col-sm-12">
@@ -719,7 +695,7 @@ if ($current_state == 1) {
                     <div class="modal-content oe-modal-content">
                         <!--<div class="modal-header" style="border:hidden"></div>-->
                         <div class="modal-body">
-                            <iframe src="" id="targetiframe" style="height:650px; width:100%; overflow-x: hidden; border:none" allowtransparency="true"></iframe> 
+                            <iframe src="" id="targetiframe" style="height:650px; width:100%; overflow-x: hidden; border:none" allowtransparency="true"></iframe>
                         </div>
                         <div class="modal-footer" style="margin-top:0px;">
                            <button class="btn btn-link btn-cancel pull-right" data-dismiss="modal" type="button"><?php echo xlt('close'); ?></button>
@@ -738,8 +714,7 @@ if ($current_state == 1) {
         <?php
             // jQuery script to change state dynamically
             $user_settings_php_path = '../../library/ajax/user_settings.php';
-            //$arr_files = 'var arrFiles = ["new_payment", "search_payments", "era_payments"];'; // the linked files that need to have same state, if none set empty array
-            $arr_files = '"new_payment", "search_payments", "era_payments"'; // the linked files that need to have same state, if none comment out line
+            $arr_files = '"new_payment_xpd", "search_payments_xpd", "era_payments_xpd"'; // the linked files that need to have same state, if none comment out line
             require_once("../expand_contract_js.php")
         ?>
     </script>

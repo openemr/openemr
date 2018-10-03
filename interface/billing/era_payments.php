@@ -102,9 +102,6 @@ if ($_FILES['form_erafile']['size']) {
 <head>
     <?php Header::setupHeader(['datetime-picker', 'common']);?>
     <?php require_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
-
-    
-    
     <script language="javascript" type="text/javascript">
     function Validate()
     {
@@ -121,7 +118,7 @@ if ($_FILES['form_erafile']['size']) {
       }
      if(document.getElementById('hidden_type_code').value!=document.getElementById('div_insurance_or_patient').innerHTML)
       {
-        alert("<?php echo xls('Take Insurance, from Drop Down'); ?>");
+       alert("<?php echo xls('Take Insurance, from Drop Down'); ?>");
        document.getElementById('type_code').focus();
        return false;
       }
@@ -217,8 +214,8 @@ if ($_FILES['form_erafile']['size']) {
             color: #000000 !Important;
         }
     }
-    
-    
+
+
     @media only screen and (max-width: 700px) {
         [class*="col-"] {
         width: 100%;
@@ -227,7 +224,7 @@ if ($_FILES['form_erafile']['size']) {
         #form_without{
         margin-left:0px !Important;
         }
-        
+
     }
     .input-group .form-control{
         margin-bottom: 3px;
@@ -240,35 +237,13 @@ if ($_FILES['form_erafile']['size']) {
     <?php
     //to determine and set the form to open in the desired state - expanded or centered
     // any selection the user makes will become the user-specific default for that page
+    // first argument - name of current file, second - array with names of files that need to be in the same state as current file, can be empty
+    // third argument - global value either set by admin/user, once user chooses the state of individual page it is then set to that state
     
-    $current_filename = 'era_payments';
-         
-    if (getUserSetting($current_filename) > -1) {
-        $user_value = getUserSetting($current_filename);
-    } elseif ($GLOBALS['expand_form']) {
-        $user_value = $GLOBALS['expand_form'];
-    } else {
-        $user_value = 0;
-    }
-    
-    //the linked files that would need to open in the same state, expanded or centered, as the current page
-    // if no linked files comment out next 4 lines
-    $filenames = array("new_payment", "search_payments", "era_payments");
-    foreach ($filenames as $filename) {
-        setUserSetting($filename, $user_value);
-    }
-    //$user_value = getUserSetting('era_payments');
-    $current_state = $user_value;
-    if ($current_state == 1) {
-        $container = 'container-fluid';
-        $expand_title = xl('Click to Contract and set to henceforth open in Centered mode');
-        $expand_icon_class = 'fa-compress';
-    } else {
-        $container = 'container';
-        $expand_title = xl('Click to Expand and set to henceforth open in Expanded mode');
-        $expand_icon_class = 'fa-expand';
-    }
-    
+    $current_filename = 'era_payments_xpd'; // needed for jquey script as well
+    $current_state = collectAndOrganizeExpandSetting($current_filename, array("new_payment_xpd", "search_payments_xpd", "era_payments_xpd"), $GLOBALS['expand_form']);
+    require_once("$srcdir/expand_contract_inc.php");
+      
     ?>
     <title><?php echo xlt('ERA Posting'); ?></title>
 </head>
@@ -277,7 +252,7 @@ if ($_FILES['form_erafile']['size']) {
         <div class="row">
             <div class="col-sm-12">
                 <div class="page-header">
-                     <h2>
+                    <h2>
                         <?php echo xlt('Payments'); ?> <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract" 
                         title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i>
                     </h2>
@@ -308,7 +283,7 @@ if ($_FILES['form_erafile']['size']) {
                 </nav>
             </div>
         </div>
-        
+
         <div class="row">
             <div class="col-sm-12">
                 <form action='era_payments.php' enctype="multipart/form-data" method='post' style="display:inline">
@@ -316,11 +291,11 @@ if ($_FILES['form_erafile']['size']) {
                     <fieldset>
                         <div class="col-xs-12 oe-custom-line">
                             <div class="form-group col-xs9 oe-file-div">
-                                <div class="input-group"> 
+                                <div class="input-group">
                                     <label class="input-group-btn">
                                         <span class="btn btn-default">
                                             <?php echo xlt('Browse'); ?>&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;" >
-                                            <input name="MAX_FILE_SIZE" type="hidden" value="5000000"> 
+                                            <input name="MAX_FILE_SIZE" type="hidden" value="5000000">
                                         </span>
                                     </label>
                                     <input type="text" class="form-control" placeholder="<?php echo xla('Click Browse and select one Electronic Remittance Advice (ERA) file...'); ?>" readonly>
@@ -330,11 +305,11 @@ if ($_FILES['form_erafile']['size']) {
                         <div class="col-xs-12 oe-custom-line">
                             <div class="form-group col-xs-3">
                                 <label class="control-label" for="check_date"><?php echo xlt('Date'); ?>:</label>
-                                <input class="form-control datepicker" id='check_date' name='check_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr('check_date') ?>">
+                                <input class="form-control datepicker" id='check_date' name='check_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($check_date); ?>">
                             </div>
                             <div class="form-group col-xs-3">
                                 <label class="control-label" for="post_to_date"><?php echo xlt('Post To Date'); ?>:</label>
-                                <input class="form-control datepicker" id='post_to_date' name='post_to_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr('post_to_date') ?>">
+                                <input class="form-control datepicker" id='post_to_date' name='post_to_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($post_to_date); ?>">
                             </div>
                             <div class="form-group col-xs-3 clearfix">
                                 <label class="control-label" for="form_without"><?php echo xlt('Select'); ?>:</label>
@@ -344,14 +319,14 @@ if ($_FILES['form_erafile']['size']) {
                             </div>
                             <div class="form-group col-xs-3">
                                 <label class="control-label" for="deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
-                                <input class="form-control datepicker" id='deposit_date' name='deposit_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr('deposit_date') ?>">
+                                <input class="form-control datepicker" id='deposit_date' name='deposit_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($deposit_date); ?>">
                             </div>
                         </div>
                         <div class="col-xs-12 oe-custom-line">
                             <div class="form-group col-xs-6">
                                 <label class="control-label" for="type_code"><?php echo xlt('Insurance'); ?>:</label>
-                                <input id="hidden_ajax_close_value" type="hidden" value="<?php echo attr('type_code') ?>">
-                                <input autocomplete="off" class="form-control" id='type_code' name='type_code' onkeydown="PreventIt(event)"  type="text" value="<?php echo attr('type_code') ?>"><br>
+                                <input id="hidden_ajax_close_value" type="hidden" value="<?php echo attr($type_code); ?>">
+                                <input autocomplete="off" class="form-control" id='type_code' name='type_code' onkeydown="PreventIt(event)"  type="text" value="<?php echo attr($type_code); ?>"><br>
                                 <!--onKeyUp="ajaxFunction(event,'non','search_payments.php');"-->
                                 <div id='ajax_div_insurance_section'>
                                     <div id='ajax_div_insurance_error'></div>
@@ -361,7 +336,7 @@ if ($_FILES['form_erafile']['size']) {
                             <div class="form-group col-xs-3">
                                 <label class="control-label" for="div_insurance_or_patient"><?php echo xlt('Insurance ID'); ?>:</label>
                                 <div class="form-control" id="div_insurance_or_patient" >
-                                    <?php echo text('hidden_type_code') ?>
+                                    <?php echo text($hidden_type_code); ?>
                                 </div>
                                 <input id="description" name="description" type="hidden">
                             </div>
@@ -375,8 +350,8 @@ if ($_FILES['form_erafile']['size']) {
                             </div>
                         </div>
                     </div>
-                    <input type="hidden" name="after_value" id="after_value" value="<?php echo htmlspecialchars($alertmsg, ENT_QUOTES);?>"/>
-                    <input type="hidden" name="hidden_type_code" id="hidden_type_code" value="<?php echo attr('hidden_type_code') ?>"/>
+                    <input type="hidden" name="after_value" id="after_value" value="<?php echo attr($alertmsg); ?>"/>
+                    <input type="hidden" name="hidden_type_code" id="hidden_type_code" value="<?php echo attr($hidden_type_code); ?>"/>
                     <input type='hidden' name='ajax_mode' id='ajax_mode' value='' />
                 </form>
             </div>
@@ -398,7 +373,7 @@ if ($_FILES['form_erafile']['size']) {
                 $(':file').on('fileselect', function(event, numFiles, label) {
                     var input = $(this).parents('.input-group').find(':text'),
                     log = numFiles > 1 ? numFiles + ' files selected' : label;
-                    
+
                     if( input.length ) {
                     input.val(log);
                     }
@@ -414,8 +389,7 @@ if ($_FILES['form_erafile']['size']) {
     <?php
         // jQuery script to change state dynamically
         $user_settings_php_path = '../../library/ajax/user_settings.php';
-        //$arr_files = 'var arrFiles = ["new_payment", "search_payments", "era_payments"];'; // the linked files that need to have same state, if none set empty array
-        $arr_files = '"new_payment", "search_payments", "era_payments"'; // the linked files that need to have same state, if none comment out line
+        $arr_files = '"new_payment_xpd", "search_payments_xpd", "era_payments_xpd"'; // the linked files that need to have same state, if none comment out line
         require_once("../expand_contract_js.php")
     ?>
     </script>

@@ -136,3 +136,49 @@ function prevSetting($uspfx, $postvar, $label, $initval)
 
     return $pset;
 }
+
+function collectAndOrganizeExpandSetting($current_filename, $filenames = array(), $global_value = 0)
+{
+    
+    $currentFilename = $current_filename;
+    $fileNames = $filenames;
+    $globalValue = $global_value;
+    
+    if (getUserSetting($currentFilename) > -1) {
+        $current_state = getUserSetting($currentFilename);
+    } elseif ($globalValue) {
+        $current_state = $globalValue;
+    } else {
+        $current_state = 0;
+    }
+   
+    if ($fileNames.length) {
+        foreach ($fileNames as $fileName) {
+            setUserSetting($fileName, $current_state);
+        }
+    }
+     return $current_state;
+}
+
+function collectAndOrganizeExpandSetting1($current_filename, $filenames = array(), $global_value = 0)
+{
+    
+    { $currentFilename = $current_filename; }
+    { $fileNames = $filenames; }
+    { $globalValue = $global_value; }
+    
+    if (getUserSetting($current_filename) > -1) {
+        $current_state = getUserSetting($current_filename);
+    } elseif ($global_value) {
+        $current_state = $global_value;
+    } else {
+        $current_state = 0;
+    }
+   
+    if ($filenames.length) {
+        foreach ($filenames as $filename) {
+            setUserSetting($filename, $current_state);
+        }
+    }
+     return $current_state;
+}
