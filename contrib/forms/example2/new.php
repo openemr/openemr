@@ -18,8 +18,8 @@
  * @link      http://www.open-emr.org
  */
 
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
 
 /** CHANGE THIS name to the name of your form **/
 $form_name = "My Example Form";
