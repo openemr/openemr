@@ -20,7 +20,7 @@ function scanned_notes_report($pid, $useless_encounter, $cols, $id)
 
     $data = sqlQuery("SELECT * " .
     "FROM form_scanned_notes WHERE " .
-    "id = '$id' AND activity = '1'");
+    "id = ? AND activity = '1'", array($id));
 
     if ($data) {
         if ($data['notes']) {

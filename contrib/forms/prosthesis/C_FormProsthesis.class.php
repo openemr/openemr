@@ -43,7 +43,7 @@ class C_FormProsthesis extends Controller
     function default_action_process()
     {
         if ($_POST['process'] != "true") {
-            return;
+            return
         }
 
         $this->prosthesis = new FormProsthesis($_POST['id']);
@@ -58,9 +58,9 @@ class C_FormProsthesis extends Controller
         addForm($GLOBALS['encounter'], "Prosthesis & Orthotics Form", $this->prosthesis->id, "prosthesis", $GLOBALS['pid'], $_SESSION['userauthorized']);
 
         if (!empty($_POST['cpt_code'])) {
-            $sql = "select * from codes where code ='" . add_escape_custom($_POST['cpt_code']) . "' order by id";
+            $sql = "select * from codes where code = ? order by id";
 
-            $results = sqlQ($sql);
+            $results = sqlQ($sql, array(add_escape_custom($_POST['cpt_code'])));
 
             $row = sqlFetchArray($results);
             if (!empty($row)) {

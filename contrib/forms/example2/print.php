@@ -3,8 +3,8 @@
  * Sports Physical Form created by Jason Morrill: January 2009
  */
 
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
 
 /** CHANGE THIS - name of the database table associated with this form **/
 $table_name = "form_example";

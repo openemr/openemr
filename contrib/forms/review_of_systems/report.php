@@ -6,8 +6,8 @@ function review_of_systems_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
     $data = formFetch("form_review_of_systems", $id);
-    $sql = "SELECT name from form_review_of_systems_checks where foreign_id = '" . add_escape_custom($id) . "'";
-    $results = sqlQ($sql);
+    $sql = "SELECT name from form_review_of_systems_checks where foreign_id = ?";
+    $results = sqlQ($sql, array(add_escape_custom($id)));
     $data2 = array();
     while ($row = sqlFetchArray($results)) {
         $data2[] = $row['name'];

@@ -1,8 +1,8 @@
 <?php
 //------------Forms generated from formsWiz
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
-include_once("$srcdir/forms.inc");
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
+require_once("$srcdir/forms.inc");
 foreach ($_POST as $k => $var) {
     $_POST[$k] = add_escape_custom($var);
     echo "$var\n";
@@ -13,11 +13,20 @@ if ($encounter == "") {
 }
 
 if ($_GET["mode"] == "new") {
-    $newid = formSubmit("form_obstetrical", $_POST, $_GET["id"], $userauthorized);
+    $newid = formSubmit("form_obstetrical", $_POST, add_escape_custom($_GET["id"]), $userauthorized);
     addForm($encounter, "Obstetrical Form", $newid, "obstetrical", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
-    sqlInsert("update form_obstetrical set pid = {$_SESSION["pid"]},groupname='".$_SESSION["authProvider"]."',user='".$_SESSION["authUser"]."',authorized=$userauthorized,activity=1, date = NOW(), name='".$_POST["name"]."', birthdate='".$_POST["birthdate"]."', feeding='".$_POST["feeding"]."', birth_status='".$_POST["birth_status"]."', gender='".$_POST["gender"]."', circumcised='".$_POST["circumcised"]."', delivery_method='".$_POST["delivery_method"]."', labor_hours='".$_POST["labor_hours"]."', birth_weight='".$_POST["birth_weight"]."', pregnancy_weeks='".$_POST["pregnancy_weeks"]."', anesthesia='".$_POST["anesthesia"]."', pediatrician='".$_POST["pediatrician"]."', length_inches='".$_POST["length_inches"]."', head_circumference_inches='".$_POST["head_circumference_inches"]."', reactions_to_medications_and_immunizations='".$_POST["reactions_to_medications_and_immunizations"]."', birth_complications='".$_POST["birth_complications"]."', developmental_problems='".$_POST["developmental_problems"]."', chronic_illness='".$_POST["chronic_illness"]."', chronic_medication='".$_POST["chronic_medication"]."', hospitalization='".$_POST["hospitalization"]."', surgery='".$_POST["surgery"]."', injury='".$_POST["injury"]."', day_care='".$_POST["day_care"]."', additional_notes='".$_POST["additional_notes"]."' where id=$id");
+    
+    sqlInsert("update form_obstetrical set pid = ?,groupname= ?, user= ?,authorized= ?, activity= 1, date = NOW(), name= ?, birthdate= ?, feeding= ?,
+    birth_status= ?, gender= ?, circumcised= ?, delivery_method= ?, labor_hours= ?, birth_weight= ?, pregnancy_weeks= ?, 
+    anesthesia= ?, pediatrician= ?, length_inches= ?, head_circumference_inches= ?, reactions_to_medications_and_immunizations= ?, birth_complications= ?, 
+    developmental_problems= ?, chronic_illness= ?, chronic_medication= ?, hospitalization= ?, surgery= ?, 
+    injury= ?, day_care= ?, additional_notes= ? WHERE id= ?", array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized, $_POST["name"], $_POST["birthdate"], $_POST["feeding"], $_POST["birth_status"], $_POST["gender"], $_POST["circumcised"], $_POST["delivery_method"],
+    $_POST["labor_hours"], $_POST["birth_weight"], $_POST["pregnancy_weeks"], $_POST["anesthesia"], $_POST["pediatrician"], $_POST["length_inches"], $_POST["head_circumference_inches"], $_POST["reactions_to_medications_and_immunizations"], $_POST["birth_complications"],
+    $_POST["developmental_problems"], $_POST["chronic_illness"], $_POST["chronic_medication"], $_POST["hospitalization"], $_POST["injury"], $_POST["day_care"], $_POST["additional_notes"], $id));
+
 }
+
 
 $_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");

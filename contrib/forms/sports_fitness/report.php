@@ -14,7 +14,7 @@ function sports_fitness_report($pid, $encounter, $cols, $id)
     $count = 0;
     $data = sqlQuery("SELECT * " .
     "FROM form_sports_fitness WHERE " .
-    "id = '$id' AND activity = '1'");
+    "id = ? AND activity = '1'", array($id));
     if ($data) {
         print "<table cellpadding='0' cellspacing='0'>\n<tr>\n";
         foreach ($data as $key => $value) {

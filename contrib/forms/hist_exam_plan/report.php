@@ -13,9 +13,9 @@ function hist_exam_plan_report($pid, $encounter, $cols, $id)
 {
     $cols = 1; // force always 1 column
     $count = 0;
-    $data = sqlQuery("SELECT * " .
-    "FROM form_hist_exam_plan WHERE " .
-    "id = '$id' AND activity = '1'");
+    $data = sqlQuery("SELECT *
+    FROM form_hist_exam_plan WHERE
+    id = ? AND activity = '1'", array($id));
     if ($data) {
         print "<table cellpadding='0' cellspacing='0'>\n<tr>\n";
         foreach ($data as $key => $value) {
