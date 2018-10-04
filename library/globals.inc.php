@@ -2526,6 +2526,20 @@ $GLOBALS_METADATA = array(
             xl('Enable Version 2 Onsite Patient Portal new patient to self register.')
         ),
 
+        'allow_portal_appointments' => array(
+            xl('Allow Version 2 Onsite Online Appointments'),
+            'bool',                           // data type
+            '1',
+            xl('Allow Version 2 Onsite Patient to make and view appointments online.')
+        ),
+
+        'allow_portal_chat' => array(
+            xl('Allow Version 2 Onsite Online Secure Chat'),
+            'bool',                           // data type
+            '1',
+            xl('Allow Version 2 Onsite Patient to use Secure Chat Application.')
+        ),
+
         'portal_two_payments' => array(
             xl('Allow Version 2 Onsite Online Payments'),
             'bool',                           // data type
