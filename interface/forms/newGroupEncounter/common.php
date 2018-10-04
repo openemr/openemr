@@ -227,7 +227,7 @@ $help_icon = '';
                             <?php
                             $sensitivities = acl_get_sensitivities();
                             if ($sensitivities && count($sensitivities)) {
-                            usort($sensitivities, "sensitivity_compare");
+                                usort($sensitivities, "sensitivity_compare");
                             ?>
                             <label for="pc_catid" class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Sensitivity:'); ?></label>
                             <div class="col-sm-3">
@@ -254,11 +254,11 @@ $help_icon = '';
                                     ?>
                                 </select>
                                 <?php
-                                } else {
+                            } else {
                                     ?>
 
                                     <?php
-                                }
+                            }
                                 ?>
                             </div>
                             <div class="clearfix"></div>
