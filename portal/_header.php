@@ -89,11 +89,9 @@ use OpenEMR\Core\Header;
                             <li><a href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"> <i class="fa fa-envelope-o fa-fw pull-right"></i>
                                     <span class="badge badge-danger pull-right"> <?php echo text($msgcnt); ?></span> <?php echo xlt('Messages'); ?></a></li>
                             <li class="divider"></li>
-                            <li>
-                            <?php if ($GLOBALS['allow_portal_chat']) { ?>
-                                <a href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/secure_chat.php?fullscreen=true"> <i class="fa fa-user fa-fw pull-right"></i><?php echo xlt('Chat'); ?></a>
-                                <?php } ?>
-                                <a href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal"> <i class="fa fa-cog fa-fw pull-right"></i> <?php echo xlt('Settings'); ?></a></li>
+                            <li><a href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/secure_chat.php?fullscreen=true"> <i class="fa fa-user fa-fw pull-right"></i><?php echo xlt('Chat'); ?></a>
+                                <a href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal"> <i
+                                    class="fa fa-cog fa-fw pull-right"></i> <?php echo xlt('Settings'); ?></a></li>
 
                             <li class="divider"></li>
 
@@ -128,11 +126,9 @@ use OpenEMR\Core\Header;
                     </a></li>
                     <li><a href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr($pid); ?>"> <i class="fa fa-gavel"></i> <span><?php echo xlt('Patient Documents'); ?></span>
                     </a></li>
-                    <?php if ($GLOBALS['allow_portal_appointments']) { ?>
-                        <li data-toggle="pill"><a href="#appointmentpanel" data-toggle="collapse"
-                            data-parent="#panelgroup"> <i class="fa fa-calendar-o"></i> <span><?php echo xlt("Appointment"); ?></span>
+                    <li data-toggle="pill"><a href="#appointmentpanel" data-toggle="collapse"
+                        data-parent="#panelgroup"> <i class="fa fa-calendar-o"></i> <span><?php echo xlt("Appointment"); ?></span>
                     </a></li>
-                    <?php } ?>
                     <li class="dropdown accounting-menu"><a href="#"
                         class="dropdown-toggle" data-toggle="dropdown"> <i
                             class="fa fa-book"></i> <span><?php echo xlt('Accountings'); ?></span>
@@ -165,11 +161,9 @@ use OpenEMR\Core\Header;
                     <li><a href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"><i class="fa fa-envelope" aria-hidden="true"></i>
                             <span><?php echo xlt('Secure Messaging'); ?></span>
                     </a></li>
-                    <?php if ($GLOBALS['allow_portal_chat']) { ?>
-                        <li data-toggle="pill"><a href="#messagespanel" data-toggle="collapse"
-                            data-parent="#panelgroup"> <i class="fa fa-envelope"></i> <span><?php echo xlt("Secure Chat"); ?></span>
+                    <li data-toggle="pill"><a href="#messagespanel" data-toggle="collapse"
+                        data-parent="#panelgroup"> <i class="fa fa-envelope"></i> <span><?php echo xlt("Secure Chat"); ?></span>
                     </a></li>
-                    <?php } ?>
                     <li data-toggle="pill"><a href="#openSignModal" data-toggle="modal" > <i
                             class="fa fa-sign-in"></i><span><?php echo xlt('Signature on File'); ?></span>
                     </a></li>

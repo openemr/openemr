@@ -252,7 +252,6 @@ body {
                             <div id="templatecontent" class="template-body" style="margin:0 auto; background:white;padding:0 20px 0 20px"></div>
                         </div>
                         <input type="hidden" name="content" id="content" value="">
-                        <input type="hidden" name="cpid" id="cpid" value="">
                         <input type="hidden" name="docid" id="docid" value="">
                         <input type="hidden" name="handler" id="handler" value="download">
                         <input type="hidden" name="status" id="status" value="Open">

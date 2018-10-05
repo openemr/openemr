@@ -176,9 +176,7 @@ function inDom(dependency, type, remove) {
 
 // Test if supporting dialog callbacks and close dependencies are in scope.
 // This is useful when opening and closing the dialog is in the same scope. Still use include_opener.js
-// in script that will close a dialog that is not in the same scope dlgopen was used
-// or use parent.dlgclose() if known decendent.
-// dlgopen() will always have a name whether assigned by dev or created by function.
+// in script that will close a dialog that is not in the same scope dlgopen was used.
 // Callback, onClosed and button clicks are still available either way.
 // For a callback on close use: dlgclose(functionName, farg1, farg2 ...) which becomes: functionName(farg1,farg2, etc)
 //
@@ -189,24 +187,12 @@ if (typeof dlgclose !== "function") {
         } else {
             opener = window;
         }
-    }
+}
 
     var dlgclose =
         function (call, args) {
             var frameName = window.name;
             var wframe = opener;
-            if (frameName === '') {
-                // try to find dialog. dialogModal is embedded dialog class
-                // It has to be here somewhere.
-                frameName = $(".dialogModal").attr('id');
-                if (!frameName) {
-                    frameName = parent.$(".dialogModal").attr('id');
-                    if (!frameName) {
-                        console.log("Unable to find dialog.");
-                        return false;
-                    }
-                }
-            }
             if (!top.tab_mode) {
                 for (; wframe.name !== 'RTop' && wframe.name !== 'RBot'; wframe = wframe.parent) {
                     if (wframe.parent === wframe) {
@@ -220,12 +206,6 @@ if (typeof dlgclose !== "function") {
                     }
                 }
                 dialogModal = wframe.$('div#' + frameName);
-                if (dialogModal.length === 0) {
-                    // Never give up...
-                    frameName = $(".dialogModal").attr('id');
-                    dialogModal = wframe.$('div#' + frameName);
-                    console.log("Frame: used local find dialog");
-                }
             } else {
                 var dialogModal = top.$('div#' + frameName);
                 wframe = top;
@@ -253,7 +233,7 @@ if (typeof dlgclose !== "function") {
 * @param {url} string Content location.
 * @param {String} winname If set becomes modal id and/or iframes name. Or, one is created/assigned(iframes).
 * @param {Number| String} width|modalSize(modal-xlg) For sizing: an number will be converted to a percentage of view port width.
-* @param {Number} height Initial minimum height. For iframe auto resize starts at this height.
+* @param {Number} height Initial height. For iframe auto resize starts here.
 * @param {boolean} forceNewWindow Force using a native window.
 * @param {String} title If exist then header with title is created otherwise no header and content only.
 * @param {Object} opts Dialogs options.
@@ -273,7 +253,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     // but better to continue than stop because of a dependency...
     //
     let jqurl = top.webroot_url + '/public/assets/jquery-min-1-9-1/index.js';
-    if (typeof jQuery === 'undefined') {
+    if (typeof jQuery.fn.jquery === 'undefined') {
         includeScript(jqurl, false, 'script'); // true is async
     }
     jQuery(function () {
@@ -308,9 +288,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
 
     // onward
     var opts_defaults = {
-        type: 'iframe', // POST, GET (ajax) or iframe
-        frameContent: "", // for iframe embedded content
-        ajaxhtml: "", // content for alerts, comfirm etc ajax
+        type: 'iframe',
         allowDrag: true,
         allowResize: true,
         sizeHeight: 'auto', // 'full' will use as much height as allowed
@@ -350,19 +328,15 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     }
 
     // get url straight...
-    var fullURL = "";
     if (opts.url) {
         url = opts.url;
     }
-    if (url) {
-        if (url[0] === "/") {
-            fullURL = url
-        }
-        else {
-            fullURL = window.location.href.substr(0, window.location.href.lastIndexOf("/") + 1) + url;
-        }
+    if (url[0] === "/") {
+        fullURL = url
     }
-
+    else {
+        fullURL = window.location.href.substr(0, window.location.href.lastIndexOf("/") + 1) + url;
+    }
     // what's a window without a name. important for stacking and opener.
     winname = (winname === "_blank" || !winname) ? dialogID() : winname;
 
@@ -371,26 +345,25 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     if (Math.abs(width) > 0) {
         width = Math.abs(width);
         mWidth = (width / where.innerWidth * 100).toFixed(4) + '%';
-        msSize = '<style>.modal-custom-' + winname + ' {width:' + mWidth + ';}</style>';
+        msSize = '<style>.modal-custom' + winname + ' {width:' + mWidth + ';}</style>';
         mSize = 'modal-custom' + winname;
     } else if (jQuery.inArray(width, sizeChoices) !== -1) {
         mSize = width; // is a modal class
     } else {
-        msSize = '<style>.modal-custom-' + winname + ' {width:35%;}</style>'; // standard B.S. modal default (modal-md)
+        msSize = 'default'; // standard B.S. modal default (modal-md)
     }
-    // leave below for legacy
+
     if (mSize === 'modal-sm') {
-        msSize = '<style>.modal-custom-' + winname + ' {width:25%;}</style>';
+        msSize = '<style>.modal-sm {width:25%;}</style>';
     } else if (mSize === 'modal-md') {
-        msSize = '<style>.modal-custom-' + winname + ' {width:40%;}</style>';
+        msSize = '<style>.modal-md {width:40%;}</style>';
     } else if (mSize === 'modal-mlg') {
-        msSize = '<style>.modal-custom-' + winname + ' {width:55%;}</style>';
+        msSize = '<style>.modal-mlg {width:55%;}</style>';
     } else if (mSize === 'modal-lg') {
-        msSize = '<style>.modal-custom-' + winname + ' {width:75%;}</style>';
+        msSize = '<style>.modal-lg {width:75%;}</style>';
     } else if (mSize === 'modal-xl') {
-        msSize = '<style>.modal-custom-' + winname + ' {width:96%;}</style>';
+        msSize = '<style>.modal-xl {width:96%;}</style>';
     }
-    mSize = 'modal-custom-' + winname;
 
     // Initial responsive height.
     var vpht = where.innerHeight;
@@ -414,9 +387,10 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         ('<div><span class="close data-dismiss=modal aria-hidden="true">&times;</span></div>');
 
     var frameHtml =
-        ('<iframe id="modalframe" class="embed-responsive-item modalIframe" name="%winname%" %url% frameborder=0></iframe>')
+        ('<iframe id="modalframe" class="embed-responsive-item modalIframe" name="%winname%" frameborder=0 src="%url%">' +
+            '</iframe>')
             .replace('%winname%', winname)
-            .replace('%url%', fullURL ? 'src=' + fullURL : '');
+            .replace('%url%', fullURL);
 
     var embedded = 'embed-responsive embed-responsive-16by9';
 
@@ -434,8 +408,8 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             '<div class="modal-body %embedded%" %bodyStyles%>' +
             '%body%' + '</div></div></div></div>')
             .replace('%id%', winname)
-            .replace('%sStyle%', msSize ? msSize : '')
-            .replace('%dialogId%', opts.dialogId ? ('id=' + opts.dialogId + '"') : '')
+            .replace('%sStyle%', msSize !== "default" ? msSize : '')
+            .replace('%dialogId%', opts.dialogId ? ('id="' + opts.dialogId + '"') : '')
             .replace('%szClass%', mSize ? mSize : '')
             .replace('%head%', mTitle !== '' ? headerhtml : '')
             .replace('%altclose%', mTitle === '' ? altClose : '')
@@ -449,20 +423,13 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     dlgContainer = where.jQuery(mhtml);
     dlgContainer.attr("name", winname);
 
-    // No url and just iframe content
-    if (opts.frameContent && opts.type === 'iframe') {
-        var ipath = 'data:text/html,' + encodeURIComponent(opts.frameContent);
-        dlgContainer.find("iframe[name='" + winname + "']").attr("src", ipath);
-    }
-
     if (opts.buttons) {
         dlgContainer.find('.modal-content').append(buildFooter());
     }
-// Ajax setup
     if (opts.type !== 'iframe') {
         var params = {
-            method: opts.type || '', // if empty and has data object, then post else get.
-            content: opts.data || opts.html || '', // ajax loads fetched content or supplied html. think alerts.
+            type: opts.type || '', // if empty and has data object, then post else get.
+            data: opts.data || opts.html || '', // ajax loads fetched content or supplied html. think alerts.
             url: opts.url || fullURL,
             dataType: opts.dataType || '' // xml/json/text etc.
         };
@@ -571,7 +538,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         return dlgContainer;
 
     }); // end events
-// Ajax call with promise
+
     function dialogAjax(data, $dialog) {
         var params = {
             async: true,
@@ -601,7 +568,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             var msg = data.error ?
                 data.error(r, s, params) :
                 '<div class="alert alert-danger">' +
-                '<strong><?php echo xlt("XHR Failed:") ?></strong> [ ' + params.url + '].' + '</div>';
+                '<strong><?php echo xlt("XHR Failed:") ?> </strong> [ ' + params.url + '].' + '</div>';
 
             $dialog.find('.modal-body').html(msg);
 
@@ -670,7 +637,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         let hasFooter = $idoc.parents('div.modal-content').find('div.modal-footer').height() || 0;
         frameContentHt = frameContentHt - hasHeader - hasFooter;
         size = (frameContentHt / viewPortHt * 100).toFixed(4);
-        let maxsize = hasHeader ? 90 : hasFooter ? 86.5 : 95.5;
+        let maxsize = hasHeader ? 90 : hasFooter ? 87.5 : 96;
         maxsize = hasHeader && hasFooter ? 80 : maxsize;
         maxsize = maxsize + 'vh';
         size = size + 'vh';

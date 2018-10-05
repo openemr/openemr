@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * Copyright (C) 2016-2018 Jerry Padgett <sjpadgett@gmail.com>
+ * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
  *
  * LICENSE: This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as
@@ -47,12 +47,9 @@ require_once(dirname(__FILE__)."/appsql.class.php");
 $logit = new ApplicationTable();
 $htmlin = $_REQUEST['content'];
 $dispose = $_POST['handler'];
-$cpid = $_REQUEST['cpid'] ? $_REQUEST['cpid'] : $GLOBALS['pid'];
 
 try {
-    $result = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", array("Reviewed"));
-    $category = $result['id'] ? $result['id'] : 3;
-    $form_filename = convert_safe_file_dir_name($_REQUEST['docid']) . '_' . convert_safe_file_dir_name($cpid) . '.pdf';
+    $form_filename = $_REQUEST['docid'] . '_' . $GLOBALS['pid'] . '.pdf';
     $templatedir = $GLOBALS['OE_SITE_DIR'] . "/documents/onsite_portal_documents/patient_documents";
     $templatepath = "$templatedir/$form_filename";
     $htmlout = '';
@@ -70,7 +67,7 @@ try {
         header('Content-type: application/pdf');
         header('Content-Disposition: attachment; filename=$form_filename');
         $pdf->Output($form_filename, 'D');
-        $logit->portalLog('download document', $cpid, ('document:'.$form_filename));
+        $logit->portalLog('download document', $_SESSION['pid'], ('document:'.$form_filename));
     }
 
     if ($dispose == 'view') {
@@ -82,15 +79,10 @@ try {
         $data = $pdf->Output($form_filename, 'S');
         ob_start();
         $d = new Document();
-
-        if (!$cpid) {
-            echo xla("ERROR Missing Patient ID");
-            exit();
-        }
-        $rc = $d->createDocument($cpid, $category, $form_filename, 'application/pdf', $data);
+        $rc = $d->createDocument($GLOBALS['pid'], 29, $form_filename, 'application/pdf', $data);
         ob_clean();
         echo $rc;
-        $logit->portalLog('chart document', $cpid, ('document:'.$form_filename));
+        $logit->portalLog('chart document', $_SESSION['pid'], ('document:'.$form_filename));
 
         exit(0);
     };
