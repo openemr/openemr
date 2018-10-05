@@ -36,7 +36,7 @@
 #openSignModal .modal-body {
 	position: relative;
 	padding: 10px;
-	background: #f2f3ff;
+	/*background: #f2f3ff;*/
 }
 
 #openSignModal .input-group .input-group-addon {
@@ -68,8 +68,8 @@
 }
 
 #openSignModal .close {
-	background: #fff0f0 !important;
-	opacity: .8;
+	background: #ffffff !important;
+	opacity: .9;
 	color: #000000;
 	line-height: 35px;
 	position: absolute;
@@ -88,5 +88,5 @@
 }
 
 #openSignModal .close:hover {
-	background: #00d9ff;
+	background-color: #f0f0f0;
 }
