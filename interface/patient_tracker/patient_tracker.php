@@ -387,11 +387,7 @@ if (!$_REQUEST['flb_table']) {
                                     </tr>
                                     <tr>
                                         <td class="text-center" colspan="2">
-                                            <input href="#"
-                                                   class="btn btn-primary"
-                                                   id="filter_submit"
-                                                   readonly="readonly"
-                                                   value="<?php echo xla('Filter'); ?>">
+                                            <a  id="filter_submit" class="btn btn-primary"><?php echo xla('Filter'); ?></a>
                                             <input type="hidden" id="kiosk" name="kiosk"
                                                    value="<?php echo attr($_REQUEST['kiosk']); ?>">
                                         </td>
