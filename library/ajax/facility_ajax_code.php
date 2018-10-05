@@ -34,6 +34,15 @@
 require_once("../../interface/globals.php");
 require_once("$srcdir/options.inc.php");
 
+if ($_REQUEST['mode'] == 'get_pos') {
+    // put here for encounter facility changes sjp
+    //
+    $fid = $_REQUEST['facility_id'] ? (int)$_REQUEST['facility_id'] : exit('0');
+    $pos = sqlQueryNoLog("SELECT pos_code FROM facility WHERE id = ?", array($fid));
+    echo ((int)$pos['pos_code'] < 10) ? ("0" . $pos['pos_code']) : $pos['pos_code'];
+    exit();
+}
+
 $pid=$_REQUEST['pid'];
 $facility=$_REQUEST['facility'];
 $date=$_REQUEST['date'];

@@ -135,12 +135,30 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
    });
  });
 
-function bill_loc(){
-var pid=<?php echo attr($pid);?>;
-var dte=document.getElementById('form_date').value;
-var facility=document.forms[0].facility_id.value;
-ajax_bill_loc(pid,dte,facility);
-}
+ function bill_loc() {
+     var pid =<?php echo attr($pid);?>;
+     var dte = document.getElementById('form_date').value;
+     var facility = document.forms[0].facility_id.value;
+     ajax_bill_loc(pid, dte, facility);
+     // double duty to update pos to new facility pos
+     //
+        <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
+     $.ajax({
+         url: "./../../../library/ajax/facility_ajax_code.php",
+         method: "GET",
+         data: {
+             mode: "get_pos",
+             facility_id: facility
+         }
+     })
+         .done(function (fid) {
+             document.forms[0].pos_code.value = fid;
+         })
+         .fail(function (xhr) {
+             console.log('error', xhr);
+         });
+        <?php } ?>
+ }
 
 // Handler for Cancel clicked when creating a new encounter.
 // Show demographics or encounters list depending on what frame we're in.
@@ -293,18 +311,20 @@ if ($viewmode) {
     $drow = sqlFetchArray($dres);
     $def_facility = $drow['facility_id'];
 }
-
+$posCode = '';
 $facilities = $facilityService->getAllServiceLocations();
 if ($facilities) {
-    foreach ($facilities as $iter) {
-        if ($iter['billing_location'] == 1) {
-            $posCode = $iter['pos_code'];
-        }
-    ?>
-       <option value="<?php echo attr($iter['id']); ?>" <?php if ($def_facility == $iter['id']) {
-            echo "selected";
-}?>><?php echo text($iter['name']); ?></option>
-<?php
+    foreach ($facilities as $iter) { ?>
+        <option value="<?php echo attr($iter['id']); ?>"
+            <?php
+            if ($def_facility == $iter['id']) {
+                if (!$viewmode) {
+                    $posCode = $iter['pos_code'];
+                }
+                echo "selected";
+            }?>><?php echo text($iter['name']); ?>
+        </option>
+        <?php
     }
 }
 ?>
@@ -332,7 +352,7 @@ if ($facilities) {
 
                 foreach ($pc->get_pos_ref() as $pos) {
                     echo "<option value=\"" . attr($pos["code"]) . "\" ";
-                    if ($pos["code"] == $result['pos_code'] || $pos["code"] == $posCode) {
+                    if (($pos["code"] == $result['pos_code'] && $viewmode) || ($pos["code"] == $posCode && !$viewmode)) {
                         echo "selected";
                     }
 

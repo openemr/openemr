@@ -20,6 +20,37 @@
  * @link    http://www.open-emr.org
  */
 
+
+/**
+ * Get Portal Alerts function
+ *
+ * @returns array of alerts count
+ */
+function GetPortalAlertCounts()
+{
+    $counts = array();
+    $s_user = '%' . $_SESSION['authUser'] . '%';
+    $s_user_id = $_SESSION['authUserID'];
+
+    $query = "SELECT Count(`m`.message_status) AS count_mail FROM onsite_mail `m` " .
+        "WHERE `m`.owner LIKE ? AND `m`.recipient_id LIKE ? AND `m`.message_status LIKE ?  AND `m`.deleted = 0";
+    $qrtn = sqlQueryNoLog($query, array($s_user, $s_user, '%new%'));
+    $counts['mailCnt'] = $qrtn['count_mail'] ? $qrtn['count_mail'] : "0";
+
+    $query = "SELECT Count(`m`.status) AS count_audits FROM onsite_portal_activity `m` " .
+        "WHERE `m`.status LIKE ?";
+    $qrtn = sqlQueryNoLog($query, array('%waiting%'));
+    $counts['auditCnt'] = $qrtn['count_audits'] ? $qrtn['count_audits'] : "0";
+
+    $query = "SELECT Count(`m`.id) AS count_chats FROM onsite_messages `m` " .
+        "WHERE `m`.recip_id LIKE ? AND `m`.date > (CURRENT_DATE()-2) AND `m`.date < (CURRENT_DATE()+1)";
+    $qrtn = sqlQueryNoLog($query, array($s_user));
+    $counts['chatCnt'] = $qrtn['count_chats'] ? $qrtn['count_chats'] : "0";
+
+    $counts['total'] = $counts['mailCnt'] + $counts['auditCnt'] + $counts['chatCnt'];
+    return json_encode($counts);
+}
+
 /**
  * RemindersArray function
  *
