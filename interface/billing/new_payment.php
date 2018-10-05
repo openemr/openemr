@@ -404,13 +404,19 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
     }
     </style>
     <?php
-    //to determine and set the form to open in the desired state - expanded or centered
-    // any selection the user makes will become the user-specific default for that page
-    // first argument - name of current file, second - array with names of files that need to be in the same state as current file, can be empty
-    // third argument - global value either set by admin/user, once user chooses the state of individual page it is then set to that state
+    //to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will become the user-specific default for that page
+    // collectAndOrganizeExpandSetting() contains a single array as an argument, containing one or more elements, the name of the current file is the first element, if there are linked
+    // files they should be listed thereafter, please use _xpd suffix
     
-    $current_filename = 'new_payment_xpd'; // needed for jquey script as well
-    $current_state = collectAndOrganizeExpandSetting($current_filename, array("new_payment_xpd", "search_payments_xpd", "era_payments_xpd"), $GLOBALS['expand_form']);
+    $arr_files_php = array("new_payment_xpd", "search_payments_xpd", "era_payments_xpd");
+    
+    // needed for the jQuery part of script
+    if (count($arr_files_php) > 1) {
+        $arr_files_string = implode(",", $arr_files_php);
+    } else {
+        $arr_files_string = $arr_files_php[0];
+    }
+    $current_state = collectAndOrganizeExpandSetting($arr_files_php);
     require_once("$srcdir/expand_contract_inc.php");
       
     ?>
@@ -549,8 +555,8 @@ $(document).ready(function() {
 <?php
     // jQuery script to change state dynamically
     $user_settings_php_path = '../../library/ajax/user_settings.php';
-    $arr_files = '"new_payment_xpd", "search_payments_xpd", "era_payments_xpd"'; // the linked files that need to have same state, if none comment out line
-    require_once("../expand_contract_js.php")
+    
+    require_once("../expand_contract_js.php");
 ?>
 </script>
 

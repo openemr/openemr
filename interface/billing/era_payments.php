@@ -235,13 +235,19 @@ if ($_FILES['form_erafile']['size']) {
     }
     </style>
     <?php
-    //to determine and set the form to open in the desired state - expanded or centered
-    // any selection the user makes will become the user-specific default for that page
-    // first argument - name of current file, second - array with names of files that need to be in the same state as current file, can be empty
-    // third argument - global value either set by admin/user, once user chooses the state of individual page it is then set to that state
-    
-    $current_filename = 'era_payments_xpd'; // needed for jquey script as well
-    $current_state = collectAndOrganizeExpandSetting($current_filename, array("new_payment_xpd", "search_payments_xpd", "era_payments_xpd"), $GLOBALS['expand_form']);
+    //to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will become the user-specific default for that page
+    // collectAndOrganizeExpandSetting() contains a single array as an argument, containing one or more elements, the name of the current file is the first element, if there are linked
+    // files they should be listed thereafter, please add _xpd suffix to the file name
+
+    $arr_files_php = array("era_payments_xpd", "search_payments_xpd", "new_payment_xpd");
+
+    // needed for the jQuery part of script
+    if (count($arr_files_php) > 1) {
+        $arr_files_string = implode(",", $arr_files_php);
+    } else {
+        $arr_files_string = $arr_files_php[0];
+    }
+    $current_state = collectAndOrganizeExpandSetting($arr_files_php);
     require_once("$srcdir/expand_contract_inc.php");
       
     ?>
@@ -386,12 +392,11 @@ if ($_FILES['form_erafile']['size']) {
             });
     </script>
     <script>
-    <?php
-        // jQuery script to change state dynamically
-        $user_settings_php_path = '../../library/ajax/user_settings.php';
-        $arr_files = '"new_payment_xpd", "search_payments_xpd", "era_payments_xpd"'; // the linked files that need to have same state, if none comment out line
-        require_once("../expand_contract_js.php")
-    ?>
+        <?php
+            // jQuery script to change expanded/centered state dynamically
+            $user_settings_php_path = '../../library/ajax/user_settings.php';
+            require_once("../expand_contract_js.php");
+        ?>
     </script>
 </body>
 </html>

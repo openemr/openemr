@@ -137,38 +137,22 @@ function prevSetting($uspfx, $postvar, $label, $initval)
     return $pset;
 }
 
-function collectAndOrganizeExpandSetting($current_filename, $filenames = array(), $global_value = 0)
-{
-    
-    $currentFilename = $current_filename;
-    $fileNames = $filenames;
-    $globalValue = $global_value;
-    
-    if (getUserSetting($currentFilename) > -1) {
-        $current_state = getUserSetting($currentFilename);
-    } elseif ($globalValue) {
-        $current_state = $globalValue;
-    } else {
-        $current_state = 0;
-    }
-   
-    if ($fileNames.length) {
-        foreach ($fileNames as $fileName) {
-            setUserSetting($fileName, $current_state);
-        }
-    }
-     return $current_state;
-}
+/**
+ * Function to set the state of expandable forms as per user choice, user default or global default
+ * @param array $filenames - array containing the names of the files being targeted, first element contains name of current file
+ * @param string $current_filename - derived from the first element of array $filenames
+ * @param integer $global_value - either the user defined or administrator defined global value
+ * @param integer $current_state - the current state of the form either 0 or 1
+ * @return the current state of the file after updating table user_settings
+ */
 
-function collectAndOrganizeExpandSetting1($current_filename, $filenames = array(), $global_value = 0)
+function collectAndOrganizeExpandSetting($filenames = array())
 {
-    
-    { $currentFilename = $current_filename; }
-    { $fileNames = $filenames; }
-    { $globalValue = $global_value; }
-    
+    $current_filename = $filenames[0];
+    $global_value = $GLOBALS['expand_form'];
+      
     if (getUserSetting($current_filename) > -1) {
-        $current_state = getUserSetting($current_filename);
+        $current_state = getUserSetting(attr($current_filename));
     } elseif ($global_value) {
         $current_state = $global_value;
     } else {
@@ -177,8 +161,9 @@ function collectAndOrganizeExpandSetting1($current_filename, $filenames = array(
    
     if ($filenames.length) {
         foreach ($filenames as $filename) {
-            setUserSetting($filename, $current_state);
+            setUserSetting(attr($filename), attr($current_state));
         }
     }
+     
      return $current_state;
 }
