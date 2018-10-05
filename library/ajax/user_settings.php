@@ -30,5 +30,5 @@ if ((isset($_POST['lab'])) && (isset($_POST['val']))) {
 
 // even more generic
 if ((isset($_POST['target'])) && (isset($_POST['setting']))) {
-    setUserSetting($_POST['target'], $_POST['setting']);
+    setUserSetting(attr($_POST['target']), attr($_POST['setting']));
 }

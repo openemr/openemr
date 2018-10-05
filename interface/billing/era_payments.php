@@ -240,13 +240,6 @@ if ($_FILES['form_erafile']['size']) {
     // files they should be listed thereafter, please add _xpd suffix to the file name
 
     $arr_files_php = array("era_payments_xpd", "search_payments_xpd", "new_payment_xpd");
-
-    // needed for the jQuery part of script
-    if (count($arr_files_php) > 1) {
-        $arr_files_string = implode(",", $arr_files_php);
-    } else {
-        $arr_files_string = $arr_files_php[0];
-    }
     $current_state = collectAndOrganizeExpandSetting($arr_files_php);
     require_once("$srcdir/expand_contract_inc.php");
       
@@ -394,7 +387,6 @@ if ($_FILES['form_erafile']['size']) {
     <script>
         <?php
             // jQuery script to change expanded/centered state dynamically
-            $user_settings_php_path = '../../library/ajax/user_settings.php';
             require_once("../expand_contract_js.php");
         ?>
     </script>

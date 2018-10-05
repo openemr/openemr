@@ -15,25 +15,15 @@ $( document ).ready(function() {
         var elementTitle = $(this).prop('title');
         var contractTitle = '<?php echo xla('Click to Contract and set to henceforth open in Centered mode'); ?>';
         var expandTitle = '<?php echo xla('Click to Expand and set to henceforth open in Expanded mode'); ?>';
-        //var userSettingsPath = '<?php echo $GLOBALS['webroot'] . "/library/ajax/user_settings.php"; ?>';
-        var arrFiles = [];
-        
-        <?php
-        if (strpos($arr_files_string, ",")) {?>
-              arrFiles = '<?php echo attr($arr_files_string);?>'.split(",");
-            <?php
-        } else {?>
-             arrFiles = ['<?php echo attr($arr_files_string);?>'];
-            <?php
-        } ?>
-        
+        var arrFiles = <?php echo json_encode($arr_files_php) ?>;
+                
         if (elementTitle == contractTitle) {
             elementTitle = expandTitle;
             $(this).toggleClass('fa-expand fa-compress');
             $('.expandable').toggleClass('container container-fluid');
             if ($(arrFiles).length) {
                 $.each(arrFiles, function (index, value) {
-                  $.post( '<?php echo $user_settings_php_path; ?>', { target: arrFiles[index].trim(), setting: 0 });
+                  $.post( "<?php echo $GLOBALS['webroot'] ?>/library/ajax/user_settings.php", { target: arrFiles[index].trim(), setting: 0 });
                 });
             } 
         } else if (elementTitle == expandTitle) {
@@ -42,7 +32,7 @@ $( document ).ready(function() {
             $('.expandable').toggleClass('container-fluid container');
             if ($(arrFiles).length) {
                 $.each(arrFiles, function (index, value) {
-                  $.post( '<?php echo $user_settings_php_path; ?>', { target: arrFiles[index].trim(), setting: 1 });
+                  $.post( "<?php echo $GLOBALS['webroot'] ?>/library/ajax/user_settings.php", { target: arrFiles[index].trim(), setting: 1 });
                 });
             }
         }
