@@ -59,6 +59,8 @@ function check_file_dir_name($label)
     if (empty($label) || preg_match('/[^A-Za-z0-9_.-]/', $label)) {
         error_log("ERROR: The following variable contains invalid characters:" . $label);
         die(xlt("ERROR: The following variable contains invalid characters").": ". attr($label));
+    } else {
+        return $label;
     }
 }
 

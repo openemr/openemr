@@ -49,7 +49,7 @@ if ($GLOBALS['enable_hylafax']) {
     154  124 F nobody 6153551807    0:1   4:12         No carrier detected
     */
     $donelines = array();
-    exec("faxstat -s -d -l -h " . $GLOBALS['hylafax_server'], $donelines);
+    exec("faxstat -s -d -l -h " . escapeshellarg($GLOBALS['hylafax_server']), $donelines);
     foreach ($donelines as $line) {
             // This gets jobid, priority, statchar, owner, phone, pages, dials and tts/status.
         if (preg_match('/^(\d+)\s+(\d+)\s+(\S)\s+(\S+)\s+(\S+)\s+(\d+:\d+)\s+(\d+:\d+)(.*)$/', $line, $matches)) {
@@ -65,7 +65,7 @@ if ($scandir && $GLOBALS['enable_scanner']) {
     // Get the directory entries, parse and sort by date and time.
     $dh = opendir($scandir);
     if (! $dh) {
-        die("Cannot read $scandir");
+        die("Cannot read " . text($scandir));
     }
 
     while (false !== ($sfname = readdir($dh))) {
@@ -88,7 +88,7 @@ if ($scandir && $GLOBALS['enable_scanner']) {
 <head>
 
     <?php Header::setupHeader(['opener']);?>
-    <title><?php xl('Received Faxes', 'e'); ?></title>
+    <title><?php echo xlt('Received Faxes'); ?></title>
 
 <style>
 td {
@@ -146,33 +146,33 @@ function refreshme() {
 
 // Process click on filename to view.
 function dodclick(ffname) {
- cascwin('fax_view.php?file=' + ffname, '_blank', 600, 475,
+ cascwin('fax_view.php?file=' + encodeURIComponent(ffname) + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>', '_blank', 600, 475,
   "resizable=1,scrollbars=1");
  return false;
 }
 
 // Process click on Job ID to view.
 function dojclick(jobid) {
- cascwin('fax_view.php?jid=' + jobid, '_blank', 600, 475,
+ cascwin('fax_view.php?jid=' + encodeURIComponent(jobid) + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>', '_blank', 600, 475,
   "resizable=1,scrollbars=1");
  return false;
 }
 
 // Process scanned document filename to view.
 function dosvclick(sfname) {
- cascwin('fax_view.php?scan=' + sfname, '_blank', 600, 475,
+ cascwin('fax_view.php?scan=' + encodeURIComponent(sfname) + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>', '_blank', 600, 475,
   "resizable=1,scrollbars=1");
  return false;
 }
 
 // Process click to pop up the fax dispatch window.
 function domclick(ffname) {
-    dlgopen('fax_dispatch.php?file=' + ffname, '_blank', 850, 550, '', 'Fax Dispatch');
+    dlgopen('fax_dispatch.php?file=' + encodeURIComponent(ffname) + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>', '_blank', 850, 550, '', 'Fax Dispatch');
 }
 
 // Process click to pop up the scanned document dispatch window.
 function dosdclick(sfname) {
-    dlgopen('fax_dispatch.php?scan=' + sfname, '_blank', 850, 550, '', 'Scanned Dispatch');
+    dlgopen('fax_dispatch.php?scan=' + encodeURIComponent(sfname) + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>', '_blank', 850, 550, '', 'Scanned Dispatch');
 }
 
 </script>
@@ -189,21 +189,21 @@ function dosdclick(sfname) {
     <?php } else { ?>
    style='color: #777777; border-right: 2px solid #000000; border-bottom: 2px solid #000000; cursor: pointer; display:none;'
     <?php } ?>
-   onclick='tabclick("faxin")'><?php xl('Faxes In', 'e'); ?></td>
+   onclick='tabclick("faxin")'><?php echo xlt('Faxes In'); ?></td>
   <td width='33%' id='td_tab_faxout' class='tabhead'
     <?php if ($GLOBALS['enable_hylafax']) { ?>
    style='color: #777777; border-right: 2px solid #000000; border-bottom: 2px solid #000000; cursor: pointer;'
     <?php } else { ?>
    style='color: #777777; border-right: 2px solid #000000; border-bottom: 2px solid #000000; cursor: pointer; display:none;'
     <?php } ?>
-   onclick='tabclick("faxout")'><?php xl('Faxes Out', 'e'); ?></td>
+   onclick='tabclick("faxout")'><?php echo xlt('Faxes Out'); ?></td>
   <td width='34%' id='td_tab_scanin' class='tabhead'
     <?php if ($GLOBALS['enable_scanner']) { ?>
    style='color: #777777; border-bottom: 2px solid #000000; cursor: pointer;'
     <?php } else { ?>
    style='color: #cc0000; border-bottom: 2px solid transparent; display:none;'
     <?php } ?>
-   onclick='tabclick("scanin")'><?php xl('Scanner In', 'e'); ?></td>
+   onclick='tabclick("scanin")'><?php echo xlt('Scanner In'); ?></td>
  </tr>
  <tr>
   <td colspan='3' style='padding: 5px;' valign='top'>
@@ -215,10 +215,10 @@ function dosdclick(sfname) {
         echo "style='display:none;'";
 } ?>>
     <tr class='head'>
-     <td colspan='2' title='Click to view'><?php xl('Document', 'e'); ?></td>
-     <td><?php xl('Received', 'e'); ?></td>
-     <td><?php xl('From', 'e'); ?></td>
-     <td align='right'><?php xl('Pages', 'e'); ?></td>
+     <td colspan='2' title='Click to view'><?php echo xlt('Document'); ?></td>
+     <td><?php echo xlt('Received'); ?></td>
+     <td><?php echo xlt('From'); ?></td>
+     <td align='right'><?php echo xlt('Pages'); ?></td>
     </tr>
 <?php
 
@@ -228,14 +228,14 @@ foreach ($mlines as $matches) {
     $ffname = $matches[4];
     $ffbase = basename("/$ffname", '.tif');
     $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
-    echo "    <tr class='detail' bgcolor='$bgcolor'>\n";
-    echo "     <td onclick='dodclick(\"$ffname\")'>";
-    echo "<a href='fax_view.php?file=$ffname' onclick='return false'>$ffbase</a></td>\n";
-    echo "     <td onclick='domclick(\"$ffname\")'>";
-    echo "<a href='fax_dispatch.php?file=$ffname' onclick='return false'>" . xl('Dispatch', 'e') . "</a></td>\n";
-    echo "     <td>" . htmlentities($matches[3]) . "</td>\n";
-    echo "     <td>" . htmlentities($matches[2]) . "</td>\n";
-    echo "     <td align='right'>" . htmlentities($matches[1]) . "</td>\n";
+    echo "    <tr class='detail' bgcolor='" . attr($bgcolor) . "'>\n";
+    echo "     <td onclick='dodclick(\"" . attr(addslashes($ffname)) . "\")'>";
+    echo "<a href='fax_view.php?file=" . attr(urlencode($ffname)) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' onclick='return false'>" . text($ffbase) . "</a></td>\n";
+    echo "     <td onclick='domclick(\"" . attr(addslashes($ffname)) . "\")'>";
+    echo "<a href='fax_dispatch.php?file=" . attr(urlencode($ffname)) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' onclick='return false'>" . xlt('Dispatch') . "</a></td>\n";
+    echo "     <td>" . text($matches[3]) . "</td>\n";
+    echo "     <td>" . text($matches[2]) . "</td>\n";
+    echo "     <td align='right'>" . text($matches[1]) . "</td>\n";
     echo "    </tr>\n";
 }
 ?>
@@ -244,12 +244,12 @@ foreach ($mlines as $matches) {
    <table width='100%' cellpadding='1' cellspacing='2' id='table_faxout'
     style='display:none;'>
     <tr class='head'>
-     <td title='Click to view'><?php xl('Job ID', 'e'); ?></td>
-     <td><?php xl('To', 'e'); ?></td>
-     <td><?php xl('Pages', 'e'); ?></td>
-     <td><?php xl('Dials', 'e'); ?></td>
-     <td><?php xl('TTS', 'e'); ?></td>
-     <td><?php xl('Status', 'e'); ?></td>
+     <td title='Click to view'><?php echo xlt('Job ID'); ?></td>
+     <td><?php echo xlt('To'); ?></td>
+     <td><?php echo xlt('Pages'); ?></td>
+     <td><?php echo xlt('Dials'); ?></td>
+     <td><?php echo xlt('TTS'); ?></td>
+     <td><?php echo xlt('Status'); ?></td>
     </tr>
 <?php
  $encount = 0;
@@ -269,15 +269,15 @@ foreach ($dlines as $matches) {
     }
 
     $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
-    echo "    <tr class='detail' bgcolor='$bgcolor'>\n";
-    echo "     <td onclick='dojclick(\"$jobid\")'>" .
-     "<a href='fax_view.php?jid=$jobid' onclick='return false'>" .
+    echo "    <tr class='detail' bgcolor='" . attr($bgcolor) . "'>\n";
+    echo "     <td onclick='dojclick(\"" . attr(addslashes($jobid)) . "\")'>" .
+     "<a href='fax_view.php?jid=" . attr(urlencode($jobid)) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' onclick='return false'>" .
      "$jobid</a></td>\n";
-    echo "     <td>" . htmlentities($matches[5]) . "</td>\n";
-    echo "     <td>" . htmlentities($matches[6]) . "</td>\n";
-    echo "     <td>" . htmlentities($matches[7]) . "</td>\n";
-    echo "     <td>" . htmlentities($fftts)      . "</td>\n";
-    echo "     <td>" . htmlentities($ffstatus)   . "</td>\n";
+    echo "     <td>" . text($matches[5]) . "</td>\n";
+    echo "     <td>" . text($matches[6]) . "</td>\n";
+    echo "     <td>" . text($matches[7]) . "</td>\n";
+    echo "     <td>" . text($fftts)      . "</td>\n";
+    echo "     <td>" . text($ffstatus)   . "</td>\n";
     echo "    </tr>\n";
 }
 ?>
@@ -288,9 +288,9 @@ foreach ($dlines as $matches) {
         echo "style='display:none;'";
 } ?>>
     <tr class='head'>
-     <td colspan='2' title='Click to view'><?php xl('Filename', 'e'); ?></td>
-     <td><?php xl('Scanned', 'e'); ?></td>
-     <td align='right'><?php xl('Length', 'e'); ?></td>
+     <td colspan='2' title='Click to view'><?php echo xlt('Filename'); ?></td>
+     <td><?php echo xlt('Scanned'); ?></td>
+     <td align='right'><?php echo xlt('Length'); ?></td>
     </tr>
 <?php
  $encount = 0;
@@ -299,14 +299,14 @@ foreach ($slines as $sline) {
     $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
     $sfname = $sline[0]; // filename
     $sfdate = date('Y-m-d H:i', $sline[9]);
-    echo "    <tr class='detail' bgcolor='$bgcolor'>\n";
-    echo "     <td onclick='dosvclick(\"$sfname\")'>" .
-     "<a href='fax_view.php?scan=$sfname' onclick='return false'>" .
+    echo "    <tr class='detail' bgcolor='" . attr($bgcolor) . "'>\n";
+    echo "     <td onclick='dosvclick(\"" . attr(addslashes($sfname)) . "\")'>" .
+     "<a href='fax_view.php?scan=" . attr(urlencode($sfname)) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' onclick='return false'>" .
      "$sfname</a></td>\n";
-    echo "     <td onclick='dosdclick(\"$sfname\")'>";
-    echo "<a href='fax_dispatch.php?scan=$sfname' onclick='return false'>" . xl('Dispatch', 'e') . "</a></td>\n";
-    echo "     <td>$sfdate</td>\n";
-    echo "     <td align='right'>" . $sline[7] . "</td>\n";
+    echo "     <td onclick='dosdclick(\"" . attr(addslashes($sfname)) . "\")'>";
+    echo "<a href='fax_dispatch.php?scan=" . attr(urlencode($sfname)) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' onclick='return false'>" . xlt('Dispatch') . "</a></td>\n";
+    echo "     <td>". text($sfdate) . "</td>\n";
+    echo "     <td align='right'>" . text($sline[7]) . "</td>\n";
     echo "    </tr>\n";
 }
 ?>
