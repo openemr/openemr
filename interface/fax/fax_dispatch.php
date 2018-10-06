@@ -517,7 +517,7 @@ div.section {
   // This loads the patient's list of recent encounters:
   f.form_copy_sn_visit.options.length = 0;
   f.form_copy_sn_visit.options[0] = new Option('Loading...', '0');
-  $.getScript("fax_dispatch_newpid.php?p=" + pid + "&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>");
+  $.getScript("fax_dispatch_newpid.php?p=" + encodeURIComponent(pid) + "&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>");
 <?php } ?>
  }
 
