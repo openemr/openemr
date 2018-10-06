@@ -139,10 +139,6 @@ function prevSetting($uspfx, $postvar, $label, $initval)
 
 /**
  * Function to set the state of expandable forms as per user choice, user default or global default
- * @param array $filenames - array containing the names of the files being targeted, first element contains name of current file
- * @param string $current_filename - derived from the first element of array $filenames
- * @param integer $global_value - either the user defined or administrator defined global value
- * @param integer $current_state - the current state of the form either 0 or 1
  * @return the current state of the file after updating table user_settings
  */
 
@@ -152,7 +148,7 @@ function collectAndOrganizeExpandSetting($filenames = array())
     $global_value = $GLOBALS['expand_form'];
       
     if (getUserSetting($current_filename) > -1) {
-        $current_state = getUserSetting(attr($current_filename));
+        $current_state = getUserSetting($current_filename);
     } elseif ($global_value) {
         $current_state = $global_value;
     } else {
@@ -161,7 +157,7 @@ function collectAndOrganizeExpandSetting($filenames = array())
    
     if ($filenames.length) {
         foreach ($filenames as $filename) {
-            setUserSetting(attr($filename), attr($current_state));
+            setUserSetting($filename, $current_state);
         }
     }
      

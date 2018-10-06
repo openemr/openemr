@@ -792,10 +792,10 @@ if ($GLOBALS['enable_help'] == 1) {
      $help_icon = '';
 }
 
-//to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will become the user-specific default for that page
-// collectAndOrganizeExpandSetting() contains a single array as an argument, containing one or more elements, the name of the current file is the first element, if there are linked 
+//to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will 
+//become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an 
+//argument, containing one or more elements, the name of the current file is the first element, if there are linked 
 // files they should be listed thereafter, please add _xpd suffix to the file name
-
 $arr_files_php = array("fee_sheet_new_xpd");
 $current_state = collectAndOrganizeExpandSetting($arr_files_php);
 require_once("$srcdir/expand_contract_inc.php");
@@ -1502,8 +1502,8 @@ require_once("$srcdir/expand_contract_inc.php");
     
     <script>
         <?php
-            // jQuery script to change expanded/centered state dynamically
-            require_once("../../expand_contract_js.php")
+        // jQuery script to change expanded/centered state dynamically
+        require_once("../../expand_contract_js.php")
         ?>
     </script>
     

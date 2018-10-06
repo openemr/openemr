@@ -235,14 +235,13 @@ if ($_FILES['form_erafile']['size']) {
     }
     </style>
     <?php
-    //to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will become the user-specific default for that page
-    // collectAndOrganizeExpandSetting() contains a single array as an argument, containing one or more elements, the name of the current file is the first element, if there are linked
+    //to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will
+    //become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an
+    //argument, containing one or more elements, the name of the current file is the first element, if there are linked
     // files they should be listed thereafter, please add _xpd suffix to the file name
-
     $arr_files_php = array("era_payments_xpd", "search_payments_xpd", "new_payment_xpd");
     $current_state = collectAndOrganizeExpandSetting($arr_files_php);
     require_once("$srcdir/expand_contract_inc.php");
-      
     ?>
     <title><?php echo xlt('ERA Posting'); ?></title>
 </head>
@@ -386,8 +385,8 @@ if ($_FILES['form_erafile']['size']) {
     </script>
     <script>
         <?php
-            // jQuery script to change expanded/centered state dynamically
-            require_once("../expand_contract_js.php");
+        // jQuery script to change expanded/centered state dynamically
+        require_once("../expand_contract_js.php");
         ?>
     </script>
 </body>
