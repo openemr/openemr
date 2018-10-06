@@ -22,6 +22,10 @@ require_once("$srcdir/gprelations.inc.php");
 use OpenEMR\Core\Header;
 
 if ($_GET['file']) {
+    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
     $mode = 'fax';
     $filename = $_GET['file'];
 
@@ -30,6 +34,10 @@ if ($_GET['file']) {
 
     $filepath = $GLOBALS['hylafax_basedir'] . '/recvq/' . $filename;
 } else if ($_GET['scan']) {
+    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
     $mode = 'scan';
     $filename = $_GET['scan'];
 
@@ -83,7 +91,7 @@ function mergeTiffs()
     }
 
     if (!$inames) {
-        die(xl("Internal error - no pages were selected!"));
+        die(xlt("Internal error - no pages were selected!"));
     }
 
     $tmp0 = exec("cd " . escapeshellarg($faxcache) . "; tiffcp $inames temp.tif", $tmp1, $tmp2);
@@ -97,6 +105,10 @@ function mergeTiffs()
 // If we are submitting...
 //
 if ($_POST['form_save']) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
     $action_taken = false;
     $tmp1 = array();
     $tmp2 = 0;
@@ -505,7 +517,7 @@ div.section {
   // This loads the patient's list of recent encounters:
   f.form_copy_sn_visit.options.length = 0;
   f.form_copy_sn_visit.options[0] = new Option('Loading...', '0');
-  $.getScript("fax_dispatch_newpid.php?p=" + pid);
+  $.getScript("fax_dispatch_newpid.php?p=" + encodeURIComponent(pid) + "&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>");
 <?php } ?>
  }
 
@@ -608,7 +620,8 @@ div.section {
 <center><h2><?php echo xlt('Dispatch Received Document'); ?></h2></center>
 
 <form method='post' name='theform'
- action='fax_dispatch.php?<?php echo ($mode == 'fax') ? 'file' : 'scan'; ?>=<?php echo attr($filename) ?>' onsubmit='return validate()'>
+ action='fax_dispatch.php?<?php echo ($mode == 'fax') ? 'file' : 'scan'; ?>=<?php echo attr(urlencode($filename)); ?>' onsubmit='return validate()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <p><input type='checkbox' name='form_cb_copy' value='1'
  onclick='return divclick(this,"div_copy");' />
