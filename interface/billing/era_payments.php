@@ -34,6 +34,7 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
 require_once("$srcdir/parse_era.inc.php");
+require_once("$srcdir/options.inc.php");
 require_once("$srcdir/sl_eob.inc.php");
 
 use OpenEMR\Core\Header;
@@ -233,107 +234,125 @@ if ($_FILES['form_erafile']['size']) {
         margin-left:5px !Important;
     }
     </style>
+    <?php
+    //to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will
+    //become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an
+    //argument, containing one or more elements, the name of the current file is the first element, if there are linked
+    // files they should be listed thereafter, please add _xpd suffix to the file name
+    $arr_files_php = array("era_payments_xpd", "search_payments_xpd", "new_payment_xpd");
+    $current_state = collectAndOrganizeExpandSetting($arr_files_php);
+    require_once("$srcdir/expand_contract_inc.php");
+    ?>
     <title><?php echo xlt('ERA Posting'); ?></title>
 </head>
 <body class="body_top" onload="OnloadAction()">
-    <div class="container">
+    <div class="<?php echo $container;?> expandable">
         <div class="row">
-            <div class="page-header">
-                <h2><?php echo xlt('Payments'); ?></h2>
+            <div class="col-sm-12">
+                <div class="page-header">
+                    <h2>
+                        <?php echo xlt('Payments'); ?> <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract" 
+                        title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i>
+                    </h2>
+                </div>
             </div>
         </div>
-        <div class="row" >
-            <nav class="navbar navbar-default navbar-color navbar-static-top" >
-                <div class="container-fluid">
-                    <div class="navbar-header">
-                        <button class="navbar-toggle" data-target="#myNavbar" data-toggle="collapse" type="button"><span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span></button>
+        <div class="row">
+            <div class="col-sm-12">
+                <nav class="navbar navbar-default navbar-color navbar-static-top" >
+                    <div class="container-fluid">
+                        <div class="navbar-header">
+                            <button class="navbar-toggle" data-target="#myNavbar" data-toggle="collapse" type="button"><span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span></button>
+                        </div>
+                        <div class="collapse navbar-collapse" id="myNavbar" >
+                            <ul class="nav navbar-nav" >
+                                <li class="oe-bold-black">
+                                    <a href='new_payment.php' style="font-weight:700; color:#000000"><?php echo xlt('New Payment'); ?></a>
+                                </li>
+                                <li class="oe-bold-black" >
+                                    <a href='search_payments.php' style="font-weight:700; color:#000000"><?php echo xlt('Search Payment'); ?></a>
+                                </li>
+                                <li class="active">
+                                    <a href='era_payments.php' style="font-weight:700; color:#000000"><?php echo xlt('ERA Posting'); ?></a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="collapse navbar-collapse" id="myNavbar" >
-                        <ul class="nav navbar-nav" >
-                            <li class="oe-bold-black">
-                                <a href='new_payment.php' style="font-weight:700; color:#000000"><?php echo xlt('New Payment'); ?></a>
-                            </li>
-                            <li class="oe-bold-black" >
-                                <a href='search_payments.php' style="font-weight:700; color:#000000"><?php echo xlt('Search Payment'); ?></a>
-                            </li>
-                            <li class="active">
-                                <a href='era_payments.php' style="font-weight:700; color:#000000"><?php echo xlt('ERA Posting'); ?></a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
+                </nav>
+            </div>
         </div>
 
-        <div class = "row">
-            <form action='era_payments.php' enctype="multipart/form-data" method='post' style="display:inline">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
-                <fieldset>
-                    <div class="col-xs-12 oe-custom-line">
-                        <div class="form-group col-xs9 oe-file-div">
-                            <div class="input-group">
-                                <label class="input-group-btn">
-                                    <span class="btn btn-default">
-                                        <?php echo xlt('Browse'); ?>&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;" >
-                                        <input name="MAX_FILE_SIZE" type="hidden" value="5000000">
-                                    </span>
+        <div class="row">
+            <div class="col-sm-12">
+                <form action='era_payments.php' enctype="multipart/form-data" method='post' style="display:inline">
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <fieldset>
+                        <div class="col-xs-12 oe-custom-line">
+                            <div class="form-group col-xs9 oe-file-div">
+                                <div class="input-group">
+                                    <label class="input-group-btn">
+                                        <span class="btn btn-default">
+                                            <?php echo xlt('Browse'); ?>&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;" >
+                                            <input name="MAX_FILE_SIZE" type="hidden" value="5000000">
+                                        </span>
+                                    </label>
+                                    <input type="text" class="form-control" placeholder="<?php echo xla('Click Browse and select one Electronic Remittance Advice (ERA) file...'); ?>" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 oe-custom-line">
+                            <div class="form-group col-xs-3">
+                                <label class="control-label" for="check_date"><?php echo xlt('Date'); ?>:</label>
+                                <input class="form-control datepicker" id='check_date' name='check_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($check_date); ?>">
+                            </div>
+                            <div class="form-group col-xs-3">
+                                <label class="control-label" for="post_to_date"><?php echo xlt('Post To Date'); ?>:</label>
+                                <input class="form-control datepicker" id='post_to_date' name='post_to_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($post_to_date); ?>">
+                            </div>
+                            <div class="form-group col-xs-3 clearfix">
+                                <label class="control-label" for="form_without"><?php echo xlt('Select'); ?>:</label>
+                                <label class="checkbox">
+                                    <input name='form_without'  id='form_without' type='checkbox' value='1'> <span class="oe-ckbox-label"><?php echo xlt('Without Update'); ?></span>
                                 </label>
-                                <input type="text" class="form-control" placeholder="<?php echo xla('Click Browse and select one Electronic Remittance Advice (ERA) file...'); ?>" readonly>
+                            </div>
+                            <div class="form-group col-xs-3">
+                                <label class="control-label" for="deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
+                                <input class="form-control datepicker" id='deposit_date' name='deposit_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($deposit_date); ?>">
+                            </div>
+                        </div>
+                        <div class="col-xs-12 oe-custom-line">
+                            <div class="form-group col-xs-6">
+                                <label class="control-label" for="type_code"><?php echo xlt('Insurance'); ?>:</label>
+                                <input id="hidden_ajax_close_value" type="hidden" value="<?php echo attr($type_code); ?>">
+                                <input autocomplete="off" class="form-control" id='type_code' name='type_code' onkeydown="PreventIt(event)"  type="text" value="<?php echo attr($type_code); ?>"><br>
+                                <!--onKeyUp="ajaxFunction(event,'non','search_payments.php');"-->
+                                <div id='ajax_div_insurance_section'>
+                                    <div id='ajax_div_insurance_error'></div>
+                                    <div id="ajax_div_insurance" style="display:none;"></div>
+                                </div>
+                            </div>
+                            <div class="form-group col-xs-3">
+                                <label class="control-label" for="div_insurance_or_patient"><?php echo xlt('Insurance ID'); ?>:</label>
+                                <div class="form-control" id="div_insurance_or_patient" >
+                                    <?php echo text($hidden_type_code); ?>
+                                </div>
+                                <input id="description" name="description" type="hidden">
+                            </div>
+                        </div>
+                    </fieldset>
+                    <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
+                    <div class="form-group clearfix">
+                        <div class="col-sm-12 text-left position-override">
+                            <div class="btn-group" role="group">
+                                <a class="btn btn-default btn-save" href="#" onclick="javascript:return Validate();"><span><?php echo xlt('Process ERA File');?></span></a>
                             </div>
                         </div>
                     </div>
-                    <div class="col-xs-12 oe-custom-line">
-                        <div class="form-group col-xs-3">
-                            <label class="control-label" for="check_date"><?php echo xlt('Date'); ?>:</label>
-                            <input class="form-control datepicker" id='check_date' name='check_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($check_date); ?>">
-                        </div>
-                        <div class="form-group col-xs-3">
-                            <label class="control-label" for="post_to_date"><?php echo xlt('Post To Date'); ?>:</label>
-                            <input class="form-control datepicker" id='post_to_date' name='post_to_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($post_to_date); ?>">
-                        </div>
-                        <div class="form-group col-xs-3 clearfix">
-                            <label class="control-label" for="form_without"><?php echo xlt('Select'); ?>:</label>
-                            <label class="checkbox">
-                                <input name='form_without'  id='form_without' type='checkbox' value='1'> <span class="oe-ckbox-label"><?php echo xlt('Without Update'); ?></span>
-                            </label>
-                        </div>
-                        <div class="form-group col-xs-3">
-                            <label class="control-label" for="deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
-                            <input class="form-control datepicker" id='deposit_date' name='deposit_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($deposit_date); ?>">
-                        </div>
-                    </div>
-                    <div class="col-xs-12 oe-custom-line">
-                        <div class="form-group col-xs-6">
-                            <label class="control-label" for="type_code"><?php echo xlt('Insurance'); ?>:</label>
-                            <input id="hidden_ajax_close_value" type="hidden" value="<?php echo attr($type_code); ?>">
-                            <input autocomplete="off" class="form-control" id='type_code' name='type_code' onkeydown="PreventIt(event)"  type="text" value="<?php echo attr($type_code); ?>"><br>
-                            <!--onKeyUp="ajaxFunction(event,'non','search_payments.php');"-->
-                            <div id='ajax_div_insurance_section'>
-                                <div id='ajax_div_insurance_error'></div>
-                                <div id="ajax_div_insurance" style="display:none;"></div>
-                            </div>
-                        </div>
-                        <div class="form-group col-xs-3">
-                            <label class="control-label" for="div_insurance_or_patient"><?php echo xlt('Insurance ID'); ?>:</label>
-                            <div class="form-control" id="div_insurance_or_patient" >
-                                <?php echo text($hidden_type_code); ?>
-                            </div>
-                            <input id="description" name="description" type="hidden">
-                        </div>
-                    </div>
-                </fieldset>
-                <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
-                <div class="form-group clearfix">
-                    <div class="col-sm-12 text-left position-override">
-                        <div class="btn-group" role="group">
-                            <a class="btn btn-default btn-save" href="#" onclick="javascript:return Validate();"><span><?php echo xlt('Process ERA File');?></span></a>
-                        </div>
-                    </div>
-                </div>
-                <input type="hidden" name="after_value" id="after_value" value="<?php echo attr($alertmsg); ?>"/>
-                <input type="hidden" name="hidden_type_code" id="hidden_type_code" value="<?php echo attr($hidden_type_code); ?>"/>
-                <input type='hidden' name='ajax_mode' id='ajax_mode' value='' />
-            </form>
+                    <input type="hidden" name="after_value" id="after_value" value="<?php echo attr($alertmsg); ?>"/>
+                    <input type="hidden" name="hidden_type_code" id="hidden_type_code" value="<?php echo attr($hidden_type_code); ?>"/>
+                    <input type='hidden' name='ajax_mode' id='ajax_mode' value='' />
+                </form>
+            </div>
         </div>
     </div><!-- End of Container Div-->
     <script>
@@ -363,6 +382,12 @@ if ($_FILES['form_erafile']['size']) {
             });
 
             });
+    </script>
+    <script>
+        <?php
+        // jQuery script to change expanded/centered state dynamically
+        require_once("../expand_contract_js.php");
+        ?>
     </script>
 </body>
 </html>
