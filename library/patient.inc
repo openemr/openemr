@@ -320,7 +320,7 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
         if ($GLOBALS['restrict_user_facility']) {
             $param2 = " AND (facility_id = '" . add_escape_custom($facility) . "' OR  '" . add_escape_custom($facility) . "' IN (select facility_id from users_facility where tablename = 'users' and table_id = id))";
         } else {
-            $param2 = " AND facility_id = '" . add_escape_custom($facility) . "'' ";
+            $param2 = " AND facility_id = '" . add_escape_custom($facility) . "' ";
         }
     }
 
