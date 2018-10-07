@@ -98,12 +98,16 @@ services:
     restart: always
     image: mariadb:10.2
     command: ['mysqld','--character-set-server=utf8']
+    ports:
+    - 8210:3306
     environment:
       MYSQL_ROOT_PASSWORD: root
   mysql:
     restart: always
     image: mysql:5.7
     command: ['mysqld','--character-set-server=utf8']
+    ports:
+    - 8220:3306
     environment:
       MYSQL_ROOT_PASSWORD: root
   mariadb-dev:
