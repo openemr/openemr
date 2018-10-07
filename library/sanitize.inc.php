@@ -13,23 +13,29 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-// Function to create a csrf_token
-function createCsrfToken()
+// Function to create a random unique token
+// Length is in bytes that the openssl_random_pseudo_bytes() function will create
+function createUniqueToken($length = 32)
 {
     if (!extension_loaded('openssl')) {
         error_log("OpenEMR Error : OpenEMR is not working because missing openssl extension.");
         die("OpenEMR Error : OpenEMR is not working because missing openssl extension.");
     }
 
-    $csrfToken = base64_encode(openssl_random_pseudo_bytes(32));
+    $uniqueToken = base64_encode(openssl_random_pseudo_bytes($length));
 
-    if (empty($csrfToken)) {
-        error_log("OpenEMR Error : OpenEMR is not working because CSRF token is not being formed correctly.");
-        die("OpenEMR Error : OpenEMR is not working because CSRF token is not being formed correctly.");
+    if (empty($uniqueToken)) {
+        error_log("OpenEMR Error : OpenEMR is not working because a random unique token is not being formed correctly.");
+        die("OpenEMR Error : OpenEMR is not working because a random unique token is not being formed correctly.");
     }
 
-    return $csrfToken;
+    return $uniqueToken;
+}
+
+// Function to create a csrf_token
+function createCsrfToken()
+{
+    return createUniqueToken(32);
 }
 
 // Function to collect the csrf token
