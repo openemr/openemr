@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Default values for optional variables that are allowed to be set by callers.
+ *
+ * Note that this will only be used within setup.php, sql_upgrade.php,
+ * sql_patch.php, acl_upgrade.php, admin.php, and globals.php.
+ *
+ * @package OpenEMR
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @link    http://www.open-emr.org
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2018 Brady Miller
+ */
+
 // Checks if the server's PHP version is compatible with OpenEMR:
 require_once(dirname(__FILE__) . "/../common/compatibility/Checker.php");
 
@@ -11,8 +24,6 @@ $response = Checker::checkPhpVersion();
 if ($response !== true) {
     die($response);
 }
-
-// Default values for optional variables that are allowed to be set by callers.
 
 //This is to help debug the ssl mysql connection. This will send messages to php log to show if mysql connections have a cipher set up.
 $GLOBALS['debug_ssl_mysql_connection'] = false;
@@ -390,7 +401,7 @@ if (!empty($glrow)) {
 
   // Language cleanup stuff.
     $GLOBALS['language_menu_login'] = false;
-    if ((count($GLOBALS['language_menu_show']) >= 1) || $GLOBALS['language_menu_showall']) {
+    if ((count($GLOBALS['language_menu_show']) > 1) || $GLOBALS['language_menu_showall']) {
         $GLOBALS['language_menu_login'] = true;
     }
 
