@@ -195,7 +195,7 @@ $help_icon = '';
                     <legend><?php echo xlt('Visit Details')?></legend>
                     <div id = "visit-details">
                         <div class="form-group ">
-                            <label for="pc_catid" class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Visit Category:'); ?></label>
+                            <label for="pc_catid" class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Visit Category'); ?>:</label>
                             <div class="col-sm-3">
                                 <select  name='pc_catid' id='pc_catid' class='form-control col-sm-12'>
                                     <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
@@ -229,7 +229,7 @@ $help_icon = '';
                             if ($sensitivities && count($sensitivities)) {
                                 usort($sensitivities, "sensitivity_compare");
                             ?>
-                            <label for="pc_catid" class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Sensitivity:'); ?></label>
+                            <label for="pc_catid" class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Sensitivity'); ?>:</label>
                             <div class="col-sm-3">
                                 <select name='form_sensitivity' id='form_sensitivity' class='form-control col-sm-12' >
                                     <?php
@@ -264,7 +264,7 @@ $help_icon = '';
                             <div class="clearfix"></div>
                         </div>
                         <div class="form-group">
-                            <label for='form_date' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Date of Service:'); ?></label>
+                            <label for='form_date' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Date of Service'); ?>:</label>
                             <div class="col-sm-3">
                                 <input type='text' class='form-control datepicker col-sm-12' name='form_date' id='form_date' <?php echo $disabled ?>
                                        value='<?php echo $viewmode ? attr(oeFormatShortDate(substr($result['date'], 0, 10))) : oeFormatShortDate(date('Y-m-d')); ?>'
@@ -276,7 +276,7 @@ $help_icon = '';
                                 if ($GLOBALS['ippf_specific']) {
                                     echo " style='visibility:hidden;'";
                                 } ?>>
-                                <label for='form_onset_date' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Onset/hosp. date:'); ?> </label>
+                                <label for='form_onset_date' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Onset/hosp. date'); ?>:</label>
                                 <div class="col-sm-3">
                                     <input type='text' class='form-control datepicker col-sm-12' name='form_onset_date' id='form_onset_date'
                                            value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr($result['onset_date'], 0, 10))) : ''; ?>'
