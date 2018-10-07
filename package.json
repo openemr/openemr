@@ -34,7 +34,6 @@
     "gulp-csso": "^3.0.1",
     "gulp-if": "^2.0.2",
     "gulp-rename": "^1.2.3",
-    "gulp-replace": "^1.0.0",
     "gulp-sass": "^4.0.1",
     "gulp-sourcemaps": "^2.6.4",
     "minimist": "^1.2.0",
