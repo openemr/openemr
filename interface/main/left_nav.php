@@ -1187,36 +1187,42 @@ if ($GLOBALS['portal_onsite_two_enable'] && acl_check('patientportal', 'portal')
 if ($GLOBALS['gbl_portal_cms_enable'] && acl_check('patientportal', 'portal')) {
     genPopLink(xl('CMS Portal'), '../cmsportal/list_requests.php', 'ppo0');
 }
-?>
 
-  <li class="open"><a class="collapsed" id="patimg" ><i class="fa fa-fw fa-user fa-2x"></i>&nbsp;<span><?php xl('Patient/Client', 'e') ?></span></a>
-    <ul>
-        <?php if (acl_check('patients', 'demo')) {
-            genMiscLink('RTop', 'fin', '0', xl('Patients'), 'main/finder/dynamic_finder.php');
-} ?>
-        <?php if (acl_check('patients', 'demo', '', 'write') || acl_check('patients', 'demo', '', 'addonly')) {
-            genTreeLink('RTop', 'new', ($GLOBALS['full_new_patient_form'] ? xl('New/Search') : xl('New')));
-} ?>
-        <?php if (acl_check('patients', 'demo')) {
-            genTreeLink('RTop', 'dem', xl('Summary'));
-} ?>
+if (acl_check('patients', 'demo') || acl_check('patients', 'appt')) {
+    ?>
 
-        <?php if (acl_check('patients', 'appt') || acl_check_form('newpatient', '', array('write', 'addonly'))) { ?>
-      <li class="open"><a class="expanded_lv2"><span><?php xl('Visits', 'e') ?></span></a>
+    <li class="open"><a class="collapsed" id="patimg" ><i class="fa fa-fw fa-user fa-2x"></i>&nbsp;<span><?php xl('Patient/Client', 'e') ?></span></a>
         <ul>
-            <?php if (acl_check_form('newpatient', '', array('write', 'addonly'))) {
-                genTreeLink('RBot', 'nen', xl('Create Visit'));
-} ?>
-            <?php if (acl_check('patients', 'appt')) {
-                genTreeLink('RBot', 'enc', xl('Current'));
-} ?>
-            <?php if (acl_check('patients', 'appt')) {
-                genTreeLink('RBot', 'ens', xl('Visit History'));
-} ?>
-        </ul>
-      </li>
-        <?php } ?>
+            <?php if (acl_check('patients', 'demo')) {
+        genMiscLink('RTop', 'fin', '0', xl('Patients'), 'main/finder/dynamic_finder.php');
+    } ?>
+            <?php if (acl_check('patients', 'demo', '', 'write') || acl_check('patients', 'demo', '', 'addonly')) {
+        genTreeLink('RTop', 'new', ($GLOBALS['full_new_patient_form'] ? xl('New/Search') : xl('New')));
+    } ?>
+            <?php if (acl_check('patients', 'demo')) {
+        genTreeLink('RTop', 'dem', xl('Summary'));
+    } ?>
 
+            <?php if (acl_check('patients', 'appt') || acl_check_form('newpatient', '', array('write', 'addonly'))) {
+        ?>
+        <li class="open"><a class="expanded_lv2"><span><?php xl('Visits', 'e') ?></span></a>
+            <ul>
+                <?php if (acl_check_form('newpatient', '', array('write', 'addonly'))) {
+            genTreeLink('RBot', 'nen', xl('Create Visit'));
+        } ?>
+                <?php if (acl_check('patients', 'appt')) {
+            genTreeLink('RBot', 'enc', xl('Current'));
+        } ?>
+                <?php if (acl_check('patients', 'appt')) {
+            genTreeLink('RBot', 'ens', xl('Visit History'));
+        } ?>
+            </ul>
+        </li>
+            <?php
+    }
+
+?>
+    
 <?php if (acl_check('patients', 'med')) { ?>
       <li><a class="collapsed_lv2"><span><?php xl('Records', 'e') ?></span></a>
         <ul>
@@ -1286,7 +1292,9 @@ if ($reglastcat) {
     </ul>
   </li>
 
-    <?php if ($GLOBALS['enable_group_therapy']) : ?>
+    <?php 
+}
+    if ($GLOBALS['enable_group_therapy']) : ?>
       <li><a class="collapsed" id="groupimg" ><i class="fa fa-fw fa-users"></i>&nbsp;<span><?php xl('Group', 'e') ?></span></a>
           <ul>
                 <?php genMiscLink('RTop', 'gfn', '0', xl('Groups'), 'therapy_groups/index.php?method=listGroups'); ?>
@@ -1870,7 +1878,9 @@ if ($reglastcat) {
 <?php
   genPopupsList();
   echo "<hr />\n";
-  genFindBlock();
+  if (acl_check('patients', 'demo'))  {
+    genFindBlock();
+  }
   echo "<hr />\n";
 ?>
 
