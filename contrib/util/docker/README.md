@@ -154,7 +154,7 @@ $ docker exec -it <container_NAME> bash
 ##### MySQL Client Access
 There are 2 options for gui access:
  - GUI can be accessed via the phpMyAdmin at http://localhost:8200 for all sql dockers
- - Or you can directly connect to port 8210 (`mariadb` server only) or 8220 (`mysqll` server only) via your favorite sql tool (Mysql Workbench etc.). Note this option is limited to the `mysql` and `mariadb` servers.
+ - Or you can directly connect to port 8210 (`mariadb` server only) or 8220 (`mysql` server only) via your favorite sql tool (Mysql Workbench etc.). Note this option is limited to the `mysql` and `mariadb` servers.
 If you are interested in using the MySQL client line as opposed to a GUI program, execute the following (password is passed in/is simple because this is for local development purposes):
 
 ```
