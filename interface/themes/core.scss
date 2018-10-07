@@ -8,6 +8,8 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE General Public License 3
  */
 
+@import "directional";
+
 @import url("themeBuilder.php"); // reads from user preferences and overrides fonts
 
 @import "core/FontAwesome";

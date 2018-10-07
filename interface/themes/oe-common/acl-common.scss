@@ -27,6 +27,6 @@
 }
 
 #membership_show, #acl_show {
-    margin-right:4px;
+    margin-#{$right}:4px;
 }
 /*-------------------openemr ACL-------------------*/
