@@ -10,6 +10,8 @@ services:
     restart: always
     image: mariadb:10.2
     command: ['mysqld','--character-set-server=utf8']
+    ports:
+    - 8320:3306
     volumes:
     - databasevolume:/var/lib/mysql
     environment:
@@ -49,6 +51,13 @@ services:
       EASY_DEV_MODE: "yes"
     depends_on:
     - mysql
+  phpmyadmin:
+    restart: always
+    image: phpmyadmin/phpmyadmin
+    ports:
+    - 8310:80
+    environment:
+      PMA_HOSTS: mysql
 volumes:
   databasevolume: {}
   assetsvolume01: {}
