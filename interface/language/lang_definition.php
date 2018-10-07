@@ -287,7 +287,7 @@ if ($_POST['edit']) {
     }
 
     if ($isResults) {
-            echo ('<tr><td colspan=3><INPUT TYPE="submit" name="load" Value="' . attr(xl('Load Definitions')) . '"></td></tr>');
+            echo ('<tr><td colspan=3><INPUT TYPE="submit" name="load" Value="' . xla('Load Definitions') . '"></td></tr>');
                 ?>
             <INPUT TYPE="hidden" name="filter_cons" value="<?php echo attr($_POST['filter_cons']); ?>">
             <INPUT TYPE="hidden" name="filter_def" value="<?php echo attr($_POST['filter_def']); ?>">
