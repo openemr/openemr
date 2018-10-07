@@ -492,3 +492,7 @@ th.currentvalues, th.historicalvalues {
 @import "colors/openemr5/recall-flow-board";
 @import "colors/openemr5/help-files";
 @import "oe-common/all-common-import";
+
+@include if-rtl {
+	@include rtl_style;
+}

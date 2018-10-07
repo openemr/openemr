@@ -467,3 +467,7 @@ body dl {
 }
 @import "oe-bootstrap";
 @import "oe-common/all-common-import";
+
+@include if-rtl {
+	@include rtl_style;
+}

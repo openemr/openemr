@@ -28,7 +28,7 @@
     font-size: 0.8em;
 }
 #report_parameters table table td.label_custom {
-    text-align: right;
+    text-align: $right;
 }
 #report_results table {
     border-top: 1px solid black;
@@ -43,7 +43,7 @@
     padding: 5px;
     display: table-header-group;
     background-color: #ddd;
-    text-align: left;
+    text-align: $left;
     font-weight: bold;
     font-size: 0.7em;
 }
