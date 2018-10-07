@@ -15,12 +15,12 @@
     font-weight: bold;
     font-size: 0.8em;
     vertical-align: top;
-    text-align: right;
+    text-align: $right;
 }
 #DEM .data {
     font-size: 0.8em;
     vertical-align: top;
-    text-align: left;
+    text-align: $left;
     padding-right: 6px;
     /*30px - ie 6 fix*/
 }

@@ -4,7 +4,7 @@
     width: 29%;
     height: 95%;
     overflow: auto;
-    float: left;
+    float: $left;
     border-right: dashed 1px;
     td {
         font-size: 8pt;
@@ -24,7 +24,7 @@
     padding-top: 10px;
     width: 70%;
     height: 95%;
-    float: right;
+    float: $right;
     overflow: auto;
     iframe {
         display: inline;
