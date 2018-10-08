@@ -758,7 +758,7 @@ if ($issue) {
                 <div class="form-group" id='row_titles'>
                     <label for="form_titles" class="control-label col-xs-2"> </label>
                     <div class="col-xs-10">
-                        <select name='form_titles' id='form_titles' style="width:100%;" size='4' onchange='set_text()'></select>
+                        <select name='form_titles' id='form_titles'  class= "form-control" multiple size='4' onchange='set_text()'></select>
                         <p><?php echo xlt('(Select one of these, or type your own title)'); ?></p>
                     </div>
                 </div>
@@ -772,7 +772,7 @@ if ($issue) {
                 <div class="form-group" id='row_codeSelect2'>
                     <label for="form_codeSelect2" class="control-label col-xs-2"><?php echo xlt('Active Issue Codes'); ?>:</label>
                     <div class="col-xs-10">
-                        <select name='form_codeSelect2' id='form_codeSelect2' size='4' onchange="codeBoxFunction2()" style="width:100%;"></select>
+                        <select name='form_codeSelect2' id='form_codeSelect2' class= "form-control" multiple size='4' onchange="codeBoxFunction2()" style="width:100%;"></select>
                     </div>
                 </div>
                 <div class="form-group" id='row_diagnosis'>
