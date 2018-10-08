@@ -39,14 +39,6 @@ if ($GLOBALS['gbl_portal_cms_enable']) {
 
 <?php //html_header_show();?>
 <?php Header::setupHeader(['datetime-picker', 'common']); ?>
-
-<!--<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
-<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>-->
-
 <script language='JavaScript'>
 
 function checkAll(check) {
