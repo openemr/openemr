@@ -59,8 +59,8 @@ select[multiple] {
     display: inline-block;
     padding: 2px 3px;
     margin-bottom: 0;
-    margin-right: 3px;
-    float: left;
+    margin-#{$right}: 3px;
+    float: $left;
     font-size: 10px;
     font-weight: 600;
     color: $white !important;
