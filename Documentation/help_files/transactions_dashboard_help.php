@@ -40,12 +40,13 @@ require_once("../../interface/globals.php");
                     
                     <p><?php echo xlt("Below this is a table that contains the existing transactions, if any, pertaining to the current patient");?>.
                     
-                    <p><?php echo xlt("There are three sets of actions that can be performed on this page");?>.
+                    <p><?php echo xlt("There are three sets of actions that can be performed on this page, in addition the form can be customized");?>.
                                         
                     <ul>
                         <li><a href="#section1"><?php echo xlt("Create New Transaction");?></a></li>
                         <li><a href="#section2"><?php echo xlt("Interact with created transactions");?></a></li>
                         <li><a href="#section3"><?php echo xlt("View/Print Blank Referral Form");?></a></li>
+                        <li><a href="#section4"><?php echo xlt("Customize the Transaction Form");?></a></li>
                     </ul>
                 </div>
             </div>
@@ -82,7 +83,19 @@ require_once("../../interface/globals.php");
                                         
                     <p><?php echo xlt("This method will however result in the data becoming non-structured and one would loose the ability to document the reply in an electronic format");?>.
                 </div>   
-                
+            </div>
+            <div class= "row" id="section4">
+                <div class="col-sm-12">
+                    <h4 class="oe-help-heading"><?php echo xlt("Customize the Transaction Form"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
+                    <p><?php echo xlt("The default form can be customized by editing it in Administration > Layouts");?>.
+                    
+                    <p><i class="fa fa-exclamation-triangle oe-text-red"  aria-hidden="true"></i> <strong><?php echo xlt("You will need Administrator privileges to edit this form");?>.</strong>
+                    
+                    <p><?php echo xlt("There are 3 forms in the Core category - Demographics, Facility Specific User Information and History and all 5 forms in Transactions that can be edited ");?>.
+                    
+                    <p><?php echo xlt("More information on how to edit this form and other such forms can be found here");?>. &nbsp; <a href="https://www.open-emr.org/wiki/index.php/LBV_Forms" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>&nbsp;
+                    <a href="https://www.open-emr.org/wiki/index.php/Sample_Layout_Based_Visit_Form" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                </div>
             </div>
         </div><!--end of container div-->
         
