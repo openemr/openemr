@@ -31,6 +31,8 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Core\Header;
+
 $from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
 $to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $records1 = array();
@@ -38,10 +40,10 @@ $records2 = array();
 ?>
 <html>
     <head>
-        <?php html_header_show(); ?>
+        <?php Header::setupHeader();?>
         <title><?php echo xlt('External Data'); ?></title>
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-3-2/jquery.js"></script>
-        <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+        <!--<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+        <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>-->
         <script>
             $(document).ready(function() {
                 $('.ext-tab-head li').click(function() {
@@ -119,88 +121,140 @@ $records2 = array();
                 border-bottom: 2px solid #003366;
             }
         </style>
+        <?php
+        //to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will
+        //become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an
+        //argument, containing one or more elements, the name of the current file is the first element, if there are linked
+        // files they should be listed thereafter, please add _xpd suffix to the file name
+        $arr_files_php = array("external_data_patient_xpd", "stats_full_patient_xpd", "patient_ledger_patient_xpd");
+        $current_state = collectAndOrganizeExpandSetting($arr_files_php);
+        require_once("$srcdir/expand_contract_inc.php");
+        $GLOBALS['enable_help'] = 0; // temporary till help file is written
+        ?>
     </head>
     <body class="body_top">
-        <div class="dm-ed-in-1">
-            <div class="dm-ed-in-2"></div>
-            <h3><?php echo xlt('External Data') ?></h3>
-        </div>
-        <div class="clear"></div>
-        <div>
-            <ul class="ext-tab-head">
-                <li class="child-active ext-enc"><?php echo xlt('Encounters'); ?></li>
-                <li class="ext-proc"><?php echo xlt('Procedures'); ?></li>
-            </ul>
-        </div>
-        <div class="dm-ed-in-3 dm-ed-in-5">
-            <table width="100%;">
-                <tr class="dm-ed-in-9">
-                    <td class="dm-ed-in-6"><label><?php echo xlt('Date'); ?></label></td>
-                    <td class="dm-ed-in-6"><label><?php echo xlt('Diagnosis'); ?></label></td>
-                    <td class="dm-ed-in-6"><label><?php echo xlt('Provider'); ?></label></td>
-                    <td class="dm-ed-in-6"><label><?php echo xlt('Facility'); ?></label></td>
-                </tr>
-                <?php
-                $query1 = "SELECT ee.*,CONCAT_WS(' ',u1.lname, u1.fname) AS provider,u2.organization AS facility
-             FROM external_encounters AS ee
-             LEFT JOIN users AS u1 ON u1.id = ee.ee_provider_id
-             LEFT JOIN users AS u2 ON u2.id = ee.ee_facility_id
-             WHERE ee.ee_pid = ?";
-                $res1 = sqlStatement($query1, array($pid));
-                while ($row1 = sqlFetchArray($res1)) {
-                    $records1[] = $row1;
-                }
-
-                foreach ($records1 as $value1) {
+        <div class="<?php echo $container;?> expandable">
+            <?php $header_title = xl('External Data of');?>
+            <div class="row">
+                <div class="col-sm-12">
+                    <?php
+                    $list_id = "nav-list8"; // to indicate nav item is active, count and give correct id
+                    $expandable = 1;
+                    require_once("../patient_file/summary/dashboard_header.php");
                     ?>
-                    <tr>
-                        <td><span class="dm-ed-in-7"><?php echo text(oeFormatShortDate($value1['ee_date'])); ?></span></td>
-                        <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['ee_encounter_diagnosis'], ENT_NOQUOTES); ?></span></td>
-                        <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['provider'], ENT_NOQUOTES); ?></span></td>
-                        <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['facility'], ENT_NOQUOTES); ?></span></td>
-                    </tr>
-                <?php
-                } ?>
-            </table>
-            <?php if (empty($records1)) { ?>
-                <div class="dm-ed-in-8">
-                    <?php echo xlt('Nothing to display'); ?>
                 </div>
-            <?php } ?>
-        </div>
-        <div class="dm-ed-in-4 dm-ed-in-5">
-            <table width="100%;">
-                <tr class="dm-ed-in-9">
-                    <td class="dm-ed-in-6"><label><?php echo xlt('Date'); ?></label></td>
-                    <td class="dm-ed-in-6"><label><?php echo xlt('Code'); ?></label></td>
-                    <td class="dm-ed-in-6"><label><?php echo xlt('Code Text'); ?></label></td>
-                    <td class="dm-ed-in-6"><label><?php echo xlt('Facility'); ?></label></td>
-                </tr>
-                <?php
-                $query2 = "SELECT ep.*,u.organization AS facility
-             FROM external_procedures AS ep
-             LEFT JOIN users AS u ON u.id = ep.ep_facility_id
-             WHERE ep.ep_pid = ?";
-                $res2 = sqlStatement($query2, array($pid));
-                while ($row2 = sqlFetchArray($res2)) {
-                    $records2[] = $row2;
-                }
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="col-sm-12">
+                            <?php require_once("../patient_file/summary/dashboard_nav_reports.php");?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clear"></div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <ul class="ext-tab-head">
+                        <li class="child-active ext-enc"><?php echo xlt('Encounters'); ?></li>
+                        <li class="ext-proc"><?php echo xlt('Procedures'); ?></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="dm-ed-in-3 dm-ed-in-5">
+                        <table width="100%;">
+                            <tr class="dm-ed-in-9">
+                                <td class="dm-ed-in-6"><label><?php echo xlt('Date'); ?></label></td>
+                                <td class="dm-ed-in-6"><label><?php echo xlt('Diagnosis'); ?></label></td>
+                                <td class="dm-ed-in-6"><label><?php echo xlt('Provider'); ?></label></td>
+                                <td class="dm-ed-in-6"><label><?php echo xlt('Facility'); ?></label></td>
+                            </tr>
+                            <?php
+                            $query1 = "SELECT ee.*,CONCAT_WS(' ',u1.lname, u1.fname) AS provider,u2.organization AS facility
+                         FROM external_encounters AS ee
+                         LEFT JOIN users AS u1 ON u1.id = ee.ee_provider_id
+                         LEFT JOIN users AS u2 ON u2.id = ee.ee_facility_id
+                         WHERE ee.ee_pid = ?";
+                            $res1 = sqlStatement($query1, array($pid));
+                            while ($row1 = sqlFetchArray($res1)) {
+                                $records1[] = $row1;
+                            }
 
-                foreach ($records2 as $value2) { ?>
-                    <tr>
-                        <td><span class="dm-ed-in-7"><?php echo text(oeFormatShortDate($value2['ep_date'])); ?></span></td>
-                        <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['ep_code_type'] . ':' . $value2['ep_code'], ENT_NOQUOTES); ?></span></td>
-                        <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['ep_code_text'], ENT_NOQUOTES); ?></span></td>
-                        <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['facility'], ENT_NOQUOTES); ?></span></td>
-                    </tr>
-                <?php
-                } ?>
-            </table>
-                <?php if (empty($records2)) { ?>
-                <div class="dm-ed-in-8">
-                <?php echo xlt('Nothing to display'); ?>
+                            foreach ($records1 as $value1) {
+                                ?>
+                                <tr>
+                                    <td><span class="dm-ed-in-7"><?php echo text(oeFormatShortDate($value1['ee_date'])); ?></span></td>
+                                    <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['ee_encounter_diagnosis'], ENT_NOQUOTES); ?></span></td>
+                                    <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['provider'], ENT_NOQUOTES); ?></span></td>
+                                    <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['facility'], ENT_NOQUOTES); ?></span></td>
+                                </tr>
+                            <?php
+                            } ?>
+                        </table>
+                        <?php if (empty($records1)) { ?>
+                            <div class="dm-ed-in-8">
+                                <?php echo xlt('Nothing to display'); ?>
+                            </div>
+                        <?php } ?>
+                    </div>
+                    <div class="dm-ed-in-4 dm-ed-in-5">
+                        <table width="100%;">
+                            <tr class="dm-ed-in-9">
+                                <td class="dm-ed-in-6"><label><?php echo xlt('Date'); ?></label></td>
+                                <td class="dm-ed-in-6"><label><?php echo xlt('Code'); ?></label></td>
+                                <td class="dm-ed-in-6"><label><?php echo xlt('Code Text'); ?></label></td>
+                                <td class="dm-ed-in-6"><label><?php echo xlt('Facility'); ?></label></td>
+                            </tr>
+                            <?php
+                            $query2 = "SELECT ep.*,u.organization AS facility
+                         FROM external_procedures AS ep
+                         LEFT JOIN users AS u ON u.id = ep.ep_facility_id
+                         WHERE ep.ep_pid = ?";
+                            $res2 = sqlStatement($query2, array($pid));
+                            while ($row2 = sqlFetchArray($res2)) {
+                                $records2[] = $row2;
+                            }
+
+                            foreach ($records2 as $value2) { ?>
+                                <tr>
+                                    <td><span class="dm-ed-in-7"><?php echo text(oeFormatShortDate($value2['ep_date'])); ?></span></td>
+                                    <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['ep_code_type'] . ':' . $value2['ep_code'], ENT_NOQUOTES); ?></span></td>
+                                    <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['ep_code_text'], ENT_NOQUOTES); ?></span></td>
+                                    <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['facility'], ENT_NOQUOTES); ?></span></td>
+                                </tr>
+                            <?php
+                            } ?>
+                        </table>
+                            <?php if (empty($records2)) { ?>
+                            <div class="dm-ed-in-8">
+                            <?php echo xlt('Nothing to display'); ?>
+                            </div>
+                            <?php } ?>
+                    </div>
                 </div>
-                <?php } ?>
-        </div>
+            </div>
+        </div><!--end of container div-->
+        <?php
+    //home of the help modal ;)
+        //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page, temporary status till help file is written
+        if ($GLOBALS['enable_help'] == 1) {
+            echo "<script>var helpFile = 'external_data_dashboard_help.php'</script>";
+            //help_modal.php lives in interface, set path accordingly
+            require "../help_modal.php";
+        }
+    ?>
+    <script>
+        <?php
+        // jQuery script to change expanded/centered state dynamically
+        require_once("../expand_contract_js.php");
+        ?>
+    </script>
+    <script>
+        var listId = '#' + '<?php echo attr($list_id); ?>';
+        $(document).ready(function(){
+            $(listId).addClass("active");
+        });
+    </script>
     </body>
 </html>

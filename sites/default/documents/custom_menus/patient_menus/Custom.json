@@ -1,4 +1,13 @@
-[
+[   {
+        "label": "Dashboard",
+        "menu_id": "dashboard",
+        "target": "main",
+        "on_click":"top.restoreSession()",
+        "url": "../summary/demographics.php",
+        "pid":"false",
+        "children": [],
+        "requirement": 0
+    },
     {
         "label": "History",
         "menu_id": "history",
@@ -44,7 +53,7 @@
         "menu_id": "issues",
         "target": "main",
         "on_click":"top.restoreSession()",
-        "url": "stats_full.php?active=all",
+        "url": "../summary/stats_full.php?active=all",
         "pid":"false",
         "children": [],
         "requirement": 0
