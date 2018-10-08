@@ -48,6 +48,15 @@ require_once("../../interface/globals.php");
                     
                     <p><?php echo xlt("Users with appropriate privileges can edit these items by clicking on the Edit button");?>.
                     <button type="button" class="btn btn-default btn-edit btn-sm oe-no-float"><?php echo xlt("Edit"); ?></button>
+                    
+                    <p><?php echo xlt("The default form can be customized by editing it in Administration > Layouts");?>.
+                    
+                    <p><i class="fa fa-exclamation-triangle oe-text-red"  aria-hidden="true"></i> <strong><?php echo xlt("You will need Administrator privileges to edit this form");?>.</strong>
+                    
+                    <p><?php echo xlt("There are 3 forms in the Core category - Demographics, Facility Specific User Information and History and all 5 forms in Transactions that can be edited ");?>.
+                    
+                    <p><?php echo xlt("More information on how to edit this form and other such forms can be found here");?>. &nbsp; <a href="https://www.open-emr.org/wiki/index.php/LBV_Forms" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>&nbsp;
+                    <a href="https://www.open-emr.org/wiki/index.php/Sample_Layout_Based_Visit_Form" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                 </div>
             </div>
            
