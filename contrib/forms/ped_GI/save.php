@@ -15,7 +15,7 @@ if ($encounter == "") {
 }
 
 if ($_GET["mode"] == "new") {
-    $newid = formSubmit("form_ped_GI", $_POST, $_GET["id"], $userauthorized);
+    $newid = formSubmit("form_ped_GI", $_POST, add_escape_custom($_GET["id"]), $userauthorized);
     addForm($encounter, "Pediatric GI Evaluation", $newid, "ped_GI", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
     sqlInsert("update form_ped_GI set pid = ?,
