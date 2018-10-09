@@ -867,8 +867,8 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 <input type="checkbox" id="posting_adj_disable" name="posting_adj_disable"
                                        onchange='persistCriteria(this, event)'
                                        title="<?php echo xlt("Disable automatically calculating balance adjustments for invoice posting") ?>"
-                                       value="<?php echo $posting_adj_disable; ?>"
-                                    <?php echo $posting_adj_disable; ?> /><?php echo xlt('Disable Auto Adjustments'); ?>
+                                       value="<?php echo attr($posting_adj_disable); ?>"
+                                    <?php echo attr($posting_adj_disable); ?> /><?php echo xlt('Disable Auto Adjustments'); ?>
                             </label>
                         </div>
                     </legend>
