@@ -21,12 +21,14 @@ $error_log_path = $GLOBALS['OE_SITE_DIR'].'/documents/erx_error';
 
 if (array_key_exists('filename', $_REQUEST)) {
     $filename = $_REQUEST['filename'];
+    check_file_dir_name($filename);
 } else {
     $filename = '';
 }
 
 if (array_key_exists('start_date', $_REQUEST)) {
     $start_date = $_REQUEST['start_date'];
+    check_file_dir_name($start_date); // this is incorporated into filename when seeking, so will check it
 } else {
     $start_date = '';
 }
@@ -88,10 +90,10 @@ if ($filename) {
                     <span class="text"><?php echo xlt('Date'); ?>: </span>
                 </td>
                 <td>
-                    <input type="text" size="10" class='datepicker' name="start_date" id="start_date" value="<?php echo $start_date ? substr($start_date, 0, 10) : date('Y-m-d'); ?>" title="<?php echo xlt('yyyy-mm-dd Date of service'); ?>" />
+                    <input type="text" size="10" class='datepicker' name="start_date" id="start_date" value="<?php echo $start_date ? attr(substr($start_date, 0, 10)) : date('Y-m-d'); ?>" title="<?php echo xla('yyyy-mm-dd Date of service'); ?>" />
                 </td>
                 <td>
-                    <input type="submit" name="search_logs" value="<?php echo xlt('Search'); ?>">
+                    <input type="submit" name="search_logs" value="<?php echo xla('Search'); ?>">
                 </td>
             </tr>
         </table>
@@ -109,15 +111,15 @@ if (array_key_exists('search_logs', $_REQUEST)) {
                 $fd = fopen($error_log_path.'/'.$file, 'r');
                 $bat_content = fread($fd, filesize($error_log_path.'/'.$file));
 ?>
-                <p><?php echo xlt('Download'); ?>: <a href="erx_logview.php?filename=<?php echo htmlspecialchars($file, ENT_QUOTES); ?>"><?php echo htmlspecialchars($file, ENT_NOQUOTES); ?></a></p>
-                <textarea rows="35" cols="132"><?php echo htmlspecialchars($bat_content, ENT_QUOTES); ?></textarea>
+                <p><?php echo xlt('Download'); ?>: <a href="erx_logview.php?filename=<?php echo attr(urlencode($file)); ?>"><?php echo text($file); ?></a></p>
+                <textarea rows="35" cols="132"><?php echo text($bat_content); ?></textarea>
 <?php
             }
         }
     }
 
     if ($check_for_file == 0) {
-        echo xlt('No log file exist for the selected date').': '.$start_date;
+        echo xlt('No log file exist for the selected date') . ': ' . text($start_date);
     }
 }
 
