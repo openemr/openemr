@@ -1685,16 +1685,15 @@ foreach ($photos as $photo_doc_id) {
         while ($result = sqlFetchArray($query)) {
             $therapyGroupCategories[] = $result['pc_catid'];
         }
-
-        //
-        foreach ($events as $row) { //////
+        
+        foreach ($events as $row) {
             $count++;
-            $dayname = date("l", strtotime($row['pc_eventDate'])); //////
-            $dispampm = "am";
+            $dayname = date("l", strtotime($row['pc_eventDate']));
+            $dispampm = "AM";
             $disphour = substr($row['pc_startTime'], 0, 2) + 0;
             $dispmin  = substr($row['pc_startTime'], 3, 2);
             if ($disphour >= 12) {
-                $dispampm = "pm";
+                $dispampm = "PM";
                 if ($disphour > 12) {
                     $disphour -= 12;
                 }
@@ -1705,7 +1704,6 @@ foreach ($photos as $photo_doc_id) {
                 $etitle = xl('Comments').": ".($row['pc_hometext'])."\r\n".$etitle;
             }
 
-            //////
             if ($extraApptDate && $count > $firstApptIndx) {
                 $apptStyle = $apptStyle2;
             } else {
@@ -1721,23 +1719,22 @@ foreach ($photos as $photo_doc_id) {
                 }
             }
 
-            //////
             echo "<div " . $apptStyle . ">";
             if (!in_array($row['pc_catid'], $therapyGroupCategories)) {
-                echo "<a href='javascript:oldEvt(" . htmlspecialchars(preg_replace("/-/", "", $row['pc_eventDate']), ENT_QUOTES) . ', ' . htmlspecialchars($row['pc_eid'], ENT_QUOTES) . ")' title='" . htmlspecialchars($etitle, ENT_QUOTES) . "'>";
+                echo "<a href='javascript:oldEvt(" . attr(preg_replace("/-/", "", $row['pc_eventDate'])) . ', ' . attr($row['pc_eid']) . ")' title='" . attr($etitle) . "'>";
             } else {
-                echo "<span title='" . htmlspecialchars($etitle, ENT_QUOTES) . "'>";
+                echo "<span title='" . attr($etitle) . "'>";
             }
 
             echo "<b>" . text(oeFormatShortDate($row['pc_eventDate'])) . ", ";
-            echo text(sprintf("%02d", $disphour) .":$dispmin " . xl($dispampm) . " (" . xl($dayname))  . ")</b> ";
+            echo text(sprintf("%02d", $disphour) .":$dispmin" . xlt($dispampm) . " (" . xlt($dayname))  . ")</b> ";
             if ($row['pc_recurrtype']) {
-                echo "<img src='" . $GLOBALS['webroot'] . "/interface/main/calendar/modules/PostCalendar/pntemplates/default/images/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='".htmlspecialchars(xl("Repeating event"), ENT_QUOTES)."' alt='".htmlspecialchars(xl("Repeating event"), ENT_QUOTES)."'>";
+                echo "<img src='" . $GLOBALS['webroot'] . "/interface/main/calendar/modules/PostCalendar/pntemplates/default/images/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='".xla("Repeating event")."' alt='".xla("Repeating event")."'>";
             }
 
             echo "<span title='" . generate_display_field(array('data_type'=>'1','list_id'=>'apptstat'), $row['pc_apptstatus']) . "'>";
-            echo "<br>" . xlt('Status') . "( " . htmlspecialchars($row['pc_apptstatus'], ENT_NOQUOTES) . " ) </span>";
-            echo htmlspecialchars(xl_appt_category($row['pc_catname']), ENT_NOQUOTES) . "\n";
+            echo "<br>" . xlt('Status') . "( " . text($row['pc_apptstatus']) . " ) </span>";
+            echo text(xl_appt_category($row['pc_catname'])) . "\n";
             if (in_array($row['pc_catid'], $therapyGroupCategories)) {
                 echo "<br><span>" . xlt('Group name') .": " . text(getGroup($row['pc_gid'])['group_name']) . "</span>\n";
             }
@@ -1746,32 +1743,29 @@ foreach ($photos as $photo_doc_id) {
                 echo " <span style='color:green'> Com</span>";
             }
 
-            echo "<br>" . htmlspecialchars($row['ufname'] . " " . $row['ulname'], ENT_NOQUOTES);
+            echo "<br>" . text($row['ufname'] . " " . $row['ulname']);
             echo !in_array($row['pc_catid'], $therapyGroupCategories) ? '</a>' : '<span>';
             echo "</div>\n";
-            //////
         }
 
-        if ($resNotNull) { //////
+        if ($resNotNull) {
             if ($count < 1) {
-                echo "&nbsp;&nbsp;" . htmlspecialchars(xl('No Appointments'), ENT_NOQUOTES);
-            } else { //////
+                echo "<div>&nbsp;&nbsp;".xlt('No Appointments')."</div>";
+            } else {
                 if ($extraApptDate) {
-                    echo "<div style='color:#0000cc;'><b>" . attr($extraApptDate) . " ( + ) </b></div>";
+                    echo "<div style='color:#0000cc;'>&nbsp;&nbsp;<b>" . attr($extraApptDate) . " ( + ) </b></div>";
                 }
             }
             // Show Recall if one exists
             $query = sqlStatement("SELECT * FROM medex_recalls WHERE r_pid = ?", array($pid));
             
             while ($result2 = sqlFetchArray($query)) {
-                //tabYourIt('recall', 'main/messages/messages.php?go=' + choice);
-                //parent.left_nav.loadFrame('1', tabNAME, url);
-                echo "&nbsp;&nbsp<b>Recall: <a onclick=\"top.left_nav.loadFrame('1', 'rcb', '../interface/main/messages/messages.php?go=addRecall');\">" . text(oeFormatShortDate($result2['r_eventDate'])). " (". text($result2['r_reason']).") </a></b>";
+                echo "<div>&nbsp;&nbsp;<b>Recall: <a onclick=\"top.left_nav.loadFrame('1', 'rcb', '../interface/main/messages/messages.php?go=addRecall');\">" . text(oeFormatShortDate($result2['r_eventDate'])). " (". text($result2['r_reason']).") </a></b></div>";
                 $count2++;
             }
             //if there is no appt and no recall
             if (($count < 1) && ($count2 < 1)) {
-                echo "<br /><br />&nbsp;&nbsp;<a onclick=\"top.left_nav.loadFrame('1', 'rcb', '../interface/main/messages/messages.php?go=addRecall');\">".xlt('No Recall')."</a>";
+                echo "<div>&nbsp;&nbsp;<a onclick=\"top.left_nav.loadFrame('1', 'rcb', '../interface/main/messages/messages.php?go=addRecall');\">".xlt('No Recall')."</a></div>";
             }
             $count =0;
             echo "</div>";
@@ -1868,11 +1862,11 @@ foreach ($photos as $photo_doc_id) {
         while ($row = sqlFetchArray($pres)) {
             $count++;
             $dayname = date("l", strtotime($row['pc_eventDate']));
-            $dispampm = "am";
+            $dispampm = "AM";
             $disphour = substr($row['pc_startTime'], 0, 2) + 0;
             $dispmin  = substr($row['pc_startTime'], 3, 2);
             if ($disphour >= 12) {
-                $dispampm = "pm";
+                $dispampm = "PM";
                 if ($disphour > 12) {
                     $disphour -= 12;
                 }
@@ -1882,16 +1876,25 @@ foreach ($photos as $photo_doc_id) {
                 $etitle = xl('Comments').": ".($row['pc_hometext'])."\r\n".$etitle;
             }
 
-            echo "<a href='javascript:oldEvt(" . htmlspecialchars(preg_replace("/-/", "", $row['pc_eventDate']), ENT_QUOTES) . ', ' . htmlspecialchars($row['pc_eid'], ENT_QUOTES) . ")' title='" . htmlspecialchars($etitle, ENT_QUOTES) . "'>";
-            echo "<b>" . htmlspecialchars(xl($dayname) . ", " . oeFormatShortDate($row['pc_eventDate']), ENT_NOQUOTES) . "</b> " . xlt("Status") .  "(";
+            echo "<div><a href='javascript:oldEvt(" . xla(preg_replace("/-/", "", $row['pc_eventDate'])) . ', ' . xla($row['pc_eid']) . ")' title='" . xla($etitle) . "'>";
+            echo "<b>" . oeFormatShortDate($row['pc_eventDate']) . ", ".sprintf("%02d", $disphour) .":$dispmin" . xlt($dispampm)." (" . xlt($dayname) . ")</b><br />";
+            echo xlt("Status") .  "(";
             echo " " .  generate_display_field(array('data_type'=>'1','list_id'=>'apptstat'), $row['pc_apptstatus']) . ")<br>";   // can't use special char parser on this
-            echo htmlspecialchars("$disphour:$dispmin ") . xl($dispampm) . " ";
-            echo htmlspecialchars($row['fname'] . " " . $row['lname'], ENT_NOQUOTES) . "</a><br>\n";
+            echo text(xl_appt_category($row['pc_catname'])) . "\n";
+            if (in_array($row['pc_catid'], $therapyGroupCategories)) {
+                echo "<br><span>" . xlt('Group name') .": " . text(getGroup($row['pc_gid'])['group_name']) . "</span>\n";
+            }
+    
+            if ($row['pc_hometext']) {
+                echo " <span style='color:green'> Com</span>";
+            }
+    
+            echo "<br />".text($row['fname'] . " " . $row['lname']) . "</a></div>\n";
         }
 
         if (isset($pres) && $res != null) {
             if ($count < 1) {
-                echo "&nbsp;&nbsp;" . htmlspecialchars(xl('None'), ENT_NOQUOTES);
+                echo "&nbsp;&nbsp;" . xlt('None');
             }
 
             echo "</div>";
