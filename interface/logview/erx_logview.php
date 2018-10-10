@@ -19,15 +19,23 @@ require_once($srcdir.'/log.inc');
 
 $error_log_path = $GLOBALS['OE_SITE_DIR'].'/documents/erx_error';
 
-if (array_key_exists('filename', $_REQUEST)) {
-    $filename = $_REQUEST['filename'];
+if (array_key_exists('filename', $_GET)) {
+    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
+    $filename = $_GET['filename'];
     check_file_dir_name($filename);
 } else {
     $filename = '';
 }
 
-if (array_key_exists('start_date', $_REQUEST)) {
-    $start_date = $_REQUEST['start_date'];
+if (array_key_exists('start_date', $_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
+    $start_date = $_POST['start_date'];
     check_file_dir_name($start_date); // this is incorporated into filename when seeking, so will check it
 } else {
     $start_date = '';
@@ -83,6 +91,8 @@ if ($filename) {
     </head>
     <body class="body_top">
         <form method="post">
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+
         <font class="title"><?php echo xlt('eRx Logs'); ?></font><br><br>
         <table>
             <tr>
@@ -101,7 +111,11 @@ if ($filename) {
 <?php
 
     $check_for_file = 0;
-if (array_key_exists('search_logs', $_REQUEST)) {
+if (array_key_exists('search_logs', $_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
     if ($handle = opendir($error_log_path)) {
         while (false !== ($file = readdir($handle))) {
             $file_as_in_folder = 'erx_error-'.$start_date.'.log';
@@ -111,7 +125,7 @@ if (array_key_exists('search_logs', $_REQUEST)) {
                 $fd = fopen($error_log_path.'/'.$file, 'r');
                 $bat_content = fread($fd, filesize($error_log_path.'/'.$file));
 ?>
-                <p><?php echo xlt('Download'); ?>: <a href="erx_logview.php?filename=<?php echo attr(urlencode($file)); ?>"><?php echo text($file); ?></a></p>
+                <p><?php echo xlt('Download'); ?>: <a href="erx_logview.php?filename=<?php echo attr(urlencode($file)); ?>&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>"><?php echo text($file); ?></a></p>
                 <textarea rows="35" cols="132"><?php echo text($bat_content); ?></textarea>
 <?php
             }
