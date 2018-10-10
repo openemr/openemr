@@ -454,6 +454,7 @@ if ($_REQUEST['form_csvexport']) {
         $current_state = collectAndOrganizeExpandSetting($arr_files_php);
         require_once("$srcdir/expand_contract_inc.php");
     }
+    
     ?>
 </head>
 <body class="body_top">
@@ -475,12 +476,20 @@ if ($_REQUEST['form_csvexport']) {
                     $list_id = "nav-list7"; // to indicate nav item is active, count and give correct id
                     $expandable = 1;
                     require_once("../patient_file/summary/dashboard_header.php");
+                    
+                    
+                    
                 ?>
             </div>
         </div>
         <div class="row">
             <div class="col-sm-12">
-                <?php require_once("../patient_file/summary/dashboard_nav_reports.php");?>
+                <?php
+                // Collect the patient menu then build it
+                $menuPatient = new PatientMenuRole();
+                $menu_restrictions = $menuPatient->getMenu();
+                require_once("../patient_file/summary/dashboard_nav.php");
+                ?>
             </div>
         </div>
         

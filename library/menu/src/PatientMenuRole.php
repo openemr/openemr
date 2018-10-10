@@ -53,6 +53,14 @@ class PatientMenuRole extends MenuRole
         if (!$menu_parsed) {
             die("\nJSON ERROR: " . json_last_error());
         }
+        //to make the url absolute to web root and to account for external urls i.e. those beginning with http or https
+        foreach ($menu_parsed as $menu_obj) {
+            $rel_url = $menu_obj -> url;
+            if ($rel_url && !strpos($rel_url, "://")) {
+                $menu_obj -> url = $GLOBALS['webroot'] ."/". $rel_url;
+            }
+        }
+        $menu_parsed = json_decode(json_encode($menu_parsed));
         $this->menuUpdateEntries($menu_parsed);
         $menu_restrictions=array();
         $this->menuApplyRestrictions($menu_parsed, $menu_restrictions);

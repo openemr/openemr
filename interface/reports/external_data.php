@@ -29,9 +29,11 @@
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
+require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Core\Header;
+use OpenEMR\Menu\PatientMenuRole;
 
 $from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
 $to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
@@ -42,8 +44,6 @@ $records2 = array();
     <head>
         <?php Header::setupHeader();?>
         <title><?php echo xlt('External Data'); ?></title>
-        <!--<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
-        <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>-->
         <script>
             $(document).ready(function() {
                 $('.ext-tab-head li').click(function() {
@@ -146,7 +146,12 @@ $records2 = array();
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="col-sm-12">
-                            <?php require_once("../patient_file/summary/dashboard_nav_reports.php");?>
+                            <?php
+                            // Collect the patient menu then build it
+                            $menuPatient = new PatientMenuRole();
+                            $menu_restrictions = $menuPatient->getMenu();
+                            require_once("../patient_file/summary/dashboard_nav.php");
+                            ?>
                         </div>
                     </div>
                 </div>

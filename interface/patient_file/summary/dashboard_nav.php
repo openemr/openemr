@@ -19,12 +19,6 @@
             <ul class="nav navbar-nav" >
             
                 <?php
-                // // Get the document ID of the patient ID card if access to it is wanted here.
-                // $idcard_doc_id = false;
-                // if ($GLOBALS['patient_id_category_name']) {
-                    // $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name']);
-                // }
-
                 $li_id = 1; // first id given to dashboard
                 foreach ($menu_restrictions as $key => $value) {
                     if (!empty($value->children)) {
@@ -43,10 +37,6 @@
                     }
                     $li_id++;
                 }
-                //temporarily disabled
-                //echo '<li class="oe-bold-black" id = "nav-list'. attr($li_id) .'">';
-                //echo '<a href="../encounter/dashboard_encounters.php" onclick="top.restoreSession()">'. xlt('Encounters') .' </a>';
-                //echo '</li>';
                 ?>
             </ul>
         </div>
