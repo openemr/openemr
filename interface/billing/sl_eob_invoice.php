@@ -90,6 +90,7 @@ function row_delete($table, $where)
     <?php Header::setupHeader(['datetime-picker']); ?>
     <title><?php echo xlt('EOB Posting - Invoice') ?></title>
     <script language="JavaScript">
+    var adjDisable = opener.document.forms[0].posting_adj_disable.checked;
 
         // An insurance radio button is selected.
         function setins(istr) {
@@ -118,6 +119,8 @@ function row_delete($table, $where)
         function validate(f) {
             let delcount = 0;
             let allempty = true;
+            adjDisable = opener.document.forms[0].posting_adj_disable.checked;
+
             for (var i = 0; i < f.elements.length; ++i) {
                 let ename = f.elements[i].name;
 // Count deletes.
@@ -134,6 +137,11 @@ function row_delete($table, $where)
 
                 if ((cPay != 0) || cAdjust != 0) {
                     allempty = false;
+                }
+                if(adjDisable) {
+                    if ((cAdjust == 0 && f[pfx + '[reason]'].value)) {
+                        allempty = false;
+                    }
                 }
                 if ((cPay != 0) && isNaN(parseFloat(f[pfx + '[pay]'].value))) {
                     alert('<?php echo xls('Payment value for code ') ?>' + code + '<?php echo xls(' is not a number') ?>');
@@ -354,7 +362,9 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
 
 // Be sure to record adjustment reasons, even for zero adjustments if
 // they happen to be comments.
-            if ((0.0 + $thisadj) || ($reason && $reason_type == 5)) {
+            if ((0.0 + $thisadj) ||
+                ($reason && $reason_type == 5) ||
+                ($reason && ($reason_type > 1 && $reason_type < 6))) {
 // "To copay" and "To ded'ble" need to become a comment in a zero
 // adjustment, formatted just like sl_eob_process.php.
                 if ($reason_type == '2') {

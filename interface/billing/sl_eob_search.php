@@ -36,7 +36,7 @@ use OpenEMR\Core\Header;
 
 $DEBUG = 0; // set to 0 for production, 1 to test
 
-$posting_adj_disable = prevSetting('sl_eob_search.', 'posting_adj_disable', 'posting_adj_disable', ' ');
+$posting_adj_disable = prevSetting('sl_eob_search.', 'posting_adj_disable', 'posting_adj_disable', '');
 
 $alertmsg = '';
 $where = '';
@@ -598,7 +598,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         function persistCriteria(el, e) {
             e.preventDefault();
             let target = "sl_eob_search.posting_adj_disable";
-            let val = el.checked ? ' checked' : ' ';
+            let val = el.checked ? 'checked' : '';
             $.post("./../../library/ajax/user_settings.php", {target: target, setting: val});
         }
 
@@ -868,7 +868,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                        onchange='persistCriteria(this, event)'
                                        title="<?php echo xlt("Disable automatically calculating balance adjustments for invoice posting") ?>"
                                        value="<?php echo attr($posting_adj_disable); ?>"
-                                    <?php echo attr($posting_adj_disable); ?> /><?php echo xlt('Disable Auto Adjustments'); ?>
+                                    <?php echo ' ' . attr($posting_adj_disable); ?> /><?php echo xlt('Disable Auto Adjustments'); ?>
                             </label>
                         </div>
                     </legend>
