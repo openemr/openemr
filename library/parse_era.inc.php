@@ -96,6 +96,8 @@ function parse_era($filename, $cb)
 
         $inline = substr($buffer, 0, $tpos);
         $buffer = substr($buffer, $tpos + 1);
+        // remove carriage returns and new lines that some payers send
+        $buffer = str_replace(array("\n", "\r"), '', $buffer);
 
     // If this is the ISA segment then figure out what the delimiters are.
         if ($segid === '' && substr($inline, 0, 3) === 'ISA') {
@@ -502,6 +504,8 @@ function parse_era_for_check($filename)
 
         $inline = substr($buffer, 0, $tpos);
         $buffer = substr($buffer, $tpos + 1);
+        // remove carriage returns and new lines that some payers send
+        $buffer = str_replace(array("\n", "\r"), '', $buffer);
 
     // If this is the ISA segment then figure out what the delimiters are.
         if ($segid === '' && substr($inline, 0, 3) === 'ISA') {
