@@ -677,13 +677,12 @@ if (!empty($grparr['']['grp_size'])) {
                     $list_id = "nav-list1"; // to indicate nav item is active, count and give correct id
                     // Collect the patient menu then build it
                     $menuPatient = new PatientMenuRole();
-                    $menu_restrictions = $menuPatient->getMenu();
+                    $menuPatient->displayHorizNavBarMenu();
                      // Get the document ID of the patient ID card if access to it is wanted here.
                     $idcard_doc_id = false;
                 if ($GLOBALS['patient_id_category_name']) {
                     $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name']);
                 }
-                require_once("dashboard_nav.php");
                 ?>
             </div>
         </div>

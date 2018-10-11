@@ -138,8 +138,7 @@ $records2 = array();
             <div class="row">
                 <div class="col-sm-12">
                     <?php
-                    $list_id = "nav-list8"; // to indicate nav item is active, count and give correct id
-                    $expandable = 1;
+                    $expandable = 1; // to include expandable icon in title
                     require_once("../patient_file/summary/dashboard_header.php");
                     ?>
                 </div>
@@ -147,10 +146,10 @@ $records2 = array();
                     <div class="col-sm-12">
                         <div class="col-sm-12">
                             <?php
+                            $list_id = "nav-list8"; // to indicate nav item is active, count and give correct id
                             // Collect the patient menu then build it
                             $menuPatient = new PatientMenuRole();
-                            $menu_restrictions = $menuPatient->getMenu();
-                            require_once("../patient_file/summary/dashboard_nav.php");
+                            $menuPatient->displayHorizNavBarMenu();
                             ?>
                         </div>
                     </div>

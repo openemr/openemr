@@ -473,22 +473,18 @@ if ($_REQUEST['form_csvexport']) {
         <div class="row">
             <div class="col-sm-12">
                 <?php
-                    $list_id = "nav-list7"; // to indicate nav item is active, count and give correct id
-                    $expandable = 1;
-                    require_once("../patient_file/summary/dashboard_header.php");
-                    
-                    
-                    
+                $expandable = 1; // to include expandable icon in title
+                require_once("../patient_file/summary/dashboard_header.php");
                 ?>
             </div>
         </div>
         <div class="row">
             <div class="col-sm-12">
                 <?php
+                $list_id = "nav-list7"; // to indicate nav item is active, count and give correct id
                 // Collect the patient menu then build it
                 $menuPatient = new PatientMenuRole();
-                $menu_restrictions = $menuPatient->getMenu();
-                require_once("../patient_file/summary/dashboard_nav.php");
+                $menuPatient->displayHorizNavBarMenu();
                 ?>
             </div>
         </div>
