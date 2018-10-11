@@ -96,6 +96,110 @@ class PatientService
         return sqlStatement($sql);
     }
 
+    public function getAll()
+    {
+        $sql = "SELECT id,
+                   pid,
+                   pubpid,
+                   title, 
+                   fname,
+                   mname,
+                   lname,
+                   street, 
+                   postal_code, 
+                   city, 
+                   state, 
+                   country_code, 
+                   phone_contact,
+                   email
+                   dob,
+                   sex,
+                   race,
+                   ethnicity
+                FROM patient_data";
+
+        $statementResults = sqlStatement($sql);
+
+        $results = array();
+        while ($row = sqlFetchArray($statementResults)) {
+            array_push($results, $row);
+        }
+
+        return $results;
+    }
+
+    public function getOne()
+    {
+        $sql = "SELECT id,
+                   pid,
+                   pubpid,
+                   title, 
+                   fname,
+                   mname,
+                   lname,
+                   street, 
+                   postal_code, 
+                   city, 
+                   state, 
+                   country_code, 
+                   phone_contact,
+                   email
+                   dob,
+                   sex,
+                   race,
+                   ethnicity
+                FROM patient_data
+                WHERE pid = ?";
+
+        return sqlQuery($sql, $this->pid);
+    }
+
+    public function getEncounters()
+    {
+        $sql = "SELECT fe.*,
+                       opc.pc_catname,
+                       fa.name AS billing_facility_name
+                       FROM form_encounter as fe
+                       LEFT JOIN openemr_postcalendar_categories as opc
+                       ON opc.pc_catid = fe.pc_catid
+                       LEFT JOIN facility as fa ON fa.id = fe.billing_facility
+                       WHERE pid=?
+                       ORDER BY fe.id
+                       DESC";
+
+        $statementResults = sqlStatement($sql, $this->pid);
+
+        $results = array();
+        while ($row = sqlFetchArray($statementResults)) {
+            array_push($results, $row);
+        }
+
+        return $results;
+    }
+
+    public function getEncounter($eid)
+    {
+        $sql = "SELECT fe.*,
+                       opc.pc_catname,
+                       fa.name AS billing_facility_name
+                       FROM form_encounter as fe
+                       LEFT JOIN openemr_postcalendar_categories as opc
+                       ON opc.pc_catid = fe.pc_catid
+                       LEFT JOIN facility as fa ON fa.id = fe.billing_facility
+                       WHERE pid=? and fe.id=?
+                       ORDER BY fe.id
+                       DESC";
+
+        $statementResults = sqlStatement($sql, array($this->pid, $eid));
+
+        $results = array();
+        while ($row = sqlFetchArray($statementResults)) {
+            array_push($results, $row);
+        }
+
+        return $results;
+    }
+
   /**
    * @return number
    */
