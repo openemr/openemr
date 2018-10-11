@@ -628,3 +628,7 @@ ALTER TABLE `users_secure` ADD COLUMN `last_challenge_response` datetime DEFAULT
 #IfMissingColumn users_secure login_work_area
 ALTER TABLE `users_secure` ADD COLUMN `login_work_area` text;
 #EndIf
+
+#IfNotColumnType onsite_messages sender_id VARCHAR(64)
+ALTER TABLE `onsite_messages` CHANGE `sender_id` `sender_id` VARCHAR(64) NULL COMMENT 'who sent id';
+#EndIf

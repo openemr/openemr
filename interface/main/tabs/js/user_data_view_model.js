@@ -27,6 +27,12 @@ function user_data_view_model(username,fname,lname,authGrp)
     self.lname=ko.observable(lname);
     self.authorization_group=ko.observable(authGrp);
     self.messages=ko.observable("");
+    self.portal=ko.observable(isPortalEnabled);
+    self.portalAlerts=ko.observable("");
+    self.portalAudits=ko.observable("");
+    self.portalMail=ko.observable("");
+    self.portalChats=ko.observable("");
+
     return this;
 
 }
@@ -49,6 +55,27 @@ function viewMessages()
 {
     navigateTab(webroot_url+"/interface/main/messages/messages.php?form_active=1","msg", function () {
         activateTabByName("msg",true);
+    });
+}
+
+function viewPortalAudits()
+{
+    navigateTab(webroot_url+"/portal/patient/onsiteactivityviews","msc", function () {
+        activateTabByName("msc",true);
+    });
+}
+
+function viewPortalMail()
+{
+    navigateTab(webroot_url+"/portal/messaging/messages.php","por", function () {
+       activateTabByName("por",true);
+    });
+}
+
+function viewPortalChats()
+{
+    navigateTab(webroot_url+"/portal/messaging/secure_chat.php","pop", function () {
+        activateTabByName("pop",true);
     });
 }
 
