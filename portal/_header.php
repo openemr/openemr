@@ -154,12 +154,12 @@ use OpenEMR\Core\Header;
                         <ul class="dropdown-menu">
                             <?php if ($GLOBALS['ccda_alt_service_enable'] > 1) { ?>
                                 <li><a id="callccda" href="<?php echo $GLOBALS['web_root']; ?>/ccdaservice/ccda_gateway.php?action=startandrun">
-                                        <i class="fa fa-envelope" aria-hidden="true"></i><span><?php echo xlt('View CCD'); ?></span></a></li>
-                            <?php } ?>
+                                    <i class="fa fa-envelope" aria-hidden="true"></i><span><?php echo xlt('View CCD'); ?></span></a></li>
                             <li data-toggle="pill"><a href="#reportpanel" data-toggle="collapse"
                                 data-parent="#panelgroup"> <i class="fa fa-folder-open"></i> <span><?php echo xlt('Report Content'); ?></span></a></li>
+                            <?php } ?>
                             <li data-toggle="pill"><a href="#downloadpanel" data-toggle="collapse"
-                                data-parent="#panelgroup"> <i class="fa fa-download"></i> <span><?php echo xlt('Download Documents'); ?></span></a></li>
+                                data-parent="#panelgroup"> <i class="fa fa-download"></i> <span><?php echo xlt('Download Lab Documents'); ?></span></a></li>
                         </ul></li>
 
                     <li><a href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"><i class="fa fa-envelope" aria-hidden="true"></i>

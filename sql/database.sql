@@ -5438,7 +5438,7 @@ CREATE TABLE `onsite_messages` (
   `message` longtext,
   `ip` varchar(15) NOT NULL,
   `date` datetime NOT NULL,
-  `sender_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'who sent id',
+  `sender_id` VARCHAR(64) NULL COMMENT 'who sent id',
   `recip_id` varchar(255) NOT NULL COMMENT 'who to id array',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB COMMENT='Portal messages' AUTO_INCREMENT=1 ;
