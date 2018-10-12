@@ -441,7 +441,6 @@ if ($_REQUEST['form_csvexport']) {
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
-        <?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); ?>
     </script>
     <?php
     //to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will
@@ -454,8 +453,13 @@ if ($_REQUEST['form_csvexport']) {
         $current_state = collectAndOrganizeExpandSetting($arr_files_php);
         require_once("$srcdir/expand_contract_inc.php");
     }
-    
     ?>
+    <script>
+    <?php
+    require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal
+    require_once("$include_root/expand_contract_js.php");//jQuery to provide expand/contract icon toggle if form is expandable
+    ?>
+    </script>
 </head>
 <body class="body_top">
     <div class="<?php echo $container;?> expandable">

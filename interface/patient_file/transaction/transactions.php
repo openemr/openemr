@@ -23,7 +23,7 @@ use OpenEMR\Menu\PatientMenuRole;
         dlgopen('../deleter.php?transaction=' + transactionId, '_blank', 500, 450);
         return false;
     }
-<?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); ?>
+<?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>
 </script>
 </head>
 

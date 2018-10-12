@@ -88,7 +88,6 @@ function newEncounter() {
  top.restoreSession();
  location.href='../../forms/newpatient/new.php?autoloaded=1&calenc=';
 }
-<?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); ?>
 </script>
 <?php
 //to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will
@@ -98,8 +97,13 @@ function newEncounter() {
 $arr_files_php = array("stats_full_patient_xpd", "external_data_patient_xpd", "patient_ledger_patient_xpd");
 $current_state = collectAndOrganizeExpandSetting($arr_files_php);
 require_once("$srcdir/expand_contract_inc.php");
-
 ?>
+<script>
+<?php
+require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal
+require_once("$include_root/expand_contract_js.php");//jQuery to provide expand/contract icon toggle if form is expandable
+?>
+</script>
 </head>
 
 <body class="body_top">
@@ -300,13 +304,7 @@ require_once("$srcdir/expand_contract_inc.php");
         require "$include_root/help_modal.php";
     }
     ?>
-    <script>
-        <?php
-        // jQuery script to change expanded/centered state dynamically
-        require_once("$include_root/expand_contract_js.php");
-        ?>
-    </script>
-
+    
 </body>
 
 <script language="javascript">

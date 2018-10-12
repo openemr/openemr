@@ -27,9 +27,7 @@ use OpenEMR\Menu\PatientMenuRole;
 $(document).ready(function(){
     tabbify();
 });
-</script>
-<script>
-<?php require_once("$include_root/patient_file/erx_patient_portal_js.php") ?>
+<?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>
 </script>
 
 <style type="text/css">

@@ -37,7 +37,6 @@ if ($GLOBALS['gbl_portal_cms_enable']) {
 <head>
 <title><?php echo xlt("Patient Reports"); ?></title>
 
-<?php //html_header_show();?>
 <?php Header::setupHeader(['datetime-picker', 'common']); ?>
 <script language='JavaScript'>
 
@@ -57,7 +56,7 @@ function show_date_fun(){
   }
   return;
 }
-<?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); ?>
+<?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>
 </script>
 </head>
 

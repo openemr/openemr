@@ -121,9 +121,6 @@ $records2 = array();
                 border-bottom: 2px solid #003366;
             }
         </style>
-        <script>
-            <?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); ?>
-        </script>
         <?php
         //to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will
         //become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an
@@ -134,6 +131,12 @@ $records2 = array();
         require_once("$srcdir/expand_contract_inc.php");
         $GLOBALS['enable_help'] = 0; // temporary till help file is written
         ?>
+        <script>
+        <?php
+        require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal
+        require_once("$include_root/expand_contract_js.php");//jQuery to provide expand/contract icon toggle if form is expandable
+        ?>
+        </script>
     </head>
     <body class="body_top">
         <div class="<?php echo $container;?> expandable">
@@ -251,12 +254,6 @@ $records2 = array();
             ;
         }
         ?>
-    <script>
-        <?php
-        // jQuery script to change expanded/centered state dynamically
-        require_once("$include_root/expand_contract_js.php");
-        ?>
-    </script>
     <script>
         var listId = '#' + '<?php echo attr($list_id); ?>';
         $(document).ready(function(){
