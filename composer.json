@@ -35,7 +35,8 @@
         "twig/twig" : "1.35.3",
         "vlucas/phpdotenv" : "2.4.0",
         "yubico/u2flib-server" : "1.0.2",
-        "zendframework/zendframework" : "2.5.3"
+        "zendframework/zendframework" : "2.5.3",
+        "particle/validator": "^2.3"
     },
     "config": {
         "platform": {

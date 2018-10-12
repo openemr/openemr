@@ -30,10 +30,10 @@ use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\VersionService;
 use OpenEMR\Services\ProductRegistrationService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Common\Http\HttpRestRouteHandler;
+
 
 // TODO: Need to handle auth and tokens here
-
-// TODO: Need a validation utility for POSTs and PUTs
 
 $routes = array(
     'GET /facility' => function() {
@@ -44,12 +44,28 @@ $routes = array(
     },
     'POST /facility' => function() {
         $data = (array)(json_decode(file_get_contents('php://input')));
-        return (new FacilityService())->insert($data);
+        $facilityService = new FacilityService();
+        $validationResult = $facilityService->validate($data);
+
+        if (!$validationResult->isValid()) {
+            http_response_code(400);
+            return $validationResult->getMessages();
+        }
+
+        return $facilityService->insert($data);
     },
     'PUT /facility/:id' => function($id) {
         $data = (array)(json_decode(file_get_contents('php://input')));
         $data['fid'] = $id;
-        return (new FacilityService())->update($data);
+        $facilityService = new FacilityService();
+        $validationResult = $facilityService->validate($data);
+
+        if (!$validationResult->isValid()) {
+            http_response_code(400);
+            return $validationResult->getMessages();
+        }
+
+        return $facilityService->update($data);
     },
     'GET /patient' => function() {
         return (new PatientService())->getAll();
@@ -77,22 +93,5 @@ $routes = array(
     }
 );
 
-// TODO: put in OpenEMR\Common\Http\HttpRestRouteHandler;
-function handle($routes, $route, $request_method) {
-    // Taken from https://stackoverflow.com/questions/11722711/url-routing-regex-php/11723153#11723153
-    foreach($routes as $routePath => $routeCallback) {
-        $routePieces = explode(" ", $routePath);
-        $method = $routePieces[0];
-        $path = $routePieces[1];
-        $pattern = "@^" . preg_replace('/\\\:[a-zA-Z0-9\_\-]+/', '([a-zA-Z0-9\-\_]+)', preg_quote($path)) . "$@D";
-        $matches = Array();
-        if($method == $request_method && preg_match($pattern, $route, $matches)) {
-            header('Content-Type: application/json');
-            array_shift($matches);
-            $result = call_user_func_array($routeCallback, $matches);
-            echo json_encode($result);
-        }
-    }
-}
 
-handle($routes, $_GET['resource'], $_SERVER['REQUEST_METHOD']);
+HttpRestRouteHandler::handle($routes, $_GET['resource'], $_SERVER['REQUEST_METHOD']);
