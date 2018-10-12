@@ -592,7 +592,7 @@ $msgApp = new Controller();
         $scope.isFullScreen = "<?php echo IS_FULLSCREEN; ?>";
         $scope.pusers = []; // selected recipients for chat
         $scope.chatusers = []; // authorize chat recipients for dashboard user
-
+        $scope.noRecipError = '<?php echo xla("Please Select a Recipient for Message.") ?>';
         $scope.me = {
             username: $scope.user,
             message: null,
@@ -659,7 +659,7 @@ $msgApp = new Controller();
              var makrup = $('.summernote').summernote('code');
             $scope.me.message = makrup;
             $scope.saveMessage();
-            $('.summernote').summernote('code', ''); //add this options to reset editor or not-default is persistant content
+            $('.summernote').summernote('code', ''); //add this options to reset editor or not-default is persistent content
             //$('.summernote').summernote('destroy');
         };
 
@@ -671,6 +671,10 @@ $msgApp = new Controller();
             }
             if (! ($scope.me.message && $scope.me.message.trim() &&
                    $scope.me.username && $scope.me.username.trim())) {
+                return;
+            }
+            if($scope.me.recip_id == "[]") {
+                alert($scope.noRecipError);
                 return;
             }
             $scope.me.message = '';
@@ -1008,12 +1012,18 @@ background:#fff;
                                     <span class="direct-chat-name" ng-class="{'pull-left':message.me,'pull-right':!message.me}">{{message.username }}</span>
                                     <span class="direct-chat-timestamp " ng-class="{'pull-left':!message.me,'pull-right':message.me}">{{message.date }}</span>
                                 </div>
-                                <i class="direct-chat-img glyphicon glyphicon-hand-left" style="font-size:24px" ng-show="!message.me"></i>
-                                <i class="direct-chat-img glyphicon glyphicon-hand-right" style="font-size:24px" ng-show="message.me"></i>
+                                <i class="direct-chat-img glyphicon glyphicon-hand-left"
+                                   style="cursor: pointer;font-size:24px" ng-show="!message.me"
+                                   ng-click="makeCurrent(message)"
+                                   title="<?php echo xla('Click to activate and send to this recipient.'); ?>"></i>
+                                <i class="direct-chat-img glyphicon glyphicon-hand-right"
+                                   style="cursor: pointer;font-size:24px" ng-show="message.me"
+                                   ng-click="makeCurrent(message)"
+                                   title="<?php echo xla('Click to activate and send to this recipient.'); ?>"></i>
 
                                 <div class="direct-chat-text right">
                                     <div style="padding-left: 0px; padding-right: 0px;"
-                                         title="<?php echo xlt('Click to select and send to this recipient only...'); ?>"
+                                         title="<?php echo xla('Click to activate and send to this recipient.'); ?>"
                                          ng-click="makeCurrent(message)"
                                          ng-bind-html=renderMessageBody(message.message)></div>
                                 </div>
