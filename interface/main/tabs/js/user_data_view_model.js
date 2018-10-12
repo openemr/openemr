@@ -26,7 +26,7 @@ function user_data_view_model(username,fname,lname,authGrp)
     self.fname=ko.observable(fname);
     self.lname=ko.observable(lname);
     self.authorization_group=ko.observable(authGrp);
-    self.messages=ko.observable("");
+    self.messages=ko.observable(false);
     self.portal=ko.observable(isPortalEnabled);
     self.portalAlerts=ko.observable("");
     self.portalAudits=ko.observable("");

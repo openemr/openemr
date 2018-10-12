@@ -108,9 +108,10 @@
         <!-- ko if:messages() -->
             <span class="messagesColumn">
                 <a class="btn btn-default" href="#" data-bind="click: viewMessages" title="<?php echo xla("View Messages");?>">
-                    <i class="fa fa-envelope"></i>&nbsp;<span class="label label-default" style="display:inline" data-bind="text: messages()"></span>
+                    <i class="fa fa-envelope"></i>&nbsp;<span class="label label-danger" style="display:inline" data-bind="text: messages()"></span>
                 </a>
             </span>
+        <!-- /ko -->
         <!-- ko if: portal() -->
             <div class="messagesColumn btn-group dropdown">
                 <button class="btn btn-default btn-md dropdown-toggle"
@@ -119,21 +120,21 @@
                         aria-haspopup="true"
                         aria-expanded="true">
                     <?php echo xlt("Portal Alerts"); ?>&nbsp;
-                    <span class="label label-default" data-bind="text: portalAlerts()"></span>
+                    <span class="label label-danger" data-bind="text: portalAlerts()"></span>
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="portalMsgAlerts">
                     <li style="display: inline-flex;">
                         <a href="#" data-bind="click: viewPortalMail">
                             <i class="fa fa-envelope-o"></i>&nbsp;<?php echo xlt("Portal Mail"); ?>&nbsp;
-                            <span class="label label-default" style="display:inline" data-bind="text: portalMail()"></span>
+                            <span class="label label-success" style="display:inline" data-bind="text: portalMail()"></span>
                         </a>
                     </li>
                     <li class="divider"></li>
                     <li style="display: inline-flex;">
                         <a href="#" data-bind="click: viewPortalAudits">
                             <i class="fa fa-align-justify"></i>&nbsp;<?php echo xlt("Portal Audits"); ?>&nbsp;
-                            <span class="label label-default" style="display:inline"
+                            <span class="label label-success" style="display:inline"
                                   data-bind="text: portalAudits()"></span>
                         </a>
                     </li>
@@ -141,12 +142,11 @@
                     <li style="display: inline-flex;">
                         <a href="#" data-bind="click: viewPortalChats">
                             <i class="fa fa-envelope"></i>&nbsp;<?php echo xlt("Portal Chats"); ?>&nbsp;
-                            <span class="label label-default" style="display:inline" data-bind="text: portalChats()"></span>
+                            <span class="label label-success" style="display:inline" data-bind="text: portalChats()"></span>
                         </a>
                     </li>
                 </ul>
             </div>
-        <!-- /ko -->
         <!-- /ko -->
         <!-- /ko -->
         <!-- /ko -->

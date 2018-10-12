@@ -495,7 +495,7 @@ class Controller extends SMA_Common\Controller
         return json_encode($onlines);
     }
 }
-$infoMsg = xlt('Click to activate and send to this recipient.');
+
 $msgApp = new Controller();
 ?>
 <!doctype html>
@@ -592,7 +592,7 @@ $msgApp = new Controller();
         $scope.isFullScreen = "<?php echo IS_FULLSCREEN; ?>";
         $scope.pusers = []; // selected recipients for chat
         $scope.chatusers = []; // authorize chat recipients for dashboard user
-        $scope.noRecipError = '<?php echo xlt("Please Select a Recipient for Message.") ?>';
+        $scope.noRecipError = '<?php echo xla("Please Select a Recipient for Message.") ?>';
         $scope.me = {
             username: $scope.user,
             message: null,
@@ -1012,12 +1012,18 @@ background:#fff;
                                     <span class="direct-chat-name" ng-class="{'pull-left':message.me,'pull-right':!message.me}">{{message.username }}</span>
                                     <span class="direct-chat-timestamp " ng-class="{'pull-left':!message.me,'pull-right':message.me}">{{message.date }}</span>
                                 </div>
-                                <i class="direct-chat-img glyphicon glyphicon-hand-left" style="cursor: pointer;font-size:24px" ng-show="!message.me" ng-click="makeCurrent(message)" title="<?php echo $infoMsg; ?>"></i>
-                                <i class="direct-chat-img glyphicon glyphicon-hand-right" style="cursor: pointer;font-size:24px" ng-show="message.me" ng-click="makeCurrent(message)" title="<?php echo $infoMsg; ?>"></i>
+                                <i class="direct-chat-img glyphicon glyphicon-hand-left"
+                                   style="cursor: pointer;font-size:24px" ng-show="!message.me"
+                                   ng-click="makeCurrent(message)"
+                                   title="<?php echo xla('Click to activate and send to this recipient.'); ?>"></i>
+                                <i class="direct-chat-img glyphicon glyphicon-hand-right"
+                                   style="cursor: pointer;font-size:24px" ng-show="message.me"
+                                   ng-click="makeCurrent(message)"
+                                   title="<?php echo xla('Click to activate and send to this recipient.'); ?>"></i>
 
                                 <div class="direct-chat-text right">
                                     <div style="padding-left: 0px; padding-right: 0px;"
-                                         title="<?php echo $infoMsg; ?>"
+                                         title="<?php echo xla('Click to activate and send to this recipient.'); ?>"
                                          ng-click="makeCurrent(message)"
                                          ng-bind-html=renderMessageBody(message.message)></div>
                                 </div>

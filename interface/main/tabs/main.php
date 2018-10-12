@@ -74,7 +74,7 @@ function goRepeaterServices(){
             app_view_model.application_data.user().messages(data);
         }
     );
-    // Notify App for varios portal alerts
+    // Notify App for various portal alerts
     if (isPortalEnabled) {
         top.restoreSession();
         $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/dated_reminders_counter.php",
@@ -85,10 +85,15 @@ function goRepeaterServices(){
                 let chats = data.chatCnt;
                 let audits = data.auditCnt;
                 let total = data.total;
-                app_view_model.application_data.user().portalAlerts(total);
-                app_view_model.application_data.user().portalAudits(audits);
-                app_view_model.application_data.user().portalMail(mail);
-                app_view_model.application_data.user().portalChats(chats);
+                let enable = (1 * mail) + (1 * audits);
+
+                app_view_model.application_data.user().portal(enable);
+                if (enable) {
+                    app_view_model.application_data.user().portalAlerts(total);
+                    app_view_model.application_data.user().portalAudits(audits);
+                    app_view_model.application_data.user().portalMail(mail);
+                    app_view_model.application_data.user().portalChats(chats);
+                }
             }
         );
     }
