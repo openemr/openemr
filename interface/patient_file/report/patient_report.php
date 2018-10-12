@@ -67,10 +67,7 @@ function show_date_fun(){
         <?php $header_title = xl('Patient Reports for');?>
         <div class="row">
             <div class="col-sm-12">
-                <?php
-                $portal_login_href = "../summary/create_portallogin.php";
-                require_once("../summary/dashboard_header.php");
-                ?>
+                <?php require_once("../summary/dashboard_header.php");?>
             </div>
         </div>
         <div class="row" >

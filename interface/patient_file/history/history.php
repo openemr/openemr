@@ -89,7 +89,6 @@ if (!empty($grparr['']['grp_size'])) {
         <div class="row">
             <div class="col-sm-12">
                 <?php
-                $portal_login_href = "../summary/create_portallogin.php";
                 require_once("../summary/dashboard_header.php");
                 ?>
             </div>

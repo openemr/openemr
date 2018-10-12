@@ -36,7 +36,7 @@ require_once("../../interface/globals.php");
                             <li><?php echo xlt("Lifestyle"); ?></li>
                             <li><?php echo xlt("Other"); ?></li>
                         </ul>
-                    <p><?php echo xlt("General Tab  - lists the risk factors / past medical conditions on the left and the Results of various clinical exams, procedures and tests on the right");?>.
+                    <p><?php echo xlt("General Tab - lists the risk factors / past medical conditions on the left and the Results of various clinical exams, procedures and tests on the right");?>.
                     
                     <p><?php echo xlt("Family history - Documents the patient's family history, an ICD10 diagnosis can be linked to the medical conditions");?>.
                     
@@ -44,7 +44,7 @@ require_once("../../interface/globals.php");
                     
                     <p><?php echo xlt("Lifestyle - lists the patient's use of Tobacco, Coffee, Alcohol, Recreational Drugs etc");?>.
                     
-                    <p><?php echo xlt("Other  - lists items not covered in the above sections");?>.
+                    <p><?php echo xlt("Other - lists items not covered in the above sections");?>.
                     
                     <p><?php echo xlt("Users with appropriate privileges can edit these items by clicking on the Edit button");?>.
                     <button type="button" class="btn btn-default btn-edit btn-sm oe-no-float"><?php echo xlt("Edit"); ?></button>

@@ -428,7 +428,6 @@ if ($_REQUEST['form_csvexport']) {
             }
         }
     </style>
-
     <script language="JavaScript">
         $(document).ready(function() {
             var win = top.printLogSetup ? top : opener.top;
@@ -442,6 +441,7 @@ if ($_REQUEST['form_csvexport']) {
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
+        <?php require_once("../patient_file/erx_patient_portal_js.php") ?>
     </script>
     <?php
     //to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will

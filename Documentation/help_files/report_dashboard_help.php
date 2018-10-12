@@ -96,7 +96,7 @@ require_once("../../interface/globals.php");
                         <div class='hideaway' id='ccr_core'style='display: none;'>
                     
                             <ul>
-                                <li><?php echo xlt(' Document identifying information');?>*</li>
+                                <li><?php echo xlt('Document identifying information');?>*</li>
                                 <li><?php echo xlt('Patient identifying information');?>*</li>
                                 <li><?php echo xlt('Patient insurance/financial information');?>*</li>
                                 <li><?php echo xlt('Advance Directives');?></li>

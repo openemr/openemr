@@ -121,6 +121,9 @@ $records2 = array();
                 border-bottom: 2px solid #003366;
             }
         </style>
+        <script>
+            <?php require_once("../patient_file/erx_patient_portal_js.php") ?>
+        </script>
         <?php
         //to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will
         //become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an

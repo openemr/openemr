@@ -100,7 +100,7 @@ require_once("../../interface/globals.php");
                     
                     <p><?php echo xlt("The patient will have to change their credentials at the first login");?>.
                     
-                    <p><?php echo xlt("If the Online/Offsite Portal Credentials has already been set the button will change to ");?>
+                    <p><?php echo xlt("If the Online/Offsite Portal Credentials has already been set the button will change to");?>
                     <button type="button" class="btn btn-default btn-undo btn-sm oe-no-float"><?php echo xlt("Reset Online Portal Credentials"); ?></button>
                     <button type="button" class="btn btn-default btn-undo btn-sm oe-no-float"><?php echo xlt("Reset Offsite Portal Credentials"); ?></button>
                         
@@ -142,7 +142,7 @@ require_once("../../interface/globals.php");
                     
                     <p><?php echo xlt("Transactions - lists various notes about happenings in a patient's chart with respect to billing, legal, patient request, physician request and also generates a patient referral or counter-referral");?>.
                     
-                    <p><?php echo xlt("Issues  - summarizes the patient's medical problems, allergies, medications, surgeries and dental issues");?>.
+                    <p><?php echo xlt("Issues - summarizes the patient's medical problems, allergies, medications, surgeries and dental issues");?>.
                     
                     <p><?php echo xlt("Ledger - Summarizes and tabulates all the charges, payments, adjustments and balances for all encounters pertaining to the patient");?>.
                     
@@ -208,9 +208,9 @@ require_once("../../interface/globals.php");
                     
                     <p><?php echo xlt("Immunizations - lists immunization history and allows for adding new entries or editing existing ones");?>.
                     
-                    <p><?php echo xlt("Prescriptipn - lists the prescriptions of the current patient");?>.
+                    <p><?php echo xlt("Prescription - lists the prescriptions of the current patient");?>.
                     
-                    <p><?php echo xlt("Tracks - if the Track Anything feature is enabled the will display a list of values that can be tracked and graphed");?>.
+                    <p><?php echo xlt("Tracks - if the Track Anything feature is enabled it will display a list of values that can be tracked and graphed");?>.
                     <a href="https://www.open-emr.org/wiki/index.php/Track_Anything_Form" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                 </div>    
             </div>

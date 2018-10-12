@@ -661,10 +661,7 @@ if (!empty($grparr['']['grp_size'])) {
                 $header_title = xl('Medical Record Dashboard of');?>
                 <div class="row">
                     <div class="col-sm-12">
-                        <?php
-                            $portal_login_href = "create_portallogin.php";
-                            require_once("dashboard_header.php");
-                        ?>
+                        <?php require_once("dashboard_header.php");?>
                     </div>
                 </div>
             <?php

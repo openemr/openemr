@@ -108,7 +108,6 @@ require_once("$srcdir/expand_contract_inc.php");
         <div class="row">
             <div class="col-sm-12">
                 <?php
-                $portal_login_href = "create_portallogin.php";
                 $expandable = 1;
                 require_once("dashboard_header.php");
                 ?>

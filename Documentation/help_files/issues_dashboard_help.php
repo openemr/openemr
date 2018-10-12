@@ -28,7 +28,7 @@ require_once("../../interface/globals.php");
                 <div class="col-sm-12">
                     <p><?php echo xlt("An Issue concerns matters relating to the patient's health");?>.
                     
-                    <p><?php echo xlt("There are 5 types of issues that can be documented");?>:
+                    <p><?php echo xlt("The default installation lists 5 types of issues that can be documented");?>:
                     <ul>
                         <li><a href="#section1"><?php echo xlt("Medical Problems");?></a></li>
                         <li><a href="#section2"><?php echo xlt("Allergies");?></a></li>

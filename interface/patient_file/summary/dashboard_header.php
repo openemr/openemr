@@ -10,6 +10,8 @@
  */
  
 require_once("$srcdir/display_help_icon_inc.php");
+$url_webroot = $GLOBALS['webroot'];
+$portal_login_href = $url_webroot ."/interface/patient_file/summary/create_portallogin.php";
 ?>
 
 <div class="page-header clearfix">
@@ -62,18 +64,18 @@ if ($days_deceased) { ?>
             if (acl_check('admin', 'super') && $GLOBALS['allow_pat_delete']) { ?>
             
                 <a class='btn btn-default btn-sm btn-delete deleter delete'
-                   href='../deleter.php?patient=<?php echo attr($pid);?>'
+                   href='<?php echo attr($url_webroot)?>/interface/patient_file/deleter.php?patient=<?php echo attr($pid);?>'
                    onclick='return top.restoreSession()'>
                     <span><?php echo xlt('Delete');?></span>
                 </a>
             <?php
             } // Allow PT delete
             if ($GLOBALS['erx_enable']) { ?>
-                <a class="btn btn-default btn-sm btn-add erx" href="../../eRx.php?page=medentry" onclick="top.restoreSession()">
+                <a class="btn btn-default btn-sm btn-add erx" href="<?php echo attr($url_webroot)?>/interface/eRx.php?page=medentry" onclick="top.restoreSession()">
                     <span><?php echo xlt('NewCrop MedEntry');?></span>
                 </a>
                 <a class="btn btn-default btn-sm btn-save iframe1"
-                   href="../../soap_functions/soap_accountStatusDetails.php"
+                   href="<?php echo attr($url_webroot)?>/interface/soap_functions/soap_accountStatusDetails.php"
                    onclick="top.restoreSession()">
                     <span><?php echo xlt('NewCrop Account Status');?></span>
                 </a>
@@ -88,7 +90,7 @@ if ($days_deceased) { ?>
                     $portalLogin = sqlQuery("SELECT pid FROM `patient_access_onsite` WHERE `pid`=?", array($pid));?>
                     <?php $display_class = (empty($portalLogin)) ? "btn-save" : "btn-undo"; ?>
                     <a class='small_modal btn btn-default btn-sm <?php echo $display_class; ?>'
-                        href='<?php echo $portal_login_href; ?>?portalsite=on&patient=<?php echo attr($pid);?>'
+                        href='<?php echo attr($portal_login_href); ?>?portalsite=on&patient=<?php echo attr($pid);?>'
                         onclick='top.restoreSession()'>
                         <?php $display = (empty($portalLogin)) ? xlt('Create Onsite Portal Credentials') : xlt('Reset Onsite Portal Credentials'); ?>
                         <span><?php echo $display; ?></span>
@@ -106,7 +108,7 @@ if ($days_deceased) { ?>
                     ?>
                     <?php $display_class = (empty($portalLogin)) ? "btn-save" : "btn-undo"; ?>
                     <a class='small_modal btn btn-default btn-sm <?php echo $display_class; ?>'
-                       href='<?php echo $portal_login_href; ?>?portalsite=off&patient=<?php echo attr($pid);?>'
+                       href='<?php echo attr($portal_login_href); ?>?portalsite=off&patient=<?php echo attr($pid);?>'
                        onclick='top.restoreSession()'>
                         <span>
                             <?php $text = (empty($portalLogin)) ? xlt('Create Offsite Portal Credentials') : xlt('Reset Offsite Portal Credentials'); ?>
