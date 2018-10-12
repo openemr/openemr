@@ -88,7 +88,7 @@ function newEncounter() {
  top.restoreSession();
  location.href='../../forms/newpatient/new.php?autoloaded=1&calenc=';
 }
-<?php require_once("../erx_patient_portal_js.php") ?>
+<?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); ?>
 </script>
 <?php
 //to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will
@@ -109,7 +109,7 @@ require_once("$srcdir/expand_contract_inc.php");
             <div class="col-sm-12">
                 <?php
                 $expandable = 1;
-                require_once("dashboard_header.php");
+                require_once("$include_root/patient_file/summary/dashboard_header.php")
                 ?>
             </div>
         </div>
@@ -297,14 +297,13 @@ require_once("$srcdir/expand_contract_inc.php");
     //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
     if ($GLOBALS['enable_help'] == 1) {
         echo "<script>var helpFile = 'issues_dashboard_help.php'</script>";
-        //help_modal.php lives in interface, set path accordingly
-        require "../../help_modal.php";
+        require "$include_root/help_modal.php";
     }
     ?>
     <script>
         <?php
         // jQuery script to change expanded/centered state dynamically
-        require_once("../../expand_contract_js.php");
+        require_once("$include_root/expand_contract_js.php");
         ?>
     </script>
 

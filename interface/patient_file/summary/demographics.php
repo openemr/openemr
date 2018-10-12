@@ -661,7 +661,7 @@ if (!empty($grparr['']['grp_size'])) {
                 $header_title = xl('Medical Record Dashboard of');?>
                 <div class="row">
                     <div class="col-sm-12">
-                        <?php require_once("dashboard_header.php");?>
+                        <?php require_once("$include_root/patient_file/summary/dashboard_header.php"); ?>
                     </div>
                 </div>
             <?php
@@ -1858,8 +1858,7 @@ if (!empty($grparr['']['grp_size'])) {
     //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
     if ($GLOBALS['enable_help'] == 1) {
         echo "<script>var helpFile = 'medical_dashboard_help.php'</script>";
-        //help_modal.php lives in interface, set path accordingly
-        require "../../help_modal.php";
+        require "$include_root/help_modal.php";
     }
     ?>
 <script language='JavaScript'>
