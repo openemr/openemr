@@ -2,23 +2,15 @@
 /**
  * Contains functions used in the dated reminders.
  *
- * Copyright (C) 2012 tajemo.co.za <http://www.tajemo.co.za/>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Craig Bezuidenhout <http://www.tajemo.co.za/>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Craig Bezuidenhout <http://www.tajemo.co.za/>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2012 tajemo.co.za <http://www.tajemo.co.za/>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 /**
  * Get Portal Alerts function
@@ -75,8 +67,8 @@ function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = false)
                             JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id  
                             WHERE drl.to_id = ? 
                             AND dr.`message_processed` = 0
-                            AND dr.`dr_message_due_date` < ADDDATE(NOW(), INTERVAL $days_to_show DAY) 
-                            ORDER BY `dr_message_due_date` ASC , `message_priority` ASC LIMIT 0,$alerts_to_show",
+                            AND dr.`dr_message_due_date` < ADDDATE(NOW(), INTERVAL " . escape_limit($days_to_show) . " DAY) 
+                            ORDER BY `dr_message_due_date` ASC , `message_priority` ASC LIMIT 0," . escape_limit($alerts_to_show),
         array($userID)
     );
 
@@ -140,7 +132,7 @@ function GetDueReminderCount($days_to_show, $today, $userID = false)
                             JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id  
                             WHERE drl.to_id = ? 
                             AND dr.`message_processed` = 0
-                            AND dr.`dr_message_due_date` < ADDDATE(NOW(), INTERVAL $days_to_show DAY)",
+                            AND dr.`dr_message_due_date` < ADDDATE(NOW(), INTERVAL " . escape_limit($days_to_show) . " DAY)",
         array($userID)
     );
 
@@ -214,13 +206,13 @@ function getRemindersHTML($today, $reminders = array())
         // end check if reminder is due or overdue
         // apend to html string
         $pdHTML .= '<p id="p_' . attr($r['messageID']) . '">
-            <a onclick="openAddScreen(' . attr($r['messageID']) . ')" class="dnForwarder btn btn-default btn-send-msg" id="' . attr($r['messageID']) . '" href="#"> ' . xlt('Forward') . ' </a>
-            <a class="dnRemover btn btn-default btn-save" onclick="updateme(' . "'" . attr($r['messageID']) . "'" . ')" id="' . attr($r['messageID']) . '" href="#">
+            <a onclick="openAddScreen(' . attr(addslashes($r['messageID'])) . ')" class="dnForwarder btn btn-default btn-send-msg" id="' . attr($r['messageID']) . '" href="#"> ' . xlt('Forward') . ' </a>
+            <a class="dnRemover btn btn-default btn-save" onclick="updateme(' . "'" . attr(addslashes($r['messageID'])) . "'" . ')" id="' . attr($r['messageID']) . '" href="#">
             <span>' . xlt('Set As Completed') . '</span>
             </a>
             <span title="' . ($r['PatientID'] > 0 ? xla('Click Patient Name to Open Patient File') : '') . '" class="' . attr($class) . '">' .
             $warning . '         
-            <span onclick="goPid(' . attr($r['PatientID']) . ')" class="patLink" id="' . attr($r['PatientID']) . '">' .
+            <span onclick="goPid(' . attr(addslashes($r['PatientID'])) . ')" class="patLink" id="' . attr($r['PatientID']) . '">' .
             text($r['PatientName']) . '
             </span> ' .
             text($r['message']) . ' - [' . text($r['fromName']) . ']

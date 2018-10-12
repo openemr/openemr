@@ -2,13 +2,13 @@
 /**
  * Used for adding dated reminders.
  *
- * @package OpenEMR
- * @author  Craig Bezuidenhout <http://www.tajemo.co.za/>
- * @author Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (C) 2012 tajemo.co.za <http://www.tajemo.co.za/>
- * @copyright Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
- */
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Craig Bezuidenhout <http://www.tajemo.co.za/>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2012 tajemo.co.za <http://www.tajemo.co.za/>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+  */
 
 require_once("../../globals.php");
 require_once("$srcdir/dated_reminder_functions.php");
@@ -53,6 +53,10 @@ $max_reminder_words=160;
 
 // ---------------- FOR FORWARDING MESSAGES ------------->
 if (isset($_GET['mID']) and is_numeric($_GET['mID'])) {
+    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
     $forwarding = true;
     $this_message = getReminderById($_GET['mID']);
 }
@@ -63,6 +67,10 @@ if (isset($_GET['mID']) and is_numeric($_GET['mID'])) {
 
 // --- add reminders
 if ($_POST) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        die(xlt('Authentication Error'));
+    }
+
 // --- initialize $output as blank
     $output = '';
     $output = '<div><fieldset id="error_info" style="border:1px solid #ff5d5a !Important; background-color: #ff5d5a !Important; color: #fff ! Important; font-weight: bold; font-family:sans-serif; border-radius:5px; padding:20px 5px !Important;">';// needs in-line styling because stylesheets not yet initialized
@@ -112,7 +120,7 @@ if ($_POST) {
       // ------------ 1) refresh parent window this updates if sent to self
             echo '  if (opener && !opener.closed && opener.updateme) opener.updateme("new");';
       // ------------ 2) communicate with user
-            echo '   alert("'.addslashes(xl('Reminder Sent')).'");';
+            echo '   alert("'.xls('Reminder Sent').'");';
       // ------------ 3) close this window
             echo '  dlgclose();';
             echo '</script></body></html>';
@@ -137,10 +145,10 @@ if ($_POST) {
 // get current patient, first check if this is a forwarded message, if it is use the original pid
 if (isset($this_message['pid'])) {
     $patientID = (isset($this_message['pid']) ? $this_message['pid'] : 0);
-    $reminder_title = xlt("Forward this Reminder");
+    $reminder_title = xl("Forward this Reminder");
 } else {
     $patientID = (isset($pid) ? $pid : 0);
-    $reminder_title = xlt("Send a Reminder");
+    $reminder_title = xl("Send a Reminder");
 }
     ?>
 <html>
@@ -237,7 +245,7 @@ if (isset($this_message['pid'])) {
         })
           // update word counter
           var messegeTextarea=$("#message")[0];
-          limitText(messegeTextarea.form.message,messegeTextarea.form.countdown,<?php echo $max_reminder_words ?>);
+          limitText(messegeTextarea.form.message,messegeTextarea.form.countdown,<?php echo attr($max_reminder_words); ?>);
 
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
@@ -287,7 +295,7 @@ if (isset($this_message['pid'])) {
             border-radius: 5px;
             padding: 20px 5px !Important;
         }
-    </style> 
+    </style>
 
   </head>
   <body class="body_top">
@@ -297,9 +305,11 @@ if (isset($this_message['pid'])) {
     <div class="container">
     <h4><?php echo attr($reminder_title) ?></h4>
     <form id="addDR"  class="form-horizontal" id="newMessage" method="post" onsubmit="return top.restoreSession()">
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+
        <fieldset id='error-info' class='oe-error-modal' style="display:none">
         <div style="text-align:center;" id="errorMessage"></div>
-       </fieldset> 
+       </fieldset>
      <fieldset>
      <div class="col-xs-12" style="margin-top:20px;">
         <div class="form-group">
@@ -327,7 +337,7 @@ if (isset($this_message['pid'])) {
                             <?php //
                             $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authId'])));
                             for ($i=2; $uRow=sqlFetchArray($uSQL); $i++) {
-                                echo '<option value="',attr($uRow['id']),'">',text($uRow['fname'].' '.$uRow['mname'].' '.$uRow['lname']),'</option>';
+                                echo '<option value="' . attr($uRow['id']) . '">' . text($uRow['fname'] . ' ' . $uRow['mname'] . ' ' . $uRow['lname']) . '</option>';
                             }
                             ?>
                     </select>
@@ -339,7 +349,7 @@ if (isset($this_message['pid'])) {
             <div class="form-group">
                 <div class="checkbox col-xs-5 col-xs-offset-3">
                     <label>
-                        <input type="checkbox" name="sendSeperately" id="sendSeperately" title="<?php echo xlt('Selecting this will create a message that needs to be processed by each recipient individually (this is not a group task).') ?>" >  <i id="select-tooltip" class="fa fa-info-circle text-primary" aria-hidden="true" data-original-title="" title=""></i> <?php echo xlt('Each recipient must set their own messages as completed.') ?>
+                        <input type="checkbox" name="sendSeperately" id="sendSeperately" title="<?php echo xla('Selecting this will create a message that needs to be processed by each recipient individually (this is not a group task).') ?>" >  <i id="select-tooltip" class="fa fa-info-circle text-primary" aria-hidden="true" data-original-title="" title=""></i> <?php echo xlt('Each recipient must set their own messages as completed.') ?>
                     </label>
                 </div>
             </div>
@@ -395,16 +405,16 @@ if (isset($this_message['pid'])) {
             <div class="form-group">
                  <div class="col-xs-12">
                 <label class="control-label text-right" for="message"><?php echo xlt('Type Your message here');?>:</label>
-                <textarea onKeyDown="limitText(this.form.message,this.form.countdown,<?php echo $max_reminder_words ?>);"
-                    onKeyUp="limitText(this.form.message,this.form.countdown,<?php echo $max_reminder_words ?>);"
+                <textarea onKeyDown="limitText(this.form.message,this.form.countdown,<?php echo attr(addslashes($max_reminder_words)); ?>);"
+                    onKeyUp="limitText(this.form.message,this.form.countdown,<?php echo attr(addslashes($max_reminder_words)); ?>);"
                     class="form-control oe-text-to-left" style= "height:75px !Important" name="message" id="message"
-                    placeholder="<?php echo xlt('Maximum characters') ?> : <?php echo $max_reminder_words ?>"><?php echo text($this_message['dr_message_text']);?></textarea>
+                    placeholder="<?php echo xla('Maximum characters') ?> : <?php echo attr($max_reminder_words); ?>"><?php echo text($this_message['dr_message_text']);?></textarea>
                 </div>
             </div>
             <div class="form-group">
                 <label class="control-label col-xs-6 text-right" for="countdown"><?php echo xlt('Characters Remaining') ?>:</label>
                 <div class="col-xs-2">
-                    <input class="form-control" readonly type="text" name="countdown" id="countdown" value="<?php echo $max_reminder_words; ?>">
+                    <input class="form-control" readonly type="text" name="countdown" id="countdown" value="<?php echo attr($max_reminder_words); ?>">
                 </div>
             </div>
         </div>
@@ -432,7 +442,7 @@ if (isset($this_message['pid'])) {
         $remindersArray[$RA['messageID']]['dDate'] = $RA['dDate'];
     }
 
-        echo '<h4>',xlt('Messages You have sent Today'),'</h4>';
+        echo '<h4>'.xlt('Messages You have sent Today').'</h4>';
         echo '<table class="table table-bordered" id="logTable">
                 <thead>
                   <tr>
@@ -447,11 +457,11 @@ if (isset($this_message['pid'])) {
 
     foreach ($remindersArray as $RA) {
         echo '<tr class="heading">
-                  <td>',text($RA['messageID']),'</td>
-                  <td>',text($RA['ToName']),'</td>
-                  <td>',text($RA['PatientName']),'</td>
-                  <td>',text($RA['message']),'</td>
-                  <td>',text($RA['dDate']),'</td>
+                  <td>'.text($RA['messageID']).'</td>
+                  <td>'.text($RA['ToName']).'</td>
+                  <td>'.text($RA['PatientName']).'</td>
+                  <td>'.text($RA['message']).'</td>
+                  <td>'.text($RA['dDate']).'</td>
                 </tr>';
     }
 
