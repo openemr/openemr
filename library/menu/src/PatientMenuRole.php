@@ -163,6 +163,7 @@ class PatientMenuRole extends MenuRole
     
     public function displayHorizNavBarMenu()
     {
+        $pid = $_SESSION['pid'];
         $menu_restrictions = $this->getMenu();
         $li_id = 1;
         $str_top = <<<EOT
