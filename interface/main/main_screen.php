@@ -19,8 +19,22 @@
  * @link    http://www.open-emr.org
  */
 
+// This is gateway to emr session on desktop / large display devices.
+// Until unified session class is rolled out, lock globals here.
+// When php 7 becomes minimum supported version, eliminate checking for version
+session_name("OpenEMR");
+session_start();
+
+if (PHP_MAJOR_VERSION >= 7) {
+    $_SESSION['globals_if'] = dirname(__FILE__, 2).'/globals.php';
+} else {
+    $_SESSION['globals_if'] = dirname(dirname(__FILE__)).'/globals.php';
+}
+// Tell globals.php to take one time actions related to $_SESSION and reset flag
+$_SESSION['globals_init'] = TRUE;
+
 /* Include our required headers */
-require_once('../globals.php');
+require_once($_SESSION['globals_if']);
 
 use OpenEMR\Core\Header;
 use u2flib_server\U2F;
