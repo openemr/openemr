@@ -192,7 +192,7 @@ function getFacility($facid = 0)
 
     if ($facid > 0) {
         $facility = $facilityService->getById($facid);
-    } else if ($facid == 0) {
+    } elseif ($facid == 0) {
         $facility = $facilityService->getPrimaryBillingLocation();
     } else {
         $facility = $facilityService->getFacilityForUser($_SESSION['authUserID']);
@@ -309,7 +309,7 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
     $param1 = "";
     if ($providers_only === 'any') {
         $param1 = " AND authorized = 1 AND active = 1 ";
-    } else if ($providers_only) {
+    } elseif ($providers_only) {
         $param1 = " AND authorized = 1 AND calendar = 1 ";
     }
 
@@ -423,9 +423,9 @@ function getHistoryData($pid, $given = "*", $dateStart = '', $dateEnd = '')
 
     if ($dateStart && $dateEnd) {
         $res = sqlQuery("select $given from history_data where pid = ? and date >= ? and date <= ? order by date DESC limit 0,1", array($pid,$dateStart,$dateEnd));
-    } else if ($dateStart && !$dateEnd) {
+    } elseif ($dateStart && !$dateEnd) {
         $res = sqlQuery("select $given from history_data where pid = ? and date >= ? order by date DESC limit 0,1", array($pid,$dateStart));
-    } else if (!$dateStart && $dateEnd) {
+    } elseif (!$dateStart && $dateEnd) {
         $res = sqlQuery("select $given from history_data where pid = ? and date <= ? order by date DESC limit 0,1", array($pid,$dateEnd));
     } else {
         $res = sqlQuery("select $given from history_data where pid=? order by date DESC limit 0,1", array($pid));
@@ -821,6 +821,22 @@ function getPatientName($pid)
     }
 
     $patientName =  $patientData[0]['lname'] . ", " . $patientData[0]['fname'];
+    return $patientName;
+}
+
+/* return a patient's name in the format FIRST LAST */
+function getPatientNameFirstLast($pid)
+{
+    if (empty($pid)) {
+        return "";
+    }
+
+    $patientData = getPatientPID(array("pid"=>$pid));
+    if (empty($patientData[0]['lname'])) {
+        return "";
+    }
+
+    $patientName =  $patientData[0]['fname'] . " " . $patientData[0]['lname'];
     return $patientName;
 }
 
@@ -1459,7 +1475,7 @@ function getPatientAge($dobYMD, $nowYMD = null)
         $age = $yearDiff;
         if (($monthDiff == 0) && ($dayDiff < 0)) {
             $age -= 1;
-        } else if ($monthDiff < 0) {
+        } elseif ($monthDiff < 0) {
             $age -= 1;
         }
     } else {
@@ -1709,7 +1725,7 @@ function dropdown_sex($selected = 0, $name = 'sex')
         $sel1 = 'selected="selected"';
         $sel2 = '';
         $sel0 = '';
-    } else if ($selected == 2) {
+    } elseif ($selected == 2) {
         $sel2 = 'selected="selected"';
         $sel1 = '';
         $sel0 = '';
