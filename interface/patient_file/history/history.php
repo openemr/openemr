@@ -5,14 +5,17 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Core\Header;
 
- require_once("../../globals.php");
- require_once("$srcdir/patient.inc");
- require_once("history.inc.php");
- require_once("$srcdir/options.inc.php");
- require_once("$srcdir/acl.inc");
- require_once("$srcdir/options.js.php");
+
+require_once("../../globals.php");
+require_once("$srcdir/patient.inc");
+require_once("history.inc.php");
+require_once("$srcdir/options.inc.php");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/options.js.php");
+
+use OpenEMR\Core\Header;
+use OpenEMR\Menu\PatientMenuRole;
 
 ?>
 <html>
@@ -24,6 +27,7 @@ use OpenEMR\Core\Header;
 $(document).ready(function(){
     tabbify();
 });
+<?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>
 </script>
 
 <style type="text/css">
@@ -49,13 +53,12 @@ if (!empty($grparr['']['grp_size'])) {
 }
 <?php } ?>
 </style>
-
 </head>
 <body class="body_top">
 
 <div class="container">
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col-sm-12">
             <?php
             if (acl_check('patients', 'med')) {
                 $tmp = getPatientData($pid, "squad");
@@ -76,24 +79,41 @@ if (!empty($grparr['']['grp_size'])) {
                 $result = getHistoryData($pid);
             }
             ?>
-
-            <?php if (acl_check('patients', 'med', '', array('write','addonly'))) { ?>
-                <div class="page-header">
-                    <h2><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?> <small><?php echo xl("History & Lifestyle");?></small></h2>
-                </div>
-                <div>
-                    <div class="btn-group">
-                        <a href="../summary/demographics.php" class="btn btn-default btn-back" onclick="top.restoreSession()">
-                            <?php echo htmlspecialchars(xl('Back To Patient'), ENT_NOQUOTES);?>
-                        </a>
-                        <a href="history_full.php" class="btn btn-default btn-edit" onclick="top.restoreSession()">
-                            <?php echo htmlspecialchars(xl("Edit"), ENT_NOQUOTES);?>
-                        </a>
-                    </div>
-                </div>
-            <?php } ?>
         </div>
-        <div class="col-xs-12" style="margin-top: 20px;">
+    </div>
+    <?php
+    if (acl_check('patients', 'med', '', array('write','addonly'))) {
+        $header_title = xl('History and Lifestyle of');?>
+        <div class="row">
+            <div class="col-sm-12">
+                <?php
+                //require_once("../summary/dashboard_header.php");
+                require_once("$include_root/patient_file/summary/dashboard_header.php");
+                ?>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <?php
+                $list_id = "nav-list2"; // to indicate nav item is active, count and give correct id
+                $menuPatient = new PatientMenuRole();
+                $menuPatient->displayHorizNavBarMenu();
+                ?>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="btn-group">
+                    <a href="history_full.php" class="btn btn-default btn-edit" onclick="top.restoreSession()">
+                        <?php echo htmlspecialchars(xl("Edit"), ENT_NOQUOTES);?>
+                    </a>
+                </div>
+            </div>
+        </div>
+    <?php
+    } ?>
+    <div class="row"> 
+        <div class="col-sm-12" style="margin-top: 20px;">
             <!-- Demographics -->
             <div id="HIS">
                 <ul class="tabNav">
@@ -105,7 +125,16 @@ if (!empty($grparr['']['grp_size'])) {
             </div>
         </div>
     </div>
-</div>
+    
+</div><!--end of container div -->
+<?php
+//home of the help modal ;)
+//$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
+if ($GLOBALS['enable_help'] == 1) {
+    echo "<script>var helpFile = 'history_dashboard_help.php'</script>";
+    require "$include_root/help_modal.php";
+}
+?>
 
 
 <script type="text/javascript">
@@ -114,6 +143,12 @@ if (!empty($grparr['']['grp_size'])) {
         <?php echo $condition_str; ?>
     ];
     checkSkipConditions();
+    
+    var listId = '#' + '<?php echo text($list_id); ?>';
+    $(document).ready(function(){
+        $(listId).addClass("active");
+    });
+
 </script>
 
 </body>
