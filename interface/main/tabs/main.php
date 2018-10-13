@@ -23,11 +23,11 @@ use OpenEMR\Core\Header;
  * @link    http://www.open-emr.org
  */
 
-
-
+session_name("OpenEMR");
+session_start();
 
 /* Include our required headers */
-require_once('../../globals.php');
+require_once($_SESSION['globals_if']);
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 
 $esignApi = new Api();
