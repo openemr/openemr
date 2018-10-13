@@ -97,8 +97,10 @@ function row_delete($table, $where)
             return true;
         }
 
-        function refreshOpener() {
-            opener.location.reload();
+        function goEncounterSummary (pid) {
+            if(pid) {
+                opener.toEncSummary(pid);
+            }
             window.close();
         }
 
@@ -413,7 +415,7 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
     if ($info_msg) {
         echo " alert('" . addslashes($info_msg) . "');\n";
     }
-    echo "opener.location.reload();";
+    echo "opener.$('#btn-inv-search').click();";
     if (!$debug && !$save_stay) {
         echo " window.close();\n";
     } else {
@@ -522,22 +524,22 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         <label class="control-label" for="type_code"><?php echo xlt('Now posting for'); ?>:</label>
                         <div style="padding-left:15px">
                             <?php
-                            // TBD: check the first not-done-with insurance, not always Ins1!
+                                $last_level_closed = 0 + $ferow['last_level_closed'];
                             ?>
                             <label class="radio-inline">
-                                <input checked name='form_insurance' onclick='setins("Ins1")' type='radio'
+                                <input <?php echo $last_level_closed === 0 ? attr('checked') : ''; ?> name='form_insurance' onclick='setins("Ins1")' type='radio'
                                        value='Ins1'><?php echo xlt('Ins1') ?>
                             </label>
                             <label class="radio-inline">
-                                <input name='form_insurance' onclick='setins("Ins2")' type='radio'
+                                <input <?php echo $last_level_closed === 1 ? attr('checked') : ''; ?> name='form_insurance' onclick='setins("Ins2")' type='radio'
                                        value='Ins2'><?php echo xlt('Ins2') ?>
                             </label>
                             <label class="radio-inline">
-                                <input name='form_insurance' onclick='setins("Ins3")' type='radio'
+                                <input <?php echo $last_level_closed === 2 ? attr('checked') : ''; ?> name='form_insurance' onclick='setins("Ins3")' type='radio'
                                        value='Ins3'><?php echo xlt('Ins3') ?>
                             </label>
                             <label class="radio-inline">
-                                <input name='form_insurance' onclick='setins("Pt")' type='radio'
+                                <input <?php echo $last_level_closed === 3 ? attr('checked') : ''; ?> name='form_insurance' onclick='setins("Pt")' type='radio'
                                        value='Pt'><?php echo xlt('Patient') ?>
                             </label>
                             <?php
@@ -730,12 +732,16 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                 <div class="col-sm-12 text-left position-override" id="search-btn">
                     <div class="btn-group" role="group">
                         <button type='submit' class="btn btn-default btn-save" name='form_save' id="btn-save-stay"
-                                onclick="this.value='1';"><?php echo xlt("Save & Stay"); ?></button>
+                            onclick="this.value='1';"><?php echo xlt("Save Current"); ?></button>
                         <button type='submit' class="btn btn-default btn-save" name='form_save' id="btn-save"
-                                onclick="this.value='2';"><?php echo xlt("Save & Exit"); ?></button>
-                        <button type='submit' class="btn btn-link btn-cancel btn-separate-left" name='form_cancel'
-                                id="btn-cancel" onclick='refreshOpener()'><?php echo xlt("Close"); ?></button>
+                            onclick="this.value='2';"><?php echo xlt("Save & Exit"); ?></button>
+                        <button type='button' class="btn btn-link btn-cancel btn-separate-left" name='form_cancel'
+                            id="btn-cancel" onclick='window.close()'><?php echo xlt("Close"); ?></button>
                     </div>
+                    <?php if ($GLOBALS['new_tabs_layout']) { ?>
+                        <button type='button' class="btn btn-default btn-view pull-right" name='form_goto' id="btn-goto"
+                            onclick="goEncounterSummary('<?php echo attr($patient_id) ?>')"><?php echo xlt("Encounter View"); ?></button>
+                    <?php } ?>
                 </div>
             </div>
         </form>

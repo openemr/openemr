@@ -607,6 +607,16 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
             return false;
         }
 
+        function toEncSummary(pid) {
+            // Tabs only
+            top.restoreSession();
+            let encurl = 'patient_file/history/encounters.php?billing=1&issue=0&pagesize=20&pagestart=0';
+            let paturl = "patient_file/summary/demographics.php?set_pid=" + pid;
+            parent.left_nav.loadFrame('pat2', 'pat', paturl);
+            // need a little time so can force a billing view
+            setTimeout(function(){parent.left_nav.loadFrame('enc2', 'enc', encurl);}, 3000);
+        }
+
         $(document).ready(function () {
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
@@ -684,9 +694,9 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                         id="exp_cont_icon"
                         class="fa <?php echo attr($expand_icon_class); ?> oe-superscript-small expand_contract"
                         title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i> <a href='sl_eob_search.php'
-                                                                                              onclick='top.restoreSession()'
-                                                                                              title="<?php echo xla('Reset'); ?>"><i
-                            id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i>
+                          onclick='top.restoreSession()'
+                          title="<?php echo xla('Reset'); ?>">
+                        <i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i>
                     </a><?php echo $help_icon; ?>
                 </h2>
             </div>
@@ -694,7 +704,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
     </div>
     <div class="row">
         <div class="col-sm-12">
-            <form id="formSearch" action="" enctype='multipart/form-data' method='get'>
+            <form id="formSearch" action="" enctype='multipart/form-data' method='post'>
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>"/>
                 <fieldset id="payment-allocate" class="oe-show-hide">
                     <legend>
@@ -834,9 +844,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                         <div class="form-group col-xs9 oe-file-div">
                             <div class="input-group">
                                 <label class="input-group-btn">
-                        <span class="btn btn-default">
-                            Browse&hellip;<input type="file" id="uploadedfile" name="form_erafile"
-                                                 style="display: none;">
+                        <span class="btn btn-default">Browse&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;">
                             <input name="MAX_FILE_SIZE" type="hidden" value="5000000">
                         </span>
                                 </label>
@@ -1243,7 +1251,7 @@ if ($GLOBALS['enable_help'] == 1) {
     $(document).ready(function () {
         $("input[name=radio-search]").on("change", function () {
 
-            var flip = $(this).val();
+            let flip = $(this).val();
             $(".oe-show-hide").hide();
             $("#" + flip).show();
             if (flip == 'inv-search') {

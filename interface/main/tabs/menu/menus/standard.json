@@ -478,7 +478,7 @@
       {
         "label": "Posting",
         "menu_id": "eob",
-        "target": "pat",
+        "target": "bil",
         "url": "/interface/billing/sl_eob_search.php",
         "children": [],
         "requirement": 0,
