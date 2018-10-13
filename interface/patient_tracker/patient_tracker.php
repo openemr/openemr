@@ -925,6 +925,7 @@ if (!$_REQUEST['flb_table']) { ?>
     <!-- form used to open a new top level window when a patient row is clicked -->
     <form name='fnew' method='post' target='_blank'
           action='../main/main_screen.php?auth=login&site=<?php echo attr($_SESSION['site_id']); ?>'>
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
         <input type='hidden' name='patientID' value='0'/>
         <input type='hidden' name='encounterID' value='0'/>
     </form>

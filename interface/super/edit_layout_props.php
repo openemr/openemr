@@ -110,7 +110,7 @@ function get_related() {
 <?php
 if ($_POST['form_submit'] && !$alertmsg) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     if ($group_id) {

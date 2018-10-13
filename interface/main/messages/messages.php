@@ -126,11 +126,11 @@ if (($_POST['setting_bootstrap_submenu']) ||
                 font-weight: 700;
                 color: #000000 !important;
             }
-        
+
         }
-        
+
         </style>
-    
+
 <?php
 if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu'])) && ($GLOBALS['disable_rcb'] != '1')) {
     $MedEx->display->navigation($logged_in);
@@ -388,8 +388,8 @@ if (!empty($_REQUEST['go'])) { ?>
                             $message_legend = xlt('Add To Existing Message');
                             $onclick = "";
                         }
-                    
-                    ?> 
+
+                    ?>
                         <div class='col-md-12'>
                             <fieldset>
                             <legend><?php echo attr($message_legend); ?></legend>
@@ -753,7 +753,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                         alert("<?php echo xls('Please select message(s) to delete'); ?>");
                                     }
                                 }
-                            
+
 
                             // This is to allow selection of all items in Messages table for deletion.
                             function selectAll() {
@@ -865,7 +865,7 @@ if (!empty($_REQUEST['go'])) { ?>
                 $("#li-remi").removeClass("active");
                 $("#li-reca").removeClass("active");
                 $("#li-sms").removeClass("active");
-                
+
             });
             $("#reminders-li").click(function(){
                 $("#messages-div").hide(250);
@@ -905,7 +905,7 @@ if (!empty($_REQUEST['go'])) { ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 ,minDate : 0 //only future
             })
-            
+
         });
         $(document).ready(function(){
             $( "ul.navbar-nav" ).children().click(function(){
@@ -918,8 +918,8 @@ if (!empty($_REQUEST['go'])) { ?>
             $('#see-all-tooltip').attr( "title", "<?php echo xla('Click to show messages for all users'); ?>" );
             $('#see-all-tooltip').tooltip();
             $('#just-mine-tooltip').attr( "title", "<?php echo xla('Click to show messages for only the current user'); ?>" );
-            $('#just-mine-tooltip').tooltip(); 
-        });                      
+            $('#just-mine-tooltip').tooltip();
+        });
         $(function () {
             var f = $("#smsForm");
             $("#SMS_patient").autocomplete({
@@ -960,7 +960,7 @@ if (!empty($_REQUEST['go'])) { ?>
                 $("#assigned_to").val("");
                 $("#users").val("--");
             });
-            
+
             //clear inputs of patients
             $("#clear_patients").click(function(){
                 $("#reply_to").val("");
@@ -1062,7 +1062,7 @@ if (!empty($_REQUEST['go'])) { ?>
             $("#new_note").submit();
             <?php } ?>
         }
-        
+
         // This is for callback by the multi_patients_finder popup.
         function setMultiPatients(patientsList) {
             var f = document.getElementById('new_note');
@@ -1086,13 +1086,13 @@ if (!empty($_REQUEST['go'])) { ?>
         function sel_patient() {
             dlgopen('../../main/calendar/find_patient_popup.php', '_blank', 625, 400);
         }
-        
+
         function multi_sel_patient() {
             $('#reply_to').trigger('click');
             var url = '../../main/finder/multi_patients_finder.php'
             // for edit selected list
-            if($('#reply_to').val() !== ''){
-                url = url+'?patients='+$('#reply_to').val();
+            if ($('#reply_to').val() !== '') {
+                url = url + '?patients=' + $('#reply_to').val() + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>';
             }
             dlgopen(url, '_blank', 625, 400);
         }

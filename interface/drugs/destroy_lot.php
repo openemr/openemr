@@ -69,7 +69,7 @@ td { font-size:10pt; }
  //
 if ($_POST['form_save']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     sqlStatement(

@@ -157,7 +157,7 @@ closedir($dh);
 <?php
 if (!empty($_POST['form_submit'])) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     upgradeFromSqlFile_de("database_de_identification.sql");

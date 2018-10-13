@@ -201,7 +201,7 @@ if ($lot_id) {
 //
 if ($_POST['form_save'] || $_POST['form_delete']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $form_quantity = $_POST['form_quantity'] + 0;

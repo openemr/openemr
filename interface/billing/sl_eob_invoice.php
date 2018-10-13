@@ -299,7 +299,7 @@ if (preg_match('/^Ins(\d)/i', $_POST['form_insurance'], $matches)) {
 if (($_POST['form_save'] || $_POST['form_cancel'])) {
     if ($_POST['form_save']) {
         if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-            die(xlt('Authentication Error'));
+            csrfNotVerified();
         }
 
         if ($debug) {

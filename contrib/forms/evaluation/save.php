@@ -4,7 +4,7 @@ require_once("$srcdir/api.inc");
 require("C_FormEvaluation.class.php");
 
 if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    die(xlt('Authentication Error'));
+    csrfNotVerified();
 }
 
 $c = new C_FormEvaluation();

@@ -62,7 +62,7 @@ if ($postid) {
   cursor: pointer;
 }
 
-.highlight { 
+.highlight {
   background-color: #336699;
   color: white;
 }
@@ -98,6 +98,7 @@ function openPatient(ptid) {
 <body class="body_top">
 <center>
 <form method='post' action='patient_select.php' onsubmit='return myRestoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <?php
 // print_r($result); // debugging

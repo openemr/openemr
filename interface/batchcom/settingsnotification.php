@@ -28,7 +28,7 @@ if (!acl_check('admin', 'notification')) {
 // process form
 if ($_POST['form_action']=='save') {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     if ($_POST['Send_SMS_Before_Hours']=="") {

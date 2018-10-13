@@ -54,7 +54,7 @@ $max_reminder_words=160;
 // ---------------- FOR FORWARDING MESSAGES ------------->
 if (isset($_GET['mID']) and is_numeric($_GET['mID'])) {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $forwarding = true;
@@ -68,7 +68,7 @@ if (isset($_GET['mID']) and is_numeric($_GET['mID'])) {
 // --- add reminders
 if ($_POST) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
 // --- initialize $output as blank

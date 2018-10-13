@@ -104,7 +104,7 @@ if (!$disable_utf8_flag) {
 
 if ($_POST['load']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
   // query for entering new definitions it picks the cons_id because is existant.
@@ -169,7 +169,7 @@ if ($_POST['load']) {
 
 if ($_POST['edit']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     if ($_POST['language_select'] == '') {

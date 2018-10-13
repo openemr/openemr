@@ -27,7 +27,7 @@ if (!acl_check('admin', 'super')) {
 }
 
 if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    die(xlt('Authentication Error'));
+    csrfNotVerified();
 }
 
 $query = "SELECT status FROM re_identification_status";

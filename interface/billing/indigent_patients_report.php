@@ -179,7 +179,7 @@ $form_end_date  = (!empty($_POST['form_end_date'])) ? DateToYYYYMMDD($_POST['for
 <?php
 if ($_POST['form_refresh']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $where = "";

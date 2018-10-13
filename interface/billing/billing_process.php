@@ -33,7 +33,7 @@ require_once("$srcdir/gen_x12_837.inc.php");
 require_once("$srcdir/gen_hcfa_1500.inc.php");
 
 if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    die(xlt('Authentication Error'));
+    csrfNotVerified();
 }
 
 if ($GLOBALS['ub04_support']) {

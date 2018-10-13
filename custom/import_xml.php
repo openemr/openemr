@@ -57,7 +57,7 @@ if (!acl_check('patients', 'demo', '', 'write')) {
 
 if ($_POST['form_import']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $apatient    = array();

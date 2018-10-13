@@ -30,7 +30,7 @@ $userid = $_SESSION['authId'];
 $message = '';
 if (!empty($_POST['form_delete_method'])) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
     // Delete the indicated MFA instance.
     sqlStatement(

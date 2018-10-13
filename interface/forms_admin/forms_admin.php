@@ -15,17 +15,17 @@ require_once("$srcdir/registry.inc");
 
 if ($_GET['method'] == "enable") {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
     updateRegistered($_GET['id'], "state=1");
 } elseif ($_GET['method'] == "disable") {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
     updateRegistered($_GET['id'], "state=0");
 } elseif ($_GET['method'] == "install_db") {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
     $dir = getRegistryEntry($_GET['id'], "directory");
     if (installSQL("$srcdir/../interface/forms/{$dir['directory']}")) {
@@ -35,7 +35,7 @@ if ($_GET['method'] == "enable") {
     }
 } elseif ($_GET['method'] == "register") {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
     registerForm($_GET['name']) or $err=xl('error while registering form!');
 }
@@ -55,7 +55,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
 <?php
 if (!empty($_POST)) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
     foreach ($_POST as $key => $val) {
         if (preg_match('/nickname_(\d+)/', $key, $matches)) {

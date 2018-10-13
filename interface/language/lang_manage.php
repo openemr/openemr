@@ -29,7 +29,7 @@ if (!$thisauth) {
 
 if ($_POST['check'] || $_POST['synchronize']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
   // set up flag if only checking for changes (ie not performing synchronization)

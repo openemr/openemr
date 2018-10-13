@@ -32,7 +32,7 @@ require_once("qrda_category1.inc");
 require_once("qrda_functions.php");
 
 if (!verifyCsrfToken($_REQUEST["csrf_token_form"])) {
-    die(xlt('Authentication Error'));
+    csrfNotVerified();
 }
 
 $reportID = $_POST['reportID'];

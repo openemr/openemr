@@ -85,7 +85,7 @@ function userSelect() {
 
 if ($form_newloc || $form_newuser) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $tracker = new ChartTracker();
@@ -102,7 +102,7 @@ $row = array();
 
 if ($form_newid) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     // Find out where the chart is now.
