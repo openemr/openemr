@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
- 
+
 require_once("$srcdir/display_help_icon_inc.php");
 $url_webroot = $GLOBALS['webroot'];
 $portal_login_href = $url_webroot ."/interface/patient_file/summary/create_portallogin.php";
@@ -29,27 +29,27 @@ $portal_login_href = $url_webroot ."/interface/patient_file/summary/create_porta
 $days_deceased = is_patient_deceased($pid);
 if ($days_deceased) { ?>
     <p class="deceased" style="font-weight:bold;color:red">
-        
+
         <?php
         $deceased_days = intval($days_deceased['days_deceased']);
         if ($deceased_days == 0) {
             $num_of_days = xl("Today");
         } elseif ($deceased_days == 1) {
-             $num_of_days =  text($deceased_days) . " " . xl("day ago");
+             $num_of_days =  $deceased_days . " " . xl("day ago");
         } elseif ($deceased_days > 1 && $deceased_days < 90) {
-             $num_of_days =  text($deceased_days) . " " . xl("days ago");
+             $num_of_days =  $deceased_days . " " . xl("days ago");
         } elseif ($deceased_days >= 90 && $deceased_days < 731) {
-            $num_of_days =  "~". text(round($deceased_days/30)) . " " . xl("months ago");  // function intdiv available only in php7
+            $num_of_days =  "~". round($deceased_days/30) . " " . xl("months ago");  // function intdiv available only in php7
         } elseif ($deceased_days >= 731) {
-             $num_of_days =  xl("More than") . " " . text(round($deceased_days/365)) . " " . xl("years ago");
+             $num_of_days =  xl("More than") . " " . round($deceased_days/365) . " " . xl("years ago");
         }
-        
+
         if (strlen($days_deceased['date_deceased']) > 10 && $GLOBALS['date_display_format'] < 1) {
             $deceased_date = substr($days_deceased['date_deceased'], 0, 10);
         } else {
             $deceased_date = oeFormatShortDate($days_deceased['date_deceased']);
         }
-                   
+
         //echo  xlt("Deceased") . " - " . text(oeFormatShortDate($days_deceased['date_deceased'])) . " (" . text($num_of_days) . ")" ;
         echo  xlt("Deceased") . " - " . text($deceased_date) . " (" . text($num_of_days) . ")" ;
         ?>
@@ -57,12 +57,12 @@ if ($days_deceased) { ?>
 <?php
 } ?>
     <div class="form-group">
-        
+
             <div class="btn-group oe-opt-btn-group-pinch" role="group">
-            
+
             <?php
             if (acl_check('admin', 'super') && $GLOBALS['allow_pat_delete']) { ?>
-            
+
                 <a class='btn btn-default btn-sm btn-delete deleter delete'
                    href='<?php echo attr($url_webroot)?>/interface/patient_file/deleter.php?patient=<?php echo attr($pid);?>'
                    onclick='return top.restoreSession()'>
@@ -95,7 +95,7 @@ if ($days_deceased) { ?>
                         <?php $display = (empty($portalLogin)) ? xlt('Create Onsite Portal Credentials') : xlt('Reset Onsite Portal Credentials'); ?>
                         <span><?php echo $display; ?></span>
                     </a>
-                    
+
                 <?php
                 } else {
                     $portalUserSetting = false;
@@ -131,7 +131,7 @@ if ($days_deceased) { ?>
                 <div id='accountstatus'></div>
             <?php
             } ?>
-            </div> 
-        
+            </div>
+
     </div>
 </div>
