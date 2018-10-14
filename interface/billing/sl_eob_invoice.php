@@ -99,7 +99,6 @@ function row_delete($table, $where)
     <title><?php echo xlt('EOB Posting - Invoice') ?></title>
     <script language="JavaScript">
     var adjDisable = '<?php echo attr($posting_adj_disable); ?>';
-    var isPosting = <?php echo attr($from_posting); ?>;
     // An insurance radio button is selected.
     function setins(istr) {
         return true;
@@ -434,7 +433,7 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
         echo "opener.$('#btn-inv-search').click();\n";
     }
     if (!$debug && !$save_stay) {
-        echo "doClose($from_posting);\n";
+        echo "doClose(" . attr($from_posting) . ");\n";
     }
     echo "</script></body></html>\n";
     if (!$save_stay) {
