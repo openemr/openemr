@@ -33,6 +33,7 @@ use OpenEMR\RestControllers\ProductRegistrationRestController;
 use OpenEMR\RestControllers\PatientRestController;
 use OpenEMR\RestControllers\EncounterRestController;
 use OpenEMR\RestControllers\ProviderRestController;
+use OpenEMR\RestControllers\ListRestController;
 
 // TODO: Need to handle auth and tokens here
 
@@ -74,6 +75,36 @@ $routes = array(
     },
     'GET /patient/:pid/encounter' => function($pid) {
         return (new EncounterRestController())->getAll($pid);
+    },
+    'GET /patient/:pid/medical_problem' => function($pid) {
+        return (new ListRestController())->getAll($pid, 'medical_problem');
+    },
+    'GET /patient/:pid/medical_problem/:mid' => function($pid, $mid) {
+        return (new ListRestController())->getOne($pid, 'medical_problem', $mid);
+    },
+    'GET /patient/:pid/allergy' => function($pid) {
+        return (new ListRestController())->getAll($pid, 'allergy');
+    },
+    'GET /patient/:pid/allergy/:aid' => function($pid, $aid) {
+        return (new ListRestController())->getOne($pid, 'allergy', $aid);
+    },
+    'GET /patient/:pid/medication' => function($pid) {
+        return (new ListRestController())->getAll($pid, 'medication');
+    },
+    'GET /patient/:pid/medication/:mid' => function($pid, $mid) {
+        return (new ListRestController())->getOne($pid, 'medication', $mid);
+    },
+    'GET /patient/:pid/surgery' => function($pid) {
+        return (new ListRestController())->getAll($pid, 'surgery');
+    },
+    'GET /patient/:pid/surgery/:sid' => function($pid, $sid) {
+        return (new ListRestController())->getOne($pid, 'surgery', $sid);
+    },
+    'GET /patient/:pid/dental_issue' => function($pid) {
+        return (new ListRestController())->getAll($pid, 'dental');
+    },
+    'GET /patient/:pid/dental_issue/:did' => function($pid, $did) {
+        return (new ListRestController())->getOne($pid, 'dental', $did);
     },
     'GET /patient/:pid/encounter/:eid' => function($pid, $eid) {
         return (new EncounterRestController())->getOne($pid, $eid);
