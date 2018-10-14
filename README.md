@@ -1,66 +1,49 @@
-[![Build Status](https://travis-ci.org/openemr/openemr.svg?branch=master)](https://travis-ci.org/openemr/openemr)
-[![Backers on Open Collective](https://opencollective.com/openemr/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/openemr/sponsors/badge.svg)](#sponsors)
+![img](./openemr-rest-api.png)
 
-# OpenEMR
+_(Project is in-flight - do not use in production)._
 
-[OpenEMR](http://open-emr.org) is the most popular open source electronic health records and medical practice management solution. [ONC certified](http://open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#ONC_Ambulatory_EHR_Certification) with international usage, OpenEMR's goal is a superior alternative to its proprietary counterparts.
+### Goal
 
-### Contributing
+This project aims to provide an easy-to-use JSON-based REST API for OpenEMR's most common functions. All code will be done in classes and separate from the view to help with codebase modernization efforts.
 
-OpenEMR is a leader in healthcare open source software. Costly proprietary EMRs are no longer the only option. [Learn how to start contributing today!](http://open-emr.org/wiki/index.php/FAQ#How_do_I_begin_to_volunteer_for_the_OpenEMR_project.3F)
+### Team
 
-> Already comfortable with git? Check out [CONTRIBUTING.md](CONTRIBUTING.md) for quick setup instructions
+- [@juggernautsei](https://github.com/juggernautsei)
+- [@matthewvi](https://github.com/matthewvi)
+- ?
+- ?
+- ?
 
-### Support
+### Current Endpoints
 
-Community and Professional support can be found [here](http://open-emr.org/wiki/index.php/OpenEMR_Support_Guide).
-
-Extensive documentation and forums can be found on the [OpenEMR website](http://open-emr.org).
-
-### Reporting Issues and Bugs
-
-Report these on the [Issue Tracker](https://github.com/openemr/openemr/issues). If you are unsure if it is an issue/bug, then always feel free to use the [Forum](https://community.open-emr.org/) and [Chat](https://chat.open-emr.org/).
-
-
-### Reporting Security Vulnerabilities
-
-Send an email to brady.g.miller@gmail.com . If possible, please encrypt your email via PGP with this [public key](https://pgp.mit.edu/pks/lookup?op=get&search=0x27DEF05B1A8A6D4F).
-
-### For Developers
-
-If using OpenEMR directly from the code repository, then the following commands will build OpenEMR:
 ```
-composer install
-npm install
-npm run build
-composer dump-autoload -o
+GET /facility
+GET /facility/:fid
+POST /facility
+PUT /facility/:fid
+GET /provider
+GET /provider/:prid
+POST /provider
+GET /patient
+POST /patient
+GET /patient/:pid
+GET /patient/:pid/encounter
+GET /patient/:pid/encounter/:eid
+GET /version
+GET /product
 ```
 
-### Contributors
+### Next Endpoints
 
-This project exists thanks to all the people who contribute. [[Contribute]](CONTRIBUTING.md).
-<a href="graphs/contributors"><img src="https://opencollective.com/openemr/contributors.svg?width=890" /></a>
+TODO(matthew): list out needed endpoints
 
-### Backers
 
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/openemr#backer)]
+### Calling the API
 
-<a href="https://opencollective.com/openemr#backers" target="_blank"><img src="https://opencollective.com/openemr/backers.svg?width=890"></a>
+The API is invoked with a `resource` query string to define the path: `http://localhost:8300/rest_router.php?resource=/patient`
 
-### Sponsors
+TODO(matthew): Implement token-based authentication.
 
-Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/openemr#sponsor)]
-
-<a href="https://opencollective.com/openemr/sponsor/0/website" target="_blank"><img src="https://opencollective.com/openemr/sponsor/0/avatar.svg"></a>
-<a href="https://opencollective.com/openemr/sponsor/1/website" target="_blank"><img src="https://opencollective.com/openemr/sponsor/1/avatar.svg"></a>
-<a href="https://opencollective.com/openemr/sponsor/2/website" target="_blank"><img src="https://opencollective.com/openemr/sponsor/2/avatar.svg"></a>
-<a href="https://opencollective.com/openemr/sponsor/3/website" target="_blank"><img src="https://opencollective.com/openemr/sponsor/3/avatar.svg"></a>
-<a href="https://opencollective.com/openemr/sponsor/4/website" target="_blank"><img src="https://opencollective.com/openemr/sponsor/4/avatar.svg"></a>
-<a href="https://opencollective.com/openemr/sponsor/5/website" target="_blank"><img src="https://opencollective.com/openemr/sponsor/5/avatar.svg"></a>
-<a href="https://opencollective.com/openemr/sponsor/6/website" target="_blank"><img src="https://opencollective.com/openemr/sponsor/6/avatar.svg"></a>
-<a href="https://opencollective.com/openemr/sponsor/7/website" target="_blank"><img src="https://opencollective.com/openemr/sponsor/7/avatar.svg"></a>
-<a href="https://opencollective.com/openemr/sponsor/8/website" target="_blank"><img src="https://opencollective.com/openemr/sponsor/8/avatar.svg"></a>
-<a href="https://opencollective.com/openemr/sponsor/9/website" target="_blank"><img src="https://opencollective.com/openemr/sponsor/9/avatar.svg"></a>
 
 ### License
 
