@@ -1,6 +1,6 @@
 <?php
 /**
- * PatientRestController
+ * ProviderRestController
  *
  * Copyright (C) 2018 Matthew Vita <matthewvita48@gmail.com>
  *
@@ -22,40 +22,20 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\Services\PatientService;
+use OpenEMR\Services\ProviderService;
 
-class PatientRestController
+class ProviderRestController
 {
-    private $patientService;
+    private $providerService;
 
-    public function __construct($pid)
+    public function __construct()
     {
-        $this->patientService = new PatientService();
-        $this->patientService->setPid($pid);
+        $this->providerService = new ProviderService();
     }
 
-    public function post($data)
+    public function getOne($id)
     {
-        $validationResult = $this->patientService->validate($data);
-
-        if (!$validationResult->isValid()) {
-            http_response_code(400);
-            return $validationResult->getMessages();
-        }
-
-        $serviceResult = $this->patientService->insert($data);
-
-        if ($serviceResult) {
-            http_response_code(201);
-            return array('id' => $serviceResult);
-        }
-
-        http_response_code(400);
-    }
-
-    public function getOne()
-    {
-        $serviceResult = $this->patientService->getOne();
+        $serviceResult = $this->providerService->getById($id);
 
         if ($serviceResult) {
             http_response_code(200);
@@ -67,7 +47,7 @@ class PatientRestController
 
     public function getAll()
     {
-        $serviceResult = $this->patientService->getAll();
+        $serviceResult = $this->providerService->getAll();
 
         if ($serviceResult) {
             http_response_code(200);

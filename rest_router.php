@@ -21,7 +21,7 @@
 
 ///////////////////////////////
 // Uncomment for development //
-// $ignoreAuth = true;       //
+$ignoreAuth = true;       //
 ///////////////////////////////
 
 require_once("interface/globals.php");
@@ -31,8 +31,8 @@ use OpenEMR\RestControllers\FacilityRestController;
 use OpenEMR\RestControllers\VersionRestController;
 use OpenEMR\RestControllers\ProductRegistrationRestController;
 use OpenEMR\RestControllers\PatientRestController;
-
-use OpenEMR\Services\PatientService;
+use OpenEMR\RestControllers\EncounterRestController;
+use OpenEMR\RestControllers\ProviderRestController;
 
 // TODO: Need to handle auth and tokens here
 
@@ -47,26 +47,36 @@ $routes = array(
         $data = (array)(json_decode(file_get_contents('php://input')));
         return (new FacilityRestController())->post($data);
     },
-    'PUT /facility/:id' => function($fid) {
+    'PUT /facility/:fid' => function($fid) {
         $data = (array)(json_decode(file_get_contents('php://input')));
         $data['fid'] = $fid;
         return (new FacilityRestController())->put($data);
     },
+    'GET /provider' => function() {
+        return (new ProviderRestController())->getAll();
+    },
+    'GET /provider/:prid' => function($prid) {
+        return (new ProviderRestController())->getOne($prid);
+    },
+    'POST /provider' => function() {
+        $data = (array)(json_decode(file_get_contents('php://input')));
+        return (new ProviderRestController())->post($data);
+    },
     'GET /patient' => function() {
         return (new PatientRestController(null))->getAll();
+    },
+    'POST /patient' => function() {
+        $data = (array)(json_decode(file_get_contents('php://input')));
+        return (new PatientRestController(null))->post($data);
     },
     'GET /patient/:pid' => function($pid) {
         return (new PatientRestController($pid))->getOne();
     },
     'GET /patient/:pid/encounter' => function($pid) {
-        $service = new PatientService();
-        $service->setPid($pid);
-        return $service->getEncounters();
+        return (new EncounterRestController())->getAll($pid);
     },
     'GET /patient/:pid/encounter/:eid' => function($pid, $eid) {
-        $service = new PatientService();
-        $service->setPid($pid);
-        return $service->getEncounter($eid);
+        return (new EncounterRestController())->getOne($pid, $eid);
     },
     'GET /version' => function() {
         return (new VersionRestController())->getOne();
@@ -75,6 +85,5 @@ $routes = array(
         return (new ProductRegistrationRestController())->getOne();
     }
 );
-
 
 HttpRestRouteHandler::handle($routes, $_GET['resource'], $_SERVER['REQUEST_METHOD']);

@@ -21,6 +21,7 @@
  */
 
 namespace OpenEMR\Services;
+use Particle\Validator\Validator;
 
 class PatientService
 {
@@ -39,6 +40,19 @@ class PatientService
    */
     public function __construct()
     {
+    }
+
+    public function validate($patient)
+    {
+        $validator = new Validator();
+
+        $validator->required('fname')->lengthBetween(2, 255);
+        $validator->required('lname')->lengthBetween(2, 255);
+        $validator->required('sex')->lengthBetween(4, 30);
+        $validator->required('dob')->datetime('Y-m-d');
+
+
+        return $validator->validate($patient);
     }
 
     public function setPid($pid)
@@ -96,6 +110,38 @@ class PatientService
         return sqlStatement($sql);
     }
 
+    public function getFreshPid() {
+        $pid = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
+
+        return $pid['pid'];
+    }
+
+    public function insert($data)
+    {
+
+        $sql  = " INSERT INTO patient_data SET";
+        $sql .= "     pid='" . add_escape_custom($this->getFreshPid()) . "',";
+        $sql .= "     title='" . add_escape_custom($data["title"]) . "',";
+        $sql .= "     fname='" . add_escape_custom($data["fname"]) . "',";
+        $sql .= "     mname='" . add_escape_custom($data["mname"]) . "',";
+        $sql .= "     lname='" . add_escape_custom($data["lname"]) . "',";
+        $sql .= "     street='" . add_escape_custom($data["street"]) . "',";
+        $sql .= "     postal_code='" . add_escape_custom($data["postal_code"]) . "',";
+        $sql .= "     city='" . add_escape_custom($data["city"]) . "',";
+        $sql .= "     state='" . add_escape_custom($data["state"]) . "',";
+        $sql .= "     country_code='" . add_escape_custom($data["country_code"]) . "',";
+        $sql .= "     phone_contact='" . add_escape_custom($data["phone_contact"]) . "',";
+
+        // TODO: not working
+        $sql .= "     dob='" . add_escape_custom($data["dob"]) . "',";
+
+        $sql .= "     sex='" . add_escape_custom($data["sex"]) . "',";
+        $sql .= "     race='" . add_escape_custom($data["race"]) . "',";
+        $sql .= "     ethnicity='" . add_escape_custom($data["ethnicity"]) . "'";
+
+        return sqlInsert($sql);
+    }
+
     public function getAll()
     {
         $sql = "SELECT id,
@@ -149,55 +195,9 @@ class PatientService
                    race,
                    ethnicity
                 FROM patient_data
-                WHERE pid = ?";
+                WHERE id = ?";
 
         return sqlQuery($sql, $this->pid);
-    }
-
-    public function getEncounters()
-    {
-        $sql = "SELECT fe.*,
-                       opc.pc_catname,
-                       fa.name AS billing_facility_name
-                       FROM form_encounter as fe
-                       LEFT JOIN openemr_postcalendar_categories as opc
-                       ON opc.pc_catid = fe.pc_catid
-                       LEFT JOIN facility as fa ON fa.id = fe.billing_facility
-                       WHERE pid=?
-                       ORDER BY fe.id
-                       DESC";
-
-        $statementResults = sqlStatement($sql, $this->pid);
-
-        $results = array();
-        while ($row = sqlFetchArray($statementResults)) {
-            array_push($results, $row);
-        }
-
-        return $results;
-    }
-
-    public function getEncounter($eid)
-    {
-        $sql = "SELECT fe.*,
-                       opc.pc_catname,
-                       fa.name AS billing_facility_name
-                       FROM form_encounter as fe
-                       LEFT JOIN openemr_postcalendar_categories as opc
-                       ON opc.pc_catid = fe.pc_catid
-                       LEFT JOIN facility as fa ON fa.id = fe.billing_facility
-                       WHERE pid=? and fe.id=?
-                       ORDER BY fe.id
-                       DESC";
-
-        $statementResults = sqlStatement($sql, array($this->pid, $eid));
-
-        $results = array();
-        while ($row = sqlFetchArray($statementResults)) {
-            array_push($results, $row);
-        }
-
-        return $results;
     }
 
   /**
