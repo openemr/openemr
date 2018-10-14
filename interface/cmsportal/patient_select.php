@@ -62,7 +62,7 @@ if ($postid) {
   cursor: pointer;
 }
 
-.highlight { 
+.highlight {
   background-color: #336699;
   color: white;
 }

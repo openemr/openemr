@@ -7,7 +7,7 @@ require_once("./content_parser.php");
 
 if ($_GET["mode"] == "delete") {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     foreach ($_POST as $key => $val) {

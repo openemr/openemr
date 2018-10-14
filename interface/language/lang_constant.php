@@ -31,7 +31,7 @@ if (!$thisauth) {
 
 if ($_POST['add']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     //validate

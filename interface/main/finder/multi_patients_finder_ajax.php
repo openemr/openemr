@@ -1,17 +1,22 @@
 <?php
-
 /**
  * Ajax interface for popup of multi select patient.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Amiel Elboim <amielel@matrix.co.il>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Amiel Elboim <amielel@matrix.co.il
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once('../../globals.php');
 require_once("$srcdir/patient.inc");
+
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    csrfNotVerified();
+}
 
 $type = $_GET['type'];
 $search = $_GET['search'];

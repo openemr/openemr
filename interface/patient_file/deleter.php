@@ -227,7 +227,7 @@ function popup_close() {
  //
 if ($_POST['form_submit']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     if ($patient) {

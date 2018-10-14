@@ -114,7 +114,7 @@ if ($action == 'reg1') {
     <?php
 } else if ($action == 'reg2') {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
     try {
         $data = $u2f->doRegister(json_decode($_POST['form_request']), json_decode($_POST['form_registration']));

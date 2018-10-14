@@ -189,10 +189,13 @@ if (!empty($registrations)) {
 // within the OpenEMR instance by calling top.restoreSession() whenever
 // refreshing or starting a new script.
 if (isset($_POST['new_login_session_management'])) {
-  // This is a new login, so create a new session id and remove the old session
+    // This is a new login, so create a new session id and remove the old session
     session_regenerate_id(true);
 } else {
-  // This is not a new login, so create a new session id and do NOT remove the old session
+    // This is not a new login, so check csrf and then create a new session id and do NOT remove the old session
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
     session_regenerate_id(false);
 }
 // Create the csrf_token

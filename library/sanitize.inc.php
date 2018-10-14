@@ -59,6 +59,17 @@ function verifyCsrfToken($token)
     }
 }
 
+function csrfNotVerified($toScreen = true, $toLog = true)
+{
+    if ($toScreen) {
+        echo xlt('Authentication Error');
+    }
+    if ($toLog) {
+        error_log("OpenEMR CSRF token authentication error");
+    }
+    die;
+}
+
 // If the label contains any illegal characters, then the script will die.
 function check_file_dir_name($label)
 {

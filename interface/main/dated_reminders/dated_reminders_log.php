@@ -25,7 +25,7 @@
   */
 if ($_GET) {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     if (!$isAdmin) {

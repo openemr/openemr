@@ -47,7 +47,7 @@ $alertmsg = '';
 
 if (isset($_POST['mode'])) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     if ($_POST['mode'] == 'export') {
@@ -412,9 +412,9 @@ $oauthorized = $my_authorized;
 </script>
 <!-- =============Included for Insurance ajax criteria==== -->
 <?php
-//to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will 
-//become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an 
-//argument, containing one or more elements, the name of the current file is the first element, if there are linked 
+//to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will
+//become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an
+//argument, containing one or more elements, the name of the current file is the first element, if there are linked
 // files they should be listed thereafter, please add _xpd suffix to the file name
 $arr_files_php = array("billing_report_xpd");
 $current_state = collectAndOrganizeExpandSetting($arr_files_php);
@@ -428,8 +428,8 @@ require_once("$srcdir/expand_contract_inc.php");
     <div class="col-sm-12">
         <div class="page-header">
             <h2>
-                <?php echo xlt('Billing Manager') ?> <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract" 
-                title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i> <i id="show_hide" class="fa fa-eye-slash fa-2x small" 
+                <?php echo xlt('Billing Manager') ?> <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract"
+                title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i> <i id="show_hide" class="fa fa-eye-slash fa-2x small"
                 title="<?php echo xla('Click to Hide'); ?>"></i>
             </h2>
         </div>

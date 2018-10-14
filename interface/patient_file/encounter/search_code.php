@@ -50,7 +50,7 @@ $code_type = $_GET['type'];
 <?php
 if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] == "") {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     echo "<div id='resultsummary' style='background-color:lightgreen;'>";
@@ -59,7 +59,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] == "")
 
 if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "") {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
   // $sql = "SELECT * FROM codes WHERE (code_text LIKE '%" . $_POST["text"] .

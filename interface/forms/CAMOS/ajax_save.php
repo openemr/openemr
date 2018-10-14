@@ -6,7 +6,7 @@ require_once("../../../library/forms.inc");
 require_once("content_parser.php");
 
 if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    die(xlt('Authentication Error'));
+    csrfNotVerified();
 }
 
 $field_names = array('category' => $_POST["category"], 'subcategory' => $_POST["subcategory"], 'item' => $_POST["item"], 'content' => $_POST['content']);

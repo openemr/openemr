@@ -50,7 +50,7 @@ function applyCode($layoutid, $codetype, $code, $description)
 if (!empty($_POST['bn_upload'])) {
     //verify csrf
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $thecodes = array();

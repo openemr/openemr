@@ -35,7 +35,7 @@ $sort_by_choices = array(xl('Zip Code')=>'patient_data.postal_code', xl('Last Na
 // process form
 if ($_POST['form_action']=='process') {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-            die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     //validation uses the functions in batchcom.inc.php

@@ -351,7 +351,7 @@ $today = date("Y-m-d");
 //
 if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_email'] || $_REQUEST['form_pdf']) || $_REQUEST['form_portalnotify'] && $_REQUEST['form_cb']) {
     if (!verifyCsrfToken($_REQUEST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $fhprint = fopen($STMT_TEMP_FILE, 'w');
@@ -599,7 +599,13 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
             e.preventDefault();
             let target = "sl_eob_search.posting_adj_disable";
             let val = el.checked ? 'checked' : '';
-            $.post("./../../library/ajax/user_settings.php", {target: target, setting: val});
+            $.post("./../../library/ajax/user_settings.php",
+                {
+                    target: target,
+                    setting: val,
+                    csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+                }
+            );
         }
 
         function npopup(pid) {
@@ -884,7 +890,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                         <?php
                         if ($_REQUEST['form_search'] || $_REQUEST['form_print']) {
                             if (!verifyCsrfToken($_REQUEST["csrf_token_form"])) {
-                                die(xlt('Authentication Error'));
+                                csrfNotVerified();
                             }
 
                             $form_name = trim($_REQUEST['form_name']);

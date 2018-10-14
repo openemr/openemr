@@ -44,7 +44,7 @@ if (! $patient_id) {
 
 if ($_POST['form_save']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $thevalue = trim($_POST['form_note']);

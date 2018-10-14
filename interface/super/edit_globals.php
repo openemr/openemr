@@ -117,7 +117,7 @@ function checkBackgroundServices()
 if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
     //verify csrf
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $i = 0;
@@ -156,7 +156,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
 if (array_key_exists('form_download', $_POST) && $_POST['form_download']) {
     //verify csrf
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $client = portal_connection();
@@ -205,7 +205,7 @@ if (array_key_exists('form_download', $_POST) && $_POST['form_download']) {
 if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) {
     //verify csrf
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $force_off_enable_auditlog_encryption = true;

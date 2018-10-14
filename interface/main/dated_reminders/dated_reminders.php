@@ -36,7 +36,7 @@ require_once("$srcdir/dated_reminder_functions.php");
 // ----------------------------------------------------------------------------
 if (isset($_POST['drR'])) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     // set as processed

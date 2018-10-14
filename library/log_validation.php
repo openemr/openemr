@@ -30,7 +30,7 @@ if (!acl_check('admin', 'users')) {
 }
 
 if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    die(xlt('Authentication Error'));
+    csrfNotVerified();
 }
 
 $valid  = true;

@@ -141,7 +141,7 @@ function check_search_str()
 <?php if ($_REQUEST['bn_search']) { ?>
     <?php
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
     ?>
 

@@ -631,7 +631,7 @@ function era_callback(&$out)
 $info_msg = "";
 
 if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    die(xlt('Authentication Error'));
+    csrfNotVerified();
 }
 
 $eraname = $_GET['eraname'];

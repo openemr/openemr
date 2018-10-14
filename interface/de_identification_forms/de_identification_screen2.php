@@ -29,7 +29,7 @@ if (!acl_check('admin', 'super')) {
 }
 
 if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    die(xlt('Authentication Error'));
+    csrfNotVerified();
 }
 
 /*executes the De Identification process, using the parameters chosen from the

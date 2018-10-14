@@ -11,7 +11,7 @@ if (!acl_check('admin', 'super')) {
 
 if ($_POST['export']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $temp = tmpfile();
@@ -57,7 +57,7 @@ if ($_POST['export']) {
 
 if ($_POST['import']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 ?>
 <?php

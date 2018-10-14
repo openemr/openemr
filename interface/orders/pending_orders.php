@@ -62,7 +62,7 @@ $form_facility  = $_POST['form_facility'];
 
 if ($_POST['form_csvexport']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     header("Pragma: public");
@@ -166,7 +166,7 @@ if ($_POST['form_csvexport']) {
 //
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $sqlBindArray = array();

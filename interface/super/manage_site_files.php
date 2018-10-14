@@ -48,7 +48,7 @@ $educationdir = "$OE_SITE_DIR/documents/education";
 if (!empty($_POST['bn_save'])) {
     //verify csrf
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     if ($form_filename) {
@@ -129,7 +129,7 @@ if (!empty($_POST['bn_save'])) {
 if (isset($_POST['generate_thumbnails'])) {
     //verify csrf
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $thumb_generator = new ThumbnailGenerator();
@@ -194,7 +194,7 @@ if ($GLOBALS['secure_upload']) {
     if (isset($_POST['submit_form'])) {
         //verify csrf
         if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-            die(xlt('Authentication Error'));
+            csrfNotVerified();
         }
 
         $new_white_list = empty($_POST['white_list']) ? array() : $_POST['white_list'];

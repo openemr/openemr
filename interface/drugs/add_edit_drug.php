@@ -142,7 +142,7 @@ function sel_related() {
 //
 if ($_POST['form_save']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $crow = sqlQuery(
@@ -169,7 +169,7 @@ if ($_POST['form_save']) {
 
 if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $new_drug = false;

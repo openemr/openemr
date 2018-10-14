@@ -46,7 +46,7 @@ require_once("language.inc.php");
 <?php
 if (!empty($_GET['m'])) {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     // Pass a unique variable, so below scripts can
