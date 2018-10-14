@@ -1109,7 +1109,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                            onclick="return npopup(<?php echo attr(addslashes($row['pid'])) ?>)"><?php echo text($row['lname']) . ', ' . text($row['fname']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;
-                                        <a href="sl_eob_invoice.php?id=<?php echo attr(urlencode($row['id'])); ?>"
+                                        <a href="sl_eob_invoice.php?isPosting=1&id=<?php echo attr(urlencode($row['id'])); ?>"
                                            target="_blank"><?php echo text($row['pid']) . '.' . text($row['encounter']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;<?php echo text(oeFormatShortDate($svcdate)); ?></td>

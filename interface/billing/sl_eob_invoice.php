@@ -33,12 +33,20 @@ require_once("$srcdir/forms.inc");
 require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once("../../custom/code_types.inc.php");
+require_once "$srcdir/user.inc";
 
 use OpenEMR\Core\Header;
 
 $debug = 0; // set to 1 for debugging mode
 $save_stay = $_REQUEST['form_save'] == '1' ? true : false;
-
+$g_posting_adj_disable = $GLOBALS['posting_adj_disable'] ? 'checked' : '';
+$posting_adj_disable = prevSetting('sl_eob_search.', 'posting_adj_disable', 'posting_adj_disable', $g_posting_adj_disable);
+$from_posting = (0 + $_REQUEST['isPosting']) ? 1 : 0;
+if (!$from_posting) {
+    // this means from past encounters so go with the global
+    // otherwise posting search user setting is followed.
+    $posting_adj_disable = $g_posting_adj_disable;
+}
 // If we permit deletion of transactions.  Might change this later.
 $ALLOW_DELETE = true;
 
@@ -90,147 +98,154 @@ function row_delete($table, $where)
     <?php Header::setupHeader(['datetime-picker']); ?>
     <title><?php echo xlt('EOB Posting - Invoice') ?></title>
     <script language="JavaScript">
-    var adjDisable = opener.document.forms[0].posting_adj_disable.checked;
+    var adjDisable = '<?php echo attr($posting_adj_disable); ?>';
+    var isPosting = <?php echo attr($from_posting); ?>;
+    // An insurance radio button is selected.
+    function setins(istr) {
+        return true;
+    }
 
-        // An insurance radio button is selected.
-        function setins(istr) {
-            return true;
-        }
-
-        function goEncounterSummary (pid) {
-            if(pid) {
+    function goEncounterSummary(pid) {
+        if(pid) {
+            if(typeof opener.toEncSummary  === 'function') {
                 opener.toEncSummary(pid);
             }
-            window.close();
         }
+        window.close();
+    }
+    function doClose(isPosting) {
+        let encurl = 'patient_file/history/encounters.php?billing=1';
 
-        // Compute an adjustment that writes off the balance:
-        function writeoff(code) {
-            var f = document.forms[0];
-            var belement = f['form_line[' + code + '][bal]'];
-            var pelement = f['form_line[' + code + '][pay]'];
-            var aelement = f['form_line[' + code + '][adj]'];
-            var relement = f['form_line[' + code + '][reason]'];
-            var tmp = belement.value - pelement.value;
-            aelement.value = Number(tmp).toFixed(2);
-            if (aelement.value && !relement.value) relement.selectedIndex = 1;
-            return false;
-        }
+        if(!isPosting)
+            opener.top.left_nav.loadFrame('enc2', 'enc', encurl);
+        window.close();
+    }
+    // Compute an adjustment that writes off the balance:
+    function writeoff(code) {
+        var f = document.forms[0];
+        var belement = f['form_line[' + code + '][bal]'];
+        var pelement = f['form_line[' + code + '][pay]'];
+        var aelement = f['form_line[' + code + '][adj]'];
+        var relement = f['form_line[' + code + '][reason]'];
+        var tmp = belement.value - pelement.value;
+        aelement.value = Number(tmp).toFixed(2);
+        if (aelement.value && !relement.value) relement.selectedIndex = 1;
+        return false;
+    }
 
-        // Onsubmit handler.  A good excuse to write some JavaScript.
-        function validate(f) {
-            let delcount = 0;
-            let allempty = true;
-            adjDisable = opener.document.forms[0].posting_adj_disable.checked;
+    // Onsubmit handler.  A good excuse to write some JavaScript.
+    function validate(f) {
+        let delcount = 0;
+        let allempty = true;
 
-            for (var i = 0; i < f.elements.length; ++i) {
-                let ename = f.elements[i].name;
-// Count deletes.
-                if (ename.substring(0, 9) == 'form_del[') {
-                    if (f.elements[i].checked) ++delcount;
-                    continue;
-                }
-                let pfxlen = ename.indexOf('[pay]');
-                if (pfxlen < 0) continue;
-                let pfx = ename.substring(0, pfxlen);
-                let code = pfx.substring(pfx.indexOf('[') + 1, pfxlen - 1);
-                let cPay = parseFloat(f[pfx + '[pay]'].value).toFixed(2);
-                let cAdjust = parseFloat(f[pfx + '[adj]'].value).toFixed(2);
+        for (var i = 0; i < f.elements.length; ++i) {
+            let ename = f.elements[i].name;
+            // Count deletes.
+            if (ename.substring(0, 9) == 'form_del[') {
+                if (f.elements[i].checked) ++delcount;
+                continue;
+            }
+            let pfxlen = ename.indexOf('[pay]');
+            if (pfxlen < 0) continue;
+            let pfx = ename.substring(0, pfxlen);
+            let code = pfx.substring(pfx.indexOf('[') + 1, pfxlen - 1);
+            let cPay = parseFloat(f[pfx + '[pay]'].value).toFixed(2);
+            let cAdjust = parseFloat(f[pfx + '[adj]'].value).toFixed(2);
 
-                if ((cPay != 0) || cAdjust != 0) {
+            if ((cPay != 0) || cAdjust != 0) {
+                allempty = false;
+            }
+            if(adjDisable) {
+                if ((cAdjust == 0 && f[pfx + '[reason]'].value)) {
                     allempty = false;
                 }
-                if(adjDisable) {
-                    if ((cAdjust == 0 && f[pfx + '[reason]'].value)) {
-                        allempty = false;
-                    }
-                }
-                if ((cPay != 0) && isNaN(parseFloat(f[pfx + '[pay]'].value))) {
-                    alert('<?php echo xls('Payment value for code ') ?>' + code + '<?php echo xls(' is not a number') ?>');
-                    return false;
-                }
-                if ((cAdjust != 0) && isNaN(parseFloat(f[pfx + '[adj]'].value))) {
-                    alert('<?php echo xls('Adjustment value for code ') ?>' + code + '<?php echo xls(' is not a number') ?>');
-                    return false;
-                }
-                if ((cAdjust != 0) && !f[pfx + '[reason]'].value) {
-                    alert('<?php echo xls('Please select an adjustment reason for code ') ?>' + code);
-                    return false;
-                }
-// TBD: validate the date format
             }
-// Check if save is clicked with nothing to post.
-            if (allempty && delcount === 0) {
-                alert('<?php echo xls('Nothing to Post! Please review entries or use Cancel to exit transaction')?>');
+            if ((cPay != 0) && isNaN(parseFloat(f[pfx + '[pay]'].value))) {
+                alert('<?php echo xls('Payment value for code ') ?>' + code + '<?php echo xls(' is not a number') ?>');
                 return false;
             }
+            if ((cAdjust != 0) && isNaN(parseFloat(f[pfx + '[adj]'].value))) {
+                alert('<?php echo xls('Adjustment value for code ') ?>' + code + '<?php echo xls(' is not a number') ?>');
+                return false;
+            }
+            if ((cAdjust != 0) && !f[pfx + '[reason]'].value) {
+                alert('<?php echo xls('Please select an adjustment reason for code ') ?>' + code);
+                return false;
+            }
+// TBD: validate the date format
+        }
+// Check if save is clicked with nothing to post.
+        if (allempty && delcount === 0) {
+            alert('<?php echo xls('Nothing to Post! Please review entries or use Cancel to exit transaction')?>');
+            return false;
+        }
 // Demand confirmation if deleting anything.
-            if (delcount > 0) {
-                if (!confirm('<?php echo xls('Really delete'); ?> ' + delcount +
-                    ' <?php echo xls('transactions'); ?>?' +
-                    ' <?php echo xls('This action will be logged'); ?>!')
-                ) return false;
-            }
-            return true;
+        if (delcount > 0) {
+            if (!confirm('<?php echo xls('Really delete'); ?> ' + delcount +
+                ' <?php echo xls('transactions'); ?>?' +
+                ' <?php echo xls('This action will be logged'); ?>!')
+            ) return false;
         }
 
-        <!-- Get current date -->
+        return true;
+    }
 
-        function getFormattedToday() {
-            let today = new Date();
-            let dd = today.getDate();
-            let mm = today.getMonth() + 1; //January is 0!
-            let yyyy = today.getFullYear();
-            if (dd < 10) {
-                dd = '0' + dd
-            }
-            if (mm < 10) {
-                mm = '0' + mm
-            }
+    <!-- Get current date -->
 
-            return (yyyy + '-' + mm + '-' + dd);
+    function getFormattedToday() {
+        let today = new Date();
+        let dd = today.getDate();
+        let mm = today.getMonth() + 1; //January is 0!
+        let yyyy = today.getFullYear();
+        if (dd < 10) {
+            dd = '0' + dd
+        }
+        if (mm < 10) {
+            mm = '0' + mm
         }
 
-        <!-- Update Payment Fields -->
+        return (yyyy + '-' + mm + '-' + dd);
+    }
 
-        function updateFields(payField, adjField, balField, coPayField, isFirstProcCode) {
-            let payAmount = 0.0;
-            let adjAmount = 0.0;
-            let balAmount = 0.0;
-            let coPayAmount = 0.0;
+    <!-- Update Payment Fields -->
+
+    function updateFields(payField, adjField, balField, coPayField, isFirstProcCode) {
+        let payAmount = 0.0;
+        let adjAmount = 0.0;
+        let balAmount = 0.0;
+        let coPayAmount = 0.0;
 
 // coPayFiled will be null if there is no co-pay entry in the fee sheet
-            if (coPayField)
-                coPayAmount = coPayField.value;
+        if (coPayField)
+            coPayAmount = coPayField.value;
 
 // if balance field is 0.00, its value comes back as null, so check for nul-ness first
-            if (balField)
-                balAmount = (balField.value) ? balField.value : 0;
-            if (payField)
-                payAmount = (payField.value) ? payField.value : 0;
+        if (balField)
+            balAmount = (balField.value) ? balField.value : 0;
+        if (payField)
+            payAmount = (payField.value) ? payField.value : 0;
 
 //alert('balance = >' + balAmount +'<  payAmount = ' + payAmount + '  copay = ' + coPayAmount + '  isFirstProcCode = ' + isFirstProcCode);
 
 // subtract the co-pay only from the first procedure code
-            if (isFirstProcCode == 1)
-                balAmount = parseFloat(balAmount) + parseFloat(coPayAmount);
-            let adjDisable = opener.document.forms[0].posting_adj_disable.checked;
-            if (adjDisable) return;
+        if (isFirstProcCode == 1)
+            balAmount = parseFloat(balAmount) + parseFloat(coPayAmount);
+        if (adjDisable) return;
 
-            adjAmount = balAmount - payAmount;
+        adjAmount = balAmount - payAmount;
 // Assign rounded adjustment value back to TextField
-            adjField.value = adjAmount = Math.round(adjAmount * 100) / 100;
-        }
+        adjField.value = adjAmount = Math.round(adjAmount * 100) / 100;
+    }
 
-        $(document).ready(function () {
-            $('.datepicker').datetimepicker({
-                <?php $datetimepicker_timepicker = false; ?>
-                <?php $datetimepicker_showseconds = false; ?>
-                <?php $datetimepicker_formatInput = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-            });
+    $(document).ready(function () {
+        $('.datepicker').datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = false; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
+    });
 
     </script>
     <style>
@@ -415,12 +430,11 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
     if ($info_msg) {
         echo " alert('" . addslashes($info_msg) . "');\n";
     }
-    echo "opener.$('#btn-inv-search').click();";
+    if ($from_posting) {
+        echo "opener.$('#btn-inv-search').click();\n";
+    }
     if (!$debug && !$save_stay) {
-        echo " window.close();\n";
-    } else {
-        $reload_url = "sl_eob_invoice.php?id=" . attr(urlencode($trans_id));
-        echo "window.location.assign('" . $reload_url . "')";
+        echo "doClose($from_posting);\n";
     }
     echo "</script></body></html>\n";
     if (!$save_stay) {
@@ -440,9 +454,9 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
         </div>
     </div>
     <div class="row">
-        <form action='sl_eob_invoice.php?id=<?php echo attr(urlencode($trans_id)); ?>' method='post'
-              onsubmit='return validate(this)'>
+        <form action='sl_eob_invoice.php?id=<?php echo attr(urlencode($trans_id)); ?>' method='post' onsubmit='return validate(this)'>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>"/>
+            <input type="hidden" name="isPosting" value="<?php echo attr($from_posting); ?>"/>
             <fieldset>
                 <legend><?php echo xlt('Invoice Actions'); ?></legend>
                 <div class="col-xs-12 oe-custom-line">
@@ -510,8 +524,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                     </div>
                     <div class="col-xs-2">
                         <label class="control-label" for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
-                        <input type='text' name='form_deposit_date' id='form_deposit_date'
-                               class='form-control datepicker' value=''/>
+                        <input type='text' name='form_deposit_date' id='form_deposit_date' class='form-control datepicker' value=''/>
                         <input type='hidden' name='form_payer_id' value=''/>
                         <input type='hidden' name='form_orig_reference' value=''/>
                         <input type='hidden' name='form_orig_check_date' value=''/>
@@ -687,7 +700,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                                 <td class="last_detail">
                                     <input name="form_line[<?php echo attr($code); ?>][pay]"
                                            onkeyup="updateFields(document.forms[0]['form_line[<?php echo attr(addslashes($code)); ?>][pay]'], document.forms[0]['form_line[<?php echo attr(addslashes($code)); ?>][adj]'], document.forms[0]['form_line[<?php echo attr(addslashes($code)); ?>][bal]'], document.forms[0]['form_line[CO-PAY][bal]'], <?php echo ($firstProcCodeIndex == $encount) ? 1 : 0 ?>)"
-                                           onclick="this.select()" autofocus size="10" type="text" class="form-control"
+                                           onfocus="this.select()" autofocus size="10" type="text" class="form-control"
                                            value="0.00"></td>
                                 <td class="last_detail">
                                     <input name="form_line[<?php echo attr($code); ?>][adj]" size="10" type="text"
@@ -736,17 +749,18 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         <button type='submit' class="btn btn-default btn-save" name='form_save' id="btn-save"
                             onclick="this.value='2';"><?php echo xlt("Save & Exit"); ?></button>
                         <button type='button' class="btn btn-link btn-cancel btn-separate-left" name='form_cancel'
-                            id="btn-cancel" onclick='window.close()'><?php echo xlt("Close"); ?></button>
+                            id="btn-cancel" onclick='doClose(<?php echo attr($from_posting); ?>)'><?php echo xlt("Close"); ?></button>
                     </div>
-                    <?php if ($GLOBALS['new_tabs_layout']) { ?>
+                    <?php if ($GLOBALS['new_tabs_layout'] && $from_posting) { ?>
                         <button type='button' class="btn btn-default btn-view pull-right" name='form_goto' id="btn-goto"
-                            onclick="goEncounterSummary('<?php echo attr($patient_id) ?>')"><?php echo xlt("Encounter View"); ?></button>
+                            onclick="goEncounterSummary(<?php echo attr($patient_id) ?>)"><?php echo xlt("Past Encounters"); ?></button>
                     <?php } ?>
                 </div>
             </div>
         </form>
     </div>
 </div><!--End of container div-->
+<?php if ($from_posting) { ?>
 <script language="JavaScript">
     var f1 = opener.document.forms[0];
     var f2 = document.forms[0];
@@ -780,5 +794,6 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
     }
     setins("Ins1");
 </script>
+<?php } ?>
 </body>
 </html>
