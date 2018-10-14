@@ -15,7 +15,7 @@ require_once("$srcdir/patient.inc");
 
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], 1, '', $_GET["pid"]);

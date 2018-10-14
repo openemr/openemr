@@ -18,7 +18,7 @@ require_once "../library/options.inc.php";
 require_once("../library/clinical_rules.php");
 
 if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    die(xlt('Authentication Error'));
+    csrfNotVerified();
 }
 
 //To improve performance and not freeze the session when running this

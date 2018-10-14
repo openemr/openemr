@@ -31,7 +31,7 @@ require_once(dirname(__FILE__)."/../../myportal/soap_service/portal_connectivity
 
 //verify csrf
 if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    die(xlt('Authentication Error'));
+    csrfNotVerified();
 }
 
 if ($_POST['action'] == 'check_file' && acl_check('admin', 'super')) {

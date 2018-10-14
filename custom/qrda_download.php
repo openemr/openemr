@@ -26,7 +26,7 @@
 require_once("../interface/globals.php");
 
 if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    die(xlt('Authentication Error'));
+    csrfNotVerified();
 }
 
 $qrda_fname = $_GET['qrda_fname'];

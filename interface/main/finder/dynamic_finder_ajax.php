@@ -1,14 +1,24 @@
 <?php
-// Copyright (C) 2012 Rod Roark <rod@sunsetsystems.com>
-// Sponsored by David Eschelbacher, MD
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * dynamic_finder_ajax.php
+ *
+ * Sponsored by David Eschelbacher, MD
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2012 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 require_once("../../globals.php");
 require_once($GLOBALS['srcdir']."/options.inc.php");
+
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    csrfNotVerified();
+}
 
 $popup = empty($_REQUEST['popup']) ? 0 : 1;
 

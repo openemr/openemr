@@ -111,7 +111,7 @@ title='<?php echo xla('yyyy-mm-dd last date of this event'); ?>' />
 
 if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['encounter'])) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     // note we are trimming variables before sending through this function

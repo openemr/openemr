@@ -1,11 +1,18 @@
 <?php
-// Copyright (C) 2012, 2016 Rod Roark <rod@sunsetsystems.com>
-// Sponsored by David Eschelbacher, MD
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * dynamic_finder.php
+ *
+ * Sponsored by David Eschelbacher, MD
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2012-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 
 require_once("../../globals.php");
 require_once "$srcdir/user.inc";
@@ -65,7 +72,7 @@ while ($row = sqlFetchArray($res)) {
                 "serverSide": true,
                 // NOTE kept the legacy command 'sAjaxSource' here for now since was unable to get
                 // the new 'ajax' command to work.
-                "sAjaxSource": "dynamic_finder_ajax.php",
+                "sAjaxSource": "dynamic_finder_ajax.php?csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>",
                 "fnServerParams": function (aoData) {
                     var searchType = $("#setting_search_type:checked").length > 0;
                     aoData.push({"name": "searchType", "value": searchType});
@@ -83,7 +90,7 @@ while ($row = sqlFetchArray($res)) {
                 <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
             });
             $("div.mytopdiv").html("<form name='myform'><label for='form_new_window' id='form_new_window_label'><input type='checkbox' id='form_new_window' name='form_new_window' value='1' <?php if (!empty($GLOBALS['gbl_pt_list_new_window'])) {
-                echo ' checked';}?> / ><?php echo xlt('Open in New Window'); ?></label><label for='setting_search_type' id='setting_search_type_label'><input type='checkbox' name='setting_search_type'  id='setting_search_type' onchange='persistCriteria(this, event)' value='<?php echo $patient_finder_exact_search; ?>'<?php echo $patient_finder_exact_search ?>/><?php echo xlt('Search with exact method'); ?></label></form>");
+                echo ' checked';}?> / ><?php echo xlt('Open in New Window'); ?></label><label for='setting_search_type' id='setting_search_type_label'><input type='checkbox' name='setting_search_type'  id='setting_search_type' onchange='persistCriteria(this, event)' value='<?php echo attr($patient_finder_exact_search); ?>'<?php echo text($patient_finder_exact_search); ?>/><?php echo xlt('Search with exact method'); ?></label></form>");
             // This is to support column-specific search fields.
             // Borrowed from the multi_filter.html example.
             $("thead input").keyup(function () {
@@ -106,7 +113,7 @@ while ($row = sqlFetchArray($res)) {
                 }
                 else {
                     top.restoreSession();
-                    top.RTop.location = "../../patient_file/summary/demographics.php?set_pid=" + newpid;
+                    top.RTop.location = "../../patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid);
                 }
             });
         });
@@ -121,7 +128,13 @@ while ($row = sqlFetchArray($res)) {
             e.preventDefault();
             let target = uspfx + "patient_finder_exact_search";
             let val = el.checked ? ' checked' : ' ';
-            $.post( "../../../library/ajax/user_settings.php", { target: target, setting: val });
+            $.post( "../../../library/ajax/user_settings.php",
+                {
+                    target: target,
+                    setting: val,
+                    csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+                }
+            );
         }
 
     </script>
@@ -144,7 +157,7 @@ while ($row = sqlFetchArray($res)) {
         <tbody>
         <tr>
             <!-- Class "dataTables_empty" is defined in jquery.dataTables.css -->
-            <td colspan="<?php echo $colcount; ?>" class="dataTables_empty">...</td>
+            <td colspan="<?php echo attr($colcount); ?>" class="dataTables_empty">...</td>
         </tr>
         </tbody>
     </table>
@@ -152,7 +165,8 @@ while ($row = sqlFetchArray($res)) {
 </div>
 
 <!-- form used to open a new top level window when a patient row is clicked -->
-<form name='fnew' method='post' target='_blank' action='../main_screen.php?auth=login&site=<?php echo attr($_SESSION['site_id']); ?>'>
+<form name='fnew' method='post' target='_blank' action='../main_screen.php?auth=login&site=<?php echo attr(urlencode($_SESSION['site_id'])); ?>'>
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
     <input type='hidden' name='patientID' value='0'/>
 </form>
 

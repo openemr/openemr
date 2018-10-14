@@ -32,7 +32,7 @@ $imauthorized = $_SESSION['userauthorized'] || $see_auth > 2;
 // This authorizes everything for the specified patient.
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $retVal = getProviderId($_SESSION['authUser']);

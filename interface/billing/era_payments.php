@@ -70,7 +70,7 @@ function era_callback(&$out)
   // Handle X12 835 file upload.
 if ($_FILES['form_erafile']['size']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $tmp_name = $_FILES['form_erafile']['tmp_name'];
@@ -251,7 +251,7 @@ if ($_FILES['form_erafile']['size']) {
             <div class="col-sm-12">
                 <div class="page-header">
                     <h2>
-                        <?php echo xlt('Payments'); ?> <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract" 
+                        <?php echo xlt('Payments'); ?> <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract"
                         title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i>
                     </h2>
                 </div>

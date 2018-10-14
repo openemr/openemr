@@ -30,7 +30,7 @@ require_once(dirname(__FILE__) . "/../parse_patient_xml.php");
 
 //verify csrf
 if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    die(xlt('Authentication Error'));
+    csrfNotVerified();
 }
 
 if ($_REQUEST["ccr_ajax"] == "yes") {

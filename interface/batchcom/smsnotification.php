@@ -36,7 +36,7 @@ $message="Welcome to EMR Group";
 // process form
 if ($_POST['form_action']=='save') {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     //validation uses the functions in notification.inc.php

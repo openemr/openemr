@@ -16,23 +16,35 @@ $( document ).ready(function() {
         var contractTitle = '<?php echo xla('Click to Contract and set to henceforth open in Centered mode'); ?>';
         var expandTitle = '<?php echo xla('Click to Expand and set to henceforth open in Expanded mode'); ?>';
         var arrFiles = <?php echo json_encode($arr_files_php) ?>;
-                
+
         if (elementTitle == contractTitle) {
             elementTitle = expandTitle;
             $(this).toggleClass('fa-expand fa-compress');
             $('.expandable').toggleClass('container container-fluid');
             if ($(arrFiles).length) {
                 $.each(arrFiles, function (index, value) {
-                  $.post( "<?php echo $GLOBALS['webroot'] ?>/library/ajax/user_settings.php", { target: arrFiles[index].trim(), setting: 0 });
+                    $.post( "<?php echo $GLOBALS['webroot'] ?>/library/ajax/user_settings.php",
+                        {
+                            target: arrFiles[index].trim(),
+                            setting: 0,
+                            csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+                        }
+                    );
                 });
-            } 
+            }
         } else if (elementTitle == expandTitle) {
             elementTitle = contractTitle;
             $(this).toggleClass('fa-compress fa-expand');
             $('.expandable').toggleClass('container-fluid container');
             if ($(arrFiles).length) {
                 $.each(arrFiles, function (index, value) {
-                  $.post( "<?php echo $GLOBALS['webroot'] ?>/library/ajax/user_settings.php", { target: arrFiles[index].trim(), setting: 1 });
+                    $.post( "<?php echo $GLOBALS['webroot'] ?>/library/ajax/user_settings.php",
+                        {
+                            target: arrFiles[index].trim(),
+                            setting: 1,
+                            csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+                        }
+                    );
                 });
             }
         }

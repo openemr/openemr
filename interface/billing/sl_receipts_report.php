@@ -306,7 +306,7 @@ $form_facility   = $_POST['form_facility'];
 <?php
 if ($_POST['form_refresh']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
 ?>

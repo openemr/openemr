@@ -21,7 +21,7 @@ $error_log_path = $GLOBALS['OE_SITE_DIR'].'/documents/erx_error';
 
 if (array_key_exists('filename', $_GET)) {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $filename = $_GET['filename'];
@@ -32,7 +32,7 @@ if (array_key_exists('filename', $_GET)) {
 
 if (array_key_exists('start_date', $_POST)) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $start_date = $_POST['start_date'];
@@ -113,7 +113,7 @@ if ($filename) {
     $check_for_file = 0;
 if (array_key_exists('search_logs', $_POST)) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     if ($handle = opendir($error_log_path)) {

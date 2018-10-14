@@ -340,7 +340,7 @@ $lbfonly = substr($layout_id, 0, 3) == 'LBF' ? "" : "style='display:none;'";
 
 if ($_POST['formaction'] == "save" && $layout_id) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     // If we are saving, then save.
@@ -403,7 +403,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
     }
 } else if ($_POST['formaction'] == "addfield" && $layout_id) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     // Add a new field to a specific group
@@ -437,7 +437,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
     addOrDeleteColumn($layout_id, trim($_POST['newid']), true);
 } else if ($_POST['formaction'] == "movefields" && $layout_id) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     // Move field(s) to a new group in the layout
@@ -457,7 +457,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
     sqlStatement($sqlstmt);
 } else if ($_POST['formaction'] == "deletefields" && $layout_id) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     // Delete a field from a specific group
@@ -477,7 +477,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
     }
 } else if ($_POST['formaction'] == "addgroup" && $layout_id) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     // Generate new value for layout_items.group_id.
@@ -523,7 +523,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
 } /**********************************************************************
 else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     // drop the fields from the related table (this is critical)
@@ -544,7 +544,7 @@ else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
 
 else if ($_POST['formaction'] == "movegroup" && $layout_id) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     // Note that in some cases below the swapGroups() call will do nothing.
@@ -573,7 +573,7 @@ else if ($_POST['formaction'] == "movegroup" && $layout_id) {
 } // Renaming a group. This might include moving to a different parent group.
 else if ($_POST['formaction'] == "renamegroup" && $layout_id) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $newparent = $_POST['renamegroupparent'];  // this is an ID

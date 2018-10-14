@@ -142,7 +142,7 @@ if (count($_POST)) {
  */
 if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     //
@@ -190,7 +190,7 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
     //
 } elseif (strtolower($_SERVER['REQUEST_METHOD']) == 'get') {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     //

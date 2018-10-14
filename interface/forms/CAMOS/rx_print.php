@@ -51,7 +51,7 @@ if ($result = sqlFetchArray($query)) {
 //update user information if selected from form
 if ($_POST['update']) { // OPTION update practice inf
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $query = "update users set " .
@@ -87,7 +87,7 @@ if ($result = sqlFetchArray($query)) {
 
 if ($_POST['print_pdf'] || $_POST['print_html']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $camos_content = array();

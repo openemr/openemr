@@ -19,7 +19,7 @@ require_once("$fileroot/interface/drugs/drugs.inc.php");
 
 //verify csrf
 if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    die(xlt('Authentication Error'));
+    csrfNotVerified();
 }
 
 function write_code_info($codetype, $code, $selector, $pricelevel)

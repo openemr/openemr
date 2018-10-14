@@ -31,7 +31,7 @@ require_once("$srcdir/options.inc.php");
 require_once("qrda_category1.inc");
 
 if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    die(xlt('Authentication Error'));
+    csrfNotVerified();
 }
 
 $report_id = (isset($_GET['report_id'])) ? trim($_GET['report_id']) : "";

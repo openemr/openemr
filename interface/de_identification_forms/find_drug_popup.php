@@ -151,7 +151,7 @@ function check_search_str()
 <td colspan="4">
 <?php if ($_REQUEST['bn_search']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $search_term = $_REQUEST['search_term'];

@@ -53,7 +53,7 @@ $code_type = empty($_POST['form_code_type']) ? '' : $_POST['form_code_type'];
 if (!empty($_POST['bn_upload'])) {
     //verify csrf
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     if (empty($code_types[$code_type])) {

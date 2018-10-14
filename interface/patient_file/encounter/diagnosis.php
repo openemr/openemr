@@ -35,7 +35,7 @@ if ($payment_method == "insurance") {
 
 if (isset($mode)) {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     if ($mode == "add") {

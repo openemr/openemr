@@ -21,7 +21,7 @@ if (!acl_check('admin', 'users')) {
 
 if (!empty($_GET)) {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 }
 

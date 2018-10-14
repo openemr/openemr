@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 
 if ($_GET['file']) {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $mode = 'fax';
@@ -35,7 +35,7 @@ if ($_GET['file']) {
     $filepath = $GLOBALS['hylafax_basedir'] . '/recvq/' . $filename;
 } else if ($_GET['scan']) {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $mode = 'scan';
@@ -106,7 +106,7 @@ function mergeTiffs()
 //
 if ($_POST['form_save']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $action_taken = false;

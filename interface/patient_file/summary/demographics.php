@@ -233,11 +233,23 @@ function toggleIndicator(target,div) {
     if ( $mode == "<?php echo htmlspecialchars(xl('collapse'), ENT_QUOTES); ?>" ) {
         $(target).find(".indicator").text( "<?php echo htmlspecialchars(xl('expand'), ENT_QUOTES); ?>" );
         $("#"+div).hide();
-    $.post( "../../../library/ajax/user_settings.php", { target: div, mode: 0 });
+        $.post( "../../../library/ajax/user_settings.php",
+            {
+                target: div,
+                mode: 0,
+                csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+            }
+        );
     } else {
         $(target).find(".indicator").text( "<?php echo htmlspecialchars(xl('collapse'), ENT_QUOTES); ?>" );
         $("#"+div).show();
-    $.post( "../../../library/ajax/user_settings.php", { target: div, mode: 1 });
+        $.post( "../../../library/ajax/user_settings.php",
+            {
+                target: div,
+                mode: 1,
+                csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+            }
+        );
     }
 }
 
@@ -655,7 +667,7 @@ if (!empty($grparr['']['grp_size'])) {
             echo "</body>\n</html>\n";
             exit();
         }?>
-        
+
             <?php
             if ($thisauth) {
                 $header_title = xl('Medical Record Dashboard of');?>
@@ -667,7 +679,7 @@ if (!empty($grparr['']['grp_size'])) {
             <?php
             } // $thisauth
             ?>
-        
+
         <div class="row" >
             <div class="col-sm-12">
                 <?php
@@ -1652,7 +1664,7 @@ if (!empty($grparr['']['grp_size'])) {
                             }
                             // Show Recall if one exists
                             $query = sqlStatement("SELECT * FROM medex_recalls WHERE r_pid = ?", array($pid));
-                            
+
                             while ($result2 = sqlFetchArray($query)) {
                                 //tabYourIt('recall', 'main/messages/messages.php?go=' + choice);
                                 //parent.left_nav.loadFrame('1', tabNAME, url);
@@ -1843,7 +1855,7 @@ if (!empty($grparr['']['grp_size'])) {
                     </tr><?php
                             }  // end track_anything ?>
                     </table>
-                
+
                 </div> <!-- end right column div -->
 
               </td>

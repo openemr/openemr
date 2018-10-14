@@ -34,7 +34,7 @@ require_once "qrda_functions.php";
 use OpenEMR\Services\FacilityService;
 
 if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    die(xlt('Authentication Error'));
+    csrfNotVerified();
 }
 
 $facilityService = new FacilityService();
