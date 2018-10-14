@@ -378,7 +378,7 @@ if (!$popup && preg_match('/^(\d+)\s*(.*)/', $patient, $matches) > 0) {
     "ORDER BY group_id, seq LIMIT 5");
     while ($trow = sqlFetchArray($tres)) {
         $extracols[$trow['field_id']] = $trow;
-        echo "<th class='srMisc'>" . xlt($trow['title'])) . "</th>\n";
+        echo "<th class='srMisc'>" . xlt($trow['title']) . "</th>\n";
     }
 }
 ?>
