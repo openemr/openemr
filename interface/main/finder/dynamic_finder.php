@@ -40,7 +40,7 @@ while ($row = sqlFetchArray($res)) {
     $header .= text($title);
     $header .= "</th>\n";
     $header0 .= "   <td ><input type='text' size='20' ";
-    $header0 .= "value='' class='search_init' placeholder='".xla("Search by $title1")."'/></td>\n";
+    $header0 .= "value='' class='search_init' placeholder='".xla("Search by"). " " . $title1 ."'/></td>\n";
     if ($coljson) {
         $coljson .= ", ";
     }
