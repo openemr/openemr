@@ -131,10 +131,7 @@ class PatientService
         $sql .= "     state='" . add_escape_custom($data["state"]) . "',";
         $sql .= "     country_code='" . add_escape_custom($data["country_code"]) . "',";
         $sql .= "     phone_contact='" . add_escape_custom($data["phone_contact"]) . "',";
-
-        // TODO: not working
         $sql .= "     dob='" . add_escape_custom($data["dob"]) . "',";
-
         $sql .= "     sex='" . add_escape_custom($data["sex"]) . "',";
         $sql .= "     race='" . add_escape_custom($data["race"]) . "',";
         $sql .= "     ethnicity='" . add_escape_custom($data["ethnicity"]) . "'";

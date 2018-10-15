@@ -1,6 +1,6 @@
 <?php
 /**
- * EncounterRestController
+ * InsuranceCompanyService
  *
  * Copyright (C) 2018 Matthew Vita <matthewvita48@gmail.com>
  *
@@ -20,40 +20,31 @@
  * @link    http://www.open-emr.org
  */
 
-namespace OpenEMR\RestControllers;
+namespace OpenEMR\Services;
+use Particle\Validator\Validator;
 
-use OpenEMR\Services\EncounterService;
-
-class EncounterRestController
+class InsuranceCompanyService
 {
-    private $encounterService;
 
+  /**
+   * Default constructor.
+   */
     public function __construct()
     {
-        $this->encounterService = new EncounterService();
     }
 
-    public function getOne($pid, $eid)
+    public function getAll()
     {
-        $serviceResult = $this->encounterService->getEncounterForPatient($pid, $eid);
+        $sql = "SELECT * FROM insurance_companies";
 
-        if ($serviceResult) {
-            http_response_code(200);
-            return $serviceResult;
+        $statementResults = sqlStatement($sql);
+
+        $results = array();
+        while ($row = sqlFetchArray($statementResults)) {
+            array_push($results, $row);
         }
 
-        http_response_code(400);
+        return $results;
     }
 
-    public function getAll($pid)
-    {
-        $serviceResult = $this->encounterService->getEncountersForPatient($pid);
-
-        if ($serviceResult) {
-            http_response_code(200);
-            return $serviceResult;
-        }
-
-        http_response_code(400);
-    }
 }

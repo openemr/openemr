@@ -6,6 +6,7 @@ _(Project is in-flight - do not use in production)._
 
 This project aims to provide an easy-to-use JSON-based REST API for OpenEMR's most common functions. All code will be done in classes and separate from the view to help with codebase modernization efforts.
 
+
 ### Team
 
 - [@juggernautsei](https://github.com/juggernautsei)
@@ -14,41 +15,13 @@ This project aims to provide an easy-to-use JSON-based REST API for OpenEMR's mo
 - ?
 - ?
 
-### Current Endpoints
+
+### Endpoints
+
+#### POST /api/facility
 
 ```
-GET /facility
-GET /facility/:fid
-POST /facility
-PUT /facility/:fid
-GET /provider
-GET /provider/:prid
-POST /provider
-GET /patient
-POST /patient
-GET /patient/:pid
-GET /patient/:pid/encounter
-GET /patient/:pid/medical_problem
-GET /patient/:pid/medical_problem/:mid
-GET /patient/:pid/allergy
-GET /patient/:pid/allergy/:aid
-GET /patient/:pid/medication
-GET /patient/:pid/medication/:mid
-GET /patient/:pid/surgery
-GET /patient/:pid/surgery/:sid
-GET /patient/:pid/dental_issue
-GET /patient/:pid/dental_issue/:did
-GET /patient/:pid/encounter/:eid
-GET /version
-GET /product
-```
-
-### Calling the API
-
-The API is invoked with a `resource` query string to define the path: `http://localhost:8300/rest_router.php?resource=/patient`. For example:
-
-```
-curl -X POST 'http://localhost:8300/rest_router.php?resource=/facility' -d \
+curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/facility' -d \
 '{
     "name": "Aquaria",
     "phone": "808-606-3030",
@@ -64,36 +37,326 @@ curl -X POST 'http://localhost:8300/rest_router.php?resource=/facility' -d \
 }'
 ```
 
+#### PUT /api/facility/:fid
+
+```
+curl -X PUT 'http://localhost:8300/rest_router.php?resource=/api/facility/1' -d \
+'{
+    "name": "Aquaria",
+    "phone": "808-606-3030",
+    "fax": "808-606-3031",
+    "street": "1337 Bit Shifter Ln",
+    "city": "San Lorenzo",
+    "state": "AZ",
+    "postal_code": "54321",
+    "email": "foo@bar.com",
+    "service_location": "1",
+    "billing_location": "1",
+    "color": "#FF69B4"
+}'
+```
+
+#### GET /api/facility
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/facility'
+```
+
+#### GET /api/facility/:fid
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/facility/1'
+```
+
+#### GET /api/provider
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/provider'
+```
+
+#### GET /api/provider/:prid
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/provider/1'
+```
+
+#### POST /api/patient
+
+```
+curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/patient' -d \
+'{
+    "title": "Mr",
+    "fname": "Foo",
+    "mname": "",
+    "lname": "Bar",
+    "street": "456 Tree Lane",
+    "postal_code": "08642",
+    "city": "FooTown",
+    "state": "FL",
+    "country_code": "US",
+    "phone_contact": "123-456-7890",
+    "dob": "1992-02-02",
+    "sex": "Male",
+    "race": "",
+    "ethnicity": ""
+}'
+```
+
+#### GET /api/patient
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient'
+```
+
+#### GET /api/patient/:pid
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1'
+```
+
+#### GET /api/patient/:pid/encounter
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/encounter'
+```
+
+#### GET /api/patient/:pid/encounter/:eid
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/encounter/1'
+```
+
+#### POST /api/patient/:pid/medical_problem
+
+```
+curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/patient/1/medical_problem' -d \
+'{
+    "title": "Dermatochalasis",
+    "begdate": "2010-04-13",
+    "enddate": null,
+    "diagnosis": "ICD10:H02.839"
+}'
+```
+
+#### PUT /api/patient/:pid/medical_problem/:mid
+
+```
+curl -X PUT 'http://localhost:8300/rest_router.php?resource=/api/patient/1/medical_problem/1' -d \
+'{
+    "title": "Dermatochalasis",
+    "begdate": "2010-04-13",
+    "enddate": "2018-03-12",
+    "diagnosis": "ICD10:H02.839"
+}'
+```
+
+#### GET /api/patient/:pid/medical_problem
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/medical_problem'
+```
+
+#### GET /api/patient/:pid/medical_problem/:mid
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/medical_problem/1'
+```
+
+#### POST /api/patient/:pid/allergy
+
+```
+curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/patient/1/allergy' -d \
+'{
+    "title": "Iodine",
+    "begdate": "2010-10-13",
+    "enddate": null
+}'
+```
+
+#### PUT /api/patient/:pid/allergy/:aid
+
+```
+curl -X PUT 'http://localhost:8300/rest_router.php?resource=/api/patient/1/allergy/1' -d \
+'{
+    "title": "Iodine",
+    "begdate": "2012-10-13",
+    "enddate": null
+}'
+```
+
+#### GET /api/patient/:pid/allergy
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/allergy'
+```
+
+#### GET /api/patient/:pid/allergy/:aid
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/allergy/1'
+```
+
+#### POST /api/patient/:pid/medication
+
+```
+curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/patient/1/medication' -d \
+'{
+    "title": "Norvasc",
+    "begdate": "2013-10-13",
+    "enddate": null
+}'
+```
+
+#### PUT /api/patient/:pid/medication/:mid
+
+```
+curl -X PUT 'http://localhost:8300/rest_router.php?resource=/api/patient/1/medication/1' -d \
+'{
+    "title": "Norvasc",
+    "begdate": "2013-04-13",
+    "enddate": null
+}'
+```
+
+#### GET /api/patient/:pid/medication
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/medication'
+```
+
+#### GET /api/patient/:pid/medication/:mid
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/medication/1'
+```
+
+#### POST /api/patient/:pid/surgery
+
+```
+curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/patient/1/surgery' -d \
+'{
+    "title": "Blepharoplasty",
+    "begdate": "2013-10-13",
+    "enddate": null,
+    "diagnosis": "CPT4:15823-50"
+}'
+```
+
+#### PUT /api/patient/:pid/surgery/:sid
+
+```
+curl -X PUT 'http://localhost:8300/rest_router.php?resource=/api/patient/1/surgery/1' -d \
+'{
+    "title": "Blepharoplasty",
+    "begdate": "2013-10-14",
+    "enddate": null,
+    "diagnosis": "CPT4:15823-50"
+}'
+```
+
+#### GET /api/patient/:pid/surgery
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/surgery'
+```
+
+#### GET /api/patient/:pid/surgery/:sid
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/surgery/1'
+```
+
+#### POST /api/patient/:pid/dental_issue
+
+```
+curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/patient/1/dental_issue' -d \
+'{
+    "title": "Halitosis",
+    "begdate": "2015-03-17",
+    "enddate": null
+}'
+```
+
+#### PUT /api/patient/:pid/dental_issue/:did
+
+```
+curl -X PUT 'http://localhost:8300/rest_router.php?resource=/api/patient/1/dental_issue/1' -d \
+'{
+    "title": "Halitosis",
+    "begdate": "2015-03-17",
+    "enddate": "2018-03-20"
+}'
+```
+
+#### GET /api/patient/:pid/dental_issue
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/dental_issue'
+```
+
+#### GET /api/patient/:pid/dental_issue/:did
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/dental_issue/1'
+```
+
+#### GET /api/list/:list_name
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/list/medical_problem_issue_list'
+```
+
+#### GET /api/version
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/version'
+```
+
+#### GET /api/product
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/product'
+```
+
+#### GET /api/insurance_company
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/insurance_company'
+```
+
+
 ### Dev Notes
 
-- Use cURL or [Postman](https://www.getpostman.com/)
 - For business logic, make or use the services [here](https://github.com/GoTeamEpsilon/openemr-rest-api/tree/master/services)
 - For controller logic, make or use the classes [here](https://github.com/GoTeamEpsilon/openemr-rest-api/tree/master/rest_controllers)
 - For routing declarations, use the class [here](https://github.com/GoTeamEpsilon/openemr-rest-api/blob/master/rest_router.php).
+
 
 ### Project Management
 
 - TODO(team): Consider using Symfony's router
 - TODO(matthew): Implement Particle's `optional` validation logic for all current validators
-- TODO(matthew): API for medications
-- TODO(matthew): API for problem list
-- TODO(matthew): API for allergies
-- TODO(matthew): API for surgeries
-- TODO(matthew): API for dental issues
-- TODO(?): API for onotes
-- TODO(?): API for SOAP notes
+- TODO(matthew): API for SOAP notes
+- TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
+- TODO(?): `PatientService`'s `insert` doesn't handle `dob` correctly
+- TODO(?): Patient PUT
+- TODO(?): Patient search filter
+- TODO(?): insurance company PUT/POST
+- TODO(?): API for pharmacies
 - TODO(?): API for vitals
 - TODO(?): API for appointments
-- TODO(?): API for insurance companies
+- TODO(?): API for onotes
 - TODO(?): API for fee sheets
 - TODO(?): API for patient documents
 - TODO(?): API for prescriptions
 - TODO(?): API for messages
 - TODO(?): Implement token-based authentication
 
+
 ### What is that dog drawing?
 
 That is Peppy, an old OpenEMR mascot. Long live Peppy!
+
 
 ### License
 

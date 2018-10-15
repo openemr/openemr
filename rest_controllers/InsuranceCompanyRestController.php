@@ -1,6 +1,6 @@
 <?php
 /**
- * EncounterRestController
+ * InsuranceCompanyRestController
  *
  * Copyright (C) 2018 Matthew Vita <matthewvita48@gmail.com>
  *
@@ -22,32 +22,20 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\Services\EncounterService;
+use OpenEMR\Services\InsuranceCompanyService;
 
-class EncounterRestController
+class InsuranceCompanyRestController
 {
-    private $encounterService;
+    private $insuranceCompanyService;
 
     public function __construct()
     {
-        $this->encounterService = new EncounterService();
+        $this->insuranceCompanyService = new InsuranceCompanyService();
     }
 
-    public function getOne($pid, $eid)
+    public function getAll()
     {
-        $serviceResult = $this->encounterService->getEncounterForPatient($pid, $eid);
-
-        if ($serviceResult) {
-            http_response_code(200);
-            return $serviceResult;
-        }
-
-        http_response_code(400);
-    }
-
-    public function getAll($pid)
-    {
-        $serviceResult = $this->encounterService->getEncountersForPatient($pid);
+        $serviceResult = $this->insuranceCompanyService->getAll();
 
         if ($serviceResult) {
             http_response_code(200);

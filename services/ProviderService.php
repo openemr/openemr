@@ -32,20 +32,6 @@ class ProviderService
     {
     }
 
-    public function validate($facility)
-    {
-        $validator = new Validator();
-
-        $validator->required('name')->lengthBetween(2, 255);
-        $validator->required('phone')->lengthBetween(3, 30);
-        $validator->required('city')->lengthBetween(2, 255);
-        $validator->required('state')->lengthBetween(2, 50);
-        $validator->required('postal_code')->lengthBetween(2, 11);
-        $validator->required('email')->email();
-
-        return $validator->validate($facility);
-    }
-
     public function getAll()
     {
         $sql = "SELECT id,
