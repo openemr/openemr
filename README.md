@@ -335,6 +335,7 @@ curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/insurance_compa
 ### Project Management
 
 - TODO(team): Consider using Symfony's router
+- TODO(matthew): Use Patient.pid instead of Patient.id for REST mapping
 - TODO(matthew): Implement Particle's `optional` validation logic for all current validators
 - TODO(matthew): API for SOAP notes
 - TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
