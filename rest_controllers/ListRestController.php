@@ -56,4 +56,61 @@ class ListRestController
 
         http_response_code(400);
     }
+
+    public function getOptions($list_name)
+    {
+        $serviceResult = $this->listService->getOptionsByListName($list_name);
+
+        if ($serviceResult) {
+            http_response_code(200);
+            return $serviceResult;
+        }
+
+        http_response_code(500);
+    }
+
+    public function post($pid, $list_type, $data)
+    {
+        $data['type'] = $list_type;
+        $data['pid'] = $pid;
+
+        $validationResult = $this->listService->validate($data);
+
+        if (!$validationResult->isValid()) {
+            http_response_code(400);
+            return $validationResult->getMessages();
+        }
+
+        $serviceResult = $this->listService->insert($data);
+
+        if ($serviceResult) {
+            http_response_code(201);
+            return array('id' => $serviceResult);
+        }
+
+        http_response_code(400);
+    }
+
+    public function put($pid, $list_id, $list_type, $data)
+    {
+        $data['type'] = $list_type;
+        $data['pid'] = $pid;
+        $data['id'] = $list_id;
+
+        $validationResult = $this->listService->validate($data);
+
+        if (!$validationResult->isValid()) {
+            http_response_code(400);
+            return $validationResult->getMessages();
+        }
+
+        $serviceResult = $this->listService->update($data);
+
+        if ($serviceResult) {
+            http_response_code(200);
+            return array('id' => $list_id);
+        }
+
+        http_response_code(400);
+    }
 }

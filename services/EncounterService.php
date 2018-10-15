@@ -68,13 +68,6 @@ class EncounterService
                        ORDER BY fe.id
                        DESC";
 
-        $statementResults = sqlStatement($sql, array($pid, $eid));
-
-        $results = array();
-        while ($row = sqlFetchArray($statementResults)) {
-            array_push($results, $row);
-        }
-
-        return $results;
+        return sqlQuery($sql, array($pid, $eid));
     }
 }

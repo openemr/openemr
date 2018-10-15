@@ -34,86 +34,129 @@ use OpenEMR\RestControllers\PatientRestController;
 use OpenEMR\RestControllers\EncounterRestController;
 use OpenEMR\RestControllers\ProviderRestController;
 use OpenEMR\RestControllers\ListRestController;
+use OpenEMR\RestControllers\InsuranceCompanyRestController;
 
 // TODO: Need to handle auth and tokens here
 
 $routes = array(
-    'GET /facility' => function() {
+    'GET /api/facility' => function() {
         return (new FacilityRestController())->getAll();
     },
-    'GET /facility/:fid' => function($fid) {
+    'GET /api/facility/:fid' => function($fid) {
         return (new FacilityRestController())->getOne($fid);
     },
-    'POST /facility' => function() {
+    'POST /api/facility' => function() {
         $data = (array)(json_decode(file_get_contents('php://input')));
         return (new FacilityRestController())->post($data);
     },
-    'PUT /facility/:fid' => function($fid) {
+    'PUT /api/facility/:fid' => function($fid) {
         $data = (array)(json_decode(file_get_contents('php://input')));
         $data['fid'] = $fid;
         return (new FacilityRestController())->put($data);
     },
-    'GET /provider' => function() {
+    'GET /api/provider' => function() {
         return (new ProviderRestController())->getAll();
     },
-    'GET /provider/:prid' => function($prid) {
+    'GET /api/provider/:prid' => function($prid) {
         return (new ProviderRestController())->getOne($prid);
     },
-    'POST /provider' => function() {
-        $data = (array)(json_decode(file_get_contents('php://input')));
-        return (new ProviderRestController())->post($data);
-    },
-    'GET /patient' => function() {
+    'GET /api/patient' => function() {
         return (new PatientRestController(null))->getAll();
     },
-    'POST /patient' => function() {
+    'POST /api/patient' => function() {
         $data = (array)(json_decode(file_get_contents('php://input')));
         return (new PatientRestController(null))->post($data);
     },
-    'GET /patient/:pid' => function($pid) {
+    'GET /api/patient/:pid' => function($pid) {
         return (new PatientRestController($pid))->getOne();
     },
-    'GET /patient/:pid/encounter' => function($pid) {
+    'GET /api/patient/:pid/encounter' => function($pid) {
         return (new EncounterRestController())->getAll($pid);
     },
-    'GET /patient/:pid/medical_problem' => function($pid) {
-        return (new ListRestController())->getAll($pid, 'medical_problem');
-    },
-    'GET /patient/:pid/medical_problem/:mid' => function($pid, $mid) {
-        return (new ListRestController())->getOne($pid, 'medical_problem', $mid);
-    },
-    'GET /patient/:pid/allergy' => function($pid) {
-        return (new ListRestController())->getAll($pid, 'allergy');
-    },
-    'GET /patient/:pid/allergy/:aid' => function($pid, $aid) {
-        return (new ListRestController())->getOne($pid, 'allergy', $aid);
-    },
-    'GET /patient/:pid/medication' => function($pid) {
-        return (new ListRestController())->getAll($pid, 'medication');
-    },
-    'GET /patient/:pid/medication/:mid' => function($pid, $mid) {
-        return (new ListRestController())->getOne($pid, 'medication', $mid);
-    },
-    'GET /patient/:pid/surgery' => function($pid) {
-        return (new ListRestController())->getAll($pid, 'surgery');
-    },
-    'GET /patient/:pid/surgery/:sid' => function($pid, $sid) {
-        return (new ListRestController())->getOne($pid, 'surgery', $sid);
-    },
-    'GET /patient/:pid/dental_issue' => function($pid) {
-        return (new ListRestController())->getAll($pid, 'dental');
-    },
-    'GET /patient/:pid/dental_issue/:did' => function($pid, $did) {
-        return (new ListRestController())->getOne($pid, 'dental', $did);
-    },
-    'GET /patient/:pid/encounter/:eid' => function($pid, $eid) {
+    'GET /api/patient/:pid/encounter/:eid' => function($pid, $eid) {
         return (new EncounterRestController())->getOne($pid, $eid);
     },
-    'GET /version' => function() {
+    'GET /api/patient/:pid/medical_problem' => function($pid) {
+        return (new ListRestController())->getAll($pid, 'medical_problem');
+    },
+    'GET /api/patient/:pid/medical_problem/:mid' => function($pid, $mid) {
+        return (new ListRestController())->getOne($pid, 'medical_problem', $mid);
+    },
+    'POST /api/patient/:pid/medical_problem' => function($pid) {
+        $data = (array)(json_decode(file_get_contents('php://input')));
+        return (new ListRestController())->post($pid, 'medical_problem', $data);
+    },
+    'PUT /api/patient/:pid/medical_problem/:aid' => function($pid, $aid) {
+        $data = (array)(json_decode(file_get_contents('php://input')));
+        return (new ListRestController())->put($pid, $aid, 'medical_problem', $data);
+    },
+    'GET /api/patient/:pid/allergy' => function($pid) {
+        return (new ListRestController())->getAll($pid, 'allergy');
+    },
+    'GET /api/patient/:pid/allergy/:aid' => function($pid, $aid) {
+        return (new ListRestController())->getOne($pid, 'allergy', $aid);
+    },
+    'POST /api/patient/:pid/allergy' => function($pid) {
+        $data = (array)(json_decode(file_get_contents('php://input')));
+        return (new ListRestController())->post($pid, 'allergy', $data);
+    },
+    'PUT /api/patient/:pid/allergy/:aid' => function($pid, $aid) {
+        $data = (array)(json_decode(file_get_contents('php://input')));
+        return (new ListRestController())->put($pid, $aid, 'allergy', $data);
+    },
+    'GET /api/patient/:pid/medication' => function($pid) {
+        return (new ListRestController())->getAll($pid, 'medication');
+    },
+    'POST /api/patient/:pid/medication' => function($pid) {
+        $data = (array)(json_decode(file_get_contents('php://input')));
+        return (new ListRestController())->post($pid, 'medication', $data);
+    },
+    'PUT /api/patient/:pid/medication/:mid' => function($pid, $mid) {
+        $data = (array)(json_decode(file_get_contents('php://input')));
+        return (new ListRestController())->put($pid, $mid, 'medication', $data);
+    },
+    'GET /api/patient/:pid/medication/:mid' => function($pid, $mid) {
+        return (new ListRestController())->getOne($pid, 'medication', $mid);
+    },
+    'GET /api/patient/:pid/surgery' => function($pid) {
+        return (new ListRestController())->getAll($pid, 'surgery');
+    },
+    'GET /api/patient/:pid/surgery/:sid' => function($pid, $sid) {
+        return (new ListRestController())->getOne($pid, 'surgery', $sid);
+    },
+    'POST /api/patient/:pid/surgery' => function($pid) {
+        $data = (array)(json_decode(file_get_contents('php://input')));
+        return (new ListRestController())->post($pid, 'surgery', $data);
+    },
+    'PUT /api/patient/:pid/surgery/:sid' => function($pid, $sid) {
+        $data = (array)(json_decode(file_get_contents('php://input')));
+        return (new ListRestController())->put($pid, $sid, 'surgery', $data);
+    },
+    'GET /api/patient/:pid/dental_issue' => function($pid) {
+        return (new ListRestController())->getAll($pid, 'dental');
+    },
+    'GET /api/patient/:pid/dental_issue/:did' => function($pid, $did) {
+        return (new ListRestController())->getOne($pid, 'dental', $did);
+    },
+    'POST /api/patient/:pid/dental_issue' => function($pid) {
+        $data = (array)(json_decode(file_get_contents('php://input')));
+        return (new ListRestController())->post($pid, 'dental', $data);
+    },
+    'PUT /api/patient/:pid/dental_issue/:did' => function($pid, $did) {
+        $data = (array)(json_decode(file_get_contents('php://input')));
+        return (new ListRestController())->put($pid, $did, 'dental', $data);
+    },
+    'GET /api/list/:list_name' => function($list_name) {
+        return (new ListRestController())->getOptions($list_name);
+    },
+    'GET /api/version' => function() {
         return (new VersionRestController())->getOne();
     },
-    'GET /product' => function() {
+    'GET /api/product' => function() {
         return (new ProductRegistrationRestController())->getOne();
+    },
+    'GET /api/insurance_company' => function() {
+        return (new InsuranceCompanyRestController())->getAll();
     }
 );
 
