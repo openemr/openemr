@@ -5,22 +5,11 @@
  * This class contains the implementation of all the logic
  * included in the holidays calendar story.
  *
- * Copyright (C) 2016 Sharon Cohen <sharonco@matrix.co.il>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  sharonco <sharonco@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    sharonco <sharonco@matrix.co.il>
+ * @copyright Copyright (c) 2016 Sharon Cohen <sharonco@matrix.co.il>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("Holidays_Storage.php");
@@ -30,7 +19,7 @@ class Holidays_Controller
     const UPLOAD_DIR = "documents/holidays_storage";
     const FILE_NAME = "holidays_to_import.csv";
 
-    
+
     public $storage;
     public $target_file;
 
