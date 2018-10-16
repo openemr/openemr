@@ -61,7 +61,11 @@ $routes = array(
         return (new ProviderRestController())->getOne($prid);
     },
     'GET /api/patient' => function() {
-        return (new PatientRestController(null))->getAll();
+        return (new PatientRestController(null))->getAll(array(
+            'fname' => $_GET['fname'],
+            'lname' => $_GET['lname'],
+            'dob' => $_GET['dob']
+        ));
     },
     'POST /api/patient' => function() {
         $data = (array)(json_decode(file_get_contents('php://input')));

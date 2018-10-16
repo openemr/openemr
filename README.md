@@ -340,7 +340,6 @@ curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/insurance_compa
 - TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
 - TODO(?): `PatientService`'s `insert` doesn't handle `dob` correctly
 - TODO(?): Patient PUT
-- TODO(?): Patient search filter
 - TODO(?): insurance company PUT/POST
 - TODO(?): API for pharmacies
 - TODO(?): API for vitals

@@ -65,9 +65,9 @@ class PatientRestController
         http_response_code(400);
     }
 
-    public function getAll()
+    public function getAll($search)
     {
-        $serviceResult = $this->patientService->getAll();
+        $serviceResult = $this->patientService->getAll($search);
 
         if ($serviceResult) {
             http_response_code(200);
