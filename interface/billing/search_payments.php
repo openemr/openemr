@@ -406,13 +406,17 @@ document.onclick=HideTheAjaxDivs;
 </style>
 <?php
 //to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will 
-//become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an 
+//become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single indexed array as an 
 //argument, containing one or more elements, the name of the current file is the first element, if there are linked 
 // files they should be listed thereafter, please add _xpd suffix to the file name
 $arr_files_php = array("search_payments_xpd", "new_payment_xpd", "era_payments_xpd");
 $current_state = collectAndOrganizeExpandSetting($arr_files_php);
 require_once("$srcdir/expand_contract_inc.php");
 ?>
+<script>
+<?php require_once("$include_root/expand_contract_js.php");//jQuery to provide expand/contract icon toggle if form is expandable ?>
+</script>
+<title><?php echo xlt("Search Payments"); ?></title>
 </head>
 <body class="body_top" onload="OnloadAction()">
     <div class="<?php echo $container;?> expandable">
@@ -707,12 +711,6 @@ require_once("$srcdir/expand_contract_inc.php");
     function loadiframe(htmlHref) { //load iframe
          document.getElementById('targetiframe').src = htmlHref;
     }
-    </script>
-    <script>
-        <?php
-            // jQuery script to change expanded/centered state dynamically
-            require_once("../expand_contract_js.php");
-        ?>
     </script>
 </body>
 </html>
