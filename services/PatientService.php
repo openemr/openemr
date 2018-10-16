@@ -146,7 +146,7 @@ class PatientService
         return $results;
     }
 
-    public function getAll()
+    public function getAll($search)
     {
         $sql = "SELECT id,
                    pid,
@@ -167,6 +167,18 @@ class PatientService
                    race,
                    ethnicity
                 FROM patient_data";
+        
+        if ($search['fname'] || $search['lname'] || $search['dob']) {
+            $sql .= " WHERE ";
+
+            $whereClauses = array();
+
+            if ($search['fname']) { array_push($whereClauses, "fname='" . add_escape_custom($search['fname']) . "'"); }
+            if ($search['lname']) { array_push($whereClauses, "lname='" . add_escape_custom($search['lname']) . "'"); }
+            if ($search['dob']) { array_push($whereClauses, "dob='" . add_escape_custom($search['dob']) . "'"); }
+
+            $sql .= implode(" AND ", $whereClauses);
+        } 
 
         $statementResults = sqlStatement($sql);
 
