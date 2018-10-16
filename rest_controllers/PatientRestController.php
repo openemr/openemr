@@ -47,7 +47,7 @@ class PatientRestController
 
         if ($serviceResult) {
             http_response_code(201);
-            return array('id' => $serviceResult);
+            return array('pid' => $serviceResult);
         }
 
         http_response_code(400);

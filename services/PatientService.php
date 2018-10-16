@@ -118,9 +118,10 @@ class PatientService
 
     public function insert($data)
     {
+        $fresh_pid = $this->getFreshPid();
 
         $sql  = " INSERT INTO patient_data SET";
-        $sql .= "     pid='" . add_escape_custom($this->getFreshPid()) . "',";
+        $sql .= "     pid='" . add_escape_custom($fresh_pid) . "',";
         $sql .= "     title='" . add_escape_custom($data["title"]) . "',";
         $sql .= "     fname='" . add_escape_custom($data["fname"]) . "',";
         $sql .= "     mname='" . add_escape_custom($data["mname"]) . "',";
@@ -136,7 +137,13 @@ class PatientService
         $sql .= "     race='" . add_escape_custom($data["race"]) . "',";
         $sql .= "     ethnicity='" . add_escape_custom($data["ethnicity"]) . "'";
 
-        return sqlInsert($sql);
+        $results = sqlInsert($sql);
+
+        if ($results) {
+            return $fresh_pid;
+        }
+
+        return $results;
     }
 
     public function getAll()
@@ -192,7 +199,7 @@ class PatientService
                    race,
                    ethnicity
                 FROM patient_data
-                WHERE id = ?";
+                WHERE pid = ?";
 
         return sqlQuery($sql, $this->pid);
     }
