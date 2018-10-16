@@ -710,7 +710,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                     </td>
                                     <td style=\"border-bottom: 1px #000000 solid;\">
                                         <table cellspacing=0 cellpadding=0 width=100%><tr><td width=5></td><td class=\"text\">" .
-                                        text(getListItemTitle('message_status',$myrow['message_status'])) . "</td><td width=5></td></tr>
+                                        text(getListItemTitle('message_status', $myrow['message_status'])) . "</td><td width=5></td></tr>
                                         </table>
                                     </td>
                                 </tr>";
