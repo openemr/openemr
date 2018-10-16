@@ -2,22 +2,13 @@
 /**
  * interface/main/holidays/import_holidays.php holidays/clinic handle import/download holidays files
  *
- * Copyright (C) 2016 Sharon Cohen <sharonco@matrix.co.il>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  sharonco <sharonco@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    sharonco <sharonco@matrix.co.il>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2016 Sharon Cohen <sharonco@matrix.co.il>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 set_time_limit(0);
@@ -35,6 +26,10 @@ $csv_file_data = $holidays_controller->get_file_csv_data();
 
 //this part download the CSV file after the click on the href link
 if ($_GET['download_file']==1) {
+    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     $target_file=$holidays_controller->get_target_file();
     if (! file_exists($target_file)) {
         echo xlt('file missing');
@@ -57,6 +52,10 @@ if ($_GET['download_file']==1) {
 // Handle uploads.
 
 if (!empty($_POST['bn_upload'])) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     //Upload and save the csv
     $saved = $holidays_controller->upload_csv($_FILES);
     if ($saved) {
@@ -65,11 +64,19 @@ if (!empty($_POST['bn_upload'])) {
 }
 
 if (!empty($_POST['import_holidays'])) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     //Import from the csv file to the calendar external table
     $saved = $holidays_controller->import_holidays_from_csv();
 }
 
 if (!empty($_POST['sync'])) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     //Upload and save the csv
     $saved = $holidays_controller->create_holiday_event();
 }
@@ -101,6 +108,7 @@ if ($saved) {
 ?>
 <form method='post' action='import_holidays.php' enctype='multipart/form-data'
       onsubmit='return top.restoreSession()'>
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
         <p class='text'>
         <table border='1' cellpadding='4'>
@@ -111,7 +119,7 @@ if ($saved) {
             </tr>
             <tr>
                 <td class='detail' nowrap>
-                    <?php echo htmlspecialchars(xl('CSV File')); ?>
+                    <?php echo xlt('CSV File'); ?>
                     <input type="hidden" name="MAX_FILE_SIZE" value="350000000" />
                 </td>
                 <td class='detail' nowrap>
@@ -130,10 +138,10 @@ if ($saved) {
                         <?php $filename=$path[count($path)-1];?>
                         <?php unset($path[count($path)-1]);?>
 
-                        <a href="#" onclick='window.open("import_holidays.php?download_file=1")'><?php echo text($csv_file_data['date']);?></a>
+                        <a href="#" onclick='window.open("import_holidays.php?download_file=1&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>")'><?php echo text($csv_file_data['date']);?></a>
                     <?php
                     } else {
-                        echo htmlspecialchars(xl('File not found'));
+                        echo xlt('File not found');
                     } ?>
                 </td>
             </tr>
@@ -151,6 +159,7 @@ if ($saved) {
         <tr >
             <td >
                 <form method='post' action='import_holidays.php' onsubmit='return top.restoreSession()'>
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                     <input type='submit' name='import_holidays' value='<?php echo xla('Import holiday events') ?>'></br>
 
                 </form>
@@ -164,6 +173,7 @@ if ($saved) {
             <tr >
                 <td >
                     <form method='post' action='import_holidays.php' onsubmit='return top.restoreSession()'>
+                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                         <input type='submit' name='sync' value='<?php echo xla('Synchronize') ?>' /></br>
                     </form>
                 </td>
@@ -175,7 +185,3 @@ if ($saved) {
         </table>
 </body>
 </html>
-
-
-
-

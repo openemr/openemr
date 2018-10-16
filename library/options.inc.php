@@ -3821,7 +3821,7 @@ function getLayoutTitle($list, $option)
 {
     $row = sqlQuery("SELECT grp_title FROM layout_group_properties " .
     "WHERE grp_mapping = ? AND grp_form_id = ? ", array($list, $option));
-    
+
     if (empty($row['grp_title'])) {
         return $option;
     }
@@ -3830,13 +3830,13 @@ function getLayoutTitle($list, $option)
 //Added on 5-jun-2k14 (regarding get the smoking code descriptions)
 function getSmokeCodes()
 {
-     $smoking_codes_arr = array();
-     $smoking_codes = sqlStatement("SELECT option_id,codes FROM list_options WHERE list_id='smoking_status' AND activity = 1");
+    $smoking_codes_arr = array();
+    $smoking_codes = sqlStatement("SELECT option_id,codes FROM list_options WHERE list_id='smoking_status' AND activity = 1");
     while ($codes_row = sqlFetchArray($smoking_codes)) {
         $smoking_codes_arr[$codes_row['option_id']] = $codes_row['codes'];
     }
 
-     return $smoking_codes_arr;
+    return $smoking_codes_arr;
 }
 
 // Get the current value for a layout based form field.

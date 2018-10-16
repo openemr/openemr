@@ -230,11 +230,11 @@ if ($_REQUEST['action'] == "process") {
     $pidList = json_decode($_POST['parameter'], true);
     $_SESSION['pidList'] = $pidList;
     if ($_POST['item'] == "SMS") {
-        $sql = "UPDATE hipaa_reminders SET r_phone_done=NOW(),r_phone_bywhom=? WHERE r_pid IN (" . $_SESSION['pidList'] . ")";
+        $sql = "UPDATE hipaa_reminders SET r_phone_done=NOW(),r_phone_bywhom=? WHERE r_pid IN (" . add_escape_custom($_SESSION['pidList']) . ")";
         sqlQuery($sql, array($_SESSION['authUser']));
     }
     if ($_POST['item'] == "AVM") {
-        $sql = "UPDATE hipaa_reminders SET r_vm_sent=NOW(),r_vm_sent_by=? WHERE r_pid IN (" . $_SESSION['pidList'] . ")";
+        $sql = "UPDATE hipaa_reminders SET r_vm_sent=NOW(),r_vm_sent_by=? WHERE r_pid IN (" . add_escape_custom($_SESSION['pidList']) . ")";
         sqlQuery($sql, array($_SESSION['authUser']));
     }
     if ($_POST['item'] == "postcards") {
