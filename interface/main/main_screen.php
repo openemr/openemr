@@ -293,12 +293,14 @@ if ($GLOBALS['new_tabs_layout']) {
     $_SESSION['frame1target'] = $frame1target;
     $_SESSION['frame2url'] = $frame2url;
     $_SESSION['frame2target'] = $frame2target;
-  // mdsupport - Apps processing invoked for valid app selections from list
+    // mdsupport - Apps processing invoked for valid app selections from list
     if ((isset($_POST['appChoice'])) && ($_POST['appChoice'] !== '*OpenEMR')) {
         $_SESSION['app1'] = $_POST['appChoice'];
     }
 
-    header('Location: ' . $web_root . "/interface/main/tabs/main.php&csrf_token_form=" . urlencode(collectCsrfToken()));
+    // Pass a unique token, so main.php script can not be run on its own
+    $_SESSION['token_main_php'] = createUniqueToken();
+    header('Location: ' . $web_root . "/interface/main/tabs/main.php?token_main=" . urlencode($_SESSION['token_main_php']));
     exit();
 }
 

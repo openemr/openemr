@@ -18,8 +18,11 @@ require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 use Esign\Api;
 use OpenEMR\Core\Header;
 
-if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-    csrfNotVerified();
+// ensure token_main matches so this script can not be run by itself
+if ((empty($_SESSION['token_main_php'])) ||
+    (empty($_GET['token_main'])) ||
+    ($_GET['token_main'] != $_SESSION['token_main_php'])) {
+    die(xlt('Authentication Error'));
 }
 
 $esignApi = new Api();
