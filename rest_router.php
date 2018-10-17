@@ -61,11 +61,7 @@ $routes = array(
         return (new ProviderRestController())->getOne($prid);
     },
     'GET /api/patient' => function() {
-        return (new PatientRestController(null))->getAll(array(
-            'fname' => $_GET['fname'],
-            'lname' => $_GET['lname'],
-            'dob' => $_GET['dob']
-        ));
+        return (new PatientRestController(null))->getAll($_GET);
     },
     'POST /api/patient' => function() {
         $data = (array)(json_decode(file_get_contents('php://input')));
@@ -79,6 +75,20 @@ $routes = array(
     },
     'GET /api/patient/:pid/encounter/:eid' => function($pid, $eid) {
         return (new EncounterRestController())->getOne($pid, $eid);
+    },
+    'GET /api/patient/:pid/encounter/:eid/soap_note' => function($pid, $eid) {
+        return (new EncounterRestController())->getSoapNotes($pid, $eid);
+    },
+    'GET /api/patient/:pid/encounter/:eid/soap_note/:sid' => function($pid, $eid, $sid) {
+        return (new EncounterRestController())->getSoapNote($pid, $eid, $sid);
+    },
+    'POST /api/patient/:pid/encounter/:eid/soap_note' => function($pid, $eid) {
+        $data = (array)(json_decode(file_get_contents('php://input')));
+        return (new EncounterRestController())->postSoapNote($pid, $eid, $data);
+    },
+    'PUT /api/patient/:pid/encounter/:eid/soap_note/:sid' => function($pid, $eid, $sid) {
+        $data = (array)(json_decode(file_get_contents('php://input')));
+        return (new EncounterRestController())->putSoapNote($pid, $eid, $sid, $data);
     },
     'GET /api/patient/:pid/medical_problem' => function($pid) {
         return (new ListRestController())->getAll($pid, 'medical_problem');

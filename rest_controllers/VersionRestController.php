@@ -23,6 +23,7 @@
 namespace OpenEMR\RestControllers;
 
 use OpenEMR\Services\VersionService;
+use OpenEMR\RestControllers\RestControllerHelper;
 
 class VersionRestController
 {
@@ -36,12 +37,6 @@ class VersionRestController
     public function getOne()
     {
         $serviceResult = $this->versionService->fetch()->toSerializedObject();
-
-        if ($serviceResult) {
-            http_response_code(200);
-            return $serviceResult;
-        }
-
-        http_response_code(400);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 }

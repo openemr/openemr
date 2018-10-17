@@ -23,6 +23,7 @@
 namespace OpenEMR\RestControllers;
 
 use OpenEMR\Services\EncounterService;
+use OpenEMR\RestControllers\RestControllerHelper;
 
 class EncounterRestController
 {
@@ -36,24 +37,42 @@ class EncounterRestController
     public function getOne($pid, $eid)
     {
         $serviceResult = $this->encounterService->getEncounterForPatient($pid, $eid);
-
-        if ($serviceResult) {
-            http_response_code(200);
-            return $serviceResult;
-        }
-
-        http_response_code(400);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
     public function getAll($pid)
     {
         $serviceResult = $this->encounterService->getEncountersForPatient($pid);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+    }
 
-        if ($serviceResult) {
-            http_response_code(200);
-            return $serviceResult;
-        }
+    public function getSoapNotes($pid, $eid)
+    {
+        $serviceResult = $this->encounterService->getSoapNotes($pid, $eid);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+    }
 
-        http_response_code(400);
+    public function getSoapNote($pid, $eid, $sid)
+    {
+        $serviceResult = $this->encounterService->getSoapNote($pid, $eid, $sid);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+    }
+
+    public function postSoapNote($pid, $eid, $data)
+    {
+        $serviceResult = $this->encounterService->insertSoapNote($pid, $eid, $data);
+        return RestControllerHelper::responseHandler(
+            $serviceResult,
+            array(
+                'sid' => $serviceResult[0],
+                'fid' => $serviceResult[1]
+            ),
+            201);
+    }
+
+    public function putSoapNote($pid, $eid, $sid, $data)
+    {
+        $serviceResult = $this->encounterService->updateSoapNote($pid, $eid, $sid, $data);
+        return RestControllerHelper::responseHandler($serviceResult, array('sid' => $sid), 200);
     }
 }

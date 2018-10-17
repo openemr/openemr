@@ -1,6 +1,6 @@
 <?php
 /**
- * ProviderRestController
+ * RestControllerHelper
  *
  * Copyright (C) 2018 Matthew Vita <matthewvita48@gmail.com>
  *
@@ -22,27 +22,31 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\Services\ProviderService;
+use OpenEMR\Services\EncounterService;
 use OpenEMR\RestControllers\RestControllerHelper;
 
-class ProviderRestController
+class RestControllerHelper
 {
-    private $providerService;
-
-    public function __construct()
+    public static function responseHandler($serviceResult, $customRespPayload, $idealStatusCode)
     {
-        $this->providerService = new ProviderService();
+        if ($serviceResult) {
+            http_response_code($idealStatusCode);
+
+            if ($customRespPayload) {
+                return $customRespPayload;
+            }
+
+            return $serviceResult;
+        }
+
+        http_response_code(400);
     }
 
-    public function getOne($id)
+    public static function validationHandler($validationResult)
     {
-        $serviceResult = $this->providerService->getById($id);
-        return RestControllerHelper::responseHandler($serviceResult, null, 200);
-    }
-
-    public function getAll()
-    {
-        $serviceResult = $this->providerService->getAll();
-        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+        if (!$validationResult->isValid()) {
+            http_response_code(400);
+            return $validationResult->getMessages();
+        }
     }
 }
