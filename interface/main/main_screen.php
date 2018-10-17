@@ -298,7 +298,7 @@ if ($GLOBALS['new_tabs_layout']) {
         $_SESSION['app1'] = $_POST['appChoice'];
     }
 
-    header('Location: '.$web_root."/interface/main/tabs/main.php");
+    header('Location: ' . $web_root . "/interface/main/tabs/main.php&csrf_token_form=" . urlencode(collectCsrfToken()));
     exit();
 }
 

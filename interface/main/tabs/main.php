@@ -1,34 +1,26 @@
 <?php
-use Esign\Api;
-use OpenEMR\Core\Header;
-
 /**
- * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
- * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>
+ * main.php
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Kevin Yeh <kevin.y@integralemr.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Kevin Yeh <kevin.y@integralemr.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (c) 2016 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
-
-
-/* Include our required headers */
 require_once('../../globals.php');
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
+
+use Esign\Api;
+use OpenEMR\Core\Header;
+
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    csrfNotVerified();
+}
 
 $esignApi = new Api();
 
@@ -68,7 +60,10 @@ function goRepeaterServices(){
     //  timing out mechanism in OpenEMR.
     top.restoreSession();
     $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/dated_reminders_counter.php",
-        { skip_timeout_reset: "1" },
+        {
+            skip_timeout_reset: "1",
+            csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+        },
         function(data) {
             // Go knockout.js
             app_view_model.application_data.user().messages(data);
@@ -78,7 +73,11 @@ function goRepeaterServices(){
     if (isPortalEnabled) {
         top.restoreSession();
         $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/dated_reminders_counter.php",
-            {skip_timeout_reset: "1", isPortal: "1"},
+            {
+                skip_timeout_reset: "1",
+                isPortal: "1",
+                csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+            },
             function (counts) {
                 data = JSON.parse(counts);
                 let mail = data.mailCnt;
@@ -101,7 +100,11 @@ function goRepeaterServices(){
     top.restoreSession();
     // run background-services
     $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/execute_background_services.php",
-        { skip_timeout_reset: "1", ajax: "1" }
+        {
+            skip_timeout_reset: "1",
+            ajax: "1",
+            csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+        }
     );
 
     // auto run this function every 60 seconds
