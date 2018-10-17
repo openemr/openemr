@@ -112,7 +112,7 @@ $version = $versionService->fetch();
                 <?php } ?>
                 <a href="<?php echo "http://open-emr.org/wiki/index.php/OpenEMR_" . attr($version->getMajor()) . "." . attr($version->getMinor()) . "." . attr($version->getPatch()) . "_Users_Guide"; ?>" target="_blank" class="btn btn-block btn-default"><i class="fa fa-fw fa-book"></i>&nbsp;<?php echo xlt('User Manual'); ?></a>
                 <?php if (!empty($GLOBALS['online_support_link'])) { ?>
-                    <a href='<?php attr(echo $GLOBALS["online_support_link"]); ?>' target="_blank" class="btn btn-default btn-block"><i class="fa fa-fw fa-question-circle"></i>&nbsp;<?php echo xlt('Online Support'); ?></a>
+                    <a href='<?php echo attr($GLOBALS["online_support_link"]); ?>' target="_blank" class="btn btn-default btn-block"><i class="fa fa-fw fa-question-circle"></i>&nbsp;<?php echo xlt('Online Support'); ?></a>
                 <?php } ?>
                 <a href="../../acknowledge_license_cert.html" target="_blank" class="btn btn-default btn-block"><i class="fa fa-fw fa-info-circle"></i><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></a>
                 <div class="donations-needed">
