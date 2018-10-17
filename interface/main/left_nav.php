@@ -457,7 +457,10 @@ function genFindBlock()
    // Send the skip_timeout_reset parameter to not count this as a manual entry in the
    //  timing out mechanism in OpenEMR.
    $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/dated_reminders_counter.php",
-     { skip_timeout_reset: "1" },
+     {
+       skip_timeout_reset: "1",
+       csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+     },
      function(data) {
        $("#reminderCountSpan").html(data);
     // run updater every 60 seconds
@@ -466,7 +469,11 @@ function genFindBlock()
    //piggy-back on this repeater to run other background-services
    //this is a silent task manager that returns no output
    $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/execute_background_services.php",
-      { skip_timeout_reset: "1", ajax: "1" });
+      {
+          skip_timeout_reset: "1",
+          ajax: "1",
+          csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+      });
  }
 
  $(document).ready(function (){
