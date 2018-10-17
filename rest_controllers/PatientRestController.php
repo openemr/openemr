@@ -23,6 +23,7 @@
 namespace OpenEMR\RestControllers;
 
 use OpenEMR\Services\PatientService;
+use OpenEMR\RestControllers\RestControllerHelper;
 
 class PatientRestController
 {
@@ -38,42 +39,27 @@ class PatientRestController
     {
         $validationResult = $this->patientService->validate($data);
 
-        if (!$validationResult->isValid()) {
-            http_response_code(400);
-            return $validationResult->getMessages();
-        }
+        $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
+        if (is_array($validationHandlerResult)) { return $validationHandlerResult; }
 
         $serviceResult = $this->patientService->insert($data);
-
-        if ($serviceResult) {
-            http_response_code(201);
-            return array('pid' => $serviceResult);
-        }
-
-        http_response_code(400);
+        return RestControllerHelper::responseHandler($serviceResult, array("pid" => $serviceResult), 201);
     }
 
     public function getOne()
     {
         $serviceResult = $this->patientService->getOne();
-
-        if ($serviceResult) {
-            http_response_code(200);
-            return $serviceResult;
-        }
-
-        http_response_code(400);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
     public function getAll($search)
     {
-        $serviceResult = $this->patientService->getAll($search);
+        $serviceResult = $this->patientService->getAll(array(
+            'fname' => $search['fname'],
+            'lname' => $search['lname'],
+            'dob' => $search['dob']
+        ));
 
-        if ($serviceResult) {
-            http_response_code(200);
-            return $serviceResult;
-        }
-
-        http_response_code(400);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 }

@@ -108,6 +108,10 @@ curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/patient' -d \
 curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient'
 ```
 
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient&fname=...&lname=...&dob=...'
+```
+
 #### GET /api/patient/:pid
 
 ```
@@ -124,6 +128,42 @@ curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/encou
 
 ```
 curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/encounter/1'
+```
+
+#### POST /api/patient/:pid/encounter/:eid/soap_note
+
+```
+curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/patient/1/encounter/1/soap_note' -d \
+'{
+    "subjective": "...",
+    "objective": "...",
+    "assessment": "...",
+    "plan": "..."
+}'
+```
+
+#### PUT /api/patient/:pid/encounter/:eid/soap_note/:sid
+
+```
+curl -X PUT 'http://localhost:8300/rest_router.php?resource=/api/patient/1/encounter/1/soap_note/:sid' -d \
+'{
+    "subjective": "...",
+    "objective": "...",
+    "assessment": "...",
+    "plan": "..."
+}'
+```
+
+#### GET /api/patient/:pid/encounter/:eid/soap_note
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/encounter/1/soap_note'
+```
+
+#### GET /api/patient/:pid/encounter/:eid/soap_note/:sid
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/encounter/1/soap_note/1'
 ```
 
 #### POST /api/patient/:pid/medical_problem
@@ -336,7 +376,6 @@ curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/insurance_compa
 
 - TODO(team): Consider using Symfony's router
 - TODO(matthew): Implement Particle's `optional` validation logic for all current validators
-- TODO(matthew): API for SOAP notes
 - TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
 - TODO(?): `PatientService`'s `insert` doesn't handle `dob` correctly
 - TODO(?): Patient PUT

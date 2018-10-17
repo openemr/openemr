@@ -23,6 +23,7 @@
 namespace OpenEMR\RestControllers;
 
 use OpenEMR\Services\ProductRegistrationService;
+use OpenEMR\RestControllers\RestControllerHelper;
 
 class ProductRegistrationRestController
 {
@@ -36,11 +37,6 @@ class ProductRegistrationRestController
     public function getOne()
     {
         $serviceResult = $this->productRegistrationService->getProductStatus()->getStatusAsString();
-        if ($serviceResult) {
-            http_response_code(200);
-            return array("status" => $serviceResult);
-        }
-
-        http_response_code(400);
+        return RestControllerHelper::responseHandler($serviceResult, array("status" => $serviceResult), 200);
     }
 }

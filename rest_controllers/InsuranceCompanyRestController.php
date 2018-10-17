@@ -23,6 +23,7 @@
 namespace OpenEMR\RestControllers;
 
 use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\RestControllers\RestControllerHelper;
 
 class InsuranceCompanyRestController
 {
@@ -36,12 +37,6 @@ class InsuranceCompanyRestController
     public function getAll()
     {
         $serviceResult = $this->insuranceCompanyService->getAll();
-
-        if ($serviceResult) {
-            http_response_code(200);
-            return $serviceResult;
-        }
-
-        http_response_code(400);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 }

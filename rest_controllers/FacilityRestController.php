@@ -23,6 +23,7 @@
 namespace OpenEMR\RestControllers;
 
 use OpenEMR\Services\FacilityService;
+use OpenEMR\RestControllers\RestControllerHelper;
 
 class FacilityRestController
 {
@@ -36,62 +37,32 @@ class FacilityRestController
     public function getOne($id)
     {
         $serviceResult = $this->facilityService->getById($id);
-
-        if ($serviceResult) {
-            http_response_code(200);
-            return $serviceResult;
-        }
-
-        http_response_code(400);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
     public function getAll()
     {
         $serviceResult = $this->facilityService->getAll();
-
-        if ($serviceResult) {
-            http_response_code(200);
-            return $serviceResult;
-        }
-
-        http_response_code(500);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
     public function post($data)
     {
         $validationResult = $this->facilityService->validate($data);
-
-        if (!$validationResult->isValid()) {
-            http_response_code(400);
-            return $validationResult->getMessages();
-        }
+        $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
+        if (is_array($validationHandlerResult)) { return $validationHandlerResult; }
 
         $serviceResult = $this->facilityService->insert($data);
-
-        if ($serviceResult) {
-            http_response_code(201);
-            return array('id' => $serviceResult);
-        }
-
-        http_response_code(400);
+        return RestControllerHelper::responseHandler($serviceResult, array('id' => $serviceResult), 201);
     }
 
     public function put($data)
     {
         $validationResult = $this->facilityService->validate($data);
-
-        if (!$validationResult->isValid()) {
-            http_response_code(400);
-            return $validationResult->getMessages();
-        }
+        $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
+        if (is_array($validationHandlerResult)) { return $validationHandlerResult; }
 
         $serviceResult = $this->facilityService->update($data);
-
-        if ($serviceResult) {
-            http_response_code(200);
-            return array('id' => $data['fid']);
-        }
-
-        http_response_code(400);
+        return RestControllerHelper::responseHandler($serviceResult, array('id' => $data['fid']), 200);
     }
 }

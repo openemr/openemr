@@ -23,6 +23,7 @@
 namespace OpenEMR\RestControllers;
 
 use OpenEMR\Services\ListService;
+use OpenEMR\RestControllers\RestControllerHelper;
 
 class ListRestController
 {
@@ -36,37 +37,19 @@ class ListRestController
     public function getAll($pid, $list_type)
     {
         $serviceResult = $this->listService->getAll($pid, $list_type);
-
-        if ($serviceResult) {
-            http_response_code(200);
-            return $serviceResult;
-        }
-
-        http_response_code(500);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
     public function getOne($pid, $list_type, $list_id)
     {
         $serviceResult = $this->listService->getOne($pid, $list_type, $list_id);
-
-        if ($serviceResult) {
-            http_response_code(200);
-            return $serviceResult;
-        }
-
-        http_response_code(400);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
     public function getOptions($list_name)
     {
         $serviceResult = $this->listService->getOptionsByListName($list_name);
-
-        if ($serviceResult) {
-            http_response_code(200);
-            return $serviceResult;
-        }
-
-        http_response_code(500);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
     public function post($pid, $list_type, $data)
@@ -75,20 +58,11 @@ class ListRestController
         $data['pid'] = $pid;
 
         $validationResult = $this->listService->validate($data);
-
-        if (!$validationResult->isValid()) {
-            http_response_code(400);
-            return $validationResult->getMessages();
-        }
+        $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
+        if (is_array($validationHandlerResult)) { return $validationHandlerResult; }
 
         $serviceResult = $this->listService->insert($data);
-
-        if ($serviceResult) {
-            http_response_code(201);
-            return array('id' => $serviceResult);
-        }
-
-        http_response_code(400);
+        return RestControllerHelper::responseHandler($serviceResult, array('id' => $serviceResult), 201);
     }
 
     public function put($pid, $list_id, $list_type, $data)
@@ -98,19 +72,11 @@ class ListRestController
         $data['id'] = $list_id;
 
         $validationResult = $this->listService->validate($data);
+        $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
+        if (is_array($validationHandlerResult)) { return $validationHandlerResult; }
 
-        if (!$validationResult->isValid()) {
-            http_response_code(400);
-            return $validationResult->getMessages();
-        }
 
         $serviceResult = $this->listService->update($data);
-
-        if ($serviceResult) {
-            http_response_code(200);
-            return array('id' => $list_id);
-        }
-
-        http_response_code(400);
+        return RestControllerHelper::responseHandler($serviceResult, array('id' => $list_id), 200);
     }
 }
