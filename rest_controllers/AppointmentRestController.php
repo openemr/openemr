@@ -54,6 +54,11 @@ class AppointmentRestController
 
     public function post($pid, $data)
     {
+        $validationResult = $this->appointmentService->validate($data);
+
+        $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
+        if (is_array($validationHandlerResult)) { return $validationHandlerResult; }
+
         $serviceResult = $this->appointmentService->insert($pid, $data);
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }

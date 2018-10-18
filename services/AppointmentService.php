@@ -22,6 +22,8 @@
 
 namespace OpenEMR\Services;
 
+use Particle\Validator\Validator;
+
 class AppointmentService
 {
 
@@ -30,6 +32,24 @@ class AppointmentService
    */
     public function __construct()
     {
+    }
+
+    public function validate($appointment)
+    {
+        $validator = new Validator();
+
+        $validator->required('pc_eid')->numeric();
+        $validator->required('pc_catid')->numeric();
+        $validator->required('pc_title')->lengthBetween(2, 150);
+        $validator->required('pc_duration')->numeric();
+        $validator->required('pc_hometext')->string();
+        $validator->required('pc_apptstatus')->string();
+        $validator->required('pc_eventDate')->datetime('Y-m-d');
+        $validator->required('pc_startTime')->length(5); // HH:MM is 5 chars
+        $validator->required('pc_facility')->numeric();
+        $validator->required('pc_billing_facility')->numeric();
+
+        return $validator->validate($appointment);
     }
 
     public function getAppointmentsForPatient($pid)

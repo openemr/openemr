@@ -392,16 +392,16 @@ curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/appoi
 
 curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/patient/1/appointment' -d \
 '{
-	"pc_eid":"1",
-	"pc_catid": "5",
-	"pc_title": "Office Visit",
-	"pc_duration": "900",
-	"pc_hometext": "Test",
-	"pc_apptstatus": "-",
-	"pc_eventDate": "2018-10-19",
-	"pc_startTime": "09:00",
-	"pc_facility": "9",
-	"pc_billing_facility": "10"
+    "pc_eid":"1",
+    "pc_catid": "5",
+    "pc_title": "Office Visit",
+    "pc_duration": "900",
+    "pc_hometext": "Test",
+    "pc_apptstatus": "-",
+    "pc_eventDate": "2018-10-19",
+    "pc_startTime": "09:00",
+    "pc_facility": "9",
+    "pc_billing_facility": "10"
 }'
 
 
