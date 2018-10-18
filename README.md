@@ -364,6 +364,46 @@ curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/product'
 curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/insurance_company'
 ```
 
+#### GET /api/appointment
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/appointment'
+```
+
+#### GET /api/appointment/:eid
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/appointment/1'
+```
+
+#### GET /api/patient/:pid/appointment
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/appointment'
+```
+
+#### GET /api/patient/:pid/appointment/:eid
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/appointment/1'
+```
+
+#### POST /api/patient/:pid/appointment
+
+curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/patient/1/appointment' -d \
+'{
+	"pc_eid":"1",
+	"pc_catid": "5",
+	"pc_title": "Office Visit",
+	"pc_duration": "900",
+	"pc_hometext": "Test",
+	"pc_apptstatus": "-",
+	"pc_eventDate": "2018-10-19",
+	"pc_startTime": "09:00",
+	"pc_facility": "9",
+	"pc_billing_facility": "10"
+}'
+
 
 ### Dev Notes
 
@@ -376,13 +416,13 @@ curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/insurance_compa
 
 - TODO(team): Consider using Symfony's router
 - TODO(matthew): Implement Particle's `optional` validation logic for all current validators
+- TODO(matthew): API for appointments
 - TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
 - TODO(?): `PatientService`'s `insert` doesn't handle `dob` correctly
 - TODO(?): Patient PUT
 - TODO(?): insurance company PUT/POST
 - TODO(?): API for pharmacies
 - TODO(?): API for vitals
-- TODO(?): API for appointments
 - TODO(?): API for onotes
 - TODO(?): API for fee sheets
 - TODO(?): API for patient documents

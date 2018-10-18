@@ -35,6 +35,7 @@ use OpenEMR\RestControllers\EncounterRestController;
 use OpenEMR\RestControllers\ProviderRestController;
 use OpenEMR\RestControllers\ListRestController;
 use OpenEMR\RestControllers\InsuranceCompanyRestController;
+use OpenEMR\RestControllers\AppointmentRestController;
 
 // TODO: Need to handle auth and tokens here
 
@@ -156,6 +157,16 @@ $routes = array(
         $data = (array)(json_decode(file_get_contents('php://input')));
         return (new ListRestController())->post($pid, 'dental', $data);
     },
+    'GET /api/patient/:pid/appointment' => function($pid) {
+        return (new AppointmentRestController())->getAllForPatient($pid);
+    },
+    'POST /api/patient/:pid/appointment' => function($pid) {
+        $data = (array)(json_decode(file_get_contents('php://input')));
+        return (new AppointmentRestController())->post($pid, $data);
+    },
+    'GET /api/patient/:pid/appointment/:eid' => function($pid, $eid) {
+        return (new AppointmentRestController())->getOne($eid);
+    },
     'PUT /api/patient/:pid/dental_issue/:did' => function($pid, $did) {
         $data = (array)(json_decode(file_get_contents('php://input')));
         return (new ListRestController())->put($pid, $did, 'dental', $data);
@@ -171,6 +182,12 @@ $routes = array(
     },
     'GET /api/insurance_company' => function() {
         return (new InsuranceCompanyRestController())->getAll();
+    },
+    'GET /api/appointment' => function() {
+        return (new AppointmentRestController())->getAll();
+    },
+    'GET /api/appointment/:eid' => function($eid) {
+        return (new AppointmentRestController())->getOne($eid);
     }
 );
 
