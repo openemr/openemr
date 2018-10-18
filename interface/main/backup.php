@@ -219,16 +219,16 @@ if ($form_step == 1) {
     echo nl2br($form_status);
     if (file_exists($TAR_FILE_PATH)) {
         if (! unlink($TAR_FILE_PATH)) {
-            die(xlt("Couldn't remove old backup file:") . " " . $TAR_FILE_PATH);
+            die(xlt("Couldn't remove old backup file:") . " " . text($TAR_FILE_PATH));
         }
     }
 
     if (! obliterate_dir($TMP_BASE)) {
-        die(xlt("Couldn't remove dir:"). " " . $TMP_BASE);
+        die(xlt("Couldn't remove dir:"). " " . text($TMP_BASE));
     }
 
     if (! mkdir($BACKUP_DIR, 0777, true)) {
-        die(xlt("Couldn't create backup dir:") . " " . $BACKUP_DIR);
+        die(xlt("Couldn't create backup dir:") . " " . text($BACKUP_DIR));
     }
 
     $file_to_compress = "$BACKUP_DIR/openemr.sql";   // gzip this file after creation
