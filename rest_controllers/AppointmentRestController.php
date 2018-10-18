@@ -62,4 +62,10 @@ class AppointmentRestController
         $serviceResult = $this->appointmentService->insert($pid, $data);
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
+
+    public function delete($eid)
+    {
+        $serviceResult = $this->appointmentService->delete($eid);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+    }
 }

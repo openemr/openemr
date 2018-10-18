@@ -133,4 +133,9 @@ class AppointmentService
 
         return $results;
     }
+
+    public function delete($eid)
+    {
+        return sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", $eid);
+    }
 }

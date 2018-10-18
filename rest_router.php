@@ -164,6 +164,9 @@ $routes = array(
         $data = (array)(json_decode(file_get_contents('php://input')));
         return (new AppointmentRestController())->post($pid, $data);
     },
+    'DELETE /api/patient/:pid/appointment/:eid' => function($pid, $eid) {
+        return (new AppointmentRestController())->delete($eid);
+    },
     'GET /api/patient/:pid/appointment/:eid' => function($pid, $eid) {
         return (new AppointmentRestController())->getOne($eid);
     },
