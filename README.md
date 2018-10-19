@@ -15,8 +15,26 @@ This project aims to provide an easy-to-use JSON-based REST API for OpenEMR's mo
 - ?
 - ?
 
-
 ### Endpoints
+
+#### POST /api/auth
+
+Obtain an API token with your login (returns an API token):
+
+```
+curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/auth' \
+-d '{
+    "username": "ServiceUser",
+    "password": "password"
+}'
+```
+
+Each call must include the token:
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/medical_problem' \
+  -H 'x-api-token: b0583518bce37774f5ea627f7190d228'
+```
 
 #### POST /api/facility
 
@@ -424,6 +442,7 @@ curl -X DELETE 'http://localhost:8300/rest_router.php?resource=/api/patient/1/ap
 
 - TODO(team): Consider using Symfony's router
 - TODO(matthew): Implement Particle's `optional` validation logic for all current validators
+- TODO(matthew): Implement token-based authentication
 - TODO(matthew): "Delete" functions for medical problems, allergies, etc
 - TODO(matthew): API for onotes
 - TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
@@ -436,7 +455,6 @@ curl -X DELETE 'http://localhost:8300/rest_router.php?resource=/api/patient/1/ap
 - TODO(?): API for patient documents
 - TODO(?): API for prescriptions
 - TODO(?): API for messages
-- TODO(?): Implement token-based authentication
 
 
 ### What is that dog drawing?
