@@ -19,10 +19,7 @@
  */
 
 
-///////////////////////////////
-// Uncomment for development //
-$ignoreAuth = true;       //
-///////////////////////////////
+$ignoreAuth = true;
 
 require_once("interface/globals.php");
 
@@ -36,10 +33,24 @@ use OpenEMR\RestControllers\ProviderRestController;
 use OpenEMR\RestControllers\ListRestController;
 use OpenEMR\RestControllers\InsuranceCompanyRestController;
 use OpenEMR\RestControllers\AppointmentRestController;
+use OpenEMR\RestControllers\AuthRestController;
 
-// TODO: Need to handle auth and tokens here
+if ($_GET['resource'] !== "/api/auth") {
+    $authRestController = new AuthRestController();
+    $token = $_SERVER['HTTP_X_API_TOKEN'];
+    if (!$authRestController->isValidToken($token)) {
+        http_response_code(401);
+        return;
+    } else {
+        $authRestController->optionallyAddMoreTokenTime($token);
+    }
+}
 
 $routes = array(
+    'POST /api/auth' => function() {
+        $data = (array)(json_decode(file_get_contents('php://input')));
+        return (new AuthRestController())->authenticate($data);
+    },
     'GET /api/facility' => function() {
         return (new FacilityRestController())->getAll();
     },
