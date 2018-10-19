@@ -22,9 +22,11 @@
 
 namespace OpenEMR\RestControllers;
 
-// TODO: This is copy/paste code.
 require_once("{$GLOBALS['srcdir']}/authentication/password_hashing.php");
 require_once("{$GLOBALS['srcdir']}/authentication/privDB.php");
+require_once("{$GLOBALS['srcdir']}/acl.inc");
+
+// TODO: This is copy/paste code.
 define("TBL_USERS_SECURE", "users_secure");
 define("TBL_USERS", "users");
 define("COL_PWD", "password");
@@ -96,7 +98,8 @@ class AuthRestController
         return $token["token"];
     }
 
-    public function isValidToken($token) {
+    public function isValidToken($token)
+    {
         $tokenResult = sqlQuery("SELECT user_id, token, expiry FROM api_token WHERE token=?", array($token));
 
         if (!$tokenResult) {
@@ -113,7 +116,28 @@ class AuthRestController
         return true;
     }
 
-    public function optionallyAddMoreTokenTime($token) {
+    public function getUserFromToken($token)
+    {
+        $sql  = " SELECT";
+        $sql .= "     u.username";
+        $sql .= " FROM api_token a";
+        $sql .= " JOIN users_secure u ON u.id = a.user_id";
+        $sql .= " WHERE a.token = ?";
+
+        $userResult = sqlQuery($sql, array($token));
+        return $userResult["username"];
+    }
+
+    public function aclCheck($token, $section, $value)
+    {
+        $username = $this->getUserFromToken($token);
+        // TODO: DOESN'T WORK - Uncaught Error: Call to a member function acl_query() on null 
+        // return acl_check($section, $value, $username);
+        return true;
+    }
+
+    public function optionallyAddMoreTokenTime($token)
+    {
         $tokenResult = sqlQuery("SELECT user_id, token, expiry FROM api_token WHERE token=?", array($token));
 
         $currentDateTime = date("Y-m-d H:i:s");
