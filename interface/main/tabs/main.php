@@ -49,6 +49,8 @@ if ((empty($_SESSION['token_main_php'])) ||
     ($_GET['token_main'] != $_SESSION['token_main_php'])) {
     die(xlt('Authentication Error'));
 }
+// this will not allow copy/paste of the link to this main.php page or a refresh of this main.php page
+unset($_SESSION['token_main_php']);
 
 $esignApi = new Api();
 
