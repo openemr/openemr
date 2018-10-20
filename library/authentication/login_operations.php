@@ -33,7 +33,7 @@ require_once("$srcdir/authentication/common_operations.php");
  */
 function validate_user_password($username, &$password, $provider)
 {
-    $ip=$_SERVER['REMOTE_ADDR'];
+    $ip = collectIpAddresses();
 
     $valid=false;
 
@@ -110,10 +110,10 @@ function validate_user_password($username, &$password, $provider)
                 $_SESSION['userauthorized'] = '1';
             }
 
-            newEvent('login', $username, $provider, 1, "success: $ip");
+            newEvent('login', $username, $provider, 1, "success: " . $ip['ip_string']);
             $valid=true;
         } else {
-            newEvent('login', $username, $provider, 0, "failure: $ip. user not in group: $provider");
+            newEvent('login', $username, $provider, 0, "failure: " . $ip['ip_string'] . ". user not in group: $provider");
             $valid=false;
         }
     }
@@ -124,9 +124,12 @@ function validate_user_password($username, &$password, $provider)
 function verify_user_gacl_group($user)
 {
     global $phpgacl_location;
+
+    $ip = collectIpAddresses();
+
     if (isset($phpgacl_location)) {
         if (acl_get_group_titles($user) == 0) {
-            newEvent('login', $user, $provider, 0, "failure: $ip. user not in any phpGACL groups. (bad username?)");
+            newEvent('login', $user, $provider, 0, "failure: " . $ip['ip_string'] . ". user not in any phpGACL groups. (bad username?)");
             return false;
         }
     }
