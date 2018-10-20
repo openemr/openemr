@@ -118,6 +118,28 @@ curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/patient' -d \
     "race": "",
     "ethnicity": ""
 }'
+
+```
+#### PUT /api/patient/:pid
+
+```
+curl -X PUT 'http://localhost:8300/rest_router.php?resource=/api/patient/:pid' -d \
+'{
+    "title": "Mr",
+    "fname": "Baz",
+    "mname": "",
+    "lname": "Bop",
+    "street": "456 Tree Lane",
+    "postal_code": "08642",
+    "city": "FooTown",
+    "state": "FL",
+    "country_code": "US",
+    "phone_contact": "123-456-7890",
+    "dob": "1992-02-02",
+    "sex": "Male",
+    "race": "",
+    "ethnicity": ""
+}'
 ```
 
 #### GET /api/patient
@@ -502,7 +524,6 @@ curl -X DELETE 'http://localhost:8300/rest_router.php?resource=/api/patient/1/ap
 - TODO(?): API for onotes
 - TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
 - TODO(?): `PatientService`'s `insert` doesn't handle `dob` correctly
-- TODO(?): Patient PUT
 - TODO(?): insurance company PUT/POST
 - TODO(?): API for pharmacies
 - TODO(?): API for fee sheets
