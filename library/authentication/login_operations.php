@@ -89,7 +89,7 @@ function validate_user_password($username, &$password, $provider)
     $userInfo = privQuery($getUserSQL, array($username));
 
     if ($userInfo['active'] != 1) {
-        newEvent('login', $username, $provider, 0, "failure: $ip. user not active or not found in users table");
+        newEvent('login', $username, $provider, 0, "failure: " . $ip['ip_string'] . ". user not active or not found in users table");
         $password='';
         return false;
     }
