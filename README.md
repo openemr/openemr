@@ -148,6 +148,58 @@ curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/encou
 curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/encounter/1'
 ```
 
+#### POST /api/patient/:pid/encounter/:eid/vital
+
+```
+curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/patient/1/encounter/1/vital' -d \
+'{
+    "bps": "130",
+    "bpd": "80",
+    "weight": "220",
+    "height": "70",
+    "temperature": "98",
+    "temp_method": "Oral",
+    "pulse": "60",
+    "respiration": "20",
+    "note": "...",
+    "waist_circ": "37",
+    "head_circ": "22.2",
+    "oxygen_saturation": "80"
+}'
+```
+
+#### PUT /api/patient/:pid/encounter/:eid/vital/:vid
+
+```
+curl -X PUT 'http://localhost:8300/rest_router.php?resource=/api/patient/1/encounter/1/vital/1' -d \
+'{
+    "bps": "140",
+    "bpd": "80",
+    "weight": "220",
+    "height": "70",
+    "temperature": "98",
+    "temp_method": "Oral",
+    "pulse": "60",
+    "respiration": "20",
+    "note": "...",
+    "waist_circ": "37",
+    "head_circ": "22.2",
+    "oxygen_saturation": "80"
+}'
+```
+
+#### GET /api/patient/:pid/encounter/:eid/vital
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/encounter/1/vital'
+```
+
+#### GET /api/patient/:pid/encounter/:eid/vital/:vid
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/encounter/1/vital/1'
+```
+
 #### POST /api/patient/:pid/encounter/:eid/soap_note
 
 ```
@@ -441,18 +493,19 @@ curl -X DELETE 'http://localhost:8300/rest_router.php?resource=/api/patient/1/ap
 ### Project Management
 
 - TODO(team): Consider using Symfony's router
+- TODO(sherwin): Encounter POST
+- TODO(matthew): Validation for SOAP and vitals
+- TODO(matthew): Fix authorization piece
 - TODO(matthew): Implement Particle's `optional` validation logic for all current validators
-- TODO(matthew): Implement token-based authentication
 - TODO(matthew): "Delete" functions for medical problems, allergies, etc
-- TODO(matthew): API for onotes
+- TODO(?): API for patient documents
+- TODO(?): API for onotes
 - TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
 - TODO(?): `PatientService`'s `insert` doesn't handle `dob` correctly
 - TODO(?): Patient PUT
 - TODO(?): insurance company PUT/POST
 - TODO(?): API for pharmacies
-- TODO(?): API for vitals
 - TODO(?): API for fee sheets
-- TODO(?): API for patient documents
 - TODO(?): API for prescriptions
 - TODO(?): API for messages
 

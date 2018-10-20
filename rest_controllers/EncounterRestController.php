@@ -46,6 +46,36 @@ class EncounterRestController
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
+    public function postVital($pid, $eid, $data)
+    {
+        $serviceResult = $this->encounterService->insertVital($pid, $eid, $data);
+        return RestControllerHelper::responseHandler(
+            $serviceResult,
+            array(
+                'vid' => $serviceResult[0],
+                'fid' => $serviceResult[1]
+            ),
+            201);
+    }
+
+    public function putVital($pid, $eid, $vid, $data)
+    {
+        $serviceResult = $this->encounterService->updateVital($pid, $eid, $vid, $data);
+        return RestControllerHelper::responseHandler($serviceResult, array('vid' => $vid), 200);
+    }
+
+    public function getVitals($pid, $eid)
+    {
+        $serviceResult = $this->encounterService->getVitals($pid, $eid);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+    }
+
+    public function getVital($pid, $eid, $vid)
+    {
+        $serviceResult = $this->encounterService->getVital($pid, $eid, $vid);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+    }
+
     public function getSoapNotes($pid, $eid)
     {
         $serviceResult = $this->encounterService->getSoapNotes($pid, $eid);
