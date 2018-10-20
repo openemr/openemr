@@ -46,6 +46,17 @@ class PatientRestController
         return RestControllerHelper::responseHandler($serviceResult, array("pid" => $serviceResult), 201);
     }
 
+    public function put($pid, $data)
+    {
+        $validationResult = $this->patientService->validate($data);
+
+        $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
+        if (is_array($validationHandlerResult)) { return $validationHandlerResult; }
+
+        $serviceResult = $this->patientService->update($pid, $data);
+        return RestControllerHelper::responseHandler($serviceResult, array("pid" => $pid), 200);
+    }
+
     public function getOne()
     {
         $serviceResult = $this->patientService->getOne();

@@ -99,6 +99,11 @@ $routes = array(
         $data = (array)(json_decode(file_get_contents("php://input")));
         return (new PatientRestController(null))->post($data);
     },
+    "PUT /api/patient/:pid" => function($pid) {
+        authorization_check("patients", "demo");
+        $data = (array)(json_decode(file_get_contents("php://input")));
+        return (new PatientRestController(null))->put($pid, $data);
+    },
     "GET /api/patient/:pid" => function($pid) {
         authorization_check("patients", "demo");
         return (new PatientRestController($pid))->getOne();

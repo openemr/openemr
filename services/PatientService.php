@@ -146,6 +146,28 @@ class PatientService
         return $results;
     }
 
+    public function update($pid, $data)
+    {
+        $sql  = " UPDATE patient_data SET";
+        $sql .= "     title='" . add_escape_custom($data["title"]) . "',";
+        $sql .= "     fname='" . add_escape_custom($data["fname"]) . "',";
+        $sql .= "     mname='" . add_escape_custom($data["mname"]) . "',";
+        $sql .= "     lname='" . add_escape_custom($data["lname"]) . "',";
+        $sql .= "     street='" . add_escape_custom($data["street"]) . "',";
+        $sql .= "     postal_code='" . add_escape_custom($data["postal_code"]) . "',";
+        $sql .= "     city='" . add_escape_custom($data["city"]) . "',";
+        $sql .= "     state='" . add_escape_custom($data["state"]) . "',";
+        $sql .= "     country_code='" . add_escape_custom($data["country_code"]) . "',";
+        $sql .= "     phone_contact='" . add_escape_custom($data["phone_contact"]) . "',";
+        $sql .= "     dob='" . add_escape_custom($data["dob"]) . "',";
+        $sql .= "     sex='" . add_escape_custom($data["sex"]) . "',";
+        $sql .= "     race='" . add_escape_custom($data["race"]) . "',";
+        $sql .= "     ethnicity='" . add_escape_custom($data["ethnicity"]) . "'";
+        $sql .= "     where pid='" . add_escape_custom($pid) . "'";
+
+        return sqlStatement($sql);
+    }
+
     public function getAll($search)
     {
         $sql = "SELECT id,
