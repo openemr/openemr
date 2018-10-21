@@ -13,6 +13,24 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// Function to collect ip address(es)
+function collectIpAddresses()
+{
+    $mainIp = $_SERVER['REMOTE_ADDR'];
+    $stringIp = $mainIp;
+
+    if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $forwardIp = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        $stringIp .= " (" . $forwardIp . ")";
+    }
+
+    return array(
+        'ip_string' => $stringIp,
+        'ip' => $mainIp,
+        'forward_ip' => $forwardIp
+    );
+}
+
 // Function to create a random unique token
 // Length is in bytes that the openssl_random_pseudo_bytes() function will create
 function createUniqueToken($length = 32)
