@@ -1,10 +1,15 @@
 <?php
-// Copyright (C) 2010-2015 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/*
+ * This program sets the global variables.
+ *
+ * @package OpenEMR
+ * @author Rod Roark <rod@sunsetsystems.com>
+ * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2015 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
+ * @link https://github.com/openemr/openemr/tree/master
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 // $GLOBALS['print_command'] is the
 // Print command for spooling to printers, used by statements.inc.php
@@ -24,6 +29,7 @@
 //   Bahasa Indonesia               // xl('Bahasa Indonesia')
 //   Bengali                        // xl('Bengali')
 //   Bosnian                        // xl('Bosnian')
+//   Bulgarian                      // xl('Bulgarian')
 //   Chinese (Simplified)           // xl('Chinese (Simplified)')
 //   Chinese (Traditional)          // xl('Chinese (Traditional)')
 //   Croatian                       // xl('Croatian')
@@ -64,6 +70,7 @@
 //   Spanish (Spain)                // xl('Spanish (Spain)')
 //   Swedish                        // xl('Swedish')
 //   Tamil                          // xl('Tamil')
+//   Telugu                         // xl('Telugu')
 //   Thai                           // xl('Thai')
 //   Turkish                        // xl('Turkish')
 //   Ukrainian                      // xl('Ukrainian')
@@ -97,6 +104,8 @@ if (stristr(PHP_OS, 'WIN')) {
 // List of user specific tabs and globals
 $USER_SPECIFIC_TABS = array('Appearance',
     'Locale',
+    'Features',
+    'Billing',
     'Report',
     'Calendar',
     'CDR',
@@ -114,6 +123,10 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'us_weight_format',
     'date_display_format',
     'time_display_format',
+    'enable_help',
+    'posting_adj_disable',
+    'messages_due_date',
+    'expand_form',
     'ledger_begin_date',
     'print_next_appointment_on_ledger',
     'calendar_view_type',
@@ -421,6 +434,13 @@ $GLOBALS_METADATA = array(
             xl('Default state of New Window checkbox in the patient list.')
         ),
 
+        'num_of_messages_displayed' => array(
+            xl('Number of Messages Displayed in Patient Summary'),
+            'num',
+            '3',
+            xl('This is the number of messages that will be displayed in the messages widget in the patient summary screen.')
+        ),
+
         'gbl_vitals_options' => array(
             xl('Vitals Form Options'),
             array(
@@ -514,7 +534,7 @@ $GLOBALS_METADATA = array(
         'allow_debug_language' => array(
             xl('Allow Debugging Language'),
             'bool',                           // data type
-            '0',                              // default = true during development and false for production releases
+            '1',                              // default = true during development and false for production releases
             xl('This will allow selection of the debugging (\'dummy\') language.')
         ),
 
@@ -908,8 +928,31 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '1',                              // default
             xl('Observation Results in Immunization')
-        )
+        ),
 
+        'enable_help' => array(
+           xl('Enable Help Modal'),
+            array(
+                '0' => xl('Hide Help Modal'),
+                '1' => xl('Show Help Modal'),
+                '2' => xl('Disable Help Modal'),
+            ),                       // data type
+            '1',                     // default = Print End of Day Report 1
+            xl('This will allow the display of help modal on help enabled pages')
+        ),
+        'messages_due_date' => array(
+            xl('Messages - due date'),
+            'bool',                           // data type
+            '0',                              // default false
+            xl('Enables choose due date to message')
+        ),
+
+        'expand_form' => array(
+            xl('Expand Form'),
+            'bool',                           // data type
+            '0',                              // default false
+            xl('Open all expandable forms in expanded state')
+        )
     ),
     // Report Tab
     //
@@ -1027,16 +1070,6 @@ $GLOBALS_METADATA = array(
             xl('Overlay CMS 1500 on the Preprinted form')
         ),
 
-        'cms_1500' => array(
-            xl('CMS 1500 Paper Form Format'),
-            array(
-                '0' => xl('08/05{{CMS 1500 format date revision setting in globals}}'),
-                '1' => xl('02/12{{CMS 1500 format date revision setting in globals}}'),
-            ),
-            '1',                              // default
-            xl('This specifies which revision of the form the billing module should generate')
-        ),
-
         'cms_1500_box_31_format' => array(
             xl('CMS 1500: Box 31 Format'),
             array(
@@ -1075,6 +1108,13 @@ $GLOBALS_METADATA = array(
             ),
             '1',
             xl('Default selection for rendering provider in fee sheet.')
+        ),
+
+        'posting_adj_disable' => array(
+            xl('Disable Auto Adjustment Calculations in EOB Posting'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Turn off auto calculations of adjustments in EOB')
         ),
 
         'show_payment_history' => array(
@@ -1131,6 +1171,13 @@ $GLOBALS_METADATA = array(
             xl('This feature will allow the default POS facility code to be overriden from the encounter.')
         ),
 
+        'statement_logo' => array(
+            xl('Statement Logo GIF Filename'),
+            'text',                           // data type
+            'practice_logo.gif',                               // data type
+            xl('Place your logo in sites/default/images and type the filename including gif extension here.')
+        ),
+
         'use_custom_statement' => array(
             xl('Use Custom Statement'),
             'bool',                           // data type
@@ -1147,14 +1194,6 @@ $GLOBALS_METADATA = array(
             '1',                              // default = true
             xl('Patient statements can be generated as plain text or with a modern graphical appearance.')
         ),
-
-      'statement_logo' => array(
-          xl('Statement Logo GIF Filename'),
-          'text',                           // data type
-          'practice_logo.gif',                               // data type
-
-          xl('Place your logo in sites/default/images and type the filename here.')
-      ),
 
         'billing_phone_number' => array(
             xl('Custom Billing Phone Number'),
@@ -2182,7 +2221,8 @@ $GLOBALS_METADATA = array(
             array(
                 '0' => xl('No alert'),
                 '1' => xl('Alert only on birthday'),
-                '2' => xl('Alert on and after birthday')
+                '2' => xl('Alert on and after birthday'),
+                '3' => xl('Alert on and up to 28 days after birthday')
             ),
             '1',                              // default
             xl('Alert on patient birthday')
@@ -2513,6 +2553,20 @@ $GLOBALS_METADATA = array(
             xl('Enable Version 2 Onsite Patient Portal new patient to self register.')
         ),
 
+        'allow_portal_appointments' => array(
+            xl('Allow Version 2 Onsite Online Appointments'),
+            'bool',                           // data type
+            '1',
+            xl('Allow Version 2 Onsite Patient to make and view appointments online.')
+        ),
+
+        'allow_portal_chat' => array(
+            xl('Allow Version 2 Onsite Online Secure Chat'),
+            'bool',                           // data type
+            '1',
+            xl('Allow Version 2 Onsite Patient to use Secure Chat Application.')
+        ),
+
         'portal_two_payments' => array(
             xl('Allow Version 2 Onsite Online Payments'),
             'bool',                           // data type
@@ -2777,21 +2831,21 @@ $GLOBALS_METADATA = array(
         'weno_account_id' => array(
             xl('Weno eRx Account Id'),
             'text',
-            '',
+            '137',
             xl('Account Id issued for Weno eRx service.')
         ),
 
         'weno_account_pass' => array(
             xl('Weno eRx Account Pass'),
             'text',
-            '',
+            '7C84773D5063B20BC9E41636A091C6F17E9C1E34',
             xl('Account Id issued for Weno eRx service.')
         ),
 
         'weno_provider_id' => array(
             xl('Weno eRx Clinic ID'),
             'text',
-            '',
+            'C36275',
             xl('Account Id issued for Your clinics eRx service.')
         ),
 
@@ -2987,8 +3041,37 @@ $GLOBALS_METADATA = array(
             '30',
             xl('Rx Bottom Margin (px)')
         ),
+        'rx_use_fax_template' => array(
+            xl('Show button for download fax template'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('Show button in the prescription list for download fax template')
+        ),
+        'rx_zend_html_template' => array(
+            xl('Rx html print - zend module'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Use an html template from zend module')
+        ),
+        'rx_zend_html_action' => array(
+            xl('Name of zend template for html print'),
+            'text',                           // data type
+            'default',
+            xl('Name of zend template for html print, possible to add custom template in the PrescriptionTemplate module')
+        ),
+        'rx_zend_pdf_template' => array(
+            xl('Rx pdf - zend template'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Use a pdf template from zend module')
+        ),
+        'rx_zend_pdf_action' => array(
+            xl('Name of zend template for pdf export'),
+            'text',                           // data type
+            'default',
+            xl('Name of zend template for pdf export, possible to add custom template in the PrescriptionTemplate module')
+        ),
     ),
-
     'PDF' => array(
         'pdf_layout' => array(
             xl('Layout'),
