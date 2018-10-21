@@ -161,6 +161,8 @@ var xl_strings_tabs_view_model = <?php echo json_encode(array(
     'new' => xla('New')
 ));
 ?>;
+// Set the csrf_token_js token that is used in the below js/tabs_view_model.js script
+var csrf_token_js = <?php echo attr(collectCsrfToken()); ?>;
 </script>
 <script type="text/javascript" src="js/tabs_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
 

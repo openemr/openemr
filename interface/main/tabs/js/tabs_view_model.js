@@ -354,11 +354,14 @@ function clearPatient()
     $.ajax({
         type: "POST",
         url: webroot_url+"/library/ajax/unset_session_ajax.php",
-	  data: { func: "unset_pid"},
-	  success:function( msg ) {
+	    data: {
+            func: "unset_pid",
+            csrf_token_form: csrf_token_js
+        },
+	    success:function( msg ) {
 
 
-	  }
+	    }
 	});
 }
 
@@ -377,7 +380,10 @@ function clearTherapyGroup()
     $.ajax({
         type: "POST",
         url: webroot_url+"/library/ajax/unset_session_ajax.php",
-        data: { func: "unset_gid"},
+        data: {
+            func: "unset_gid",
+            csrf_token_form: csrf_token_js
+        },
         success:function( msg ) {
 
 

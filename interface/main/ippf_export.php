@@ -1,13 +1,17 @@
 <?php
-// Copyright (C) 2008-2010 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * This script creates an export file and sends it to the users's
+ * browser for download.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2008-2010 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
-// This script creates an export file and sends it to the users's
-// browser for download.
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
@@ -33,7 +37,7 @@ function Add($tag, $text)
 {
     global $out, $indent;
     $text = trim(str_replace(array("\r", "\n", "\t"), " ", $text));
-    $text = substr(htmlspecialchars($text, ENT_NOQUOTES), 0, 50);
+    $text = substr(text($text), 0, 50);
     if (/* $text */ true) {
         if ($text === 'NULL') {
             $text = '';
@@ -150,7 +154,7 @@ function mappedOption($list_id, $option_id, $default = '9')
     }
 
     $row = sqlQuery("SELECT mapping FROM list_options WHERE " .
-    "list_id = '$list_id' AND option_id = '$option_id' LIMIT 1");
+    "list_id = ? AND option_id = ? LIMIT 1", array($list_id, $option_id));
     if (empty($row)) {
         return $option_id; // should not happen
     }
@@ -167,9 +171,9 @@ function mappedFieldOption($form_id, $field_id, $option_id)
 {
     $row = sqlQuery("SELECT list_id FROM " .
     "layout_options WHERE " .
-    "form_id = '$form_id' AND " .
-    "field_id = '$field_id' " .
-    "LIMIT 1");
+    "form_id = ? AND " .
+    "field_id = ? " .
+    "LIMIT 1", array($form_id, $field_id));
     if (empty($row)) {
         return $option_id; // should not happen
     }
@@ -185,9 +189,9 @@ function mappedFieldOption($form_id, $field_id, $option_id)
 
     $row = sqlQuery("SELECT mapping FROM " .
     "list_options WHERE " .
-    "list_id = '$list_id' AND " .
-    "option_id = '$option_id' " .
-    "LIMIT 1");
+    "list_id = ? AND " .
+    "option_id = ? " .
+    "LIMIT 1", array($list_id, $option_id));
     if (empty($row)) {
         return $option_id; // should not happen
     }
@@ -207,10 +211,10 @@ function exportEncounter($pid, $encounter, $date)
   // Dump IPPF services.
     $query = "SELECT b.code_type, b.code, b.units, b.fee, c.related_code " .
     "FROM billing AS b, codes AS c WHERE " .
-    "b.pid = '$pid' AND b.encounter = '$encounter' AND " .
+    "b.pid = ? AND b.encounter = ? AND " .
     "b.activity = 1 AND " .
     "c.code_type = '12' AND c.code = b.code AND c.modifier = b.modifier ";
-    $bres = sqlStatement($query);
+    $bres = sqlStatement($query, array($pid, $encounter));
     while ($brow = sqlFetchArray($bres)) {
         if (!empty($brow['related_code'])) {
             $relcodes = explode(';', $brow['related_code']);
@@ -238,9 +242,9 @@ function exportEncounter($pid, $encounter, $date)
 
   // Dump products.
     $query = "SELECT drug_id, quantity, fee FROM drug_sales WHERE " .
-    "pid = '$pid' AND encounter = '$encounter' " .
+    "pid = ? AND encounter = ? " .
     "ORDER BY drug_id, sale_id";
-    $pres = sqlStatement($query);
+    $pres = sqlStatement($query, array($pid, $encounter));
     while ($prow = sqlFetchArray($pres)) {
         OpenTag('IMS_eMRUpload_Service');
         Add('IppfServiceProductId', $prow['drug_id']);
@@ -253,9 +257,9 @@ function exportEncounter($pid, $encounter, $date)
 
   // Dump diagnoses.
     $query = "SELECT code FROM billing WHERE " .
-    "pid = '$pid' AND encounter = '$encounter' AND " .
+    "pid = ? AND encounter = ? AND " .
     "code_type = 'ICD9' AND activity = 1 ORDER BY code, id";
-    $dres = sqlStatement($query);
+    $dres = sqlStatement($query, array($pid, $encounter));
     while ($drow = sqlFetchArray($dres)) {
         OpenTag('IMS_eMRUpload_Service');
         Add('IppfServiceProductId', $drow['code']);
@@ -269,10 +273,10 @@ function exportEncounter($pid, $encounter, $date)
   // Export referrals.  Match by date.  Export code type 3 and
   // the Requested Service which should be an IPPF code.
     $query = "SELECT refer_related_code FROM transactions WHERE " .
-    "pid = '$pid' AND refer_date = '$date' AND " .
+    "pid = ? AND refer_date = ? AND " .
     "refer_related_code != '' " .
     "ORDER BY id";
-    $tres = sqlStatement($query);
+    $tres = sqlStatement($query, array($pid, $date));
     while ($trow = sqlFetchArray($tres)) {
         $relcodes = explode(';', $trow['refer_related_code']);
         foreach ($relcodes as $codestring) {
@@ -284,8 +288,8 @@ function exportEncounter($pid, $encounter, $date)
             if ($codetype == 'REF') {
                 // This is the expected case; a direct IPPF code is obsolete.
                 $rrow = sqlQuery("SELECT related_code FROM codes WHERE " .
-                "code_type = '16' AND code = '$code' AND active = 1 " .
-                "ORDER BY id LIMIT 1");
+                "code_type = '16' AND code = ? AND active = 1 " .
+                "ORDER BY id LIMIT 1", array($code));
                 if (!empty($rrow['related_code'])) {
                         list($codetype, $code) = explode(':', $rrow['related_code']);
                 }
@@ -325,8 +329,8 @@ function endClient($pid, &$encarray)
     "FROM lists AS l " .
     "LEFT JOIN lists_ippf_con  AS c ON l.type = 'contraceptive' AND c.id = l.id " .
     "LEFT JOIN lists_ippf_gcac AS g ON l.type = 'ippf_gcac' AND g.id = l.id " .
-    "WHERE l.pid = '$pid' " .
-    "ORDER BY l.begdate");
+    "WHERE l.pid = ? " .
+    "ORDER BY l.begdate", array($pid));
 
     while ($irow = sqlFetchArray($ires)) {
         OpenTag('IMS_eMRUpload_Issue');
@@ -361,8 +365,8 @@ function endClient($pid, &$encarray)
         // List the encounters linked to this issue.  We include pid
         // to speed up the search, as it begins the primary key.
         $ieres = sqlStatement("SELECT encounter FROM issue_encounter " .
-        "WHERE pid = '$pid' AND list_id = '" . $irow['id'] . "' " .
-        "ORDER BY encounter");
+        "WHERE pid = ? AND list_id = ? " .
+        "ORDER BY encounter", array($pid, $irow['id']));
         while ($ierow = sqlFetchArray($ieres)) {
               OpenTag('IMS_eMRUpload_VisitIssue');
               Add('emrIssueId', $irow['id']);
@@ -377,11 +381,11 @@ function endClient($pid, &$encarray)
   // similarly to the above.
     foreach ($encarray as $erow) {
         $fres = sqlStatement("SELECT form_id FROM forms WHERE " .
-        "pid = '$pid' AND " .
-        "encounter = '" . $erow['encounter'] . "' AND " .
+        "pid = ? AND " .
+        "encounter = ? AND " .
         "formdir = 'LBFgcac' AND " .
         "deleted = 0 " .
-        "ORDER BY id");
+        "ORDER BY id", array($pid, $erow['encounter']));
         // For each GCAC form in this encounter...
         while ($frow = sqlFetchArray($fres)) {
               $form_id = $frow['form_id'];
@@ -393,7 +397,7 @@ function endClient($pid, &$encarray)
               Add('IssueTitle', 'GCAC Visit Form');
               Add('IssueDiagnosis', '');
               $gres = sqlStatement("SELECT field_id, field_value FROM lbf_data WHERE " .
-              "form_id = '$form_id' ORDER BY field_id");
+              "form_id = ? ORDER BY field_id", array($form_id));
               // For each data item in the form...
             while ($grow = sqlFetchArray($gres)) {
                     $key = $grow['field_id'];
@@ -434,6 +438,10 @@ function endFacility()
 }
 
 if (!empty($form_submit)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     $beg_year  = $_POST['form_year'];
     $beg_month = $_POST['form_month'];
     $end_year = $beg_year;
@@ -499,8 +507,8 @@ if (!empty($form_submit)) {
     "p.userlist2 AS education " .
     "FROM form_encounter AS fe " .
     "LEFT OUTER JOIN patient_data AS p ON p.pid = fe.pid WHERE " .
-    sprintf("fe.date >= '%04u-%02u-01 00:00:00' AND ", $beg_year, $beg_month) .
-    sprintf("fe.date < '%04u-%02u-01 00:00:00' ", $end_year, $end_month) .
+    sprintf("fe.date >= '%04u-%02u-01 00:00:00' AND ", add_escape_custom($beg_year), add_escape_custom($beg_month)) .
+    sprintf("fe.date < '%04u-%02u-01 00:00:00' ", add_escape_custom($end_year), add_escape_custom($end_month)) .
     "ORDER BY fe.pid";
     $res = sqlStatement($query);
 
@@ -545,15 +553,15 @@ if (!empty($form_submit)) {
         // Get most recent contraceptive issue.
         $crow = sqlQuery("SELECT l.begdate, c.new_method " .
         "FROM lists AS l, lists_ippf_con AS c WHERE " .
-        "l.pid = '$last_pid' AND c.id = l.id " .
-        "ORDER BY l.begdate DESC LIMIT 1");
+        "l.pid = ? AND c.id = l.id " .
+        "ORDER BY l.begdate DESC LIMIT 1", array($last_pid));
 
         // Get obstetric and abortion data from most recent static history.
         $hrow = sqlQuery("SELECT date, " .
           "usertext16 AS genobshist, " .
           "usertext17 AS genabohist " .
-          "FROM history_data WHERE pid = '$last_pid' " .
-          "ORDER BY date DESC LIMIT 1");
+          "FROM history_data WHERE pid = ? " .
+          "ORDER BY date DESC LIMIT 1", array($last_pid));
 
         // Starting a new client (patient).
         OpenTag('IMS_eMRUpload_Client');
@@ -621,13 +629,13 @@ if (!empty($form_submit)) {
         "encounter, date " .
         "FROM form_encounter WHERE " .
         // "pid = '$last_pid' AND facility_id = '$last_facility' " .
-        "pid = '$last_pid' ";
+        "pid = '" . add_escape_custom($last_pid) . "' ";
         if (true) {
               // The new logic here is to restrict to the given date range.
               // Set the above to false if all visits are wanted.
               $query .= "AND " .
-              sprintf("date >= '%04u-%02u-01 00:00:00' AND ", $beg_year, $beg_month) .
-              sprintf("date < '%04u-%02u-01 00:00:00' ", $end_year, $end_month);
+              sprintf("date >= '%04u-%02u-01 00:00:00' AND ", add_escape_custom($beg_year), add_escape_custom($beg_month)) .
+              sprintf("date < '%04u-%02u-01 00:00:00' ", add_escape_custom($end_year), add_escape_custom($end_month));
         }
 
         $query .= "ORDER BY encounter";
@@ -674,31 +682,32 @@ if ($selmonth < 1) {
 
 <head>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<title><?php xl('Backup', 'e'); ?></title>
+<title><?php echo xlt('Backup'); ?></title>
 </head>
 
 <body class="body_top">
 <center>
 &nbsp;<br />
 <form method='post' action='ippf_export.php'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <table style='width:30em'>
  <tr>
   <td align='center'>
-    <?php echo xl('Month'); ?>:
+    <?php echo xlt('Month'); ?>:
    <select name='form_month'>
 <?php
 foreach ($months as $key => $value) {
-    echo "    <option value='$key'";
+    echo "    <option value='" . attr($key) . "'";
     if ($key == $selmonth) {
         echo " selected";
     }
 
-    echo ">" . xl($value) . "</option>\n";
+    echo ">" . xlt($value) . "</option>\n";
 }
 ?>
    </select>
-   <input type='text' name='form_year' size='4' value='<?php echo $selyear; ?>' />
+   <input type='text' name='form_year' size='4' value='<?php echo attr($selyear); ?>' />
    &nbsp;
    <input type='submit' name='form_submit' value='Generate XML' />
   </td>
