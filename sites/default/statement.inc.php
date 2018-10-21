@@ -12,12 +12,14 @@
  * @author Raymond Magauran <magauran@medfetch.com>
  * @author Jerry Padgett <sjpadgett@gmail.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @author Daniel Pflieger <daniel@growlingflea.com>
  * @copyright Copyright (c) 2006 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2009 Bill Cernansky <bill@mi-squared.com>
  * @copyright Copyright (c) 2009 Tony McCormick <tony@mi-squared.com>
  * @copyright Copyright (c) 2016 Raymond Magauran <magauran@medfetch.com>
  * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2018 Daniel Pflieger <daniel@growlingflea.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -59,49 +61,63 @@ function make_statement($stmt)
  *  @param string $direction, options "web" or anything else.  Web provides apache-friendly url links.
  *  @return outputs to be displayed however requested
  */
-function report_header_2($stmt, $direction = '', $providerID = '1')
+function report_header_2($stmt, $providerID = '1')
 {
     $titleres = getPatientData($stmt['pid'], "fname,lname,DOB");
-    if ($_SESSION['pc_facility']) {
-        $sql = "select * from facility where id=?";
-        $facility = sqlQuery($sql, array($_SESSION['pc_facility']));
-    } else {
-        $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
-        $facility = sqlQuery($sql);
-    }
+    //Author Daniel Pflieger - daniel@growlingflea.com
+    //We get the service facility from the encounter.  In cases with multiple service facilities
+    //OpenEMR sends the correct facility
+
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ?", array($stmt['fid']));
+    $facility = sqlFetchArray($service_query);
 
     $DOB = oeFormatShortDate($titleres['DOB']);
-  /******************************************************************/
+    /******************************************************************/
     ob_start();
-  // Use logo if it exists as 'practice_logo.gif' in the site dir
-  // old code used the global custom dir which is no longer a valid
+    // Use logo if it exists as 'practice_logo.gif' in the site dir
+    // old code used the global custom dir which is no longer a valid
     ?>
-  <table style="width:7in;">
-    <tr>
-      <td style='width:100px;text-align:top;'>
-        <?php
-          $practice_logo = $GLOBALS['OE_SITE_DIR']."/images/practice_logo.gif";
-        if (file_exists($practice_logo)) {
-            echo "<img src='$practice_logo' align='left' style='width:125px;margin:0px;'><br />\n";
-        }
-        ?>
-      </td>
-      <td style='width:40%;'>
-        <em style="font-weight:bold;font-size:1.4em;"><?php echo text($facility['name']); ?></em><br />
-        <?php echo text($facility['street']); ?><br />
-        <?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?> <?php echo text($facility['postal_code']); ?><br />
-        <?php echo xlt('Phone').': ' .text($facility['phone']); ?><br />
-        <?php echo xlt('Fax').': ' .text($facility['fax']); ?><br />
-        <br clear='all' />
-      </td>
-      <td>
-        <em style="font-weight:bold;font-size:1.4em;"><?php echo text($titleres['fname']) . " " . text($titleres['lname']); ?></em><br />
-        <b style="font-weight:bold;"><?php echo xlt('Chart Number'); ?>:</b> <?php echo text($stmt['pid']); ?><br />
-        <b style="font-weight:bold;"><?php echo xlt('Generated on'); ?>:</b> <?php echo text(oeFormatShortDate()); ?><br />
-        <b><?php echo xlt('Provider') . ':</b>  '; ?><?php echo text(getProviderName($providerID)); ?> <br />
-      </td>
-    </tr>
-  </table>
+    <table style="width:100%;">
+        <tr>
+            <?php
+                $haveLogo = false;
+            if (empty(!$GLOBALS['statement_logo'])) {
+                $practice_logo = $GLOBALS['OE_SITE_DIR'] . "/images/" . convert_safe_file_dir_name($GLOBALS['statement_logo']);
+            } else { // 'ya never know.
+                    $practice_logo = $GLOBALS['OE_SITE_DIR'] . "/images/practice_logo.gif"; // can see is safe...
+            }
+
+                //Author Daniel Pflieger - daniel@growlingflea.com
+                //We only put space for a logo if it exists.
+                //if it does we put the patient name and the service facility on a separate line.
+                //Patients with long names cause formatting issues and it makes the statement look
+                //unprofessional. Additionally, the end user should be able to choose the
+                //statement logo from Administration -> statement.
+                //
+            if (is_file($practice_logo)) { // note: file_exist() will return true if path exist but not file. a truly function name misnomer.
+                echo "<td style='width:15%; height: auto; text-align:center;'>\n";
+                // restrain logo proportionally
+                echo "<img src='" . attr($practice_logo) . "' align='left' style='width:100%; height: auto; margin:0px;'><br />\n";
+                echo "</td>\n";
+                $haveLogo = true;
+            }
+            ?>
+            <td align='center' style='<?php echo ($haveLogo ? text("width:40%;max-width:50%;") : text("width:50%;") ) ?>'> <!--adds some growing room-->
+                <em style="font-weight:bold;font-size:1.4em;"><?php echo text($facility['name']); ?></em><br />
+                <?php echo text($facility['street']); ?><br />
+                <?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?> <?php echo text($facility['postal_code']); ?><br />
+                <?php echo xlt('Phone').': ' .text($facility['phone']); ?><br />
+                <?php echo xlt('Fax').': ' .text($facility['fax']); ?><br />
+                <br clear='all' />
+            </td>
+            <td align='center'>
+                <em style="font-weight:bold;font-size:1.4em;"><?php echo text($titleres['fname']) . " " . text($titleres['lname']); ?></em><br />
+                <b style="font-weight:bold;"><?php echo xlt('Chart Number'); ?>:</b> <?php echo text($stmt['pid']); ?><br />
+                <b style="font-weight:bold;"><?php echo xlt('Generated on'); ?>:</b> <?php echo text(oeFormatShortDate()); ?><br />
+                <b><?php echo xlt('Provider') . ':</b>  '; ?><?php echo text(getProviderName($providerID)); ?> <br />
+            </td>
+        </tr>
+    </table>
     <?php
     $output = ob_get_contents();
     ob_end_clean();
@@ -114,43 +130,41 @@ function create_HTML_statement($stmt)
         return ""; // get out if no data
     }
 
-  #minimum_amount_due_to _print
+#minimum_amount_due_to _print
     if ($stmt['amount'] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) {
         return "";
     }
 
-  // Facility (service location)
-    $atres = sqlStatement("select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f " .
-    " left join users u on f.id=u.facility_id " .
-    " left join  billing b on b.provider_id=u.id and b.pid = ? ".
-    " where  service_location=1", array($stmt['pid']));
-    $row = sqlFetchArray($atres);
+// Facility (service location) modified by Daniel Pflieger at Growlingflea Software
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ? ", array($stmt['fid']));
+    $row = sqlFetchArray($service_query);
     $clinic_name = "{$row['name']}";
     $clinic_addr = "{$row['street']}";
     $clinic_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
-  // Contacts
-    $billing_contact = "{$row['attn']}";
-    $billing_phone = "{$row['phone']}";
-  // Billing location
-    $remit_name = $clinic_name;
-    $remit_addr = $clinic_addr;
-    $remit_csz = $clinic_csz;
+
+
+// Billing location modified by Daniel Pflieger at Growlingflea Software
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", array($stmt['fid']));
+    $row = sqlFetchArray($service_query);
+    $remit_name = "{$row['name']}";
+    $remit_addr = "{$row['street']}";
+    $remit_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
 
     ob_start();
-    ?><div style="padding-left:25px;">
+?><div style="padding-left:25px;">
     <?php
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
         "ORDER BY id DESC LIMIT 1", array($stmt['pid'],$stmt['encounter']));
     $providerID = $find_provider['provider_id'];
-    echo report_header_2($stmt, $direction, $providerID);
+    echo report_header_2($stmt, $providerID);
 
-  // dunning message setup
+    // dunning message setup
 
-  // insurance has paid something
-  // $stmt['age'] how old is the invoice
-  // $stmt['dun_count'] number of statements run
-  // $stmt['level_closed'] <= 3 insurance 4 = patient
+    // insurance has paid something
+    // $stmt['age'] how old is the invoice
+    // $stmt['dun_count'] number of statements run
+    // $stmt['level_closed'] <= 3 insurance 4 = patient
 
     if ($GLOBALS['use_dunning_message']) {
         if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4) {
@@ -175,7 +189,7 @@ function create_HTML_statement($stmt)
         }
     }
 
-  // Text only labels
+    // Text only labels
 
     $label_addressee = xl('ADDRESSED TO');
     $label_remitto = xl('REMIT TO');
@@ -194,13 +208,13 @@ function create_HTML_statement($stmt)
     $label_desc = xl('Description');
     $label_amt = xl('Amount');
 
-  // This is the text for the top part of the page, up to but not
-  // including the detail lines.  Some examples of variable fields are:
-  //  %s    = string with no minimum width
-  //  %9s   = right-justified string of 9 characters padded with spaces
-  //  %-25s = left-justified string of 25 characters padded with spaces
-  // Note that "\n" is a line feed (new line) character.
-  // reformatted to handle i8n by tony
+    // This is the text for the top part of the page, up to but not
+    // including the detail lines.  Some examples of variable fields are:
+    //  %s    = string with no minimum width
+    //  %9s   = right-justified string of 9 characters padded with spaces
+    //  %-25s = left-justified string of 25 characters padded with spaces
+    // Note that "\n" is a line feed (new line) character.
+    // reformatted to handle i8n by tony
 
     $out  = "<div style='margin-left:60px;margin-top:20px;'><pre>";
     $out .= "\n";
@@ -209,8 +223,8 @@ function create_HTML_statement($stmt)
     $out .= sprintf("%-11s %-46s %s\n", $label_visit, $label_desc, $label_amt);
     $out .= "\n";
 
-  // This must be set to the number of lines generated above.
-  //
+    // This must be set to the number of lines generated above.
+    //
     $count = 6;
     $num_ages = 4;
     $aging = array();
@@ -220,7 +234,7 @@ function create_HTML_statement($stmt)
 
     $todays_time = strtotime(date('Y-m-d'));
 
-  // This generates the detail lines.  Again, note that the values must be specified in the order used.
+    // This generates the detail lines.  Again, note that the values must be specified in the order used.
     foreach ($stmt['lines'] as $line) {
         if ($GLOBALS['use_custom_statement']) {
             $description = substr($line['desc'], 0, 30);
@@ -275,8 +289,8 @@ function create_HTML_statement($stmt)
         }
     }
 
-  // This generates blank lines until we are at line 20.
-  //  At line 20 we start middle third.
+    // This generates blank lines until we are at line 20.
+    //  At line 20 we start middle third.
 
     while ($count++ < 16) {
         $out .= "\n";
@@ -289,10 +303,10 @@ function create_HTML_statement($stmt)
     $ageline = xl('Current') .': ' . sprintf("%.2f", $aging[0]);
     for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
         $ageline .= ' | ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) . ':' .
-                sprintf(" %.2f", $GLOBALS['gbl_currency_symbol'].''.$aging[$age_index]);
+            sprintf(" %.2f", $GLOBALS['gbl_currency_symbol'].''.$aging[$age_index]);
     }
 
-  // Fixed text labels
+    // Fixed text labels
     $label_ptname = xl('Name');
     $label_today = xl('Date');
     $label_due = xl('Due');
@@ -300,10 +314,10 @@ function create_HTML_statement($stmt)
     $label_call = xl('Please call if any of the above information is incorrect.');
     $label_prompt = xl('We appreciate prompt payment of balances due.');
     $label_dept = xl('Billing Department');
-    $label_bill_phone = (!empty($GLOBALS['billing_phone_number']) ? $GLOBALS['billing_phone_number'] : $billing_phone );
+    $label_bill_phone = (!empty($GLOBALS['billing_phone_number']) ? $GLOBALS['billing_phone_number'] : $row['phone'] );
     $label_appointments = xl('Future Appointments').':';
 
-  // This is the top portion of the page.
+    // This is the top portion of the page.
     $out .= "\n\n\n";
     if (strlen($stmt['bill_note']) !=0 && $GLOBALS['statement_bill_note_print']) {
         $out .= sprintf("%-46s\n", $stmt['bill_note']);
@@ -330,7 +344,7 @@ function create_HTML_statement($stmt)
     $out .= sprintf("%-s\n", $label_call);
     $out .= sprintf("%-s\n", $label_prompt);
     $out .= "\n";
-    $out .= sprintf("%-s\n", $billing_contact);
+    // $out .= sprintf("%-s\n", $billing_contact);
     $out .= sprintf("  %-s %-25s\n", $label_dept, $label_bill_phone);
     if ($GLOBALS['statement_message_to_patient']) {
         $out .= "\n";
@@ -342,7 +356,7 @@ function create_HTML_statement($stmt)
     if ($GLOBALS['show_aging_on_custom_statement']) {
         # code for ageing
         $ageline .= ' | ' . xl('Over') . ' ' . ($age_index * 30) .':'.
-        sprintf(" %.2f", $aging[$age_index]);
+            sprintf(" %.2f", $aging[$age_index]);
         $out .= "\n" . $ageline . "\n\n";
         $count++;
     }
@@ -414,15 +428,15 @@ function create_HTML_statement($stmt)
   <div style="width:7.0in;border-top:1pt solid black;"><br />';
     $out .= " <table style='width:7.0in;margin:auto;'><tr>";
     $out .= '<td style="margin:auto;"></td><td style="width:3.0in;"><b>'
-      .$label_addressee.'</b><br />'
-      .$stmt['to'][0].'<br />'
-      .$stmt['to'][1].'<br />'
-      .$stmt['to'][2].'
+        .$label_addressee.'</b><br />'
+        .$stmt['to'][0].'<br />'
+        .$stmt['to'][1].'<br />'
+        .$stmt['to'][2].'
       </td><td style="width:0.5in;"></td>
       <td style="margin:auto;"><b>'.$label_remitto.'</b><br />'
-      .$remit_name.'<br />'
-      .$remit_addr.'<br />'
-      .$remit_csz.'
+        .$remit_name.'<br />'
+        .$remit_addr.'<br />'
+        .$remit_csz.'
       </td>
       </tr></table>';
 
@@ -434,77 +448,77 @@ function create_HTML_statement($stmt)
     return $output;
 }
 
-// This function builds a printable statement or collection letter from
-// an associative array having the following keys:
-//
-//  today   = statement date yyyy-mm-dd
-//  pid     = patient ID
-//  patient = patient name
-//  amount  = total amount due
-//  to      = array of addressee name/address lines
-//  lines   = array of lines, each with the following keys:
-//    dos     = date of service yyyy-mm-dd
-//    desc    = description
-//    amount  = charge less adjustments
-//    paid    = amount paid
-//    notice  = 1 for first notice, 2 for second, etc.
-//    detail  = associative array of details
-//
-// Each detail array is keyed on a string beginning with a date in
-// yyyy-mm-dd format, or blanks in the case of the original charge
-// items.  Its values are associative arrays like this:
-//
-//  pmt - payment amount as a positive number, only for payments
-//  src - check number or other source, only for payments
-//  chg - invoice line item amount amount, only for charges or
-//        adjustments (adjustments may be zero)
-//  rsn - adjustment reason, only for adjustments
-//
-// The returned value is a string that can be sent to a printer.
-// This example is plain text, but if you are a hotshot programmer
-// then you could make a PDF or PostScript or whatever peels your
-// banana.  These strings are sent in succession, so append a form
-// feed if that is appropriate.
-//
+    // This function builds a printable statement or collection letter from
+    // an associative array having the following keys:
+    //
+    //  today   = statement date yyyy-mm-dd
+    //  pid     = patient ID
+    //  patient = patient name
+    //  amount  = total amount due
+    //  to      = array of addressee name/address lines
+    //  lines   = array of lines, each with the following keys:
+    //    dos     = date of service yyyy-mm-dd
+    //    desc    = description
+    //    amount  = charge less adjustments
+    //    paid    = amount paid
+    //    notice  = 1 for first notice, 2 for second, etc.
+    //    detail  = associative array of details
+    //
+    // Each detail array is keyed on a string beginning with a date in
+    // yyyy-mm-dd format, or blanks in the case of the original charge
+    // items.  Its values are associative arrays like this:
+    //
+    //  pmt - payment amount as a positive number, only for payments
+    //  src - check number or other source, only for payments
+    //  chg - invoice line item amount amount, only for charges or
+    //        adjustments (adjustments may be zero)
+    //  rsn - adjustment reason, only for adjustments
+    //
+    // The returned value is a string that can be sent to a printer.
+    // This example is plain text, but if you are a hotshot programmer
+    // then you could make a PDF or PostScript or whatever peels your
+    // banana.  These strings are sent in succession, so append a form
+    // feed if that is appropriate.
+    //
 
-// A sample of the text based format follows:
+    // A sample of the text based format follows:
 
-//[Your Clinic Name]             Patient Name          2009-12-29
-//[Your Clinic Address]          Chart Number: 1848
-//[City, State Zip]              Insurance information on file
-//
-//
-//ADDRESSEE                      REMIT TO
-//Patient Name                     [Your Clinic Name]
-//patient address                  [Your Clinic Address]
-//city, state zipcode              [City, State Zip]
-//                                 If paying by VISA/MC/AMEX/Dis
-//
-//Card_____________________  Exp______ Signature___________________
-//                     Return above part with your payment
-//-----------------------------------------------------------------
-//
-//_______________________ STATEMENT SUMMARY _______________________
-//
-//Visit Date  Description                                    Amount
-//
-//2009-08-20  Procedure 99345                                198.90
-//            Paid 2009-12-15:                               -51.50
-//... more details ...
-//...
-//...
-// skipping blanks in example
-//
-//
-//Name: Patient Name              Date: 2009-12-29     Due:   147.40
-//_________________________________________________________________
-//
-//Please call if any of the above information is incorrect
-//We appreciate prompt payment of balances due
-//
-//[Your billing contact name]
-//  Billing Department
-//  [Your billing dept phone]
+    //[Your Clinic Name]             Patient Name          2009-12-29
+    //[Your Clinic Address]          Chart Number: 1848
+    //[City, State Zip]              Insurance information on file
+    //
+    //
+    //ADDRESSEE                      REMIT TO
+    //Patient Name                     [Your Clinic Name]
+    //patient address                  [Your Clinic Address]
+    //city, state zipcode              [City, State Zip]
+    //                                 If paying by VISA/MC/AMEX/Dis
+    //
+    //Card_____________________  Exp______ Signature___________________
+    //                     Return above part with your payment
+    //-----------------------------------------------------------------
+    //
+    //_______________________ STATEMENT SUMMARY _______________________
+    //
+    //Visit Date  Description                                    Amount
+    //
+    //2009-08-20  Procedure 99345                                198.90
+    //            Paid 2009-12-15:                               -51.50
+    //... more details ...
+    //...
+    //...
+    // skipping blanks in example
+    //
+    //
+    //Name: Patient Name              Date: 2009-12-29     Due:   147.40
+    //_________________________________________________________________
+    //
+    //Please call if any of the above information is incorrect
+    //We appreciate prompt payment of balances due
+    //
+    //[Your billing contact name]
+    //  Billing Department
+    //  [Your billing dept phone]
 
 function create_statement($stmt)
 {
@@ -512,48 +526,45 @@ function create_statement($stmt)
         return ""; // get out if no data
     }
 
-  #minimum_amount_to _print
+    #minimum_amount_to _print
     if ($stmt[amount] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) {
         return "";
     }
 
-  // These are your clinics return address, contact etc.  Edit them.
-  // TBD: read this from the facility table
+    // These are your clinics return address, contact etc.  Edit them.
+    // TBD: read this from the facility table
 
-  // Facility (service location)
-    $atres = sqlStatement("select f.name,f.street,f.city,f.state,f.postal_code from facility f " .
-    " left join users u on f.id=u.facility_id " .
-    " left join  billing b on b.provider_id=u.id and b.pid = '".$stmt['pid']."' " .
-    " where  service_location=1");
-    $row = sqlFetchArray($atres);
-
-  // Facility (service location)
-
+    // Facility (service location) modified by Daniel Pflieger at Growlingflea Software
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ?", array($stmt['fid']));
+    $row = sqlFetchArray($service_query);
     $clinic_name = "{$row['name']}";
     $clinic_addr = "{$row['street']}";
     $clinic_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
 
 
-  // Billing location
-    $remit_name = $clinic_name;
-    $remit_addr = $clinic_addr;
-    $remit_csz = $clinic_csz;
+    // Billing location modified by Daniel Pflieger at Growlingflea Software
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", array($stmt['fid']));
+    $row = sqlFetchArray($service_query);
+    $remit_name = "{$row['name']}";
+    $remit_addr = "{$row['street']}";
+    $remit_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
 
-  // Contacts
+
+    // Contacts
     $atres = sqlStatement("select f.attn,f.phone from facility f " .
-    " left join users u on f.id=u.facility_id " .
-    " left join  billing b on b.provider_id=u.id and b.pid = '".$stmt['pid']."'  " .
-    " where billing_location=1");
+        " left join users u on f.id=u.facility_id " .
+        " left join  billing b on b.provider_id=u.id and b.pid = '".$stmt['pid']."'  " .
+        " where billing_location=1");
     $row = sqlFetchArray($atres);
     $billing_contact = "{$row['attn']}";
     $billing_phone = "{$row['phone']}";
 
-  // dunning message setup
+    // dunning message setup
 
-  // insurance has paid something
-  // $stmt['age'] how old is the invoice
-  // $stmt['dun_count'] number of statements run
-  // $stmt['level_closed'] <= 3 insurance 4 = patient
+    // insurance has paid something
+    // $stmt['age'] how old is the invoice
+    // $stmt['dun_count'] number of statements run
+    // $stmt['level_closed'] <= 3 insurance 4 = patient
 
     if ($GLOBALS['use_dunning_message']) {
         if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4) {
@@ -578,7 +589,7 @@ function create_statement($stmt)
         }
     }
 
-  // Text only labels
+    // Text only labels
 
     $label_addressee = xl('ADDRESSED TO');
     $label_remitto = xl('REMIT TO');
@@ -597,15 +608,15 @@ function create_statement($stmt)
     $label_desc = xl('Description');
     $label_amt = xl('Amount');
 
-  // This is the text for the top part of the page, up to but not
-  // including the detail lines.  Some examples of variable fields are:
-  //  %s    = string with no minimum width
-  //  %9s   = right-justified string of 9 characters padded with spaces
-  //  %-25s = left-justified string of 25 characters padded with spaces
-  // Note that "\n" is a line feed (new line) character.
-  // reformatted to handle i8n by tony
+    // This is the text for the top part of the page, up to but not
+    // including the detail lines.  Some examples of variable fields are:
+    //  %s    = string with no minimum width
+    //  %9s   = right-justified string of 9 characters padded with spaces
+    //  %-25s = left-justified string of 25 characters padded with spaces
+    // Note that "\n" is a line feed (new line) character.
+    // reformatted to handle i8n by tony
     $out = "\n\n";
-    $providerNAME = getProviderName($stmt['providerID']);
+    $providerNAME = getProviderName($stmt['provider_id']);
     $out .= sprintf("%-30s %s %-s\n", $clinic_name, $stmt['patient'], $stmt['today']);
     $out .= sprintf("%-30s %s: %-s\n", $providerNAME, $label_chartnum, $stmt['pid']);
     $out .= sprintf("%-30s %s\n", $clinic_addr, $label_insinfo);
@@ -639,8 +650,8 @@ function create_statement($stmt)
     $out .= sprintf("%-11s %-46s %s\n", $label_visit, $label_desc, $label_amt);
     $out .= "\n";
 
-  // This must be set to the number of lines generated above.
-  //
+    // This must be set to the number of lines generated above.
+    //
     $count = 25;
     $num_ages = 4;
     $aging = array();
@@ -650,9 +661,9 @@ function create_statement($stmt)
 
     $todays_time = strtotime(date('Y-m-d'));
 
-  // This generates the detail lines.  Again, note that the values must
-  // be specified in the order used.
-  //
+    // This generates the detail lines.  Again, note that the values must
+    // be specified in the order used.
+    //
 
 
     foreach ($stmt['lines'] as $line) {
@@ -710,8 +721,8 @@ function create_statement($stmt)
         }
     }
 
-  // This generates blank lines until we are at line 42.
-  //
+    // This generates blank lines until we are at line 42.
+    //
     while ($count++ < 42) {
         $out .= "\n";
     }
@@ -723,10 +734,10 @@ function create_statement($stmt)
     $ageline = xl('Current') .' ' . sprintf("%.2f", $aging[0]);
     for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
         $ageline .= ' / ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) .
-        sprintf(" %.2f", $aging[$age_index]);
+            sprintf(" %.2f", $aging[$age_index]);
     }
 
-  // Fixed text labels
+    // Fixed text labels
     $label_ptname = xl('Name');
     $label_today = xl('Date');
     $label_due = xl('Amount Due');
@@ -737,7 +748,7 @@ function create_statement($stmt)
     $label_bill_phone = (!empty($GLOBALS['billing_phone_number']) ? $GLOBALS['billing_phone_number'] : $billing_phone );
     $label_appointments = xl('Future Appointments').':';
 
-  // This is the bottom portion of the page.
+    // This is the bottom portion of the page.
     $out .= "\n";
     if (strlen($stmt['bill_note']) !=0 && $GLOBALS['statement_bill_note_print']) {
         $out .= sprintf("%-46s\n", $stmt['bill_note']);
@@ -773,7 +784,7 @@ function create_statement($stmt)
     if ($GLOBALS['show_aging_on_custom_statement']) {
         # code for ageing
         $ageline .= ' / ' . xl('Over') . '-' . ($age_index * 30) .
-        sprintf(" %.2f", $aging[$age_index]);
+            sprintf(" %.2f", $aging[$age_index]);
         $out .= "\n" . $ageline . "\n\n";
     }
 
@@ -825,36 +836,36 @@ function osp_create_HTML_statement($stmt)
 
     // Facility (service location)
     $atres = sqlStatement("select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f " .
-            " left join users u on f.id=u.facility_id " .
-            " left join  billing b on b.provider_id=u.id and b.pid = ? ".
-            " where  service_location=1", array($stmt['pid']));
+    " left join users u on f.id=u.facility_id " .
+    " left join  billing b on b.provider_id=u.id and b.pid = ? ".
+    " where  service_location=1", array($stmt['pid']));
     $row = sqlFetchArray($atres);
     $clinic_name = "{$row['name']}";
     $clinic_addr = "{$row['street']}";
     $clinic_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
-    // Contacts
+// Contacts
     $billing_contact = "{$row['attn']}";
     $billing_phone = "{$row['phone']}";
-    // Billing location
+// Billing location
     $remit_name = $clinic_name;
     $remit_addr = $clinic_addr;
     $remit_csz = $clinic_csz;
 
     ob_start();
-    ?><div style="padding-left:25px;">
+?><div style="padding-left:25px;">
     <?php
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
         "ORDER BY id DESC LIMIT 1", array($stmt['pid'],$stmt['encounter']));
     $providerID = $find_provider['provider_id'];
-    echo report_header_2($stmt, $direction, $providerID);
+    echo report_header_2($stmt, $providerID);
 
-  // dunning message setup
+    // dunning message setup
 
-  // insurance has paid something
-  // $stmt['age'] how old is the invoice
-  // $stmt['dun_count'] number of statements run
-  // $stmt['level_closed'] <= 3 insurance 4 = patient
+    // insurance has paid something
+    // $stmt['age'] how old is the invoice
+    // $stmt['dun_count'] number of statements run
+    // $stmt['level_closed'] <= 3 insurance 4 = patient
 
     if ($GLOBALS['use_dunning_message']) {
         if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4) {
@@ -879,7 +890,7 @@ function osp_create_HTML_statement($stmt)
         }
     }
 
-  // Text only labels
+    // Text only labels
 
     $label_addressee = xl('ADDRESSED TO');
     $label_remitto = xl('REMIT TO');
@@ -897,13 +908,13 @@ function osp_create_HTML_statement($stmt)
     $label_desc = xl('Description');
     $label_amt = xl('Amount');
 
-  // This is the text for the top part of the page, up to but not
-  // including the detail lines.  Some examples of variable fields are:
-  //  %s    = string with no minimum width
-  //  %9s   = right-justified string of 9 characters padded with spaces
-  //  %-25s = left-justified string of 25 characters padded with spaces
-  // Note that "\n" is a line feed (new line) character.
-  // reformatted to handle i8n by tony
+    // This is the text for the top part of the page, up to but not
+    // including the detail lines.  Some examples of variable fields are:
+    //  %s    = string with no minimum width
+    //  %9s   = right-justified string of 9 characters padded with spaces
+    //  %-25s = left-justified string of 25 characters padded with spaces
+    // Note that "\n" is a line feed (new line) character.
+    // reformatted to handle i8n by tony
 
     $out  = "<div style='margin-left:60px;margin-top:0px;'>";
     $out .= "\n";
@@ -912,8 +923,8 @@ function osp_create_HTML_statement($stmt)
     $out .= sprintf("%-11s %-46s %s\n", $label_visit, $label_desc, $label_amt);
     $out .= "\n";
 
-  // This must be set to the number of lines generated above.
-  //
+    // This must be set to the number of lines generated above.
+    //
     $count = 6;
     $num_ages = 4;
     $aging = array();
@@ -923,7 +934,7 @@ function osp_create_HTML_statement($stmt)
 
     $todays_time = strtotime(date('Y-m-d'));
 
-  // This generates the detail lines.  Again, note that the values must be specified in the order used.
+    // This generates the detail lines.  Again, note that the values must be specified in the order used.
     foreach ($stmt['lines'] as $line) {
         if ($GLOBALS['use_custom_statement']) {
             $description = substr($line['desc'], 0, 30);
@@ -978,10 +989,10 @@ function osp_create_HTML_statement($stmt)
         }
     }
 
-  // This generates blank lines until we are at line 20.
-  //  At line 20 we start middle third.
+    // This generates blank lines until we are at line 20.
+    //  At line 20 we start middle third.
 
-  //while ($count++ < 16) $out .= "\n";
+    //while ($count++ < 16) $out .= "\n";
     # Generate the string of aging text.  This will look like:
     # Current xxx.xx / 31-60 x.xx / 61-90 x.xx / Over-90 xxx.xx
     # ....+....1....+....2....+....3....+....4....+....5....+....6....+
@@ -989,10 +1000,10 @@ function osp_create_HTML_statement($stmt)
     $ageline = xl('Current') .': ' . sprintf("%.2f", $aging[0]);
     for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
         $ageline .= ' | ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) . ':' .
-                sprintf(" %.2f", $GLOBALS['gbl_currency_symbol'].''.$aging[$age_index]);
+            sprintf(" %.2f", $GLOBALS['gbl_currency_symbol'].''.$aging[$age_index]);
     }
 
-  // Fixed text labels
+    // Fixed text labels
     $label_ptname = xl('Name');
     $label_today = xl('Date');
     $label_due = xl('Due');
@@ -1003,7 +1014,7 @@ function osp_create_HTML_statement($stmt)
     $label_bill_phone = (!empty($GLOBALS['billing_phone_number']) ? $GLOBALS['billing_phone_number'] : $billing_phone );
     $label_appointments = xl('Future Appointments').':';
 
-  // This is the top portion of the page.
+    // This is the top portion of the page.
     $out .= "\n";
     if (strlen($stmt['bill_note']) !=0 && $GLOBALS['statement_bill_note_print']) {
         $out .= sprintf("%-46s\n", $stmt['bill_note']);
@@ -1042,7 +1053,7 @@ function osp_create_HTML_statement($stmt)
     if ($GLOBALS['show_aging_on_custom_statement']) {
         # code for ageing
         $ageline .= ' | ' . xl('Over') . ' ' . ($age_index * 30) .':'.
-        sprintf(" %.2f", $aging[$age_index]);
+            sprintf(" %.2f", $aging[$age_index]);
         $out .= "\n" . $ageline . "\n\n";
         $count++;
     }
@@ -1076,7 +1087,7 @@ function osp_create_HTML_statement($stmt)
         }
     }
 
- // while ($count++ < 29) $out .= "\n";
+    // while ($count++ < 29) $out .= "\n";
     $out .= sprintf("%-10s %s\n", null, $label_retpay);
     $out .= '</pre></div>';
     $out .= '<div style="width:7.0in;border-top:1pt dotted black;font-size:12px;margin:0px;"><br /><br />
@@ -1089,7 +1100,7 @@ function osp_create_HTML_statement($stmt)
     $out .="      </td><td style=width:2.0in;vertical-align:middle;'>";
     $practice_cards = $GLOBALS['OE_SITE_DIR']. "/images/visa_mc_disc_credit_card_logos_176x35.gif";
     if (file_exists($GLOBALS['OE_SITE_DIR']."/images/visa_mc_disc_credit_card_logos_176x35.gif")) {
-      //$out .= "<img onclick='getPayment()' src='$practice_cards' style='width:100%;margin:4px auto;'><br /><p>\n".$label_totaldue.": ".$stmt['amount']."</p>";
+        //$out .= "<img onclick='getPayment()' src='$practice_cards' style='width:100%;margin:4px auto;'><br /><p>\n".$label_totaldue.": ".$stmt['amount']."</p>";
         $out .= "<br /><p>".$label_totaldue.": ".$stmt['amount']."</p>";
     }
 
@@ -1104,15 +1115,15 @@ function osp_create_HTML_statement($stmt)
   <div style="width:8in;border-top:1pt solid black;"><br />';
     $out .= " <table style='width:6.0in;margin-left:40px;'><tr>";
     $out .= '<td style="width:3.0in;"><b>'
-      .$label_addressee.'</b><br />'
-      .$stmt['to'][0].'<br />'
-      .$stmt['to'][1].'<br />'
-      .$stmt['to'][2].'
+        .$label_addressee.'</b><br />'
+        .$stmt['to'][0].'<br />'
+        .$stmt['to'][1].'<br />'
+        .$stmt['to'][2].'
       </td>
       <td style="width:3.0in;"><b>'.$label_remitto.'</b><br />'
-      .$remit_name.'<br />'
-      .$remit_addr.'<br />'
-      .$remit_csz.'
+        .$remit_name.'<br />'
+        .$remit_addr.'<br />'
+        .$remit_csz.'
       </td>
       </tr></table>';
 
@@ -1124,4 +1135,4 @@ function osp_create_HTML_statement($stmt)
     return $output;
 }
 
-?>
+        ?>
