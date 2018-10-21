@@ -1179,6 +1179,13 @@ $GLOBALS_METADATA = array(
             xl('This feature will allow the default POS facility code to be overriden from the encounter.')
         ),
 
+        'statement_logo' => array(
+            xl('Statement Logo GIF Filename'),
+            'text',                           // data type
+            'practice_logo.gif',                               // data type
+            xl('Place your logo in sites/default/images and type the filename including gif extension here.')
+        ),
+
         'use_custom_statement' => array(
             xl('Use Custom Statement'),
             'bool',                           // data type
