@@ -237,7 +237,7 @@ curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/patient/1/enco
 #### PUT /api/patient/:pid/encounter/:eid/soap_note/:sid
 
 ```
-curl -X PUT 'http://localhost:8300/rest_router.php?resource=/api/patient/1/encounter/1/soap_note/:sid' -d \
+curl -X PUT 'http://localhost:8300/rest_router.php?resource=/api/patient/1/encounter/1/soap_note/1' -d \
 '{
     "subjective": "...",
     "objective": "...",
@@ -516,17 +516,17 @@ curl -X DELETE 'http://localhost:8300/rest_router.php?resource=/api/patient/1/ap
 
 - TODO(team): Consider using Symfony's router
 - TODO(sherwin): Encounter POST
-- TODO(matthew): Validation for SOAP and vitals
+- TODO(matthew): API for patient documents
 - TODO(matthew): Fix authorization piece
 - TODO(matthew): Implement Particle's `optional` validation logic for all current validators
 - TODO(matthew): "Delete" functions for medical problems, allergies, etc
-- TODO(?): API for patient documents
 - TODO(?): API for onotes
 - TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
 - TODO(?): `PatientService`'s `insert` doesn't handle `dob` correctly
 - TODO(?): insurance company PUT/POST
-- TODO(?): API for pharmacies
+- TODO(?): API for patient insurance
 - TODO(?): API for fee sheets
+- TODO(?): API for pharmacies
 - TODO(?): API for prescriptions
 - TODO(?): API for messages
 

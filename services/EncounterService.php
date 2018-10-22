@@ -22,6 +22,8 @@
 
 namespace OpenEMR\Services;
 
+use Particle\Validator\Validator;
+
 class EncounterService
 {
 
@@ -30,6 +32,40 @@ class EncounterService
    */
     public function __construct()
     {
+    }
+
+    public function validateSoapNote($soapNote)
+    {
+        $validator = new Validator();
+
+        $validator->optional('subjective')->lengthBetween(2, 65535);
+        $validator->optional('objective')->lengthBetween(2, 65535);
+        $validator->optional('assessment')->lengthBetween(2, 65535);
+        $validator->optional('plan')->lengthBetween(2, 65535);
+
+        return $validator->validate($soapNote);
+    }
+
+    public function validateVital($vital)
+    {
+        $validator = new Validator();
+
+        $validator->optional('temp_method')->lengthBetween(1, 255);
+        $validator->optional('note')->lengthBetween(1, 255);
+        $validator->optional('BMI_status')->lengthBetween(1, 255);
+        $validator->optional('bps')->numeric();
+        $validator->optional('bpd')->numeric();
+        $validator->optional('weight')->numeric();
+        $validator->optional('height')->numeric();
+        $validator->optional('temperature')->numeric();
+        $validator->optional('pulse')->numeric();
+        $validator->optional('respiration')->numeric();
+        $validator->optional('BMI')->numeric();
+        $validator->optional('waist_circ')->numeric();
+        $validator->optional('head_circ')->numeric();
+        $validator->optional('oxygen_saturation')->numeric();
+
+        return $validator->validate($vital);
     }
 
     public function getEncountersForPatient($pid)
