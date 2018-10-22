@@ -982,7 +982,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 }
                                 if (!$where) {
                                     if ($_REQUEST['form_category'] == 'All') {
-                                        die(xlt("At least one search parameter is required if you select All."));
+                                        $alertmsg .= xlt("At least one search parameter is required if you select All.");
                                     } else {
                                         $where = "1 = 1";
                                     }
@@ -1013,13 +1013,15 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                         // will require MySQL 4.1 or greater.
 
                         // echo "<!-- $query -->\n"; // debugging
+                                $num_invoices = 0;
+                            if (!$alertmsg) {
+                                $t_res = sqlStatement($query);
+                                $num_invoices = sqlNumRows($t_res);
+                            }
 
-                            $t_res = sqlStatement($query);
-
-                            $num_invoices = sqlNumRows($t_res);
                             if ($eracount && $num_invoices != $eracount) {
                                 $alertmsg .= "Of $eracount remittances, there are $num_invoices " .
-                                "matching encounters in OpenEMR. ";
+                                    "matching encounters in OpenEMR. ";
                             }
                         ?>
                         <table class="table table-striped table-condensed">
