@@ -47,6 +47,7 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/classes/Document.class.php");
 require_once("./../lib/portal_mail.inc");
+use OpenEMR\Core\Header;
 
 $docid = empty($_REQUEST['docid']) ? 0 : intval($_REQUEST['docid']);
 $orderid = empty($_REQUEST['orderid']) ? 0 : intval($_REQUEST['orderid']);
@@ -100,33 +101,8 @@ function getAuthPortalUsers()
 <meta name="viewport"
     content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Mail Application" />
-<link
-    href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome/css/font-awesome.min.css"
-    type="text/css" rel="stylesheet">
-<link
-    href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/css/bootstrap.min.css"
-    rel="stylesheet" type="text/css" />
-<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
-    <link
-    href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl/dist/css/bootstrap-rtl.min.css"
-    rel="stylesheet" type="text/css" />
-<?php } ?>
-<script type='text/javascript'
-    src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-11-3/dist/jquery.js"></script>
-<script type='text/javascript'
-    src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.min.js"></script>
-<link rel="stylesheet"
-    href="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote/dist/summernote.css" />
-<script type='text/javascript'
-    src="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote/dist/summernote.js"></script>
-<script type='text/javascript'
-    src="<?php echo $GLOBALS['assets_static_relative']; ?>/angular/angular.min.js"></script>
-<script type='text/javascript'
-    src="<?php echo $GLOBALS['assets_static_relative']; ?>/angular-summernote/dist/angular-summernote.js"></script>
-<script type='text/javascript'
-    src="<?php echo $GLOBALS['assets_static_relative']; ?>/angular-sanitize/angular-sanitize.min.js"></script>
-<script
-    src='<?php echo $GLOBALS['assets_static_relative']; ?>/checklist-model/checklist-model.js'></script>
+
+<?php Header::setupHeader(['summernote', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model']); ?>
 
 </head>
 <body class="skin-blue">
@@ -550,7 +526,7 @@ function getAuthPortalUsers()
                         ng-click="isAllSelected()"><span class="badge pull-right">{{allItems.length}}</span><?php echo xlt('All'); ?></a></li>
                     <!-- <li data-toggle="pill" class="bg-info"><a href="#"><span class="badge pull-right">0</span><?php //echo xlt('Drafts'); ?></a></li> -->
                     <li data-toggle="pill" class="bg-info"><a href="javascript:;"
-                        ng-click="isTrashSelected()"><span class="badge pull-right">{{deletedItems.length}}</span><?php echo xlt('Trash'); ?></a></li>
+                        ng-click="isTrashSelected()"><span class="badge pull-right">{{deletedItems.length}}</span><?php echo xlt('Archive'); ?></a></li>
                     <li class="pill bg-danger"><a
                         href="<?php echo $GLOBALS['web_root']?>/portal/patient/provider"
                         ng-show="!isPortal"><?php echo xlt('Exit Mail'); ?></a></li>
@@ -584,7 +560,7 @@ function getAuthPortalUsers()
                                 <li><a href="" data-mode="add" data-toggle="modal"
                                     data-target="#modalCompose"><?php echo xlt('Compose new'); ?></a></li>
                                 <li ng-show='!isTrash'><a href="javascript:;"
-                                    ng-click="batchDelete(items)"><i class="fa fa-trash-o"></i> <?php echo xlt('Send Selected to Trash'); ?></a></li>
+                                    ng-click="batchDelete(items)"><i class="fa fa-trash-o"></i> <?php echo xlt('Send Selected to Archive'); ?></a></li>
                                 <li><a href="javascript:;"
                                     onclick='window.location.replace("<?php echo $GLOBALS['web_root']?>/portal/home.php")'
                                     ng-show="isPortal" class="text-muted"><?php echo xlt('Return Home'); ?></a></li>
@@ -674,7 +650,7 @@ function getAuthPortalUsers()
                                     -->
                                         <li class="divider"></li>
                                         <li ng-show='!isTrash'><a href="javascript:;"
-                                            ng-click="batchDelete(items)"><i class="fa fa-trash-o"></i> <?php echo xlt('Send to Trash'); ?></a></li>
+                                            ng-click="batchDelete(items)"><i class="fa fa-trash-o"></i> <?php echo xlt('Send to Archive'); ?></a></li>
                                     </ul>
                                 </div>
                                 <div class="spacer5 pull-right"></div>
