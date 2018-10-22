@@ -561,7 +561,7 @@ function setMyPatient() {
  }
 <?php
 if (isset($_GET['set_pid'])) { ?>
-    parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) .
+    parent.left_nav.setPatient(<?php echo "'" . htmlspecialchars($result['fname']) . " " . htmlspecialchars($result['lname']) .
     "'," . addslashes($pid) . ",'" . addslashes($result['pubpid']) .
     "','', ' " . xls('DOB') . ": " . addslashes(oeFormatShortDate($result['DOB_YMD'])) . " ";
     $date_of_death = is_patient_deceased($pid)['date_deceased'];

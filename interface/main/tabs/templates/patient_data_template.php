@@ -34,7 +34,7 @@
                 <?php echo xlt("Patient"); ?>:
                 <!-- ko if: patient -->
                     <a class="ptName" data-bind="click:refreshPatient,with: patient" href="#">
-                        <span data-bind="text: pname()"></span>
+                        <span data-bind="html: pname()"></span>
                         (<span data-bind="text: pubpid"></span>)
                     </a>
                 <!-- /ko -->
