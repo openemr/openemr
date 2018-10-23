@@ -22,7 +22,6 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/billrep.inc");
 require_once("$srcdir/billing.inc");
 require_once("$srcdir/gen_hcfa_1500.inc.php");
-require_once("$srcdir/classes/X12837P.php");
 
 if (!verifyCsrfToken($_POST["csrf_token_form"])) {
     csrfNotVerified();
