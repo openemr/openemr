@@ -135,4 +135,23 @@ function xls($key)
 {
     return addslashes(hsc_private_xl_or_warn($key));
 }
+
+/*
+Make a string safe for use anywhere in dynamically-generated javascript
+
+ref: https://defuse.ca/blog/escaping-string-literals-for-javascript-in-php.html
+*/
+function js_string_escape($data)
+{
+    $safe = "";
+    for($i = 0; $i < strlen($data); $i++)
+    {
+        if(ctype_alnum($data[$i]))
+            $safe .= $data[$i];
+        else
+            $safe .= sprintf("\\x%02X", ord($data[$i]));
+    }
+    return $safe;
+}
+
 return; // Stop include / require from going any further (non-PHP)

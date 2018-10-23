@@ -27,6 +27,7 @@ require_once("$srcdir/invoice_summary.inc.php");
 require_once("$srcdir/clinical_rules.php");
 require_once("$srcdir/options.js.php");
 require_once("$srcdir/group.inc");
+require_once("$srcdir/htmlspecialchars.inc.php");
 require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
 
 use OpenEMR\Core\Header;
@@ -561,7 +562,7 @@ function setMyPatient() {
  }
 <?php
 if (isset($_GET['set_pid'])) { ?>
-    parent.left_nav.setPatient(<?php echo "'" . htmlspecialchars($result['fname']) . " " . htmlspecialchars($result['lname']) .
+    parent.left_nav.setPatient(<?php echo "'" . js_string_escape($result['fname']) . " " . js_string_escape($result['lname']) .
     "'," . addslashes($pid) . ",'" . addslashes($result['pubpid']) .
     "','', ' " . xls('DOB') . ": " . addslashes(oeFormatShortDate($result['DOB_YMD'])) . " ";
     $date_of_death = is_patient_deceased($pid)['date_deceased'];
