@@ -50,12 +50,12 @@ class Claim
     // to pursue PSR-0 and PSR-4
     public function x12Zip($zip)
     {
-		$zip = $this->x12Clean($zip);
-		if (strlen($zip) == 5) {
-		    return $zip . "9999";
+        $zip = $this->x12Clean($zip);
+        if (strlen($zip) == 5) {
+            return $zip . "9999";
         } else {
             return $zip;
-        }    
+        }
     }
 
     // Make sure dates have no formatting and zero filled becomes blank
