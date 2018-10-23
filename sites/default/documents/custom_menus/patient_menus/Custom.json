@@ -1,5 +1,5 @@
 [	{
-        "label": "Medical Record",
+        "label": "Dashboard{{patient file}}",
         "menu_id": "dashboard",
         "target": "main",
         "on_click":"top.restoreSession()",

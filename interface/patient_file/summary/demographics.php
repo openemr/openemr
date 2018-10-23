@@ -646,7 +646,7 @@ if (!empty($grparr['']['grp_size'])) {
 <?php } ?>
 
 </style>
-<title><?php echo xlt("Medical Record"); ?></title>
+<title><?php echo xlt("Dashboard{{patient file}}"); ?></title>
 </head>
 
 <body class="body_top patient-demographics">
