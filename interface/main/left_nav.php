@@ -284,7 +284,7 @@ function genPopLink($title, $url, $linkid = '')
         echo "id='" . attr($linkid) . "' ";
     }
 
-    echo "onclick=\"return repPopup('" . attr(addslashes($url) . "')\"" .
+    echo "onclick=\"return repPopup('" . attr(addslashes($url)) . "')\"" .
         ">" . text($title) . "</a></li>";
 }
 function genDualLink($topname, $botname, $title)
