@@ -41,14 +41,25 @@ class Claim
     public $facilityService;   // via matthew.vita orm work :)
 
     // This enforces the X12 Basic Character Set. Page A2.
-    private function x12Clean($str)
+    public function x12Clean($str)
     {
         return preg_replace('/[^A-Z0-9!"\\&\'()+,\\-.\\/;?=@ ]/', '', strtoupper($str));
     }
+    
+    // X12 likes 9 digit zip codes also moving this from gen_x12
+    // to pursue PSR-0 and PSR-4
+    public function x12Zip($zip)
+    {
+		$zip = $this->x12Clean($zip);
+		if (strlen($zip) == 5) {
+		    return $zip . "9999";
+        } else {
+            return $zip;
+        }    
+    }
 
-// Make sure dates have no formatting and zero filled becomes blank
-// Handles date time stamp formats as well
-
+    // Make sure dates have no formatting and zero filled becomes blank
+    // Handles date time stamp formats as well
     public function cleanDate($date_field)
     {
         $cleandate = str_replace('-', '', substr($date_field, 0, 10));
