@@ -1,5 +1,5 @@
 [	{
-        "label": "Dashboard",
+        "label": "Medical Record",
         "menu_id": "dashboard",
         "target": "main",
         "on_click":"top.restoreSession()",

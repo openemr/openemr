@@ -8,6 +8,10 @@
 /* General RTL calsses */
 @mixin rtl_style {
 
+    body{
+        direction: rtl;
+    }
+
     tr, td, th{
         text-align: right !important;
 
@@ -95,7 +99,7 @@
         width: 55% !important;
     }
     .demographics-box>div:last-child{
-        margin-right: 55%
+        margin-right: 75%
     }
 
 
