@@ -144,12 +144,12 @@ ref: https://defuse.ca/blog/escaping-string-literals-for-javascript-in-php.html
 function js_string_escape($data)
 {
     $safe = "";
-    for($i = 0; $i < strlen($data); $i++)
-    {
-        if(ctype_alnum($data[$i]))
+    for ($i = 0; $i < strlen($data); $i++) {
+        if (ctype_alnum($data[$i])) {
             $safe .= $data[$i];
-        else
+        } else {
             $safe .= sprintf("\\x%02X", ord($data[$i]));
+        }
     }
     return $safe;
 }
