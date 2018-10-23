@@ -504,6 +504,22 @@ curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/patient/1/appo
 curl -X DELETE 'http://localhost:8300/rest_router.php?resource=/api/patient/1/appointment/1' -d \
 ```
 
+#### GET /api/patient/:pid/document
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/6/document&path=/eye_module/imaging-eye/drawings-eye'
+```
+
+Note: The `path` query string represents the OpenEMR documents paths with two exceptions:
+
+- Spaces are represented with `_`
+- All characters are lowercase
+
+#### GET /api/patient/:pid/document/:did
+
+```
+wget 'http://localhost:8300/rest_router.php?resource=/api/patient/1/document/1'
+```
 
 ### Dev Notes
 
@@ -516,7 +532,7 @@ curl -X DELETE 'http://localhost:8300/rest_router.php?resource=/api/patient/1/ap
 
 - TODO(team): Consider using Symfony's router
 - TODO(sherwin): Encounter POST
-- TODO(matthew): API for patient documents
+- TODO(matthew): Document POST
 - TODO(matthew): Fix authorization piece
 - TODO(matthew): Implement Particle's `optional` validation logic for all current validators
 - TODO(matthew): "Delete" functions for medical problems, allergies, etc

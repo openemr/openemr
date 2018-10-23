@@ -35,6 +35,7 @@ use OpenEMR\RestControllers\InsuranceCompanyRestController;
 use OpenEMR\RestControllers\AppointmentRestController;
 use OpenEMR\RestControllers\AuthRestController;
 use OpenEMR\RestControllers\ONoteRestController;
+use OpenEMR\RestControllers\DocumentRestController;
 
 function authentication_check() {
     $authRestController = new AuthRestController();
@@ -279,6 +280,12 @@ $routes = array(
     },
     "GET /api/insurance_company" => function() {
         return (new InsuranceCompanyRestController())->getAll();
+    },
+    "GET /api/patient/:pid/document" => function($pid) {
+        return (new DocumentRestController())->getAllAtPath($pid, $_GET['path']);
+    },
+    "GET /api/patient/:pid/document/:did" => function($pid, $did) {
+        return (new DocumentRestController())->downloadFile($pid, $did);
     }
 );
 
