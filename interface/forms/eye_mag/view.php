@@ -183,7 +183,7 @@ if ($refresh and $refresh != 'fullscreen') {
         <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor', 'qtip2' ]); ?>
 
       <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
-    
+
   </head>
   <!--Need a margin-top due to fixed nav, move to style.css to separate view stuff? Long way from that... -->
   <body class="bgcolor2" background="<?php echo $GLOBALS['backpic']?>" style="margin:5px 0 0 0;">
@@ -260,7 +260,7 @@ if ($refresh and $refresh != 'fullscreen') {
               <input type="hidden" name="chart_status" id="chart_status" value="on">
               <input type="hidden" name="finalize"  id="finalize" value="0">
 
-              
+
 
               <!-- start first div -->
               <div id="first" name="first" class="text_clinical">
@@ -794,7 +794,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         if ($ADDITIONAL == '1') {
                             $button_ADDITIONAL = "buttonRefraction_selected";
                         }
-    
+
                         if ($VAX == '1') {
                             $button_VAX = "buttonRefraction_selected";
                         }
@@ -1104,7 +1104,7 @@ if ($refresh and $refresh != 'fullscreen') {
                 <!-- end of the Pupils box -->
 
                 <br />
-                
+
                 <!-- start of slide down pupils_panel -->
                 <?php ($DIMODPUPILSIZE != '') ? ($display_dim_pupils_panel = "display") : ($display_dim_pupils_panel = "nodisplay"); ?>
                 <div id="dim_pupils_panel" name="dim_pupils_panel" class="vitals <?php echo attr($display_dim_pupils_panel); ?>">
@@ -1150,7 +1150,7 @@ if ($refresh and $refresh != 'fullscreen') {
                     <?php echo display_GlaucomaFlowSheet($pid); ?>
               </div>
               <!-- end IOP chart section -->
-              
+
               <!-- start of the refraction box -->
               <span class="anchor" id="REFRACTION_anchor"></span>
               <div class="loading" id="EXAM_sections_loading" name="REFRACTION_sections_loading"><i class="fa fa-spinner fa-spin"></i></div>
@@ -1164,8 +1164,8 @@ if ($refresh and $refresh != 'fullscreen') {
                                 <th class="text-center"><?php echo xlt('Prior Refractions'); ?></th>
                             </tr>
                         </table>
-        
-                        
+
+
                         <div id="PRIORS_REFRACTIONS_left_text" name="PRIORS_REFRACTIONS_left_text">
                             <?php
                                 $sql = "SELECT id FROM form_eye_acuity WHERE
@@ -2283,7 +2283,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                 <td><?php echo xlt('OD{{right eye}}'); ?> </td><td><?php echo xlt('OS{{left eye}}'); ?> </td>
                             </tr>
                             <tr>
-                                
+
                                 <td class="bold right">
                                     <div class="kb kb_left"><?php echo 'CUP'; ?></div>
                                     <?php echo xlt('C/D Ratio{{cup to disc ration}}'); ?>:</td>
@@ -3293,16 +3293,16 @@ if ($refresh and $refresh != 'fullscreen') {
                                *    d. Drag a DX across onto the IMP/Plan area appends this DX to the bottom of the IMP/Plan list
                                *    e. DoubleClick a DX appends this DX to the bottom of the IMP/Plan list
                                */
-                    
+
                             if (!$PMSFH) {
                                 $PMSFH = build_PMSFH($pid);
                             }
-                    
+
                               $total_DX='0';
                             if (($PMSFH[0]['POH'][0] >'') && ($PMSFH[0]['PMH'][0] >'')) {
                                 $total_DX ='1';
                             }
-                
+
                             ?>
 
 
@@ -3329,31 +3329,31 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 if ($v['diagnosis'] >'') {
                                                     $insert_code = "<code class='pull-right diagnosis'>".$v['diagnosis']."</code>";
                                                 }
-                                        
+
                                                 $k = xla($k);
                                                 $v['title'] = xlt($v['title']);
                                                 $insert_code = text($insert_code);
                                                 echo "<li class='ui-widget-content'> <span id='DX_POH_".$k."' name='DX_POH_".$k."'>".$v['title']."</span> ".$insert_code."</li>";
                                             }
-                                    
+
                                             foreach ($PMSFH[0]['POS'] as $k => $v) {
                                                 $insert_code='';
                                                 if ($v['diagnosis'] >'') {
                                                     $insert_code = "<code class='pull-right diagnosis'>".$v['diagnosis']."</code>";
                                                 }
-                                        
+
                                                 $k = xla($k);
                                                 $v['title'] = xlt($v['title']);
                                                 $insert_code = text($insert_code);
                                                 echo "<li class='ui-widget-content'> <span id='DX_POS_".$k."' name='DX_POS_".$k."'>".$v['title']."</span> ".$insert_code."</li>";
                                             }
-                                    
+
                                             foreach ($PMSFH[0]['medical_problem'] as $k => $v) {
                                                 $insert_code='';
                                                 if ($v['diagnosis'] >'') {
                                                     $insert_code = "<code class='pull-right diagnosis'>".$v['diagnosis']."</code>";
                                                 }
-                                        
+
                                                 $k = xla($k);
                                                 $v['title'] = xlt($v['title']);
                                                 $insert_code = text($insert_code);
@@ -3369,7 +3369,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                         ?>
                                   </ol>
                               </dd>
-                    
+
                                 <?php
                                   /*
                                    *  The goal here is to auto-code the encounter and link it directly to the billing module.
@@ -3429,7 +3429,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                             <?php
                                                               $i = 0;
                                                               $last_category = '';
-                                                    
+
                                                               // Create drop-lists based on the fee_sheet_options table.
                                                               $res = sqlStatement("SELECT * FROM fee_sheet_options " .
                                                                   "ORDER BY fs_category, fs_option");
@@ -3445,7 +3445,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                                     $code_text = (strlen(substr($fs_option, 1)) > 26) ? substr(substr($fs_option, 1), 0, 24).'...' : substr($fs_option, 1);
                                                                     echo "    <option value='" . attr($fs_codes) . "'>" . text($code)." ".text(substr($fs_category, 1)).": ".text($code_text) . "</option>\n";
                                                                 }
-                                                    
+
                                                               // Create drop-lists based on categories defined within the codes.
                                                                 $pres = sqlStatement("SELECT option_id, title FROM list_options " .
                                                                   "WHERE list_id = 'superbill' ORDER BY seq");
@@ -3460,7 +3460,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                                         if ($code_types[$ctkey]['nofs']) {
                                                                             continue;
                                                                         }
-                                                            
+
                                                                         $code_text = (strlen($row['code_text']) > 15) ? substr($row['code_text'], 0, 13).'...' : $row['code_text'];
                                                                         echo "    <option value='" . attr($ctkey) . "|" .
                                                                           attr($row['code']) . ':'. attr($row['modifier']) . "|'>" . text($code_text) . "</option>\n";
@@ -3500,7 +3500,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                   <table style="width:100%;">
                                                       <tr>
                                                             <?php
-                                                    
+
                                                               $counter='0';
                                                               $count='0';
                                                               $arrTESTS = explode("|", $Resource); //form_eye_mag:Resource = billable things (not visit code) performed today
@@ -3549,15 +3549,15 @@ if ($refresh and $refresh != 'fullscreen') {
                                                                 OK we are going to attach this test to a specific ICD10 code listed above.
                                                                 The codes are listed by number.
                                                                 The user will add in the number here
-                            
+
                                                                 */
-                                                        
+
                                                                 echo '<br />'.xlt('Justify Dx').':
 
                                       <span class="TESTS_justify indent20" id="TEST_'.$counter.'_justify"></span>
                                       </div>
                                      ';
-                                                        
+
                                                                 $count++;
                                                                 $counter++;
                                                                 if ($count =="2") {
@@ -3567,7 +3567,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                                     echo "</td>";
                                                                 }
                                                             }
-                                                
+
                                                             ?>
                                                           </td>
                                                       </tr>
@@ -3593,7 +3593,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                       <b><u><?php echo xlt('Process');
                                                                   echo " ".xlt('Billing'); ?>:</b></u><br />
                                                       <button id="code_me_now" ><?php echo xlt('Populate Fee Sheet'); ?></button>
-                                                      <button id="open_fee_sheet" 
+                                                      <button id="open_fee_sheet"
                                                               onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet', 'Fee Sheet')" href="JavaScript:void(0);"
                                                               tabindex="-1"><?php echo xlt('Open Fee Sheet'); ?>
                                                       </button>
@@ -3603,7 +3603,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                       </table>
                                   </div>
                               </dd>
-                    
+
                                 <?php
                                   /*
                                   *  This a provider-specific ORDER list of items that the user can define.
@@ -3811,7 +3811,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                         if ($pcp_data['zip'] >'') {
                                                             echo text($pcp_data['zip'])."<br />";
                                                         }
-                                                    
+
                                                         if ($pcp_data['street2'] >'') {
                                                             echo "<br />".text($pcp_data['street2'])."<br />";
                                                         }
@@ -3851,7 +3851,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                     if ($ref_data['zip'] >'') {
                                                         echo text($ref_data['zip'])."<br />";
                                                     }
-                                                    
+
                                                     if ($ref_data['street2'] >'') {
                                                         echo "<br />".text($ref_data['street2'])."<br />";
                                                     }
@@ -3899,13 +3899,8 @@ if ($refresh and $refresh != 'fullscreen') {
     ?>
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-panelslider/jquery.panelslider.js"></script>
     <!-- Undo code -->
-<<<<<<< HEAD
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/undone.js-0-0-1/undone.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/undone.js-0-0-1/jquery.undone.js"></script>
-    <script>
-=======
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/undone.js-0-0-1/undone.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/undone.js-0-0-1/jquery.undone.js"></script>
     <script language="JavaScript">
         function openNewForm(sel, label) {
             top.restoreSession();
@@ -4001,7 +3996,6 @@ if ($refresh and $refresh != 'fullscreen') {
         <?php
         } ?>
 
->>>>>>> master
         $.undone();
 
         $("#undo, #redo, #clear").click(function(){
