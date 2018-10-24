@@ -1,20 +1,24 @@
 <?php
- // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ * This script runs in a hidden frame, reloads itself periodically,
+ * and does whatever might need doing in the background.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2006 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
- // This script runs in a hidden frame, reloads itself periodically,
- // and does whatever might need doing in the background.
 
  // Tell auth.inc that this is the daemon script; this is so that
  // inactivity timeouts will still work, and to avoid logging an
  // event every time we run.
  $GLOBALS['DAEMON_FLAG'] = true;
 
- include_once("../globals.php");
+ require_once("../globals.php");
 
  $daemon_interval = 120; // Interval in seconds between reloads.
  $colorh = '#ff0000';    // highlight color
@@ -38,7 +42,7 @@ if ($GLOBALS['enable_hylafax']) {
  $row = sqlQuery("SELECT count(*) AS count FROM pnotes WHERE " .
   "activity = 1 ".
   " AND deleted != 1 ". // exlude ALL deleted notes
-  " AND assigned_to = '" . $_SESSION['authUser'] . "'");
+  " AND assigned_to = ?", array($_SESSION['authUser']));
  $color_aun = $row['count'] ? $colorh : $colorn;
 ?>
 <html>
@@ -53,13 +57,13 @@ if ($GLOBALS['enable_hylafax']) {
  var ld = parent.left_nav.document;
 
  if (ld && ld.getElementById('searchFields')) {
-  setTimeout('timerint()', <?php echo $daemon_interval * 1000; ?>);
+  setTimeout('timerint()', <?php echo attr(($daemon_interval * 1000)); ?>);
 
   var elem = ld.getElementById('lbl_fax');
-  if (elem) elem.style.color = '<?php echo $color_fax; ?>';
+  if (elem) elem.style.color = '<?php echo attr($color_fax); ?>';
 
   elem = ld.getElementById('lbl_aun');
-  if (elem) elem.style.color = '<?php echo $color_aun; ?>';
+  if (elem) elem.style.color = '<?php echo attr($color_aun); ?>';
  }
  else {
   // Nav frame is not fully loaded yet, so wait a few secs.
