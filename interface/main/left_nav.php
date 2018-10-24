@@ -774,10 +774,10 @@ function clearactive() {
  function reloadPatient(frname) {
   var f = document.forms[0];
   if (topName.length > 3 && topName.substring(3) > '0' && frname != 'RTop') {
-   loadFrame('cal0','RTop', '<?php echo attr(addslashes($primary_docs['cal'][2])); ?>');
+   loadFrame('cal0','RTop', '<?php echo attr($primary_docs['cal'][2]); ?>');
   }
   if (botName.length > 3 && botName.substring(3) > '0' && frname != 'RBot') {
-   loadFrame('ens0','RBot', '<?php echo attr(addslashes($primary_docs['ens'][2])); ?>');
+   loadFrame('ens0','RBot', '<?php echo attr($primary_docs['ens'][2]); ?>');
   }
  }
 
@@ -787,10 +787,10 @@ function clearactive() {
  function reloadEncounter(frname) {
   var f = document.forms[0];
   if (topName.length > 3 && topName.substring(3) > '1' && frname != 'RTop') {
-   loadFrame('dem1','RTop', '<?php echo attr(addslashes($primary_docs['dem'][2])); ?>');
+   loadFrame('dem1','RTop', '<?php echo attr($primary_docs['dem'][2]); ?>');
   }
   if (botName.length > 3 && botName.substring(3) > '1' && frname != 'RBot') {
-   loadFrame('ens1','RBot', '<?php echo attr(addslashes($primary_docs['ens'][2])); ?>');
+   loadFrame('ens1','RBot', '<?php echo attr($primary_docs['ens'][2]); ?>');
   }
  }
 
@@ -822,7 +822,7 @@ function clearactive() {
   if ( f.cb_top.checked && f.cb_bot.checked ) {
       var encounter_frame = getEncounterTargetFrame('enc');
       if ( encounter_frame != undefined )  {
-          loadFrame('ens0',encounter_frame, '<?php echo attr(addslashes($primary_docs['ens'][2])); ?>');
+          loadFrame('ens0',encounter_frame, '<?php echo attr($primary_docs['ens'][2]); ?>');
       }
   }
 
@@ -854,7 +854,7 @@ function clearactive() {
      if ( f.cb_top.checked && f.cb_bot.checked ) {
          var encounter_frame = getEncounterTargetFrame('enc');
          if ( encounter_frame != undefined )  {
-             loadFrame('ens0',encounter_frame, '<?php echo attr(addslashes($primary_docs['ens'][2])); ?>');
+             loadFrame('ens0',encounter_frame, '<?php echo attr($primary_docs['ens'][2]); ?>');
          }
      }
 
