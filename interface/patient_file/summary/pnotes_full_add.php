@@ -362,7 +362,7 @@ if ($result_count == $N) {
 if ($_GET['set_pid']) {
     $ndata = getPatientData($patient_id, "fname, lname, pubpid");
 ?>
- parent.left_nav.setPatient(<?php echo "'" . addslashes($ndata['fname']." ".$ndata['lname']) . "'," . addslashes($patient_id) . ",'" . addslashes($ndata['pubpid']) . "',window.name"; ?>);
+ parent.left_nav.setPatient(<?php echo js_escape($ndata['fname']." ".$ndata['lname']) . "," . js_escape($patient_id) . "," . js_escape($ndata['pubpid']) . ",window.name"; ?>);
 <?php
 }
 
