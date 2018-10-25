@@ -507,7 +507,19 @@ curl -X DELETE 'http://localhost:8300/rest_router.php?resource=/api/patient/1/ap
 #### GET /api/patient/:pid/document
 
 ```
-curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/6/document&path=/eye_module/imaging-eye/drawings-eye'
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/document&path=/eye_module/imaging-eye/drawings-eye'
+```
+
+Note: The `path` query string represents the OpenEMR documents paths with two exceptions:
+
+- Spaces are represented with `_`
+- All characters are lowercase
+
+#### POST /api/patient/:pid/document
+
+```
+curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/patient/1/document&path=/eye_module/imaging-eye/drawings-eye' \
+ -F document=@/home/someone/Desktop/drawing.jpg
 ```
 
 Note: The `path` query string represents the OpenEMR documents paths with two exceptions:
