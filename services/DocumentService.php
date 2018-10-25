@@ -102,6 +102,43 @@ class DocumentService
         return $fileResults;
     }
 
+    public function insertAtPath($pid, $path, $fileData)
+    {
+        if (!$this->isValidPath($path)) {
+            return false;
+        }
+
+        $categoryId = $this->getLastIdOfPath($path);
+
+        $nextIdResult = sqlQuery("SELECT MAX(id)+1 as id FROM documents");
+
+        $insertDocSql  = " INSERT INTO documents SET";
+        $insertDocSql .= "   id=" . add_escape_custom($nextIdResult["id"]) . ",";
+        $insertDocSql .= "   type='file_url',";
+        $insertDocSql .= "   size='" . add_escape_custom($fileData["size"]) . "',";
+        $insertDocSql .= "   date=NOW(),";
+        $insertDocSql .= "   url='" . add_escape_custom($GLOBALS['oer_config']['documents']['repository']) . add_escape_custom($categoryId) . "/" . add_escape_custom($fileData["name"]) . "',";
+        $insertDocSql .= "   mimetype='" . add_escape_custom($fileData["type"]) . "',";
+        $insertDocSql .= "   foreign_id='" . add_escape_custom($pid) . "'";
+
+        sqlInsert($insertDocSql);
+
+        $cateToDocsSql  = " INSERT INTO categories_to_documents SET";
+        $cateToDocsSql .= "    category_id=" . add_escape_custom($categoryId) . ",";
+        $cateToDocsSql .= "    document_id=" . add_escape_custom($nextIdResult["id"]);
+
+        sqlInsert($cateToDocsSql);
+
+        $newPath = $GLOBALS['oer_config']['documents']['repository'] . "/" . $categoryId;
+        if (!file_exists($newPath)) {
+            mkdir($newPath, 0700, true);
+        }
+
+        $moved = move_uploaded_file($fileData["tmp_name"], $newPath . "/" . $fileData["name"]);
+
+        return $moved;
+    }
+
     public function getFile($pid, $did)
     {
         return sqlQuery("SELECT url FROM documents WHERE id = ? AND foreign_id = ?", array($did, $pid));

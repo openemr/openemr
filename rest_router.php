@@ -281,6 +281,9 @@ $routes = array(
     "GET /api/insurance_company" => function() {
         return (new InsuranceCompanyRestController())->getAll();
     },
+    "POST /api/patient/:pid/document" => function($pid) {
+        return (new DocumentRestController())->postWithPath($pid, $_GET['path'], $_FILES['document']);
+    },
     "GET /api/patient/:pid/document" => function($pid) {
         return (new DocumentRestController())->getAllAtPath($pid, $_GET['path']);
     },
