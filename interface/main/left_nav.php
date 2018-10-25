@@ -231,8 +231,8 @@ function genTreeLink($frame, $name, $title, $mono = false)
             }
         }
 
-        echo "return loadFrame2('" . attr(addslashes($id)) . "','$frame','" .
-            attr(addslashes($primary_docs[$name][2])) . "')\">" . text($title) . ($name == 'msg' ? ' <span id="reminderCountSpan" class="bold"></span>' : '')."</a></li>";
+        echo "return loadFrame2(" . js_attr($id) . "," . js_attr($frame) . "," .
+            js_attr($primary_docs[$name][2]) . ")\">" . text($title) . ($name == 'msg' ? ' <span id="reminderCountSpan" class="bold"></span>' : '')."</a></li>";
     }
 }
 
@@ -251,9 +251,9 @@ function genMiscLink($frame, $name, $level, $title, $url, $mono = false, $encfor
         }
         if ($encform) {
             // In this case $url is an encounter form name, not a URL.
-            echo "loadNewForm('" . attr(addslashes(trim($url))) . "', '" . attr(addslashes(trim($title))) . "');";
+            echo "loadNewForm(" . js_attr(trim($url)) . ", " . js_attr(trim($title)) . ");";
         } else {
-            echo "loadFrame2('" . attr(addslashes($id)) . "','" . attr(addslashes($frame)) . "','" . attr(addslashes($url)) . "');";
+            echo "loadFrame2(" . js_attr($id) . "," . js_attr($frame) . "," . js_attr($url) . ");";
         }
         echo "return false;\">" . text($title) . "</a></li>";
     }
@@ -273,8 +273,8 @@ function genMiscLink2($frame, $name, $level, $title, $url, $mono = false, $mouse
             }
         }
 
-        echo "return loadFrame3('" . attr(addslashes($id)) . "','" . attr(addslashes($frame)) . "','" .
-            attr(addslashes($url)) . "')\">" . text($title) . "</a></li>";
+        echo "return loadFrame3(" . js_attr($id) . "," . js_attr($frame) . "," .
+            js_attr($url) . ")\">" . text($title) . "</a></li>";
     }
 }
 function genPopLink($title, $url, $linkid = '')
@@ -284,7 +284,7 @@ function genPopLink($title, $url, $linkid = '')
         echo "id='" . attr($linkid) . "' ";
     }
 
-    echo "onclick=\"return repPopup('" . attr(addslashes($url)) . "')\"" .
+    echo "onclick=\"return repPopup(" . js_attr($url) . ")\"" .
         ">" . text($title) . "</a></li>";
 }
 function genDualLink($topname, $botname, $title)
@@ -294,9 +294,9 @@ function genDualLink($topname, $botname, $title)
         $topid = $topname . $primary_docs[$topname][1];
         $botid = $botname . $primary_docs[$botname][1];
         echo "<li><a href='' id='" . attr($topid) . "' " .
-            "onclick=\"return loadFrameDual('" . attr(addslashes($topid)) . "','" . attr(addslashes($botid)) . "','" .
-            attr(addslashes($primary_docs[$topname][2])) . "','" .
-            attr(addslashes($primary_docs[$botname][2])) . "')\">" . text($title) . "</a></li>";
+            "onclick=\"return loadFrameDual(" . js_attr($topid) . "," . js_attr($botid) . "," .
+            js_attr($primary_docs[$topname][2]) . "," .
+            js_attr($primary_docs[$botname][2]) . ")\">" . text($title) . "</a></li>";
     }
 }
 
@@ -318,7 +318,7 @@ function genPopupsList($style = '')
 
 if (!$GLOBALS['disable_calendar'] && acl_check('patients', 'appt')) { ?>
      <option value='../reports/appointments_report.php?patient=<?php if (isset($pid)) {
-            echo attr(urlencode($pid));
+            echo attr_url($pid);
 } ?>'><?php echo xlt('Appts'); ?></option>
     <?php } ?>
         <?php if (acl_check('patients', 'med')) { ?>
@@ -532,18 +532,18 @@ function genFindBlock()
   var usage = fname.substring(3);
   if (active_pid == 0 && active_gid == 0  && (usage > '0' && usage < '5')){
     <?php if ($GLOBALS['enable_group_therapy']) { ?>
-      alert('<?php echo xls('You must first select or add a patient or therapy group.'); ?>');
+      alert(<?php echo xlj('You must first select or add a patient or therapy group.'); ?>);
     <?php } else { ?>
-      alert('<?php echo xls('You must first select or add a patient.'); ?>');
+      alert(<?php echo xlj('You must first select or add a patient.'); ?>);
     <?php } ?>
    return false;
   }
   if (active_encounter == 0 && (usage > '1' && usage < '3')) {
-   alert('<?php echo xls('You must first select or create an encounter.'); ?>');
+   alert(<?php echo xlj('You must first select or create an encounter.'); ?>);
    return false;
   }
   if (encounter_locked && usage > '1' && (usage > '1' && usage < '3')) {
-   alert('<?php echo xls('This encounter is locked. No new forms can be added.'); ?>');
+   alert(<?php echo xlj('This encounter is locked. No new forms can be added.'); ?>);
    return false;
   }
   var f = document.forms[0];
@@ -616,15 +616,15 @@ function loadNewForm(formname, formdesc) {
   var topusage = tname.substring(3);
   var botusage = bname.substring(3);
   if (active_pid == 0 && (topusage > '0' || botusage > '0')) {
-   alert('<?php echo xls('You must first select or add a patient.'); ?>');
+   alert(<?php echo xlj('You must first select or add a patient.'); ?>);
    return false;
   }
   if (active_encounter == 0 && (topusage > '1' || botusage > '1')) {
-   alert('<?php echo xls('You must first select or create an encounter.'); ?>');
+   alert(<?php echo xlj('You must first select or create an encounter.'); ?>);
    return false;
   }
   if (encounter_locked  && (topusage > '1' || botusage > '1')) {
-   alert('<?php echo xls('This encounter is locked. No new forms can be added.'); ?>');
+   alert(<?php echo xlj('This encounter is locked. No new forms can be added.'); ?>);
    return false;
   }
   var f = document.forms[0];
@@ -807,7 +807,7 @@ function clearactive() {
   setDivContent('current_patient', str);
   setTitleContent('current_patient', str + str_dob);
   if (pid == active_pid) return;
-  setDivContent('current_encounter', '<b><?php echo xls('None'); ?></b>');
+  setDivContent('current_encounter', '<b>' + <?php echo xlj('None'); ?> + '</b>');
   active_pid = pid;
   active_encounter = 0;
   encounter_locked = false;
@@ -838,9 +838,9 @@ function clearactive() {
      clearPatient();
 
      $(parent.Title.document.querySelector('#current_patient_block span.text')).hide();
-     setTitleContent('current_patient', '<span><?php echo xls('Therapy Group');?> - <a href=\'javascript:;\' onclick="parent.left_nav.loadCurrentGroupFromTitle(' + group_id +')">' + group_name + ' (' + group_id + ')<a></span>' );
+     setTitleContent('current_patient', '<span>' + <?php echo xlj('Therapy Group');?> + ' - <a href=\'javascript:;\' onclick="parent.left_nav.loadCurrentGroupFromTitle(' + group_id +')">' + group_name + ' (' + group_id + ')<a></span>' );
      if (group_id == active_gid) return;
-    setDivContent('current_encounter', '<b><?php echo xls('None'); ?></b>');
+    setDivContent('current_encounter', '<b>' + <?php echo xlj('None'); ?> + '</b>');
      active_gid = group_id;
      active_encounter = 0;
      encounter_locked = false;
@@ -943,7 +943,7 @@ function isEncounterLocked( encounterId ) {
  // reload encounter-specific content from the *other* frame.
  function setEncounter(edate, eid, frname) {
   if (eid == active_encounter) return;
-  if (!eid) edate = '<?php echo xls('None'); ?>';
+  if (!eid) edate = <?php echo xlj('None'); ?>;
   var str = '<b>' + edate + '</b>';
   setDivContent('current_encounter', str);
   active_encounter = eid;
@@ -972,7 +972,7 @@ function isEncounterLocked( encounterId ) {
   active_pid = 0;
   active_encounter = 0;
   encounter_locked = false;
-  setDivContent('current_patient', '<b><?php echo xls('None'); ?></b>');
+  setDivContent('current_patient', '<b>' + <?php echo xlj('None'); ?> + '</b>');
   $(parent.Title.document.getElementById('current_patient_block')).hide();
   top.window.parent.Title.document.getElementById('past_encounter').innerHTML='';
   $(parent.Title.document.getElementById('current_encounter_block')).hide();
@@ -989,7 +989,7 @@ function isEncounterLocked( encounterId ) {
      active_gid = 0;
      active_encounter = 0;
      encounter_locked = false;
-     setDivContent('current_patient', '<b><?php echo xls('None'); ?></b>');
+     setDivContent('current_patient', '<b>' + <?php echo xlj('None'); ?> + '</b>');
      $(parent.Title.document.getElementById('current_patient_block')).hide();
      top.window.parent.Title.document.getElementById('past_encounter').innerHTML='';
      $(parent.Title.document.getElementById('current_encounter_block')).hide();
@@ -1002,7 +1002,7 @@ function isEncounterLocked( encounterId ) {
  // stale content will be reloaded.
  function clearEncounter() {
   if (active_encounter == 0) return;
-  top.window.parent.Title.document.getElementById('current_encounter').innerHTML="<b><?php echo xls('None'); ?></b>";
+  top.window.parent.Title.document.getElementById('current_encounter').innerHTML="<b>" + <?php echo xlj('None'); ?> + "</b>";
   active_encounter = 0;
   encounter_locked = false;
   reloadEncounter('');

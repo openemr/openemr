@@ -13,9 +13,9 @@
 # OpenEMR source code.
 #  It effectively finds all xl("constants","") within OpenEMR.
 #  It will filter out constants found in manuallyRemovedConstants.txt
-#  It will add constants found in (ensure not repeated) manuallyAddedConstants.txt 
+#  It will add constants found in (ensure not repeated) manuallyAddedConstants.txt
 #  It can also compare to a previous list to find new constants.
-#  
+#
 #  Example commands:
 #
 #  -Below command will find all unique constants, filter through the
@@ -26,7 +26,7 @@
 #  -Below command will find all unique constants, ensure none are deleted from the
 #   previous listings of constants,
 #   filter through the add/remove files, sort, and dump to file constants.txt:
-#  ./collectConstants /var/www/openemr previousConstants.txt 
+#  ./collectConstants /var/www/openemr previousConstants.txt
 #
 #
 
@@ -95,11 +95,11 @@ if ($compareFlag) {
  open(MYINPUTFILE, "<$comparisonFile") or die "unable to open file";
  @previousConstants = <MYINPUTFILE>;
  close(MYINPUTFILE);
-    
+
  # chomp it
  foreach my $var (@previousConstants) {
      chomp($var);
- }  
+ }
 }
 
 # place filter files into array and process them
@@ -135,26 +135,26 @@ foreach my $var (@filenames) {
   print LOGFILE "SKIPPING FILE: ".$var."\n";
   next;
  }
- 
+
  print LOGFILE $var." prepping.\n";
-    
+
  open(MYINPUTFILE2, "<$var") or die "unable to open file";
  @inputFile = <MYINPUTFILE2>;
  close(MYINPUTFILE2);
- 
+
  # remove newlines
  foreach my $tempLine (@inputFile) {
-  chomp($tempLine);   
+  chomp($tempLine);
  }
-  
+
  my $fileString = join(" ", @inputFile);
  # print LOGFILE $fileString;
 
  my $traditionalXL = 0; #flag
  my $smartyXL = 0; #flag
- 
- 
- if ($fileString =~ /xl[ast]?\s*\(/i) {
+
+
+ if ($fileString =~ /xl[astj]?\s*\(/i) {
   # line contains a traditional xl(function)
   $traditionalXL = 1;
  }
@@ -163,7 +163,7 @@ foreach my $var (@filenames) {
   # line contains a smarty xl function
   $smartyXL = 1;
  }
- 
+
  # Report files with both smarty and traditional xl functions on same page
  if ($smartyXL && $traditionalXL) {
   print LOGFILE "WARNING: Found traditional and smarty xl functions on same page: $var\n";
@@ -173,9 +173,9 @@ foreach my $var (@filenames) {
  my @xlInstances;
  if ($smartyXL) {
   @xlInstances = split(/\{\s*xl\s*t\s*=\s*/i, $fileString);
- }  
+ }
  elsif ($traditionalXL) {
-  @xlInstances = split(/xl[ast]?\s*\(+/i, $fileString);   
+  @xlInstances = split(/xl[astj]?\s*\(+/i, $fileString);
  }
  else {
   # no xl functions to parse on this page
@@ -184,22 +184,22 @@ foreach my $var (@filenames) {
 
  # drop the first element
  shift(@xlInstances);
-  
- my $sizeArray = @xlInstances;  
- if ($sizeArray > 0) {  
+
+ my $sizeArray = @xlInstances;
+ if ($sizeArray > 0) {
   foreach my $var2 (@xlInstances) {
    # remove spaces from front of $var2
    my $editvar2 = $var2;
    $editvar2 =~ s/^\s+//;
-       
+
    # collect delimiter, ' or "
    my $de = substr($editvar2,0,1);
-    
+
    # skip if blank
    if ($de eq "") {
-    next;	
+    next;
    }
-    
+
    # skip if ) (special case from howto files)
    if ($de eq ")") {
     print LOGFILE "MESSAGE:  Special case character ) skipped\n";
@@ -215,7 +215,7 @@ foreach my $var (@filenames) {
     print LOGFILE "MESSAGE:  Special case character \$ skipped\n";
     print LOGFILE $editvar2."\n";
     next;
-   }  
+   }
 
    # skip if starts with d of date(), since
    #  this is used in calendar frequently
@@ -233,28 +233,28 @@ foreach my $var (@filenames) {
     print LOGFILE $editvar2."\n";
     next;
    }
-    
+
    print LOGFILE "$de"."\n";
-    
+
    # remove delimiter from string
    $editvar2 = substr($editvar2,1);
-     
+
    # remove the evil ^M characters (report file)
    if ($editvar2 =~ /\r/) {
-    print LOGFILE "WARNING: File contains dos end lines: $var\n";    
+    print LOGFILE "WARNING: File contains dos end lines: $var\n";
    }
    $editvar2 =~ s/\r//g;
-      
+
    # hide instances of \$de
    $editvar2 =~ s/\\$de/__-_-__/g;
-    
-   # collect the constant   
-   my @tempStringArr = split(/$de/,$editvar2); 
+
+   # collect the constant
+   my @tempStringArr = split(/$de/,$editvar2);
    my $tempString = @tempStringArr[0];
-    
+
    # revert hidden instances of \$de
    $tempString =~ s/__-_-__/\\$de/g;
-    
+
    # check to see if unique etc.
    if (!(withinArray($tempString,@uniqueConstants))) {
     # Have a unique hit
@@ -262,7 +262,7 @@ foreach my $var (@filenames) {
    }
   }
  }
- 
+
  print LOGFILE $var." checked.\n";
 }
 
@@ -275,7 +275,7 @@ print LOGFILE "\nAUTO ADDED CONSTANTS BELOW: ----\n";
 foreach my $var (@uniqueConstants) {
  if (!(withinArray($var, @previousConstants))) {
   print LOGFILE $var."\n";
- }  
+ }
 }
 print LOGFILE "--------------------------------\n\n";
 
@@ -283,7 +283,7 @@ print LOGFILE "--------------------------------\n\n";
 foreach my $var (@addConstants) {
  if (withinArray($var, @uniqueConstants)) {
   print LOGFILE "NOT MANUALLY ADDED, ALREADY EXIST: ".$var."\n";
-  next;   
+  next;
  }
  else {
   print LOGFILE "MANUALLY ADDED: ".$var."\n";
@@ -326,7 +326,7 @@ my @sorted = sortConstants(@constants);
 if ($simpleList) {
  # output simple list
  foreach my $var (@sorted) {
-  print OUTPUTFILE $var."\n"; 
+  print OUTPUTFILE $var."\n";
  }
 }
 else {
@@ -351,13 +351,13 @@ else {
 #
 sub recurse($) {
  my($path) = @_;
-    
+
  ## append a trailing / if it's not there
  $path .= '/' if($path !~ /\/$/);
-    
+
  ## loop through the files contained in the directory
  for my $eachFile (glob($path.'*')) {
-	  
+
   ## if the file is a directory
   if( -d $eachFile) {
 
@@ -371,8 +371,8 @@ sub recurse($) {
     if ($skipFileFlag) {
      print LOGFILE "SKIPPING DIRECTORY: ".$eachFile."\n";
      next;
-    }      
-      
+    }
+
    ## pass the directory to the routine ( recursion )
    recurse($eachFile);
   } else {
