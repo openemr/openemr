@@ -74,4 +74,26 @@ class AddressService
 
         return $freshId;
     }
+
+    public function update($data, $foreignId)
+    {
+        $addressesSql  = " UPDATE addresses SET";
+        $addressesSql .= "     line1='" . add_escape_custom($data["line1"]) . "',";
+        $addressesSql .= "     line2='" . add_escape_custom($data["line2"]) . "',";
+        $addressesSql .= "     city='" . add_escape_custom($data["city"]) . "',";
+        $addressesSql .= "     state='" . add_escape_custom($data["state"]) . "',";
+        $addressesSql .= "     zip='" . add_escape_custom($data["zip"]) . "',";
+        $addressesSql .= "     country='" . add_escape_custom($data["country"]) . "'";
+        $addressesSql .= "     WHERE foreign_id='" . add_escape_custom($foreignId) . "'";
+
+        $addressesSqlResults = sqlStatement($addressesSql);
+
+        if (!$addressesSqlResults) {
+            return false;
+        }
+
+        $addressIdSqlResults = sqlQuery("SELECT id FROM addresses WHERE foreign_id=?", $foreignId);
+
+        return $addressIdSqlResults["id"];
+    }
 }

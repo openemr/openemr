@@ -288,6 +288,10 @@ $routes = array(
         $data = (array)(json_decode(file_get_contents("php://input")));
         return (new InsuranceCompanyRestController())->post($data);
     },
+    "PUT /api/insurance_company/:iid" => function($iid) {
+        $data = (array)(json_decode(file_get_contents("php://input")));
+        return (new InsuranceCompanyRestController())->put($iid, $data);
+    },
     "POST /api/patient/:pid/document" => function($pid) {
         return (new DocumentRestController())->postWithPath($pid, $_GET['path'], $_FILES['document']);
     },
