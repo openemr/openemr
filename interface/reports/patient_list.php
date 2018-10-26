@@ -291,9 +291,9 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             echo '"' . qescape($row['fname']) . '",';
             echo '"' . qescape($row['mname']) . '",';
             echo '"' . qescape($row['pubpid']) . '",';
-            echo '"' . qescape($row['street']) . '",';
-            echo '"' . qescape($row['city']) . '",';
-            echo '"' . qescape($row['state']) . '",';
+            echo '"' . qescape(xl($row['street'])) . '",';
+            echo '"' . qescape(xl($row['city'])) . '",';
+            echo '"' . qescape(xl($row['state'])) . '",';
             echo '"' . qescape($row['postal_code']) . '",';
             echo '"' . qescape($row['phone_home']) . '",';
             echo '"' . qescape($row['phone_biz']) . '"' . "\n";
@@ -310,13 +310,13 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         <?php echo text($row['pubpid']); ?>
    </td>
    <td>
-        <?php echo text($row['street']); ?>
+        <?php echo xlt($row['street']); ?>
    </td>
    <td>
-        <?php echo text($row['city']); ?>
+        <?php echo xlt($row['city']); ?>
    </td>
    <td>
-        <?php echo text($row['state']); ?>
+        <?php echo xlt($row['state']); ?>
    </td>
    <td>
         <?php echo text($row['postal_code']); ?>
