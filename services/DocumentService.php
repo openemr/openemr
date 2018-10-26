@@ -1,6 +1,6 @@
 <?php
 /**
- * AppointmentService
+ * DocumentService
  *
  * Copyright (C) 2018 Matthew Vita <matthewvita48@gmail.com>
  *

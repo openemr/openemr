@@ -10,10 +10,8 @@ This project aims to provide an easy-to-use JSON-based REST API for OpenEMR's mo
 ### Team
 
 - [@juggernautsei](https://github.com/juggernautsei)
-- [@matthewvi](https://github.com/matthewvi)
-- ?
-- ?
-- ?
+- [@matthewvita](https://github.com/matthewvita)
+- [@kofiav](https://github.com/kofiav)
 
 ### Endpoints
 
@@ -456,6 +454,35 @@ curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/product'
 curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/insurance_company'
 ```
 
+#### GET /api/insurance_type
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/insurance_type'
+```
+
+#### POST /api/insurance_company
+
+```
+curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/insurance_company' -d \
+'{
+	"name": "Cool Insurance Company",
+	"attn": null,
+	"cms_id": null,
+	"ins_type_code": "2",
+	"x12_receiver_id": null,
+	"x12_default_partner_id": null,
+	"alt_cms_id": "",
+	"line1": "123 Cool Lane",
+	"line2": "Suite 123",
+	"city": "Cooltown",
+	"state": "CA",
+	"zip": "12245",
+	"country": "USA"
+}'
+```
+
+Notes: `ins_type_code` can be inspecting the above route (/api/insurance_type).
+
 #### GET /api/appointment
 
 ```
@@ -544,19 +571,18 @@ wget 'http://localhost:8300/rest_router.php?resource=/api/patient/1/document/1'
 
 - TODO(team): Consider using Symfony's router
 - TODO(sherwin): Encounter POST
-- TODO(matthew): Document POST
 - TODO(matthew): Fix authorization piece
+- TODO(matthew): API for patient insurance
+- TODO(matthew): insurance company PUT
 - TODO(matthew): Implement Particle's `optional` validation logic for all current validators
 - TODO(matthew): "Delete" functions for medical problems, allergies, etc
 - TODO(?): API for onotes
 - TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
 - TODO(?): `PatientService`'s `insert` doesn't handle `dob` correctly
-- TODO(?): insurance company PUT/POST
-- TODO(?): API for patient insurance
+- TODO(?): API for messages
 - TODO(?): API for fee sheets
 - TODO(?): API for pharmacies
 - TODO(?): API for prescriptions
-- TODO(?): API for messages
 
 
 ### What is that dog drawing?

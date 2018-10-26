@@ -281,6 +281,13 @@ $routes = array(
     "GET /api/insurance_company" => function() {
         return (new InsuranceCompanyRestController())->getAll();
     },
+    "GET /api/insurance_type" => function() {
+        return (new InsuranceCompanyRestController())->getInsuranceTypes();
+    },
+    "POST /api/insurance_company" => function() {
+        $data = (array)(json_decode(file_get_contents("php://input")));
+        return (new InsuranceCompanyRestController())->post($data);
+    },
     "POST /api/patient/:pid/document" => function($pid) {
         return (new DocumentRestController())->postWithPath($pid, $_GET['path'], $_FILES['document']);
     },
