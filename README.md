@@ -465,19 +465,19 @@ curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/insurance_type'
 ```
 curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/insurance_company' -d \
 '{
-	"name": "Cool Insurance Company",
-	"attn": null,
-	"cms_id": null,
-	"ins_type_code": "2",
-	"x12_receiver_id": null,
-	"x12_default_partner_id": null,
-	"alt_cms_id": "",
-	"line1": "123 Cool Lane",
-	"line2": "Suite 123",
-	"city": "Cooltown",
-	"state": "CA",
-	"zip": "12245",
-	"country": "USA"
+    "name": "Cool Insurance Company",
+    "attn": null,
+    "cms_id": null,
+    "ins_type_code": "2",
+    "x12_receiver_id": null,
+    "x12_default_partner_id": null,
+    "alt_cms_id": "",
+    "line1": "123 Cool Lane",
+    "line2": "Suite 123",
+    "city": "Cooltown",
+    "state": "CA",
+    "zip": "12245",
+    "country": "USA"
 }'
 ```
 
