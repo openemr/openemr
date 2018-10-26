@@ -481,7 +481,7 @@ curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/insurance_comp
 }'
 ```
 
-Notes: `ins_type_code` can be inspecting the above route (/api/insurance_type).
+Notes: `ins_type_code` can be found by inspecting the above route (/api/insurance_type).
 
 #### GET /api/appointment
 
