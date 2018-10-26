@@ -74,6 +74,6 @@ class InsuranceCompanyRestController
         if (is_array($addressValidationHandlerResult)) { return $addressValidationHandlerResult; }
 
         $serviceResult = $this->insuranceCompanyService->update($data, $iid);
-        return RestControllerHelper::responseHandler($serviceResult, array('id' => $serviceResult), 201);
+        return RestControllerHelper::responseHandler($serviceResult, array('id' => $serviceResult), 200);
     }
 }

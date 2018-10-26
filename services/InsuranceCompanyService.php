@@ -146,4 +146,31 @@ class InsuranceCompanyService
         return $freshId;
     }
 
+    public function update($data, $iid)
+    {
+        $sql  = " UPDATE insurance_companies SET";
+        $sql .= "     name='" . add_escape_custom($data["name"]) . "',";
+        $sql .= "     attn='" . add_escape_custom($data["attn"]) . "',";
+        $sql .= "     cms_id='" . add_escape_custom($data["cms_id"]) . "',";
+        $sql .= "     ins_type_code='" . add_escape_custom($data["ins_type_code"]) . "',";
+        $sql .= "     x12_receiver_id='" . add_escape_custom($data["x12_receiver_id"]) . "',";
+        $sql .= "     x12_default_partner_id='" . add_escape_custom($data["x12_default_partner_id"]) . "',";
+        $sql .= "     alt_cms_id='" . add_escape_custom($data["alt_cms_id"]) . "'";
+        $sql .= "     WHERE id = " . add_escape_custom($iid);
+
+        $insuranceResults = sqlStatement($sql);
+
+        if (!$insuranceResults) {
+            return false;
+        }
+
+        $addressesResults = $this->addressService->update($data, $iid);
+
+        if (!$addressesResults) {
+            return false;
+        }
+
+        return $iid;
+    }
+
 }

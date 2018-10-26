@@ -483,6 +483,29 @@ curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/insurance_comp
 
 Notes: `ins_type_code` can be found by inspecting the above route (/api/insurance_type).
 
+#### PUT /api/insurance_company/:iid
+
+```
+curl -X PUT 'http://localhost:8300/rest_router.php?resource=/api/insurance_company/1' -d \
+'{
+    "name": "Super Insurance Company",
+    "attn": null,
+    "cms_id": null,
+    "ins_type_code": "2",
+    "x12_receiver_id": null,
+    "x12_default_partner_id": null,
+    "alt_cms_id": "",
+    "line1": "123 Cool Lane",
+    "line2": "Suite 123",
+    "city": "Cooltown",
+    "state": "CA",
+    "zip": "12245",
+    "country": "USA"
+}'
+```
+
+Notes: `ins_type_code` can be found by inspecting the above route (/api/insurance_type).
+
 #### GET /api/appointment
 
 ```
@@ -573,7 +596,6 @@ wget 'http://localhost:8300/rest_router.php?resource=/api/patient/1/document/1'
 - TODO(sherwin): Encounter POST
 - TODO(matthew): Fix authorization piece
 - TODO(matthew): API for patient insurance
-- TODO(matthew): insurance company PUT
 - TODO(matthew): Implement Particle's `optional` validation logic for all current validators
 - TODO(matthew): "Delete" functions for medical problems, allergies, etc
 - TODO(?): API for onotes
