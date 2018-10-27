@@ -39,7 +39,7 @@ class CurlRequest
     {
         $this->handle = curl_init($this->url);
 
-        curl_setopt($this->handle, CURLOPT_VERBOSE, 1);
+        curl_setopt($this->handle, CURLOPT_VERBOSE, 0);
         curl_setopt($this->handle, CURLOPT_HEADER, true);
         curl_setopt($this->handle, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($this->handle, CURLOPT_POST, true);
@@ -345,20 +345,23 @@ class Events extends Base
         // There is a GLOBALS value for weekend days, maybe use that LTR.
         // -->If Friday, send all appts matching campaign fire_Time + 2 days
         // For past appts, we also don't want to send messages on the weekend, so do them Monday.
+        $this->MedEx->logging->log_this($events);
         foreach ($events as $event) {
             $escClause=[];
             $escapedArr = []; //will hold prepared statement items for query.
             if ($event['M_group'] == 'REMINDER') {
-                if ($event['time_order'] > '0') { //upcoming appts
+                if ($event['time_order'] > '0') {
                     $interval ="+";
                     //NOTE IF you have customized the pc_appstatus flags, you need to adjust them here too.
-                    //reminders are always or stop, that's it.
                     if ($event['E_instructions'] == "stop") {   // ie. don't send this if it has been confirmed.
                         $appt_status = " and pc_apptstatus='-'";//we only look at future appts w/ apptstatus == NONE ='-'
                         // OR send anyway - unless appstatus is not cancelled, then it is no longer an appointment to confirm...
-                    } else {  //send anyway
+                    } elseif ($event['E_instructions'] == "always") {  //send anyway
                         $appt_status = " and pc_apptstatus != '%'
                                              and pc_apptstatus != 'x' ";
+                    } else { //reminders are always or stop, that's it
+                        $event['E_instructions'] ='stop';
+                        $appt_status = " and pc_apptstatus='-'";//we only look at future appts w/ apptstatus == NONE ='-'
                     }
                 } else {
                     // Past appts -> appts that are completed.
@@ -396,10 +399,9 @@ class Events extends Base
                                     WHERE (pc_eventDate > CURDATE() ".$interval." INTERVAL ".$timing." DAY
                                     AND pc_eventDate < (curdate() ".$interval." INTERVAL '".$timing2."' DAY_MINUTE))
                                     AND pc_facility IN (".$places.")
-                                    ". $appt_status."
                                     AND pat.pid=cal.pc_pid  ORDER BY pc_eventDate,pc_startTime";
 
-                    $result = sqlStatement($query);
+                    $result = sqlStatement($query, $escapedArr);
                     while ($appt= sqlFetchArray($result)) {
                         list($response,$results) = $this->MedEx->checkModality($event, $appt);
                         if ($results==false) {
@@ -748,6 +750,7 @@ class Events extends Base
                             `patient_reminders`.pid=`patient_data`.pid
                               ORDER BY `due_status`, `date_created`";
                 $ures = sqlStatementCdrEngine($sql);
+                $returnval=array();
                 while ($urow = sqlFetchArray($ures)) {
                     list($response,$results) = $this->MedEx->checkModality($event, $urow);
                     if ($results==false) {
@@ -756,7 +759,9 @@ class Events extends Base
                     $fields2['clinical_reminders'][] = $urow;
                 }
             } else if ($event['M_group'] == 'GOGREEN') {
+                $count=0;
                 $escapedArr=[];
+                $this->MedEx->logging->log_this($event);
                 if (!empty($event['appt_stats'])) {
                     $prepare_me ='';
                     $appt_stats = explode('|', $event['appt_stats']);
@@ -814,7 +819,7 @@ class Events extends Base
                     //once - this patient only gets one
                     $frequency = " AND cal.pc_pid NOT in (
                             SELECT msg_pid from medex_outgoing where
-                                campaign_uid =? )";
+                                campaign_uid =?  and msg_date >= curdate() )";
                      $escapedArr[] = (int)$event['C_UID'];
                 } else if ($event['E_instructions'] == 'yearly') {
                     //yearly - this patient only gets this once a year
@@ -829,13 +834,9 @@ class Events extends Base
                 //make sure this only gets sent once for this campaign
                 $no_dupes = " AND cal.pc_eid NOT IN (
                                 SELECT msg_pc_eid from medex_outgoing where
-                                campaign_uid =? ) ";
+                                campaign_uid =? and msg_date >= curdate() ) ";
                 $escapedArr[] = (int)$event['C_UID'];
-                // don't waste our time with people w/o email addresses
-                // Go Green is just EMAIL for now
-                $no_dupes .= "AND pat.email >'' ";
-                //now we need to look to see if this is timed around an event occurrence
-
+                
                 $target_dates ='';
                 if ($event['E_timing'] == '5') {
                     $target_dates = " cal.pc_eventDate > curdate()  ";
@@ -873,7 +874,8 @@ class Events extends Base
                                         ".$no_dupes."
                                     ORDER BY cal.pc_eventDate,cal.pc_startTime";
                 $result = sqlStatement($sql_GOGREEN, $escapedArr);
-                while ($appt= sqlFetchArray($result)) {
+        
+                while ($appt = sqlFetchArray($result)) {
                     list($response,$results) = $this->MedEx->checkModality($event, $appt);
                     if ($results==false) {
                             continue; //not happening - either not allowed or not possible
@@ -910,6 +912,9 @@ class Events extends Base
                     $appt2['to']            = $results;
                     $appt3[] = $appt2;
                 }
+                
+                $this->MedEx->logging->log_this("Stop");
+                
             }
         }
 
@@ -920,7 +925,7 @@ class Events extends Base
         if (!empty($appt3)) {
             $this->process($token, $appt3);
         }
-        $responses['deletes'] = $deletes;
+        $responses['deletes'] = $hipaa;
         $responses['count_appts'] = $count_appts;
         $responses['count_recalls'] = $count_recalls;
         $responses['count_announcements'] = $count_announcements;
@@ -1077,8 +1082,7 @@ class Callback extends Base
             //Store responses in TABLE medex_outgoing
             $sqlINSERT = "INSERT INTO medex_outgoing (msg_pc_eid, msg_pid, campaign_uid, msg_type, msg_reply, msg_extra_text, msg_date, medex_uid)
                                 VALUES (?,?,?,?,?,?,utc_timestamp(),?)";
-            if (!$data['M_type']) {
-                $data['M_type'] ='pending'; }
+
             sqlQuery($sqlINSERT, array($data['pc_eid'],$data['patient_id'], $data['campaign_uid'], $data['M_type'],$data['msg_reply'],$data['msg_extra'],$data['msg_uid']));
 
             if ($data['msg_reply']=="CONFIRMED") {
@@ -1693,8 +1697,10 @@ if (!empty($logged_in['products']['not_ordered'])) {
                                                 style="max-width:140px;min-width:85px;">
                                           </td></tr>
 
-                                          <tr><td class="text-center" colspan="2">
-                                            <button class="btn btn-default btn-filter" style="float:none;" type="submit" id="filter_submit" value="<?php echo xla('Filter'); ?>"><?php echo xlt('Filter'); ?></button>
+                                          <tr>
+                                            <td class="text-center" colspan="2">
+                                                <button class="btn btn-default btn-filter" style="float:none;" type="submit" id="filter_submit" value="<?php echo xla('Filter'); ?>"><?php echo xlt('Filter'); ?></button>
+                                                <button class="btn btn-default btn-add" onclick="goReminderRecall('addRecall');"><span><?php echo xlt('New Recall'); ?></span></>
                                             </td>
                                           </tr>
                                         </table>
@@ -2279,18 +2285,18 @@ if (!empty($logged_in['products']['not_ordered'])) {
                 <div class="divTableCell text-center" style="width:10%;"><?php echo xlt('Recall'); ?></div>
 
                 <div class="divTableCell text-center phones" style="width:10%;"><?php echo xlt('Contacts'); ?></div>
-                <div class="divTableCell text-center msg_resp" style="width:5%;"><?php echo xlt('Postcards'); ?><br />
+                <div class="divTableCell text-center msg_resp"><?php echo xlt('Postcards'); ?><br />
                     <span onclick="top.restoreSession();checkAll('postcards',true);" class="fa fa-square-o fa-lg" id="chk_postcards"></span>
                     &nbsp;&nbsp;
                     <span onclick="process_this('postcards');" class="fa fa-print fa-lg"></span>
                 </div>
-                <div class="divTableCell text-center msg_resp" style="width:5%;"><?php echo xlt('Labels'); ?><br />
+                <div class="divTableCell text-center msg_resp"><?php echo xlt('Labels'); ?><br />
                     <span onclick="checkAll('labels',true);" class="fa fa-square-o fa-lg" id="chk_labels"></span>
                     &nbsp;&nbsp;
                     <span onclick="process_this('labels');" class="fa fa-print fa-lg"></span>
                 </div>
-                <div class="divTableCell text-center msg_resp" style="width:10%;"><?php echo xlt('Office').": ".xlt('Phone'); ?></div>
-                <div class="divTableCell text-center msg_notes"  style="width:20%;"><?php echo xlt('Notes'); ?></div>
+                <div class="divTableCell text-center msg_resp"><?php echo xlt('Office').": ".xlt('Phone'); ?></div>
+                <div class="divTableCell text-center msg_notes"><?php echo xlt('Notes'); ?></div>
                 <div class="divTableCell text-center"><?php echo xlt('Progress'); ?>
                 </div>
 
@@ -2307,7 +2313,7 @@ if (!empty($logged_in['products']['not_ordered'])) {
     }
     public function display_add_recall($pid = 'new')
     {
-        
+        global $result_pat;
         ?>
         <div class="container-fluid">
             <div class="row-fluid showReminders clear text-center">
@@ -2327,8 +2333,8 @@ if (!empty($logged_in['products']['not_ordered'])) {
                                 <div class="divTableCell recall_name">
                                     <input type="text" name="new_recall_name" id="new_recall_name" class="form-control"
                                         onclick="recall_name_click(this)"
-                                        value="" style="width:225px;">
-                                    <input type="hidden" name="new_pid" id="new_pid" value="">
+                                        value="<?php echo attr($result_pat['fname'])." ".attr($result_pat['lname']); ?>" style="width:225px;">
+                                    <input type="hidden" name="new_pid" id="new_pid" value="<?php echo attr($result_pat['id']); ?>">
                                 </div>
                             </div>
                             <div class="divTableRow">
@@ -2352,7 +2358,9 @@ if (!empty($logged_in['products']['not_ordered'])) {
                             <div class="divTableRow">
                                 <div class="divTableCell divTableHeading"><?php echo xlt('Recall Reason'); ?></div>
                                 <div class="divTableCell">
-                                    <input class="form-control" type="text"  style="width:225px;" name="new_reason" id="new_reason" value="">
+                                    <input class="form-control" type="text"  style="width:225px;" name="new_reason" id="new_reason" value="<?php
+                                    if ($result_pat['PLAN'] > '') {
+                                        echo attr(rtrim("|", trim($result_pat['PLAN']))); } ?>">
                                     </div>
                                 </div>
                                 <div class="divTableRow">
@@ -2419,25 +2427,27 @@ if (!empty($logged_in['products']['not_ordered'])) {
                                 <div class="divTableRow news">
                                     <div class="divTableCell divTableHeading"><?php echo xlt('DOB'); ?></div>
                                     <div class="divTableCell">&nbsp;&nbsp;
-                                    
-                                    <span name="new_DOB" id="new_DOB" style="width:90px;"></span> -
-                                     <span id="new_age" name="new_age"></span></div>
+                                    <?php
+                                    $DOB = oeFormatShortDate($result_pat['DOB']);
+                                    ?>
+                                    <span name="new_DOB" id="new_DOB" style="width:90px;"><?php echo text($DOB); ?></span> -
+                                     <span id="new_age" name="new_age"><?php echo text($result_pat['age']); ?></span></div>
                                 </div>
                                 <div class="divTableRow news">
                                     <div class="divTableCell divTableHeading"><?php echo xlt('Address'); ?></div>
                                     <div class="divTableCell">
-                                    <input type="text"  class="form-control" name="new_address" id="new_address" style="width:240px;" value=""><br />
-                                    <input type="text"  class="form-control" name="new_city" id="new_city" style="width:100px;" value="">
-                                    <input type="text"  class="form-control" name="new_state" id="new_state" style="width:40px;" value="">
-                                    <input type="text"  class="form-control" name="new_postal_code" id="new_postal_code" style="width:65px;" value=""></div>
+                                    <input type="text"  class="form-control" name="new_address" id="new_address" style="width:240px;" value="<?php echo attr($result_pat['street']); ?>"><br />
+                                    <input type="text"  class="form-control" name="new_city" id="new_city" style="width:100px;" value="<?php echo attr($result_pat['city']); ?>">
+                                    <input type="text"  class="form-control" name="new_state" id="new_state" style="width:40px;" value="<?php echo attr($result_pat['state']); ?>">
+                                    <input type="text"  class="form-control" name="new_postal_code" id="new_postal_code" style="width:65px;" value="<?php echo attr($result_pat['postal_code']); ?>"></div>
                                 </div>
                                 <div class="divTableRow news">
                                     <div class="divTableCell divTableHeading phone_home"><?php echo xlt('Home Phone'); ?></div>
-                                    <div class="divTableCell"><input type="text" name="new_phone_home" id="new_phone_home" class="form-control" value=""></div>
+                                    <div class="divTableCell"><input type="text" name="new_phone_home" id="new_phone_home" class="form-control" value="<?php echo attr($result_pat['phone_home']); ?>"></div>
                                 </div>
                                 <div class="divTableRow news">
                                     <div class="divTableCell divTableHeading phone_cell"><?php echo xlt('Mobile Phone'); ?></div>
-                                    <div class="divTableCell"><input type="text" name="new_phone_cell" id="new_phone_cell" class="form-control" value=""></div>
+                                    <div class="divTableCell"><input type="text" name="new_phone_cell" id="new_phone_cell" class="form-control" value="<?php echo attr($result_pat['phone_cell']); ?>"></div>
                                 </div>
                                 <div class="divTableRow news">
                                     <div class="divTableCell divTableHeading msg_sent" data-placement="auto" title="<?php echo xla('Text Message permission'); ?>"><?php echo xlt('SMS OK'); ?></div>
@@ -2458,7 +2468,7 @@ if (!empty($logged_in['products']['not_ordered'])) {
                                 </div>
                                 <div class="divTableRow news">
                                     <div class="divTableCell divTableHeading phone_cell"><?php echo xlt('E-Mail'); ?></div>
-                                    <div class="divTableCell"><input type="email" name="new_email" id="new_email" class="form-control" style="width:225px;" value=""></div>
+                                    <div class="divTableCell"><input type="email" name="new_email" id="new_email" class="form-control" style="width:225px;" value="<?php echo attr($result_pat['email']); ?>"></div>
                                 </div>
 
                                 <div class="divTableRow news">
@@ -3070,14 +3080,11 @@ class MedEx
             'MedEx' => 'openEMR',
             'callback_key' => $callback_key
         ));
-        $log = "/tmp/medex.log" ;
-        $stdlog = fopen($log, 'a');
-        $timed = date(DATE_RFC2822);
-        fputs($stdlog, "\n IN API.php::login ".$timed."\n");
-
+        
         $this->curl->makeRequest();
         $response = $this->curl->getResponse();
-        fputs($stdlog, "\n ".$this->curl->getRawResponse()."\n");
+        $this->logging->log_this("\n IN API.php::login\n");
+        $this->logging->log_this($response);
 
         if (isset($response['success']) && isset($response['token'])) {
             return $response;
