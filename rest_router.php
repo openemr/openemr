@@ -166,10 +166,14 @@ $routes = array(
         $data = (array)(json_decode(file_get_contents("php://input")));
         return (new ListRestController())->post($pid, "medical_problem", $data);
     },
-    "PUT /api/patient/:pid/medical_problem/:aid" => function($pid, $aid) {
+    "PUT /api/patient/:pid/medical_problem/:mid" => function($pid, $mid) {
         authorization_check("patients", "med");
         $data = (array)(json_decode(file_get_contents("php://input")));
-        return (new ListRestController())->put($pid, $aid, "medical_problem", $data);
+        return (new ListRestController())->put($pid, $mid, "medical_problem", $data);
+    },
+    "DELETE /api/patient/:pid/medical_problem/:mid" => function($pid, $mid) {
+        authorization_check("patients", "med");
+        return (new ListRestController())->delete($pid, $mid, "medical_problem");
     },
     "GET /api/patient/:pid/allergy" => function($pid) {
         authorization_check("patients", "med");
@@ -178,6 +182,10 @@ $routes = array(
     "GET /api/patient/:pid/allergy/:aid" => function($pid, $aid) {
         authorization_check("patients", "med");
         return (new ListRestController())->getOne($pid, "allergy", $aid);
+    },
+    "DELETE /api/patient/:pid/allergy/:aid" => function($pid, $aid) {
+        authorization_check("patients", "med");
+        return (new ListRestController())->delete($pid, $aid, "allergy");
     },
     "POST /api/patient/:pid/allergy" => function($pid) {
         authorization_check("patients", "med");
@@ -207,6 +215,10 @@ $routes = array(
         authorization_check("patients", "med");
         return (new ListRestController())->getOne($pid, "medication", $mid);
     },
+    "DELETE /api/patient/:pid/medication/:mid" => function($pid, $mid) {
+        authorization_check("patients", "med");
+        return (new ListRestController())->delete($pid, $mid, "medication");
+    },
     "GET /api/patient/:pid/surgery" => function($pid) {
         authorization_check("patients", "med");
         return (new ListRestController())->getAll($pid, "surgery");
@@ -214,6 +226,10 @@ $routes = array(
     "GET /api/patient/:pid/surgery/:sid" => function($pid, $sid) {
         authorization_check("patients", "med");
         return (new ListRestController())->getOne($pid, "surgery", $sid);
+    },
+    "DELETE /api/patient/:pid/surgery/:sid" => function($pid, $sid) {
+        authorization_check("patients", "med");
+        return (new ListRestController())->delete($pid, $sid, "surgery");
     },
     "POST /api/patient/:pid/surgery" => function($pid) {
         authorization_check("patients", "med");
@@ -232,6 +248,10 @@ $routes = array(
     "GET /api/patient/:pid/dental_issue/:did" => function($pid, $did) {
         authorization_check("patients", "med");
         return (new ListRestController())->getOne($pid, "dental", $did);
+    },
+    "DELETE /api/patient/:pid/dental_issue/:did" => function($pid, $did) {
+        authorization_check("patients", "med");
+        return (new ListRestController())->delete($pid, $did, "dental");
     },
     "POST /api/patient/:pid/dental_issue" => function($pid) {
         authorization_check("patients", "med");

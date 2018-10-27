@@ -292,6 +292,12 @@ curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/medic
 curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/medical_problem/1'
 ```
 
+#### DELETE /api/patient/:pid/medical_problem/:mid
+
+```
+curl -X DELETE 'http://localhost:8300/rest_router.php?resource=/api/patient/1/medical_problem/1'
+```
+
 #### POST /api/patient/:pid/allergy
 
 ```
@@ -326,6 +332,12 @@ curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/aller
 curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/allergy/1'
 ```
 
+#### DELETE /api/patient/:pid/allergy/:aid
+
+```
+curl -X DELETE 'http://localhost:8300/rest_router.php?resource=/api/patient/1/allergy/1'
+```
+
 #### POST /api/patient/:pid/medication
 
 ```
@@ -358,6 +370,12 @@ curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/medic
 
 ```
 curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/medication/1'
+```
+
+#### DELETE /api/patient/:pid/medication/:mid
+
+```
+curl -X DELETE 'http://localhost:8300/rest_router.php?resource=/api/patient/1/medication/1'
 ```
 
 #### POST /api/patient/:pid/surgery
@@ -396,6 +414,12 @@ curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/surge
 curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/surgery/1'
 ```
 
+#### DELETE /api/patient/:pid/surgery/:sid
+
+```
+curl -X DELETE 'http://localhost:8300/rest_router.php?resource=/api/patient/1/surgery/1'
+```
+
 #### POST /api/patient/:pid/dental_issue
 
 ```
@@ -429,6 +453,13 @@ curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/denta
 ```
 curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/dental_issue/1'
 ```
+
+#### DELETE /api/patient/:pid/dental_issue/:did
+
+```
+curl -X DELETE 'http://localhost:8300/rest_router.php?resource=/api/patient/1/dental_issue/1'
+```
+
 
 #### GET /api/list/:list_name
 
@@ -593,11 +624,10 @@ wget 'http://localhost:8300/rest_router.php?resource=/api/patient/1/document/1'
 ### Project Management
 
 - TODO(team): Consider using Symfony's router
+- TODO(matthew): API for patient insurance
 - TODO(sherwin): Encounter POST
 - TODO(matthew): Fix authorization piece
-- TODO(matthew): API for patient insurance
 - TODO(matthew): Implement Particle's `optional` validation logic for all current validators
-- TODO(matthew): "Delete" functions for medical problems, allergies, etc
 - TODO(?): API for onotes
 - TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
 - TODO(?): `PatientService`'s `insert` doesn't handle `dob` correctly
