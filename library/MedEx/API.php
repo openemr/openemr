@@ -925,7 +925,7 @@ class Events extends Base
         if (!empty($appt3)) {
             $this->process($token, $appt3);
         }
-        $responses['deletes'] = $hipaa;
+        $responses['deletes'] = $deletes;
         $responses['count_appts'] = $count_appts;
         $responses['count_recalls'] = $count_recalls;
         $responses['count_announcements'] = $count_announcements;
