@@ -107,4 +107,11 @@ class ListService
 
         return sqlStatement($sql);
     }
+
+    public function delete($pid, $list_id, $list_type)
+    {
+        $sql  = "DELETE FROM lists WHERE pid=? AND id=? AND type=?";
+
+        return sqlStatement($sql, array($pid, $list_id, $list_type));
+    }
 }

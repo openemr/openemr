@@ -79,4 +79,10 @@ class ListRestController
         $serviceResult = $this->listService->update($data);
         return RestControllerHelper::responseHandler($serviceResult, array('id' => $list_id), 200);
     }
+
+    public function delete($pid, $list_id, $list_type)
+    {
+        $serviceResult = $this->listService->delete($pid, $list_id, $list_type);
+        return RestControllerHelper::responseHandler($serviceResult, true, 200);
+    }
 }
