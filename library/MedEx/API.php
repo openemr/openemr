@@ -914,7 +914,6 @@ class Events extends Base
                 }
                 
                 $this->MedEx->logging->log_this("Stop");
-                
             }
         }
 
