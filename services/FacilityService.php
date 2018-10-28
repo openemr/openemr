@@ -42,8 +42,25 @@ class FacilityService
         $validator->required('phone')->lengthBetween(3, 30);
         $validator->required('city')->lengthBetween(2, 255);
         $validator->required('state')->lengthBetween(2, 50);
+        $validator->required('street')->lengthBetween(2, 255);
         $validator->required('postal_code')->lengthBetween(2, 11);
         $validator->required('email')->email();
+        $validator->required('fax')->lengthBetween(3, 30);
+        $validator->optional('country_code')->lengthBetween(2, 30);
+        $validator->optional('federal_ein')->lengthBetween(2, 15);
+        $validator->optional('website')->url();
+        $validator->optional('color')->lengthBetween(4, 7);
+        $validator->optional('service_location')->numeric()->lessThan(2);
+        $validator->optional('billing_location')->numeric()->lessThan(2);
+        $validator->optional('accepts_assignment')->numeric()->lessThan(2);
+        $validator->optional('pos_code')->numeric()->lessThan(5);
+        $validator->optional('domain_identifier')->lengthBetween(2, 60);
+        $validator->optional('attn')->lengthBetween(2, 65);
+        $validator->optional('tax_id_type')->lengthBetween(2, 31);
+        $validator->optional('primary_business_entity')->numeric()->lessThan(11);
+        $validator->optional('facility_npi')->lengthBetween(2, 15);
+        $validator->optional('facility_code')->lengthBetween(2, 31);
+        $validator->optional('facility_taxonomy')->lengthBetween(2, 15);
 
         return $validator->validate($facility);
     }
