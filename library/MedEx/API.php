@@ -1699,7 +1699,7 @@ if (!empty($logged_in['products']['not_ordered'])) {
                                           <tr>
                                             <td class="text-center" colspan="2">
                                                 <button class="btn btn-default btn-filter" style="float:none;" type="submit" id="filter_submit" value="<?php echo xla('Filter'); ?>"><?php echo xlt('Filter'); ?></button>
-                                                <button class="btn btn-default btn-add" onclick="goReminderRecall('addRecall');"><span><?php echo xlt('New Recall'); ?></span></>
+                                                <button class="btn btn-default btn-add" onclick="goReminderRecall('addRecall');return false;"><span><?php echo xlt('New Recall'); ?></span></>
                                             </td>
                                           </tr>
                                         </table>
