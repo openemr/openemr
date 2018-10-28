@@ -460,6 +460,100 @@ curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/denta
 curl -X DELETE 'http://localhost:8300/rest_router.php?resource=/api/patient/1/dental_issue/1'
 ```
 
+#### GET /api/patient/:pid/insurance
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/insurance'
+```
+
+#### GET /api/patient/:pid/insurance/:type
+
+```
+curl -X GET 'http://localhost:8300/rest_router.php?resource=/api/patient/1/insurance/secondary'
+```
+
+#### POST /api/patient/:pid/insurance/:type
+
+```
+curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/patient/10/insurance/primary' -d \
+'{
+    "type": "primary",
+    "provider": "33",
+    "plan_name": "Some Plan",
+    "policy_number": "12345",
+    "group_number": "252412",
+    "subscriber_lname": "Tester",
+    "subscriber_mname": "Xi",
+    "subscriber_fname": "Foo",
+    "subscriber_relationship": "other",
+    "subscriber_ss": "234231234",
+    "subscriber_DOB": "2018-10-03",
+    "subscriber_street": "183 Cool St",
+    "subscriber_postal_code": "23418",
+    "subscriber_city": "Cooltown",
+    "subscriber_state": "AZ",
+    "subscriber_country": "USA",
+    "subscriber_phone": "234-598-2123",
+    "subscriber_employer": "Some Employer",
+    "subscriber_employer_street": "123 Heather Lane",
+    "subscriber_employer_postal_code": "23415",
+    "subscriber_employer_state": "AZ",
+    "subscriber_employer_country": "USA",
+    "subscriber_employer_city": "Cooltown",
+    "copay": "35",
+    "date": "2018-10-15",
+    "subscriber_sex": "Female",
+    "accept_assignment": "TRUE",
+    "policy_type": "a"
+}'
+```
+
+Notes:
+- `provider` is the insurance company id
+- `state` can be found by querying `resource=/api/list/state`
+- `country` can be found by querying `resource=/api/list/country`
+
+
+#### PUT /api/patient/:pid/insurance/:type
+
+```
+curl -X PUT 'http://localhost:8300/rest_router.php?resource=/api/patient/10/insurance/primary' -d \
+'{
+    "type": "primary",
+    "provider": "33",
+    "plan_name": "Some Plan",
+    "policy_number": "12345",
+    "group_number": "252412",
+    "subscriber_lname": "Tester",
+    "subscriber_mname": "Xi",
+    "subscriber_fname": "Foo",
+    "subscriber_relationship": "other",
+    "subscriber_ss": "234231234",
+    "subscriber_DOB": "2018-10-03",
+    "subscriber_street": "183 Cool St",
+    "subscriber_postal_code": "23418",
+    "subscriber_city": "Cooltown",
+    "subscriber_state": "AZ",
+    "subscriber_country": "USA",
+    "subscriber_phone": "234-598-2123",
+    "subscriber_employer": "Some Employer",
+    "subscriber_employer_street": "123 Heather Lane",
+    "subscriber_employer_postal_code": "23415",
+    "subscriber_employer_state": "AZ",
+    "subscriber_employer_country": "USA",
+    "subscriber_employer_city": "Cooltown",
+    "copay": "35",
+    "date": "2018-10-15",
+    "subscriber_sex": "Female",
+    "accept_assignment": "TRUE",
+    "policy_type": "a"
+}'
+```
+
+Notes:
+- `provider` is the insurance company id
+- `state` can be found by querying `resource=/api/list/state`
+- `country` can be found by querying `resource=/api/list/country`
 
 #### GET /api/list/:list_name
 
@@ -624,17 +718,16 @@ wget 'http://localhost:8300/rest_router.php?resource=/api/patient/1/document/1'
 ### Project Management
 
 - TODO(team): Consider using Symfony's router
-- TODO(matthew): API for patient insurance
+- TODO(matthew): API for messages
 - TODO(sherwin): Encounter POST
 - TODO(matthew): Fix authorization piece
 - TODO(matthew): Implement Particle's `optional` validation logic for all current validators
-- TODO(?): API for onotes
 - TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
 - TODO(?): `PatientService`'s `insert` doesn't handle `dob` correctly
-- TODO(?): API for messages
 - TODO(?): API for fee sheets
 - TODO(?): API for pharmacies
 - TODO(?): API for prescriptions
+- TODO(?): API for onotes
 
 
 ### What is that dog drawing?
