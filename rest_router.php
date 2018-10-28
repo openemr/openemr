@@ -37,6 +37,7 @@ use OpenEMR\RestControllers\AuthRestController;
 use OpenEMR\RestControllers\ONoteRestController;
 use OpenEMR\RestControllers\DocumentRestController;
 use OpenEMR\RestControllers\InsuranceRestController;
+use OpenEMR\RestControllers\MessageRestController;
 
 function authentication_check() {
     $authRestController = new AuthRestController();
@@ -335,6 +336,20 @@ $routes = array(
     "PUT /api/patient/:pid/insurance/:type" => function($pid, $type) {
         $data = (array)(json_decode(file_get_contents("php://input")));
         return (new InsuranceRestController())->put($pid, $type, $data);
+    },
+    "POST /api/patient/:pid/message" => function($pid) {
+        authorization_check("patients", "notes");
+        $data = (array)(json_decode(file_get_contents("php://input")));
+        return (new MessageRestController())->post($pid, $data);
+    },
+    "PUT /api/patient/:pid/message/:mid" => function($pid, $mid) {
+        authorization_check("patients", "notes");
+        $data = (array)(json_decode(file_get_contents("php://input")));
+        return (new MessageRestController())->put($pid, $mid, $data);
+    },
+    "DELETE /api/patient/:pid/message/:mid" => function($pid, $mid) {
+        authorization_check("patients", "notes");
+        return (new MessageRestController())->delete($pid, $mid, $data);
     }
 );
 

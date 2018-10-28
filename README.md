@@ -708,6 +708,48 @@ Note: The `path` query string represents the OpenEMR documents paths with two ex
 wget 'http://localhost:8300/rest_router.php?resource=/api/patient/1/document/1'
 ```
 
+#### POST /api/patient/:pid/message
+
+```
+curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/patient/1/message' -d \
+'{
+    "body": "Test 123",
+    "groupname": "Default",
+    "from": "admin",
+    "to": "Matthew",
+    "title": "Other",
+    "message_status": "New"
+}'
+```
+
+Notes:
+- For `title`, use `resource=/api/list/note_type`
+- For `message_type`, use `resource=/api/list/message_status`
+
+#### PUT /api/patient/:pid/message/:mid
+
+```
+curl -X PUT 'http://localhost:8300/rest_router.php?resource=/api/patient/1/message/1' -d \
+'{
+    "body": "Test 456",
+    "groupname": "Default",
+    "from": "Matthew",
+    "to": "admin",
+    "title": "Other",
+    "message_status": "New"
+}'
+```
+
+Notes:
+- For `title`, use `resource=/api/list/note_type`
+- For `message_type`, use `resource=/api/list/message_status`
+
+#### DELETE /api/patient/:pid/message/:mid
+
+```
+curl -X DELETE 'http://localhost:8300/rest_router.php?resource=/api/patient/1/message/1'
+```
+
 ### Dev Notes
 
 - For business logic, make or use the services [here](https://github.com/GoTeamEpsilon/openemr-rest-api/tree/master/services)
@@ -718,10 +760,9 @@ wget 'http://localhost:8300/rest_router.php?resource=/api/patient/1/document/1'
 ### Project Management
 
 - TODO(team): Consider using Symfony's router
-- TODO(matthew): API for messages
 - TODO(sherwin): Encounter POST
-- TODO(matthew): Fix authorization piece
 - TODO(matthew): Implement Particle's `optional` validation logic for all current validators
+- TODO(matthew): Fix authorization piece & cleanup authentication piece
 - TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
 - TODO(?): `PatientService`'s `insert` doesn't handle `dob` correctly
 - TODO(?): API for fee sheets
