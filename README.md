@@ -761,7 +761,7 @@ curl -X DELETE 'http://localhost:8300/rest_router.php?resource=/api/patient/1/me
 
 - TODO(team): Consider using Symfony's router
 - TODO(sherwin): Encounter POST
-- TODO(matthew): Implement Particle's `optional` validation logic for all current validators
+- TODO(matthew): Implement Particle's `lessThan` validation for numeric fields
 - TODO(matthew): Fix authorization piece & cleanup authentication piece
 - TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
 - TODO(?): `PatientService`'s `insert` doesn't handle `dob` correctly
