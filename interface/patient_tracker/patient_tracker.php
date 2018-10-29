@@ -119,13 +119,13 @@ if ($GLOBALS['medex_enable'] == '1') {
         $icons[$icon['msg_type']][$icon['msg_status']]['html'] = $icon['i_html'];
     }
     $MedEx = new MedExApi\MedEx('MedExBank.com');
-    $logged_in = $MedEx->login();
     $sql = "SELECT * FROM medex_prefs LIMIT 1";
     $preferences = sqlStatement($sql);
     $prefs = sqlFetchArray($preferences);
-    if ($logged_in) {
-        $results = $MedEx->campaign->events($logged_in['token']);
-        foreach ($results['events'] as $event) {
+    $results = json_decode($prefs['status'], true);
+    $logged_in=$results;
+    if (!empty($prefs)) {
+        foreach ($results['campaigns']['events'] as $event) {
             if ($event['M_group'] != 'REMINDER') {
                 continue;
             }
