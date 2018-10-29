@@ -6,7 +6,8 @@
  *      delivering events to be processed to MedEx AND receiving message outcomes from MedEx.
  *      MedEx.php receives data synchronously - when a response is received at MedExBank.com, the practice receives
  *      that information directly.  However not every server is always online.
- *      MedEx_background.php receives message reponses asynchronously.  It checks for all messages received since it was last
+ *      MedEx_background.php receives message responses asynchronously.
+ *      It checks for all messages received since it was last
  *      executed (+ another 24 hours to be sure) and if any new ones are found,
  *      it adds them to the local database (medex_outgoing table).
  *
@@ -15,6 +16,10 @@
  *      but at least once each morning before 8AM localtime on work days.
  *    eg. every 29 minutes ==> active=1, execute_interval=29 (default installed values)
  *        four times a day ==> active=1, execute_interval=360 (60 minutes x 6)
+ *      EACH PERSON LOGGED IN WILL EXECUTE THIS FILE.
+ *  LARGE PRACTICES SHOULD DISABLE MedEx in background_services table and instead use MedEx_cron.php
+ *  It should be run from the practice server every 5 minutes as a suggested frequency to ensure medex_outgoing table
+ *  is up-to-date.
  *
  * @package MedEx
  * @link    http://www.MedExBank.com
@@ -33,15 +38,5 @@ require_once(dirname(__FILE__)."/../log.inc");
 function start_MedEx()
 {
     $MedEx = new MedExApi\MedEx('MedExBank.com');
-    $logged_in = $MedEx->login();
-    if ($logged_in) {
-        $token      = $logged_in['token'];
-        $MedEx->practice->sync($token);
-        $campaigns  = $MedEx->campaign->events($token);
-        $MedEx->events->generate($token, $campaigns['events']);
-        echo "200";
-    } else {
-        echo $MedEx->getLastError();
-        echo "401";
-    }
+    $MedEx->login('1');
 }

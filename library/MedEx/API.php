@@ -1053,7 +1053,7 @@ class Events extends Base
 }
 
     /**
-     *  Process updates and message replies received from MedEx.
+     *  Process both updates and message replies received from MedEx.
      *  Lets MedEx know if we did anything manually to a queued event.
      */
 class Callback extends Base
@@ -1313,7 +1313,6 @@ class Display extends base
                                             }
                                         }
                                     }
-
                                 ?>
                             </ul>
                         </div><!-- /.navbar-collapse -->
@@ -3052,44 +3051,63 @@ class MedEx
     public function getLastError()
     {
         return $this->lastError; }
-
-    public function login()
-    {
-        $response= array();
-        $result = sqlStatement("SHOW TABLES LIKE 'medex_prefs'");
-        $table2Exists = sqlFetchArray($result);
-        if (!$table2Exists) {
-            return false;
-        }
-
-        $query = "SELECT * FROM medex_prefs";
-        $info = sqlFetchArray(sqlStatement($query));
-        $username = $info['ME_username'];
-        $key = $info['ME_api_key'];
-        $UID = $info['MedEx_id'];
-        $callback_key = $_POST['callback_key'];
-        if (empty($username) || empty($key) || empty($UID)) {
-            return false;//throw new InvalidCredentialsException("API Credentials are incomplete.");
-        }
+        
+        
+    private function just_login($info) {
+        if (empty($info)) { return; }
+        
         $this->curl->setUrl($this->getUrl('login'));
         $this->curl->setData(array(
-            'username' => $username,
-            'key' => $key,
-            'UID' => $UID,
+            'username' => $info['ME_username'],
+            'key' => $info['ME_api_key'],
+            'UID' =>  $info['MedEx_id'],
             'MedEx' => 'openEMR',
-            'callback_key' => $callback_key
+            'callback_key' => $info['callback_key']
         ));
         
         $this->curl->makeRequest();
         $response = $this->curl->getResponse();
-        $this->logging->log_this("\n IN API.php::login\n");
-        $this->logging->log_this($response);
-
-        if (isset($response['success']) && isset($response['token'])) {
-            return $response;
-        } else if (isset($response['error'])) {
-            $this->lastError = $response['error'];
+        //token, news and products returned in $response so far
+        if (!empty($response['token'])) {
+            $response['practice']   = $this->practice->sync($response['token']);
+            $response['campaigns']  = $this->campaign->events($response['token']);
+            $response['generate']   = $this->events->generate($response['token'], $response['campaigns']['events']);
+            $response['success']    = "200";
+        }
+        $sql = "UPDATE medex_prefs set status = ?";
+        $info['status'] = json_encode($response);
+        sqlQuery($sql, array($info['status']));
+        return $info;
+    }
+    
+    public function login($force = '')
+    {
+        $info= array();
+        $query = "SELECT * FROM medex_prefs";
+        $info = sqlFetchArray(sqlStatement($query));
+        if (empty($info) ||
+            empty($info['ME_username']) ||
+            empty($info['ME_api_key']) ||
+            empty($info['MedEx_id']))
+        {
+            return false;
+        }
+        $info['callback_key'] = $_POST['callback_key'];
+        
+        $now = strtotime("-5 minutes");
+        if ($now > strtotime($info['MedEx_lastupdated'])) {
+            $expired ='1';
+        }
+        if ( ($expired =='1') || ($force=='1') )  {
+            $info = $this->just_login($info);
+        }
+        $info['status'] = json_decode($info['status'], true);
+        if (isset($info['status']['success']) && isset($info['status']['token'])) {
+            return $info;
+        } else if (isset($info['error'])) {
+            $this->lastError = $info['error'];
             sqlQuery("UPDATE `background_services` SET `active`='0' WHERE `name`='MedEx'");
+            return $info;
         }
         return false;
     }
