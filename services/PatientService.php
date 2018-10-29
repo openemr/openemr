@@ -113,7 +113,7 @@ class PatientService
     public function getFreshPid() {
         $pid = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
 
-        return $pid['pid'];
+        return $pid['pid'] === null ? 1 : $pid['pid'];
     }
 
     public function insert($data)
