@@ -2804,13 +2804,13 @@ function accumActionConditions($field_id, &$condition_str, &$condarr)
             $condition_str .= ",\n";
         }
         $condition_str .= "{" .
-            "target:'"   . addslashes($field_id)              . "', " .
-            "action:'"   . addslashes($action)                . "', " .
-            "id:'"       . addslashes($condition['id'])       . "', " .
-            "itemid:'"   . addslashes($condition['itemid'])   . "', " .
-            "operator:'" . addslashes($condition['operator']) . "', " .
-            "value:'"    . addslashes($condition['value'])    . "', " .
-            "andor:'"    . addslashes($andor)                 . "'}";
+            "target:"   . js_escape($field_id)              . ", " .
+            "action:"   . js_escape($action)                . ", " .
+            "id:"       . js_escape($condition['id'])       . ", " .
+            "itemid:"   . js_escape($condition['itemid'])   . ", " .
+            "operator:" . js_escape($condition['operator']) . ", " .
+            "value:"    . js_escape($condition['value'])    . ", " .
+            "andor:"    . js_escape($andor)                 . "}";
     }
 }
 
