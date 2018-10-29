@@ -47,7 +47,7 @@ class AppointmentService
         $validator->required('pc_eventDate')->datetime('Y-m-d');
         $validator->required('pc_startTime')->length(5); // HH:MM is 5 chars
         $validator->required('pc_facility')->numeric();
-        $validator->required('pc_billing_facility')->numeric();
+        $validator->required('pc_billing_location')->numeric();
 
         return $validator->validate($appointment);
     }

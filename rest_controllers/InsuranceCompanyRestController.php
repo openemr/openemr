@@ -60,7 +60,7 @@ class InsuranceCompanyRestController
         if (is_array($addressValidationHandlerResult)) { return $addressValidationHandlerResult; }
 
         $serviceResult = $this->insuranceCompanyService->insert($data);
-        return RestControllerHelper::responseHandler($serviceResult, array('id' => $serviceResult), 201);
+        return RestControllerHelper::responseHandler($serviceResult, array('iid' => $serviceResult), 201);
     }
 
     public function put($iid, $data)
@@ -74,6 +74,6 @@ class InsuranceCompanyRestController
         if (is_array($addressValidationHandlerResult)) { return $addressValidationHandlerResult; }
 
         $serviceResult = $this->insuranceCompanyService->update($data, $iid);
-        return RestControllerHelper::responseHandler($serviceResult, array('id' => $serviceResult), 200);
+        return RestControllerHelper::responseHandler($serviceResult, array('iid' => $iid), 200);
     }
 }
