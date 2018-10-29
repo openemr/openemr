@@ -86,6 +86,7 @@ class ListService
     {
         $sql  = " INSERT INTO lists SET";
         $sql .= "     date=NOW(),";
+        $sql .= "     activity=1,";
         $sql .= "     pid='" . add_escape_custom($data['pid']) . "',";
         $sql .= "     type='" . add_escape_custom($data['type']) . "',";
         $sql .= "     title='" . add_escape_custom($data["title"]) . "',";
