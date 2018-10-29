@@ -669,7 +669,7 @@ curl -X POST 'http://localhost:8300/rest_router.php?resource=/api/patient/1/appo
     "pc_eventDate": "2018-10-19",
     "pc_startTime": "09:00",
     "pc_facility": "9",
-    "pc_billing_facility": "10"
+    "pc_billing_location": "10"
 }'
 ```
 
@@ -761,13 +761,13 @@ curl -X DELETE 'http://localhost:8300/rest_router.php?resource=/api/patient/1/me
 
 - TODO(team): Consider using Symfony's router
 - TODO(sherwin): Encounter POST
-- TODO(matthew): Implement Particle's `lessThan` validation for numeric fields
 - TODO(matthew): Fix authorization piece & cleanup authentication piece
 - TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
 - TODO(?): `PatientService`'s `insert` doesn't handle `dob` correctly
 - TODO(?): API for fee sheets
 - TODO(?): API for pharmacies
 - TODO(?): API for prescriptions
+- TODO(?): Drug search API
 - TODO(?): API for onotes
 
 

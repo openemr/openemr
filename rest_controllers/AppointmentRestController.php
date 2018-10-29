@@ -60,7 +60,7 @@ class AppointmentRestController
         if (is_array($validationHandlerResult)) { return $validationHandlerResult; }
 
         $serviceResult = $this->appointmentService->insert($pid, $data);
-        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+        return RestControllerHelper::responseHandler(array("id" => $serviceResult), null, 200);
     }
 
     public function delete($eid)

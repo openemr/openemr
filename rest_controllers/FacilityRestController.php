@@ -53,7 +53,7 @@ class FacilityRestController
         if (is_array($validationHandlerResult)) { return $validationHandlerResult; }
 
         $serviceResult = $this->facilityService->insert($data);
-        return RestControllerHelper::responseHandler($serviceResult, array('id' => $serviceResult), 201);
+        return RestControllerHelper::responseHandler($serviceResult, array('fid' => $serviceResult), 201);
     }
 
     public function put($data)
@@ -63,6 +63,6 @@ class FacilityRestController
         if (is_array($validationHandlerResult)) { return $validationHandlerResult; }
 
         $serviceResult = $this->facilityService->update($data);
-        return RestControllerHelper::responseHandler($serviceResult, array('id' => $data['fid']), 200);
+        return RestControllerHelper::responseHandler($serviceResult, array('fid' => $data['fid']), 200);
     }
 }
