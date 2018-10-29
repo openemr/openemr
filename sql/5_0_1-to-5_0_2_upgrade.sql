@@ -632,3 +632,7 @@ ALTER TABLE `users_secure` ADD COLUMN `login_work_area` text;
 #IfNotColumnType onsite_messages sender_id VARCHAR(64)
 ALTER TABLE `onsite_messages` CHANGE `sender_id` `sender_id` VARCHAR(64) NULL COMMENT 'who sent id';
 #EndIf
+
+#IfMissingColumn medex_prefs status
+ALTER TABLE `medex_prefs` ADD COLUMN `status` text;
+#EndIf
