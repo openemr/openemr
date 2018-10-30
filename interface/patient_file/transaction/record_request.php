@@ -33,7 +33,8 @@ use OpenEMR\Core\Header;
                     amc_id: "provide_rec_pat_amc",
                     complete: false,
                     mode: "add_force",
-                    patient_id: <?php echo attr($pid); ?>
+                    patient_id: <?php echo js_escape($pid); ?>,
+                    csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
                 });
             });
         });
