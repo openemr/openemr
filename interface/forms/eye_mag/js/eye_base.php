@@ -2616,13 +2616,9 @@ var allPanels = $('.building_blocks > dd').hide();
                                                                      // more than 3 digits is a mistake...
                                                                      // (although this may change with topography)
                                                                      var axis = $(this).val();
-                                                                     if (this.name.match(/K2AXIS/)) {
-                                                                         var group = this.name.replace("AXIS", "");
-                                                                     } else {
-                                                                         var group = this.name.replace("AXIS", "CYL");
-                                                                     }
+                                                                     var group = this.name.replace("AXIS", "CYL");;
                                                                      var cyl = $("#"+group).val();
-                                                                     if ( (cyl > '') && (cyl != 'SPH') ) {
+                                                                     if ( ( (cyl > '') && (cyl != 'SPH') ) || (this.name.match(/K2AXIS/) ) ) {
                                                                      if (!axis.match(/\d\d\d/)) {
                                                                      if (!axis.match(/\d\d/)) {
                                                                      if (!axis.match(/\d/)) {
@@ -2768,44 +2764,48 @@ var allPanels = $('.building_blocks > dd').hide();
                                return false;
                                });
                   $("body").on("change", "select", function(e){
-                               if (this.name.match(/PRIOR_(.*)/)) {
-                               var new_section = this.name.match(/PRIOR_(.*)/);
-                               if (new_section[1] =='') return;
-                               if (new_section[1] == /\_/){
-                               return;
-                               }
-                               var newValue = this.value;
-                               if (newValue == $("#form_id").val()) {
-                               if (new_section[1] =="ALL") {
-                                 //click updates prefs too
-                                 $('#EXAM_QP').trigger("click");
 
-                               } else {
-                                  $('#BUTTON_QP_'+new_section[1]).trigger("click");
-                                 }
-                                 $("#LayerTechnical_sections_1").css("clear","both");
-                                 return;
-                               }
-                               //now go get the prior page via ajax
-                               var newValue = this.value;
-                               $("#PRIORS_"+ new_section[1] +"_left_text").removeClass('nodisplay');
-                               $("#DRAWS_" + new_section[1] + "_right").addClass('nodisplay');
-                               $("#QP_" + new_section[1]).addClass('nodisplay');
+                        if (this.name.match(/PRIOR_(.*)/)) {
+                            var new_section = this.name.match(/PRIOR_(.*)/);
+                            if (new_section[1] =='') return;
+                            if (new_section[1] == /\_/){
+                                return;
+                            }
+                            var newValue = this.value;
 
-                               if (new_section[1] =="ALL") {
-                               show_PRIORS();
-                               show_PRIORS_section("ALL",newValue);
-                               show_PRIORS_section("EXT",newValue);
-                               show_PRIORS_section("ANTSEG",newValue);
-                               show_PRIORS_section("RETINA",newValue);
-                               show_PRIORS_section("NEURO",newValue);
-                               show_PRIORS_section("IMPPLAN",newValue);
-                               scrollTo("EXT_left");
-                               } else {
-                               show_PRIORS_section(new_section[1],newValue);
-                               }
-                               }
-                               });
+                           if (newValue == $("#form_id").val()) {
+                                if (new_section[1] =="ALL") {
+                                    //click updates prefs too
+                                    $('#EXAM_QP').trigger("click");
+                                } else {
+                                    $('#BUTTON_QP_'+new_section[1]).trigger("click");
+                                }
+                                $("#LayerTechnical_sections_1").css("clear","both");
+                                return;
+                           }
+                           //now go get the prior page via ajax
+                           var newValue = this.value;
+                           $("#PRIORS_"+ new_section[1] +"_left_text").removeClass('nodisplay');
+                           $("#DRAWS_" + new_section[1] + "_right").addClass('nodisplay');
+                           $("#QP_" + new_section[1]).addClass('nodisplay');
+
+                                    if (new_section[1] =="ALL") {
+                                       show_PRIORS();
+                                       show_PRIORS_section("ALL",newValue);
+                                       show_PRIORS_section("EXT",newValue);
+                                       show_PRIORS_section("ANTSEG",newValue);
+                                       show_PRIORS_section("RETINA",newValue);
+                                       show_PRIORS_section("NEURO",newValue);
+                                       show_PRIORS_section("IMPPLAN",newValue);
+                                       scrollTo("EXT_left");
+                                    } else {
+                                        show_PRIORS_section(new_section[1],newValue);
+                                    }
+                                    return;
+                                }
+                                submit_form("eye_mag");
+                            });
+
                   $("body").on("click","[id^='Close_PRIORS_']", function() {
                                var new_section = this.id.match(/Close_PRIORS_(.*)$/)[1];
                                $("#PRIORS_"+ new_section +"_left_text").addClass('nodisplay');

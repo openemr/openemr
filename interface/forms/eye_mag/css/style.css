@@ -632,7 +632,7 @@ textarea.ANTSEGTEXT {
     color:#050;
     font: bold 84% Arial, 'trebuchet ms',helvetica,sans-serif;
 }
- button {
+button {
     color: black !important;
 }
 #tabs {
@@ -640,68 +640,68 @@ textarea.ANTSEGTEXT {
     margin: 0 0 0 10px;
 }
 #tabs li {
-  display: inline;
+    display: inline;
 }
 #tabs li a {
-  border: 2px solid #ccc;
-  padding: 4px 6px;
-  text-decoration: none;
-  background-color: #CCCC99;
-  border-bottom: none;
-  outline: none;
-  color:black;
-  box-shadow: 0 5px 9px #888;
-  font-size:1.7em;
-  border-radius: 5px 5px 0 0;
-  -moz-border-radius: 5px 5px 0 0;
-  -webkit-border-top-left-radius: 5px;
-  -webkit-border-top-right-radius: 5px;
+    border: 2px solid #ccc;
+    padding: 4px 6px;
+    text-decoration: none;
+    background-color: #CCCC99;
+    border-bottom: none;
+    outline: none;
+    color:black;
+    box-shadow: 0 5px 9px #888;
+    font-size:1.7em;
+    border-radius: 5px 5px 0 0;
+    -moz-border-radius: 5px 5px 0 0;
+    -webkit-border-top-left-radius: 5px;
+    -webkit-border-top-right-radius: 5px;
 }
 #tabs li a:hover {
-  background-color: #dddddd;
-  color:navy;
+    background-color: #dddddd;
+    color:navy;
 
 }
 #tabs li.active a {
-  background-color: #fff;
-  padding: 4px 6px 5px 6px;
-  border-bottom: none;
-  color:navy;
+    background-color: #fff;
+    padding: 4px 6px 5px 6px;
+    border-bottom: none;
+    color:navy;
 
 }
 #tabs li.active a:hover {
-  background-color: #eeeeee;
-  border-bottom: none;
+    background-color: #eeeeee;
+    border-bottom: none;
 }
 #tabs li.inactive {
-  background-color: #eeeeee;
-  border-bottom: 1pt solid black;
-  width:100%;
+    background-color: #eeeeee;
+    border-bottom: 1pt solid black;
+    width:100%;
 }
 
 #tabs li a.icon_accept {
-  background-image: url(accept.png);
-  background-position: 5px;
-  background-repeat: no-repeat;
-  padding-left: 24px;
+    background-image: url(accept.png);
+    background-position: 5px;
+    background-repeat: no-repeat;
+    padding-left: 24px;
 }
 #tabs li a.icon_accept:hover {
-  padding-left: 24px;
+    padding-left: 24px;
 }
 
 #tabs_content_container {
-  border-top: 0;
-  padding: 5px;
-  width: 99%;
-  z-index:1;
-  margin: -1px 0 0 0;
+    border-top: 0;
+    padding: 5px;
+    width: 99%;
+    z-index:1;
+    margin: -1px 0 0 0;
 }
 
 .button-success {
-            background: rgb(240, 240, 0); /* this is a green */
-            box-shadow: 2px 2px 2px #888888;
-            border-radius: 45px;
-        }
+    background: rgb(240, 240, 0); /* this is a green */
+    box-shadow: 2px 2px 2px #888888;
+    border-radius: 45px;
+}
 .button_over {
     background-color: red;
 }
@@ -1210,19 +1210,19 @@ b.ACT_box{
 
 /* do some full screen playing around */
 .fullscreen {
-  position: absolute;
-  top:0;
-  right:0;
-  bottom:0;
-  left:0;
-  margin:0;
-  box-sizing:border-box;
-  width:100%;
-  height:100%;
-  background-color: white;
-  object-fit:contain;
-  font-size: 2.0em;
-  z-index:100;
+    position: absolute;
+    top:0;
+    right:0;
+    bottom:0;
+    left:0;
+    margin:0;
+    box-sizing:border-box;
+    width:100%;
+    height:100%;
+    background-color: white;
+    object-fit:contain;
+    font-size: 2.0em;
+    z-index:100;
 }
 input[type=text].fullscreen {
     font-size: 0.8em;
@@ -1252,7 +1252,7 @@ input[type=text].fullscreen {
 .QP_block_outer {
     float:left;
     background-color:white;
-  /*  height:2.5in; */
+    /*  height:2.5in; */
     width:2.4in;
     padding:2px 10px;
     text-align:left;
@@ -1265,7 +1265,7 @@ input[type=text].fullscreen {
 .QP_block {
     float:left;
     background-color:white;
- /*   height:2.4in; */
+    /*   height:2.4in; */
     width:2.4in;
     padding:2px 10px;
     text-align:left;
@@ -1279,36 +1279,36 @@ input[type=text].fullscreen {
 }
 
 .rotate-left {
-/* Safari */
--webkit-transform: rotate(-90deg);
-/* Firefox */
--moz-transform: rotate(-90deg);
-/* IE */
--ms-transform: rotate(-90deg);
-/* Opera */
--o-transform: rotate(-90deg);
-/* Internet Explorer */
-filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+    /* Safari */
+    -webkit-transform: rotate(-90deg);
+    /* Firefox */
+    -moz-transform: rotate(-90deg);
+    /* IE */
+    -ms-transform: rotate(-90deg);
+    /* Opera */
+    -o-transform: rotate(-90deg);
+    /* Internet Explorer */
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
 }
 
 .rotate-right {
-/* Safari */
--webkit-transform: rotate(+90deg);
-/* Firefox */
--moz-transform: rotate(+90deg);
-/* IE */
--ms-transform: rotate(+90deg);
-/* Opera */
--o-transform: rotate(+90deg);
-/* Internet Explorer */
-filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+    /* Safari */
+    -webkit-transform: rotate(+90deg);
+    /* Firefox */
+    -moz-transform: rotate(+90deg);
+    /* IE */
+    -ms-transform: rotate(+90deg);
+    /* Opera */
+    -o-transform: rotate(+90deg);
+    /* Internet Explorer */
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
 }
 .mirror-image {
-  -webkit-transform:rotate(180deg);
-  -moz-transform: rotate(180deg);
-  -ms-transform: rotate(180deg);
-  -o-transform: rotate(180deg);
-  transform: rotate(180deg);
+    -webkit-transform:rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+    transform: rotate(180deg);
 }
 .little_image {
     width:20px;
@@ -1415,10 +1415,10 @@ a:hover, a:focus {
     /* This creates anchors for the menu system that are offset for the fixed header.
      * The fields/anchors are added as blank elements (sorry) in view.php
      */
-  display: none;
-  height: 1px;
-  margin-top: -20px; /*same height as header*/
-  visibility: hidden;
+    display: none;
+    height: 1px;
+    margin-top: -20px; /*same height as header*/
+    visibility: hidden;
 }
 .sketch_tools {
     width: 20px;
@@ -1522,7 +1522,7 @@ a:hover, a:focus {
     position:relative;top:0.0in;left:0.00in;margin:auto;
 }
 
- #EXAM_KB {
+#EXAM_KB {
     text-align:center;
     z-index:14100;
     position: fixed;
@@ -1530,8 +1530,8 @@ a:hover, a:focus {
     left: 0;
     display:block;
     cursor: pointer;
-     font-size:1.2em;
-     margin: 0 auto;
+    font-size:1.2em;
+    margin: 0 auto;
 }
 #stickyalias {
     display: none;
@@ -1541,12 +1541,12 @@ a:hover, a:focus {
     margin-bottom: 150px;
 }
 .menu_icon {
-        position:absolute;
-        right:5px;
+    position:absolute;
+    right:5px;
 }
 .ui-draggable-dragging {
-   box-shadow: 5px 5px 9px red;
- }
+    box-shadow: 5px 5px 9px red;
+}
 
 .ui-draggable-handle{
 
@@ -1900,7 +1900,7 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
     white-space: nowrap;
 }
 .PMSFH_table td {
-        min-height:24px;min-width:1.6in;padding:5px;
+    min-height:24px;min-width:1.6in;padding:5px;
 }
 .PMSFH_header {  width:1.9in;}
 #ACTTRIGGER {  text-decoration: underline;padding-left: 2px;float:left;font-weight: 600;font-size: 0.9em;}

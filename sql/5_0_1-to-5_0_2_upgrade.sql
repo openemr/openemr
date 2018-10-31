@@ -632,3 +632,8 @@ ALTER TABLE `users_secure` ADD COLUMN `login_work_area` text;
 #IfNotColumnType onsite_messages sender_id VARCHAR(64)
 ALTER TABLE `onsite_messages` CHANGE `sender_id` `sender_id` VARCHAR(64) NULL COMMENT 'who sent id';
 #EndIf
+
+#IfMissingColumn form_eye_mag_dispense status
+ALTER TABLE `form_eye_mag_dispense` ADD COLUMN `CTLODQUANTITY` varchar(255) DEFAULT NULL;
+ALTER TABLE `form_eye_mag_dispense` ADD COLUMN `CTLOSQUANTITY` varchar(255) DEFAULT NULL;
+#EndIf
