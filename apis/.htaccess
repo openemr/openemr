@@ -1,0 +1,7 @@
+##
+## ACCESS RULES FOR API
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-l
+RewriteRule (.*) dispatch.php?_REWRITE_COMMAND=$1 [QSA,L]
