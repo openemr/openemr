@@ -5910,6 +5910,7 @@ function display_refractive_data($encounter_data)
                        <td ><?php echo (text($MROSADD)?:"-");  ?></td>
                        <td ><?php echo (text($MRNEAROSVA)?:"-"); ?></td>
                    </tr>
+                <tr><td colspan="10">--------------------------------------------------------</td></tr>
                     <?php
             }
             
@@ -5938,6 +5939,7 @@ function display_refractive_data($encounter_data)
                        <td ><?php echo (text($CROSADD)?:"-");  ?></td>
                        <td ><?php echo (text($CRNEAROSVA)?:"-"); ?></td>
                    </tr>
+                <tr><td colspan="10">--------------------------------------------------------</td></tr>
                     <?php
             }
             
@@ -5950,6 +5952,7 @@ function display_refractive_data($encounter_data)
                        <td><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
                        <td><?php echo xlt('BC{{Base Curve}}'); ?></td>
                        <td><?php echo xlt('Diam{{Diameter}}'); ?></td>
+                       <td></td>
                        <td><?php echo xlt('ADD'); ?></td>
                        <td><?php echo xlt('Acuity'); ?></td>
                    </tr>
@@ -5961,37 +5964,53 @@ function display_refractive_data($encounter_data)
                        <td ><?php echo (text($CTLODAXIS)?:"-");  ?></td>
                        <td ><?php echo (text($CTLODBC)?:"-");  ?></td>
                        <td ><?php echo (text($CTLODDIAM)?:"-");  ?></td>
+                       <td></td>
                        <td ><?php echo (text($CTLODADD)?:"-");  ?></td>
                        <td ><?php echo (text($CTLODVA)?:"-"); ?></td>
                    </tr>
+                   <?php if (!empty($CTLODQUANTITY)) { ?>
+                       <tr>
+                           <td></td>
+                           <td colspan="8" class="text-left" style="font-size:10px;"><?php echo text($CTLODQUANTITY); ?></td>
+                       </tr>
+                    <?php } ?>
                    <tr style="font-size:0.6em;">
                        <td></td>
-                       <td></td>
                        <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('Brand'); ?>:<?php echo (text($CTLBRANDOD)?:"-");  ?></td>
-                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROD)?:"-");  ?></td>
+                       <td colspan="2" class="bold text-left" style="font-size:10px;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROD)?:"-");  ?></td>
                        <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROD)?:"-");  ?></td>
 
                    </tr>
                    <tr>
                        <td></td>
-                       <td text-left><?php echo xlt('OS{{left eye}}'); ?></td>
+                       <td class="bold"><?php echo xlt('OS{{left eye}}'); ?></td>
                        <td ><?php echo (text($CTLOSSPH)?:"-");  ?></td>
                        <td ><?php echo (text($CTLOSCYL)?:"-");  ?></td>
                        <td ><?php echo (text($CTLOSAXIS)?:"-");  ?></td>
                        <td ><?php echo (text($CTLOSBC)?:"-");  ?></td>
                        <td ><?php echo (text($CTLOSDIAM)?:"-");  ?></td>
+                       <td></td>
                        <td ><?php echo (text($CTLOSADD)?:"-");  ?></td>
-                       <td ><?php echo ($CTLOSVA?:"-"); ?></td>
+                       <td ><?php echo (text($CTLOSVA)?:"-"); ?></td>
                    </tr>
                    <tr style="font-size:9px;">
                        <td></td>
-                       <td></td>
                        <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('Brand'); ?>: <?php echo (text($CTLBRANDOS)?:"-");  ?></td>
-                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROS)?:"-");  ?></td>
-                       <td colspan="3" class="bold text-left" style="font-size:10px;""><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROS)?:"-");  ?></td>
+                       <td colspan="2" class="bold text-left" style="font-size:10px;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROS)?:"-");  ?></td>
+                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROS)?:"-");  ?></td>
                    </tr>
-                
-                    <?php
+                   <?php if (!empty($CTLOSQUANTITY)) { ?>
+                        <tr>
+                           <td></td>
+                           <td colspan="8" class="text-left" style="font-size:10px;"><?php echo text($CTLOSQUANTITY); ?></td>
+                       </tr>
+                   <?php }
+                        if (!empty($COMMENTS)) { ?>
+                            <tr>
+                                <td></td>
+                                <td colspan="8" class="text-left" style="font-size:10px;"><?php echo text($COMMENTS); ?></td>
+                            </tr>
+                    <?php }
             }
             ?>
             <tr><td colspan="10">--------------------------------------------------------</td></tr>

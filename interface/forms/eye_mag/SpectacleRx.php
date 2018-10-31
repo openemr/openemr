@@ -219,7 +219,7 @@ if ($_REQUEST['REFTYPE']) {
         $OSCYL      = $data['MROSCYL'];
         $OSAXIS     = $data['MROSAXIS'];
         $OSPRISM    = $data['MROSPRISM'];
-        $COMMENTS   = $data['CR_COMMENTS'];
+        $COMMENTS   = $data['CRCOMMENTS'];
         $ODADD2     = $data['MRODADD'];
         $OSADD2     = $data['MROSADD'];
         $Bifocal    = "checked='checked'";
@@ -254,7 +254,7 @@ if ($_REQUEST['REFTYPE']) {
         $OSADD      = $data['CTLOSADD'];
         $OSVA       = $data['CTLOSVA'];
 
-        $COMMENTS   = $data['CTL_COMMENTS'];
+        $COMMENTS   = $data['COMMENTS'];//in form_eye_mag_dispense there is no leading 'CTL_'
 
         $CTLMANUFACTUREROD  = getListItemTitle('CTLManufacturer', $data['CTLMANUFACTUREROD']);
         $CTLMANUFACTUREROS  = getListItemTitle('CTLManufacturer', $data['CTLMANUFACTUREROS']);
@@ -331,7 +331,6 @@ if ($_REQUEST['dispensed']) {
         .refraction td {
             text-align:center;
             font-size:10px;
-            padding:5;
             width:0.35in;
             vertical-align: text-middle;
             text-decoration: unset;
@@ -567,8 +566,7 @@ if ($_REQUEST['dispensed']) {
                                         </td>
                                         <td colspan="4" class="up left"
                                             style="vertical-align:middle;top:0px;">
-                                            <textarea style="width:100%;height:2.1em;" id="COMMENTS" disabled
-                                                      name="COMMENTS"><?php echo text($row['COMMENTS']); ?></textarea>
+                                            <?php echo text($row['CRCOMMENTS']); ?>
                                         </td>
                                     </tr>
                                 </table>
@@ -578,15 +576,7 @@ if ($_REQUEST['dispensed']) {
                                     <tr>
                                         <td colspan="4"
                                         class="bold left text-uppercase text-top" style="display: flex;
-                                            align-items:top"><u><?php echo xlt('Right Lens'); ?></u></td>
-                                        <td colspan="4" class="right bold">
-                                            <?php echo xlt('Brand'); ?>:<br />
-                                            <?php echo xlt('Quantity:'); ?><br />
-                                            <?php echo xlt('Supplier'); ?>:</td>
-                                       <td colspan="4" class="left"><?php echo text($row['CTLBRANDOD']); ?>
-                                            <?php if (!empty($row['CTLMANUFACTUREROD'])) { echo "(".$row['CTLMANUFACTUREROD'].")";} ?><br />
-                                            <?php echo $row['CTLODQUANTITY']; ?><br />
-                                            <?php echo text($row['CTLSUPPLIEROD']); ?>
+                                            align-items:top"><u><?php echo xlt('Right Lens'); ?></u>
                                         </td>
                                     </tr>
                                     <tr class="bold underline">
@@ -610,19 +600,26 @@ if ($_REQUEST['dispensed']) {
                                         <td><?php echo text($row['ODADD']); ?></td>
                                         <td><?php echo text($row['CTLODVA']); ?></td>
                                     </tr>
-                                    <tr><td colspan="8" style="border-bottom:1pt solid #c0c0c0; "></td></tr>
+                                    <tr>
+                                        <td colspan="4" class="right bold">
+                                            <?php echo xlt('Brand'); ?>: <br />
+                                            <?php echo xlt('Quantity'); ?>: <br />
+                                            <?php echo xlt('Supplier'); ?>: </td>
+                                        <td colspan="4" class="left" style="padding-left:10px;"><?php echo text($row['CTLBRANDOD']); ?>
+                                            <?php if (!empty($row['CTLMANUFACTUREROD'])) { echo "(".$row['CTLMANUFACTUREROD'].")";} ?><br />
+                                            <?php echo $row['CTLODQUANTITY']; ?><br />
+                                            <?php echo text($row['CTLSUPPLIEROD']); ?>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="8">
+                                            <hr />
+                                        </td>
+                                    </tr>
                                     <tr>
                                         <td colspan="4"
                                             class="bold left text-uppercase text-top" style="display: flex;align-items:top">
-                                            <u><?php echo xlt('Left Lens'); ?></u></td>
-                                        <td colspan="4" class="right bold">
-                                            <?php echo xlt('Brand'); ?>:<br />
-                                            <?php echo xlt('Quantity:'); ?><br />
-                                            <?php echo xlt('Supplier'); ?>:</td>
-                                        <td colspan="4" class="left"><?php echo text($row['CTLBRANDOS']); ?>
-                                            <?php if (!empty($row['CTLMANUFACTUREROS'])) { echo "(".$row['CTLMANUFACTUREROS'].")";} ?><br />
-                                            <?php echo $row['CTLOSQUANTITY']; ?><br />
-                                            <?php echo text($row['CTLSUPPLIEROS']); ?>
+                                            <u><?php echo xlt('Left Lens'); ?></u>
                                         </td>
                                     </tr>
                                     <tr class="bold underline">
@@ -645,7 +642,30 @@ if ($_REQUEST['dispensed']) {
                                         <td><?php echo text($row['OSADD']); ?></td>
                                         <td><?php echo text($row['CTLOSVA']); ?></td>
                                     </tr>
-                                    
+                                    <tr>
+                                        <td colspan="4" class="right bold">
+                                            <?php echo xlt('Brand'); ?>: <br />
+                                            <?php echo xlt('Quantity'); ?>: <br />
+                                            <?php echo xlt('Supplier'); ?>: </td>
+                                        <td colspan="4" class="left" style="padding-left:10px;"><?php echo text($row['CTLBRANDOS']); ?>
+                                            <?php if (!empty($row['CTLMANUFACTUREROS'])) { echo "(".$row['CTLMANUFACTUREROS'].")";} ?><br />
+                                            <?php echo $row['CTLOSQUANTITY']; ?><br />
+                                            <?php echo text($row['CTLSUPPLIEROS']); ?>
+                                        </td>
+                                    </tr>
+                                    <?php if (!empty($row['COMMENTS'])) { ?>
+                                        <tr><td colspan="0"><hr /></td></tr>
+                                    <tr style="">
+                                        <td></td>
+                                        <td colspan="3" class="bold right"><?php echo xlt('Comments'); ?>
+                                            :
+                                        </td>
+                                        <td colspan="4" class="left" style="padding-left:10px;"
+                                            style="vertical-align:middle;top:0px;">
+                                            <?php echo text($row['COMMENTS']); ?>
+                                        </td>
+                                    </tr>
+                                    <?php } ?>
                                 </table>
 
                                 <?php
@@ -763,6 +783,8 @@ if ($_REQUEST['dispensed']) {
         }
         #CTLODQUANTITY, #CTLOSQUANTITY {
             width: 300px;
+            text-align: left;
+            padding-left: 10px !important;
         }
 
     </style>
@@ -975,8 +997,8 @@ if ($_REQUEST['dispensed']) {
                                     style="text-align:right;font-weight:bold;"><?php echo xlt('Comments'); ?>:
                                 </td>
                                 <td colspan="4">
-                                    <textarea style="width:100%;height:5em;" id="COMMENTS"
-                                              name="COMMENTS"><?php echo text($COMMENTS); ?></textarea>
+                                    <textarea style="width:100%;height:5em;" id="CRCOMMENTS"
+                                              name="CRCOMMENTS"><?php echo text($COMMENTS); ?></textarea>
                                 </td>
                             </tr>
                             <!-- start Dispense data -->
@@ -999,7 +1021,7 @@ if ($_REQUEST['dispensed']) {
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="6" class="right">
+                                <td colspan="9" class="right">
                                     <hr/>
                                 </td>
                             </tr>
@@ -1051,7 +1073,7 @@ if ($_REQUEST['dispensed']) {
                                                          value="<?php echo attr($OSVERTEXDIST); ?>"></td>
                             </tr>
                             <tr class="dispense_data">
-                                <td colspan="6" class="center">
+                                <td colspan="9" class="center">
                                     <hr/>
                                 </td>
                             </tr>
@@ -1102,7 +1124,7 @@ if ($_REQUEST['dispensed']) {
                                                          value="<?php echo attr($OSMPDN); ?>"></td>
                             </tr>
                             <tr class="dispense_data">
-                                <td colspan="6" class="center">
+                                <td colspan="9" class="center">
                                     <hr />
                                 </td>
                             </tr>
@@ -1116,7 +1138,7 @@ if ($_REQUEST['dispensed']) {
                                 </td>
                             </tr>
                             <tr class="dispense_data">
-                                <td colspan="6" class="center">
+                                <td colspan="9" class="center">
                                     <hr />
                                 </td>
                             </tr>
@@ -1160,7 +1182,7 @@ if ($_REQUEST['dispensed']) {
                                 <td colspan="4" class="left"><input id="CTLODQUANTITY" name="CTLODQUANTITY" value="<?php echo $CTLODQUANTITY; ?>" type="text" class="left" /></td></td>
                             </tr>
                             <tr>
-                                <td colspan="6">
+                                <td colspan="9">
                                     <hr />
                                 </td>
                             </tr>
@@ -1199,9 +1221,9 @@ if ($_REQUEST['dispensed']) {
                                 <td colspan="4" class="left"><input id="CTLOSQUANTITY" name="CTLOSQUANTITY" value="<?php echo $CTLOSQUANTITY; ?>" type="text" class="left" /></td></td>
                             </tr>
 
-                            <?php if ($COMMENTS > '') { ?>
+                            <?php if ($CTL_COMMENTS > '') { ?>
                                 <tr>
-                                    <td colspan="6">
+                                    <td colspan="9">
                                         <hr />
                                     </td>
                                 </tr>
@@ -1209,7 +1231,7 @@ if ($_REQUEST['dispensed']) {
                                     <td class="right bold red" colspan="2"
                                         style="vertical-align:top;"><?php echo xlt('Comments'); ?>:</u></td>
                                     <td colspan="4" class="left">
-                                        <textarea cols="30" rows="4"><?php echo text($COMMENTS); ?></textarea>
+                                        <textarea cols="30" rows="4" id="COMMENTS" name="COMMENTS"><?php echo text($CTL_COMMENTS); ?></textarea>
                                     </td>
                                 </tr>
                             <?php } ?>

@@ -239,24 +239,24 @@ input[type=text] {
     float: left;
     padding: 0.1in;
     background: #ffffff;
-    box-shadow: 10px 10px 50px #888888;
+    box-shadow: 5px 5px 5px #d4cece;
     border-radius: 8px;
     margin-right: 4px;
     border:1pt solid #000;
     font-size:0.6em;
 }
 .refraction2 > input[type="text"] {
-     width:20px;
-     padding: 0.2em 0.4em;
-     display: inline-block;
+    width:20px;
+    padding: 0.2em 0.4em;
+    display: inline-block;
 
- }
+}
 .refraction {
     display:inline-block;
     min-height:2.3in;
     border: 1.00pt solid #000000;
     box-sizing: content-box !important;
-    box-shadow: 10px 10px 5px #888888;
+    box-shadow: 5px 5px 5px #d4cece;
     border-radius: 8px;
     width:4.3in;
 }
@@ -387,13 +387,13 @@ input[type=text] {
 }
 
 #divId {
-  display: block;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  background: url(images/Amsler_2.jpg) no-repeat;
-  width: 180px; /* Width of new image */
-  height: 236px; /* Height of new image */
-  padding-left: 180px; /* Equal to width of new image */
+    display: block;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    background: url(images/Amsler_2.jpg) no-repeat;
+    width: 180px; /* Width of new image */
+    height: 236px; /* Height of new image */
+    padding-left: 180px; /* Equal to width of new image */
 
 }
 
@@ -410,8 +410,8 @@ input[type=text] {
 .borderShadow {
     position:relative;
     box-shadow: 5px 5px 9px #dad7d7;
-    margin: 1px auto; 
-    border: 1.00pt solid #000000; 
+    margin: 1px auto;
+    border: 1.00pt solid #000000;
     background: #ffffff;
     padding: 6px 10px;
     border-radius: 6px;
@@ -502,9 +502,9 @@ body
     display:inline-block;
     margin-left:auto;
     margin-right:auto;
-   /* padding-left:5px; //Or whatever value you would like
-    padding-right:5px; //Same ^
-    */
+    /* padding-left:5px; //Or whatever value you would like
+     padding-right:5px; //Same ^
+     */
     text-align:center;
 }
 .sections {
@@ -725,21 +725,21 @@ button {
     font-weight: bold;
 }
 .tools  {
-border: 0 solid black;
-height: 50px;
-width: 50px;
-line-height: 30px;
-padding: 10px;
-vertical-align: middle;
-text-align: center;
-text-decoration: none;
-color: black;
-font-weight: bold;
-margin-bottom: -3px;
+    border: 0 solid black;
+    height: 50px;
+    width: 50px;
+    line-height: 30px;
+    padding: 10px;
+    vertical-align: middle;
+    text-align: center;
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+    margin-bottom: -3px;
 }
 
 .transparent {
-  z-index: 10;
+    z-index: 10;
 }
 
 .underline {
@@ -753,20 +753,20 @@ margin-bottom: -3px;
     width:95%;
     font-size:0.55em;
     line-height:normal;
-    }
+}
 
 #tabs ul {
     margin:0;
     padding:4px 2px 0 5px;
     list-style:none;
     float:right;
-    }
+}
 
 /* End IE5-Mac hack */
 #tabs li:hover {
     color:#000;
     text-decoration:underline;
-    }
+}
 
 
 
@@ -833,7 +833,7 @@ margin-bottom: -3px;
     color:white;
 }
 .eye_button_selected {
-   -moz-box-shadow:inset 0 1px 0 0 #97c4fe;
+    -moz-box-shadow:inset 0 1px 0 0 #97c4fe;
     -webkit-box-shadow:inset 0 1px 0 0 #97c4fe;
     box-shadow:inset 0 1px 0 0 #97c4fe;
     text-indent:0;
@@ -856,287 +856,287 @@ margin-bottom: -3px;
 
 }
 
- .divTable
-    {
-        position:relative;
-        float:left;
-        border-spacing: 0;
-        cursor:pointer;
+.divTable
+{
+    position:relative;
+    float:left;
+    border-spacing: 0;
+    cursor:pointer;
 
-        background: url("../images/eom.bmp") no-repeat center center;
-        background-size: 90% 75%;
-        height:0.80in;
-        width:0.71in;
-        padding:1px;
-        margin:6px 10px 1px 2px;
-        /*cellspacing:poor IE support for  this*/
-       /* border-collapse:separate;*/
-    }
+    background: url("../images/eom.bmp") no-repeat center center;
+    background-size: 90% 75%;
+    height:0.80in;
+    width:0.71in;
+    padding:1px;
+    margin:6px 10px 1px 2px;
+    /*cellspacing:poor IE support for  this*/
+    /* border-collapse:separate;*/
+}
 
-    .divRow
-    {
-       display: table;
-       border-collapse:collapse;
-       width:0.8in;
-       height:0.75%;
-    }
-    .divMiddleRow
-    {
-       display:table-row;
-       font-weight: 900;
-       border-collapse:collapse;
+.divRow
+{
+    display: table;
+    border-collapse:collapse;
+    width:0.8in;
+    height:0.75%;
+}
+.divMiddleRow
+{
+    display:table-row;
+    font-weight: 900;
+    border-collapse:collapse;
 
-    }
-    .divMidCell {
-        float:left;/*fix for  buggy browsers*/
-        /* display:table-column; */
-        text-align:center;
-        border-top:3px solid;
-        border-collapse:collapse;
+}
+.divMidCell {
+    float:left;/*fix for  buggy browsers*/
+    /* display:table-column; */
+    text-align:center;
+    border-top:3px solid;
+    border-collapse:collapse;
 
-    }
+}
 
-    .divCell
-    {
-        float:left;/*fix for  buggy browsers*/
-        display:table-column;
-        width:5.1px;
-        height:5.1px;
-        text-align:center;
-        font-weight: 900;
-        padding: 0;
-        border-collapse:collapse;
-        color:#000000;
-    }
-    .top_right {
-        vertical-align:top;
-        position:absolute;
-        text-align:right;
-        top:0.05in;
-        font-size:1.4em;
-        right:0.1in;
-    }
-    .red {
-        text-decoration: underline;
-    }
-    .ident {
-        text-align:center;
-        padding: 0;
-    }
-    .kb_left {
-        position:relative;float:left;
-        vertical-align: bottom;
-        font-size:0.7em;
-        color:red;
-        text-align:left;
-        left:0.0in;
-        bottom:0.0in;
-        padding: 0;
-    }
-    .kb_right {
-        position:relative;float:right;
-        vertical-align: bottom;
-        font-size:0.7em;
-        color:red;
-        text-align:right;
-        right:0.0in;
-        bottom:0.0in;
-    }
-    .kb_center {
-        position:relative;
-        vertical-align: top;
-        font-size:0.7em;
-        color:red;
+.divCell
+{
+    float:left;/*fix for  buggy browsers*/
+    display:table-column;
+    width:5.1px;
+    height:5.1px;
+    text-align:center;
+    font-weight: 900;
+    padding: 0;
+    border-collapse:collapse;
+    color:#000000;
+}
+.top_right {
+    vertical-align:top;
+    position:absolute;
+    text-align:right;
+    top:0.05in;
+    font-size:1.4em;
+    right:0.1in;
+}
+.red {
+    text-decoration: underline;
+}
+.ident {
+    text-align:center;
+    padding: 0;
+}
+.kb_left {
+    position:relative;float:left;
+    vertical-align: bottom;
+    font-size:0.7em;
+    color:red;
+    text-align:left;
+    left:0.0in;
+    bottom:0.0in;
+    padding: 0;
+}
+.kb_right {
+    position:relative;float:right;
+    vertical-align: bottom;
+    font-size:0.7em;
+    color:red;
+    text-align:right;
+    right:0.0in;
+    bottom:0.0in;
+}
+.kb_center {
+    position:relative;
+    vertical-align: top;
+    font-size:0.7em;
+    color:red;
 
-    }
-    .yellow {
-        background-color: yellow;
-    }
+}
+.yellow {
+    background-color: yellow;
+}
 
-    textarea {
-        font-size: 0.9em;
-    }
-    textarea.EXTTEXT {
-        width:1.0in;
-        max-width: 1.0in;
-        max-height: 0.42in;
-        height: 0.42in;
-    }
-    .wide_textarea {
-        position:absolute;
-        width:96%;
-        top:0.4in;
-        left:0.1in;
-        text-align:center;
-        margin: 0 auto;
-        padding: 10px;
-    }
-    .wide_textarea textarea{
-        width:2.1in;
-        max-width: 2.1in;
-        max-height: 0.44in;
-        height: 0.64in;
-        box-shadow: 1px 1px 2px #c0c0c0;
-        margin: 0.16em;
-        font-size: 0.9em;
-    }
-    .wide_textarea th {
-        text-align:center;
-        min-width: 80px;
-    }
+textarea {
+    font-size: 0.9em;
+}
+textarea.EXTTEXT {
+    width:1.0in;
+    max-width: 1.0in;
+    max-height: 0.42in;
+    height: 0.42in;
+}
+.wide_textarea {
+    position:absolute;
+    width:96%;
+    top:0.4in;
+    left:0.1in;
+    text-align:center;
+    margin: 0 auto;
+    padding: 10px;
+}
+.wide_textarea textarea{
+    width:2.1in;
+    max-width: 2.1in;
+    max-height: 0.44in;
+    height: 0.64in;
+    box-shadow: 1px 1px 2px #c0c0c0;
+    margin: 0.16em;
+    font-size: 0.9em;
+}
+.wide_textarea th {
+    text-align:center;
+    min-width: 80px;
+}
 
-    .Clinical_header {
-        width:100%;
+.Clinical_header {
+    width:100%;
 
-    }
-    .narrow_textarea th {
-        font-size:0.9em;
-        text-align:center;
-        min-width: 63px;
-    }
-    .narrow_textarea {
-        position:absolute;
-        top:0.4in;
-        left:0.1in;
-        width:3.5in;
-        padding: 15px 10px 15px 5px;
-    }
-    .narrow_textarea textarea {
-        width:1.3in;
-        max-width: 1.3in;
-        max-height: 0.44in;
-        height: 0.44in;
-        font-size: 0.8em;
-        margin: 0px !important;
-     }
+}
+.narrow_textarea th {
+    font-size:0.9em;
+    text-align:center;
+    min-width: 63px;
+}
+.narrow_textarea {
+    position:absolute;
+    top:0.4in;
+    left:0.1in;
+    width:3.5in;
+    padding: 15px 10px 15px 5px;
+}
+.narrow_textarea textarea {
+    width:1.3in;
+    max-width: 1.3in;
+    max-height: 0.44in;
+    height: 0.44in;
+    font-size: 0.8em;
+    margin: 0px !important;
+}
 
-    .closeButton {
-        display:inline-block;
-        float:right;
-        position:absolute;
-        top:8px;
-        right:8px;
-        padding: 0px 5px;
-        font-size:12px;
-     }
-    .closeButton:hover {
-        cursor:pointer;
-        border: 0 solid grey;
-        text-decoration: none;
-        background-color: yellow;
-    }
-    .closeButton:hover a {
-        text-decoration: none;
-        background-color: yellow;
-    }
-    .closeButton a:link {
-        outline:none;
-        color:black;
-    }
+.closeButton {
+    display:inline-block;
+    float:right;
+    position:absolute;
+    top:8px;
+    right:8px;
+    padding: 0px 5px;
+    font-size:12px;
+}
+.closeButton:hover {
+    cursor:pointer;
+    border: 0 solid grey;
+    text-decoration: none;
+    background-color: yellow;
+}
+.closeButton:hover a {
+    text-decoration: none;
+    background-color: yellow;
+}
+.closeButton a:link {
+    outline:none;
+    color:black;
+}
 
-    .closeButton_2 {
-        display:inline-block;
-        float:right;
-        position:absolute;
-        top:8px;
-        right:30px;
-        padding: 0px 5px;
-        font-size:12px;
-      }
-    .closeButton_2:hover {
-        cursor:pointer;
-        border: 0 solid grey;
-        text-decoration: none;
-        background-color: yellow;
+.closeButton_2 {
+    display:inline-block;
+    float:right;
+    position:absolute;
+    top:8px;
+    right:30px;
+    padding: 0px 5px;
+    font-size:12px;
+}
+.closeButton_2:hover {
+    cursor:pointer;
+    border: 0 solid grey;
+    text-decoration: none;
+    background-color: yellow;
 
-    }
-    .closeButton_3 {
-        display:inline-block;
-        float:right;
-        position:absolute;
-        top:8px;
-        right:52px;
-        padding: 0px 5px;
-        font-size:12px;
-      }
-    .closeButton_3:hover {
-        cursor:pointer;
-        border: 0 solid grey;
-        text-decoration: none;
-        background-color: yellow;
+}
+.closeButton_3 {
+    display:inline-block;
+    float:right;
+    position:absolute;
+    top:8px;
+    right:52px;
+    padding: 0px 5px;
+    font-size:12px;
+}
+.closeButton_3:hover {
+    cursor:pointer;
+    border: 0 solid grey;
+    text-decoration: none;
+    background-color: yellow;
 
-    }
-    .closeButton_4 {
-        display:inline-block;
-        float:right;
-        position:absolute;
-        top:8px;
-        right:74px;
-        padding: 0px 5px;
-        font-size:12px;
-      }
-    .closeButton_4:hover {
-        cursor:pointer;
-        border: 0 solid grey;
-        text-decoration: none;
-        background-color: yellow;
-    }
+}
+.closeButton_4 {
+    display:inline-block;
+    float:right;
+    position:absolute;
+    top:8px;
+    right:74px;
+    padding: 0px 5px;
+    font-size:12px;
+}
+.closeButton_4:hover {
+    cursor:pointer;
+    border: 0 solid grey;
+    text-decoration: none;
+    background-color: yellow;
+}
 /* testing out the tabs header stuff for ACT */
-    #header ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
+#header ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
 
-    #header li {
-        float: left;
-        background: url(../../../forms/eye_mag/images/tabright.gif) top right no-repeat;
-        margin: 0;
-    }
+#header li {
+    float: left;
+    background: url(../../../forms/eye_mag/images/tabright.gif) top right no-repeat;
+    margin: 0;
+}
 
-    #header a {
-        display: block;
-        background: url(../../../forms/eye_mag/images/tableft.gif) top left no-repeat;
-        color: #ffc;
-        text-decoration: none;
-        padding: 0.6em 1em 0.25em;
-    }
+#header a {
+    display: block;
+    background: url(../../../forms/eye_mag/images/tableft.gif) top left no-repeat;
+    color: #ffc;
+    text-decoration: none;
+    padding: 0.6em 1em 0.25em;
+}
 
-    #header a:hover {
-        color: white;
-    }
+#header a:hover {
+    color: white;
+}
 
-    #header #selected {
-        font-weight: bold;
-        background-image: url(images/tabrightactive.gif);
-    }
+#header #selected {
+    font-weight: bold;
+    background-image: url(images/tabrightactive.gif);
+}
 
-    #header #selected a {
-        background-image: url(images/tableftactive.gif);
-        color: white;
-    }
+#header #selected a {
+    background-image: url(images/tableftactive.gif);
+    color: white;
+}
 
-    #content {
-        clear: both;
-        background: #c60;
-        padding: 1em;
-    }
+#content {
+    clear: both;
+    background: #c60;
+    padding: 1em;
+}
 
-    p {
-        margin: 0 0 1em 0;
-    }
+p {
+    margin: 0 0 1em 0;
+}
 
-    h1 {
-        font: small-caps italic bold 1.9em Arial, arial, helvetica, sans-seif;
-        letter-spacing: 0.1em;
-        padding: 6px 0 4px;
-        margin: 0 0 2px;
-        border-bottom: 2px solid;
-        text-align:right;
-        background: none repeat scroll 0 0 transparent;
-        color: #1775D5;
-        border-color: #89A9C7;
-    }
+h1 {
+    font: small-caps italic bold 1.9em Arial, arial, helvetica, sans-seif;
+    letter-spacing: 0.1em;
+    padding: 6px 0 4px;
+    margin: 0 0 2px;
+    border-bottom: 2px solid;
+    text-align:right;
+    background: none repeat scroll 0 0 transparent;
+    color: #1775D5;
+    border-color: #89A9C7;
+}
 
 
 /* done testing ACT header tabs */
@@ -1591,28 +1591,28 @@ a:hover, a:focus {
 #visit_codes { width: 250px;margin: 5px; }
 #code_me_now { width: 200px;float: unset; color:#000 !important; }
 #open_fee_sheet { width: 200px;float: unset; color:#000 !important; }
-  .custom-combobox {
+.custom-combobox {
     position: relative;
     display: inline-block;
-  }
-  .custom-combobox-toggle {
+}
+.custom-combobox-toggle {
     position: absolute;
     top: 0;
     bottom: 0;
     margin-left: -1px;
     padding: 0;
-  }
-  .custom-combobox-input {
+}
+.custom-combobox-input {
     margin: 0;
     padding: 5px 10px;
-  }
+}
 
 .build_PLAN ol { width: 300px;  margin: 0; padding: 0; }
 .build_PLAN li { background: #eee; position:relative;margin: 1em; padding: 0.5em; border: 0 solid gray; padding-left: 42px; }
 li .handle { display: inline-block; padding: 0.4em; }
 .ui-selecting { background: yellow; }
 .build_PLAN .ui-selecting .handle { background: red; }
-.ui-selected { background: #def; margin: 5px; font-size: 0.9em;padding-left: 5px;}  
+.ui-selected { background: #def; margin: 5px; font-size: 0.9em;padding-left: 5px;}
 .fake-textarea-disabled-4 {
     width: 4in;
     min-height:3em;
@@ -1729,7 +1729,7 @@ View.php
     font-size: 0.9em;
 }
 #Lyr42 {
-     position: absolute;top: 0.30in;text-align: right;right: 0.1in;padding: 0;font-size: 0.9em;
+    position: absolute;top: 0.30in;text-align: right;right: 0.1in;padding: 0;font-size: 0.9em;
 }
 #Lyr42 input {
     left: 0.5in; width: 0.25in; height: 0.18in;
@@ -1855,14 +1855,14 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
 
 .diagnosis {  padding-top:7px;padding-right:4px;}
 #EXT_keyboard_left {
-     color:#0C0C0C;size:0.8em;height: 3em;
+    color:#0C0C0C;size:0.8em;height: 3em;
 }
 .PRIORS_class{
     height: 2.5in;text-align:left;
 }
 .QP_class {
-     text-align:left;max-height: 2.5in;
-     float:left;
+    text-align:left;max-height: 2.5in;
+    float:left;
 }
 .QP_class2 {
     max-height:100%;padding-right:20px;padding-left:20px;text-align:left;
