@@ -62,7 +62,8 @@ $provider  = trim($_POST['form_provider']);
        mode: mode,
        patient_id: patient_id,
        object_category: "transactions",
-       object_id: transaction_id
+       object_id: transaction_id,
+       csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
      }
    );
  }
@@ -86,7 +87,8 @@ $provider  = trim($_POST['form_provider']);
        mode: mode,
        patient_id: patient_id,
        object_category: "transactions",
-       object_id: transaction_id
+       object_id: transaction_id,
+       csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
      }
    );
  }
@@ -104,7 +106,8 @@ $provider  = trim($_POST['form_provider']);
        complete: true,
        mode: mode,
        date_created: date_created,
-       patient_id: patient_id
+       patient_id: patient_id,
+       csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
      }
    );
  }
@@ -123,7 +126,8 @@ $provider  = trim($_POST['form_provider']);
        mode: mode,
        patient_id: patient_id,
        object_category: "form_encounter",
-       object_id: encounter_id
+       object_id: encounter_id,
+       csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
      }
    );
  }
