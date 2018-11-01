@@ -1,5 +1,16 @@
 <?php
-include_once("../../globals.php");
+/**
+ * copay.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+
+require_once("../../globals.php");
 
 // This may be more appropriate to move to the library
 // later
@@ -46,7 +57,7 @@ document.copay_form.codeH.value="";
 
 <dl>
 
-<form method='post' name='copay_form' action="diagnosis.php?mode=add&type=COPAY&text=copay&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>"
+<form method='post' name='copay_form' action="diagnosis.php?mode=add&type=COPAY&text=copay&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>"
  target='Diagnosis' onsubmit='return top.restoreSession()'>
 
 <dt><span class=title><?php echo xlt('Copay'); ?></span></dt>
