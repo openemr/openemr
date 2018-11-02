@@ -138,7 +138,7 @@ if ($_REQUEST['mode'] == "update") {  //store any changed fields in dispense tab
     exit;
 }
 
-formHeader("OpenEMR Eye: " . text($prov_data['facility']) );
+formHeader("OpenEMR Eye: " . text($prov_data['facility']));
 
 if ($_REQUEST['REFTYPE']) {
     $REFTYPE = $_REQUEST['REFTYPE'];
@@ -571,7 +571,6 @@ if ($_REQUEST['dispensed']) {
                                 </table>
                                 <?php
                         } else {
-    
                             if (!empty($row['ODADD']) || !empty($row['OSADD'])) {
                                 $adds =1;
                             } else {
@@ -593,9 +592,9 @@ if ($_REQUEST['dispensed']) {
                                         <td><?php echo xlt('BC{{Base Curve}}'); ?></td>
                                         <td><?php echo xlt('Diam{{Diameter}}'); ?></td>
                                         <?php
-                                            if ($adds) {
-                                                ?>
-                                                <td><?php echo xlt('ADD'); ?></td>
+                                        if ($adds) {
+                                            ?>
+                                            <td><?php echo xlt('ADD'); ?></td>
                                             <?php }
                                         ?>
                                     </tr>
@@ -607,7 +606,7 @@ if ($_REQUEST['dispensed']) {
                                         <td><?php echo text($row['ODBC']); ?></td>
                                         <td><?php echo text($row['ODDIAM']); ?></td>
                                         <?php
-                                            if ($adds) {
+                                        if ($adds) {
                                         ?>
                                         <td><?php echo text($row['ODADD']); ?></td>
                                         <?php } ?>
@@ -620,9 +619,9 @@ if ($_REQUEST['dispensed']) {
                                         <td colspan="5" class="left" style="padding-left:10px;vertical-align:top;">
                                             <?php echo text($row['CTLBRANDOD']); ?>
                                             <?php
-                                                if (!empty($row['CTLMANUFACTUREROD'])) {
-                                                    echo "(".text($row['CTLMANUFACTUREROD']).")";
-                                                } ?>
+                                            if (!empty($row['CTLMANUFACTUREROD'])) {
+                                                echo "(".text($row['CTLMANUFACTUREROD']).")";
+                                            } ?>
                                             <br />
                                             <?php echo text($row['CTLODQUANTITY']); ?><br />
                                             <?php echo text($row['CTLSUPPLIEROD']); ?>
@@ -647,9 +646,9 @@ if ($_REQUEST['dispensed']) {
                                         <td><?php echo xlt('BC{{Base Curve}}'); ?></td>
                                         <td><?php echo xlt('Diam{{Diameter}}'); ?></td>
                                         <?php
-                                            if ($adds) {
-                                                ?>
-                                                <td><?php echo xlt('ADD'); ?></td>
+                                        if ($adds) {
+                                            ?>
+                                            <td><?php echo xlt('ADD'); ?></td>
                                             <?php }
                                         ?>
                                     </tr>
@@ -661,11 +660,11 @@ if ($_REQUEST['dispensed']) {
                                         <td><?php echo text($row['OSBC']); ?></td>
                                         <td><?php echo text($row['OSDIAM']); ?></td>
                                         <?php
-                                            if ($adds) {
-                                                ?>
-                                                <td><?php echo text($row['OSADD']); ?></td>
+                                        if ($adds) {
+                                            ?>
+                                            <td><?php echo text($row['OSADD']); ?></td>
                                                 <?php
-                                            } ?>
+                                        } ?>
                                     </tr>
                                     <tr>
                                         <td colspan="2" class="right bold">
@@ -674,9 +673,9 @@ if ($_REQUEST['dispensed']) {
                                             <?php echo xlt('Supplier'); ?>: </td>
                                         <td colspan="5" class="left" style="padding-left:10px;vertical-align:top;"><?php echo text($row['CTLBRANDOS']); ?>
                                             <?php
-                                                if (!empty($row['CTLMANUFACTUREROS'])) {
-                                                    echo "(".text($row['CTLMANUFACTUREROS']).")";
-                                                } ?>
+                                            if (!empty($row['CTLMANUFACTUREROS'])) {
+                                                echo "(".text($row['CTLMANUFACTUREROS']).")";
+                                            } ?>
                                             <br />
                                             <?php echo text($row['CTLOSQUANTITY']); ?><br />
                                             <?php echo text($row['CTLSUPPLIEROS']); ?>
@@ -930,11 +929,11 @@ if ($_REQUEST['dispensed']) {
 <?php echo report_header($pid, "web");  ?>
 <br/><br/>
 <?php
-    if ($REFTYPE == "CTL") {
-        $expir = date("Y-m-d", strtotime($CTL_expir, strtotime($data['date'])));
-    } else {
-        $expir = date("Y-m-d", strtotime($RX_expir, strtotime($data['date'])));
-    }
+if ($REFTYPE == "CTL") {
+    $expir = date("Y-m-d", strtotime($CTL_expir, strtotime($data['date'])));
+} else {
+    $expir = date("Y-m-d", strtotime($RX_expir, strtotime($data['date'])));
+}
     $expir_date = oeFormatShortDate($expir);
 ?>
 <p><b><?php echo xlt('Expiration Date'); ?>: </b>
@@ -1161,7 +1160,6 @@ if ($_REQUEST['dispensed']) {
                         </table>&nbsp;<br/><br/><br/>
                         <?php
                     } else {
-                        
                         if (!empty($ODADD) || !empty($OSADD)) {
                             $adds =1;
                         } else {
@@ -1174,7 +1172,8 @@ if ($_REQUEST['dispensed']) {
                             </tr>
                            <tr>
                                 <td colspan="2" class="right bold text-uppercase"><?php echo xlt('Brand'); ?>:</td>
-                                <td colspan="4" class="left"><?php echo text($CTLBRANDOD); ?> <?php if ($CTLMANUFACTUREROD) { echo "(".text($CTLMANUFACTUREROD).")";} ?></td>
+                                <td colspan="4" class="left"><?php echo text($CTLBRANDOD); ?> <?php if ($CTLMANUFACTUREROD) {
+                                    echo "(".text($CTLMANUFACTUREROD).")";} ?></td>
                             </tr>
                             <tr class="bold">
                                 <td><?php echo xlt('SPH{{Sphere}}'); ?></td>
@@ -1183,7 +1182,7 @@ if ($_REQUEST['dispensed']) {
                                 <td><?php echo xlt('BC{{Base Curve}}'); ?></td>
                                 <td><?php echo xlt('DIAM{{Diameter}}'); ?></td>
                                 <?php
-                                    if ($adds) {
+                                if ($adds) {
                                 ?>
                                 <td><?php echo xlt('ADD{{Bifocal Add}}'); ?></td>
                                 <?php } ?>
@@ -1200,7 +1199,7 @@ if ($_REQUEST['dispensed']) {
                                 <td><input type=text id="CTLODDIAM" name="CTLODDIAM"
                                            value="<?php echo attr($ODDIAM); ?>"></td>
                                 <?php
-                                    if ($adds) {
+                                if ($adds) {
                                 ?>
                                 <td><input type=text id="CTLODADD" name="CTLODADD" value="<?php echo attr($ODADD); ?>">
                                 </td>
@@ -1220,7 +1219,8 @@ if ($_REQUEST['dispensed']) {
                             </tr>
                             <tr>
                                 <td colspan="2" class="right bold text-uppercase"><?php echo xlt('Brand'); ?>:</td>
-                                <td colspan="4" class="left"><?php echo text($CTLBRANDOS); ?> <?php if ($CTLMANUFACTUREROS) { echo "(".text($CTLMANUFACTUREROS).")";} ?></td>
+                                <td colspan="4" class="left"><?php echo text($CTLBRANDOS); ?> <?php if ($CTLMANUFACTUREROS) {
+                                    echo "(".text($CTLMANUFACTUREROS).")";} ?></td>
                             </tr>
                             <tr class="bold" style="line-height:0.3em;font-size:0.6em;">
                                 <td><?php echo xlt('SPH{{Sphere}}'); ?></td>
@@ -1229,7 +1229,7 @@ if ($_REQUEST['dispensed']) {
                                 <td><?php echo xlt('BC{{Base Curve}}'); ?></td>
                                 <td><?php echo xlt('DIAM{{Diameter}}'); ?></td>
                                 <?php
-                                    if ($adds) {
+                                if ($adds) {
                                 ?>
                                 <td><?php echo xlt('ADD{{Bifocal Add}}'); ?></td>
                                 <?php } ?>
@@ -1246,7 +1246,7 @@ if ($_REQUEST['dispensed']) {
                                 <td><input type=text id="CTLOSDIAM" name="CTLOSDIAM"
                                            value="<?php echo attr($OSDIAM); ?>"></td>
                                 <?php
-                                    if ($adds) {
+                                if ($adds) {
                                 ?>
                                 <td><input type=text id="CTLOSADD" name="CTLOSADD" value="<?php echo attr($OSADD); ?>"></td>
                                 <?php } ?>
@@ -1278,21 +1278,21 @@ if ($_REQUEST['dispensed']) {
             <tr>
                 <?php
                     $signature = $GLOBALS["webserver_root"] . "/interface/forms/eye_mag/images/sign_" . attr($_SESSION['authUserID']) . ".jpg";
-                    if (file_exists($signature)) {
-                        ?>
-                        <td class="center" style="margin:25px auto;">
-                            <span style="position:relative;padding-left:40px;">
-                                <img src='<?php echo $web_root; ?>/interface/forms/eye_mag/images/sign_<?php echo attr($_SESSION['authUserID']); ?>.jpg'
-                                     style="width:240px;height:85px;border-block-end: 1pt solid black;margin:5px;"/>
-                                    </span><br/>
+                if (file_exists($signature)) {
+                    ?>
+                    <td class="center" style="margin:25px auto;">
+                        <span style="position:relative;padding-left:40px;">
+                            <img src='<?php echo $web_root; ?>/interface/forms/eye_mag/images/sign_<?php echo attr($_SESSION['authUserID']); ?>.jpg'
+                                 style="width:240px;height:85px;border-block-end: 1pt solid black;margin:5px;"/>
+                                </span><br/>
 
                         <?php
-                    } else {
-                        ?>
-                        <td class="center">
-                            <hr style="border:solid 1px black;width:50%;margin:0.5in auto 0;" />
+                } else {
+                    ?>
+                    <td class="center">
+                        <hr style="border:solid 1px black;width:50%;margin:0.5in auto 0;" />
                     <?php
-                    } ?>
+                } ?>
 
                     <?php echo xlt('Provider'); ?>
                     : <?php echo text($prov_data['fname']); ?> <?php echo text($prov_data['lname']);
