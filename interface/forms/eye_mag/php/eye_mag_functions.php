@@ -5968,7 +5968,7 @@ function display_refractive_data($encounter_data)
                        <td ><?php echo (text($CTLODADD)?:"-");  ?></td>
                        <td ><?php echo (text($CTLODVA)?:"-"); ?></td>
                    </tr>
-                   <?php if (!empty($CTLODQUANTITY)) { ?>
+                    <?php if (!empty($CTLODQUANTITY)) { ?>
                        <tr>
                            <td></td>
                            <td colspan="8" class="text-left" style="font-size:10px;"><?php echo text($CTLODQUANTITY); ?></td>
@@ -5999,13 +5999,13 @@ function display_refractive_data($encounter_data)
                        <td colspan="2" class="bold text-left" style="font-size:10px;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROS)?:"-");  ?></td>
                        <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROS)?:"-");  ?></td>
                    </tr>
-                   <?php if (!empty($CTLOSQUANTITY)) { ?>
+                    <?php if (!empty($CTLOSQUANTITY)) { ?>
                         <tr>
                            <td></td>
                            <td colspan="8" class="text-left" style="font-size:10px;"><?php echo text($CTLOSQUANTITY); ?></td>
                        </tr>
-                   <?php }
-                        if (!empty($COMMENTS)) { ?>
+                    <?php }
+if (!empty($COMMENTS)) { ?>
                             <tr>
                                 <td></td>
                                 <td colspan="8" class="text-left" style="font-size:10px;"><?php echo text($COMMENTS); ?></td>
