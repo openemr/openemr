@@ -3522,14 +3522,14 @@ function generate_layout_validation($form_id)
             $fldtitle  = $frow['description'];
         }
 
-        $fldname   = htmlspecialchars("form_$field_id", ENT_QUOTES);
+        $fldname   = attr("form_$field_id");
 
         if ($data_type == 40) {
-            $fldid = addslashes("form_$field_id");
+            $fldid = "form_" . $field_id;
             // Move canvas image data to its hidden form field so the server will get it.
             echo
-            " var canfld = f['$fldid'];\n" .
-            " if (canfld) canfld.value = lbfCanvasGetData('$fldid');\n";
+            " var canfld = f[" . js_escape($fldid) . "];\n" .
+            " if (canfld) canfld.value = lbfCanvasGetData(" . js_escape($fldid) . ");\n";
             continue;
         }
 
@@ -3547,8 +3547,8 @@ function generate_layout_validation($form_id)
             case 26:
                 echo
                 "  if (f.$fldname.selectedIndex <= 0) {\n" .
-                "   alert(\"" . addslashes(xl('Please choose a value for')) .
-                ":\\n" . addslashes(xl_layout_label($fldtitle)) . "\");\n" .
+                "   alert(" . xlj('Please choose a value for') . " + " .
+                "\":\\n\" + " . js_escape(xl_layout_label($fldtitle)) . ");\n" .
                 "   if (f.$fldname.focus) f.$fldname.focus();\n" .
                 "   return false;\n" .
                 "  }\n";
@@ -3557,7 +3557,7 @@ function generate_layout_validation($form_id)
                 echo
                 " if (f.$fldname.selectedIndex <= 0) {\n" .
                 "  if (f.$fldname.focus) f.$fldname.focus();\n" .
-                "  		errMsgs[errMsgs.length] = '" . addslashes(xl_layout_label($fldtitle)) . "'; \n" .
+                "  		errMsgs[errMsgs.length] = " . js_escape(xl_layout_label($fldtitle)) . "; \n" .
                 " }\n";
                 break;
             case 27: // radio buttons
@@ -3565,8 +3565,8 @@ function generate_layout_validation($form_id)
                 " var i = 0;\n" .
                 " for (; i < f.$fldname.length; ++i) if (f.$fldname[i].checked) break;\n" .
                 " if (i >= f.$fldname.length) {\n" .
-                "   alert(\"" . addslashes(xl('Please choose a value for')) .
-                ":\\n" . addslashes(xl_layout_label($fldtitle)) . "\");\n" .
+                "   alert(" . xlj('Please choose a value for') . " + " .
+                "\":\\n\" + " . js_escape(xl_layout_label($fldtitle)) . ");\n" .
                 "   return false;\n" .
                 " }\n";
                 break;
@@ -3579,7 +3579,7 @@ function generate_layout_validation($form_id)
                 "  		if (f.$fldname.focus) f.$fldname.focus();\n" .
                 "  		$('#" . $fldname . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','red'); } ); " .
                 "  		$('#" . $fldname . "').attr('style','background:red'); \n" .
-                "  		errMsgs[errMsgs.length] = '" . addslashes(xl_layout_label($fldtitle)) . "'; \n" .
+                "  		errMsgs[errMsgs.length] = " . js_escape(xl_layout_label($fldtitle)) . "; \n" .
                 " } else { " .
                 " 		$('#" . $fldname . "').attr('style',''); " .
                 "  		$('#" . $fldname . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','');  } ); " .
@@ -3593,7 +3593,7 @@ function generate_layout_validation($form_id)
                     " multi_choice_made=multi_choice_made || multi_select.options[options_index].selected; \n".
                 "    } \n" .
                 " if(!multi_choice_made)
-            errMsgs[errMsgs.length] = '" . addslashes(xl_layout_label($fldtitle)) . "'; \n" .
+            errMsgs[errMsgs.length] = " . js_escape(xl_layout_label($fldtitle)) . "; \n" .
                 "";
                 break;
         }

@@ -15,7 +15,7 @@
 
 <script type="text/javascript">
     // Support for translations of months in graphing dygraphs scripts
-    var SHORT_MONTH_NAMES_CUSTOM = ['<?php echo xla('Jan'); ?>', '<?php echo xla('Feb'); ?>', '<?php echo xla('Mar'); ?>', '<?php echo xla('Apr'); ?>', '<?php echo xla('May'); ?>', '<?php echo xla('Jun'); ?>', '<?php echo xla('Jul'); ?>', '<?php echo xla('Aug'); ?>', '<?php echo xla('Sep'); ?>', '<?php echo xla('Oct'); ?>', '<?php echo xla('Nov'); ?>', '<?php echo xla('Dec'); ?>'];
+    var SHORT_MONTH_NAMES_CUSTOM = [<?php echo xlj('Jan'); ?>, <?php echo xlj('Feb'); ?>, <?php echo xlj('Mar'); ?>, <?php echo xlj('Apr'); ?>, <?php echo xlj('May'); ?>, <?php echo xlj('Jun'); ?>, <?php echo xlj('Jul'); ?>, <?php echo xlj('Aug'); ?>, <?php echo xlj('Sep'); ?>, <?php echo xlj('Oct'); ?>, <?php echo xlj('Nov'); ?>, <?php echo xlj('Dec'); ?>];
     // Dygraph xlabel translation
-    var xlabel_translate = '<?php echo xla('Zoom: click-drag, Pan: shift-click-drag, Restore: double-click'); ?>';
+    var xlabel_translate = <?php echo xlj('Zoom: click-drag, Pan: shift-click-drag, Restore: double-click'); ?>;
 </script>
