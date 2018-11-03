@@ -62,7 +62,7 @@ if (isset($mode)) {
 
 <a href="encounter_bottom.php" onclick="top.restoreSession()">
 
-<font class=more><?php echo $tback;?></font></a>
+<font class=more><?php echo text($tback); ?></font></a>
 
 </dt>
 </td></tr>
