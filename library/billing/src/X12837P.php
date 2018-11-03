@@ -230,7 +230,7 @@ class X12837P
         // Situational PER*1C segment omitted.
     
         // Pay-To Address defaults to billing provider and is no longer required in 5010 but may be useful
-        if ($claim->facilityStreet() != $claim->billingFacilityStreet()) {
+        if ($claim->pay_to_provider != '') {
             ++$edicount;
             $billingFacilityName = substr($claim->billingFacilityName(), 0, 60);
             $out .= "NM1" .       // Loop 2010AB Pay-To Provider
@@ -697,7 +697,7 @@ class X12837P
         // End of Loop 2310B
     
         // Loop 2310C is omitted in the case of home visits (POS=12).
-        if ($claim->facilityPOS() != 12 && ($claim->facilityNPI() != $claim->billingFacilityNPI())) {
+        if ($claim->facilityPOS() != 12 && ($claim->facilityName() != $claim->billingFacilityName())) {
             ++$edicount;
             $out .= "NM1" .       // Loop 2310C Service Location
             "*" . "77" .
