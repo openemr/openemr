@@ -107,7 +107,7 @@
         "global_req": "!full_new_patient_form"
       },
       {
-        "label": "Dashboard",
+        "label": "Dashboard{{patient file}}",
         "menu_id": "dem1",
         "target": "pat",
         "url": "/interface/patient_file/summary/demographics.php",
@@ -478,7 +478,7 @@
       {
         "label": "Posting",
         "menu_id": "eob",
-        "target": "pat",
+        "target": "bil",
         "url": "/interface/billing/sl_eob_search.php",
         "children": [],
         "requirement": 0,
