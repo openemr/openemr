@@ -23,6 +23,8 @@ require_once("$srcdir/billrep.inc");
 require_once("$srcdir/billing.inc");
 require_once("$srcdir/gen_hcfa_1500.inc.php");
 
+use OpenEMR\Billing\X12837P;
+
 if (!verifyCsrfToken($_POST["csrf_token_form"])) {
     csrfNotVerified();
 }
@@ -226,8 +228,7 @@ function process_form($ar)
                     $bill_info[] = xl("Claim ") . $claimid . xl(" has been re-opened.") . "\n";
                 } elseif (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter'])) {
                     $log = '';
-                    $x12 = new X12837P;
-                    $segs = explode("~\n", $x12->gen_x12_837($patient_id, $encounter, $log, isset($ar['bn_x12_encounter'])));
+                    $segs = explode("~\n", X12837P::gen_x12_837($patient_id, $encounter, $log, isset($ar['bn_x12_encounter'])));
                     fwrite($hlog, $log);
                     append_claim($segs);
                     if (! updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename)) {

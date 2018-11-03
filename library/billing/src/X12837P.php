@@ -12,13 +12,15 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/../invoice_summary.inc.php");
+require_once(dirname(__FILE__) . "/../../invoice_summary.inc.php");
+
+namespace \\OpenEMR\Billing;
 
 use OpenEMR\Billing\Claim;
 
 class X12837P
 {
-    public function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
+    public static function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
     {
         $today = time();
         $out = '';
