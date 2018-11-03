@@ -480,7 +480,7 @@ while ($result4 = sqlFetchArray($res4)) {
           "'>\n";
 
         // show encounter date
-        echo "<td valign='top' title='" . text(xl('View encounter') . ' ' . $pid . "." . $result4['encounter']) . "'>" .
+        echo "<td valign='top' title='" . attr(xl('View encounter') . ' ' . $pid . "." . $result4['encounter']) . "'>" .
             text(oeFormatShortDate($raw_encounter_date)) . "</td>\n";
 
     if ($billing_view) {
