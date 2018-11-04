@@ -1189,16 +1189,32 @@ class X12837P
                 "~\n";
     
                 $tmpdate = $payerpaid[0];
+                $adj_group_code = '';
+                $adj_count = 0;
                 foreach ($aarr as $a) {
-                    ++$edicount;
-                    $out .= "CAS" . // Previous payer's line level adjustments. Page 558.
-                    "*" . $a[1] .
-                    "*" . $a[2] .
-                    "*" . $a[3] .
-                    "~\n";
+                    ++$adj_count;
+                    if ((count($aarr) !== 1) && ($adj_group_code !== $a[1])) {
+					    ++$edicount;
+                        $out .= "~\n";
+                    }
+                    if ($adj_group_code !== $a[1]) {
+						$out .= "CAS" . // Previous payer's line level adjustments. Page 558.
+						"*" . $a[1] .
+                        "*" . $a[2] .
+                        "*" . $a[3];
+					} else {
+						$out = "*" . // since it's the same adj group code don't include it
+						"*" . $a[2] .
+                        "*" . $a[3];
+                    }
                     if (!$tmpdate) {
                         $tmpdate = $a[0];
                     }
+                    if ((count($aarr) == 1) || (count($aarr) == $adj_count)) {
+						++$edicount;
+                        $out .= "~\n";
+                    }
+					$adj_group_code = $a[1];
                 }
     
                 if ($tmpdate) {
