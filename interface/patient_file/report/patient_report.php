@@ -667,7 +667,8 @@ $(document).ready(function(){
                   $.post(action,
                      {
                        ccrAction:'generate',
-                       raw:'send '+ccrRecipient,requested_by:'user'
+                       raw:'send '+ccrRecipient,
+                       requested_by:'user'
                      },
                      function(data) {
                        if(data=="SUCCESS") {
@@ -710,7 +711,8 @@ if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { 
                   $.post(action,
                      {
                        ccrAction:'viewccd',
-                       raw:'send '+ccdRecipient,requested_by:'user'
+                       raw:'send '+ccdRecipient,
+                       requested_by:'user'
                      },
                      function(data) {
                        if(data=="SUCCESS") {
