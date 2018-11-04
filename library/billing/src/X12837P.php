@@ -1203,15 +1203,15 @@ class X12837P
                         "*" . $a[2] .
                         "*" . $a[3];
                     } else {
-						$out = "*" . // since it's the same adj group code don't include it
-						"*" . $a[2] .
+                        $out = "*" . // since it's the same adj group code don't include it
+                        "*" . $a[2] .
                         "*" . $a[3];
                     }
                     if (!$tmpdate) {
                         $tmpdate = $a[0];
                     }
                     if ((count($aarr) == 1) || (count($aarr) == $adj_count)) {
-						++$edicount;
+                        ++$edicount;
                         $out .= "~\n";
                     }
                     $adj_group_code = $a[1];
