@@ -39,6 +39,7 @@ class Claim
     public $payers;            // array of arrays, for all payers
     public $copay;             // total of copays from the ar_activity table
     public $facilityService;   // via matthew.vita orm work :)
+    public $pay_to_provider;   // to be implemented in facility ui
 
     // This enforces the X12 Basic Character Set. Page A2.
     public function x12Clean($str)
@@ -156,6 +157,8 @@ class Claim
         $this->copay = 0;
 
         $this->facilityService = new FacilityService();
+        $this->pay_to_provider = ''; // will populate from facility someday :)
+
 
         // We need the encounter date before we can identify the payers.
         $sql = "SELECT * FROM form_encounter WHERE " .
