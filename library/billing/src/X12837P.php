@@ -1213,14 +1213,14 @@ class X12837P
                         if (($aarr_count == 1) || ($adj_count !== 1)) {
                             ++$edicount;
                             $out .= "~\n";
-                        } 
+                        }
                     } else {
                         $out .= "*" . // since it's the same adj group code don't include it
                         "*" . $a[2] .
                         "*" . $a[3];
                     }
                     if (!$tmpdate) {
-                    $tmpdate = $a[0];
+                        $tmpdate = $a[0];
                     }
                 }
     
