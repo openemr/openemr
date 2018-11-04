@@ -1194,15 +1194,15 @@ class X12837P
                 foreach ($aarr as $a) {
                     ++$adj_count;
                     if ((count($aarr) !== 1) && ($adj_group_code !== $a[1])) {
-					    ++$edicount;
+                        ++$edicount;
                         $out .= "~\n";
                     }
                     if ($adj_group_code !== $a[1]) {
-						$out .= "CAS" . // Previous payer's line level adjustments. Page 558.
-						"*" . $a[1] .
+                        $out .= "CAS" . // Previous payer's line level adjustments. Page 558.
+                        "*" . $a[1] .
                         "*" . $a[2] .
                         "*" . $a[3];
-					} else {
+                    } else {
 						$out = "*" . // since it's the same adj group code don't include it
 						"*" . $a[2] .
                         "*" . $a[3];
@@ -1214,7 +1214,7 @@ class X12837P
 						++$edicount;
                         $out .= "~\n";
                     }
-					$adj_group_code = $a[1];
+                    $adj_group_code = $a[1];
                 }
     
                 if ($tmpdate) {
