@@ -1218,6 +1218,10 @@ class X12837P
                         $out .= "*" . // since it's the same adj group code don't include it
                         "*" . $a[2] .
                         "*" . $a[3];
+                        if ($adj_count == $aarr_count) {
+                            ++$edicount;
+                            $out .= "~\n";
+                        }    
                     }
                     if (!$tmpdate) {
                         $tmpdate = $a[0];
