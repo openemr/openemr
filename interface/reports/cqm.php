@@ -151,6 +151,7 @@ if (!empty($report_id)) {
    // Collect an id string via an ajax request
    top.restoreSession();
    $.get("../../library/ajax/collect_new_report_id.php",
+     { csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?> },
      function(data){
        // Set the report id in page form
        $("#form_new_report_id").attr("value",data);
@@ -178,7 +179,10 @@ if (!empty($report_id)) {
    top.restoreSession();
    // Do not send the skip_timeout_reset parameter, so don't close window before report is done.
    $.post("../../library/ajax/status_report.php",
-     {status_report_id: report_id},
+     {
+       status_report_id: report_id,
+       csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+     },
      function(data){
        if (data == "PENDING") {
          // Place the pending string in the DOM
