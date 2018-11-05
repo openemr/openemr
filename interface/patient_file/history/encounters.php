@@ -575,8 +575,8 @@ while ($result4 = sqlFetchArray($res4)) {
                 echo "</div>";
             } else {
                 echo "<div " .
-                "onmouseover='efmouseover(this," . js_attr($pid) . "," . js_attr($result4['encounter']) .
-                "," . js_attr($formdir) . "," . js_attr($enc['form_id']) . ")' " .
+                "onmouseover='efmouseover(this," . attr_js($pid) . "," . attr_js($result4['encounter']) .
+                "," . attr_js($formdir) . "," . attr_js($enc['form_id']) . ")' " .
                 "onmouseout='ttMouseOut()'>";
                 echo text(xl_form_title($enc['form_name']));
                 echo "</div>";

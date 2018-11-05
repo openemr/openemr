@@ -6,9 +6,12 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2009-2015 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once("../../globals.php");
 
@@ -56,10 +59,10 @@ if ($patientid) {
   // Check authorization.
     $thisauth = acl_check('patients', 'demo');
     if (!$thisauth) {
-        die(xl('Demographics not authorized'));
+        die(xlt('Demographics not authorized'));
     }
     if ($prow['squad'] && ! acl_check('squads', $prow['squad'])) {
-        die(xl('You are not authorized to access this squad'));
+        die(xlt('You are not authorized to access this squad'));
     }
   // $irow = getInsuranceProviders(); // needed?
 }
@@ -286,7 +289,7 @@ while ($frow = sqlFetchArray($fres)) {
 
         $group_name = $grparr[$this_group]['grp_title'];
         $last_group = $this_group;
-        echo "<p class='grpheader'>" . xl_layout_label($group_name) . "</p>\n";
+        echo "<p class='grpheader'>" . text(xl_layout_label($group_name)) . "</p>\n";
               echo "<div class='section'>\n";
         echo " <table border='0' cellpadding='0'>\n";
         echo "  <tr><td class='lcols1'></td><td class='dcols1'></td><td class='lcols1'></td><td class='dcols1'></td></tr>\n";
@@ -305,8 +308,8 @@ while ($frow = sqlFetchArray($fres)) {
   // Handle starting of a new label cell.
     if ($titlecols > 0) {
         end_cell();
-        echo "<td colspan='$titlecols' ";
-        echo "class='lcols$titlecols stuff " . (($frow['uor'] == 2) ? "required'" : "bold'");
+        echo "<td colspan='" . attr($titlecols) . "' ";
+        echo "class='lcols" . attr($titlecols) . " stuff " . (($frow['uor'] == 2) ? "required'" : "bold'");
         if ($cell_count == 2) {
             echo " style='padding-left:10pt'";
         }
@@ -317,9 +320,9 @@ while ($frow = sqlFetchArray($fres)) {
     ++$item_count;
 
     echo "<b>";
-    
+
     if ($frow['title']) {
-        echo (xl_layout_label($frow['title']) . ":");
+        echo text((xl_layout_label($frow['title'])) . ":");
     } else {
         echo "&nbsp;";
     }
@@ -329,7 +332,7 @@ while ($frow = sqlFetchArray($fres)) {
     // Handle starting of a new data cell.
     if ($datacols > 0) {
         end_cell();
-        echo "<td colspan='$datacols' class='dcols$datacols stuff under'";
+        echo "<td colspan='" . attr($datacols) . "' class='dcols" . attr($datacols) . " stuff under'";
         /*****************************************************************
         // Underline is wanted only for fill-in-the-blank data types.
         if ($data_type < 21 && $data_type != 1 && $data_type != 3) {
@@ -379,4 +382,5 @@ if ($PDF_OUTPUT) {
 opener.top.printLogPrint(window);
 </script>
 </body>
-</html><?php } ?>
+</html>
+<?php } ?>

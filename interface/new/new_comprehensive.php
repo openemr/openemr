@@ -520,7 +520,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                 }
 
                                 echo "<span class='bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' id='form_cb_" . attr($group_seq) . "' value='1' " .
-                                "onclick='return divclick(this," . js_attr("div_" . $group_seq) . ");'";
+                                "onclick='return divclick(this," . attr_js("div_" . $group_seq) . ");'";
                                 if ($display_style == 'block') {
                                     echo " checked";
                                 }

@@ -117,38 +117,6 @@ if (is_array($_POST['issues'])) {
     }
 }
 
-// Custom for Chelsea FC.
-//
-if ($mode == 'new' && $GLOBALS['default_new_encounter_form'] == 'football_injury_audit') {
-  // If there are any "football injury" issues (medical problems without
-  // "illness" in the title) linked to this encounter, but no encounter linked
-  // to such an issue has the injury form in it, then present that form.
-
-    $lres = sqlStatement("SELECT list_id " .
-    "FROM issue_encounter, lists WHERE " .
-    "issue_encounter.pid = ? AND " .
-    "issue_encounter.encounter = ? AND " .
-    "lists.id = issue_encounter.list_id AND " .
-    "lists.type = 'medical_problem' AND " .
-    "lists.title NOT LIKE '%Illness%'", array($pid,$encounter));
-
-    if (sqlNumRows($lres) > 0) {
-        $nexturl = "patient_file/encounter/load_form.php?formname=" .
-        $GLOBALS['default_new_encounter_form'];
-        while ($lrow = sqlFetchArray($lres)) {
-            $frow = sqlQuery("SELECT count(*) AS count " .
-             "FROM issue_encounter, forms WHERE " .
-             "issue_encounter.list_id = ? AND " .
-             "forms.pid = issue_encounter.pid AND " .
-             "forms.encounter = issue_encounter.encounter AND " .
-             "forms.formdir = ?", array($lrow['list_id'],$GLOBALS['default_new_encounter_form']));
-            if ($frow['count']) {
-                $nexturl = $normalurl;
-            }
-        }
-    }
-}
-
 $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe ".
     " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array($pid));
 ?>

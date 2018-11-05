@@ -231,8 +231,8 @@ function genTreeLink($frame, $name, $title, $mono = false)
             }
         }
 
-        echo "return loadFrame2(" . js_attr($id) . "," . js_attr($frame) . "," .
-            js_attr($primary_docs[$name][2]) . ")\">" . text($title) . ($name == 'msg' ? ' <span id="reminderCountSpan" class="bold"></span>' : '')."</a></li>";
+        echo "return loadFrame2(" . attr_js($id) . "," . attr_js($frame) . "," .
+            attr_js($primary_docs[$name][2]) . ")\">" . text($title) . ($name == 'msg' ? ' <span id="reminderCountSpan" class="bold"></span>' : '')."</a></li>";
     }
 }
 
@@ -251,9 +251,9 @@ function genMiscLink($frame, $name, $level, $title, $url, $mono = false, $encfor
         }
         if ($encform) {
             // In this case $url is an encounter form name, not a URL.
-            echo "loadNewForm(" . js_attr(trim($url)) . ", " . js_attr(trim($title)) . ");";
+            echo "loadNewForm(" . attr_js(trim($url)) . ", " . attr_js(trim($title)) . ");";
         } else {
-            echo "loadFrame2(" . js_attr($id) . "," . js_attr($frame) . "," . js_attr($url) . ");";
+            echo "loadFrame2(" . attr_js($id) . "," . attr_js($frame) . "," . attr_js($url) . ");";
         }
         echo "return false;\">" . text($title) . "</a></li>";
     }
@@ -273,8 +273,8 @@ function genMiscLink2($frame, $name, $level, $title, $url, $mono = false, $mouse
             }
         }
 
-        echo "return loadFrame3(" . js_attr($id) . "," . js_attr($frame) . "," .
-            js_attr($url) . ")\">" . text($title) . "</a></li>";
+        echo "return loadFrame3(" . attr_js($id) . "," . attr_js($frame) . "," .
+            attr_js($url) . ")\">" . text($title) . "</a></li>";
     }
 }
 function genPopLink($title, $url, $linkid = '')
@@ -284,7 +284,7 @@ function genPopLink($title, $url, $linkid = '')
         echo "id='" . attr($linkid) . "' ";
     }
 
-    echo "onclick=\"return repPopup(" . js_attr($url) . ")\"" .
+    echo "onclick=\"return repPopup(" . attr_js($url) . ")\"" .
         ">" . text($title) . "</a></li>";
 }
 function genDualLink($topname, $botname, $title)
@@ -294,9 +294,9 @@ function genDualLink($topname, $botname, $title)
         $topid = $topname . $primary_docs[$topname][1];
         $botid = $botname . $primary_docs[$botname][1];
         echo "<li><a href='' id='" . attr($topid) . "' " .
-            "onclick=\"return loadFrameDual(" . js_attr($topid) . "," . js_attr($botid) . "," .
-            js_attr($primary_docs[$topname][2]) . "," .
-            js_attr($primary_docs[$botname][2]) . ")\">" . text($title) . "</a></li>";
+            "onclick=\"return loadFrameDual(" . attr_js($topid) . "," . attr_js($botid) . "," .
+            attr_js($primary_docs[$topname][2]) . "," .
+            attr_js($primary_docs[$botname][2]) . ")\">" . text($title) . "</a></li>";
     }
 }
 
