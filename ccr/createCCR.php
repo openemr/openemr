@@ -39,6 +39,8 @@ require_once(dirname(__FILE__) . "/uuid.php");
 require_once(dirname(__FILE__) . "/transmitCCD.php");
 require_once(dirname(__FILE__) . "/../custom/code_types.inc.php");
 
+use PHPMailer\PHPMailer\PHPMailer;
+
 function createCCR($action, $raw = "no", $requested_by = "")
 {
 

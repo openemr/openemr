@@ -388,7 +388,7 @@ $(document).ready(function(){
    // Do not send the skip_timeout_reset parameter, so don't close window before report is done.
    $.post("../../../library/ajax/status_report.php",
      {
-       status_report_id: report_id
+       status_report_id: report_id,
        csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
      },
      function(data){

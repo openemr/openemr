@@ -705,7 +705,7 @@ if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { 
                 } else {
                   $(".viewCCD_transmit").attr('disabled','disabled');
                   $("#ccd_send_message").html(<?php
-                    echo xlj('Working... this may take a minute.'); ?>");
+                    echo xlj('Working... this may take a minute.'); ?>);
                   $("#ccd_send_result").show();
                   var action=$("#ccr_form").attr('action');
                   $.post(action,
