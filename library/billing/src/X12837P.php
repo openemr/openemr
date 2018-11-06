@@ -1189,13 +1189,40 @@ class X12837P
                 "~\n";
     
                 $tmpdate = $payerpaid[0];
+                // new logic for putting same adjustment group codes
+                // on the same line
+                $adj_group_code[0] = '';
+                $adj_count = 0;
+                $aarr_count = count($aarr);
                 foreach ($aarr as $a) {
-                    ++$edicount;
-                    $out .= "CAS" . // Previous payer's line level adjustments. Page 558.
-                    "*" . $a[1] .
-                    "*" . $a[2] .
-                    "*" . $a[3] .
-                    "~\n";
+                    ++$adj_count;
+                    $adj_group_code[$adj_count] = $a[1];
+                    // when the adj group code changes increment edi
+                    // counter and add line ending
+                    if ($adj_group_code[$adj_count] !== $adj_group_code[($adj_count - 1)]) {
+                        // increment when there was a prior segment with the
+                        // same adj group code
+                        if ($adj_count !== 1) {
+                            ++$edicount;
+                            $out .= "~\n";
+                        }
+                        $out .= "CAS" . // Previous payer's line level adjustments. Page 558.
+                        "*" . $a[1] .
+                        "*" . $a[2] .
+                        "*" . $a[3];
+                        if (($aarr_count == 1) || ($adj_count !== 1)) {
+                            ++$edicount;
+                            $out .= "~\n";
+                        }
+                    } else {
+                        $out .= "*" . // since it's the same adj group code don't include it
+                        "*" . $a[2] .
+                        "*" . $a[3];
+                        if ($adj_count == $aarr_count) {
+                            ++$edicount;
+                            $out .= "~\n";
+                        }
+                    }
                     if (!$tmpdate) {
                         $tmpdate = $a[0];
                     }
