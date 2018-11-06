@@ -1221,7 +1221,7 @@ class X12837P
                         if ($adj_count == $aarr_count) {
                             ++$edicount;
                             $out .= "~\n";
-                        }    
+                        }
                     }
                     if (!$tmpdate) {
                         $tmpdate = $a[0];
