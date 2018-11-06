@@ -20,7 +20,7 @@
 		<td>
 		{if $pharmacy->address->line1 != ''}{$pharmacy->address->line1|escape:'html'}, {/if}
 		{if $pharmacy->address->city != ''}{$pharmacy->address->city|escape:'html'}, {/if}
-			{$pharmacy->address->state|upper} {$pharmacy->address->zip|escape:'html'}&nbsp;</td>
+			{$pharmacy->address->state|upper|escape:'html'} {$pharmacy->address->zip|escape:'html'}&nbsp;</td>
 		<td>{$pharmacy->get_transmit_method_display()|escape:'html'}&nbsp;
 	{foreachelse}</td>
 	</tr>
