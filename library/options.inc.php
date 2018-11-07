@@ -2036,7 +2036,7 @@ function generate_display_field($frow, $currvalue)
         }
         // If match is not found in main and backup lists, return the key with exclamation mark
         if ($s == '') {
-            $s = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES)).
+            $s = nl2br(xlt($currvalue)).
             '<sup> <i class="fa fas fa-exclamation-circle ml-1"></i></sup>';
         }
     } // simple text field
