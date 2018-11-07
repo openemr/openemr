@@ -874,6 +874,8 @@ if (empty($collectthis)) {
     $patientid = '';
     if ($_REQUEST['patientid']) {
         $patientid = $_REQUEST['patientid'];
+    } elseif ($pid>0){
+        $patientid=$pid;
     }
 
     $patientname = null;
@@ -978,13 +980,23 @@ if (empty($collectthis)) {
     }
 
  // If we have a patient ID, get the name and phone numbers to display.
-    if ($patientid) {
-        $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB " .
-         "FROM patient_data WHERE pid = ?", array($patientid));
+ //dh-4/8/2018 added patient_type to SQL and set the $default_cat_id to the one in patient_data table
+ if ($patientid) {
+    $arow = sqlQuery("show columns from patient_data like 'patient_type';");
+    if ($arow) {
+        $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB, patient_type " .
+            "FROM patient_data WHERE pid = ?", array($patientid));
+        $arow = sqlQuery("Select pc_catid from openemr_postcalendar_categories where " .
+            "pc_catname = ?", array($prow['patient_type']));
         $patientname = $prow['lname'] . ", " . $prow['fname'];
-        if ($prow['phone_home']) {
-            $patienttitle['phone_home'] = xl("Home Phone").": " . $prow['phone_home'];
-        }
+        $default_catid = $arow['pc_catid'];
+    } else {
+        echo('field DOES NOT exists');
+        $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB " .
+            "FROM patient_data WHERE pid = ?", array($patientid));
+        $patientname = $prow['lname'] . ", " . $prow['fname'];
+    }
+    //dh
 
         if ($prow['phone_biz']) {
             $patienttitle['phone_biz'] = xl("Work Phone").": " . $prow['phone_biz'];
