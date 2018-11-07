@@ -72,7 +72,7 @@ function show_date_fun(){
         <div class="row" >
             <div class="col-sm-12">
                 <?php
-                $list_id = "nav-list3"; // to indicate nav item is active, count and give correct id
+                $list_id = "report"; // to indicate nav item is active, count and give correct id
                 // Collect the patient menu then build it
                 $menuPatient = new PatientMenuRole();
                 $menuPatient->displayHorizNavBarMenu();

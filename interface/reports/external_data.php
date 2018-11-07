@@ -152,7 +152,7 @@ $records2 = array();
                     <div class="col-sm-12">
                         <div class="col-sm-12">
                             <?php
-                            $list_id = "nav-list8"; // to indicate nav item is active, count and give correct id
+                            $list_id = "external_data"; // to indicate nav item is active, count and give correct id
                             // Collect the patient menu then build it
                             $menuPatient = new PatientMenuRole();
                             $menuPatient->displayHorizNavBarMenu();

@@ -106,7 +106,7 @@ require_once("$include_root/expand_contract_js.php");//jQuery to provide expand/
 </script>
 </head>
 
-<body class="body_top">
+<body class="body_top patient-medical-issues">
     <div class="<?php echo $container;?> expandable">
         <?php $header_title = xl('Medical Issues for');?>
         <div class="row">
@@ -120,7 +120,7 @@ require_once("$include_root/expand_contract_js.php");//jQuery to provide expand/
         <div class="row" >
             <div class="col-sm-12">
                 <?php
-                $list_id = "nav-list6"; // to indicate nav item is active, count and give correct id
+                $list_id = "issues"; // to indicate nav item is active, count and give correct id
                 // Collect the patient menu then build it
                 $menuPatient = new PatientMenuRole();
                 $menuPatient->displayHorizNavBarMenu();
