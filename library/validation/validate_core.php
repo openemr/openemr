@@ -75,7 +75,7 @@ function validateUsingPageRules($fileNamePath)
             echo("\r\n");
             echo('var form = document.getElementsByName(' . js_escape($key) . ');');
             echo("\r\n");
-            echo('form[0].setAttribute("id",' . js_escape($key . ');');
+            echo('form[0].setAttribute("id",' . js_escape($key) . ');');
             echo("\r\n");
 
             echo('//Use validation script js Validations-');
