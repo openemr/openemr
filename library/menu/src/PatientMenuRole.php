@@ -182,16 +182,16 @@ EOT;
                 foreach ($value->children as $children_key => $children_value) {
                     $link = ($children_value->pid != "true") ? $children_value->url : $children_value->url . attr($pid);
                     $class = isset($children_value->class) ? $children_value->class : '';
-                    $list = '<li class="oe-bold-black ' . $class . '" id="' . $children_value->menu_id . '">';
-                    $list .= '<a href="' . $link . '" onclick="' . $children_value->on_click .'"> ' . text($children_value->label) . ' </a>';
+                    $list = '<li class="oe-bold-black ' . attr($class) . '" id="' . attr($children_value->menu_id) . '">';
+                    $list .= '<a href="' . attr($link) . '" onclick="' . attr($children_value->on_click) .'"> ' . text($children_value->label) . ' </a>';
                     $list .= '</li>';
                 }
                 echo $list. "\r\n";
             } else {
                 $link = ($value->pid != "true") ? $value->url : $value->url . attr($pid);
                 $class = isset($value->class) ? $value->class : '';
-                $list = '<li class="oe-bold-black ' . $class . '" id="' . $value->menu_id . '">';
-                $list .= '<a href="' . $link . '" onclick="' . $value->on_click .'"> ' . text($value->label) . ' </a>';
+                $list = '<li class="oe-bold-black ' . attr($class) . '" id="' . attr($value->menu_id) . '">';
+                $list .= '<a href="' . attr($link) . '" onclick="' . attr($value->on_click) .'"> ' . text($value->label) . ' </a>';
                 $list .= '</li>';
             }
             echo $list. "\r\n";
