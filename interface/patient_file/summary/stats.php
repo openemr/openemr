@@ -300,7 +300,7 @@ if (sqlNumRows($result) == 0) {
 while ($row=sqlFetchArray($result)) {
     echo "&nbsp;&nbsp;";
     echo "<a class='link'";
-    echo "' href='javascript:;' onclick='javascript:load_location(\"immunizations.php?mode=edit&id=".htmlspecialchars($row['id'], ENT_QUOTES) . "\")'>" .
+    echo "' href='javascript:;' onclick='javascript:load_location(" . attr_js("immunizations.php?mode=edit&id=".urlencode($row['id'])."&csrf_token_form=".urlencode(collectCsrfToken())) . ")'>" .
     htmlspecialchars($row{'immunization_data'}, ENT_NOQUOTES);
 
     // Figure out which name to use (ie. from cvx list or from the custom list)

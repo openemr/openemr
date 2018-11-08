@@ -357,7 +357,11 @@ $(document).ready(function(){
     // load divs
     $("#stats_div").load("stats.php", { embeddedScreen : true }, function() {});
     $("#pnotes_ps_expand").load("pnotes_fragment.php");
-    $("#disclosures_ps_expand").load("disc_fragment.php");
+    $("#disclosures_ps_expand").load("disc_fragment.php",
+        {
+            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+        }
+    );
 
     <?php if ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw']) { ?>
       top.restoreSession();
