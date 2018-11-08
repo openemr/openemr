@@ -98,7 +98,7 @@ if (!empty($grparr['']['grp_size'])) {
         <div class="row">
             <div class="col-sm-12">
                 <?php
-                $list_id = "nav-list2"; // to indicate nav item is active, count and give correct id
+                $list_id = "history"; // to indicate nav item is active, count and give correct id
                 $menuPatient = new PatientMenuRole();
                 $menuPatient->displayHorizNavBarMenu();
                 ?>
