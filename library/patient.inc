@@ -1954,8 +1954,11 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false)
                 "pid = ? AND encounter = ? AND payer_type = 0",
                 array($pid, $encounter)
             );
-            $ptbal = $insarr[0]['copay'] + $brow['amount'] - $drow['payments'];
-            if ($ptbal > 0) {
+            $copay = !empty($insarr[0]['copay']) ? $insarr[0]['copay'] * 1 : 0;
+            $amt = !empty($brow['amount']) ? $brow['amount'] * 1 : 0;
+            $pay = !empty($drow['payments']) ? $drow['payments'] * 1 : 0;
+            $ptbal = $copay + $amt - $pay;
+            if ($ptbal) { // @TODO check if we want to show patient payment credits.
                 $balance += $ptbal;
             }
         } else {
