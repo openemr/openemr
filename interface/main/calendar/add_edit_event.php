@@ -48,6 +48,7 @@ require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/patient_tracker.inc.php');
 require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
 require_once($GLOBALS['srcdir'].'/group.inc');
+require_once($GLOBALS['srcdir'].'/dh_functions.php');
 
  //Check access control
 if (!acl_check('patients', 'appt', '', array('write','wsome'))) {
@@ -1596,6 +1597,7 @@ if ($_GET['prov']==true) {
     }
     ?>
 <?php
+
 if ($_GET['group']==true &&  $have_group_global_enabled) {
     ?>
  <tr id="group_details">
@@ -1736,10 +1738,14 @@ if ($GLOBALS['select_multi_providers']) {
             $defaultProvider = $userid;
         }
     }
+    //dh 11/9/2018 adding acl check here to prevent clinician changing the provider
 
     echo "<select class='input-sm' name='form_provider' style='width:100%' />";
     while ($urow = sqlFetchArray($ures)) {
         echo "    <option value='" . attr($urow['id']) . "'";
+        if (!acl_check('patients', 'p_list')){
+            echo " disabled";
+        }
         if ($urow['id'] == $defaultProvider) {
             echo " selected";
         }
@@ -1867,8 +1873,10 @@ foreach (array(0 => xl('day') , 4 => xl('workday'), 1 => xl('week'), 2 => xl('mo
   <td nowrap>
 
 <?php
+
+
 if ($_GET['group']!=true) {
-    generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'apptstat', 'empty_title' => 'SKIP'), $row['pc_apptstatus']);
+    dh_generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'apptstat', 'empty_title' => 'SKIP'), $row['pc_apptstatus']);
 } else {
     generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'groupstat', 'empty_title' => 'SKIP'), $row['pc_apptstatus']);
 }

@@ -15,6 +15,7 @@
 
 include_once('../../globals.php');
 include_once("$srcdir/patient.inc");
+require_once($GLOBALS['srcdir'].'/dh_functions.php');
 
 use OpenEMR\Core\Header;
 
@@ -27,16 +28,16 @@ if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
     $searchparm = trim($_REQUEST['searchparm']);
 
     if ($searchby == "Last") {
-        $result = getPatientLnames("$searchparm", "*");
+        $result = dh_getPatientLnames("$searchparm", "*");
     } elseif ($searchby == "Phone") {                  //(CHEMED) Search by phone number
-        $result = getPatientPhone("$searchparm", "*");
+        $result = dh_getPatientPhone("$searchparm", "*");
     } elseif ($searchby == "ID") {
-        $result = getPatientId("$searchparm", "*");
+        $result = dh_getPatientId("$searchparm", "*");
     } elseif ($searchby == "DOB") {
-        $result = getPatientDOB(DateToYYYYMMDD($searchparm), "*");
-    } elseif ($searchby == "SSN") {
-        $result = getPatientSSN("$searchparm", "*");
-    }
+        $result = dh_getPatientDOB(DateToYYYYMMDD($searchparm), "*");
+    } // elseif ($searchby == "SSN") {
+    //    $result = getPatientSSN("$searchparm", "*");
+    //}
 }
 ?>
 <!DOCTYPE html>
@@ -154,9 +155,6 @@ if (isset($_GET["res"])) {
     <option value="ID"<?php if ($searchby == 'ID') {
         echo ' selected';
 } ?>><?php echo htmlspecialchars(xl('ID'), ENT_NOQUOTES); ?></option>
-    <option value="SSN"<?php if ($searchby == 'SSN') {
-        echo ' selected';
-} ?>><?php echo htmlspecialchars(xl('SSN'), ENT_NOQUOTES); ?></option>
     <option value="DOB"<?php if ($searchby == 'DOB') {
         echo ' selected';
 } ?>><?php echo htmlspecialchars(xl('DOB'), ENT_NOQUOTES); ?></option>
