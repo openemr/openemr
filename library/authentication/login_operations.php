@@ -20,8 +20,8 @@
  * @link    http://www.open-emr.org
  */
 
-require_once("$srcdir/authentication/common_operations.php");
-
+require_once(dirname(__FILE__) . "/common_operations.php");
+require_once(dirname(__FILE__) . "/privDB.php");
 
 
 /**
