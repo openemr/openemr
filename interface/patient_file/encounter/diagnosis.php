@@ -1,8 +1,14 @@
 <?php
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * diagnosis.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 
 require_once("../../globals.php");
 require_once("$srcdir/billing.inc");
@@ -171,16 +177,16 @@ function validate(f) {
     }
    }
    if (!ndcok) {
-    alert('<?php echo xls('Format incorrect for NDC'); ?> "' + ndc +
-     '", <?php echo xls('should be like nnnnn-nnnn-nn'); ?>');
+    alert(<?php echo xlj('Format incorrect for NDC'); ?> + ' ' + ndc +
+     ', ' + <?php echo xlj('should be like nnnnn-nnnn-nn'); ?>);
     if (f[pfx+'[ndcnum]'].focus) f[pfx+'[ndcnum]'].focus();
     return false;
    }
    // Check for valid quantity.
    var qty = f[pfx+'[ndcqty]'].value - 0;
    if (isNaN(qty) || qty <= 0) {
-    alert('<?php echo xls('Quantity for NDC'); ?> "' + ndc +
-     '" <?php echo xls('is not valid (decimal fractions are OK).'); ?>');
+    alert(<?php echo xlj('Quantity for NDC'); ?> + ' ' + ndc +
+     ' ' + <?php echo xlj('is not valid (decimal fractions are OK).'); ?>);
     if (f[pfx+'[ndcqty]'].focus) f[pfx+'[ndcqty]'].focus();
     return false;
    }
@@ -214,13 +220,13 @@ if ($thisauth) {
 }
 
 if (!$thisauth) {
-    echo "<p>(".xlt('Coding not authorized').")</p>\n";
+    echo "<p>(" . xlt('Coding not authorized') . ")</p>\n";
     echo "</body>\n</html>\n";
     exit();
 }
 ?>
 
-<form name="diagnosis" method="post" action="diagnosis.php?mode=justify&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>"
+<form name="diagnosis" method="post" action="diagnosis.php?mode=justify&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>"
  onsubmit="return validate(this)">
 <table border=0 cellspacing=0 cellpadding=0 height=100%>
 <tr>
@@ -246,7 +252,7 @@ if (!empty($_GET["back"]) || !empty($_POST["back"])) {
 </dt>
 </dl>
 
-<a href="cash_receipt.php?" class='link_submit' target='new' onclick='top.restoreSession()'>
+<a href="cash_receipt.php?csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
 [<?php echo xlt('Receipt'); ?>]
 </a>
 <table border="0">

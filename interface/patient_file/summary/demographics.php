@@ -560,15 +560,14 @@ function setMyPatient() {
   return;
  }
 <?php
-if (isset($_GET['set_pid'])) { ?>
-    parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) .
-    "'," . addslashes($pid) . ",'" . addslashes($result['pubpid']) .
-    "','', ' " . xls('DOB') . ": " . addslashes(oeFormatShortDate($result['DOB_YMD'])) . " ";
-    $date_of_death = is_patient_deceased($pid)['date_deceased'];
+if (isset($_GET['set_pid'])) {
+    $date_of_death = is_patient_deceased($pid)['date_deceased']; ?>
+    parent.left_nav.setPatient(<?php echo js_escape($result['fname'] . " " . $result['lname']) .
+    "," . js_escape($pid) . "," . js_escape($result['pubpid']) . ",'',";
     if (empty($date_of_death)) {
-        echo xls('Age') . ": " . addslashes(getPatientAgeDisplay($result['DOB_YMD'])) . "'";
+        echo js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAgeDisplay($result['DOB_YMD']));
     } else {
-        echo xls('Age at death') . ": " . addslashes(oeFormatAge($result['DOB_YMD'], $date_of_death)) . "'";
+        echo js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age at death') . ": " . oeFormatAge($result['DOB_YMD'], $date_of_death));
     }?>);
     var EncounterDateArray = new Array;
     var CalendarCategoryArray = new Array;
@@ -646,7 +645,7 @@ if (!empty($grparr['']['grp_size'])) {
 <?php } ?>
 
 </style>
-<title><?php echo xlt("Dashboard"); ?></title>
+<title><?php echo xlt("Dashboard{{patient file}}"); ?></title>
 </head>
 
 <body class="body_top patient-demographics">
@@ -683,7 +682,7 @@ if (!empty($grparr['']['grp_size'])) {
         <div class="row" >
             <div class="col-sm-12">
                 <?php
-                    $list_id = "nav-list1"; // to indicate nav item is active, count and give correct id
+                    $list_id = "dashboard"; // to indicate nav item is active, count and give correct id
                     // Collect the patient menu then build it
                     $menuPatient = new PatientMenuRole();
                     $menuPatient->displayHorizNavBarMenu();

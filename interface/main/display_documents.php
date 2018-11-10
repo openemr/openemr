@@ -3,26 +3,14 @@
  * Displays the documents
  * Only Lab documents for now.
  *
- * Copyright (C) 2014 Ensoftek
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Hema Bandaru <hemab@drcloudemr.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Hema Bandaru <hemab@drcloudemr.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2014 Ensoftek
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 
 require_once('../globals.php');
@@ -103,11 +91,11 @@ $display_collapse_msg = "display:inline;";
         var todate = $("#" + toDate).val();
         if ( (frmdate.length > 0) && (todate.length > 0) ) {
             if ( DateCheckGreater(frmdate, todate, global_date_format) == false ){
-                alert("<?php xl('To date must be later than From date!', 'e'); ?>");
+                alert("<?php echo xls('To date must be later than From date!'); ?>");
                 return false;
             }
         }
-        document.location='<?php echo $GLOBALS['webroot']; ?>/interface/main/display_documents.php?' + fromDate + '='+frmdate+'&' + toDate + '='+todate;
+        document.location='<?php echo $GLOBALS['webroot']; ?>/interface/main/display_documents.php?form_from_doc_date=' + encodeURIComponent(frmdate) + '&form_to_doc_date=' + encodeURIComponent(todate);
     }
 
     function expandOrCollapse(type,prefixString) {
@@ -223,7 +211,7 @@ $display_collapse_msg = "display:inline;";
     <?php
     if (sqlNumRows($resultSet)) {
         while ($row = sqlFetchArray($resultSet)) {
-            $url = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr($row["foreign_id"]) . "&document_id=" . attr($row["id"]) . '&as_file=false';
+            $url = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr(urlencode($row["foreign_id"])) . "&document_id=" . attr(urlencode($row["id"])) . '&as_file=false';
             // Get the notes for this document.
             $notes = array();
             $note = '';

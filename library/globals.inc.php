@@ -105,6 +105,7 @@ if (stristr(PHP_OS, 'WIN')) {
 $USER_SPECIFIC_TABS = array('Appearance',
     'Locale',
     'Features',
+    'Billing',
     'Report',
     'Calendar',
     'CDR',
@@ -123,6 +124,7 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'date_display_format',
     'time_display_format',
     'enable_help',
+    'posting_adj_disable',
     'messages_due_date',
     'expand_form',
     'ledger_begin_date',
@@ -1108,6 +1110,13 @@ $GLOBALS_METADATA = array(
             xl('Default selection for rendering provider in fee sheet.')
         ),
 
+        'posting_adj_disable' => array(
+            xl('Disable Auto Adjustment Calculations in EOB Posting'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Turn off auto calculations of adjustments in EOB')
+        ),
+
         'show_payment_history' => array(
             xl('Show all payment history in Patient Ledger'),
             'bool',                           // data type
@@ -1160,6 +1169,13 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',                              // default = false
             xl('This feature will allow the default POS facility code to be overriden from the encounter.')
+        ),
+
+        'statement_logo' => array(
+            xl('Statement Logo GIF Filename'),
+            'text',                           // data type
+            'practice_logo.gif',                               // data type
+            xl('Place your logo in sites/default/images and type the filename including gif extension here.')
         ),
 
         'use_custom_statement' => array(

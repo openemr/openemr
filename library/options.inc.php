@@ -2036,7 +2036,7 @@ function generate_display_field($frow, $currvalue)
         }
         // If match is not found in main and backup lists, return the key with exclamation mark
         if ($s == '') {
-            $s = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES)).
+            $s = nl2br(text(xl_list_label($currvalue))).
             '<sup> <i class="fa fas fa-exclamation-circle ml-1"></i></sup>';
         }
     } // simple text field
@@ -2804,13 +2804,13 @@ function accumActionConditions($field_id, &$condition_str, &$condarr)
             $condition_str .= ",\n";
         }
         $condition_str .= "{" .
-            "target:'"   . addslashes($field_id)              . "', " .
-            "action:'"   . addslashes($action)                . "', " .
-            "id:'"       . addslashes($condition['id'])       . "', " .
-            "itemid:'"   . addslashes($condition['itemid'])   . "', " .
-            "operator:'" . addslashes($condition['operator']) . "', " .
-            "value:'"    . addslashes($condition['value'])    . "', " .
-            "andor:'"    . addslashes($andor)                 . "'}";
+            "target:"   . js_escape($field_id)              . ", " .
+            "action:"   . js_escape($action)                . ", " .
+            "id:"       . js_escape($condition['id'])       . ", " .
+            "itemid:"   . js_escape($condition['itemid'])   . ", " .
+            "operator:" . js_escape($condition['operator']) . ", " .
+            "value:"    . js_escape($condition['value'])    . ", " .
+            "andor:"    . js_escape($andor)                 . "}";
     }
 }
 
@@ -3522,14 +3522,14 @@ function generate_layout_validation($form_id)
             $fldtitle  = $frow['description'];
         }
 
-        $fldname   = htmlspecialchars("form_$field_id", ENT_QUOTES);
+        $fldname   = attr("form_$field_id");
 
         if ($data_type == 40) {
-            $fldid = addslashes("form_$field_id");
+            $fldid = "form_" . $field_id;
             // Move canvas image data to its hidden form field so the server will get it.
             echo
-            " var canfld = f['$fldid'];\n" .
-            " if (canfld) canfld.value = lbfCanvasGetData('$fldid');\n";
+            " var canfld = f[" . js_escape($fldid) . "];\n" .
+            " if (canfld) canfld.value = lbfCanvasGetData(" . js_escape($fldid) . ");\n";
             continue;
         }
 
@@ -3547,8 +3547,8 @@ function generate_layout_validation($form_id)
             case 26:
                 echo
                 "  if (f.$fldname.selectedIndex <= 0) {\n" .
-                "   alert(\"" . addslashes(xl('Please choose a value for')) .
-                ":\\n" . addslashes(xl_layout_label($fldtitle)) . "\");\n" .
+                "   alert(" . xlj('Please choose a value for') . " + " .
+                "\":\\n\" + " . js_escape(xl_layout_label($fldtitle)) . ");\n" .
                 "   if (f.$fldname.focus) f.$fldname.focus();\n" .
                 "   return false;\n" .
                 "  }\n";
@@ -3557,7 +3557,7 @@ function generate_layout_validation($form_id)
                 echo
                 " if (f.$fldname.selectedIndex <= 0) {\n" .
                 "  if (f.$fldname.focus) f.$fldname.focus();\n" .
-                "  		errMsgs[errMsgs.length] = '" . addslashes(xl_layout_label($fldtitle)) . "'; \n" .
+                "  		errMsgs[errMsgs.length] = " . js_escape(xl_layout_label($fldtitle)) . "; \n" .
                 " }\n";
                 break;
             case 27: // radio buttons
@@ -3565,8 +3565,8 @@ function generate_layout_validation($form_id)
                 " var i = 0;\n" .
                 " for (; i < f.$fldname.length; ++i) if (f.$fldname[i].checked) break;\n" .
                 " if (i >= f.$fldname.length) {\n" .
-                "   alert(\"" . addslashes(xl('Please choose a value for')) .
-                ":\\n" . addslashes(xl_layout_label($fldtitle)) . "\");\n" .
+                "   alert(" . xlj('Please choose a value for') . " + " .
+                "\":\\n\" + " . js_escape(xl_layout_label($fldtitle)) . ");\n" .
                 "   return false;\n" .
                 " }\n";
                 break;
@@ -3579,7 +3579,7 @@ function generate_layout_validation($form_id)
                 "  		if (f.$fldname.focus) f.$fldname.focus();\n" .
                 "  		$('#" . $fldname . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','red'); } ); " .
                 "  		$('#" . $fldname . "').attr('style','background:red'); \n" .
-                "  		errMsgs[errMsgs.length] = '" . addslashes(xl_layout_label($fldtitle)) . "'; \n" .
+                "  		errMsgs[errMsgs.length] = " . js_escape(xl_layout_label($fldtitle)) . "; \n" .
                 " } else { " .
                 " 		$('#" . $fldname . "').attr('style',''); " .
                 "  		$('#" . $fldname . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','');  } ); " .
@@ -3593,7 +3593,7 @@ function generate_layout_validation($form_id)
                     " multi_choice_made=multi_choice_made || multi_select.options[options_index].selected; \n".
                 "    } \n" .
                 " if(!multi_choice_made)
-            errMsgs[errMsgs.length] = '" . addslashes(xl_layout_label($fldtitle)) . "'; \n" .
+            errMsgs[errMsgs.length] = " . js_escape(xl_layout_label($fldtitle)) . "; \n" .
                 "";
                 break;
         }
@@ -3821,7 +3821,7 @@ function getLayoutTitle($list, $option)
 {
     $row = sqlQuery("SELECT grp_title FROM layout_group_properties " .
     "WHERE grp_mapping = ? AND grp_form_id = ? ", array($list, $option));
-    
+
     if (empty($row['grp_title'])) {
         return $option;
     }
@@ -3830,13 +3830,13 @@ function getLayoutTitle($list, $option)
 //Added on 5-jun-2k14 (regarding get the smoking code descriptions)
 function getSmokeCodes()
 {
-     $smoking_codes_arr = array();
-     $smoking_codes = sqlStatement("SELECT option_id,codes FROM list_options WHERE list_id='smoking_status' AND activity = 1");
+    $smoking_codes_arr = array();
+    $smoking_codes = sqlStatement("SELECT option_id,codes FROM list_options WHERE list_id='smoking_status' AND activity = 1");
     while ($codes_row = sqlFetchArray($smoking_codes)) {
         $smoking_codes_arr[$codes_row['option_id']] = $codes_row['codes'];
     }
 
-     return $smoking_codes_arr;
+    return $smoking_codes_arr;
 }
 
 // Get the current value for a layout based form field.
@@ -4005,24 +4005,27 @@ EOD;
 /**
  * Test if modifier($test) is in array of options for data type.
  *
- * @param json array $options or could be string of form "ABCU"
+ * @param json array $options ["G","P","T"], ["G"] or could be legacy string with form "GPT", "G", "012"
  * @param string $test
  * @return boolean
  */
 function isOption($options, $test)
 {
-    if (empty($options) || !isset($test)) {
+    if (empty($options) || !isset($test) || $options == "null") {
         return false; // why bother?
     }
-    if (strpos($options, ',') === false) { // could be string of char's or single element of json
-        json_decode($options);
-        if (is_string($options) && ! (json_last_error() === JSON_ERROR_NONE)) { // nope, it's string.
+    if (strpos($options, ',') === false) { // not json array of modifiers.
+        // could be string of char's or single element of json ["RO"] or "TP" or "P" e.t.c.
+        json_decode($options, true); // test if options json. json_last_error() will return JSON_ERROR_SYNTAX if not.
+        // if of form ["RO"] (single modifier) means not legacy so continue on.
+        if (is_string($options) && (json_last_error() !== JSON_ERROR_NONE)) { // nope, it's string.
             $t = str_split(trim($options)); // very good chance it's legacy modifier string.
-            $options = json_encode($t); // make it array.
+            $options = json_encode($t); // make it json array to convert from legacy to new modifier json schema.
         }
     }
-    $options = json_decode($options);
 
-    return !is_null($options) && in_array($test, $options, true) ? true : false; // finally!
+    $options = json_decode($options, true); // all should now be json
+
+    return !is_null($options) && in_array($test, $options, true) ? true : false; // finally the truth!
 }
 ?>

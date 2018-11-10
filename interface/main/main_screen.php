@@ -2,21 +2,12 @@
 /**
  * The outside frame that holds all of the OpenEMR User Interface.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 /* Include our required headers */
@@ -229,24 +220,24 @@ if ($GLOBALS['password_expiration_days'] != 0) {
 
 if ($is_expired) {
   //display the php file containing the password expiration message.
-    $frame1url = "pwd_expires_alert.php";
+    $frame1url = "pwd_expires_alert.php?csrf_token_form=" . attr(urlencode(collectCsrfToken()));
     $frame1target = "adm";
 } else if (!empty($_POST['patientID'])) {
     $patientID = 0 + $_POST['patientID'];
     if (empty($_POST['encounterID'])) {
         // Open patient summary screen (without a specific encounter)
-        $frame1url = "../patient_file/summary/demographics.php?set_pid=".attr($patientID);
+        $frame1url = "../patient_file/summary/demographics.php?set_pid=" . attr(urlencode($patientID));
         $frame1target = "pat";
     } else {
         // Open patient summary screen with a specific encounter
         $encounterID = 0 + $_POST['encounterID'];
-        $frame1url = "../patient_file/summary/demographics.php?set_pid=".attr($patientID)."&set_encounterid=".attr($encounterID);
+        $frame1url = "../patient_file/summary/demographics.php?set_pid=" . attr(urlencode($patientID)) . "&set_encounterid=" . attr(urlencode($encounterID));
         $frame1target = "pat";
     }
 } else if (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
-    $frame1url = "calendar/index.php?pid=" . attr($_GET['pid']);
+    $frame1url = "calendar/index.php?pid=" . attr(urlencode($_GET['pid']));
     if (isset($_GET['date'])) {
-        $frame1url .= "&date=" . attr($_GET['date']);
+        $frame1url .= "&date=" . attr(urlencode($_GET['date']));
     }
 
     $frame1target = "cal";
@@ -293,12 +284,14 @@ if ($GLOBALS['new_tabs_layout']) {
     $_SESSION['frame1target'] = $frame1target;
     $_SESSION['frame2url'] = $frame2url;
     $_SESSION['frame2target'] = $frame2target;
-  // mdsupport - Apps processing invoked for valid app selections from list
+    // mdsupport - Apps processing invoked for valid app selections from list
     if ((isset($_POST['appChoice'])) && ($_POST['appChoice'] !== '*OpenEMR')) {
         $_SESSION['app1'] = $_POST['appChoice'];
     }
 
-    header('Location: '.$web_root."/interface/main/tabs/main.php");
+    // Pass a unique token, so main.php script can not be run on its own
+    $_SESSION['token_main_php'] = createUniqueToken();
+    header('Location: ' . $web_root . "/interface/main/tabs/main.php?token_main=" . urlencode($_SESSION['token_main_php']));
     exit();
 }
 

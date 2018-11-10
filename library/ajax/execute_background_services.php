@@ -34,33 +34,25 @@
  * services 1, 2, and 3 take more than 15, 10, and 5 minutes to complete,
  * respectively.
  *
- * Copyright (C) 2013 EMR Direct <http://www.emrdirect.com/>
+ * Returns a count of due messages for current user.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  EMR Direct <http://www.emrdirect.com/>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    EMR Direct <http://www.emrdirect.com/>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2013 EMR Direct <http://www.emrdirect.com/>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 
 //ajax param should be set by calling ajax scripts
 $isAjaxCall = isset($_POST['ajax']);
 
-//if false, we may assume this is a cron job and set up accordingly
-if (!$isAjaxCall) {
+//if false ajax and this is a called from command line, this is a cron job and set up accordingly
+if (!$isAjaxCall && (php_sapi_name() === 'cli')) {
     $ignoreAuth = 1;
-   //process optional arguments when called from cron
+    //process optional arguments when called from cron
     $_GET['site'] = (isset($argv[1])) ? $argv[1] : 'default';
     if (isset($argv[2]) && $argv[2]!='all') {
         $_GET['background_service'] = $argv[2];
@@ -69,10 +61,18 @@ if (!$isAjaxCall) {
     if (isset($argv[3]) && $argv[3]=='1') {
         $_GET['background_force'] = 1;
     }
-}
 
-//an additional require file can be specified for each service in the background_services table
-require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    //an additional require file can be specified for each service in the background_services table
+    require_once(dirname(__FILE__) . "/../../interface/globals.php");
+} else {
+    //an additional require file can be specified for each service in the background_services table
+    require_once(dirname(__FILE__) . "/../../interface/globals.php");
+
+    // not calling from cron job so ensure passes csrf check
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 //Remove time limit so script doesn't time out
 set_time_limit(0);

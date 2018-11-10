@@ -2,27 +2,18 @@
 /**
  * This is a library of commonly used functions for managing data for authentication
  *
- * Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Kevin Yeh <kevin.y@integralemr.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Kevin Yeh <kevin.y@integralemr.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (c) 2013 OEMR <www.oemr.org>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("$srcdir/authentication/common_operations.php");
 
-
+require_once(dirname(__FILE__) . "/common_operations.php");
 
 /**
  *
@@ -33,7 +24,7 @@ require_once("$srcdir/authentication/common_operations.php");
  */
 function validate_user_password($username, &$password, $provider)
 {
-    $ip=$_SERVER['REMOTE_ADDR'];
+    $ip = collectIpAddresses();
 
     $valid=false;
 
@@ -89,7 +80,7 @@ function validate_user_password($username, &$password, $provider)
     $userInfo = privQuery($getUserSQL, array($username));
 
     if ($userInfo['active'] != 1) {
-        newEvent('login', $username, $provider, 0, "failure: $ip. user not active or not found in users table");
+        newEvent('login', $username, $provider, 0, "failure: " . $ip['ip_string'] . ". user not active or not found in users table");
         $password='';
         return false;
     }
@@ -110,10 +101,10 @@ function validate_user_password($username, &$password, $provider)
                 $_SESSION['userauthorized'] = '1';
             }
 
-            newEvent('login', $username, $provider, 1, "success: $ip");
+            newEvent('login', $username, $provider, 1, "success: " . $ip['ip_string']);
             $valid=true;
         } else {
-            newEvent('login', $username, $provider, 0, "failure: $ip. user not in group: $provider");
+            newEvent('login', $username, $provider, 0, "failure: " . $ip['ip_string'] . ". user not in group: $provider");
             $valid=false;
         }
     }
@@ -124,9 +115,12 @@ function validate_user_password($username, &$password, $provider)
 function verify_user_gacl_group($user)
 {
     global $phpgacl_location;
+
+    $ip = collectIpAddresses();
+
     if (isset($phpgacl_location)) {
         if (acl_get_group_titles($user) == 0) {
-            newEvent('login', $user, $provider, 0, "failure: $ip. user not in any phpGACL groups. (bad username?)");
+            newEvent('login', $user, $provider, 0, "failure: " . $ip['ip_string'] . ". user not in any phpGACL groups. (bad username?)");
             return false;
         }
     }

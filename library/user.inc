@@ -158,7 +158,7 @@ function collectAndOrganizeExpandSetting($filenames = array())
         $current_state = 0;
     }
 
-    if ($filenames.length) {
+    if (count($filenames)) {
         foreach ($filenames as $filename) {
             setUserSetting($filename, $current_state);
         }

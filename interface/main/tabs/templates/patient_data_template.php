@@ -2,16 +2,17 @@
 /**
  * Patient data template.
  *
- * @package OpenEMR
- * @author  Jerry Padgett <sjpadgett@gmail.com>
- * @author  Robert Down <robertdown@live.com>
- * @author  Kevin Yeh <kevin.y@integralemr.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Kevin Yeh <kevin.y@integralemr.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Robert Down <robertdown@live.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2016 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 ?>
 <script type="text/html" id="patient-data-template">
