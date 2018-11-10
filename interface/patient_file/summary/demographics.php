@@ -410,7 +410,11 @@ $(document).ready(function(){
 
 <?php if ($vitals_is_registered && acl_check('patients', 'med')) { ?>
     // Initialize the Vitals form if it is registered and user is authorized.
-    $("#vitals_ps_expand").load("vitals_fragment.php");
+    $("#vitals_ps_expand").load("vitals_fragment.php",
+        {
+            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+        }
+    );
 <?php } ?>
 
     // Initialize track_anything
