@@ -762,7 +762,7 @@ curl -X DELETE 'http://localhost:8300/apis/api/patient/1/message/1'
 
 - TODO(team): Consider using Symfony's router
 - TODO(sherwin): Encounter POST
-- TODO(matthew): Fix authorization piece & cleanup authentication piece
+- TODO(matthew): Fix authorization piece
 - TODO(?): Support CouchDB with document API
 - TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
 - TODO(?): API for fee sheets

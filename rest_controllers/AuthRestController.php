@@ -23,6 +23,7 @@
 namespace OpenEMR\RestControllers;
 
 require_once("{$GLOBALS['srcdir']}/authentication/common_operations.php");
+require_once("{$GLOBALS['srcdir']}/acl.inc");
 
 /*
 TODO: Add to migration scripts
@@ -98,7 +99,7 @@ class AuthRestController
     {
         $username = $this->getUserFromToken($token);
         // TODO: DOESN'T WORK - Uncaught Error: Call to a member function acl_query() on null 
-        // return acl_check($section, $value, $username);
+        //return acl_check($section, $value, $username);
         return true;
     }
 
