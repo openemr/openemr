@@ -65,6 +65,6 @@ function authorization_check($section, $value)
     }
 }
 
-//authentication_check($resource);
+authentication_check($resource);
 
 HttpRestRouteHandler::dispatch($routes, $resource, $_SERVER["REQUEST_METHOD"]);

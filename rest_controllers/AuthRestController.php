@@ -22,23 +22,7 @@
 
 namespace OpenEMR\RestControllers;
 
-require_once("{$GLOBALS['srcdir']}/authentication/password_hashing.php");
-require_once("{$GLOBALS['srcdir']}/authentication/privDB.php");
-require_once("{$GLOBALS['srcdir']}/acl.inc");
-
-// TODO: This is copy/paste code.
-define("TBL_USERS_SECURE", "users_secure");
-define("TBL_USERS", "users");
-define("COL_PWD", "password");
-define("COL_UNM", "username");
-define("COL_ID", "id");
-define("COL_SALT", "salt");
-define("COL_LU", "last_update");
-define("COL_PWD_H1", "password_history1");
-define("COL_SALT_H1", "salt_history1");
-define("COL_ACTIVE", "active");
-define("COL_PWD_H2", "password_history2");
-define("COL_SALT_H2", "salt_history2");
+require_once("{$GLOBALS['srcdir']}/authentication/common_operations.php");
 
 /*
 TODO: Add to migration scripts
@@ -56,27 +40,9 @@ class AuthRestController
     {
     }
 
-    // TODO: This is copy/paste code.
-    public function confirm_user_password($username, &$password)
-    {
-        $getUserSecureSQL= " SELECT " . implode(",", array(COL_ID,COL_PWD,COL_SALT))
-                        ." FROM ".TBL_USERS_SECURE
-                        ." WHERE BINARY ".COL_UNM."=?";
-                        // Use binary keyword to require case sensitive username match
-        $userSecure=privQuery($getUserSecureSQL, array($username));
-        if (is_array($userSecure)) {
-            $phash=oemr_password_hash($password, $userSecure[COL_SALT]);
-            if ($phash==$userSecure[COL_PWD]) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public function authenticate($authPayload)
     {
-        $is_valid = $this->confirm_user_password($authPayload["username"], $authPayload["password"]);
+        $is_valid = confirm_user_password($authPayload["username"], $authPayload["password"]);
 
         if (!$is_valid) {
             http_response_code(401);
