@@ -355,8 +355,18 @@ $(document).ready(function(){
     }
     ?>
     // load divs
-    $("#stats_div").load("stats.php", { embeddedScreen : true }, function() {});
-    $("#pnotes_ps_expand").load("pnotes_fragment.php");
+    $("#stats_div").load("stats.php",
+        {
+            embeddedScreen : true,
+            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+        },
+        function() {}
+    );
+    $("#pnotes_ps_expand").load("pnotes_fragment.php",
+        {
+            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+        }
+    );
     $("#disclosures_ps_expand").load("disc_fragment.php",
         {
             csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
@@ -391,7 +401,11 @@ $(document).ready(function(){
 
     <?php if ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_prw']) { ?>
       top.restoreSession();
-      $("#patient_reminders_ps_expand").load("patient_reminders_fragment.php");
+      $("#patient_reminders_ps_expand").load("patient_reminders_fragment.php",
+          {
+              csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+          }
+      );
     <?php } // end prw?>
 
 <?php if ($vitals_is_registered && acl_check('patients', 'med')) { ?>
@@ -400,11 +414,19 @@ $(document).ready(function(){
 <?php } ?>
 
     // Initialize track_anything
-    $("#track_anything_ps_expand").load("track_anything_fragment.php");
+    $("#track_anything_ps_expand").load("track_anything_fragment.php",
+        {
+            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+        }
+    );
 
 
     // Initialize labdata
-    $("#labdata_ps_expand").load("labdata_fragment.php");
+    $("#labdata_ps_expand").load("labdata_fragment.php",
+        {
+            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+        }
+    );
 <?php
 // Initialize for each applicable LBF form.
 $gfres = sqlStatement("SELECT grp_form_id FROM layout_group_properties WHERE " .
@@ -412,7 +434,11 @@ $gfres = sqlStatement("SELECT grp_form_id FROM layout_group_properties WHERE " .
   "ORDER BY grp_seq, grp_title");
 while ($gfrow = sqlFetchArray($gfres)) {
 ?>
-    $(<?php echo js_escape("#".$gfrow['grp_form_id']."_ps_expand"); ?>).load("lbf_fragment.php?formname=<?php echo attr_url($gfrow['grp_form_id']); ?>");
+    $(<?php echo js_escape("#".$gfrow['grp_form_id']."_ps_expand"); ?>).load("lbf_fragment.php?formname=<?php echo attr_url($gfrow['grp_form_id']); ?>",
+        {
+            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+        }
+    );
 <?php
 }
 ?>

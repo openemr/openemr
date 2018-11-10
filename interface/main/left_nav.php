@@ -24,9 +24,6 @@
  //   setting a new pid, needed for going to demographics from billing.
  // * interface/patient_file/summary/demographics_save.php: redisplay
  //   demographics.php and not the frameset.
- // * interface/patient_file/summary/summary_bottom.php: new frameset for the
- //   summary, prescriptions and notes for a selected patient, cloned from
- //   patient_summary.php.
  // * interface/patient_file/encounter/encounter_bottom.php: new frameset for
  //   the selected encounter, mosting coding/billing stuff, cloned from
  //   patient_encounter.php.  This will also self-load the superbill pages
@@ -155,7 +152,6 @@ $primary_docs = array(
 'prq' => array(xl('Pt Rec Request') , 1, 'patient_file/transaction/record_request.php'),
 'pno' => array(xl('Pt Notes')  , 1, 'patient_file/summary/pnotes.php'),
 'tra' => array(xl('Transact')  , 1, 'patient_file/transaction/transactions.php'),
-'sum' => array(xl('Summary')   , 1, 'patient_file/summary/summary_bottom.php'),
 'enc' => array(xl('Encounter') , 2, 'patient_file/encounter/encounter_top.php'),
 'erx' => array(xl('e-Rx') , 1, 'eRx.php'),
 'err' => array(xl('e-Rx Renewal') , 1, 'eRx.php?page=status'),

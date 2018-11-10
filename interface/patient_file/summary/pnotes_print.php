@@ -2,40 +2,30 @@
 /**
  * Display patient notes.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
+require_once("../../globals.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/options.inc.php");
+require_once("$srcdir/pnotes.inc");
 
- require_once("../../globals.php");
- require_once("$srcdir/patient.inc");
- require_once("$srcdir/acl.inc");
- require_once("$srcdir/options.inc.php");
- require_once("$srcdir/pnotes.inc");
+$prow = getPatientData($pid, "squad, title, fname, mname, lname");
 
- $prow = getPatientData($pid, "squad, title, fname, mname, lname");
-
- // Check authorization.
- $thisauth = acl_check('patients', 'notes');
+// Check authorization.
+$thisauth = acl_check('patients', 'notes');
 if (!$thisauth) {
-    die(htmlspecialchars(xl('Not authorized'), ENT_NOQUOTES));
+    die(xlt('Not authorized'));
 }
 
 if ($prow['squad'] && ! acl_check('squads', $prow['squad'])) {
-    die(htmlspecialchars(xl('Not authorized for this squad.'), ENT_NOQUOTES));
+    die(xlt('Not authorized for this squad.'));
 }
 
 $noteid = $_REQUEST['noteid'];
@@ -65,14 +55,14 @@ if ($noteid) {
 
 <p><?php echo "<b>" .
   generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $title) .
-  "</b>" . htmlspecialchars(xl('for', '', ' ', ' '), ENT_NOQUOTES) .
-  "<b>" . htmlspecialchars($ptname, ENT_NOQUOTES) . "</b>"; ?></p>
+  "</b>" . ' ' . xlt('for') . ' ' .
+  "<b>" . attr($ptname) . "</b>"; ?></p>
 
-<p><?php echo htmlspecialchars(xl('Assigned To'), ENT_NOQUOTES); ?>: <?php echo htmlspecialchars($assigned_to, ENT_NOQUOTES); ?></p>
+<p><?php echo xlt('Assigned To'); ?>: <?php echo text($assigned_to); ?></p>
 
-<p><?php echo htmlspecialchars(xl('Active'), ENT_NOQUOTES); ?>: <?php echo htmlspecialchars(($activity ? xl('Yes') : xl('No')), ENT_NOQUOTES); ?></p>
+<p><?php echo xlt('Active'); ?>: <?php echo ($activity ? xlt('Yes') : xlt('No')); ?></p>
 
-<p><?php echo nl2br(htmlspecialchars($body, ENT_NOQUOTES)); ?></p>
+<p><?php echo nl2br(text($body)); ?></p>
 
 <script language='JavaScript'>
 opener.top.printLogPrint(window);
