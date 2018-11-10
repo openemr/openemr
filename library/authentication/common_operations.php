@@ -2,26 +2,20 @@
 /**
  * This is a library of commonly used functions for managing data for authentication
  *
- * Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Kevin Yeh <kevin.y@integralemr.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Kevin Yeh <kevin.y@integralemr.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (c) 2013 OEMR <www.oemr.org>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("$srcdir/authentication/privDB.php");
-require_once("$srcdir/authentication/password_hashing.php");
+
+require_once(dirname(__FILE__) . "/privDB.php");
+require_once(dirname(__FILE__) . "/password_hashing.php");
+
 define("TBL_USERS_SECURE", "users_secure");
 define("TBL_USERS", "users");
 
@@ -52,7 +46,7 @@ function initializePassword($username, $userid, &$password)
     $passwordSQL= "INSERT INTO ".TBL_USERS_SECURE.
                   " (".implode(",", array(COL_ID,COL_UNM,COL_PWD,COL_SALT,COL_LU)).")".
                   " VALUES (?,?,?,?,NOW()) ";
-                  
+
     $params=array(
                     $userid,
                     $username,
