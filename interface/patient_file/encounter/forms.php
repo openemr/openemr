@@ -577,13 +577,13 @@ if (!empty($reg)) {
                 if ($old_category != '') {
                     $StringEcho .= "</table></div></li>";
                 }
-                $StringEcho .= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen(" . js_attr($DivId) . ");\" >" . text($new_category) . "</a><div id='" . attr($DivId) . "' ><table border='0' cellspacing='0' cellpadding='0'>";
+                $StringEcho .= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen(" . attr_js($DivId) . ");\" >" . text($new_category) . "</a><div id='" . attr($DivId) . "' ><table border='0' cellspacing='0' cellpadding='0'>";
                 $old_category = $new_category;
                 $DivId++;
             }
             $StringEcho .= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=\"openNewForm(" .
-                js_attr($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($entry['directory'])) .
-                ", " . js_attr(xl_form_title($nickname)) . ")\" href='JavaScript:void(0);'>" .
+                attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($entry['directory'])) .
+                ", " . attr_js(xl_form_title($nickname)) . ")\" href='JavaScript:void(0);'>" .
                 text(xl_form_title($nickname)) . "</a></td></tr>";
         }
     }
@@ -621,8 +621,8 @@ if ($encounterLocked === false) {
                 }
             }
             $StringEcho .= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=\"openNewForm(" .
-                js_attr($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($option_id)) .
-                ", " . js_attr(xl_form_title($title)) . ")\" href='JavaScript:void(0);'>" .
+                attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($option_id)) .
+                ", " . attr_js(xl_form_title($title)) . ")\" href='JavaScript:void(0);'>" .
                 text(xl_form_title($title)) . "</a></td></tr>";
         }
     }
@@ -655,12 +655,12 @@ if ($encounterLocked === false) {
                 if ($modid!='') {
                     $StringEcho.= '</table></div></li>';
                 }
-                $StringEcho.= "<li><a href='JavaScript:void(0);' onClick=\"mopen(" . js_attr($DivId) . ");\" >" . text($new_category) . "</a><div id='" . attr($DivId) . "' ><table border='0' cellspacing='0' cellpadding='0'>";
+                $StringEcho.= "<li><a href='JavaScript:void(0);' onClick=\"mopen(" . attr_js($DivId) . ");\" >" . text($new_category) . "</a><div id='" . attr($DivId) . "' ><table border='0' cellspacing='0' cellpadding='0'>";
             }
             $jid++;
             $modid = $modulerow['mod_id'];
             $StringEcho.= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=" .
-                "\"openNewForm(" . js_attr($relative_link) . ", " . js_attr(xl_form_title($nickname)) . ")\" " .
+                "\"openNewForm(" . attr_js($relative_link) . ", " . attr_js(xl_form_title($nickname)) . ")\" " .
                 "href='JavaScript:void(0);'>" . text(xl_form_title($nickname)) . "</a></td></tr>";
         }
     }
@@ -997,7 +997,7 @@ if ($pass_sens_squad &&
             $form_author = $user['fname'] . "  " . $user['lname'];
         }
         echo "<div class='form_header'>";
-        echo "<a href='#' onclick='divtoggle(" . js_attr('spanid_'.$divnos) . "," . js_attr('divid_'.$divnos) . ");' class='small' id='aid_" . attr($divnos) . "'>" .
+        echo "<a href='#' onclick='divtoggle(" . attr_js('spanid_'.$divnos) . "," . attr_js('divid_'.$divnos) . ");' class='small' id='aid_" . attr($divnos) . "'>" .
           "<div class='formname'>" . text($form_name) . "</div> " .
           xlt('by') . " " . text($form_author) . " " .
           "(<span id=spanid_" . attr($divnos) . " class=\"indicator\">" . ($divnos == 1 ? xlt('Collapse') : xlt('Expand')) . "</span>)</a>";
@@ -1016,8 +1016,8 @@ if ($pass_sens_squad &&
                     "id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "' " .
                     "href='#' " .
                     "title='" . xla('Edit this form') . "' " .
-                    "onclick=\"return openEncounterForm(" . js_attr($formdir) . ", " .
-                    js_attr($form_name) . ", " . js_attr($iter['form_id']) . ")\">";
+                    "onclick=\"return openEncounterForm(" . attr_js($formdir) . ", " .
+                    attr_js($form_name) . ", " . attr_js($iter['form_id']) . ")\">";
                 echo "<span>" . xlt('Edit') . "</span></a>";
             }
         }

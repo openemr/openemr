@@ -2465,13 +2465,6 @@ $GLOBALS_METADATA = array(
             xl('You may put text here as the default complaint in the New Patient Encounter form.')
         ),
 
-        'default_new_encounter_form' => array(
-            xl('Default Encounter Form ID'),
-            'text',                           // data type
-            '',
-            xl('To automatically open the specified form. Some sports teams use football_injury_audit here.')
-        ),
-
         'MedicareReferrerIsRenderer' => array(
             xl('Medicare Referrer Is Renderer'),
             'bool',                           // data type

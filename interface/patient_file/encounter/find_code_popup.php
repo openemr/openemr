@@ -171,7 +171,7 @@ foreach ($allowed_codes as $code) {
    <input type='submit' name='bn_search' value='<?php echo xla('Search'); ?>' />
    &nbsp;&nbsp;&nbsp;
     <?php if (!empty($target_element)) { ?>
-     <input type='button' value='<?php echo xla('Erase'); ?>' onclick="selcode_target('', '', '', '', <?php echo js_attr($target_element); ?>)" />
+     <input type='button' value='<?php echo xla('Erase'); ?>' onclick="selcode_target('', '', '', '', <?php echo attr_js($target_element); ?>)" />
     <?php } else { ?>
      <input type='button' value='<?php echo xla('Erase'); ?>' onclick="selcode('', '', '', '')" />
     <?php } ?>
@@ -207,7 +207,7 @@ if ($form_code_type == 'PROD') { // Special case that displays search for produc
         $selector = $row['selector'];
         $desc = $row['name'];
         $anchor = "<a href='' " .
-        "onclick='return selcode(\"PROD\", " . js_attr($drug_id) . ", " . js_attr($selector) . ", " . js_attr($desc) . ")'>";
+        "onclick='return selcode(\"PROD\", " . attr_js($drug_id) . ", " . attr_js($selector) . ", " . attr_js($desc) . ")'>";
         echo " <tr>";
         echo "  <td>$anchor" . text($drug_id.":".$selector) . "</a></td>\n";
         echo "  <td>$anchor" . text($desc) . "</a></td>\n";
@@ -220,10 +220,10 @@ if ($form_code_type == 'PROD') { // Special case that displays search for produc
         if (!empty($target_element)) {
             // add a 5th parameter to function to select the target element on the form for placing the code.
             $anchor = "<a href='' " .
-            "onclick='return selcode_target(" . js_attr($form_code_type) . ", " . js_attr($itercode) . ", \"\", " . js_attr($itertext) . ", " . js_attr($target_element) . ")'>";
+            "onclick='return selcode_target(" . attr_js($form_code_type) . ", " . attr_js($itercode) . ", \"\", " . attr_js($itertext) . ", " . attr_js($target_element) . ")'>";
         } else {
             $anchor = "<a href='' " .
-            "onclick='return selcode(" . js_attr($form_code_type) . ", " . js_attr($itercode) . ", \"\", " . js_attr($itertext) . ")'>";
+            "onclick='return selcode(" . attr_js($form_code_type) . ", " . attr_js($itercode) . ", \"\", " . attr_js($itertext) . ")'>";
         }
 
         echo " <tr>";

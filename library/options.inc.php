@@ -3073,8 +3073,8 @@ function display_layout_tabs($formtype, $result1, $result2 = '')
         }
 ?>
         <li <?php echo $first ? 'class="current"' : '' ?>>
-        <a href="#" id="header_tab_<?php echo htmlspecialchars($group_name, ENT_QUOTES); ?>">
-        <?php echo htmlspecialchars(xl_layout_label($group_name), ENT_NOQUOTES); ?></a>
+        <a href="#" id="header_tab_<?php echo attr($group_name); ?>">
+        <?php echo text(xl_layout_label($group_name)); ?></a>
         </li>
 <?php
         $first = false;
@@ -3723,16 +3723,16 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
         // show button, since authorized
         // first prepare class string
         if ($buttonClass) {
-            $class_string = "css_button_small ".htmlspecialchars($buttonClass, ENT_NOQUOTES);
+            $class_string = "css_button_small " . $buttonClass;
         } else {
             $class_string = "css_button_small";
         }
 
         // next, create the link
         if ($linkMethod == "javascript") {
-            echo "<td><a class='" . $class_string . "' href='javascript:;' onclick='" . $buttonLink . "'";
+            echo "<td><a class='" . attr($class_string) . "' href='javascript:;' onclick='" . $buttonLink . "'";
         } else {
-            echo "<td><a class='" . $class_string . "' href='" . $buttonLink . "'";
+            echo "<td><a class='" . attr($class_string) . "' href='" . $buttonLink . "'";
             if (!isset($_SESSION['patient_portal_onsite']) && !isset($_SESSION['patient_portal_onsite_two'])) {
                 // prevent an error from occuring when calling the function from the patient portal
                 echo " onclick='top.restoreSession()'";
@@ -3740,19 +3740,19 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
         }
 
         echo "><span>" .
-        htmlspecialchars($buttonLabel, ENT_NOQUOTES) . "</span></a></td>";
+            text($buttonLabel) . "</span></a></td>";
     }
 
     if ($forceExpandAlways) {
         // Special case to force the widget to always be expanded
-        echo "<td><span class='text'><b>" . htmlspecialchars($title, ENT_NOQUOTES) . "</b></span>";
+        echo "<td><span class='text'><b>" . text($title) . "</b></span>";
         $indicatorTag ="style='display:none'";
     }
 
     $indicatorTag = isset($indicatorTag) ?  $indicatorTag : "";
-    echo "<td><a " . $indicatorTag . " href='javascript:;' class='small' onclick='toggleIndicator(this,\"" .
-    htmlspecialchars($label, ENT_QUOTES) . "_ps_expand\")'><span class='text'><b>";
-    echo htmlspecialchars($title, ENT_NOQUOTES) . "</b></span>";
+    echo "<td><a " . $indicatorTag . " href='javascript:;' class='small' onclick='toggleIndicator(this," .
+        attr_js($label."_ps_expand") . ")'><span class='text'><b>";
+    echo text($title) . "</b></span>";
 
     if (isset($_SESSION['patient_portal_onsite']) || isset($_SESSION['patient_portal_onsite_two'])) {
         // collapse all entries in the patient portal
@@ -3763,7 +3763,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
         $text = xl('expand');
     }
 
-    echo " (<span class='indicator'>" . htmlspecialchars($text, ENT_QUOTES) .
+    echo " (<span class='indicator'>" . text($text) .
     "</span>)</a></td>";
     echo "</tr></table>";
     echo "</div>";
@@ -3780,12 +3780,12 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
     }
 
     if ($bodyClass) {
-        $styling .= " class='" . $bodyClass . "'";
+        $styling .= " class='" . attr($bodyClass) . "'";
     }
 
   //next, create the first div tag to hold the information
   // note the code that calls this function will then place the ending div tag after the data
-    echo "<div id='" . htmlspecialchars($label, ENT_QUOTES) . "_ps_expand' " . $styling . ">";
+    echo "<div id='" . attr($label) . "_ps_expand' " . $styling . ">";
 }
 
 //billing_facility fuction will give the dropdown list which contain billing faciliies.

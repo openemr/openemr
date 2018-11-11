@@ -4,20 +4,23 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author Ranganath Pathak <pathak@scrs1.org>
+ * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
- * @version 1.0.0
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-use OpenEMR\Core\Header;
 
 require_once('globals.php');
+
+use OpenEMR\Core\Header;
+
 Header::setupHeader(['jquery-ui', 'jquery-ui-base', 'no_jquery', 'no_bootstrap', 'no_fontawesome', 'no_main-theme', 'no_textformat', 'no_dialog' ]);
 ?>
  <br>
 <?php
-$close =  xl("Close");
-$print = xl("Print");
+$close =  xla("Close");
+$print = xla("Print");
 
 $help_modal = <<<HELP
 <div class="row">
