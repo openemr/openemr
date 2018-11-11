@@ -187,6 +187,9 @@ class C_Prescription extends Controller
         if (empty($_POST['active'])) {
             $_POST['active'] = '-1';
         }
+        if (!empty($_POST['start_date'])) {
+            $_POST['start_date'] = DateToYYYYMMDD($_POST['start_date']);
+        }
 
         $this->prescriptions[0] = new Prescription($_POST['id']);
         parent::populate_object($this->prescriptions[0]);

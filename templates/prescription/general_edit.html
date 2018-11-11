@@ -11,7 +11,7 @@
 <html>
 <head>
 
-    {headerTemplate assets='jquery-ui|jquery-ui-base'}
+    {headerTemplate assets='jquery-ui|jquery-ui-base|datetime-picker'}
 
 {literal}
 <style type="text/css">
@@ -160,8 +160,7 @@ select{
 <tr>
   <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Starting Date'|escape:'html'}</td>
   <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-    {html_select_date class="input-sm" start_year="-10" end_year="+5" time=$prescription->start_date prefix="start_date_"}
-    <input type="hidden" name="start_date" value="{$prescription->start_date|escape:'html'}">
+      <input   type="text" size="10" class="datepicker" name="start_date" id="start_date" value="{$prescription->start_date|oeFormatShortDate|escape:'html'}" />
   </td>
 </tr>
 <tr>
@@ -271,6 +270,20 @@ select{
 {literal}
 <!-- for the fancy jQuery stuff -->
 <script type="text/javascript">
+
+
+    $('.datepicker').datetimepicker({
+{/literal}
+    {php}
+    $datetimepicker_timepicker = false;
+    $datetimepicker_showseconds = false;
+    $datetimepicker_formatInput = true;
+    require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
+    {/php}
+{literal}
+});
+
+
 
 function submitfun() {
     top.restoreSession();
