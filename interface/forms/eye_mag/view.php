@@ -1497,7 +1497,9 @@ if ($refresh and $refresh != 'fullscreen') {
 
                     <?php ($CTL==1) ? ($display_CTL = "") : ($display_CTL = "nodisplay"); ?>
                   <div id="LayerVision_CTL" class="refraction CTL borderShadow <?php echo $display_CTL; ?>">
-                    <i title="<?php echo xla('Dispense this RX'); ?>" class="closeButton_2 fa fa-print" onclick="top.restoreSession();doscript('CTL',<?php echo attr($pid); ?>,<?php echo attr($encounter); ?>);return false;"></i>
+                      <i onclick="top.restoreSession();  dispensed('<?php echo attr($pid); ?>');return false;"
+                         title="<?php echo xla("List of previously dispensed Spectacle and Contact Lens Rxs"); ?>" class="closeButton_3 fa fa-list-ul"></i>
+                      <i title="<?php echo xla('Dispense this RX'); ?>" class="closeButton_2 fa fa-print" onclick="top.restoreSession();doscript('CTL',<?php echo attr($pid); ?>,<?php echo attr($encounter); ?>);return false;"></i>
                     <span title="<?php echo xla('Close this panel and make this a Preference to stay closed'); ?>" class="closeButton fa  fa-close" id="Close_CTL" name="Close_CTL"></span>
                     <table id="CTL">
                       <th colspan="9"><?php echo xlt('Contact Lens Refraction'); ?></th>

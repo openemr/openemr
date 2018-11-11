@@ -1,22 +1,12 @@
 <?php
 /**
- *
  * Patient history form.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -36,18 +26,18 @@ $CPR = 4; // cells per row
 if (acl_check('patients', 'med')) {
     $tmp = getPatientData($pid, "squad");
     if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
-        die(htmlspecialchars(xl("Not authorized for this squad."), ENT_NOQUOTES));
+        die(xlt("Not authorized for this squad."));
     }
 }
 
 if (!acl_check('patients', 'med', '', array('write','addonly'))) {
-    die(htmlspecialchars(xl("Not authorized"), ENT_NOQUOTES));
+    die(xlt("Not authorized"));
 }
 ?>
 <html>
 <head>
     <?php Header::setupHeader(['datetime-picker', 'common']); ?>
-<title><?php xl("History & Lifestyle", 'e');?></title>
+<title><?php echo xlt("History & Lifestyle");?></title>
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
 <script LANGUAGE="JavaScript">
@@ -58,11 +48,9 @@ if (!acl_check('patients', 'med', '', array('write','addonly'))) {
     $smoke_codes = getSmokeCodes();
 
     foreach ($smoke_codes as $val => $code) {
-            echo "code_options_js"."['" . attr($val) . "']='" . attr($code) . "';\n";
+            echo "code_options_js"."[" . js_escape($val) . "]=" . js_escape($code) . ";\n";
     }
     ?>
-
-var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
 function divclick(cb, divid) {
  var divstyle = document.getElementById(divid).style;
@@ -175,9 +163,7 @@ function set_related(codetype, code, selector, codedesc) {
 // This invokes the find-code popup.
 function sel_related(e) {
  current_sel_name = e.name;
- dlgopen('../encounter/find_code_popup.php<?php if ($GLOBALS['ippf_specific']) {
-        echo '?codetype=REF';
-} ?>', '_blank', 500, 400);
+ dlgopen('../encounter/find_code_popup.php<?php echo ($GLOBALS['ippf_specific']) ? '?codetype=REF' : ''?>', '_blank', 500, 400);
 }
 
 </script>
@@ -245,10 +231,12 @@ div.tab {
             <script> var constraints = <?php echo $constraints;?>; </script>
 
             <form action="history_save.php" id="HIS" name='history_form' method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'HIS',constraints)">
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+
                 <input type='hidden' name='mode' value='save'>
 
                 <div class="page-header">
-                    <h2><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?>&nbsp;<small><?php echo htmlspecialchars(xl('History & Lifestyle'), ENT_NOQUOTES); ?></h2>
+                    <h2><?php echo text(getPatientName($pid));?>&nbsp;<small><?php echo xlt('History & Lifestyle'); ?></h2>
                 </div>
                 <div class="btn-group">
                     <button type="submit" class="btn btn-default btn-save"><?php echo xlt('Save'); ?></button>

@@ -5,9 +5,12 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once(dirname(__FILE__).'/../../globals.php');
 require_once("$srcdir/pid.inc");
@@ -41,7 +44,7 @@ $tabset->declareInitialTab(
 // We might have been invoked to load a particular encounter form.
 // In that case it will be the second tab, and removable.
 if (!empty($_GET['formname'])) {
-    $url = $rootdir . "/patient_file/encounter/load_form.php?formname=" . urlencode($_GET['formname']);
+    $url = $rootdir . "/patient_file/encounter/load_form.php?formname=" . attr_url($_GET['formname']);
     $tabset->declareInitialTab(
         $_GET['formdesc'],
         "<iframe name='enctabs-2' frameborder='0' style='height:100%;width:100%;' src='$url'>Oops</iframe>",
