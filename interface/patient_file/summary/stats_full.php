@@ -1,13 +1,15 @@
 <?php
 /**
- * Copyright (C) 2005-2017 Rod Roark <rod@sunsetsystems.com>
+ * stats_full.php
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2005-2017 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 
 require_once('../../globals.php');
@@ -63,14 +65,14 @@ function refreshIssue(issue, title) {
 function dopclick(id,category) {
     top.restoreSession();
     if (category == 0) category = '';
-    dlgopen('add_edit_issue.php?issue=' + encodeURIComponent(id) + '&thistype=' + encodeURIComponent(category), '_blank', 650, 500, '', '<?php echo xla("Add/Edit Issue"); ?>');
+    dlgopen('add_edit_issue.php?issue=' + encodeURIComponent(id) + '&thistype=' + encodeURIComponent(category), '_blank', 650, 500, '', <?php echo xlj("Add/Edit Issue"); ?>);
     //dlgopen('add_edit_issue.php?issue=' + encodeURIComponent(id) + '&thistype=' + encodeURIComponent(category), '_blank', 650, 600);
 }
 
 // Process click on number of encounters.
 function doeclick(id) {
     top.restoreSession();
-    dlgopen('../problem_encounter.php?issue=' + id, '_blank', 700, 400);
+    dlgopen('../problem_encounter.php?issue=' + encodeURIComponent(id), '_blank', 700, 400);
 }
 
 // Process click on diagnosis for patient education popup.
@@ -78,7 +80,7 @@ function educlick(codetype, codevalue) {
   top.restoreSession();
   dlgopen('../education.php?type=' + encodeURIComponent(codetype) +
     '&code=' + encodeURIComponent(codevalue) +
-    '&language=<?php echo urlencode($language); ?>',
+    '&language=' + <?php echo js_url($language); ?>,
     '_blank', 1024, 750,true); // Force a new window instead of iframe to address cross site scripting potential
 }
 
@@ -155,20 +157,20 @@ require_once("$include_root/expand_contract_js.php");//jQuery to provide expand/
                     echo "</table>";
                 }
 
-              // Show header
+                // Show header
                 $disptype = $focustitles[0];
                 if (acl_check_issue($focustype, '', array('write', 'addonly'))) {
                     if (($focustype=='allergy' || $focustype=='medication') && $GLOBALS['erx_enable']) {
                         echo "<a href='../../eRx.php?page=medentry' class='css_button_small' onclick='top.restoreSession()' ><span>" .
                         xlt('Add') . "</span></a>\n";
                     } else {
-                        echo "<a href='javascript:;' class='css_button_small' onclick='dopclick(0,\"" .
-                        attr($focustype)  . "\")'><span>" . xlt('Add') . "</span></a>\n";
+                        echo "<a href='javascript:;' class='css_button_small' onclick='dopclick(0," .
+                        attr_js($focustype)  . ")'><span>" . xlt('Add') . "</span></a>\n";
                     }
                 }
 
                 echo "  <span class='title'>" . text($disptype) . "</span>\n";
-              // echo " <table style='margin-bottom:1em;text-align:center'>";
+                // echo " <table style='margin-bottom:1em;text-align:center'>";
                 echo " <table style='margin-bottom:1em;'>";
                 ?>
               <tr class='head'>
@@ -240,7 +242,7 @@ require_once("$include_root/expand_contract_js.php");//jQuery to provide expand/
                                 $codetext .= "<br />";
                             }
 
-                            $codetext .= "<a href='javascript:educlick(\"$codetype\",\"$code\")' $colorstyle>" .
+                            $codetext .= "<a href='javascript:educlick(" . attr_js($codetype) . "," . attr_js($code) . ")' $colorstyle>" .
                               text($diag . " (" . $codedesc . ")") . "</a>";
                         }
                     }
@@ -262,8 +264,8 @@ require_once("$include_root/expand_contract_js.php");//jQuery to provide expand/
                         $click_class='';
                     }
 
-                    echo " <tr class='$bgclass detail' $colorstyle>\n";
-                    echo "  <td style='text-align:left' class='$click_class' id='$rowid'>" . text($disptitle) . "</td>\n";
+                    echo " <tr class='" . attr($bgclass) . " detail' $colorstyle>\n";
+                    echo "  <td style='text-align:left' class='" . attr($click_class) . "' id='" . attr($rowid) . "'>" . text($disptitle) . "</td>\n";
                     echo "  <td>" . text($row['begdate']) . "&nbsp;</td>\n";
                     echo "  <td>" . text($row['enddate']) . "&nbsp;</td>\n";
                     // both codetext and statusCompute have already been escaped above with htmlspecialchars)
@@ -281,7 +283,7 @@ require_once("$include_root/expand_contract_js.php");//jQuery to provide expand/
                     echo "  <td>" . text($row['referredby']) . "</td>\n";
                     echo "  <td>" . text($row['modifydate']) . "</td>\n";
                     echo "  <td>" . text($row['comments']) . "</td>\n";
-                    echo "  <td id='e_$rowid' class='noclick center' title='" . xla('View related encounters') . "'>";
+                    echo "  <td id='e_" . attr($rowid) . "' class='noclick center' title='" . xla('View related encounters') . "'>";
                     echo "  <input type='button' value='" . attr($ierow['count']) . "' class='editenc' id='" . attr($rowid) . "' />";
                     echo "  </td>";
                     echo " </tr>\n";
@@ -304,7 +306,7 @@ require_once("$include_root/expand_contract_js.php");//jQuery to provide expand/
         require "$include_root/help_modal.php";
     }
     ?>
-    
+
 </body>
 
 <script language="javascript">
@@ -322,7 +324,7 @@ $(document).ready(function(){
 
     $(".noneCheck").click(function() {
       top.restoreSession();
-      $.post( "../../../library/ajax/lists_touch.php", { type: this.name, patient_id: <?php echo htmlspecialchars($pid, ENT_QUOTES); ?> });
+      $.post( "../../../library/ajax/lists_touch.php", { type: this.name, patient_id: <?php echo js_escape($pid); ?> });
       $(this).hide();
     });
 });
@@ -337,7 +339,7 @@ var GoBack = function () {
     location.href='demographics.php';
 }
 
-var listId = '#' + '<?php echo text($list_id); ?>';
+var listId = '#' + <?php echo js_escape($list_id); ?>;
 $(document).ready(function(){
     $(listId).addClass("active");
 });

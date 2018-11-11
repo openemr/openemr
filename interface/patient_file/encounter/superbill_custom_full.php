@@ -703,14 +703,14 @@ if ($fend > $count) {
 
                 <td class='text' align='right'>
                     <?php if ($fstart) { ?>
-                        <a href="javascript:submitList(<?php echo js_attr($pagesize); ?>)">
+                        <a href="javascript:submitList(<?php echo attr_js($pagesize); ?>)">
                             &lt;&lt;
                         </a>
                         &nbsp;&nbsp;
                     <?php } ?>
                     <?php echo text(($fstart + 1)) . " - " . text($fend) . " of  " . text($count); ?>
                     &nbsp;&nbsp;
-                    <a href="javascript:submitList(<?php echo js_attr($pagesize); ?>)">
+                    <a href="javascript:submitList(<?php echo attr_js($pagesize); ?>)">
                         &gt;&gt;
                     </a>
                 </td>
@@ -822,10 +822,10 @@ if ($fend > $count) {
 
             if ($thisauthwrite) {
                 if ($iter["code_external"] > 0) {
-                    echo "  <td align='right'><a class='link' href='javascript:submitModify(" . js_attr($iter['code_type_name']) . "," . js_attr($iter['code']) . "," . js_attr($iter['id']) . ")'>[" . xlt('Modify') . "]</a></td>\n";
+                    echo "  <td align='right'><a class='link' href='javascript:submitModify(" . attr_js($iter['code_type_name']) . "," . attr_js($iter['code']) . "," . attr_js($iter['id']) . ")'>[" . xlt('Modify') . "]</a></td>\n";
                 } else {
-                    echo "  <td align='right'><a class='link' href='javascript:submitDelete(" . js_attr($iter['id']) . ")'>[" . xlt('Delete') . "]</a></td>\n";
-                    echo "  <td align='right'><a class='link' href='javascript:submitEdit(" . js_attr($iter['id']) . ")'>[" . xlt('Edit') . "]</a></td>\n";
+                    echo "  <td align='right'><a class='link' href='javascript:submitDelete(" . attr_js($iter['id']) . ")'>[" . xlt('Delete') . "]</a></td>\n";
+                    echo "  <td align='right'><a class='link' href='javascript:submitEdit(" . attr_js($iter['id']) . ")'>[" . xlt('Edit') . "]</a></td>\n";
                 }
             }
 

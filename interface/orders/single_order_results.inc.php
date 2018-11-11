@@ -183,7 +183,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
                 array($lab_id, $procedure_code)
             );
             if (!empty($trow['standard_code'])) {
-                  $tmp = "<a href='javascript:educlick(\"LOINC\"," . js_attr($trow['standard_code']) .
+                  $tmp = "<a href='javascript:educlick(\"LOINC\"," . attr_js($trow['standard_code']) .
                     ")'>$tmp</a>";
             }
         }
@@ -225,7 +225,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
     if ($result_code !== '' || $result_document_id) {
         $tmp = myCellText($result_code);
         if (empty($GLOBALS['PATIENT_REPORT_ACTIVE']) && !empty($result_code)) {
-            $tmp = "<a href='javascript:educlick(\"LOINC\"," . js_attr($result_code) .
+            $tmp = "<a href='javascript:educlick(\"LOINC\"," . attr_js($result_code) .
             ")'>$tmp</a>";
         }
 
@@ -656,7 +656,7 @@ if (!empty($aNotes)) {
 <?php if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) { ?>
    &nbsp;
    <input type='button' value='<?php echo xla('Related Patient Notes'); ?>'
-    onclick='showpnotes(<?php echo js_attr($orderid); ?>)' />
+    onclick='showpnotes(<?php echo attr_js($orderid); ?>)' />
 <?php } ?>
 <?php if ($input_form && $ctx['sign_list']) { ?>
    &nbsp;

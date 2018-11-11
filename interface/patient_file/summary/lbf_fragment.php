@@ -1,28 +1,26 @@
 <?php
-/*******************************************************************************\
- * Copyright 2010 Brady Miller <brady.g.miller@gmail.com>                               *
- * Copyright 2011 Rod Roark <rod@sunsetsystems.com>                             *
- *                                                                              *
- * This program is free software; you can redistribute it and/or                *
- * modify it under the terms of the GNU General Public License                  *
- * as published by the Free Software Foundation; either version 2               *
- * of the License, or (at your option) any later version.                       *
- *                                                                              *
- * This program is distributed in the hope that it will be useful,              *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of               *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                *
- * GNU General Public License for more details.                                 *
- *                                                                              *
- * You should have received a copy of the GNU General Public License            *
- * along with this program; if not, write to the Free Software                  *
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
- ********************************************************************************/
+/**
+ * Functions to globally validate and prepare data for sql database insertion.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2010-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2011 Rod Roark <rod@sunsetsystems.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 
 require_once("../../globals.php");
 
+if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+    csrfNotVerified();
+}
+
 $lbf_form_id = $_GET['formname'];
 ?>
-<div id='<?php echo $lbf_form_id; ?>' style='margin-top: 3px; margin-left: 10px; margin-right: 10px'>
+<div id='<?php echo attr($lbf_form_id); ?>' style='margin-top: 3px; margin-left: 10px; margin-right: 10px'>
 <br />
 <?php
 // Retrieve most recent instance of this form for this patient.
@@ -39,13 +37,13 @@ $result = sqlQuery(
 
 if (!$result) { //If there are none
 ?>
-  <span class='text'> <?php echo htmlspecialchars(xl("None have been documented"), ENT_NOQUOTES); ?>
+  <span class='text'> <?php echo xlt("None have been documented"); ?>
   </span>
 <?php } else { ?>
   <span class='text'><b>
 <?php
-  echo htmlspecialchars(xl('Most recent from') . ": " .
-    oeFormatShortDate(substr($result['date'], 0, 10)), ENT_NOQUOTES);
+  echo text(xl('Most recent from') . ": " .
+    oeFormatShortDate(substr($result['date'], 0, 10)));
 ?>
   </b></span>
   <br />
@@ -56,9 +54,9 @@ if (!$result) { //If there are none
 ?>
   <span class='text'>
   <br />
-  <a href='../encounter/trend_form.php?formname=<?php echo $lbf_form_id; ?>'
+  <a href='../encounter/trend_form.php?formname=<?php echo attr_url($lbf_form_id); ?>'
    onclick='top.restoreSession()'>
-    <?php echo htmlspecialchars(xl('Click here to view and graph'), ENT_NOQUOTES);?>
+    <?php echo xlt('Click here to view and graph');?>
   </a>
   </span>
 <?php } ?>

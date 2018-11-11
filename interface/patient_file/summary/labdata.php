@@ -1,55 +1,41 @@
 <?php
 /**
-* How to present clinical parameter.
-*
-* Copyright (C) 2014 Joe Slam <trackanything@produnis.de>
-*
-* LICENSE: This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>.
-*
-* @package OpenEMR
-* @author Joe Slam <trackanything@produnis.de>
-* @link http://www.open-emr.org
-* ---------------------------------------------------------------------------------
-*
-* this script needs $pid to run...
-*
-* if you copy this file to another place,
-* make sure you set $path_to_this_script
-* to the propper path...
-
-
-* Prepare your data:
-* this script expects propper 'result_code' entries
-* in table 'procedure_results'. If your data miss
-* 'result_code' entries, you won't see anything,
-* so make sure they are there.
-* [additionally, the script will also look for 'units',
-* 'range' and 'code_text'. If these data are not available,
-* the script will run anyway...]
-*
-* the script will list all available patient's 'result_codes'
-* from table 'procedure_results'. Check those you wish to view.
-* If you see nothing to select, then
-*    a) there is actually no lab data of this patient available
-*    b) the lab data are missing 'result_code'-entries in table 'procedure_results'
-*
-
-*/
-// Some initial api-inputs
+ * How to present clinical parameter.
+ *
+ *
+ * this script needs $pid to run...
+ *
+ * if you copy this file to another place,
+ * make sure you set $path_to_this_script
+ * to the proper path...
+ * Prepare your data:
+ * this script expects proper 'result_code' entries
+ * in table 'procedure_results'. If your data miss
+ * 'result_code' entries, you won't see anything,
+ * so make sure they are there.
+ * [additionally, the script will also look for 'units',
+ * 'range' and 'code_text'. If these data are not available,
+ * the script will run anyway...]
+ *
+ * the script will list all available patient's 'result_codes'
+ * from table 'procedure_results'. Check those you wish to view.
+ * If you see nothing to select, then
+ *    a) there is actually no lab data of this patient available
+ *    b) the lab data are missing 'result_code'-entries in table 'procedure_results'
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Joe Slam <trackanything@produnis.de>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2014 Joe Slam <trackanything@produnis.de>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once("../../globals.php");
 require_once("../../../library/options.inc.php");
-include_once($GLOBALS["srcdir"] . "/api.inc");
+require_once($GLOBALS["srcdir"] . "/api.inc");
 
 // Set the path to this script
 $path_to_this_script = $rootdir . "/patient_file/summary/labdata.php";
@@ -110,9 +96,9 @@ $spell .= "FROM patient_data ";
 $spell .= "WHERE pid = ?";
 //---
 $myrow = sqlQuery($spell, array($pid));
-    $lastname = $myrow["lname"];
-    $firstname  = $myrow["fname"];
-    $DOB  = $myrow["DOB"];
+$lastname = $myrow["lname"];
+$firstname  = $myrow["fname"];
+$DOB  = $myrow["DOB"];
 
 
 
@@ -128,7 +114,7 @@ if ($printable) {
 
 echo "<div id='reports_list'>";
 if (!$printable) {
-    echo "<form method='post' action='" . $path_to_this_script . "' onsubmit='return top.restoreSession()'>";
+    echo "<form method='post' action='" . attr($path_to_this_script) . "' onsubmit='return top.restoreSession()'>";
     // What items are there for patient $pid?
     // -----------------------------------------------
     $value_list = array();
@@ -162,7 +148,7 @@ if (!$printable) {
         }
 
         echo " /> " . text($myrow['value_code']) . "<br />";
-        $value_list[$i][value_code] = $myrow['value_code'];
+        $value_list[$i]['value_code'] = $myrow['value_code'];
         $i++;
         $tab++;
         if ($tab == 10) {
@@ -275,7 +261,7 @@ if ($value_select) {
                 echo "<td class='list_log'>"  . text($myrow['review_status']) . "</td>";
                 echo "<td class='list_log'>";
                 if (!$printable) {
-                    echo "<a href='../../patient_file/encounter/encounter_top.php?set_encounter=". attr($myrow['encounter_id']) . "' target='RBot'>";
+                    echo "<a href='../../patient_file/encounter/encounter_top.php?set_encounter=". attr_url($myrow['encounter_id']) . "' target='RBot'>";
                     echo text($myrow['encounter_id']);
                     echo "</a>";
                 } else {
@@ -297,11 +283,11 @@ if ($value_select) {
             // prepare to plot the stuff
             top.restoreSession();
             function get_my_graph<?php echo attr($item_graph) ?>(){
-                var thedates = JSON.stringify(<?php echo json_encode($date_array); ?>);
-                var thevalues =  JSON.stringify(<?php echo json_encode($value_array); ?>);
-                var theitem = JSON.stringify(<?php echo json_encode(array($the_item)); ?>);
-                var thetitle = JSON.stringify(<?php echo json_encode($the_item); ?>);
-                var checkboxfake = JSON.stringify(<?php echo json_encode(array(0)); ?>);
+                var thedates = JSON.stringify(<?php echo js_escape($date_array); ?>);
+                var thevalues =  JSON.stringify(<?php echo js_escape($value_array); ?>);
+                var theitem = JSON.stringify(<?php echo js_escape(array($the_item)); ?>);
+                var thetitle = JSON.stringify(<?php echo js_escape($the_item); ?>);
+                var checkboxfake = JSON.stringify(<?php echo js_escape(array(0)); ?>);
 
                 $.ajax({ url: '<?php echo $web_root; ?>/library/ajax/graph_track_anything.php',
                         type: 'POST',
@@ -314,7 +300,7 @@ if ($value_select) {
                         dataType: "json",
                         success: function(returnData){
                             g2 = new Dygraph(
-                                document.getElementById("graph_item_<?php echo $item_graph ?>"),
+                                document.getElementById(<?php echo js_escape('graph_item_'.$item_graph) ?>),
                                 returnData.data_final,
                                 {
                                     title: returnData.title,
@@ -402,7 +388,7 @@ if ($value_select) {
         $a=true;
         while ($a==true) {
             echo "<tr>";
-            #echo "<td class='matrix_item'>" . $value_matrix[$i]['result_code'] . "</td>";
+            #echo "<td class='matrix_item'>" . text($value_matrix[$i]['result_code']) . "</td>";
             echo "<td class='matrix_item'>" . text($value_matrix[$i]['result_text']) . "</td>";
             echo "<td class='matrix_item'>" . text($value_matrix[$i]['range']) . "</td>";
             echo "<td class='matrix_item'>" . text($value_matrix[$i]['units']) . "</td>";
@@ -457,7 +443,7 @@ if ($value_select) {
 if (!$printable) {
     if (!$nothing) {
         echo "<p>";
-        echo "<form method='post' action='" . $path_to_this_script . "' target='_new' onsubmit='return top.restoreSession()'>";
+        echo "<form method='post' action='" . attr($path_to_this_script) . "' target='_new' onsubmit='return top.restoreSession()'>";
         echo "<input type='hidden' name='mode' value='". attr($mode) . "'>";
         foreach ($_POST['value_code'] as $this_valuecode) {
             echo "<input type='hidden' name='value_code[]' value='". attr($this_valuecode) . "'>";

@@ -22,7 +22,7 @@ function js_escape($text)
 /**
  * Escape a javascript literal within html onclick attribute.
  */
-function js_attr($text)
+function attr_js($text)
 {
     return attr(json_encode($text));
 }
@@ -33,6 +33,14 @@ function js_attr($text)
 function attr_url($text)
 {
     return attr(urlencode($text));
+}
+
+/**
+ * Escape js and url encode a url item.
+ */
+function js_url($text)
+{
+    return js_escape(urlencode($text));
 }
 
 /**

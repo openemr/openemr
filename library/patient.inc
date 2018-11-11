@@ -204,29 +204,29 @@ function getFacility($facid = 0)
 // Generate a report title including report name and facility name, address
 // and phone.
 //
-function genFacilityTitle($repname = '', $facid = 0)
+function genFacilityTitle($repname = '', $facid = 0, $logo = '')
 {
     $s = '';
     $s .= "<table class='ftitletable'>\n";
     $s .= " <tr>\n";
     if (empty($logo)) {
-        $s .= "  <td class='ftitlecell1'>$repname</td>\n";
+        $s .= "  <td class='ftitlecell1'>" . text($repname) . "</td>\n";
     } else {
-        $s .= "  <td class='ftitlecell1'>$logo</td>\n";
-        $s .= "  <td class='ftitlecellm'>$repname</td>\n";
+        $s .= "  <td class='ftitlecell1'>" . $logo . "</td>\n";
+        $s .= "  <td class='ftitlecellm'>" . text($repname) . "</td>\n";
     }
     $s .= "  <td class='ftitlecell2'>\n";
     $r = getFacility($facid);
     if (!empty($r)) {
-        $s .= "<b>" . htmlspecialchars($r['name'], ENT_NOQUOTES) . "</b>\n";
+        $s .= "<b>" . text($r['name']) . "</b>\n";
         if ($r['street']) {
-            $s .= "<br />" . htmlspecialchars($r['street'], ENT_NOQUOTES) . "\n";
+            $s .= "<br />" . text($r['street']) . "\n";
         }
 
         if ($r['city'] || $r['state'] || $r['postal_code']) {
             $s .= "<br />";
             if ($r['city']) {
-                $s .= htmlspecialchars($r['city'], ENT_NOQUOTES);
+                $s .= text($r['city']);
             }
 
             if ($r['state']) {
@@ -234,22 +234,22 @@ function genFacilityTitle($repname = '', $facid = 0)
                     $s .= ", \n";
                 }
 
-                $s .= htmlspecialchars($r['state'], ENT_NOQUOTES);
+                $s .= text($r['state']);
             }
 
             if ($r['postal_code']) {
-                $s .= " " . htmlspecialchars($r['postal_code'], ENT_NOQUOTES);
+                $s .= " " . text($r['postal_code']);
             }
 
             $s .= "\n";
         }
 
         if ($r['country_code']) {
-            $s .= "<br />" . htmlspecialchars($r['country_code'], ENT_NOQUOTES) . "\n";
+            $s .= "<br />" . text($r['country_code']) . "\n";
         }
 
         if (preg_match('/[1-9]/', $r['phone'])) {
-            $s .= "<br />" . htmlspecialchars($r['phone'], ENT_NOQUOTES) . "\n";
+            $s .= "<br />" . text($r['phone']) . "\n";
         }
     }
 
