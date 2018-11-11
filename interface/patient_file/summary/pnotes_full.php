@@ -396,7 +396,7 @@ if ($billing_note) {
   <td colspan='5' style="padding: 5px;" >
     <a href="#" class="change_activity" ><span><?php echo xlt('Update Active'); ?></span></a>
     |
-    <a href="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo attr($activity_string_html);?>" class="" id='Submit' onclick='return top.restoreSession()'><span><?php echo xlt('Refresh'); ?></span></a>
+    <a href="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" class="" id='Submit' onclick='return top.restoreSession()'><span><?php echo xlt('Refresh'); ?></span></a>
   </td>
  </tr></table>
 <?php endif; ?>
@@ -529,7 +529,7 @@ if ($offset > ($N-1)) {
     "&form_active=" . attr_url($form_active) .
     "&form_inactive=" . attr_url($form_inactive) .
     "&form_doc_only=" . attr_url($form_doc_only) .
-    "&offset=" . attr_url($offsetN) . "&" . attr_url($activity_string_html) . "' onclick='return top.restoreSession()'>[" .
+    "&offset=" . attr_url($offsetN) . "&" . $activity_string_html . "' onclick='return top.restoreSession()'>[" .
         xlt('Previous') . "]</a>\n";
 }
 ?>

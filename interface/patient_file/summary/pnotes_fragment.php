@@ -185,7 +185,7 @@ if (isset($_GET['docUpdateId'])) {
                             } else {
                                 $body = text(oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date'])) .
                                         ' (' . $iter['user'] . ') ') .
-                                    nl2br(htext(oeFormatPatientNote($body)));
+                                    nl2br(text(oeFormatPatientNote($body)));
                             }
 
                             $body = preg_replace('/(:\d{2}\s\()'.$iter['pid'].'(\sto\s)/', '${1}'.$patientname.'${2}', $body);

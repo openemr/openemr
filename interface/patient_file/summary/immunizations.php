@@ -1108,7 +1108,7 @@ function addNewRow()
     new_tr_count_3 = (new_tr_count *2) + 1;
     $("#tr_count").val(new_tr_count);
     label1 = <?php echo xlj('Observation Criteria'); ?>;
-    label2 = <?php echo xlj('Observation Criteria Value'); ?>"
+    label2 = <?php echo xlj('Observation Criteria Value'); ?>;
     label3 = <?php echo xlj('SNOMED-CT Code'); ?>;
     label4 = <?php echo xlj('CVX Code'); ?>;
     label5 = <?php echo xlj('Date VIS Published'); ?>;

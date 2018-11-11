@@ -187,7 +187,7 @@ $(document).ready(function () {
     });
 
     var DeleteNote = function (logevent) {
-        if (confirm(<?php echo js_escape(xl('Are you sure you want to delete this disclosure?').'\n '.xl('This action CANNOT be undone.')); ?>)) {
+        if (confirm(<?php echo xlj('Are you sure you want to delete this disclosure?'); ?> + "\n " + <?php echo xlj('This action CANNOT be undone.'); ?>)) {
             top.restoreSession();
             window.location.replace("disclosure_full.php?deletelid=" + encodeURIComponent(logevent.id) + "&csrf_token_form=" + <?php echo js_url(collectCsrfToken()); ?>);
         }

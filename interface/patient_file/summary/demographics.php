@@ -48,9 +48,9 @@ if ($GLOBALS['enable_cdr']) {
         if (!empty($new_allergy_alerts)) {
             $pod_warnings = '';
             foreach ($new_allergy_alerts as $new_allergy_alert) {
-                $pod_warnings .= $new_allergy_alert . '\n';
+                $pod_warnings .= js_escape($new_allergy_alert) . ' + "\n"';
             }
-            echo '<script type="text/javascript">alert(' . js_escape(xl('WARNING - FOLLOWING ACTIVE MEDICATIONS ARE ALLERGIES').':\n'.$pod_warnings) . ')</script>';
+            echo '<script type="text/javascript">alert(' . xlj('WARNING - FOLLOWING ACTIVE MEDICATIONS ARE ALLERGIES') . ' + "\n" + ' . $pod_warnings . ')</script>';
         }
     }
 
@@ -377,7 +377,7 @@ $(document).ready(function(){
       top.restoreSession();
       $("#clinical_reminders_ps_expand").load("clinical_reminders_fragment.php",
           {
-              embeddedScreen : true
+              embeddedScreen : true,
               csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
           },
           function() {
