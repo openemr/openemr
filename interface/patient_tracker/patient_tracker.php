@@ -590,7 +590,7 @@ if (!$_REQUEST['flb_table']) {
                             $FINAL = '';
                             $icon_CALL = '';
 
-                            $query = "SELECT * FROM medex_outgoing WHERE msg_pc_eid =? ORDER BY msg_date";
+                            $query = "SELECT * FROM medex_outgoing WHERE msg_pc_eid =? ORDER BY medex_uid asc";
                             $myMedEx = sqlStatement($query, array($appointment['eid']));
                             /**
                              * Each row for this pc_eid in the medex_outgoing table represents an event.
@@ -604,7 +604,6 @@ if (!$_REQUEST['flb_table']) {
                              *      SCHEDULED       =   white
                              * Icons are displayed in their highest state.
                              */
-                            $FINAL = '';
                             while ($row = sqlFetchArray($myMedEx)) {
                                 // Need to convert $row['msg_date'] to localtime (stored as GMT) & then oeFormatShortDate it.
                                 // I believe there is a new GLOBAL for server timezone???  If so, it will be easy.
@@ -618,25 +617,23 @@ if (!$_REQUEST['flb_table']) {
 
                                 if ($row['msg_reply'] == 'Other') {
                                     $other_title .= $row['msg_extra_text'] . "\n";
-                                    $icon_extra .= str_replace(
-                                        "EXTRA",
+                                    $icon_extra .= str_replace("EXTRA",
                                         attr(oeFormatShortDate($row['msg_date'])) . "\n" . xla('Patient Message') . ":\n" . attr($row['msg_extra_text']) . "\n",
-                                        $icons[$row['msg_type']]['EXTRA']['html']
-                                    );
+                                        $icons[$row['msg_type']]['EXTRA']['html']);
                                     continue;
+                                } elseif ($row['msg_reply'] == 'CANCELLED') {
+                                    $appointment[$row['msg_type']]['stage'] = "CANCELLED";
+                                    $icon_here[$row['msg_type']] = '';
                                 } elseif ($row['msg_reply'] == "FAILED") {
                                     $appointment[$row['msg_type']]['stage'] = "FAILED";
                                     $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['FAILED']['html'];
-                                } elseif (($row['msg_reply'] == "CONFIRMED") || ($FINAL)) {
+                                } elseif (($row['msg_reply'] == "CONFIRMED") || ($appointment[$row['msg_type']]['stage'] == "CONFIRMED")) {
                                     $appointment[$row['msg_type']]['stage'] = "CONFIRMED";
-                                    $FINAL = $icons[$row['msg_type']]['CONFIRMED']['html'];
-                                    $icon_here[$row['msg_type']] = $FINAL;
-                                    continue;
+                                    $icon_here[$row['msg_type']]  = $icons[$row['msg_type']]['CONFIRMED']['html'];
                                 } elseif ($row['msg_type'] == "NOTES") {
                                     $CALLED = "1";
                                     $FINAL = $icons['NOTES']['CALLED']['html'];
-                                    $FINAL = str_replace("Call Back: COMPLETED", attr(oeFormatShortDate($row['msg_date'])) . " :: " . xla('Callback Performed') . " | " . xla('NOTES') . ": " . $row['msg_extra_text'] . " | ", $FINAL);
-                                    $icon_CALL = $icon_4_call;
+                                    $icon_CALL = str_replace("Call Back: COMPLETED", attr(oeFormatShortDate($row['msg_date'])) . " :: " . xla('Callback Performed') . " | " . xla('NOTES') . ": " . $row['msg_extra_text'] . " | ", $FINAL);
                                     continue;
                                 } elseif (($row['msg_reply'] == "READ") || ($appointment[$row['msg_type']]['stage'] == "READ")) {
                                     $appointment[$row['msg_type']]['stage'] = "READ";
@@ -824,7 +821,7 @@ if ($appointment['room'] > '') {
                             echo "<span style='font-size:0.7em;' onclick='return calendarpopup(" . attr($appt_eid) . "," . attr($date_squash) . ")'>" . implode($icon_here) . $icon2_here . "</span> " . $icon_CALL;
                         } else if ($logged_in) {
                             $pat = $MedEx->display->possibleModalities($appointment);
-                            echo "<span style='font-size:0.7em;'>" . $pat['SMS'] . $pat['AVM'] . $pat['EMAIL'] . "</span>";
+                            echo "<span style='font-size:0.7em;' onclick='return calendarpopup(" . attr($appt_eid) . "," . attr($date_squash) . ")'>" . $pat['SMS'] . $pat['AVM'] . $pat['EMAIL'] . "</span>";
                         }
                         //end time in current status
                         echo "</td>";
@@ -936,8 +933,6 @@ if (!$_REQUEST['flb_table']) { ?>
 <?php
 } //end of second !$_REQUEST['flb_table']
 
-//$content = ob_get_clean();
-//echo $content;
 
 exit;
 
