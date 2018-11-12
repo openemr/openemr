@@ -274,7 +274,7 @@ function validate(f) {
  for ( var i = 0; i < errMsgs.length; i++ ) {
     msg += errMsgs[i] + "\n";
  }
- msg += "\n" + <?php echo xlj('Please fill them in before continuing.'); ?>";
+ msg += "\n" + <?php echo xlj('Please fill them in before continuing.'); ?>;
 
  if ( errMsgs.length > 0 ) {
     alert(msg);
