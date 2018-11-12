@@ -5,7 +5,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -72,7 +72,7 @@ function show_date_fun(){
         <div class="row" >
             <div class="col-sm-12">
                 <?php
-                $list_id = "nav-list3"; // to indicate nav item is active, count and give correct id
+                $list_id = "report"; // to indicate nav item is active, count and give correct id
                 // Collect the patient menu then build it
                 $menuPatient = new PatientMenuRole();
                 $menuPatient->displayHorizNavBarMenu();
@@ -130,7 +130,7 @@ function show_date_fun(){
                                     <table border="0" cellpadding="0" cellspacing="0" >
                                         <tr>
                                             <td>
-                                            <span class='bold'><?php echo htmlspecialchars(xl('Enter Recipient\'s Direct Address'), ENT_NOQUOTES);?>: </span>
+                                            <span class='bold'><?php echo xlt('Enter Recipient\'s Direct Address');?>: </span>
                                             <input type="text" size="64" name="ccr_send_to" id="ccr_send_to" value="">
                                             <input type="hidden" name="ccr_sent_by" id="ccr_sent_by" value="user">
                                             <button type="button" class="viewCCR_transmit btn btn-default btn-send-msg btn-sm" value="<?php echo xla('Send CCR'); ?>" ><?php echo xlt('Send CCR'); ?></button>
@@ -143,7 +143,7 @@ function show_date_fun(){
                                 </div>
                             <?php
                             } ?>
-                            
+
                         </div>
                     </fieldset>
                     <hr/>
@@ -165,7 +165,7 @@ function show_date_fun(){
                                 <table border="0" cellpadding="0" cellspacing="0" >
                                     <tr>
                                         <td>
-                                            <span class='bold'><?php echo htmlspecialchars(xl('Enter Recipient\'s Direct Address'), ENT_NOQUOTES);?>: </span>
+                                            <span class='bold'><?php echo xlt('Enter Recipient\'s Direct Address');?>: </span>
                                             <input type="text" size="64" name="ccd_send_to" id="ccd_send_to" value="">
                                             <input type="hidden" name="ccd_sent_by" id="ccd_sent_by" value="user">
                                             <button type="button" class="viewCCD_transmit btn btn-default btn-send-msg btn-sm" value="<?php echo xla('Send CCD'); ?>" ><?php echo xlt('Send CCD'); ?></button>
@@ -197,7 +197,7 @@ function show_date_fun(){
             [<?php echo xlt('View Comprehensive Patient Report'); ?>]</a>
             -->
             <a class="link_submit btn btn-default btn-sm btn-save" href="#" onclick="return checkAll(true)"><?php echo xla('Check All'); ?></a>
-            
+
             <a class="link_submit btn btn-default btn-sm btn-undo" href="#" onclick="return checkAll(false)"><?php echo xla('Clear All'); ?></a>
             <p>
 
@@ -264,8 +264,8 @@ function show_date_fun(){
                             <table>
                                 <?php
                                 // get issues
-                                $pres = sqlStatement("SELECT * FROM lists WHERE pid = $pid " .
-                                "ORDER BY type, begdate");
+                                $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? " .
+                                "ORDER BY type, begdate", array($pid));
                                 $lasttype = "";
                                 while ($prow = sqlFetchArray($pres)) {
                                     if ($lasttype != $prow['type']) {
@@ -292,21 +292,21 @@ function show_date_fun(){
                                     $disptitle = trim($prow['title']) ? $prow['title'] : "[Missing Title]";
 
                                     $ieres = sqlStatement("SELECT encounter FROM issue_encounter WHERE " .
-                                    "pid = '$pid' AND list_id = '$rowid'");
+                                    "pid = ? AND list_id = ?", array($pid, $rowid));
 
                                     echo "    <tr class='text'>\n";
                                     echo "     <td>&nbsp;</td>\n";
                                     echo "     <td>";
-                                    echo "<input type='checkbox' name='issue_$rowid' id='issue_$rowid' class='issuecheckbox' value='/";
+                                    echo "<input type='checkbox' name='issue_" . attr($rowid) . "' id='issue_" . attr($rowid) . "' class='issuecheckbox' value='/";
                                     while ($ierow = sqlFetchArray($ieres)) {
-                                        echo $ierow['encounter'] . "/";
+                                        echo attr($ierow['encounter']) . "/";
                                     }
 
                                     echo "' />$disptitle</td>\n";
-                                    echo "     <td>" . $prow['begdate'];
+                                    echo "     <td>" . text($prow['begdate']);
 
                                     if ($prow['enddate']) {
-                                        echo " - " . $prow['enddate'];
+                                        echo " - " . text($prow['enddate']);
                                     } else {
                                         echo " Active";
                                     }
@@ -338,10 +338,10 @@ function show_date_fun(){
                             "forms.formdir, forms.date AS fdate, form_encounter.date " .
                             ",form_encounter.reason ".
                             "FROM forms, form_encounter WHERE " .
-                            "forms.pid = '$pid' AND form_encounter.pid = '$pid' AND " .
+                            "forms.pid = ? AND form_encounter.pid = ? AND " .
                             "form_encounter.encounter = forms.encounter " .
                             " AND forms.deleted=0 ". // --JRM--
-                            "ORDER BY form_encounter.encounter DESC, form_encounter.date DESC, fdate ASC");
+                            "ORDER BY form_encounter.encounter DESC, form_encounter.date DESC, fdate ASC", array($pid, $pid));
                             $res2 = sqlStatement("SELECT name FROM registry ORDER BY priority");
                             $html_strings = array();
                             $registry_form_name = array();
@@ -367,9 +367,9 @@ function show_date_fun(){
                                     $isfirst = 0;
                                     echo "<div class='encounter_data'>\n";
                                     echo "<input type=checkbox ".
-                                    " name='" . $result{"formdir"} . "_" .  $result{"form_id"} . "'".
-                                    " id='" . $result{"formdir"} . "_" .  $result{"form_id"} . "'".
-                                    " value='" . $result{"encounter"} . "'" .
+                                    " name='" . attr($result{"formdir"}) . "_" .  attr($result{"form_id"}) . "'".
+                                    " id='" . attr($result{"formdir"}) . "_" .  attr($result{"form_id"}) . "'".
+                                    " value='" . attr($result{"encounter"}) . "'" .
                                     " class='encounter'".
                                     " >";
                                     // show encounter reason, not just 'New Encounter'
@@ -379,8 +379,8 @@ function show_date_fun(){
                                         // The default encoding for this mb_substr() call is set near top of globals.php
                                         $result['reason'] = mb_substr($result['reason'], 0, $maxReasonLength) . " ... ";
                                     }
-                                    echo $result{"reason"}.
-                                    " (" . date("Y-m-d", strtotime($result{"date"})) .
+                                    echo text($result{"reason"}) .
+                                    " (" . text(date("Y-m-d", strtotime($result{"date"}))) .
                                     ")\n";
                                     echo "<div class='encounter_forms'>\n";
                                 } else {
@@ -408,11 +408,11 @@ function show_date_fun(){
                                         $html_strings[$form_name] = array();
                                     }
                                     array_push($html_strings[$form_name], "<input type='checkbox' ".
-                                        " name='" . $result{"formdir"} . "_" . $result{"form_id"} . "'".
-                                        " id='" . $result{"formdir"} . "_" . $result{"form_id"} . "'".
-                                        " value='" . $result{"encounter"} . "'" .
+                                        " name='" . attr($result{"formdir"}) . "_" . attr($result{"form_id"}) . "'".
+                                        " id='" . attr($result{"formdir"}) . "_" . attr($result{"form_id"}) . "'".
+                                        " value='" . attr($result{"encounter"}) . "'" .
                                         " class='encounter_form' ".
-                                        ">" . xl_form_title($result{"form_name"}) . "<br>\n");
+                                        ">" . text(xl_form_title($result{"form_name"})) . "<br>\n");
                                 }
                             }
 
@@ -461,7 +461,7 @@ function show_date_fun(){
                     $poid = $row['procedure_order_id'];
                     echo " <tr>\n";
                     echo "  <td align='center' class='text'>" .
-                    "<input type='checkbox' name='procedures[]' value='$poid' />&nbsp;&nbsp;</td>\n";
+                    "<input type='checkbox' name='procedures[]' value='" . attr($poid) . "' />&nbsp;&nbsp;</td>\n";
                     echo "  <td class='text'>" . text(oeFormatShortDate($row['date_ordered'])) . "&nbsp;&nbsp;</td>\n";
                     echo "  <td class='text'>" . text(oeFormatShortDate($row['date'])) . "&nbsp;&nbsp;</td>\n";
                     echo "  <td class='text'>";
@@ -494,8 +494,8 @@ function show_date_fun(){
                     $sql = "SELECT d.id, d.url, c.name, c.aco_spec FROM documents AS d " .
                             "LEFT JOIN categories_to_documents AS ctd ON d.id=ctd.document_id " .
                             "LEFT JOIN categories AS c ON c.id = ctd.category_id WHERE " .
-                            "d.foreign_id = " . $db->qstr($pid);
-                    $result = $db->Execute($sql);
+                            "d.foreign_id = ?";
+                    $result = $db->Execute($sql, array($pid));
                     if ($db->ErrorMsg()) {
                         echo $db->ErrorMsg();
                     }
@@ -503,9 +503,9 @@ function show_date_fun(){
                         if (empty($result->fields['aco_spec']) || acl_check_aco_spec($result->fields['aco_spec'])) {
                             echo "<li class='bold'>";
                             echo '<input type="checkbox" name="documents[]" value="' .
-                            $result->fields['id'] . '">';
-                            echo '&nbsp;&nbsp;<i>' .  xl_document_category($result->fields['name']) . "</i>";
-                            echo '&nbsp;&nbsp;' . xl('Name') . ': <i>' . basename($result->fields['url']) . "</i>";
+                            attr($result->fields['id']) . '">';
+                            echo '&nbsp;&nbsp;<i>' .  text(xl_document_category($result->fields['name'])) . "</i>";
+                            echo '&nbsp;&nbsp;' . xlt('Name') . ': <i>' . text(basename($result->fields['url'])) . "</i>";
                             echo '</li>';
                         }
                         $result->MoveNext();
@@ -524,7 +524,7 @@ function show_date_fun(){
             </fieldset>
         </form>
 
-        
+
         </div>  <!-- close patient_reports DIV -->
     </div><!--end of container div-->
     <?php
@@ -563,7 +563,7 @@ $(document).ready(function(){
         function() {
                 if(document.getElementById('show_date').checked == true){
                         if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
-                                alert('<?php echo addslashes(xl('Please select a start date and end date')) ?>');
+                                alert(<?php echo xlj('Please select a start date and end date') ?>);
                                 return false;
                         }
                 }
@@ -600,7 +600,7 @@ $(document).ready(function(){
         function() {
                 if(document.getElementById('show_date').checked == true){
                         if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
-                                alert('<?php echo addslashes(xl('Please select a start date and end date')) ?>');
+                                alert(<?php echo xlj('Please select a start date and end date'); ?>);
                                 return false;
                         }
                 }
@@ -655,21 +655,26 @@ $(document).ready(function(){
                 var raw = document.getElementsByName('raw');
                 raw[0].value = 'send '+ccrRecipient;
                 if(ccrRecipient=="") {
-                  $("#ccr_send_message").html("<?php
-                    echo htmlspecialchars(xl('Please enter a valid Direct Address above.'), ENT_QUOTES);?>");
+                  $("#ccr_send_message").html(<?php
+                    echo xlj('Please enter a valid Direct Address above.'); ?>);
                   $("#ccr_send_result").show();
                 } else {
                   $(".viewCCR_transmit").attr('disabled','disabled');
-                  $("#ccr_send_message").html("<?php
-                    echo htmlspecialchars(xl('Working... this may take a minute.'), ENT_QUOTES);?>");
+                  $("#ccr_send_message").html(<?php
+                    echo xlj('Working... this may take a minute.'); ?>);
                   $("#ccr_send_result").show();
                   var action=$("#ccr_form").attr('action');
-                  $.post(action, {ccrAction:'generate',raw:'send '+ccrRecipient,requested_by:'user'},
+                  $.post(action,
+                     {
+                       ccrAction:'generate',
+                       raw:'send '+ccrRecipient,
+                       requested_by:'user'
+                     },
                      function(data) {
                        if(data=="SUCCESS") {
-                         $("#ccr_send_message").html("<?php
-                            echo htmlspecialchars(xl('Your message was submitted for delivery to'), ENT_QUOTES);
-                            ?> "+ccrRecipient);
+                         $("#ccr_send_message").html(<?php
+                            echo xlj('Your message was submitted for delivery to');
+                            ?>+ " " + ccrRecipient);
                          $("#ccr_send_to").val("");
                        } else {
                          $("#ccr_send_message").html(data);
@@ -694,21 +699,26 @@ if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { 
                 var raw = document.getElementsByName('raw');
                 raw[0].value = 'send '+ccdRecipient;
                 if(ccdRecipient=="") {
-                  $("#ccd_send_message").html("<?php
-                    echo htmlspecialchars(xl('Please enter a valid Direct Address above.'), ENT_QUOTES);?>");
+                  $("#ccd_send_message").html(<?php
+                    echo xlj('Please enter a valid Direct Address above.'); ?>);
                   $("#ccd_send_result").show();
                 } else {
                   $(".viewCCD_transmit").attr('disabled','disabled');
-                  $("#ccd_send_message").html("<?php
-                    echo htmlspecialchars(xl('Working... this may take a minute.'), ENT_QUOTES);?>");
+                  $("#ccd_send_message").html(<?php
+                    echo xlj('Working... this may take a minute.'); ?>);
                   $("#ccd_send_result").show();
                   var action=$("#ccr_form").attr('action');
-                  $.post(action, {ccrAction:'viewccd',raw:'send '+ccdRecipient,requested_by:'user'},
+                  $.post(action,
+                     {
+                       ccrAction:'viewccd',
+                       raw:'send '+ccdRecipient,
+                       requested_by:'user'
+                     },
                      function(data) {
                        if(data=="SUCCESS") {
-                         $("#ccd_send_message").html("<?php
-                            echo htmlspecialchars(xl('Your message was submitted for delivery to'), ENT_QUOTES);
-                            ?> "+ccdRecipient);
+                         $("#ccd_send_message").html(<?php
+                            echo xlj('Your message was submitted for delivery to');
+                            ?> + " " + ccdRecipient);
                          $("#ccd_send_to").val("");
                        } else {
                          $("#ccd_send_message").html(data);
@@ -753,7 +763,7 @@ function issueClick(issue) {
     });
 }
 
-var listId = '#' + '<?php echo text($list_id); ?>';
+var listId = '#' + <?php echo js_escape($list_id); ?>;
 $(document).ready(function(){
     $(listId).addClass("active");
 });

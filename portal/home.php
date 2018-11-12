@@ -61,7 +61,7 @@ var webroot_url = webRoot;
 
 $(document).ready(function () {
 
-    $("#profilereport").load("./get_profile.php", {'embeddedScreen': true}, function () {
+    $("#profilereport").load("./get_profile.php", {embeddedScreen: true}, function () {
         $("table").addClass("table  table-responsive");
         $(".demographics td").removeClass("label");
         $(".demographics td").addClass("bold");
@@ -70,16 +70,16 @@ $(document).ready(function () {
             showProfileModal()
         });
     });
-    $("#reports").load("./report/portal_patient_report.php?pid='<?php echo attr($pid) ?>'", {'embeddedScreen': true}, function () {
+    $("#reports").load("./report/portal_patient_report.php?pid='<?php echo attr($pid) ?>'", {embeddedScreen: true}, function () {
         <?php if ($GLOBALS['portal_two_payments']) { ?>
-            $("#payment").load("./portal_payment.php", {'embeddedScreen': true}, function () {});
+            $("#payment").load("./portal_payment.php", {embeddedScreen: true}, function () {});
         <?php } ?>
     });
-    $("#medicationlist").load("./get_medications.php", {'embeddedScreen': true}, function () {
-        $("#allergylist").load("./get_allergies.php", {'embeddedScreen': true}, function () {
-            $("#problemslist").load("./get_problems.php", {'embeddedScreen': true}, function () {
-                $("#amendmentslist").load("./get_amendments.php", {'embeddedScreen': true}, function () {
-                    $("#labresults").load("./get_lab_results.php", {'embeddedScreen': true}, function () {
+    $("#medicationlist").load("./get_medications.php", {embeddedScreen: true}, function () {
+        $("#allergylist").load("./get_allergies.php", {embeddedScreen: true}, function () {
+            $("#problemslist").load("./get_problems.php", {embeddedScreen: true}, function () {
+                $("#amendmentslist").load("./get_amendments.php", {embeddedScreen: true}, function () {
+                    $("#labresults").load("./get_lab_results.php", {embeddedScreen: true}, function () {
 
                     });
                 });
@@ -325,7 +325,7 @@ function editAppointment(mode,deid){
                     <div class="panel panel-primary collapse" id="downloadpanel">
                         <header class="panel-heading"> <?php echo xlt('Download Documents'); ?> </header>
                         <div id="docsdownload" class="panel-body">
-                        <?php if ($GLOBALS['portal_onsite_document_download']) { ?>
+                        <?php if (!empty($GLOBALS['portal_onsite_document_download'])) { ?>
                             <div>
                                 <span class="text"><?php echo xlt('Download all patient documents');?></span>
                                 <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>

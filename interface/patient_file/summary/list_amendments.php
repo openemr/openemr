@@ -2,16 +2,18 @@
 /**
  * List Amendments
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Hema Bandaru <hemab@drcloudemr.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Hema Bandaru <hemab@drcloudemr.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2014 Ensoftek
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
-include_once("../../globals.php");
-include_once("$srcdir/options.inc.php");
+require_once("../../globals.php");
+require_once("$srcdir/options.inc.php");
 
 ?>
 
@@ -45,12 +47,12 @@ tr.selected {
         });
 
         if ( amendments == '' ) {
-            alert("<?php echo xls('Select amendments to print'); ?>");
+            alert(<?php echo xlj('Select amendments to print'); ?>);
             return;
         }
 
         // Call the function to print
-        var url = "print_amendments.php?ids=" + amendments;
+        var url = "print_amendments.php?ids=" + encodeURIComponent(amendments);
         window.open(url);
     }
 
@@ -94,7 +96,7 @@ if (sqlNumRows($resultSet)) { ?>
         </tr>
 
         <?php while ($row = sqlFetchArray($resultSet)) {
-            $amendmentLink = "<a href=add_edit_amendments.php?id=" . attr($row['amendment_id']) . ">" . text(oeFormatShortDate($row['amendment_date'])) . "</a>";
+            $amendmentLink = "<a href='add_edit_amendments.php?id=" . attr_url($row['amendment_id']) . "'>" . text(oeFormatShortDate($row['amendment_date'])) . "</a>";
         ?>
             <tr class="amendmentrow" id="<?php echo attr($row['amendment_id']); ?>">
                 <td><input id="check_list[]" name="check_list[]" type="checkbox" value="<?php echo attr($row['amendment_id']); ?>"></td>

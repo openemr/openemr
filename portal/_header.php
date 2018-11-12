@@ -155,6 +155,8 @@ use OpenEMR\Core\Header;
                             <?php if ($GLOBALS['ccda_alt_service_enable'] > 1) { ?>
                                 <li><a id="callccda" href="<?php echo $GLOBALS['web_root']; ?>/ccdaservice/ccda_gateway.php?action=startandrun">
                                     <i class="fa fa-envelope" aria-hidden="true"></i><span><?php echo xlt('View CCD'); ?></span></a></li>
+                            <?php } ?>
+                            <?php if (!empty($GLOBALS['portal_onsite_document_download'])) { ?>
                             <li data-toggle="pill"><a href="#reportpanel" data-toggle="collapse"
                                 data-parent="#panelgroup"> <i class="fa fa-folder-open"></i> <span><?php echo xlt('Report Content'); ?></span></a></li>
                             <?php } ?>

@@ -176,9 +176,14 @@ if (isset($_GET["res"])) {
 <div id="searchstatus" class="noResults"><?php echo htmlspecialchars(xl('No records found. Please expand your search criteria.'), ENT_NOQUOTES); ?>
 <br>
 <!--VicarePlus :: If pflag is set the new patient create link will not be displayed -->
-<a class="noresult" href='find_patient_popup.php?res=noresult' <?php if (isset($_GET['pflag'])) {
-?> style="display:none;" <?php
-} ?>  ><?php echo htmlspecialchars(xl('Click Here to add a new patient.'), ENT_NOQUOTES); ?></a>
+<a class="noresult" href='find_patient_popup.php?res=noresult' 
+<?php
+if (isset($_GET['pflag']) || (!acl_check('patients', 'demo', '', array('write','addonly')))) {
+?> style="display:none;" 
+<?php
+}
+?>  >
+<?php echo htmlspecialchars(xl('Click Here to add a new patient.'), ENT_NOQUOTES); ?></a>
 </div>
 <?php elseif (count($result)>=100) : ?>
 <div id="searchstatus" class="tooManyResults"><?php echo htmlspecialchars(xl('More than 100 records found. Please narrow your search criteria.'), ENT_NOQUOTES); ?></div>

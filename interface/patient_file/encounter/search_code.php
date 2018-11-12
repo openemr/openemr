@@ -1,8 +1,13 @@
 <?php
-
-////////////////////////////////////////////////////////////////////////////////
-// THIS MODULE REPLACES cptcm_codes.php, hcpcs_codes.php AND icd9cm_codes.php.
-////////////////////////////////////////////////////////////////////////////////
+/**
+ * search_code.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 require_once("../../globals.php");
 require_once("../../../custom/code_types.inc.php");
@@ -33,7 +38,7 @@ $code_type = $_GET['type'];
 
 <td valign=top>
 
-<form name="search_form" id="search_form" method="post" action="search_code.php?type=<?php echo attr(urlencode($code_type)); ?>">
+<form name="search_form" id="search_form" method="post" action="search_code.php?type=<?php echo attr_url($code_type); ?>">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <input type="hidden" name="mode" value="search">
@@ -110,14 +115,14 @@ if ($result) {
 
         echo "<div class='oneresult' style='padding: 3px 0px 3px 0px;'>";
         echo "<a target='" . xla('Diagnosis') . "' href='diagnosis.php?mode=add" .
-            "&type="     . attr(urlencode($code_type)) .
-            "&code="     . attr(urlencode($iter{"code"})) .
-            "&modifier=" . attr(urlencode($iter{"modifier"})) .
-            "&units="    . attr(urlencode($iter{"units"})) .
-            // "&fee="      . attr(urlencode($iter{"fee"})) .
-            "&fee="      . attr(urlencode($iter['pr_price'])) .
-            "&text="     . attr(urlencode($iter{"code_text"})) .
-            "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) .
+            "&type="     . attr_url($code_type) .
+            "&code="     . attr_url($iter{"code"}) .
+            "&modifier=" . attr_url($iter{"modifier"}) .
+            "&units="    . attr_url($iter{"units"}) .
+            // "&fee="      . attr_url($iter{"fee"}) .
+            "&fee="      . attr_url($iter['pr_price']) .
+            "&text="     . attr_url($iter{"code_text"}) .
+            "&csrf_token_form=" . attr_url(collectCsrfToken()) .
             "' onclick='top.restoreSession()'>";
         echo ucwords("<b>" . text(strtoupper($iter{"code"})) . "&nbsp;" . text($iter['modifier']) .
             "</b>" . " " . text(strtolower($iter{"code_text"})));

@@ -2,9 +2,12 @@
 /**
  * View history of a patient.
  *
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 
 require_once("../../globals.php");
@@ -20,7 +23,7 @@ use OpenEMR\Menu\PatientMenuRole;
 ?>
 <html>
 <head>
-    <title><?php echo xl("History"); ?></title>
+    <title><?php echo xlt("History"); ?></title>
     <?php Header::setupHeader('common'); ?>
 
 <script type="text/javascript">
@@ -63,12 +66,12 @@ if (!empty($grparr['']['grp_size'])) {
             if (acl_check('patients', 'med')) {
                 $tmp = getPatientData($pid, "squad");
                 if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
-                    echo "<p>(".htmlspecialchars(xl('History not authorized'), ENT_NOQUOTES).")</p>\n";
+                    echo "<p>(" . xlt('History not authorized') . ")</p>\n";
                     echo "</body>\n</html>\n";
                     exit();
                 }
             } else {
-                echo "<p>(".htmlspecialchars(xl('History not authorized'), ENT_NOQUOTES).")</p>\n";
+                echo "<p>(" . xlt('History not authorized') . ")</p>\n";
                 echo "</body>\n</html>\n";
                 exit();
             }
@@ -95,7 +98,7 @@ if (!empty($grparr['']['grp_size'])) {
         <div class="row">
             <div class="col-sm-12">
                 <?php
-                $list_id = "nav-list2"; // to indicate nav item is active, count and give correct id
+                $list_id = "history"; // to indicate nav item is active, count and give correct id
                 $menuPatient = new PatientMenuRole();
                 $menuPatient->displayHorizNavBarMenu();
                 ?>
@@ -105,14 +108,14 @@ if (!empty($grparr['']['grp_size'])) {
             <div class="col-sm-12">
                 <div class="btn-group">
                     <a href="history_full.php" class="btn btn-default btn-edit" onclick="top.restoreSession()">
-                        <?php echo htmlspecialchars(xl("Edit"), ENT_NOQUOTES);?>
+                        <?php echo xlt("Edit");?>
                     </a>
                 </div>
             </div>
         </div>
     <?php
     } ?>
-    <div class="row"> 
+    <div class="row">
         <div class="col-sm-12" style="margin-top: 20px;">
             <!-- Demographics -->
             <div id="HIS">
@@ -125,7 +128,7 @@ if (!empty($grparr['']['grp_size'])) {
             </div>
         </div>
     </div>
-    
+
 </div><!--end of container div -->
 <?php
 //home of the help modal ;)
@@ -140,11 +143,11 @@ if ($GLOBALS['enable_help'] == 1) {
 <script type="text/javascript">
     // Array of skip conditions for the checkSkipConditions() function.
     var skipArray = [
-        <?php echo $condition_str; ?>
+        <?php echo js_escape($condition_str); ?>
     ];
     checkSkipConditions();
-    
-    var listId = '#' + '<?php echo text($list_id); ?>';
+
+    var listId = '#' + <?php echo js_escape($list_id); ?>;
     $(document).ready(function(){
         $(listId).addClass("active");
     });
