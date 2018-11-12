@@ -425,7 +425,7 @@ class Events extends Base
                         if ($results==false) {
                             continue; //not happening - either not allowed or not possible
                         }
-                        if ( ($appt['pc_recurrtype'] !='0') && ($interval =="+") ) {
+                        if (($appt['pc_recurrtype'] !='0') && ($interval =="+")) {
                             $recurrents = $this->addRecurrent($appt, $interval, $timing, $timing2);
                             $count_recurrents += $recurrents;
                             continue;
@@ -581,7 +581,6 @@ class Events extends Base
                     if (empty($event['appts_end'])) { //a single date
                             $target_dates = "pc_eventDate = ?";
                             $escapedArr[]=$event['appts_start'];
-                    
                     } else { //a date range, start and end
                         $target_dates = "(pc_eventDate >= ? and pc_eventDate <= ?)";
                         $escapedArr[]=$event['appts_start'];
@@ -656,10 +655,10 @@ class Events extends Base
                         continue; //not happening - either not allowed or not possible
                     }
                     if ($appt['pc_recurrtype'] !='0') {
-                            $recurrents = $this->addRecurrent($appt,"+", $event['appts_start'], $event['appts_end'], "ANNOUNCE");
+                            $recurrents = $this->addRecurrent($appt, "+", $event['appts_start'], $event['appts_end'], "ANNOUNCE");
                             $count_recurrents += $recurrents;
                             continue;
-                        }
+                    }
                     $count_announcements++;
 
                     $appt2 = array();
@@ -696,42 +695,42 @@ class Events extends Base
             } else if ($event['M_group'] == 'SURVEY') {
                     // Look at appts on a per-provider basis for now...
                     //and Retrospectively only - so no recurrents
-                    if (empty($event['timing'])) {
-                        $event['timing'] = "180";
-                    }
+                if (empty($event['timing'])) {
+                    $event['timing'] = "180";
+                }
                     // appts completed - this is defined by list_option->toggle_setting2=1 for Flow Board
                     $appt_status = " and pc_apptstatus in (SELECT option_id from list_options where toggle_setting_2='1' and list_id='apptstat') ";
                     //if we are to refine further, to not limit by completed status but with a specific appt_stats
                     // eg survey people who left without appt or
                     //T_appt_stats = array -> list of appstat(s) to restrict event to in a ',' separated list
-                    if (!empty($event['T_appt_stats'])) {
-                        foreach ($event['T_appt_stats'] as $stat) {
-                            $escapedArr[] = $stat;
-                            $escClause['Stat'] .= "?,";
-                        }
-                        rtrim($escStat, ",");
-                        $appt_status = " and pc_appstatus in (".$escClause['Stat'].") ";
+                if (!empty($event['T_appt_stats'])) {
+                    foreach ($event['T_appt_stats'] as $stat) {
+                        $escapedArr[] = $stat;
+                        $escClause['Stat'] .= "?,";
                     }
+                    rtrim($escStat, ",");
+                    $appt_status = " and pc_appstatus in (".$escClause['Stat'].") ";
+                }
     
                     $sql2= "SELECT * FROM medex_prefs";
                     $pref = sqlQuery($sql2);
                     //if we are refining survey by facility
                     $facility_clause = '';
-                    if (!empty($event['T_facilities'])) {
-                        foreach ($event['T_facilities'] as $fac) {
-                            $escapedArr[] = $fac;
-                            $escClause['Fac'] .= "?,";
-                        }
-                        rtrim($escFac, ",");
-                        $facility_clause = " AND cal.pc_facility in (".$escClause['Fac'].") ";
+                if (!empty($event['T_facilities'])) {
+                    foreach ($event['T_facilities'] as $fac) {
+                        $escapedArr[] = $fac;
+                        $escClause['Fac'] .= "?,";
                     }
+                    rtrim($escFac, ",");
+                    $facility_clause = " AND cal.pc_facility in (".$escClause['Fac'].") ";
+                }
                     $all_providers = explode('|', $pref['ME_providers']);
-                    foreach ($event['survey'] as $k => $v) {
-                        if (($v <= 0) || (empty($event['providers'])) || (!in_array($k, $all_providers))) {
-                            continue;
-                        }
-                        $escapedArr[] = $k;
-                        $query  = "SELECT * FROM openemr_postcalendar_events AS cal
+                foreach ($event['survey'] as $k => $v) {
+                    if (($v <= 0) || (empty($event['providers'])) || (!in_array($k, $all_providers))) {
+                        continue;
+                    }
+                    $escapedArr[] = $k;
+                    $query  = "SELECT * FROM openemr_postcalendar_events AS cal
                                         LEFT JOIN patient_data AS pat ON cal.pc_pid=pat.pid
                                         WHERE (
                                             cal.pc_eventDate > CURDATE() - INTERVAL ".$event['timing']." DAY AND
@@ -739,58 +738,58 @@ class Events extends Base
                                             pat.pid=cal.pc_pid AND
                                             pc_apptstatus !='%' AND
                                             pc_apptstatus != 'x' ".
-                                        $appt_status.
-                                        $facility_clause."
+                                    $appt_status.
+                                    $facility_clause."
                                              AND cal.pc_aid IN (?)
                                              AND email > ''
                                              AND hipaa_allowemail NOT LIKE 'NO'
                                             GROUP BY pc_pid
                                             ORDER BY pc_eventDate,pc_startTime
                                             LIMIT ".$v;
-                        //Survey opt-out option should feed into here also but there is no field for it in patient_data
-                        //MedEx tracks opt-out requests however so unless there are a lot, it won't matter here.
-                        $result = sqlStatement($query, $escapedArr);
-                        while ($appt= sqlFetchArray($result)) {
-                            list($response,$results) = $this->MedEx->checkModality($event, $appt);
-                            if ($results==false) {
-                                continue; //not happening - either not allowed or not possible
-                            }
-                            $appt2 = array();
-                            $appt2['pc_pid']        = $appt['pc_pid'];
-                            $appt2['pc_eventDate']  = $appt['pc_eventDate'];
-                            $appt2['pc_startTime']  = $appt['pc_startTime'];
-                            $appt2['pc_eid']        = $appt['pc_eid'];
-                            $appt2['pc_aid']        = $appt['pc_aid'];
-                            $appt2['e_reason']      = (!empty($appt['e_reason']))?:'';
-                            $appt2['e_is_subEvent_of']= (!empty($appt['e_is_subEvent_of']))?:"0";
-                            $appt2['language']      = $appt['language'];
-                            $appt2['pc_facility']   = $appt['pc_facility'];
-                            $appt2['fname']         = $appt['fname'];
-                            $appt2['lname']         = $appt['lname'];
-                            $appt2['mname']         = $appt['mname'];
-                            $appt2['street']        = $appt['street'];
-                            $appt2['postal_code']   = $appt['postal_code'];
-                            $appt2['city']          = $appt['city'];
-                            $appt2['state']         = $appt['state'];
-                            $appt2['country_code']  = $appt['country_code'];
-                            $appt2['phone_home']    = $appt['phone_home'];
-                            $appt2['phone_cell']    = $appt['phone_cell'];
-                            $appt2['email']         = $appt['email'];
-                            $appt2['pc_apptstatus'] = $appt['pc_apptstatus'];
-    
-                            $appt2['C_UID']         = $event['C_UID'];
-                            $appt2['E_fire_time']   = $event['E_fire_time'];
-                            $appt2['time_order']    = $event['time_order'];
-                            $appt2['M_type']        = $event['M_type'];
-                            $appt2['reply']         = "To Send";
-                            $appt2['extra']         = "QUEUED";
-                            $appt2['status']        = "SENT";
-    
-                            $appt2['to']            = $results;
-                            $appt3[] = $appt2;
-                            $count_surveys++;
+                    //Survey opt-out option should feed into here also but there is no field for it in patient_data
+                    //MedEx tracks opt-out requests however so unless there are a lot, it won't matter here.
+                    $result = sqlStatement($query, $escapedArr);
+                    while ($appt= sqlFetchArray($result)) {
+                        list($response,$results) = $this->MedEx->checkModality($event, $appt);
+                        if ($results==false) {
+                            continue; //not happening - either not allowed or not possible
                         }
+                        $appt2 = array();
+                        $appt2['pc_pid']        = $appt['pc_pid'];
+                        $appt2['pc_eventDate']  = $appt['pc_eventDate'];
+                        $appt2['pc_startTime']  = $appt['pc_startTime'];
+                        $appt2['pc_eid']        = $appt['pc_eid'];
+                        $appt2['pc_aid']        = $appt['pc_aid'];
+                        $appt2['e_reason']      = (!empty($appt['e_reason']))?:'';
+                        $appt2['e_is_subEvent_of']= (!empty($appt['e_is_subEvent_of']))?:"0";
+                        $appt2['language']      = $appt['language'];
+                        $appt2['pc_facility']   = $appt['pc_facility'];
+                        $appt2['fname']         = $appt['fname'];
+                        $appt2['lname']         = $appt['lname'];
+                        $appt2['mname']         = $appt['mname'];
+                        $appt2['street']        = $appt['street'];
+                        $appt2['postal_code']   = $appt['postal_code'];
+                        $appt2['city']          = $appt['city'];
+                        $appt2['state']         = $appt['state'];
+                        $appt2['country_code']  = $appt['country_code'];
+                        $appt2['phone_home']    = $appt['phone_home'];
+                        $appt2['phone_cell']    = $appt['phone_cell'];
+                        $appt2['email']         = $appt['email'];
+                        $appt2['pc_apptstatus'] = $appt['pc_apptstatus'];
+    
+                        $appt2['C_UID']         = $event['C_UID'];
+                        $appt2['E_fire_time']   = $event['E_fire_time'];
+                        $appt2['time_order']    = $event['time_order'];
+                        $appt2['M_type']        = $event['M_type'];
+                        $appt2['reply']         = "To Send";
+                        $appt2['extra']         = "QUEUED";
+                        $appt2['status']        = "SENT";
+    
+                        $appt2['to']            = $results;
+                        $appt3[] = $appt2;
+                        $count_surveys++;
                     }
+                }
             } else if ($event['M_group'] == 'CLINICAL_REMINDER') {
                     $sql = "SELECT * FROM `patient_reminders`,`patient_data`
                                   WHERE
@@ -801,14 +800,14 @@ class Events extends Base
                                   ORDER BY `due_status`, `date_created`";
                     $ures = sqlStatementCdrEngine($sql);
                     $returnval=array();
-                    while ($urow = sqlFetchArray($ures)) {
-                        list($response,$results) = $this->MedEx->checkModality($event, $urow);
-                        if ($results==false) {
-                            continue; //not happening - either not allowed or not possible
-                        }
-                        $fields2['clinical_reminders'][] = $urow;
-                        $count_clinical_reminders++;
+                while ($urow = sqlFetchArray($ures)) {
+                    list($response,$results) = $this->MedEx->checkModality($event, $urow);
+                    if ($results==false) {
+                        continue; //not happening - either not allowed or not possible
                     }
+                    $fields2['clinical_reminders'][] = $urow;
+                    $count_clinical_reminders++;
+                }
             } else if ($event['M_group'] == 'GOGREEN') {
                 $escapedArr=[];
                 
@@ -874,11 +873,11 @@ class Events extends Base
                 } else {
                     if ($event['E_instructions'] == 'yearly') {
                     //yearly - this patient only gets this once a year
-                    $frequency = " AND cal.pc_pid NOT in (
+                        $frequency = " AND cal.pc_pid NOT in (
                             SELECT msg_pid from medex_outgoing where
                                 campaign_uid =? and
                                 msg_date > curdate() - interval 1 year )";
-                    $escapedArr[] = (int)$event['C_UID'];
+                        $escapedArr[] = (int)$event['C_UID'];
                     }
                 }
                 //otherwise Campaign was set to send with each appointment...
@@ -997,7 +996,6 @@ class Events extends Base
                 }
                 
                 $this->MedEx->logging->log_this("Stop");
-                
             }
         }
 
@@ -1037,7 +1035,7 @@ class Events extends Base
      * @param $result
      * @return array|bool
      */
-    private function addRecurrent($appt, $interval, $timing, $timing2,$M_group="REMINDER")
+    private function addRecurrent($appt, $interval, $timing, $timing2, $M_group = "REMINDER")
     {
         // We have a row in postcalendar_events that pc_recurrtype > 0
         // Check the dates that match
@@ -1124,7 +1122,8 @@ class Events extends Base
             
             #Add a new tracker item for this appt.
             $datetime = date("Y-m-d H:i:s");
-            sqlInsert("INSERT INTO `patient_tracker` " .
+            sqlInsert(
+                "INSERT INTO `patient_tracker` " .
                                 "(`date`, `apptdate`, `appttime`, `eid`, `pid`, `original_user`, `encounter`, `lastseq`) " .
                                 "VALUES (?,?,?,?,?,'MedEx','0','1')",
                 array($datetime, $selected_date, $appt['pc_startTime'], $pc_eid, $appt['pc_pid'])
@@ -1210,7 +1209,8 @@ class Events extends Base
         return false;
     }
     
-    public function calculateEvents($event, $start_date, $stop_date) {
+    public function calculateEvents($event, $start_date, $stop_date)
+    {
         
           ///////////////////////////////////////////////////////////////////////
           // The following code is from the calculateEvents function in the    //
@@ -1220,31 +1220,90 @@ class Events extends Base
             $data = array();
             $this->MedEx->logging->log_this("hello in calculateEvents");
             $this->MedEx->logging->log_this($event['pc_recurrtype']);
-            switch ($event['pc_recurrtype']) {
-                //not recurrent
-                case '0':
-                    $data[] = $event;
-                    break;
-                case '1':
-                case '3':
-                    $event_recurrspec = @unserialize($event['pc_recurrspec']);
+        switch ($event['pc_recurrtype']) {
+            //not recurrent
+            case '0':
+                $data[] = $event;
+                break;
+            case '1':
+            case '3':
+                $event_recurrspec = @unserialize($event['pc_recurrspec']);
     
-                    $rfreq = $event_recurrspec['event_repeat_freq'];
-                    $rtype = $event_recurrspec['event_repeat_freq_type'];
-                    $exdate = $event_recurrspec['exdate'];
-                    list($ny,$nm,$nd) = explode('-', $event['pc_eventDate']);
-                    $occurence = $event['pc_eventDate'];
+                $rfreq = $event_recurrspec['event_repeat_freq'];
+                $rtype = $event_recurrspec['event_repeat_freq_type'];
+                $exdate = $event_recurrspec['exdate'];
+                list($ny,$nm,$nd) = explode('-', $event['pc_eventDate']);
+                $occurence = $event['pc_eventDate'];
        
-                    // prep work to start cooking...
-                    // ignore dates less than start_date
-                    while (strtotime($occurence) < strtotime($start_date)) {
-                        // if the start date is later than the recur date start
-                        // just go up a unit at a time until we hit start_date
-                        $occurence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
-                        list($ny,$nm,$nd) = explode('-', $occurence);
+                // prep work to start cooking...
+                // ignore dates less than start_date
+                while (strtotime($occurence) < strtotime($start_date)) {
+                    // if the start date is later than the recur date start
+                    // just go up a unit at a time until we hit start_date
+                    $occurence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
+                    list($ny,$nm,$nd) = explode('-', $occurence);
+                }
+                //now we are cooking...
+                while ($occurence <= $stop_date) {
+                    $excluded = false;
+                    if (isset($exdate)) {
+                        foreach (explode(",", $exdate) as $exception) {
+                            // occurrence format == yyyy-mm-dd
+                            // exception format == yyyymmdd
+                            if (preg_replace("/-/", "", $occurence) == $exception) {
+                                $excluded = true;
+                            }
+                        }
                     }
-                    //now we are cooking...
-                    while ($occurence <= $stop_date) {
+    
+                    if ($excluded == false) {
+                        $data[] = $occurence;
+                    }
+                    $occurence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
+                    list($ny,$nm,$nd) = explode('-', $occurence);
+                }
+                break;
+    
+          //////
+            case '2':
+                $event_recurrspec = @unserialize($event['pc_recurrspec']);
+    
+                if (checkEvent($event['pc_recurrtype'], $event_recurrspec)) {
+                    break; }
+    
+                $rfreq = $event_recurrspec['event_repeat_on_freq'];
+                $rnum  = $event_recurrspec['event_repeat_on_num'];
+                $rday  = $event_recurrspec['event_repeat_on_day'];
+                $exdate = $event_recurrspec['exdate'];
+    
+                list($ny,$nm,$nd) = explode('-', $event['pc_eventDate']);
+    
+                if (isset($event_recurrspec['rt2_pf_flag']) && $event_recurrspec['rt2_pf_flag']) {
+                    $nd = 1;
+                }
+    
+                $occurenceYm = "$ny-$nm"; // YYYY-mm
+                $from_dateYm = substr($start_date, 0, 7); // YYYY-mm
+                $stop_dateYm = substr($stop_date, 0, 7); // YYYY-mm
+    
+                // $nd will sometimes be 29, 30 or 31 and if used in the mktime functions below
+                // a problem with overflow will occur so it is set to 1 to avoid this (for rt2
+                // appointments set prior to fix $nd remains unchanged). This can be done since
+                // $nd has no influence past the mktime functions.
+                while ($occurenceYm < $from_dateYm) {
+                    $occurenceYmX = date('Y-m-d', mktime(0, 0, 0, $nm+$rfreq, $nd, $ny));
+                    list($ny,$nm,$nd) = explode('-', $occurenceYmX);
+                    $occurenceYm = "$ny-$nm";
+                }
+    
+                while ($occurenceYm <= $stop_dateYm) {
+                    // (YYYY-mm)-dd
+                    $dnum = $rnum;
+                    do {
+                        $occurence = Date_Calc::NWeekdayOfMonth($dnum--, $rday, $nm, $ny, $format = "%Y-%m-%d");
+                    } while ($occurence === -1);
+    
+                    if ($occurence >= $from_date && $occurence <= $stop_date) {
                         $excluded = false;
                         if (isset($exdate)) {
                             foreach (explode(",", $exdate) as $exception) {
@@ -1257,78 +1316,19 @@ class Events extends Base
                         }
     
                         if ($excluded == false) {
-                            $data[] = $occurence;
+                            $event['pc_eventDate'] = $occurence;
+                            $event['pc_endDate'] = '0000-00-00';
+                            $events2[] = $event;
+                            $data[] = $event['pc_eventDate'];
                         }
-                        $occurence =& $this->MedEx->events->__increment($nd, $nm, $ny, $rfreq, $rtype);
-                        list($ny,$nm,$nd) = explode('-', $occurence);
-                    }
-                    break;
-    
-          //////
-                case '2':
-                    $event_recurrspec = @unserialize($event['pc_recurrspec']);
-    
-                    if (checkEvent($event['pc_recurrtype'], $event_recurrspec)) {
-                        break; }
-    
-                    $rfreq = $event_recurrspec['event_repeat_on_freq'];
-                    $rnum  = $event_recurrspec['event_repeat_on_num'];
-                    $rday  = $event_recurrspec['event_repeat_on_day'];
-                    $exdate = $event_recurrspec['exdate'];
-    
-                    list($ny,$nm,$nd) = explode('-', $event['pc_eventDate']);
-    
-                    if (isset($event_recurrspec['rt2_pf_flag']) && $event_recurrspec['rt2_pf_flag']) {
-                        $nd = 1;
                     }
     
-                    $occurenceYm = "$ny-$nm"; // YYYY-mm
-                    $from_dateYm = substr($start_date, 0, 7); // YYYY-mm
-                    $stop_dateYm = substr($stop_date, 0, 7); // YYYY-mm
-    
-                    // $nd will sometimes be 29, 30 or 31 and if used in the mktime functions below
-                    // a problem with overflow will occur so it is set to 1 to avoid this (for rt2
-                    // appointments set prior to fix $nd remains unchanged). This can be done since
-                    // $nd has no influence past the mktime functions.
-                    while ($occurenceYm < $from_dateYm) {
-                        $occurenceYmX = date('Y-m-d', mktime(0, 0, 0, $nm+$rfreq, $nd, $ny));
-                        list($ny,$nm,$nd) = explode('-', $occurenceYmX);
-                        $occurenceYm = "$ny-$nm";
-                    }
-    
-                    while ($occurenceYm <= $stop_dateYm) {
-                        // (YYYY-mm)-dd
-                        $dnum = $rnum;
-                        do {
-                            $occurence = Date_Calc::NWeekdayOfMonth($dnum--, $rday, $nm, $ny, $format = "%Y-%m-%d");
-                        } while ($occurence === -1);
-    
-                        if ($occurence >= $from_date && $occurence <= $stop_date) {
-                            $excluded = false;
-                            if (isset($exdate)) {
-                                foreach (explode(",", $exdate) as $exception) {
-                                    // occurrence format == yyyy-mm-dd
-                                    // exception format == yyyymmdd
-                                    if (preg_replace("/-/", "", $occurence) == $exception) {
-                                        $excluded = true;
-                                    }
-                                }
-                            }
-    
-                            if ($excluded == false) {
-                                $event['pc_eventDate'] = $occurence;
-                                $event['pc_endDate'] = '0000-00-00';
-                                $events2[] = $event;
-                                $data[] = $event['pc_eventDate'];
-                            }
-                        }
-    
-                        $occurenceYmX = date('Y-m-d', mktime(0, 0, 0, $nm+$rfreq, $nd, $ny));
-                        list($ny,$nm,$nd) = explode('-', $occurenceYmX);
-                        $occurenceYm = "$ny-$nm";
-                    }
-                    break;
-            }
+                    $occurenceYmX = date('Y-m-d', mktime(0, 0, 0, $nm+$rfreq, $nd, $ny));
+                    list($ny,$nm,$nd) = explode('-', $occurenceYmX);
+                    $occurenceYm = "$ny-$nm";
+                }
+                break;
+        }
         return $data;
     }
     
@@ -1431,21 +1431,20 @@ class Events extends Base
         return $age;
     }
 
-    private function getDatesInRecurring($appt, $interval, $start_days='', $end_days='') {
+    private function getDatesInRecurring($appt, $interval, $start_days = '', $end_days = '')
+    {
         $start = date('Y-m-d', strtotime($interval.$start_days . ' day'));
         $end = date('Y-m-d', strtotime($interval.$end_days . ' day'));
         $aryRange=array();
 
-        $iDateFrom=mktime(1,0,0,substr($start,5,2),     substr($start,8,2),substr($start,0,4));
-        $iDateTo=mktime(1,0,0,substr($end,5,2),     substr($end,8,2),substr($end,0,4));
+        $iDateFrom=mktime(1, 0, 0, substr($start, 5, 2), substr($start, 8, 2), substr($start, 0, 4));
+        $iDateTo=mktime(1, 0, 0, substr($end, 5, 2), substr($end, 8, 2), substr($end, 0, 4));
 
-        if ($iDateTo>=$iDateFrom)
-        {
-            array_push($aryRange,date('Y-m-d',$iDateFrom)); // first entry
-            while ($iDateFrom<$iDateTo)
-            {
+        if ($iDateTo>=$iDateFrom) {
+            array_push($aryRange, date('Y-m-d', $iDateFrom)); // first entry
+            while ($iDateFrom<$iDateTo) {
                 $iDateFrom+=86400; // add 24 hours
-                array_push($aryRange,date('Y-m-d',$iDateFrom));
+                array_push($aryRange, date('Y-m-d', $iDateFrom));
             }
         }
         $this->MedEx->logging->log_this($aryRange);
@@ -1482,7 +1481,8 @@ class Callback extends Base
             //Store responses in TABLE medex_outgoing
             $sqlINSERT = "INSERT INTO medex_outgoing (msg_pc_eid, msg_pid, campaign_uid, msg_type, msg_reply, msg_extra_text, msg_date, medex_uid)
                                 VALUES (?,?,?,?,?,?,utc_timestamp(),?)";
-            if (!$data['M_type']) { $data['M_type'] ='pending'; }
+            if (!$data['M_type']) {
+                $data['M_type'] ='pending'; }
             sqlQuery($sqlINSERT, array($data['pc_eid'],$data['patient_id'], $data['campaign_uid'], $data['M_type'],$data['msg_reply'],$data['msg_extra'],$data['msg_uid']));
 
             if ($data['msg_reply']=="CONFIRMED") {
@@ -1508,7 +1508,6 @@ class Callback extends Base
                 } else {
                     $this->MedEx->logging->log_this("Tracker ID is missing for pc_eid=".$data['pc_eid']."!!!!!!");
                     $this->MedEx->logging->log_this($tracker);
-                    
                 }
             } elseif ($data['msg_reply']=="CALL") {
                 $sqlUPDATE = "UPDATE openemr_postcalendar_events SET pc_apptstatus = 'CALL' WHERE pc_eid=?";
@@ -3460,8 +3459,10 @@ class MedEx
         return $this->lastError; }
         
         
-    private function just_login($info) {
-        if (empty($info)) { return; }
+    private function just_login($info)
+    {
+        if (empty($info)) {
+            return; }
         
         $this->curl->setUrl($this->getUrl('login'));
         $this->curl->setData(array(
@@ -3495,8 +3496,7 @@ class MedEx
         if (empty($info) ||
             empty($info['ME_username']) ||
             empty($info['ME_api_key']) ||
-            empty($info['MedEx_id']))
-        {
+            empty($info['MedEx_id'])) {
             return false;
         }
         
@@ -3504,13 +3504,13 @@ class MedEx
         
         if (empty($force)) {
             $timer = strtotime($info['MedEx_lastupdated']);
-            $utc_now = gmdate( 'Y-m-d H:m:s');
+            $utc_now = gmdate('Y-m-d H:m:s');
             $now = strtotime($utc_now, "-5 minutes");
             if ($now > $timer) {
                 $expired ='1';
             }
         }
-        if ( ($expired =='1') || ($force=='1') )  {
+        if (($expired =='1') || ($force=='1')) {
             $info = $this->just_login($info);
         }
         $info['status'] = json_decode($info['status'], true);
