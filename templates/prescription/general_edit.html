@@ -272,19 +272,6 @@ select{
 <script type="text/javascript">
 
 
-    $('.datepicker').datetimepicker({
-{/literal}
-    {php}
-    $datetimepicker_timepicker = false;
-    $datetimepicker_showseconds = false;
-    $datetimepicker_formatInput = true;
-    require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
-    {/php}
-{literal}
-});
-
-
-
 function submitfun() {
     top.restoreSession();
     if (CheckForErrors(this)) {
@@ -369,7 +356,13 @@ function CheckRequired(objID) {
     return true;
 }
 
-</script>
+
+$(document).ready(function(){{/literal}
+    {datetimepickerSupport input='format'}
+{literal}});</script>
+
+
+
 {/literal}
 
 </html>
