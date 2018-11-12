@@ -111,9 +111,9 @@ for ($i = 0; $i < count($aColumns); ++$i) {
                     "mname LIKE '$sSearch%' )";
             }
         } elseif ($searchMethodInPatientList) {
-            $where .= " `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch'"; // like search
+            $where .= " `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch'"; // exact search
         } else {
-            $where .= " `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch%'"; // exact search
+            $where .= " `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch%'"; // like search
         }
     }
 }
