@@ -177,11 +177,11 @@ if (isset($_GET["res"])) {
 <br>
 <!--VicarePlus :: If pflag is set the new patient create link will not be displayed -->
 <a class="noresult" href='find_patient_popup.php?res=noresult' 
-<?php 
+<?php
 if (isset($_GET['pflag']) || (!acl_check('patients', 'demo', '', array('write','addonly')))) {
 ?> style="display:none;" 
 <?php
-} 
+}
 ?>  >
 <?php echo htmlspecialchars(xl('Click Here to add a new patient.'), ENT_NOQUOTES); ?></a>
 </div>
