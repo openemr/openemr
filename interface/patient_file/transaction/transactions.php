@@ -1,6 +1,17 @@
 <?php
-include_once("../../globals.php");
-include_once("$srcdir/transactions.inc");
+/**
+ * transactions.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+
+require_once("../../globals.php");
+require_once("$srcdir/transactions.inc");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Core\Header;
@@ -20,7 +31,7 @@ use OpenEMR\Menu\PatientMenuRole;
     // Process click on Delete button.
     function deleteme(transactionId) {
         top.restoreSession();
-        dlgopen('../deleter.php?transaction=' + transactionId, '_blank', 500, 450);
+        dlgopen('../deleter.php?transaction=' + encodeURIComponent(transactionId), '_blank', 500, 450);
         return false;
     }
 <?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>
@@ -61,7 +72,7 @@ use OpenEMR\Menu\PatientMenuRole;
         <br>
         <div class="row">
             <div class="col-sm-12 text">
-       
+
                 <?php
                 if ($result = getTransByPid($pid)) {
                 ?>
@@ -99,27 +110,26 @@ use OpenEMR\Menu\PatientMenuRole;
                             <tr>
                                 <td>
                                     <div class="btn-group oe-pull-toward">
-                                        <a href='add_transaction.php?transid=<?php echo attr($id); ?>&title=<?php echo attr($title); ?>&inmode=edit'
+                                        <a href='add_transaction.php?transid=<?php echo attr_url($id); ?>&title=<?php echo attr_url($title); ?>&inmode=edit'
                                             onclick='top.restoreSession()'
                                             class='btn btn-default btn-edit'>
                                             <?php echo text($edit); ?>
                                         </a>
                                         <?php if (acl_check('admin', 'super')) { ?>
                                             <a href='#'
-                                                onclick='deleteme(<?php echo attr($id); ?>)'
+                                                onclick='deleteme(<?php echo attr_js($id); ?>)'
                                                 class='btn btn-default btn-delete'>
                                                 <?php echo text($delete); ?>
                                             </a>
                                         <?php } ?>
                                         <?php if ($item['title'] == 'LBTref') { ?>
-                                            <a href='print_referral.php?transid=<?php echo attr($id); ?>' onclick='top.restoreSession();'
+                                            <a href='print_referral.php?transid=<?php echo attr_url($id); ?>' onclick='top.restoreSession();'
                                                 class='btn btn-print btn-default'>
                                                 <?php echo text($view); ?>
                                             </a>
                                         <?php } ?>
                                     </div>
                                 </td>
-                                <!--<td><?php echo generate_display_field(['data_type' => 99, 'list_id' => 'Transactions'], $item['title']); ?></td>-->
                                 <td><?php echo getLayoutTitle('Transactions', $item['title']); ?></td>
                                 <td><?php echo text($date); ?></td>
                                 <td><?php echo text($item['user']); ?></td>
@@ -150,7 +160,7 @@ use OpenEMR\Menu\PatientMenuRole;
     }
     ?>
     <script>
-        var listId = '#' + '<?php echo text($list_id); ?>';
+        var listId = '#' + <?php echo js_escape($list_id); ?>;
         $(document).ready(function(){
             $(listId).addClass("active");
         });
