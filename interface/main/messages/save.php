@@ -120,7 +120,7 @@ if ($_REQUEST['MedEx'] == "start") {
 								PHONE_country_code,LABELS_local,LABELS_choice)
 							VALUES (?,?,?,?,?,?,?,?,?,?)";
             sqlStatement($sqlINSERT, array($response['customer_id'], $response['API_key'], $_POST['new_email'], $facilities, $providers, "1", "1", "1", "1", "5160"));
-         }
+        }
 
         $info = $MedEx->login('1');
 

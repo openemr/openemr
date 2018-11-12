@@ -617,9 +617,11 @@ if (!$_REQUEST['flb_table']) {
 
                                 if ($row['msg_reply'] == 'Other') {
                                     $other_title .= $row['msg_extra_text'] . "\n";
-                                    $icon_extra .= str_replace("EXTRA",
+                                    $icon_extra .= str_replace(
+                                        "EXTRA",
                                         attr(oeFormatShortDate($row['msg_date'])) . "\n" . xla('Patient Message') . ":\n" . attr($row['msg_extra_text']) . "\n",
-                                        $icons[$row['msg_type']]['EXTRA']['html']);
+                                        $icons[$row['msg_type']]['EXTRA']['html']
+                                    );
                                     continue;
                                 } elseif ($row['msg_reply'] == 'CANCELLED') {
                                     $appointment[$row['msg_type']]['stage'] = "CANCELLED";
