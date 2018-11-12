@@ -56,8 +56,7 @@ if ($_REQUEST['go'] == 'Preferences') {
         if ($result['output'] == false) {
             $result['success'] = "medex_prefs updated";
         }
-        $result['logged_in'] = $MedEx->login();
-        $result['response'] = $MedEx->practice->sync($result['logged_in']['token']);
+        $result = $MedEx->login('1');
         echo json_encode($result);
     }
     exit;
@@ -120,6 +119,7 @@ if ($_REQUEST['MedEx'] == "start") {
 								PHONE_country_code,LABELS_local,LABELS_choice)
 							VALUES (?,?,?,?,?,?,?,?,?,?)";
             sqlStatement($sqlINSERT, array($response['customer_id'], $response['API_key'], $_POST['new_email'], $facilities, $providers, "1", "1", "1", "1", "5160"));
+            sqlQuery("UPDATE `background_services` SET `active`='1',`execute_interval`='5' WHERE `name`='MedEx'");
         }
 
         $info = $MedEx->login('1');
@@ -137,7 +137,7 @@ if ($_REQUEST['MedEx'] == "start") {
                 .xlt('Run Setup again or contact support for assistance').
                 " <a href='https://medexbank.com/cart/upload/'>MedEx Bank</a>.<br />";
             echo json_encode($response_prob);
-            sqlQuery("UPDATE `background_services` SET `active`='0',`execute_interval`='29' WHERE `name`='MedEx'");
+            sqlQuery("UPDATE `background_services` SET `active`='0' WHERE `name`='MedEx'");
         }
         //then redirect user to preferences with a success message!
     } else {
