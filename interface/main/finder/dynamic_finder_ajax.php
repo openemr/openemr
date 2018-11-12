@@ -99,21 +99,21 @@ for ($i = 0; $i < count($aColumns); ++$i) {
         $where .= $where ? ' AND' : 'WHERE';
         $sSearch = add_escape_custom($_GET["sSearch_$i"]);
         if ($colname == 'name') {
-            if ($searchMethodInPatientList) { // like search
-                $where .= " ( " .
-                    "lname LIKE '$sSearch%' OR " .
-                    "fname LIKE '$sSearch%' OR " .
-                    "mname LIKE '$sSearch%' )";
-            } else {  // exact search
+            if ($searchMethodInPatientList) { // exact search
                 $where .= " ( " .
                     "lname LIKE '$sSearch' OR " .
                     "fname LIKE '$sSearch' OR " .
                     "mname LIKE '$sSearch' )";
+            } else {  // like search
+                $where .= " ( " .
+                    "lname LIKE '$sSearch%' OR " .
+                    "fname LIKE '$sSearch%' OR " .
+                    "mname LIKE '$sSearch%' )";
             }
         } elseif ($searchMethodInPatientList) {
-            $where .= " `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch%'"; // like search
-        } else {
             $where .= " `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch'"; // exact search
+        } else {
+            $where .= " `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch%'"; // like search
         }
     }
 }
