@@ -40,6 +40,10 @@ $grparr = array();
 getLayoutProperties($form_id, $grparr);
 
 if ($mode) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     $sets = "title = ?, user = ?, groupname = ?, authorized = ?, date = NOW()";
     $sqlBindArray = array($form_id, $_SESSION['authUser'], $_SESSION['authProvider'], $userauthorized);
 
@@ -160,7 +164,7 @@ $(document).ready(function() {
   }
 });
 
-var mypcc = '<?php echo htmlspecialchars($GLOBALS['phone_country_code'], ENT_QUOTES); ?>';
+var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
 $(document).ready(function(){
   $("#send_sum_flag").click(function() {
@@ -195,7 +199,7 @@ function titleChanged() {
  var sel = document.forms[0].title;
  // Layouts must not interfere with each other. Reload the document in Add mode.
  top.restoreSession();
- location.href = 'add_transaction.php?title=' + sel.value;
+ location.href = 'add_transaction.php?title=' + encodeURIComponent(sel.value);
  return true;
 }
 
@@ -238,7 +242,7 @@ function sel_related(e) {
 // Process click on $view link.
 function deleteme() {
 // onclick='return deleteme()'
- dlgopen('../deleter.php?transaction=<?php echo htmlspecialchars($transid, ENT_QUOTES); ?>', '_blank', 500, 450);
+ dlgopen('../deleter.php?transaction=' + <?php echo js_url($transid); ?>, '_blank', 500, 450);
  return false;
 }
 
@@ -266,11 +270,11 @@ function validate(f) {
     <?php generate_layout_validation($form_id); ?>
 
  var msg = "";
- msg += "<?php echo xla('The following fields are required'); ?>:\n\n";
+ msg += <?php echo xlj('The following fields are required'); ?> + ":\n\n";
  for ( var i = 0; i < errMsgs.length; i++ ) {
     msg += errMsgs[i] + "\n";
  }
- msg += "\n<?php echo xla('Please fill them in before continuing.'); ?>";
+ msg += "\n" + <?php echo xlj('Please fill them in before continuing.'); ?>";
 
  if ( errMsgs.length > 0 ) {
     alert(msg);
@@ -308,7 +312,8 @@ div.tab {
 </head>
 <body class="body_top" onload="<?php echo $body_onload_code; ?>" >
     <div class="container">
-        <form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo attr($transid); ?>' onsubmit='return validate(this)'>
+        <form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo attr_url($transid); ?>' onsubmit='return validate(this)'>
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
         <input type='hidden' name='mode' value='add'>
             <?php $header_title = xl('Add/Edit Patient Transaction of');?>
             <div class="row">
@@ -393,7 +398,7 @@ div.tab {
                 </div>
             </div>
             <div id='referdiv'>
-                
+
 
                 <div id="DEM">
                     <ul class="tabNav">
@@ -415,11 +420,8 @@ div.tab {
                                 } else {
                                     echo "<li class=''>";
                                 }
-
-                                $group_seq_esc = attr($group_seq);
-                                $group_name_show = text(xl_layout_label($group_name));
-                                echo "<a href='#' id='div_$group_seq_esc'>" .
-                                "$group_name_show</a></li>";
+                                echo "<a href='#' id='div_" . attr($group_seq) . "'>" .
+                                text(xl_layout_label($group_name)) . "</a></li>";
                             }
                         }
                         ?>
@@ -471,11 +473,10 @@ div.tab {
                                 $group_seq  = substr($this_group, 0, 1);
                                 $group_name = $grparr[$this_group]['grp_title'];
                                 $last_group = $this_group;
-                                $group_seq_esc = attr($group_seq);
                                 if ($group_seq == 1) {
-                                    echo "<div class='tab current' id='div_$group_seq_esc'>";
+                                    echo "<div class='tab current' id='div_" . attr($group_seq) . "'>";
                                 } else {
-                                    echo "<div class='tab' id='div_$group_seq_esc'>";
+                                    echo "<div class='tab' id='div_" . attr($group_seq) . "'>";
                                 }
 
                                 echo " <table border='0' cellpadding='0'>\n";
@@ -495,8 +496,7 @@ div.tab {
                             // Handle starting of a new label cell.
                             if ($titlecols > 0) {
                                 end_cell();
-                                $titlecols_esc = attr($titlecols);
-                                echo "<td width='70' valign='top' colspan='$titlecols_esc'";
+                                echo "<td width='70' valign='top' colspan='" . attr($titlecols) . "'";
                                 echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
                                 if ($cell_count == 2) {
                                     echo " style='padding-left:10pt'";
@@ -524,8 +524,7 @@ div.tab {
                             // Handle starting of a new data cell.
                             if ($datacols > 0) {
                                 end_cell();
-                                $datacols_esc = attr($datacols);
-                                echo "<td valign='top' colspan='$datacols_esc' class='text'";
+                                echo "<td valign='top' colspan='" . attr($datacols) . "' class='text'";
                                 // This ID is used by action conditions.
                                 echo " id='value_id_" . attr($field_id) . "'";
                                 if ($cell_count > 0) {
