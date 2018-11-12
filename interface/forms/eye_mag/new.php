@@ -66,8 +66,8 @@ $encounter_date = $encounter_data['date'];
 $query = "SELECT * " .
     "FROM form_encounter AS fe, forms AS f WHERE " .
     "fe.pid = ? AND fe.date = ? AND " .
-    "f.formdir = ? AND f.encounter = fe.encounter AND f.deleted = 0";
-$erow = sqlQuery($query, array($pid,$encounter_date,$form_folder));
+    "f.formdir = ? AND f.encounter = fe.encounter AND f.encounter=? AND f.deleted = 0";
+$erow = sqlQuery($query, array($pid, $encounter_date, $form_folder, $encounter));
 
 if ($erow['form_id'] > '0') {
     formHeader("Redirecting....");
