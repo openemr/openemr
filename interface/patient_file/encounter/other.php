@@ -1,4 +1,14 @@
 <?php
+/**
+ * other.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 require_once("../../globals.php");
 
 //the number of rows to display before resetting and starting a new column:
@@ -20,7 +30,7 @@ $N=10
 
 <dl>
 
-<form method='post' name='other_form' action="diagnosis.php?mode=add&type=OTHER&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>"
+<form method='post' name='other_form' action="diagnosis.php?mode=add&type=OTHER&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>"
  target='Diagnosis' onsubmit='return top.restoreSession()'>
 <script type="text/javascript">
 function clearform(atrib){
@@ -37,7 +47,7 @@ function isNumberKey(evt)
       {var charCode = (evt.which) ? evt.which : event.keyCode
          if (charCode > 31 && (charCode < 48 || charCode > 57))
          {
-         alert("<?php echo xls('Units must be a number'); ?>");
+         alert(<?php echo xlj('Units must be a number'); ?>);
          return false;
          }
 return true;  }

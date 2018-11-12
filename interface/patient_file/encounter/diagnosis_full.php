@@ -1,4 +1,15 @@
 <?php
+/**
+ * diagnosis_full.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+
 require_once("../../globals.php");
 require_once("$srcdir/billing.inc");
 
@@ -73,13 +84,13 @@ if ($result = getBillingByEncounter($pid, $encounter, "*")) {
             $billing_html[$iter["code_type"]] .= "</span></td>";
             $billing_html[$iter["code_type"]] .= "<td>" .
                 "<a class=\"link_submit\" href='diagnosis_full.php?mode=clear&id=" .
-                attr(urlencode($iter{"id"})) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' class='link' onclick='top.restoreSession()'>[" . xlt('Clear Justification') .
+                attr_url($iter{"id"}) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' class='link' onclick='top.restoreSession()'>[" . xlt('Clear Justification') .
                 "]</a></td>";
         }
 
         $billing_html[$iter["code_type"]] .= "<td>" .
             "<a class=\"link_submit\" href='diagnosis_full.php?mode=delete&id=" .
-            attr(urlencode($iter{"id"})) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' class='link' onclick='top.restoreSession()'>[Delete]</a></td>";
+            attr_url($iter{"id"}) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' class='link' onclick='top.restoreSession()'>[Delete]</a></td>";
         $billing_html[$iter["code_type"]] .= "</tr>\n";
     }
 

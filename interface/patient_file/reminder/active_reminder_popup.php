@@ -5,7 +5,7 @@
  * @package OpenEMR
  * @link    http://www.open-emr.org
  * @author  Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2011-2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2011-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -55,7 +55,7 @@ if (!empty($active_alerts) && empty($all_allergy_alerts)) {
 </span>&nbsp;&nbsp;&nbsp;</td>
 <td>
     <a href="#" id="close" class="css_button large_button" onclick="dlgclose(); return false;">
-        <span class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Close'), ENT_NOQUOTES);?></span>
+        <span class='css_button_span large_button_span'><?php echo xlt('Close');?></span>
     </a>
 </td>
 </tr>
@@ -63,7 +63,7 @@ if (!empty($active_alerts) && empty($all_allergy_alerts)) {
 <br>
 <?php
 foreach ($all_allergy_alerts as $allergy) {
-    echo xlt("ALLERGY WARNING") . ":" . $allergy ."<br>";
+    echo xlt("ALLERGY WARNING") . ":" . text($allergy) ."<br>";
 }
 
 if (!empty($all_allergy_alerts)) {

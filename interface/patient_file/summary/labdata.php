@@ -107,7 +107,7 @@ echo "<span class='text'>";
 // some patient data...
 $spell  = "SELECT * ";
 $spell .= "FROM patient_data ";
-$spell .= "WHERE id = ?";
+$spell .= "WHERE pid = ?";
 //---
 $myrow = sqlQuery($spell, array($pid));
     $lastname = $myrow["lname"];

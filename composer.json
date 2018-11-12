@@ -73,7 +73,6 @@
             "OpenEMR\\Entities\\" : "entities",
             "OpenEMR\\Services\\" : "services",
             "OpenEMR\\Repositories\\" : "repositories",
-            "OpenEMR\\Encounter\\Services\\" : "interface/patient_file/encounter/Services",
             "OpenEMR\\Admin\\" : "library/admin/src",
             "OpenEMR\\Core\\" : "library/core/src",
             "OpenEMR\\Menu\\" : "library/menu/src",

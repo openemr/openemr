@@ -7,12 +7,13 @@
  * @author    Sharon Cohen <sharonco@matrix.co.il>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Sharon Cohen <sharonco@matrix.co.il>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 /*picture free taken from https://pixabay.com/en/balloons-party-celebration-floating-154949*/
 require_once("../../globals.php");
+
 use OpenEMR\Core\Header;
 ?>
 
@@ -39,10 +40,16 @@ use OpenEMR\Core\Header;
     <?php if ($GLOBALS['patient_birthday_alert_manual_off']) { ?>
         $("#turnOff").change(function () {
     <?php } ?>
-            var pid = "<?php echo attr($_GET['pid'])?>";
-            var user_id = "<?php echo attr($_GET['user_id'])?>";
+            var pid = <?php echo js_escape($_GET['pid'])?>;
+            var user_id = <?php echo js_escape($_GET['user_id'])?>;
             var value = $("#turnOff").prop('checked');
-            var data =  {"pid": pid, "user_id": user_id, "turnOff": value};
+            var csrf_token_form = <?php echo js_escape(collectCsrfToken()); ?>;
+            var data =  {
+                "pid": pid,
+                "user_id": user_id,
+                "turnOff": value,
+                "csrf_token_form": csrf_token_form
+            };
             $.ajax({
                 type: "POST",
                 url: "../../../library/ajax/turnoff_birthday_alert.php",
