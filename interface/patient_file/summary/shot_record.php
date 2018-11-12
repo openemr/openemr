@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * shot_record.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once("../../globals.php");
@@ -23,7 +31,7 @@ $res2 = sqlQuery("select concat(p.lname,', ',p.fname,' ',p.mname) patient_name "
 $res3 = getImmunizationList($pid, $_GET['sortby'], false);
 $data_array = convertToDataArray($res3);
 
-$title = xl('Shot Record as of:', '', '', ' ') . date('m/d/Y h:i:s a');
+$title = xl('Shot Record as of:') . ' ' . date('m/d/Y h:i:s a');
 
 if ($_GET['output'] == "html") {
     printHTML($res, $res2, $data_array);
@@ -46,7 +54,7 @@ function convertToDataArray($data_array)
             $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
         } else {
             if (!empty($row['code_text_short'])) {
-                $vaccine_display = htmlspecialchars(xl($row['code_text_short']), ENT_NOQUOTES);
+                $vaccine_display = xlt($row['code_text_short']);
             } else {
                 $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
             }
@@ -124,9 +132,9 @@ function printHTML($res, $res2, $data)
   //convert end of line characters to html (escape for html output first)
     $patterns = array ('/\n/');
     $replace = array ('<br>');
-    $res['facility_address'] = htmlspecialchars($res['facility_address'], ENT_NOQUOTES);
+    $res['facility_address'] = text($res['facility_address']);
     $res['facility_address'] = preg_replace($patterns, $replace, $res['facility_address']);
-    $res2['patient_address'] = htmlspecialchars($res2['patient_address'], ENT_NOQUOTES);
+    $res2['patient_address'] = text($res2['patient_address']);
     $res2['patient_address'] = preg_replace($patterns, $replace, $res2['patient_address']);
 
   //deal with bug (last array index is empty)
@@ -211,12 +219,12 @@ function printHTML($res, $res2, $data)
         echo "<div class='clinicAddress'>" . $res['facility_address'] . "</div>\n";
 
         //display patient information (Note patient address is already escaped)
-        echo "<div class='patientAddress'>" . htmlspecialchars($res2['patient_name'], ENT_NOQUOTES) . "<br>" .
-        htmlspecialchars(xl('Date of Birth') . ": " . $res2['patient_DOB'], ENT_NOQUOTES) . "<br>" .
+        echo "<div class='patientAddress'>" . text($res2['patient_name']) . "<br>" .
+        text(xl('Date of Birth') . ": " . $res2['patient_DOB']) . "<br>" .
         $res2['patient_address'] . "</div>\n";
 
         //display table title
-        echo "<div class='tabletitle'>" . htmlspecialchars($title, ENT_NOQUOTES) . "</div>\n";
+        echo "<div class='tabletitle'>" . text($title) . "</div>\n";
 
         echo "<table cellspacing='0' cellpadding='0'>\n";
 
@@ -227,7 +235,7 @@ function printHTML($res, $res2, $data)
             $patterns = array ('/\n/');
             $replace = array (' ');
             $key = preg_replace($patterns, $replace, $key);
-            echo "<th>".htmlspecialchars($key, ENT_NOQUOTES)."</th>\n";
+            echo "<th>" . text($key) . "</th>\n";
         }
 
         echo "</tr>\n";
@@ -247,7 +255,7 @@ function printHTML($res, $res2, $data)
                     }
 
                     // output data of cell
-                    echo ($value == "") ? "&nbsp;" : htmlspecialchars($value, ENT_NOQUOTES);
+                    echo ($value == "") ? "&nbsp;" : text($value);
                     echo "</td>";
                 }
             } else {
@@ -259,13 +267,13 @@ function printHTML($res, $res2, $data)
         echo "</table>\n";
 
         //display signature line
-        echo "<div class='sign'>" . htmlspecialchars(xl('Signature'), ENT_NOQUOTES) .
+        echo "<div class='sign'>" . xlt('Signature') .
         ":________________________________" . "</div>\n";
 
         if ($countTotalPages > 1) {
             //display page number if greater than one page
             echo "<div class='pageNumber'>" .
-            htmlspecialchars(xl('Page') . " " . ($i+1) . "/" . $countTotalPages, ENT_NOQUOTES) .
+            text(xl('Page') . " " . ($i+1) . "/" . $countTotalPages) .
             "</div>\n";
         }
 
@@ -281,6 +289,4 @@ function printHTML($res, $res2, $data)
   </html>
     <?php
 }
-
-
 ?>

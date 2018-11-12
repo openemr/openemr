@@ -485,7 +485,7 @@ if ($_REQUEST['form_csvexport']) {
         <div class="row">
             <div class="col-sm-12">
                 <?php
-                $list_id = "nav-list7"; // to indicate nav item is active, count and give correct id
+                $list_id = "ledger"; // to indicate nav item is active, count and give correct id
                 // Collect the patient menu then build it
                 $menuPatient = new PatientMenuRole();
                 $menuPatient->displayHorizNavBarMenu();

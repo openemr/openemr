@@ -18,7 +18,7 @@ require_once("../../globals.php");
 require_once "$srcdir/user.inc";
 require_once "$srcdir/options.inc.php";
 use OpenEMR\Core\Header;
-     
+
 $uspfx = 'patient_finder.'; //substr(__FILE__, strlen($webserver_root)) . '.';
 $patient_finder_exact_search = prevSetting($uspfx, 'patient_finder_exact_search', 'patient_finder_exact_search', ' ');
 
@@ -71,7 +71,7 @@ while ($row = sqlFetchArray($res)) {
                 "serverSide": true,
                 // NOTE kept the legacy command 'sAjaxSource' here for now since was unable to get
                 // the new 'ajax' command to work.
-                "sAjaxSource": "dynamic_finder_ajax.php?csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>",
+                "sAjaxSource": "dynamic_finder_ajax.php?csrf_token_form=" + <?php echo js_escape(urlencode(collectCsrfToken())); ?>,
                 "fnServerParams": function (aoData) {
                     var searchType = $("#setting_search_type:checked").length > 0;
                     aoData.push({"name": "searchType", "value": searchType});
@@ -88,14 +88,14 @@ while ($row = sqlFetchArray($res)) {
                 <?php $translationsDatatablesOverride = array('search' => (xla('Search all columns') . ':')); ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
             });
-            
-            
+
+
             $("div.mytopdiv").html("<form name='myform'><label for='form_new_window' id='form_new_window_label'><input type='checkbox' id='form_new_window' name='form_new_window' value='1'<?php
             if (!empty($GLOBALS['gbl_pt_list_new_window'])) {
                 echo ' checked';
             }
             ?> /><?php echo xlt('Open in New Window'); ?></label><label for='setting_search_type' id='setting_search_type_label'><input type='checkbox' name='setting_search_type'  id='setting_search_type' onchange='persistCriteria(this, event)' value='<?php echo attr($patient_finder_exact_search); ?>'<?php echo text($patient_finder_exact_search); ?>/><?php echo xlt('Search with exact method'); ?></label></form>");
-    
+
             // This is to support column-specific search fields.
             // Borrowed from the multi_filter.html example.
             $("thead input").keyup(function () {
@@ -155,14 +155,14 @@ while ($row = sqlFetchArray($res)) {
     <script>
     <?php require_once("$include_root/expand_contract_js.php");//jQuery to provide expand/contract icon toggle if page is expandable ?>
     </script>
-    
+
 </head>
 <body class="body_top">
     <div class="<?php echo $container;?> expandable">
         <div class="row">
             <div class="col-sm-12">
                 <h2>
-                <?php echo xlt('Patient Finder') ?> <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract" 
+                <?php echo xlt('Patient Finder') ?> <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract"
                 title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i> <i id="show_hide" class="fa fa-search-plus fa-2x small" title="<?php echo xla('Click to show advanced search'); ?>"></i>
                 </h2>
             </div>
