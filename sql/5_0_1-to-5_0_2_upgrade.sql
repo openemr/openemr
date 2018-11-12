@@ -640,3 +640,7 @@ ALTER TABLE `form_eye_mag_dispense` ADD COLUMN `CTLODQUANTITY` varchar(255) DEFA
 #IfMissingColumn form_eye_mag_dispense CTLOSQUANTITY
 ALTER TABLE `form_eye_mag_dispense` ADD COLUMN `CTLOSQUANTITY` varchar(255) DEFAULT NULL;
 #EndIf
+
+#IfMissingColumn medex_prefs status
+ALTER TABLE `medex_prefs` ADD COLUMN `status` text;
+#EndIf

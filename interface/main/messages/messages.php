@@ -41,11 +41,13 @@ if (empty($collectthis)) {
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 
 if ($GLOBALS['medex_enable'] == '1') {
-    $logged_in = $MedEx->login();
-    if ($_REQUEST['SMS_bot']) {
-        $MedEx->display->SMS_bot($logged_in);
+     if ($_REQUEST['SMS_bot']) {
+        $result = $MedEx->login('1');
+        $MedEx->display->SMS_bot($result['status']);
         exit();
     }
+    $result = $MedEx->login();
+    $logged_in = $result['status'];
 }
 
 $setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ');
