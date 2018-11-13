@@ -61,25 +61,20 @@ if ($_POST['bn_save']) {
  // If updating an existing form...
  //
     if ($formid) {
-        $query = "UPDATE form_specialist_notes SET " .
-         "notes = '"            . $_POST['form_notes']       . "', " .
-         "followup_required = " . cbvalue('fu_required')     . ", "  .
-         "followup_timing = '$fu_timing'"                    . ", "  .
-         "followup_location = '$fu_location'"                . " "   .
-         "WHERE id = '$formid'";
-        sqlStatement($query);
+        $query = "UPDATE form_specialist_notes SET
+         notes = ?,
+         followup_required = ?,
+         followup_timing = ?,
+         followup_location = ?,
+         WHERE id = ?";
+        sqlStatement($query, array($_POST['form_notes'] , cbvalue('fu_required'), $fu_timing, $fu_location, $formid ));
     } // If adding a new form...
  //
     else {
         $query = "INSERT INTO form_specialist_notes ( " .
          "notes, followup_required, followup_timing, followup_location " .
-         ") VALUES ( " .
-         "'" . $_POST['form_notes']       . "', " .
-         cbvalue('fu_required')           . ", "  .
-         "'$fu_timing'"                   . ", "  .
-         "'$fu_location'"                 . " "   .
-         ")";
-        $newid = sqlInsert($query);
+         ") VALUES ( ?, ?, ?, ? )";
+        $newid = sqlInsert($query, array($_POST['form_notes'] , cbvalue('fu_required'), $fu_timing, $fu_location));
         addForm($encounter, "Specialist Notes", $newid, "specialist_notes", $pid, $userauthorized);
     }
 
@@ -91,7 +86,7 @@ if ($_POST['bn_save']) {
 
 if ($formid) {
     $row = sqlQuery("SELECT * FROM form_specialist_notes WHERE " .
-    "id = '$formid' AND activity = '1'") ;
+    "id = ? AND activity = '1'", array($formid)) ;
 }
 ?>
 <html>
