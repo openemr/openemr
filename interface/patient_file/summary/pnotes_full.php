@@ -758,16 +758,8 @@ $(document).ready(function(){
 
     $(".noterow").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".noterow").mouseout(function() { $(this).toggleClass("highlight"); });
-    $(".notecell").click(function() { EditNote(this); });
 
     $("#note").focus();
-
-    var EditNote = function(note) {
-        top.restoreSession();
-        $("#noteid").val(note.id);
-        $("#mode").val("");
-        $("#new_note").submit();
-    }
 
     var NewNote = function () {
         top.restoreSession();
