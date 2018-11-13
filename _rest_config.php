@@ -27,6 +27,11 @@ class RestConfig
 
     /** @var root url of the application */
     public static $ROOT_URL;
+    public static $VENDOR_DIR;
+    public static $webserver_root;
+    public static $web_root;
+    public static $server_document_root;
+    public static $SITE;
 
     private static $INSTANCE;
     private static $IS_INITIALIZED = false;
@@ -49,7 +54,9 @@ class RestConfig
     static function Init()
     {
         if (!self::$IS_INITIALIZED) {
-            self::$ROOT_URL = $GLOBALS['web_root'] . "/apis";
+            self::setPaths();
+            self::$ROOT_URL = self::$web_root . "/apis";
+            self::$VENDOR_DIR = self::$webserver_root . "/vendor";
             self::$IS_INITIALIZED = true;
         }
     }
@@ -83,4 +90,45 @@ class RestConfig
         return $this->context;
     }
 
+    /**
+     * Basic paths when GLOBALS are not yet available.
+     * @return none
+     */
+    static function SetPaths()
+    {
+        $isWindows = stripos(PHP_OS, 'WIN') === 0;
+        self::$webserver_root = dirname(__FILE__);
+        if ($isWindows) {
+            //convert windows path separators
+            self::$webserver_root = str_replace("\\", "/", self::$webserver_root);
+        }
+        // Collect the apache server document root (and convert to windows slashes, if needed)
+        self::$server_document_root = realpath($_SERVER['DOCUMENT_ROOT']);
+        if ($isWindows) {
+            //convert windows path separators
+            self::$server_document_root = str_replace("\\", "/", self::$server_document_root);
+        }
+        self::$web_root = substr(self::$webserver_root, strspn(self::$webserver_root ^ self::$server_document_root, "\0"));
+        // Ensure web_root starts with a path separator
+        if (preg_match("/^[^\/]/", self::$web_root)) {
+            self::$web_root = "/" . self::$web_root;
+        }
+
+    }
+
+    function destroySession()
+    {
+        if (!isset($_SESSION)) return;
+        $_SESSION = array();
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000,
+                $params["path"], $params["domain"],
+                $params["secure"], $params["httponly"]
+            );
+        }
+    }
+
 }
+
+include_once("./../_rest_routes.inc.php");
