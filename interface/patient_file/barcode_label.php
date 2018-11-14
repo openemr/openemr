@@ -5,26 +5,15 @@
  * Program for displaying Barcode Label
  * via the popups on the left nav screen
  *
- * Copyright (C) 2014 Terry Hill <terry@lillysystems.com>
+ * this is from the barcode-coder and FPDF website I used the examples and code snippets
+ * listed on the sites to create this program
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
- * @package OpenEMR
- * @author Terry Hill <terry@lillysystems.com>
- * @link http://www.open-emr.org
- *
- * this is from the barcode-coder and FPDF website I used the examples and code snippets listed on the sites
- * to create this program
- *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Terry Hill <terry@lillysystems.com>
+ * @copyright Copyright (c) 2014 Terry Hill <terry@lillysystems.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 

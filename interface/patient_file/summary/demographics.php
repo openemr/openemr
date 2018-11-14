@@ -186,7 +186,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 
  // Process click on Delete link.
  function deleteme() { // @todo don't think this is used any longer!!
-  dlgopen('../deleter.php?patient=<?php echo attr_url($pid); ?>', '_blank', 500, 450, '', '',{
+  dlgopen('../deleter.php?patient=' + <?php echo js_url($pid); ?> + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank', 500, 450, '', '',{
       allowResize: false,
       allowDrag: false,
       dialogId: 'patdel',
@@ -210,13 +210,6 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
      dlgopen(url, '_blank', 725, 500, '', title);
      return false;
  }
-
-function sendimage(pid, what) {
- // alert('Not yet implemented.'); return false;
- dlgopen('../upload_dialog.php?patientid=' + encodeURIComponent(pid) + '&file=' + encodeURIComponent(what),
-  '_blank', 500, 400);
- return false;
-}
 
 </script>
 

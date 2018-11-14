@@ -4,25 +4,13 @@
  *
  * Approval screen for uploaded CCR XML.
  *
- * Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Eldho Chacko <eldho@zhservices.com>
- * @author  Ajil P M <ajilpm@zhservices.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Eldho Chacko <eldho@zhservices.com>
+ * @author    Ajil P M <ajilpm@zhservices.com>
+ * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 
 require_once(dirname(__FILE__) . "/../globals.php");
@@ -30,8 +18,12 @@ require_once(dirname(__FILE__) . "/../../library/options.inc.php");
 require_once(dirname(__FILE__) . "/../../library/patient.inc");
 require_once(dirname(__FILE__) . "/../../library/parse_patient_xml.php");
 
-if ($_REQUEST['approve'] == 1) {
-    insert_patient($_REQUEST['am_id']);
+if ($_GET['approve'] == 1) {
+    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
+    insert_patient($_GET['am_id']);
 ?>
   <html>
         <head>
@@ -125,7 +117,7 @@ tbody tr.odd {
 
 </style>
 <script type="text/javascript" >
-  
+
 </script>
 </head>
 <body class="body_top" >
@@ -172,7 +164,7 @@ tbody tr.odd {
             <?php echo xlt('Yes'); ?>
         </td>
         <td align="center" >
-            <a href="ccr_review_approve.php?revandapprove=1&amid=<?php echo attr($res['amid']); ?>&pid=<?php echo attr($dup_res['pid']); ?>" class="button-link" onclick="top.restoreSession()" ><?php echo xlt('Review & Approve'); ?></a>
+            <a href="ccr_review_approve.php?revandapprove=1&amid=<?php echo attr_url($res['amid']); ?>&pid=<?php echo attr_url($dup_res['pid']); ?>&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" class="button-link" onclick="top.restoreSession()" ><?php echo xlt('Review & Approve'); ?></a>
         </td>
         <?php
             } else {
@@ -181,7 +173,7 @@ tbody tr.odd {
             <?php echo xlt('No'); ?>
         </td>
         <td align="center" >
-            <a href="ccr_pending_approval.php?approve=1&am_id=<?php echo attr($res['amid']); ?>" class="button-link" onclick="top.restoreSession()" ><?php echo xlt('Approve'); ?></a>
+            <a href="ccr_pending_approval.php?approve=1&am_id=<?php echo attr_url($res['amid']); ?>&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" class="button-link" onclick="top.restoreSession()" ><?php echo xlt('Approve'); ?></a>
         </td>
         <?php
             }

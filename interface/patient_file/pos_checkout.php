@@ -32,25 +32,15 @@
  *     show invoice number
  * </pre>
  *
- * Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2006-2017 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
@@ -163,13 +153,13 @@ function generate_receipt($patient_id, $encounter = 0)
     $encrow = sqlQuery("SELECT invoice_refno FROM form_encounter WHERE " .
     "pid = ? AND encounter = ? LIMIT 1", array($patient_id,$encounter));
     $invoice_refno = $encrow['invoice_refno'];
-    
+
     // being deliberately echoed to indicate it is part of the php function generate_receipt
     echo "<!DOCTYPE html>". PHP_EOL;
     echo "<html>".PHP_EOL;
     echo"<head>".PHP_EOL;
 ?>
-        
+
         <?php Header::setupHeader(['datetime-picker']);?>
         <title><?php echo xlt('Receipt for Payment'); ?></title>
         <script language="JavaScript">
@@ -189,7 +179,7 @@ function generate_receipt($patient_id, $encounter = 0)
 
         // Process click on Delete button.
         function deleteme() {
-         dlgopen('deleter.php?billing=<?php echo attr("$patient_id.$encounter"); ?>', '_blank', 500, 450);
+         dlgopen('deleter.php?billing=' + <?php echo js_url($patient_id.".".$encounter); ?> + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank', 500, 450);
          return false;
         }
 
@@ -208,7 +198,7 @@ function generate_receipt($patient_id, $encounter = 0)
         }
         .table {
             margin: auto;
-            width: 90% !important; 
+            width: 90% !important;
         }
         @media (min-width: 992px){
             .modal-lg {
@@ -233,7 +223,7 @@ function generate_receipt($patient_id, $encounter = 0)
                         echo " " . xlt("Invoice Number") . ": " . text($invoice_refno) . " " . xlt("Service Date")  . ": " . text($svcdate);
                     }
                     ?>
-            </div>    
+            </div>
             <div class= "row">
                 <div class= 'col-xs-6 col-lg-offset-2'>
                     <?php echo text($patdata['fname']) . ' ' . text($patdata['mname']) . ' ' . text($patdata['lname']) ?><br>
@@ -362,18 +352,18 @@ function generate_receipt($patient_id, $encounter = 0)
                 </div>
             </div>
             <br>
-            <div class= "row ">        
+            <div class= "row ">
                 <div class="form-group clearfix">
                     <div class="col-sm-12 text-center" id="hideonprint">
                         <div class="btn-group" role="group">
                             <button class="btn btn-default btn-print"  id='printbutton'><?php echo xlt('Print'); ?></button>
-                            <?php if (acl_check('acct', 'disc')) { ?> 
-                                <button class="btn btn-default btn-undo" onclick='return deleteme();'><?php echo xlt('Undo Checkout'); ?></button> 
+                            <?php if (acl_check('acct', 'disc')) { ?>
+                                <button class="btn btn-default btn-undo" onclick='return deleteme();'><?php echo xlt('Undo Checkout'); ?></button>
                             <?php } ?>
-                            <?php if ($details) { ?> 
-                                <button class="btn btn-default btn-hide" onclick="top.restoreSession(); window.location.href = 'pos_checkout.php?details=0&ptid=<?php echo attr($patient_id); ?>&enc=<?php echo attr($encounter); ?>'"><?php echo xlt('Hide Details'); ?></button> 
-                            <?php } else { ?> 
-                                <button class="btn btn-default btn-show" onclick="top.restoreSession(); window.location.href = 'pos_checkout.php?details=1&ptid=<?php echo attr($patient_id); ?>&enc=<?php echo attr($encounter); ?>'"><?php echo xlt('Show Details'); ?></button> 
+                            <?php if ($details) { ?>
+                                <button class="btn btn-default btn-hide" onclick="top.restoreSession(); window.location.href = 'pos_checkout.php?details=0&ptid=<?php echo attr_url($patient_id); ?>&enc=<?php echo attr_url($encounter); ?>'"><?php echo xlt('Hide Details'); ?></button>
+                            <?php } else { ?>
+                                <button class="btn btn-default btn-show" onclick="top.restoreSession(); window.location.href = 'pos_checkout.php?details=1&ptid=<?php echo attr_url($patient_id); ?>&enc=<?php echo attr_url($encounter); ?>'"><?php echo xlt('Show Details'); ?></button>
                             <?php } ?>
                         </div>
                     </div>
@@ -386,8 +376,8 @@ function generate_receipt($patient_id, $encounter = 0)
 } // end function generate_receipt()
     ?>
     <?php
-    
-    
+
+
     // Function to output a line item for the input form.
     //
     $lino = 0;
@@ -493,6 +483,10 @@ function generate_receipt($patient_id, $encounter = 0)
     // If the Save button was clicked...
     //
     if ($_POST['form_save']) {
+        if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+            csrfNotVerified();
+        }
+
       // On a save, do the following:
       // Flag drug_sales and billing items as billed.
       // Post the corresponding invoice with its payment(s) to sql-ledger
@@ -715,7 +709,7 @@ function generate_receipt($patient_id, $encounter = 0)
     <head>
             <?php Header::setupHeader(['datetime-picker']);?>
             <script language="JavaScript">
-            var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+            var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
             <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
@@ -743,10 +737,10 @@ function generate_receipt($patient_id, $encounter = 0)
               if (f[pfx + '[code_type]'].value != 'TAX') continue;
               if (f[pfx + '[code]'].value != rateid) continue;
               var tax = amount * parseFloat(f[pfx + '[taxrates]'].value);
-              tax = parseFloat(tax.toFixed(<?php echo $currdecimals ?>));
+              tax = parseFloat(tax.toFixed(<?php echo js_escape($currdecimals); ?>));
               var cumtax = parseFloat(f[pfx + '[price]'].value) + tax;
-              f[pfx + '[price]'].value  = cumtax.toFixed(<?php echo $currdecimals ?>); // requires JS 1.5
-              if (visible) f[pfx + '[amount]'].value = cumtax.toFixed(<?php echo $currdecimals ?>); // requires JS 1.5
+              f[pfx + '[price]'].value  = cumtax.toFixed(<?php echo js_escape($currdecimals); ?>); // requires JS 1.5
+              if (visible) f[pfx + '[amount]'].value = cumtax.toFixed(<?php echo js_escape($currdecimals); ?>); // requires JS 1.5
               if (isNaN(tax)) alert('Tax rate not numeric at line ' + lino);
               return tax;
              }
@@ -766,13 +760,13 @@ function generate_receipt($patient_id, $encounter = 0)
               if (isNaN(price)) alert('Price not numeric at line ' + lino);
               if (code_type == 'COPAY' || code_type == 'TAX') {
                // This works because the tax lines come last.
-               total += parseFloat(price.toFixed(<?php echo $currdecimals ?>));
+               total += parseFloat(price.toFixed(<?php echo js_escape($currdecimals); ?>));
                continue;
               }
               var units = f['line[' + lino + '][units]'].value;
               var amount = price * units;
-              amount = parseFloat(amount.toFixed(<?php echo $currdecimals ?>));
-              if (visible) f['line[' + lino + '][amount]'].value = amount.toFixed(<?php echo $currdecimals ?>);
+              amount = parseFloat(amount.toFixed(<?php echo js_escape($currdecimals); ?>));
+              if (visible) f['line[' + lino + '][amount]'].value = amount.toFixed(<?php echo js_escape($currdecimals); ?>);
               total += amount;
               var taxrates  = f['line[' + lino + '][taxrates]'].value;
               var taxids = taxrates.split(':');
@@ -795,7 +789,7 @@ function generate_receipt($patient_id, $encounter = 0)
              discount = 0.01 * discount * computeDiscountedTotals(0, false);
             <?php } ?>
              var total = computeDiscountedTotals(discount, true);
-             f.form_amount.value = total.toFixed(<?php echo $currdecimals ?>);
+             f.form_amount.value = total.toFixed(<?php echo js_escape($currdecimals); ?>);
              return true;
             }
 
@@ -819,7 +813,7 @@ function generate_receipt($patient_id, $encounter = 0)
                 }
                 .table {
                     margin: auto;
-                    width: 90% !important; 
+                    width: 90% !important;
                 }
                 @media (min-width: 992px){
                     .modal-lg {
@@ -839,6 +833,7 @@ function generate_receipt($patient_id, $encounter = 0)
             </div>
             <div class="row">
                 <form action='pos_checkout.php' method='post'>
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                     <input name='form_pid' type='hidden' value='<?php echo attr($patient_id) ?>'>
                     <fieldset>
                         <legend><?php echo xlt('Item Details'); ?></legend>
@@ -929,21 +924,21 @@ function generate_receipt($patient_id, $encounter = 0)
                                         }
                                     }
                                 }
-                                
+
                                 // Process copays
                                 //
                                 $totalCopay = getPatientCopay($patient_id, $encounter);
                                 if ($totalCopay < 0) {
                                     write_form_line("COPAY", "", "", "", "", $totalCopay, "", "");
                                 }
-                                
+
                                 // Process drug sales / products.
                                 //
                                 while ($drow = sqlFetchArray($dres)) {
                                     if ($inv_encounter && $drow['encounter'] && $drow['encounter'] != $inv_encounter) {
                                         continue;
                                     }
-                                    
+
                                     $thisdate = $drow['sale_date'];
                                     if (!$inv_encounter) {
                                         $inv_encounter = $drow['encounter'];
@@ -1072,7 +1067,7 @@ function generate_receipt($patient_id, $encounter = 0)
                                 <label class="control-label" for="form_irnumber"><?php echo xlt('Invoice Reference Number'); ?>:</label>
                             </div>
                             <div class="col-xs-3">
-                                <input type='text' name='form_irnumber' id='form_irnumber' class='form-control' value='' onkeyup='maskkeyup(this,"<?php echo addslashes($GLOBALS['gbl_mask_invoice_number']); ?>")' onblur='maskblur(this,"<?php echo addslashes($GLOBALS['gbl_mask_invoice_number']); ?>")' />
+                                <input type='text' name='form_irnumber' id='form_irnumber' class='form-control' value='' onkeyup='maskkeyup(this,<?php echo attr_js($GLOBALS['gbl_mask_invoice_number']); ?>)' onblur='maskblur(this,<?php echo attr_js($GLOBALS['gbl_mask_invoice_number']); ?>)' />
                             </div>
                         </div>
                         <?php
@@ -1112,7 +1107,7 @@ function generate_receipt($patient_id, $encounter = 0)
                             "WHERE pid = ? AND encounter = ? AND " .
                              "deleted = 0 AND formdir = 'LBFgcac'", array($patient_id,$inv_encounter));
                             if (empty($grow['count'])) { // if there is no gcac form
-                                echo " alert('" . addslashes(xl('This visit will need a GCAC form, referral or procedure service.')) . "');\n";
+                                echo " alert(" . xlj('This visit will need a GCAC form, referral or procedure service.') . ");\n";
                             }
                         }
                     }

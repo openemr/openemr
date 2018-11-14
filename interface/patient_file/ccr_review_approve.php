@@ -4,25 +4,13 @@
  *
  * Approval screen for uploaded CCR XML.
  *
- * Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Eldho Chacko <eldho@zhservices.com>
- * @author  Ajil P M <ajilpm@zhservices.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Eldho Chacko <eldho@zhservices.com>
+ * @author    Ajil P M <ajilpm@zhservices.com>
+ * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 
 require_once(dirname(__FILE__) . "/../globals.php");
@@ -38,6 +26,10 @@ $patient_data = array(
 );
 
 if ($_POST["setval"] == 'approve') {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     insertApprovedData($_REQUEST);
     $query = "UPDATE audit_master SET approval_status = '2' WHERE id=?";
     sqlQuery($query, array($_REQUEST['amid']));
@@ -54,6 +46,10 @@ if ($_POST["setval"] == 'approve') {
     <?php
     exit;
 } elseif ($_POST["setval"] == 'discard') {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     $query = "UPDATE audit_master SET approval_status = '3' WHERE id=?";
     sqlQuery($query, array($_REQUEST['amid']));
     ?>
@@ -68,6 +64,10 @@ if ($_POST["setval"] == 'approve') {
     </html>
     <?php
     exit;
+}
+
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    csrfNotVerified();
 }
 
 ?>
@@ -118,6 +118,7 @@ function submit_form(val){
 <p><b><?php echo xlt('CCR Patient Review');?></b></p>
 </center>
 <form method="post" name="approveform" "onsubmit='return top.restoreSession()'" >
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
     <table border="0" width="90%;" >
         <tr>
             <td>
@@ -135,21 +136,21 @@ function submit_form(val){
                             while ($res_pd = sqlFetchArray($query_pd)) {
                                 if ($res_pd['field_name'] != 'lname' && $res_pd['field_name'] != 'fname' && $res_pd['field_name'] != 'DOB') {
                                     $i++;
-                                    $query_oldpd = sqlQuery("SELECT ".$res_pd['field_name']." AS val FROM patient_data WHERE pid = ?", array($_REQUEST['pid']));
+                                    $query_oldpd = sqlQuery("SELECT " . escape_sql_column_name($res_pd['field_name'], array("patient_data")) . " AS val FROM patient_data WHERE pid = ?", array($_REQUEST['pid']));
                                     if ($res_pd['field_name'] == 'sex') {
                                         echo "<td>" . ($patient_data[$res_pd['field_name']] ? text($patient_data[$res_pd['field_name']]): text($res_pd['field_name'])) . "</td>" .
-                                            "<td><select name='" . $res_pd['table_name'] . "-" . $res_pd['field_name'] . "' style='width:150px;' >" .
+                                            "<td><select name='" . attr($res_pd['table_name']) . "-" . attr($res_pd['field_name']) . "' style='width:150px;' >" .
                                         "<option value='Male' " . ($res_pd['field_value'] == 'Male' ? 'selected' : '' ) . " >" . xlt('Male') . "</option>" .
-                                            "<option value='Female' ".($res_pd['field_value'] == 'Female' ? 'selected' : '' )." >".xlt('Female')."</option></select>" .
+                                            "<option value='Female' " . ($res_pd['field_value'] == 'Female' ? 'selected' : '' ) . " >" . xlt('Female') . "</option></select>" .
                                         "<span style='color:red;padding-left:25px;' >" . text($query_oldpd['val']) . "</span></td>" .
-                                            "<td><select name='" . $res_pd['table_name'] . "-" . $res_pd['field_name'] . "-sel'>" .
+                                            "<td><select name='" . attr($res_pd['table_name']) . "-" . attr($res_pd['field_name']) . "-sel'>" .
                                         "<option value='ignore' >" . xlt('Ignore') . "</option> " .
                                         "<option value='update' >" . xlt('Update') . "</option></select></td>";
                                     } else {
                                         echo "<td>" . ($patient_data[$res_pd['field_name']] ? text($patient_data[$res_pd['field_name']]): text($res_pd['field_name'])) . "</td>" .
-                                            "<td><input type='text' name='" . $res_pd['table_name'] . "-" . $res_pd['field_name'] . "' value='" . attr($res_pd['field_value']) . "' >" .
+                                            "<td><input type='text' name='" . attr($res_pd['table_name']) . "-" . attr($res_pd['field_name']) . "' value='" . attr($res_pd['field_value']) . "' >" .
                                         "<span style='color:red;padding-left:25px;' >" . text($query_oldpd['val']) . "</span></td>" .
-                                            "<td><select name='" . $res_pd['table_name'] . "-" . $res_pd['field_name'] . "-sel' >" .
+                                            "<td><select name='" . attr($res_pd['table_name']) . "-" . attr($res_pd['field_name']) . "-sel' >" .
                                         "<option value='ignore' >" . xlt('Ignore') . "</option><option value='update' >" . xlt('Update') . "</option></select></td>";
                                     }
 
@@ -210,11 +211,11 @@ function submit_form(val){
 
                                 if (in_array($res_existing_prob['diagnosis'], $aud_res['lists1'][$k])) {
                                     $set = 1;
-                                    echo "<tr class='$class' ><td>" . xlt('Title') . "</td><td><input type='text' name='lists1-title[]' value='' ></td>" .
+                                    echo "<tr class='" . attr($class) . "' ><td>" . xlt('Title') . "</td><td><input type='text' name='lists1-title[]' value='' ></td>" .
                                     "<td>" . xlt('Code') . "</td>" .
                                     "<td><input type='text' name='lists1-diagnosis[]' value='" . attr($aud_res['lists1'][$k]['diagnosis']) . "' >" .
                                     "<input type='hidden' name='lists1-old-diagnosis[]' value='" . attr($res_existing_prob['diagnosis']) . "' ></td>" .
-                                    "<td>" . xlt('Status') . "</td><td><input type='text' name='lists1-activity[]' value='" . $activity . "' ></td>" .
+                                    "<td>" . xlt('Status') . "</td><td><input type='text' name='lists1-activity[]' value='" . attr($activity) . "' ></td>" .
                                     "<td rowspan='2' ><select name='lists1-sel[]'><option value='ignore' >" . xlt('Ignore') . "</option>" .
                                     "<option value='update' >" . xlt('Update') . "</option></select></td></tr>" .
                                     "<tr style='color:red' ><td>&nbsp;</td><td>" . text($res_existing_prob['title']) . "</td><td>&nbsp;</td>" .
@@ -242,7 +243,7 @@ function submit_form(val){
 
                             echo "<tr><td>" . xlt('Title') . "</td><td><input type='text' name='lists1-title[]' value='' ></td>" .
                             "<td>" . xlt('Code') . "</td><td><input type='text' name='lists1-diagnosis[]' value='" . attr($val['diagnosis']) . "' ></td>" .
-                            "<td>" . xlt('Status') . "</td><td><input type='text' name='lists1-activity[]' value='" . $activity . "' ></td>" .
+                            "<td>" . xlt('Status') . "</td><td><input type='text' name='lists1-activity[]' value='" . attr($activity) . "' ></td>" .
                             "<td><select name='lists1-sel[]'><option value='ignore' >" . xlt('Ignore') . "</option>" .
                             "<option value='insert' >" . xlt('Insert') . "</option></select></td></tr>";
                         }
@@ -352,7 +353,7 @@ function submit_form(val){
 
                             echo "<tr><td>" . xlt('Name') . "</td><td><input type='text' name='prescriptions-drug[]' value='" . attr($val['drug']) . "' ></td>" .
                             "<td>" . xlt('Date') . "</td><td><input type='text' name='prescriptions-date_added[]' value='" . attr($val['date_added']) . "' ></td>" .
-                            "<td>" . xlt('Status') . "</td><td><input type='text' name='prescriptions-active[]' value='" . $activity . "' ></td><td rowspan='2' >" .
+                            "<td>" . xlt('Status') . "</td><td><input type='text' name='prescriptions-active[]' value='" . attr($activity) . "' ></td><td rowspan='2' >" .
                             "<select name='prescriptions-sel[]'><option value='ignore' >" . xlt('Ignore') . "</option>" .
                             "<option value='insert' >" . xlt('Insert') . "</option></select></td></tr><tr><td>" . xlt('Form') . "</td>" .
                             "<td><input type='text' size='8' name='prescriptions-form[]' value='" . attr($val['form']) . "' >" .
@@ -455,12 +456,12 @@ function submit_form(val){
         </tr>
         <tr>
             <td align="center" >
-                <input type="button" name="approve" value="<?php echo xlt('Approve'); ?>" onclick="top.restoreSession();submit_form('approve');" >
-                <input type="button" name="discard" value="<?php echo xlt('Discard'); ?>" onclick="top.restoreSession();submit_form('discard');" >
+                <input type="button" name="approve" value="<?php echo xla('Approve'); ?>" onclick="top.restoreSession();submit_form('approve');" >
+                <input type="button" name="discard" value="<?php echo xla('Discard'); ?>" onclick="top.restoreSession();submit_form('discard');" >
         <?php
         $aud_res = createAuditArray($_REQUEST['amid'], 'documents');
         ?>
-        <input type="hidden" name="doc_id" id="doc_id" value="<?php echo $aud_res['documents']['']['id']; ?>" >
+        <input type="hidden" name="doc_id" id="doc_id" value="<?php echo attr($aud_res['documents']['']['id']); ?>" >
                 <input type="hidden" name="setval" id="setval" value="" >
             </td>
         </tr>
