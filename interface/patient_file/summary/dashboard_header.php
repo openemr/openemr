@@ -66,7 +66,7 @@ if ($days_deceased) { ?>
             if (acl_check('admin', 'super') && $GLOBALS['allow_pat_delete']) { ?>
 
                 <a class='btn btn-default btn-sm btn-delete deleter delete'
-                   href='<?php echo attr($url_webroot)?>/interface/patient_file/deleter.php?patient=<?php echo attr_url($pid);?>'
+                   href='<?php echo attr($url_webroot)?>/interface/patient_file/deleter.php?patient=<?php echo attr_url($pid);?>&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>'
                    onclick='return top.restoreSession()'>
                     <span><?php echo xlt('Delete');?></span>
                 </a>

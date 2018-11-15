@@ -494,7 +494,7 @@ if ($ISSUE_TYPES['ippf_gcac'] && !$_POST['form_save']) {
 
  // Process click on Delete link.
  function deleteme() {
-  dlgopen('../deleter.php?issue=<?php echo attr_url($issue) ?>', '_blank', 500, 450);
+  dlgopen('../deleter.php?issue=' + <?php echo js_url($issue); ?> + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank', 500, 450);
   return false;
  }
 

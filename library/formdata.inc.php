@@ -20,9 +20,9 @@
  */
 function add_escape_custom($s)
 {
-      //prepare for safe mysql insertion
-      $s = mysqli_real_escape_string($GLOBALS['dbh'], $s);
-      return $s;
+    //prepare for safe mysql insertion
+    $s = mysqli_real_escape_string($GLOBALS['dbh'], $s);
+    return $s;
 }
 
 /**
@@ -39,9 +39,9 @@ function add_escape_custom($s)
  */
 function escape_limit($s)
 {
-      //prepare for safe mysql insertion
-      $s = (int)$s;
-      return $s;
+    //prepare for safe mysql insertion
+    $s = (int)$s;
+    return $s;
 }
 
 /**
@@ -56,7 +56,7 @@ function escape_limit($s)
  */
 function escape_sort_order($s)
 {
-      return escape_identifier(strtolower($s), array("asc","desc"));
+    return escape_identifier(strtolower($s), array("asc","desc"));
 }
 
 /**
@@ -76,7 +76,7 @@ function escape_sort_order($s)
 function escape_sql_column_name($s, $tables, $long = false)
 {
 
-      // If the $tables is empty, then process them all
+    // If the $tables is empty, then process them all
     if (empty($tables)) {
         $res = sqlStatementNoLog("SHOW TABLES");
         $tables = array();
@@ -86,14 +86,14 @@ function escape_sql_column_name($s, $tables, $long = false)
         }
     }
 
-      // First need to escape the $tables
-      $tables_escaped = array();
+    // First need to escape the $tables
+    $tables_escaped = array();
     foreach ($tables as $table) {
         $tables_escaped[] = escape_table_name($table);
     }
 
-      // Collect all the possible sql columns from the tables
-      $columns_options = array();
+    // Collect all the possible sql columns from the tables
+    $columns_options = array();
     foreach ($tables_escaped as $table_escaped) {
         $res = sqlStatementNoLog("SHOW COLUMNS FROM ".$table_escaped);
         while ($row=sqlFetchArray($res)) {
@@ -105,8 +105,8 @@ function escape_sql_column_name($s, $tables, $long = false)
         }
     }
 
-      // Now can escape(via whitelisting) the sql column name
-      return escape_identifier($s, $columns_options, true);
+    // Now can escape(via whitelisting) the sql column name
+    return escape_identifier($s, $columns_options, true);
 }
 
 /**
@@ -131,15 +131,15 @@ function escape_sql_column_name($s, $tables, $long = false)
  */
 function escape_table_name($s)
 {
-      $res = sqlStatementNoLog("SHOW TABLES");
-      $tables_array = array();
+    $res = sqlStatementNoLog("SHOW TABLES");
+    $tables_array = array();
     while ($row=sqlFetchArray($res)) {
         $keys_return = array_keys($row);
         $tables_array[]=$row[$keys_return[0]];
     }
 
-      // Now can escape(via whitelisting) the sql table name
-      return escape_identifier($s, $tables_array, true, false);
+    // Now can escape(via whitelisting) the sql table name
+    return escape_identifier($s, $tables_array, true, false);
 }
 
 /**
@@ -250,12 +250,12 @@ function formData($name, $type = 'P', $isTrim = false)
  */
 function formDataCore($s, $isTrim = false)
 {
-      //trim if selected
+    //trim if selected
     if ($isTrim) {
         $s = trim($s);
     }
 
-      //add escapes for safe database insertion
-      $s = add_escape_custom($s);
-      return $s;
+    //add escapes for safe database insertion
+    $s = add_escape_custom($s);
+    return $s;
 }

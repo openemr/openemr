@@ -275,7 +275,7 @@ if (!isset($_GET['attachid'])) {
 
  // Process click on Delete link.
  function deleteme() {
-  dlgopen('../deleter.php?encounterid=' + <?php echo js_escape($encounter); ?>, '_blank', 500, 200, '', '', {
+  dlgopen('../deleter.php?encounterid=' + <?php echo js_url($encounter); ?> + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank', 500, 200, '', '', {
       buttons: [
           {text: <?php echo xlj('Done'); ?>, close: true, style: 'primary btn-sm'}
       ],

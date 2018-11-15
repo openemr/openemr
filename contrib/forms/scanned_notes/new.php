@@ -132,7 +132,7 @@ if ($formid) {
 
  // Process click on Delete button.
  function deleteme() {
-  dlgopen('../../patient_file/deleter.php?formid=<?php echo $formrow['id'] ?>', '_blank', 500, 450);
+  dlgopen('../../patient_file/deleter.php?formid=' + <?php echo js_url($formrow['id']); ?> + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank', 500, 450);
   return false;
  }
 
