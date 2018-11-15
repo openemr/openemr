@@ -55,6 +55,7 @@
 
 <!-- Section for document template download -->
 <form method='post' action='interface/patient_file/download_template.php' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="{$csrf_token_form|escape:'html'}">
 <input type='hidden' name='patient_id' value='{$patient_id|escape:'html'}' />
 <p class='text bold'>
  {xl t="Download document template for this patient and visit"|escape:'html'}
