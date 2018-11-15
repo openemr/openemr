@@ -1200,6 +1200,8 @@ if ($GLOBALS['gbl_portal_cms_enable'] && acl_check('patientportal', 'portal')) {
 }
 ?>
 
+<?php if (acl_check('patients', 'demo') || acl_check('patients', 'appt') || acl_check_form('newpatient', '', array('write', 'addonly')) || acl_check('patients', 'med')) { ?>
+
   <li class="open"><a class="collapsed" id="patimg" ><i class="fa fa-fw fa-user fa-2x"></i>&nbsp;<span><?php echo xlt('Patient/Client') ?></span></a>
     <ul>
         <?php if (acl_check('patients', 'demo')) {
@@ -1212,7 +1214,7 @@ if ($GLOBALS['gbl_portal_cms_enable'] && acl_check('patientportal', 'portal')) {
             genTreeLink('RTop', 'dem', xl('Summary'));
 } ?>
 
-        <?php if (acl_check('patients', 'appt') || acl_check_form('newpatient', '', array('write', 'addonly'))) { ?>
+<?php if (acl_check('patients', 'appt') || acl_check_form('newpatient', '', array('write', 'addonly'))) { ?>
       <li class="open"><a class="expanded_lv2"><span><?php echo xlt('Visits') ?></span></a>
         <ul>
             <?php if (acl_check_form('newpatient', '', array('write', 'addonly'))) {
@@ -1226,7 +1228,7 @@ if ($GLOBALS['gbl_portal_cms_enable'] && acl_check('patientportal', 'portal')) {
 } ?>
         </ul>
       </li>
-        <?php } ?>
+<?php } ?>
 
 <?php if (acl_check('patients', 'med')) { ?>
       <li><a class="collapsed_lv2"><span><?php echo xlt('Records') ?></span></a>
@@ -1296,6 +1298,8 @@ if ($reglastcat) {
 
     </ul>
   </li>
+
+<?php } ?>
 
     <?php if ($GLOBALS['enable_group_therapy']) : ?>
       <li><a class="collapsed" id="groupimg" ><i class="fa fa-fw fa-users"></i>&nbsp;<span><?php echo xlt('Group') ?></span></a>
