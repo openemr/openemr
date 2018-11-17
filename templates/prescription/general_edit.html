@@ -109,7 +109,7 @@ select{
         {if $prescription->get_refills() >= $prescription->get_dispensation_count()}
             <input type="submit" name="disp_button"class='css_button_small'  style="margin:0 5px 0 2px;" value="{xl t='Save and Dispense'|escape:'html'}" />
             <input class="input-sm" type="text" name="disp_quantity" size="2" maxlength="10" value="{$DISP_QUANTITY|escape:'html'}" />
-            units, $
+            units, {$GBL_CURRENCY_SYMBOL|escape:'html'}
             <input class="input-sm" type="text" name="disp_fee" size="5" maxlength="10" value="{$DISP_FEE|escape:'html'}" />
         {else}&nbsp;
             {xl t='prescription has reached its limit of'|escape:'html'} {$prescription->get_refills()|escape:'html'} {xl t='refills'|escape:'html'}.
