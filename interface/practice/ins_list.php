@@ -129,7 +129,7 @@ while ($row = sqlFetchArray($res)) {
     attr_js($row['id']) . "," . attr_js($row['name']) . ")\">";
     $phone = '&nbsp';
     if ($row['number']) {
-        $phone = $row['area_code'] . '-' . $row['prefix'] . '-' . $row['number'];
+        $phone = text($row['area_code']) . '-' . text($row['prefix']) . '-' . text($row['number']);
     }
 
     echo " <tr>\n";
@@ -140,7 +140,7 @@ while ($row = sqlFetchArray($res)) {
     echo "  <td valign='top'>" . text($row['city']) . "&nbsp;</td>\n";
     echo "  <td valign='top'>" . text($row['state']) . "&nbsp;</td>\n";
     echo "  <td valign='top'>" . text($row['zip']) . "&nbsp;</td>\n";
-    echo "  <td valign='top'>" . text($phone) . "</td>\n";
+    echo "  <td valign='top'>" . $phone . "</td>\n";
     echo " </tr>\n";
 }
 ?>

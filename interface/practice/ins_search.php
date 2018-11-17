@@ -189,7 +189,7 @@ if ($_POST['form_save']) {
         "'" . add_escape_custom($_POST['form_state'])   . "', " .
         "'" . add_escape_custom($_POST['form_zip'])     . "', " .
         "'" . add_escape_custom($_POST['form_country']) . "', " .
-        "'" . add_escape_custom($ins_id)                . "'' " .
+        "'" . add_escape_custom($ins_id)                . "' " .
         ")");
 
         $phone_parts = array();
