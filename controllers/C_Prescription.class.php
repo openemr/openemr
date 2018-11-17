@@ -106,6 +106,8 @@ class C_Prescription extends Controller
             $this->prescriptions[0]->set_patient_id($patient_id);
         }
 
+        $this->assign("GBL_CURRENCY_SYMBOL", $GLOBALS['gbl_currency_symbol']);
+
         // If quantity to dispense is not already set from a POST, set its
         // default value.
         if (! $this->get_template_vars('DISP_QUANTITY')) {
@@ -196,6 +198,8 @@ class C_Prescription extends Controller
         //echo $this->prescriptions[0]->toString(true);
         $this->prescriptions[0]->persist();
         $_POST['process'] = "";
+
+        $this->assign("GBL_CURRENCY_SYMBOL", $GLOBALS['gbl_currency_symbol']);
 
         // If the "Prescribe and Dispense" button was clicked, then
         // redisplay as in edit_action() but also replicate the fee and
