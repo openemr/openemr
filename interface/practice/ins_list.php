@@ -1,19 +1,28 @@
 <?php
- // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ * The purpose of this module is to show a list of insurance
+ * companies that match the passed-in search strings, and to allow
+ * one of them to be selected.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2005 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
- // The purpose of this module is to show a list of insurance
- // companies that match the passed-in search strings, and to allow
- // one of them to be selected.
 
- include_once("../globals.php");
+require_once("../globals.php");
 
- // Putting a message here will cause a popup window to display it.
- $info_msg = "";
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    csrfNotVerified();
+}
+
+
+// Putting a message here will cause a popup window to display it.
+$info_msg = "";
 
 function addwhere($where, $colname, $value)
 {
@@ -25,43 +34,43 @@ function addwhere($where, $colname, $value)
     return $where;
 }
 
- // The following code builds the appropriate SQL query from the
- // search parameters passed by our opener (ins_search.php).
+// The following code builds the appropriate SQL query from the
+// search parameters passed by our opener (ins_search.php).
 
- $where = '';
- $where = addwhere($where, 'i.name', $_REQUEST['form_name']);
- $where = addwhere($where, 'i.attn', $_REQUEST['form_attn']);
- $where = addwhere($where, 'i.cms_id', $_REQUEST['form_cms_id']);
- $where = addwhere($where, 'a.line1', $_REQUEST['form_addr1']);
- $where = addwhere($where, 'a.line2', $_REQUEST['form_addr2']);
- $where = addwhere($where, 'a.city', $_REQUEST['form_city']);
- $where = addwhere($where, 'a.state', $_REQUEST['form_state']);
- $where = addwhere($where, 'a.zip', $_REQUEST['form_zip']);
+$where = '';
+$where = addwhere($where, 'i.name', $_GET['form_name']);
+$where = addwhere($where, 'i.attn', $_GET['form_attn']);
+$where = addwhere($where, 'i.cms_id', $_GET['form_cms_id']);
+$where = addwhere($where, 'a.line1', $_GET['form_addr1']);
+$where = addwhere($where, 'a.line2', $_GET['form_addr2']);
+$where = addwhere($where, 'a.city', $_GET['form_city']);
+$where = addwhere($where, 'a.state', $_GET['form_state']);
+$where = addwhere($where, 'a.zip', $_GET['form_zip']);
 
- $phone_parts = array();
+$phone_parts = array();
 
- // Search by area code if there is one.
+// Search by area code if there is one.
 if (preg_match(
     "/(\d\d\d)/",
-    $_REQUEST['form_phone'],
+    $_GET['form_phone'],
     $phone_parts
 )) {
     $where = addwhere($where, 'p.area_code', $phone_parts[1]);
 }
 
- // If there is also an exchange, search for that too.
+// If there is also an exchange, search for that too.
 if (preg_match(
     "/\d\d\d\D*(\d\d\d)/",
-    $_REQUEST['form_phone'],
+    $_GET['form_phone'],
     $phone_parts
 )) {
     $where = addwhere($where, 'p.prefix', $phone_parts[1]);
 }
 
- // If the last 4 phone number digits are given, search for that too.
+// If the last 4 phone number digits are given, search for that too.
 if (preg_match(
     "/\d\d\d\D*\d\d\d\D*(\d\d\d\d)/",
-    $_REQUEST['form_phone'],
+    $_GET['form_phone'],
     $phone_parts
 )) {
     $where = addwhere($where, 'p.number', $phone_parts[1]);
@@ -78,7 +87,7 @@ if (preg_match(
 ?>
 <html>
 <head>
-<title><?php xl('List Insurance Companies', 'e');?></title>
+<title><?php echo xlt('List Insurance Companies');?></title>
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 
 <style>
@@ -104,34 +113,34 @@ td { font-size:10pt; }
 
 <table class="table table-condensed" border='0' width='100%'>
  <tr>
-  <td><b><?php xl('Name', 'e');?></b>&nbsp;</td>
-  <td><b><?php xl('Attn', 'e');?></b>&nbsp;</td>
-  <td><b><?php xl('Address', 'e');?></b>&nbsp;</td>
+  <td><b><?php echo xlt('Name');?></b>&nbsp;</td>
+  <td><b><?php echo xlt('Attn');?></b>&nbsp;</td>
+  <td><b><?php echo xlt('Address');?></b>&nbsp;</td>
   <td><b>&nbsp;</b>&nbsp;</td>
-  <td><b><?php xl('City', 'e');?></b>&nbsp;</td>
-  <td><b><?php xl('State', 'e');?></b>&nbsp;</td>
-  <td><b><?php xl('Zip', 'e');?></b>&nbsp;</td>
-  <td><b><?php xl('Phone', 'e');?></b></td>
+  <td><b><?php echo xlt('City');?></b>&nbsp;</td>
+  <td><b><?php echo xlt('State');?></b>&nbsp;</td>
+  <td><b><?php echo xlt('Zip');?></b>&nbsp;</td>
+  <td><b><?php echo xlt('Phone');?></b></td>
  </tr>
 
 <?php
 while ($row = sqlFetchArray($res)) {
     $anchor = "<a href=\"\" onclick=\"return setins(" .
-    $row['id'] . ",'" . addslashes($row['name']) . "')\">";
+    attr_js($row['id']) . "," . attr_js($row['name']) . ")\">";
     $phone = '&nbsp';
     if ($row['number']) {
-        $phone = $row['area_code'] . '-' . $row['prefix'] . '-' . $row['number'];
+        $phone = text($row['area_code']) . '-' . text($row['prefix']) . '-' . text($row['number']);
     }
 
     echo " <tr>\n";
-    echo "  <td valign='top'>$anchor" . $row['name'] . "</a>&nbsp;</td>\n";
-    echo "  <td valign='top'>" . $row['attn'] . "&nbsp;</td>\n";
-    echo "  <td valign='top'>" . $row['line1'] . "&nbsp;</td>\n";
-    echo "  <td valign='top'>" . $row['line2'] . "&nbsp;</td>\n";
-    echo "  <td valign='top'>" . $row['city'] . "&nbsp;</td>\n";
-    echo "  <td valign='top'>" . $row['state'] . "&nbsp;</td>\n";
-    echo "  <td valign='top'>" . $row['zip'] . "&nbsp;</td>\n";
-    echo "  <td valign='top'>$phone</td>\n";
+    echo "  <td valign='top'>$anchor" . text($row['name']) . "</a>&nbsp;</td>\n";
+    echo "  <td valign='top'>" . text($row['attn']) . "&nbsp;</td>\n";
+    echo "  <td valign='top'>" . text($row['line1']) . "&nbsp;</td>\n";
+    echo "  <td valign='top'>" . text($row['line2']) . "&nbsp;</td>\n";
+    echo "  <td valign='top'>" . text($row['city']) . "&nbsp;</td>\n";
+    echo "  <td valign='top'>" . text($row['state']) . "&nbsp;</td>\n";
+    echo "  <td valign='top'>" . text($row['zip']) . "&nbsp;</td>\n";
+    echo "  <td valign='top'>" . $phone . "</td>\n";
     echo " </tr>\n";
 }
 ?>
