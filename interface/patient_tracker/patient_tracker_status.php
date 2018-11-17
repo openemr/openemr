@@ -10,7 +10,7 @@
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015 Terry Hill <terry@lillysystems.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -22,6 +22,12 @@ require_once("$srcdir/encounter_events.inc.php");
 require_once("$srcdir/patient_tracker.inc.php");
 
 use OpenEMR\Core\Header;
+
+if (!empty($_GET)) {
+    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 # Get the information for fields
 $tracker_id = $_GET['tracker_id'];
@@ -47,6 +53,10 @@ $theroom = '';
 
 <?php
 if ($_POST['statustype'] !='') {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     $status = $_POST['statustype'];
     if (strlen($_POST['roomnum']) != 0) {
          $theroom = $_POST['roomnum'];
@@ -90,7 +100,8 @@ $row = sqlQuery("select fname, lname " .
                 <h2><?php echo xlt('Change Status for'). " " . text($row['fname']) . " " . text($row['lname']); ?></h2>
             </div>
         </div>
-        <form id="form_note" method="post" action="patient_tracker_status.php?tracker_id=<?php echo attr($tracker_id) ?>" enctype="multipart/form-data" >
+        <form id="form_note" method="post" action="patient_tracker_status.php?tracker_id=<?php echo attr_url($tracker_id) ?>&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" enctype="multipart/form-data" >
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
             <div class="form-group">
                 <label for="statustype"><?php echo xlt('Status Type'); ?></label>
                 <?php echo generate_select_list('statustype', 'apptstat', $trow['laststatus'], xl('Status Type')); ?>
