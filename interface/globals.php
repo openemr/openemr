@@ -502,7 +502,6 @@ $logocode = "<img class='img-responsive center-block' src='" . $GLOBALS['OE_SITE
 $tinylogocode1 = "<img class='tinylogopng' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_1.png'>";
 $tinylogocode2 = "<img class='tinylogopng' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_2.png'>";
 
-$linepic = "$rootdir/pic/repeat_vline9.gif";
 $table_bg = ' bgcolor="#cccccc" ';
 $GLOBALS['style']['BGCOLOR1'] = "#cccccc";
 $GLOBALS['style']['TEXTCOLOR11'] = "#222222";
