@@ -7,7 +7,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2008-2016 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,6 +16,12 @@ require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Core\Header;
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 // Format dollars for display.
 //
@@ -82,6 +88,7 @@ function bucks($amount)
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Services by Category'); ?></span>
 
 <form method='post' action='services_by_category.php' name='theform' id='theform' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 
@@ -211,7 +218,7 @@ while ($row = sqlFetchArray($res)) {
     }
 
     $bgcolor = (($irow & 1) ? "#ffdddd" : "#ddddff");
-    echo "  <tr bgcolor='$bgcolor'>\n";
+    echo "  <tr bgcolor='" . attr($bgcolor) . "'>\n";
     // Added 5-09 by BM - Translate label if applicable
     echo "   <td class='text'>" . text(xl_list_label($disp_category)) . "</td>\n";
     echo "   <td class='text'>" . text($key) . "</td>\n";

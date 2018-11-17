@@ -26,6 +26,12 @@ require_once("$srcdir/edi.inc");
 
 use OpenEMR\Core\Header;
 
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
+
 // Element data seperator
 $eleDataSep     = "*";
 
@@ -182,8 +188,8 @@ if ($exclude_policy != "") {
 
         <script type="text/javascript">
 
-            var stringDelete = "<?php echo xla('Do you want to remove this record?'); ?>?";
-            var stringBatch  = "<?php echo xla('Please select X12 partner, required to create the 270 batch'); ?>";
+            var stringDelete = <?php echo xlj('Do you want to remove this record?'); ?>;
+            var stringBatch  = <?php echo xlj('Please select X12 partner, required to create the 270 batch'); ?>;
 
             // for form refresh
 
@@ -279,6 +285,7 @@ if ($exclude_policy != "") {
         </div>
 
         <form method='post' name='theform' id='theform' action='edi_270.php' onsubmit="return top.restoreSession()">
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
             <input type="hidden" name="removedrows" id="removedrows" value="">
             <div id="report_parameters">
                 <table>
@@ -389,7 +396,7 @@ if ($exclude_policy != "") {
     <script language='JavaScript'>
         <?php
         if ($alertmsg) {
-            echo " alert('$alertmsg');\n";
+            echo " alert(" . js_escape($alertmsg) . ");\n";
         } ?>
     </script>
 

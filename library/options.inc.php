@@ -3630,8 +3630,7 @@ function dropdown_facility(
     $have_selected = false;
     $fres = $facilityService->getAll();
 
-    $name = htmlspecialchars($name, ENT_QUOTES);
-    echo "   <select class='form-control' name='$name' id='$name'";
+    echo "   <select class='form-control' name='" . attr($name) . "' id='" . attr($name) . "'";
     if ($onchange) {
         echo " onchange='$onchange'";
     }
@@ -3646,8 +3645,8 @@ function dropdown_facility(
             $have_selected = true;
         }
 
-        $option_content = htmlspecialchars('-- ' . xl('All Facilities') . ' --', ENT_NOQUOTES);
-        echo "    <option value=\"$option_value\" $option_selected_attr>$option_content</option>\n";
+        $option_content = '-- ' . xl('All Facilities') . ' --';
+        echo "    <option value='" . attr($option_value) . "' $option_selected_attr>" . text($option_content) . "</option>\n";
     } elseif ($allow_unspecified) {
         $option_value = '0';
         $option_selected_attr = '';
@@ -3656,21 +3655,21 @@ function dropdown_facility(
             $have_selected = true;
         }
 
-        $option_content = htmlspecialchars('-- ' . xl('Unspecified') . ' --', ENT_NOQUOTES);
-        echo "    <option value=\"$option_value\" $option_selected_attr>$option_content</option>\n";
+        $option_content = '-- ' . xl('Unspecified') . ' --';
+        echo "    <option value='" . attr($option_value) . "' $option_selected_attr>" . text($option_content) . "</option>\n";
     }
 
     foreach ($fres as $frow) {
         $facility_id = $frow['id'];
-        $option_value = htmlspecialchars($facility_id, ENT_QUOTES);
+        $option_value = $facility_id;
         $option_selected_attr = '';
         if ($selected == $facility_id) {
             $option_selected_attr = ' selected="selected"';
             $have_selected = true;
         }
 
-        $option_content = htmlspecialchars($frow['name'], ENT_NOQUOTES);
-        echo "    <option value=\"$option_value\" $option_selected_attr>$option_content</option>\n";
+        $option_content = $frow['name'];
+        echo "    <option value='" . attr($option_value) . "' $option_selected_attr>" . text($option_content) . "</option>\n";
     }
 
     if ($allow_unspecified && $allow_allfacilities) {
@@ -3681,15 +3680,15 @@ function dropdown_facility(
             $have_selected = true;
         }
 
-        $option_content = htmlspecialchars('-- ' . xl('Unspecified') . ' --', ENT_NOQUOTES);
-        echo "    <option value=\"$option_value\" $option_selected_attr>$option_content</option>\n";
+        $option_content = '-- ' . xl('Unspecified') . ' --';
+        echo "    <option value='" . attr($option_value) . "' $option_selected_attr>" . text($option_content) . "</option>\n";
     }
 
     if (!$have_selected) {
-        $option_value = htmlspecialchars($selected, ENT_QUOTES);
-        $option_label = htmlspecialchars('(' . xl('Do not change') . ')', ENT_QUOTES);
-        $option_content = htmlspecialchars(xl('Missing or Invalid'), ENT_NOQUOTES);
-        echo "    <option value='$option_value' label='$option_label' selected='selected'>$option_content</option>\n";
+        $option_value = $selected;
+        $option_label = '(' . xl('Do not change') . ')';
+        $option_content = xl('Missing or Invalid');
+        echo "    <option value='" . attr($option_value) . "' label='" . attr($option_label) . "' selected='selected'>" . text($option_content) . "</option>\n";
     }
 
     echo "   </select>\n";

@@ -5,7 +5,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2015-2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2015-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,6 +16,12 @@ require_once "$srcdir/options.inc.php";
 require_once "$srcdir/clinical_rules.php";
 
 use OpenEMR\Core\Header;
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 $form_begin_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_begin_date']);
 $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
@@ -73,7 +79,9 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 
 <span class='title'><?php echo xlt('Alerts Log'); ?></span>
 
-<form method='post' name='theform' id='theform' action='cdr_log.php?search=1' onsubmit='return top.restoreSession()'>
+<form method='post' name='theform' id='theform' action='cdr_log.php' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="search" value="1" />
 
 <div id="report_parameters">
 
@@ -129,7 +137,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 
 <br>
 
-<?php if ($_GET['search'] == 1) { ?>
+<?php if ($_POST['search'] == 1) { ?>
 
  <div id="report_results">
  <table>

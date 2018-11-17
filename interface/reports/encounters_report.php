@@ -12,7 +12,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2007-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2015 Terry Hill <terry@lillysystems.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -24,6 +24,12 @@ require_once("$srcdir/patient.inc");
 require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Core\Header;
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 $alertmsg = ''; // not used yet but maybe later
 
@@ -37,19 +43,12 @@ $ORDERHASH = array(
   'encounter'    => 'fe.encounter, fe.date, lower(u.lname), lower(u.fname)',
 );
 
-function bucks($amount)
-{
-    if ($amount) {
-        printf("%.2f", $amount);
-    }
-}
-
 function show_doc_total($lastdocname, $doc_encounters)
 {
     if ($lastdocname) {
         echo " <tr>\n";
-        echo "  <td class='detail'>$lastdocname</td>\n";
-        echo "  <td class='detail' align='right'>$doc_encounters</td>\n";
+        echo "  <td class='detail'>" .  text($lastdocname) . "</td>\n";
+        echo "  <td class='detail' align='right'>" . text($doc_encounters) . "</td>\n";
         echo " </tr>\n";
     }
 }
@@ -207,6 +206,7 @@ $res = sqlStatement($query, $sqlBindArray);
 </div>
 
 <form method='post' name='theform' id='theform' action='encounters_report.php' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 <table>
@@ -455,7 +455,7 @@ if ($res) {
                 $status = xl('Empty');
             }
         ?>
-       <tr bgcolor='<?php echo $bgcolor ?>'>
+       <tr bgcolor='<?php echo attr($bgcolor); ?>'>
   <td>
         <?php echo ($docname == $lastdocname) ? "" : text($docname) ?>&nbsp;
   </td>
@@ -519,7 +519,7 @@ if ($res) {
 
 <script language='JavaScript'>
 <?php if ($alertmsg) {
-    echo " alert('$alertmsg');\n";
+    echo " alert(" . js_escape($alertmsg) . ");\n";
 } ?>
 </script>
 </html>
