@@ -23,7 +23,6 @@
 namespace OpenEMR\RestControllers;
 
 require_once("{$GLOBALS['srcdir']}/authentication/common_operations.php");
-require_once("{$GLOBALS['srcdir']}/acl.inc");
 
 /*
 TODO: Add to migration scripts
@@ -35,6 +34,7 @@ CREATE TABLE `api_token` (
      PRIMARY KEY (`id`)
     ) ENGINE = InnoDB;
 */
+
 class AuthRestController
 {
     public function __construct()
@@ -52,7 +52,7 @@ class AuthRestController
 
         $user = sqlQuery("SELECT id FROM users_secure WHERE username = ?", array($authPayload['username']));
 
-        $sql  = " INSERT INTO api_token SET";
+        $sql = " INSERT INTO api_token SET";
         $sql .= "     user_id='" . add_escape_custom($user["id"]) . "',";
         $sql .= "     token=(SELECT LEFT(SHA2(CONCAT(NOW(), RAND(), UUID()), 512), 32)),";
         $sql .= "     expiry=DATE_ADD(NOW(), INTERVAL 1 HOUR)";
@@ -60,9 +60,9 @@ class AuthRestController
         sqlInsert($sql);
 
         $token = sqlQuery("SELECT token FROM api_token WHERE user_id = ? ORDER BY id DESC", array($user["id"]));
-
+        $encoded_site = bin2hex($_SESSION['site_id']);
         http_response_code(200);
-        return $token["token"];
+        return $token["token"] . $encoded_site;
     }
 
     public function isValidToken($token)
@@ -85,8 +85,8 @@ class AuthRestController
 
     public function getUserFromToken($token)
     {
-        $sql  = " SELECT";
-        $sql .= "     u.username";
+        $sql = " SELECT";
+        $sql .= " u.username";
         $sql .= " FROM api_token a";
         $sql .= " JOIN users_secure u ON u.id = a.user_id";
         $sql .= " WHERE a.token = ?";
@@ -98,9 +98,7 @@ class AuthRestController
     public function aclCheck($token, $section, $value)
     {
         $username = $this->getUserFromToken($token);
-        // TODO: DOESN'T WORK - Uncaught Error: Call to a member function acl_query() on null 
-        //return acl_check($section, $value, $username);
-        return true;
+        return acl_check($section, $value, $username);
     }
 
     public function optionallyAddMoreTokenTime($token)

@@ -10,16 +10,7 @@
  * @license   https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
  */
 
-
-$ignoreAuth = true;
-
-require_once("./../interface/globals.php");
 include_once("./../_rest_config.php");
-include_once("./../_rest_routes.inc.php");
-
-use OpenEMR\Common\Http\HttpRestRouteHandler;
-use OpenEMR\RestControllers\AuthRestController;
-
 
 $gbl = RestConfig::GetInstance();
 
@@ -40,12 +31,34 @@ if (!empty($_REQUEST['_REWRITE_COMMAND'])) {
         }
     }
 }
+// Maintain site id for multi site compatibility.
+// token is a 32 character hash followed by hex encoded site id.
+if ($resource === "/api/auth") {
+    // Get a site id from initial log in authentication.
+    $data = (array)(json_decode(file_get_contents("php://input")));
+    $site = empty($data['site']) ? "default" : $data['site'];
+    $_GET['site'] = $site;
+} else {
+    if (strlen($_SERVER["HTTP_X_API_TOKEN"]) > 32) {
+        $token = str_split($_SERVER["HTTP_X_API_TOKEN"], 32);
+        $_SERVER["HTTP_X_API_TOKEN"] = $token[0]; // reset hash to further the adventure.
+        $_GET['site'] = hex2bin($token[1]); // site id
+    }
+}
+
+$ignoreAuth = true;
+require_once("./../interface/globals.php");
+require_once("./../library/acl.inc");
+
+use OpenEMR\Common\Http\HttpRestRouteHandler;
+use OpenEMR\RestControllers\AuthRestController;
 
 function authentication_check($resource)
 {
-    $authRestController = new AuthRestController();
     if ($resource !== "/api/auth") {
-        if (!$authRestController->isValidToken($_SERVER["HTTP_X_API_TOKEN"])) {
+        $token = $_SERVER["HTTP_X_API_TOKEN"];
+        $authRestController = new AuthRestController();
+        if (!$authRestController->isValidToken($token)) {
             http_response_code(401);
             exit;
         } else {
@@ -65,6 +78,9 @@ function authorization_check($section, $value)
     }
 }
 
-// authentication_check($resource);
+
+authentication_check($resource);
 
 HttpRestRouteHandler::dispatch($routes, $resource, $_SERVER["REQUEST_METHOD"]);
+// Tear down session for security.
+$gbl->destroySession();
