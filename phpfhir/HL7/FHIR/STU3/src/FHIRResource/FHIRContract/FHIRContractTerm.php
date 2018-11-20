@@ -543,7 +543,7 @@ class FHIRContractTerm extends FHIRBackboneElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ContractTerm xmlns="http://hl7.org/fhir"></ContractTerm>');
+            $sxe = new \SimpleXMLElement('<ContractTerm xmlns="https://hl7.org/fhir"></ContractTerm>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->identifier)) {

@@ -128,7 +128,7 @@ class FHIRPlanDefinitionParticipant extends FHIRBackboneElement implements \Json
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<PlanDefinitionParticipant xmlns="http://hl7.org/fhir"></PlanDefinitionParticipant>');
+            $sxe = new \SimpleXMLElement('<PlanDefinitionParticipant xmlns="https://hl7.org/fhir"></PlanDefinitionParticipant>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {

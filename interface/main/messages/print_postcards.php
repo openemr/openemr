@@ -3,7 +3,7 @@
  * Print postcards for patients currently in the $_SESSION['pidList'] variable.
  *
  * @package MedEx
- * @link    http://www.MedExBank.com
+ * @link    https://www.MedExBank.com
  * @author  MedEx <support@MedExBank.com>
  * @copyright Copyright (c) 2017 MedEx <support@MedExBank.com>
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3

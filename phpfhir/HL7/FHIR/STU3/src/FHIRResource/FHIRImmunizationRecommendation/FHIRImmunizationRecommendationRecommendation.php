@@ -379,7 +379,7 @@ class FHIRImmunizationRecommendationRecommendation extends FHIRBackboneElement i
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ImmunizationRecommendationRecommendation xmlns="http://hl7.org/fhir"></ImmunizationRecommendationRecommendation>');
+            $sxe = new \SimpleXMLElement('<ImmunizationRecommendationRecommendation xmlns="https://hl7.org/fhir"></ImmunizationRecommendationRecommendation>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->date)) {

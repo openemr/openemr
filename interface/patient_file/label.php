@@ -9,7 +9,7 @@
  *
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2014 Terry Hill <terry@lillysystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

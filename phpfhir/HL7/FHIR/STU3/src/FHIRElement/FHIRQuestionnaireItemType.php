@@ -90,7 +90,7 @@ class FHIRQuestionnaireItemType extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<QuestionnaireItemType xmlns="http://hl7.org/fhir"></QuestionnaireItemType>');
+            $sxe = new \SimpleXMLElement('<QuestionnaireItemType xmlns="https://hl7.org/fhir"></QuestionnaireItemType>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

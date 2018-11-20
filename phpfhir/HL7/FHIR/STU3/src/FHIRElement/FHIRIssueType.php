@@ -90,7 +90,7 @@ class FHIRIssueType extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<IssueType xmlns="http://hl7.org/fhir"></IssueType>');
+            $sxe = new \SimpleXMLElement('<IssueType xmlns="https://hl7.org/fhir"></IssueType>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

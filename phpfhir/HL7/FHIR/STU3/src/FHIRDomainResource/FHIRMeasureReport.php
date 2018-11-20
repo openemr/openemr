@@ -395,7 +395,7 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MeasureReport xmlns="http://hl7.org/fhir"></MeasureReport>');
+            $sxe = new \SimpleXMLElement('<MeasureReport xmlns="https://hl7.org/fhir"></MeasureReport>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->identifier)) {

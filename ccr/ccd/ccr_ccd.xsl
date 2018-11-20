@@ -27,11 +27,11 @@ License :
         GNU General Public License for more details.
 
         You should have received a copy of the GNU General Public License
-        along with this program.  If not, see http://www.gnu.org/licenses.
+        along with this program.  If not, see https://www.gnu.org/licenses.
 
 -->
-<xsl:stylesheet version="1.0" xmlns="urn:hl7-org:v3" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:a="urn:astm-org:CCR" xmlns:date="http://exslt.org/dates-and-times"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exclude-result-prefixes="a date">
+<xsl:stylesheet version="1.0" xmlns="urn:hl7-org:v3" xmlns:xsl="https://www.w3.org/1999/XSL/Transform" xmlns:a="urn:astm-org:CCR" xmlns:date="https://exslt.org/dates-and-times"
+xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance" exclude-result-prefixes="a date">
     <xsl:import href="./templates/cdavocablookup.xsl"/>
     <xsl:import href="./templates/hl7oidlookup.xsl"/>
     <xsl:import href="./templates/code.xsl"/>
@@ -41,7 +41,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exclude-result-prefixes="a
 
     <xsl:output method="xml" encoding="utf-8" version="1.0" indent="yes"/>
     <xsl:template match="/">
-        <ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:voc="urn:hl7-org:v3/voc" xmlns:sdtc="urn:hl7-org:sdtc"  xsi:schemaLocation="urn:hl7-org:v3 http://xreg2.nist.gov:8080/hitspValidation/schema/cdar2c32/infrastructure/cda/C32_CDA.xsd" classCode="DOCCLIN" moodCode="EVN">
+        <ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:voc="urn:hl7-org:v3/voc" xmlns:sdtc="urn:hl7-org:sdtc"  xsi:schemaLocation="urn:hl7-org:v3 https://xreg2.nist.gov:8080/hitspValidation/schema/cdar2c32/infrastructure/cda/C32_CDA.xsd" classCode="DOCCLIN" moodCode="EVN">
             <realmCode code="US"/>
             <typeId root="2.16.840.1.113883.1.3" extension="POCD_HD000040"/>
             <templateId root="2.16.840.1.113883.10.20.1"/>

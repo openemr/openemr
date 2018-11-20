@@ -160,7 +160,7 @@ class FHIRProcedurePerformer extends FHIRBackboneElement implements \JsonSeriali
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ProcedurePerformer xmlns="http://hl7.org/fhir"></ProcedurePerformer>');
+            $sxe = new \SimpleXMLElement('<ProcedurePerformer xmlns="https://hl7.org/fhir"></ProcedurePerformer>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->role)) {

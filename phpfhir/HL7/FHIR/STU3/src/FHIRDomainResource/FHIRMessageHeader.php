@@ -16,7 +16,7 @@ use HL7\FHIR\STU3\FHIRResource\FHIRDomainResource;
 class FHIRMessageHeader extends FHIRDomainResource implements \JsonSerializable
 {
     /**
-     * Code that identifies the event this message represents and connects it with its definition. Events defined as part of the FHIR specification have the system value "http://hl7.org/fhir/message-events".
+     * Code that identifies the event this message represents and connects it with its definition. Events defined as part of the FHIR specification have the system value "https://hl7.org/fhir/message-events".
      * @var \HL7\FHIR\STU3\FHIRElement\FHIRCoding
      */
     public $event = null;
@@ -93,7 +93,7 @@ class FHIRMessageHeader extends FHIRDomainResource implements \JsonSerializable
     private $_fhirElementName = 'MessageHeader';
 
     /**
-     * Code that identifies the event this message represents and connects it with its definition. Events defined as part of the FHIR specification have the system value "http://hl7.org/fhir/message-events".
+     * Code that identifies the event this message represents and connects it with its definition. Events defined as part of the FHIR specification have the system value "https://hl7.org/fhir/message-events".
      * @return \HL7\FHIR\STU3\FHIRElement\FHIRCoding
      */
     public function getEvent()
@@ -102,7 +102,7 @@ class FHIRMessageHeader extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * Code that identifies the event this message represents and connects it with its definition. Events defined as part of the FHIR specification have the system value "http://hl7.org/fhir/message-events".
+     * Code that identifies the event this message represents and connects it with its definition. Events defined as part of the FHIR specification have the system value "https://hl7.org/fhir/message-events".
      * @param \HL7\FHIR\STU3\FHIRElement\FHIRCoding $event
      * @return $this
      */
@@ -468,7 +468,7 @@ class FHIRMessageHeader extends FHIRDomainResource implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MessageHeader xmlns="http://hl7.org/fhir"></MessageHeader>');
+            $sxe = new \SimpleXMLElement('<MessageHeader xmlns="https://hl7.org/fhir"></MessageHeader>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->event)) {

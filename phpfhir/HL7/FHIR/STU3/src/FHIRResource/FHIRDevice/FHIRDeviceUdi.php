@@ -27,7 +27,7 @@ class FHIRDeviceUdi extends FHIRBackboneElement implements \JsonSerializable
     public $name = null;
 
     /**
-     * The identity of the authoritative source for UDI generation within a  jurisdiction.  All UDIs are globally unique within a single namespace. with the appropriate repository uri as the system.  For example,  UDIs of devices managed in the U.S. by the FDA, the value is  http://hl7.org/fhir/NamingSystem/fda-udi.
+     * The identity of the authoritative source for UDI generation within a  jurisdiction.  All UDIs are globally unique within a single namespace. with the appropriate repository uri as the system.  For example,  UDIs of devices managed in the U.S. by the FDA, the value is  https://hl7.org/fhir/NamingSystem/fda-udi.
      * @var \HL7\FHIR\STU3\FHIRElement\FHIRUri
      */
     public $jurisdiction = null;
@@ -47,13 +47,13 @@ class FHIRDeviceUdi extends FHIRBackboneElement implements \JsonSerializable
     /**
      * Organization that is charged with issuing UDIs for devices.  For example, the US FDA issuers include :
 1) GS1:
-http://hl7.org/fhir/NamingSystem/gs1-di,
+https://hl7.org/fhir/NamingSystem/gs1-di,
 2) HIBCC:
-http://hl7.org/fhir/NamingSystem/hibcc-dI,
+https://hl7.org/fhir/NamingSystem/hibcc-dI,
 3) ICCBBA for blood containers:
-http://hl7.org/fhir/NamingSystem/iccbba-blood-di,
+https://hl7.org/fhir/NamingSystem/iccbba-blood-di,
 4) ICCBA for other devices:
-http://hl7.org/fhir/NamingSystem/iccbba-other-di.
+https://hl7.org/fhir/NamingSystem/iccbba-other-di.
      * @var \HL7\FHIR\STU3\FHIRElement\FHIRUri
      */
     public $issuer = null;
@@ -110,7 +110,7 @@ http://hl7.org/fhir/NamingSystem/iccbba-other-di.
     }
 
     /**
-     * The identity of the authoritative source for UDI generation within a  jurisdiction.  All UDIs are globally unique within a single namespace. with the appropriate repository uri as the system.  For example,  UDIs of devices managed in the U.S. by the FDA, the value is  http://hl7.org/fhir/NamingSystem/fda-udi.
+     * The identity of the authoritative source for UDI generation within a  jurisdiction.  All UDIs are globally unique within a single namespace. with the appropriate repository uri as the system.  For example,  UDIs of devices managed in the U.S. by the FDA, the value is  https://hl7.org/fhir/NamingSystem/fda-udi.
      * @return \HL7\FHIR\STU3\FHIRElement\FHIRUri
      */
     public function getJurisdiction()
@@ -119,7 +119,7 @@ http://hl7.org/fhir/NamingSystem/iccbba-other-di.
     }
 
     /**
-     * The identity of the authoritative source for UDI generation within a  jurisdiction.  All UDIs are globally unique within a single namespace. with the appropriate repository uri as the system.  For example,  UDIs of devices managed in the U.S. by the FDA, the value is  http://hl7.org/fhir/NamingSystem/fda-udi.
+     * The identity of the authoritative source for UDI generation within a  jurisdiction.  All UDIs are globally unique within a single namespace. with the appropriate repository uri as the system.  For example,  UDIs of devices managed in the U.S. by the FDA, the value is  https://hl7.org/fhir/NamingSystem/fda-udi.
      * @param \HL7\FHIR\STU3\FHIRElement\FHIRUri $jurisdiction
      * @return $this
      */
@@ -172,13 +172,13 @@ http://hl7.org/fhir/NamingSystem/iccbba-other-di.
     /**
      * Organization that is charged with issuing UDIs for devices.  For example, the US FDA issuers include :
 1) GS1:
-http://hl7.org/fhir/NamingSystem/gs1-di,
+https://hl7.org/fhir/NamingSystem/gs1-di,
 2) HIBCC:
-http://hl7.org/fhir/NamingSystem/hibcc-dI,
+https://hl7.org/fhir/NamingSystem/hibcc-dI,
 3) ICCBBA for blood containers:
-http://hl7.org/fhir/NamingSystem/iccbba-blood-di,
+https://hl7.org/fhir/NamingSystem/iccbba-blood-di,
 4) ICCBA for other devices:
-http://hl7.org/fhir/NamingSystem/iccbba-other-di.
+https://hl7.org/fhir/NamingSystem/iccbba-other-di.
      * @return \HL7\FHIR\STU3\FHIRElement\FHIRUri
      */
     public function getIssuer()
@@ -189,13 +189,13 @@ http://hl7.org/fhir/NamingSystem/iccbba-other-di.
     /**
      * Organization that is charged with issuing UDIs for devices.  For example, the US FDA issuers include :
 1) GS1:
-http://hl7.org/fhir/NamingSystem/gs1-di,
+https://hl7.org/fhir/NamingSystem/gs1-di,
 2) HIBCC:
-http://hl7.org/fhir/NamingSystem/hibcc-dI,
+https://hl7.org/fhir/NamingSystem/hibcc-dI,
 3) ICCBBA for blood containers:
-http://hl7.org/fhir/NamingSystem/iccbba-blood-di,
+https://hl7.org/fhir/NamingSystem/iccbba-blood-di,
 4) ICCBA for other devices:
-http://hl7.org/fhir/NamingSystem/iccbba-other-di.
+https://hl7.org/fhir/NamingSystem/iccbba-other-di.
      * @param \HL7\FHIR\STU3\FHIRElement\FHIRUri $issuer
      * @return $this
      */
@@ -312,7 +312,7 @@ http://hl7.org/fhir/NamingSystem/iccbba-other-di.
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DeviceUdi xmlns="http://hl7.org/fhir"></DeviceUdi>');
+            $sxe = new \SimpleXMLElement('<DeviceUdi xmlns="https://hl7.org/fhir"></DeviceUdi>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->deviceIdentifier)) {

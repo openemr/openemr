@@ -1,5 +1,5 @@
 /*! jQuery UI - v1.9.2 - 2013-10-20
-* http://jqueryui.com
+* https://jqueryui.com
 * Includes: jquery.ui.core.js, jquery.ui.widget.js, jquery.ui.mouse.js, jquery.ui.position.js, jquery.ui.draggable.js, jquery.ui.droppable.js, jquery.ui.resizable.js, jquery.ui.selectable.js, jquery.ui.sortable.js, jquery.ui.accordion.js, jquery.ui.autocomplete.js, jquery.ui.button.js, jquery.ui.datepicker.js, jquery.ui.dialog.js, jquery.ui.menu.js, jquery.ui.progressbar.js, jquery.ui.slider.js, jquery.ui.spinner.js, jquery.ui.tabs.js, jquery.ui.tooltip.js, jquery.ui.effect.js, jquery.ui.effect-blind.js, jquery.ui.effect-bounce.js, jquery.ui.effect-clip.js, jquery.ui.effect-drop.js, jquery.ui.effect-explode.js, jquery.ui.effect-fade.js, jquery.ui.effect-fold.js, jquery.ui.effect-highlight.js, jquery.ui.effect-pulsate.js, jquery.ui.effect-scale.js, jquery.ui.effect-shake.js, jquery.ui.effect-slide.js, jquery.ui.effect-transfer.js
 * Copyright 2013 jQuery Foundation and other contributors; Licensed MIT */
 
@@ -196,7 +196,7 @@ $(function() {
 	$.support.selectstart = "onselectstart" in div;
 
 	// set display to none to avoid a layout bug in IE
-	// http://dev.jquery.com/ticket/4014
+	// https://dev.jquery.com/ticket/4014
 	body.removeChild( div ).style.display = "none";
 });
 
@@ -247,7 +247,7 @@ if ( !$( "<a>" ).outerWidth( 1 ).jquery ) {
 	});
 }
 
-// support: jQuery 1.6.1, 1.6.2 (http://bugs.jquery.com/ticket/9413)
+// support: jQuery 1.6.1, 1.6.2 (https://bugs.jquery.com/ticket/9413)
 if ( $( "<a>" ).data( "a-b", "a" ).removeData( "a-b" ).data( "a-b" ) ) {
 	$.fn.removeData = (function( removeData ) {
 		return function( key ) {
@@ -358,7 +358,7 @@ $.cleanData = function( elems ) {
 	for ( var i = 0, elem; (elem = elems[i]) != null; i++ ) {
 		try {
 			$( elem ).triggerHandler( "remove" );
-		// http://bugs.jquery.com/ticket/8235
+		// https://bugs.jquery.com/ticket/8235
 		} catch( e ) {}
 	}
 	_cleanData( elems );
@@ -613,7 +613,7 @@ $.Widget.prototype = {
 			.removeData( this.widgetName )
 			.removeData( this.widgetFullName )
 			// support: jquery <1.6.3
-			// http://bugs.jquery.com/ticket/9413
+			// https://bugs.jquery.com/ticket/9413
 			.removeData( $.camelCase( this.widgetFullName ) );
 		this.widget()
 			.unbind( this.eventNamespace )
@@ -2854,7 +2854,7 @@ $.widget("ui.resizable", $.ui.mouse, {
 		this.resizing = true;
 		this.documentScroll = { top: $(document).scrollTop(), left: $(document).scrollLeft() };
 
-		// bugfix for http://dev.jquery.com/ticket/1749
+		// bugfix for https://dev.jquery.com/ticket/1749
 		if (el.is('.ui-draggable') || (/absolute/).test(el.css('position'))) {
 			el.css({ position: 'absolute', top: iniPos.top, left: iniPos.left });
 		}
@@ -6728,7 +6728,7 @@ $.extend(Datepicker.prototype, {
 			this._disableDatepicker( target );
 		}
 		// Set display:block in place of inst.dpDiv.show() which won't work on disconnected elements
-		// http://bugs.jqueryui.com/ticket/7552 - A Datepicker created on a detached div has zero height
+		// https://bugs.jqueryui.com/ticket/7552 - A Datepicker created on a detached div has zero height
 		inst.dpDiv.css( "display", "block" );
 	},
 
@@ -8574,7 +8574,7 @@ $.widget("ui.dialog", {
 
 		// Save and then restore scroll
 		// Opera 9.5+ resets when parent z-index is changed.
-		// http://bugs.jqueryui.com/ticket/3193
+		// https://bugs.jqueryui.com/ticket/3193
 		saveScroll = {
 			scrollTop: this.element.scrollTop(),
 			scrollLeft: this.element.scrollLeft()
@@ -11694,7 +11694,7 @@ $.widget( "ui.tabs", {
 			this.xhr
 				.success(function( response ) {
 					// support: jQuery <1.8
-					// http://bugs.jquery.com/ticket/11778
+					// https://bugs.jquery.com/ticket/11778
 					setTimeout(function() {
 						panel.html( response );
 						that._trigger( "load", event, eventData );
@@ -11702,7 +11702,7 @@ $.widget( "ui.tabs", {
 				})
 				.complete(function( jqXHR, status ) {
 					// support: jQuery <1.8
-					// http://bugs.jquery.com/ticket/11778
+					// https://bugs.jquery.com/ticket/11778
 					setTimeout(function() {
 						if ( status === "abort" ) {
 							that.panels.stop( false, true );
@@ -12646,11 +12646,11 @@ $.effects = {
 
 /*!
  * jQuery Color Animations v2.0.0
- * http://jquery.com/
+ * https://jquery.com/
  *
  * Copyright 2012 jQuery Foundation and other contributors
  * Released under the MIT license.
- * http://jquery.org/license
+ * https://jquery.org/license
  *
  * Date: Mon Aug 13 13:41:02 2012 -0500
  */
@@ -13520,7 +13520,7 @@ $.extend( $.effects, {
 			if ( set[ i ] !== null ) {
 				val = element.data( dataSpace + set[ i ] );
 				// support: jQuery 1.6.2
-				// http://bugs.jquery.com/ticket/9917
+				// https://bugs.jquery.com/ticket/9917
 				// jQuery 1.6.2 incorrectly returns undefined for any falsy value.
 				// We can't differentiate between "" and 0 here, so we just assume
 				// empty string since it's likely to be a more common value...
@@ -13852,7 +13852,7 @@ $.fn.extend({
 
 (function() {
 
-// based on easing equations from Robert Penner (http://www.robertpenner.com/easing)
+// based on easing equations from Robert Penner (https://www.robertpenner.com/easing)
 
 var baseEasings = {};
 

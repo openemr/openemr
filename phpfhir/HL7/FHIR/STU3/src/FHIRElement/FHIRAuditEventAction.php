@@ -90,7 +90,7 @@ class FHIRAuditEventAction extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<AuditEventAction xmlns="http://hl7.org/fhir"></AuditEventAction>');
+            $sxe = new \SimpleXMLElement('<AuditEventAction xmlns="https://hl7.org/fhir"></AuditEventAction>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

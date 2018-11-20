@@ -22,10 +22,10 @@
     },
     "licenses": [{
         "type": "MIT",
-        "url": "http://yckart.com/mit/"
+        "url": "https://yckart.com/mit/"
     }],
-    "homepage": "http://yckart.github.com/undone.js",
-    "demo": "http://yckart.github.com/undone.js",
+    "homepage": "https://yckart.github.com/undone.js",
+    "demo": "https://yckart.github.com/undone.js",
     "docs": "https://github.com/yckart/undone.js",
     "bugs": "https://github.com/yckart/undone.js/issues",
     "dependencies": {

@@ -397,7 +397,7 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ClaimResponseAddItem xmlns="http://hl7.org/fhir"></ClaimResponseAddItem>');
+            $sxe = new \SimpleXMLElement('<ClaimResponseAddItem xmlns="https://hl7.org/fhir"></ClaimResponseAddItem>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->sequenceLinkId)) {

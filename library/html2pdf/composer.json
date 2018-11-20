@@ -3,7 +3,7 @@
     "type": "library",
     "description": "HTML2PDF is a HTML to PDF converter written in PHP5 (it uses TCPDF). OFFICIAL PACKAGE",
     "keywords": ["html", "pdf", "html2pdf"],
-    "homepage": "http://html2pdf.fr/",
+    "homepage": "https://html2pdf.fr/",
     "license": "LGPL",
     "authors": [
         {

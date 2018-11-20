@@ -1,6 +1,6 @@
 // ===================================================================
 // Author: Matt Kruse <matt@mattkruse.com>
-// WWW: http://www.mattkruse.com/
+// WWW: https://www.mattkruse.com/
 //
 // NOTICE: You may use this code for any purpose, commercial or
 // private, without any further permission from the author. You may

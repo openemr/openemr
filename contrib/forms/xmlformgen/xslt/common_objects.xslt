@@ -9,7 +9,7 @@ as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
  -->
 <xsl:stylesheet version="1.0"
-xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+xmlns:xsl="https://www.w3.org/1999/XSL/Transform">
 <!-- this file contains code written in php, used before the <html> tag -->
 <!-- this code is generated for each date field in the form, to split the time of day from the date in question, for display purposes -->
 <xsl:template match="field[@type='date']" mode="split_timeofday">

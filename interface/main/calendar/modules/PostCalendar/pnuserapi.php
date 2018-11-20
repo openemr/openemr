@@ -5,7 +5,7 @@
  *
  *  PostCalendar::PostNuke Events Calendar Module
  *  Copyright (C) 2002  The PostCalendar Team
- *  http://postcalendar.tv
+ *  https://postcalendar.tv
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  To read the license please read the docs/license.txt or visit
- *  http://www.gnu.org/copyleft/gpl.html
+ *  https://www.gnu.org/copyleft/gpl.html
  *
  */
 
@@ -564,9 +564,9 @@ function postcalendar_userapi_buildView($args)
     //=================================================================
     $template = "$template_name/views/$viewtype/$template_view_load.html";
     if (!$print) {
-            $output .= "\n\n<!-- START POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
+            $output .= "\n\n<!-- START POSTCALENDAR OUTPUT [-: https://POSTCALENDAR.TV :-] -->\n\n";
             $output .= $tpl->fetch($template, $cacheid);    // cache id
-            $output .= "\n\n<!-- END POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
+            $output .= "\n\n<!-- END POSTCALENDAR OUTPUT [-: https://POSTCALENDAR.TV :-] -->\n\n";
     } else {
             $theme = pnUserGetTheme();
             echo "<html><head>";
@@ -721,7 +721,7 @@ function postcalendar_userapi_eventPreview($args)
     //=================================================================
     //  Parse the template
     //=================================================================
-    $output  = "\n\n<!-- POSTCALENDAR HTTP://WWW.BAHRAINI.TV -->\n\n";
+    $output  = "\n\n<!-- POSTCALENDAR https://WWW.BAHRAINI.TV -->\n\n";
     $output .= "\n\n<!-- POSTCALENDAR TEMPLATE START -->\n\n";
     $output .= $tpl->fetch($template_name.'/user/preview.html');
     $output .= "\n\n<!-- POSTCALENDAR TEMPLATE END -->\n\n";
@@ -1550,7 +1550,7 @@ function calculateEvents($days, $events, $viewtype)
 
                 $rfreq = $event_recurrspec['event_repeat_freq'];
                 $rtype = $event_recurrspec['event_repeat_freq_type'];
-                $exdate = $event_recurrspec['exdate']; // this attribute follows the iCalendar spec http://www.ietf.org/rfc/rfc2445.txt
+                $exdate = $event_recurrspec['exdate']; // this attribute follows the iCalendar spec https://www.ietf.org/rfc/rfc2445.txt
 
                 // we should bring the event up to date to make this a tad bit faster
                 // any ideas on how to do that, exactly??? dateToDays probably.
@@ -1621,7 +1621,7 @@ function calculateEvents($days, $events, $viewtype)
                 $rfreq = $event_recurrspec['event_repeat_on_freq'];
                 $rnum  = $event_recurrspec['event_repeat_on_num'];
                 $rday  = $event_recurrspec['event_repeat_on_day'];
-                $exdate = $event_recurrspec['exdate']; // this attribute follows the iCalendar spec http://www.ietf.org/rfc/rfc2445.txt
+                $exdate = $event_recurrspec['exdate']; // this attribute follows the iCalendar spec https://www.ietf.org/rfc/rfc2445.txt
 
                 //==============================================================
                 //  Populate - Enter data into the event array

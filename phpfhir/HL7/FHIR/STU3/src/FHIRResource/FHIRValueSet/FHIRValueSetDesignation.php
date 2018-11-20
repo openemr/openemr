@@ -160,7 +160,7 @@ class FHIRValueSetDesignation extends FHIRBackboneElement implements \JsonSerial
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ValueSetDesignation xmlns="http://hl7.org/fhir"></ValueSetDesignation>');
+            $sxe = new \SimpleXMLElement('<ValueSetDesignation xmlns="https://hl7.org/fhir"></ValueSetDesignation>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->language)) {

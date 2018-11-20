@@ -3,7 +3,7 @@
  * Immunizations
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -467,7 +467,7 @@ tr.selected {
         <tr>
           <td align="right" class="text">
                 <?php echo xlt('Date of VIS Statement'); ?>
-              (<a href="http://www.cdc.gov/vaccines/pubs/vis/default.htm" title="<?php echo xla('Help'); ?>" target="_blank">?</a>)          </td>
+              (<a href="https://www.cdc.gov/vaccines/pubs/vis/default.htm" title="<?php echo xla('Help'); ?>" target="_blank">?</a>)          </td>
           <td>
             <input type='text' size='10' class='datepicker' name="vis_date" id="vis_date"
                     value='<?php echo $vis_date ? attr($vis_date) : date('Y-m-d'); ?>'

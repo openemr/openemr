@@ -128,7 +128,7 @@ class FHIRCapabilityStatementImplementation extends FHIRBackboneElement implemen
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CapabilityStatementImplementation xmlns="http://hl7.org/fhir"></CapabilityStatementImplementation>');
+            $sxe = new \SimpleXMLElement('<CapabilityStatementImplementation xmlns="https://hl7.org/fhir"></CapabilityStatementImplementation>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->description)) {

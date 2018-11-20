@@ -4,7 +4,7 @@
  * It is to correct the error of creating a duplicate patient.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2013 Rod Roark <rod@sunsetsystems.com>

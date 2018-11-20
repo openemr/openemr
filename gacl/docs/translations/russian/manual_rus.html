@@ -3,7 +3,7 @@
 <head>
 <title>phpGACL - русская документация</title>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<meta name="author" content="Feskov Kuzma, http://russofile.ru/kuzma/">
+<meta name="author" content="Feskov Kuzma, https://russofile.ru/kuzma/">
 <style>
 BODY{color:Black;background-color:White;font-family:sans-serif;font-size:14px;}
 TABLE.BORDER{border-color:#FFFFCC;border-style:Solid;border-width:3px;}
@@ -27,7 +27,7 @@ Generic Access Control List
 Mike Benoit (<a href="mailto:ipso@snappymail.ca">ipso@snappymail.ca</a>)<br>
 James Russell (<a href="mailto:james-phpgacl@ps2-pro.com">james-phpgacl@ps2-pro.com</a>)<br>
 Karsten Dambekalns (<a href="mailto:k.dambekalns@fishfarm.de">k.dambekalns@fishfarm.de</a>)<br>
-Русский перевод Феськов Кузьма (<a href="mailto:kuzma@russofile.ru">kuzma@russofile.ru</a>) (<a href="http://php.russofile.ru" target="_blank">http://php.russofile.ru</a>)<br>
+Русский перевод Феськов Кузьма (<a href="mailto:kuzma@russofile.ru">kuzma@russofile.ru</a>) (<a href="https://php.russofile.ru" target="_blank">https://php.russofile.ru</a>)<br>
 Copyright © 2002,2003, Mike Benoit<br>
 Copyright © 2003, James Russell<br>
 Copyright © 2003, Karsten Dambekalns<br>
@@ -40,16 +40,16 @@ Last Updated: 5/20/03 - 18:55:08<br>
 <p>Это предполагает подробный контроль доступа с простым управлением и высокой скоростью.
 <p>Скрипт написан на PHP (отсюда его название – phpGACL) – это популярный скриптовый язык, который обычно используется для динамического создания страниц сети. GACL часть phpGACL – Родовой список контроля доступа.
 <h2>Где взять?</h2>
-<p>PhpGACL хостится на sourceforge.net здесь <a href="http://phpGACL.sourceforge.net/" target="_blank">http://phpGACL.sourceforge.net/</a>
+<p>PhpGACL хостится на sourceforge.net здесь <a href="https://phpGACL.sourceforge.net/" target="_blank">https://phpGACL.sourceforge.net/</a>
 <h2>Что нужно для запуска?</h2>
-<P>PhpGACL требует реляционную базу данных для хранения информации о правах. Доступ к базе данных осуществляется через абстрактный класс доступа к базам данных ADOdb (<a href="http://php.weblogs.com/adodb" target="_blank">http://php.weblogs.com/adodb</a>). Данный класс позволяет работать с такими базами данных как: PostgreSQL, MySQL, Oracle.
-<p>Поскольку phpGACL написан на языке PHP, то он требует установки PHP версии не ниже 4.2. ACL (Администрирование списка контроля доступа) дополнена веб-интерфейсом, потому необходимо наличие веб-сервера с поддержкой PHP, например, Apache (<a href="http://httpd.apache.org/" target="_blank">http://httpd.apache.org/</a>).
+<P>PhpGACL требует реляционную базу данных для хранения информации о правах. Доступ к базе данных осуществляется через абстрактный класс доступа к базам данных ADOdb (<a href="https://php.weblogs.com/adodb" target="_blank">https://php.weblogs.com/adodb</a>). Данный класс позволяет работать с такими базами данных как: PostgreSQL, MySQL, Oracle.
+<p>Поскольку phpGACL написан на языке PHP, то он требует установки PHP версии не ниже 4.2. ACL (Администрирование списка контроля доступа) дополнена веб-интерфейсом, потому необходимо наличие веб-сервера с поддержкой PHP, например, Apache (<a href="https://httpd.apache.org/" target="_blank">https://httpd.apache.org/</a>).
 <h2>Авторы</h2>
 <p>Mike Benoit (<a href="mailto:ipso@snappymail.ca">ipso@snappymail.ca</a>) – автор и менеджер проекта.
 <p>James Russel (<a href="mailto:james-phpgacl@ps2-pro.com">james-phpgacl@ps2-pro.com</a>) и
 <p>Karsten Dambekalns (<a href="mailto:k.dambekalns@fishfarm.de">k.dambekalns@fishfarm.de</a>) – авторы документации.
 <p>Feskov Kuzma (<a href="mailto:kuzma@russofile.ru">kuzma@russofile.ru</a>) – русский перевод
-<p>Последняя версия перевода всегда здесь: <a href="http://php.russofile.ru" target="_blank">http://php.russofile.ru</a>
+<p>Последняя версия перевода всегда здесь: <a href="https://php.russofile.ru" target="_blank">https://php.russofile.ru</a>
 <h1>Введение</h1>
 <h2>Понимание контроля действия</h2>
 <p>Хан – капитан “Сокола тысячелетия” и Чуви – его второй офицер. Они взяли на борт несколько пассажиров: Люка, Оби-Вана, R2-D2 и C3PO. Хан должен определить ограничения доступа для различных мест (комнат) корабля, например: кабина, машинный зал, двигатели и внешнее оружие.
@@ -512,10 +512,10 @@ $gacl_host1 = new gacl($gacl_options);
 <p>Теперь необходимо отредактировать phpgacl/admin/gacl_admin.inc.php, внеся в него туже самую информацию. Этот файл нужен для административной части скрипта.
 <p>Причина, почему необходимо дважды ввести одинаковые данные, заключается в том, что класс gacl.calss.php намного меньше по объему, чем весь программный интерфейс. И нет необходимости тянуть за собой все скрипты, если вам всего лишь необходимо вызвать функцию acl_check().
 <li>Создайте базу данных с именем, которое вы задали в db_name.
-<li>Запустите http://your_site.net/phpgacl/setup.php. Этот скрипт создаст необходимые таблицы. Не бойтесь сложной информации, скрипт покажет вам только сообщения об успешной работе.
+<li>Запустите https://your_site.net/phpgacl/setup.php. Этот скрипт создаст необходимые таблицы. Не бойтесь сложной информации, скрипт покажет вам только сообщения об успешной работе.
 <br><img src="manual_html_7dced6ce.png">
 <li>Следуя замечению на картинке (Перевод замечания на картинке: Пожалуйста, создайте директорию <phpGACL root>/admin/templates_c и установите на нее права доступа. Нажмите “Go here!” для начала работы), создайте необходимую директорию. Права доступа должны позволять запись в эту директорию.
-<li>Нажмите на “Go here!” и вы перенесетесь сюда: http://your_site.net/admin/acl_admin.php.
+<li>Нажмите на “Go here!” и вы перенесетесь сюда: https://your_site.net/admin/acl_admin.php.
 </ol>
 <h2>Дополнительные настройки</h2>
 <p><strong>Если вы уже используете ADOdb</strong> в своих скриптах, то вы можете указать phpGACL использовать уже имеющуюся установку:

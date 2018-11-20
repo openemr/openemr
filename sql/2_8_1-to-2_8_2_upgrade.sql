@@ -6,7 +6,7 @@
 
 ## phpMyAdmin SQL Dump
 ## version 2.6.4-pl1-Debian-1ubuntu1.1
-## http://www.phpmyadmin.net
+## https://www.phpmyadmin.net
 ##
 ## Host: localhost
 ## Generation Time: Feb 07, 2006 at 05:39 PM
@@ -77,7 +77,7 @@ INSERT INTO `lang_constants` VALUES (56, 'until');
 
 # phpMyAdmin SQL Dump
 # version 2.5.5-pl1
-# http://www.phpmyadmin.net
+# https://www.phpmyadmin.net
 #
 # Host: localhost
 # Generation Time: Feb 14, 2006 at 09:21 AM

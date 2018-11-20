@@ -3,7 +3,7 @@
  * Generated DocBlock
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  bradymiller <bradymiller>
  * @author  cornfeed <jdough823@gmail.com>
  * @author  fndtn357 <fndtn357@gmail.com>

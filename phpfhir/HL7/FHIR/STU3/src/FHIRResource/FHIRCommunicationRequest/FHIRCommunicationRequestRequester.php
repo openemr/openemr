@@ -128,7 +128,7 @@ class FHIRCommunicationRequestRequester extends FHIRBackboneElement implements \
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CommunicationRequestRequester xmlns="http://hl7.org/fhir"></CommunicationRequestRequester>');
+            $sxe = new \SimpleXMLElement('<CommunicationRequestRequester xmlns="https://hl7.org/fhir"></CommunicationRequestRequester>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->agent)) {

@@ -90,7 +90,7 @@ class FHIRMedicationAdministrationStatus extends FHIRElement implements \JsonSer
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicationAdministrationStatus xmlns="http://hl7.org/fhir"></MedicationAdministrationStatus>');
+            $sxe = new \SimpleXMLElement('<MedicationAdministrationStatus xmlns="https://hl7.org/fhir"></MedicationAdministrationStatus>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

@@ -3,7 +3,7 @@
  * New patient or search patient.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2009-2017 Rod Roark <rod@sunsetsystems.com>
@@ -115,7 +115,7 @@ var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 // This may be changed to true by the AJAX search script.
 var force_submit = false;
 
-//code used from http://tech.irt.org/articles/js037/
+//code used from https://tech.irt.org/articles/js037/
 function replace(string,text,by) {
  // Replaces text with by in string
  var strLength = string.length, txtLength = text.length;

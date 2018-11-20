@@ -476,7 +476,7 @@ class FHIRQuestionnaireEnableWhen extends FHIRBackboneElement implements \JsonSe
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<QuestionnaireEnableWhen xmlns="http://hl7.org/fhir"></QuestionnaireEnableWhen>');
+            $sxe = new \SimpleXMLElement('<QuestionnaireEnableWhen xmlns="https://hl7.org/fhir"></QuestionnaireEnableWhen>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->question)) {

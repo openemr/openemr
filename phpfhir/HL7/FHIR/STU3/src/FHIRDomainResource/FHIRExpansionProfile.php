@@ -148,7 +148,7 @@ class FHIRExpansionProfile extends FHIRDomainResource implements \JsonSerializab
     public $displayLanguage = null;
 
     /**
-     * If the value set being expanded is incomplete (because it is too big to expand), return a limited expansion (a subset) with an indicator that expansion is incomplete, using the extension [http://hl7.org/fhir/StructureDefinition/valueset-toocostly](extension-valueset-toocostly.html).
+     * If the value set being expanded is incomplete (because it is too big to expand), return a limited expansion (a subset) with an indicator that expansion is incomplete, using the extension [https://hl7.org/fhir/StructureDefinition/valueset-toocostly](extension-valueset-toocostly.html).
      * @var \HL7\FHIR\STU3\FHIRElement\FHIRBoolean
      */
     public $limitedExpansion = null;
@@ -599,7 +599,7 @@ class FHIRExpansionProfile extends FHIRDomainResource implements \JsonSerializab
     }
 
     /**
-     * If the value set being expanded is incomplete (because it is too big to expand), return a limited expansion (a subset) with an indicator that expansion is incomplete, using the extension [http://hl7.org/fhir/StructureDefinition/valueset-toocostly](extension-valueset-toocostly.html).
+     * If the value set being expanded is incomplete (because it is too big to expand), return a limited expansion (a subset) with an indicator that expansion is incomplete, using the extension [https://hl7.org/fhir/StructureDefinition/valueset-toocostly](extension-valueset-toocostly.html).
      * @return \HL7\FHIR\STU3\FHIRElement\FHIRBoolean
      */
     public function getLimitedExpansion()
@@ -608,7 +608,7 @@ class FHIRExpansionProfile extends FHIRDomainResource implements \JsonSerializab
     }
 
     /**
-     * If the value set being expanded is incomplete (because it is too big to expand), return a limited expansion (a subset) with an indicator that expansion is incomplete, using the extension [http://hl7.org/fhir/StructureDefinition/valueset-toocostly](extension-valueset-toocostly.html).
+     * If the value set being expanded is incomplete (because it is too big to expand), return a limited expansion (a subset) with an indicator that expansion is incomplete, using the extension [https://hl7.org/fhir/StructureDefinition/valueset-toocostly](extension-valueset-toocostly.html).
      * @param \HL7\FHIR\STU3\FHIRElement\FHIRBoolean $limitedExpansion
      * @return $this
      */
@@ -838,7 +838,7 @@ class FHIRExpansionProfile extends FHIRDomainResource implements \JsonSerializab
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ExpansionProfile xmlns="http://hl7.org/fhir"></ExpansionProfile>');
+            $sxe = new \SimpleXMLElement('<ExpansionProfile xmlns="https://hl7.org/fhir"></ExpansionProfile>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->url)) {

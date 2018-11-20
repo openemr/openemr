@@ -201,13 +201,13 @@ No system CA bundle could be found in any of the the common system locations.
 PHP versions earlier than 5.6 are not properly configured to use the system's
 CA bundle by default. In order to verify peer certificates, you will need to
 supply the path on disk to a certificate bundle to the 'verify' request
-option: http://docs.guzzlephp.org/en/latest/clients.html#verify. If you do not
+option: https://docs.guzzlephp.org/en/latest/clients.html#verify. If you do not
 need a specific certificate bundle, then Mozilla provides a commonly used CA
 bundle which can be downloaded here (provided by the maintainer of cURL):
 https://raw.githubusercontent.com/bagder/ca-bundle/master/ca-bundle.crt. Once
 you have a CA bundle available on disk, you can set the 'openssl.cafile' PHP
 ini setting to point to the path to the file, allowing you to omit the 'verify'
-request option. See http://curl.haxx.se/docs/sslcerts.html for more
+request option. See https://curl.haxx.se/docs/sslcerts.html for more
 information.
 EOT
     );
@@ -295,7 +295,7 @@ function is_host_in_noproxy($host, array $noProxyArray)
  *
  * @return mixed
  * @throws \InvalidArgumentException if the JSON cannot be decoded.
- * @link http://www.php.net/manual/en/function.json-decode.php
+ * @link https://www.php.net/manual/en/function.json-decode.php
  */
 function json_decode($json, $assoc = false, $depth = 512, $options = 0)
 {
@@ -317,7 +317,7 @@ function json_decode($json, $assoc = false, $depth = 512, $options = 0)
  *
  * @return string
  * @throws \InvalidArgumentException if the JSON cannot be encoded.
- * @link http://www.php.net/manual/en/function.json-encode.php
+ * @link https://www.php.net/manual/en/function.json-encode.php
  */
 function json_encode($value, $options = 0, $depth = 512)
 {

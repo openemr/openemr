@@ -8,7 +8,7 @@
  *
  * @author Paul M. Jones <pmjones@ciaweb.net>
  *
- * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ * @license https://www.gnu.org/copyleft/lesser.html LGPL
  *
  * @version $Id: Savant3_Plugin_image.php,v 1.7 2005/08/12 14:34:09 pmjones Exp $
  *

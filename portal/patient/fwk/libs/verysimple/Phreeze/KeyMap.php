@@ -18,7 +18,7 @@ define("KM_TYPE_MANYTOONE", 2);
  * @package verysimple::Phreeze
  * @author VerySimple Inc.
  * @copyright 1997-2007 VerySimple, Inc.
- * @license http://www.gnu.org/licenses/lgpl.html LGPL
+ * @license https://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
 class KeyMap

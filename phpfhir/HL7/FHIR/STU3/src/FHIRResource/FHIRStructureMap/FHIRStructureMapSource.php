@@ -1454,7 +1454,7 @@ class FHIRStructureMapSource extends FHIRBackboneElement implements \JsonSeriali
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<StructureMapSource xmlns="http://hl7.org/fhir"></StructureMapSource>');
+            $sxe = new \SimpleXMLElement('<StructureMapSource xmlns="https://hl7.org/fhir"></StructureMapSource>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->context)) {

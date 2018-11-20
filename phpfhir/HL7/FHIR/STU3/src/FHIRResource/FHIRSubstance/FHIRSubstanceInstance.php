@@ -160,7 +160,7 @@ class FHIRSubstanceInstance extends FHIRBackboneElement implements \JsonSerializ
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstanceInstance xmlns="http://hl7.org/fhir"></SubstanceInstance>');
+            $sxe = new \SimpleXMLElement('<SubstanceInstance xmlns="https://hl7.org/fhir"></SubstanceInstance>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->identifier)) {

@@ -251,7 +251,7 @@ class FHIRCarePlanActivity extends FHIRBackboneElement implements \JsonSerializa
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CarePlanActivity xmlns="http://hl7.org/fhir"></CarePlanActivity>');
+            $sxe = new \SimpleXMLElement('<CarePlanActivity xmlns="https://hl7.org/fhir"></CarePlanActivity>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->outcomeCodeableConcept)) {

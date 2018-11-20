@@ -1,7 +1,7 @@
 {
 	"name": "tecnickcom/tcpdf",
 	"version": "6.2.12",
-	"homepage": "http://www.tcpdf.org/",
+	"homepage": "https://www.tcpdf.org/",
 	"type": "library",
 	"description": "TCPDF is a PHP class for generating PDF documents and barcodes.",
 	"keywords": ["PDF","tcpdf","PDFD32000-2008","qrcode","datamatrix","pdf417","barcodes"],
@@ -10,7 +10,7 @@
 	{
 		"name": "Nicola Asuni",
 		"email": "info@tecnick.com",
-		"homepage": "http://nicolaasuni.tecnick.com"
+		"homepage": "https://nicolaasuni.tecnick.com"
 	}
 	],
 	"require": {

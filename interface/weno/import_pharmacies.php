@@ -3,7 +3,7 @@
  * weno rx pharmacy import.
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author  Alfonzo Perez  <aperez@hitechcompliance.net>
  * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>

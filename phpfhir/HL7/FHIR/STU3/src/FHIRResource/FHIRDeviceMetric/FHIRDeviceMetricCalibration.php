@@ -160,7 +160,7 @@ class FHIRDeviceMetricCalibration extends FHIRBackboneElement implements \JsonSe
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DeviceMetricCalibration xmlns="http://hl7.org/fhir"></DeviceMetricCalibration>');
+            $sxe = new \SimpleXMLElement('<DeviceMetricCalibration xmlns="https://hl7.org/fhir"></DeviceMetricCalibration>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {

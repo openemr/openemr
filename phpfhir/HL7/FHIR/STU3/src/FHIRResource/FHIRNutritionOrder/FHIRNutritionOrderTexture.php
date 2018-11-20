@@ -128,7 +128,7 @@ class FHIRNutritionOrderTexture extends FHIRBackboneElement implements \JsonSeri
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<NutritionOrderTexture xmlns="http://hl7.org/fhir"></NutritionOrderTexture>');
+            $sxe = new \SimpleXMLElement('<NutritionOrderTexture xmlns="https://hl7.org/fhir"></NutritionOrderTexture>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->modifier)) {

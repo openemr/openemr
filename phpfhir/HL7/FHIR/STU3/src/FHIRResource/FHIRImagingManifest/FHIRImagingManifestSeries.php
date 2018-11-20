@@ -178,7 +178,7 @@ class FHIRImagingManifestSeries extends FHIRBackboneElement implements \JsonSeri
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ImagingManifestSeries xmlns="http://hl7.org/fhir"></ImagingManifestSeries>');
+            $sxe = new \SimpleXMLElement('<ImagingManifestSeries xmlns="https://hl7.org/fhir"></ImagingManifestSeries>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->uid)) {

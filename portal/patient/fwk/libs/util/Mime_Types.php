@@ -9,7 +9,7 @@
 // +----------------------------------------------------------------------+
 // | MIME Types Class 0.1 - 21-Dec-2002 |
 // +----------------------------------------------------------------------+
-// | Author: Keyvan Minoukadeh - keyvan@k1m.com - http://www.keyvan.net |
+// | Author: Keyvan Minoukadeh - keyvan@k1m.com - https://www.keyvan.net |
 // +----------------------------------------------------------------------+
 // | PHP class for retrieving the appropriate MIME type of a |
 // | file/extension |

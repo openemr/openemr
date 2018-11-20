@@ -7,7 +7,7 @@
  * @package verysimple::String
  * @author Jason Hinkle
  * @copyright 1997-2008 VerySimple, Inc.
- * @license http://www.gnu.org/licenses/lgpl.html LGPL
+ * @license https://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
 class VerySimpleStringUtil
@@ -225,7 +225,7 @@ class VerySimpleStringUtil
         // return html_entity_decode($string);
         
         // this is a complex method that appears to be the reverse of UTF8ToHTML
-        // taken from http://www.php.net/manual/en/function.html-entity-decode.php#68491
+        // taken from https://www.php.net/manual/en/function.html-entity-decode.php#68491
         // $string = self::ReplaceNonNumericEntities($string);
         // $string = preg_replace_callback('~&(#(x?))?([^;]+);~', 'self::html_entity_replace', $string);
         // return $string;
@@ -404,7 +404,7 @@ class VerySimpleStringUtil
      * Converts UTF-8 character set into html encoded goodness
      *
      * @author montana
-     * @link http://www.php.net/manual/en/function.htmlentities.php#92105
+     * @link https://www.php.net/manual/en/function.htmlentities.php#92105
      * @param string $content
      */
     static function UTF8ToHTML($content = "")
@@ -477,7 +477,7 @@ class VerySimpleStringUtil
      * Used for decoding entities that started as UTF-8
      * converts a character that is likely non ascii into the correct UTF-8 char value
      *
-     * @link http://www.php.net/manual/en/function.html-entity-decode.php#68491
+     * @link https://www.php.net/manual/en/function.html-entity-decode.php#68491
      * @param
      *          $code
      */
@@ -568,7 +568,7 @@ class VerySimpleStringUtil
      * Callback for preg_replace_callback('~&(#(x?))?([^;]+);~', 'html_entity_replace', $str);
      * used internally by decode
      *
-     * @link http://www.php.net/manual/en/function.html-entity-decode.php#68491
+     * @link https://www.php.net/manual/en/function.html-entity-decode.php#68491
      * @param
      *          array
      */

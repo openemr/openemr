@@ -201,7 +201,7 @@ class FHIRPractitionerQualification extends FHIRBackboneElement implements \Json
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<PractitionerQualification xmlns="http://hl7.org/fhir"></PractitionerQualification>');
+            $sxe = new \SimpleXMLElement('<PractitionerQualification xmlns="https://hl7.org/fhir"></PractitionerQualification>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {

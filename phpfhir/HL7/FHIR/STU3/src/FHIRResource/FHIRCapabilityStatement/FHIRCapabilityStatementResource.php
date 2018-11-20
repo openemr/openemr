@@ -589,7 +589,7 @@ class FHIRCapabilityStatementResource extends FHIRBackboneElement implements \Js
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CapabilityStatementResource xmlns="http://hl7.org/fhir"></CapabilityStatementResource>');
+            $sxe = new \SimpleXMLElement('<CapabilityStatementResource xmlns="https://hl7.org/fhir"></CapabilityStatementResource>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {

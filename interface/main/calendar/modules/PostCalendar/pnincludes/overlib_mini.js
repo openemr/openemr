@@ -6,10 +6,10 @@
 //\  Portions by Dan Steinman (dansteinman.com). Additions by other people are
 //\  listed on the overLIB homepage.
 //\
-//\  Get the latest version at http://www.bosrup.com/web/overlib/
+//\  Get the latest version at https://www.bosrup.com/web/overlib/
 //\
 //\  This script is published under an open source license. Please read the license
-//\  agreement online at: http://www.bosrup.com/web/overlib/license.html
+//\  agreement online at: https://www.bosrup.com/web/overlib/license.html
 //\  If you have questions regarding the license please contact erik@bosrup.com.
 //\
 //\  This script library was originally created for personal use. By request it has

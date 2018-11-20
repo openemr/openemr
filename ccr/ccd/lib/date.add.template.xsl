@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 
-<!-- This is a public domain script released from http://exslt.org/ -->
+<!-- This is a public domain script released from https://exslt.org/ -->
 
 <xsl:stylesheet version="1.0"
-                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                xmlns:date="http://exslt.org/dates-and-times"
+                xmlns:xsl="https://www.w3.org/1999/XSL/Transform"
+                xmlns:date="https://exslt.org/dates-and-times"
                 extension-element-prefixes="date">
  
 <date:month-lengths>

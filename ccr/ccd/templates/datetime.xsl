@@ -27,10 +27,10 @@ License :
         GNU General Public License for more details.
 
         You should have received a copy of the GNU General Public License
-        along with this program.  If not, see http://www.gnu.org/licenses.
+        along with this program.  If not, see https://www.gnu.org/licenses.
 
 -->
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:a="urn:astm-org:CCR" xmlns:date="http://exslt.org/dates-and-times" exclude-result-prefixes="a date">
+<xsl:stylesheet version="1.0" xmlns:xsl="https://www.w3.org/1999/XSL/Transform" xmlns:a="urn:astm-org:CCR" xmlns:date="https://exslt.org/dates-and-times" exclude-result-prefixes="a date">
 	<!-- Displays the DateTime.  If ExactDateTime is present, it will format according
 		 to the 'fmt' variable. The default format is: Oct 31, 2005 -->
   <xsl:import href="../lib/date.format-date.template.xsl"/>  

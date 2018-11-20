@@ -5,7 +5,7 @@
 // Begin       : 2011-05-23
 // Last Update : 2013-09-17
 // Author      : Nicola Asuni - Tecnick.com LTD - www.tecnick.com - info@tecnick.com
-// License     : GNU-LGPL v3 (http://www.gnu.org/copyleft/lesser.html)
+// License     : GNU-LGPL v3 (https://www.gnu.org/copyleft/lesser.html)
 // -------------------------------------------------------------------
 // Copyright (C) 2011-2013 Nicola Asuni - Tecnick.com LTD
 //
@@ -23,7 +23,7 @@
 //
 // You should have received a copy of the License
 // along with TCPDF. If not, see
-// <http://www.tecnick.com/pagefiles/tcpdf/LICENSE.TXT>.
+// <https://www.tecnick.com/pagefiles/tcpdf/LICENSE.TXT>.
 //
 // See LICENSE.TXT file for more information.
 // -------------------------------------------------------------------
@@ -36,7 +36,7 @@
 /**
  * @file
  * !!! THIS CLASS IS UNDER DEVELOPMENT !!!
- * This is a PHP class extension of the TCPDF (http://www.tcpdf.org) library to import existing PDF documents.<br>
+ * This is a PHP class extension of the TCPDF (https://www.tcpdf.org) library to import existing PDF documents.<br>
  * @package com.tecnick.tcpdf
  * @author Nicola Asuni
  * @version 1.0.001
@@ -50,7 +50,7 @@ require_once(dirname(__FILE__).'/tcpdf_parser.php');
 /**
  * @class TCPDF_IMPORT
  * !!! THIS CLASS IS UNDER DEVELOPMENT !!!
- * PHP class extension of the TCPDF (http://www.tcpdf.org) library to import existing PDF documents.<br>
+ * PHP class extension of the TCPDF (https://www.tcpdf.org) library to import existing PDF documents.<br>
  * @package com.tecnick.tcpdf
  * @brief PHP class extension of the TCPDF library to import existing PDF documents.
  * @version 1.0.001

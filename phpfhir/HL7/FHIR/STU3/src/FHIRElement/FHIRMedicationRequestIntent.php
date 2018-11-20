@@ -90,7 +90,7 @@ class FHIRMedicationRequestIntent extends FHIRElement implements \JsonSerializab
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicationRequestIntent xmlns="http://hl7.org/fhir"></MedicationRequestIntent>');
+            $sxe = new \SimpleXMLElement('<MedicationRequestIntent xmlns="https://hl7.org/fhir"></MedicationRequestIntent>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

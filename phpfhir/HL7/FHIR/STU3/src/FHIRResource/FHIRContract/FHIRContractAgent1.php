@@ -137,7 +137,7 @@ class FHIRContractAgent1 extends FHIRBackboneElement implements \JsonSerializabl
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ContractAgent1 xmlns="http://hl7.org/fhir"></ContractAgent1>');
+            $sxe = new \SimpleXMLElement('<ContractAgent1 xmlns="https://hl7.org/fhir"></ContractAgent1>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->actor)) {

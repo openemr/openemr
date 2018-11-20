@@ -52,7 +52,7 @@
 * images folder in the same place. Running the script should
 * then produce the tree.
 *
-* Thanks go to Chip Chapin (http://www.chipchapin.com) for many
+* Thanks go to Chip Chapin (https://www.chipchapin.com) for many
 * excellent ideas and improvements.
 *
 * @author  Richard Heyes <richard@php.net>
@@ -98,7 +98,7 @@ class HTML_TreeMenu
     * Import method for creating HTML_TreeMenu objects/structures
     * out of existing tree objects/structures. Currently supported
     * are Wolfram Kriesings' PEAR Tree class, and Richard Heyes' (me!)
-    * Tree class (available here: http://www.phpguru.org/). This
+    * Tree class (available here: https://www.phpguru.org/). This
     * method is intended to be used statically, eg:
     * $treeMenu = &HTML_TreeMenu::createFromStructure($myTreeStructureObj);
     *
@@ -247,7 +247,7 @@ class HTML_TreeMenu
     * attributes to the <node> tag. If there are no subnodes for a particular node, you can
     * use the XML shortcut <node ... /> instead of <node ... ></node>. The $xml argument can
     * be either the XML as a string, or an pre-created XML_Tree object. Also, this method
-    * REQUIRES my own Tree class to work (http://phpguru.org/tree.html). If this has not
+    * REQUIRES my own Tree class to work (https://phpguru.org/tree.html). If this has not
     * been include()ed or require()ed this method will die().
     *
     * @param  mixed  $xml  This can be either a string containing the XML, or an XML_Tree object

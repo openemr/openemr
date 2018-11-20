@@ -1199,7 +1199,7 @@ class FHIRElementDefinitionExample extends FHIRElement implements \JsonSerializa
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ElementDefinitionExample xmlns="http://hl7.org/fhir"></ElementDefinitionExample>');
+            $sxe = new \SimpleXMLElement('<ElementDefinitionExample xmlns="https://hl7.org/fhir"></ElementDefinitionExample>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->label)) {

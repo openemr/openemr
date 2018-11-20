@@ -192,7 +192,7 @@ class FHIRImmunizationRecommendationProtocol extends FHIRBackboneElement impleme
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ImmunizationRecommendationProtocol xmlns="http://hl7.org/fhir"></ImmunizationRecommendationProtocol>');
+            $sxe = new \SimpleXMLElement('<ImmunizationRecommendationProtocol xmlns="https://hl7.org/fhir"></ImmunizationRecommendationProtocol>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->doseSequence)) {

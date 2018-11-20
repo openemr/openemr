@@ -230,7 +230,7 @@ class FHIRSpecimenProcessing extends FHIRBackboneElement implements \JsonSeriali
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SpecimenProcessing xmlns="http://hl7.org/fhir"></SpecimenProcessing>');
+            $sxe = new \SimpleXMLElement('<SpecimenProcessing xmlns="https://hl7.org/fhir"></SpecimenProcessing>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->description)) {

@@ -796,7 +796,7 @@ class FHIRAppointment extends FHIRDomainResource implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Appointment xmlns="http://hl7.org/fhir"></Appointment>');
+            $sxe = new \SimpleXMLElement('<Appointment xmlns="https://hl7.org/fhir"></Appointment>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {

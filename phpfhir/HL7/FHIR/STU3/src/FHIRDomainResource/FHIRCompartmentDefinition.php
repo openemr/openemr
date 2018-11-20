@@ -582,7 +582,7 @@ class FHIRCompartmentDefinition extends FHIRDomainResource implements \JsonSeria
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CompartmentDefinition xmlns="http://hl7.org/fhir"></CompartmentDefinition>');
+            $sxe = new \SimpleXMLElement('<CompartmentDefinition xmlns="https://hl7.org/fhir"></CompartmentDefinition>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->url)) {

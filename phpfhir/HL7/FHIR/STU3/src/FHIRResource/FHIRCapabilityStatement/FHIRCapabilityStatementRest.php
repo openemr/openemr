@@ -365,7 +365,7 @@ class FHIRCapabilityStatementRest extends FHIRBackboneElement implements \JsonSe
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CapabilityStatementRest xmlns="http://hl7.org/fhir"></CapabilityStatementRest>');
+            $sxe = new \SimpleXMLElement('<CapabilityStatementRest xmlns="https://hl7.org/fhir"></CapabilityStatementRest>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->mode)) {

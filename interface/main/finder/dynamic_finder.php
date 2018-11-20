@@ -5,7 +5,7 @@
  * Sponsored by David Eschelbacher, MD
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2012-2016 Rod Roark <rod@sunsetsystems.com>
@@ -79,8 +79,8 @@ while ($row = sqlFetchArray($res)) {
                 // dom invokes ColReorderWithResize and allows inclusion of a custom div
                 "dom": 'Rlfrt<"mytopdiv">ip',
                 // These column names come over as $_GET['sColumns'], a comma-separated list of the names.
-                // See: http://datatables.net/usage/columns and
-                // http://datatables.net/release-datatables/extras/ColReorder/server_side.html
+                // See: https://datatables.net/usage/columns and
+                // https://datatables.net/release-datatables/extras/ColReorder/server_side.html
                 "columns": [ <?php echo $coljson; ?> ],
                 "lengthMenu": [10, 25, 50, 100],
                 "pageLength": <?php echo empty($GLOBALS['gbl_pt_list_page_size']) ? '10' : $GLOBALS['gbl_pt_list_page_size']; ?>,

@@ -8,7 +8,7 @@
  *
  * @author Paul M. Jones <pmjones@ciaweb.net>
  *
- * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ * @license https://www.gnu.org/copyleft/lesser.html LGPL
  *
  * @version $Id: Savant3.php,v 1.42 2006/01/01 18:31:00 pmjones Exp $
  *
@@ -30,7 +30,7 @@ include_once dirname(__FILE__) . '/Savant3/Plugin.php';
  * to compile template source to include-able PHP code. It is E_STRICT
  * compliant for PHP5.
  *
- * Please see the documentation at {@link http://phpsavant.com/}, and be
+ * Please see the documentation at {@link https://phpsavant.com/}, and be
  * sure to donate! :-)
  *
  * @author Paul M. Jones <pmjones@ciaweb.net>

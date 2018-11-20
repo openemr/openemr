@@ -256,7 +256,7 @@ class FHIRSequenceRepository extends FHIRBackboneElement implements \JsonSeriali
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SequenceRepository xmlns="http://hl7.org/fhir"></SequenceRepository>');
+            $sxe = new \SimpleXMLElement('<SequenceRepository xmlns="https://hl7.org/fhir"></SequenceRepository>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {

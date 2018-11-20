@@ -10,17 +10,17 @@
   Revision History:  09/17/10 Jingdong Li updated
   Revision History:  01/05/11 Jingdong Li updated
   Specification: ANSI/HL7 CDAR2  
-  The current version and documentation are available at http://www.lantanagroup.com/resources/tools/. 
+  The current version and documentation are available at https://www.lantanagroup.com/resources/tools/. 
   We welcome feedback and contributions to tools@lantanagroup.com
   The stylesheet is the cumulative work of several developers; the most significant prior milestones were the foundation work from HL7 
   Germany and Finland (Tyylitiedosto) and HL7 US (Calvin Beebe), and the presentation approach from Tony Schaller, medshare GmbH provided at IHIC 2009. 
 -->
 <!-- LICENSE INFORMATION
   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at  http://www.apache.org/licenses/LICENSE-2.0 
+  You may obtain a copy of the License at  https://www.apache.org/licenses/LICENSE-2.0 
 -->
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:n1="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-   <xsl:output method="html" indent="yes" version="4.01" encoding="ISO-8859-1" doctype-system="http://www.w3.org/TR/html4/strict.dtd" doctype-public="-//W3C//DTD HTML 4.01//EN"/>
+<xsl:stylesheet version="1.0" xmlns:xsl="https://www.w3.org/1999/XSL/Transform" xmlns:n1="urn:hl7-org:v3" xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance">
+   <xsl:output method="html" indent="yes" version="4.01" encoding="ISO-8859-1" doctype-system="https://www.w3.org/TR/html4/strict.dtd" doctype-public="-//W3C//DTD HTML 4.01//EN"/>
    <!-- global variable title -->
    <xsl:variable name="title">
       <xsl:choose>
@@ -2135,7 +2135,7 @@
             </xsl:choose>
          </xsl:variable>
          <xsl:choose>
-            <!-- reference: http://www.timeanddate.com/library/abbreviations/timezones/na/ -->
+            <!-- reference: https://www.timeanddate.com/library/abbreviations/timezones/na/ -->
             <xsl:when test="$tzon = '-0500' ">
                <xsl:text>, EST</xsl:text>
             </xsl:when>

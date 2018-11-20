@@ -128,7 +128,7 @@ class FHIRExpansionProfileDesignation extends FHIRBackboneElement implements \Js
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ExpansionProfileDesignation xmlns="http://hl7.org/fhir"></ExpansionProfileDesignation>');
+            $sxe = new \SimpleXMLElement('<ExpansionProfileDesignation xmlns="https://hl7.org/fhir"></ExpansionProfileDesignation>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->include)) {

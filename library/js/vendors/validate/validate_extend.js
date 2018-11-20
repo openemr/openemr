@@ -9,13 +9,13 @@
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see
- * http://www.gnu.org/licenses/licenses.html#GPL .
+ * https://www.gnu.org/licenses/licenses.html#GPL .
  *
  * @package OpenEMR
  * @author  Sharon Cohen <sharonco@matrix.co.il>
  * @author  Amiel Elboim <amielel@matrix.co.il>
  * @author  Eyal Wolanowski <eyalvo@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 // Extend for date roll from  https://validatejs.org/#validators-datetime

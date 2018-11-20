@@ -1653,10 +1653,10 @@ contact info
 Contact Lens
 Contact Lens Refraction
 Contact Lenses
-Contact Medical Information Integration, LLC at http://mi-squared.com for Lab Exchange Service.
-Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service
-Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing to the NewCrop eRx service.
-Contact mi-squared at http://www.mi-squared.com/products-services/openemr/ or ZH Healthcare at https://blueehr.com/contact-us/ for subscribing to the NewCrop eRx service.
+Contact Medical Information Integration, LLC at https://mi-squared.com for Lab Exchange Service.
+Contact Medical Information Integration, LLC at https://mi-squared.com or ZH Healthcare at https://zhservices.com for subscribing the eRx service
+Contact Medical Information Integration, LLC at https://mi-squared.com or ZH Healthcare at https://zhservices.com for subscribing to the NewCrop eRx service.
+Contact mi-squared at https://www.mi-squared.com/products-services/openemr/ or ZH Healthcare at https://blueehr.com/contact-us/ for subscribing to the NewCrop eRx service.
 Contact name
 Contact Open Med Practice, www.openmedpractice.com for subscribing to the Weno Free eRx service.
 Contact or Notify Phone
@@ -5885,7 +5885,7 @@ Password change successful.
 Password does not meet minimum requirements and should contain at least three of the four following items: A number, a lowercase letter, an uppercase letter, a special character (Not a leter or number).
 Password Expiration Grace Period
 Password for Phone Gateway.
-Password for Phone Gateway. Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.
+Password for Phone Gateway. Automated VOIP service provided by Maviq. Please visit https://signup.maviq.com for more information.
 Password for SMS Gateway
 Password for SMS Gateway.
 Password for the above user
@@ -6363,7 +6363,7 @@ Please refer to
 Please reset the password.
 Please restart the apache server before playing with de-identification
 Please return this bottom part with your payment
-Please see http://www.open-emr.org/wiki/index.php/LBV_Forms for more on this topic
+Please see https://www.open-emr.org/wiki/index.php/LBV_Forms for more on this topic
 Please see the attached PDF.
 Please Select
 Please select a format
@@ -7370,7 +7370,7 @@ S
 S.S.
 S3:
 S4:
-SA  *  * To read the license please read the docs/license.txt or visit  * http://www.gnu.org/copyleft/gpl.html  *  */  //========================================================================= // 
+SA  *  * To read the license please read the docs/license.txt or visit  * https://www.gnu.org/copyleft/gpl.html  *  */  //========================================================================= // 
 Safe key database
 Sale
 Sales
@@ -9124,7 +9124,7 @@ URL
 URL for NewCrop eRx Site Address.
 URL for OpenEMR support.
 URL for Phone Gateway.
-URL for Phone Gateway. Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.
+URL for Phone Gateway. Automated VOIP service provided by Maviq. Please visit https://signup.maviq.com for more information.
 URL for the WordPress site that supports the portal
 URLs for NewCrop eRx Service Address, separated by a semi-colon.
 USA
@@ -9213,7 +9213,7 @@ Userlist7
 username
 Username
 Username for Phone Gateway.
-Username for Phone Gateway. Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.
+Username for Phone Gateway. Automated VOIP service provided by Maviq. Please visit https://signup.maviq.com for more information.
 Username for SMS Gateway
 Username for SMS Gateway.
 Username to connect to CouchDB
@@ -9230,7 +9230,7 @@ Usertext5
 Usertext6
 Usertext7
 Usertext8
-uses php <a href="http://php.net/strftime">strftime</a> format
+uses php <a href="https://php.net/strftime">strftime</a> format
 Using technology to improve productivity
 UTIs
 Uyghur, Uighur
@@ -9781,7 +9781,7 @@ $label (yyyy-mm-dd):
 02/12{{CMS 1500 format date revision setting in globals}}
 08/05{{CMS 1500 format date revision setting in globals}}
 1
-1 = North America. See http://www.wtng.info/ for a list of other country codes.
+1 = North America. See https://www.wtng.info/ for a list of other country codes.
 1 Day From Now
 1 Month From Now
 1 Week From Now

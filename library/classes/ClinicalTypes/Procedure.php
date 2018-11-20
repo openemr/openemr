@@ -5,7 +5,7 @@
  *
  * @package OpenEMR - MU2
  * @author  ViSolve Inc <services@visolve.com>
- * @link    http://www.visolve.com
+ * @link    https://www.visolve.com
  */
 class Procedure
 {

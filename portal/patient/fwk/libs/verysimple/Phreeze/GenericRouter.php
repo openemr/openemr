@@ -14,7 +14,7 @@ require_once('verysimple/HTTP/RequestUtil.php');
  * @package verysimple::Phreeze
  * @author VerySimple Inc.
  * @copyright 1997-2013 VerySimple, Inc.
- * @license http://www.gnu.org/licenses/lgpl.html LGPL
+ * @license https://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.2
  */
 class GenericRouter implements IRouter
@@ -51,7 +51,7 @@ class GenericRouter implements IRouter
      * Instantiate the GenericRouter
      *
      * @param string $appRootUrl
-     *          the root url of the application including trailing slash (ex http://localhost/)
+     *          the root url of the application including trailing slash (ex https://localhost/)
      * @param string $defaultAction
      *          action to call if no route is provided (ex Default.DefaultAction)
      * @param array $mapping

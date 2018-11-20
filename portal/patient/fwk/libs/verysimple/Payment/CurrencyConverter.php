@@ -12,7 +12,7 @@ require_once("verysimple/HTTP/HttpRequest.php");
  * @package verysimple::Payment
  * @author VerySimple Inc.
  * @copyright 1997-2007 VerySimple, Inc.
- * @license http://www.gnu.org/licenses/lgpl.html LGPL
+ * @license https://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
 class CurrencyConverter
@@ -28,7 +28,7 @@ class CurrencyConverter
      * @param
      *          string to currency (ex EUR)
      * @return number
-     * @author : http://www.it-base.ro/2007/07/09/currency-conversion-in-php
+     * @author : https://www.it-base.ro/2007/07/09/currency-conversion-in-php
      * @author : Jason M Hinkle
      * @version : 1.0
      */
@@ -37,7 +37,7 @@ class CurrencyConverter
         $converted_amount = 0;
         
         $qs = $amount . ' ' . $from . ' in ' . $to;
-        $url = "http://www.google.com/search?q=" . urlEncode($qs);
+        $url = "https://www.google.com/search?q=" . urlEncode($qs);
         
         $g_response = strip_tags(HttpRequest::Get($url));
         

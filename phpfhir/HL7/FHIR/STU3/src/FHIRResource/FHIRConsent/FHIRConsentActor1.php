@@ -128,7 +128,7 @@ class FHIRConsentActor1 extends FHIRBackboneElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ConsentActor1 xmlns="http://hl7.org/fhir"></ConsentActor1>');
+            $sxe = new \SimpleXMLElement('<ConsentActor1 xmlns="https://hl7.org/fhir"></ConsentActor1>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->role)) {

@@ -87,7 +87,7 @@ class FHIRPositiveInt extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<positiveInt xmlns="http://hl7.org/fhir"></positiveInt>');
+            $sxe = new \SimpleXMLElement('<positiveInt xmlns="https://hl7.org/fhir"></positiveInt>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

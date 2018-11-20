@@ -224,7 +224,7 @@ class FHIRMessageHeaderSource extends FHIRBackboneElement implements \JsonSerial
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MessageHeaderSource xmlns="http://hl7.org/fhir"></MessageHeaderSource>');
+            $sxe = new \SimpleXMLElement('<MessageHeaderSource xmlns="https://hl7.org/fhir"></MessageHeaderSource>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->name)) {

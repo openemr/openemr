@@ -90,7 +90,7 @@ class FHIRConditionalReadStatus extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ConditionalReadStatus xmlns="http://hl7.org/fhir"></ConditionalReadStatus>');
+            $sxe = new \SimpleXMLElement('<ConditionalReadStatus xmlns="https://hl7.org/fhir"></ConditionalReadStatus>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

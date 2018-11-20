@@ -37,7 +37,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 	Latin Extended-A: Applied Daniel Johnson's patch that made two versions
 	of capital Eng.  His explanation:
 		'
-		http://en.wikipedia.org/wiki/%C5%8A
+		https://en.wikipedia.org/wiki/%C5%8A
 	
 		The form of capital Eng currently in all three FreeFont faces
 		is that used by the Sami people, resembling a capital N with a
@@ -573,7 +573,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 	"feature" of FontForge, ( in source tottf.c, AssignNotdefNull() )
 	And a funny strong suggestion of TrueType fonts, that they begin with
 	three special characters (evidently different from encoding slots)
-	http://www.microsoft.com/typography/otspec/recom.htm
+	https://www.microsoft.com/typography/otspec/recom.htm
 	
 	FontForge looks for these glyphs in certain places and copies them.
 	Otherwise, apparently, it will find a glyph elsewhere (unclear how) and
@@ -758,7 +758,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 		The bamboo on the top left needs to be removed
 
 	Resolves bug #27579: Orthodox cross has wrong glyph
-		http://savannah.gnu.org/bugs/?27579
+		https://savannah.gnu.org/bugs/?27579
 		 U+2626 Orthodox Cross should slope downwards from left to right.
 
 2009-11-13 Stevan_White
@@ -1455,7 +1455,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 	out of the Unicode samples.)
 	
 	Cyrillic Extended-B: Assembled Monograph Uk, uk.  See discussion
-	http://en.wikipedia.org/wiki/Uk_(Cyrillic)
+	https://en.wikipedia.org/wiki/Uk_(Cyrillic)
 
 2009-02-27 Stevan_White
 	* FreeMonoBold.sfd, FreeMonoBoldOblique.sfd, FreeMonoOblique.sfd:
@@ -1482,7 +1482,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 	* FreeSerif.sfd:
 
 	Copied glyphs from LKLUG font, as discussed with Harshula Jayasuriya.
-	http://sinhala.cvs.sourceforge.net/viewvc/sinhala/sinhala/fonts/
+	https://sinhala.cvs.sourceforge.net/viewvc/sinhala/sinhala/fonts/
 	
 	This font is derived from a Metafont font: This package was
 	originally developed by Yannis Haralambous (Yannis.Haralambous at
@@ -1515,7 +1515,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 	requires auxiliary characters and lookup tables for proper
 	representation.
 	(Found what I think are the originals at 
-	http://www.mettanet.org/fonts/ )
+	https://www.mettanet.org/fonts/ )
 
 2009-02-12 Stevan_White
 	* FreeSerifBold.sfd, FreeSerifBoldItalic.sfd, FreeSerifItalic.sfd:
@@ -2237,7 +2237,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 	* FreeSerif.sfd:
 
 	Made Coptic to comply better with
-		http://www.wazu.jp/gallery/Test_Coptic.html
+		https://www.wazu.jp/gallery/Test_Coptic.html
 	Made a flourish at foot of letters with long diagonal.
 
 	More tweeks to Coptic; put in a mark lookup table.
@@ -2297,7 +2297,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 	Added Glagolitic "round type" font (Croation capitols only) from the
 	collection of Croatian fonts for LaTeX by Darko Zubrinić
 	ftp://ftp.dante.de/tex-archive/languages/croatian/
-	http://www.tug.org/TUGboat/Articles/tb17-1/tb50zubr.pdf
+	https://www.tug.org/TUGboat/Articles/tb17-1/tb50zubr.pdf
 	
 	Several letters are missing besides the small letters.
 
@@ -2396,7 +2396,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 
 	Added 5 Armenian ligatures to U+FB13 – FB17, and made corresponding
 	'liga' lookup.  Found there one ligature u+0587 that according to
-		http://en.wikipedia.org/wiki/Armenian_alphabet
+		https://en.wikipedia.org/wiki/Armenian_alphabet
 	
 	"in new orthography the և character is not a typographical ligature anymore, and must never be treated as such. It is a distinct letter and has its place in the new alphabetic sequence."
 	So moved this out of the 'liga' lookup and into a new 'hlig' lookup.
@@ -2420,7 +2420,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 	* FreeSerif.sfd:
 
 	WAZU says
-	http://www.wazu.jp/gallery/Fonts_Hanunoo.html
+	https://www.wazu.jp/gallery/Fonts_Hanunoo.html
 	
 	MPH 2B Damase doesn't support the consonant-vowel ligatures necessary
 	to render Buhid writing.
@@ -2430,7 +2430,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 	don't know why.
 	
 	Made page to match the example of the combining forms at
-	http://www.omniglot.com/writing/hanunoo.htm
+	https://www.omniglot.com/writing/hanunoo.htm
 
 2008-10-24 Stevan_White
 	* FreeSerif.sfd:
@@ -2441,7 +2441,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 
 	Tweeked combining marks for Vietnamese.  Made to satisfy
 		WAZU JAPAN Comprehensive Unicode Test Page for Vietnamese
-		http://www.wazu.jp/gallery/Test_Vietnamese.html
+		https://www.wazu.jp/gallery/Test_Vietnamese.html
 	Could still use some tweeking...
 
 	* FreeSerif.sfd:
@@ -2759,7 +2759,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 
 	Replaced Malayalam range with that from Rachana_04 found on
 	Swathanthra Malayalam Computing project page
-		http://savannah.nongnu.org/projects/smc/
+		https://savannah.nongnu.org/projects/smc/
 	Besides scaling and converting to cubic, performed much clean-up of
 	glyphs, added an r2 character, and re-named a bunch of characters.
 
@@ -3569,7 +3569,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 
 	Gurmukhi: filled range in Serif, taking glyphs from the original
 	Punjabi font by Hardip Singh Pannu
-	http://members.aol.com/hspannu/punjabi.html   (file pb_win95.exe)
+	https://members.aol.com/hspannu/punjabi.html   (file pb_win95.exe)
 
 2008-05-12 Steve White
 	* FreeSans.sfd, FreeSerifBold.sfd, FreeSerifBoldItalic.sfd:
@@ -3746,7 +3746,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 	Adjusted heights of extensible brackets
 
 	Fixed problems with extensible brackets, thanks to Markus Kuhn's page
-	http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-demo.txt
+	https://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-demo.txt
 
 	* ranges.py:
 
@@ -3836,13 +3836,13 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 
 	Added Hanunóo script, with characters based on those in
 	font MPH2BDamase, on request from the maintainer of that font,
-	http://packages.debian.org/sid/ttf-mph-2b-damase
+	https://packages.debian.org/sid/ttf-mph-2b-damase
 	
 	Glyphs are simple vector strokes.  Could be a little more uniform.
 
 	Added Buginese script "Lontara", with characters based on those in
 	font MPH2BDamase, on request from the maintainer of that font,
-	http://packages.debian.org/sid/ttf-mph-2b-damase
+	https://packages.debian.org/sid/ttf-mph-2b-damase
 	
 	Note the glyphs are pretty rough, clearly a digitization of handwriting.
 	I just cleaned them up, and corrected discrepancies with Unicode,
@@ -4418,7 +4418,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 	Adjusted and added some enclosing diacritics 20DD - 20E0
 	In response to Debian bug #472566
 		ttf-freefont: U+20DD COMBINING ENCOLSING CIRCLE doesn't combine
-		http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=472566
+		https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=472566
 
 2008-03-26 Steve White
 	* FreeSerif.sfd:
@@ -4525,7 +4525,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 		renamed it to uFFFF, re-linked others by hand
 
 		commaaccent
-			http://diacritics.typo.cz/index.php?id=9
+			https://diacritics.typo.cz/index.php?id=9
 		should be u+0326 but wasn't linked to anything 
 
 	* FreeSansBold.sfd:
@@ -5403,15 +5403,15 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 
 	* sfd/FreeSans.sfd - added U+0278, U+03D5, U+2248. Corrected
 	U+2071, U+222E, U+2242, U+2243 in response to bug reports
-	http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=276118
-	http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=276120
+	https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=276118
+	https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=276120
 
 	* sfd/FreeMono.sfd - added U+2227, U+2228, U+2262. Corrected
 	U+2299-229D in response to bug report
-	http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=276121
+	https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=276121
 
 	* sfd/FreeMonoBold.sfd - added U+2010, U+2012 in response to bug
-	report http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=289032
+	report https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=289032
 	Swapped U+03C6 (Greek small letter phi) and U+03D5 (Greek phi
 	symbol) in order to conform to Unicode standard. Simplified glyph
 	shapes in ASCII range. Started adding "above" and "below" anchors.
@@ -5836,7 +5836,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 2003-03-18  Primoz Peterlin  <primoz.peterlin@biofiz.mf.uni-lj.si>
 
 	* sfd/FreeSans.sfd - Added Sinhala glyphs from the Tipitaka
-	project <http://www.metta.lk>, recoded to Unicode by Noah Levitt.
+	project <https://www.metta.lk>, recoded to Unicode by Noah Levitt.
 
 2003-02-19  Primoz Peterlin  <primoz.peterlin@biofiz.mf.uni-lj.si>
 
@@ -6112,7 +6112,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 	Beyene, Prof. Dr. Manfred Kudlek, Olaf Kummer, and Jochen
 	Metzinger) using Szabo's TeXtrace and retouched using
 	PfaEdit. Ethiopian metafonts are released under GNU GPL,
-	<http://www.informatik.uni-hamburg.de/TGI/mitarbeiter/wimis/kummer/ethiop_eng.html>.
+	<https://www.informatik.uni-hamburg.de/TGI/mitarbeiter/wimis/kummer/ethiop_eng.html>.
 
 	* sfd/FreeMonoBold.sfd - Added 40 characters, mostly in the Latin
 	Extended-B and IPA Extensions areas.
@@ -6159,7 +6159,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 
 	* sfd/FreeMono.sfd - Added more or less complete Armenian
 	area. The glyphs are a tidied-up version based on the Armenian
-	Courier on the <http://www.cilicia.com/armo8.html>. Now we have
+	Courier on the <https://www.cilicia.com/armo8.html>. Now we have
 	1673 characters.
 
 2002-03-28  Primoz Peterlin  <primoz.peterlin@biofiz.mf.uni-lj.si>
@@ -6232,7 +6232,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 
 	* sfd/FreeSerif.sfd - Anshuman Pandey has only converted Gurmukhi
 	from TrueType to Metafont; the original author of Gurkmukhi font
-	is Hardip Singh Pannu <http://members.aol.com/hspannu/punjabi.html>.
+	is Hardip Singh Pannu <https://members.aol.com/hspannu/punjabi.html>.
 	Got the permission from him to include the Gurmukhi glyph set.
 
 2002-03-08  Primoz Peterlin  <primoz.peterlin@biofiz.mf.uni-lj.si>
@@ -6283,7 +6283,7 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 	* ChangeLog file created
 
 	* sfd/FreeSerif.sfd - Added some Telugu glyphs to page 0x0C,
-	courtesy  Prasad A. Chodavarapu <http://chaitanya.bhaavana.net/fonts/>
+	courtesy  Prasad A. Chodavarapu <https://chaitanya.bhaavana.net/fonts/>
 
 	* sfd/FreeSerif.sfd - Added some glyphs to the Miscellaneous
 	Symbols page (0x26).
@@ -6317,9 +6317,9 @@ $Id: ChangeLog,v 1.257 2010/09/19 13:15:07 Stevan_White Exp $
 	* tools/CheckConformance.pl created - a Perl script for checking
 	conformance of a font file with a given coded character set
 
-	* homepage <http://www.freesoftware.fsf.org/freefont/> created
+	* homepage <https://www.freesoftware.fsf.org/freefont/> created
 
 2002-02-19  Primoz Peterlin  <primoz.peterlin@biofiz.mf.uni-lj.si>
 
 	* freefont (Free UCS Scalable Fonts) project approved on
-	savannah.gnu.org: <http://savannah.gnu.org/projects/freefont/>
+	savannah.gnu.org: <https://savannah.gnu.org/projects/freefont/>

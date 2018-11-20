@@ -1,5 +1,5 @@
 <?php
-// See http://www.wpc-edi.com/codes
+// See https://www.wpc-edi.com/codes
 //
 $remark_codes = array(
  'M1' => 'X-ray not taken within the past 12 months or near enough to the start of treatment.',
@@ -344,7 +344,7 @@ $remark_codes = array(
  'N112' => 'This claim is excluded from your electronic remittance advice.',
  'N113' => 'Only one initial visit is covered per physician, group practice or provider.',
  'N114' => 'During the transition to the Ambulance Fee Schedule, payment is based on the lesser of a blended amount calculated using a percentage of the reasonable charge/cost and fee schedule amounts, or the submitted charge for the service. You will be notified yearly what the percentages for the blended payment calculation will be.',
- 'N115' => 'This decision was based on a local medical review policy (LMRP) or Local Coverage Determination (LCD).An LMRP/LCD provides a guide to assist in determining whether a particular item or service is covered. A copy of this policy is available at http://www.cms.hhs.gov/mcd, or if you do not have web access, you may contact the contractor to request a copy of the LMRP/LCD.',
+ 'N115' => 'This decision was based on a local medical review policy (LMRP) or Local Coverage Determination (LCD).An LMRP/LCD provides a guide to assist in determining whether a particular item or service is covered. A copy of this policy is available at https://www.cms.hhs.gov/mcd, or if you do not have web access, you may contact the contractor to request a copy of the LMRP/LCD.',
  'N116' => 'This payment is being made conditionally because the service was provided in the home, and it is possible that the patient is under a home health episode of care. When a patient is treated under a home health episode of care, consolidated billing requires that certain therapy services and supplies, such as this, be included in the home health agency’s (HHA’s) payment. This payment will need to be recouped from you if we establish that the patient is concurrently receiving treatment under an HHA episode of care.',
  'N117' => 'This service is paid only once in a patient’s lifetime.',
  'N118' => 'This service is not paid if billed more than once every 28 days.',

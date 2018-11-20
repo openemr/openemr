@@ -557,7 +557,7 @@ class FHIRExplanationOfBenefitSubDetail extends FHIRBackboneElement implements \
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ExplanationOfBenefitSubDetail xmlns="http://hl7.org/fhir"></ExplanationOfBenefitSubDetail>');
+            $sxe = new \SimpleXMLElement('<ExplanationOfBenefitSubDetail xmlns="https://hl7.org/fhir"></ExplanationOfBenefitSubDetail>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->sequence)) {

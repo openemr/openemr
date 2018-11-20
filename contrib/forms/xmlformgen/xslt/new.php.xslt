@@ -9,7 +9,7 @@ as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
  -->
 <xsl:stylesheet version="1.0"
-xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+xmlns:xsl="https://www.w3.org/1999/XSL/Transform">
 <xsl:output method="xml" omit-xml-declaration="yes"/>
 <xsl:include href="common_objects.xslt"/>
 <xsl:include href="field_objects.xslt"/>
@@ -55,8 +55,8 @@ $submiturl = $GLOBALS['rootdir'].'/forms/'.$form_folder.'/save.php?mode=new&amp;
 <!-- no call to split_timeofday, no data from the db in the new form. -->
 <!-- no check data call, as no data from the db goes into a new form -->
 <xsl:text disable-output-escaping="yes"><![CDATA[
-?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "https://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="https://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 
 <!-- declare this document as being encoded in UTF-8 -->

@@ -78,7 +78,7 @@ INSERT INTO `users` VALUES (1, 'admin', '9d4e1e23bd5b727046a9e3b4b7db57bd8d6ee68
 
 # phpMyAdmin SQL Dump
 # version 2.5.5-pl1
-# http://www.phpmyadmin.net
+# https://www.phpmyadmin.net
 #
 # Host: localhost
 # Generation Time: Jun 02, 2004 at 04:38 PM
@@ -417,7 +417,7 @@ INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 1);
 UPDATE `categories_seq` SET id=id+1;
 # phpMyAdmin SQL Dump
 # version 2.5.7-pl1
-# http://www.phpmyadmin.net
+# https://www.phpmyadmin.net
 #
 # Host: localhost
 # Generation Time: Oct 11, 2004 at 06:22 AM

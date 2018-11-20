@@ -3,7 +3,7 @@
  * Edit demographics.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -135,7 +135,7 @@ $(document).ready(function(){
 
 var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
-//code used from http://tech.irt.org/articles/js037/
+//code used from https://tech.irt.org/articles/js037/
 function replace(string,text,by) {
  // Replaces text with by in string
  var strLength = string.length, txtLength = text.length;

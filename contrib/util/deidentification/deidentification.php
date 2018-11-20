@@ -30,11 +30,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ * along with this program. If not, see <https://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
  * @author  Daniel Pflieger <growlingflea@gmail.com> <daniel@mi-squared.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
 
 	
     NOTE:  IT IS STILL THE RESPONSIBILITY OF THE USER TO ENSURE THAT ALL PERSONAL IDENTIFIABLE INFORMATION HAS BEEN DELETED FROM THE DATABASE.  THE END USER

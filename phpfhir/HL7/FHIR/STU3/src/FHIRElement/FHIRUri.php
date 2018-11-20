@@ -11,7 +11,7 @@ use HL7\FHIR\STU3\FHIRElement;
 
 /**
  * String of characters used to identify a name or a resource
- * see http://en.wikipedia.org/wiki/Uniform_resource_identifier
+ * see https://en.wikipedia.org/wiki/Uniform_resource_identifier
  * If the element is present, it must have either a @value, an @id, or extensions
  */
 class FHIRUri extends FHIRElement implements \JsonSerializable
@@ -88,7 +88,7 @@ class FHIRUri extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<uri xmlns="http://hl7.org/fhir"></uri>');
+            $sxe = new \SimpleXMLElement('<uri xmlns="https://hl7.org/fhir"></uri>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

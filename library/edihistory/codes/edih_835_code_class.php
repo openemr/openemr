@@ -1432,7 +1432,7 @@ The patient has received a separate notice of this denial decision. The notice a
         "N739"=>"Missing Vein Study Report.",
         "N740"=>"The member's Consumer Spending Account does not contain sufficient funds to cover the member's liability for this claim/service.",
         "N741"=>"This is a site neutral payment.",
-        "N742"=>"Alert: This claim was processed based on one or more ICD-9 codes. The transition to ICD-10 is required by October 1, 2015, for health care providers, health plans, and clearinghouses. More information can be found at http://www.cms.gov/Medicare/Coding/ICD10/ProviderResources.html",
+        "N742"=>"Alert: This claim was processed based on one or more ICD-9 codes. The transition to ICD-10 is required by October 1, 2015, for health care providers, health plans, and clearinghouses. More information can be found at https://www.cms.gov/Medicare/Coding/ICD10/ProviderResources.html",
         "N743"=>"Adjusted because the services may be related to an employment accident.",
         "N744"=>"Adjusted because the services may be related to an auto accident.",
         "N745"=>"Missing Ambulance Report.",

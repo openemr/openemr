@@ -90,7 +90,7 @@ class FHIRConstraintSeverity extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ConstraintSeverity xmlns="http://hl7.org/fhir"></ConstraintSeverity>');
+            $sxe = new \SimpleXMLElement('<ConstraintSeverity xmlns="https://hl7.org/fhir"></ConstraintSeverity>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

@@ -3,7 +3,7 @@
  * main_title.php - The main titlebar, at the top of the 'concurrent' layout.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -163,7 +163,7 @@ $url = "open-emr.org/wiki/index.php/OpenEMR_".$open_emr_ver."_Users_Guide";
         <tr>
             <td align="right" class="text" style="vertical-align:text-bottom;">
                 <a href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" title = "<?php echo xla('Home'); ?>"><i class='fa fa-home fa-2x top-nav-icons' aria-hidden='true'></i></a>
-                <a href="http://<?php echo attr($url); ?>" target="_blank" id="help_link" title = "<?php echo xla('Manual'); ?>"><i class='fa fa-question fa-2x top-nav-icons' aria-hidden='true'></i></a>
+                <a href="https://<?php echo attr($url); ?>" target="_blank" id="help_link" title = "<?php echo xla('Manual'); ?>"><i class='fa fa-question fa-2x top-nav-icons' aria-hidden='true'></i></a>
                 <a href="" onclick="return bpopup()"  title="<?php echo xla('About'); ?>"><i class='fa fa-info fa-2x top-nav-icons' aria-hidden='true'></i></a>
                 <a href="" id="user_settings" onclick="userPreference(); return false;" title="<?php echo xla('User Settings')?>"><i class="fa fa-cog fa-2x top-nav-icons" aria-hidden="true"></i></a>
                 <a href="" id="user_password" onclick="changePassword(); return false;" title="<?php echo xla('User Password')?>"><i class="fa fa-unlock-alt fa-2x top-nav-icons" aria-hidden="true"></i></a>

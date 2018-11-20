@@ -105,7 +105,7 @@ class FHIRExpansionProfileExclude extends FHIRBackboneElement implements \JsonSe
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ExpansionProfileExclude xmlns="http://hl7.org/fhir"></ExpansionProfileExclude>');
+            $sxe = new \SimpleXMLElement('<ExpansionProfileExclude xmlns="https://hl7.org/fhir"></ExpansionProfileExclude>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->designation)) {

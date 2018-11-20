@@ -6,7 +6,7 @@ License:
 ```
  Ce programme est distribué sous la licence LGPL,
  Pour plus d'informations, reportez-vous au fichier _LGPL.txt ou à
- http://www.gnu.org/licenses/lgpl.html
+ https://www.gnu.org/licenses/lgpl.html
  
  Copyright 2008-2015 par Laurent Minguet
 ```
@@ -73,7 +73,7 @@ Il est activable en rajoutant la commande suivante juste après le constructeur 
          
   * <qrcode></qrcode> (CF Exemple 13 & wiki)
     * permet d'insérer un codebar à 2 dimensions de type QRcode
-    * (QR Code is registered trademark of DENSO WAVE INCORPORATED | http://www.denso-wave.com/qrcode/)
+    * (QR Code is registered trademark of DENSO WAVE INCORPORATED | https://www.denso-wave.com/qrcode/)
 
   * <bookmark></bookmark>  (CF Exemples 7 & About & wiki)
     * permet d'insérer des bookmarks dans les pdfs, CF Exemple 7 et About.
@@ -98,9 +98,9 @@ Informations :
 -------------
 
 * Programmeur : Spipu
-* Web Site    : http://html2pdf.fr/
-* Wiki        : http://html2pdf.fr/fr/wiki
-* Support     : http://html2pdf.fr/fr/forum
+* Web Site    : https://html2pdf.fr/
+* Wiki        : https://html2pdf.fr/fr/wiki
+* Support     : https://html2pdf.fr/fr/forum
 
 Remerciement :
 --------------

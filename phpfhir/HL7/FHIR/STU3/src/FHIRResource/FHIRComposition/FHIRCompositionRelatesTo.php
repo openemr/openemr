@@ -154,7 +154,7 @@ class FHIRCompositionRelatesTo extends FHIRBackboneElement implements \JsonSeria
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CompositionRelatesTo xmlns="http://hl7.org/fhir"></CompositionRelatesTo>');
+            $sxe = new \SimpleXMLElement('<CompositionRelatesTo xmlns="https://hl7.org/fhir"></CompositionRelatesTo>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->code)) {

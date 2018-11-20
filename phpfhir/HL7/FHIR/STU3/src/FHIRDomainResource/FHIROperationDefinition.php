@@ -94,7 +94,7 @@ class FHIROperationDefinition extends FHIRDomainResource implements \JsonSeriali
     public $purpose = null;
 
     /**
-     * Operations that are idempotent (see [HTTP specification definition of idempotent](http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html)) may be invoked by performing an HTTP GET operation instead of a POST.
+     * Operations that are idempotent (see [HTTP specification definition of idempotent](https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html)) may be invoked by performing an HTTP GET operation instead of a POST.
      * @var \HL7\FHIR\STU3\FHIRElement\FHIRBoolean
      */
     public $idempotent = null;
@@ -419,7 +419,7 @@ class FHIROperationDefinition extends FHIRDomainResource implements \JsonSeriali
     }
 
     /**
-     * Operations that are idempotent (see [HTTP specification definition of idempotent](http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html)) may be invoked by performing an HTTP GET operation instead of a POST.
+     * Operations that are idempotent (see [HTTP specification definition of idempotent](https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html)) may be invoked by performing an HTTP GET operation instead of a POST.
      * @return \HL7\FHIR\STU3\FHIRElement\FHIRBoolean
      */
     public function getIdempotent()
@@ -428,7 +428,7 @@ class FHIROperationDefinition extends FHIRDomainResource implements \JsonSeriali
     }
 
     /**
-     * Operations that are idempotent (see [HTTP specification definition of idempotent](http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html)) may be invoked by performing an HTTP GET operation instead of a POST.
+     * Operations that are idempotent (see [HTTP specification definition of idempotent](https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html)) may be invoked by performing an HTTP GET operation instead of a POST.
      * @param \HL7\FHIR\STU3\FHIRElement\FHIRBoolean $idempotent
      * @return $this
      */
@@ -856,7 +856,7 @@ class FHIROperationDefinition extends FHIRDomainResource implements \JsonSeriali
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<OperationDefinition xmlns="http://hl7.org/fhir"></OperationDefinition>');
+            $sxe = new \SimpleXMLElement('<OperationDefinition xmlns="https://hl7.org/fhir"></OperationDefinition>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->url)) {

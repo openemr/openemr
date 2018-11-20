@@ -2,7 +2,7 @@ DejaVu fonts 2.33 (c)2004-2011 DejaVu fonts team
 ------------------------------------------------
 
 The DejaVu fonts are a font family based on the Bitstream Vera Fonts
-(http://gnome.org/fonts/). Its purpose is to provide a wider range of
+(https://gnome.org/fonts/). Its purpose is to provide a wider range of
 characters (see status.txt for more information) while maintaining the
 original look and feel.
 
@@ -39,10 +39,10 @@ For license information see LICENSE. What's new is described in NEWS. Known
 bugs are in BUGS. All authors are mentioned in AUTHORS.
 
 Fonts are published in source form as SFD files (Spline Font Database from
-FontForge - http://fontforge.sf.net/) and in compiled form as TTF files
+FontForge - https://fontforge.sf.net/) and in compiled form as TTF files
 (TrueType fonts).
 
-For more information go to http://dejavu.sourceforge.net/.
+For more information go to https://dejavu.sourceforge.net/.
 
 Characters from Arev fonts, Copyright (c) 2006 by Tavmjong Bah:
 ---------------------------

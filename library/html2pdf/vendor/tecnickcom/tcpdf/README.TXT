@@ -3,7 +3,7 @@ TCPDF - README
 
 I WISH TO IMPROVE AND EXPAND TCPDF BUT I NEED YOUR SUPPORT.
 PLEASE MAKE A DONATION:
-http://sourceforge.net/donate/index.php?group_id=128076
+https://sourceforge.net/donate/index.php?group_id=128076
 or via PayPal at paypal@tecnick.com
 
 ------------------------------------------------------------
@@ -19,8 +19,8 @@ Copyright (c) 2002-2015:
 	www.tecnick.com
 
 URLs:
-	http://www.tcpdf.org
-	http://www.sourceforge.net/projects/tcpdf
+	https://www.tcpdf.org
+	https://www.sourceforge.net/projects/tcpdf
 	https://github.com/tecnickcom/TCPDF
 
 Description:
@@ -36,7 +36,7 @@ Main Features:
     * font subsetting;
     * methods to publish some XHTML + CSS code, Javascript and Forms;
     * images, graphic (geometric figures) and transformation methods;
-    * supports JPEG, PNG and SVG images natively, all images supported by GD (GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM) and all images supported via ImagMagick (http://www.imagemagick.org/script/formats.php)
+    * supports JPEG, PNG and SVG images natively, all images supported by GD (GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM) and all images supported via ImagMagick (https://www.imagemagick.org/script/formats.php)
     * 1D and 2D barcodes: CODE 39, ANSI MH10.8M-1983, USD-3, 3 of 9, CODE 93, USS-93, Standard 2 of 5, Interleaved 2 of 5, CODE 128 A/B/C, 2 and 5 Digits UPC-Based Extension, EAN 8, EAN 13, UPC-A, UPC-E, MSI, POSTNET, PLANET, RMS4CC (Royal Mail 4-state Customer Code), CBC (Customer Bar Code), KIX (Klant index - Customer index), Intelligent Mail Barcode, Onecode, USPS-B-3200, CODABAR, CODE 11, PHARMACODE, PHARMACODE TWO-TRACKS, Datamatrix, QR-Code, PDF417;
     * JPEG and PNG ICC profiles, Grayscale, RGB, CMYK, Spot Colors and Transparencies;
     * automatic page header and footer management;
@@ -63,10 +63,10 @@ Installation (full instructions on http:  www.tcpdf.org):
 	3. call the examples/example_001.php page with your browser to see an example
 
 Source Code Documentation:
-	http://www.tcpdf.org
+	https://www.tcpdf.org
 
 Additional Documentation:
-	http://www.tcpdf.org
+	https://www.tcpdf.org
 
 License:
 	Copyright (C) 2002-2014  Nicola Asuni - Tecnick.com LTD
@@ -83,7 +83,7 @@ License:
 
 	You should have received a copy of the License
 	along with TCPDF. If not, see
-	<http://www.tecnick.com/pagefiles/tcpdf/LICENSE.TXT>.
+	<https://www.tecnick.com/pagefiles/tcpdf/LICENSE.TXT>.
 
 	See LICENSE.TXT file for more information.
 
@@ -100,14 +100,14 @@ Third party fonts:
 	The binary files (.z) that begins with the prefix "free" have been extracted from the GNU FreeFont collection (GNU-GPLv3).
 	The binary files (.z) that begins with the prefix "pdfa" have been derived from the GNU FreeFont, so they are subject to the same license.
 	For the details of Copyright, License and other information, please check the files inside the directory fonts/freefont-20120503
-	Link : http://www.gnu.org/software/freefont/
+	Link : https://www.gnu.org/software/freefont/
 	
 	The binary files (.z) that begins with the prefix "dejavu" have been extracted from the DejaVu fonts 2.33 (Bitstream) collection.
 	For the details of Copyright, License and other information, please check the files inside the directory fonts/dejavu-fonts-ttf-2.33
-	Link : http://dejavu-fonts.org
+	Link : https://dejavu-fonts.org
 	
 	The binary files (.z) that begins with the prefix "ae" have been extracted from the Arabeyes.org collection (GNU-GPLv2).
-	Link : http://projects.arabeyes.org/
+	Link : https://projects.arabeyes.org/
 
 ICC profile:
     TCPDF includes the sRGB.icc profile from the icc-profiles-free Debian package:

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-#  This uses the Python ZSI SOAP Infrastructure from: http://pywebsvcs.sourceforge.net/
+#  This uses the Python ZSI SOAP Infrastructure from: https://pywebsvcs.sourceforge.net/
 #
 
 import sys;

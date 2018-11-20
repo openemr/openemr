@@ -10,8 +10,8 @@ use SOAP::Lite;
 #
 sub soap_init {
         my $soap = new SOAP::Lite
-        uri => 'http://localhost/phpgacl/soap/server.php',
-        proxy => 'http://localhost/phpgacl/soap/server.php'
+        uri => 'https://localhost/phpgacl/soap/server.php',
+        proxy => 'https://localhost/phpgacl/soap/server.php'
         or die "Failed SOAP connection: $! \n";
 }
 

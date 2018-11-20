@@ -219,7 +219,7 @@ class FHIRClaimResponseDetail extends FHIRBackboneElement implements \JsonSerial
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ClaimResponseDetail xmlns="http://hl7.org/fhir"></ClaimResponseDetail>');
+            $sxe = new \SimpleXMLElement('<ClaimResponseDetail xmlns="https://hl7.org/fhir"></ClaimResponseDetail>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->sequenceLinkId)) {

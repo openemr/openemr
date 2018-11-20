@@ -21,7 +21,7 @@ require_once("verysimple/Authentication/IAuthenticatable.php");
  * @package verysimple::Phreeze
  * @author VerySimple Inc.
  * @copyright 1997-2011 VerySimple, Inc.
- * @license http://www.gnu.org/licenses/lgpl.html LGPL
+ * @license https://www.gnu.org/licenses/lgpl.html LGPL
  * @version 3.1
  */
 abstract class Controller

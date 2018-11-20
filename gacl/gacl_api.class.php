@@ -18,13 +18,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * For questions, help, comments, discussion, etc., please join the
- * phpGACL mailing list. http://sourceforge.net/mail/?group_id=57103
+ * phpGACL mailing list. https://sourceforge.net/mail/?group_id=57103
  *
  * You may contact the author of phpGACL by e-mail at:
  * ipso@snappymail.ca
  *
  * The latest version of phpGACL can be obtained from:
- * http://phpgacl.sourceforge.net/
+ * https://phpgacl.sourceforge.net/
  *
  * @package phpGACL
  *

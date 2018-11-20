@@ -90,7 +90,7 @@ class FHIRSlotStatus extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SlotStatus xmlns="http://hl7.org/fhir"></SlotStatus>');
+            $sxe = new \SimpleXMLElement('<SlotStatus xmlns="https://hl7.org/fhir"></SlotStatus>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

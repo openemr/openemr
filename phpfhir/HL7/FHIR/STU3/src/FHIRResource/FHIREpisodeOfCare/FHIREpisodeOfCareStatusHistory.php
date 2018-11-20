@@ -128,7 +128,7 @@ class FHIREpisodeOfCareStatusHistory extends FHIRBackboneElement implements \Jso
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<EpisodeOfCareStatusHistory xmlns="http://hl7.org/fhir"></EpisodeOfCareStatusHistory>');
+            $sxe = new \SimpleXMLElement('<EpisodeOfCareStatusHistory xmlns="https://hl7.org/fhir"></EpisodeOfCareStatusHistory>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->status)) {

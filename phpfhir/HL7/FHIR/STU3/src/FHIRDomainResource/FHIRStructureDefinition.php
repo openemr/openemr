@@ -1034,7 +1034,7 @@ class FHIRStructureDefinition extends FHIRDomainResource implements \JsonSeriali
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<StructureDefinition xmlns="http://hl7.org/fhir"></StructureDefinition>');
+            $sxe = new \SimpleXMLElement('<StructureDefinition xmlns="https://hl7.org/fhir"></StructureDefinition>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->url)) {

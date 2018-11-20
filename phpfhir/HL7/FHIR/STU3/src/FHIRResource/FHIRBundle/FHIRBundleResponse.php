@@ -224,7 +224,7 @@ class FHIRBundleResponse extends FHIRBackboneElement implements \JsonSerializabl
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<BundleResponse xmlns="http://hl7.org/fhir"></BundleResponse>');
+            $sxe = new \SimpleXMLElement('<BundleResponse xmlns="https://hl7.org/fhir"></BundleResponse>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->status)) {

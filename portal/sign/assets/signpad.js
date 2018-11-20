@@ -716,7 +716,7 @@ function SignaturePad (selector, options) {
   function init () {
     // Fixes the jQuery.fn.offset() function for Mobile Safari Browsers i.e. iPod Touch, iPad and iPhone
     // https://gist.github.com/661844
-    // http://bugs.jquery.com/ticket/6446
+    // https://bugs.jquery.com/ticket/6446
     if (parseFloat(((/CPU.+OS ([0-9_]{3}).*AppleWebkit.*Mobile/i.exec(navigator.userAgent)) || [0,'4_2'])[1].replace('_','.')) < 4.1) {
        $.fn.Oldoffset = $.fn.offset;
        $.fn.offset = function () {

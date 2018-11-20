@@ -317,7 +317,7 @@ class FHIRBodySite extends FHIRDomainResource implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<BodySite xmlns="http://hl7.org/fhir"></BodySite>');
+            $sxe = new \SimpleXMLElement('<BodySite xmlns="https://hl7.org/fhir"></BodySite>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {

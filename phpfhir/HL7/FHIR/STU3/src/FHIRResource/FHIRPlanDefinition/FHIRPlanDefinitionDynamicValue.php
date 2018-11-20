@@ -192,7 +192,7 @@ class FHIRPlanDefinitionDynamicValue extends FHIRBackboneElement implements \Jso
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<PlanDefinitionDynamicValue xmlns="http://hl7.org/fhir"></PlanDefinitionDynamicValue>');
+            $sxe = new \SimpleXMLElement('<PlanDefinitionDynamicValue xmlns="https://hl7.org/fhir"></PlanDefinitionDynamicValue>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->description)) {

@@ -693,7 +693,7 @@ class FHIRCarePlanDetail extends FHIRBackboneElement implements \JsonSerializabl
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CarePlanDetail xmlns="http://hl7.org/fhir"></CarePlanDetail>');
+            $sxe = new \SimpleXMLElement('<CarePlanDetail xmlns="https://hl7.org/fhir"></CarePlanDetail>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->category)) {

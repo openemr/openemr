@@ -553,7 +553,7 @@ class FHIRVisionPrescriptionDispense extends FHIRBackboneElement implements \Jso
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<VisionPrescriptionDispense xmlns="http://hl7.org/fhir"></VisionPrescriptionDispense>');
+            $sxe = new \SimpleXMLElement('<VisionPrescriptionDispense xmlns="https://hl7.org/fhir"></VisionPrescriptionDispense>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->product)) {

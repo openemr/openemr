@@ -12,7 +12,7 @@
  *
  * @author Converted to a Savant3 filter by Paul M. Jones <pmjones@ciaweb.net>
  *
- * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ * @license https://www.gnu.org/copyleft/lesser.html LGPL
  *
  * @version $Id: Savant3_Filter_trimwhitespace.php,v 1.4 2005/05/29 15:27:07 pmjones Exp $
  *

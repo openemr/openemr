@@ -128,7 +128,7 @@ class FHIRCapabilityStatementOperation extends FHIRBackboneElement implements \J
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CapabilityStatementOperation xmlns="http://hl7.org/fhir"></CapabilityStatementOperation>');
+            $sxe = new \SimpleXMLElement('<CapabilityStatementOperation xmlns="https://hl7.org/fhir"></CapabilityStatementOperation>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->name)) {

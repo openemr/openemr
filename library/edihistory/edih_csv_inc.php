@@ -15,10 +15,10 @@
  * received a copy of the GNU General Public License along with this program;
  * if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *  <http://opensource.org/licenses/gpl-license.php>
+ *  <https://opensource.org/licenses/gpl-license.php>
  *
  * @author Kevin McCormick
- * @link: http://www.open-emr.org
+ * @link: https://www.open-emr.org
  * @package OpenEMR
  * @subpackage ediHistory
  */
@@ -1422,7 +1422,7 @@ function csv_files_header($file_type, $csv_type) {
 */
 
 /**
- * adapted from http://scratch99.com/web-development/javascript/convert-bytes-to-mb-kb/
+ * adapted from https://scratch99.com/web-development/javascript/convert-bytes-to-mb-kb/
  *
  * @param int
  *

@@ -3,7 +3,7 @@
  * This is called as a pop-up to display patient education materials.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2014 Rod Roark <rod@sunsetsystems.com>
@@ -33,8 +33,8 @@ if ($_POST['bn_submit']) {
 
     if ($source == 'MLP') {
         // MedlinePlus Connect Web Application.  See:
-        // http://www.nlm.nih.gov/medlineplus/connect/application.html
-        $url = 'http://apps.nlm.nih.gov/medlineplus/services/mpconnect.cfm';
+        // https://www.nlm.nih.gov/medlineplus/connect/application.html
+        $url = 'https://apps.nlm.nih.gov/medlineplus/services/mpconnect.cfm';
         // Set code type in URL.
         $url .= '?mainSearchCriteria.v.cs=';
         if ('ICD9'   == $codetype) {

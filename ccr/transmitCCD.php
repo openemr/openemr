@@ -2,11 +2,11 @@
 /**
  * Functions to transmit a CCD as a Direct Protocol Message
  *
- * Copyright (C) 2013 EMR Direct <http://www.emrdirect.com/>
+ * Copyright (C) 2013 EMR Direct <https://www.emrdirect.com/>
  *
  * Use of these functions requires an active phiMail Direct messaging
  * account with EMR Direct.  For information regarding this service,
- * please visit http://www.emrdirect.com or email support@emrdirect.com
+ * please visit https://www.emrdirect.com or email support@emrdirect.com
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,11 +17,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ * along with this program. If not, see <https://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  EMR Direct <http://www.emrdirect.com/>
- * @link    http://www.open-emr.org
+ * @author  EMR Direct <https://www.emrdirect.com/>
+ * @link    https://www.open-emr.org
  */
 
 require_once(dirname(__FILE__) . "/../library/log.inc");

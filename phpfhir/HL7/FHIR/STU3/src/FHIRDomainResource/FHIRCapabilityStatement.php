@@ -1029,7 +1029,7 @@ class FHIRCapabilityStatement extends FHIRDomainResource implements \JsonSeriali
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CapabilityStatement xmlns="http://hl7.org/fhir"></CapabilityStatement>');
+            $sxe = new \SimpleXMLElement('<CapabilityStatement xmlns="https://hl7.org/fhir"></CapabilityStatement>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->url)) {

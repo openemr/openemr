@@ -90,7 +90,7 @@ class FHIRGuideDependencyType extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<GuideDependencyType xmlns="http://hl7.org/fhir"></GuideDependencyType>');
+            $sxe = new \SimpleXMLElement('<GuideDependencyType xmlns="https://hl7.org/fhir"></GuideDependencyType>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

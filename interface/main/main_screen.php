@@ -3,7 +3,7 @@
  * The outside frame that holds all of the OpenEMR User Interface.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
@@ -107,7 +107,7 @@ while ($row1 = sqlFetchArray($res1)) {
 if (!empty($registrations)) {
     // There is at least one U2F key registered so we have to request or verify key data.
     // https is required, and with a proxy the server might not see it.
-    $scheme = "https://"; // isset($_SERVER['HTTPS']) ? "https://" : "http://";
+    $scheme = "https://"; // isset($_SERVER['HTTPS']) ? "https://" : "https://";
     $appId = $scheme . $_SERVER['HTTP_HOST'];
     $u2f = new u2flib_server\U2F($appId);
     $userid = $_SESSION['authId'];

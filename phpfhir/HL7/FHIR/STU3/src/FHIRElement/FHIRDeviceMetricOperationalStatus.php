@@ -93,7 +93,7 @@ class FHIRDeviceMetricOperationalStatus extends FHIRElement implements \JsonSeri
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DeviceMetricOperationalStatus xmlns="http://hl7.org/fhir"></DeviceMetricOperationalStatus>');
+            $sxe = new \SimpleXMLElement('<DeviceMetricOperationalStatus xmlns="https://hl7.org/fhir"></DeviceMetricOperationalStatus>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

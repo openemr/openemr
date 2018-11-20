@@ -3,9 +3,9 @@ Generic Access Control Lists with PHP
 Mike Benoit <ipso@snappymail.ca>
 James Russell <james-phpgacl@ps2-pro.com>
 Karsten Dambekalns <k.dambekalns@fishfarm.de>
-Copyright © 2002,2003,2004 Mike Benoit
-Copyright © 2003, James Russell
-Copyright © 2003, Karsten Dambekalns
+Copyright ï¿½ 2002,2003,2004 Mike Benoit
+Copyright ï¿½ 2003, James Russell
+Copyright ï¿½ 2003, Karsten Dambekalns
 Document Version: 58
 Last Updated: September 3, 2005 - 06:55 PM
 Table of Contents
@@ -62,7 +62,7 @@ phpGACL is an set of functions that allows you to apply access control to arbitr
 It offers fine-grained access control with simple management, and is very fast.
 It is written in PHP (hence phpGACL), a popular scripting language that is commonly used to dynamically create web pages. The GACL part of phpGACL stands for Generic Access Control List.
 Where can I get it?
-phpGACL is hosted by sourceforge.net at http://phpGACL.sourceforge.net/
+phpGACL is hosted by sourceforge.net at https://phpGACL.sourceforge.net/
 What do I need to run it?
 phpGACL requires a relational database to store the access control information. It accesses this database via an abstract wrapper called ADOdb. This is compatible with databases such as PostgreSQL, MySQL and Oracle.
 phpGACL is written in the PHP scripting language. It requires PHP 4.2 and above.
@@ -438,12 +438,12 @@ The reason for two files holding that (same) information, is that the core ACL l
 
 
 
-4.Surf to http://yoursite.net/phpgacl/setup.php. The required tables will be installed based on your choice of database. Don't be afraid of the truckload of output, if all goes well you will see only success messages.
+4.Surf to https://yoursite.net/phpgacl/setup.php. The required tables will be installed based on your choice of database. Don't be afraid of the truckload of output, if all goes well you will see only success messages.
 
 
 5.Now follow the last advice shown on that screen and create the phpgacl/admin/smarty/templates_c directory. It must be writable by the user the webserver runs as. If you don't do this, you will not be able to use the CAL admin!
 6.Click the link at the bottom of the successful setup page or surf to:
-http://yoursite.net/phpgacl/admin/acl_admin.php
+https://yoursite.net/phpgacl/admin/acl_admin.php
 Advanced setup
 Reusing an already existing ADOdb installation
 If you already have ADOdb installed you can get phpGACL to use this copy of ADOdb.
@@ -461,7 +461,7 @@ How do I move  the phpGACL files out of my website tree while leaving a link in 
 2.Move the phpGACL directory to your includes directory and create a symlink to the admin directory where you want the admin tool to go. For example:
 mv phpgacl/ /www/includes_directory
 ln -s /www/includes_directory/phpgacl/admin/ gacl
-3.Now surfing to http://yoursite.net/gacl/acl_admin.php will take you to the admin page. If it doesn't work, make sure your Webserver allows symbolic links in the website tree.
+3.Now surfing to https://yoursite.net/gacl/acl_admin.php will take you to the admin page. If it doesn't work, make sure your Webserver allows symbolic links in the website tree.
 Using phpGACL in your application
 Basic usage
 This example shows a basic example of using phpGACL in your code. It uses the ADOdb abstraction layer as well, and shows a simple way to validate a login attempt against a database.

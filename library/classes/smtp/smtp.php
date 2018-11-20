@@ -536,7 +536,7 @@ class smtp_class
 					&& !strcmp($mechanism,"PLAIN"))
 					{
 						/*
-						 * Author:  Russell Robinson, 25 May 2003, http://www.tectite.com/
+						 * Author:  Russell Robinson, 25 May 2003, https://www.tectite.com/
 						 * Purpose: Try various AUTH PLAIN authentication methods.
 						 */
 						$mechanisms=array("PLAIN");
@@ -547,7 +547,7 @@ class smtp_class
 						if(strlen($this->realm))
 						{
 							/*
-							 * According to: http://www.sendmail.org/~ca/email/authrealms.html#authpwcheck_method
+							 * According to: https://www.sendmail.org/~ca/email/authrealms.html#authpwcheck_method
 							 * some sendmails won't accept the realm, so try again without it
 							 */
 							$success=$this->SASLAuthenticate($mechanisms,$credentials,$authenticated,$mechanism);
@@ -564,7 +564,7 @@ class smtp_class
 						if(!$success)
 						{
 							/*
-							 * ... though: http://exim.work.de/exim-html-3.20/doc/html/spec_36.html
+							 * ... though: https://exim.work.de/exim-html-3.20/doc/html/spec_36.html
 							 * specifies: ^user^password
 							 */
 							$credentials["mode"]=SASL_PLAIN_EXIM_MODE;

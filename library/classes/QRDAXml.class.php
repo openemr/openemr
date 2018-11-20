@@ -14,11 +14,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ * along with this program. If not, see <https://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 
@@ -36,7 +36,7 @@ class QRDAXml extends XmlWriterOemr
 
     function open_clinicaldocument()
     {
-        $this->push('ClinicalDocument', array('xmlns'=>'urn:hl7-org:v3', 'xmlns:voc'=>'urn:hl7-org:v3/voc', 'xmlns:xsi'=>'http://www.w3.org/2001/XMLSchema-instance', 'xsi:schemaLocation'=>'urn:hl7-org:v3 http://xreg2.nist.gov:8080/hitspValidation/schema/','xmlns:sdtc' => 'urn:hl7-org:sdtc'));
+        $this->push('ClinicalDocument', array('xmlns'=>'urn:hl7-org:v3', 'xmlns:voc'=>'urn:hl7-org:v3/voc', 'xmlns:xsi'=>'https://www.w3.org/2001/XMLSchema-instance', 'xsi:schemaLocation'=>'urn:hl7-org:v3 https://xreg2.nist.gov:8080/hitspValidation/schema/','xmlns:sdtc' => 'urn:hl7-org:sdtc'));
     }
 
     function close_clinicaldocument()

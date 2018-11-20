@@ -128,7 +128,7 @@ class FHIRTaskRequester extends FHIRBackboneElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<TaskRequester xmlns="http://hl7.org/fhir"></TaskRequester>');
+            $sxe = new \SimpleXMLElement('<TaskRequester xmlns="https://hl7.org/fhir"></TaskRequester>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->agent)) {

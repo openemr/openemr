@@ -315,7 +315,7 @@ class FHIRImplementationGuidePage extends FHIRBackboneElement implements \JsonSe
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ImplementationGuidePage xmlns="http://hl7.org/fhir"></ImplementationGuidePage>');
+            $sxe = new \SimpleXMLElement('<ImplementationGuidePage xmlns="https://hl7.org/fhir"></ImplementationGuidePage>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->source)) {

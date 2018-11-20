@@ -38,7 +38,7 @@ define("FM_CALCULATION", 99); // not to be used during save
  * @package verysimple::Phreeze
  * @author VerySimple Inc.
  * @copyright 1997-2007 VerySimple, Inc.
- * @license http://www.gnu.org/licenses/lgpl.html LGPL
+ * @license https://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
 class FieldMap

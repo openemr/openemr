@@ -582,7 +582,7 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Location xmlns="http://hl7.org/fhir"></Location>');
+            $sxe = new \SimpleXMLElement('<Location xmlns="https://hl7.org/fhir"></Location>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {

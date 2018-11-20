@@ -3,7 +3,7 @@
  * Batchcom navigation bar.
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Jason 'Toolbox' Oettinger <jason@oettinger.email>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>

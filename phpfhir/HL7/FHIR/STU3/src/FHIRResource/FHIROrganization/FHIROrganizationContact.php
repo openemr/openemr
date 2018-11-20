@@ -201,7 +201,7 @@ class FHIROrganizationContact extends FHIRBackboneElement implements \JsonSerial
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<OrganizationContact xmlns="http://hl7.org/fhir"></OrganizationContact>');
+            $sxe = new \SimpleXMLElement('<OrganizationContact xmlns="https://hl7.org/fhir"></OrganizationContact>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->purpose)) {

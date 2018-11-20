@@ -9,7 +9,7 @@
  * @package verysimple::Payment
  * @author VerySimple Inc.
  * @copyright 1997-2008 VerySimple, Inc.
- * @license http://www.gnu.org/licenses/lgpl.html LGPL
+ * @license https://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
 class CreditCardUtil
@@ -97,7 +97,7 @@ class CreditCardUtil
     
     /**
      * Returns the Credit Card type based on the card number using the info
-     * at http://en.wikipedia.org/wiki/Credit_card_numbers as a reference
+     * at https://en.wikipedia.org/wiki/Credit_card_numbers as a reference
      *
      * @return string
      */

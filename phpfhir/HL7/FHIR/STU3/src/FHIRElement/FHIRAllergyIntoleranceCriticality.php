@@ -90,7 +90,7 @@ class FHIRAllergyIntoleranceCriticality extends FHIRElement implements \JsonSeri
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<AllergyIntoleranceCriticality xmlns="http://hl7.org/fhir"></AllergyIntoleranceCriticality>');
+            $sxe = new \SimpleXMLElement('<AllergyIntoleranceCriticality xmlns="https://hl7.org/fhir"></AllergyIntoleranceCriticality>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

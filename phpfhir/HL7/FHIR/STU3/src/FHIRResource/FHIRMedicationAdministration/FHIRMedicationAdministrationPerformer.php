@@ -128,7 +128,7 @@ class FHIRMedicationAdministrationPerformer extends FHIRBackboneElement implemen
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicationAdministrationPerformer xmlns="http://hl7.org/fhir"></MedicationAdministrationPerformer>');
+            $sxe = new \SimpleXMLElement('<MedicationAdministrationPerformer xmlns="https://hl7.org/fhir"></MedicationAdministrationPerformer>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->actor)) {

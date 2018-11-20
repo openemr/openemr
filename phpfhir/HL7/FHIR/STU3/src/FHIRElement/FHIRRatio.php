@@ -129,7 +129,7 @@ class FHIRRatio extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Ratio xmlns="http://hl7.org/fhir"></Ratio>');
+            $sxe = new \SimpleXMLElement('<Ratio xmlns="https://hl7.org/fhir"></Ratio>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->numerator)) {

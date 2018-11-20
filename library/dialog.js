@@ -24,7 +24,7 @@ function cascwin(url, winname, width, height, options) {
     top.restoreSession();
 
     // MS IE version detection taken from
-    // http://msdn2.microsoft.com/en-us/library/ms537509.aspx
+    // https://msdn2.microsoft.com/en-us/library/ms537509.aspx
     // to adjust the height of this box for IE only -- JRM
     if (navigator.appName == 'Microsoft Internet Explorer') {
         var ua = navigator.userAgent;

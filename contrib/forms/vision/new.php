@@ -3,7 +3,7 @@
  * Generated DocBlock
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  andres_paglayan <andres_paglayan>
  * @author  cfapress <cfapress>
  * @author  sunsetsystems <sunsetsystems>

@@ -5,7 +5,7 @@ A. Purpose: To provide a secure method from within OpenEMR for sending/receiving
 protected health information to/from another Direct address using the Direct Project 
 messaging standard, as a step toward the goal of satisfying the three MU2 criteria 
 requiring the use of Direct messaging.  (For general information about Direct messaging, 
-see http://www.emrdirect.com/about-directed-exchange-and-secure-direct-messaging.html)
+see https://www.emrdirect.com/about-directed-exchange-and-secure-direct-messaging.html)
 
 B. IMPORTANT:  Please be aware of the following limitations when using the OpenEMR 
 Direct Messaging features with PHI in a production environment:
@@ -37,7 +37,7 @@ main interface.
 D. How it Works:
 Once configured, OpenEMR will interface with a phiMail Direct messaging server to complete the
 required message transactions. The phiMail platform is described on the EMR Direct website, 
-http://www.emrdirect.com and http://www.emrdirect.com/phimail-faq.html.
+https://www.emrdirect.com and https://www.emrdirect.com/phimail-faq.html.
 
 E. What you need before enabling Direct Messaging in OpenEMR:
 
@@ -102,7 +102,7 @@ to phiMail servers without installing this certificate, this is a required confi
 step for all production  accounts to ensure that you are connecting to the correct 
 server. You can obtain the correct certificate at the following URLs:
 
-  a. Test accounts: http://certs.emrdirect.com/EMRDirectTestCA.crt
+  a. Test accounts: https://certs.emrdirect.com/EMRDirectTestCA.crt
      Important: Don't forget to rename the file to phimail_server.pem and install it
      in the correct directory.
 

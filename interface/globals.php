@@ -5,7 +5,7 @@
  *
  * @package OpenEMR
  * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  * @copyright Copyright (c) 2018 Brady Miller
  */
@@ -234,7 +234,7 @@ if (empty($_SESSION['csrf_token'])) {
  * different variables and reporting/debugging functionality. Should be used in
  * development only, not for production
  *
- * @link http://open-emr.org/wiki/index.php/Dotenv_Usage
+ * @link https://open-emr.org/wiki/index.php/Dotenv_Usage
  */
 if (file_exists("{$webserver_root}/.env")) {
     $dotenv = new Dotenv($webserver_root);

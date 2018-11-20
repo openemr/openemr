@@ -192,7 +192,7 @@ class FHIRConceptMapDependsOn extends FHIRBackboneElement implements \JsonSerial
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ConceptMapDependsOn xmlns="http://hl7.org/fhir"></ConceptMapDependsOn>');
+            $sxe = new \SimpleXMLElement('<ConceptMapDependsOn xmlns="https://hl7.org/fhir"></ConceptMapDependsOn>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->property)) {

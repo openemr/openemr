@@ -225,7 +225,7 @@ class FHIRQuantity extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Quantity xmlns="http://hl7.org/fhir"></Quantity>');
+            $sxe = new \SimpleXMLElement('<Quantity xmlns="https://hl7.org/fhir"></Quantity>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->value)) {

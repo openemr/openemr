@@ -11,7 +11,7 @@ of the License, or (at your option) any later version.
 
 <!-- templates in this file are meant as manual replacements for the layouts engine. AKA, this file should not be used in pure layout forms. -->
 <xsl:stylesheet version="1.0"
-xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+xmlns:xsl="https://www.w3.org/1999/XSL/Transform">
 <!-- the default template for the 'manual' container object -->
 <xsl:template match="manual">
 <xsl:text disable-output-escaping="yes"><![CDATA[<!-- display the form's manual based fields -->

@@ -265,7 +265,7 @@ class FHIRClaimResponseInsurance extends FHIRBackboneElement implements \JsonSer
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ClaimResponseInsurance xmlns="http://hl7.org/fhir"></ClaimResponseInsurance>');
+            $sxe = new \SimpleXMLElement('<ClaimResponseInsurance xmlns="https://hl7.org/fhir"></ClaimResponseInsurance>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->sequence)) {

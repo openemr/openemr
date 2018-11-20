@@ -6,8 +6,8 @@ before pushing changes. This document maps OpenEMR features with Meaningful Use 
 
 <h4>Notes:</h4>
 <ul>
-  <li>Feature mappings are linked to <a href="http://www.open-emr.org/wiki/index.php/OpenEMR_Features">this master list.</a></li>
-  <li>Use <a href="http://bestonlinehtmleditor.com/">WYSIWYG HTML editor</a> for editing this document.</li>
+  <li>Feature mappings are linked to <a href="https://www.open-emr.org/wiki/index.php/OpenEMR_Features">this master list.</a></li>
+  <li>Use <a href="https://bestonlinehtmleditor.com/">WYSIWYG HTML editor</a> for editing this document.</li>
   <li>This document is reasonably large so be sure to make use of `ctrl+f` to search for the feature you need to test.</li>
 </ul>
 
@@ -41,7 +41,7 @@ before pushing changes. This document maps OpenEMR features with Meaningful Use 
         <ul>
           <li><a href="https://www.healthit.gov/sites/default/files/170-314a1cpoe_2014_tp_approvedv1.3docx.pdf">MU Test Procedure</a></li>
           <li><a href="https://www.healthit.gov/sites/default/files/170.314a1cpoe_2014_td_approvedv1.5.pdf">MU Test Data</a></li>
-          <li><a href="http://www.open-emr.org/wiki/images/1/10/CPOE.pdf">OpenEMR Test Procedure</a></li>
+          <li><a href="https://www.open-emr.org/wiki/images/1/10/CPOE.pdf">OpenEMR Test Procedure</a></li>
         </ul>
       </td>
       <td></td>
@@ -89,7 +89,7 @@ before pushing changes. This document maps OpenEMR features with Meaningful Use 
         <ul>
           <li><a href="https://www.healthit.gov/sites/default/files/170.314a4vitalsignsbmigrowthcharts_2014_tp_approvedv1.4.pdf">MU Test Procedure</a></li>
           <li><a href="https://www.healthit.gov/sites/default/files/170.314a4vitalsignsbmigrowthcharts_2014_td_approvedv1.3.pdf">MU Test Data</a></li>
-          <li><a href="http://www.open-emr.org/wiki/images/7/74/Vitals_v2.pdf">OpenEMR Test Procedure</a></li>
+          <li><a href="https://www.open-emr.org/wiki/images/7/74/Vitals_v2.pdf">OpenEMR Test Procedure</a></li>
         </ul>
       </td>
       <td></td>
@@ -108,7 +108,7 @@ before pushing changes. This document maps OpenEMR features with Meaningful Use 
         <ul>
           <li><a href="https://www.healthit.gov/sites/default/files/170.314a5problemlist_2014_tp_approvedv1.4.pdf">MU Test Procedure</a></li>
           <li><a href="https://www.healthit.gov/sites/default/files/170.314a5problemlist_2014_td_approvedv1.3.pdf">MU Test Data</a></li>
-          <li><a href="http://www.open-emr.org/wiki/images/7/7f/Problem_list_MU2.pdf">OpenEMR Test Procedure</a></li>
+          <li><a href="https://www.open-emr.org/wiki/images/7/7f/Problem_list_MU2.pdf">OpenEMR Test Procedure</a></li>
         </ul>
       </td>
       <td></td>
@@ -180,7 +180,7 @@ before pushing changes. This document maps OpenEMR features with Meaningful Use 
         <ul>
           <li><a href="https://www.healthit.gov/sites/default/files/170.314a9electronic_notes_2014_tp_approved_v1.3.pdf">MU Test Procedure</a></li>
           <li><a href="https://www.healthit.gov/sites/default/files/170.314a9electronicnotes_2014_td_approvedv1.3.pdf">MU Test Data</a></li>
-          <li><a href="http://www.open-emr.org/wiki/images/f/fe/Electronic_Notes.pdf">OpenEMR Test Procedure</a></li>
+          <li><a href="https://www.open-emr.org/wiki/images/f/fe/Electronic_Notes.pdf">OpenEMR Test Procedure</a></li>
         </ul>
       </td>
       <td></td>
@@ -202,7 +202,7 @@ before pushing changes. This document maps OpenEMR features with Meaningful Use 
       <td>
         <ul>
           <li><a href="https://www.healthit.gov/sites/default/files/170.314a11smokingstatus_2014_tp_approvedv1.3.pdf">MU Test Procedure</a></li>
-          <li><a href="http://www.open-emr.org/wiki/images/9/9a/Smoking_status.pdf">OpenEMR Test Procedure</a></li>
+          <li><a href="https://www.open-emr.org/wiki/images/9/9a/Smoking_status.pdf">OpenEMR Test Procedure</a></li>
         </ul>
       </td>
       <td></td>
@@ -278,7 +278,7 @@ before pushing changes. This document maps OpenEMR features with Meaningful Use 
         </ul>
       </td>
       <td>
-        <a href="http://erx-testing.nist.gov">ePrescribing Validation Tool</a>
+        <a href="https://erx-testing.nist.gov">ePrescribing Validation Tool</a>
       </td>
     </tr>
     <tr>
@@ -304,7 +304,7 @@ before pushing changes. This document maps OpenEMR features with Meaningful Use 
         </ul>
       </td>
       <td>
-        <a href="http://hl7v2-lab-testing.nist.gov">HL7v2 Laboratory Results Interface (LRI) Validation Tool</a>
+        <a href="https://hl7v2-lab-testing.nist.gov">HL7v2 Laboratory Results Interface (LRI) Validation Tool</a>
       </td>
     </tr>
     <tr>
@@ -394,7 +394,7 @@ before pushing changes. This document maps OpenEMR features with Meaningful Use 
       <td>
         <ul>
           <li><a href="https://www.healthit.gov/sites/default/files/170.314d5automaticlogoff_2014_tp_approvedv1.2.pdf">MU Test Procedure</a></li>
-          <li><a href="http://www.open-emr.org/wiki/images/7/7a/Automatic_log_off_MU2.zip">OpenEMR Test Procedure</a></li>
+          <li><a href="https://www.open-emr.org/wiki/images/7/7a/Automatic_log_off_MU2.zip">OpenEMR Test Procedure</a></li>
         </ul>
       </td>
       <td></td>
@@ -459,7 +459,7 @@ before pushing changes. This document maps OpenEMR features with Meaningful Use 
         </ul>
       </td>
       <td>
-        <a href="http://transport-testing.nist.gov">Transport Testing Tool</a>
+        <a href="https://transport-testing.nist.gov">Transport Testing Tool</a>
       </td>
     </tr>
     <tr>
@@ -477,7 +477,7 @@ before pushing changes. This document maps OpenEMR features with Meaningful Use 
       <td></td>
       <td>
         <ul>
-          <li><a href="http://www.open-emr.org/wiki/images/9/97/Immunization_Information_MU2.pdf">OpenEMR Test Procedure</a></li>
+          <li><a href="https://www.open-emr.org/wiki/images/9/97/Immunization_Information_MU2.pdf">OpenEMR Test Procedure</a></li>
           <li><a href="https://www.healthit.gov/sites/default/files/170.314f1immunizationinformation_2014_tp_approved_v1.2.pdf">MU Test Procedure</a></li>
           <li><a href="https://www.healthit.gov/sites/default/files/170.314f1immunizationinformation_2014_td_approved_v1.2.pdf">MU Test Data</a></li>
         </ul>
@@ -505,7 +505,7 @@ before pushing changes. This document maps OpenEMR features with Meaningful Use 
         </ul>
       </td>
       <td>
-        <a href="http://hl7v2-ss-testing.nist.gov">HL7v2 Syndromic Surveillance Validation Tool</a>
+        <a href="https://hl7v2-ss-testing.nist.gov">HL7v2 Syndromic Surveillance Validation Tool</a>
       </td>
     </tr>
     <tr>
@@ -530,8 +530,8 @@ before pushing changes. This document maps OpenEMR features with Meaningful Use 
       </td>
       <td>
         <ul>
-          <li><a href="http://hl7v2-iz-testing.nist.gov ">HL7v2 Immunization Information System Reporting Validation Tool</a></li>
-          <li><a href="http://cda-cancer-testing.nist.gov">HL7 CDA Cancer Registry Report Validation tool</a></li>
+          <li><a href="https://hl7v2-iz-testing.nist.gov ">HL7v2 Immunization Information System Reporting Validation Tool</a></li>
+          <li><a href="https://cda-cancer-testing.nist.gov">HL7 CDA Cancer Registry Report Validation tool</a></li>
         </ul>
       </td>
     </tr>
@@ -541,7 +541,7 @@ before pushing changes. This document maps OpenEMR features with Meaningful Use 
       <td>
         <ul>
           <li><a href="https://www.healthit.gov/sites/default/files/170_314g1g2_20151118_v2_2.pdf">MU Test Data</a></li>
-          <li><a href="http://healthit.gov/sites/default/files/170.314g12_2014_td_approved_v2.0.xlsx">MU Test Data</a></li>
+          <li><a href="https://healthit.gov/sites/default/files/170.314g12_2014_td_approved_v2.0.xlsx">MU Test Data</a></li>
         </ul>
       </td>
       <td></td>
@@ -552,7 +552,7 @@ before pushing changes. This document maps OpenEMR features with Meaningful Use 
       <td>
         <ul>
           <li><a href="https://www.healthit.gov/sites/default/files/170_314g1g2_20151118_v2_2.pdf">MU Test Data</a></li>
-          <li><a href="http://healthit.gov/sites/default/files/170.314g12_2014_td_approved_v2.0.xlsx">MU Test Data</a></li>
+          <li><a href="https://healthit.gov/sites/default/files/170.314g12_2014_td_approved_v2.0.xlsx">MU Test Data</a></li>
         </ul>
       </td>
       <td></td>

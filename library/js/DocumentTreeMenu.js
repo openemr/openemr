@@ -699,8 +699,8 @@ function arrayCopy(input)
 //     is_dec, is_sinix, is_freebsd, is_bsd
 //     is_vms
 //
-// See http://www.it97.de/JavaScript/JS_tutorial/bstat/navobj.html and
-// http://www.it97.de/JavaScript/JS_tutorial/bstat/Browseraol.html
+// See https://www.it97.de/JavaScript/JS_tutorial/bstat/navobj.html and
+// https://www.it97.de/JavaScript/JS_tutorial/bstat/Browseraol.html
 // for detailed lists of userAgent strings.
 //
 // Note: you don't want your Nav4 or IE4 code to "turn off" or

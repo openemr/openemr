@@ -3,7 +3,7 @@
  * Generated DocBlock
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  bradymiller <bradymiller>
  * @author  bradymiller <bradymiller@users.sourceforge.net>
  * @author  bradymiller <bradymiller@users.sourceforge.net>
@@ -266,7 +266,7 @@ if ($upgrade != 1) {
     );
     file_put_contents($d.'/interface/globals.php', $contents);
     if (rename($d, $dn.'/'.$newname)) {
-        echo "<br/><a href='http://localhost/".$newname."'>click here</a>";
+        echo "<br/><a href='https://localhost/".$newname."'>click here</a>";
     }
 }
 ?>

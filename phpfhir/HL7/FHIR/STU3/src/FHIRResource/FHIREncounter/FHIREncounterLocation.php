@@ -160,7 +160,7 @@ class FHIREncounterLocation extends FHIRBackboneElement implements \JsonSerializ
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<EncounterLocation xmlns="http://hl7.org/fhir"></EncounterLocation>');
+            $sxe = new \SimpleXMLElement('<EncounterLocation xmlns="https://hl7.org/fhir"></EncounterLocation>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->location)) {

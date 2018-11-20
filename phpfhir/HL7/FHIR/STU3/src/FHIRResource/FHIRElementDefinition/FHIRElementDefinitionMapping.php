@@ -193,7 +193,7 @@ class FHIRElementDefinitionMapping extends FHIRElement implements \JsonSerializa
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ElementDefinitionMapping xmlns="http://hl7.org/fhir"></ElementDefinitionMapping>');
+            $sxe = new \SimpleXMLElement('<ElementDefinitionMapping xmlns="https://hl7.org/fhir"></ElementDefinitionMapping>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->identity)) {

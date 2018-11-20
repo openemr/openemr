@@ -274,7 +274,7 @@ class FHIRValueSetExpansion extends FHIRBackboneElement implements \JsonSerializ
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ValueSetExpansion xmlns="http://hl7.org/fhir"></ValueSetExpansion>');
+            $sxe = new \SimpleXMLElement('<ValueSetExpansion xmlns="https://hl7.org/fhir"></ValueSetExpansion>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->identifier)) {

@@ -128,7 +128,7 @@ class FHIRProcessResponseProcessNote extends FHIRBackboneElement implements \Jso
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ProcessResponseProcessNote xmlns="http://hl7.org/fhir"></ProcessResponseProcessNote>');
+            $sxe = new \SimpleXMLElement('<ProcessResponseProcessNote xmlns="https://hl7.org/fhir"></ProcessResponseProcessNote>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {

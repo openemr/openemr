@@ -1,11 +1,11 @@
 /*
  * jQuery UI 1.7.2
  *
- * Copyright (c) 2009 AUTHORS.txt (http://jqueryui.com/about)
+ * Copyright (c) 2009 AUTHORS.txt (https://jqueryui.com/about)
  * Dual licensed under the MIT (MIT-LICENSE.txt)
  * and GPL (GPL-LICENSE.txt) licenses.
  *
- * http://docs.jquery.com/UI
+ * https://docs.jquery.com/UI
  */
 ;jQuery.ui || (function($) {
 
@@ -106,7 +106,7 @@ $.ui = {
 if (isFF2) {
 	var attr = $.attr,
 		removeAttr = $.fn.removeAttr,
-		ariaNS = "http://www.w3.org/2005/07/aaa",
+		ariaNS = "https://www.w3.org/2005/07/aaa",
 		ariaState = /^aria-/,
 		ariaRole = /^wairole:/;
 
@@ -520,11 +520,11 @@ $.ui.mouse.defaults = {
 /*
  * jQuery UI Draggable 1.7.2
  *
- * Copyright (c) 2009 AUTHORS.txt (http://jqueryui.com/about)
+ * Copyright (c) 2009 AUTHORS.txt (https://jqueryui.com/about)
  * Dual licensed under the MIT (MIT-LICENSE.txt)
  * and GPL (GPL-LICENSE.txt) licenses.
  *
- * http://docs.jquery.com/UI/Draggables
+ * https://docs.jquery.com/UI/Draggables
  *
  * Depends:
  *	ui.core.js
@@ -1286,11 +1286,11 @@ $.ui.plugin.add("draggable", "zIndex", {
 /*
  * jQuery UI Droppable 1.7.2
  *
- * Copyright (c) 2009 AUTHORS.txt (http://jqueryui.com/about)
+ * Copyright (c) 2009 AUTHORS.txt (https://jqueryui.com/about)
  * Dual licensed under the MIT (MIT-LICENSE.txt)
  * and GPL (GPL-LICENSE.txt) licenses.
  *
- * http://docs.jquery.com/UI/Droppables
+ * https://docs.jquery.com/UI/Droppables
  *
  * Depends:
  *	ui.core.js
@@ -1568,11 +1568,11 @@ $.ui.ddmanager = {
 /*
  * jQuery UI Resizable 1.7.2
  *
- * Copyright (c) 2009 AUTHORS.txt (http://jqueryui.com/about)
+ * Copyright (c) 2009 AUTHORS.txt (https://jqueryui.com/about)
  * Dual licensed under the MIT (MIT-LICENSE.txt)
  * and GPL (GPL-LICENSE.txt) licenses.
  *
- * http://docs.jquery.com/UI/Resizables
+ * https://docs.jquery.com/UI/Resizables
  *
  * Depends:
  *	ui.core.js
@@ -1786,7 +1786,7 @@ $.widget("ui.resizable", $.extend({}, $.ui.mouse, {
 		this.resizing = true;
 		this.documentScroll = { top: $(document).scrollTop(), left: $(document).scrollLeft() };
 
-		// bugfix for http://dev.jquery.com/ticket/1749
+		// bugfix for https://dev.jquery.com/ticket/1749
 		if (el.is('.ui-draggable') || (/absolute/).test(el.css('position'))) {
 			el.css({ position: 'absolute', top: iniPos.top, left: iniPos.left });
 		}
@@ -2368,11 +2368,11 @@ var isNumber = function(value) {
 /*
  * jQuery UI Selectable 1.7.2
  *
- * Copyright (c) 2009 AUTHORS.txt (http://jqueryui.com/about)
+ * Copyright (c) 2009 AUTHORS.txt (https://jqueryui.com/about)
  * Dual licensed under the MIT (MIT-LICENSE.txt)
  * and GPL (GPL-LICENSE.txt) licenses.
  *
- * http://docs.jquery.com/UI/Selectables
+ * https://docs.jquery.com/UI/Selectables
  *
  * Depends:
  *	ui.core.js

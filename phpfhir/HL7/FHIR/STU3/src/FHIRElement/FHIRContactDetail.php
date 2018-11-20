@@ -138,7 +138,7 @@ class FHIRContactDetail extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ContactDetail xmlns="http://hl7.org/fhir"></ContactDetail>');
+            $sxe = new \SimpleXMLElement('<ContactDetail xmlns="https://hl7.org/fhir"></ContactDetail>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->name)) {

@@ -8,7 +8,7 @@ var i18nextXHRBackend = i18nextXHRBackend || {};
 var i18nextBrowserLanguageDetector = i18nextBrowserLanguageDetector || {};
 
 // This is mainly a wrapper around the i18next object.
-// see its API: http://i18next.com/docs/api/
+// see its API: https://i18next.com/docs/api/
 
 // global locales path
 dwv.i18nLocalesPath = null;

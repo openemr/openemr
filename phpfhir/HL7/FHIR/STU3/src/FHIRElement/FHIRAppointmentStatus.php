@@ -90,7 +90,7 @@ class FHIRAppointmentStatus extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<AppointmentStatus xmlns="http://hl7.org/fhir"></AppointmentStatus>');
+            $sxe = new \SimpleXMLElement('<AppointmentStatus xmlns="https://hl7.org/fhir"></AppointmentStatus>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

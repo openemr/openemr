@@ -11,11 +11,11 @@
 * Technical choices are described in the 'docs/technical' file
 *
 * A tutorial is available in english at this url :
-* http://www.pearfr.org/index.php/en/article/cache_lite
+* https://www.pearfr.org/index.php/en/article/cache_lite
 * (big thanks to Pierre-Alain Joye for the translation)
 *
 * The same tutorial is also available in french at this url :
-* http://www.pearfr.org/index.php/fr/article/cache_lite
+* https://www.pearfr.org/index.php/fr/article/cache_lite
 *
 * Memory Caching is from an original idea of
 * Mike BENOIT <ipso@snappymail.ca>

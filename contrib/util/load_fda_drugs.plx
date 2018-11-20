@@ -21,7 +21,7 @@ use DBI;
 #   ./load_fda_drugs.plx < Products.txt
 #
 # The Orange Book Data files as of this writing are at:
-#   http://www.fda.gov/cder/orange/obreadme.htm
+#   https://www.fda.gov/cder/orange/obreadme.htm
 # Get the EOBZIP.ZIP file and extract the Products.txt file from there
 #######################################################################
 

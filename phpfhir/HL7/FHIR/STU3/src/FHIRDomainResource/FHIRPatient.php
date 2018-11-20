@@ -743,7 +743,7 @@ class FHIRPatient extends FHIRDomainResource implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Patient xmlns="http://hl7.org/fhir"></Patient>');
+            $sxe = new \SimpleXMLElement('<Patient xmlns="https://hl7.org/fhir"></Patient>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {

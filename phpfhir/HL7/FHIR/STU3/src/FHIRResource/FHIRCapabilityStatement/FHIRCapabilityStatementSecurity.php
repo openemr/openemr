@@ -210,7 +210,7 @@ class FHIRCapabilityStatementSecurity extends FHIRBackboneElement implements \Js
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CapabilityStatementSecurity xmlns="http://hl7.org/fhir"></CapabilityStatementSecurity>');
+            $sxe = new \SimpleXMLElement('<CapabilityStatementSecurity xmlns="https://hl7.org/fhir"></CapabilityStatementSecurity>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->cors)) {

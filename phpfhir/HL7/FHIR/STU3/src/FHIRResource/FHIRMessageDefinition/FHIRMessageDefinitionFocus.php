@@ -192,7 +192,7 @@ class FHIRMessageDefinitionFocus extends FHIRBackboneElement implements \JsonSer
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MessageDefinitionFocus xmlns="http://hl7.org/fhir"></MessageDefinitionFocus>');
+            $sxe = new \SimpleXMLElement('<MessageDefinitionFocus xmlns="https://hl7.org/fhir"></MessageDefinitionFocus>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->code)) {

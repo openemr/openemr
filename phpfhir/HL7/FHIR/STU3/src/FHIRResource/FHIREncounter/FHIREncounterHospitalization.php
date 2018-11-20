@@ -379,7 +379,7 @@ class FHIREncounterHospitalization extends FHIRBackboneElement implements \JsonS
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<EncounterHospitalization xmlns="http://hl7.org/fhir"></EncounterHospitalization>');
+            $sxe = new \SimpleXMLElement('<EncounterHospitalization xmlns="https://hl7.org/fhir"></EncounterHospitalization>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->preAdmissionIdentifier)) {

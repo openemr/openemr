@@ -2,7 +2,7 @@
  * backbone model definitions for Patient Portal
  *
  * From phreeze package
- * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ * @license https://www.gnu.org/copyleft/lesser.html LGPL
  *
  */
 

@@ -3,7 +3,7 @@
  * Generated DocBlock
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  cfapress <cfapress>
  * @author  Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2008 cfapress <cfapress>

@@ -90,7 +90,7 @@ class FHIRFlagStatus extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<FlagStatus xmlns="http://hl7.org/fhir"></FlagStatus>');
+            $sxe = new \SimpleXMLElement('<FlagStatus xmlns="https://hl7.org/fhir"></FlagStatus>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

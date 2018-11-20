@@ -4,7 +4,7 @@
  *
  *  PostCalendar::PostNuke Events Calendar Module
  *  Copyright (C) 2002  The PostCalendar Team
- *  http://postcalendar.tv
+ *  https://postcalendar.tv
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  To read the license please read the docs/license.txt or visit
- *  http://www.gnu.org/copyleft/gpl.html
+ *  https://www.gnu.org/copyleft/gpl.html
  *
  */
 
@@ -198,7 +198,7 @@ function &postcalendar_makeValidURL($s)
     }
 
     if (!preg_match('|^http[s]?:\/\/|i', $s)) {
-        $s = 'http://'.$s;
+        $s = 'https://'.$s;
     }
 
     return $s;
@@ -937,7 +937,7 @@ function pc_notify($eid, $is_update)
     $message .= "\n\n\n\n";
     $message .= "----\n";
     $message .= "PostCalendar $modversion\n";
-    $message .= "http://www.postcalendar.tv";
+    $message .= "https://www.postcalendar.tv";
 
     mail(
         _SETTING_NOTIFY_EMAIL,
@@ -1927,9 +1927,9 @@ function postcalendar_userapi_eventDetail($args, $admin = false)
     //  Parse the template
     //=================================================================
     if ($popup != 1 && $print != 1) {
-        $output  = "\n\n<!-- START POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
+        $output  = "\n\n<!-- START POSTCALENDAR OUTPUT [-: https://POSTCALENDAR.TV :-] -->\n\n";
         $output .= $tpl->fetch($template, $cacheid);
-        $output .= "\n\n<!-- END POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
+        $output .= "\n\n<!-- END POSTCALENDAR OUTPUT [-: https://POSTCALENDAR.TV :-] -->\n\n";
     } else {
         $theme = pnUserGetTheme();
         echo "<html><head>";
@@ -1952,7 +1952,7 @@ function postcalendar_footer()
 {
     // lets get the module's information
     $modinfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
-    //$footer = "<p align=\"right\"><a href=\"http://www.postcalendar.tv\">PostCalendar v$modinfo[version]</a></p>";
+    //$footer = "<p align=\"right\"><a href=\"https://www.postcalendar.tv\">PostCalendar v$modinfo[version]</a></p>";
     $footer = "";
     return $footer;
 }

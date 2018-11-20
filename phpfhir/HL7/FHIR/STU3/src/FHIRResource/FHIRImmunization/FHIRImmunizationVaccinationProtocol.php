@@ -329,7 +329,7 @@ class FHIRImmunizationVaccinationProtocol extends FHIRBackboneElement implements
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ImmunizationVaccinationProtocol xmlns="http://hl7.org/fhir"></ImmunizationVaccinationProtocol>');
+            $sxe = new \SimpleXMLElement('<ImmunizationVaccinationProtocol xmlns="https://hl7.org/fhir"></ImmunizationVaccinationProtocol>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->doseSequence)) {

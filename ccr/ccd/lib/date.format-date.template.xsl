@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 
-<!-- This is a public domain script released from http://exslt.org/ -->
+<!-- This is a public domain script released from https://exslt.org/ -->
 
 <xsl:stylesheet version="1.0"
-                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                xmlns:date="http://exslt.org/dates-and-times"
-                xmlns:str="http://exslt.org/strings"
+                xmlns:xsl="https://www.w3.org/1999/XSL/Transform"
+                xmlns:date="https://exslt.org/dates-and-times"
+                xmlns:str="https://exslt.org/strings"
                 extension-element-prefixes="date str">
 
 <xsl:import href="./str.padding.template.xsl" />

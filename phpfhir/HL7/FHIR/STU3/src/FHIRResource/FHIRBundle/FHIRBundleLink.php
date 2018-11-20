@@ -15,7 +15,7 @@ use HL7\FHIR\STU3\FHIRElement\FHIRBackboneElement;
 class FHIRBundleLink extends FHIRBackboneElement implements \JsonSerializable
 {
     /**
-     * A name which details the functional use for this link - see [http://www.iana.org/assignments/link-relations/link-relations.xhtml#link-relations-1](http://www.iana.org/assignments/link-relations/link-relations.xhtml#link-relations-1).
+     * A name which details the functional use for this link - see [https://www.iana.org/assignments/link-relations/link-relations.xhtml#link-relations-1](https://www.iana.org/assignments/link-relations/link-relations.xhtml#link-relations-1).
      * @var \HL7\FHIR\STU3\FHIRElement\FHIRString
      */
     public $relation = null;
@@ -32,7 +32,7 @@ class FHIRBundleLink extends FHIRBackboneElement implements \JsonSerializable
     private $_fhirElementName = 'Bundle.Link';
 
     /**
-     * A name which details the functional use for this link - see [http://www.iana.org/assignments/link-relations/link-relations.xhtml#link-relations-1](http://www.iana.org/assignments/link-relations/link-relations.xhtml#link-relations-1).
+     * A name which details the functional use for this link - see [https://www.iana.org/assignments/link-relations/link-relations.xhtml#link-relations-1](https://www.iana.org/assignments/link-relations/link-relations.xhtml#link-relations-1).
      * @return \HL7\FHIR\STU3\FHIRElement\FHIRString
      */
     public function getRelation()
@@ -41,7 +41,7 @@ class FHIRBundleLink extends FHIRBackboneElement implements \JsonSerializable
     }
 
     /**
-     * A name which details the functional use for this link - see [http://www.iana.org/assignments/link-relations/link-relations.xhtml#link-relations-1](http://www.iana.org/assignments/link-relations/link-relations.xhtml#link-relations-1).
+     * A name which details the functional use for this link - see [https://www.iana.org/assignments/link-relations/link-relations.xhtml#link-relations-1](https://www.iana.org/assignments/link-relations/link-relations.xhtml#link-relations-1).
      * @param \HL7\FHIR\STU3\FHIRElement\FHIRString $relation
      * @return $this
      */
@@ -128,7 +128,7 @@ class FHIRBundleLink extends FHIRBackboneElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<BundleLink xmlns="http://hl7.org/fhir"></BundleLink>');
+            $sxe = new \SimpleXMLElement('<BundleLink xmlns="https://hl7.org/fhir"></BundleLink>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->relation)) {

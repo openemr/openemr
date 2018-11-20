@@ -90,7 +90,7 @@ class FHIRAllergyIntoleranceVerificationStatus extends FHIRElement implements \J
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<AllergyIntoleranceVerificationStatus xmlns="http://hl7.org/fhir"></AllergyIntoleranceVerificationStatus>');
+            $sxe = new \SimpleXMLElement('<AllergyIntoleranceVerificationStatus xmlns="https://hl7.org/fhir"></AllergyIntoleranceVerificationStatus>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

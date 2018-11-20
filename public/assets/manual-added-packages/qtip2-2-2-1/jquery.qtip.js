@@ -1,10 +1,10 @@
 /*
  * qTip2 - Pretty powerful tooltips - v2.2.1
- * http://qtip2.com
+ * https://qtip2.com
  *
  * Copyright (c) 2014 
  * Released under the MIT licenses
- * http://jquery.org/license
+ * https://jquery.org/license
  *
  * Date: Sun Sep 7 2014 12:09 GMT+0100+0100
  * Plugins: tips modal viewport svg imagemap ie6
@@ -26,7 +26,7 @@
 	}
 }
 (function($) {
-	"use strict"; // Enable ECMAScript "strict" operation for this function. See more: http://ejohn.org/blog/ecmascript-5-strict-mode-json-and-more/
+	"use strict"; // Enable ECMAScript "strict" operation for this function. See more: https://ejohn.org/blog/ecmascript-5-strict-mode-json-and-more/
 ;// Munge the primitives - Paul Irish tip
 var TRUE = true,
 FALSE = false,
@@ -74,7 +74,7 @@ BROWSER = {
 	/*
 	 * IE version detection
 	 *
-	 * Adapted from: http://ajaxian.com/archives/attack-of-the-ie-conditional-comment
+	 * Adapted from: https://ajaxian.com/archives/attack-of-the-ie-conditional-comment
 	 * Credit to James Padolsey for the original implemntation!
 	 */
 	ie: (function(){
@@ -1901,7 +1901,7 @@ QTIP.api = {};
 
 /* Fire off 'removeqtip' handler in $.cleanData if jQuery UI not present (it already does similar).
  * This snippet is taken directly from jQuery UI source code found here:
- *     http://code.jquery.com/ui/jquery-ui-git.js
+ *     https://code.jquery.com/ui/jquery-ui-git.js
  */
 if(!$.ui) {
 	$['cleanData'+replaceSuffix] = $.cleanData;
@@ -2017,12 +2017,12 @@ HASCANVAS = !!document.createElement('canvas').getContext,
 INVALID = /rgba?\(0, 0, 0(, 0)?\)|transparent|#123456/i;
 
 // Camel-case method, taken from jQuery source
-// http://code.jquery.com/jquery-1.8.0.js
+// https://code.jquery.com/jquery-1.8.0.js
 function camel(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
 /*
  * Modified from Modernizr's testPropsAll()
- * http://modernizr.com/downloads/modernizr-latest.js
+ * https://modernizr.com/downloads/modernizr-latest.js
  */
 var cssProps = {}, cssPrefixes = ["Webkit", "O", "Moz", "ms"];
 function vendorCss(elem, prop) {
@@ -2632,7 +2632,7 @@ OVERLAY = function()
 		prevState, elem;
 
 	// Modified code from jQuery UI 1.10.0 source
-	// http://code.jquery.com/ui/1.10.0/jquery-ui.js
+	// https://code.jquery.com/ui/1.10.0/jquery-ui.js
 	function focusable(element) {
 		// Use the defined focusable checker when possible
 		if($.expr[':'].focusable) { return $.expr[':'].focusable; }
@@ -3311,7 +3311,7 @@ $.extend(TRUE, QTIP.defaults, {
 ;var IE6,
 
 /*
- * BGIFrame adaption (http://plugins.jquery.com/project/bgiframe)
+ * BGIFrame adaption (https://plugins.jquery.com/project/bgiframe)
  * Special thanks to Brandon Aaron
  */
 BGIFRAME = '<iframe class="qtip-bgiframe" frameborder="0" tabindex="-1" src="javascript:\'\';" ' +

@@ -11,7 +11,7 @@
  * file should be added instead and then copied for each install
  *
  * From phreeze package
- * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ * @license https://www.gnu.org/copyleft/lesser.html LGPL
  *
  */
 /* */
@@ -56,7 +56,7 @@ GlobalConfig::$CONNECTION_SETTING->BootstrapSQL = "SET sql_mode = '', time_zone 
   (new DateTime())->format("P") . "'";
 
 /**
- * the root url of the application with trailing slash, for example http://localhost/patient/
+ * the root url of the application with trailing slash, for example https://localhost/patient/
  * default is relative base address
  */
 if ($GLOBALS['portal_onsite_two_basepath']) {

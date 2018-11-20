@@ -137,7 +137,7 @@ class FHIRTestScriptRuleset extends FHIRBackboneElement implements \JsonSerializ
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<TestScriptRuleset xmlns="http://hl7.org/fhir"></TestScriptRuleset>');
+            $sxe = new \SimpleXMLElement('<TestScriptRuleset xmlns="https://hl7.org/fhir"></TestScriptRuleset>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->resource)) {

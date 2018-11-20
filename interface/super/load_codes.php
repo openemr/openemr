@@ -13,11 +13,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ * along with this program. If not, see <https://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 set_time_limit(0);
@@ -218,7 +218,7 @@ foreach (array('RXCUI') as $codetype) {
 <!-- No translation because this text is long and US-specific and quotes other English-only text. -->
 <p class='text'>
 <b>RXCUI codes</b> may be downloaded from
-<a href='http://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html' target='_blank'>
+<a href='https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html' target='_blank'>
 www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html</a>.
 Get the "Current Prescribable Content Monthly Release" zip file, marked "no license required".
 Then you can upload that file as-is here, or extract the file RXNCONSO.RRF from it and upload just

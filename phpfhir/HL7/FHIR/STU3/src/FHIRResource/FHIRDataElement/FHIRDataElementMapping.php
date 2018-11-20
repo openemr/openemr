@@ -192,7 +192,7 @@ class FHIRDataElementMapping extends FHIRBackboneElement implements \JsonSeriali
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DataElementMapping xmlns="http://hl7.org/fhir"></DataElementMapping>');
+            $sxe = new \SimpleXMLElement('<DataElementMapping xmlns="https://hl7.org/fhir"></DataElementMapping>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->identity)) {

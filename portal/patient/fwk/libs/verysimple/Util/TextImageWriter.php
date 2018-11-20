@@ -7,7 +7,7 @@
  * @package verysimple::Util
  * @author Jason Hinkle
  * @copyright 1997-2011 VerySimple, Inc.
- * @license http://www.gnu.org/licenses/lgpl.html LGPL
+ * @license https://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
 class TextImageWriter

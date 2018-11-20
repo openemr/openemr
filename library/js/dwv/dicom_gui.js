@@ -2,7 +2,7 @@
  * DWV (Dicom Web Viewer) GUI
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Victor Kofia <victor.kofia@gmail.com>
  * @copyright Copyright (c) 2016 Victor Kofia <victor.kofia@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

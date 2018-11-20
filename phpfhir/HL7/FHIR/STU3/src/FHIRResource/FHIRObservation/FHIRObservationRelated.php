@@ -128,7 +128,7 @@ class FHIRObservationRelated extends FHIRBackboneElement implements \JsonSeriali
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ObservationRelated xmlns="http://hl7.org/fhir"></ObservationRelated>');
+            $sxe = new \SimpleXMLElement('<ObservationRelated xmlns="https://hl7.org/fhir"></ObservationRelated>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {

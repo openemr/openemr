@@ -9,7 +9,7 @@ FPDI is a collection of PHP classes facilitating developers to read pages from e
 
 ## Installation with [Composer](https://packagist.org/packages/setasign/fpdi)
 
-FPDI is an add-on for [FPDF](http://fpdf.org/). Additionally FPDI can be used with [TCPDF](http://www.tcpdf.org/).
+FPDI is an add-on for [FPDF](https://fpdf.org/). Additionally FPDI can be used with [TCPDF](https://www.tcpdf.org/).
 For completion we added a [FPDF repository](https://github.com/Setasign/FPDF) which simply clones the offical releases.
 
 This package comes without any dependency configuration in the composer.json file. It's up to you to load the desired package as described below.

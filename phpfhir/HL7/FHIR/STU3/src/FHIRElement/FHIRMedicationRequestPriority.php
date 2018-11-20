@@ -90,7 +90,7 @@ class FHIRMedicationRequestPriority extends FHIRElement implements \JsonSerializ
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicationRequestPriority xmlns="http://hl7.org/fhir"></MedicationRequestPriority>');
+            $sxe = new \SimpleXMLElement('<MedicationRequestPriority xmlns="https://hl7.org/fhir"></MedicationRequestPriority>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

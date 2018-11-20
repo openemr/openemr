@@ -270,7 +270,7 @@ The value may be derived from the DICOM Standard Part 16, CID-7010 descriptions 
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ImagingManifest xmlns="http://hl7.org/fhir"></ImagingManifest>');
+            $sxe = new \SimpleXMLElement('<ImagingManifest xmlns="https://hl7.org/fhir"></ImagingManifest>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->identifier)) {

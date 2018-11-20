@@ -288,7 +288,7 @@ class FHIRCapabilityStatementEvent extends FHIRBackboneElement implements \JsonS
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CapabilityStatementEvent xmlns="http://hl7.org/fhir"></CapabilityStatementEvent>');
+            $sxe = new \SimpleXMLElement('<CapabilityStatementEvent xmlns="https://hl7.org/fhir"></CapabilityStatementEvent>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->code)) {

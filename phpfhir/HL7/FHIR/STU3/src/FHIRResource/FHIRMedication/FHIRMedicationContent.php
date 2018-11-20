@@ -154,7 +154,7 @@ class FHIRMedicationContent extends FHIRBackboneElement implements \JsonSerializ
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicationContent xmlns="http://hl7.org/fhir"></MedicationContent>');
+            $sxe = new \SimpleXMLElement('<MedicationContent xmlns="https://hl7.org/fhir"></MedicationContent>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->itemCodeableConcept)) {

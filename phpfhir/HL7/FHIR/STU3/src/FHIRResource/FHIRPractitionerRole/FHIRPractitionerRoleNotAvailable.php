@@ -128,7 +128,7 @@ class FHIRPractitionerRoleNotAvailable extends FHIRBackboneElement implements \J
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<PractitionerRoleNotAvailable xmlns="http://hl7.org/fhir"></PractitionerRoleNotAvailable>');
+            $sxe = new \SimpleXMLElement('<PractitionerRoleNotAvailable xmlns="https://hl7.org/fhir"></PractitionerRoleNotAvailable>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->description)) {

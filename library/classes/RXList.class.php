@@ -40,9 +40,9 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
 
         function getPage($query)
         {
-            $url = "http://www.rxlist.com/script/main/srchcont_rxlist.asp?src=".
-            //$url = "http://www.rxlist.com/cgi/rxlist.cgi?drug=".
-            // $url = "http://129.250.146.18/cgi/rxlist.cgi?drug=".
+            $url = "https://www.rxlist.com/script/main/srchcont_rxlist.asp?src=".
+            //$url = "https://www.rxlist.com/cgi/rxlist.cgi?drug=".
+            // $url = "https://129.250.146.18/cgi/rxlist.cgi?drug=".
             urlencode($query);
 
             if (!($fp = fopen($url, "r"))) {
@@ -189,8 +189,8 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
 } // end if not defined
 /*
 // TEST CRAP HERE
-//$page = RxList::getPage("http://129.250.146.18/cgi/rxlist.cgi?drug=lipitor");
-$page = RxList::getPage("http://www.rxlist.com/cgi/rxlist.cgi?drug=lipitor");
+//$page = RxList::getPage("https://129.250.146.18/cgi/rxlist.cgi?drug=lipitor");
+$page = RxList::getPage("https://www.rxlist.com/cgi/rxlist.cgi?drug=lipitor");
 $tokens = RxList::parse2tokens($page);
 $hash = RxList::tokens2hash($tokens);
 foreach ($hash AS $k => $v) {

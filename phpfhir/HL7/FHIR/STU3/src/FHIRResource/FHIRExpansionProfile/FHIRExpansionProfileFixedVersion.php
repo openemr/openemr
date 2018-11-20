@@ -160,7 +160,7 @@ class FHIRExpansionProfileFixedVersion extends FHIRBackboneElement implements \J
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ExpansionProfileFixedVersion xmlns="http://hl7.org/fhir"></ExpansionProfileFixedVersion>');
+            $sxe = new \SimpleXMLElement('<ExpansionProfileFixedVersion xmlns="https://hl7.org/fhir"></ExpansionProfileFixedVersion>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->system)) {

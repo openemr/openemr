@@ -128,7 +128,7 @@ class FHIRReferralRequestRequester extends FHIRBackboneElement implements \JsonS
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ReferralRequestRequester xmlns="http://hl7.org/fhir"></ReferralRequestRequester>');
+            $sxe = new \SimpleXMLElement('<ReferralRequestRequester xmlns="https://hl7.org/fhir"></ReferralRequestRequester>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->agent)) {

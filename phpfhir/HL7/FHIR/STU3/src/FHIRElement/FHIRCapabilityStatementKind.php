@@ -90,7 +90,7 @@ class FHIRCapabilityStatementKind extends FHIRElement implements \JsonSerializab
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CapabilityStatementKind xmlns="http://hl7.org/fhir"></CapabilityStatementKind>');
+            $sxe = new \SimpleXMLElement('<CapabilityStatementKind xmlns="https://hl7.org/fhir"></CapabilityStatementKind>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

@@ -137,7 +137,7 @@ class FHIRClinicalImpressionInvestigation extends FHIRBackboneElement implements
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ClinicalImpressionInvestigation xmlns="http://hl7.org/fhir"></ClinicalImpressionInvestigation>');
+            $sxe = new \SimpleXMLElement('<ClinicalImpressionInvestigation xmlns="https://hl7.org/fhir"></ClinicalImpressionInvestigation>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->code)) {

@@ -4829,7 +4829,7 @@ class FHIRElementDefinition extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ElementDefinition xmlns="http://hl7.org/fhir"></ElementDefinition>');
+            $sxe = new \SimpleXMLElement('<ElementDefinition xmlns="https://hl7.org/fhir"></ElementDefinition>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->path)) {

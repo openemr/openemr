@@ -308,7 +308,7 @@ class FHIRRiskAssessmentPrediction extends FHIRBackboneElement implements \JsonS
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<RiskAssessmentPrediction xmlns="http://hl7.org/fhir"></RiskAssessmentPrediction>');
+            $sxe = new \SimpleXMLElement('<RiskAssessmentPrediction xmlns="https://hl7.org/fhir"></RiskAssessmentPrediction>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->outcome)) {

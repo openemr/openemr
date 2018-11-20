@@ -8,7 +8,7 @@ require_once("AppBaseController.php");
  * DefaultController is the entry point to the application
  *
  * From phreeze package
- * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ * @license https://www.gnu.org/copyleft/lesser.html LGPL
  *
  * @package Openemr::Controller
  * @author ClassBuilder

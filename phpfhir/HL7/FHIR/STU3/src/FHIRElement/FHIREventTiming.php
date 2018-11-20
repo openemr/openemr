@@ -90,7 +90,7 @@ class FHIREventTiming extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<EventTiming xmlns="http://hl7.org/fhir"></EventTiming>');
+            $sxe = new \SimpleXMLElement('<EventTiming xmlns="https://hl7.org/fhir"></EventTiming>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

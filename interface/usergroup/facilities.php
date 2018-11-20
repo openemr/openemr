@@ -3,7 +3,7 @@
  * Facilities.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ranganath Pathak <pathak01@hotmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Ranganath Pathak <pathak01@hotmail.com>

@@ -57,7 +57,7 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
     public $endpoint = [];
 
     /**
-     * The anatomic structures examined. See DICOM Part 16 Annex L (http://dicom.nema.org/medical/dicom/current/output/chtml/part16/chapter_L.html) for DICOM to SNOMED-CT mappings. The bodySite may indicate the laterality of body part imaged; if so, it shall be consistent with any content of ImagingStudy.series.laterality.
+     * The anatomic structures examined. See DICOM Part 16 Annex L (https://dicom.nema.org/medical/dicom/current/output/chtml/part16/chapter_L.html) for DICOM to SNOMED-CT mappings. The bodySite may indicate the laterality of body part imaged; if so, it shall be consistent with any content of ImagingStudy.series.laterality.
      * @var \HL7\FHIR\STU3\FHIRElement\FHIRCoding
      */
     public $bodySite = null;
@@ -232,7 +232,7 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
     }
 
     /**
-     * The anatomic structures examined. See DICOM Part 16 Annex L (http://dicom.nema.org/medical/dicom/current/output/chtml/part16/chapter_L.html) for DICOM to SNOMED-CT mappings. The bodySite may indicate the laterality of body part imaged; if so, it shall be consistent with any content of ImagingStudy.series.laterality.
+     * The anatomic structures examined. See DICOM Part 16 Annex L (https://dicom.nema.org/medical/dicom/current/output/chtml/part16/chapter_L.html) for DICOM to SNOMED-CT mappings. The bodySite may indicate the laterality of body part imaged; if so, it shall be consistent with any content of ImagingStudy.series.laterality.
      * @return \HL7\FHIR\STU3\FHIRElement\FHIRCoding
      */
     public function getBodySite()
@@ -241,7 +241,7 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
     }
 
     /**
-     * The anatomic structures examined. See DICOM Part 16 Annex L (http://dicom.nema.org/medical/dicom/current/output/chtml/part16/chapter_L.html) for DICOM to SNOMED-CT mappings. The bodySite may indicate the laterality of body part imaged; if so, it shall be consistent with any content of ImagingStudy.series.laterality.
+     * The anatomic structures examined. See DICOM Part 16 Annex L (https://dicom.nema.org/medical/dicom/current/output/chtml/part16/chapter_L.html) for DICOM to SNOMED-CT mappings. The bodySite may indicate the laterality of body part imaged; if so, it shall be consistent with any content of ImagingStudy.series.laterality.
      * @param \HL7\FHIR\STU3\FHIRElement\FHIRCoding $bodySite
      * @return $this
      */
@@ -475,7 +475,7 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ImagingStudySeries xmlns="http://hl7.org/fhir"></ImagingStudySeries>');
+            $sxe = new \SimpleXMLElement('<ImagingStudySeries xmlns="https://hl7.org/fhir"></ImagingStudySeries>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->uid)) {

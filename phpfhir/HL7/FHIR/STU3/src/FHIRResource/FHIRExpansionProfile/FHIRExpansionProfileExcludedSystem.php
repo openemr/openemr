@@ -128,7 +128,7 @@ class FHIRExpansionProfileExcludedSystem extends FHIRBackboneElement implements 
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ExpansionProfileExcludedSystem xmlns="http://hl7.org/fhir"></ExpansionProfileExcludedSystem>');
+            $sxe = new \SimpleXMLElement('<ExpansionProfileExcludedSystem xmlns="https://hl7.org/fhir"></ExpansionProfileExcludedSystem>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->system)) {

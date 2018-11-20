@@ -5,7 +5,7 @@
  * Also including csrf token management functions.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>

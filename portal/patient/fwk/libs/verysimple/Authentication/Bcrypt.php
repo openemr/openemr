@@ -6,8 +6,8 @@
  * The verify method is backwards compatible with any algorithm
  * supported by php crypt function
  *
- * @author http://stackoverflow.com/questions/4795385/how-do-you-use-bcrypt-for-hashing-passwords-in-php
- * @author J.Hinkle http://verysimple.com/
+ * @author https://stackoverflow.com/questions/4795385/how-do-you-use-bcrypt-for-hashing-passwords-in-php
+ * @author J.Hinkle https://verysimple.com/
  * @example <code>
  *          $bcrypt = new Bcrypt(15);
  *          $hash = $bcrypt->hash('password');
@@ -29,7 +29,7 @@ class Bcrypt
     public function __construct($rounds = 12)
     {
         if (CRYPT_BLOWFISH != 1) {
-            throw new Exception("bcrypt not supported in this installation. See http://php.net/crypt");
+            throw new Exception("bcrypt not supported in this installation. See https://php.net/crypt");
         }
         
         $this->rounds = $rounds;

@@ -90,7 +90,7 @@ class FHIRNarrativeStatus extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<NarrativeStatus xmlns="http://hl7.org/fhir"></NarrativeStatus>');
+            $sxe = new \SimpleXMLElement('<NarrativeStatus xmlns="https://hl7.org/fhir"></NarrativeStatus>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

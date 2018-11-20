@@ -90,7 +90,7 @@ class FHIRAggregationMode extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<AggregationMode xmlns="http://hl7.org/fhir"></AggregationMode>');
+            $sxe = new \SimpleXMLElement('<AggregationMode xmlns="https://hl7.org/fhir"></AggregationMode>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

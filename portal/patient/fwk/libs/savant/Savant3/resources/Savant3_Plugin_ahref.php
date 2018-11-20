@@ -8,7 +8,7 @@
  *
  * @author Paul M. Jones <pmjones@ciaweb.net>
  *
- * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ * @license https://www.gnu.org/copyleft/lesser.html LGPL
  *
  * @version $Id: Savant3_Plugin_ahref.php,v 1.4 2005/08/09 12:56:14 pmjones Exp $
  *

@@ -134,7 +134,7 @@ A coverage may only be resposible for specific types of charges, and the sequenc
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<AccountCoverage xmlns="http://hl7.org/fhir"></AccountCoverage>');
+            $sxe = new \SimpleXMLElement('<AccountCoverage xmlns="https://hl7.org/fhir"></AccountCoverage>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->coverage)) {

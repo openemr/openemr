@@ -3,7 +3,7 @@
  * oeFHIRHttpClient class
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
@@ -22,8 +22,8 @@ class oeFHIRHttpClient
 
     public function setSettings()
     {
-        //$url = 'http://localhost:8076/dstu3/open/'; //Smart on FHIR (multi-tenant stu3, port 8075 is for dstu2)
-        //$url = 'http://localhost:8080/hapi-fhir-jpaserver-example/baseStu3/';
+        //$url = 'https://localhost:8076/dstu3/open/'; //Smart on FHIR (multi-tenant stu3, port 8075 is for dstu2)
+        //$url = 'https://localhost:8080/hapi-fhir-jpaserver-example/baseStu3/';
         $url = trim($GLOBALS['fhir_base_url']);
         $url = substr($url, -1) == '/' ? $url : $url . '/';
         $this->settings = array(

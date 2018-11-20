@@ -632,7 +632,7 @@ class FHIRDataElement extends FHIRDomainResource implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DataElement xmlns="http://hl7.org/fhir"></DataElement>');
+            $sxe = new \SimpleXMLElement('<DataElement xmlns="https://hl7.org/fhir"></DataElement>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->url)) {

@@ -90,7 +90,7 @@ class FHIRProvenanceEntityRole extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ProvenanceEntityRole xmlns="http://hl7.org/fhir"></ProvenanceEntityRole>');
+            $sxe = new \SimpleXMLElement('<ProvenanceEntityRole xmlns="https://hl7.org/fhir"></ProvenanceEntityRole>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

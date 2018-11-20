@@ -7,14 +7,14 @@
  * spending an vouchers and also query for the current account balance. This class
  * use the fopen or CURL module to communicate with the gateway via HTTP/S.
  *
- * For more information about CLICKATELL service visit http://www.clickatell.com
+ * For more information about CLICKATELL service visit https://www.clickatell.com
  *
  * @version 1.6
  * @package sms_api
  * @author Aleksandar Markovic <mikikg@gmail.com>
  * @copyright Copyright (c) 2004 - 2007 Aleksandar Markovic
- * @link http://sourceforge.net/projects/sms-api/ SMS-API Sourceforge project page
- * @license http://opensource.org/licenses/gpl-license.php GNU Public License
+ * @link https://sourceforge.net/projects/sms-api/ SMS-API Sourceforge project page
+ * @license https://opensource.org/licenses/gpl-license.php GNU Public License
  *
  */
 
@@ -39,7 +39,7 @@ class sms
 
     /**
     * Clickatell API-ID
-    * @link http://sourceforge.net/forum/forum.php?thread_id=1005106&forum_id=344522 How to get CLICKATELL API ID?
+    * @link https://sourceforge.net/forum/forum.php?thread_id=1005106&forum_id=344522 How to get CLICKATELL API ID?
     * @var integer
     */
     var $api_id = "YOUR_CLICKATELL_API_NUMBER";
@@ -90,7 +90,7 @@ class sms
     * Proxy URL and PORT
     * @var mixed
     */
-    var $curl_proxy = "http://127.0.0.1:8080";
+    var $curl_proxy = "https://127.0.0.1:8080";
 
     /**
     * Proxy username and password
@@ -123,10 +123,10 @@ class sms
     function __construct()
     {
         if ($this->use_ssl) {
-            $this->base   = "http://api.clickatell.com/http";
+            $this->base   = "https://api.clickatell.com/http";
             $this->base_s = "https://api.clickatell.com/http";
         } else {
-            $this->base   = "http://api.clickatell.com/http";
+            $this->base   = "https://api.clickatell.com/http";
             $this->base_s = $this->base;
         }
 

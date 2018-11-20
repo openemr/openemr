@@ -128,7 +128,7 @@ class FHIRCapabilityStatementCertificate extends FHIRBackboneElement implements 
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CapabilityStatementCertificate xmlns="http://hl7.org/fhir"></CapabilityStatementCertificate>');
+            $sxe = new \SimpleXMLElement('<CapabilityStatementCertificate xmlns="https://hl7.org/fhir"></CapabilityStatementCertificate>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {

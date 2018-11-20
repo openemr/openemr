@@ -947,7 +947,7 @@ class FHIRServiceDefinition extends FHIRDomainResource implements \JsonSerializa
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ServiceDefinition xmlns="http://hl7.org/fhir"></ServiceDefinition>');
+            $sxe = new \SimpleXMLElement('<ServiceDefinition xmlns="https://hl7.org/fhir"></ServiceDefinition>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->url)) {

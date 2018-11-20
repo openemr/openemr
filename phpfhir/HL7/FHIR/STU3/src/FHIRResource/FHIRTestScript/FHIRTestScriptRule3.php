@@ -137,7 +137,7 @@ class FHIRTestScriptRule3 extends FHIRBackboneElement implements \JsonSerializab
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<TestScriptRule3 xmlns="http://hl7.org/fhir"></TestScriptRule3>');
+            $sxe = new \SimpleXMLElement('<TestScriptRule3 xmlns="https://hl7.org/fhir"></TestScriptRule3>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->ruleId)) {

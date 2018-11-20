@@ -277,7 +277,7 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<TriggerDefinition xmlns="http://hl7.org/fhir"></TriggerDefinition>');
+            $sxe = new \SimpleXMLElement('<TriggerDefinition xmlns="https://hl7.org/fhir"></TriggerDefinition>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {

@@ -19,10 +19,10 @@ FreeFont covers the following character sets
 
 * ISO 8859 parts 1-15
 * CEN MES-3 European Unicode Subset
-  http://www.evertype.com/standards/iso10646/pdf/cwa13873.pdf
+  https://www.evertype.com/standards/iso10646/pdf/cwa13873.pdf
 * IBM/Microsoft code pages 437, 850, 852, 1250, 1252 and more
 * Microsoft/Adobe Windows Glyph List 4 (WGL4)
-  http://www.microsoft.com/typography/otspec/WGL4.htm
+  https://www.microsoft.com/typography/otspec/WGL4.htm
 * KOI8-R and KOI8-RU
 * DEC VT100 graphics symbols
 * International Phonetic Alphabet
@@ -36,7 +36,7 @@ Editing
 -------
 
 The free outline font editor, George Williams's FontForge
-<http://fontforge.sourceforge.net/> is used for editing the fonts.
+<https://fontforge.sourceforge.net/> is used for editing the fonts.
 
 Design Issues
 -------------
@@ -104,5 +104,5 @@ in Linux still don't support them.
 Primoz Peterlin, <primoz.peterlin@biofiz.mf.uni-lj.si>
 Steve White <stevan.white@googlemail.com>
 
-Free UCS scalable fonts: http://savannah.gnu.org/projects/freefont/
+Free UCS scalable fonts: https://savannah.gnu.org/projects/freefont/
 $Id: README,v 1.7 2009/01/13 08:43:23 Stevan_White Exp $

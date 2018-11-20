@@ -389,7 +389,7 @@ $GLOBALS_METADATA = array(
         'online_support_link' => array(
             xl('Online Support Link'),
             'text',                           // data type
-            'http://open-emr.org/',
+            'https://open-emr.org/',
             xl('URL for OpenEMR support.')
         ),
 
@@ -613,7 +613,7 @@ $GLOBALS_METADATA = array(
             xl('Telephone Country Code'),
             'num',
             '1',                              // default = North America
-            xl('1 = North America. See http://www.wtng.info/ for a list of other country codes.')
+            xl('1 = North America. See https://www.wtng.info/ for a list of other country codes.')
         ),
 
         'date_display_format' => array(
@@ -2703,7 +2703,7 @@ $GLOBALS_METADATA = array(
             'bool',
             '0',
             xl('Enable NewCrop eRx Service.') . ' ' .
-            xl('Contact mi-squared at http://www.mi-squared.com/products-services/openemr/ or ZH Healthcare at https://blueehr.com/contact-us/ for subscribing to the NewCrop eRx service.')
+            xl('Contact mi-squared at https://www.mi-squared.com/products-services/openemr/ or ZH Healthcare at https://blueehr.com/contact-us/ for subscribing to the NewCrop eRx service.')
         ),
 
         'erx_newcrop_path' => array(

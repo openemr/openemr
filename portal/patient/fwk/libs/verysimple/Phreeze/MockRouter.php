@@ -12,7 +12,7 @@ require_once('IRouter.php');
  * @package verysimple::Phreeze
  * @author VerySimple Inc.
  * @copyright 1997-2012 VerySimple, Inc.
- * @license http://www.gnu.org/licenses/lgpl.html LGPL
+ * @license https://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
 class MockRouter implements IRouter

@@ -88,7 +88,7 @@ class FHIRBase64Binary extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<base64Binary xmlns="http://hl7.org/fhir"></base64Binary>');
+            $sxe = new \SimpleXMLElement('<base64Binary xmlns="https://hl7.org/fhir"></base64Binary>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

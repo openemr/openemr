@@ -13,11 +13,11 @@
  *  GNU Affero General Public License for more details.
  *
  *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  * @package OpenEMR
  * @author Jerry Padgett <sjpadgett@gmail.com>
- * @link http://www.open-emr.org
+ * @link https://www.open-emr.org
  */
 
 /*@import url(//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic);
@@ -674,7 +674,7 @@ Gradient Background colors
     LESS Elements 0.9
   ---------------------------------------------------
     A set of useful LESS mixins
-    More info at: http://lesselements.com
+    More info at: https://lesselements.com
   ---------------------------------------------------*/
 /*
     Components: navbar, logo and content header
@@ -3095,11 +3095,11 @@ background: #d3e7f0;
   background-color: #404B5F;
 }
 /*!
- * iCheck v1.0.1, http://git.io/arlzeA
+ * iCheck v1.0.1, https://git.io/arlzeA
  * =================================
  * Powerful jQuery and Zepto plugin for checkboxes and radio buttons customization
  *
- * (c) 2013 Damir Sultanov, http://fronteed.com
+ * (c) 2013 Damir Sultanov, https://fronteed.com
  * MIT Licensed
  */
 /* iCheck plugin Minimal skin, black

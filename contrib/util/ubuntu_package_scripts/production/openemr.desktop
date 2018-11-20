@@ -1,6 +1,6 @@
 [Desktop Entry]
 Terminal=false
-Exec=sensible-browser http://localhost/openemr
+Exec=sensible-browser https://localhost/openemr
 Type=Application
 Categories=Application;Office;
 StartupNotify=true

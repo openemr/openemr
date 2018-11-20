@@ -14,7 +14,7 @@
 *    GNU Affero General Public License for more details.
 *
 *    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *    @author  BASIL PT <basil@zhservices.com>
 * +------------------------------------------------------------------------------+
 */
@@ -46,7 +46,7 @@ class SoapController extends AbstractActionController
 
         $server = new Server(
             null,
-            array('uri' => 'http://localhost/index/soap')
+            array('uri' => 'https://localhost/index/soap')
         );
         // set SOAP service class
         // Bind already initialized object to Soap Server

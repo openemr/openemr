@@ -9,7 +9,7 @@
  * @package verysimple::Phreeze
  * @author VerySimple Inc. <noreply@verysimple.com>
  * @copyright 1997-2005 VerySimple Inc.
- * @license http://www.gnu.org/licenses/lgpl.html LGPL
+ * @license https://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.3
  */
 abstract class Phreezable implements Serializable

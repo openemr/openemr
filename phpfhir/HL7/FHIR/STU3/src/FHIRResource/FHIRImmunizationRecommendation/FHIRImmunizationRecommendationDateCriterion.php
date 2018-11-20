@@ -128,7 +128,7 @@ class FHIRImmunizationRecommendationDateCriterion extends FHIRBackboneElement im
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ImmunizationRecommendationDateCriterion xmlns="http://hl7.org/fhir"></ImmunizationRecommendationDateCriterion>');
+            $sxe = new \SimpleXMLElement('<ImmunizationRecommendationDateCriterion xmlns="https://hl7.org/fhir"></ImmunizationRecommendationDateCriterion>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->code)) {

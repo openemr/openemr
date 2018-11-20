@@ -129,7 +129,7 @@ class FHIRPeriod extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Period xmlns="http://hl7.org/fhir"></Period>');
+            $sxe = new \SimpleXMLElement('<Period xmlns="https://hl7.org/fhir"></Period>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->start)) {

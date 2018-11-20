@@ -8,7 +8,7 @@
  * Dual licensed under the MIT (MIT-LICENSE.txt)
  * and GPL (GPL-LICENSE.txt) licenses.
  * 
- * http://www.quasipartikel.at/multiselect/
+ * https://www.quasipartikel.at/multiselect/
  *
  * 
  * Depends:
@@ -16,8 +16,8 @@
  *	ui.sortable.js
  *
  * Optional:
- * localization (http://plugins.jquery.com/project/localisation)
- * scrollTo (http://plugins.jquery.com/project/ScrollTo)
+ * localization (https://plugins.jquery.com/project/localisation)
+ * scrollTo (https://plugins.jquery.com/project/ScrollTo)
  * 
  * Todo:
  *  Make batch actions faster
@@ -91,7 +91,7 @@ $.widget("ui.multiselect", {
 					that.count += 1;
 					that._updateCount();
 					// workaround, because there's no way to reference 
-					// the new element, see http://dev.jqueryui.com/ticket/4303
+					// the new element, see https://dev.jqueryui.com/ticket/4303
 					that.selectedList.children('.ui-draggable').each(function() {
 						$(this).removeClass('ui-draggable');
 						$(this).data('optionLink', ui.item.data('optionLink'));
@@ -99,7 +99,7 @@ $.widget("ui.multiselect", {
 						that._applyItemState($(this), true);
 					});
 			
-					// workaround according to http://dev.jqueryui.com/ticket/4088
+					// workaround according to https://dev.jqueryui.com/ticket/4088
 					setTimeout(function() { ui.item.remove(); }, 1);
 				}
 			});

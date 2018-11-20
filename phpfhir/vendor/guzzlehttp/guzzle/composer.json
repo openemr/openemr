@@ -3,7 +3,7 @@
     "type": "library",
     "description": "Guzzle is a PHP HTTP client library",
     "keywords": ["framework", "http", "rest", "web service", "curl", "client", "HTTP client"],
-    "homepage": "http://guzzlephp.org/",
+    "homepage": "https://guzzlephp.org/",
     "license": "MIT",
     "authors": [
         {

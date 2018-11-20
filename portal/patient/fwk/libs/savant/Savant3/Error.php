@@ -8,7 +8,7 @@
  *
  * @author Paul M. Jones <pmjones@ciaweb.net>
  *
- * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ * @license https://www.gnu.org/copyleft/lesser.html LGPL
  *
  * @version $Id: Error.php,v 1.5 2005/05/27 14:03:50 pmjones Exp $
  *

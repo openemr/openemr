@@ -5,7 +5,7 @@
  * Functions to upload the CCR XML and to parse and insert it into audit tables.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Eldho Chacko <eldho@zhservices.com>
  * @author    Ajil P M <ajilpm@zhservices.com>
  * @author    Jason 'Toolbox' Oettinger <jason@oettinger.email>

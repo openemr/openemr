@@ -5,7 +5,7 @@
 // Begin       : 2008-01-01
 // Last Update : 2014-12-10
 // Author      : Nicola Asuni - Tecnick.com LTD - www.tecnick.com - info@tecnick.com
-// License     : GNU-LGPL v3 (http://www.gnu.org/copyleft/lesser.html)
+// License     : GNU-LGPL v3 (https://www.gnu.org/copyleft/lesser.html)
 // -------------------------------------------------------------------
 // Copyright (C) 2008-2014 Nicola Asuni - Tecnick.com LTD
 //
@@ -22,7 +22,7 @@
 // See the GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with TCPDF.  If not, see <http://www.gnu.org/licenses/>.
+// along with TCPDF.  If not, see <https://www.gnu.org/licenses/>.
 //
 // See LICENSE.TXT file for more information.
 // -------------------------------------------------------------------
@@ -716,7 +716,7 @@ class TCPDF_FONTS {
 										$c = $k;
 									} else {
 										// 32 bit format
-										// convert to decimal (http://www.unicode.org/faq//utf_bom.html#utf16-4)
+										// convert to decimal (https://www.unicode.org/faq//utf_bom.html#utf16-4)
 										//LEAD_OFFSET = (0xD800 - (0x10000 >> 10)) = 55232
 										//SURROGATE_OFFSET = (0x10000 - (0xD800 << 10) - 0xDC00) = -56613888
 										$c = ((55232 + ($k >> 10)) << 10) + (0xDC00 + ($k & 0x3FF)) -56613888;
@@ -1189,7 +1189,7 @@ class TCPDF_FONTS {
 								$c = $k;
 							} else {
 								// 32 bit format
-								// convert to decimal (http://www.unicode.org/faq//utf_bom.html#utf16-4)
+								// convert to decimal (https://www.unicode.org/faq//utf_bom.html#utf16-4)
 								//LEAD_OFFSET = (0xD800 - (0x10000 >> 10)) = 55232
 								//SURROGATE_OFFSET = (0x10000 - (0xD800 << 10) - 0xDC00) = -56613888
 								$c = ((55232 + ($k >> 10)) << 10) + (0xDC00 + ($k & 0x3FF)) -56613888;
@@ -1705,7 +1705,7 @@ class TCPDF_FONTS {
 
 	/**
 	 * Converts array of UTF-8 characters to UTF16-BE string.<br>
-	 * Based on: http://www.faqs.org/rfcs/rfc2781.html
+	 * Based on: https://www.faqs.org/rfcs/rfc2781.html
 	 * <pre>
 	 *   Encoding UTF-16:
 	 *
@@ -1895,7 +1895,7 @@ class TCPDF_FONTS {
 	/**
 	 * Converts UTF-8 character to integer value.<br>
 	 * Invalid byte sequences will be replaced with 0xFFFD (replacement character)<br>
-	 * Based on: http://www.faqs.org/rfcs/rfc3629.html
+	 * Based on: https://www.faqs.org/rfcs/rfc3629.html
 	 * <pre>
 	 *    Char. number range  |        UTF-8 octet sequence
 	 *       (hexadecimal)    |              (binary)
@@ -2041,7 +2041,7 @@ class TCPDF_FONTS {
 	}
 
 	/**
-	 * Reverse the RLT substrings using the Bidirectional Algorithm (http://unicode.org/reports/tr9/).
+	 * Reverse the RLT substrings using the Bidirectional Algorithm (https://unicode.org/reports/tr9/).
 	 * @param $str (string) string to manipulate.
 	 * @param $setbom (bool) if true set the Byte Order Mark (BOM = 0xFEFF)
 	 * @param $forcertl (bool) if true forces RTL text direction
@@ -2057,7 +2057,7 @@ class TCPDF_FONTS {
 	}
 
 	/**
-	 * Reverse the RLT substrings array using the Bidirectional Algorithm (http://unicode.org/reports/tr9/).
+	 * Reverse the RLT substrings array using the Bidirectional Algorithm (https://unicode.org/reports/tr9/).
 	 * @param $arr (array) array of unicode values.
 	 * @param $str (string) string to manipulate (or empty value).
 	 * @param $setbom (bool) if true set the Byte Order Mark (BOM = 0xFEFF)
@@ -2074,7 +2074,7 @@ class TCPDF_FONTS {
 	}
 
 	/**
-	 * Reverse the RLT substrings using the Bidirectional Algorithm (http://unicode.org/reports/tr9/).
+	 * Reverse the RLT substrings using the Bidirectional Algorithm (https://unicode.org/reports/tr9/).
 	 * @param $ta (array) array of characters composing the string.
 	 * @param $str (string) string to process
 	 * @param $forcertl (bool) if 'R' forces RTL, if 'L' forces LTR

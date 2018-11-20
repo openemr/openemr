@@ -518,7 +518,7 @@ class FHIRProcessResponse extends FHIRDomainResource implements \JsonSerializabl
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ProcessResponse xmlns="http://hl7.org/fhir"></ProcessResponse>');
+            $sxe = new \SimpleXMLElement('<ProcessResponse xmlns="https://hl7.org/fhir"></ProcessResponse>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {

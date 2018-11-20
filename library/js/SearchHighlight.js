@@ -1,7 +1,7 @@
 /**
  * SearchHighlight plugin for jQuery
  * 
- * Thanks to Scott Yang <http://scott.yang.id.au/>
+ * Thanks to Scott Yang <https://scott.yang.id.au/>
  * for the original idea and some code
  *    
  * @author Renato Formato <renatoformato@virgilio.it> 

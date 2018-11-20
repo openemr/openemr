@@ -128,7 +128,7 @@ class FHIRDiagnosticReportImage extends FHIRBackboneElement implements \JsonSeri
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DiagnosticReportImage xmlns="http://hl7.org/fhir"></DiagnosticReportImage>');
+            $sxe = new \SimpleXMLElement('<DiagnosticReportImage xmlns="https://hl7.org/fhir"></DiagnosticReportImage>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->comment)) {

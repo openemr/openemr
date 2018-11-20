@@ -3,7 +3,7 @@
 * Review of Systems Checks form
 *
 * @package   OpenEMR
-* @link      http://www.open-emr.org
+* @link      https://www.open-emr.org
 * @author    sunsetsystems <sunsetsystems>
 * @author    cfapress <cfapress>
 * @author    Brady Miller <brady.g.miller@gmail.com>

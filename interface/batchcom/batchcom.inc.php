@@ -3,7 +3,7 @@
  * Misc. BatchCom convenience functions
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Andres Paglayan <andres@paglayan.com>
  * @author  Jason 'Toolbox' Oettinger <jason@oettinger.email>
  * @copyright Copyright (c) 2005 Andres Paglayan <andres@paglayan.com>

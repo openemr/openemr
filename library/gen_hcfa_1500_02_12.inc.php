@@ -2,7 +2,7 @@
 /*
  * Utilities to support HCFA 1500 02/12 Version
  * For details on format refer to:
- * <http://www.nucc.org/index.php?option=com_content&view=article&id=186&Itemid=138>
+ * <https://www.nucc.org/index.php?option=com_content&view=article&id=186&Itemid=138>
  *
  * @package OpenEMR
  * @author Kevin Yeh <kevin.y@integralemr.com>

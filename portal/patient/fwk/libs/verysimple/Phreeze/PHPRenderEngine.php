@@ -9,7 +9,7 @@ require_once("IRenderEngine.php");
  * @package verysimple::Phreeze
  * @author VerySimple Inc.
  * @copyright 1997-2010 VerySimple, Inc.
- * @license http://www.gnu.org/licenses/lgpl.html LGPL
+ * @license https://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
 class PHPRenderEngine implements IRenderEngine

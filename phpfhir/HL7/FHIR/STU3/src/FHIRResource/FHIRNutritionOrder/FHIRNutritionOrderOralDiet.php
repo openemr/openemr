@@ -301,7 +301,7 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<NutritionOrderOralDiet xmlns="http://hl7.org/fhir"></NutritionOrderOralDiet>');
+            $sxe = new \SimpleXMLElement('<NutritionOrderOralDiet xmlns="https://hl7.org/fhir"></NutritionOrderOralDiet>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->type)) {

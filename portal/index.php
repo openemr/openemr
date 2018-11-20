@@ -15,12 +15,12 @@
  *  GNU Affero General Public License for more details.
  *
  *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  * @package OpenEMR
  * @author Jerry Padgett <sjpadgett@gmail.com>
  * @author Cassian LUP <cassi.lup@gmail.com>
- * @link http://www.open-emr.org
+ * @link https://www.open-emr.org
  */
 
     //setting the session & other config options

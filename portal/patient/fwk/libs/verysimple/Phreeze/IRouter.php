@@ -7,7 +7,7 @@
  * @package verysimple::Phreeze
  * @author VerySimple Inc.
  * @copyright 1997-2012 VerySimple, Inc.
- * @license http://www.gnu.org/licenses/lgpl.html LGPL
+ * @license https://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
 interface IRouter
@@ -35,7 +35,7 @@ interface IRouter
     
     /**
      * In the case of a rewrite url, the url itself contains the parameter
-     * for example http://server/param1/param2/param3.
+     * for example https://server/param1/param2/param3.
      * These params
      * are parsed and the param with the given index is returned
      *
@@ -47,7 +47,7 @@ interface IRouter
     
     /**
      * In the case of a rewrite url, the url itself contains the parameter
-     * for example http://server/param1/param2/param3.
+     * for example https://server/param1/param2/param3.
      * These params
      * are parsed and returned as an array
      *

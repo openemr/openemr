@@ -8,7 +8,7 @@ require_once("util/html2text.php");
  * @package verysimple::String
  * @author Jason Hinkle
  * @copyright 1997-2011 VerySimple, Inc.
- * @license http://www.gnu.org/licenses/lgpl.html LGPL
+ * @license https://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
 class SimpleTemplate
@@ -56,8 +56,8 @@ class SimpleTemplate
         $txt = str_replace('&amp;', '&', $txt);
         
         // Ajdusts links - anything starting with HTTP opens in a new window
-        // $txt = str_ireplace("<a href=\"http://","<a target=\"_blank\" href=\"http://",$txt);
-        // $txt = str_ireplace("<a href=http://","<a target=\"_blank\" href=http://",$txt);
+        // $txt = str_ireplace("<a href=\"https://","<a target=\"_blank\" href=\"https://",$txt);
+        // $txt = str_ireplace("<a href=https://","<a target=\"_blank\" href=https://",$txt);
         
         // Basic formatting
         $eol = (strpos($txt, "\r") === false) ? "\n" : "\r\n";

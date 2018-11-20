@@ -2,11 +2,11 @@
 // ----------------------------------------------------------------------
 // POST-NUKE Content Management System
 // Copyright (C) 2001 by the Post-Nuke Development Team.
-// http://www.postnuke.com/
+// https://www.postnuke.com/
 // ----------------------------------------------------------------------
 // Based on:
-// PHP-NUKE Web Portal System - http://phpnuke.org/
-// Thatware - http://thatware.org/
+// PHP-NUKE Web Portal System - https://phpnuke.org/
+// Thatware - https://thatware.org/
 // ----------------------------------------------------------------------
 // LICENSE
 //
@@ -20,7 +20,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
-// To read the license please visit http://www.gnu.org/copyleft/gpl.html
+// To read the license please visit https://www.gnu.org/copyleft/gpl.html
 // ----------------------------------------------------------------------
 // Original Author of file: Jim McDonald
 // Purpose of file: HTML helpers
@@ -112,7 +112,7 @@ define('_PNH_PARSEINPUT', 1);
  * @package PostNuke
  * @author Jim McDonald
  * @author Patrick Kellum
- * @link http://www.postnuke.com/ The Official PostNuke website
+ * @link https://www.postnuke.com/ The Official PostNuke website
  * @copyright (C) 2001, 2002 by the Post-Nuke Development Team
  * @version $Revision$
  * @todo need to add text sanitizer
@@ -495,9 +495,9 @@ class pnHTML
 
         // Make redirect line
         if (empty($path)) {
-            $output = "Location: http://$server/$url";
+            $output = "Location: https://$server/$url";
         } else {
-            $output = "Location: http://$server/$path/$url";
+            $output = "Location: https://$server/$path/$url";
         }
 
         if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {

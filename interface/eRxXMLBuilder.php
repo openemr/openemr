@@ -13,12 +13,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.  You should have received a copy of the GNU
  * General Public License along with this program.
- * If not, see <http://opensource.org/licenses/gpl-license.php>.
+ * If not, see <https://opensource.org/licenses/gpl-license.php>.
  *
  * @package    OpenEMR
  * @subpackage NewCrop
  * @author     Sam Likins <sam.likins@wsi-services.com>
- * @link       http://www.open-emr.org
+ * @link       https://www.open-emr.org
  */
 
 class eRxXMLBuilder
@@ -260,9 +260,9 @@ class eRxXMLBuilder
             $document = $this->getDocument();
 
             $this->ncScript = $document->createElement('NCScript');
-            $this->ncScript->setAttribute('xmlns', 'http://secure.newcropaccounts.com/interfaceV7');
-            $this->ncScript->setAttribute('xmlns:NCStandard', 'http://secure.newcropaccounts.com/interfaceV7:NCStandard');
-            $this->ncScript->setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+            $this->ncScript->setAttribute('xmlns', 'https://secure.newcropaccounts.com/interfaceV7');
+            $this->ncScript->setAttribute('xmlns:NCStandard', 'https://secure.newcropaccounts.com/interfaceV7:NCStandard');
+            $this->ncScript->setAttribute('xmlns:xsi', 'https://www.w3.org/2001/XMLSchema-instance');
 
             $document->appendChild($this->ncScript);
         }

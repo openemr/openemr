@@ -1,12 +1,12 @@
 /*!
  * jQuery UI Tabs 1.9.2
- * http://jqueryui.com
+ * https://jqueryui.com
  *
  * Copyright 2012 jQuery Foundation and other contributors
  * Released under the MIT license.
- * http://jquery.org/license
+ * https://jquery.org/license
  *
- * http://api.jqueryui.com/tabs/
+ * https://api.jqueryui.com/tabs/
  *
  * Depends:
  *	jquery.ui.core.js
@@ -807,7 +807,7 @@ $.widget( "ui.tabs", {
 			this.xhr
 				.success(function( response ) {
 					// support: jQuery <1.8
-					// http://bugs.jquery.com/ticket/11778
+					// https://bugs.jquery.com/ticket/11778
 					setTimeout(function() {
 						panel.html( response );
 						that._trigger( "load", event, eventData );
@@ -815,7 +815,7 @@ $.widget( "ui.tabs", {
 				})
 				.complete(function( jqXHR, status ) {
 					// support: jQuery <1.8
-					// http://bugs.jquery.com/ticket/11778
+					// https://bugs.jquery.com/ticket/11778
 					setTimeout(function() {
 						if ( status === "abort" ) {
 							that.panels.stop( false, true );

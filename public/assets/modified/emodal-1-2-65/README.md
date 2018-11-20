@@ -18,14 +18,14 @@
           .then(confirmCallback, optionalCancelCallback);
 
 	// Display a ajax modal, with a title
-	eModal.ajax('http://mydomail.com/page.html', 'Jobs - Form apply')
+	eModal.ajax('https://mydomail.com/page.html', 'Jobs - Form apply')
           .then(ajaxOnLoadCallback);
 
 	// Display an prompt modal, with a title
 	eModal.prompt('What is the best song ever?', 'Fill the input')
 
 	// Display an modal whith iframe inside, with a title
-	eModal.iframe('http://saribe.github.io/toastr8/', 'Hot news')
+	eModal.iframe('https://saribe.github.io/toastr8/', 'Hot news')
 
 	// eModal default settings with your custom html loading template
 	eModal.setEModalOptions({
@@ -47,10 +47,10 @@ The callback argument for prompt, confirm, ajax and iframe, now are provided in 
             .then(doTrue, doFalse);
 
 ## Demo and documentation
-- Demo can be found at http://saribe.github.io/eModal
+- Demo can be found at https://saribe.github.io/eModal
 
 ## Copyright
 Copyright © 2014-2015
 
 ## License
-Under MIT license - http://www.opensource.org/licenses/mit-license.php
+Under MIT license - https://www.opensource.org/licenses/mit-license.php

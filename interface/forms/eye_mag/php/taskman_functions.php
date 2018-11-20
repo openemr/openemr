@@ -18,11 +18,11 @@
  *  GNU Affero General Public License for more details.
  *
  *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  * @package OpenEMR
  * @author Ray Magauran <magauran@MedFetch.com>
- * @link http://www.open-emr.org
+ * @link https://www.open-emr.org
  */
 
 use Mpdf\Mpdf;
@@ -203,7 +203,7 @@ function deliver_document($task)
     $mail->SetFrom($email_sender, $from_name);
     $mail->AddAddress($to_email); //, $to_name);
     $mail->Subject = $from_fax;
-    $mail->MsgHTML("<html><HEAD> <TITLE>Fax Central openEMR</TITLE> <BASE HREF='http://www.oculoplasticsllc.com'> </HEAD><body><div class='wrapper'>".$cover_page."</div></body></html>");
+    $mail->MsgHTML("<html><HEAD> <TITLE>Fax Central openEMR</TITLE> <BASE HREF='https://www.oculoplasticsllc.com'> </HEAD><body><div class='wrapper'>".$cover_page."</div></body></html>");
     $mail->IsHTML(true);
     $mail->AltBody = $cover_page;
     $mail->AddAttachment($file_to_attach, $file_name);

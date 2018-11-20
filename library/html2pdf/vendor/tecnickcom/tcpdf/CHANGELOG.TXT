@@ -756,7 +756,7 @@
 	- Core fonts were updated.
 
 5.9.123 (2011-10-02)
-	- The method addTTFfont() wad added to automatically convert TTF fonts (check the new fonts guide at http://www.tcpdf.org).
+	- The method addTTFfont() wad added to automatically convert TTF fonts (check the new fonts guide at https://www.tcpdf.org).
 	- Old font utils were removed.
 	- All fonts were updated and new arabic fonts were added (almohanad were removed and replaced by aefurat and aealarabiya).
 	- The file unicode_data.php was updated.
@@ -1081,7 +1081,7 @@
 5.9.030 (2010-12-16)
 	- Several source code documentation errors were fixed.
 	- Source code style was changed for Doxygen.
-	- Source code documentation was moved online to http://www.tcpdf.org
+	- Source code documentation was moved online to https://www.tcpdf.org
 
 5.9.029 (2010-12-04)
 	- The $fitbox parameter on Image() method was extended to specify image alignment inside the box (check the example n. 9).
@@ -2717,12 +2717,12 @@
 2.2.004 (2008-03-04)
 	- Several examples were added.
 	- AddPage() Header() and Footer() were fixed.
-	- Documentation is now available on http://www.tcpdf.org
+	- Documentation is now available on https://www.tcpdf.org
 
 2.2.003 (2008-03-03)
 	- [1894853] Performance of MultiCell() was improved.
 	- RadioButton and ListBox functions were added.
-	- javascript form functions were rewritten and properties names are changed. The properties function supported by form fields are listed on Possible values are listed on http://www.adobe.com/devnet/acrobat/pdfs/js_developer_guide.pdf.
+	- javascript form functions were rewritten and properties names are changed. The properties function supported by form fields are listed on Possible values are listed on https://www.adobe.com/devnet/acrobat/pdfs/js_developer_guide.pdf.
 
 2.2.002 (2008-02-28)
 	- [1900495] html images path was fixed.
@@ -2937,7 +2937,7 @@
 1.53.0.TC004 (2005-01-04)
 	- this changelog were added.
 	- removed commercial fonts for licensing issue.
-	- Bitstream Vera Fonts were added (http://www.bitstream.com/font_rendering/products/dev_fonts/vera.html).
+	- Bitstream Vera Fonts were added (https://www.bitstream.com/font_rendering/products/dev_fonts/vera.html).
 	- Now the AddFont and SetFont functions returns the basic font if the styled version do not exist.
 
 EOF --------------------------------------------------------

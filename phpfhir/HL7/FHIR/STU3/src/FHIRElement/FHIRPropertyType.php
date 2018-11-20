@@ -90,7 +90,7 @@ class FHIRPropertyType extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<PropertyType xmlns="http://hl7.org/fhir"></PropertyType>');
+            $sxe = new \SimpleXMLElement('<PropertyType xmlns="https://hl7.org/fhir"></PropertyType>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

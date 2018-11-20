@@ -28,7 +28,7 @@ echo $res->getBody();
 // '{"id": 1420053, "name": "guzzle", ...}'
 
 // Send an asynchronous request.
-$request = new \GuzzleHttp\Psr7\Request('GET', 'http://httpbin.org');
+$request = new \GuzzleHttp\Psr7\Request('GET', 'https://httpbin.org');
 $promise = $client->sendAsync($request)->then(function ($response) {
     echo 'I completed! ' . $response->getBody();
 });
@@ -37,15 +37,15 @@ $promise->wait();
 
 ## Help and docs
 
-- [Documentation](http://guzzlephp.org/)
-- [Stack Overflow](http://stackoverflow.com/questions/tagged/guzzle)
+- [Documentation](https://guzzlephp.org/)
+- [Stack Overflow](https://stackoverflow.com/questions/tagged/guzzle)
 - [Gitter](https://gitter.im/guzzle/guzzle)
 
 
 ## Installing Guzzle
 
 The recommended way to install Guzzle is through
-[Composer](http://getcomposer.org).
+[Composer](https://getcomposer.org).
 
 ```bash
 # Install Composer
@@ -84,6 +84,6 @@ composer.phar update
 [guzzle-4-repo]: https://github.com/guzzle/guzzle/tree/4.x
 [guzzle-5-repo]: https://github.com/guzzle/guzzle/tree/5.3
 [guzzle-6-repo]: https://github.com/guzzle/guzzle
-[guzzle-3-docs]: http://guzzle3.readthedocs.org/en/latest/
-[guzzle-5-docs]: http://guzzle.readthedocs.org/en/5.3/
-[guzzle-6-docs]: http://guzzle.readthedocs.org/en/latest/
+[guzzle-3-docs]: https://guzzle3.readthedocs.org/en/latest/
+[guzzle-5-docs]: https://guzzle.readthedocs.org/en/5.3/
+[guzzle-6-docs]: https://guzzle.readthedocs.org/en/latest/

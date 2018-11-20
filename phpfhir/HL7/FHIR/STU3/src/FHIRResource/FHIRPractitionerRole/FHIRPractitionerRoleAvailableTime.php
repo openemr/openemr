@@ -201,7 +201,7 @@ class FHIRPractitionerRoleAvailableTime extends FHIRBackboneElement implements \
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<PractitionerRoleAvailableTime xmlns="http://hl7.org/fhir"></PractitionerRoleAvailableTime>');
+            $sxe = new \SimpleXMLElement('<PractitionerRoleAvailableTime xmlns="https://hl7.org/fhir"></PractitionerRoleAvailableTime>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->daysOfWeek)) {

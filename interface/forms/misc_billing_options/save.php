@@ -9,7 +9,7 @@
  * @copyright Copyright (C) 2007 Bo Huynh
  * @copyright Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (C) 2018 Jerry Padgett <sjpadgett@gmail.com>
- * @link http://www.open-emr.org
+ * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General P
  */
 require_once("../../globals.php");

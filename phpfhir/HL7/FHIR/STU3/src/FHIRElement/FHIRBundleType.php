@@ -90,7 +90,7 @@ class FHIRBundleType extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<BundleType xmlns="http://hl7.org/fhir"></BundleType>');
+            $sxe = new \SimpleXMLElement('<BundleType xmlns="https://hl7.org/fhir"></BundleType>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

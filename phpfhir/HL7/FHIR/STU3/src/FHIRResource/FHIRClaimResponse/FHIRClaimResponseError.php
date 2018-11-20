@@ -192,7 +192,7 @@ class FHIRClaimResponseError extends FHIRBackboneElement implements \JsonSeriali
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ClaimResponseError xmlns="http://hl7.org/fhir"></ClaimResponseError>');
+            $sxe = new \SimpleXMLElement('<ClaimResponseError xmlns="https://hl7.org/fhir"></ClaimResponseError>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->sequenceLinkId)) {

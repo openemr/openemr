@@ -90,7 +90,7 @@ class FHIRFHIRSubstanceStatus extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<FHIRSubstanceStatus xmlns="http://hl7.org/fhir"></FHIRSubstanceStatus>');
+            $sxe = new \SimpleXMLElement('<FHIRSubstanceStatus xmlns="https://hl7.org/fhir"></FHIRSubstanceStatus>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

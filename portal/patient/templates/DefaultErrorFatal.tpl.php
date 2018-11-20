@@ -2,7 +2,7 @@
 /**
  *
  * Derived from phreeze package
- * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ * @license https://www.gnu.org/copyleft/lesser.html LGPL
  *
  */
 

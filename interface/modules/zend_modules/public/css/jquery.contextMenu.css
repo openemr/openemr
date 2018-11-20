@@ -4,11 +4,11 @@
  * Version: 1.6.5
  *
  * Authors: Rodney Rehm, Addy Osmani (patches for FF)
- * Web: http://medialize.github.com/jQuery-contextMenu/
+ * Web: https://medialize.github.com/jQuery-contextMenu/
  *
  * Licensed under
- *   MIT License http://www.opensource.org/licenses/mit-license
- *   GPL v3 http://opensource.org/licenses/GPL-3.0
+ *   MIT License https://www.opensource.org/licenses/mit-license
+ *   GPL v3 https://opensource.org/licenses/GPL-3.0
  *
  */
 
@@ -85,7 +85,7 @@
 /* icons
     #protip:
     In case you want to use sprites for icons (which I would suggest you do) have a look at
-    http://css-tricks.com/13224-pseudo-spriting/ to get an idea of how to implement 
+    https://css-tricks.com/13224-pseudo-spriting/ to get an idea of how to implement 
     .context-menu-item.icon:before {}
  */
 .context-menu-item.icon { min-height: 18px; background-repeat: no-repeat; background-position: 4px 2px; }

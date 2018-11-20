@@ -3,7 +3,7 @@
  * lang_definition.php
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  bradymiller <bradymiller>
  * @author  sunsetsystems <sunsetsystems>
  * @author  andres_paglayan <andres_paglayan>

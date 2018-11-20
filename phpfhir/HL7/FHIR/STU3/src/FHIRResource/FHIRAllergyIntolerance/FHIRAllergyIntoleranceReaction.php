@@ -306,7 +306,7 @@ class FHIRAllergyIntoleranceReaction extends FHIRBackboneElement implements \Jso
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<AllergyIntoleranceReaction xmlns="http://hl7.org/fhir"></AllergyIntoleranceReaction>');
+            $sxe = new \SimpleXMLElement('<AllergyIntoleranceReaction xmlns="https://hl7.org/fhir"></AllergyIntoleranceReaction>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->substance)) {

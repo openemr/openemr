@@ -105,7 +105,7 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
     public $requestURL = null;
 
     /**
-     * The type of the resource.  See http://build.fhir.org/resourcelist.html.
+     * The type of the resource.  See https://build.fhir.org/resourcelist.html.
      * @var \HL7\FHIR\STU3\FHIRElement\FHIRFHIRDefinedType
      */
     public $resource = null;
@@ -464,7 +464,7 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
     }
 
     /**
-     * The type of the resource.  See http://build.fhir.org/resourcelist.html.
+     * The type of the resource.  See https://build.fhir.org/resourcelist.html.
      * @return \HL7\FHIR\STU3\FHIRElement\FHIRFHIRDefinedType
      */
     public function getResource()
@@ -473,7 +473,7 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
     }
 
     /**
-     * The type of the resource.  See http://build.fhir.org/resourcelist.html.
+     * The type of the resource.  See https://build.fhir.org/resourcelist.html.
      * @param \HL7\FHIR\STU3\FHIRElement\FHIRFHIRDefinedType $resource
      * @return $this
      */
@@ -832,7 +832,7 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<TestScriptAssert xmlns="http://hl7.org/fhir"></TestScriptAssert>');
+            $sxe = new \SimpleXMLElement('<TestScriptAssert xmlns="https://hl7.org/fhir"></TestScriptAssert>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->label)) {

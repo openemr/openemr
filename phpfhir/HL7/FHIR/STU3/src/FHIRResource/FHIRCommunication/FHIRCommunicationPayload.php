@@ -151,7 +151,7 @@ class FHIRCommunicationPayload extends FHIRBackboneElement implements \JsonSeria
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CommunicationPayload xmlns="http://hl7.org/fhir"></CommunicationPayload>');
+            $sxe = new \SimpleXMLElement('<CommunicationPayload xmlns="https://hl7.org/fhir"></CommunicationPayload>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->contentString)) {

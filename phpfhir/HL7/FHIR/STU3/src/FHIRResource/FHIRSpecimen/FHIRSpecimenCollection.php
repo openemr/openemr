@@ -253,7 +253,7 @@ class FHIRSpecimenCollection extends FHIRBackboneElement implements \JsonSeriali
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SpecimenCollection xmlns="http://hl7.org/fhir"></SpecimenCollection>');
+            $sxe = new \SimpleXMLElement('<SpecimenCollection xmlns="https://hl7.org/fhir"></SpecimenCollection>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->collector)) {

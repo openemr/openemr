@@ -9,8 +9,8 @@ require_once("verysimple/Phreeze/IRouter.php");
  *
  * @package verysimple::HTTP
  * @author VerySimple Inc.
- * @copyright 1997-2007 VerySimple, Inc. http://www.verysimple.com
- * @license http://www.gnu.org/licenses/lgpl.html LGPL
+ * @copyright 1997-2007 VerySimple, Inc. https://www.verysimple.com
+ * @license https://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
 class ActionRouter implements IRouter

@@ -209,7 +209,7 @@ class FHIRStructureMapParameter extends FHIRBackboneElement implements \JsonSeri
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<StructureMapParameter xmlns="http://hl7.org/fhir"></StructureMapParameter>');
+            $sxe = new \SimpleXMLElement('<StructureMapParameter xmlns="https://hl7.org/fhir"></StructureMapParameter>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->valueId)) {

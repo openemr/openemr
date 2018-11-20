@@ -597,7 +597,7 @@ class Claim
       * In most cases, the ISA08 and GS03 are the same. However
       *
       * In some clearing houses ISA08 and GS03 are different
-      * Example: http://www.acs-gcro.com/downloads/DOL/DOL_CG_X12N_5010_837_v1_02.pdf - Page 18
+      * Example: https://www.acs-gcro.com/downloads/DOL/DOL_CG_X12N_5010_837_v1_02.pdf - Page 18
       * In this .pdf, the ISA08 is specified to be 100000 while the GS03 is specified to be 77044
       *
       * Therefore if the x12_gs03 segement is explicitly specified we use that value,

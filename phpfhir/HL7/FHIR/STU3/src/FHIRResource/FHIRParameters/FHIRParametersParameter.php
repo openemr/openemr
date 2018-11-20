@@ -1271,7 +1271,7 @@ class FHIRParametersParameter extends FHIRBackboneElement implements \JsonSerial
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ParametersParameter xmlns="http://hl7.org/fhir"></ParametersParameter>');
+            $sxe = new \SimpleXMLElement('<ParametersParameter xmlns="https://hl7.org/fhir"></ParametersParameter>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->name)) {

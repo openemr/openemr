@@ -160,7 +160,7 @@ class FHIRGroupMember extends FHIRBackboneElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<GroupMember xmlns="http://hl7.org/fhir"></GroupMember>');
+            $sxe = new \SimpleXMLElement('<GroupMember xmlns="https://hl7.org/fhir"></GroupMember>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->entity)) {

@@ -14,7 +14,7 @@
 *    GNU Affero General Public License for more details.
 *
 *    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 *    @author  Vinish K <vinish@zhservices.com>
 *    @author  Riju KP <rijukp@zhservices.com> 
@@ -102,7 +102,7 @@ class CcrController extends AbstractActionController
         $doc_id     = $_REQUEST["document_id"];
         $content    = $this->getCcrTable()->getDocument($doc_id);
         if ($request->getQuery('document_id')) {
-            $replace    = array('<ccr:ContinuityOfCareRecord xsi:schemaLocation="urn:astm-org:CCR CCRV1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ccr="urn:astm-org:CCR">','ccr:');
+            $replace    = array('<ccr:ContinuityOfCareRecord xsi:schemaLocation="urn:astm-org:CCR CCRV1.xsd" xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance" xmlns:ccr="urn:astm-org:CCR">','ccr:');
             $to_replace = array('<ContinuityOfCareRecord xmlns="urn:astm-org:CCR">','');
             $content    = str_replace($replace, $to_replace, $content);
             $content    = preg_replace('/BirthName/', 'CurrentName', $content, 2);

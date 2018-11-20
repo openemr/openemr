@@ -322,7 +322,7 @@ class FHIRResearchSubject extends FHIRDomainResource implements \JsonSerializabl
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ResearchSubject xmlns="http://hl7.org/fhir"></ResearchSubject>');
+            $sxe = new \SimpleXMLElement('<ResearchSubject xmlns="https://hl7.org/fhir"></ResearchSubject>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->identifier)) {

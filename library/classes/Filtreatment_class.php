@@ -3,9 +3,9 @@
  * FILTREATMENT CLASS FILE
  *
  *
- * @author Cristian Năvălici {@link http://www.lemonsoftware.eu} lemonsoftware [at] gmail [.] com
+ * @author Cristian Năvălici {@link https://www.lemonsoftware.eu} lemonsoftware [at] gmail [.] com
  * @version 1.31 17 March 2008
- * @license http://opensource.org/licenses/gpl-license.php GNU Public License
+ * @license https://opensource.org/licenses/gpl-license.php GNU Public License
  * @package Filtreatment
  *
  */
@@ -338,7 +338,7 @@ class Filtreatment
         *
         * Just in case stuff like this is submitted:
         *
-        * <a href="http://%77%77%77%2E%67%6F%6F%67%6C%65%2E%63%6F%6D">Google</a>
+        * <a href="https://%77%77%77%2E%67%6F%6F%67%6C%65%2E%63%6F%6D">Google</a>
         *
         * Note: Normally urldecode() would be easier but it removes plus signs
         *

@@ -90,7 +90,7 @@ class FHIRImmunizationStatusCodes extends FHIRElement implements \JsonSerializab
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ImmunizationStatusCodes xmlns="http://hl7.org/fhir"></ImmunizationStatusCodes>');
+            $sxe = new \SimpleXMLElement('<ImmunizationStatusCodes xmlns="https://hl7.org/fhir"></ImmunizationStatusCodes>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

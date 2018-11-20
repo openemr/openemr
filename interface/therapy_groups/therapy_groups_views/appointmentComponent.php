@@ -16,12 +16,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ * along with this program. If not, see <https://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
  * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 ?>
 
@@ -38,7 +38,7 @@ if ($groupData['group_id']) {
     $groupId = $groupData['group_id'];
 }
 ?>
-<div class="row" xmlns="http://www.w3.org/1999/html">
+<div class="row" xmlns="https://www.w3.org/1999/html">
     <div class="col-md-7">
         <h5><?php echo xlt('Group appointments')?></h5>
     </div>

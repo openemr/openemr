@@ -5,7 +5,7 @@
  * @package OpenEMR
  * @author  cfapress
  * @author  Jason 'Toolbox' Oettinger <jason@oettinger.email>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @copyright Copyright (c) 2008 cfapress
  * @copyright Copyright (c) 2017 Jason 'Toolbox' Oettinger <jason@oettinger.email>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

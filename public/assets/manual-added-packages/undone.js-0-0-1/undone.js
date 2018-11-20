@@ -2,10 +2,10 @@
  * undone.js 0.0.1 - https://github.com/yckart/undone.js
  * The undo/redo manager for well formed javascript applications.
  *
- * Inspired by: http://blog.asgaard.co.uk/2012/11/21/undo-redo-in-javascript
+ * Inspired by: https://blog.asgaard.co.uk/2012/11/21/undo-redo-in-javascript
  *
- * Copyright (c) 2012 Yannick Albert (http://yckart.com)
- * Licensed under the MIT license (http://www.opensource.org/licenses/mit-license.php).
+ * Copyright (c) 2012 Yannick Albert (https://yckart.com)
+ * Licensed under the MIT license (https://www.opensource.org/licenses/mit-license.php).
  * 2013/03/16
  **/
 ;(function(window){

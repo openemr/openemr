@@ -3,7 +3,7 @@
 // PHP framework for testing, based on the design of "JUnit".
 //
 // Written by Fred Yankowski <fred@ontosys.com>
-//            OntoSys, Inc  <http://www.OntoSys.com>
+//            OntoSys, Inc  <https://www.OntoSys.com>
 //
 // $Id$
 

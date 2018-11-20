@@ -3,7 +3,7 @@
  * edit per-facility user information.
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Scott Wakefield <scott@npclinics.com.au>
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2012 NP Clinics <info@npclinics.com.au>

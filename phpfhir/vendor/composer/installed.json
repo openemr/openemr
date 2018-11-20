@@ -90,7 +90,7 @@
         "authors": [
             {
                 "name": "PHP-FIG",
-                "homepage": "http://www.php-fig.org/"
+                "homepage": "https://www.php-fig.org/"
             }
         ],
         "description": "Common interface for HTTP messages",
@@ -227,7 +227,7 @@
             }
         ],
         "description": "Guzzle is a PHP HTTP client library",
-        "homepage": "http://guzzlephp.org/",
+        "homepage": "https://guzzlephp.org/",
         "keywords": [
             "client",
             "curl",

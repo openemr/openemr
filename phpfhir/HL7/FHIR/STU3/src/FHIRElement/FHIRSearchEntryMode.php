@@ -90,7 +90,7 @@ class FHIRSearchEntryMode extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SearchEntryMode xmlns="http://hl7.org/fhir"></SearchEntryMode>');
+            $sxe = new \SimpleXMLElement('<SearchEntryMode xmlns="https://hl7.org/fhir"></SearchEntryMode>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

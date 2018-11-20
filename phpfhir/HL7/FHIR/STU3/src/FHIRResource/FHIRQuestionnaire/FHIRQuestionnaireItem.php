@@ -923,7 +923,7 @@ Any information provided in these elements on a Questionnaire Item overrides the
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<QuestionnaireItem xmlns="http://hl7.org/fhir"></QuestionnaireItem>');
+            $sxe = new \SimpleXMLElement('<QuestionnaireItem xmlns="https://hl7.org/fhir"></QuestionnaireItem>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->linkId)) {

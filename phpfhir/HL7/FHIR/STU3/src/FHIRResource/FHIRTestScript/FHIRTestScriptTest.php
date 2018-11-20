@@ -169,7 +169,7 @@ class FHIRTestScriptTest extends FHIRBackboneElement implements \JsonSerializabl
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<TestScriptTest xmlns="http://hl7.org/fhir"></TestScriptTest>');
+            $sxe = new \SimpleXMLElement('<TestScriptTest xmlns="https://hl7.org/fhir"></TestScriptTest>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->name)) {

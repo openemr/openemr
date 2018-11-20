@@ -13,7 +13,7 @@
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
 * You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
+* along with this program.  If not, see <https://opensource.org/licenses/gpl-license.php>.
 *
 * @package   OpenEMR
 * @author    Rod Roark <rod@sunsetsystems.com>
@@ -38,7 +38,7 @@ require_once("$webserver_root/custom/code_types.inc.php");
 
 function hl7Text($s)
 {
-  // See http://www.interfaceware.com/hl7_escape_protocol.html:
+  // See https://www.interfaceware.com/hl7_escape_protocol.html:
     $s = str_replace('\\', '\\E\\', $s);
     $s = str_replace('^', '\\S\\', $s);
     $s = str_replace('|', '\\F\\', $s);

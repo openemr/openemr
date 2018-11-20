@@ -257,7 +257,7 @@ class FHIRRelatedArtifact extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<RelatedArtifact xmlns="http://hl7.org/fhir"></RelatedArtifact>');
+            $sxe = new \SimpleXMLElement('<RelatedArtifact xmlns="https://hl7.org/fhir"></RelatedArtifact>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {

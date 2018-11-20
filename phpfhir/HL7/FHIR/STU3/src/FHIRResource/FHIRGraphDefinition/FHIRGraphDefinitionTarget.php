@@ -210,7 +210,7 @@ class FHIRGraphDefinitionTarget extends FHIRBackboneElement implements \JsonSeri
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<GraphDefinitionTarget xmlns="http://hl7.org/fhir"></GraphDefinitionTarget>');
+            $sxe = new \SimpleXMLElement('<GraphDefinitionTarget xmlns="https://hl7.org/fhir"></GraphDefinitionTarget>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {

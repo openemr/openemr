@@ -602,7 +602,7 @@
       // For this reason, we cannot call apply() as Object is not a Function.
       return document.createElement(arguments[0]);
     } else if (isSVG) {
-      return document.createElementNS.call(document, 'http://www.w3.org/2000/svg', arguments[0]);
+      return document.createElementNS.call(document, 'https://www.w3.org/2000/svg', arguments[0]);
     } else {
       return document.createElement.apply(document, arguments);
     }
@@ -1252,10 +1252,10 @@
 
   ModernizrProto.load = function() {
     if ('yepnope' in window) {
-      warn('yepnope.js (aka Modernizr.load) is no longer included as part of Modernizr. yepnope appears to be available on the page, so we’ll use it to handle this call to Modernizr.load, but please update your code to use yepnope directly.\n See http://github.com/Modernizr/Modernizr/issues/1182 for more information.');
+      warn('yepnope.js (aka Modernizr.load) is no longer included as part of Modernizr. yepnope appears to be available on the page, so we’ll use it to handle this call to Modernizr.load, but please update your code to use yepnope directly.\n See https://github.com/Modernizr/Modernizr/issues/1182 for more information.');
       window.yepnope.apply(window, [].slice.call(arguments, 0));
     } else {
-      err('yepnope.js (aka Modernizr.load) is no longer included as part of Modernizr. Get it from http://yepnopejs.com. See http://github.com/Modernizr/Modernizr/issues/1182 for more information.');
+      err('yepnope.js (aka Modernizr.load) is no longer included as part of Modernizr. Get it from https://yepnopejs.com. See https://github.com/Modernizr/Modernizr/issues/1182 for more information.');
     }
   };
 
@@ -1551,7 +1551,7 @@
   // Returns `undefined` if native detection not available
   function nativeTestProps(props, value) {
     var i = props.length;
-    // Start with the JS API: http://www.w3.org/TR/css3-conditional/#the-css-interface
+    // Start with the JS API: https://www.w3.org/TR/css3-conditional/#the-css-interface
     if ('CSS' in window && 'supports' in window.CSS) {
       // Try every prefixed variant of the property
       while (i--) {
@@ -1871,7 +1871,7 @@
 
   /**
    * List of property values to set for css tests. See ticket #21
-   * http://git.io/vUGl4
+   * https://git.io/vUGl4
    *
    * @memberof Modernizr
    * @name Modernizr._prefixes
@@ -2136,7 +2136,7 @@ Detects support for the API that provides information about the ambient light le
 /* DOC
 Detects support for the Application Cache, for storing data to enable web-based applications run offline.
 
-The API has been [heavily criticized](http://alistapart.com/article/application-cache-is-a-douchebag) and discussions are underway to address this.
+The API has been [heavily criticized](https://alistapart.com/article/application-cache-is-a-douchebag) and discussions are underway to address this.
 */
 
   Modernizr.addTest('applicationcache', 'applicationCache' in window);
@@ -2555,10 +2555,10 @@ Detects support for the `contenteditable` attribute of elements, allowing their 
   "caniuse": "menu",
   "notes": [{
     "name": "W3C spec",
-    "href": "http://www.w3.org/TR/html5/interactive-elements.html#context-menus"
+    "href": "https://www.w3.org/TR/html5/interactive-elements.html#context-menus"
   },{
     "name": "thewebrocks.com Demo",
-    "href": "http://thewebrocks.com/demos/context-menu/"
+    "href": "https://thewebrocks.com/demos/context-menu/"
   }],
   "polyfills": ["jquery-contextmenu"]
 }
@@ -2777,7 +2777,7 @@ used to remove the default styles of an element, such as input and buttons.
     },
     {
       "name": "Caniuse for CSS Backdrop Filter",
-      "href": "http://caniuse.com/#feat=css-backdrop-filter"
+      "href": "https://caniuse.com/#feat=css-backdrop-filter"
     },
     {
       "name": "WebKit Blog introduction + Demo",
@@ -2804,7 +2804,7 @@ Detects support for CSS Backdrop Filters, allowing for background blur effects l
       "href": " https://medium.com/@bennettfeely/css-blend-modes-could-be-the-next-big-thing-in-web-design-6b51bf53743a"
     }, {
       "name": "Demo",
-      "href": "http://bennettfeely.com/gradients/"
+      "href": "https://bennettfeely.com/gradients/"
     }
   ]
 }
@@ -3179,7 +3179,7 @@ Method of allowing calculated values for length units. For example:
   "warnings": ["cubic-bezier values can't be > 1 for Webkit until [bug #45761](https://bugs.webkit.org/show_bug.cgi?id=45761) is fixed"],
   "notes": [{
     "name": "Comprehensive Compat Chart",
-    "href": "http://muddledramblings.com/table-of-css3-border-radius-compliance"
+    "href": "https://muddledramblings.com/table-of-css3-border-radius-compliance"
   }]
 }
 !*/
@@ -3220,7 +3220,7 @@ Method of allowing calculated values for length units. For example:
   "builderAliases": ["css_displaytable"],
   "notes": [{
     "name": "Detects for all additional table display values",
-    "href": "http://pastebin.com/Gk9PeVaQ"
+    "href": "https://pastebin.com/Gk9PeVaQ"
   }]
 }
 !*/
@@ -3305,13 +3305,13 @@ Tests for `CSS.escape()` support.
   "builderAliases": ["css_supports"],
   "notes": [{
     "name": "W3 Spec",
-    "href": "http://dev.w3.org/csswg/css3-conditional/#at-supports"
+    "href": "https://dev.w3.org/csswg/css3-conditional/#at-supports"
   },{
     "name": "Related Github Issue",
     "href": "https://github.com/Modernizr/Modernizr/issues/648"
   },{
     "name": "W3 Info",
-    "href": "http://dev.w3.org/csswg/css3-conditional/#the-csssupportsrule-interface"
+    "href": "https://dev.w3.org/csswg/css3-conditional/#the-csssupportsrule-interface"
   }]
 }
 !*/
@@ -3356,7 +3356,7 @@ Tests for `CSS.escape()` support.
   "tags": ["css"],
   "notes": [{
     "name": "The _new_ flexbox",
-    "href": "http://dev.w3.org/csswg/css3-flexbox"
+    "href": "https://dev.w3.org/csswg/css3-flexbox"
   }],
   "warnings": [
     "A `true` result for this detect does not imply that the `flex-wrap` property is supported; see the `flexwrap` detect."
@@ -3407,7 +3407,7 @@ Detects support for the Flexible Box Layout model, a.k.a. Flexbox, which allows 
   "tags": ["css", "flexbox"],
   "notes": [{
     "name": "W3C Flexible Box Layout spec",
-    "href": "http://dev.w3.org/csswg/css3-flexbox"
+    "href": "https://dev.w3.org/csswg/css3-flexbox"
   }],
   "warnings": [
     "Does not imply a modern implementation – see documentation."
@@ -3443,7 +3443,7 @@ else {
   ],
   "notes": [{
     "name": "@font-face detection routine by Diego Perini",
-    "href": "http://javascript.nwbox.com/CSSSupport/"
+    "href": "https://javascript.nwbox.com/CSSSupport/"
   },{
     "name": "Filament Group @font-face compatibility research",
     "href": "https://docs.google.com/presentation/d/1n4NyG4uPRjAA8zn_pSQ_Ket0RhcWC6QlZ6LMjKeECo0/edit#slide=id.p"
@@ -3455,7 +3455,7 @@ else {
     "href": "https://stackoverflow.com/questions/3200069/css-fonts-on-android"
   },{
     "name": "@font-face and Android",
-    "href": "http://archivist.incutio.com/viewlist/css-discuss/115960"
+    "href": "https://archivist.incutio.com/viewlist/css-discuss/115960"
   }]
 }
 !*/
@@ -3555,7 +3555,7 @@ else {
   "authors": ["strarsis"],
   "notes": [{
     "name": "Blog post about CSS retina hairlines",
-    "href": "http://dieulot.net/css-retina-hairline"
+    "href": "https://dieulot.net/css-retina-hairline"
   },{
     "name": "Derived from",
     "href": "https://gist.github.com/dieulot/520a49463f6058fbc8d1"
@@ -3599,18 +3599,18 @@ Detects support for hidpi/retina hairlines, which are CSS borders with less than
   "authors": ["David Newton"],
   "warnings": [
     "These tests currently require document.body to be present",
-    "If loading Hyphenator.js via yepnope, be cautious of issue 158: http://code.google.com/p/hyphenator/issues/detail?id=158",
+    "If loading Hyphenator.js via yepnope, be cautious of issue 158: https://code.google.com/p/hyphenator/issues/detail?id=158",
     "This is very large – only include it if you absolutely need it"
     ],
   "notes": [{
     "name": "The Current State of Hyphenation on the Web.",
-    "href": "http://davidnewton.ca/the-current-state-of-hyphenation-on-the-web"
+    "href": "https://davidnewton.ca/the-current-state-of-hyphenation-on-the-web"
   },{
     "name": "Hyphenation Test Page",
-    "href": "http://davidnewton.ca/demos/hyphenation/test.html"
+    "href": "https://davidnewton.ca/demos/hyphenation/test.html"
   },{
     "name": "Hyphenation is Language Specific",
-    "href": " http://code.google.com/p/hyphenator/source/diff?spec=svn975&r=975&format=side&path=/trunk/Hyphenator.js#sc_svn975_313"
+    "href": " https://code.google.com/p/hyphenator/source/diff?spec=svn975&r=975&format=side&path=/trunk/Hyphenator.js#sc_svn975_313"
   },{
     "name": "Related Modernizr Issue",
     "href": "https://github.com/Modernizr/Modernizr/issues/312"
@@ -3929,7 +3929,7 @@ Detects support for hidpi/retina hairlines, which are CSS borders with less than
     },
     {
       "name": "Sitepoint :nth-child documentation",
-      "href": "http://reference.sitepoint.com/css/pseudoclass-nthchild"
+      "href": "https://reference.sitepoint.com/css/pseudoclass-nthchild"
     }
   ],
   "authors": ["@emilchristensen"],
@@ -4256,7 +4256,7 @@ Detects support for the ':nth-child()' CSS pseudo-selector.
     "href": "https://www.w3.org/TR/css3-values/#relative0"
   },{
     "name": "Font Size with rem by Jonathan Snook",
-    "href": "http://snook.ca/archives/html_and_css/font-size-with-rem"
+    "href": "https://snook.ca/archives/html_and_css/font-size-with-rem"
   }]
 }
 !*/
@@ -4340,7 +4340,7 @@ Test for CSS 3 UI "resize" property
   "property": "scrollsnappoints",
   "notes": [{
     "name": "Setting native-like scrolling offsets in CSS with Scrolling Snap Points",
-    "href": "http://generatedcontent.org/post/66817675443/setting-native-like-scrolling-offsets-in-css-with"
+    "href": "https://generatedcontent.org/post/66817675443/setting-native-like-scrolling-offsets-in-css-with"
   },{
     "name": "MDN Article",
     "href": "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Scroll_Snap_Points"
@@ -4364,10 +4364,10 @@ Detects support for CSS Snap Points
     "href": "https://www.w3.org/TR/css-shapes"
   },{
     "name": "Examples from Adobe",
-    "href": "http://webplatform.adobe.com/shapes/"
+    "href": "https://webplatform.adobe.com/shapes/"
   }, {
     "name": "Samples showcasing uses of Shapes",
-    "href": "http://codepen.io/collection/qFesk"
+    "href": "https://codepen.io/collection/qFesk"
   }]
 }
 !*/
@@ -4467,7 +4467,7 @@ Detects support for the ':target' CSS pseudo-class.
   "knownBugs": ["IE does not support the 'start' or 'end' values."],
   "notes": [{
       "name": "Quicksmode",
-      "href": "http://www.quirksmode.org/css/text/textalignlast.html"
+      "href": "https://www.quirksmode.org/css/text/textalignlast.html"
     },{
       "name": "MDN",
       "href": "https://developer.mozilla.org/en-US/docs/Web/CSS/text-align-last"
@@ -4500,7 +4500,7 @@ Detects support for the ':target' CSS pseudo-class.
 
   Modernizr.addTest('csstransforms', function() {
     // Android < 3.0 is buggy, so we sniff and blacklist
-    // http://git.io/hHzL7w
+    // https://git.io/hHzL7w
     return navigator.userAgent.indexOf('Android 2.') === -1 &&
            testAllProps('transform', 'scale(1)', true);
   });
@@ -4805,7 +4805,7 @@ browser that an element will be animating.
     },
     {
       "name": "Example by Adobe",
-      "href": "http://html.adobe.com/webstandards/cssexclusions"
+      "href": "https://html.adobe.com/webstandards/cssexclusions"
     }
   ]
 }
@@ -4826,7 +4826,7 @@ browser that an element will be animating.
     var content = createElement('span');
 
     /* First we create a div with two adjacent divs inside it. The first div will be the content, the second div will be the exclusion area.
-       We use the "wrap-flow: end" property to test the actual behavior. (http://dev.w3.org/csswg/css3-exclusions/#wrap-flow-property)
+       We use the "wrap-flow: end" property to test the actual behavior. (https://dev.w3.org/csswg/css3-exclusions/#wrap-flow-property)
        The wrap-flow property is applied to the exclusion area what has a 50px left offset and a 100px width.
        If the wrap-flow property is working correctly then the content should start after the exclusion area, so the content's left offset should be 150px. */
     exclusion.style.cssText = 'position: absolute; left: 50px; width: 100px; height: 20px;' + wrapFlowProperty + ':end;';
@@ -5011,10 +5011,10 @@ Detects support for the DataView interface for reading data from an ArrayBuffer 
     "href": "https://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#ID-B63ED1A3"
   }, {
     "name": "SitePoint Reference",
-    "href": "http://reference.sitepoint.com/javascript/DocumentFragment"
+    "href": "https://reference.sitepoint.com/javascript/DocumentFragment"
   }, {
     "name": "QuirksMode Compatibility Tables",
-    "href": "http://www.quirksmode.org/m/w3c_core.html#t112"
+    "href": "https://www.quirksmode.org/m/w3c_core.html#t112"
   }],
   "authors": ["Ron Waldon (@jokeyrhyme)"],
   "knownBugs": ["false-positive on Blackberry 9500, see QuirksMode note"],
@@ -5304,7 +5304,7 @@ Modernizr.input.step
   "authors": ["Scott Jehl", "Mat Marquis"],
   "notes": [{
     "name": "Specification",
-    "href": "http://picture.responsiveimages.org"
+    "href": "https://picture.responsiveimages.org"
   },{
     "name": "Relevant spec issue",
     "href": "https://github.com/ResponsiveImagesCG/picture-element/issues/87"
@@ -5403,7 +5403,7 @@ Modernizr.input.step
   "tags": ["elem"],
   "notes": [{
     "name": "HTML5Rocks Article",
-    "href": "http://www.html5rocks.com/en/tutorials/webcomponents/template/"
+    "href": "https://www.html5rocks.com/en/tutorials/webcomponents/template/"
   },{
     "name": "W3 Spec",
     "href": "https://dvcs.w3.org/hg/webcomponents/raw-file/tip/spec/templates/index.html"
@@ -5437,10 +5437,10 @@ Modernizr.input.step
   "authors": ["Addy Osmani"],
   "notes": [{
     "name": "W3 track Element Spec",
-    "href": "http://www.w3.org/TR/html5/video.html#the-track-element"
+    "href": "https://www.w3.org/TR/html5/video.html#the-track-element"
   },{
     "name": "W3 track API Spec",
-    "href": "http://www.w3.org/TR/html5/media-elements.html#text-track-api"
+    "href": "https://www.w3.org/TR/html5/media-elements.html#text-track-api"
   }],
   "warnings": ["While IE10 has implemented the track element, IE10 does not expose the underlying APIs to create timed text tracks by JS (really sad)"]
 }
@@ -5508,7 +5508,7 @@ Detects support for emoji character sets.
   "property": "es5array",
   "notes": [{
     "name": "ECMAScript 5.1 Language Specification",
-    "href": "http://www.ecma-international.org/ecma-262/5.1/"
+    "href": "https://www.ecma-international.org/ecma-262/5.1/"
   }],
   "polyfills": ["es5shim"],
   "authors": ["Ron Waldon (@jokeyrhyme)"],
@@ -5539,7 +5539,7 @@ Check if browser implements ECMAScript 5 Array per specification.
   "property": "es5date",
   "notes": [{
     "name": "ECMAScript 5.1 Language Specification",
-    "href": "http://www.ecma-international.org/ecma-262/5.1/"
+    "href": "https://www.ecma-international.org/ecma-262/5.1/"
   }],
   "polyfills": ["es5shim"],
   "authors": ["Ron Waldon (@jokeyrhyme)"],
@@ -5571,7 +5571,7 @@ Check if browser implements ECMAScript 5 Date per specification.
   "property": "es5function",
   "notes": [{
     "name": "ECMAScript 5.1 Language Specification",
-    "href": "http://www.ecma-international.org/ecma-262/5.1/"
+    "href": "https://www.ecma-international.org/ecma-262/5.1/"
   }],
   "polyfills": ["es5shim"],
   "authors": ["Ron Waldon (@jokeyrhyme)"],
@@ -5592,7 +5592,7 @@ Check if browser implements ECMAScript 5 Function per specification.
   "property": "es5object",
   "notes": [{
     "name": "ECMAScript 5.1 Language Specification",
-    "href": "http://www.ecma-international.org/ecma-262/5.1/"
+    "href": "https://www.ecma-international.org/ecma-262/5.1/"
   }],
   "polyfills": ["es5shim", "es5sham"],
   "authors": ["Ron Waldon (@jokeyrhyme)"],
@@ -5626,7 +5626,7 @@ Check if browser implements ECMAScript 5 Object per specification.
   "caniuse": "sctrict-mode",
   "notes": [{
     "name": "ECMAScript 5.1 Language Specification",
-    "href": "http://www.ecma-international.org/ecma-262/5.1/"
+    "href": "https://www.ecma-international.org/ecma-262/5.1/"
   }],
   "authors": ["@kangax"],
   "tags": ["es5"],
@@ -5645,7 +5645,7 @@ Check if browser implements ECMAScript 5 Object strict mode.
   "property": "es5string",
   "notes": [{
     "name": "ECMAScript 5.1 Language Specification",
-    "href": "http://www.ecma-international.org/ecma-262/5.1/"
+    "href": "https://www.ecma-international.org/ecma-262/5.1/"
   }],
   "polyfills": ["es5shim"],
   "authors": ["Ron Waldon (@jokeyrhyme)"],
@@ -5687,10 +5687,10 @@ Detects native support for JSON handling functions.
   "property": "es5syntax",
   "notes": [{
     "name": "ECMAScript 5.1 Language Specification",
-    "href": "http://www.ecma-international.org/ecma-262/5.1/"
+    "href": "https://www.ecma-international.org/ecma-262/5.1/"
   }, {
     "name": "original implementation of detect code",
-    "href": "http://kangax.github.io/es5-compat-table/"
+    "href": "https://kangax.github.io/es5-compat-table/"
   }],
   "authors": ["Ron Waldon (@jokeyrhyme)"],
   "warnings": ["This detect uses `eval()`, so CSP may be a problem."],
@@ -5730,10 +5730,10 @@ Check if browser accepts ECMAScript 5 syntax.
   "property": "es5undefined",
   "notes": [{
     "name": "ECMAScript 5.1 Language Specification",
-    "href": "http://www.ecma-international.org/ecma-262/5.1/"
+    "href": "https://www.ecma-international.org/ecma-262/5.1/"
   }, {
     "name": "original implementation of detect code",
-    "href": "http://kangax.github.io/es5-compat-table/"
+    "href": "https://kangax.github.io/es5-compat-table/"
   }],
   "authors": ["Ron Waldon (@jokeyrhyme)"],
   "tags": ["es5"]
@@ -5762,7 +5762,7 @@ Check if browser prevents assignment to global `undefined` per ECMAScript 5.
   "property": "es5",
   "notes": [{
     "name": "ECMAScript 5.1 Language Specification",
-    "href": "http://www.ecma-international.org/ecma-262/5.1/"
+    "href": "https://www.ecma-international.org/ecma-262/5.1/"
   }],
   "polyfills": ["es5shim", "es5sham"],
   "authors": ["Ron Waldon (@jokeyrhyme)"],
@@ -5976,7 +5976,7 @@ Check if browser implements ECMAScript 6 Object per specification.
     "href": "https://www.chromestatus.com/features/5681726336532480"
   },{
     "name": "JavaScript Promises: There and back again - HTML5 Rocks",
-    "href": "http://www.html5rocks.com/en/tutorials/es6/promises/"
+    "href": "https://www.html5rocks.com/en/tutorials/es6/promises/"
   }]
 }
 !*/
@@ -6034,13 +6034,13 @@ Check if browser implements ECMAScript 6 String per specification.
   "caniuse": "deviceorientation",
   "notes": [{
     "name": "W3C Editor's Draft",
-    "href": "http://w3c.github.io/deviceorientation/spec-source-orientation.html"
+    "href": "https://w3c.github.io/deviceorientation/spec-source-orientation.html"
   },{
     "name": "Implementation by iOS Safari (Orientation)",
-    "href": "http://goo.gl/fhce3"
+    "href": "https://goo.gl/fhce3"
   },{
     "name": "Implementation by iOS Safari (Motion)",
-    "href": "http://goo.gl/rLKz8"
+    "href": "https://goo.gl/rLKz8"
   }],
   "authors": ["Shi Chuan"],
   "tags": ["event"],
@@ -6070,7 +6070,7 @@ Part of Device Access aspect of HTML5, same category as geolocation.
     "href": "https://html.spec.whatwg.org/multipage/forms.html#common-input-element-attributes"
   },{
     "name": "Detecting onInput support",
-    "href": "http://danielfriesen.name/blog/2010/02/16/html5-browser-maze-oninput-support"
+    "href": "https://danielfriesen.name/blog/2010/02/16/html5-browser-maze-oninput-support"
   }],
   "authors": ["Patrick Kettner"],
   "tags": ["event"]
@@ -6144,10 +6144,10 @@ Detects native support for addEventListener
   "authors": ["Paul Sayre"],
   "notes": [{
     "name": "Article by Dave Perrett",
-    "href": "http://recursive-design.com/blog/2012/07/28/exif-orientation-handling-is-a-ghetto/"
+    "href": "https://recursive-design.com/blog/2012/07/28/exif-orientation-handling-is-a-ghetto/"
   },{
     "name": "Article by Calvin Hass",
-    "href": "http://www.impulseadventure.com/photo/exif-orientation.html"
+    "href": "https://www.impulseadventure.com/photo/exif-orientation.html"
   }]
 }
 !*/
@@ -6207,7 +6207,7 @@ to be the File object's prototype.)
   "caniuse": "filesystem",
   "notes": [{
     "name": "W3 Draft",
-    "href": "http://dev.w3.org/2009/dap/file-system/file-dir-sys.html"
+    "href": "https://dev.w3.org/2009/dap/file-system/file-dir-sys.html"
   }],
   "authors": ["Eric Bidelman (@ebidel)"],
   "tags": ["file"],
@@ -6744,7 +6744,7 @@ Detects support for the ability to make the current website take over the user's
     "href": "https://www.w3.org/TR/gamepad/"
   },{
     "name": "HTML5 Rocks tutorial",
-    "href": "http://www.html5rocks.com/en/tutorials/doodles/gamepad/#toc-featuredetect"
+    "href": "https://www.html5rocks.com/en/tutorials/doodles/gamepad/#toc-featuredetect"
   }],
   "warnings": [],
   "polyfills": []
@@ -6905,7 +6905,7 @@ Detects support for the History API for manipulating the browser session history
     },
     {
       "name": "HTML Imports - #include for the web",
-      "href": "http://www.html5rocks.com/en/tutorials/webcomponents/imports/"
+      "href": "https://www.html5rocks.com/en/tutorials/webcomponents/imports/"
     }
   ],
   "polyfills": ["polymer-htmlimports"],
@@ -7117,10 +7117,10 @@ Test for JPEG XR support
   "authors": ["Mat Marquis"],
   "notes": [{
     "name": "Spec",
-    "href": "http://picture.responsiveimages.org/#parse-sizes-attr"
+    "href": "https://picture.responsiveimages.org/#parse-sizes-attr"
     },{
     "name": "Usage Details",
-    "href": "http://ericportis.com/posts/2014/srcset-sizes/"
+    "href": "https://ericportis.com/posts/2014/srcset-sizes/"
     }]
 }
 !*/
@@ -7193,7 +7193,7 @@ Test for the srcset attribute of images
     "href": "https://developers.google.com/speed/webp/docs/webp_lossless_bitstream_specification"
   }, {
     "name": "Article about WebP support on Android browsers",
-    "href": "http://www.wope-framework.com/en/2013/06/24/webp-support-on-android-browsers/"
+    "href": "https://www.wope-framework.com/en/2013/06/24/webp-support-on-android-browsers/"
   }, {
     "name": "Chormium WebP announcement",
     "href": "https://blog.chromium.org/2011/11/lossless-and-transparency-encoding-in.html?m=1"
@@ -7282,7 +7282,7 @@ Tests for all forms of webp support (lossless, lossy, alpha, and animated)..
     "href": "https://developers.google.com/speed/webp/"
   },{
     "name": "Article about WebP support on Android browsers",
-    "href": "http://www.wope-framework.com/en/2013/06/24/webp-support-on-android-browsers/"
+    "href": "https://www.wope-framework.com/en/2013/06/24/webp-support-on-android-browsers/"
   },{
     "name": "Chromium WebP announcement",
     "href": "https://blog.chromium.org/2011/11/lossless-and-transparency-encoding-in.html?m=1"
@@ -7626,7 +7626,7 @@ There is a custom `search` event implemented in webkit browsers when using an `i
  "href": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl"
  },{
  "name": "ECMAScript spec",
- "href": "http://www.ecma-international.org/ecma-402/1.0/"
+ "href": "https://www.ecma-international.org/ecma-402/1.0/"
  }]
  }
  !*/
@@ -7644,7 +7644,7 @@ based on a locale
   "caniuse": "font-feature",
   "notes": [{
     "name": "Cross-browser Web Fonts",
-    "href": "http://www.sitepoint.com/cross-browser-web-fonts-part-3/"
+    "href": "https://www.sitepoint.com/cross-browser-web-fonts-part-3/"
   }]
 }
 !*/
@@ -7660,7 +7660,7 @@ Detects support for OpenType ligatures
   "property": "olreversed",
   "notes": [{
     "name": "Impressive Webs article",
-    "href": "http://impressivewebs.com/reverse-ordered-lists-html5"
+    "href": "https://impressivewebs.com/reverse-ordered-lists-html5"
   }],
   "builderAliases": ["lists_reversed"]
 }
@@ -7794,10 +7794,10 @@ There are two iterations of the `navigator.connection` interface.
 
 The first is present in Android 2.2+ and only in the Browser (not WebView)
 
-- http://docs.phonegap.com/en/1.2.0/phonegap_connection_connection.md.html#connection.type
-- http://davidbcalhoun.com/2010/using-navigator-connection-android
+- https://docs.phonegap.com/en/1.2.0/phonegap_connection_connection.md.html#connection.type
+- https://davidbcalhoun.com/2010/using-navigator-connection-android
 
-The second is specced at http://dev.w3.org/2009/dap/netinfo/ and perhaps landing in WebKit
+The second is specced at https://dev.w3.org/2009/dap/netinfo/ and perhaps landing in WebKit
 
 - https://bugs.webkit.org/show_bug.cgi?id=73528
 
@@ -7878,7 +7878,7 @@ Tests for XMLHttpRequest xhr.responseType.
 
 
   /**
-   * http://mathiasbynens.be/notes/xhr-responsetype-json#comment-4
+   * https://mathiasbynens.be/notes/xhr-responsetype-json#comment-4
    *
    * @access private
    * @function testXhrType
@@ -8023,7 +8023,7 @@ Tests for XHR2.
   "authors": ["Theodoor van Donge", "Hendrik Beskow"],
   "notes": [{
     "name": "HTML5 Rocks tutorial",
-    "href": "http://www.html5rocks.com/en/tutorials/notifications/quick/"
+    "href": "https://www.html5rocks.com/en/tutorials/notifications/quick/"
   },{
     "name": "W3C spec",
     "href": "https://www.w3.org/TR/notifications/"
@@ -8075,7 +8075,7 @@ Detects support for the Notifications API
     "href": "https://www.w3.org/TR/2011/WD-page-visibility-20110602/"
   },{
     "name": "HTML5 Rocks tutorial",
-    "href": "http://www.html5rocks.com/en/tutorials/pagevisibility/intro/"
+    "href": "https://www.html5rocks.com/en/tutorials/pagevisibility/intro/"
   }],
   "polyfills": ["visibilityjs", "visiblyjs", "jquery-visibility"]
 }
@@ -8098,7 +8098,7 @@ Detects support for the Page Visibility API, which can be used to disable unnece
     "href": "https://www.w3.org/TR/navigation-timing/"
   },{
     "name": "HTML5 Rocks article",
-    "href": "http://www.html5rocks.com/en/tutorials/webperformance/basics/"
+    "href": "https://www.html5rocks.com/en/tutorials/webperformance/basics/"
   }],
   "polyfills": ["perfnow"]
 }
@@ -8172,7 +8172,7 @@ Detects support the pointer lock API which allows you to lock the mouse cursor t
   "caniuse": "x-doc-messaging",
   "notes": [{
     "name": "W3C Spec",
-    "href": "http://www.w3.org/TR/html5/comms.html#posting-messages"
+    "href": "https://www.w3.org/TR/html5/comms.html#posting-messages"
   }],
   "polyfills": ["easyxdm", "postmessage-jquery"]
 }
@@ -8369,7 +8369,7 @@ ServiceWorkers (formerly Navigation Controllers) are a way to persistently cache
     },
     {
       "name": "Introduction to the Web Speech API",
-      "href": "http://updates.html5rocks.com/2013/01/Voice-Driven-Web-Apps-Introduction-to-the-Web-Speech-API"
+      "href": "https://updates.html5rocks.com/2013/01/Voice-Driven-Web-Apps-Introduction-to-the-Web-Speech-API"
     }
   ],
   "property": "speechrecognition",
@@ -8530,7 +8530,7 @@ Support for the `scoped` attribute of the `<style>` element.
 Detects support for SVG in `<embed>` or `<object>` elements.
 */
 
-  Modernizr.addTest('svg', !!document.createElementNS && !!document.createElementNS('http://www.w3.org/2000/svg', 'svg').createSVGRect);
+  Modernizr.addTest('svg', !!document.createElementNS && !!document.createElementNS('https://www.w3.org/2000/svg', 'svg').createSVGRect);
 
 /*!
 {
@@ -8542,7 +8542,7 @@ Detects support for SVG in `<embed>` or `<object>` elements.
   "authors": ["Chris Coyier"],
   "notes": [{
     "name": "HTML5 Spec",
-    "href": "http://www.w3.org/TR/html5/embedded-content-0.html#the-img-element"
+    "href": "https://www.w3.org/TR/html5/embedded-content-0.html#the-img-element"
   }]
 }
 !*/
@@ -8552,12 +8552,12 @@ Detects support for SVG in `<embed>` or `<object>` elements.
   // https://gist.github.com/chriscoyier/8774501
 
   // Now a Sync test based on good results here
-  // http://codepen.io/chriscoyier/pen/bADFx
+  // https://codepen.io/chriscoyier/pen/bADFx
 
-  // Note http://www.w3.org/TR/SVG11/feature#Image is *supposed* to represent
+  // Note https://www.w3.org/TR/SVG11/feature#Image is *supposed* to represent
   // support for the `<image>` tag in SVG, not an SVG file linked from an `<img>`
   // tag in HTML – but it’s a heuristic which works
-  Modernizr.addTest('svgasimg', document.implementation.hasFeature('http://www.w3.org/TR/SVG11/feature#Image', '1.1'));
+  Modernizr.addTest('svgasimg', document.implementation.hasFeature('https://www.w3.org/TR/SVG11/feature#Image', '1.1'));
 
 
   /**
@@ -8579,7 +8579,7 @@ Detects support for SVG in `<embed>` or `<object>` elements.
   "tags": ["svg"],
   "notes": [{
     "name": "Demo",
-    "href": "http://srufaculty.sru.edu/david.dailey/svg/newstuff/clipPath4.svg"
+    "href": "https://srufaculty.sru.edu/david.dailey/svg/newstuff/clipPath4.svg"
   }]
 }
 !*/
@@ -8591,7 +8591,7 @@ See [this discussion](https://github.com/Modernizr/Modernizr/issues/213) regardi
 
   Modernizr.addTest('svgclippaths', function() {
     return !!document.createElementNS &&
-      /SVGClipPath/.test(toStringFn.call(document.createElementNS('http://www.w3.org/2000/svg', 'clipPath')));
+      /SVGClipPath/.test(toStringFn.call(document.createElementNS('https://www.w3.org/2000/svg', 'clipPath')));
   });
 
 /*!
@@ -8637,7 +8637,7 @@ Detects support for foreignObject tag in SVG.
 
   Modernizr.addTest('svgforeignobject', function() {
     return !!document.createElementNS &&
-      /SVGForeignObject/.test(toStringFn.call(document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')));
+      /SVGForeignObject/.test(toStringFn.call(document.createElementNS('https://www.w3.org/2000/svg', 'foreignObject')));
   });
 
 /*!
@@ -8664,7 +8664,7 @@ Detects support for inline SVG in HTML (not within XHTML).
   Modernizr.addTest('inlinesvg', function() {
     var div = createElement('div');
     div.innerHTML = '<svg/>';
-    return (typeof SVGRect != 'undefined' && div.firstChild && div.firstChild.namespaceURI) == 'http://www.w3.org/2000/svg';
+    return (typeof SVGRect != 'undefined' && div.firstChild && div.firstChild.namespaceURI) == 'https://www.w3.org/2000/svg';
   });
 
 /*!
@@ -8683,7 +8683,7 @@ Detects support for inline SVG in HTML (not within XHTML).
   // SVG SMIL animation
   Modernizr.addTest('smil', function() {
     return !!document.createElementNS &&
-      /SVGAnimate/.test(toStringFn.call(document.createElementNS('http://www.w3.org/2000/svg', 'animate')));
+      /SVGAnimate/.test(toStringFn.call(document.createElementNS('https://www.w3.org/2000/svg', 'animate')));
   });
 
 /*!
@@ -8761,14 +8761,14 @@ This *does not* necessarily reflect a touchscreen device:
 * Some browsers & OS setups may enable touch APIs when no touchscreen is connected
 * Future browsers may implement other event models for touch interactions
 
-See this article: [You Can't Detect A Touchscreen](http://www.stucox.com/blog/you-cant-detect-a-touchscreen/).
+See this article: [You Can't Detect A Touchscreen](https://www.stucox.com/blog/you-cant-detect-a-touchscreen/).
 
-It's recommended to bind both mouse and touch/pointer events simultaneously – see [this HTML5 Rocks tutorial](http://www.html5rocks.com/en/mobile/touchandmouse/).
+It's recommended to bind both mouse and touch/pointer events simultaneously – see [this HTML5 Rocks tutorial](https://www.html5rocks.com/en/mobile/touchandmouse/).
 
 This test will also return `true` for Firefox 4 Multitouch support.
 */
 
-  // Chrome (desktop) used to lie about its support on this, but that has since been rectified: http://crbug.com/36415
+  // Chrome (desktop) used to lie about its support on this, but that has since been rectified: https://crbug.com/36415
   Modernizr.addTest('touchevents', function() {
     var bool;
     if (('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch) {
@@ -9019,8 +9019,8 @@ Check if browser implements the URL constructor for parsing URLs.
     var url;
     try {
       // have to actually try use it, because Safari defines a dud constructor
-      url = new URL('http://modernizr.com/');
-      return url.href === 'http://modernizr.com/';
+      url = new URL('https://modernizr.com/');
+      return url.href === 'https://modernizr.com/';
     } catch (e) {
       return false;
     }
@@ -9318,7 +9318,7 @@ Detects support for VML.
   "authors": ["Eric Bidelman"],
   "notes": [{
     "name": "Web Intents project site",
-    "href": "http://webintents.org/"
+    "href": "https://webintents.org/"
   }],
   "polyfills": ["webintents"],
   "builderAliases": ["web_intents"]
@@ -9328,7 +9328,7 @@ Detects support for VML.
 Detects native support for the Web Intents APIs for service discovery and inter-application communication.
 
 Chrome added support for this in v19, but [removed it again in v24](https://lists.w3.org/Archives/Public/public-web-intents/2012Nov/0000.html) because of "a number of areas for
-development in both the API and specific user experience in Chrome". No other browsers currently support it, however a [JavaScript shim](http://webintents.org/#javascriptshim) is available.
+development in both the API and specific user experience in Chrome". No other browsers currently support it, however a [JavaScript shim](https://webintents.org/#javascriptshim) is available.
 */
 
   Modernizr.addTest('webintents', !!prefixed('startActivity', navigator));
@@ -9341,7 +9341,7 @@ development in both the API and specific user experience in Chrome". No other br
   "polyfills": ["webanimationsjs"],
   "notes": [{
     "name": "Introducing Web Animations",
-    "href": "http://brian.sol1.net/svg/2013/06/26/introducing-web-animations/"
+    "href": "https://brian.sol1.net/svg/2013/06/26/introducing-web-animations/"
   }]
 }
 !*/
@@ -9381,7 +9381,7 @@ Detects support for the Web Animation API, a way to create css animations in js
   "knownBugs": [],
   "notes": [{
     "name": "Kronos extensions registry",
-    "href": "http://www.khronos.org/registry/webgl/extensions/"
+    "href": "https://www.khronos.org/registry/webgl/extensions/"
   }]
 }
 !*/
@@ -9456,7 +9456,7 @@ if ('OES_vertex_array_object' in Modernizr.webglextensions) {
   "property": "datachannel",
   "notes": [{
     "name": "HTML5 Rocks! Article",
-    "href": "http://www.html5rocks.com/en/tutorials/webrtc/datachannels/"
+    "href": "https://www.html5rocks.com/en/tutorials/webrtc/datachannels/"
   }]
 }
 !*/
@@ -9739,7 +9739,7 @@ Detects support for the `SharedWorker` API from the Web Workers spec.
     "href": "https://www.w3.org/TR/workers/"
   }, {
     "name": "HTML5 Rocks article",
-    "href": "http://www.html5rocks.com/en/tutorials/workers/basics/"
+    "href": "https://www.html5rocks.com/en/tutorials/workers/basics/"
   }, {
     "name": "MDN documentation",
     "href": "https://developer.mozilla.org/en-US/docs/Web/Guide/Performance/Using_web_workers"
@@ -9761,7 +9761,7 @@ Detects support for the basic `Worker` API from the Web Workers spec. Web Worker
   "builderAliases": ["transferables"],
   "notes": [{
     "name": "HTML5 Rocks article",
-    "href": "http://updates.html5rocks.com/2011/12/Transferable-Objects-Lightning-Fast"
+    "href": "https://updates.html5rocks.com/2011/12/Transferable-Objects-Lightning-Fast"
   }],
   "async": true
 }

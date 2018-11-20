@@ -16,7 +16,7 @@ V...................Upgrading
 I. Overview of Directories
 
 NOTE: Most recent documentation can be found on the online documentation at
-http://www.open-emr.org .
+https://www.open-emr.org .
 
 accounting    - Contains information and scripts to support SQL-Ledger
 contrib       - Contains many user-contributed encounter forms and utilities
@@ -30,7 +30,7 @@ gacl          - Contains embedded php-GACL (access controls)
 II. Unpacking
 
 NOTE: Most recent documentation can be found on the online documention at
-http://www.open-emr.org .
+https://www.open-emr.org .
 
 The OpenEMR release archive should be named as follows:
 
@@ -52,7 +52,7 @@ Linux distributions such as Ubuntu.
 III. Setup
 
 NOTE: Most recent documentation can be found on the online documentation at
-http://www.open-emr.org .
+https://www.open-emr.org .
 
 To run OpenEMR, MySQL and Apache or another PHP-capable webserver must be configured.
 To download Apache, visit www.apache.org
@@ -73,7 +73,7 @@ Linux, for example, use the command:
 
 Make sure the webserver is running, and point a web-browser to setup.php located
 within the openemr web folder.  If you installed OpenEMR in the root web
-directory, the URL would read: http://localhost/openemr/setup.php.
+directory, the URL would read: https://localhost/openemr/setup.php.
 The setup script will step you through the configuration of the OpenEMR.
 
 The first screen of the setup script will ensure that the webserver user
@@ -237,7 +237,7 @@ using the username that you picked (default 'admin' without quotes), and the
 password.  From there, select the "Administration"
 option, and customize the system to your needs.  Add users and groups as is
 needed. For information on using OpenEMR, consult the User Documentation located
-in the Documentation folder, the documentation at http://www.open-emr.org, and
+in the Documentation folder, the documentation at https://www.open-emr.org, and
 the forums at https://community.open-emr.org/.
 
 Reading openemr/sites/default/config.php is a good idea. This file contains some
@@ -272,15 +272,15 @@ Since OpenEMR version 2.9.0.3, phpGACL access controls are installed and
 configured automatically during OpenEMR setup.  It can be administered
 within OpenEMR in the admin->acl menu.  This is very powerful
 access control software.  To learn more about phpGACL
-(see http://phpgacl.sourceforge.net/), recommend reading the phpGACL manual,
+(see https://phpgacl.sourceforge.net/), recommend reading the phpGACL manual,
 the /openemr/Documentation/README.phpgacl file, and the online documentation at
-http://www.open-emr.org . Also recommend reading the comments in
+https://www.open-emr.org . Also recommend reading the comments in
 /openemr/library/acl.inc.
 
 V. Upgrading
 
 NOTE: Most recent documentation can be found on the online documentation at
-http://www.open-emr.org .
+https://www.open-emr.org .
 
 Be sure to back up your OpenEMR installation and database before upgrading!
 
@@ -306,6 +306,6 @@ If there are other files that you have customized, then you will also need
 to treat those carefully.
 
 To upgrade the database, run the sql_upgrade.php script from your web
-browser (for example http://openemr.location/sql_upgrade.php).  It will
+browser (for example https://openemr.location/sql_upgrade.php).  It will
 prompt you to select the old release number, and will display the SQL
 commands issued as the upgrade occurs.

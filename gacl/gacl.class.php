@@ -20,13 +20,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * For questions, help, comments, discussion, etc., please join the
- * phpGACL mailing list. http://sourceforge.net/mail/?group_id=57103
+ * phpGACL mailing list. https://sourceforge.net/mail/?group_id=57103
  *
  * You may contact the author of phpGACL by e-mail at:
  * ipso@snappymail.ca
  *
  * The latest version of phpGACL can be obtained from:
- * http://phpgacl.sourceforge.net/
+ * https://phpgacl.sourceforge.net/
  *
  * @package phpGACL
  */
@@ -74,7 +74,7 @@ class gacl {
 	/** @var string Prefix for all the phpgacl tables in the database */
 	var $_db_table_prefix = 'gacl_';
 
-	/** @var string The database type, based on available ADODB connectors - mysql, postgres7, sybase, oci8po See here for more: http://php.weblogs.com/adodb_manual#driverguide */
+	/** @var string The database type, based on available ADODB connectors - mysql, postgres7, sybase, oci8po See here for more: https://php.weblogs.com/adodb_manual#driverguide */
 	var $_db_type = 'mysqli_mod';
 
 	/** @var string The database server */

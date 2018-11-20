@@ -160,7 +160,7 @@ class FHIRResearchStudyArm extends FHIRBackboneElement implements \JsonSerializa
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ResearchStudyArm xmlns="http://hl7.org/fhir"></ResearchStudyArm>');
+            $sxe = new \SimpleXMLElement('<ResearchStudyArm xmlns="https://hl7.org/fhir"></ResearchStudyArm>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->name)) {

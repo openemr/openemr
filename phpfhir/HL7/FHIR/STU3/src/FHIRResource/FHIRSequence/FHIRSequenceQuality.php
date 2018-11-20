@@ -39,7 +39,7 @@ class FHIRSequenceQuality extends FHIRBackboneElement implements \JsonSerializab
     public $end = null;
 
     /**
-     * The score of an experimentally derived feature such as a p-value ([SO:0001685](http://www.sequenceontology.org/browser/current_svn/term/SO:0001685)).
+     * The score of an experimentally derived feature such as a p-value ([SO:0001685](https://www.sequenceontology.org/browser/current_svn/term/SO:0001685)).
      * @var \HL7\FHIR\STU3\FHIRElement\FHIRQuantity
      */
     public $score = null;
@@ -184,7 +184,7 @@ class FHIRSequenceQuality extends FHIRBackboneElement implements \JsonSerializab
     }
 
     /**
-     * The score of an experimentally derived feature such as a p-value ([SO:0001685](http://www.sequenceontology.org/browser/current_svn/term/SO:0001685)).
+     * The score of an experimentally derived feature such as a p-value ([SO:0001685](https://www.sequenceontology.org/browser/current_svn/term/SO:0001685)).
      * @return \HL7\FHIR\STU3\FHIRElement\FHIRQuantity
      */
     public function getScore()
@@ -193,7 +193,7 @@ class FHIRSequenceQuality extends FHIRBackboneElement implements \JsonSerializab
     }
 
     /**
-     * The score of an experimentally derived feature such as a p-value ([SO:0001685](http://www.sequenceontology.org/browser/current_svn/term/SO:0001685)).
+     * The score of an experimentally derived feature such as a p-value ([SO:0001685](https://www.sequenceontology.org/browser/current_svn/term/SO:0001685)).
      * @param \HL7\FHIR\STU3\FHIRElement\FHIRQuantity $score
      * @return $this
      */
@@ -512,7 +512,7 @@ class FHIRSequenceQuality extends FHIRBackboneElement implements \JsonSerializab
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SequenceQuality xmlns="http://hl7.org/fhir"></SequenceQuality>');
+            $sxe = new \SimpleXMLElement('<SequenceQuality xmlns="https://hl7.org/fhir"></SequenceQuality>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {

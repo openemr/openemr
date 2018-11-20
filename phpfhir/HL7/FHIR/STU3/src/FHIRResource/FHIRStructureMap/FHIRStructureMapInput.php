@@ -192,7 +192,7 @@ class FHIRStructureMapInput extends FHIRBackboneElement implements \JsonSerializ
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<StructureMapInput xmlns="http://hl7.org/fhir"></StructureMapInput>');
+            $sxe = new \SimpleXMLElement('<StructureMapInput xmlns="https://hl7.org/fhir"></StructureMapInput>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->name)) {

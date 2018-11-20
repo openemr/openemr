@@ -10,7 +10,7 @@ require_once("App/SecureApp.php");
  * one approach to authentication in a Phreeze app
  *
  * From phreeze package
- * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ * @license https://www.gnu.org/copyleft/lesser.html LGPL
  *
  * @package Cargo::Controller
  * @author ClassBuilder

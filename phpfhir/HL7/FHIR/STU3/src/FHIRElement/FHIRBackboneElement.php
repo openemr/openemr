@@ -106,7 +106,7 @@ class FHIRBackboneElement extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<BackboneElement xmlns="http://hl7.org/fhir"></BackboneElement>');
+            $sxe = new \SimpleXMLElement('<BackboneElement xmlns="https://hl7.org/fhir"></BackboneElement>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->modifierExtension)) {

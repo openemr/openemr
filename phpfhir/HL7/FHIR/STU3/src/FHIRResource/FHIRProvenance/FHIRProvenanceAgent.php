@@ -256,7 +256,7 @@ class FHIRProvenanceAgent extends FHIRBackboneElement implements \JsonSerializab
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ProvenanceAgent xmlns="http://hl7.org/fhir"></ProvenanceAgent>');
+            $sxe = new \SimpleXMLElement('<ProvenanceAgent xmlns="https://hl7.org/fhir"></ProvenanceAgent>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->role)) {

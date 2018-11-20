@@ -55,8 +55,8 @@ interface UploadedFileInterface
      * If you wish to move to a stream, use getStream(), as SAPI operations
      * cannot guarantee writing to stream destinations.
      *
-     * @see http://php.net/is_uploaded_file
-     * @see http://php.net/move_uploaded_file
+     * @see https://php.net/is_uploaded_file
+     * @see https://php.net/move_uploaded_file
      * @param string $targetPath Path to which to move the uploaded file.
      * @throws \InvalidArgumentException if the $targetPath specified is invalid.
      * @throws \RuntimeException on any error during the move operation, or on
@@ -86,7 +86,7 @@ interface UploadedFileInterface
      * Implementations SHOULD return the value stored in the "error" key of
      * the file in the $_FILES array.
      *
-     * @see http://php.net/manual/en/features.file-upload.errors.php
+     * @see https://php.net/manual/en/features.file-upload.errors.php
      * @return int One of PHP's UPLOAD_ERR_XXX constants.
      */
     public function getError();

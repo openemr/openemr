@@ -105,7 +105,7 @@ class FHIRStructureDefinitionDifferential extends FHIRBackboneElement implements
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<StructureDefinitionDifferential xmlns="http://hl7.org/fhir"></StructureDefinitionDifferential>');
+            $sxe = new \SimpleXMLElement('<StructureDefinitionDifferential xmlns="https://hl7.org/fhir"></StructureDefinitionDifferential>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->element)) {

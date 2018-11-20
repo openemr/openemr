@@ -20,11 +20,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ * along with this program. If not, see <https://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
  * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 /**
@@ -389,7 +389,7 @@ function send_reminders()
       /******************************************************************************
     *     // Maviq does not work, is not currently supported, and seems to break on windows servers, so this
     *     //  feature has been commented out for now.
-    *     // Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.
+    *     // Automated VOIP service provided by Maviq. Please visit https://signup.maviq.com for more information.
     *      $siteId = $GLOBALS['phone_gateway_username'];
     *      $token = $GLOBALS['phone_gateway_password'];
     *      $endpoint = $GLOBALS['phone_gateway_url'];

@@ -326,7 +326,7 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Substance xmlns="http://hl7.org/fhir"></Substance>');
+            $sxe = new \SimpleXMLElement('<Substance xmlns="https://hl7.org/fhir"></Substance>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {

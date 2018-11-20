@@ -4,7 +4,7 @@
  * The second is sl_eob_invoice.php.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Bill Cernansky
  * @author    Tony McCormick

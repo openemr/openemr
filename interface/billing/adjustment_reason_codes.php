@@ -1,6 +1,6 @@
 <?php
 
-// See http://www.wpc-edi.com/codes
+// See https://www.wpc-edi.com/codes
 //
 $adjustment_reasons = array(
  '1' => 'Deductible Amount',

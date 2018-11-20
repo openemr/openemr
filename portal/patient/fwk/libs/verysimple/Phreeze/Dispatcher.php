@@ -13,7 +13,7 @@ require_once("verysimple/Util/ExceptionThrower.php");
  * @package verysimple::Phreeze
  * @author VerySimple Inc.
  * @copyright 1997-2007 VerySimple, Inc.
- * @license http://www.gnu.org/licenses/lgpl.html LGPL
+ * @license https://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.7
  */
 class Dispatcher

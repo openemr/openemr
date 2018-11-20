@@ -16,7 +16,7 @@ use HL7\FHIR\STU3\FHIRElement;
 class FHIRElementDefinitionType extends FHIRElement implements \JsonSerializable
 {
     /**
-     * URL of Data type or Resource that is a(or the) type used for this element. References are URLs that are relative to http://hl7.org/fhir/StructureDefinition e.g. "string" is a reference to http://hl7.org/fhir/StructureDefinition/string. Absolute URLs are only allowed in logical models.
+     * URL of Data type or Resource that is a(or the) type used for this element. References are URLs that are relative to https://hl7.org/fhir/StructureDefinition e.g. "string" is a reference to https://hl7.org/fhir/StructureDefinition/string. Absolute URLs are only allowed in logical models.
      * @var \HL7\FHIR\STU3\FHIRElement\FHIRUri
      */
     public $code = null;
@@ -51,7 +51,7 @@ class FHIRElementDefinitionType extends FHIRElement implements \JsonSerializable
     private $_fhirElementName = 'ElementDefinition.Type';
 
     /**
-     * URL of Data type or Resource that is a(or the) type used for this element. References are URLs that are relative to http://hl7.org/fhir/StructureDefinition e.g. "string" is a reference to http://hl7.org/fhir/StructureDefinition/string. Absolute URLs are only allowed in logical models.
+     * URL of Data type or Resource that is a(or the) type used for this element. References are URLs that are relative to https://hl7.org/fhir/StructureDefinition e.g. "string" is a reference to https://hl7.org/fhir/StructureDefinition/string. Absolute URLs are only allowed in logical models.
      * @return \HL7\FHIR\STU3\FHIRElement\FHIRUri
      */
     public function getCode()
@@ -60,7 +60,7 @@ class FHIRElementDefinitionType extends FHIRElement implements \JsonSerializable
     }
 
     /**
-     * URL of Data type or Resource that is a(or the) type used for this element. References are URLs that are relative to http://hl7.org/fhir/StructureDefinition e.g. "string" is a reference to http://hl7.org/fhir/StructureDefinition/string. Absolute URLs are only allowed in logical models.
+     * URL of Data type or Resource that is a(or the) type used for this element. References are URLs that are relative to https://hl7.org/fhir/StructureDefinition e.g. "string" is a reference to https://hl7.org/fhir/StructureDefinition/string. Absolute URLs are only allowed in logical models.
      * @param \HL7\FHIR\STU3\FHIRElement\FHIRUri $code
      * @return $this
      */
@@ -234,7 +234,7 @@ class FHIRElementDefinitionType extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ElementDefinitionType xmlns="http://hl7.org/fhir"></ElementDefinitionType>');
+            $sxe = new \SimpleXMLElement('<ElementDefinitionType xmlns="https://hl7.org/fhir"></ElementDefinitionType>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->code)) {

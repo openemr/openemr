@@ -90,7 +90,7 @@ class FHIRResearchStudyStatus extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ResearchStudyStatus xmlns="http://hl7.org/fhir"></ResearchStudyStatus>');
+            $sxe = new \SimpleXMLElement('<ResearchStudyStatus xmlns="https://hl7.org/fhir"></ResearchStudyStatus>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

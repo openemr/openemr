@@ -21,7 +21,7 @@ class PQRIXml extends XmlWriterOemr
     {
 
         $this->push('submission', array('type'=>'PQRI-REGISTRY', 'option'=>'payment',
-           'xmlns:xsi'=>'http://www.w3.org/2001/XMLSchema-instance', 'xsi:noNamespaceSchemaLocation'=>'Registry_Payment.xsd'));
+           'xmlns:xsi'=>'https://www.w3.org/2001/XMLSchema-instance', 'xsi:noNamespaceSchemaLocation'=>'Registry_Payment.xsd'));
     }
 
     function close_submission()

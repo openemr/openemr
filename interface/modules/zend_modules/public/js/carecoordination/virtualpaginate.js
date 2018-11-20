@@ -1,5 +1,5 @@
 // -------------------------------------------------------------------
-// Virtual Pagination Script- By Dynamic Drive, available at: http://www.dynamicdrive.com
+// Virtual Pagination Script- By Dynamic Drive, available at: https://www.dynamicdrive.com
 // Updated: Nov 21st, 2008 to v2.0
 // ** Adds ability to define multiple pagination DIVs (the secondary DIVs mirror primary DIV's contents)
 // ** Last viewed page persistence, so last viewed page can be remembered/ recalled within browser session.

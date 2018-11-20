@@ -128,7 +128,7 @@ class FHIRPatientCommunication extends FHIRBackboneElement implements \JsonSeria
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<PatientCommunication xmlns="http://hl7.org/fhir"></PatientCommunication>');
+            $sxe = new \SimpleXMLElement('<PatientCommunication xmlns="https://hl7.org/fhir"></PatientCommunication>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->language)) {

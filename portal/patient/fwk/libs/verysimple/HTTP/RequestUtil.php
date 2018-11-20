@@ -12,8 +12,8 @@
  *
  * @package verysimple::HTTP
  * @author VerySimple Inc.
- * @copyright 1997-2011 VerySimple, Inc. http://www.verysimple.com
- * @license http://www.gnu.org/licenses/lgpl.html LGPL
+ * @copyright 1997-2011 VerySimple, Inc. https://www.verysimple.com
+ * @license https://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.4
  */
 class RequestUtil
@@ -42,7 +42,7 @@ class RequestUtil
      * Returns the remote host IP address, attempting to locate originating
      * IP of the requester in the case of proxy/load balanced requests.
      *
-     * @see http://en.wikipedia.org/wiki/X-Forwarded-For
+     * @see https://en.wikipedia.org/wiki/X-Forwarded-For
      * @return string
      */
     static function GetRemoteHost()
@@ -117,7 +117,7 @@ class RequestUtil
     /**
      * Returns the base url of the currently executing script.
      * For example
-     * the script http://localhost/myapp/index.php would return http://localhost/myapp/
+     * the script https://localhost/myapp/index.php would return https://localhost/myapp/
      *
      * @return string URL path with trailing slash
      */
@@ -147,7 +147,7 @@ class RequestUtil
         }
 
         $parts = explode("/", $url);
-        // we only want the parts starting with #3 (after http://server/)
+        // we only want the parts starting with #3 (after https://server/)
 
         array_shift($parts);
         array_shift($parts);
@@ -312,7 +312,7 @@ class RequestUtil
 
         if (isset($_SERVER ['REQUEST_URI'])) {
             // REQUEST_URI is more accurate but isn't always defined on windows
-            // in particular for the format http://www.domain.com/?var=val
+            // in particular for the format https://www.domain.com/?var=val
             $pq = explode("?", $_SERVER ['REQUEST_URI'], 2);
             $path = $pq [0];
             $qs = isset($pq [1]) ? "?" . $pq [1] : "";

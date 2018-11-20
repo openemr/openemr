@@ -3,7 +3,7 @@
  * Generated DocBlock
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  shahar zi <shaharzi@matrix.co.il>
  * @author  Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2017 shahar zi <shaharzi@matrix.co.il>

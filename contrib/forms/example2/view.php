@@ -11,12 +11,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
+ * along with this program.  If not, see <https://opensource.org/licenses/gpl-license.php>.
  *
  * @package   OpenEMR
  * @author    Jason Morrill
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  */
 
 
@@ -73,7 +73,7 @@ if ($record['sig_date'] != "") {
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
 function PrintForm() {
-    newwin = window.open("<?php echo "http://".$_SERVER['SERVER_NAME'].$rootdir."/forms/".$form_folder."/print.php?id=".$_GET["id"]; ?>","mywin");
+    newwin = window.open("<?php echo "https://".$_SERVER['SERVER_NAME'].$rootdir."/forms/".$form_folder."/print.php?id=".$_GET["id"]; ?>","mywin");
 }
 </script>
 

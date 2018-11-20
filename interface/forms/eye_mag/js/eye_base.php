@@ -18,11 +18,11 @@
  *  GNU Affero General Public License for more details.
  *
  *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  * @package OpenEMR
  * @author Ray Magauran <magauran@MedFetch.com>
- * @link http://www.open-emr.org
+ * @link https://www.open-emr.org
  */
 
 
@@ -173,7 +173,7 @@ function code_400() {
  *  Convert the DB datetime values into date objects in JS
  *
  * "You should parse them to get a Date object, for that format I always use the following function:
- * http://stackoverflow.com/questions/2627650/why-javascript-gettime-is-not-a-function"
+ * https://stackoverflow.com/questions/2627650/why-javascript-gettime-is-not-a-function"
  *
  */
 function parseDate(input) {

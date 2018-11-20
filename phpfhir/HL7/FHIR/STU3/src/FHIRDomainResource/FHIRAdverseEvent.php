@@ -623,7 +623,7 @@ class FHIRAdverseEvent extends FHIRDomainResource implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<AdverseEvent xmlns="http://hl7.org/fhir"></AdverseEvent>');
+            $sxe = new \SimpleXMLElement('<AdverseEvent xmlns="https://hl7.org/fhir"></AdverseEvent>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->identifier)) {

@@ -567,7 +567,7 @@ class FHIRGuidanceResponse extends FHIRDomainResource implements \JsonSerializab
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<GuidanceResponse xmlns="http://hl7.org/fhir"></GuidanceResponse>');
+            $sxe = new \SimpleXMLElement('<GuidanceResponse xmlns="https://hl7.org/fhir"></GuidanceResponse>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->requestId)) {

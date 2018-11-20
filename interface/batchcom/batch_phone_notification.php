@@ -3,7 +3,7 @@
  * To be run by cron hourly, sending phone reminders
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Matthew Vita <matthewvita48@gmail.com>
  * @author  Jason 'Toolbox' Oettinger <jason@oettinger.email>

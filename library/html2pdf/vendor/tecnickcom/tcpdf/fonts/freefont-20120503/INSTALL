@@ -9,9 +9,9 @@ UNIX/GNU/Linux/BSD Systems
 --------------------------
 
 FreeFont works with any system using the free font rasterizer FreeType
-<http://www.freetype.org/>.  Some features such as glyph substitution and
+<https://www.freetype.org/>.  Some features such as glyph substitution and
 positioning may be handled by the text layout library
-Pango <http://www.pango.org/>.
+Pango <https://www.pango.org/>.
 
 Most recent systems using FreeType2 and Pango handle OpenType fonts well,
 but on older systems TrueType may perform better.

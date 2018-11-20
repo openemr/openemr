@@ -13,12 +13,12 @@
  * MERCHANTABILITY OF FITNESS FOR A PARTICULAR PURPOSE, See the
  * GNU General Public License for more details.
  * You should have received a copy of the CNU General Public License
- * along with this program. If not, see <http://opensource.org/Licenses/gpl-license.php>;.
+ * along with this program. If not, see <https://opensource.org/Licenses/gpl-license.php>;.
  *
  * @package OpenEMR
  * @author Roberto Vasquez <robertogagliotta@gmail.com>
  * @author Scott Wakefield <scott@npclinics.com.au>
- * @link http://www.open-emr.org
+ * @link https://www.open-emr.org
  *
 **/
 
@@ -206,8 +206,8 @@ if ($state == 7) {
 <li>There's much information and many extra tools bundled within the OpenEMR installation directory.
     Please refer to openemr/Documentation. Many forms and other useful scripts can be found at openemr/contrib.</li>
 <li>To ensure a consistent look and feel throughout the application,
-    <a href='http://www.mozilla.org/products/firefox/'>Firefox</a> and <a href="https://www.google.com/chrome/browser/desktop/index.html">Chrome</a> are recommended. The OpenEMR development team exclusively tests with modern versions of these browsers.</li>
-<li>The OpenEMR project home page, documentation, and forums can be found at <a href = "http://www.open-emr.org" target="_blank">http://www.open-emr.org</a></li>
+    <a href='https://www.mozilla.org/products/firefox/'>Firefox</a> and <a href="https://www.google.com/chrome/browser/desktop/index.html">Chrome</a> are recommended. The OpenEMR development team exclusively tests with modern versions of these browsers.</li>
+<li>The OpenEMR project home page, documentation, and forums can be found at <a href = "https://www.open-emr.org" target="_blank">https://www.open-emr.org</a></li>
 <li>We pursue grants to help fund the future development of OpenEMR.  To apply for these grants, we need to estimate how many times this program is installed and how many practices are evaluating or using this software.  It would be awesome if you would email us at <a href="mailto:president@oemr.org">president@oemr.org</a> if you have installed this software. The more details about your plans with this software, the better, but even just sending us an email stating you just installed it is very helpful.</li>
 </ul>
 <p>

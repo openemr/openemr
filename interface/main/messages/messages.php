@@ -3,7 +3,7 @@
  * Message and Reminder Center UI
  *
  * @Package OpenEMR
- * @link http://www.open-emr.org
+ * @link https://www.open-emr.org
  * @author OpenEMR Support LLC
  * @author Roberto Vasquez robertogagliotta@gmail.com
  * @author Rod Roark rod@sunsetsystems.com

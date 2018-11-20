@@ -128,7 +128,7 @@ class FHIRMedicationDispensePerformer extends FHIRBackboneElement implements \Js
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicationDispensePerformer xmlns="http://hl7.org/fhir"></MedicationDispensePerformer>');
+            $sxe = new \SimpleXMLElement('<MedicationDispensePerformer xmlns="https://hl7.org/fhir"></MedicationDispensePerformer>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->actor)) {

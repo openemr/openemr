@@ -1,10 +1,10 @@
 <?php
 /**
  * Interactive code finder.
- * For DataTables documentation see: http://legacy.datatables.net/
+ * For DataTables documentation see: https://legacy.datatables.net/
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015-2017 Rod Roark <rod@sunsetsystems.com>

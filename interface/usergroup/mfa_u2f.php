@@ -3,7 +3,7 @@
  * FIDO U2F Support Module
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Rod Roark <rod@sunsetsystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
@@ -14,7 +14,7 @@ require_once('../globals.php');
 use OpenEMR\Core\Header;
 
 // https is required, and with a proxy the server might not see it.
-$scheme = "https://"; // isset($_SERVER['HTTPS']) ? "https://" : "http://";
+$scheme = "https://"; // isset($_SERVER['HTTPS']) ? "https://" : "https://";
 $appId = $scheme . $_SERVER['HTTP_HOST'];
 $u2f = new u2flib_server\U2F($appId);
 

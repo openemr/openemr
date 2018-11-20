@@ -187,7 +187,7 @@ class FHIRUsageContext extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<UsageContext xmlns="http://hl7.org/fhir"></UsageContext>');
+            $sxe = new \SimpleXMLElement('<UsageContext xmlns="https://hl7.org/fhir"></UsageContext>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->code)) {

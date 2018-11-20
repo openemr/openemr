@@ -24,7 +24,7 @@
   doing some magic.
   - `(new Uri)->withPath('foo')->withHost('example.com')` will throw an exception
     because the path of a URI with an authority must start with a slash "/" or be empty
-  - `(new Uri())->withScheme('http')` will return `'http://localhost'`
+  - `(new Uri())->withScheme('http')` will return `'https://localhost'`
 * Fix compatibility of URIs with `file` scheme and empty host.
 * Added common URI utility methods based on RFC 3986 (see documentation in the readme):
   - `Uri::isDefaultPort`

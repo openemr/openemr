@@ -90,7 +90,7 @@ class FHIRSystemVersionProcessingMode extends FHIRElement implements \JsonSerial
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SystemVersionProcessingMode xmlns="http://hl7.org/fhir"></SystemVersionProcessingMode>');
+            $sxe = new \SimpleXMLElement('<SystemVersionProcessingMode xmlns="https://hl7.org/fhir"></SystemVersionProcessingMode>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

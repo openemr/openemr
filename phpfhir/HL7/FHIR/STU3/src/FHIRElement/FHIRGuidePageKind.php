@@ -90,7 +90,7 @@ class FHIRGuidePageKind extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<GuidePageKind xmlns="http://hl7.org/fhir"></GuidePageKind>');
+            $sxe = new \SimpleXMLElement('<GuidePageKind xmlns="https://hl7.org/fhir"></GuidePageKind>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

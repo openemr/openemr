@@ -14,11 +14,11 @@
  *  GNU Affero General Public License for more details.
  *
  *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  * @package OpenEMR
  * @author Jerry Padgett <sjpadgett@gmail.com>
- * @link http://www.open-emr.org
+ * @link https://www.open-emr.org
  */
 
 /**
@@ -385,7 +385,7 @@ class sigToSvg
         $max[0] = $this->getBound(0);
         $max[1] = $this->getBound(1);
         $lines = $this->getLineElements();
-        return '<?xml version="1.0"?><svg baseProfile="tiny" width="' . $this->getBound(0) . '" height="' . $this->getBound(1) . '" version="1.2" xmlns="http://www.w3.org/2000/svg"><g fill="red" stroke="' . $this->options['penColour'] . '" stroke-width="' . (int)$this->options['penWidth'] . '" stroke-linecap="round" stroke-lingjoin="round"><title>' . htmlspecialchars($this->options['title']) . '</title>' . $lines . '</g></svg>';
+        return '<?xml version="1.0"?><svg baseProfile="tiny" width="' . $this->getBound(0) . '" height="' . $this->getBound(1) . '" version="1.2" xmlns="https://www.w3.org/2000/svg"><g fill="red" stroke="' . $this->options['penColour'] . '" stroke-width="' . (int)$this->options['penWidth'] . '" stroke-linecap="round" stroke-lingjoin="round"><title>' . htmlspecialchars($this->options['title']) . '</title>' . $lines . '</g></svg>';
     }
     /**
      * Compress the SVG using gzip.

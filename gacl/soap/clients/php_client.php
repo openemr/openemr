@@ -4,7 +4,7 @@ require_once('../nusoap.php');
 /*
  * EDIT THE BELOW URL TO MATCH YOUR SERVER.
  */
-$soapclient = new soapclient('http://localhost/phpgacl/soap/server.php');
+$soapclient = new soapclient('https://localhost/phpgacl/soap/server.php');
 
 function acl_check($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group_id=NULL, $root_axo_group_id=NULL) {
         global $soapclient;

@@ -90,7 +90,7 @@ class FHIRCodeSystemContentMode extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CodeSystemContentMode xmlns="http://hl7.org/fhir"></CodeSystemContentMode>');
+            $sxe = new \SimpleXMLElement('<CodeSystemContentMode xmlns="https://hl7.org/fhir"></CodeSystemContentMode>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

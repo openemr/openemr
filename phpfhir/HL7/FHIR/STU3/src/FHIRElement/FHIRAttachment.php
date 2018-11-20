@@ -321,7 +321,7 @@ class FHIRAttachment extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Attachment xmlns="http://hl7.org/fhir"></Attachment>');
+            $sxe = new \SimpleXMLElement('<Attachment xmlns="https://hl7.org/fhir"></Attachment>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->contentType)) {

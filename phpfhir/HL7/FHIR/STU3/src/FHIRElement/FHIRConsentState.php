@@ -90,7 +90,7 @@ class FHIRConsentState extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ConsentState xmlns="http://hl7.org/fhir"></ConsentState>');
+            $sxe = new \SimpleXMLElement('<ConsentState xmlns="https://hl7.org/fhir"></ConsentState>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

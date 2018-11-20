@@ -3,7 +3,7 @@
  * /interface/main/messages/save.php
  *
  * @package MedEx
- * @link    http://www.MedExBank.com
+ * @link    https://www.MedExBank.com
  * @author  MedEx <support@MedExBank.com>
  * @copyright Copyright (c) 2017 MedEx <support@MedExBank.com>
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
@@ -87,7 +87,7 @@ if ($_REQUEST['MedEx'] == "start") {
         $data['MedEx'] = "1";
         $data['ipaddress'] = $_SERVER['REMOTE_ADDR'];
 
-        $prefix = 'http://';
+        $prefix = 'https://';
         if ($_SERVER["SSL_TLS_SNI"]) {
             $prefix = "https://";
         }

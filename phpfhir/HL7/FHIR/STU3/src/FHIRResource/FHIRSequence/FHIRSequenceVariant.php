@@ -27,19 +27,19 @@ class FHIRSequenceVariant extends FHIRBackboneElement implements \JsonSerializab
     public $end = null;
 
     /**
-     * An allele is one of a set of coexisting sequence variants of a gene ([SO:0001023](http://www.sequenceontology.org/browser/current_svn/term/SO:0001023)).  Nucleotide(s)/amino acids from start position of sequence to stop position of sequence on the positive (+) strand of the observed  sequence. When the sequence  type is DNA, it should be the sequence on the positive (+) strand. This will lay in the range between variant.start and variant.end.
+     * An allele is one of a set of coexisting sequence variants of a gene ([SO:0001023](https://www.sequenceontology.org/browser/current_svn/term/SO:0001023)).  Nucleotide(s)/amino acids from start position of sequence to stop position of sequence on the positive (+) strand of the observed  sequence. When the sequence  type is DNA, it should be the sequence on the positive (+) strand. This will lay in the range between variant.start and variant.end.
      * @var \HL7\FHIR\STU3\FHIRElement\FHIRString
      */
     public $observedAllele = null;
 
     /**
-     * An allele is one of a set of coexisting sequence variants of a gene ([SO:0001023](http://www.sequenceontology.org/browser/current_svn/term/SO:0001023)). Nucleotide(s)/amino acids from start position of sequence to stop position of sequence on the positive (+) strand of the reference sequence. When the sequence  type is DNA, it should be the sequence on the positive (+) strand. This will lay in the range between variant.start and variant.end.
+     * An allele is one of a set of coexisting sequence variants of a gene ([SO:0001023](https://www.sequenceontology.org/browser/current_svn/term/SO:0001023)). Nucleotide(s)/amino acids from start position of sequence to stop position of sequence on the positive (+) strand of the reference sequence. When the sequence  type is DNA, it should be the sequence on the positive (+) strand. This will lay in the range between variant.start and variant.end.
      * @var \HL7\FHIR\STU3\FHIRElement\FHIRString
      */
     public $referenceAllele = null;
 
     /**
-     * Extended CIGAR string for aligning the sequence with reference bases. See detailed documentation [here](http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_ExtendedCIGARFormat.htm).
+     * Extended CIGAR string for aligning the sequence with reference bases. See detailed documentation [here](https://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_ExtendedCIGARFormat.htm).
      * @var \HL7\FHIR\STU3\FHIRElement\FHIRString
      */
     public $cigar = null;
@@ -96,7 +96,7 @@ class FHIRSequenceVariant extends FHIRBackboneElement implements \JsonSerializab
     }
 
     /**
-     * An allele is one of a set of coexisting sequence variants of a gene ([SO:0001023](http://www.sequenceontology.org/browser/current_svn/term/SO:0001023)).  Nucleotide(s)/amino acids from start position of sequence to stop position of sequence on the positive (+) strand of the observed  sequence. When the sequence  type is DNA, it should be the sequence on the positive (+) strand. This will lay in the range between variant.start and variant.end.
+     * An allele is one of a set of coexisting sequence variants of a gene ([SO:0001023](https://www.sequenceontology.org/browser/current_svn/term/SO:0001023)).  Nucleotide(s)/amino acids from start position of sequence to stop position of sequence on the positive (+) strand of the observed  sequence. When the sequence  type is DNA, it should be the sequence on the positive (+) strand. This will lay in the range between variant.start and variant.end.
      * @return \HL7\FHIR\STU3\FHIRElement\FHIRString
      */
     public function getObservedAllele()
@@ -105,7 +105,7 @@ class FHIRSequenceVariant extends FHIRBackboneElement implements \JsonSerializab
     }
 
     /**
-     * An allele is one of a set of coexisting sequence variants of a gene ([SO:0001023](http://www.sequenceontology.org/browser/current_svn/term/SO:0001023)).  Nucleotide(s)/amino acids from start position of sequence to stop position of sequence on the positive (+) strand of the observed  sequence. When the sequence  type is DNA, it should be the sequence on the positive (+) strand. This will lay in the range between variant.start and variant.end.
+     * An allele is one of a set of coexisting sequence variants of a gene ([SO:0001023](https://www.sequenceontology.org/browser/current_svn/term/SO:0001023)).  Nucleotide(s)/amino acids from start position of sequence to stop position of sequence on the positive (+) strand of the observed  sequence. When the sequence  type is DNA, it should be the sequence on the positive (+) strand. This will lay in the range between variant.start and variant.end.
      * @param \HL7\FHIR\STU3\FHIRElement\FHIRString $observedAllele
      * @return $this
      */
@@ -116,7 +116,7 @@ class FHIRSequenceVariant extends FHIRBackboneElement implements \JsonSerializab
     }
 
     /**
-     * An allele is one of a set of coexisting sequence variants of a gene ([SO:0001023](http://www.sequenceontology.org/browser/current_svn/term/SO:0001023)). Nucleotide(s)/amino acids from start position of sequence to stop position of sequence on the positive (+) strand of the reference sequence. When the sequence  type is DNA, it should be the sequence on the positive (+) strand. This will lay in the range between variant.start and variant.end.
+     * An allele is one of a set of coexisting sequence variants of a gene ([SO:0001023](https://www.sequenceontology.org/browser/current_svn/term/SO:0001023)). Nucleotide(s)/amino acids from start position of sequence to stop position of sequence on the positive (+) strand of the reference sequence. When the sequence  type is DNA, it should be the sequence on the positive (+) strand. This will lay in the range between variant.start and variant.end.
      * @return \HL7\FHIR\STU3\FHIRElement\FHIRString
      */
     public function getReferenceAllele()
@@ -125,7 +125,7 @@ class FHIRSequenceVariant extends FHIRBackboneElement implements \JsonSerializab
     }
 
     /**
-     * An allele is one of a set of coexisting sequence variants of a gene ([SO:0001023](http://www.sequenceontology.org/browser/current_svn/term/SO:0001023)). Nucleotide(s)/amino acids from start position of sequence to stop position of sequence on the positive (+) strand of the reference sequence. When the sequence  type is DNA, it should be the sequence on the positive (+) strand. This will lay in the range between variant.start and variant.end.
+     * An allele is one of a set of coexisting sequence variants of a gene ([SO:0001023](https://www.sequenceontology.org/browser/current_svn/term/SO:0001023)). Nucleotide(s)/amino acids from start position of sequence to stop position of sequence on the positive (+) strand of the reference sequence. When the sequence  type is DNA, it should be the sequence on the positive (+) strand. This will lay in the range between variant.start and variant.end.
      * @param \HL7\FHIR\STU3\FHIRElement\FHIRString $referenceAllele
      * @return $this
      */
@@ -136,7 +136,7 @@ class FHIRSequenceVariant extends FHIRBackboneElement implements \JsonSerializab
     }
 
     /**
-     * Extended CIGAR string for aligning the sequence with reference bases. See detailed documentation [here](http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_ExtendedCIGARFormat.htm).
+     * Extended CIGAR string for aligning the sequence with reference bases. See detailed documentation [here](https://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_ExtendedCIGARFormat.htm).
      * @return \HL7\FHIR\STU3\FHIRElement\FHIRString
      */
     public function getCigar()
@@ -145,7 +145,7 @@ class FHIRSequenceVariant extends FHIRBackboneElement implements \JsonSerializab
     }
 
     /**
-     * Extended CIGAR string for aligning the sequence with reference bases. See detailed documentation [here](http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_ExtendedCIGARFormat.htm).
+     * Extended CIGAR string for aligning the sequence with reference bases. See detailed documentation [here](https://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_ExtendedCIGARFormat.htm).
      * @param \HL7\FHIR\STU3\FHIRElement\FHIRString $cigar
      * @return $this
      */
@@ -256,7 +256,7 @@ class FHIRSequenceVariant extends FHIRBackboneElement implements \JsonSerializab
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SequenceVariant xmlns="http://hl7.org/fhir"></SequenceVariant>');
+            $sxe = new \SimpleXMLElement('<SequenceVariant xmlns="https://hl7.org/fhir"></SequenceVariant>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->start)) {

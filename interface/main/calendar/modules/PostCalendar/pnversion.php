@@ -4,7 +4,7 @@
  *
  *  PostCalendar::PostNuke Events Calendar Module
  *  Copyright (C) 2002  The PostCalendar Team
- *  http://postcalendar.tv
+ *  https://postcalendar.tv
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  To read the license please read the docs/license.txt or visit
- *  http://www.gnu.org/copyleft/gpl.html
+ *  https://www.gnu.org/copyleft/gpl.html
  *
  */
 $modversion['name']             = 'PostCalendar';
@@ -34,7 +34,7 @@ $modversion['changelog']        = 'docs/changelog.txt';
 $modversion['license']          = 'docs/license.txt';
 $modversion['official']         = 0;
 $modversion['author']           = 'The PostCalendar Team & Pennington Firm';
-$modversion['contact']          = 'http://www.pennfirm.com';
+$modversion['contact']          = 'https://www.pennfirm.com';
 $modversion['admin']            = 1;
 $modversion['securityschema']   = array('PostCalendar::Event'    => 'Event Title::Event ID',
                                         'PostCalendar::Category' => 'Category Name::Category ID',

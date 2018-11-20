@@ -2,7 +2,7 @@
 /**
  *
  * Enter description here ...
- * @link http://www.electrictoolbox.com/php-generate-thumbnails/
+ * @link https://www.electrictoolbox.com/php-generate-thumbnails/
  * @author Chris Hope
  *
  */

@@ -236,8 +236,8 @@ class UploadedFile implements UploadedFileInterface
     /**
      * {@inheritdoc}
      *
-     * @see http://php.net/is_uploaded_file
-     * @see http://php.net/move_uploaded_file
+     * @see https://php.net/is_uploaded_file
+     * @see https://php.net/move_uploaded_file
      * @param string $targetPath Path to which to move the uploaded file.
      * @throws RuntimeException if the upload was not successful.
      * @throws InvalidArgumentException if the $path specified is invalid.
@@ -287,7 +287,7 @@ class UploadedFile implements UploadedFileInterface
     /**
      * {@inheritdoc}
      *
-     * @see http://php.net/manual/en/features.file-upload.errors.php
+     * @see https://php.net/manual/en/features.file-upload.errors.php
      * @return int One of PHP's UPLOAD_ERR_XXX constants.
      */
     public function getError()

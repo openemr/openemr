@@ -783,7 +783,7 @@ class FHIRImmunization extends FHIRDomainResource implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Immunization xmlns="http://hl7.org/fhir"></Immunization>');
+            $sxe = new \SimpleXMLElement('<Immunization xmlns="https://hl7.org/fhir"></Immunization>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {

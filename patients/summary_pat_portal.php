@@ -3,7 +3,7 @@
  * summary_pat_portal
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Cassian LUP <cassi.lup@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2011 Cassian LUP <cassi.lup@gmail.com>

@@ -90,7 +90,7 @@ class FHIRDeviceUseStatementStatus extends FHIRElement implements \JsonSerializa
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DeviceUseStatementStatus xmlns="http://hl7.org/fhir"></DeviceUseStatementStatus>');
+            $sxe = new \SimpleXMLElement('<DeviceUseStatementStatus xmlns="https://hl7.org/fhir"></DeviceUseStatementStatus>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

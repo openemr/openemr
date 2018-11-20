@@ -192,7 +192,7 @@ class FHIRMeasureReportPopulation extends FHIRBackboneElement implements \JsonSe
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MeasureReportPopulation xmlns="http://hl7.org/fhir"></MeasureReportPopulation>');
+            $sxe = new \SimpleXMLElement('<MeasureReportPopulation xmlns="https://hl7.org/fhir"></MeasureReportPopulation>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->identifier)) {

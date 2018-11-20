@@ -5,7 +5,7 @@
  * Dual licensed under the MIT (MIT-LICENSE.txt)
  * and GPL (GPL-LICENSE.txt) licenses.
  * 
- * http://docs.jquery.com/UI/Sortables
+ * https://docs.jquery.com/UI/Sortables
  *
  * Depends:
  *   ui.base.js

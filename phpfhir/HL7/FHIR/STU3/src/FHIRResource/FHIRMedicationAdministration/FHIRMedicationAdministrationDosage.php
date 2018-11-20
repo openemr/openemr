@@ -288,7 +288,7 @@ The dosage instructions should reflect the dosage of the medication that was adm
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicationAdministrationDosage xmlns="http://hl7.org/fhir"></MedicationAdministrationDosage>');
+            $sxe = new \SimpleXMLElement('<MedicationAdministrationDosage xmlns="https://hl7.org/fhir"></MedicationAdministrationDosage>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->text)) {

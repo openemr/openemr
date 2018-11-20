@@ -361,7 +361,7 @@ class FHIREligibilityResponseBenefitBalance extends FHIRBackboneElement implemen
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<EligibilityResponseBenefitBalance xmlns="http://hl7.org/fhir"></EligibilityResponseBenefitBalance>');
+            $sxe = new \SimpleXMLElement('<EligibilityResponseBenefitBalance xmlns="https://hl7.org/fhir"></EligibilityResponseBenefitBalance>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->category)) {

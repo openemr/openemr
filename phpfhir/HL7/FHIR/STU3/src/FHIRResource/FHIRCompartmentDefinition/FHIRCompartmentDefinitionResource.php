@@ -169,7 +169,7 @@ class FHIRCompartmentDefinitionResource extends FHIRBackboneElement implements \
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CompartmentDefinitionResource xmlns="http://hl7.org/fhir"></CompartmentDefinitionResource>');
+            $sxe = new \SimpleXMLElement('<CompartmentDefinitionResource xmlns="https://hl7.org/fhir"></CompartmentDefinitionResource>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->code)) {

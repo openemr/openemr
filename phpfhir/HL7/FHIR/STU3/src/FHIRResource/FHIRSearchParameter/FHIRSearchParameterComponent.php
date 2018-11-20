@@ -128,7 +128,7 @@ class FHIRSearchParameterComponent extends FHIRBackboneElement implements \JsonS
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SearchParameterComponent xmlns="http://hl7.org/fhir"></SearchParameterComponent>');
+            $sxe = new \SimpleXMLElement('<SearchParameterComponent xmlns="https://hl7.org/fhir"></SearchParameterComponent>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->definition)) {

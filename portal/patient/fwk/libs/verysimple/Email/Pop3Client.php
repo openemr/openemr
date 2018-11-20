@@ -4,7 +4,7 @@
 /**
  * Generic interface for connecting to a POP3 or IMAP Server
  * GetPart, GetMimeType & GetAttachments based on code by Kevin Steffer
- * <http://www.linuxscope.net/articles/mailAttachmentsPHP.html>
+ * <https://www.linuxscope.net/articles/mailAttachmentsPHP.html>
  *
  * @package verysimple::Email
  * @author VerySimple Inc.
@@ -123,7 +123,7 @@ class Pop3Client
      * @param int $msgno
      *          message number to retrieve
      * @return stdClass
-     * @link http://www.php.net/imap_headerinfo
+     * @link https://www.php.net/imap_headerinfo
      */
     function GetHeader($msgno)
     {

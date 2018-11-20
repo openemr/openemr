@@ -65,7 +65,7 @@ class FHIRMoney extends FHIRQuantity implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Money xmlns="http://hl7.org/fhir"></Money>');
+            $sxe = new \SimpleXMLElement('<Money xmlns="https://hl7.org/fhir"></Money>');
         }
         parent::xmlSerialize(true, $sxe);
         if ($returnSXE) {

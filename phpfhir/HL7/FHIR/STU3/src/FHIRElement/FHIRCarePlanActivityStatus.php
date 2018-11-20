@@ -90,7 +90,7 @@ class FHIRCarePlanActivityStatus extends FHIRElement implements \JsonSerializabl
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CarePlanActivityStatus xmlns="http://hl7.org/fhir"></CarePlanActivityStatus>');
+            $sxe = new \SimpleXMLElement('<CarePlanActivityStatus xmlns="https://hl7.org/fhir"></CarePlanActivityStatus>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

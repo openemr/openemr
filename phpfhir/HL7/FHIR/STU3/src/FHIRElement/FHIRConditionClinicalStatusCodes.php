@@ -90,7 +90,7 @@ class FHIRConditionClinicalStatusCodes extends FHIRElement implements \JsonSeria
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ConditionClinicalStatusCodes xmlns="http://hl7.org/fhir"></ConditionClinicalStatusCodes>');
+            $sxe = new \SimpleXMLElement('<ConditionClinicalStatusCodes xmlns="https://hl7.org/fhir"></ConditionClinicalStatusCodes>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

@@ -224,7 +224,7 @@ class FHIRMeasurePopulation extends FHIRBackboneElement implements \JsonSerializ
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MeasurePopulation xmlns="http://hl7.org/fhir"></MeasurePopulation>');
+            $sxe = new \SimpleXMLElement('<MeasurePopulation xmlns="https://hl7.org/fhir"></MeasurePopulation>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->identifier)) {

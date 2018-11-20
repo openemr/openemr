@@ -3,7 +3,7 @@
  * This describes information stored in the history_data table.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2005-2007 Rod Roark <rod@sunsetsystems.com>

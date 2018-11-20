@@ -2,7 +2,7 @@
 /**
  * CCR Script.
  *
- * Copyright (C) 2010 Garden State Health Systems <http://www.gshsys.com/>
+ * Copyright (C) 2010 Garden State Health Systems <https://www.gshsys.com/>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -13,11 +13,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ * along with this program. If not, see <https://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Garden State Health Systems <http://www.gshsys.com/>
- * @link    http://www.open-emr.org
+ * @author  Garden State Health Systems <https://www.gshsys.com/>
+ * @link    https://www.open-emr.org
  */
 
 

@@ -90,7 +90,7 @@ class FHIRHTTPVerb extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<HTTPVerb xmlns="http://hl7.org/fhir"></HTTPVerb>');
+            $sxe = new \SimpleXMLElement('<HTTPVerb xmlns="https://hl7.org/fhir"></HTTPVerb>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

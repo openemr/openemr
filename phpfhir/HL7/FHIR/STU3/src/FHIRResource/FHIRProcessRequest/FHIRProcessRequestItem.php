@@ -96,7 +96,7 @@ class FHIRProcessRequestItem extends FHIRBackboneElement implements \JsonSeriali
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ProcessRequestItem xmlns="http://hl7.org/fhir"></ProcessRequestItem>');
+            $sxe = new \SimpleXMLElement('<ProcessRequestItem xmlns="https://hl7.org/fhir"></ProcessRequestItem>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->sequenceLinkId)) {

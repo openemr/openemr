@@ -12,7 +12,7 @@
  * depending on whether the setting is application-wide or machine-specific
  *
  * From phreeze package
- * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ * @license https://www.gnu.org/copyleft/lesser.html LGPL
  *
  */
 

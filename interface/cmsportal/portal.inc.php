@@ -13,14 +13,14 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ * along with this program. If not, see <https://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
  */
 
 // Note: In Ubuntu this requires the php5-curl package.
-// http://www.php.net/manual/en/function.curl-setopt.php has many comments and examples.
+// https://www.php.net/manual/en/function.curl-setopt.php has many comments and examples.
 
 if (!$GLOBALS['gbl_portal_cms_enable']) {
     die(xlt('CMS Portal not enabled!'));

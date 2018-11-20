@@ -88,7 +88,7 @@ class FHIRUuid extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<uuid xmlns="http://hl7.org/fhir"></uuid>');
+            $sxe = new \SimpleXMLElement('<uuid xmlns="https://hl7.org/fhir"></uuid>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

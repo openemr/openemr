@@ -504,7 +504,7 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Specimen xmlns="http://hl7.org/fhir"></Specimen>');
+            $sxe = new \SimpleXMLElement('<Specimen xmlns="https://hl7.org/fhir"></Specimen>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {

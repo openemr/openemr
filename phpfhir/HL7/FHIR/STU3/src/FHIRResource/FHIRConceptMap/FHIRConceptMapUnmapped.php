@@ -192,7 +192,7 @@ class FHIRConceptMapUnmapped extends FHIRBackboneElement implements \JsonSeriali
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ConceptMapUnmapped xmlns="http://hl7.org/fhir"></ConceptMapUnmapped>');
+            $sxe = new \SimpleXMLElement('<ConceptMapUnmapped xmlns="https://hl7.org/fhir"></ConceptMapUnmapped>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->mode)) {

@@ -510,7 +510,7 @@ class HTML2PDF
         $content = preg_replace('/<qrcode([^>]*)>/isU', '<hr>qrcode : $1<hr>', $content);
         $content = preg_replace('/<\/qrcode([^>]*)>/isU', '', $content);
 
-        echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+        echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "https://www.w3.org/TR/html4/loose.dtd">
 <html>
     <head>
         <title>'.HTML2PDF_locale::get('vue04').' HTML</title>

@@ -963,7 +963,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Contract xmlns="http://hl7.org/fhir"></Contract>');
+            $sxe = new \SimpleXMLElement('<Contract xmlns="https://hl7.org/fhir"></Contract>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->identifier)) {

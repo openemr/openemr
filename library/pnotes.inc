@@ -511,7 +511,7 @@ function updatePnoteMessageStatus($id, $message_status)
  * Set the patient id in an existing message where pid=0
  * @param $id the id of the existing note
  * @param $patient_id the patient id to associate with the note
- * @author EMR Direct <http://www.emrdirect.com/>
+ * @author EMR Direct <https://www.emrdirect.com/>
  */
 function updatePnotePatient($id, $patient_id)
 {

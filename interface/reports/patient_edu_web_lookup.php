@@ -3,7 +3,7 @@
  * Open websearch for patient education materials
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Tony McCormick <tony@mi-squared.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Roberto Vasquez <robertogagliotta@gmail.com>
@@ -21,9 +21,9 @@ use OpenEMR\Core\Header;
 
 // Reference website links
 $websites = array(
-  'Medline'   => 'http://vsearch.nlm.nih.gov/vivisimo/cgi-bin/query-meta?v%3Aproject=medlineplus&query=[%]&x=12&y=15',
-  'eMedicine' => 'http://search.medscape.com/reference-search?newSearchHeader=1&queryText=[%]',
-  'WebMD'     => 'http://www.webmd.com/search/search_results/default.aspx?query=[%]&sourceType=undefined'
+  'Medline'   => 'https://vsearch.nlm.nih.gov/vivisimo/cgi-bin/query-meta?v%3Aproject=medlineplus&query=[%]&x=12&y=15',
+  'eMedicine' => 'https://search.medscape.com/reference-search?newSearchHeader=1&queryText=[%]',
+  'WebMD'     => 'https://www.webmd.com/search/search_results/default.aspx?query=[%]&sourceType=undefined'
 );
 
 // Collect variables

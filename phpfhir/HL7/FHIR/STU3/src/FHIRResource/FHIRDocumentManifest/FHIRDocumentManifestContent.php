@@ -122,7 +122,7 @@ class FHIRDocumentManifestContent extends FHIRBackboneElement implements \JsonSe
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DocumentManifestContent xmlns="http://hl7.org/fhir"></DocumentManifestContent>');
+            $sxe = new \SimpleXMLElement('<DocumentManifestContent xmlns="https://hl7.org/fhir"></DocumentManifestContent>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->pAttachment)) {

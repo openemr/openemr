@@ -5,14 +5,14 @@ class parseCSV
     /*
 	 *
 	 * Class: parseCSV v0.4.3 beta
-	 * http://code.google.com/p/parsecsv-for-php/
+	 * https://code.google.com/p/parsecsv-for-php/
 	 *
 	 *
 	 * Fully conforms to the specifications lined out on wikipedia:
-	 * - http://en.wikipedia.org/wiki/Comma-separated_values
+	 * - https://en.wikipedia.org/wiki/Comma-separated_values
 	 *
 	 * Based on the concept of Ming Hong Ng's CsvFileParser class:
-	 * - http://minghong.blogspot.com/2006/07/csv-parser-for-php.html
+	 * - https://minghong.blogspot.com/2006/07/csv-parser-for-php.html
 	 *
 	 *
 	 *

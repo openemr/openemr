@@ -2,7 +2,7 @@
 
 A production grade solution for facilities and hospitals to run their OpenEMR v5 installation in the Amazon cloud. This solution is provided by [TeamEpsilon](https://github.com/GoTeamEpsilon/purpose).
 
-Many OpenEMR users run their system on premise and have not yet realized the benefits of cloud technologies. This repository provides a HIPAA and [BAA](http://searchhealthit.techtarget.com/definition/HIPAA-business-associate-agreement-BAA)-friendly solution for deploying OpenEMR securely and reliably to the cloud.
+Many OpenEMR users run their system on premise and have not yet realized the benefits of cloud technologies. This repository provides a HIPAA and [BAA](https://searchhealthit.techtarget.com/definition/HIPAA-business-associate-agreement-BAA)-friendly solution for deploying OpenEMR securely and reliably to the cloud.
 
 ## 📒 Setup Guide
 

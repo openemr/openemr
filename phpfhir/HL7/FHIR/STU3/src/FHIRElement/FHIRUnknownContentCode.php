@@ -90,7 +90,7 @@ class FHIRUnknownContentCode extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<UnknownContentCode xmlns="http://hl7.org/fhir"></UnknownContentCode>');
+            $sxe = new \SimpleXMLElement('<UnknownContentCode xmlns="https://hl7.org/fhir"></UnknownContentCode>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

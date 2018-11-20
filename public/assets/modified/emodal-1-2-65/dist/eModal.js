@@ -1,6 +1,6 @@
 /* ========================================================================
  * SaRibe: eModal.js v1.2.65
- * http://saribe.github.io/eModal
+ * https://saribe.github.io/eModal
  * ========================================================================
  * Copyright Samuel Ribeiro.
  * Licensed under MIT.

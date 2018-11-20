@@ -90,7 +90,7 @@ class FHIRSearchParamType extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SearchParamType xmlns="http://hl7.org/fhir"></SearchParamType>');
+            $sxe = new \SimpleXMLElement('<SearchParamType xmlns="https://hl7.org/fhir"></SearchParamType>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

@@ -160,7 +160,7 @@ class FHIRDeviceComponentProductionSpecification extends FHIRBackboneElement imp
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DeviceComponentProductionSpecification xmlns="http://hl7.org/fhir"></DeviceComponentProductionSpecification>');
+            $sxe = new \SimpleXMLElement('<DeviceComponentProductionSpecification xmlns="https://hl7.org/fhir"></DeviceComponentProductionSpecification>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->specType)) {

@@ -495,7 +495,7 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<NutritionOrder xmlns="http://hl7.org/fhir"></NutritionOrder>');
+            $sxe = new \SimpleXMLElement('<NutritionOrder xmlns="https://hl7.org/fhir"></NutritionOrder>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {

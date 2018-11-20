@@ -448,7 +448,7 @@ class FHIRCoverageGrouping extends FHIRBackboneElement implements \JsonSerializa
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<CoverageGrouping xmlns="http://hl7.org/fhir"></CoverageGrouping>');
+            $sxe = new \SimpleXMLElement('<CoverageGrouping xmlns="https://hl7.org/fhir"></CoverageGrouping>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->group)) {

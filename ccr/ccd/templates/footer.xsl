@@ -27,10 +27,10 @@ License :
         GNU General Public License for more details.
 
         You should have received a copy of the GNU General Public License
-        along with this program.  If not, see http://www.gnu.org/licenses.
+        along with this program.  If not, see https://www.gnu.org/licenses.
 
 -->
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:fo="http://www.w3.org/1999/XSL/Format">
+<xsl:stylesheet version="1.0" xmlns:xsl="https://www.w3.org/1999/XSL/Transform" xmlns:fo="https://www.w3.org/1999/XSL/Format">
 	<!-- HTML Footer for CCR.XSL -->
 	<xsl:template name="footer">
 		<br/>
@@ -49,7 +49,7 @@ License :
 				</tr>
 				<tr>
 					<td>
-						<font size="3" color="#FFFF99"><strong>Powered by the <a style="color:white;" href="http://www.astm.org/cgi-bin/SoftCart.exe/DATABASE.CART/REDLINE_PAGES/E2369.htm?E+mystore">ASTM E2369-05 Specification for the Continuity of Care Record (CCR)</a> which includes:</strong></font>
+						<font size="3" color="#FFFF99"><strong>Powered by the <a style="color:white;" href="https://www.astm.org/cgi-bin/SoftCart.exe/DATABASE.CART/REDLINE_PAGES/E2369.htm?E+mystore">ASTM E2369-05 Specification for the Continuity of Care Record (CCR)</a> which includes:</strong></font>
 					</td>
 				</tr>
 				<tr>

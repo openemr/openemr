@@ -265,7 +265,7 @@ class FHIRConceptMapGroup extends FHIRBackboneElement implements \JsonSerializab
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ConceptMapGroup xmlns="http://hl7.org/fhir"></ConceptMapGroup>');
+            $sxe = new \SimpleXMLElement('<ConceptMapGroup xmlns="https://hl7.org/fhir"></ConceptMapGroup>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->source)) {

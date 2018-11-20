@@ -90,7 +90,7 @@ class FHIRReferenceHandlingPolicy extends FHIRElement implements \JsonSerializab
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ReferenceHandlingPolicy xmlns="http://hl7.org/fhir"></ReferenceHandlingPolicy>');
+            $sxe = new \SimpleXMLElement('<ReferenceHandlingPolicy xmlns="https://hl7.org/fhir"></ReferenceHandlingPolicy>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

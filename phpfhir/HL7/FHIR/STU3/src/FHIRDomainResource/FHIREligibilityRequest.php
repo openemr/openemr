@@ -584,7 +584,7 @@ class FHIREligibilityRequest extends FHIRDomainResource implements \JsonSerializ
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<EligibilityRequest xmlns="http://hl7.org/fhir"></EligibilityRequest>');
+            $sxe = new \SimpleXMLElement('<EligibilityRequest xmlns="https://hl7.org/fhir"></EligibilityRequest>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {

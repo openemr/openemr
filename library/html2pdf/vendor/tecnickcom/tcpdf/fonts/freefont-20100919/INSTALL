@@ -9,14 +9,14 @@ UNIX/GNU/Linux/BSD Systems
 --------------------------
 
 FreeFont works with any system using the free font rasterizer FreeType
-<http://www.freetype.org/>.
+<https://www.freetype.org/>.
 
 * Debian GNU/Linux
 
 Users of Debian GNU/Linux system will probably want to use the Debian package,
 available from the Debian site, 
 
-	<http://packages.debian.org/unstable/x11/ttf-freefont.html>,
+	<https://packages.debian.org/unstable/x11/ttf-freefont.html>,
 
 or any of its mirrors.
 

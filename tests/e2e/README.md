@@ -54,7 +54,7 @@ Move the downloaded file to an executable directory
 
 ### Install Selenium server
 
-Download standalone selenium server from here: http://docs.seleniumhq.org/download/
+Download standalone selenium server from here: https://docs.seleniumhq.org/download/
 
 Download and install JRE. You can get JRE from java.com or from your Linux distro repositories. Check you can run it: 
 
@@ -81,7 +81,7 @@ Then, run the test:
 
     https://sites.google.com/a/chromium.org/chromedriver/downloads
 
-    http://docs.seleniumhq.org/download/
+    https://docs.seleniumhq.org/download/
 
     https://www.sitepoint.com/using-selenium-with-phpunit/
 

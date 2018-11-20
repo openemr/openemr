@@ -626,7 +626,7 @@ class FHIRGoal extends FHIRDomainResource implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Goal xmlns="http://hl7.org/fhir"></Goal>');
+            $sxe = new \SimpleXMLElement('<Goal xmlns="https://hl7.org/fhir"></Goal>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {

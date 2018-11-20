@@ -270,7 +270,7 @@ class FHIRValueSetParameter extends FHIRBackboneElement implements \JsonSerializ
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ValueSetParameter xmlns="http://hl7.org/fhir"></ValueSetParameter>');
+            $sxe = new \SimpleXMLElement('<ValueSetParameter xmlns="https://hl7.org/fhir"></ValueSetParameter>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->name)) {

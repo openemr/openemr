@@ -13,7 +13,7 @@
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
 * You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
+* along with this program.  If not, see <https://opensource.org/licenses/gpl-license.php>.
 *
 * @package   OpenEMR
 * @author    Rod Roark <rod@sunsetsystems.com>
@@ -55,7 +55,7 @@ if (!empty($_POST['form_sign']) && !empty($_POST['form_sign_list'])) {
 // This mess generates a PDF report and sends it to the patient.
 if (!empty($_POST['form_send_to_portal'])) {
   // Borrowing the general strategy here from custom_report.php.
-  // See also: http://wiki.spipu.net/doku.php?id=html2pdf:en:v3:output
+  // See also: https://wiki.spipu.net/doku.php?id=html2pdf:en:v3:output
     require_once("$srcdir/html2pdf/html2pdf.class.php");
     require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
     $pdf = new HTML2PDF('P', 'Letter', 'en');

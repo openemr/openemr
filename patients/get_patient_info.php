@@ -3,7 +3,7 @@
  * Generated DocBlock
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Oleg Sverdlov <olegsv@matrix.co.il>
  * @author  Cassian LUP <cassi.lup@gmail.com>
  * @author  Robert Down <robertdown@live.com>

@@ -131,7 +131,7 @@ class FHIRDiagnosticReportPerformer extends FHIRBackboneElement implements \Json
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DiagnosticReportPerformer xmlns="http://hl7.org/fhir"></DiagnosticReportPerformer>');
+            $sxe = new \SimpleXMLElement('<DiagnosticReportPerformer xmlns="https://hl7.org/fhir"></DiagnosticReportPerformer>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->role)) {

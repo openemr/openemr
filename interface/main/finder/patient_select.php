@@ -5,7 +5,7 @@
  * @package OpenEMR
  * @author Brady Miller <brady.g.miller@gmail.com>
  * @copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- * @link http://www.open-emr.org
+ * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 

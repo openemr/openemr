@@ -14,10 +14,10 @@
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
 * You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
+* along with this program.  If not, see <https://opensource.org/licenses/gpl-license.php>.
 *
 * @package   OpenEMR
-* @link      http://www.open-emr.org
+* @link      https://www.open-emr.org
 */
 
 require_once(dirname(__FILE__) . "/sqlconf.php");
@@ -206,7 +206,7 @@ function sqlFetchArray($r)
 /**
  * Wrapper for ADODB getAssoc
  *
- * @see http://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:getassoc
+ * @see https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:getassoc
  *
  * @param string $sql
  * @param string[] $bindvars

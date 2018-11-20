@@ -169,7 +169,7 @@ class FHIRAuditEventSource extends FHIRBackboneElement implements \JsonSerializa
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<AuditEventSource xmlns="http://hl7.org/fhir"></AuditEventSource>');
+            $sxe = new \SimpleXMLElement('<AuditEventSource xmlns="https://hl7.org/fhir"></AuditEventSource>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->site)) {

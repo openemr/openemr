@@ -40,7 +40,7 @@ class Installer
         // Record names of sql table files
         $this->main_sql = dirname(__FILE__) . '/../../sql/database.sql';
         $this->translation_sql = dirname(__FILE__) . '/../../contrib/util/language_translations/currentLanguage_utf8.sql';
-        $this->devel_translation_sql = "http://translations.openemr.io/languageTranslations_utf8.sql";
+        $this->devel_translation_sql = "https://translations.openemr.io/languageTranslations_utf8.sql";
         $this->ippf_sql = dirname(__FILE__) . "/../../sql/ippf_layout.sql";
         $this->icd9 = dirname(__FILE__) . "/../../sql/icd9.sql";
         $this->cvx = dirname(__FILE__) . "/../../sql/cvx_codes.sql";
@@ -708,7 +708,7 @@ if ($it_died != 0) {
         return $this->dumpfiles;
     }
 
-  // http://www.php.net/manual/en/function.include.php
+  // https://www.php.net/manual/en/function.include.php
     private function get_require_contents($filename)
     {
         if (is_file($filename)) {
@@ -725,7 +725,7 @@ if ($it_died != 0) {
   /**
    *
    * Directory copy logic borrowed from a user comment at
-   * http://www.php.net/manual/en/function.copy.php
+   * https://www.php.net/manual/en/function.copy.php
    * @param string $src name of the directory to copy
    * @param string $dst name of the destination to copy to
    * @return bool indicating success
@@ -808,5 +808,5 @@ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.  See the GNU Gneral Public License for more details.
 
 You should have received a copy of the GNU General Public Licence along with
-this file.  If not see <http://www.gnu.org/licenses/>.
+this file.  If not see <https://www.gnu.org/licenses/>.
 */

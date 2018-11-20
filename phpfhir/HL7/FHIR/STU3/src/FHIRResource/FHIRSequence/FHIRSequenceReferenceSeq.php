@@ -15,7 +15,7 @@ use HL7\FHIR\STU3\FHIRElement\FHIRBackboneElement;
 class FHIRSequenceReferenceSeq extends FHIRBackboneElement implements \JsonSerializable
 {
     /**
-     * Structural unit composed of a nucleic acid molecule which controls its own replication through the interaction of specific proteins at one or more origins of replication ([SO:0000340](http://www.sequenceontology.org/browser/current_svn/term/SO:0000340)).
+     * Structural unit composed of a nucleic acid molecule which controls its own replication through the interaction of specific proteins at one or more origins of replication ([SO:0000340](https://www.sequenceontology.org/browser/current_svn/term/SO:0000340)).
      * @var \HL7\FHIR\STU3\FHIRElement\FHIRCodeableConcept
      */
     public $chromosome = null;
@@ -68,7 +68,7 @@ class FHIRSequenceReferenceSeq extends FHIRBackboneElement implements \JsonSeria
     private $_fhirElementName = 'Sequence.ReferenceSeq';
 
     /**
-     * Structural unit composed of a nucleic acid molecule which controls its own replication through the interaction of specific proteins at one or more origins of replication ([SO:0000340](http://www.sequenceontology.org/browser/current_svn/term/SO:0000340)).
+     * Structural unit composed of a nucleic acid molecule which controls its own replication through the interaction of specific proteins at one or more origins of replication ([SO:0000340](https://www.sequenceontology.org/browser/current_svn/term/SO:0000340)).
      * @return \HL7\FHIR\STU3\FHIRElement\FHIRCodeableConcept
      */
     public function getChromosome()
@@ -77,7 +77,7 @@ class FHIRSequenceReferenceSeq extends FHIRBackboneElement implements \JsonSeria
     }
 
     /**
-     * Structural unit composed of a nucleic acid molecule which controls its own replication through the interaction of specific proteins at one or more origins of replication ([SO:0000340](http://www.sequenceontology.org/browser/current_svn/term/SO:0000340)).
+     * Structural unit composed of a nucleic acid molecule which controls its own replication through the interaction of specific proteins at one or more origins of replication ([SO:0000340](https://www.sequenceontology.org/browser/current_svn/term/SO:0000340)).
      * @param \HL7\FHIR\STU3\FHIRElement\FHIRCodeableConcept $chromosome
      * @return $this
      */
@@ -320,7 +320,7 @@ class FHIRSequenceReferenceSeq extends FHIRBackboneElement implements \JsonSeria
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SequenceReferenceSeq xmlns="http://hl7.org/fhir"></SequenceReferenceSeq>');
+            $sxe = new \SimpleXMLElement('<SequenceReferenceSeq xmlns="https://hl7.org/fhir"></SequenceReferenceSeq>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->chromosome)) {

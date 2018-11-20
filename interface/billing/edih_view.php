@@ -15,10 +15,10 @@
  * received a copy of the GNU General Public License along with this program;
  * if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *  <http://opensource.org/licenses/gpl-license.php>
+ *  <https://opensource.org/licenses/gpl-license.php>
  *
  * @author Kevin McCormick
- * @link: http://www.open-emr.org
+ * @link: https://www.open-emr.org
  * @package OpenEMR
  * @subpackage ediHistory
  */
@@ -32,8 +32,8 @@ if (!acl_check('acct', 'eob')) {
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    "https://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="https://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
 <head>
     <title><?php echo xlt("edi history"); ?></title>
@@ -349,7 +349,7 @@ if (!acl_check('acct', 'eob')) {
  *   end of document ready() jquery
  * ************
  */
-/* ****  from http://scratch99.com/web-development/javascript/convert-bytes-to-mb-kb/ *** */
+/* ****  from https://scratch99.com/web-development/javascript/convert-bytes-to-mb-kb/ *** */
     function bytesToSize(bytes) {
         var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
         if (bytes == 0) return 'n/a';

@@ -96,7 +96,7 @@ class FHIREligibilityResponseError extends FHIRBackboneElement implements \JsonS
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<EligibilityResponseError xmlns="http://hl7.org/fhir"></EligibilityResponseError>');
+            $sxe = new \SimpleXMLElement('<EligibilityResponseError xmlns="https://hl7.org/fhir"></EligibilityResponseError>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->code)) {

@@ -21,7 +21,7 @@ class FHIRTestScriptOperation extends FHIRBackboneElement implements \JsonSerial
     public $type = null;
 
     /**
-     * The type of the resource.  See http://build.fhir.org/resourcelist.html.
+     * The type of the resource.  See https://build.fhir.org/resourcelist.html.
      * @var \HL7\FHIR\STU3\FHIRElement\FHIRFHIRDefinedType
      */
     public $resource = null;
@@ -136,7 +136,7 @@ class FHIRTestScriptOperation extends FHIRBackboneElement implements \JsonSerial
     }
 
     /**
-     * The type of the resource.  See http://build.fhir.org/resourcelist.html.
+     * The type of the resource.  See https://build.fhir.org/resourcelist.html.
      * @return \HL7\FHIR\STU3\FHIRElement\FHIRFHIRDefinedType
      */
     public function getResource()
@@ -145,7 +145,7 @@ class FHIRTestScriptOperation extends FHIRBackboneElement implements \JsonSerial
     }
 
     /**
-     * The type of the resource.  See http://build.fhir.org/resourcelist.html.
+     * The type of the resource.  See https://build.fhir.org/resourcelist.html.
      * @param \HL7\FHIR\STU3\FHIRElement\FHIRFHIRDefinedType $resource
      * @return $this
      */
@@ -585,7 +585,7 @@ class FHIRTestScriptOperation extends FHIRBackboneElement implements \JsonSerial
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<TestScriptOperation xmlns="http://hl7.org/fhir"></TestScriptOperation>');
+            $sxe = new \SimpleXMLElement('<TestScriptOperation xmlns="https://hl7.org/fhir"></TestScriptOperation>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {

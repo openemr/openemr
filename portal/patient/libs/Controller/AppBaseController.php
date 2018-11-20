@@ -11,7 +11,7 @@ require_once(dirname(__FILE__)."/../../../lib/appsql.class.php");
  * functions such as authentication
  *
  * From phreeze package
- * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ * @license https://www.gnu.org/copyleft/lesser.html LGPL
  *
  * @package Patient Portal::Controller
  * @author ClassBuilder

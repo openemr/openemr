@@ -225,7 +225,7 @@ class FHIRContactPoint extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ContactPoint xmlns="http://hl7.org/fhir"></ContactPoint>');
+            $sxe = new \SimpleXMLElement('<ContactPoint xmlns="https://hl7.org/fhir"></ContactPoint>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->system)) {

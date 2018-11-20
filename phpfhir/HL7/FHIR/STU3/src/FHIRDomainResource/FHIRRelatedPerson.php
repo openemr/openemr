@@ -463,7 +463,7 @@ class FHIRRelatedPerson extends FHIRDomainResource implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<RelatedPerson xmlns="http://hl7.org/fhir"></RelatedPerson>');
+            $sxe = new \SimpleXMLElement('<RelatedPerson xmlns="https://hl7.org/fhir"></RelatedPerson>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {

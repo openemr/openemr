@@ -23,7 +23,7 @@
  * Purpose: to archive old entries in the csv files and old files
  *
  * @author Kevin McCormick
- * @link: http://www.open-emr.org
+ * @link: https://www.open-emr.org
  * @package OpenEMR
  * @subpackage ediHistory
  */

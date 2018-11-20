@@ -90,7 +90,7 @@ class FHIRRestfulCapabilityMode extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<RestfulCapabilityMode xmlns="http://hl7.org/fhir"></RestfulCapabilityMode>');
+            $sxe = new \SimpleXMLElement('<RestfulCapabilityMode xmlns="https://hl7.org/fhir"></RestfulCapabilityMode>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

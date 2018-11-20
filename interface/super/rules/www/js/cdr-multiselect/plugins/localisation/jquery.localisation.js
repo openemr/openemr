@@ -1,8 +1,8 @@
-/* http://keith-wood.name/localisation.html
+/* https://keith-wood.name/localisation.html
    Localisation assistance for jQuery v1.0.4.
    Written by Keith Wood (kbwood{at}iinet.com.au) June 2007. 
-   Dual licensed under the GPL (http://dev.jquery.com/browser/trunk/jquery/GPL-LICENSE.txt) and 
-   MIT (http://dev.jquery.com/browser/trunk/jquery/MIT-LICENSE.txt) licenses. 
+   Dual licensed under the GPL (https://dev.jquery.com/browser/trunk/jquery/GPL-LICENSE.txt) and 
+   MIT (https://dev.jquery.com/browser/trunk/jquery/MIT-LICENSE.txt) licenses. 
    Please attribute the author if you use it. */
 
 (function($) { // Hide scope, no $ conflict

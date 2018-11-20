@@ -10,8 +10,8 @@ require_once __DIR__.'/../../../vendor/autoload.php';
 class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
 {
     const BROWSER = "chrome";
-    const BROWSER_URL = "http://localhost/openemr";
-    const URL = "http://localhost/openemr/interface/login/login.php?site=default";
+    const BROWSER_URL = "https://localhost/openemr";
+    const URL = "https://localhost/openemr/interface/login/login.php?site=default";
     const VAR_AUTHUSER = "admin";
     const VAR_PASS = "pass";
 

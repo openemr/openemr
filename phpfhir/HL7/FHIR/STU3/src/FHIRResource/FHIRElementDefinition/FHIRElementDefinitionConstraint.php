@@ -40,7 +40,7 @@ class FHIRElementDefinitionConstraint extends FHIRElement implements \JsonSerial
     public $human = null;
 
     /**
-     * A [FHIRPath](http://hl7.org/fluentpath) expression of constraint that can be executed to see if this constraint is met.
+     * A [FHIRPath](https://hl7.org/fluentpath) expression of constraint that can be executed to see if this constraint is met.
      * @var \HL7\FHIR\STU3\FHIRElement\FHIRString
      */
     public $expression = null;
@@ -143,7 +143,7 @@ class FHIRElementDefinitionConstraint extends FHIRElement implements \JsonSerial
     }
 
     /**
-     * A [FHIRPath](http://hl7.org/fluentpath) expression of constraint that can be executed to see if this constraint is met.
+     * A [FHIRPath](https://hl7.org/fluentpath) expression of constraint that can be executed to see if this constraint is met.
      * @return \HL7\FHIR\STU3\FHIRElement\FHIRString
      */
     public function getExpression()
@@ -152,7 +152,7 @@ class FHIRElementDefinitionConstraint extends FHIRElement implements \JsonSerial
     }
 
     /**
-     * A [FHIRPath](http://hl7.org/fluentpath) expression of constraint that can be executed to see if this constraint is met.
+     * A [FHIRPath](https://hl7.org/fluentpath) expression of constraint that can be executed to see if this constraint is met.
      * @param \HL7\FHIR\STU3\FHIRElement\FHIRString $expression
      * @return $this
      */
@@ -289,7 +289,7 @@ class FHIRElementDefinitionConstraint extends FHIRElement implements \JsonSerial
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ElementDefinitionConstraint xmlns="http://hl7.org/fhir"></ElementDefinitionConstraint>');
+            $sxe = new \SimpleXMLElement('<ElementDefinitionConstraint xmlns="https://hl7.org/fhir"></ElementDefinitionConstraint>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->key)) {

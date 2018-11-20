@@ -3,11 +3,11 @@
 // ----------------------------------------------------------------------
 // POST-NUKE Content Management System
 // Copyright (C) 2001 by the Post-Nuke Development Team.
-// http://www.postnuke.com/
+// https://www.postnuke.com/
 // ----------------------------------------------------------------------
 // Based on:
-// PHP-NUKE Web Portal System - http://phpnuke.org/
-// Thatware - http://thatware.org/
+// PHP-NUKE Web Portal System - https://phpnuke.org/
+// Thatware - https://thatware.org/
 // ----------------------------------------------------------------------
 // LICENSE
 //
@@ -21,7 +21,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
-// To read the license please visit http://www.gnu.org/copyleft/gpl.html
+// To read the license please visit https://www.gnu.org/copyleft/gpl.html
 // ----------------------------------------------------------------------
 // Original Author of file: Jim McDonald
 // Purpose of file: Module variable handling

@@ -2,7 +2,7 @@
 
 OpenEMR uses [Storybook](https://storybook.js.org) to document and standardize the creation of user interface elements. The project is using bootstrap as base and is built with [SASS](https://sass-lang.com/) (compiled with [gulp](https://gulpjs.com/)).
 
-The live version of this guide can be found at [openemr-interface.surge.sh](http://openemr-interface.surge.sh).
+The live version of this guide can be found at [openemr-interface.surge.sh](https://openemr-interface.surge.sh).
 
 ### Themes
 
@@ -31,7 +31,7 @@ Files specific to different themes are named with the following conventions:
 
 ## Getting Started
 
-Compiling SASS files locally requires [node.js](http://nodejs.org) and [npm](https://www.npmjs.com/).
+Compiling SASS files locally requires [node.js](https://nodejs.org) and [npm](https://www.npmjs.com/).
 
 1. **Setup your local development environment** as described in [CONTRIBUTING.md](../CONTRIBUTING.md)
 
@@ -40,7 +40,7 @@ Compiling SASS files locally requires [node.js](http://nodejs.org) and [npm](htt
 
 From here you can either:
 * `npm run dev-docs` - runs Storybook (proxied port 9001) and watches changes to local `.scss` files.
-    * `http://localhost:3000` will refresh css automatically with [BrowserSync](http://www.browsersync.io/) after every change.
+    * `https://localhost:3000` will refresh css automatically with [BrowserSync](https://www.browsersync.io/) after every change.
 * `npm run dev` - just compiles the local `.scss` files and recompiles them whenever they are changed.
 * `npm run dev-sync` (EXPERIMENTAL*) - loads your local OpenEMR instance using BrowserSync (port 3000) in front of 80 (feel free to edit the package.json to change the port)
     * [See video of `dev-sync` in action](https://imgur.com/a/C0dVnfq)

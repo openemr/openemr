@@ -22,7 +22,7 @@ require_once('SOAP/Client.php'); // PEAR::SOAP::Client
  * @package verysimple::Search
  * @author VerySimple Inc.
  * @copyright 1997-2007 VerySimple, Inc.
- * @license http://www.gnu.org/licenses/lgpl.html LGPL
+ * @license https://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
 class Google extends SearchEngine
@@ -184,7 +184,7 @@ class Google extends SearchEngine
      */
     private function _googleSoap($query, $start = 0, $max = 10, $filter = false, $restrict = "", $safe = false, $lr = "", $ie = "", $oe = "")
     {
-        $wsdl = new SOAP_WSDL('http://api.google.com/GoogleSearch.wsdl');
+        $wsdl = new SOAP_WSDL('https://api.google.com/GoogleSearch.wsdl');
         $soapclient = $wsdl->getProxy();
         
         if (get_class($soapclient) != "SOAP_Fault") {

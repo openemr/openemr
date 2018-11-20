@@ -90,7 +90,7 @@ class FHIRObservationRelationshipType extends FHIRElement implements \JsonSerial
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ObservationRelationshipType xmlns="http://hl7.org/fhir"></ObservationRelationshipType>');
+            $sxe = new \SimpleXMLElement('<ObservationRelationshipType xmlns="https://hl7.org/fhir"></ObservationRelationshipType>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

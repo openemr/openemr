@@ -139,8 +139,8 @@ Greek, Latin
 Use in LaTeX
 ============
 It is possible to use Unicode fonts in recent LaTeX implementations, but in
-	LuaTeX http://www.luatex.org/ and
-	XeTeX http://tug.org/xetex/
+	LuaTeX https://www.luatex.org/ and
+	XeTeX https://tug.org/xetex/
 it is particularly easy to use Unicode text, and to enable font features.
 Recent versions of these systems use the 'fontspec' package to choose fonts
 and features.

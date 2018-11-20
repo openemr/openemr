@@ -103,11 +103,11 @@
                 {
                     "name": "Nicola Asuni",
                     "email": "info@tecnick.com",
-                    "homepage": "http://nicolaasuni.tecnick.com"
+                    "homepage": "https://nicolaasuni.tecnick.com"
                 }
             ],
             "description": "TCPDF is a PHP class for generating PDF documents and barcodes.",
-            "homepage": "http://www.tcpdf.org/",
+            "homepage": "https://www.tcpdf.org/",
             "keywords": [
                 "PDFD32000-2008",
                 "TCPDF",

@@ -3,7 +3,7 @@
  * interface/main/holidays/import_holidays.php holidays/clinic handle import/download holidays files
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    sharonco <sharonco@matrix.co.il>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016 Sharon Cohen <sharonco@matrix.co.il>

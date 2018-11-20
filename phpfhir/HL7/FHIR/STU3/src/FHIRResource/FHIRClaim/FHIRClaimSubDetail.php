@@ -443,7 +443,7 @@ class FHIRClaimSubDetail extends FHIRBackboneElement implements \JsonSerializabl
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ClaimSubDetail xmlns="http://hl7.org/fhir"></ClaimSubDetail>');
+            $sxe = new \SimpleXMLElement('<ClaimSubDetail xmlns="https://hl7.org/fhir"></ClaimSubDetail>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->sequence)) {

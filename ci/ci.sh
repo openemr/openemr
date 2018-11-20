@@ -8,7 +8,7 @@ if [ -z "$1" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ] ; then
   printf "    branch, this script will be ran on the server. You'll be able to see the state\n"
   printf "    (green/yellow/red) right on the Github UI.\n\n"
   printf "    In order to proactively test out these checks while you develop, please consult the\n"
-  printf "    following wiki page: http://www.open-emr.org/wiki/index.php/Continuous_Integration.\n\n"
+  printf "    following wiki page: https://www.open-emr.org/wiki/index.php/Continuous_Integration.\n\n"
   printf "  Arguments:\n"
   printf "    -h, --help | Information on using this script\n"
   printf "    -d, --dir  | The codebase directory for OpenEMR\n"

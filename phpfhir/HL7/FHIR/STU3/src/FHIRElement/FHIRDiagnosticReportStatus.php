@@ -90,7 +90,7 @@ class FHIRDiagnosticReportStatus extends FHIRElement implements \JsonSerializabl
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DiagnosticReportStatus xmlns="http://hl7.org/fhir"></DiagnosticReportStatus>');
+            $sxe = new \SimpleXMLElement('<DiagnosticReportStatus xmlns="https://hl7.org/fhir"></DiagnosticReportStatus>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

@@ -19,7 +19,7 @@ require_once("DataPage.php");
  * @package verysimple::Phreeze
  * @author VerySimple Inc. <noreply@verysimple.com>
  * @copyright 1997-2007 VerySimple Inc.
- * @license http://www.gnu.org/licenses/lgpl.html LGPL
+ * @license https://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.2
  */
 class DataSet implements Iterator // @TODO implement Countable, ArrayAccess

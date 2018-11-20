@@ -865,7 +865,7 @@ class FHIRMessageDefinition extends FHIRDomainResource implements \JsonSerializa
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MessageDefinition xmlns="http://hl7.org/fhir"></MessageDefinition>');
+            $sxe = new \SimpleXMLElement('<MessageDefinition xmlns="https://hl7.org/fhir"></MessageDefinition>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->url)) {

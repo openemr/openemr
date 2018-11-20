@@ -12,7 +12,7 @@ development code for OpenEMR (considered unstable) for testing purposes.
 
 Instructions for use:
 ---------------------
-To use git-OpenEMR, go to http://localhost/git-openemr :  user is 'admin' and
+To use git-OpenEMR, go to https://localhost/git-openemr :  user is 'admin' and
 password is 'pass' (recommend changing password after login).
 
 To ensure a consistent look and feel through out the application using
@@ -22,17 +22,17 @@ Firefox is recommended.
 Documentation:
 --------------
 The OpenEMR project home page and wiki (documentation) can be found at
-http://www.open-emr.org .
+https://www.open-emr.org .
 
 
 Support Forums:
 ---------------
-The OpenEMR forums can be found at http://www.open-emr.org
+The OpenEMR forums can be found at https://www.open-emr.org
 
 
 Reporting Bugs:
 ---------------
-Report to the OpenEMR forums at http://www.open-emr.org
+Report to the OpenEMR forums at https://www.open-emr.org
 
 
 Send us an email to help support OpenEMR:

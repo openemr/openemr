@@ -63,8 +63,8 @@ google docs).
 
 The currentLanguage_utf8.sql and currentLanguage_latin1.sql holds current
 sql tables dumpfile.  Latest releases of this are available at:
-http://open-emr.org/wiki/index.php/Install_Translations
+https://open-emr.org/wiki/index.php/Install_Translations
 
 To insert these translation tables into your OpenEMR refer to
 instructions at this page in the wiki:
-http://open-emr.org/wiki/index.php/Install_Translations
+https://open-emr.org/wiki/index.php/Install_Translations

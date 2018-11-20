@@ -90,7 +90,7 @@ class FHIRDiscriminatorType extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DiscriminatorType xmlns="http://hl7.org/fhir"></DiscriminatorType>');
+            $sxe = new \SimpleXMLElement('<DiscriminatorType xmlns="https://hl7.org/fhir"></DiscriminatorType>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

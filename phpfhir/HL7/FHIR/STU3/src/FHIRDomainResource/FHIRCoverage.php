@@ -605,7 +605,7 @@ class FHIRCoverage extends FHIRDomainResource implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Coverage xmlns="http://hl7.org/fhir"></Coverage>');
+            $sxe = new \SimpleXMLElement('<Coverage xmlns="https://hl7.org/fhir"></Coverage>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {

@@ -14,7 +14,7 @@ require_once("util/password.php");
  * IAuthenticatable inside that class.
  *
  * From phreeze package
- * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ * @license https://www.gnu.org/copyleft/lesser.html LGPL
  *
  * @package Example::App
  * @author ClassBuilder

@@ -5,7 +5,7 @@
  * This implementation is only for the A01 profile which will suffice for MU2 certification.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Tomasz Wyderka <wyderkat@cofoh.com>
  * @author    Ensoftek <rammohan@ensoftek.com>

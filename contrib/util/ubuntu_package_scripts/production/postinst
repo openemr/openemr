@@ -38,7 +38,7 @@
 #        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
 #          <failed-install-package> <version> `removing'
 #          <conflicting-package> <version>
-# for details, see http://www.debian.org/doc/debian-policy/ or
+# for details, see https://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
 # Source debconf library.
@@ -552,14 +552,14 @@ case "$1" in
       if $configure_flag; then
          prompt_input openemr/success_install_config high ret_result
          log_only "You can now use OpenEMR by browsing to:"
-         log_only "http://localhost/openemr"
+         log_only "https://localhost/openemr"
          log_only "user is 'admin' and password is 'pass'"
          log_only "See the openemr man page for further instructions:"
          log_only "type 'man openemr' at command line"
       else
          prompt_input openemr/success_install high ret_result
          log_only "You can now configure OpenEMR by browsing to:"
-         log_only "http://localhost/openemr"
+         log_only "https://localhost/openemr"
          log_only "See the openemr man page for further instructions:"
          log_only "type 'man openemr' at command line"
       fi

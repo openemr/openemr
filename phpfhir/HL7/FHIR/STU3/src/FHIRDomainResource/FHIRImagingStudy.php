@@ -22,7 +22,7 @@ class FHIRImagingStudy extends FHIRDomainResource implements \JsonSerializable
     public $uid = null;
 
     /**
-     * Accession Number is an identifier related to some aspect of imaging workflow and data management. Usage may vary across different institutions.  See for instance [IHE Radiology Technical Framework Volume 1 Appendix A](http://www.ihe.net/uploadedFiles/Documents/Radiology/IHE_RAD_TF_Rev13.0_Vol1_FT_2014-07-30.pdf).
+     * Accession Number is an identifier related to some aspect of imaging workflow and data management. Usage may vary across different institutions.  See for instance [IHE Radiology Technical Framework Volume 1 Appendix A](https://www.ihe.net/uploadedFiles/Documents/Radiology/IHE_RAD_TF_Rev13.0_Vol1_FT_2014-07-30.pdf).
      * @var \HL7\FHIR\STU3\FHIRElement\FHIRIdentifier
      */
     public $accession = null;
@@ -155,7 +155,7 @@ class FHIRImagingStudy extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * Accession Number is an identifier related to some aspect of imaging workflow and data management. Usage may vary across different institutions.  See for instance [IHE Radiology Technical Framework Volume 1 Appendix A](http://www.ihe.net/uploadedFiles/Documents/Radiology/IHE_RAD_TF_Rev13.0_Vol1_FT_2014-07-30.pdf).
+     * Accession Number is an identifier related to some aspect of imaging workflow and data management. Usage may vary across different institutions.  See for instance [IHE Radiology Technical Framework Volume 1 Appendix A](https://www.ihe.net/uploadedFiles/Documents/Radiology/IHE_RAD_TF_Rev13.0_Vol1_FT_2014-07-30.pdf).
      * @return \HL7\FHIR\STU3\FHIRElement\FHIRIdentifier
      */
     public function getAccession()
@@ -164,7 +164,7 @@ class FHIRImagingStudy extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * Accession Number is an identifier related to some aspect of imaging workflow and data management. Usage may vary across different institutions.  See for instance [IHE Radiology Technical Framework Volume 1 Appendix A](http://www.ihe.net/uploadedFiles/Documents/Radiology/IHE_RAD_TF_Rev13.0_Vol1_FT_2014-07-30.pdf).
+     * Accession Number is an identifier related to some aspect of imaging workflow and data management. Usage may vary across different institutions.  See for instance [IHE Radiology Technical Framework Volume 1 Appendix A](https://www.ihe.net/uploadedFiles/Documents/Radiology/IHE_RAD_TF_Rev13.0_Vol1_FT_2014-07-30.pdf).
      * @param \HL7\FHIR\STU3\FHIRElement\FHIRIdentifier $accession
      * @return $this
      */
@@ -746,7 +746,7 @@ class FHIRImagingStudy extends FHIRDomainResource implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ImagingStudy xmlns="http://hl7.org/fhir"></ImagingStudy>');
+            $sxe = new \SimpleXMLElement('<ImagingStudy xmlns="https://hl7.org/fhir"></ImagingStudy>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->uid)) {

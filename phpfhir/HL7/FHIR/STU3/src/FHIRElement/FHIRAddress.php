@@ -394,7 +394,7 @@ class FHIRAddress extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Address xmlns="http://hl7.org/fhir"></Address>');
+            $sxe = new \SimpleXMLElement('<Address xmlns="https://hl7.org/fhir"></Address>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->use)) {

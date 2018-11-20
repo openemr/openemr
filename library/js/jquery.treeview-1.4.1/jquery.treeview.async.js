@@ -1,13 +1,13 @@
 /*
  * Async Treeview 0.1 - Lazy-loading extension for Treeview
  * 
- * http://bassistance.de/jquery-plugins/jquery-plugin-treeview/
+ * https://bassistance.de/jquery-plugins/jquery-plugin-treeview/
  *
  * Copyright (c) 2007 Jörn Zaefferer
  *
  * Dual licensed under the MIT and GPL licenses:
- *   http://www.opensource.org/licenses/mit-license.php
- *   http://www.gnu.org/licenses/gpl.html
+ *   https://www.opensource.org/licenses/mit-license.php
+ *   https://www.gnu.org/licenses/gpl.html
  *
  * Revision: $Id$
  *

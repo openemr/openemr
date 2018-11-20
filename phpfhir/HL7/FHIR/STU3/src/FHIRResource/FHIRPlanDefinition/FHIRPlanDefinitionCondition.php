@@ -192,7 +192,7 @@ class FHIRPlanDefinitionCondition extends FHIRBackboneElement implements \JsonSe
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<PlanDefinitionCondition xmlns="http://hl7.org/fhir"></PlanDefinitionCondition>');
+            $sxe = new \SimpleXMLElement('<PlanDefinitionCondition xmlns="https://hl7.org/fhir"></PlanDefinitionCondition>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->kind)) {

@@ -1769,16 +1769,16 @@ class HTML2PDF_parsingCss
                 // get the content of the css file
                 $content = @file_get_contents($url);
 
-                // if "http://" in the url
-                if (strpos($url, 'http://')!==false) {
+                // if "https://" in the url
+                if (strpos($url, 'https://')!==false) {
 
-                    // get the domain "http://xxx/"
-                    $url = str_replace('http://', '', $url);
+                    // get the domain "https://xxx/"
+                    $url = str_replace('https://', '', $url);
                     $url = explode('/', $url);
-                    $urlMain = 'http://'.$url[0].'/';
+                    $urlMain = 'https://'.$url[0].'/';
 
                     // get the absolute url of the path
-                    $urlSelf = $url; unset($urlSelf[count($urlSelf)-1]); $urlSelf = 'http://'.implode('/', $urlSelf).'/';
+                    $urlSelf = $url; unset($urlSelf[count($urlSelf)-1]); $urlSelf = 'https://'.implode('/', $urlSelf).'/';
 
                     // adapt the url in the css content
                     $content = preg_replace('/url\(([^\\\\][^)]*)\)/isU', 'url('.$urlSelf.'$1)', $content);

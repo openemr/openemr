@@ -11,7 +11,7 @@
  * @copyright Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (C) 2017 Stephen Waite <stephen.waite@cmsvt.com>
- * @link http://www.open-emr.org
+ * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 require("new.php");

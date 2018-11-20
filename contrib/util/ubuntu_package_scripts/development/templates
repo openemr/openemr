@@ -94,7 +94,7 @@ Description: CONGRATULATIONS
  OpenEMR has been successfully installed.
  .
  You can now set up the OpenEMR development version
- by browsing to: http://localhost/git-openemr
+ by browsing to: https://localhost/git-openemr
 
 Template: git-openemr/success_install_config
 Type: note
@@ -102,7 +102,7 @@ Description: CONGRATULATIONS
  OpenEMR has been successfully installed and configured.
  .
  You can now use the OpenEMR development version
- by browsing to: http://localhost/git-openemr
+ by browsing to: https://localhost/git-openemr
  .
  (user is 'admin' and password is 'pass')
 

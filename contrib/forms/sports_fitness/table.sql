@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS form_sports_fitness (
  bps                      float(4,2)      NOT NULL DEFAULT 0.00,
  bpd                      float(4,2)      NOT NULL DEFAULT 0.00,
 
- -- http://www.brianmac.demon.co.uk/beep.htm describes the beep test
+ -- https://www.brianmac.demon.co.uk/beep.htm describes the beep test
  beep_level               int(11)         NOT NULL DEFAULT 0,
  beep_shuttles            int(11)         NOT NULL DEFAULT 0,
  beep_vo2_max             float(4,2)      NOT NULL DEFAULT 0.00,

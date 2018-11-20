@@ -1,6 +1,6 @@
 Thank you for your contribution. OpenEMR (and global healthcare) continues to get better because of people like you!
 
-The maintainers of OpenEMR want to get your pull request in as seamlessly as possible, so please ensure your code is consistent with our [development policies](http://open-emr.org/wiki/index.php/Development_Policies).
+The maintainers of OpenEMR want to get your pull request in as seamlessly as possible, so please ensure your code is consistent with our [development policies](https://open-emr.org/wiki/index.php/Development_Policies).
 
 ## Code Contributions (local development)
 You will need a "local" version of OpenEMR to make changes to the source code. The easiest way to do this is with [Docker](https://hub.docker.com/r/openemr/openemr/):
@@ -24,11 +24,11 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     openemr_1  | Starting cron daemon!
     openemr_1  | Starting apache!
     ```
-5. Navigate to `http://localhost:8300/` to login as `admin`. Password is `pass`.
+5. Navigate to `https://localhost:8300/` to login as `admin`. Password is `pass`.
 6. Make changes to any files on your local file system. Most changes will appear after a refresh of the page or iFrame you're working on...
     - Note that changes to SCSS files will not automatically show unless the node build process is running. For more info on this, see the [README.md in /interface](interface/README.md)
 7. If you wish to connect to the sql database, this docker environment provides the following 2 options:
-    - Navigate to `http://localhost:8310/` where you can login into phpMyAdmin.
+    - Navigate to `https://localhost:8310/` where you can login into phpMyAdmin.
     - Or you can directly connect to port 8320 via your favorite sql tool (Mysql Workbench etc.).
 8. When you're done, it's best to clean up after yourself with `docker-compose down -v`
     - If you don't want to build from scratch every time, just use `docker-compose down` so your next `docker-compose up` will use the cached volumes.

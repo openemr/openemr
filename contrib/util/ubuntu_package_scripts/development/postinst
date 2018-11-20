@@ -24,7 +24,7 @@
 #        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
 #          <failed-install-package> <version> `removing'
 #          <conflicting-package> <version>
-# for details, see http://www.debian.org/doc/debian-policy/ or
+# for details, see https://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
 # Source debconf library.
@@ -274,7 +274,7 @@ case "$1" in
       sed -i "/^[ 	]*pass[ 	=].*$/d" $CONFIG
 
       log_only "You can now use OpenEMR development version by browsing to:"
-      log_only "http://localhost/git-openemr"
+      log_only "https://localhost/git-openemr"
       if $configure_flag; then
          prompt_input git-openemr/success_install_config high ret_result
          log_only "user is 'admin' and password is 'pass'"

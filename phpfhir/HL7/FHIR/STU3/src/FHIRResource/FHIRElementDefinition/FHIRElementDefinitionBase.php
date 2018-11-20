@@ -161,7 +161,7 @@ class FHIRElementDefinitionBase extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ElementDefinitionBase xmlns="http://hl7.org/fhir"></ElementDefinitionBase>');
+            $sxe = new \SimpleXMLElement('<ElementDefinitionBase xmlns="https://hl7.org/fhir"></ElementDefinitionBase>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->path)) {

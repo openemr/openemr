@@ -477,7 +477,7 @@ function create_rfc3881_msg($user, $group, $event, $patient_id, $outcome, $comme
 
     /* Construct the XML audit message, and save to $msg */
     $msg =  '<?xml version="1.0" encoding="ASCII"?>';
-    $msg .= '<AuditMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ';
+    $msg .= '<AuditMessage xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance" ';
     $msg .= 'xsi:noNamespaceSchemaLocation="healthcare-security-audit.xsd">';
 
     /* Indicate the event code, text name, read/write type, and date/time */

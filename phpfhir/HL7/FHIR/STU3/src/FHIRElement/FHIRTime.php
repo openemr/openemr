@@ -87,7 +87,7 @@ class FHIRTime extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<time xmlns="http://hl7.org/fhir"></time>');
+            $sxe = new \SimpleXMLElement('<time xmlns="https://hl7.org/fhir"></time>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

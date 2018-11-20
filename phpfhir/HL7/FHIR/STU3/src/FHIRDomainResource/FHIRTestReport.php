@@ -468,7 +468,7 @@ class FHIRTestReport extends FHIRDomainResource implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<TestReport xmlns="http://hl7.org/fhir"></TestReport>');
+            $sxe = new \SimpleXMLElement('<TestReport xmlns="https://hl7.org/fhir"></TestReport>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->identifier)) {

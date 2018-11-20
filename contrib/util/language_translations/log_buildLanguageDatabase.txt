@@ -262,8 +262,8 @@ Following constant not same:
 	original- val:Upon clicking an invoice number the "manual posting window" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
 	spreadsheet- ID:9108 val:Upon clicking an invoice number the \"manual posting window\" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
 Following constant not same:
-	original- val:uses php <a href="http://php.net/strftime">strftime</a> format
-	spreadsheet- ID:9233 val:uses php <a href=\"http://php.net/strftime\">strftime</a> format
+	original- val:uses php <a href="https://php.net/strftime">strftime</a> format
+	spreadsheet- ID:9233 val:uses php <a href=\"https://php.net/strftime\">strftime</a> format
 Following constant not same:
 	original- val:When checked, messages are processed for patients with Patient Demographic Choice: "Hipaa Notice Received" set to "Unassigned" or "Yes". When unchecked, this choice must = "YES" to process the patient reminder. For patients with Choice ="No", Reminders will need to be processed manually.
 	spreadsheet- ID:9475 val:When checked, messages are processed for patients with Patient Demographic Choice: \"Hipaa Notice Received\" set to \"Unassigned\" or \"Yes\". When unchecked, this choice must = \"YES\" to process the patient reminder. For patients with Choice =\"No\", Reminders will need to be processed manually.
@@ -554,8 +554,8 @@ Following constant not same:
 	original- val:Upon clicking an invoice number the "manual posting window" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
 	spreadsheet- ID:9108 val:Upon clicking an invoice number the \"manual posting window\" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
 Following constant not same:
-	original- val:uses php <a href="http://php.net/strftime">strftime</a> format
-	spreadsheet- ID:9233 val:uses php <a href=\"http://php.net/strftime\">strftime</a> format
+	original- val:uses php <a href="https://php.net/strftime">strftime</a> format
+	spreadsheet- ID:9233 val:uses php <a href=\"https://php.net/strftime\">strftime</a> format
 Following constant not same:
 	original- val:When checked, messages are processed for patients with Patient Demographic Choice: "Hipaa Notice Received" set to "Unassigned" or "Yes". When unchecked, this choice must = "YES" to process the patient reminder. For patients with Choice ="No", Reminders will need to be processed manually.
 	spreadsheet- ID:9475 val:When checked, messages are processed for patients with Patient Demographic Choice: \"Hipaa Notice Received\" set to \"Unassigned\" or \"Yes\". When unchecked, this choice must = \"YES\" to process the patient reminder. For patients with Choice =\"No\", Reminders will need to be processed manually.

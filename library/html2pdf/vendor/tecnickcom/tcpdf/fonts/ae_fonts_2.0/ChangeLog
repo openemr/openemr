@@ -641,7 +641,7 @@
 	  ae_Rehan.sfd, ae_Salem.sfd, ae_Shado.sfd, ae_Sharjah.sfd,
 	  ae_Sindbad.sfd, ae_Tarablus.sfd, ae_Tholoth.sfd: Removed ae_
 	  prefix from all fonts, see
-	  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=361965
+	  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=361965
 
 2007-06-30 22:02  Khaled Hosny <khaledhosny@eglug.org>
 
@@ -728,7 +728,7 @@
 
 	* sfd/ae_Tholoth.sfd:
 	  - New glyphs (covering every thing outside Arabic block) based on
-	  the GPL'd FreeFont project [http://www.nongnu.org/freefont/].
+	  the GPL'd FreeFont project [https://www.nongnu.org/freefont/].
 	  - Arabic diacritic marks (harakat) are set to have zero advance
 	  width and OT class as 'mark' nstead of 'base glyph'
 
@@ -737,7 +737,7 @@
 	* sfd/: ae_Shado.sfd, ae_Sharjah.sfd, ae_Sindbad.sfd,
 	  ae_Tarablus.sfd:
 	  - New glyphs (covering every thing outside Arabic block) based on
-	  the GPL'd FreeFont project [http://www.nongnu.org/freefont/].
+	  the GPL'd FreeFont project [https://www.nongnu.org/freefont/].
 	  - Arabic diacritic marks (harakat) are set to have zero advance
 	  width and OT class as 'mark' nstead of 'base glyph'
 
@@ -746,7 +746,7 @@
 	* sfd/: ae_Petra.sfd, ae_Rasheeq-Bold.sfd, ae_Rehan.sfd,
 	  ae_Salem.sfd:
 	  - New glyphs (covering every thing outside Arabic block) based on
-	  the GPL'd FreeFont project [http://www.nongnu.org/freefont/].
+	  the GPL'd FreeFont project [https://www.nongnu.org/freefont/].
 	  - Arabic diacritic marks (harakat) are set to have zero advance
 	  width and OT class as 'mark' nstead of 'base glyph'
 
@@ -755,7 +755,7 @@
 	* sfd/: ae_Nagham.sfd, ae_Nice.sfd, ae_Ostorah.sfd,
 	  ae_Ouhod-Bold.sfd:
 	  - New glyphs (covering every thing outside Arabic block) based on
-	  the GPL'd FreeFont project [http://www.nongnu.org/freefont/].
+	  the GPL'd FreeFont project [https://www.nongnu.org/freefont/].
 	  - Arabic diacritic marks (harakat) are set to have zero advance
 	  width and OT class as 'mark' nstead of 'base glyph'
 
@@ -763,7 +763,7 @@
 
 	* sfd/: ae_Metal.sfd, ae_Nada.sfd:
 	  - New glyphs (covering every thing outside Arabic block) based on
-	  the GPL'd FreeFont project [http://www.nongnu.org/freefont/].
+	  the GPL'd FreeFont project [https://www.nongnu.org/freefont/].
 	  - Arabic diacritic marks (harakat) are set to have zero advance
 	  width and OT class as 'mark' nstead of 'base glyph'
 
@@ -772,7 +772,7 @@
 	* sfd/: ae_Kayrawan.sfd, ae_Khalid.sfd, ae_Mashq-Bold.sfd,
 	  ae_Mashq.sfd:
 	  - New glyphs (covering every thing outside Arabic block) based on
-	  the GPL'd FreeFont project [http://www.nongnu.org/freefont/].
+	  the GPL'd FreeFont project [https://www.nongnu.org/freefont/].
 	  - Arabic diacritic marks (harakat) are set to have zero advance
 	  width and OT class as 'mark' nstead of 'base glyph'
 
@@ -780,7 +780,7 @@
 
 	* sfd/: ae_Haramain.sfd, ae_Hor.sfd, ae_Japan.sfd, ae_Jet.sfd:
 	  - New glyphs (covering every thing outside Arabic block) based on
-	  the GPL'd FreeFont project [http://www.nongnu.org/freefont/].
+	  the GPL'd FreeFont project [https://www.nongnu.org/freefont/].
 	  - Arabic diacritic marks (harakat) are set to have zero advance
 	  width and OT class as 'mark' nstead of 'base glyph'
 
@@ -788,7 +788,7 @@
 
 	* sfd/: ae_Furat.sfd, ae_Granada.sfd, ae_Graph.sfd, ae_Hani.sfd:
 	  - New glyphs (covering every thing outside Arabic block) based on
-	  the GPL'd FreeFont project [http://www.nongnu.org/freefont/].
+	  the GPL'd FreeFont project [https://www.nongnu.org/freefont/].
 	  - Arabic diacritic marks (harakat) are set to have zero advance
 	  width and OT class as 'mark' nstead of 'base glyph'
 
@@ -797,7 +797,7 @@
 	* sfd/: ae_Arab.sfd, ae_Cortoba.sfd, ae_Dimnah.sfd,
 	  ae_Electron.sfd:
 	  - New glyphs (covering every thing outside Arabic block) based on
-	  the GPL'd FreeFont project [http://www.nongnu.org/freefont/].
+	  the GPL'd FreeFont project [https://www.nongnu.org/freefont/].
 	  - Arabic diacritic marks (harakat) are set to have zero advance
 	  width and OT class as 'mark' nstead of 'base glyph'
 
@@ -806,7 +806,7 @@
 	* sfd/: ae_AlMateen-Bold.sfd, ae_AlMohanad.sfd,
 	  ae_AlMothnna-Bold.sfd, ae_AlYarmook.sfd:
 	  - New glyphs (covering every thing outside Arabic block) based on
-	  the GPL'd FreeFont project [http://www.nongnu.org/freefont/].
+	  the GPL'd FreeFont project [https://www.nongnu.org/freefont/].
 	  - Arabic diacritic marks (harakat) are set to have zero advance
 	  width and OT class as 'mark' nstead of 'base glyph'
 
@@ -815,7 +815,7 @@
 	* sfd/: ae_AlArabiya.sfd, ae_AlBattar.sfd, ae_AlHor.sfd,
 	  ae_AlManzomah.sfd:
 	  - New glyphs (covering every thing outside Arabic block) based on
-	  the GPL'd FreeFont project [http://www.nongnu.org/freefont/].
+	  the GPL'd FreeFont project [https://www.nongnu.org/freefont/].
 	  - Arabic diacritic marks (harakat) are set to have zero advance
 	  width and OT class as 'mark' nstead of 'base glyph'
 

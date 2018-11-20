@@ -128,7 +128,7 @@ class FHIRTestScriptAction extends FHIRBackboneElement implements \JsonSerializa
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<TestScriptAction xmlns="http://hl7.org/fhir"></TestScriptAction>');
+            $sxe = new \SimpleXMLElement('<TestScriptAction xmlns="https://hl7.org/fhir"></TestScriptAction>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->operation)) {

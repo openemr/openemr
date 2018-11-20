@@ -4,7 +4,7 @@
  *
  * PostCalendar::PostNuke Events Calendar Module
  * Copyright (C) 2002 xl (The PostCalendar Team
- * http://postcalendar.tv
+ * https://postcalendar.tv
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  * To read the license please read the docs/license.txt or visit
- * http://www.gnu.org/copyleft/gpl.html
+ * https://www.gnu.org/copyleft/gpl.html
  *
  */
 
@@ -86,7 +86,7 @@ define('_PC_ADMIN_EVENTS_APPROVED', xl('The event(s) have been approved.'));
 define('_PC_ADMIN_EVENTS_HIDDEN', xl('The event(s) have been hidden.'));
 define('_PC_NEXT', xl('Next'));
 define('_PC_PREV', xl('Prev'));
-define('_PC_EVENT_DATE_FORMAT', xl('Date Display Format') . xl('uses php <a href="http://php.net/strftime">strftime</a> format', '', '<i>', '</i>'));
+define('_PC_EVENT_DATE_FORMAT', xl('Date Display Format') . xl('uses php <a href="https://php.net/strftime">strftime</a> format', '', '<i>', '</i>'));
 define('_PC_CAT_DELETE', xl('Delete'));
 define('_PC_REP_CAT_TITLE', xl('Categories'));
 define('_PC_REP_CAT_TITLE_S', xl('Category'));

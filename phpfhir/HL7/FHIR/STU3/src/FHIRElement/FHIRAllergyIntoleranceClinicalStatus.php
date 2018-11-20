@@ -90,7 +90,7 @@ class FHIRAllergyIntoleranceClinicalStatus extends FHIRElement implements \JsonS
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<AllergyIntoleranceClinicalStatus xmlns="http://hl7.org/fhir"></AllergyIntoleranceClinicalStatus>');
+            $sxe = new \SimpleXMLElement('<AllergyIntoleranceClinicalStatus xmlns="https://hl7.org/fhir"></AllergyIntoleranceClinicalStatus>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

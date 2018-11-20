@@ -1087,7 +1087,7 @@ class FHIRProcedureRequest extends FHIRDomainResource implements \JsonSerializab
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ProcedureRequest xmlns="http://hl7.org/fhir"></ProcedureRequest>');
+            $sxe = new \SimpleXMLElement('<ProcedureRequest xmlns="https://hl7.org/fhir"></ProcedureRequest>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {

@@ -7,7 +7,7 @@
  * @package verysimple::Util
  * @author Jason Hinkle
  * @copyright 1997-2011 VerySimple, Inc.
- * @license LGPL http://www.gnu.org/licenses/lgpl.html
+ * @license LGPL https://www.gnu.org/licenses/lgpl.html
  * @version 1.0
  */
 class VsDateUtil

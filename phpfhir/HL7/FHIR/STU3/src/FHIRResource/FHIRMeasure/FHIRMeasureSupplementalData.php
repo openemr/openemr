@@ -201,7 +201,7 @@ class FHIRMeasureSupplementalData extends FHIRBackboneElement implements \JsonSe
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MeasureSupplementalData xmlns="http://hl7.org/fhir"></MeasureSupplementalData>');
+            $sxe = new \SimpleXMLElement('<MeasureSupplementalData xmlns="https://hl7.org/fhir"></MeasureSupplementalData>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->identifier)) {

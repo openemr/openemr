@@ -3,7 +3,7 @@
  * This report lists  patient immunizations for a given date range.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2011 Ensoftek Inc.
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>

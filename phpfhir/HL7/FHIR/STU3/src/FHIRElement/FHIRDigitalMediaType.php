@@ -90,7 +90,7 @@ class FHIRDigitalMediaType extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DigitalMediaType xmlns="http://hl7.org/fhir"></DigitalMediaType>');
+            $sxe = new \SimpleXMLElement('<DigitalMediaType xmlns="https://hl7.org/fhir"></DigitalMediaType>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

@@ -90,7 +90,7 @@ class FHIRConfidentialityClassification extends FHIRElement implements \JsonSeri
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ConfidentialityClassification xmlns="http://hl7.org/fhir"></ConfidentialityClassification>');
+            $sxe = new \SimpleXMLElement('<ConfidentialityClassification xmlns="https://hl7.org/fhir"></ConfidentialityClassification>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

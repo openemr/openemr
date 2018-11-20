@@ -192,7 +192,7 @@ class FHIRActivityDefinitionDynamicValue extends FHIRBackboneElement implements 
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ActivityDefinitionDynamicValue xmlns="http://hl7.org/fhir"></ActivityDefinitionDynamicValue>');
+            $sxe = new \SimpleXMLElement('<ActivityDefinitionDynamicValue xmlns="https://hl7.org/fhir"></ActivityDefinitionDynamicValue>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->description)) {

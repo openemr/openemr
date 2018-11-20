@@ -10,7 +10,7 @@ namespace OpenEMR\Common;
  *
  * @package OpenEMR
  * @author  Matthew Vita <matthewvita48@gmail.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  * @copyright Copyright (c) 2017 Matthew Vita
  */

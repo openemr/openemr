@@ -90,7 +90,7 @@ class FHIRActionGroupingBehavior extends FHIRElement implements \JsonSerializabl
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ActionGroupingBehavior xmlns="http://hl7.org/fhir"></ActionGroupingBehavior>');
+            $sxe = new \SimpleXMLElement('<ActionGroupingBehavior xmlns="https://hl7.org/fhir"></ActionGroupingBehavior>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

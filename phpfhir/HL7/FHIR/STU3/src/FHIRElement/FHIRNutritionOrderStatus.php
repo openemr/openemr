@@ -90,7 +90,7 @@ class FHIRNutritionOrderStatus extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<NutritionOrderStatus xmlns="http://hl7.org/fhir"></NutritionOrderStatus>');
+            $sxe = new \SimpleXMLElement('<NutritionOrderStatus xmlns="https://hl7.org/fhir"></NutritionOrderStatus>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

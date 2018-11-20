@@ -2,7 +2,7 @@
 /*
  * Generates a Universally Unique IDentifier, version 4.
  *
- * RFC 4122 (http://www.ietf.org/rfc/rfc4122.txt) defines a special type of Globally
+ * RFC 4122 (https://www.ietf.org/rfc/rfc4122.txt) defines a special type of Globally
  * Unique IDentifiers (GUID), as well as several methods for producing them. One
  * such method, described in section 4.4, is based on truly random or pseudo-random
  * number generators, and is therefore implementable in a language like PHP.

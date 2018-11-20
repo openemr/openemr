@@ -4,7 +4,7 @@
  * (Temporary rest test interface until add a model)
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3

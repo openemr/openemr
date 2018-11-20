@@ -13,7 +13,7 @@ Upgrading Instructions
 
 After you have upgraded to a new version of OpenEMR, you should
 run the acl_upgrade.php program using your web browser
-(e.g. http://openemr.location/acl_upgrade.php). This will ensure your
+(e.g. https://openemr.location/acl_upgrade.php). This will ensure your
 phpGACL database contains all the required OpenEMR Access Control
 Objects.
 
@@ -43,7 +43,7 @@ Alternatively, it's possible to set up your own access rules without
 using phpGACL by customizing the code in library/acl.inc.  See that
 module for more information.
 
-phpGACL is available from http://phpgacl.sourceforge.net/.  Read
+phpGACL is available from https://phpgacl.sourceforge.net/.  Read
 its documentation and install it according to its instructions.
 Helpful installation and configuration instructions can also be
 found on the wiki at the www.open-emr.org site.
@@ -67,7 +67,7 @@ tab and other references to AXOs.
 
 After you have installed phpGACL and modified library/acl.inc
 appropriately, you should run the acl_setup.php program using your
-web browser (e.g. http://openemr.location/acl_setup.php).  This will
+web browser (e.g. https://openemr.location/acl_setup.php).  This will
 create some required and sample objects in the phpGACL database for
 OpenEMR.
 

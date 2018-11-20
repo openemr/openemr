@@ -11,7 +11,7 @@ use HL7\FHIR\STU3\FHIRElement;
 
 /**
  * A string that may contain markdown syntax for optional processing by a mark down presentation engine
- * Systems are not required to have markdown support, and there is considerable variation in markdown syntax, so the text should be readable without markdown processing. The preferred markdown syntax is described here: http://daringfireball.net/projects/markdown/syntax (and tests here: http://daringfireball.net/projects/downloads/MarkdownTest_1.0.zip)
+ * Systems are not required to have markdown support, and there is considerable variation in markdown syntax, so the text should be readable without markdown processing. The preferred markdown syntax is described here: https://daringfireball.net/projects/markdown/syntax (and tests here: https://daringfireball.net/projects/downloads/MarkdownTest_1.0.zip)
  * If the element is present, it must have either a @value, an @id referenced from the Narrative, or extensions
  */
 class FHIRMarkdown extends FHIRElement implements \JsonSerializable
@@ -88,7 +88,7 @@ class FHIRMarkdown extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<markdown xmlns="http://hl7.org/fhir"></markdown>');
+            $sxe = new \SimpleXMLElement('<markdown xmlns="https://hl7.org/fhir"></markdown>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

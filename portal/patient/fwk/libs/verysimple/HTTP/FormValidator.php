@@ -13,8 +13,8 @@
  *
  * @package verysimple::HTTP
  * @author VerySimple Inc.
- * @copyright 1997-2008 VerySimple, Inc. http://www.verysimple.com
- * @license http://www.gnu.org/licenses/lgpl.html LGPL
+ * @copyright 1997-2008 VerySimple, Inc. https://www.verysimple.com
+ * @license https://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
 class FormValidator

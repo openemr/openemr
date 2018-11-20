@@ -3,7 +3,7 @@
  * CMS 1500 Help.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author Ranganath Pathak <pathak@scrs1.org>
  * @version 1.0.0
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
@@ -58,7 +58,7 @@ require_once("../../interface/globals.php");
                 
                 <p><?php echo xlt("The National Uniform Claim Committee (NUCC) is responsible for the maintenance of the 1500 Claim Form");?>.
                 
-                <p><?php echo xlt("The Instruction manual on how to fill the CMS 1500 form can be found here");?>.<a href="http://www.nucc.org" target="_blank">&nbsp;<i id="show_hide" class="fa fa-external-link fa-lg small" title=<?php echo xlt("Click to Show");?>></i></a>
+                <p><?php echo xlt("The Instruction manual on how to fill the CMS 1500 form can be found here");?>.<a href="https://www.nucc.org" target="_blank">&nbsp;<i id="show_hide" class="fa fa-external-link fa-lg small" title=<?php echo xlt("Click to Show");?>></i></a>
                 
                 <p><?php echo xlt("The CMS 1500 form has 33 boxes and is divided into two sections");?>.&nbsp;<a href="https://www.cms.gov/Medicare/CMS-Forms/CMS-Forms/Downloads/CMS1500.pdf" target="_blank"><i id="show_hide" class="fa fa-eye fa-lg small" title=<?php echo xlt("Click to Show");?>></i></a>
                 

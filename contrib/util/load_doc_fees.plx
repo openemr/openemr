@@ -21,7 +21,7 @@ use DBI;
 #   ./load_doc_fees.plx < PFALL08A.TXT
 #
 # Fee schedules as of this writing are at:
-#   http://www.cms.hhs.gov/PhysicianFeeSched/PFSNPAF/list.asp
+#   https://www.cms.hhs.gov/PhysicianFeeSched/PFSNPAF/list.asp
 # Medicare also produces periodic updates which are in the same format
 # and can also be processed by this program.
 #######################################################################

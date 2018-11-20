@@ -4,7 +4,7 @@
  * (c) 2013-2016 Nicklas Ansman, 2013 Wrapp
  * Validate.js may be freely distributed under the MIT license.
  * For all details and documentation:
- * http://validatejs.org/
+ * https://validatejs.org/
  */
 
 (function(exports, module, define) {
@@ -299,7 +299,7 @@
         return true;
       }
 
-      // http://stackoverflow.com/a/384380/699304
+      // https://stackoverflow.com/a/384380/699304
       /* istanbul ignore else */
       if (typeof HTMLElement === "object") {
         return o instanceof HTMLElement;

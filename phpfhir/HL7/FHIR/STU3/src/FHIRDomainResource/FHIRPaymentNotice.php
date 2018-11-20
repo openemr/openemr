@@ -395,7 +395,7 @@ class FHIRPaymentNotice extends FHIRDomainResource implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<PaymentNotice xmlns="http://hl7.org/fhir"></PaymentNotice>');
+            $sxe = new \SimpleXMLElement('<PaymentNotice xmlns="https://hl7.org/fhir"></PaymentNotice>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {

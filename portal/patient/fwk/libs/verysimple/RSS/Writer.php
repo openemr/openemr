@@ -6,13 +6,13 @@ require_once("verysimple/XML/XMLUtil.php");
  * A API for writing RSS feeds
  *
  * @package verysimple::RSS
- * @link http://www.110mb.com/forum/how-to-make-a-rss-feed-with-php-t11030.0.html
+ * @link https://www.110mb.com/forum/how-to-make-a-rss-feed-with-php-t11030.0.html
  * @version 1.1
  * @example require_once('verysimple/RSS/Writer.php');
  *          $rss_writer = new RSS_Writer('Channel','www.dev.nul','Feed Title');
  *          $rss_writer->setLanguage('us-en');
  *          $rss_writer->addCategory("Category Name");
- *          $rss_writer->addItem("Title","http://...",'Category Name','Author',date(DATE_RSS,strtotime('2008-01-04: 01:01:01')));
+ *          $rss_writer->addItem("Title","https://...",'Category Name','Author',date(DATE_RSS,strtotime('2008-01-04: 01:01:01')));
  *          $rss_writer->writeOut();
  */
 class RSS_Writer
@@ -37,7 +37,7 @@ class RSS_Writer
      * @param string $docs
      *          [optional]
      */
-    public function __construct($channel_title, $channel_link, $channel_description, $generator = "RSS_Writer", $docs = "http://cyber.law.harvard.edu/rss/rss.html")
+    public function __construct($channel_title, $channel_link, $channel_description, $generator = "RSS_Writer", $docs = "https://cyber.law.harvard.edu/rss/rss.html")
     {
         $this->item_list = array ();
         $this->item_counter = 0;

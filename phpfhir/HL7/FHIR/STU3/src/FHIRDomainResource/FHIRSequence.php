@@ -70,7 +70,7 @@ class FHIRSequence extends FHIRDomainResource implements \JsonSerializable
     public $referenceSeq = null;
 
     /**
-     * The definition of variant here originates from Sequence ontology ([variant_of](http://www.sequenceontology.org/browser/current_svn/term/variant_of)). This element can represent amino acid or nucleic sequence change(including insertion,deletion,SNP,etc.)  It can represent some complex mutation or segment variation with the assist of CIGAR string.
+     * The definition of variant here originates from Sequence ontology ([variant_of](https://www.sequenceontology.org/browser/current_svn/term/variant_of)). This element can represent amino acid or nucleic sequence change(including insertion,deletion,SNP,etc.)  It can represent some complex mutation or segment variation with the assist of CIGAR string.
      * @var \HL7\FHIR\STU3\FHIRResource\FHIRSequence\FHIRSequenceVariant[]
      */
     public $variant = [];
@@ -82,7 +82,7 @@ class FHIRSequence extends FHIRDomainResource implements \JsonSerializable
     public $observedSeq = null;
 
     /**
-     * An experimental feature attribute that defines the quality of the feature in a quantitative way, such as a phred quality score ([SO:0001686](http://www.sequenceontology.org/browser/current_svn/term/SO:0001686)).
+     * An experimental feature attribute that defines the quality of the feature in a quantitative way, such as a phred quality score ([SO:0001686](https://www.sequenceontology.org/browser/current_svn/term/SO:0001686)).
      * @var \HL7\FHIR\STU3\FHIRResource\FHIRSequence\FHIRSequenceQuality[]
      */
     public $quality = [];
@@ -291,7 +291,7 @@ class FHIRSequence extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * The definition of variant here originates from Sequence ontology ([variant_of](http://www.sequenceontology.org/browser/current_svn/term/variant_of)). This element can represent amino acid or nucleic sequence change(including insertion,deletion,SNP,etc.)  It can represent some complex mutation or segment variation with the assist of CIGAR string.
+     * The definition of variant here originates from Sequence ontology ([variant_of](https://www.sequenceontology.org/browser/current_svn/term/variant_of)). This element can represent amino acid or nucleic sequence change(including insertion,deletion,SNP,etc.)  It can represent some complex mutation or segment variation with the assist of CIGAR string.
      * @return \HL7\FHIR\STU3\FHIRResource\FHIRSequence\FHIRSequenceVariant[]
      */
     public function getVariant()
@@ -300,7 +300,7 @@ class FHIRSequence extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * The definition of variant here originates from Sequence ontology ([variant_of](http://www.sequenceontology.org/browser/current_svn/term/variant_of)). This element can represent amino acid or nucleic sequence change(including insertion,deletion,SNP,etc.)  It can represent some complex mutation or segment variation with the assist of CIGAR string.
+     * The definition of variant here originates from Sequence ontology ([variant_of](https://www.sequenceontology.org/browser/current_svn/term/variant_of)). This element can represent amino acid or nucleic sequence change(including insertion,deletion,SNP,etc.)  It can represent some complex mutation or segment variation with the assist of CIGAR string.
      * @param \HL7\FHIR\STU3\FHIRResource\FHIRSequence\FHIRSequenceVariant $variant
      * @return $this
      */
@@ -331,7 +331,7 @@ class FHIRSequence extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * An experimental feature attribute that defines the quality of the feature in a quantitative way, such as a phred quality score ([SO:0001686](http://www.sequenceontology.org/browser/current_svn/term/SO:0001686)).
+     * An experimental feature attribute that defines the quality of the feature in a quantitative way, such as a phred quality score ([SO:0001686](https://www.sequenceontology.org/browser/current_svn/term/SO:0001686)).
      * @return \HL7\FHIR\STU3\FHIRResource\FHIRSequence\FHIRSequenceQuality[]
      */
     public function getQuality()
@@ -340,7 +340,7 @@ class FHIRSequence extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * An experimental feature attribute that defines the quality of the feature in a quantitative way, such as a phred quality score ([SO:0001686](http://www.sequenceontology.org/browser/current_svn/term/SO:0001686)).
+     * An experimental feature attribute that defines the quality of the feature in a quantitative way, such as a phred quality score ([SO:0001686](https://www.sequenceontology.org/browser/current_svn/term/SO:0001686)).
      * @param \HL7\FHIR\STU3\FHIRResource\FHIRSequence\FHIRSequenceQuality $quality
      * @return $this
      */
@@ -591,7 +591,7 @@ class FHIRSequence extends FHIRDomainResource implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<Sequence xmlns="http://hl7.org/fhir"></Sequence>');
+            $sxe = new \SimpleXMLElement('<Sequence xmlns="https://hl7.org/fhir"></Sequence>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {

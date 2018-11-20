@@ -90,7 +90,7 @@ class FHIREventCapabilityMode extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<EventCapabilityMode xmlns="http://hl7.org/fhir"></EventCapabilityMode>');
+            $sxe = new \SimpleXMLElement('<EventCapabilityMode xmlns="https://hl7.org/fhir"></EventCapabilityMode>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

@@ -14,7 +14,7 @@
 *    GNU Affero General Public License for more details.
 *
 *    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 *    @author  Vinish K <vinish@zhservices.com>
 *    @author  Riju K P <rijukp@zhservices.com>
@@ -138,8 +138,8 @@ class EncounterccdadispatchController extends AbstractActionController
 
                     $to_replace = '<?xml version="1.0" encoding="UTF-8"?>
 					<?xml-stylesheet type="text/xsl" href="CDA.xsl"?>
-					<ClinicalDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-					xsi:schemaLocation="urn:hl7-org:v3 http://xreg2.nist.gov:8080/hitspValidation/schema/cdar2c32/infrastructure/cda/C32_CDA.xsd"
+					<ClinicalDocument xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+					xsi:schemaLocation="urn:hl7-org:v3 https://xreg2.nist.gov:8080/hitspValidation/schema/cdar2c32/infrastructure/cda/C32_CDA.xsd"
 					xmlns="urn:hl7-org:v3"
 					xmlns:mif="urn:hl7-org:v3/mif">
 					<!--';
@@ -178,8 +178,8 @@ class EncounterccdadispatchController extends AbstractActionController
                 $content            = $this->socket_get("$mirth_ip", "6661", $this->data);
                 $to_replace = '<?xml version="1.0" encoding="UTF-8"?>
 				<?xml-stylesheet type="text/xsl" href="CDA.xsl"?>
-				<ClinicalDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-				xsi:schemaLocation="urn:hl7-org:v3 http://xreg2.nist.gov:8080/hitspValidation/schema/cdar2c32/infrastructure/cda/C32_CDA.xsd"
+				<ClinicalDocument xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+				xsi:schemaLocation="urn:hl7-org:v3 https://xreg2.nist.gov:8080/hitspValidation/schema/cdar2c32/infrastructure/cda/C32_CDA.xsd"
 				xmlns="urn:hl7-org:v3"
 				xmlns:mif="urn:hl7-org:v3/mif">
 				<!--';
@@ -338,8 +338,8 @@ class EncounterccdadispatchController extends AbstractActionController
 
                 $to_replace = '<?xml version="1.0" encoding="UTF-8"?>
 		<?xml-stylesheet type="text/xsl" href="CDA.xsl"?>
-		<ClinicalDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="urn:hl7-org:v3 http://xreg2.nist.gov:8080/hitspValidation/schema/cdar2c32/infrastructure/cda/C32_CDA.xsd"
+		<ClinicalDocument xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="urn:hl7-org:v3 https://xreg2.nist.gov:8080/hitspValidation/schema/cdar2c32/infrastructure/cda/C32_CDA.xsd"
 		xmlns="urn:hl7-org:v3"
 		xmlns:mif="urn:hl7-org:v3/mif">
 		<!--';
@@ -379,8 +379,8 @@ class EncounterccdadispatchController extends AbstractActionController
             $content            = $this->socket_get("$mirth_ip", "6661", $this->data);
             $to_replace = '<?xml version="1.0" encoding="UTF-8"?>
             <?xml-stylesheet type="text/xsl" href="CDA.xsl"?>
-            <ClinicalDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="urn:hl7-org:v3 http://xreg2.nist.gov:8080/hitspValidation/schema/cdar2c32/infrastructure/cda/C32_CDA.xsd"
+            <ClinicalDocument xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:hl7-org:v3 https://xreg2.nist.gov:8080/hitspValidation/schema/cdar2c32/infrastructure/cda/C32_CDA.xsd"
             xmlns="urn:hl7-org:v3"
             xmlns:mif="urn:hl7-org:v3/mif">
             <!--';

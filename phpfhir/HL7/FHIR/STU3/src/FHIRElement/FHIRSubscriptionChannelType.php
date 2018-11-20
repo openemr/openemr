@@ -90,7 +90,7 @@ class FHIRSubscriptionChannelType extends FHIRElement implements \JsonSerializab
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubscriptionChannelType xmlns="http://hl7.org/fhir"></SubscriptionChannelType>');
+            $sxe = new \SimpleXMLElement('<SubscriptionChannelType xmlns="https://hl7.org/fhir"></SubscriptionChannelType>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

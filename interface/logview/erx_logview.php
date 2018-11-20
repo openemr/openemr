@@ -4,7 +4,7 @@
  *
  * @package    OpenEMR
  * @subpackage NewCrop
- * @link       http://www.open-emr.org
+ * @link       https://www.open-emr.org
  * @author     Eldho Chacko <eldho@zhservices.com>
  * @author     Vinish K <vinish@zhservices.com>
  * @author     Sam Likins <sam.likins@wsi-services.com>

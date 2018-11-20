@@ -10,7 +10,7 @@ require_once "verysimple/String/VerySimpleStringUtil.php";
  * @package verysimple::String
  * @author Jason Hinkle
  * @copyright 1997-2012 VerySimple, Inc.
- * @license http://www.gnu.org/licenses/lgpl.html LGPL
+ * @license https://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
 class OAuthUtil

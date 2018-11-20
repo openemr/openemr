@@ -146,7 +146,7 @@ class FHIRImmunizationExplanation extends FHIRBackboneElement implements \JsonSe
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ImmunizationExplanation xmlns="http://hl7.org/fhir"></ImmunizationExplanation>');
+            $sxe = new \SimpleXMLElement('<ImmunizationExplanation xmlns="https://hl7.org/fhir"></ImmunizationExplanation>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->reason)) {

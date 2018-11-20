@@ -209,7 +209,7 @@ class FHIRQuestionnaireOption extends FHIRBackboneElement implements \JsonSerial
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<QuestionnaireOption xmlns="http://hl7.org/fhir"></QuestionnaireOption>');
+            $sxe = new \SimpleXMLElement('<QuestionnaireOption xmlns="https://hl7.org/fhir"></QuestionnaireOption>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->valueInteger)) {

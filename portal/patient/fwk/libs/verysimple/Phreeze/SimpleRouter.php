@@ -5,7 +5,7 @@ require_once("verysimple/Phreeze/IRouter.php");
 
 /**
  * SimpleRouter is a URL router that parses URLs in the following format:
- * http://server/index.php?ROUTE
+ * https://server/index.php?ROUTE
  * This router can be used in a situation where URL re-writing is not
  * available or wanted on the host server
  *
@@ -18,8 +18,8 @@ require_once("verysimple/Phreeze/IRouter.php");
  *
  * @package verysimple::HTTP
  * @author VerySimple Inc.
- * @copyright 1997-2007 VerySimple, Inc. http://www.verysimple.com
- * @license http://www.gnu.org/licenses/lgpl.html LGPL
+ * @copyright 1997-2007 VerySimple, Inc. https://www.verysimple.com
+ * @license https://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
 class SimpleRouter implements IRouter
@@ -90,7 +90,7 @@ class SimpleRouter implements IRouter
     
     /**
      * In the case of a rewrite url, the url itself contains the parameter
-     * for example http://server/param1/param2/param3.
+     * for example https://server/param1/param2/param3.
      * These params
      * are parsed and the param with the given index is returned
      *
@@ -105,7 +105,7 @@ class SimpleRouter implements IRouter
     
     /**
      * In the case of a rewrite url, the url itself contains the parameter
-     * for example http://server/param1/param2/param3.
+     * for example https://server/param1/param2/param3.
      * These params
      * are parsed and returned as an array
      *

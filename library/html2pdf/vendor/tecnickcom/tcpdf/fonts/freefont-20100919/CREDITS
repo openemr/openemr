@@ -5,10 +5,10 @@
 This file lists contributors and contributions to the GNU FreeFont project.
 
 
-* URW++ Design & Development GmbH <http://www.urwpp.de/>
+* URW++ Design & Development GmbH <https://www.urwpp.de/>
 
 URW++ donated a set of 35 core PostScript Type 1 fonts to the
-Ghostscript project <http://www.cs.wisc.edu/~ghost/>, to be available
+Ghostscript project <https://www.cs.wisc.edu/~ghost/>, to be available
 under the terms of GNU General Public License (GPL).
 
 	Basic Latin				(U+0041-U+007A)
@@ -24,7 +24,7 @@ under the terms of GNU General Public License (GPL).
   Plaice <plaice AT omega.cse.unsw.edu.au>
 
 Yannis Haralambous and John Plaice are the authors of Omega typesetting
-system, <http://omega.enstb.org/>. Omega is an extension of TeX.
+system, <https://omega.enstb.org/>. Omega is an extension of TeX.
 Its first release, aims primarily at improving TeX's multilingual abilities.
 In Omega all characters and pointers into data-structures are 16-bit wide,
 instead of 8-bit, thereby eliminating many of the trivial limitations of TeX.
@@ -50,7 +50,7 @@ Omega fonts are available subject to GPL
 	Arabic Presentation Forms-A		(U+FB50-U+FDFF)
 	Arabic Presentation Forms-B		(U+FE70-U+FEFF)
 
-Current info: <http://tug.ctan.org/cgi-bin/ctanPackageInformation.py?id=omega>
+Current info: <https://tug.ctan.org/cgi-bin/ctanPackageInformation.py?id=omega>
 
 * Valek Filippov <frob AT df.ru>
 
@@ -90,7 +90,7 @@ fonts, these glyphs are thinner than those of original Times
 fonts. That is, the rule thickness of these glyphs is around 85% of
 that of the Times fonts, but still thicker than that of the CM fonts."
 TX fonts are are distributed under the GNU public license (GPL). 
-<http://www.ctan.org/tex-archive/fonts/txfonts/>.
+<https://www.ctan.org/tex-archive/fonts/txfonts/>.
 
 	Arrows					(U+2190-U+21FF)
 	Mathematical Symbols			(U+2200-U+22FF)
@@ -126,7 +126,7 @@ intlfonts 1.2 package and is available under the GPL at
 
 Shaheed Haque has developed a basic set of basic Bengali glyphs
 (without ligatures), using ISO10646 encoding. They are available under
-the XFree86 license at <http://www.btinternet.com/~shaheedhaque/>.
+the XFree86 license at <https://www.btinternet.com/~shaheedhaque/>.
 
 Copyright (C) 2001 S.R.Haque <srhaque AT iee.org>.  All Rights Reserved.
 
@@ -161,7 +161,7 @@ S.R.Haque.
 
 Sam Stepanyan created a set of Armenian sans serif glyphs visually
 compatible with Helvetica or Arial. Available on
-<http://www.editum.com.ar/mashtots/html/fonts/ara.tar.gz>. On
+<https://www.editum.com.ar/mashtots/html/fonts/ara.tar.gz>. On
 2002-01-24, Sam writes: "Arial Armenian font is free for
 non-commercial use, so it is OK to use under GPL license."
 
@@ -171,7 +171,7 @@ non-commercial use, so it is OK to use under GPL license."
 * Mohamed Ishan <ishan AT mitf.f2s.com>
 
 Mohamed Ishan has started a Thaana Unicode Project
-<http://thaana.sourceforge.net/> and among other things created a
+<https://thaana.sourceforge.net/> and among other things created a
 couple of Thaana fonts, available under FDL or BDF license.
 
 	Thaana					(U+0780-U+07BF)
@@ -180,7 +180,7 @@ couple of Thaana fonts, available under FDL or BDF license.
 * Sushant Kumar Dash <sushant AT writeme.com> (*)
 
 Sushant Dash has created a font in his mother tongue, Oriya. As he
-states on his web page <http://members.tripod.com/~sushantdash/>:
+states on his web page <https://members.tripod.com/~sushantdash/>:
 "Please feel free to foreword this mail to your Oriya friends. No
 copyright law is applied for this font. It is totally free!!! Feel
 free to modify this using any font editing tools. This is designed for
@@ -193,7 +193,7 @@ fonts.(Or the cost of the available packages are too much)."
 
 * Harsh Kumar <harshkumar AT vsnl.com>
 
-Harsh Kumar has started BharatBhasha <http://www.bharatbhasha.net/> -
+Harsh Kumar has started BharatBhasha <https://www.bharatbhasha.net/> -
 an effort to provide "FREE software, Tutorial, Source Codes
 etc. available for working in Hindi, Marathi, Gujarati, Gurmukhi and
 Bangla. You can type text, write Web pages or develop Indian Languages
@@ -210,7 +210,7 @@ languages."
 * Prasad A. Chodavarapu <chprasad AT hotmail.com>
 
 Prasad A. Chodavarapu created Tikkana, a Telugu font available in Type
-1 and TrueType format on <http://chaitanya.bhaavana.net/fonts/>. 
+1 and TrueType format on <https://chaitanya.bhaavana.net/fonts/>. 
 Tikkana exceeds the Unicode Telugu range with some composite glyphs.
 Available under the GNU General Public License.
 
@@ -226,7 +226,7 @@ under the terms of GNU GPL. Later, Anshuman Pandey from the Washington
 University, Seattle, USA, took over the maintenance of font. Fonts can
 be found on CTAN, <ftp://ftp.dante.de/tex-archive/language/devanagari/>. I
 converted the font to Type 1 format using Péter Szabó's TeXtrace
-program <http://www.inf.bme.hu/~pts/textrace/> and removed some
+program <https://www.inf.bme.hu/~pts/textrace/> and removed some
 redundant control points with PfaEdit.
 
 	Devanagari				(U+0900-U+097F)
@@ -277,11 +277,11 @@ of Computer Science, University of Hamburg, prepared a set of Ethiopic
 metafonts, found on
 <ftp://ftp.dante.de/tex-archive/language/ethiopia/ethiop/>. They also
 maintain home page on the Ethiopic font project,
-<http://www.informatik.uni-hamburg.de/TGI/mitarbeiter/wimis/kummer/ethiop_eng.html>,
+<https://www.informatik.uni-hamburg.de/TGI/mitarbeiter/wimis/kummer/ethiop_eng.html>,
 and can be reached at <ethiop AT informatik.uni-hamburg.de>. The current
 version of fonts is 0.7 (1998), and they are released under GNU GPL. I
 converted the fonts to Type 1 format using Péter Szabó's TeXtrace-A
-program <http://www.inf.bme.hu/~pts/textrace/> and removed some
+program <https://www.inf.bme.hu/~pts/textrace/> and removed some
 redundant control points with PfaEdit.
 
 	Ethiopic				(U+1200-U+137F)
@@ -294,7 +294,7 @@ Hebrew-speaking Linux and Unix community with a basic collection of
 Hebrew fonts for X Windows. The fonts are visually compatible with
 URW++ Century Schoolbook L, URW++ Nimbus Sans L and URW++ Nimbus Mono
 L families, respectively, and are released under GNU GPL license. See
-also <http://culmus.sourceforge.net/>.
+also <https://culmus.sourceforge.net/>.
 
 	Hebrew					(U+0590-U+05FF)
 
@@ -314,7 +314,7 @@ with the UCS fonts to fill the 2800-28FF range completely. (uniform
 scaling is possible to adapt it to any cell size). He also contributed
 a free syriac font, whose glyphs (about half of them) are borrowed
 from the "Carlo Ator" font freely downloadable from
-<http://www.aacf.asso.fr/>. Vyacheslav also filled in a few missing
+<https://www.aacf.asso.fr/>. Vyacheslav also filled in a few missing
 spots in the U+2000-U+27FF area, e.g. the box drawing section, sets of
 subscript and superscript digits and capital Roman numbers.
 
@@ -326,12 +326,12 @@ subscript and superscript digits and capital Roman numbers.
 * M.S. Sridhar <mssridhar AT vsnl.com>
 
 M/S Cyberscape Multimedia Limited, Mumbai, developers of Akruti
-Software for Indian Languages (http://www.akruti.com/), have released
+Software for Indian Languages (https://www.akruti.com/), have released
 a set of TTF fonts for nine Indian scripts (Devanagari, Gujarati,
 Telugu, Tamil, Malayalam, Kannada, Bengali, Oriya, and Gurumukhi)
 under the GNU General Public License (GPL). You can download the fonts
 from the Free Software Foundation of India WWW site
-(http://www.gnu.org.in/akruti-fonts/) or from the Akruti website.
+(https://www.gnu.org.in/akruti-fonts/) or from the Akruti website.
 
 For any further information or assistance regarding these fonts,
 please contact mssridhar AT vsnl.com.
@@ -351,13 +351,13 @@ please contact mssridhar AT vsnl.com.
   <nlevitt AT columbia.edu>
 
 Noah Levitt found out that the Sinhalese fonts available on the site
-<http://www.metta.lk/fonts/> are released under GNU GPL, or,
+<https://www.metta.lk/fonts/> are released under GNU GPL, or,
 precisely, "Public Domain under GNU Licence Produced by DMS
 Electronics for The Sri Lanka Tipitaka Project" (taken from the font
 comment), and took the effort of recoding the font to Unicode.
 
 These glyphs were later replaced by those from the LKLUG font
-<http://www.lug.lk/fonts/lklug>
+<https://www.lug.lk/fonts/lklug>
 
 Finally the range was completely replaced by glyphs from the sinh TeX
 font, with much help and advice from Harshula Jayasuriya.
@@ -370,7 +370,7 @@ font, with much help and advice from Harshula Jayasuriya.
 Dan Chirkov updated the FreeSerif font with the missing Cyrillic
 glyphs needed for conformance to Unicode 3.2. The effort is part of
 the Slavjanskij package for Mac OS X,
-<http://www.versiontracker.com/dyn/moreinfo/macosx/18680>.
+<https://www.versiontracker.com/dyn/moreinfo/macosx/18680>.
 
 	Cyrillic				(U+0400-U+04FF)
 
@@ -409,7 +409,7 @@ to reflect the revised edition Rachana_04.
 	Bengali					(U+0980-U+09FF)
 
 Solaiman Karim has developed several OpenType Bangla fonts and
-released them under GNU GPL on <http://www.ekushey.org>.
+released them under GNU GPL on <https://www.ekushey.org>.
 
 
 * Sonali Sonania <sonalisonania AT gmail.com> and Monika Shah
@@ -448,7 +448,7 @@ Sans" font belongs to sans serif style and is actually a compilation
 of already released Indic fonts (Gargi, Padma, Mukti, Utkal, Akruti
 and ThendralUni). Both fonts are based on Unicode standard. You can
 download the font files (released under GNU/GPL License) from
-http://www.gnowledge.org/Gnoware/localization/font.htm
+https://www.gnowledge.org/Gnoware/localization/font.htm
 
 
 * Kulbir Singh Thind
@@ -458,7 +458,7 @@ http://www.gnowledge.org/Gnoware/localization/font.htm
 Dr. Kulbir Singh Thind designed a set of Gurmukhi Unicode fonts,
 AnmolUni and AnmolUni-Bold, which are available under the terms of GNU
 Generel Public Licens from the Punjabu Computing Resource Center,
-http://guca.sourceforge.net/typography/fonts/anmoluni/.
+https://guca.sourceforge.net/typography/fonts/anmoluni/.
 
 
 * Gia Shervashidze <giasher AT telenet.ge>
@@ -468,7 +468,7 @@ http://guca.sourceforge.net/typography/fonts/anmoluni/.
 Starting in mid-1990s, Gia Shervashidze designed many
 Unicode-compliant Georgian fonts: Times New Roman Georgian, Arial
 Georgian, Courier New Georgian. His work on Georgian localization can
-be reached at http://www.gia.ge/.
+be reached at https://www.gia.ge/.
 
 
 * Primož Peterlin <primoz.peterlin AT biofiz.mf.uni-lj.si>
@@ -550,7 +550,7 @@ to repsonsible people at the Trust.
 
 	Sinhala					(U+0D80-U+0DFF)
 
-* The Sinhala font project http://sinhala.sourceforge.net/
+* The Sinhala font project https://sinhala.sourceforge.net/
 
 The Sinhala font project has taken the glyphs from Yannis Haralambous'
 Sinhala font, to produce a Unicode TrueType font, LKLUG.  These glyphs

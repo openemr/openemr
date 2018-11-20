@@ -807,7 +807,7 @@ class FHIRRequestGroupAction extends FHIRBackboneElement implements \JsonSeriali
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<RequestGroupAction xmlns="http://hl7.org/fhir"></RequestGroupAction>');
+            $sxe = new \SimpleXMLElement('<RequestGroupAction xmlns="https://hl7.org/fhir"></RequestGroupAction>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->label)) {

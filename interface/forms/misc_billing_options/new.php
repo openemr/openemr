@@ -12,7 +12,7 @@
  * @copyright Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (C) 2017 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (C) 2018 Jerry Padgett <sjpadgett@gmail.com>
- * @link http://www.open-emr.org
+ * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 require_once("../../globals.php");

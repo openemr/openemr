@@ -90,7 +90,7 @@ class FHIRStructureMapSourceListMode extends FHIRElement implements \JsonSeriali
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<StructureMapSourceListMode xmlns="http://hl7.org/fhir"></StructureMapSourceListMode>');
+            $sxe = new \SimpleXMLElement('<StructureMapSourceListMode xmlns="https://hl7.org/fhir"></StructureMapSourceListMode>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

@@ -50,20 +50,20 @@ directory) and then restart the development docker (see below for how to do this
 
 **Step 3.** Open up OpenEMR in the latest Chrome or Firefox! You have many
 options to choose from:
-- http://localhost:8080 (with Apache and PHP 7.1)
-- http://localhost:8081 (with Apache and PHP 7.2)
-- http://localhost:8082 (with Apache and PHP 7.1 with redis)
-- http://localhost:8083 (with Apache and PHP 7.2 with redis)
-- http://localhost:8090 (with Nginx and PHP-FPM 5.6)
-- http://localhost:8091 (with Nginx and PHP-FPM 7.0)
-- http://localhost:8092 (with Nginx and PHP-FPM 7.1)
-- http://localhost:8093 (with Nginx and PHP-FPM 7.2)
-- http://localhost:8094 (with Nginx and PHP-FPM 7.3)
-- http://localhost:8095 (with Nginx and PHP-FPM 5.6 with redis)
-- http://localhost:8096 (with Nginx and PHP-FPM 7.0 with redis)
-- http://localhost:8097 (with Nginx and PHP-FPM 7.1 with redis)
-- http://localhost:8098 (with Nginx and PHP-FPM 7.2 with redis)
-- http://localhost:8099 (with Nginx and PHP-FPM 7.3 with redis)
+- https://localhost:8080 (with Apache and PHP 7.1)
+- https://localhost:8081 (with Apache and PHP 7.2)
+- https://localhost:8082 (with Apache and PHP 7.1 with redis)
+- https://localhost:8083 (with Apache and PHP 7.2 with redis)
+- https://localhost:8090 (with Nginx and PHP-FPM 5.6)
+- https://localhost:8091 (with Nginx and PHP-FPM 7.0)
+- https://localhost:8092 (with Nginx and PHP-FPM 7.1)
+- https://localhost:8093 (with Nginx and PHP-FPM 7.2)
+- https://localhost:8094 (with Nginx and PHP-FPM 7.3)
+- https://localhost:8095 (with Nginx and PHP-FPM 5.6 with redis)
+- https://localhost:8096 (with Nginx and PHP-FPM 7.0 with redis)
+- https://localhost:8097 (with Nginx and PHP-FPM 7.1 with redis)
+- https://localhost:8098 (with Nginx and PHP-FPM 7.2 with redis)
+- https://localhost:8099 (with Nginx and PHP-FPM 7.3 with redis)
 - https://localhost:9080 with SSL (with Apache and PHP 7.1)
 - https://localhost:9081 with SSL (with Apache and PHP 7.2)
 - https://localhost:9082 with SSL (with Apache and PHP 7.1 with redis)
@@ -153,7 +153,7 @@ $ docker exec -it <container_NAME> bash
 
 ##### MySQL Client Access
 There are 2 options for gui access:
- - GUI can be accessed via the phpMyAdmin at http://localhost:8200 for all sql dockers
+ - GUI can be accessed via the phpMyAdmin at https://localhost:8200 for all sql dockers
  - Or you can directly connect to port 8210 (`mariadb` server only) or 8220 (`mysql` server only) via your favorite sql tool (Mysql Workbench etc.). Note this option is limited to the `mysql` and `mariadb` servers.
 If you are interested in using the MySQL client line as opposed to a GUI program, execute the following (password is passed in/is simple because this is for local development purposes):
 
@@ -174,12 +174,12 @@ While there is no officially recommended toolset for programming OpenEMR,
 many in the community have found
 [PhpStorm](https://www.jetbrains.com/phpstorm/),
 [Sublime Text](https://www.sublimetext.com/),
-and [Vim](http://www.vim.org/) to be useful for coding. For database work,
+and [Vim](https://www.vim.org/) to be useful for coding. For database work,
 [MySQL Workbench](https://dev.mysql.com/downloads/workbench/) or PhpMyAdmin
 offers a smooth experience.
 
 Many helpful tips and development "rules of thumb" can be found by reviewing
-[OpenEMR Development](http://open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#Development).
+[OpenEMR Development](https://open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#Development).
 Remember that learning to code against a very large and complex system is not a
 task that will be completed over night. Feel free to post on
 [the development forums](https://community.open-emr.org/c/openemr-development)
@@ -197,13 +197,13 @@ port 80, for instance).
 
 ##### Additional Build Tools
 
-Programmers looking to use OpenEMR's and [Composer and NPM](http://www.open-emr.org/wiki/index.php//Composer_and_NPM)
+Programmers looking to use OpenEMR's and [Composer and NPM](https://www.open-emr.org/wiki/index.php//Composer_and_NPM)
 build tools can simply `bash` into the OpenEMR container and use them as expected.
 
 ##### CouchDB
 In OpenEMR, CouchDB is an option for the patients document storage. For this reason, a CouchDB
 docker is included in this OpenEMR docker development environment. You can visit the CouchDB
-GUI directly via http://localhost:5984/_utils/ with username `admin` and password `password`.
+GUI directly via https://localhost:5984/_utils/ with username `admin` and password `password`.
 You can configure OpenEMR to use this CouchDB docker for patient document storage in OpenEMR
 at Administration->Globals->Documents:
 - Document Storage Method->CouchDB
@@ -216,9 +216,9 @@ at Administration->Globals->Documents:
 ##### Orthanc
 Developers are currently working on integrating the Orthanc PACS server into OpenEMR. This
 feature is currently under development. Although it is not yet integrated with OpenEMR yet,
-you can connect to the Orthanc application gui via http://localhost:8042/ with username `orthanc`
+you can connect to the Orthanc application gui via https://localhost:8042/ with username `orthanc`
 and password `orthanc`. The nginx docker has also been set up to work as a reverse proxy
-with orthanc to allow ongoing development via http://localhost:8090/orthanc/ (Note this reverse
+with orthanc to allow ongoing development via https://localhost:8090/orthanc/ (Note this reverse
 proxy is still a work in progress)
 
 #### The Insane Docker Development Environment is a work in progress

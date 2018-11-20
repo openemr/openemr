@@ -927,7 +927,7 @@ class FHIRReferralRequest extends FHIRDomainResource implements \JsonSerializabl
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ReferralRequest xmlns="http://hl7.org/fhir"></ReferralRequest>');
+            $sxe = new \SimpleXMLElement('<ReferralRequest xmlns="https://hl7.org/fhir"></ReferralRequest>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {

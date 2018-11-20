@@ -90,7 +90,7 @@ class FHIRContentType extends FHIRElement implements \JsonSerializable
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ContentType xmlns="http://hl7.org/fhir"></ContentType>');
+            $sxe = new \SimpleXMLElement('<ContentType xmlns="https://hl7.org/fhir"></ContentType>');
         }
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {

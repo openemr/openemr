@@ -781,7 +781,7 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ClinicalImpression xmlns="http://hl7.org/fhir"></ClinicalImpression>');
+            $sxe = new \SimpleXMLElement('<ClinicalImpression xmlns="https://hl7.org/fhir"></ClinicalImpression>');
         }
         parent::xmlSerialize(true, $sxe);
         if (0 < count($this->identifier)) {

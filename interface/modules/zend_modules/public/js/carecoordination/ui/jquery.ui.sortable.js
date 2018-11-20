@@ -1,12 +1,12 @@
 /*!
  * jQuery UI Sortable 1.9.2
- * http://jqueryui.com
+ * https://jqueryui.com
  *
  * Copyright 2012 jQuery Foundation and other contributors
  * Released under the MIT license.
- * http://jquery.org/license
+ * https://jquery.org/license
  *
- * http://api.jqueryui.com/sortable/
+ * https://api.jqueryui.com/sortable/
  *
  * Depends:
  *	jquery.ui.core.js

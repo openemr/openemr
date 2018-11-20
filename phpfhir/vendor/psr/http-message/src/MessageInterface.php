@@ -11,8 +11,8 @@ namespace Psr\Http\Message;
  * be implemented such that they retain the internal state of the current
  * message and return an instance that contains the changed state.
  *
- * @link http://www.ietf.org/rfc/rfc7230.txt
- * @link http://www.ietf.org/rfc/rfc7231.txt
+ * @link https://www.ietf.org/rfc/rfc7230.txt
+ * @link https://www.ietf.org/rfc/rfc7231.txt
  */
 interface MessageInterface
 {

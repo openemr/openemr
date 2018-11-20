@@ -184,7 +184,7 @@ process.umask = function() { return 0; };
 /**
  * @license
  * Copyright 2013 David Eberlein (david.eberlein@ch.sauter-bc.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */
 
 /**
@@ -291,7 +291,7 @@ module.exports = exports['default'];
 /**
  * @license
  * Copyright 2013 David Eberlein (david.eberlein@ch.sauter-bc.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */
 
 /**
@@ -399,7 +399,7 @@ module.exports = exports["default"];
 /**
  * @license
  * Copyright 2013 David Eberlein (david.eberlein@ch.sauter-bc.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */
 
 /**
@@ -491,7 +491,7 @@ FractionsBarsHandler.prototype.rollingAverage = function (originalData, rollPeri
     var value = den ? num / den : 0.0;
     if (wilsonInterval) {
       // For more details on this confidence interval, see:
-      // http://en.wikipedia.org/wiki/Binomial_confidence_interval
+      // https://en.wikipedia.org/wiki/Binomial_confidence_interval
       if (den) {
         var p = value < 0 ? 0 : value,
             n = den;
@@ -519,7 +519,7 @@ module.exports = exports["default"];
 /**
  * @license
  * Copyright 2013 David Eberlein (david.eberlein@ch.sauter-bc.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */
 
 /**
@@ -641,7 +641,7 @@ module.exports = exports['default'];
 /**
  * @license
  * Copyright 2013 David Eberlein (david.eberlein@ch.sauter-bc.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */
 
 /**
@@ -847,7 +847,7 @@ module.exports = exports["default"];
 /**
  * @license
  * Copyright 2013 David Eberlein (david.eberlein@ch.sauter-bc.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */
 
 /**
@@ -946,7 +946,7 @@ module.exports = exports['default'];
 /**
  * @license
  * Copyright 2013 David Eberlein (david.eberlein@ch.sauter-bc.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */
 
 /**
@@ -1054,7 +1054,7 @@ module.exports = exports['default'];
 /**
  * @license
  * Copyright 2006 Dan Vanderkam (danvdk@gmail.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */
 
 /**
@@ -2054,7 +2054,7 @@ module.exports = exports['default'];
 /**
  * @license
  * Copyright 2011 Dan Vanderkam (danvdk@gmail.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */
 
 /**
@@ -2062,12 +2062,12 @@ module.exports = exports['default'];
  * interface for a GViz (aka Google Visualization API) visualization.
  * It is designed to be a drop-in replacement for Google's AnnotatedTimeline,
  * so the documentation at
- * http://code.google.com/apis/chart/interactive/docs/gallery/annotatedtimeline.html
+ * https://code.google.com/apis/chart/interactive/docs/gallery/annotatedtimeline.html
  * translates over directly.
  *
  * For a full demo, see:
- * - http://dygraphs.com/tests/gviz.html
- * - http://dygraphs.com/tests/annotation-gviz.html
+ * - https://dygraphs.com/tests/gviz.html
+ * - https://dygraphs.com/tests/annotation-gviz.html
  */
 
 /*global Dygraph:false */
@@ -2150,7 +2150,7 @@ module.exports = exports['default'];
 /**
  * @license
  * Copyright 2011 Robert Konigsberg (konigsberg@google.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */
 
 /**
@@ -2521,7 +2521,7 @@ DygraphInteraction.endZoom = function (event, g, context) {
 
   // The zoom rectangle is visibly clipped to the plot area, so its behavior
   // should be as well.
-  // See http://code.google.com/p/dygraphs/issues/detail?id=280
+  // See https://code.google.com/p/dygraphs/issues/detail?id=280
   var plotArea = g.getArea();
   if (context.regionWidth >= 10 && context.dragDirection == utils.HORIZONTAL) {
     var left = Math.min(context.dragStartX, context.dragEndX),
@@ -2895,7 +2895,7 @@ module.exports = exports["default"];
 /**
  * @license
  * Copyright 2011 Dan Vanderkam (danvdk@gmail.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */
 
 /**
@@ -3256,7 +3256,7 @@ module.exports = exports['default'];
 /**
  * @license
  * Copyright 2011 Dan Vanderkam (danvdk@gmail.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */
 
 "use strict";
@@ -3800,7 +3800,7 @@ if (typeof process !== 'undefined') {
         "labels": ["Chart labels"],
         "type": "string",
         "default": "null",
-        "description": "Text to display to the right of the chart's secondary y-axis. This label is only displayed if a secondary y-axis is present. See <a href='http://dygraphs.com/tests/two-axes.html'>this test</a> for an example of how to do this. The comments for the 'ylabel' option generally apply here as well. This label gets a 'dygraph-y2label' instead of a 'dygraph-ylabel' class."
+        "description": "Text to display to the right of the chart's secondary y-axis. This label is only displayed if a secondary y-axis is present. See <a href='https://dygraphs.com/tests/two-axes.html'>this test</a> for an example of how to do this. The comments for the 'ylabel' option generally apply here as well. This label gets a 'dygraph-y2label' instead of a 'dygraph-ylabel' class."
       },
       "yLabelWidth": {
         "labels": ["Chart labels"],
@@ -3878,7 +3878,7 @@ if (typeof process !== 'undefined') {
         "default": "(set when constructed)",
         "labels": ["Data"],
         "type": "string (URL of CSV or CSV), GViz DataTable or 2D Array",
-        "description": "Sets the data being displayed in the chart. This can only be set when calling updateOptions; it cannot be set from the constructor. For a full description of valid data formats, see the <a href='http://dygraphs.com/data.html'>Data Formats</a> page."
+        "description": "Sets the data being displayed in the chart. This can only be set when calling updateOptions; it cannot be set from the constructor. For a full description of valid data formats, see the <a href='https://dygraphs.com/data.html'>Data Formats</a> page."
       },
       "timingName": {
         "default": "null",
@@ -3974,7 +3974,7 @@ if (typeof process !== 'undefined') {
         "default": "null",
         "labels": ["Configuration"],
         "type": "Object",
-        "description": "Defines per-axis options. Valid keys are 'x', 'y' and 'y2'. Only some options may be set on a per-axis basis. If an option may be set in this way, it will be noted on this page. See also documentation on <a href='http://dygraphs.com/per-axis.html'>per-series and per-axis options</a>."
+        "description": "Defines per-axis options. Valid keys are 'x', 'y' and 'y2'. Only some options may be set on a per-axis basis. If an option may be set in this way, it will be noted on this page. See also documentation on <a href='https://dygraphs.com/per-axis.html'>per-series and per-axis options</a>."
       },
       "series": {
         "default": "null",
@@ -3992,7 +3992,7 @@ if (typeof process !== 'undefined') {
         "default": "(depends on data)",
         "labels": ["Data"],
         "type": "Dygraph.DataHandler",
-        "description": "Custom DataHandler. This is an advanced customization. See http://bit.ly/151E7Aq."
+        "description": "Custom DataHandler. This is an advanced customization. See https://bit.ly/151E7Aq."
       }
     }; // </JSON>
     // NOTE: in addition to parsing as JS, this snippet is expected to be valid
@@ -4044,7 +4044,7 @@ module.exports = exports['default'];
 /**
  * @license
  * Copyright 2011 Dan Vanderkam (danvdk@gmail.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */
 
 /**
@@ -4441,7 +4441,7 @@ if (typeof process !== 'undefined') {
         WARNINGS[optionName] = true;
         var isSeries = this.labels_.indexOf(optionName) >= 0;
         if (isSeries) {
-          console.warn('Use new-style per-series options (saw ' + optionName + ' as top-level options key). See http://bit.ly/1tceaJs');
+          console.warn('Use new-style per-series options (saw ' + optionName + ' as top-level options key). See https://bit.ly/1tceaJs');
         } else {
           console.warn('Unknown option ' + optionName + ' (full list of options at dygraphs.com/options.html');
         }
@@ -4465,7 +4465,7 @@ module.exports = exports['default'];
 /**
  * @license
  * Copyright 2011 Dan Vanderkam (danvdk@gmail.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */
 
 /**
@@ -4920,7 +4920,7 @@ exports.getDateAxis = getDateAxis;
 /**
  * @license
  * Copyright 2011 Dan Vanderkam (danvdk@gmail.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */
 
 /**
@@ -5095,7 +5095,7 @@ function removeEvent(elem, type, fn) {
  * Cancels further processing of an event. This is useful to prevent default
  * browser actions, e.g. highlighting text on a double-click.
  * Based on the article at
- * http://www.switchonthecode.com/tutorials/javascript-tutorial-the-scroll-wheel
+ * https://www.switchonthecode.com/tutorials/javascript-tutorial-the-scroll-wheel
  * @param {!Event} e The event whose normal behavior should be canceled.
  * @private
  */
@@ -5581,7 +5581,7 @@ function dateParser(dateStr) {
   // dygraphs displays dates in local time, so this will result in surprising
   // inconsistencies. But if you specify "T" or "Z" (i.e. YYYY-MM-DDTHH:MM:SS),
   // then you probably know what you're doing, so we'll let you go ahead.
-  // Issue: http://code.google.com/p/dygraphs/issues/detail?id=255
+  // Issue: https://code.google.com/p/dygraphs/issues/detail?id=255
   if (dateStr.search("-") == -1 || dateStr.search("T") != -1 || dateStr.search("Z") != -1) {
     d = dateStrToMillis(dateStr);
     if (d && !isNaN(d)) return d;
@@ -5660,7 +5660,7 @@ function update(self, o) {
  */
 
 function updateDeep(self, o) {
-  // Taken from http://stackoverflow.com/questions/384286/javascript-isdom-how-do-you-check-if-a-javascript-object-is-a-dom-object
+  // Taken from https://stackoverflow.com/questions/384286/javascript-isdom-how-do-you-check-if-a-javascript-object-is-a-dom-object
   function isNode(o) {
     return typeof Node === "object" ? o instanceof Node : typeof o === "object" && typeof o.nodeType === "number" && typeof o.nodeName === "string";
   }
@@ -5761,7 +5761,7 @@ function createCanvas() {
  * Returns the context's pixel ratio, which is the ratio between the device
  * pixel ratio and the backing store ratio. Typically this is 1 for conventional
  * displays, and > 1 for HiDPI displays (such as the Retina MBP).
- * See http://www.html5rocks.com/en/tutorials/canvas/hidpi/ for more details.
+ * See https://www.html5rocks.com/en/tutorials/canvas/hidpi/ for more details.
  *
  * @param {!CanvasRenderingContext2D} context The canvas's 2d context.
  * @return {number} The ratio of the device pixel ratio and the backing store
@@ -5861,7 +5861,7 @@ function createIterator(array, start, length, opt_predicate) {
 ;
 
 // Shim layer with setTimeout fallback.
-// From: http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+// From: https://paulirish.com/2011/requestanimationframe-for-smart-animating/
 // Should be called with the window context:
 //   Dygraph.requestAnimFrame.call(window, function() {})
 var requestAnimFrame = (function () {
@@ -6375,7 +6375,7 @@ function dateValueFormatter(d, opts) {
 /**
  * @license
  * Copyright 2006 Dan Vanderkam (danvdk@gmail.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */ /**
  * @fileoverview Creates an interactive, zoomable graph based on a CSV file or
  * string. Dygraph can handle multiple series with or without error bars. The
@@ -6411,7 +6411,7 @@ function dateValueFormatter(d, opts) {
 
  And error bars will be calculated automatically using a binomial distribution.
 
- For further documentation and examples, see http://dygraphs.com/
+ For further documentation and examples, see https://dygraphs.com/
  */'use strict';Object.defineProperty(exports,'__esModule',{value:true});var _slicedToArray=(function(){function sliceIterator(arr,i){var _arr=[];var _n=true;var _d=false;var _e=undefined;try{for(var _i=arr[Symbol.iterator](),_s;!(_n = (_s = _i.next()).done);_n = true) {_arr.push(_s.value);if(i && _arr.length === i)break;}}catch(err) {_d = true;_e = err;}finally {try{if(!_n && _i['return'])_i['return']();}finally {if(_d)throw _e;}}return _arr;}return function(arr,i){if(Array.isArray(arr)){return arr;}else if(Symbol.iterator in Object(arr)){return sliceIterator(arr,i);}else {throw new TypeError('Invalid attempt to destructure non-iterable instance');}};})();function _interopRequireWildcard(obj){if(obj && obj.__esModule){return obj;}else {var newObj={};if(obj != null){for(var key in obj) {if(Object.prototype.hasOwnProperty.call(obj,key))newObj[key] = obj[key];}}newObj['default'] = obj;return newObj;}}function _interopRequireDefault(obj){return obj && obj.__esModule?obj:{'default':obj};}var _dygraphLayout=require('./dygraph-layout');var _dygraphLayout2=_interopRequireDefault(_dygraphLayout);var _dygraphCanvas=require('./dygraph-canvas');var _dygraphCanvas2=_interopRequireDefault(_dygraphCanvas);var _dygraphOptions=require('./dygraph-options');var _dygraphOptions2=_interopRequireDefault(_dygraphOptions);var _dygraphInteractionModel=require('./dygraph-interaction-model');var _dygraphInteractionModel2=_interopRequireDefault(_dygraphInteractionModel);var _dygraphTickers=require('./dygraph-tickers');var DygraphTickers=_interopRequireWildcard(_dygraphTickers);var _dygraphUtils=require('./dygraph-utils');var utils=_interopRequireWildcard(_dygraphUtils);var _dygraphDefaultAttrs=require('./dygraph-default-attrs');var _dygraphDefaultAttrs2=_interopRequireDefault(_dygraphDefaultAttrs);var _dygraphOptionsReference=require('./dygraph-options-reference');var _dygraphOptionsReference2=_interopRequireDefault(_dygraphOptionsReference);var _iframeTarp=require('./iframe-tarp');var _iframeTarp2=_interopRequireDefault(_iframeTarp);var _datahandlerDefault=require('./datahandler/default');var _datahandlerDefault2=_interopRequireDefault(_datahandlerDefault);var _datahandlerBarsError=require('./datahandler/bars-error');var _datahandlerBarsError2=_interopRequireDefault(_datahandlerBarsError);var _datahandlerBarsCustom=require('./datahandler/bars-custom');var _datahandlerBarsCustom2=_interopRequireDefault(_datahandlerBarsCustom);var _datahandlerDefaultFractions=require('./datahandler/default-fractions');var _datahandlerDefaultFractions2=_interopRequireDefault(_datahandlerDefaultFractions);var _datahandlerBarsFractions=require('./datahandler/bars-fractions');var _datahandlerBarsFractions2=_interopRequireDefault(_datahandlerBarsFractions);var _datahandlerBars=require('./datahandler/bars');var _datahandlerBars2=_interopRequireDefault(_datahandlerBars);var _pluginsAnnotations=require('./plugins/annotations');var _pluginsAnnotations2=_interopRequireDefault(_pluginsAnnotations);var _pluginsAxes=require('./plugins/axes');var _pluginsAxes2=_interopRequireDefault(_pluginsAxes);var _pluginsChartLabels=require('./plugins/chart-labels');var _pluginsChartLabels2=_interopRequireDefault(_pluginsChartLabels);var _pluginsGrid=require('./plugins/grid');var _pluginsGrid2=_interopRequireDefault(_pluginsGrid);var _pluginsLegend=require('./plugins/legend');var _pluginsLegend2=_interopRequireDefault(_pluginsLegend);var _pluginsRangeSelector=require('./plugins/range-selector');var _pluginsRangeSelector2=_interopRequireDefault(_pluginsRangeSelector);var _dygraphGviz=require('./dygraph-gviz');var _dygraphGviz2=_interopRequireDefault(_dygraphGviz);"use strict"; /**
  * Creates an interactive, zoomable chart.
  *
@@ -6421,10 +6421,10 @@ function dateValueFormatter(d, opts) {
  * @param {String | Function} file A file containing CSV data or a function
  * that returns this data. The most basic expected format for each line is
  * "YYYY/MM/DD,val1,val2,...". For more information, see
- * http://dygraphs.com/data.html.
+ * https://dygraphs.com/data.html.
  * @param {Object} attrs Various other attributes, e.g. errorBars determines
  * whether the input data contains error ranges. For a complete list of
- * options, see http://dygraphs.com/options.html.
+ * options, see https://dygraphs.com/options.html.
  */var Dygraph=function Dygraph(div,data,opts){this.__init__(div,data,opts);};Dygraph.NAME = "Dygraph";Dygraph.VERSION = "2.0.0"; // Various default values
 Dygraph.DEFAULT_ROLL_PERIOD = 1;Dygraph.DEFAULT_WIDTH = 480;Dygraph.DEFAULT_HEIGHT = 320; // For max 60 Hz. animation:
 Dygraph.ANIMATION_STEPS = 12;Dygraph.ANIMATION_DURATION = 200; /**
@@ -7251,7 +7251,7 @@ caller.loadedEvent_(req.responseText);}}};req.open("GET",data,true);req.send(nul
  * </ul>
  *
  * There's a huge variety of options that can be passed to this method. For a
- * full list, see http://dygraphs.com/options.html.
+ * full list, see https://dygraphs.com/options.html.
  *
  * @param {Object} input_attrs The new properties and values
  * @param {boolean} block_redraw Usually the chart is redrawn after every
@@ -7446,7 +7446,7 @@ module.exports = exports["default"];
 /**
  * @license
  * Copyright 2012 Dan Vanderkam (danvdk@gmail.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */
 
 /*global Dygraph:false */
@@ -7619,7 +7619,7 @@ module.exports = exports["default"];
 /**
  * @license
  * Copyright 2012 Dan Vanderkam (danvdk@gmail.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */
 
 /*global Dygraph:false */
@@ -7944,7 +7944,7 @@ module.exports = exports['default'];
 /**
  * @license
  * Copyright 2012 Dan Vanderkam (danvdk@gmail.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */
 /*global Dygraph:false */
 
@@ -8114,7 +8114,7 @@ module.exports = exports["default"];
 /**
  * @license
  * Copyright 2012 Dan Vanderkam (danvdk@gmail.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */
 /*global Dygraph:false */
 
@@ -8245,7 +8245,7 @@ module.exports = exports["default"];
 /**
  * @license
  * Copyright 2012 Dan Vanderkam (danvdk@gmail.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */
 /*global Dygraph:false */
 
@@ -8623,7 +8623,7 @@ module.exports = exports["default"];
 /**
  * @license
  * Copyright 2011 Paul Felix (paul.eric.felix@gmail.com)
- * MIT-licensed (http://opensource.org/licenses/MIT)
+ * MIT-licensed (https://opensource.org/licenses/MIT)
  */
 /*global Dygraph:false,TouchEvent:false */
 

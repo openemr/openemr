@@ -11,8 +11,8 @@ use Psr\Http\Message\StreamInterface;
  * then appends the zlib.inflate filter. The stream is then converted back
  * to a Guzzle stream resource to be used as a Guzzle stream.
  *
- * @link http://tools.ietf.org/html/rfc1952
- * @link http://php.net/manual/en/filters.compression.php
+ * @link https://tools.ietf.org/html/rfc1952
+ * @link https://php.net/manual/en/filters.compression.php
  */
 class InflateStream implements StreamInterface
 {

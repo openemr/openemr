@@ -11,7 +11,7 @@
  * @author Giorgos Vasilakos <giorg.vasilakos@gmail.com>
  * @copyright Copyright (C) 2015 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (C) 2012 Giorgos Vasilakos <giorg.vasilakos@gmail.com>
- * @link http://www.open-emr.org
+ * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 

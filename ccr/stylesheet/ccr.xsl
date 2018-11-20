@@ -7,7 +7,7 @@
    you may not use this file except in compliance with the License. 
    You may obtain a copy of the License at 
    
-   http://www.apache.org/licenses/LICENSE-2.0 
+   https://www.apache.org/licenses/LICENSE-2.0 
    
    Unless required by applicable law or agreed to in writing, software distributed
    under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
@@ -39,7 +39,7 @@ this XSLT back to the community.
   Version: 	2.0
 
  -->
- <xsl:stylesheet exclude-result-prefixes="a date str" version="1.0" xmlns:a="urn:astm-org:CCR" xmlns:date="http://exslt.org/dates-and-times" xmlns:str="http://exslt.org/strings" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+ <xsl:stylesheet exclude-result-prefixes="a date str" version="1.0" xmlns:a="urn:astm-org:CCR" xmlns:date="https://exslt.org/dates-and-times" xmlns:str="https://exslt.org/strings" xmlns:xsl="https://www.w3.org/1999/XSL/Transform">
   <xsl:output encoding="UTF-8" method="html"/>
   <!-- XSL Parameters -->
   <!-- This param can be used to define different CCS style sheets
@@ -1898,7 +1898,7 @@ this XSLT back to the community.
     </html>
   </xsl:template>
   <!-- date.format-date.template -->
-  <!--  This is from the EXSLT.org Library (http://www.exslt.org/) -->
+  <!--  This is from the EXSLT.org Library (https://www.exslt.org/) -->
   <date:months>
     <date:month abbr="Jan" length="31">January</date:month>
     <date:month abbr="Feb" length="28">February</date:month>
@@ -2386,7 +2386,7 @@ this XSLT back to the community.
     </xsl:choose>
   </xsl:template>
   <!-- str.padding.template.xsl -->
-  <!--  This is from the EXSLT.org Library (http://www.exslt.org/) -->
+  <!--  This is from the EXSLT.org Library (https://www.exslt.org/) -->
   <xsl:template name="str:padding">
     <xsl:param name="length" select="0"/>
     <xsl:param name="chars" select="' '"/>
@@ -2742,7 +2742,7 @@ table.internal tr.even{
         <tr>
           <td>
             <font color="#CCCCCC" size="3">
-              <strong>Powered by the <a href="http://www.astm.org/cgi-bin/SoftCart.exe/DATABASE.CART/REDLINE_PAGES/E2369.htm?E+mystore" style="color:#CCCCCC;">ASTM E2369-05 Specification for the Continuity of Care Record (CCR)</a>
+              <strong>Powered by the <a href="https://www.astm.org/cgi-bin/SoftCart.exe/DATABASE.CART/REDLINE_PAGES/E2369.htm?E+mystore" style="color:#CCCCCC;">ASTM E2369-05 Specification for the Continuity of Care Record (CCR)</a>
               </strong>
             </font>
           </td>

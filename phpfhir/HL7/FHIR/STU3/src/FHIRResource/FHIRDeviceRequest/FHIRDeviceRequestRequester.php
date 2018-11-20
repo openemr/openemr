@@ -128,7 +128,7 @@ class FHIRDeviceRequestRequester extends FHIRBackboneElement implements \JsonSer
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<DeviceRequestRequester xmlns="http://hl7.org/fhir"></DeviceRequestRequester>');
+            $sxe = new \SimpleXMLElement('<DeviceRequestRequester xmlns="https://hl7.org/fhir"></DeviceRequestRequester>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->agent)) {

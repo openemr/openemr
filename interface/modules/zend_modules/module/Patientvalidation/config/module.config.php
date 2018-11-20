@@ -14,7 +14,7 @@
 * GNU General Public License for more details.
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see
-* http://www.gnu.org/licenses/licenses.html#GPL
+* https://www.gnu.org/licenses/licenses.html#GPL
 *    @author  Dror Golan <drorgo@matrix.co.il>
 * +------------------------------------------------------------------------------+
  *
@@ -30,7 +30,7 @@ return array(
 
     /**
      * routing configuration.
-     * for more option and details - http://zf2.readthedocs.io/en/latest/in-depth-guide/understanding-routing.html?highlight=routing
+     * for more option and details - https://zf2.readthedocs.io/en/latest/in-depth-guide/understanding-routing.html?highlight=routing
      */
     'router' => array(
         'routes' => array(

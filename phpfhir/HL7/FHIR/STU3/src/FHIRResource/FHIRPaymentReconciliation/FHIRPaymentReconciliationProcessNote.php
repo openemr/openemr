@@ -128,7 +128,7 @@ class FHIRPaymentReconciliationProcessNote extends FHIRBackboneElement implement
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
         if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<PaymentReconciliationProcessNote xmlns="http://hl7.org/fhir"></PaymentReconciliationProcessNote>');
+            $sxe = new \SimpleXMLElement('<PaymentReconciliationProcessNote xmlns="https://hl7.org/fhir"></PaymentReconciliationProcessNote>');
         }
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {
