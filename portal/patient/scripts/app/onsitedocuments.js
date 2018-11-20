@@ -118,9 +118,11 @@ var page = {
         this.modelView.on('rendered',function () {
             docid = page.onsiteDocument.get('docType');
             if ( cuser != '-patient-') {
-				function todocument(docid) {
-                      h = webRoot+'/controller.php?document&view&patient_id=30&doc_id=' + docid;
-                      location.href = h;
+                function todocument(docid)
+                {
+                    // not used
+                  h = webRoot+'/controller.php?document&view&patient_id=30&doc_id=' + docid;
+                  location.href = h;
                 }
                 $("#signTemplate").hide();
                 $("#printTemplate").hide();
@@ -246,6 +248,13 @@ var page = {
             }
                 pageAudit.fetchParams.doc = page.onsiteDocument.get('id')
                 pageAudit.fetchOnsitePortalActivities(pageAudit.fetchParams);
+
+            if ( cuser != '-patient-') {
+                // disable admin signature in patient view
+                $('#patientSignature').prop("onclick", null);
+            } else {
+                $('#adminSignature').prop("onclick", null);
+            }
         });
     },
 
@@ -329,6 +338,7 @@ var page = {
                         $("#submitTemplate").hide();
                         $("#sendTemplate").hide();
                         page.onsiteDocument.set('fullDocument',templateHtml);
+                        $('#adminSignature').prop("onclick", null);
                     }
                 }
             });
@@ -392,13 +402,12 @@ var page = {
             $('#confirmDeleteOnsiteDocumentButton').click(function (e) {
                 e.preventDefault();
                 page.deleteModel();
-
             });
         } else {
             // no point in initializing the click handlers if we don't show the button
-            $('#patientSignature').prop("onclick", null);
             $('#deleteOnsiteDocumentButtonContainer').hide();
         }
+
     },
 
     /**

@@ -232,7 +232,7 @@ function create_NM1($row, $nm1Cast, $X12info, $segTer, $compEleSep)
         $NM1[6] = "";                       // data element
         $NM1[7] = "";                       // data element
         $NM1[8] = "MI";                         // Identification Code Qualifier
-        $NM1[9] = $row['subscriber_ss'];            // Identification Code
+        $NM1[9] = $row['policy_number'];            // Identification Code
     }
 
     $NM1['Created'] = implode('*', $NM1);               // Data Element Separator
@@ -611,25 +611,25 @@ function show_eligibility_information($pid)
 
         $showString="";
     $showString .=  "<br><div class='text'>" .
-            "<b>" .
-            htmlspecialchars(xl('Insurance Provider'), ENT_NOQUOTES) . ":</b> " .
-            (!empty($row['name']) ? htmlspecialchars($row['name'], ENT_NOQUOTES) : htmlspecialchars(xl('n/a'), ENT_NOQUOTES)) .
-            "<br>\n" .
-            "<b>" .
-            htmlspecialchars(xl('Status'), ENT_NOQUOTES) . ":</b> " .
-            (!empty($row['ResponseMessage']) ? htmlspecialchars($row['ResponseMessage'], ENT_NOQUOTES) : htmlspecialchars(xl('n/a'), ENT_NOQUOTES)) .
-            "<br>\n" .
-            "<b>" .
-            htmlspecialchars(xl('Last Verified On'), ENT_NOQUOTES) . ":</b> " .
-            (!empty($row['VerificationDate']) ? htmlspecialchars($row['VerificationDate'], ENT_NOQUOTES) : htmlspecialchars(xl('n/a'), ENT_NOQUOTES)) .
-            "<br>" .
-            "<b>" . htmlspecialchars(xl('Copay'), ENT_NOQUOTES) . ":</b> " .
-            (!empty($row['copay']) ? htmlspecialchars($row['copay'], ENT_NOQUOTES) : htmlspecialchars(xl('n/a'), ENT_NOQUOTES)) .
-            "<br><b>" . htmlspecialchars(xl('Deductible'), ENT_NOQUOTES) . ":</b> " .
-            (!empty($row['deductible']) ? htmlspecialchars($row['deductible'], ENT_NOQUOTES) : htmlspecialchars(xl('n/a'), ENT_NOQUOTES)) .
-            "<br><b>" . htmlspecialchars(xl('Deductible Met'), ENT_NOQUOTES) . ":</b> " .
-            (!empty($row['deductiblemet']) ? ($row['deductiblemet'] == 'Y' ? htmlspecialchars(xl('Yes'), ENT_NOQUOTES) : htmlspecialchars(xl('No'), ENT_NOQUOTES)) : htmlspecialchars(xl('n/a'), ENT_NOQUOTES)) .
-            "</div>";
+        "<b>" .
+        xlt('Insurance Provider') . ":</b> " .
+        (!empty($row['name']) ? text($row['name']) : xlt('n/a')) .
+        "<br>\n" .
+        "<b>" .
+        xlt('Status') . ":</b> " .
+        (!empty($row['ResponseMessage']) ? text($row['ResponseMessage']) : xlt('n/a')) .
+        "<br>\n" .
+        "<b>" .
+        xlt('Last Verified On') . ":</b> " .
+        (!empty($row['VerificationDate']) ? text($row['VerificationDate']) : xlt('n/a')) .
+        "<br>" .
+        "<b>" . xlt('Copay') . ":</b> " .
+        (!empty($row['copay']) ? text($row['copay']) : xlt('n/a')) .
+        "<br><b>" . xlt('Deductible') . ":</b> " .
+        (!empty($row['deductible']) ? text($row['deductible']) : xlt('n/a')) .
+        "<br><b>" . xlt('Deductible Met') . ":</b> " .
+        (!empty($row['deductiblemet']) ? ($row['deductiblemet'] == 'Y' ? xlt('Yes') : xlt('No')) : xlt('n/a')) .
+        "</div>";
 
     echo $showString;
 }

@@ -33,6 +33,10 @@ require_once "qrda_functions.php";
 
 use OpenEMR\Services\FacilityService;
 
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    csrfNotVerified();
+}
+
 $facilityService = new FacilityService();
 
 //Remove time limit, since script can take many minutes
@@ -631,15 +635,15 @@ if (count($dataSheet) > 0) {
         $tdTitle = generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $row['id']);
 
         if (!empty($row['cqm_pqri_code'])) {
-            $tdTitle .= " " . htmlspecialchars(xl('PQRI') . ":" . $row['cqm_pqri_code'], ENT_NOQUOTES) . " ";
+            $tdTitle .= " " . xlt('PQRI') . ":" . text($row['cqm_pqri_code']) . " ";
         }
 
         if (!empty($row['cqm_nqf_code'])) {
-            $tdTitle .= " " . htmlspecialchars(xl('NQF') . ":" . $row['cqm_nqf_code'], ENT_NOQUOTES) . " ";
+            $tdTitle .= " " . xlt('NQF') . ":" . text($row['cqm_nqf_code']) . " ";
         }
 
         if (!(empty($row['concatenated_label']))) {
-            $tdTitle .= ", " . htmlspecialchars(xl($row['concatenated_label']), ENT_NOQUOTES) . " ";
+            $tdTitle .= ", " . xlt($row['concatenated_label']) . " ";
         }
 
         $tdVersionNeutral = getUuid();
@@ -789,15 +793,15 @@ if (count($dataSheet) > 0) {
 
         $tdTitle = generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $row['id']);
         if (!empty($row['cqm_pqri_code'])) {
-            $tdTitle .= " " . text(xl('PQRI') . ":" . $row['cqm_pqri_code']) . " ";
+            $tdTitle .= " " . xlt('PQRI') . ":" . text($row['cqm_pqri_code']) . " ";
         }
 
         if (!empty($row['cqm_nqf_code'])) {
-            $tdTitle .= " " . text(xl('NQF') . ":" . $row['cqm_nqf_code']) . " ";
+            $tdTitle .= " " . xlt('NQF') . ":" . text($row['cqm_nqf_code']) . " ";
         }
 
         if (!(empty($row['concatenated_label']))) {
-            $tdTitle .= ", " . text(xl($row['concatenated_label'])) . " ";
+            $tdTitle .= ", " . xlt($row['concatenated_label']) . " ";
         }
 
         ###########################################################
@@ -1512,7 +1516,7 @@ fclose($fileQRDAOPen);
 <center>
 <form>
 <p class="text">
-    <a href="qrda_download.php?qrda_fname=<?php echo attr($qrda_fname);?>"><?php echo xlt("Download QRDA Category III File");?></a>
+    <a href="qrda_download.php?qrda_fname=<?php echo attr(urlencode($qrda_fname)); ?>&csrf_token_form=<?php echo attr(urlencode($_SESSION['csrf_token'])); ?>"><?php echo xlt("Download QRDA Category III File");?></a>
 </p>
 <textarea rows='50' cols='500' style='width:95%' readonly>
 <?php echo trim($xml->getXml()); ?>

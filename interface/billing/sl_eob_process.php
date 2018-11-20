@@ -46,13 +46,18 @@ function parse_date($date)
     return '';
 }
 
-function writeMessageLine($bgcolor, $class, $description)
+function writeMessageLine($bgcolor, $class, $description, $nl2br_process = "false")
 {
     $dline =
-    " <tr bgcolor='$bgcolor'>\n" .
-    "  <td class='$class' colspan='4'>&nbsp;</td>\n" .
-    "  <td class='$class'>$description</td>\n" .
-    "  <td class='$class' colspan='2'>&nbsp;</td>\n" .
+    " <tr bgcolor='" . attr($bgcolor) . "'>\n" .
+    "  <td class='" . attr($class) . "' colspan='4'>&nbsp;</td>\n";
+    if ($nl2br_process) {
+        $dline .= "  <td class='" . attr($class) . "'>" . nl2br(text($description)) . "</td>\n";
+    } else {
+        $dline .= "  <td class='" . attr($class) . "'>" . text($description) . "</td>\n";
+    }
+    $dline .=
+    "  <td class='" . attr($class) . "' colspan='2'>&nbsp;</td>\n" .
     " </tr>\n";
     echo $dline;
 }
@@ -97,14 +102,14 @@ function writeDetailLine(
     }
 
     $dline =
-    " <tr bgcolor='$bgcolor'>\n" .
-    "  <td class='$class'>$ptname</td>\n" .
-    "  <td class='$class'>$invnumber</td>\n" .
-    "  <td class='$class'>$code</td>\n" .
-    "  <td class='$class'>" . text(oeFormatShortDate($date)) . "</td>\n" .
-    "  <td class='$class'>$description</td>\n" .
-    "  <td class='$class' align='right'>" . oeFormatMoney($amount) . "</td>\n" .
-    "  <td class='$class' align='right'>" . oeFormatMoney($balance) . "</td>\n" .
+    " <tr bgcolor='" . attr($bgcolor) . "'>\n" .
+    "  <td class='" . attr($class) . "'>" . text($ptname) . "</td>\n" .
+    "  <td class='" . attr($class) . "'>" . text($invnumber) . "</td>\n" .
+    "  <td class='" . attr($class) . "'>" . text($code) . "</td>\n" .
+    "  <td class='" . attr($class) . "'>" . text(oeFormatShortDate($date)) . "</td>\n" .
+    "  <td class='" . attr($class) . "'>" . text($description) . "</td>\n" .
+    "  <td class='" . attr($class) . "' align='right'>" . text(oeFormatMoney($amount)) . "</td>\n" .
+    "  <td class='" . attr($class) . "' align='right'>" . text(oeFormatMoney($balance)) . "</td>\n" .
     " </tr>\n";
     echo $dline;
 }
@@ -151,7 +156,7 @@ function era_callback_check(&$out)
     if ($_GET['original']=='original') {
         $StringToEcho="<br/><br/><br/><br/><br/><br/>";
         $StringToEcho.="<table border='1' cellpadding='0' cellspacing='0'  width='750'>";
-        $StringToEcho.="<tr bgcolor='#cccccc'><td width='50'></td><td class='dehead' width='150' align='center'>".htmlspecialchars(xl('Check Number'), ENT_QUOTES)."</td><td class='dehead' width='400'  align='center'>".htmlspecialchars(xl('Payee Name'), ENT_QUOTES)."</td><td class='dehead'  width='150' align='center'>".htmlspecialchars(xl('Check Amount'), ENT_QUOTES)."</td></tr>";
+        $StringToEcho.="<tr bgcolor='#cccccc'><td width='50'></td><td class='dehead' width='150' align='center'>" . xlt('Check Number') . "</td><td class='dehead' width='400'  align='center'>" . xlt('Payee Name') . "</td><td class='dehead'  width='150' align='center'>" . xlt('Check Amount') . "</td></tr>";
         $WarningFlag=false;
         for ($check_count=1; $check_count<=$out['check_count']; $check_count++) {
             if ($check_count%2==1) {
@@ -160,23 +165,23 @@ function era_callback_check(&$out)
                 $bgcolor='#ffdddd';
             }
 
-             $rs=sqlQ("select reference from ar_session where reference='".$out['check_number'.$check_count]."'");
+             $rs=sqlQ("select reference from ar_session where reference=?", array($out['check_number'.$check_count]));
             if (sqlNumRows($rs)>0) {
                 $bgcolor='#ff0000';
                 $WarningFlag=true;
             }
 
-            $StringToEcho.="<tr bgcolor='$bgcolor'>";
-            $StringToEcho.="<td><input type='checkbox'  name='chk".$out['check_number'.$check_count]."' value='".$out['check_number'.$check_count]."'/></td>";
-            $StringToEcho.="<td>".htmlspecialchars($out['check_number'.$check_count])."</td>";
-            $StringToEcho.="<td>".htmlspecialchars($out['payee_name'.$check_count])."</td>";
-            $StringToEcho.="<td align='right'>".htmlspecialchars(number_format($out['check_amount'.$check_count], 2))."</td>";
+            $StringToEcho.="<tr bgcolor='" . attr($bgcolor) . "'>";
+            $StringToEcho.="<td><input type='checkbox'  name='chk" . attr($out['check_number'.$check_count]) . "' value='" . attr($out['check_number'.$check_count]) . "'/></td>";
+            $StringToEcho.="<td>" . text($out['check_number'.$check_count]) . "</td>";
+            $StringToEcho.="<td>" . text($out['payee_name'.$check_count]) . "</td>";
+            $StringToEcho.="<td align='right'>" . text(number_format($out['check_amount'.$check_count], 2)) . "</td>";
             $StringToEcho.="</tr>";
         }
 
         $StringToEcho.="<tr bgcolor='#cccccc'><td colspan='4' align='center'><input type='submit'  name='CheckSubmit' value='Submit'/></td></tr>";
         if ($WarningFlag==true) {
-            $StringToEcho.="<tr bgcolor='#ff0000'><td colspan='4' align='center'>".htmlspecialchars(xl('Warning, Check Number already exist in the database'), ENT_QUOTES)."</td></tr>";
+            $StringToEcho.="<tr bgcolor='#ff0000'><td colspan='4' align='center'>" . xlt('Warning, Check Number already exist in the database') . "</td></tr>";
         }
 
         $StringToEcho.="</table>";
@@ -208,7 +213,7 @@ function era_callback(&$out)
             writeMessageLine(
                 '#ffffff',
                 'infdetail',
-                "Payer: " . htmlspecialchars($out['payer_name'], ENT_QUOTES)
+                "Payer: " . $out['payer_name']
             );
             if ($debug) {
                 writeMessageLine(
@@ -231,8 +236,8 @@ function era_callback(&$out)
             // Get invoice data into $arrow or $ferow.
             $ferow = sqlQuery("SELECT e.*, p.fname, p.mname, p.lname " .
             "FROM form_encounter AS e, patient_data AS p WHERE " .
-            "e.pid = '$pid' AND e.encounter = '$encounter' AND ".
-            "p.pid = e.pid");
+            "e.pid = ? AND e.encounter = ? AND ".
+            "p.pid = e.pid", array($pid, $encounter));
             if (empty($ferow)) {
                   $pid = $encounter = 0;
                   $invnumber = $out['our_claim_id'];
@@ -316,7 +321,7 @@ function era_callback(&$out)
         }
 
         if ($out['warnings']) {
-            writeMessageLine($bgcolor, 'infdetail', nl2br(rtrim($out['warnings'])));
+            writeMessageLine($bgcolor, 'infdetail', rtrim($out['warnings']), true);
         }
 
     // Simplify some claim attributes for cleaner code.
@@ -592,8 +597,8 @@ function era_callback(&$out)
 
             if ($out['crossover']==1) {//Automatic forward case.So need not again bill from the billing manager screen.
                 sqlStatement("UPDATE form_encounter " .
-                "SET last_level_closed = $level_done,last_level_billed=".$level_done." WHERE " .
-                "pid = '$pid' AND encounter = '$encounter'");
+                "SET last_level_closed = ?,last_level_billed=? WHERE " .
+                "pid = ? AND encounter = ?", array($level_done, $level_done, $pid, $encounter));
                 writeMessageLine(
                     $bgcolor,
                     'infdetail',
@@ -601,8 +606,8 @@ function era_callback(&$out)
                 );
             } else {
                 sqlStatement("UPDATE form_encounter " .
-                "SET last_level_closed = $level_done WHERE " .
-                "pid = '$pid' AND encounter = '$encounter'");
+                "SET last_level_closed = ? WHERE " .
+                "pid = ? AND encounter = ?", array($level_done, $pid, $encounter));
             }
 
             // Check for secondary insurance.
@@ -623,11 +628,16 @@ function era_callback(&$out)
 
 /////////////////////////// End Functions ////////////////////////////
 
-    $info_msg = "";
+$info_msg = "";
 
-    $eraname = $_GET['eraname'];
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    csrfNotVerified();
+}
+
+$eraname = $_GET['eraname'];
+
 if (! $eraname) {
-    die(xl("You cannot access this page directly."));
+    die(xlt("You cannot access this page directly."));
 }
 
     // Open the output file early so that in case it fails, we do not post a
@@ -644,7 +654,7 @@ if (!$debug) {
     $fnreport = "$nameprefix$namesuffix.html";
     $fhreport = fopen($fnreport, 'w');
     if (!$fhreport) {
-        die(xl("Cannot create") . " '" . text($fnreport) . "'");
+        die(xlt("Cannot create") . " '" . text($fnreport) . "'");
     }
 }
 
@@ -661,12 +671,14 @@ if (!$debug) {
  .errdetail { color:#dd0000; font-family:sans-serif; font-size:9pt; font-weight:normal }
  .infdetail { color:#0000ff; font-family:sans-serif; font-size:9pt; font-weight:normal }
 </style>
-<title><?php xl('EOB Posting - Electronic Remittances', 'e')?></title>
+<title><?php echo xlt('EOB Posting - Electronic Remittances')?></title>
 <script language="JavaScript">
 </script>
 </head>
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <form action="sl_eob_process.php" method="get" >
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+
 <center>
 <?php
 if ($_GET['original']=='original') {
@@ -678,25 +690,25 @@ if ($_GET['original']=='original') {
 
      <tr bgcolor="#cccccc">
       <td class="dehead">
-    <?php echo htmlspecialchars(xl('Patient'), ENT_QUOTES) ?>
+    <?php echo xlt('Patient'); ?>
       </td>
       <td class="dehead">
-    <?php echo htmlspecialchars(xl('Invoice'), ENT_QUOTES) ?>
+    <?php echo xlt('Invoice'); ?>
       </td>
       <td class="dehead">
-    <?php echo htmlspecialchars(xl('Code'), ENT_QUOTES) ?>
+    <?php echo xlt('Code'); ?>
       </td>
       <td class="dehead">
-    <?php echo htmlspecialchars(xl('Date'), ENT_QUOTES) ?>
+    <?php echo xlt('Date'); ?>
       </td>
       <td class="dehead">
-    <?php echo htmlspecialchars(xl('Description'), ENT_QUOTES) ?>
+    <?php echo xlt('Description'); ?>
       </td>
       <td class="dehead" align="right">
-    <?php echo htmlspecialchars(xl('Amount'), ENT_QUOTES) ?>&nbsp;
+    <?php echo xlt('Amount'); ?>&nbsp;
       </td>
       <td class="dehead" align="right">
-    <?php echo htmlspecialchars(xl('Balance'), ENT_QUOTES) ?>&nbsp;
+    <?php echo xl('Balance'); ?>&nbsp;
       </td>
      </tr>
 
@@ -707,13 +719,13 @@ if ($_GET['original']=='original') {
     $alertmsg = parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi");
     $alertmsg = parse_era($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi", 'era_callback');
     if (!$debug) {
-          $StringIssue=htmlspecialchars(xl("Total Distribution for following check number is not full"), ENT_QUOTES).': ';
+          $StringIssue=xl("Total Distribution for following check number is not full").': ';
           $StringPrint='No';
         foreach ($InsertionId as $key => $value) {
-            $rs= sqlQ("select pay_total from ar_session where session_id='$value'");
+            $rs= sqlQ("select pay_total from ar_session where session_id=?", array($value));
             $row=sqlFetchArray($rs);
             $pay_total=$row['pay_total'];
-            $rs= sqlQ("select sum(pay_amount) sum_pay_amount from ar_activity where session_id='$value'");
+            $rs= sqlQ("select sum(pay_amount) sum_pay_amount from ar_activity where session_id=?", array($value));
             $row=sqlFetchArray($rs);
             $pay_amount=$row['sum_pay_amount'];
 
@@ -724,7 +736,7 @@ if ($_GET['original']=='original') {
         }
 
         if ($StringPrint=='Yes') {
-            echo "<script>alert('$StringIssue')</script>";
+            echo "<script>alert('" . addslashes($StringIssue) . "')</script>";
         }
     }
 
@@ -738,7 +750,7 @@ if ($_GET['original']=='original') {
 <script language="JavaScript">
 <?php
 if ($alertmsg) {
-    echo " alert('" . htmlspecialchars($alertmsg, ENT_QUOTES) . "');\n";
+    echo " alert('" . addslashes($alertmsg) . "');\n";
 }
 ?>
 </script>

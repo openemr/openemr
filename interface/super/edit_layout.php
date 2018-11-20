@@ -340,17 +340,17 @@ $lbfonly = substr($layout_id, 0, 3) == 'LBF' ? "" : "style='display:none;'";
 
 if ($_POST['formaction'] == "save" && $layout_id) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     // If we are saving, then save.
     $fld = $_POST['fld'];
     for ($lino = 1; isset($fld[$lino]['id']); ++$lino) {
         $iter = $fld[$lino];
-        $field_id = formTrim($iter['id']);
-        $field_id_original = formTrim($iter['originalid']);
-        $data_type = formTrim($iter['datatype']);
-        $listval = $data_type == 34 ? formTrim($iter['contextName']) : formTrim($iter['list_id']);
+        $field_id = trim($iter['id']);
+        $field_id_original = trim($iter['originalid']);
+        $data_type = trim($iter['datatype']);
+        $listval = $data_type == 34 ? trim($iter['contextName']) : trim($iter['list_id']);
         $action = $iter['action'];
         if ($action == 'value') {
             $action = 'value=' . $iter['value'];
@@ -380,64 +380,64 @@ if ($_POST['formaction'] == "save" && $layout_id) {
             }
             sqlStatement("UPDATE layout_options SET " .
                 "field_id = '"      . add_escape_custom($field_id)      . "', " .
-                "source = '"        . add_escape_custom(formTrim($iter['source']))    . "', " .
+                "source = '"        . add_escape_custom(trim($iter['source']))    . "', " .
                 "title = '"         . add_escape_custom($iter['title'])     . "', " .
-                "group_id = '"    . add_escape_custom(formTrim($iter['group']))     . "', " .
-                "seq = '"           . add_escape_custom(formTrim($iter['seq']))      . "', " .
-                "uor = '"           . add_escape_custom(formTrim($iter['uor']))       . "', " .
-                "fld_length = '"    . add_escape_custom(formTrim($iter['lengthWidth']))    . "', " .
-                "fld_rows = '"    . add_escape_custom(formTrim($iter['lengthHeight']))    . "', " .
-                "max_length = '"    . add_escape_custom(formTrim($iter['maxSize']))    . "', "                             .
-                "titlecols = '"     . add_escape_custom(formTrim($iter['titlecols'])) . "', " .
-                "datacols = '"      . add_escape_custom(formTrim($iter['datacols']))  . "', " .
+                "group_id = '"    . add_escape_custom(trim($iter['group']))     . "', " .
+                "seq = '"           . add_escape_custom(trim($iter['seq']))      . "', " .
+                "uor = '"           . add_escape_custom(trim($iter['uor']))       . "', " .
+                "fld_length = '"    . add_escape_custom(trim($iter['lengthWidth']))    . "', " .
+                "fld_rows = '"    . add_escape_custom(trim($iter['lengthHeight']))    . "', " .
+                "max_length = '"    . add_escape_custom(trim($iter['maxSize']))    . "', "                             .
+                "titlecols = '"     . add_escape_custom(trim($iter['titlecols'])) . "', " .
+                "datacols = '"      . add_escape_custom(trim($iter['datacols']))  . "', " .
                 "data_type= '" . add_escape_custom($data_type) . "', "                                .
                 "list_id= '"        . add_escape_custom($listval)   . "', " .
-                "list_backup_id= '"        . add_escape_custom(formTrim($iter['list_backup_id']))   . "', " .
+                "list_backup_id= '"        . add_escape_custom(trim($iter['list_backup_id']))   . "', " .
                 "edit_options = '"  . add_escape_custom(encodeModifier($iter['edit_options'])) . "', " .
-                "default_value = '" . add_escape_custom(formTrim($iter['default']))   . "', " .
-                "description = '"   . add_escape_custom(formTrim($iter['desc']))      . "', " .
+                "default_value = '" . add_escape_custom(trim($iter['default']))   . "', " .
+                "description = '"   . add_escape_custom(trim($iter['desc']))      . "', " .
                 "conditions = '"    . add_escape_custom($conditions) . "', " .
-                "validation = '"   . add_escape_custom(formTrim($iter['validation']))   . "' " .
+                "validation = '"   . add_escape_custom(trim($iter['validation']))   . "' " .
                 "WHERE form_id = '" . add_escape_custom($layout_id) . "' AND field_id = '" . add_escape_custom($field_id_original) . "'");
         }
     }
 } else if ($_POST['formaction'] == "addfield" && $layout_id) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     // Add a new field to a specific group
-    $data_type = formTrim($_POST['newdatatype']);
+    $data_type = trim($_POST['newdatatype']);
     $max_length = $data_type == 3 ? 3 : 255;
-    $listval = $data_type == 34 ? formTrim($_POST['contextName']) : formTrim($_POST['newlistid']);
+    $listval = $data_type == 34 ? trim($_POST['contextName']) : trim($_POST['newlistid']);
     sqlStatement("INSERT INTO layout_options (" .
       " form_id, source, field_id, title, group_id, seq, uor, fld_length, fld_rows" .
       ", titlecols, datacols, data_type, edit_options, default_value, description" .
       ", max_length, list_id, list_backup_id " .
       ") VALUES ( " .
-      "'"  . add_escape_custom(formTrim($_POST['layout_id'])) . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['newsource'])) . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['newid'])) . "'" .
+      "'"  . add_escape_custom(trim($_POST['layout_id'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['newsource'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['newid'])) . "'" .
       ",'" . add_escape_custom($_POST['newtitle']) . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['newfieldgroupid'])) . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['newseq'])) . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['newuor'])) . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['newlengthWidth'])) . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['newlengthHeight'])) . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['newtitlecols'])) . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['newdatacols'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['newfieldgroupid'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['newseq'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['newuor'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['newlengthWidth'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['newlengthHeight'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['newtitlecols'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['newdatacols'])) . "'" .
       ",'" . add_escape_custom($data_type) . "'"                                  .
         ",'" . add_escape_custom(encodeModifier($_POST['newedit_options'])) . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['newdefault'])) . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['newdesc'])) . "'" .
-      ",'"    . add_escape_custom(formTrim($_POST['newmaxSize']))    . "'"  .
+      ",'" . add_escape_custom(trim($_POST['newdefault'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['newdesc'])) . "'" .
+      ",'"    . add_escape_custom(trim($_POST['newmaxSize']))    . "'"  .
       ",'" . add_escape_custom($listval) . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['newbackuplistid'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['newbackuplistid'])) . "'" .
       " )");
-    addOrDeleteColumn($layout_id, formTrim($_POST['newid']), true);
+    addOrDeleteColumn($layout_id, trim($_POST['newid']), true);
 } else if ($_POST['formaction'] == "movefields" && $layout_id) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     // Move field(s) to a new group in the layout
@@ -457,7 +457,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
     sqlStatement($sqlstmt);
 } else if ($_POST['formaction'] == "deletefields" && $layout_id) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     // Delete a field from a specific group
@@ -477,7 +477,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
     }
 } else if ($_POST['formaction'] == "addgroup" && $layout_id) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     // Generate new value for layout_items.group_id.
@@ -491,39 +491,39 @@ if ($_POST['formaction'] == "save" && $layout_id) {
         array($layout_id, $newgroupid, $_POST['newgroupname'])
     );
 
-    $data_type = formTrim($_POST['gnewdatatype']);
+    $data_type = trim($_POST['gnewdatatype']);
     $max_length = $data_type == 3 ? 3 : 255;
-    $listval = $data_type == 34 ? formTrim($_POST['gcontextName']) : formTrim($_POST['gnewlistid']);
+    $listval = $data_type == 34 ? trim($_POST['gcontextName']) : trim($_POST['gnewlistid']);
     // add a new group to the layout, with the defined field
     sqlStatement("INSERT INTO layout_options (" .
       " form_id, source, field_id, title, group_id, seq, uor, fld_length, fld_rows" .
       ", titlecols, datacols, data_type, edit_options, default_value, description" .
       ", max_length, list_id, list_backup_id " .
       ") VALUES ( " .
-      "'"  . add_escape_custom(formTrim($_POST['layout_id'])) . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['gnewsource'])) . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['gnewid'])) . "'" .
+      "'"  . add_escape_custom(trim($_POST['layout_id'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['gnewsource'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['gnewid'])) . "'" .
       ",'" . add_escape_custom($_POST['gnewtitle']) . "'" .
-      ",'" . add_escape_custom(formTrim($newgroupid))                . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['gnewseq'])) . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['gnewuor'])) . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['gnewlengthWidth'])) . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['gnewlengthHeight'])) . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['gnewtitlecols'])) . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['gnewdatacols'])) . "'" .
+      ",'" . add_escape_custom(trim($newgroupid))                . "'" .
+      ",'" . add_escape_custom(trim($_POST['gnewseq'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['gnewuor'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['gnewlengthWidth'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['gnewlengthHeight'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['gnewtitlecols'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['gnewdatacols'])) . "'" .
       ",'" . add_escape_custom($data_type) . "'"                                   .
         ",'" . add_escape_custom(encodeModifier($_POST['gnewedit_options'])) . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['gnewdefault'])) . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['gnewdesc'])) . "'" .
-      ",'"    . add_escape_custom(formTrim($_POST['gnewmaxSize']))    . "'"                                  .
+      ",'" . add_escape_custom(trim($_POST['gnewdefault'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['gnewdesc'])) . "'" .
+      ",'"    . add_escape_custom(trim($_POST['gnewmaxSize']))    . "'"                                  .
       ",'" . add_escape_custom($listval)       . "'" .
-      ",'" . add_escape_custom(formTrim($_POST['gnewbackuplistid'])) . "'" .
+      ",'" . add_escape_custom(trim($_POST['gnewbackuplistid'])) . "'" .
       " )");
-    addOrDeleteColumn($layout_id, formTrim($_POST['gnewid']), true);
+    addOrDeleteColumn($layout_id, trim($_POST['gnewid']), true);
 } /**********************************************************************
 else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     // drop the fields from the related table (this is critical)
@@ -544,7 +544,7 @@ else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
 
 else if ($_POST['formaction'] == "movegroup" && $layout_id) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     // Note that in some cases below the swapGroups() call will do nothing.
@@ -573,7 +573,7 @@ else if ($_POST['formaction'] == "movegroup" && $layout_id) {
 } // Renaming a group. This might include moving to a different parent group.
 else if ($_POST['formaction'] == "renamegroup" && $layout_id) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $newparent = $_POST['renamegroupparent'];  // this is an ID

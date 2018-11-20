@@ -17,6 +17,10 @@ require_once("../library/patient.inc");
 require_once "../library/options.inc.php";
 require_once("../library/clinical_rules.php");
 
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    csrfNotVerified();
+}
+
 //To improve performance and not freeze the session when running this
 // report, turn off session writing. Note that php session variables
 // can not be modified after the line below. So, if need to do any php
@@ -183,11 +187,11 @@ $xml->close_submission();
 <?php html_header_show();?>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
-<title><?php echo htmlspecialchars(xl('Export PQRI Report'), ENT_NOQUOTES); ?></title>
+<title><?php echo xlt('Export PQRI Report'); ?></title>
 </head>
 <body>
 
-<p><?php echo htmlspecialchars(xl('The exported data appears in the text area below. You can copy and paste this into an email or to any other desired destination.'), ENT_NOQUOTES); ?></p>
+<p><?php echo xlt('The exported data appears in the text area below. You can copy and paste this into an email or to any other desired destination.'); ?></p>
 
 <center>
 <form>
@@ -196,7 +200,7 @@ $xml->close_submission();
 <?php echo $xml->getXml(); ?>
 </textarea>
 
-<p><input type='button' value='<?php echo htmlspecialchars(xl('OK'), ENT_QUOTES); ?>' onclick='window.close()' /></p>
+<p><input type='button' value='<?php echo xla('OK'); ?>' onclick='window.close()' /></p>
 </form>
 </center>
 

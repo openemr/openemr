@@ -13,23 +13,47 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// Function to collect ip address(es)
+function collectIpAddresses()
+{
+    $mainIp = $_SERVER['REMOTE_ADDR'];
+    $stringIp = $mainIp;
 
-// Function to create a csrf_token
-function createCsrfToken()
+    if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $forwardIp = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        $stringIp .= " (" . $forwardIp . ")";
+    }
+
+    return array(
+        'ip_string' => $stringIp,
+        'ip' => $mainIp,
+        'forward_ip' => $forwardIp
+    );
+}
+
+// Function to create a random unique token
+// Length is in bytes that the openssl_random_pseudo_bytes() function will create
+function createUniqueToken($length = 32)
 {
     if (!extension_loaded('openssl')) {
         error_log("OpenEMR Error : OpenEMR is not working because missing openssl extension.");
         die("OpenEMR Error : OpenEMR is not working because missing openssl extension.");
     }
 
-    $csrfToken = base64_encode(openssl_random_pseudo_bytes(32));
+    $uniqueToken = base64_encode(openssl_random_pseudo_bytes($length));
 
-    if (empty($csrfToken)) {
-        error_log("OpenEMR Error : OpenEMR is not working because CSRF token is not being formed correctly.");
-        die("OpenEMR Error : OpenEMR is not working because CSRF token is not being formed correctly.");
+    if (empty($uniqueToken)) {
+        error_log("OpenEMR Error : OpenEMR is not working because a random unique token is not being formed correctly.");
+        die("OpenEMR Error : OpenEMR is not working because a random unique token is not being formed correctly.");
     }
 
-    return $csrfToken;
+    return $uniqueToken;
+}
+
+// Function to create a csrf_token
+function createCsrfToken()
+{
+    return createUniqueToken(32);
 }
 
 // Function to collect the csrf token
@@ -53,12 +77,25 @@ function verifyCsrfToken($token)
     }
 }
 
+function csrfNotVerified($toScreen = true, $toLog = true)
+{
+    if ($toScreen) {
+        echo xlt('Authentication Error');
+    }
+    if ($toLog) {
+        error_log("OpenEMR CSRF token authentication error");
+    }
+    die;
+}
+
 // If the label contains any illegal characters, then the script will die.
 function check_file_dir_name($label)
 {
     if (empty($label) || preg_match('/[^A-Za-z0-9_.-]/', $label)) {
         error_log("ERROR: The following variable contains invalid characters:" . $label);
         die(xlt("ERROR: The following variable contains invalid characters").": ". attr($label));
+    } else {
+        return $label;
     }
 }
 

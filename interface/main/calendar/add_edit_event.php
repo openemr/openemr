@@ -874,6 +874,8 @@ if (empty($collectthis)) {
     $patientid = '';
     if ($_REQUEST['patientid']) {
         $patientid = $_REQUEST['patientid'];
+    } elseif (!empty($_SESSION['pid'])) {
+        $patientid = ($_SESSION['pid']);
     }
 
     $patientname = null;

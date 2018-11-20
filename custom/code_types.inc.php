@@ -900,9 +900,9 @@ function limit_query_string($limit = null, $start = null, $number = null, $retur
 {
     if (!is_null($start) && !is_null($number)) {
         // For pagination of results
-        $limit_query = " LIMIT $start, $number ";
+        $limit_query = " LIMIT " . escape_limit($start) . ", " . escape_limit($number) . " ";
     } else if (!is_null($limit)) {
-        $limit_query = " LIMIT $limit ";
+        $limit_query = " LIMIT " . escape_limit($limit) . " ";
     } else {
         // No pagination and no limit
         $limit_query = '';

@@ -1,21 +1,27 @@
 <?php
-
 /**
  * Multi select patient.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Amiel Elboim <amielel@matrix.co.il>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Amiel Elboim <amielel@matrix.co.il
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once('../../globals.php');
 require_once("$srcdir/patient.inc");
+
 use OpenEMR\Core\Header;
 
 // for editing selected patients
 if (isset($_GET['patients'])) {
+    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     $patients = rtrim($_GET['patients'], ";");
     $patients = explode(';', $patients);
     $results = array();
@@ -31,7 +37,7 @@ if (isset($_GET['patients'])) {
 <html>
 <head>
     <?php Header::setupHeader(['select2', 'opener']); ?>
-    <title><?php echo htmlspecialchars(xl('Patient Finder'), ENT_NOQUOTES); ?></title>
+    <title><?php echo xlt('Patient Finder'); ?></title>
 
     <style>
         #searchCriteria {
@@ -106,7 +112,7 @@ if (isset($_GET['patients'])) {
                     <button id="add-to-list"><?php echo xlt('Add to list'); ?></button>
                 </div>
                 <div class="inline-box">
-                    <button id="send-patients" onclick="selPatients()"><?php echo  xlt('OK'); ?></button>
+                    <button id="send-patients" onclick="selPatients()"><?php echo xlt('OK'); ?></button>
                 </div>
             </div>
         </form>
@@ -115,7 +121,7 @@ if (isset($_GET['patients'])) {
     <table id="results-table" class="table table-condensed">
         <thead id="searchResultsHeader" class="head">
         <tr>
-            <th class="srName"><?php echo  xlt('Name'); ?></th>
+            <th class="srName"><?php echo xlt('Name'); ?></th>
             <th class="srPhone"><?php echo xlt('Phone'); ?></th>
             <th class="srSS"><?php echo xlt('SS'); ?></th>
             <th class="srDOB"><?php echo xlt('DOB'); ?></th>
@@ -133,7 +139,7 @@ if (isset($_GET['patients'])) {
                         '<td>' . text($result['ss']) . '</td>' .
                         '<td>' . text(oeFormatShortDate($result['DOB'])) . '</td>' .
                         '<td>' . text($result['pubpid']) . '</td>' .
-                        '<td><i class="fa fa-remove remove-patient" onclick="removePatient('.attr($result['pid']).')"></i></td>' .
+                        '<td><i class="fa fa-remove remove-patient" onclick="removePatient(' . attr(addslashes($result['pid'])) . ')"></i></td>' .
                     '<tr>';
             }
         } ?>
@@ -161,7 +167,8 @@ $('#by-id, #by-name').select2({
         data:function (params) {
             var query = {
                 search: params.term,
-                type: $(this).attr('id')
+                type: $(this).attr('id'),
+                csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
             }
             return query;
         },
@@ -177,7 +184,8 @@ $('#by-id').on('change', function () {
         url: 'multi_patients_finder_ajax.php',
         data:{
             type:'patient-by-id',
-            search:$('#by-id').val()
+            search:$('#by-id').val(),
+            csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
         },
         dataType: 'json'
     }).done(function(data){
@@ -196,7 +204,8 @@ $('#by-name').on('change', function () {
         url: 'multi_patients_finder_ajax.php',
         data:{
             type:'patient-by-id',
-            search:$('#by-name').val()
+            search:$('#by-name').val(),
+            csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
         },
         dataType: 'json'
     }).done(function(data){
@@ -217,7 +226,7 @@ $('#add-to-list').on('click', function (e) {
     if(patientsList.length === 0){
         $('#results-table').show();
     }
-    
+
     // return if patient already exist in the list
     var exist
     $.each(patientsList, function (key, patient) {
@@ -225,7 +234,7 @@ $('#add-to-list').on('click', function (e) {
     })
     if(exist)return;
 
-    
+
     // add to array
     patientsList.push(currentResult);
 

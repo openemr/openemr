@@ -34,7 +34,7 @@
     <div class="container-group">
         <span class="hidden title"><?php echo text($groupName);?></span>
         <div class="row">
-            <div id="main-component" class="col-md-8 col-sm-12">
+            <div id="main-component" class="col-md-9 col-sm-12">
                 <div class="row">
                     <div class="col-md-8 col-sm-12">
                         <ul class="tabNav">
@@ -48,10 +48,10 @@
                                 <button onclick="newGroup()"><?php echo xlt('Add encounter'); ?></button>
                             <?php endif;?>
                         <?php if ($readonly == '') : ?>
-                            <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr($groupId); ?>'"><?php echo xlt('Cancel');?></button>
-                            <button  id="saveForm" class="float-right"><?php echo xlt('Save');?></button>
+                            <button  onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr($groupId); ?>'"><?php echo xlt('Cancel');?></button>
+                            <button  id="saveForm"><?php echo xlt('Save');?></button>
                         <?php else : ?>
-                            <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&editParticipants=1&group_id=' . attr($groupId); ?>'"><?php echo xlt('Update');?></button>
+                            <button onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&editParticipants=1&group_id=' . attr($groupId); ?>'"><?php echo xlt('Update');?></button>
                         <?php endif; ?>
                         <?php endif; ?>
                     </div>
@@ -173,7 +173,7 @@
                     </div>
                 </div>
             </div>
-            <div id="appointment-component" class="col-md-4 col-sm-12">
+            <div id="appointment-component" class="col-md-2 col-sm-12">
                 <?php require 'appointmentComponent.php';?>
             </div>
         </div>

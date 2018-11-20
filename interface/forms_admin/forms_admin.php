@@ -14,10 +14,19 @@ require_once("$phpgacl_location/gacl_api.class.php");
 require_once("$srcdir/registry.inc");
 
 if ($_GET['method'] == "enable") {
+    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+        csrfNotVerified();
+    }
     updateRegistered($_GET['id'], "state=1");
 } elseif ($_GET['method'] == "disable") {
+    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+        csrfNotVerified();
+    }
     updateRegistered($_GET['id'], "state=0");
 } elseif ($_GET['method'] == "install_db") {
+    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+        csrfNotVerified();
+    }
     $dir = getRegistryEntry($_GET['id'], "directory");
     if (installSQL("$srcdir/../interface/forms/{$dir['directory']}")) {
         updateRegistered($_GET['id'], "sql_run=1");
@@ -25,6 +34,9 @@ if ($_GET['method'] == "enable") {
         $err = xl('ERROR: could not open table.sql, broken form?');
     }
 } elseif ($_GET['method'] == "register") {
+    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+        csrfNotVerified();
+    }
     registerForm($_GET['name']) or $err=xl('error while registering form!');
 }
 
@@ -38,20 +50,26 @@ $bigdata = getRegistered("%") or $bigdata = false;
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 <body class="body_top">
-<span class="title"><?php xl('Forms Administration', 'e');?></span>
+<span class="title"><?php echo xlt('Forms Administration');?></span>
 <br><br>
 <?php
-foreach ($_POST as $key => $val) {
-    if (preg_match('/nickname_(\d+)/', $key, $matches)) {
-        sqlQuery("update registry set nickname = ? where id = ?", array($val, $matches[1]));
-    } else if (preg_match('/category_(\d+)/', $key, $matches)) {
-        sqlQuery("update registry set category = ? where id = ?", array($val, $matches[1]));
-    } else if (preg_match('/priority_(\d+)/', $key, $matches)) {
-        sqlQuery("update registry set priority = ? where id = ?", array($val, $matches[1]));
-    } else if (preg_match('/aco_spec_(\d+)/', $key, $matches)) {
-        sqlQuery("update registry set aco_spec = ? where id = ?", array($val, $matches[1]));
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+    foreach ($_POST as $key => $val) {
+        if (preg_match('/nickname_(\d+)/', $key, $matches)) {
+            sqlQuery("update registry set nickname = ? where id = ?", array($val, $matches[1]));
+        } else if (preg_match('/category_(\d+)/', $key, $matches)) {
+            sqlQuery("update registry set category = ? where id = ?", array($val, $matches[1]));
+        } else if (preg_match('/priority_(\d+)/', $key, $matches)) {
+            sqlQuery("update registry set priority = ? where id = ?", array($val, $matches[1]));
+        } else if (preg_match('/aco_spec_(\d+)/', $key, $matches)) {
+            sqlQuery("update registry set aco_spec = ? where id = ?", array($val, $matches[1]));
+        }
     }
 }
+
 ?>
 
 <?php //ERROR REPORTING
@@ -61,9 +79,10 @@ if ($err) {
 ?>
 
 <?php //REGISTERED SECTION ?>
-<span class=bold><?php xl('Registered', 'e');?></span><br>
+<span class=bold><?php echo xlt('Registered');?></span><br>
 <form method=POST action ='./forms_admin.php'>
 <i><?php echo xlt('click here to update priority, category, nickname and access control settings'); ?></i>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <input type='submit' name='update' value='<?php echo xla('update'); ?>'><br>
 <table border=0 cellpadding=1 cellspacing=2 width="500">
     <tr>
@@ -91,15 +110,15 @@ if ($bigdata != false) {
       <span class='text'><?php echo text($registry['id']); ?></span>
     </td>
     <td bgcolor="<?php echo attr($color); ?>" width="30%">
-      <span class='bold'><?php echo xl_form_title($registry['name']); ?></span>
+      <span class='bold'><?php echo text(xl_form_title($registry['name'])); ?></span>
     </td>
     <?php
     if ($registry['sql_run'] == 0) {
         echo "<td bgcolor='" . attr($color) . "' width='10%'><span class='text'>" . xlt('registered') . "</span>";
     } elseif ($registry['state'] == "0") {
-        echo "<td bgcolor='#FFCCCC' width='10%'><a class='link_submit' href='./forms_admin.php?id={$registry['id']}&method=enable'>" . xlt('disabled') . "</a>";
+        echo "<td bgcolor='#FFCCCC' width='10%'><a class='link_submit' href='./forms_admin.php?id=" . attr(urlencode($registry['id'])) . "&method=enable&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . xlt('disabled') . "</a>";
     } else {
-        echo "<td bgcolor='#CCFFCC' width='10%'><a class='link_submit' href='./forms_admin.php?id={$registry['id']}&method=disable'>" . xlt('enabled') . "</a>";
+        echo "<td bgcolor='#CCFFCC' width='10%'><a class='link_submit' href='./forms_admin.php?id=" . attr(urlencode($registry['id'])) . "&method=disable&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . xlt('enabled') . "</a>";
     }
         ?></td>
         <td bgcolor="<?php echo attr($color); ?>" width="10%">
@@ -116,7 +135,7 @@ if ($bigdata != false) {
         if ($registry['sql_run']) {
             echo "<span class='text'>" . xlt('DB installed') . "</span>";
         } else {
-            echo "<a class='link_submit' href='./forms_admin.php?id=" . attr($registry['id']) . "&method=install_db'>" . xlt('install DB') . "</a>";
+            echo "<a class='link_submit' href='./forms_admin.php?id=" . attr(urlencode($registry['id'])) . "&method=install_db&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . xlt('install DB') . "</a>";
         }
         ?>
         </td>
@@ -188,20 +207,20 @@ foreach ($inDir as $fname) {
                 $form_title = $fname;
             }
                 ?>
-            <span class=bold><?php echo xl_form_title($form_title); ?></span>
+            <span class=bold><?php echo text(xl_form_title($form_title)); ?></span>
         </td>
         <td bgcolor="<?php echo $color?>" width="10%"><?php
         if ($phpState == "PHP extracted") {
-            echo '<a class=link_submit href="./forms_admin.php?name=' . urlencode($fname) . '&method=register">' . xl('register') . '</a>';
+            echo '<a class=link_submit href="./forms_admin.php?name=' . attr(urlencode($fname)) . '&method=register&csrf_token_form=' . attr(urlencode(collectCsrfToken())) . '">' . xlt('register') . '</a>';
         } else {
-            echo '<span class=text>' . xl('n/a') . '</span>';
+            echo '<span class=text>' . xlt('n/a') . '</span>';
         }
         ?></td>
         <td bgcolor="<?php echo $color?>" width="20%">
-            <span class=text><?php echo xl($phpState); ?></span>
+            <span class=text><?php echo xlt($phpState); ?></span>
         </td>
         <td bgcolor="<?php echo $color?>" width="10%">
-            <span class=text><?php xl('n/a', 'e'); ?></span>
+            <span class=text><?php echo xlt('n/a'); ?></span>
         </td>
     </tr>
     <?php

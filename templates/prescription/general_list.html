@@ -63,6 +63,10 @@ function Check(chk) {
     var len=chk.length;
     if (len==undefined) {chk.checked=true;}
     else {
+        //clean the checked id's before check all the list again
+        document.getElementById('multiprint').href = document.getElementById('multiprint').href.substring(0, document.getElementById('multiprint').href.indexOf('=') + 1);
+        document.getElementById('multiprintcss').href = document.getElementById('multiprintcss').href.substring(0, document.getElementById('multiprintcss').href.indexOf('=') + 1);
+        document.getElementById('multiprintToFax').href = document.getElementById('multiprintToFax').href.substring(0, document.getElementById('multiprintToFax').href.indexOf('=') +1);
         for (pr = 0; pr < chk.length; pr++){
             if($(chk[pr]).parents("tr.inactive").length==0)
                 {

@@ -3,21 +3,21 @@
 */
 
 ul.tabNav {
-    float: left;
+    float: $left;
     list-style: none;
     width: 100%;
 }
 ul.tabNav li {
-    float: left;
+    float: $left;
     vertical-align: bottom;
-    text-align: left;
+    text-align: $left;
 }
 ul.tabNav a {
     display: block;
 }
 div.tabContainer {
     clear: both;
-    float: left;
+    float: $left;
     width: 100%;
 }
 div.tabContainer div.tab {
@@ -29,6 +29,7 @@ div.tabContainer div.tab {
 div.tabContainer div.current {
     display: block;
 }
+
 div.tab {
     min-height: 180px;
     background: #ffffff none repeat scroll 0 0;
@@ -76,4 +77,11 @@ div.notab-right {
 .summary_item {
     background: #FFFFFF;
     padding: 8px;
+}
+
+@include if-rtl {
+    #sddm li a
+    {
+        padding: 4px 10px;
+    }
 }

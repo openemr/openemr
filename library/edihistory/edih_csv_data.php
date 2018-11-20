@@ -51,7 +51,7 @@ function edih_csv_process_html($data_ar, $err_only = false)
         if (array_key_exists('type', $csvdata)) {
             $ft = $csvdata['type'];
         } else {
-            $str_html .= 'edih_csv_process_html() for '.$icn.' did not get type value';
+            $str_html .= 'edih_csv_process_html() for ' . text($icn) . ' did not get type value';
             csv_edihist_log('edih_csv_process_html: for '.$icn.' did not get type value');
             return $str_html;
         }
@@ -77,24 +77,24 @@ function edih_csv_process_html($data_ar, $err_only = false)
                 $typ = (isset($csvfile['RspType'])) ? $csvfile['RspType'] : '';
                 $rej = (isset($csvfile['RejCt'])) ? $csvfile['RejCt'] : '';
                 //
-                $dt_str .= ($fn1) ? "<a class='$cls' href='edih_main.php?gtbl=file&fname=$fn1&ftype=$ft&fmt=seg'>$fn1</a>&nbsp;" : "";
-                $dt_str .= ($dte) ? " &nbsp;".substr($dte, 0, 4)."-".substr($dte, 4, 2)."-".substr($dte, 6, 2) : "";
-                $dt_str .= ($clmct) ? " &nbsp;<em>Claims</em> ".$clmct : "";
+                $dt_str .= ($fn1) ? "<a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($fn1)) . "&ftype=" . attr(urlencode($ft)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($fn1) . "</a>&nbsp;" : "";
+                $dt_str .= ($dte) ? " &nbsp;" . text(substr($dte, 0, 4)) . "-" . text(substr($dte, 4, 2)) . "-" . text(substr($dte, 6, 2)) : "";
+                $dt_str .= ($clmct) ? " &nbsp;<em>Claims</em> " . text($clmct) : "";
                 if ($ft == 'f997' || $ft == 'ta1') {
-                    $dt_str .= ($typ) ? " &nbsp;".$typ : "";
-                    $dt_str .= ($rej) ? " &nbsp;".$rej : "";
-                    $dt_str .= ($trc) ? "&nbsp; <a class='$cls' title=$trc href='edih_main.php?gtbl=file&trace=$trc&ftype=$ft&rsptype=$typ'><em>trace</em></a>&nbsp;" : "";
+                    $dt_str .= ($typ) ? " &nbsp;" . text($typ) : "";
+                    $dt_str .= ($rej) ? " &nbsp;" . text($rej) : "";
+                    $dt_str .= ($trc) ? "&nbsp; <a class='" . attr($cls) . "' title='" . attr($trc) . "' href='edih_main.php?gtbl=file&trace=" . attr(urlencode($trc)) . "&ftype=" . attr(urlencode($ft)) . "&rsptype=" . attr(urlencode($typ)) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'><em>trace</em></a>&nbsp;" : "";
                 } elseif ($ft == 'f277') {
-                    $dt_str .= (isset($csvfile['Accept'])) ? " &nbsp;<em>Accpt</em> ".$csvfile['Accept'] : "";
-                    $dt_str .= (isset($csvfile['Reject'])) ? " &nbsp;<em>Rej</em> ".$csvfile['Reject'] : "";
+                    $dt_str .= (isset($csvfile['Accept'])) ? " &nbsp;<em>Accpt</em> " . text($csvfile['Accept']) : "";
+                    $dt_str .= (isset($csvfile['Reject'])) ? " &nbsp;<em>Rej</em> " . text($csvfile['Reject']) : "";
                 } elseif ($ft == 'f835') {
-                    $dt_str .= (isset($csvfile['Denied'])) ? " &nbsp;<em>Denied</em> ".$csvfile['Denied'] : "";
-                    $dt_str .= ($trc) ? " &nbsp;<em>Chk</em> <a class='$cls' href='edih_main.php?gtbl=file&fname=$fn1&trace=$trc&ftype=$ft&fmt=htm'>$trc</a>&nbsp;" : "";
-                    $dt_str .= (isset($csvfile['Payer'])) ? " &nbsp;".$csvfile['Payer'] : "";
+                    $dt_str .= (isset($csvfile['Denied'])) ? " &nbsp;<em>Denied</em> " . text($csvfile['Denied']) : "";
+                    $dt_str .= ($trc) ? " &nbsp;<em>Chk</em> <a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($fn1)) . "&trace=" . attr(urlencode($trc)) . "&ftype=" . attr(urlencode($ft)) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($trc) . "</a>&nbsp;" : "";
+                    $dt_str .= (isset($csvfile['Payer'])) ? " &nbsp;" . text($csvfile['Payer']) : "";
                 }
 
                 //
-                $str_html .= "<dt class=$oe>$dt_str</dt>".PHP_EOL;
+                $str_html .= "<dt class=" . attr($oe) . ">$dt_str</dt>".PHP_EOL;
                 $fidx++;
             }
         }
@@ -150,30 +150,30 @@ function edih_csv_process_html($data_ar, $err_only = false)
                 $dte = (isset($claim['ReqDate'])) ? $claim['ReqDate'] : $dte;
                 $dte = (isset($claim['RspDate'])) ? $claim['RspDate'] : $dte;
                 $dte = (isset($claim['FileDate'])) ? $claim['FileDate'] : $dte;
-                
-                $dd_str .= ($ptn) ? $ptn."&nbsp; " : "";
-                $dd_str .= ($dte) ? " &nbsp;".substr($dte, 0, 4)."-".substr($dte, 4, 2)."-".substr($dte, 6, 2) : "";
+
+                $dd_str .= ($ptn) ? text($ptn) . "&nbsp; " : "";
+                $dd_str .= ($dte) ? " &nbsp;" . text(substr($dte, 0, 4)) . "-" . text(substr($dte, 4, 2)) . "-" . text(substr($dte, 6, 2)) : "";
                 if (strpos('|f277|f276|f270|f271|f278', $ft)) {
-                    $dd_str .= ($sts) ? " &nbsp;$sts" : "";
-                    $dd_str .= ($ins) ? " &nbsp;$ins" : "";
-                    $dd_str .= ($clm) ? " &nbsp;$clm" : "";
-                    $dd_str .= ($bht03) ? " &nbsp;<em>view</em> <a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&bht03=$bht03&fmt=htm'>H</a>&nbsp; <a class='seg' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&bht03=$bht03&fmt=seg'>T</a>&nbsp;" : "";
-                    $dd_str .= ($pid) ? " &nbsp;<em>trace</em> <a class='sub' href='edih_main.php?gtbl=claim&ftype=$ft&rsptype=f837&trace=$pid&fmt=seg'>$pid</a>" : "";
-                    $dd_str .= ($auth && $auth == 'Rsp' || $auth == 'Reply') ?  "<a class='sub' href='edih_main.php?gtbl=claim&ftype=$ft&rsptype=f278&trace=$trc&fmt=seg'><em>trace</em></a>" : "";
+                    $dd_str .= ($sts) ? " &nbsp;" . text($sts) : "";
+                    $dd_str .= ($ins) ? " &nbsp;" . text($ins) : "";
+                    $dd_str .= ($clm) ? " &nbsp;" . text($clm) : "";
+                    $dd_str .= ($bht03) ? " &nbsp;<em>view</em> <a class='" . attr($cls) . "' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($fn1)) . "&ftype=" . attr(urlencode($ft)) . "&bht03=" . attr(urlencode($bht03)) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>H</a>&nbsp; <a class='seg' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($fn1)) . "&ftype=" . attr(urlencode($ft)) . "&bht03=" . attr(urlencode($bht03)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>T</a>&nbsp;" : "";
+                    $dd_str .= ($pid) ? " &nbsp;<em>trace</em> <a class='sub' href='edih_main.php?gtbl=claim&ftype=" . attr(urlencode($ft)) . "&rsptype=f837&trace=" . attr(urlencode($pid)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($pid) . "</a>" : "";
+                    $dd_str .= ($auth && $auth == 'Rsp' || $auth == 'Reply') ?  "<a class='sub' href='edih_main.php?gtbl=claim&ftype=" . attr(urlencode($ft)) . "&rsptype=f278&trace=" . attr(urlencode($trc)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'><em>trace</em></a>" : "";
                 } elseif ($ft == 'f835') {
                     $dd_str .= ($clm) ? " &nbsp;<em>Claim ID</em> $ins" : "";
                     $dd_str .= ($ins) ? " &nbsp;<em>InsLevel</em> $ins" : "";
-                    $dd_str .= ($pid) ? " &nbsp;$pid <a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&pid=$pid&fmt=htm'>H</a> <a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&pid=$pid&fmt=seg'>T</a>" : "";
+                    $dd_str .= ($pid) ? " &nbsp;$pid <a class='" . attr($cls) . "' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($fn1)) . "&ftype=" . attr(urlencode($ft)) . "&pid=" . attr(urlencode($pid)) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>H</a> <a class='" . attr($cls) . "' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($fn1)) . "&ftype=" . attr(urlencode($ft)) . "&pid=" . attr(urlencode($pid)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>T</a>" : "";
                 } elseif ($ft == 'f997') {
-                    $dd_str .= ($trc) ? " &nbsp;<a class='$cls' title='$trc' href='edih_main.php?gtbl=claim&ftype=$ft&trace=$trc&rsptype=$typ&errseg=$err&fmt=seg'><em>trace</em></a>" : "";
-                    $dd_str .= ($err) ? " &nbsp;".substr($err, 0, 8) : "";
+                    $dd_str .= ($trc) ? " &nbsp;<a class='" . attr($cls) . "' title='" . attr($trc) . "' href='edih_main.php?gtbl=claim&ftype=" . attr(urlencode($ft)) . "&trace=" . attr(urlencode($trc)) . "&rsptype=" . attr(urlencode($typ)) . "&errseg=" . attr(urlencode($err)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'><em>trace</em></a>" : "";
+                    $dd_str .= ($err) ? " &nbsp;" . text(substr($err, 0, 8)) : "";
                 } else {
-                    $dd_str .= ($pid) ? " &nbsp;<a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn1&ftype=$ft&pid=$pid&fmt=seg'>$pid</a>" : "";
+                    $dd_str .= ($pid) ? " &nbsp;<a class='" . attr($cls) . "' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($fn1)) . "&ftype=" . attr(urlencode($ft)) . "&pid=" . attr(urlencode($pid)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($pid) . "</a>" : "";
                 }
 
-                $dd_str .= ($fn1) ? " &nbsp;<a class='$cls' title='$fn1' href='edih_main.php?gtbl=file&fname=$fn1&ftype=$ft&fmt=htm'><em>file</em></a>" : "";
+                $dd_str .= ($fn1) ? " &nbsp;<a class='" . attr($cls) . "' title='" . attr($fn1) . "' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($fn1)) . "&ftype=" . attr(urlencode($ft)) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'><em>file</em></a>" : "";
                 //
-                $clm_html .= "<dd class='$oe'>$dd_str</dd>".PHP_EOL;
+                $clm_html .= "<dd class='" . attr($oe) . "'>$dd_str</dd>".PHP_EOL;
                 //
             }
         }
@@ -218,7 +218,7 @@ function edih_list_denied_claims($filetype, $filename, $trace = '')
     } elseif (strpos('|f271|f277|f835', $ft)) {
         $row_ar = csv_denied_by_file($ft, $filename, $trace);
     } else {
-        $str_html .= "Invalid file type $filetype for denied claim search<br />";
+        $str_html .= "Invalid file type " . text($filetype) . " for denied claim search<br />";
         csv_edihist_log("edih_list_denied_claims: wrong filetype $filetype");
         return $str_html;
     }
@@ -228,45 +228,45 @@ function edih_list_denied_claims($filetype, $filename, $trace = '')
         $rw_ct = count($row_ar);
         $rwct = 0;
         $str_html .= "<h4>Denied/Rejected Claims Listing</h4>".PHP_EOL;
-        $str_html .= "<dl class ='$ft'>$rw_ct claims <em>File</em> $filename ";
+        $str_html .= "<dl class ='" . attr($ft) . "'>" . text($rw_ct) . " claims <em>File</em>" .  text($filename) . " ";
         $str_html .= ($trace) ? "<em>Trace</em> $trace</dl>".PHP_EOL : "".PHP_EOL;
         if ($ft == 'f835') {
             foreach ($row_ar as $row) {
                 $oe = ( $rwct % 2 ) ? 'codd' : 'ceven';
                 $rwct++;
-                $str_html .= "<dt class='$oe'>{$row[0]} <a class='rpt' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&pid={$row[2]}&fmt=htm'>{$row[2]}</a></dt>".PHP_EOL;
+                $str_html .= "<dt class='" . attr($oe) . "'>" . text($row[0]) . " <a class='rpt' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($row[5])) . "&ftype=" . attr(urlencode($ft)) . "&pid=" . attr(urlencode($row[2])) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($row[2]) . "</a></dt>".PHP_EOL;
             }
         } elseif ($ft == 'f277') {
             foreach ($row_ar as $row) {
                 $oe = ( $rwct % 2 ) ? 'codd' : 'ceven';
                 $rwct++;
-                $str_html .= "<dt class='$oe'>{$row[0]} <a class='rpt' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&bht03={$row[4]}&fmt=htm'>{$row[4]}</a></dt>".PHP_EOL;
+                $str_html .= "<dt class='" . attr($oe) . "'>" . text($row[0]) . " <a class='rpt' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($row[5])) . "&ftype=" . attr(urlencode($ft)) . "&bht03=" . attr(urlencode($row[4])) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($row[4]) . "</a></dt>".PHP_EOL;
             }
         } elseif ($ft == 'f271') {
             foreach ($row_ar as $row) {
                 $oe = ( $rwct % 2 ) ? 'codd' : 'ceven';
                 $rwct++;
-                $str_html .= "<dt class='$oe'>{$row[0]} <a class='rpt' href='edih_main.php?gtbl=claim&fname={$row[5]}&ftype=$ft&bht03={$row[4]}&fmt=htm'>{$row[4]}</a></dt>".PHP_EOL;
+                $str_html .= "<dt class='" . attr($oe) . "'>" . text($row[0]) . " <a class='rpt' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($row[5])) . "&ftype=" . attr(urlencode($ft)) . "&bht03=" . attr(urlencode($row[4])) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($row[4]) . "</a></dt>".PHP_EOL;
             }
         } elseif ($ft == 'f997') {
             foreach ($row_ar as $row) {
                 $oe = ( $rwct % 2 ) ? 'codd' : 'ceven';
                 $rwct++;
-                $str_html .= "<dt class='$oe'>{$row[0]} <a class='rpt' href='edih_main.php?gtbl=claim&ftype=$tp&trace={$row[2]}&rsptype={$row[6]}&err={$row[7]}'>{$row[2]}</a></dt>".PHP_EOL;
+                $str_html .= "<dt class='" . attr($oe) . "'>" . text($row[0]) . " <a class='rpt' href='edih_main.php?gtbl=claim&ftype=" . attr(urlencode($tp)) . "&trace=" . attr(urlencode($row[2])) . "&rsptype=" . attr(urlencode($row[6])) . "&err=" . attr(urlencode($row[7])) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($row[2]) . "</a></dt>".PHP_EOL;
             }
         }
 
         //
         $str_html .= "</dl>".PHP_EOL;
     } else {
-        $str_html .= "Search returned no data rows from file $filename<br />";
+        $str_html .= "Search returned no data rows from file " . text($filename) . "<br />";
         csv_edihist_log("edih_list_denied_claims: no rows returned $filetype $filename $trace");
     }
 
     //
     return $str_html;
 }
-            
+
 
 /**
  * check the csv claims tables and return rows for a particular encounter
@@ -286,7 +286,7 @@ function edih_claim_history($encounter)
     if ($encounter) {
         $e = (string)$encounter;
     } else {
-        return 'invalid encounter value '.$encounter.'<br />'.PHP_EOL;
+        return 'invalid encounter value ' . text($encounter) . '<br />'.PHP_EOL;
     }
 
     // use function csv_table_select_list() so that only
@@ -302,7 +302,7 @@ function edih_claim_history($encounter)
     }
 
     //
-    $ch_html = "<table class='clmhist' columns=4><caption>Encounter Record for $e</caption>";
+    $ch_html = "<table class='clmhist' columns=4><caption>Encounter Record for " . text($e) . "</caption>";
     $ch_html .= "<tbody>".PHP_EOL;
     //
     if (in_array('f837', $rtypes)) {
@@ -310,7 +310,7 @@ function edih_claim_history($encounter)
         $btar = csv_file_by_enctr($e, $tp);
         //
         if (is_array($btar) && count($btar)) {
-            $ch_html .= "<tr class='ch837'><td colspan=4>837 Claim ".count($btar)."</td></tr>".PHP_EOL;
+            $ch_html .= "<tr class='ch837'><td colspan=4>837 Claim " . text(count($btar)) . "</td></tr>".PHP_EOL;
             $ch_html .= "<tr class='chhead'>".PHP_EOL;
             $ch_html .= "<td>Name</td><td>SvcDate</td><td>CLM01</td><td>File</td>".PHP_EOL;
             $ch_html .= "</tr>".PHP_EOL;
@@ -319,16 +319,16 @@ function edih_claim_history($encounter)
                 //array('PtName', 'SvcDate', 'CLM01', 'InsLevel', 'Control', 'FileName', 'Fee', 'PtPaid', 'Provider' );
                 $ch_html .= "<tr class='ch837'>".PHP_EOL;
                 //
-                $ch_html .= "<td>{$ch['PtName']}</td>".PHP_EOL;
-                $ch_html .= "<td>$dt</td>".PHP_EOL;
-                $ch_html .= "<td><a class='seg' href='edih_main.php?gtbl=claim&fname={$ch['FileName']}&ftype=$tp&pid={$ch['CLM01']}&fmt=seg'>{$ch['CLM01']}</a></td>".PHP_EOL;
-                $ch_html .= "<td title='{$ch['Control']}'><a  class='seg' href='edih_main.php?gtbl=file&fname={$ch['FileName']}&ftype=$tp&fmt=seg'>{$ch['FileName']}</a></td>".PHP_EOL;
+                $ch_html .= "<td>" . text($ch['PtName']) . "</td>".PHP_EOL;
+                $ch_html .= "<td>" . text($dt) . "</td>".PHP_EOL;
+                $ch_html .= "<td><a class='seg' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($ch['FileName'])) . "&ftype=" . attr(urlencode($tp)) . "&pid=" . attr(urlencode($ch['CLM01'])) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($ch['CLM01']) . "</a></td>".PHP_EOL;
+                $ch_html .= "<td title='" . attr($ch['Control']) . "'><a  class='seg' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($ch['FileName'])) . "&ftype=" . attr(urlencode($tp)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($ch['FileName']) . "</a></td>".PHP_EOL;
                 //
                 $ch_html .= "</tr>".PHP_EOL;
             }
         } else {
             $ch_html .= "<tr class='ch837'>".PHP_EOL;
-            $ch_html .= "<td colspan=4>837 Claim -- Nothing found for $e</td>".PHP_EOL;
+            $ch_html .= "<td colspan=4>837 Claim -- Nothing found for " . text($e) . "</td>".PHP_EOL;
             $ch_html .= "</tr>".PHP_EOL;
         }
     }
@@ -339,7 +339,7 @@ function edih_claim_history($encounter)
         $f997ar = csv_file_by_enctr($e, $tp);
         //
         if (is_array($f997ar) && count($f997ar)) {
-            $ch_html .= "<tr class='ch997'><td colspan=4>Ack 997/999 ".count($f997ar)."</td></tr>".PHP_EOL;
+            $ch_html .= "<tr class='ch997'><td colspan=4>Ack 997/999 " . text(count($f997ar)) . "</td></tr>".PHP_EOL;
             $ch_html .= "<tr class='chhead'>".PHP_EOL;
             $ch_html .= "<td colspan=3>Acknowledgement File</td><td>Notes</td>".PHP_EOL;
             $ch_html .= "</tr>".PHP_EOL;
@@ -349,14 +349,14 @@ function edih_claim_history($encounter)
                 //array('PtName', 'RspDate', 'Trace', 'Status', 'Control', 'FileName', 'RspType', 'err_seg');;
                 $ch_html .= "<tr class='ch997'>";
                 $ch_html .= "<td>Rsp Ack</td>".PHP_EOL;
-                $ch_html .= "<td><a class='rsp' target='_blank' href='edih_main.php?gtbl=claim&fname={$ch['FileName']}&ftype=$tp&trace={$ch['Trace']}&rsptype={$ch['RspType']}&errseg={$ch['err_seg']}'>{$ch['Status']}</a></td>".PHP_EOL;
-                $ch_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&fname={$ch['FileName']}&ftype=$tp&fmt=seg'>{$ch['FileName']}</a></td>".PHP_EOL;
-                $ch_html .= "<td title='Response type/date'>{$ch['RspType']} {$ch['RspDate']}</td>".PHP_EOL;
+                $ch_html .= "<td><a class='rsp' target='_blank' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($ch['FileName'])) . "&ftype=" . attr(urlencode($tp)) . "&trace=" . attr(urlencode($ch['Trace'])) . "&rsptype=" . attr(urlencode($ch['RspType'])) . "&errseg=" . attr(urlencode($ch['err_seg'])) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($ch['Status']) . "</a></td>".PHP_EOL;
+                $ch_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($ch['FileName'])) . "&ftype=" . attr(urlencode($tp)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($ch['FileName']) . "</a></td>".PHP_EOL;
+                $ch_html .= "<td title='Response type/date'>" . text($ch['RspType']) . " " . text($ch['RspDate']) . "</td>".PHP_EOL;
                 $ch_html .= "</tr>".PHP_EOL;
             }
         } else {
             $ch_html .= "<tr class='ch997'>";
-            $ch_html .= "<td colspan=4>Ack 997/999 -- Nothing found for $e</td>".PHP_EOL;
+            $ch_html .= "<td colspan=4>Ack 997/999 -- Nothing found for " . text($e) . "</td>".PHP_EOL;
             $ch_html .= "</tr>".PHP_EOL;
         }
     }
@@ -367,7 +367,7 @@ function edih_claim_history($encounter)
         $f277ar = csv_file_by_enctr($e, $tp);
         //
         if (is_array($f277ar) && count($f277ar)) {
-            $ch_html .= "<tr class='ch277'><td colspan=4>Status 277 ".count($f277ar)."</td></tr>".PHP_EOL;
+            $ch_html .= "<tr class='ch277'><td colspan=4>Status 277 " . text(count($f277ar)) . "</td></tr>".PHP_EOL;
             $ch_html .= "<tr class='chhead'>".PHP_EOL;
             $ch_html .= "<td>Response</td><td>Status</td><td>File</td><td>ClaimID</td>".PHP_EOL;
             $ch_html .= "</tr>".PHP_EOL;
@@ -376,15 +376,15 @@ function edih_claim_history($encounter)
                 $ch_html .= "<tr class='ch277'>";
                 //
                 $ch_html .= "<td>Claim Status</td>".PHP_EOL;
-                $ch_html .= "<td><a class='rsp' href='edih_main.php?gtbl=claim&fname={$ch['FileName']}&ftype=$tp&bht03={$ch['BHT03']}&fmt=htm'>{$ch['Status']}</a></td>".PHP_EOL;
-                $ch_html .= "<td title='{$ch['FileName']}'><a href='edih_main.php?gtbl=file&fname={$ch['FileName']}&ftype=$tp&fmt=seg'>{$ch['FileName']}</a></td>".PHP_EOL;
-                $ch_html .= "<td title='Payer {$ch['Payer']}'>{$ch['Trace']}</td>".PHP_EOL;
+                $ch_html .= "<td><a class='rsp' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($ch['FileName'])) . "&ftype=" . attr(urlencode($tp)) . "&bht03=" . attr(urlencode($ch['BHT03'])) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($ch['Status']) . "</a></td>".PHP_EOL;
+                $ch_html .= "<td title='" . attr($ch['FileName']) . "'><a href='edih_main.php?gtbl=file&fname=" . attr(urlencode($ch['FileName'])) . "&ftype=" . attr(urlencode($tp)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($ch['FileName']) . "</a></td>".PHP_EOL;
+                $ch_html .= "<td title='Payer " . attr($ch['Payer']) . "'>" . text($ch['Trace']) . "</td>".PHP_EOL;
                 //
                 $ch_html .= "</tr>".PHP_EOL;
             }
         } else {
             $ch_html .= "<tr class='ch277'>";
-            $ch_html .= "<td colspan=4>Status 277 -- Nothing found for $e</td>".PHP_EOL;
+            $ch_html .= "<td colspan=4>Status 277 -- Nothing found for " . text($e) . "</td>".PHP_EOL;
             $ch_html .= "</tr>".PHP_EOL;
         }
     }
@@ -395,7 +395,7 @@ function edih_claim_history($encounter)
         $f835ar = csv_file_by_enctr($e, $tp);
         //
         if (is_array($f835ar) && count($f835ar)) {
-            $ch_html .= "<tr class='ch835'><td colspan=4>Payment 835 ".count($f835ar)."</td></tr>".PHP_EOL;
+            $ch_html .= "<tr class='ch835'><td colspan=4>Payment 835 " . text(count($f835ar)) . "</td></tr>".PHP_EOL;
             $ch_html .= "<tr class='chhead'>".PHP_EOL;
             $ch_html .= "<td>Response</td><td>Status</td><td>Trace</td><td>Payer</td>".PHP_EOL;
             $ch_html .= "</tr>".PHP_EOL;
@@ -405,16 +405,16 @@ function edih_claim_history($encounter)
                 // array('PtName', 'SvcDate', 'CLM01', 'Status', 'Trace', 'FileName', 'ClaimID', 'Pmt', 'PtResp', 'Payer');
                 $ch_html .= "<tr class='ch835'>";
                 //
-                $ch_html .= "<td>{$ch['PtName']}</td>".PHP_EOL;
-                $ch_html .= "<td><a class='rsp' href='edih_main.php?gtbl=claim&fname={$ch['FileName']}&ftype=$tp&pid={$ch['CLM01']}&summary=no'>{$ch['Status']}</a></td>".PHP_EOL;
-                $ch_html .= "<td><a href='edih_main.php?gtbl=file&fname={$ch['FileName']}&ftype=$tp&trace={$ch['Trace']}&fmt=htm'>{$ch['Trace']}</a></td>".PHP_EOL;
-                $ch_html .= "<td title=$msg>{$ch['Payer']}</td>".PHP_EOL;
+                $ch_html .= "<td>" . text($ch['PtName']) . "</td>".PHP_EOL;
+                $ch_html .= "<td><a class='rsp' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($ch['FileName'])) . "&ftype=" . attr(urlencode($tp)) . "&pid=" . attr(urlencode($ch['CLM01'])) . "&summary=no&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($ch['Status']) . "</a></td>".PHP_EOL;
+                $ch_html .= "<td><a href='edih_main.php?gtbl=file&fname=" . attr(urlencode($ch['FileName'])) . "&ftype=" . attr(urlencode($tp)) . "&trace=" . attr(urlencode($ch['Trace'])) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($ch['Trace']) . "</a></td>".PHP_EOL;
+                $ch_html .= "<td title='" . attr($msg) . "'>" . text($ch['Payer']) . "</td>".PHP_EOL;
                 //
                 $ch_html .= "</tr>".PHP_EOL;
             }
         } else {
             $ch_html .= "<tr class='ch835'>";
-            $ch_html .= "<td colspan=4>Payment 835 -- Nothing found for $e</td>".PHP_EOL;
+            $ch_html .= "<td colspan=4>Payment 835 -- Nothing found for " . text($e) . "</td>".PHP_EOL;
             $ch_html .= "</tr>".PHP_EOL;
         }
 
@@ -467,20 +467,20 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
             $rwct = count($csv_ar);
         } else {
             csv_edihist_log("edih_csv_to_html: error opening csv file $file_type $csv_type");
-            $csv_html .= "error opening csv file $file_type $csv_type<br>";
+            $csv_html .= "error opening csv file " . text($file_type) . " " . text($csv_type) . "<br>";
             return false;
         }
     } else {
         $csv_html .= "invalid arguments for opening csv table<br>";
         return false;
     }
-        
+
     $tp = csv_file_type($file_type);
     if ($tp) {
         $params = csv_parameters($tp);
     } else {
         csv_edihist_log("csv_to_html error: incorrect file type $file_type");
-        $csv_html .= "csv_to_html error: incorrect file type $file_type <br />".PHP_EOL;
+        $csv_html .= "csv_to_html error: incorrect file type " . text($file_type) . " <br />".PHP_EOL;
         return false;
     }
 
@@ -577,14 +577,14 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
     //
     if ($is_date) {
         //$csv_html .= "<div id='dttl'>".PHP_EOL;
-        $csv_html .= "<h4>Table: $tp_lbl &nbsp;$tp &nbsp; Start: $datestart &nbsp; End: $dateend &nbsp;Rows: $rwct &nbsp;Shown: $ln_ct</h4>".PHP_EOL;
+        $csv_html .= "<h4>Table: " . text($tp_lbl) . " &nbsp;" . text($tp) . " &nbsp; Start: " . text($datestart) . " &nbsp; End: " . text($dateend) . " &nbsp;Rows: " . text($rwct) . " &nbsp;Shown: " . text($ln_ct) . "</h4>".PHP_EOL;
         //$csv_html .= "</div>".PHP_EOL;
     } elseif ($is_period) {
         //div id='dttl'></div>
-        $csv_html .= "<h4>Table: $tp_lbl &nbsp;$tp &nbsp;From Date: $dtpdlbl &nbsp;Rows: $rwct &nbsp;Shown: $ln_ct</h4>".PHP_EOL;
+        $csv_html .= "<h4>Table: " . text($tp_lbl) . " &nbsp;" . text($tp) . " &nbsp;From Date: " . text($dtpdlbl) . " &nbsp;Rows: " . text($rwct) . " &nbsp;Shown: " . text($ln_ct) . "</h4>".PHP_EOL;
     } else {
         //<div id='dttl'></div>
-        $csv_html .= "<h4>Table: $tp_lbl &nbsp;$tp &nbsp;All Dates Rows: $rwct &nbsp; Shown: $ln_ct</h4>".PHP_EOL;
+        $csv_html .= "<h4>Table: " . text($tp_lbl) . " &nbsp;" . text($tp) . " &nbsp;All Dates Rows: " . text($rwct) . " &nbsp; Shown: " . text($ln_ct) . "</h4>".PHP_EOL;
     }
 
     //
@@ -604,28 +604,28 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
             //array('Date', 'FileName', 'Control', 'Trace', 'Claim_ct', 'Denied', 'Payer')
             foreach ($csv_d as $val) {
                 $bgc = ($idx % 2 == 1 ) ? 'odd' : 'even';
-                $csv_html .= "<tr class='$bgc'>".PHP_EOL;
+                $csv_html .= "<tr class='" . attr($bgc) . "'>".PHP_EOL;
                 foreach ($val as $k => $v) {
                     if ($k == 'Date') {
-                        $csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text(substr($v, 0, 4)) . '-' . text(substr($v, 4, 2)) . '-' . text(substr($v, 6, 2)) . "</td>".PHP_EOL;
                     } elseif ($k == 'FileName') {
                         $fn = $v;
-                        $csv_html .= "<td><a class='$cls' href='edih_main.php?gtbl=file&fname=$v&ftype=$tp&fmt=htm'>$v</a></td>".PHP_EOL;
+                        $csv_html .= "<td><a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($v)) . "&ftype=" . attr(urlencode($tp)) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($v) . "</a></td>".PHP_EOL;
                     } elseif ($k == 'Control') {
-                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&icn=$v&ftype=$tp&fmt=seg'>$v</a></td>".PHP_EOL;
+                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&icn=" . attr(urlencode($v)) . "&ftype=" . attr(urlencode($tp)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($v) . "</a></td>".PHP_EOL;
                     } elseif ($k == 'Trace') {
                         $trc = $v;
-                        $csv_html .= "<td><a class='$cls' href='edih_main.php?gtbl=file&trace=$v&ftype=$tp&rsptype=$tp&fmt=htm'>$v</a></td>".PHP_EOL;
+                        $csv_html .= "<td><a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&trace=" . attr(urlencode($v)) . "&ftype=" . attr(urlencode($tp)) . "&rsptype=" . attr(urlencode($tp)) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($v) . "</a></td>".PHP_EOL;
                     } elseif ($k == 'Claim_ct') {
-                        $csv_html .= "<td>$v <a class='sub' href='edih_main.php?tracecheck=$trc&ckprocessed=yes'><em>P?</em></a></td>".PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . " <a class='sub' href='edih_main.php?tracecheck=" . attr(urlencode($trc)) . "&ckprocessed=yes&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'><em>P?</em></a></td>".PHP_EOL;
                     } elseif ($k == 'Denied') {
                         if ((int)$v > 0) {
-                            $csv_html .= "<td><a class='sub' href='edih_main.php?chkdenied=yes&fname=$fn&ftype=$tp&trace=$trc'>$v</a></td>".PHP_EOL;
+                            $csv_html .= "<td><a class='sub' href='edih_main.php?chkdenied=yes&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&trace=" . attr(urlencode($trc)) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($v) . "</a></td>".PHP_EOL;
                         } else {
-                            $csv_html .= "<td>$v</td>".PHP_EOL;
+                            $csv_html .= "<td>" . text($v) . "</td>".PHP_EOL;
                         }
                     } else {
-                        $csv_html .= "<td>$v</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . "</td>".PHP_EOL;
                     }
                 }
 
@@ -636,25 +636,25 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
             //array('Date', 'FileName', 'Control', 'Trace', 'RspType', 'RejCt')
             foreach ($csv_d as $val) {
                 $bgc = ($idx % 2 == 1 ) ? 'odd' : 'even';
-                $csv_html .= "<tr class='$bgc'>".PHP_EOL;
+                $csv_html .= "<tr class='" . attr($bgc) . "'>".PHP_EOL;
                 //
                 $rsp = $val['RspType'];
                 foreach ($val as $k => $v) {
                     if ($k == 'Date') {
-                        $csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text(substr($v, 0, 4)) . '-' . text(substr($v, 4, 2)) . '-' . text(substr($v, 6, 2)) ."</td>".PHP_EOL;
                     } elseif ($k == 'FileName') {
                         $fn = $v;
-                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&fname=$v&ftype=$tp&fmt=seg'>$v</a></td>".PHP_EOL;
+                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($v)) . "&ftype=" . attr(urlencode($tp)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($v) . "</a></td>".PHP_EOL;
                     } elseif ($k == 'Trace') {
-                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&trace=$v&ftype=$tp&rsptype=$rsp&fmt=seg'>$v</a></td>".PHP_EOL;
+                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&trace=" . attr(urlencode($v)) . "&ftype=" . attr(urlencode($tp)) . "&rsptype=" . attr(urlencode($rsp)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($v) . "</a></td>".PHP_EOL;
                     } elseif ($k == 'RejCt') {
                         if ((int)$v > 0) {
-                            $csv_html .= "<td><a class='rpt' href='edih_main.php?chkdenied=yes&fname=$fn&ftype=$tp'>$v</a></td>".PHP_EOL;
+                            $csv_html .= "<td><a class='rpt' href='edih_main.php?chkdenied=yes&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($v) . "</a></td>".PHP_EOL;
                         } else {
-                            $csv_html .= "<td>$v</td>".PHP_EOL;
+                            $csv_html .= "<td>" . text($v) . "</td>".PHP_EOL;
                         }
                     } else {
-                        $csv_html .= "<td>$v</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . "</td>".PHP_EOL;
                     }
                 }
 
@@ -667,22 +667,22 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
             // the generic case -- for 'file' type tables
             foreach ($csv_d as $val) {
                 $bgc = ($idx % 2 == 1 ) ? 'odd' : 'even';
-                $csv_html .= "<tr class='$bgc'>".PHP_EOL;
+                $csv_html .= "<tr class='" . attr($bgc) . "'>".PHP_EOL;
                 foreach ($val as $k => $v) {
                     if ($k == 'Date') {
-                        $csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text(substr($v, 0, 4)) . '-' . text(substr($v, 4, 2)) . '-' . text(substr($v, 6, 2)) . "</td>".PHP_EOL;
                     } elseif ($k == 'FileName') {
-                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&fname=$v&ftype=$tp&fmt=htm'>$v</a></td>".PHP_EOL;
+                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($v)) . "&ftype=" . attr(urlencode($tp)) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($v) . "</a></td>".PHP_EOL;
                     } elseif ($k == 'Control') {
-                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&icn=$v&ftype=$tp&fmt=seg'>$v</a></td>".PHP_EOL;
+                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&icn=" . attr(urlencode($v)) . "&ftype=" . attr(urlencode($tp)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($v) . "</a></td>".PHP_EOL;
                     } elseif ($k == 'Reject') {
                         if ((int)$v > 0) {
-                            $csv_html .= "<td><a class='sub' href='edih_main.php?&chkdenied=yes&fname={$val['FileName']}&ftype=$tp'>$v</a></td>".PHP_EOL;
+                            $csv_html .= "<td><a class='sub' href='edih_main.php?&chkdenied=yes&fname=" . attr(urlencode($val['FileName'])) . "&ftype=" . attr(urlencode($tp)) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($v) . "</a></td>".PHP_EOL;
                         } else {
-                            $csv_html .= "<td>$v</td>".PHP_EOL;
+                            $csv_html .= "<td>" . text($v) . "</td>".PHP_EOL;
                         }
                     } else {
-                        $csv_html .= "<td>$v</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . "</td>".PHP_EOL;
                     }
                 }
 
@@ -696,18 +696,18 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
             // array('PtName', 'SvcDate', 'CLM01', 'InsLevel', 'Control', 'FileName', 'Fee', 'PtPaid', 'Provider' );
             foreach ($csv_d as $val) {
                 $bgc = ($idx % 2 == 1 ) ? 'odd' : 'even';
-                $csv_html .= "<tr class='$bgc'>".PHP_EOL;
+                $csv_html .= "<tr class='" . attr($bgc) . "'>".PHP_EOL;
                 // needed values for links
                 $fn = $val['FileName'];
                 foreach ($val as $k => $v) {
                     if ($k == 'CLM01') {
-                        $csv_html .= "<td><a class='sub' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$tp&pid=$v'>$v</a></td>".PHP_EOL;
+                        $csv_html .= "<td><a class='sub' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&pid=" . attr(urlencode($v)) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($v) . "</a></td>".PHP_EOL;
                     } elseif ($k == 'SvcDate') {
-                        $csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text(substr($v, 0, 4)) . '-' . text(substr($v, 4, 2)) . '-' . text(substr($v, 6, 2)) . "</td>".PHP_EOL;
                     } elseif ($k == 'FileName') {
-                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&fname=$fn&ftype=$tp&fmt=seg'>$v</a></td>".PHP_EOL;
+                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($v) . "</a></td>".PHP_EOL;
                     } else {
-                        $csv_html .= "<td>$v</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . "</td>".PHP_EOL;
                     }
                 }
 
@@ -718,23 +718,23 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
             // array('PtName', 'SvcDate', 'CLM01', 'Status', 'Trace', 'FileName', 'ClaimID', 'Pmt', 'PtResp', 'Payer')
             foreach ($csv_d as $val) {
                 $bgc = ($idx % 2 == 1 ) ? 'odd' : 'even';
-                $csv_html .= "<tr class='$bgc'>".PHP_EOL;
+                $csv_html .= "<tr class='" . attr($bgc) . "'>".PHP_EOL;
                 // needed values for links
                 $fn = $val['FileName'];
                 $pid = $val['CLM01'];
                 foreach ($val as $k => $v) {
                     if ($k == 'SvcDate') {
-                        $csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text(substr($v, 0, 4)) . '-' . text(substr($v, 4, 2)) . '-' . text(substr($v, 6, 2)) . "</td>".PHP_EOL;
                     } elseif ($k == 'CLM01') {
-                        $csv_html .= "<td>$v <a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$tp&pid=$pid&fmt=htm'>H</a>&nbsp;";
-                        $csv_html .= "&nbsp;<a class='seg' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$tp&pid=$pid&fmt=seg'>T</a></td>".PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . " <a class='" . attr($cls) . "' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&pid=" . attr(urlencode($pid)) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>H</a>&nbsp;";
+                        $csv_html .= "&nbsp;<a class='seg' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&pid=" . attr(urlencode($pid)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>T</a></td>".PHP_EOL;
                     } elseif ($k == 'Trace') {
-                        $csv_html .= "<td><a class='$cls' href='edih_main.php?gtbl=file&fname=$fn&trace=$v&ftype=$tp&fmt=htm'>$v</a></td>".PHP_EOL;
+                        $csv_html .= "<td><a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($fn)) . "&trace=" . attr(urlencode($v)) . "&ftype=" . attr(urlencode($tp)) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($v) . "</a></td>".PHP_EOL;
                     } elseif ($k == 'FileName') {
-                        $csv_html .= "<td title='$v'>File <a class='$cls' href='edih_main.php?gtbl=file&fname=$fn&ftype=$tp&fmt=htm'>H</a>&nbsp;";
-                        $csv_html .= "&nbsp;<a class='$cls' href='edih_main.php?gtbl=file&fname=$fn&ftype=$tp&fmt=seg'>T</a></td>".PHP_EOL;
+                        $csv_html .= "<td title='" . attr($v) . "'>File <a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>H</a>&nbsp;";
+                        $csv_html .= "&nbsp;<a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>T</a></td>".PHP_EOL;
                     } else {
-                        $csv_html .= "<td>$v</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . "</td>".PHP_EOL;
                     }
                 }
 
@@ -745,24 +745,24 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
             // array('PtName', 'SvcDate', 'CLM01', 'Status', 'BHT03', 'FileName', 'Payer', 'Ins_ID', 'Trace');
             foreach ($csv_d as $val) {
                 $bgc = ($idx % 2 == 1 ) ? 'odd' : 'even';
-                $csv_html .= "<tr class='{$bgc}'>".PHP_EOL;
+                $csv_html .= "<tr class='" . attr($bgc) . "'>".PHP_EOL;
                 // needed values for links
                 $fn = $val['FileName'];
                 $bht03 = $val['BHT03'];
                 $trc = $val['CLM01'];
                 foreach ($val as $k => $v) {
                     if ($k == 'SvcDate') {
-                        $csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text(substr($v, 0, 4)) . '-' . text(substr($v, 4, 2)) . '-' . text(substr($v, 6, 2)) . "</td>".PHP_EOL;
                     } elseif ($k == 'CLM01') {
-                        $csv_html .= "<td><a class='sub' href='edih_main.php?gtbl=claim&trace=$v&ftype=$tp&rsptype=f837&fmt=seg'>$v</a></td>".PHP_EOL;
+                        $csv_html .= "<td><a class='sub' href='edih_main.php?gtbl=claim&trace=" . attr(urlencode($v)) . "&ftype=" . attr(urlencode($tp)) . "&rsptype=f837&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($v) . "</a></td>".PHP_EOL;
                     } elseif ($k == 'BHT03') {
-                        $csv_html .= "<td>$v <a class='rsp' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$tp&bht03=$v&fmt=htm'>H</a>&nbsp;";
-                        $csv_html .= "&nbsp;<a class='seg' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$tp&bht03=$v&fmt=seg'>T</a></td>".PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . " <a class='rsp' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&bht03=" . attr(urlencode($v)) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>H</a>&nbsp;";
+                        $csv_html .= "&nbsp;<a class='seg' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&bht03=" . attr(urlencode($v)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>T</a></td>".PHP_EOL;
                     } elseif ($k == 'FileName') {
-                        $csv_html .= "<td title='$v'>File <a class='rsp' href='edih_main.php?gtbl=file&fname=$v&ftype=$tp&fmt=htm'>H</a>&nbsp;";
-                        $csv_html .= "&nbsp;<a class='seg' href='edih_main.php?gtbl=file&fname=$v&ftype=$tp&fmt=seg'>T</a></td>".PHP_EOL;
+                        $csv_html .= "<td title='" . attr($v) . "'>File <a class='rsp' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($v)) . "&ftype=" . attr(urlencode($tp)) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>H</a>&nbsp;";
+                        $csv_html .= "&nbsp;<a class='seg' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($v)) . "&ftype=" . attr(urlencode($tp)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>T</a></td>".PHP_EOL;
                     } else {
-                        $csv_html .= "<td>$v</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . "</td>".PHP_EOL;
                     }
                 }
 
@@ -773,23 +773,23 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
             // array('PtName', 'ReqDate', 'CLM01', 'InsBnft', 'BHT03', 'FileName', 'Payer', 'Trace');
             foreach ($csv_d as $val) {
                 $bgc = ($idx % 2 == 1 ) ? 'odd' : 'even';
-                $csv_html .= "<tr class='$bgc'>".PHP_EOL;
+                $csv_html .= "<tr class='" . attr($bgc) . "'>".PHP_EOL;
                 // needed values for links
                 $fn = $val['FileName'];
                 $bht03 = $val['BHT03'];
                 $trc = $val['CLM01'];
                 foreach ($val as $k => $v) {
                     if ($k == 'ReqDate') {
-                        $csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text(substr($v, 0, 4)) . '-' . text(substr($v, 4, 2)) . '-' . text(substr($v, 6, 2)) . "</td>".PHP_EOL;
                     } elseif ($k == 'CLM01') {
-                        $csv_html .= "<td><a class='sub' href='edih_main.php?gtbl=claim&trace=$v&ftype=$tp&rsptype=f837&fmt=seg'>$v</a></td>".PHP_EOL;
+                        $csv_html .= "<td><a class='sub' href='edih_main.php?gtbl=claim&trace=" . attr(urlencode($v)) . "&ftype=" . attr(urlencode($tp)) . "&rsptype=f837&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($v) . "</a></td>".PHP_EOL;
                     } elseif ($k == 'BHT03') {
-                        $csv_html .= "<td>$v <a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$tp&bht03=$v&fmt=htm'>H</a>&nbsp;";
-                        $csv_html .= "&nbsp;<a class='seg' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$tp&bht03=$v&fmt=seg'>T</a></td>".PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . " <a class='" . attr($cls) . "' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&bht03=" . attr(urlencode($v)) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>H</a>&nbsp;";
+                        $csv_html .= "&nbsp;<a class='seg' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&bht03=" . attr(urlencode($v)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>T</a></td>".PHP_EOL;
                     } elseif ($k == 'FileName') {
-                        $csv_html .= "<td><a class='$cls' href='edih_main.php?gtbl=file&fname=$fn&ftype=$tp&fmt=seg'>$v</a></td>".PHP_EOL;
+                        $csv_html .= "<td><a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($v) . "</a></td>".PHP_EOL;
                     } else {
-                        $csv_html .= "<td>$v</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . "</td>".PHP_EOL;
                     }
                 }
 
@@ -800,19 +800,19 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
             // array('PtName', 'ReqDate', 'Trace', 'InsBnft', 'BHT03', 'FileName', 'Payer');
             foreach ($csv_d as $val) {
                 $bgc = ($idx % 2 == 1 ) ? 'odd' : 'even';
-                $csv_html .= "<tr class='$bgc'>".PHP_EOL;
+                $csv_html .= "<tr class='" . attr($bgc) . "'>".PHP_EOL;
                 // needed values for links
                 $fn = $val['FileName'];
                 $bht03 = $val['BHT03'];
                 foreach ($val as $k => $v) {
                     if ($k == 'ReqDate') {
-                        $csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text(substr($v, 0, 4)) . '-' . text(substr($v, 4, 2)) . '-' . text(substr($v, 6, 2)) . "</td>".PHP_EOL;
                     } elseif ($k == 'BHT03') {
-                        $csv_html .= "<td> <a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$tp&bht03=$v&fmt=seg'>$v</a></td>".PHP_EOL;
+                        $csv_html .= "<td> <a class='" . attr($cls) . "' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&bht03=" . attr(urlencode($v)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($v) . "</a></td>".PHP_EOL;
                     } elseif ($k == 'FileName') {
-                        $csv_html .= "<td><a class='$cls' href='edih_main.php?gtbl=file&fname=$fn&ftype=$tp&fmt=seg'>$v</a></td>".PHP_EOL;
+                        $csv_html .= "<td><a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($v) . "</a></td>".PHP_EOL;
                     } else {
-                        $csv_html .= "<td>$v</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . "</td>".PHP_EOL;
                     }
                 }
 
@@ -823,21 +823,21 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
             // array('PtName', 'RspDate', 'Trace', 'Status', 'BHT03', 'FileName', 'Payer');
             foreach ($csv_d as $val) {
                 $bgc = ($idx % 2 == 1 ) ? 'odd' : 'even';
-                $csv_html .= "<tr class='$bgc'>".PHP_EOL;
+                $csv_html .= "<tr class='" . attr($bgc) . "'>".PHP_EOL;
                 // needed values for links
                 $fn = $val['FileName'];
                 $bht03 = $val['BHT03'];
                 foreach ($val as $k => $v) {
                     if ($k == 'RspDate') {
-                        $csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text(substr($v, 0, 4)) . '-' . text(substr($v, 4, 2)) . '-' . text(substr($v, 6, 2)) . "</td>".PHP_EOL;
                     } elseif ($k == 'BHT03') {
-                        $csv_html .= "<td>$v <a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$tp&bht03=$v&fmt=htm'>H</a>&nbsp;".PHP_EOL;
-                        $csv_html .= "&nbsp;<a class='seg' target='_blank' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$tp&bht03=$v&fmt=seg'>T</a></td>".PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . " <a class='" . attr($cls) . "' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&bht03=" . attr(urlencode($v)) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>H</a>&nbsp;".PHP_EOL;
+                        $csv_html .= "&nbsp;<a class='seg' target='_blank' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&bht03=" . attr(urlencode($v)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>T</a></td>".PHP_EOL;
                     } elseif ($k == 'FileName') {
-                        $csv_html .= "<td title='$v'> File <a class='$cls' href='edih_main.php?gtbl=file&fname=$fn&ftype=$tp&fmt=htm'>H</a>&nbsp;";
-                        $csv_html .= "&nbsp;<a class='$cls' href='edih_main.php?gtbl=file&fname=$fn&ftype=$tp&fmt=seg'>T</a></td>".PHP_EOL;
+                        $csv_html .= "<td title='" . attr($v) . "'> File <a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>H</a>&nbsp;";
+                        $csv_html .= "&nbsp;<a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>T</a></td>".PHP_EOL;
                     } else {
-                        $csv_html .= "<td>$v</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . "</td>".PHP_EOL;
                     }
                 }
 
@@ -848,19 +848,19 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
             // array('PtName', 'FileDate', 'Trace', 'Status', 'BHT03', 'FileName', 'Auth', 'Payer')
             foreach ($csv_d as $val) {
                 $bgc = ($idx % 2 == 1 ) ? 'odd' : 'even';
-                $csv_html .= "<tr class='$bgc'>".PHP_EOL;
+                $csv_html .= "<tr class='" . attr($bgc) . "'>".PHP_EOL;
                 // needed values for links
                 $fn = $val['FileName'];
                 $bht03 = $val['BHT03'];
                 foreach ($val as $k => $v) {
                     if ($k == 'FileDate') {
-                        $csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text(substr($v, 0, 4)) . '-' . text(substr($v, 4, 2)) . '-' . text(substr($v, 6, 2)) . "</td>".PHP_EOL;
                     } elseif ($k == 'BHT03') {
-                        $csv_html .= "<td>$v <a class='$cls' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$tp&bht03=$v&fmt=htm'>H</a>&nbsp;".PHP_EOL;
-                        $csv_html .= "&nbsp;<a class='seg' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$tp&bht03=$v&fmt=seg'>T</a></td>".PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . " <a class='" . attr($cls) . "' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&bht03=" . attr(urlencode($v)) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>H</a>&nbsp;".PHP_EOL;
+                        $csv_html .= "&nbsp;<a class='seg' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&bht03=" . attr(urlencode($v)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>T</a></td>".PHP_EOL;
                     } elseif ($k == 'FileName') {
-                        $csv_html .= "<td title='$v'> File <a class='$cls' href='edih_main.php?gtbl=file&fname=$v&ftype=$tp&fmt=htm'>H</a>&nbsp;";
-                        $csv_html .= "&nbsp;<a class='$cls' href='edih_main.php?gtbl=file&fname=$v&ftype=$tp&fmt=seg'>T</a></td>".PHP_EOL;
+                        $csv_html .= "<td title='" . attr($v) . "'> File <a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($v)) . "&ftype=" . attr(urlencode($tp)) . "&fmt=htm&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>H</a>&nbsp;";
+                        $csv_html .= "&nbsp;<a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($v)) . "&ftype=" . attr(urlencode($tp)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>T</a></td>".PHP_EOL;
                     } else {
                         $csv_html .= "<td>$v</td>".PHP_EOL;
                     }
@@ -880,15 +880,15 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                 $err = $val['err_seg'];
                 foreach ($val as $k => $v) {
                     if ($k == 'RspDate') {
-                        $csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text(substr($v, 0, 4)) .'-' . text(substr($v, 4, 2)) . '-' . text(substr($v, 6, 2)) . "</td>".PHP_EOL;
                     } elseif ($k == 'FileName') {
-                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&fname=$v&ftype=$tp&fmt=seg'>$v</a></td>".PHP_EOL;
+                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($v)) . "&ftype=" . attr(urlencode($tp)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($v) . "</a></td>".PHP_EOL;
                     } elseif ($k == 'Trace') {
-                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$tp&trace=$v&rsptype=$rsp&err=$err&fmt=seg'>$v</a></td>".PHP_EOL;
+                        $csv_html .= "<td><a class='seg' href='edih_main.php?gtbl=claim&fname=" . attr(urlencode($fn)) . "&ftype=" . attr(urlencode($tp)) . "&trace=" . attr(urlencode($v)) . "&rsptype=" . attr(urlencode($rsp)) . "&err=" . attr(urlencode($err)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($v) . "</a></td>".PHP_EOL;
                     } elseif ($k == 'err_seg') {
-                        $csv_html .= "<td title='$v'>".substr($v, 0, 8)."...</td>".PHP_EOL;
+                        $csv_html .= "<td title='" . attr($v) . "'>" . text(substr($v, 0, 8)) . "...</td>".PHP_EOL;
                     } else {
-                        $csv_html .= "<td>$v</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . "</td>".PHP_EOL;
                     }
                 }
 
@@ -899,12 +899,12 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
             // all types in the tables are covered in an elseif, so this is unexpected
             foreach ($csv_d as $val) {
                 $bgc = ($idx % 2 == 1 ) ? 'odd' : 'even';
-                $csv_html .= "<tr class='$bgc'>".PHP_EOL;
+                $csv_html .= "<tr class='" . attr($bgc) . "'>".PHP_EOL;
                 foreach ($val as $k => $v) {
                     if ($k == 'FileName') {
-                        $csv_html .= "<td><a class='$cls' href='edih_main.php?gtbl=file&fname=$v&ftype=$tp&fmt=seg'>$v</a></td>".PHP_EOL;
+                        $csv_html .= "<td><a class='" . attr($cls) . "' href='edih_main.php?gtbl=file&fname=" . attr(urlencode($v)) . "&ftype=" . attr(urlencode($tp)) . "&fmt=seg&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "'>" . text($v) . "</a></td>".PHP_EOL;
                     } else {
-                        $csv_html .= "<td>$v</td>".PHP_EOL;
+                        $csv_html .= "<td>" . text($v) . "</td>".PHP_EOL;
                     }
                 }
 

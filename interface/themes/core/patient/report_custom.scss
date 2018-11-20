@@ -74,3 +74,10 @@
 #report_custom .encounter_form {
     border-top: 1px solid gray;
 }
+
+@include if-rtl {
+    #report_custom .encounter_form {
+        margin: 10px;
+        padding: 10px;
+    }
+}

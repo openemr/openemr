@@ -183,8 +183,8 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
                 array($lab_id, $procedure_code)
             );
             if (!empty($trow['standard_code'])) {
-                  $tmp = "<a href='javascript:educlick(\"LOINC\",\"" . attr($trow['standard_code']) .
-                    "\")'>$tmp</a>";
+                  $tmp = "<a href='javascript:educlick(\"LOINC\"," . attr_js($trow['standard_code']) .
+                    ")'>$tmp</a>";
             }
         }
 
@@ -225,8 +225,8 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
     if ($result_code !== '' || $result_document_id) {
         $tmp = myCellText($result_code);
         if (empty($GLOBALS['PATIENT_REPORT_ACTIVE']) && !empty($result_code)) {
-            $tmp = "<a href='javascript:educlick(\"LOINC\",\"" . attr($result_code) .
-            "\")'>$tmp</a>";
+            $tmp = "<a href='javascript:educlick(\"LOINC\"," . attr_js($result_code) .
+            ")'>$tmp</a>";
         }
 
         echo "  <td>$tmp</td>\n";
@@ -248,7 +248,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
             echo "  <td colspan='3'>";
             if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
                 echo "<a href='" . $GLOBALS['webroot'] . "/controller.php?document";
-                echo "&retrieve&patient_id=$patient_id&document_id=$result_document_id' ";
+                echo "&retrieve&patient_id=" . attr_url($patient_id) . "&document_id=" . attr_url($result_document_id) . "' ";
                 echo "onclick='top.restoreSession()'>";
             }
 
@@ -415,7 +415,7 @@ function showpnotes(orderid) {
      }
      var othername = (w.name == 'RTop') ? 'RBot' : 'RTop';
      w.parent.left_nav.forceDual();
-     w.parent.left_nav.loadFrame('pno1', othername, 'patient_file/summary/pnotes_full.php?orderid=' + orderid);
+     w.parent.left_nav.loadFrame('pno1', othername, 'patient_file/summary/pnotes_full.php?orderid=' + encodeURIComponent(orderid));
  } else {
      let url = '../../patient_file/summary/pnotes_full.php?orderid=' + orderid;
      dlgopen(url, 'notes', 750, 500, '', '', {onClosed: 'reload'});
@@ -428,7 +428,7 @@ function educlick(codetype, codevalue) {
   dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/education.php' +
     '?type=' + encodeURIComponent(codetype) +
     '&code=' + encodeURIComponent(codevalue) +
-    '&language=<?php echo urlencode($language); ?>',
+    '&language=' + <?php echo js_url($language); ?>,
     '_blank', 1024, 750,true); // Force a new window instead of iframe to address cross site scripting potential
 }
 
@@ -437,7 +437,7 @@ function educlick(codetype, codevalue) {
 <?php } // end if not patient report ?>
 
 <?php if ($input_form) { ?>
-<form method='post' action='single_order_results.php?orderid=<?php echo $orderid; ?>'>
+<form method='post' action='single_order_results.php?orderid=<?php echo attr_url($orderid); ?>'>
 <?php } // end if input form ?>
 
 <div class='labres'>
@@ -452,7 +452,7 @@ function educlick(codetype, codevalue) {
 if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
     echo "   <a href='" . $GLOBALS['webroot'];
     echo "/interface/orders/order_manifest.php?orderid=";
-    echo attr($orow['procedure_order_id']);
+    echo attr_url($orow['procedure_order_id']);
     echo "' target='_blank' onclick='top.restoreSession()'>";
 }
 
@@ -635,7 +635,7 @@ if (!empty($aNotes)) {
     echo " </tr>\n";
     foreach ($aNotes as $key => $value) {
         echo " <tr>\n";
-        echo "  <td valign='top'>" . ($key + 1) . "</td>\n";
+        echo "  <td valign='top'>" . text(($key + 1)) . "</td>\n";
       // <pre> tag because white space and a fixed font are often used to line things up.
         echo "  <td><pre style='white-space:pre-wrap;'>" . text($value) . "</pre></td>\n";
         echo " </tr>\n";
@@ -656,7 +656,7 @@ if (!empty($aNotes)) {
 <?php if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) { ?>
    &nbsp;
    <input type='button' value='<?php echo xla('Related Patient Notes'); ?>'
-    onclick='showpnotes(<?php echo $orderid; ?>)' />
+    onclick='showpnotes(<?php echo attr_js($orderid); ?>)' />
 <?php } ?>
 <?php if ($input_form && $ctx['sign_list']) { ?>
    &nbsp;

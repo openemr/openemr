@@ -2,17 +2,17 @@
 /**
  * Therapy group data template.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Robert Down <robertdown@live.com>
- * @author  Kevin Yeh <kevin.y@integralemr.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @author  Amiel Elboim <amielel@matrix.co.il>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Robert Down <robertdown@live.com>
+ * @author    Kevin Yeh <kevin.y@integralemr.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Amiel Elboim <amielel@matrix.co.il>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2016 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Amiel Elboim <amielel@matrix.co.il>
  * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 ?>
 

@@ -1,33 +1,29 @@
 <?php
 //------------report.php
-include_once(dirname(__FILE__).'/../../globals.php');
-include_once("../../../library/api.inc");
-include_once("content_parser.php");
+require_once(dirname(__FILE__).'/../../globals.php');
+require_once("../../../library/api.inc");
+require_once("content_parser.php");
 function CAMOS_report($pid, $encounter, $cols, $id)
 {
     $data = formFetch("form_CAMOS", $id);
     if ($data) {
-        //echo "(category) ".stripslashes($data['category'])." | ";
-        //echo "(subcategory) ".stripslashes($data['subcategory'])." | ";
-        //echo "(item) ".stripslashes($data['item']);
         echo "<div class='navigateLink'><a href='" . $GLOBALS['webroot'] .
-        "/interface/forms/CAMOS/rx_print.php?sigline=embossed' target=_new>" . xl('Rx') . "</a>\n";
+        "/interface/forms/CAMOS/rx_print.php?sigline=embossed' target=_new>" . xlt('Rx') . "</a>\n";
         echo " | ";
         echo "<a href='" . $GLOBALS['webroot'] .
-        "/interface/forms/CAMOS/rx_print.php?sigline=signed' target=_new>" . xl('Signed Rx') . "</a>\n";
+        "/interface/forms/CAMOS/rx_print.php?sigline=signed' target=_new>" . xlt('Signed Rx') . "</a>\n";
         echo "<br>";
         echo "<a href='" . $GLOBALS['webroot'] .
-        "/interface/forms/CAMOS/rx_print.php?letterhead=true&signer=patient' target=_new>" . xl('Letterhead that patient signs') . "</a>\n";
+        "/interface/forms/CAMOS/rx_print.php?letterhead=true&signer=patient' target=_new>" . xlt('Letterhead that patient signs') . "</a>\n";
         echo " | ";
         echo "<a href='" . $GLOBALS['webroot'] .
-        "/interface/forms/CAMOS/rx_print.php?letterhead=true&signer=doctor' target=_new>" . xl('Letterhead that doctor signs') . "</a>\n";
+        "/interface/forms/CAMOS/rx_print.php?letterhead=true&signer=doctor' target=_new>" . xlt('Letterhead that doctor signs') . "</a>\n";
         echo "<br>";
         echo "<a href='" . $GLOBALS['webroot'] .
-        "/interface/forms/CAMOS/notegen.php?pid=".$pid."&encounter=".$encounter."' target=_new>" . xl('Print This Encounter') . "</a>\n";
+        "/interface/forms/CAMOS/notegen.php?pid=".$pid."&encounter=".$encounter."' target=_new>" . xlt('Print This Encounter') . "</a>\n";
         echo " | ";
         echo "<a href='" . $GLOBALS['webroot'] .
-        "/interface/forms/CAMOS/notegen.php' target=_new>" . xl('Print Any Encounter') . "</a></div>\n";
-    //    echo "<pre>".wordwrap(stripslashes(content_parser($data['content'])))."</pre><hr>\n";
-        echo "<pre>".wordwrap(stripslashes(replace($pid, $encounter, $data['content'])))."</pre><hr>\n";
+        "/interface/forms/CAMOS/notegen.php' target=_new>" . xlt('Print Any Encounter') . "</a></div>\n";
+        echo "<pre>".text(wordwrap(stripslashes(replace($pid, $encounter, $data['content']))))."</pre><hr>\n";
     }
 }

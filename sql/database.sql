@@ -5438,7 +5438,7 @@ CREATE TABLE `onsite_messages` (
   `message` longtext,
   `ip` varchar(15) NOT NULL,
   `date` datetime NOT NULL,
-  `sender_id` int(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'who sent id',
+  `sender_id` VARCHAR(64) NULL COMMENT 'who sent id',
   `recip_id` varchar(255) NOT NULL COMMENT 'who to id array',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB COMMENT='Portal messages' AUTO_INCREMENT=1 ;
@@ -7150,6 +7150,8 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 ('ICD10', 'CMS', '2017-10-01', '2018-ICD-10-Code-Descriptions.zip', '6f9c77440132e30f565222ca9bb6599c');
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2017-10-01', '2018-ICD-10-PCS-General-Equivalence-Mappings.zip', 'bb73c80e272da28712887d7979b1cebf');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2018-10-01', '2019-ICD-10-CM-Code-Descriptions.zip', 'b23e0128eb2dce0cb007c31638a8dc00');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2018-10-01', '2019-ICD-10-PCS-Order-File.zip', 'eb545fe61ada9efad0ad97a669f8671f');
 
 -----------------------------------------------------------
 
@@ -7264,6 +7266,8 @@ CREATE TABLE `users_secure` (
   `salt_history1` varchar(255),
   `password_history2` varchar(255),
   `salt_history2` varchar(255),
+  `last_challenge_response` datetime DEFAULT NULL,
+  `login_work_area` text,
   PRIMARY KEY (`id`),
   UNIQUE KEY `USERNAME_ID` (`id`,`username`)
 ) ENGINE=InnoDb;
@@ -10000,6 +10004,8 @@ CREATE TABLE `form_eye_mag_dispense` (
   `CTLSUPPLIEROS` varchar(25) DEFAULT NULL,
   `CTLBRANDOD` varchar(50) DEFAULT NULL,
   `CTLBRANDOS` varchar(50) DEFAULT NULL,
+  `CTLODQUANTITY` varchar(255) DEFAULT NULL,
+  `CTLOSQUANTITY` varchar(255) DEFAULT NULL,
   `ODDIAM` varchar(50) DEFAULT NULL,
   `ODBC` varchar(50) DEFAULT NULL,
   `OSDIAM` varchar(50) DEFAULT NULL,
@@ -10504,6 +10510,7 @@ CREATE TABLE `medex_prefs` (
   `LABELS_choice` varchar(50) DEFAULT NULL,
   `combine_time` tinyint(4) DEFAULT NULL,
   `postcard_top` varchar(255) DEFAULT NULL,
+  `status` text,
   `MedEx_lastupdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY `ME_username` (`ME_username`)
 ) ENGINE=InnoDB;
@@ -11063,3 +11070,12 @@ CREATE TABLE `form_eye_locking` (
   ) 
   ENGINE = InnoDB;
 
+CREATE TABLE `login_mfa_registrations` (
+  `user_id`         bigint(20)     NOT NULL,
+  `name`            varchar(30)    NOT NULL,
+  `last_challenge`  datetime       DEFAULT NULL,
+  `method`          varchar(31)    NOT NULL COMMENT 'Q&A, U2F, TOTP etc.',
+  `var1`            varchar(4096)  NOT NULL DEFAULT '' COMMENT 'Question, U2F registration etc.',
+  `var2`            varchar(256)   NOT NULL DEFAULT '' COMMENT 'Answer etc.',
+  PRIMARY KEY (`user_id`, `name`)
+) ENGINE=InnoDB;

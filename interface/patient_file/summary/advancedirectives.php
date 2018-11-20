@@ -5,12 +5,13 @@
  * @package OpenEMR
  * @link    http://www.open-emr.org
  * @author  Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-include_once("../../globals.php");
-include_once("$srcdir/options.inc.php");
+require_once("../../globals.php");
+require_once("$srcdir/options.inc.php");
+
 use OpenEMR\Core\Header;
 ?>
 
@@ -22,6 +23,10 @@ use OpenEMR\Core\Header;
 
     <?php
     if ($_POST['form_yesno']) {
+        if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+            csrfNotVerified();
+        }
+
         $form_yesno = filter_input(INPUT_POST, 'form_yesno');
         $form_adreviewed = DateToYYYYMMDD(filter_input(INPUT_POST, 'form_adreviewed'));
         sqlQuery("UPDATE patient_data SET completed_ad = ?, ad_reviewed = ? where pid = ?", array($form_yesno,$form_adreviewed,$pid));
@@ -44,7 +49,7 @@ use OpenEMR\Core\Header;
     <script type="text/javascript" language="JavaScript">
         function validate(f) {
             if (f.form_adreviewed.value == "") {
-                  alert("<?php echo xls('Please enter a date for Last Reviewed.'); ?>");
+                  alert(<?php echo xlj('Please enter a date for Last Reviewed.'); ?>);
                   f.form_adreviewed.focus();
                   return false;
             }
@@ -77,6 +82,7 @@ use OpenEMR\Core\Header;
         <div class="row">
             <div class="col-xs-12">
                 <form action='advancedirectives.php' method='post' onsubmit='return validate(this)'>
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                     <div class="form-group">
                         <label for="form_yesno"><?php echo xlt('Completed'); ?></label>
                         <?php generate_form_field(array('data_type'=>1,'field_id'=>'yesno','list_id'=>'yesno','empty_title'=>'SKIP'), $form_completedad); ?>
@@ -121,7 +127,7 @@ use OpenEMR\Core\Header;
                             $idDoc = $myrows4['id'];
                             ?>
                             <br>
-                            <a href='<?php echo $web_root; ?>/controller.php?document&retrieve&patient_id=<?php echo attr($pid); ?>&document_id=<?php echo attr($idDoc); ?>&as_file=true'>
+                            <a href='<?php echo $web_root; ?>/controller.php?document&retrieve&patient_id=<?php echo attr_url($pid); ?>&document_id=<?php echo attr_url($idDoc); ?>&as_file=true'>
                                 <?php echo text(xl_document_category($nameDoc)); ?>
                             </a>
                             <?php echo text($dateTimeDoc);

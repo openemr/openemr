@@ -5,27 +5,13 @@
  * This Displays an About page for OpenEMR Displaying Version Number, Support Phone Number
  * If it have been entered in Globals along with the Manual and On Line Support Links
  *
- * Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author Terry Hill <terry@lilysystems.com>
- * @author Brady Miller <brady.g.miller@gmail.com>
- * @link http://www.open-emr.org
- *
- * Please help the overall project by sending changes you make to the author and to the OpenEMR community.
- *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Terry Hill <terry@lilysystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -39,7 +25,7 @@ use OpenEMR\Services\VersionService;
 <head>
 
     <?php Header::setupHeader(["jquery-ui","jquery-ui-darkness"]); ?>
-    <title><?php echo xl("About");?> OpenEMR</title>
+    <title><?php echo xlt("About");?> OpenEMR</title>
     <style>
         .donations-needed {
             margin-top: 25px;
@@ -122,11 +108,11 @@ $version = $versionService->fetch();
                 <h4><?php  echo xlt('Version Number'); ?>: <?php echo "v".text($openemr_version) ?></h4>
                 <span class="text product-registration"><span class="email"></span> <span class="id"></span></span><br>
                 <?php if (!empty($GLOBALS['support_phone_number'])) { ?>
-                    <span class="text"><?php  echo xlt('Support Phone Number'); ?>: <?php echo $GLOBALS['support_phone_number'] ?></span><br>
+                    <span class="text"><?php  echo xlt('Support Phone Number'); ?>: <?php echo text($GLOBALS['support_phone_number']); ?></span><br>
                 <?php } ?>
-                <a href="<?php echo "http://open-emr.org/wiki/index.php/OpenEMR_".attr($version->getMajor()).".".attr($version->getMinor()).".".attr($version->getPatch())."_Users_Guide"; ?>" target="_blank" class="btn btn-block btn-default"><i class="fa fa-fw fa-book"></i>&nbsp;<?php echo xlt('User Manual'); ?></a>
+                <a href="<?php echo "http://open-emr.org/wiki/index.php/OpenEMR_" . attr($version->getMajor()) . "." . attr($version->getMinor()) . "." . attr($version->getPatch()) . "_Users_Guide"; ?>" target="_blank" class="btn btn-block btn-default"><i class="fa fa-fw fa-book"></i>&nbsp;<?php echo xlt('User Manual'); ?></a>
                 <?php if (!empty($GLOBALS['online_support_link'])) { ?>
-                    <a href='<?php echo $GLOBALS["online_support_link"]; ?>' target="_blank" class="btn btn-default btn-block"><i class="fa fa-fw fa-question-circle"></i>&nbsp;<?php echo xlt('Online Support'); ?></a>
+                    <a href='<?php echo attr($GLOBALS["online_support_link"]); ?>' target="_blank" class="btn btn-default btn-block"><i class="fa fa-fw fa-question-circle"></i>&nbsp;<?php echo xlt('Online Support'); ?></a>
                 <?php } ?>
                 <a href="../../acknowledge_license_cert.html" target="_blank" class="btn btn-default btn-block"><i class="fa fa-fw fa-info-circle"></i><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></a>
                 <div class="donations-needed">
@@ -139,7 +125,7 @@ $version = $versionService->fetch();
 
     <div class="product-registration-modal" style="display: none">
         <p class="context"><?php echo xlt("Register your installation with OEMR to receive important notifications, such as security fixes and new release announcements."); ?></p>
-        <input placeholder="<?php echo xlt('email'); ?>" type="email" class="email" style="width: 100%; color: black" />
+        <input placeholder="<?php echo xla('email'); ?>" type="email" class="email" style="width: 100%; color: black" />
         <p class="message" style="font-style: italic"></p>
     </div>
 </body>

@@ -51,6 +51,7 @@ class C_Document extends Controller
         $this->assign("category_name", $category_name);
         $this->assign("hide_encryption", $GLOBALS['hide_document_encryption']);
         $this->assign("patient_id", $patient_id);
+        $this->assign("csrf_token_form", collectCsrfToken());
 
         // Added by Rod to support document template download from general_upload.html.
         // Cloned from similar stuff in manage_document_templates.php.
@@ -632,9 +633,11 @@ class C_Document extends Controller
                     header('Expires: 0');
                     header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
                     header('Pragma: public');
+                if (is_file($url)) {
                     $f = fopen($url, "r");
+                }
                 if ($doEncryption) {
-                            $filetext = fread($f, filesize($url));
+                    $filetext = fread($f, filesize($url));
                     $ciphertext = $this->encrypt($filetext, $passphrase);
                     $tmpfilepath = $GLOBALS['temporary_files_dir'];
                     $tmpfilename = "/encrypted_aes_".$d->get_url_file();
@@ -649,12 +652,14 @@ class C_Document extends Controller
                         readfile($tmpfilepath.$tmpfilename);
                         unlink($tmpfilepath.$tmpfilename);
                 } else {
-                    header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename_international($d->get_url()) . "\"");
-                    header("Content-Type: " . $d->get_mimetype());
-                    header("Content-Length: " . filesize($url));
-                    fpassthru($f);
+                    if ($f) {
+                        header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename_international($d->get_url()) . "\"");
+                        header("Content-Type: " . $d->get_mimetype());
+                        header("Content-Length: " . filesize($url));
+                        fpassthru($f);
+                    }
                 }
-                    exit;
+                exit;
             } else {
                 //special case when retrieving a document that has been converted to a jpg and not directly referenced in database
                 $convertedFile = substr(basename_international($url), 0, strrpos(basename_international($url), '.')) . '_converted.jpg';
@@ -666,14 +671,14 @@ class C_Document extends Controller
                 if ($disable_exit == true) {
                     return ;
                 }
-                        header("Pragma: public");
-                        header("Expires: 0");
-                        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-                        header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename_international($url) . "\"");
-                        header("Content-Type: image/jpeg");
-                        header("Content-Length: " . filesize($url));
-                        $f = fopen($url, "r");
-                        fpassthru($f);
+                header("Pragma: public");
+                header("Expires: 0");
+                header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+                header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename_international($url) . "\"");
+                header("Content-Type: image/jpeg");
+                header("Content-Length: " . filesize($url));
+                $f = fopen($url, "r");
+                fpassthru($f);
                 if ($couch_docid && $couch_revid) {
                     fclose($f);
                     unlink($url);

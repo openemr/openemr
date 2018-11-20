@@ -279,7 +279,12 @@ for ($i=0; $i<$bg_count; $i++) {
     <?php } ?>
 
 <TR height="30" style="valign:middle;">
-<td><span class="text">&nbsp;</span></td><td>&nbsp;</td>
+  <td class='text'>
+    <?php echo xlt('Clear 2FA'); ?>:
+  </td>
+  <td title='<?php echo xla('Remove multi-factor authentications for this person.'); ?>'>
+    <input type="checkbox" name="clear_2fa" value='1' />
+  </td>
 <td colspan="2"><span class=text><?php echo xlt('Provider'); ?>:
  <input type="checkbox" name="authorized" onclick="authorized_clicked()"<?php
     if ($iter["authorized"]) {

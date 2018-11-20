@@ -57,7 +57,6 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
         }
     }
 
-    $ip=$_SERVER['REMOTE_ADDR'];
     $_SESSION['loginfailure'] = null;
     unset($_SESSION['loginfailure']);
     //store the very first initial timestamp for timeout errors

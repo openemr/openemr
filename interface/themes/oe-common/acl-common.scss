@@ -25,4 +25,8 @@
     text-decoration: none;
     color: #000000 !important;
 }
+
+#membership_show, #acl_show {
+    margin-#{$right}:4px;
+}
 /*-------------------openemr ACL-------------------*/

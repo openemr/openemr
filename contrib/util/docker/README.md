@@ -1,14 +1,20 @@
-# OpenEMR Local Development Docker
+# OpenEMR Development Docker Environments
 
-This is a development Docker Compose solution for programming OpenEMR. New and
-existing contributors can enjoy the benefits of simply running/testing their
-local code with a single command!
+## There are 2 different development docker environments
 
-_Note: This is only to be used for local development purposes. For
-production-grade docker deployment options, please check out
-[openemr-devops](https://github.com/openemr/openemr-devops)._
+### Easy Development Docker Environment ###
+The Easy Development Docker Environment is what we highly recommend. It makes testing, development, and use
+of a git repository very easy. The instructions for The Easy Development Docker environment can be found here:
+https://github.com/openemr/openemr/blob/master/CONTRIBUTING.md#code-contributions-local-development
 
-## Setup
+---
+
+### Insane Development Docker Environment ###
+The Insane Development Docker Environment will load up about 30 separate dockers and allow you to
+test almost any version of mysql/mariadb/php, however it is not nearly as easy to use as the above Easy Development
+Docker Environment. See below for instructions of use of the Insane Development Docker Environment.
+
+#### Setup
 
 **Step 1.** Install [git](https://git-scm.com/downloads),
 [docker](https://www.docker.com/get-docker) and
@@ -23,13 +29,13 @@ There are 2 different schools of thought on where to run the docker from.
 - Option 1. Run the docker from within your git repository.(this is also where you edit
 scripts in your editor)
 ```bash
-$ cd openemr
+$ cd openemr/contrib/util/docker
 $ docker-compose up -d
 ```
 - Option 2. Run the docker from a separate directory that is synchronized with your git
 repository. For example, if used /var/www/openemr.
 ```bash
- $ cd /var/www/openemr
+ $ cd /var/www/openemr/contrib/util/docker
  $ docker-compose up -d
 ```
 - At this time, I highly recommend option 2 since running OpenEMR will change
@@ -86,7 +92,7 @@ setup input screen:
  - for `Root Pass`, use `root`
  - for `User Hostname`, use `%`
 
-## Stop/Clean Out Dockers
+#### Stop/Clean Out Dockers
 There are frequently times where you will want to remove the dockers and start anew.
 For example, when you change github branches and start testing/developing on a
 different github branch. This is done by first running a command or script
@@ -97,9 +103,9 @@ docker-compose down -v
 docker-compose up -d
 ```
 
-## Usage
+#### Usage
 
-### Examine Containers
+##### Examine Containers
 
 Run `$ docker ps` to see the OpenEMR and MySQL containers in the following format:
 
@@ -139,29 +145,30 @@ on specific containers. For example, to go into a shell script in the
 docker exec -it openemr_openemr-7-1_1 bash
 ```
 
-### Bash Access
+##### Bash Access
 
 ```
 $ docker exec -it <container_NAME> bash
 ```
 
-### MySQL Client Access
-GUI can be accessed via the phpMyAdmin at http://localhost:8200
-
+##### MySQL Client Access
+There are 2 options for gui access:
+ - GUI can be accessed via the phpMyAdmin at http://localhost:8200 for all sql dockers
+ - Or you can directly connect to port 8210 (`mariadb` server only) or 8220 (`mysql` server only) via your favorite sql tool (Mysql Workbench etc.). Note this option is limited to the `mysql` and `mariadb` servers.
 If you are interested in using the MySQL client line as opposed to a GUI program, execute the following (password is passed in/is simple because this is for local development purposes):
 
 ```
 $ docker exec -it <container_NAME> mysql -u root --password=root openemr
 ```
 
-### Apache Error Log Tail
+##### Apache Error Log Tail
 
 ```
 $ docker exec -it <container_NAME> tail -f /var/log/apache2/error.log
 ```
 ...if you want the `access.log`, you can use this approach as well.
 
-### Recommended Development Setup
+##### Recommended Development Setup
 
 While there is no officially recommended toolset for programming OpenEMR,
 many in the community have found
@@ -178,9 +185,9 @@ task that will be completed over night. Feel free to post on
 [the development forums](https://community.open-emr.org/c/openemr-development)
 if you have any questions after reviewing the wiki.
 
-### Ports
+##### Ports
 
-See the `docker-compose.yml` file in the base directory for port details.
+See the `docker-compose.yml` file in the contrib/util/docker directory for port details.
 
 All host machine ports can be changed by editing the `docker-compose.yml` file.
 Host ports differ from the internal container ports by default to avoid conflicts
@@ -188,13 +195,12 @@ services potentially running on the host machine (a web server such as Nginx,
 Tomcat, or Apache2 could be installed on the host machine that makes use of
 port 80, for instance).
 
-### Additional Build Tools
+##### Additional Build Tools
 
-Programmers looking to use OpenEMR's [Bower](http://www.open-emr.org/wiki/index.php/Bower)
-and [Composer](http://www.open-emr.org/wiki/index.php/Composer) build tools can
-simply `bash` into the OpenEMR container and use them as expected.
+Programmers looking to use OpenEMR's and [Composer and NPM](http://www.open-emr.org/wiki/index.php//Composer_and_NPM)
+build tools can simply `bash` into the OpenEMR container and use them as expected.
 
-### CouchDB
+##### CouchDB
 In OpenEMR, CouchDB is an option for the patients document storage. For this reason, a CouchDB
 docker is included in this OpenEMR docker development environment. You can visit the CouchDB
 GUI directly via http://localhost:5984/_utils/ with username `admin` and password `password`.
@@ -205,9 +211,9 @@ at Administration->Globals->Documents:
 - CouchDB Password->password
 - CouchDB Database can be set to any name you want
 
-## Ongoing Development
+#### Ongoing Development
 
-### Orthanc
+##### Orthanc
 Developers are currently working on integrating the Orthanc PACS server into OpenEMR. This
 feature is currently under development. Although it is not yet integrated with OpenEMR yet,
 you can connect to the Orthanc application gui via http://localhost:8042/ with username `orthanc`
@@ -215,7 +221,7 @@ and password `orthanc`. The nginx docker has also been set up to work as a rever
 with orthanc to allow ongoing development via http://localhost:8090/orthanc/ (Note this reverse
 proxy is still a work in progress)
 
-## The Docker Development Environment is a work in progress
+#### The Insane Docker Development Environment is a work in progress
 
 This is an ongoing work in progress and feel free to join the super exciting
 OpenEMR container projects. Feel free to post PR's to update the
@@ -224,6 +230,6 @@ updates on the openemr/openemr:flex or openemr/openemr:flex-edge dockers
 which can be found at
 https://github.com/openemr/openemr-devops/tree/master/docker/openemr
 
-## Stuff that needs fixing
+#### Stuff that needs fixing
 1. The reverse proxy for orthanc
 2. zip packages in the php 7.3 fpm dockers are not working. Will try to bring in zip intermittently.

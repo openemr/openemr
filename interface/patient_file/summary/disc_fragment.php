@@ -1,28 +1,23 @@
 <?php
-/*******************************************************************************\
- * Copyright (C) Visolve (vicareplus_engg@visolve.com)                          *
- *                                                                              *
- * This program is free software; you can redistribute it and/or                *
- * modify it under the terms of the GNU General Public License                  *
- * as published by the Free Software Foundation; either version 2               *
- * of the License, or (at your option) any later version.                       *
- *                                                                              *
- * This program is distributed in the hope that it will be useful,              *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of               *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                *
- * GNU General Public License for more details.                                 *
- *                                                                              *
- * You should have received a copy of the GNU General Public License            *
- * along with this program; if not, write to the Free Software                  *
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
- ********************************************************************************/
-
+/**
+ * disc_fragment.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Visolve <vicareplus_engg@visolve.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) Visolve <vicareplus_engg@visolve.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once("../../globals.php");
 
-?>
-<?php
+if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+    csrfNotVerified();
+}
+
 /**
  * Retrieve the recent 'N' disclosures.
  * @param $pid   -  patient id.
@@ -33,7 +28,7 @@ function getDisclosureByDate($pid, $limit)
     $discQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
     " LEFT JOIN users u ON u.username = el.user ".
     " WHERE el.patient_id = ? AND el.event IN (SELECT option_id FROM list_options WHERE list_id = 'disclosure_type' AND activity = 1)" .
-    " ORDER BY el.date DESC LIMIT 0, $limit";
+    " ORDER BY el.date DESC LIMIT 0, " . escape_limit($limit);
     $r1 = sqlStatement($discQry, array($pid));
     $result2 = array();
     for ($iter = 0; $frow = sqlFetchArray($r1); $iter++) {
@@ -64,7 +59,7 @@ if ($result != null) {
         $has_disclosure = 1;
         $app_event=$iter{"event"};
         $event=explode("-", $app_event);
-        $description=nl2br(text($iter{"description"}));//for line breaks.
+        $description=$iter{"description"};
         //listing the disclosures
         echo "<tr style='border-bottom:1px dashed' class='text'>";
             echo "<td valign='top' class='text'>";
@@ -73,14 +68,14 @@ if ($result != null) {
             echo xlt('health care operations');
             echo "</b>";
         } else {
-            echo "<b>".text($event[1])."</b>";
+            echo "<b>" . text($event[1]) . "</b>";
         }
 
             echo "</td>";
-            echo "<td>".text($iter['user_fullname'])."</td>";
+            echo "<td>" . text($iter['user_fullname']) . "</td>";
             echo "<td  valign='top'class='text'>";
-            echo htmlspecialchars($iter{"date"}." (".xl('Recipient').":".$iter{"recipient"}.")", ENT_NOQUOTES);
-                    echo " ".$description;
+            echo text($iter{"date"}." (".xl('Recipient').":".$iter{"recipient"}.")");
+                    echo " " . nl2br(text($description));
             echo "</td>";
         echo "</tr>";
     }
@@ -107,8 +102,8 @@ if (acl_check('patients', 'disclosure', '', array('write', 'addonly'))) {
 ?>
     <br />
     <span class='text'> <?php
-    echo htmlspecialchars(xl('Displaying the following number of most recent disclosures:'), ENT_NOQUOTES);?><b><?php echo " ".htmlspecialchars($N, ENT_NOQUOTES);?></b><br>
-    <a href='disclosure_full.php'><?php echo htmlspecialchars(xl('Click here to view them all.'), ENT_NOQUOTES);?></a>
+    echo xlt('Displaying the following number of most recent disclosures:');?><b><?php echo " " . text($N); ?></b><br>
+    <a href='disclosure_full.php'><?php echo xlt('Click here to view them all.');?></a>
     </span><?php
 } ?>
 <br />

@@ -25,11 +25,11 @@ require_once("../interface/globals.php");
     function doSelectorButton() {
         var selector = document.getElementById('selectorButton');
         var value;
-        if ( selector.value == "<?php echo htmlspecialchars(xl('Select All'), ENT_QUOTES); ?>" ) {
-            selector.value = "<?php echo htmlspecialchars(xl('Unselect All'), ENT_QUOTES); ?>";
+        if ( selector.value == "<?php echo xla('Select All'); ?>" ) {
+            selector.value = "<?php echo xla('Unselect All'); ?>";
             value = true;
         } else {
-            selector.value = "<?php echo htmlspecialchars(xl('Select All'), ENT_QUOTES); ?>";
+            selector.value = "<?php echo xla('Select All'); ?>";
             value = false;
         }
         var checkBoxes = document.getElementsByName( "searchFields" );
@@ -57,7 +57,7 @@ require_once("../interface/globals.php");
         }
         if ( opener != null ) {
             if (fieldString == undefined || (fieldString == '' && ssc.length == '')) {
-                alert("<?php echo htmlspecialchars(xl('You must select some fields to continue.'), ENT_QUOTES); ?>");
+                alert("<?php echo xls('You must select some fields to continue.'); ?>");
                 return false;
             }
             opener.processFilter(fieldString, ssc);
@@ -73,13 +73,13 @@ require_once("../interface/globals.php");
     <table>
       <tr>
         <td>
-          <b><?php echo htmlspecialchars(xl('Select Fields')); ?>:</b>
+          <b><?php echo xlt('Select Fields'); ?>:</b>
         </td>
         <td>
-        <input type="button" value="<?php echo htmlspecialchars(xl('Submit'), ENT_QUOTES); ?>" id="submit" onclick="javascript:doSubmit();"></input>
+        <input type="button" value="<?php echo xla('Submit'); ?>" id="submit" onclick="javascript:doSubmit();"></input>
         </td>
         <td>
-        <input type="button" value="<?php echo htmlspecialchars(xl('Select All'), ENT_QUOTES); ?>" id="selectorButton" onclick="javascript:doSelectorButton();"></input>
+        <input type="button" value="<?php echo xla('Select All'); ?>" id="selectorButton" onclick="javascript:doSelectorButton();"></input>
         </td>
       </tr>
     </table>
@@ -96,7 +96,7 @@ require_once("../interface/globals.php");
         }
 
             echo "<td>";
-            echo "<input type='checkbox' value='".htmlspecialchars(${fieldId}, ENT_QUOTES)."' name='searchFields'/> <b>".htmlspecialchars($fieldTitle, ENT_NOQUOTES)."</b>";
+            echo "<input type='checkbox' value='" . attr($fieldId) . "' name='searchFields'/> <b>" . text($fieldTitle) . "</b>";
             echo "</td>\n";
     }
 
@@ -134,8 +134,8 @@ require_once("../interface/globals.php");
         echo "<tr>\n";
         echo "<td colspan='3'>";
         echo "<input type='text' value='' name='search_service_code' size='8' /> " .
-            "<b>" . htmlspecialchars(xl('Service Code')) . "</b> (" .
-            htmlspecialchars(xl('if entered, select only those who have had this service')) . ")";
+            "<b>" . xlt('Service Code') . "</b> (" .
+            xlt('if entered, select only those who have had this service') . ")";
         echo "</td>\n";
         echo "</tr>\n";
 

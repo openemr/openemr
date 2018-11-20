@@ -1,18 +1,49 @@
 <?php
+/**
+ * lang_constant.php script
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+
 require_once("language.inc.php");
 
+// Ensure this script is not called separately
+if ((empty($_SESSION['lang_module_unique_id'])) ||
+    (empty($unique_id)) ||
+    ($unique_id != $_SESSION['lang_module_unique_id'])) {
+    die(xlt('Authentication Error'));
+}
+unset($_SESSION['lang_module_unique_id']);
+
+// gacl control
+$thisauth = acl_check('admin', 'language');
+if (!$thisauth) {
+    echo "<html>\n<body>\n";
+    echo "<p>" . xlt('You are not authorized for this.') . "</p>\n";
+    echo "</body>\n</html>\n";
+    exit();
+}
 
 if ($_POST['add']) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     //validate
     if ($_POST['constant_name'] == "") {
-            echo htmlspecialchars(xl('Constant name is blank'), ENT_NOQUOTES).'<br>';
+            echo xlt('Constant name is blank').'<br>';
             $err='y';
     }
 
     $sql="SELECT * FROM lang_constants WHERE constant_name=? limit 1" ;
     $res=SqlQuery($sql, array($_POST['constant_name']));
     if ($res) {
-        echo htmlspecialchars(xl('Data Alike is already in database, please change constant name'), ENT_NOQUOTES).'<br>';
+        echo xlt('Data Alike is already in database, please change constant name').'<br>';
         $err='y';
     }
 
@@ -22,13 +53,13 @@ if ($_POST['add']) {
             //insert into the main table
         $sql="INSERT INTO lang_constants SET constant_name=?";
         SqlStatement($sql, array($_POST['constant_name']));
-        
+
                 //insert into the log table - to allow persistant customizations
             insert_language_log('', '', $_POST['constant_name'], '');
-        
-        echo htmlspecialchars(xl('Constant', '', '', ' ') . $_POST['constant_name'] . xl('added', '', ' '), ENT_NOQUOTES).'<br>';
+
+        echo xlt('Constant') . ' ' . text($_POST['constant_name']) . ' ' . xlt('added') . '<br>';
     }
-    
+
 
 
 // echo "$sql here ";
@@ -37,15 +68,16 @@ if ($_POST['add']) {
 ?>
 
 <TABLE>
-<FORM name="cons_form" METHOD=POST ACTION="?m=constant" onsubmit="return top.restoreSession()">
+<FORM name="cons_form" METHOD=POST ACTION="?m=constant&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>" onsubmit="return top.restoreSession()">
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <TR>
-    <TD><?php echo htmlspecialchars(xl('constant name'), ENT_NOQUOTES); ?></TD>
-    <TD><INPUT TYPE="text" NAME="constant_name" size="100" value="<?php echo htmlspecialchars($val_constant, ENT_QUOTES); ?>"></TD>
+    <TD><?php echo xlt('constant name'); ?></TD>
+    <TD><INPUT TYPE="text" NAME="constant_name" size="100" value="<?php echo attr($val_constant); ?>"></TD>
 </TR>
 <TR>
     <TD></TD>
-    <TD><INPUT TYPE="submit" name="add" value="<?php echo htmlspecialchars(xl('Add'), ENT_QUOTES); ?>"></TD>
+    <TD><INPUT TYPE="submit" name="add" value="<?php echo xla('Add'); ?>"></TD>
 </TR>
 </FORM>
 </TABLE>
-<span class="text"><?php echo htmlspecialchars(xl('Please Note: constants are case sensitive and any string is allowed.'), ENT_NOQUOTES); ?></span>
+<span class="text"><?php echo xlt('Please Note: constants are case sensitive and any string is allowed.'); ?></span>

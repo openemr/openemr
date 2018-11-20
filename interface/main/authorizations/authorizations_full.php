@@ -2,28 +2,22 @@
 /**
  * Authorizations full script.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
-
-include_once("../../globals.php");
-include_once("$srcdir/patient.inc");
+require_once("../../globals.php");
+require_once("$srcdir/patient.inc");
 
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
+    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], 1, '', $_GET["pid"]);
     sqlStatement("update billing set authorized=1 where pid=?", array($_GET["pid"]));
     sqlStatement("update forms set authorized=1 where pid=?", array($_GET["pid"]));
@@ -39,8 +33,8 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
 <body class="body_top">
 
 <a href="authorizations.php" onclick='top.restoreSession()'>
-<font class=title><?php echo htmlspecialchars(xl('Authorizations'), ENT_NOQUOTES); ?></font>
-<font class=more><?php echo htmlspecialchars($tback, ENT_NOQUOTES); ?></font></a>
+<font class=title><?php echo xlt('Authorizations'); ?></font>
+<font class=more><?php echo text($tback); ?></font></a>
 
 <?php
 //	billing
@@ -57,8 +51,8 @@ if ($res = sqlStatement("select *, concat(u.fname,' ', u.lname) as user from bil
     if ($result) {
         foreach ($result as $iter) {
             $authorize{$iter{"pid"}}{"billing"} .= "<span class=small>" .
-              htmlspecialchars($iter{"user"}, ENT_NOQUOTES) . ": </span><span class=text>" .
-              htmlspecialchars($iter{"code_text"} . " " . date("n/j/Y", strtotime($iter{"date"})), ENT_NOQUOTES) .
+              text($iter{"user"}) . ": </span><span class=text>" .
+              text($iter{"code_text"} . " " . date("n/j/Y", strtotime($iter{"date"}))) .
               "</span><br>\n";
         }
     }
@@ -73,8 +67,8 @@ if ($res = sqlStatement("select * from transactions where authorized=0 and group
     if ($result2) {
         foreach ($result2 as $iter) {
             $authorize{$iter{"pid"}}{"transaction"} .= "<span class=small>" .
-              htmlspecialchars($iter{"user"}, ENT_NOQUOTES) . ": </span><span class=text>" .
-              htmlspecialchars($iter{"title"} . ": " . strterm($iter{"body"}, 25) . " " . date("n/j/Y", strtotime($iter{"date"})), ENT_NOQUOTES) .
+              text($iter{"user"}) . ": </span><span class=text>" .
+              text($iter{"title"} . ": " . strterm($iter{"body"}, 25) . " " . date("n/j/Y", strtotime($iter{"date"}))) .
               "</span><br>\n";
         }
     }
@@ -91,8 +85,8 @@ if (empty($GLOBALS['ignore_pnotes_authorization'])) {
         if ($result3) {
             foreach ($result3 as $iter) {
                 $authorize{$iter{"pid"}}{"pnotes"} .= "<span class=small>" .
-                htmlspecialchars($iter{"user"}, ENT_NOQUOTES) . ": </span><span class=text>" .
-                htmlspecialchars(strterm($iter{"body"}, 25) . " " . date("n/j/Y", strtotime($iter{"date"})), ENT_NOQUOTES) .
+                text($iter{"user"}) . ": </span><span class=text>" .
+                text(strterm($iter{"body"}, 25) . " " . date("n/j/Y", strtotime($iter{"date"}))) .
                 "</span><br>\n";
             }
         }
@@ -108,8 +102,8 @@ if ($res = sqlStatement("select * from forms where authorized=0 and groupname=?"
     if ($result4) {
         foreach ($result4 as $iter) {
             $authorize{$iter{"pid"}}{"forms"} .= "<span class=small>" .
-              htmlspecialchars($iter{"user"}, ENT_NOQUOTES) . ": </span><span class=text>" .
-              htmlspecialchars($iter{"form_name"} . " " . date("n/j/Y", strtotime($iter{"date"})), ENT_NOQUOTES) .
+              text($iter{"user"}) . ": </span><span class=text>" .
+              text($iter{"form_name"} . " " . date("n/j/Y", strtotime($iter{"date"}))) .
               "</span><br>\n";
         }
     }
@@ -125,16 +119,16 @@ if ($authorize) {
     while (list($ppid,$patient) = each($authorize)) {
         $name = getPatientData($ppid);
 
-        echo "<tr><td valign=top><span class=bold>". htmlspecialchars($name{"fname"} . " " . $name{"lname"}, ENT_NOQUOTES) .
+        echo "<tr><td valign=top><span class=bold>". text($name{"fname"} . " " . $name{"lname"}) .
              "</span><br><a class=link_submit href='authorizations_full.php?mode=authorize&pid=" .
-             htmlspecialchars($ppid, ENT_QUOTES) . "' onclick='top.restoreSession()'>" . htmlspecialchars(xl('Authorize'), ENT_NOQUOTES) . "</a></td>\n";
-        echo "<td valign=top><span class=bold>".htmlspecialchars(xl('Billing'), ENT_NOQUOTES).
+             attr(urlencode($ppid)) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' onclick='top.restoreSession()'>" . xlt('Authorize') . "</a></td>\n";
+        echo "<td valign=top><span class=bold>".xlt('Billing').
              ":</span><span class=text><br>" . $patient{"billing"} . "</td>\n";
-        echo "<td valign=top><span class=bold>".htmlspecialchars(xl('Transactions'), ENT_NOQUOTES).
+        echo "<td valign=top><span class=bold>".xlt('Transactions').
              ":</span><span class=text><br>" . $patient{"transaction"} . "</td>\n";
-        echo "<td valign=top><span class=bold>".htmlspecialchars(xl('Patient Notes'), ENT_NOQUOTES).
+        echo "<td valign=top><span class=bold>".xlt('Patient Notes').
              ":</span><span class=text><br>" . $patient{"pnotes"} . "</td>\n";
-        echo "<td valign=top><span class=bold>".htmlspecialchars(xl('Encounter Forms'), ENT_NOQUOTES).
+        echo "<td valign=top><span class=bold>".xlt('Encounter Forms').
              ":</span><span class=text><br>" . $patient{"forms"} . "</td>\n";
         echo "</tr>\n";
         $count++;

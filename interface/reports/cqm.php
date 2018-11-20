@@ -151,6 +151,7 @@ if (!empty($report_id)) {
    // Collect an id string via an ajax request
    top.restoreSession();
    $.get("../../library/ajax/collect_new_report_id.php",
+     { csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?> },
      function(data){
        // Set the report id in page form
        $("#form_new_report_id").attr("value",data);
@@ -178,7 +179,10 @@ if (!empty($report_id)) {
    top.restoreSession();
    // Do not send the skip_timeout_reset parameter, so don't close window before report is done.
    $.post("../../library/ajax/status_report.php",
-     {status_report_id: report_id},
+     {
+       status_report_id: report_id,
+       csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+     },
      function(data){
        if (data == "PENDING") {
          // Place the pending string in the DOM
@@ -206,9 +210,9 @@ if (!empty($report_id)) {
       //QRDA Category III Export
       if(sNested == "QRDA"){
         var form_rule_filter = theform.form_rule_filter.value
-        var sLoc = '../../custom/export_qrda_xml.php?target_date=' + DateToYYYYMMDDHHMMSS_js(theform.form_target_date.value) + '&qrda_version=3&rule_filter=cqm_2014&form_provider='+theform.form_provider.value+"&report_id=<?php echo attr($report_id);?>";
+        var sLoc = '../../custom/export_qrda_xml.php?target_date=' + encodeURIComponent(DateToYYYYMMDDHHMMSS_js(theform.form_target_date.value)) + '&qrda_version=3&rule_filter=cqm_2014&form_provider=' + encodeURIComponent(theform.form_provider.value) + '&report_id=<?php echo attr(urlencode($report_id)); ?>&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>';
       }else{
-        var sLoc = '../../custom/export_registry_xml.php?&target_date=' + DateToYYYYMMDDHHMMSS_js(theform.form_target_date.value) + '&nested=' + sNested;
+        var sLoc = '../../custom/export_registry_xml.php?&target_date=' + encodeURIComponent(DateToYYYYMMDDHHMMSS_js(theform.form_target_date.value)) + '&nested=' + encodeURIComponent(sNested) + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>';
       }
       dlgopen(sLoc, '_blank', 600, 500);
       return false;
@@ -219,7 +223,7 @@ if (!empty($report_id)) {
     top.restoreSession();
     var reportID = '<?php echo attr($report_id); ?>';
     var provider = $("#form_provider").val();
-    sLoc = '../../custom/download_qrda.php?&report_id=' + reportID + '&provider_id=' + provider;
+    sLoc = '../../custom/download_qrda.php?&report_id=' + encodeURIComponent(reportID) + '&provider_id=' + encodeURIComponent(provider) + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>';
     dlgopen(sLoc, '_blank', 600, 500);
  }
 
@@ -759,7 +763,7 @@ if (isset($row['is_main']) || isset($row['is_sub'])) {
     }
 
     if (isset($row['itemized_test_id']) && ($row['pass_filter'] > 0)) {
-        echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=all&report_id=".attr($report_id)."&itemized_test_id=".attr($row['itemized_test_id'])."&numerator_label=".urlencode(attr($row['numerator_label']))."' onclick='top.restoreSession()'>" . text($row['pass_filter']) . "</a></td>";
+        echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=all&report_id=" . attr(urlencode($report_id)) . "&itemized_test_id=" . attr(urlencode($row['itemized_test_id'])) . "&numerator_label=" . attr(urlencode($row['numerator_label'])) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' onclick='top.restoreSession()'>" . text($row['pass_filter']) . "</a></td>";
     } else {
         echo "<td align='center'>" . text($row['pass_filter']) . "</td>";
     }
@@ -768,7 +772,7 @@ if (isset($row['is_main']) || isset($row['is_sub'])) {
         // Note that amc will likely support in excluded items in the future for MU2
         if (($type_report != "standard") && isset($row['itemized_test_id']) && ($row['excluded'] > 0)) {
             // Note standard reporting exluded is different than cqm/amc and will not support itemization
-            echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exclude&report_id=".attr($report_id)."&itemized_test_id=".attr($row['itemized_test_id'])."&numerator_label=".urlencode(attr($row['numerator_label']))."' onclick='top.restoreSession()'>" . text($row['excluded']) . "</a></td>";
+            echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exclude&report_id=" . attr(urlencode($report_id)) . "&itemized_test_id=" . attr(urlencode($row['itemized_test_id'])) . "&numerator_label=" . attr(urlencode($row['numerator_label'])) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' onclick='top.restoreSession()'>" . text($row['excluded']) . "</a></td>";
         } else {
             echo "<td align='center'>" . text($row['excluded']) . "</td>";
         }
@@ -778,14 +782,14 @@ if (isset($row['is_main']) || isset($row['is_sub'])) {
         // Note that amc will likely support in exception items in the future for MU2
         if (isset($row['itemized_test_id']) && ($row['exception'] > 0)) {
            // Note standard reporting exluded is different than cqm/amc and will not support itemization
-            echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exception&report_id=".attr($report_id)."&itemized_test_id=".attr($row['itemized_test_id'])."&numerator_label=".urlencode(attr($row['numerator_label']))."' onclick='top.restoreSession()'>" . text($row['exception']) . "</a></td>";
+            echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exception&report_id=" . attr(urlencode($report_id)) . "&itemized_test_id=" . attr(urlencode($row['itemized_test_id'])) . "&numerator_label=" . attr(urlencode($row['numerator_label'])) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' onclick='top.restoreSession()'>" . text($row['exception']) . "</a></td>";
         } else {
              echo "<td align='center'>" . text($row['exception']) . "</td>";
         }
     }
 
     if (isset($row['itemized_test_id']) && ($row['pass_target'] > 0)) {
-        echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=pass&report_id=".attr($report_id)."&itemized_test_id=".attr($row['itemized_test_id'])."&numerator_label=".urlencode(attr($row['numerator_label']))."' onclick='top.restoreSession()'>" . text($row['pass_target']) . "</a></td>";
+        echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=pass&report_id=" . attr(urlencode($report_id)) . "&itemized_test_id=" . attr(urlencode($row['itemized_test_id'])) . "&numerator_label=" . attr(urlencode($row['numerator_label'])) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' onclick='top.restoreSession()'>" . text($row['pass_target']) . "</a></td>";
     } else {
         echo "<td align='center'>" . text($row['pass_target']) . "</td>";
     }
@@ -804,7 +808,7 @@ if (isset($row['is_main']) || isset($row['is_sub'])) {
     }
 
     if (isset($row['itemized_test_id']) && ($failed_items > 0)) {
-        echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=fail&report_id=".attr($report_id)."&itemized_test_id=".attr($row['itemized_test_id'])."&numerator_label=".urlencode(attr($row['numerator_label']))."' onclick='top.restoreSession()'>" . text($failed_items) . "</a></td>";
+        echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=fail&report_id=" . attr(urlencode($report_id)) . "&itemized_test_id=" . attr(urlencode($row['itemized_test_id'])) . "&numerator_label=" . attr(urlencode($row['numerator_label'])) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' onclick='top.restoreSession()'>" . text($failed_items) . "</a></td>";
     } else {
         echo "<td align='center'>" . text($failed_items) . "</td>";
     }

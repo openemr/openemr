@@ -2,13 +2,13 @@
 /**
  * patient reminders gui
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @author  Ensofttek, LLC
- * @copyright Copyright (c) 2011-2017 Brady Miller <brady.g.miller@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Ensofttek, LLC
+ * @copyright Copyright (c) 2011-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2011 Ensofttek, LLC
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -70,18 +70,18 @@ if ($mode == "simple") {
 
 <body class='body_top'>
 <div>
-  <span class='title'><?php echo htmlspecialchars(xl('Patient Reminders'), ENT_NOQUOTES); ?></span>
+  <span class='title'><?php echo xlt('Patient Reminders'); ?></span>
 </div>
 <?php if ($mode == "simple") { ?>
   <div id='namecontainer_preminders' class='namecontainer_preminders' style='float:left;margin-right:10px'>
-    <?php echo htmlspecialchars(xl('for'), ENT_NOQUOTES);?>&nbsp;
+    <?php echo xlt('for');?>&nbsp;
     <span class="title">
-      <a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES); ?></a>
+      <a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo text(getPatientName($pid)); ?></a>
     </span>
   </div>
   <div>
     <a href="../summary/demographics.php" class="css_button" onclick="top.restoreSession()">
-      <span><?php echo htmlspecialchars(xl('Back To Patient'), ENT_NOQUOTES);?></span>
+      <span><?php echo xlt('Back To Patient');?></span>
     </a>
   </div>
 <?php } ?>
@@ -100,18 +100,18 @@ if ($sortorder == "") {
     $sortorder = "asc";
 }
 for ($i = 0; $i < count($sort); $i++) {
-    $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr($patient_id) ."&mode=" . attr($mode) . "&sortby=" . attr($sort[$i]) . "&sortorder=asc\" onclick=\"top.restoreSession()\"  title ='" .htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."'>" .
+    $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr_url($patient_id) ."&mode=" . attr_url($mode) . "&sortby=" . attr_url($sort[$i]) . "&sortorder=asc\" onclick=\"top.restoreSession()\" title ='" . xla('Sort Up') . "'>" .
     "<i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
 }
 for ($i = 0; $i < count($sort); $i++) {
     if ($sortby == $sort[$i]) {
         switch ($sortorder) {
             case "asc":
-                $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=desc\" onclick=\"top.restoreSession()\"   title ='" .htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."'>" .
+                $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr_url($patient_id) . "&mode=" . attr_url($mode) . "&sortby=" . attr_url($sortby) . "&sortorder=desc\" onclick=\"top.restoreSession()\" title ='" . xla('Sort Up') . "'>" .
                           "<i class='fa fa-sort-asc fa-lg' aria-hidden='true'></i></a>";
                 break;
             case "desc":
-                $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=asc\" onclick=\"top.restoreSession()\"  title ='" .htmlspecialchars(xl('Sort Down'), ENT_QUOTES)."'>" .
+                $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr_url($patient_id) . "&mode=" . attr_url($mode) . "&sortby=" . attr_url($sortby) . "&sortorder=asc\" onclick=\"top.restoreSession()\" title ='" . xla('Sort Down') . "'>" .
                           "<i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
                 break;
         } break;
@@ -153,13 +153,13 @@ if ($end < $start) {
 }
 
 if ($prev >= 0) {
-    $prevlink = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($prev) . "\" onclick=\"top.restoreSession()\"><<</a>";
+    $prevlink = "<a href=\"patient_reminders.php?patient_id=" . attr_url($patient_id) . "&mode=" . attr_url($mode) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($prev) . "\" onclick=\"top.restoreSession()\"><<</a>";
 } else {
     $prevlink = "<<";
 }
 
 if ($next < $total) {
-    $nextlink = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($next) . "\" onclick=\"top.restoreSession()\">>></a>";
+    $nextlink = "<a href=\"patient_reminders.php?patient_id=" . attr_url($patient_id) . "&mode=" . attr_url($mode) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($next) . "\" onclick=\"top.restoreSession()\">>></a>";
 } else {
     $nextlink = ">>";
 }
@@ -171,8 +171,8 @@ if ($next < $total) {
 
 <?php if ($mode == "simple") { // show the per patient rule setting option ?>
   <ul class="tabNav">
-    <li class='current'><a href='#'><?php echo htmlspecialchars(xl('Main'), ENT_NOQUOTES); ?></a></li>
-    <li ><a href='#' onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Rules'), ENT_NOQUOTES); ?></a></li>
+    <li class='current'><a href='#'><?php echo xlt('Main'); ?></a></li>
+    <li ><a href='#' onclick='top.restoreSession()'><?php echo xlt('Rules'); ?></a></li>
   </ul>
   <div class="tabContainer">
   <div class="tab current" style="height:auto;width:97%;">
@@ -201,21 +201,21 @@ if ($next < $total) {
               <div style='margin-left:15px'>
                 <?php if ($mode == "admin") { ?>
                  <a id='process_button' href='#' class='css_button' onclick='return ReminderBatch("process")'>
-                   <span><?php echo htmlspecialchars(xl('Process Reminders'), ENT_NOQUOTES); ?></span>
+                   <span><?php echo xlt('Process Reminders'); ?></span>
                  </a>
                  <a id='process_send_button' href='#' class='css_button' onclick='return ReminderBatch("process_send")'>
-                   <span><?php echo htmlspecialchars(xl('Process and Send Reminders'), ENT_NOQUOTES); ?></span>
+                   <span><?php echo xlt('Process and Send Reminders'); ?></span>
                  </a>
                  <span id='status_span'></span>
                  <div id='processing' style='margin:10px;display:none;'><img src='../../pic/ajax-loader.gif'/></div>
                 <?php } else { ?>
-                <a href='patient_reminders.php?patient_id=<?php echo attr($patient_id); ?>&mode=<?php echo attr($mode); ?>' class='css_button' onclick='top.restoreSession()'>
-                  <span><?php echo htmlspecialchars(xl('Refresh'), ENT_NOQUOTES); ?></span>
+                <a href='patient_reminders.php?patient_id=<?php echo attr_url($patient_id); ?>&mode=<?php echo attr_url($mode); ?>' class='css_button' onclick='top.restoreSession()'>
+                  <span><?php echo xlt('Refresh'); ?></span>
                 </a>
                 <?php } ?>
               </div>
             </td>
-            <td align=right class='text'><?php echo $prevlink." ".$end." of ".$total." ".$nextlink; ?></td>
+            <td align=right class='text'><?php echo $prevlink . " " . text($end) . " of " . text($total) . " " . $nextlink; ?></td>
           </tr>
         </table>
       </td>
@@ -226,17 +226,17 @@ if ($next < $total) {
 <div id='report_results'>
     <table>
       <thead>
-        <th><?php echo htmlspecialchars(xl('Item'), ENT_NOQUOTES) . " " . $sortlink[0]; ?></th>
-        <th><?php echo htmlspecialchars(xl('Patient'), ENT_NOQUOTES) . " " . $sortlink[1]; ?></th>
-        <th><?php echo htmlspecialchars(xl('Due Status'), ENT_NOQUOTES) . " " . $sortlink[2]; ?></th>
-        <th><?php echo htmlspecialchars(xl('Date Created'), ENT_NOQUOTES) . " " . $sortlink[3]; ?></th>
-        <th><?php echo htmlspecialchars(xl('Email Auth'), ENT_NOQUOTES) . " " . $sortlink[4]; ?></th>
-        <th><?php echo htmlspecialchars(xl('SMS Auth'), ENT_NOQUOTES) . " " . $sortlink[5]; ?></th>
-        <th><?php echo htmlspecialchars(xl('Date Sent'), ENT_NOQUOTES) . " " . $sortlink[6]; ?></th>
-        <th><?php echo htmlspecialchars(xl('Voice Sent'), ENT_NOQUOTES) . " " . $sortlink[7]; ?></th>
-        <th><?php echo htmlspecialchars(xl('Email Sent'), ENT_NOQUOTES) . " " . $sortlink[8]; ?></th>
-        <th><?php echo htmlspecialchars(xl('SMS Sent'), ENT_NOQUOTES) . " " . $sortlink[9]; ?></th>
-        <th><?php echo htmlspecialchars(xl('Mail Sent'), ENT_NOQUOTES) . " " . $sortlink[10]; ?></th>
+        <th><?php echo xlt('Item') . " " . $sortlink[0]; ?></th>
+        <th><?php echo xlt('Patient') . " " . $sortlink[1]; ?></th>
+        <th><?php echo xlt('Due Status') . " " . $sortlink[2]; ?></th>
+        <th><?php echo xlt('Date Created') . " " . $sortlink[3]; ?></th>
+        <th><?php echo xlt('Email Auth') . " " . $sortlink[4]; ?></th>
+        <th><?php echo xlt('SMS Auth') . " " . $sortlink[5]; ?></th>
+        <th><?php echo xlt('Date Sent') . " " . $sortlink[6]; ?></th>
+        <th><?php echo xlt('Voice Sent') . " " . $sortlink[7]; ?></th>
+        <th><?php echo xlt('Email Sent') . " " . $sortlink[8]; ?></th>
+        <th><?php echo xlt('SMS Sent') . " " . $sortlink[9]; ?></th>
+        <th><?php echo xlt('Mail Sent') . " " . $sortlink[10]; ?></th>
       </thead>
       <tbody>
 <?php
@@ -261,16 +261,16 @@ while ($myrow = sqlFetchArray($result)) { ?>
         <tr>
           <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $myrow['category']) . " : " .
             generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $myrow['item']); ?></td>
-          <td><?php echo htmlspecialchars($myrow['lname'].", ".$myrow['fname'], ENT_NOQUOTES); ?></td>
+          <td><?php echo text($myrow['lname'].", ".$myrow['fname']); ?></td>
           <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $myrow['due_status']); ?></td>
-          <td><?php echo ($myrow['date_created']) ? htmlspecialchars($myrow['date_created'], ENT_NOQUOTES) : " "; ?></td>
-          <td><?php echo ($myrow['hipaa_allowemail']=='YES') ? htmlspecialchars(xl("YES"), ENT_NOQUOTES) : htmlspecialchars(xl("NO"), ENT_NOQUOTES); ?></td>
-          <td><?php echo ($myrow['hipaa_allowsms']=='YES') ? htmlspecialchars(xl("YES"), ENT_NOQUOTES) : htmlspecialchars(xl("NO"), ENT_NOQUOTES); ?></td>
-          <td><?php echo ($myrow['date_sent']) ? htmlspecialchars($myrow['date_sent'], ENT_NOQUOTES) : htmlspecialchars(xl("Not Sent Yet"), ENT_NOQUOTES); ?></td>
-          <td><?php echo ($myrow['voice_status']==1) ? htmlspecialchars(xl("YES"), ENT_NOQUOTES) : htmlspecialchars(xl("NO"), ENT_NOQUOTES); ?></td>
-          <td><?php echo ($myrow['email_status']==1) ? htmlspecialchars(xl("YES"), ENT_NOQUOTES) : htmlspecialchars(xl("NO"), ENT_NOQUOTES); ?></td>
-          <td><?php echo ($myrow['sms_status']==1) ? htmlspecialchars(xl("YES"), ENT_NOQUOTES) : htmlspecialchars(xl("NO"), ENT_NOQUOTES); ?></td>
-          <td><?php echo ($myrow['mail_status']==1) ? htmlspecialchars(xl("YES"), ENT_NOQUOTES) : htmlspecialchars(xl("NO"), ENT_NOQUOTES); ?></td>
+          <td><?php echo ($myrow['date_created']) ? text($myrow['date_created']) : " "; ?></td>
+          <td><?php echo ($myrow['hipaa_allowemail']=='YES') ? xlt("YES") : xlt("NO"); ?></td>
+          <td><?php echo ($myrow['hipaa_allowsms']=='YES') ? xlt("YES") : xlt("NO"); ?></td>
+          <td><?php echo ($myrow['date_sent']) ? text($myrow['date_sent']) : xlt("Not Sent Yet"); ?></td>
+          <td><?php echo ($myrow['voice_status']==1) ? xlt("YES") : xlt("NO"); ?></td>
+          <td><?php echo ($myrow['email_status']==1) ? xlt("YES") : xlt("NO"); ?></td>
+          <td><?php echo ($myrow['sms_status']==1) ? xlt("YES") : xlt("NO"); ?></td>
+          <td><?php echo ($myrow['mail_status']==1) ? xlt("YES") : xlt("NO"); ?></td>
         </tr>
 <?php } ?>
       </tbody>
@@ -283,12 +283,12 @@ while ($myrow = sqlFetchArray($result)) { ?>
     <div id='report_results'>
       <table>
         <tr>
-          <th rowspan="2"><?php echo htmlspecialchars(xl('Rule'), ENT_NOQUOTES); ?></th>
-          <th colspan="2"><?php echo htmlspecialchars(xl('Patient Reminder'), ENT_NOQUOTES); ?></th>
+          <th rowspan="2"><?php echo xlt('Rule'); ?></th>
+          <th colspan="2"><?php echo xlt('Patient Reminder'); ?></th>
         </tr>
         <tr>
-          <th><?php echo htmlspecialchars(xl('Patient Setting'), ENT_NOQUOTES); ?></th>
-          <th style="left-margin:1em;"><?php echo htmlspecialchars(xl('Practice Default Setting'), ENT_NOQUOTES); ?></th>
+          <th><?php echo xlt('Patient Setting'); ?></th>
+          <th style="left-margin:1em;"><?php echo xlt('Practice Default Setting'); ?></th>
         </tr>
         <?php foreach ($rules_default as $rule) { ?>
           <tr>
@@ -308,18 +308,18 @@ while ($myrow = sqlFetchArray($result)) { ?>
                         $select = "default";
                     }
                 } ?>
-              <select class="patient_reminder" name="<?php echo htmlspecialchars($rule['id'], ENT_NOQUOTES); ?>">
-                <option value="default" <?php echo ($select == "default") ? "selected" : ""; ?>><?php echo htmlspecialchars(xl('Default'), ENT_NOQUOTES); ?></option>
-                <option value="on" <?php echo ($select == "on") ? "selected" : ""; ?>><?php echo htmlspecialchars(xl('On'), ENT_NOQUOTES); ?></option>
-                <option value="off" <?php echo ($select == "off") ? "selected" : ""; ?>><?php echo htmlspecialchars(xl('Off'), ENT_NOQUOTES); ?></option>
+              <select class="patient_reminder" name="<?php echo attr($rule['id']); ?>">
+                <option value="default" <?php echo ($select == "default") ? "selected" : ""; ?>><?php echo xlt('Default'); ?></option>
+                <option value="on" <?php echo ($select == "on") ? "selected" : ""; ?>><?php echo xlt('On'); ?></option>
+                <option value="off" <?php echo ($select == "off") ? "selected" : ""; ?>><?php echo xlt('Off'); ?></option>
               </select>
             </td>
             <td align="center" style="border-right:1px solid black;">
                 <?php
                 if ($rule['patient_reminder_flag'] == "1") {
-                    echo htmlspecialchars(xl('On'), ENT_NOQUOTES);
+                    echo xlt('On');
                 } else {
-                    echo htmlspecialchars(xl('Off'), ENT_NOQUOTES);
+                    echo xlt('Off');
                 }
                 ?>
             </td>
@@ -346,7 +346,8 @@ $(document).ready(function(){
       rule: this.name,
       type: 'patient_reminder',
       setting: this.value,
-      patient_id: '<?php echo htmlspecialchars($patient_id, ENT_QUOTES); ?>'
+      patient_id: <?php echo js_escape($patient_id); ?>,
+      csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
     });
   });
 
@@ -361,6 +362,7 @@ $(document).ready(function(){
 
    top.restoreSession();
    $.get("../../../library/ajax/collect_new_report_id.php",
+     { csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?> },
      function(data){
        // Set the report id in page form
        $("#form_new_report_id").attr("value",data);
@@ -372,7 +374,8 @@ $(document).ready(function(){
        top.restoreSession();
        $.post("../../../library/ajax/execute_pat_reminder.php",
          {process_type: processType,
-          execute_report_id: $("#form_new_report_id").val()
+          execute_report_id: $("#form_new_report_id").val(),
+          csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
          });
    });
 
@@ -384,11 +387,14 @@ $(document).ready(function(){
    top.restoreSession();
    // Do not send the skip_timeout_reset parameter, so don't close window before report is done.
    $.post("../../../library/ajax/status_report.php",
-     {status_report_id: report_id},
+     {
+       status_report_id: report_id,
+       csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+     },
      function(data){
        if (data == "PENDING") {
          // Place the pending string in the DOM
-         $('#status_span').replaceWith("<span id='status_span'><?php echo xlt("Preparing To Run Report"); ?></span>");
+         $('#status_span').replaceWith("<span id='status_span'>" + <?php echo xlj("Preparing To Run Report"); ?> + "</span>");
        }
        else if (data == "COMPLETE") {
          // Go into the results page

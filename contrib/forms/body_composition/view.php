@@ -58,7 +58,7 @@ $formid = $_GET['id'];
 //
 if ($_POST['bn_save']) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
  // If updating an existing form...

@@ -20,7 +20,7 @@
 // Disable PHP timeout.  This will not work in safe mode.
 ini_set('max_execution_time', '0');
 
-$ignoreAuth = true; // no login required
+// $ignoreAuth = true; // no login required
 
 //set de_identification_config to 1 to run the de_identification_upgrade script
 $de_identification_config = 0;
@@ -29,7 +29,7 @@ require_once('../../interface/globals.php');
 
 function tableExists_de($tblname)
 {
-    $row = sqlQuery("SHOW TABLES LIKE '$tblname'");
+    $row = sqlQuery("SHOW TABLES LIKE '" . add_escape_custom($tblname) . "'");
     if (empty($row)) {
         return false;
     }
@@ -43,17 +43,17 @@ function upgradeFromSqlFile_de($filename)
 
     flush();
     echo "<font color='green'>";
-    echo xl('Processing');
-    echo " ".$filename."...</font><br />\n";
+    echo xlt('Processing');
+    echo " " . text($filename) . "...</font><br />\n";
 
-    $fullname = "$webserver_root/sql/$filename";
+    $fullname = "$webserver_root/sql/" . convert_safe_file_dir_name($filename);
 
     $fd = fopen($fullname, 'r');
     if ($fd == false) {
-        echo xl("Error, unable to open file");
-        echo " ".$fullname."\n";
+        echo xlt("Error, unable to open file");
+        echo " " . text($fullname) . "\n";
         flush();
-        break;
+        exit();
     }
 
     $query = "";
@@ -79,8 +79,8 @@ function upgradeFromSqlFile_de($filename)
                 echo "<font color='green'>";
             }
 
-            echo xl('Skipping section');
-            echo " ".$line."</font><br />\n";
+            echo xlt('Skipping section');
+            echo " " . text($line) . "</font><br />\n";
         } else if (preg_match('/^#EndIf/', $line)) {
             $skipping = false;
         }
@@ -107,9 +107,9 @@ function upgradeFromSqlFile_de($filename)
                 $proc = 0; //executes procedures and functions
                 if (!sqlStatement($query)) {
                     echo "<font color='red'>";
-                    echo xl("The above statement failed"); echo ": " .
-                      getSqlLastError() . "<br />";
-                    echo xl("Upgrading will continue");
+                    echo xlt("The above statement failed"); echo ": " .
+                      text(getSqlLastError()) . "<br />";
+                    echo xlt("Upgrading will continue");
                     echo ".<br /></font>\n";
                 }
 
@@ -119,12 +119,12 @@ function upgradeFromSqlFile_de($filename)
 
         if (substr($query, -1) == ';'and $proc == 0) {
             $query = rtrim($query, ';');
-            echo "$query<br />\n";  //executes sql statements
+            echo text($query) . "<br />\n";  //executes sql statements
             if (!sqlStatement($query)) {
                 echo "<font color='red'>";
-                echo xl("The above statement failed"); echo ": " .
-                getSqlLastError() . "<br />";
-                echo xl("Upgrading will continue");
+                echo xlt("The above statement failed"); echo ": " .
+                text(getSqlLastError()) . "<br />";
+                echo xlt("Upgrading will continue");
                 echo ".<br /></font>\n";
             }
 
@@ -139,23 +139,27 @@ function upgradeFromSqlFile_de($filename)
 $sqldir = "$webserver_root/sql";
 $dh = opendir($sqldir);
 if (! $dh) {
-    die(xl("Cannot read", "e")." ".$sqldir);
+    die(xlt("Cannot read") . " " . text($sqldir));
 }
 
 closedir($dh);
 ?>
 <html>
 <head>
-<title><?php xl('OpenEMR Database Upgrade', 'e'); ?></title>
+<title><?php echo xlt('OpenEMR Database Upgrade'); ?></title>
 <link rel='STYLESHEET' href='../../interface/themes/style_sky_blue.css'>
 </head>
 <body> <br>
 <center>
-<span class='title'><?php xl('OpenEMR Database Upgrade for De-identification', 'e'); ?></span>
+<span class='title'><?php echo xlt('OpenEMR Database Upgrade for De-identification'); ?></span>
 <br>
 </center>
 <?php
 if (!empty($_POST['form_submit'])) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     upgradeFromSqlFile_de("database_de_identification.sql");
 
 //  grant file privilege to user
@@ -164,33 +168,33 @@ if (!empty($_POST['form_submit'])) {
 
     if ($dbh == false) {
         echo "\n";
-        echo "<p>".getSqlLastError()." (#".getSqlLastErrorNo().")\n";
-        break;
+        echo "<p>" . text(getSqlLastError()) . " (#" . text(getSqlLastErrorNo()) . ")\n";
+        exit();
     }  $login=$sqlconf["login"];
     $loginhost=$sqlconf["host"];
-    generic_sql_select_db($sqlconf['dbase']) or die(getSqlLastError());
+    generic_sql_select_db($sqlconf['dbase']) or die(text(getSqlLastError()));
     if (sqlStatement("GRANT FILE ON *.* TO '$login'@'$loginhost'") == false) {
-        echo xl("Error when granting file privilege to the OpenEMR user.");
+        echo xlt("Error when granting file privilege to the OpenEMR user.");
         echo "\n";
-        echo "<p>".getSqlLastError()." (#".getSqlLastErrorNo().")\n";
-        echo xl("Error");
+        echo "<p>" . text(getSqlLastError()) . " (#" . text(getSqlLastErrorNo()) . ")\n";
+        echo xlt("Error");
         echo "\n";
-        break;
+        exit();
     } else {
         echo "<font color='green'>";
     }
 
-    echo xl("File privilege granted to OpenEMR user.");
+    echo xlt("File privilege granted to OpenEMR user.");
     echo "<br></font>\n";
 
     echo "<p><font color='green'>";
-    echo xl("Database upgrade finished.");
+    echo xlt("Database upgrade finished.");
     echo "</font></p>\n";
     echo "<p><font color='red'>";
-    echo xl("Please restart the apache server before playing with de-identification");
+    echo xlt("Please restart the apache server before playing with de-identification");
     echo "</font></p>\n";
     echo "<p><font color='red'>";
-    echo xl("Please set de_identification_config variable back to zero");
+    echo xlt("Please set de_identification_config variable back to zero");
     echo "</font></p>\n";
     echo "</body></html>\n";
     sqlClose($dbh);
@@ -203,12 +207,12 @@ function form_validate()
 {
  if(document.forms[0].root_user_name.value == "")
  {
-  alert("<?php echo xl('Enter Database root Username');?>");
+  alert("<?php echo xls('Enter Database root Username');?>");
   return false;
  }
  /*if(document.forms[0].root_user_pass.value == "")
  {
-  alert("<?php echo xl('Enter Database root Password');?>");
+  alert("<?php echo xls('Enter Database root Password');?>");
   return false;
  }*/
  return true;
@@ -217,38 +221,39 @@ function form_validate()
 
 <center>
 <form method='post' action='de_identification_upgrade.php' onsubmit="return form_validate();">
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 </br>
 <p><?php  if ($de_identification_config != 1) {
     echo "<p><font color='red'>";
-    echo xl("Please set");
+    echo xlt("Please set");
     echo " 'de_identification_config' ";
-    echo xl("variable to one to run de-identification upgrade script");
+    echo xlt("variable to one to run de-identification upgrade script");
     echo "</br></br>";
     echo "([OPENEMR]/contrib/util/de_identification_upgrade.php)";
 } else {
-    xl('Upgrades the OpenEMR database to include Procedures, Functions and tables needed for De-identification process', 'e');?></p></br>
+    echo xlt('Upgrades the OpenEMR database to include Procedures, Functions and tables needed for De-identification process');?></p></br>
         <table class="de_id_upgrade_login" align="center">
     <tr><td>&nbsp;</td><td colspan=3 align=center>&nbsp;</td><td>&nbsp;</td></tr>
     <tr valign="top">
         <td>&nbsp;</td>
-        <td><?php xl('Enter Database root Username', 'e'); ?></td>
+        <td><?php echo xlt('Enter Database root Username'); ?></td>
         <td>:</td>
         <td> <input type='text' size='20' name='root_user_name' id='root_user_name'
-            value= "" title="<?php xl('Enter Database root Username', 'e'); ?>" /> </td>
+            value= "" title="<?php echo xla('Enter Database root Username'); ?>" /> </td>
         <td>&nbsp;</td>
     </tr>
     <tr valign="top">
         <td>&nbsp;</td>
-        <td><?php xl('Enter Database root Password', 'e'); ?></td>
+        <td><?php echo xlt('Enter Database root Password'); ?></td>
         <td>:</td>
         <td><input type='password' size='20' name='root_user_pass' id='root_user_pass'
-            value= "" title="<?php xl('Enter Database root Password', 'e'); ?>" /> </td>
+            value= "" title="<?php echo xlt('Enter Database root Password'); ?>" /> </td>
         <td>&nbsp;</td>
     </tr>
     <tr><td>&nbsp;</td><td colspan=3 align=center>&nbsp;</td><td>&nbsp;</td></tr>
 
     </table>
-<p><input type='submit' name='form_submit' value="<?php xl('Upgrade Database', 'e');?>"  /></p>
+<p><input type='submit' name='form_submit' value="<?php echo xla('Upgrade Database');?>"  /></p>
 <?php } ?>
 </form>
 </center>

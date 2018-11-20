@@ -15,21 +15,20 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
 require_once("$srcdir/patientvalidation.inc.php");
+require_once("$srcdir/pid.inc");
+require_once("$srcdir/patient.inc");
 
 use OpenEMR\Core\Header;
 
- // Session pid must be right or bad things can happen when demographics are saved!
- //
- include_once("$srcdir/pid.inc");
- $set_pid = $_GET["set_pid"] ? $_GET["set_pid"] : $_GET["pid"];
+// Session pid must be right or bad things can happen when demographics are saved!
+//
+$set_pid = $_GET["set_pid"] ? $_GET["set_pid"] : $_GET["pid"];
 if ($set_pid && $set_pid != $_SESSION["pid"]) {
     setpid($set_pid);
 }
 
- include_once("$srcdir/patient.inc");
-
- $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
- $result2 = getEmployerData($pid);
+$result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
+$result2 = getEmployerData($pid);
 
  // Check authorization.
 if ($pid) {
@@ -89,10 +88,10 @@ $(document).ready(function(){
 
     $(".medium_modal").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
-        let title = '<?php echo xla('Insurance Search/Select/Add'); ?>';
+        let title = <?php echo xlj('Insurance Search/Select/Add'); ?>;
         dlgopen('', '', 700, 460, '', title, {
             buttons: [
-                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+                {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
             ],
             allowResize: true,
             allowDrag: true,
@@ -123,7 +122,7 @@ $(document).ready(function(){
   });
   window.addEventListener("beforeunload", function (e) {
     if (somethingChanged && !top.timed_out) {
-      var msg = "<?php echo xls('You have unsaved changes.'); ?>";
+      var msg = <?php echo xlj('You have unsaved changes.'); ?>;
       e.returnValue = msg;     // Gecko, Trident, Chrome 34+
       return msg;              // Gecko, WebKit, Chrome <34
     }
@@ -134,7 +133,7 @@ $(document).ready(function(){
   }
 });
 
-var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
 //code used from http://tech.irt.org/articles/js037/
 function replace(string,text,by) {
@@ -159,33 +158,33 @@ function upperFirst(string,text) {
 }
 
 <?php for ($i=1; $i<=3; $i++) { ?>
-function auto_populate_employer_address<?php echo $i ?>(){
+function auto_populate_employer_address<?php echo attr($i); ?>(){
  var f = document.demographics_form;
- if (f.form_i<?php echo $i?>subscriber_relationship.options[f.form_i<?php echo $i?>subscriber_relationship.selectedIndex].value == "self")
+ if (f.form_i<?php echo attr($i); ?>subscriber_relationship.options[f.form_i<?php echo attr($i); ?>subscriber_relationship.selectedIndex].value == "self")
  {
-  f.i<?php echo $i?>subscriber_fname.value=f.form_fname.value;
-  f.i<?php echo $i?>subscriber_mname.value=f.form_mname.value;
-  f.i<?php echo $i?>subscriber_lname.value=f.form_lname.value;
-  f.i<?php echo $i?>subscriber_street.value=f.form_street.value;
-  f.i<?php echo $i?>subscriber_city.value=f.form_city.value;
-  f.form_i<?php echo $i?>subscriber_state.value=f.form_state.value;
-  f.i<?php echo $i?>subscriber_postal_code.value=f.form_postal_code.value;
+  f.i<?php echo attr($i); ?>subscriber_fname.value=f.form_fname.value;
+  f.i<?php echo attr($i); ?>subscriber_mname.value=f.form_mname.value;
+  f.i<?php echo attr($i); ?>subscriber_lname.value=f.form_lname.value;
+  f.i<?php echo attr($i); ?>subscriber_street.value=f.form_street.value;
+  f.i<?php echo attr($i); ?>subscriber_city.value=f.form_city.value;
+  f.form_i<?php echo attr($i); ?>subscriber_state.value=f.form_state.value;
+  f.i<?php echo attr($i); ?>subscriber_postal_code.value=f.form_postal_code.value;
   if (f.form_country_code)
-    f.form_i<?php echo $i?>subscriber_country.value=f.form_country_code.value;
-  f.i<?php echo $i?>subscriber_phone.value=f.form_phone_home.value;
-  f.i<?php echo $i?>subscriber_DOB.value=f.form_DOB.value;
+    f.form_i<?php echo attr($i); ?>subscriber_country.value=f.form_country_code.value;
+  f.i<?php echo attr($i); ?>subscriber_phone.value=f.form_phone_home.value;
+  f.i<?php echo attr($i); ?>subscriber_DOB.value=f.form_DOB.value;
   if(typeof f.form_ss!="undefined")
     {
-        f.i<?php echo $i?>subscriber_ss.value=f.form_ss.value;
+        f.i<?php echo attr($i); ?>subscriber_ss.value=f.form_ss.value;
     }
-  f.form_i<?php echo $i?>subscriber_sex.value = f.form_sex.value;
-  f.i<?php echo $i?>subscriber_employer.value=f.form_em_name.value;
-  f.i<?php echo $i?>subscriber_employer_street.value=f.form_em_street.value;
-  f.i<?php echo $i?>subscriber_employer_city.value=f.form_em_city.value;
-  f.form_i<?php echo $i?>subscriber_employer_state.value=f.form_em_state.value;
-  f.i<?php echo $i?>subscriber_employer_postal_code.value=f.form_em_postal_code.value;
+  f.form_i<?php echo attr($i); ?>subscriber_sex.value = f.form_sex.value;
+  f.i<?php echo attr($i); ?>subscriber_employer.value=f.form_em_name.value;
+  f.i<?php echo attr($i); ?>subscriber_employer_street.value=f.form_em_street.value;
+  f.i<?php echo attr($i); ?>subscriber_employer_city.value=f.form_em_city.value;
+  f.form_i<?php echo attr($i); ?>subscriber_employer_state.value=f.form_em_state.value;
+  f.i<?php echo attr($i); ?>subscriber_employer_postal_code.value=f.form_em_postal_code.value;
   if (f.form_em_country)
-    f.form_i<?php echo $i?>subscriber_employer_country.value=f.form_em_country.value;
+    f.form_i<?php echo attr($i); ?>subscriber_employer_country.value=f.form_em_country.value;
  }
 }
 
@@ -205,7 +204,7 @@ function checkNum () {
  if(re.exec(str))
  {
  }else{
-  alert("<?php echo xls('Please enter a monetary amount using only numbers and a decimal point.'); ?>");
+  alert(<?php echo xlj('Please enter a monetary amount using only numbers and a decimal point.'); ?>);
  }
 }
 
@@ -277,11 +276,11 @@ function validate(f) {
 <?php generate_layout_validation('DEM'); ?>
 
  var msg = "";
- msg += "<?php echo xla('The following fields are required'); ?>:\n\n";
+ msg += <?php echo xlj('The following fields are required'); ?> + ":\n\n";
  for ( var i = 0; i < errMsgs.length; i++ ) {
     msg += errMsgs[i] + "\n";
  }
- msg += "\n<?php echo xla('Please fill them in before continuing.'); ?>";
+ msg += "\n" + <?php echo xlj('Please fill them in before continuing.'); ?>;
 
  if ( errMsgs.length > 0 ) {
     alert(msg);
@@ -299,7 +298,7 @@ if (day.length < 2) day = '0' + day;
 currentDate = year+'-'+month+'-'+day;
 if(dateVal > currentDate)
 {
-    alert ('<?php echo xls("Deceased Date should not be greater than Today"); ?>');
+    alert (<?php echo xlj("Deceased Date should not be greater than Today"); ?>);
     return false;
 }
 
@@ -353,21 +352,21 @@ if(dateVal > currentDate)
       }
   if (subrelat.options[subrelat.selectedIndex].value == "self") {
    if (!samename) {
-    if (!confirm("<?php echo xls('Subscriber relationship is self but name is different! Is this really OK?'); ?>"))
+    if (!confirm(<?php echo xlj('Subscriber relationship is self but name is different! Is this really OK?'); ?>))
      return false;
    }
    if (!samess && ss_valid) {
-    if(!confirm("<?php echo xls('Subscriber relationship is self but SS number is different!')." ". xls("Is this really OK?"); ?>"))
+    if(!confirm(<?php echo js_escape(xl('Subscriber relationship is self but SS number is different!')." ".xl("Is this really OK?")); ?>))
     return false;
    }
   } // end self
   else {
    if (samename) {
-    if (!confirm("<?php echo xls('Subscriber relationship is not self but name is the same! Is this really OK?'); ?>"))
+    if (!confirm(<?php echo xlj('Subscriber relationship is not self but name is the same! Is this really OK?'); ?>))
      return false;
    }
    if (samess && ss_valid)  {
-    if(!confirm("<?php echo xls('Subscriber relationship is not self but SS number is the same!') ." ". xls("Is this really OK?"); ?>"))
+    if(!confirm(<?php echo js_escape(xl('Subscriber relationship is not self but SS number is the same!')." ".xl("Is this really OK?")); ?>))
     return false;
    }
   } // end not self
@@ -404,7 +403,7 @@ function policykeyup(e) {
 $(document).ready(function() {
 
     <?php for ($i=1; $i<=3; $i++) { ?>
-  $("#form_i<?php echo $i?>subscriber_relationship").change(function() { auto_populate_employer_address<?php echo $i?>(); });
+  $("#form_i<?php echo attr($i); ?>subscriber_relationship").change(function() { auto_populate_employer_address<?php echo attr($i); ?>(); });
     <?php } ?>
 
 });
@@ -421,6 +420,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 <body class="body_top">
 
 <form action='demographics_save.php' name='demographics_form' id="DEM" method='post' onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM',constraints)">
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo attr($result['id']); ?>" />
 
@@ -550,10 +550,10 @@ echo xlt($CapInstype); ?></a></li><?php
             </td>
             <td class='required'>:</td>
             <td>
-             <a href="../../practice/ins_search.php" class="medium_modal css_button" onclick="ins_search(<?php echo $i?>)">
+             <a href="../../practice/ins_search.php" class="medium_modal css_button" onclick="ins_search(<?php echo attr_js($i); ?>)">
              <span><?php echo xlt('Search/Add') ?></span>
                   </a>
-             <select name="i<?php echo $i?>provider" class="form-control sel2" style="width: 300;">
+             <select name="i<?php echo attr($i); ?>provider" class="form-control sel2" style="width: 300;">
              <option value=""><?php echo xlt('Unassigned'); ?></option>
                 <?php
                 foreach ($insurancei as $iid => $iname) {
@@ -576,7 +576,7 @@ echo xlt($CapInstype); ?></a></li><?php
              </td>
              <td class='required'>:</td>
              <td>
-              <input type='entry' class='form-control' size='20' name='i<?php echo $i?>plan_name' value="<?php echo attr($result3{"plan_name"}); ?>"
+              <input type='entry' class='form-control' size='20' name='i<?php echo attr($i); ?>plan_name' value="<?php echo attr($result3{"plan_name"}); ?>"
                onchange="capitalizeMe(this);" />&nbsp;&nbsp;
              </td>
             </tr>
@@ -587,7 +587,7 @@ echo xlt($CapInstype); ?></a></li><?php
              </td>
              <td class='required'>:</td>
              <td>
-              <input type='entry' size='16' class='datepicker form-control' id='i<?php echo $i ?>effective_date' name='i<?php echo $i ?>effective_date'
+              <input type='entry' size='16' class='datepicker form-control' id='i<?php echo attr($i); ?>effective_date' name='i<?php echo attr($i); ?>effective_date'
                value='<?php echo attr(oeFormatShortDate($result3['date'])); ?>'
                 />
              </td>
@@ -596,14 +596,14 @@ echo xlt($CapInstype); ?></a></li><?php
             <tr>
              <td><label class=required><?php echo xlt('Policy Number'); ?></label></td>
              <td class='required'>:</td>
-             <td><input type='entry' class='form-control' size='16' name='i<?php echo $i?>policy_number' value="<?php echo attr($result3{"policy_number"}); ?>"
+             <td><input type='entry' class='form-control' size='16' name='i<?php echo attr($i); ?>policy_number' value="<?php echo attr($result3{"policy_number"}); ?>"
               onkeyup='policykeyup(this)'></td>
             </tr>
 
             <tr>
              <td><label class=required><?php echo xlt('Group Number'); ?></label></td>
              <td class='required'>:</td>
-             <td><input type=entry class='form-control' size=16 name=i<?php echo $i?>group_number value="<?php echo attr($result3{"group_number"}); ?>" onkeyup='policykeyup(this)'></td>
+             <td><input type=entry class='form-control' size=16 name=i<?php echo attr($i); ?>group_number value="<?php echo attr($result3{"group_number"}); ?>" onkeyup='policykeyup(this)'></td>
             </tr>
 
             <tr<?php if ($GLOBALS['omit_employers']) {
@@ -612,7 +612,7 @@ echo xlt($CapInstype); ?></a></li><?php
              <td class='required'><?php echo xlt('Subscriber Employer (SE)'); ?><br><label style='font-weight:normal'>
               (<?php echo xlt('if unemployed enter Student'); ?>,<br><?php echo xlt('PT Student, or leave blank'); ?>) </label></td>
               <td class='required'>:</td>
-             <td><input type=entry class='form-control' size=25 name=i<?php echo $i?>subscriber_employer
+             <td><input type=entry class='form-control' size=25 name=i<?php echo attr($i); ?>subscriber_employer
               value="<?php echo attr($result3{"subscriber_employer"}); ?>"
                onchange="capitalizeMe(this);" /></td>
             </tr>
@@ -622,7 +622,7 @@ echo xlt($CapInstype); ?></a></li><?php
 } ?>>
              <td><label class=required><?php echo xlt('SE Address'); ?></label></td>
              <td class='required'>:</td>
-             <td><input type=entry class='form-control' size=25 name=i<?php echo $i?>subscriber_employer_street
+             <td><input type=entry class='form-control' size=25 name=i<?php echo attr($i); ?>subscriber_employer_street
               value="<?php echo attr($result3{"subscriber_employer_street"}); ?>"
                onchange="capitalizeMe(this);" /></td>
             </tr>
@@ -634,7 +634,7 @@ echo xlt($CapInstype); ?></a></li><?php
               <table>
                <tr>
                 <td><label class=required><?php echo xlt('SE City'); ?>: </label></td>
-                <td><input type=entry class='form-control' size=15 name=i<?php echo $i?>subscriber_employer_city
+                <td><input type=entry class='form-control' size=15 name=i<?php echo attr($i); ?>subscriber_employer_city
                value="<?php echo attr($result3{"subscriber_employer_city"}); ?>"
                 onchange="capitalizeMe(this);" /></td>
                 <td><label class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('SE State') : xlt('SE Locality') ?>: </label></td>
@@ -647,7 +647,7 @@ echo xlt($CapInstype); ?></a></li><?php
                </tr>
                <tr>
                 <td><label class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('SE Zip Code') : xlt('SE Postal Code') ?>: </label></td>
-                <td><input type=entry class='form-control' size=15 name=i<?php echo $i?>subscriber_employer_postal_code value="<?php echo text($result3{"subscriber_employer_postal_code"}); ?>"></td>
+                <td><input type=entry class='form-control' size=15 name=i<?php echo attr($i); ?>subscriber_employer_postal_code value="<?php echo attr($result3{"subscriber_employer_postal_code"}); ?>"></td>
                 <td><label class=required><?php echo xlt('SE Country'); ?>: </label></td>
             <td>
                     <?php
@@ -673,21 +673,21 @@ echo xlt($CapInstype); ?></a></li><?php
                  generate_form_field(array('data_type'=>1,'field_id'=>('i'.$i.'subscriber_relationship'),'list_id'=>'sub_relation','empty_title'=>' '), $result3['subscriber_relationship']);
                     ?>
 
-                <a href="javascript:popUp('browse.php?browsenum=<?php echo $i?>')" class=text>(<?php echo xlt('Browse'); ?>)</a></td>
+                <a href="javascript:popUp('browse.php?browsenum=<?php echo attr_url($i); ?>')" class=text>(<?php echo xlt('Browse'); ?>)</a></td>
                 <td></td><td></td><td></td><td></td>
             </tr>
                       <tr>
                 <td width=120><label class=required><?php echo xlt('Subscriber'); ?> </label></td>
                 <td class=required>:</td>
-                <td colspan=3><input type=entry class='form-control'size=10 name=i<?php echo $i?>subscriber_fname   value="<?php echo attr($result3{"subscriber_fname"}); ?>" onchange="capitalizeMe(this);" />
-                <input type=entry class='form-control' size=3 name=i<?php echo $i?>subscriber_mname value="<?php echo attr($result3{"subscriber_mname"}); ?>" onchange="capitalizeMe(this);" />
-                <input type=entry class='form-control' size=10 name=i<?php echo $i?>subscriber_lname value="<?php echo attr($result3{"subscriber_lname"}); ?>" onchange="capitalizeMe(this);" /></td>
+                <td colspan=3><input type=entry class='form-control'size=10 name=i<?php echo attr($i); ?>subscriber_fname   value="<?php echo attr($result3{"subscriber_fname"}); ?>" onchange="capitalizeMe(this);" />
+                <input type=entry class='form-control' size=3 name=i<?php echo attr($i); ?>subscriber_mname value="<?php echo attr($result3{"subscriber_mname"}); ?>" onchange="capitalizeMe(this);" />
+                <input type=entry class='form-control' size=10 name=i<?php echo attr($i); ?>subscriber_lname value="<?php echo attr($result3{"subscriber_lname"}); ?>" onchange="capitalizeMe(this);" /></td>
                 <td></td><td></td><td></td><td></td>
             </tr>
             <tr>
                 <td><label class=bold><?php echo xlt('D.O.B.'); ?> </label></td>
                 <td class=required>:</td>
-                <td><input type='entry' size='11' class='datepicker form-control' id='i<?php echo $i?>subscriber_DOB' name='i<?php echo $i?>subscriber_DOB' value='<?php echo attr(oeFormatShortDate($result3['subscriber_DOB'])); ?>' />
+                <td><input type='entry' size='11' class='datepicker form-control' id='i<?php echo attr($i); ?>subscriber_DOB' name='i<?php echo attr($i); ?>subscriber_DOB' value='<?php echo attr(oeFormatShortDate($result3['subscriber_DOB'])); ?>' />
         </td>
                 <td><label class=bold><?php echo xlt('Sex'); ?>: </label></td>
                 <td><?php
@@ -700,13 +700,13 @@ echo xlt($CapInstype); ?></a></li><?php
             <tr>
                 <td class=leftborder><label class=bold><?php echo xlt('S.S.'); ?> </label></td>
                 <td class=required>:</td>
-                <td><input type=entry class='form-control' size=11 name=i<?php echo $i?>subscriber_ss value="<?php echo attr(trim($result3{"subscriber_ss"})); ?>"></td>
+                <td><input type=entry class='form-control' size=11 name=i<?php echo attr($i); ?>subscriber_ss value="<?php echo attr(trim($result3{"subscriber_ss"})); ?>"></td>
             </tr>
 
             <tr>
                 <td><label class=required><?php echo xlt('Subscriber Address'); ?> </label></td>
                 <td class=required>:</td>
-                <td><input type=entry class='form-control' size=20 name=i<?php echo $i?>subscriber_street value="<?php echo attr($result3{"subscriber_street"}); ?>" onchange="capitalizeMe(this);" /></td>
+                <td><input type=entry class='form-control' size=20 name=i<?php echo attr($i); ?>subscriber_street value="<?php echo attr($result3{"subscriber_street"}); ?>" onchange="capitalizeMe(this);" /></td>
 
                 <td><label class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('State') : xlt('Locality') ?>: </label></td>
                 <td>
@@ -719,7 +719,7 @@ echo xlt($CapInstype); ?></a></li><?php
             <tr>
                 <td class=leftborder><label class=required><?php echo xlt('City'); ?></label></td>
                 <td class=required>:</td>
-                <td><input type=entry class='form-control' size=11 name=i<?php echo $i?>subscriber_city value="<?php echo attr($result3{"subscriber_city"}); ?>" onchange="capitalizeMe(this);" /></td><td class=leftborder><label class='required'<?php if ($GLOBALS['omit_employers']) {
+                <td><input type=entry class='form-control' size=11 name=i<?php echo attr($i); ?>subscriber_city value="<?php echo attr($result3{"subscriber_city"}); ?>" onchange="capitalizeMe(this);" /></td><td class=leftborder><label class='required'<?php if ($GLOBALS['omit_employers']) {
                     echo " style='display:none'";
 } ?>><?php echo xlt('Country'); ?>: </label></td><td>
                     <?php
@@ -730,7 +730,7 @@ echo xlt($CapInstype); ?></a></li><?php
 </tr>
             <tr>
                 <td><label class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('Zip Code') : xlt('Postal Code') ?> </label></td>
-                <td class=required>:</td><td><input type=entry class='form-control' size=10 name=i<?php echo $i?>subscriber_postal_code value="<?php echo attr($result3{"subscriber_postal_code"}); ?>"></td>
+                <td class=required>:</td><td><input type=entry class='form-control' size=10 name=i<?php echo attr($i); ?>subscriber_postal_code value="<?php echo attr($result3{"subscriber_postal_code"}); ?>"></td>
 
                 <td colspan=2>
                 </td><td></td>
@@ -738,8 +738,8 @@ echo xlt($CapInstype); ?></a></li><?php
             <tr>
                 <td><label class=bold><?php echo xlt('Subscriber Phone'); ?></label></td>
                 <td class=required>:</td>
-                <td><input type='text' class='form-control' size='20' name='i<?php echo $i?>subscriber_phone' value='<?php echo attr($result3["subscriber_phone"]); ?>' onkeyup='phonekeyup(this,mypcc)' /></td>
-                <td colspan=2><label class=bold><?php echo xlt('CoPay'); ?>: <input type=text class='form-control' size="6" name=i<?php echo $i?>copay value="<?php echo attr($result3{"copay"}); ?>"></label></td>
+                <td><input type='text' class='form-control' size='20' name='i<?php echo attr($i); ?>subscriber_phone' value='<?php echo attr($result3["subscriber_phone"]); ?>' onkeyup='phonekeyup(this,mypcc)' /></td>
+                <td colspan=2><label class=bold><?php echo xlt('CoPay'); ?>: <input type=text class='form-control' size="6" name=i<?php echo attr($i); ?>copay value="<?php echo attr($result3{"copay"}); ?>"></label></td>
                 <td colspan=2>
                 </td><td></td><td></td>
             </tr>
@@ -747,7 +747,7 @@ echo xlt($CapInstype); ?></a></li><?php
                 <td colspan=0><label class='required'><?php echo xlt('Accept Assignment'); ?></label></td>
                 <td class=required>:</td>
                 <td colspan=2>
-                    <select class='form-control' name=i<?php echo $i?>accept_assignment>
+                    <select class='form-control' name=i<?php echo attr($i); ?>accept_assignment>
                      <option value="TRUE" <?php if (strtoupper($result3{"accept_assignment"}) == "TRUE") {
                             echo "selected";
 }?>><?php echo xlt('YES'); ?></option>
@@ -764,7 +764,7 @@ echo xlt($CapInstype); ?></a></li><?php
         <td><label class='bold'><?php echo xlt('Secondary Medicare Type'); ?></label></td>
         <td class='bold'>:</td>
         <td colspan='6'>
-          <select class='form-control sel2' name=i<?php echo $i?>policy_type>
+          <select class='form-control sel2' name=i<?php echo attr($i); ?>policy_type>
 <?php
 foreach ($policy_types as $key => $value) {
     echo "            <option value ='" . attr($key) . "'";
@@ -823,7 +823,7 @@ var skipArray = [
 <?php }?>
 
 <?php if ($set_pid) { ?>
- parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "'," . addslashes($pid) . ",'" . addslashes($result['pubpid']) . "','', ' " . xls('DOB') . ": " . addslashes(oeFormatShortDate($result['DOB_YMD'])) . " " . xls('Age') . ": " . addslashes(getPatientAgeDisplay($result['DOB_YMD'])) . "'"; ?>);
+ parent.left_nav.setPatient(<?php echo js_escape($result['fname'] . " " . $result['lname']) . "," . js_escape($pid) . "," . js_escape($result['pubpid']) . ",''," . js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAgeDisplay($result['DOB_YMD'])); ?>);
 <?php } ?>
 
 <?php echo $date_init; ?>
@@ -886,7 +886,7 @@ $use_validate_js=$GLOBALS['new_validate'];
                     $mflist .= ",";
                 }
 
-                    $mflist .= "'" . text($field_id) . "'";
+                    $mflist .= js_escape($field_id);
             } ?>
 
             var flds = new Array(<?php echo $mflist; ?>);
@@ -911,7 +911,7 @@ $use_validate_js=$GLOBALS['new_validate'];
             if(valueIsChanged) {
                 event.preventDefault();
                 //("value has changed for duplicate check inputs");
-            url += '&page=edit&closeBeforeOpening=1&mf_id='+$("[name='db_id']").val();
+            url += '&page=edit&closeBeforeOpening=1&mf_id=' + encodeURIComponent($("[name='db_id']").val());
             dlgopen(url, '_blank', 700, 500);
             }
             else {//other wise submit me is a success just submit the form

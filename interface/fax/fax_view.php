@@ -12,6 +12,10 @@
 
 require_once("../globals.php");
 
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    csrfNotVerified();
+}
+
 $ffname = '';
 $jobid = $_GET['jid'];
 if ($jobid) {

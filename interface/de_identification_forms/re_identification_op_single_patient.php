@@ -21,10 +21,19 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
+
+if (!acl_check('admin', 'super')) {
+    die(xlt('Not authorized'));
+}
+
+if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+    csrfNotVerified();
+}
+
 $query = "SELECT status FROM re_identification_status";
 $res = sqlStatement($query);
 if ($row = sqlFetchArray($res)) {
-    $status = addslashes($row['status']);
+    $status = $row['status'];
     /* $Status:
 	*  0 - There is no Re Identification in progress. (start new Re Identification process)
 	*  1 - A Re Identification process is currently in progress.
@@ -37,7 +46,7 @@ if ($status == 0) {
 ?>
 <html>
 <head>
-<title><?php xl('Re Identification', 'e'); ?></title>
+<title><?php echo xlt('Re Identification'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
@@ -49,13 +58,13 @@ if ($status == 0) {
 </style>
 </head>
 <body class="body_top">
-<strong><?php xl('Re Identification', 'e');  ?></strong>
+<strong><?php echo xlt('Re Identification');  ?></strong>
 <div id="overDiv"
     style="position: absolute; visibility: hidden; z-index: 1000;"></div>
 
 <form enctype="Re_identification_output" method="POST"><?php
 if ($_POST["re_id_code"]) {
-    $reIdCode = formData('re_id_code', 'P', true);
+    $reIdCode = isset($_POST['re_id_code']) ? trim($_POST['re_id_code']) : '';
 }
 
 //to store input for re-idenitification
@@ -65,14 +74,14 @@ $res = sqlStatement($query);
 $query = "create table temp_re_identification_code_table (re_identification_code varchar(50))";
 $res = sqlStatement($query);
 
-$query = "insert into temp_re_identification_code_table values ('$reIdCode')";
-$res = sqlStatement($query);
+$query = "insert into temp_re_identification_code_table values (?)";
+$res = sqlStatement($query, array($reIdCode));
 
 $query = "update re_identification_status set status = 1;";
 $res = sqlStatement($query);
 
 //call procedure - execute in background
-$sh_cmd='./re_identification_procedure.sh '.$sqlconf["host"].' '.$sqlconf["login"].' '.$sqlconf["pass"].' '.$sqlconf["dbase"].' &';
+$sh_cmd='./re_identification_procedure.sh ' . escapeshellarg($sqlconf["host"]) . ' ' . escapeshellarg($sqlconf["login"]) . ' ' . escapeshellarg($sqlconf["pass"]) . ' ' . escapeshellarg($sqlconf["dbase"]) . ' &';
 system($sh_cmd);
 
 ?>
@@ -91,9 +100,9 @@ system($sh_cmd);
 
         <td>&nbsp;</td>
         <td rowspan="3"><br>
-        <?php echo xl('Re Identification Process is ongoing');
+        <?php echo xlt('Re Identification Process is ongoing');
         echo "</br></br>";
-        echo xl('Please visit Re Identification screen after some time');
+        echo xlt('Please visit Re Identification screen after some time');
         echo "</br>";   ?> </br>
         </td>
         <td>&nbsp;</td>
@@ -122,7 +131,7 @@ system($sh_cmd);
     $res = sqlStatement($query);
 
     if ($row = sqlFetchArray($res)) {
-        $no_of_items = addslashes($row['count']);
+        $no_of_items = $row['count'];
     }
 
     if ($no_of_items <= 1) {
@@ -141,9 +150,9 @@ system($sh_cmd);
     <tr valign="top">
         <td>&nbsp;</td>
         <td rowspan="3"><br>
-        <?php echo xl('No match Patient record found for the given Re Idenitification code');
+        <?php echo xlt('No match Patient record found for the given Re Idenitification code');
         echo "</br></br>";
-        echo xl('Please enter correct Re Identification code');
+        echo xlt('Please enter correct Re Identification code');
         echo "</br>";   ?> </br>
         </td>
         <td>&nbsp;</td>
@@ -170,12 +179,12 @@ system($sh_cmd);
         $query = "select now() as timestamp";
         $res = sqlStatement($query);
         if ($row = sqlFetchArray($res)) {
-            $timestamp = addslashes($row['timestamp']);
+            $timestamp = $row['timestamp'];
         }
 
         $timestamp = str_replace(" ", "_", $timestamp);
         $filename = $GLOBALS['temporary_files_dir']."/re_identified_data".$timestamp.".xls";
-        $query = "select * from re_identified_data into outfile '$filename' ";
+        $query = "select * from re_identified_data into outfile '" . add_escape_custom($filename) . "' ";
         $res = sqlStatement($query);
         ob_end_clean();
         //download Re Identification .xls file

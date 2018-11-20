@@ -95,10 +95,13 @@ if (count($emr_app)) {
 ?>
 <html>
 <head>
-    <title><?php echo text($openemr_name) . " " . xlt('Login'); ?></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
     <?php Header::setupHeader(['jquery-ui', 'jquery-ui-darkness']); ?>
+
+    <title><?php echo text($openemr_name) . " " . xlt('Login'); ?></title>
 
     <link rel="stylesheet" href="../themes/login.css?v=<?php echo $v_js_includes; ?>" type="text/css">
 
@@ -165,7 +168,7 @@ if (count($emr_app)) {
 </head>
 <body class="login">
     <div class="container">
-        <form method="POST" id="login_form"
+        <form method="POST" id="login_form" autocomplete="off"
             action="../main/main_screen.php?auth=login&site=<?php echo attr($_SESSION['site_id']); ?>"
             target="_top" name="login_form" onsubmit="return imsubmitted();">
             <div class="row">

@@ -5,7 +5,7 @@ require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 
 if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    die(xlt('Authentication Error'));
+    csrfNotVerified();
 }
 
 if ($encounter == "") {

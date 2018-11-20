@@ -29,7 +29,7 @@ $templatedir = "$OE_SITE_DIR/documents/doctemplates";
 if (!empty($_POST['bn_download'])) {
     //verify csrf
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $templatepath = "$templatedir/$form_filename";
@@ -52,7 +52,7 @@ if (!empty($_POST['bn_download'])) {
 if (!empty($_POST['bn_delete'])) {
     //verify csrf
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
     $templatepath = "$templatedir/$form_filename";
@@ -64,7 +64,7 @@ if (!empty($_POST['bn_delete'])) {
 if (!empty($_POST['bn_upload'])) {
     //verify csrf
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        die(xlt('Authentication Error'));
+        csrfNotVerified();
     }
 
   // Handle uploads.
@@ -81,7 +81,7 @@ if (!empty($_POST['bn_upload'])) {
             die(htmlspecialchars(xl('Cannot determine a destination filename')));
         }
         $path_parts = pathinfo($form_dest_filename);
-        if (!in_array(strtolower($path_parts['extension']), array('odt','txt'))) {
+        if (!in_array(strtolower($path_parts['extension']), array('odt', 'txt', 'docx'))) {
             die(text(strtolower($path_parts['extension'])) . ' ' . xlt('filetype is not accepted'));
         }
 

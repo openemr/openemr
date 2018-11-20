@@ -34,7 +34,13 @@
         "symfony/yaml" : "2.8.42",
         "twig/twig" : "1.35.3",
         "vlucas/phpdotenv" : "2.4.0",
+        "yubico/u2flib-server" : "1.0.2",
         "zendframework/zendframework" : "2.5.3"
+    },
+    "config": {
+        "platform": {
+            "php": "5.6"
+        }
     },
     "require-dev" : {
     },
@@ -67,7 +73,6 @@
             "OpenEMR\\Entities\\" : "entities",
             "OpenEMR\\Services\\" : "services",
             "OpenEMR\\Repositories\\" : "repositories",
-            "OpenEMR\\Encounter\\Services\\" : "interface/patient_file/encounter/Services",
             "OpenEMR\\Admin\\" : "library/admin/src",
             "OpenEMR\\Core\\" : "library/core/src",
             "OpenEMR\\Menu\\" : "library/menu/src",

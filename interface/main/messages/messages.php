@@ -1,9 +1,7 @@
 <?php
 /**
  * Message and Reminder Center UI
- * 2013/02/08 Minor tweaks by EMR Direct to allow integration with Direct messaging
- * 2013-03-27 by sunsetsystems: Fixed some weirdness with assigning a message recipient,
- * and allowing a message to be closed with a new note appended and no recipient.
+ *
  * @Package OpenEMR
  * @link http://www.open-emr.org
  * @author OpenEMR Support LLC
@@ -13,6 +11,7 @@
  * @author Ray Magauran magauran@medfetch.com
  * @copyright Copyright (c) 2010 OpenEMR Support LLC
  * @copyright Copyright (c) 2017 MedEXBank.com
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -42,11 +41,13 @@ if (empty($collectthis)) {
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 
 if ($GLOBALS['medex_enable'] == '1') {
-    $logged_in = $MedEx->login();
     if ($_REQUEST['SMS_bot']) {
-        $MedEx->display->SMS_bot($logged_in);
+        $result = $MedEx->login('1');
+        $MedEx->display->SMS_bot($result['status']);
         exit();
     }
+    $result = $MedEx->login();
+    $logged_in = $result['status'];
 }
 
 $setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ');
@@ -70,7 +71,7 @@ if (($_POST['setting_bootstrap_submenu']) ||
 
     <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-redmond', 'opener', 'moment']); ?>
     <script>
-        var xljs1 = '<?php echo xl('Preferences updated successfully'); ?>';
+        var xljs1 = '<?php echo xla('Preferences updated successfully'); ?>';
         var format_date_moment_js = '<?php echo attr(DateFormatRead("validateJS")); ?>';
         <?php require_once "$srcdir/restoreSession.php"; ?>
     </script>
@@ -126,11 +127,11 @@ if (($_POST['setting_bootstrap_submenu']) ||
                 font-weight: 700;
                 color: #000000 !important;
             }
-        
+
         }
-        
+
         </style>
-    
+
 <?php
 if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu'])) && ($GLOBALS['disable_rcb'] != '1')) {
     $MedEx->display->navigation($logged_in);
@@ -251,18 +252,18 @@ if (!empty($_REQUEST['go'])) { ?>
                         if ($show_all == 'yes') {
                             $showall = "yes";
                             $lnkvar = "\"messages.php?show_all=no&$activity_string_html\" name='Just Mine' onclick=\"top.restoreSession()\"><i id='just-mine-tooltip' class='fa fa-user fa-lg' aria-hidden='true'></i>";
-                            $messages = xlt('All Messages');
+                            $messages = xl('All Messages');
                         } else {
                             $showall = "no";
                             $lnkvar = "\"messages.php?show_all=yes&$activity_string_html\" name='See All' onclick=\"top.restoreSession()\"><i id='see-all-tooltip' class='fa fa-users fa-lg' aria-hidden='true'></i>";
-                            $messages = xlt('My Messages');
+                            $messages = xl('My Messages');
                         }
                     } else {
                         $messages = xlt('My Messages');
                     }
                     ?>
                     <div class="oe-margin-b-20">
-                        <span class="title"><?php echo $messages; ?></span>
+                        <span class="title"><?php echo text($messages); ?></span>
                         <a class='more' href=<?php echo $lnkvar; ?></a>
                     </div>
                     <div class="oe-margin-b-10">
@@ -377,22 +378,22 @@ if (!empty($_REQUEST['go'])) { ?>
                         // Display the Messages page layout.
                         echo "<form name='form_patient' id='new_note'
                                 class='form-horizontal' 
-                                action=\"messages.php?showall=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($begin) . "&$activity_string_html\" 
+                                action=\"messages.php?showall=" . attr(urlencode($showall)) . "&sortby=" . attr(urlencode($sortby)) . "&sortorder=" . attr(urlencode($sortorder)) . "&begin=" . attr(urlencode($begin)) . "&$activity_string_html\" 
                                 method='post'>
                                 <input type=hidden name=noteid id=noteid value='" . attr($noteid) . "'>
                                 <input type=hidden name=task id=task value=add>";
                         if ($task == "addnew") {
-                            $message_legend = xlt('Create New Message');
+                            $message_legend = xl('Create New Message');
                             $onclick = "onclick=multi_sel_patient()";
                         } elseif ($task == "edit") {
-                            $message_legend = xlt('Add To Existing Message');
+                            $message_legend = xl('Add To Existing Message');
                             $onclick = "";
                         }
-                    
-                    ?> 
+
+                    ?>
                         <div class='col-md-12'>
                             <fieldset>
-                            <legend><?php echo attr($message_legend); ?></legend>
+                            <legend><?php echo text($message_legend); ?></legend>
                                 <div class="row">
                                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 oe-custom-line col-lg-offset-1">
                                         <div class="row">
@@ -419,7 +420,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     <?php
                                                     if ($task != "addnew" && $result['pid'] != 0) { ?>
                                                         <a class="patLink"
-                                                           onclick="goPid('<?php echo attr($result['pid']); ?>')"><?php echo xlt('Patient'); ?>
+                                                           onclick="goPid('<?php echo attr(addslashes($result['pid'])); ?>')"><?php echo xlt('Patient'); ?>
                                                             :</a>
                                                         <?php
                                                     } else { ?>
@@ -472,7 +473,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 <input type='hidden' name='assigned_to' id='assigned_to'>
                                             </div>
                                             <div class="col-xs-6 col-sm-4">
-                                                <label class="control-label" for="users"></label>
+                                                <label class="control-label oe-empty-label" for="users"></label>
                                                 <select name='users' id='users' class='form-control' onchange='addtolist(this);'>
                                                     <?php
                                                     echo "<option value='--'";
@@ -520,10 +521,10 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 $d = new Document($gprow['id1']);
                                                 $enc_list = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
                                                     " LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date DESC", array($prow['pid']));
-                                                $str_dob = htmlspecialchars(xl("DOB") . ":" . $prow['DOB'] . " " . xl("Age") . ":" . getPatientAge($prow['DOB']));
+                                                $str_dob = xl("DOB") . ":" . $prow['DOB'] . " " . xl("Age") . ":" . getPatientAge($prow['DOB']);
                                                 $pname = $prow['fname'] . " " . $prow['lname'];
                                                 echo "<a href='javascript:void(0);' ";
-                                                echo "onClick=\"gotoReport(" . addslashes(attr($d->get_id())) . ",'" . addslashes(attr($pname)) . "'," . addslashes(attr($prow['pid'])) . "," . addslashes(attr($prow['pubpid'])) . ",'" . addslashes(attr($str_dob)) . "');\">";
+                                                echo "onClick=\"gotoReport(" . attr(addslashes($d->get_id())) . ",'" . attr(addslashes($pname)) . "'," . attr(addslashes($prow['pid'])) . "," . attr(addslashes($prow['pubpid'])) . ",'" . attr(addslashes($str_dob)) . "');\">";
                                                 echo text($d->get_url_file());
                                                 echo "</a>\n";
                                             }
@@ -543,7 +544,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             while ($gprow = sqlFetchArray($tmp)) {
                                                 echo "   <a href='";
                                                 echo $GLOBALS['webroot'] . "/interface/orders/single_order_results.php?orderid=";
-                                                echo attr($gprow['id1']);
+                                                echo attr(urlencode($gprow['id1']));
                                                 echo "' target='_blank' onclick='top.restoreSession()'>";
                                                 echo text($gprow['id1']);
                                                 echo "</a>\n";
@@ -562,7 +563,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                         if ($noteid) {
                                             $body = preg_replace('/(:\d{2}\s\()' . $result['pid'] . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
                                             $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to') . '${3}', $body);
-                                            $body =nl2br(htmlspecialchars(oeFormatPatientNote($body), ENT_NOQUOTES));
+                                            $body =nl2br(text(oeFormatPatientNote($body)));
                                             echo "<div class='text oe-margin-t-3' style='background-color:white; color: gray; border:1px solid #999; padding: 5px;'>" . $body . "</div>";
                                         }
 
@@ -596,8 +597,8 @@ if (!empty($_REQUEST['go'])) { ?>
                     } else {
                     // This is for sorting the records.
                         $sort = array("users.lname", "patient_data.lname", "pnotes.title", "pnotes.date", "pnotes.message_status");
-                        $sortby = (isset($_REQUEST['sortby']) && ($_REQUEST['sortby'] != "")) ? $_REQUEST['sortby'] : $sort[0];
-                        $sortorder = (isset($_REQUEST['sortorder']) && ($_REQUEST['sortorder'] != "")) ? $_REQUEST['sortorder'] : "asc";
+                        $sortby = (isset($_REQUEST['sortby']) && ($_REQUEST['sortby'] != "")) ? $_REQUEST['sortby'] : $sort[3];
+                        $sortorder = (isset($_REQUEST['sortorder']) && ($_REQUEST['sortorder'] != "")) ? $_REQUEST['sortorder'] : "desc";
                         $begin = isset($_REQUEST['begin']) ? $_REQUEST['begin'] : 0;
 
                         for ($i = 0; $i < count($sort); $i++) {
@@ -625,6 +626,10 @@ if (!empty($_REQUEST['go'])) { ?>
                         $next = $begin + $listnumber;
                         $start = $begin + 1;
                         $end = $listnumber + $start - 1;
+
+                        $chevron_icon_left = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
+                        $chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
+
                         if ($end >= $total) {
                             $end = $total;
                         }
@@ -632,15 +637,15 @@ if (!empty($_REQUEST['go'])) { ?>
                             $start = 0;
                         }
                         if ($prev >= 0) {
-                            $prevlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($prev) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><i class=\"fa fa-chevron-circle-left chevron_color\" aria-hidden=\"true\"></i></a>";
+                            $prevlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($prev) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><i class=\"fa " . $chevron_icon_left . " chevron_color\" aria-hidden=\"true\"></i></a>";
                         } else {
-                            $prevlink = "<i class=\"fa fa-chevron-circle-left \" style=\"color:grey\" aria-hidden=\"true\" title=\"". xla("On first page") . "\"></i>";
+                            $prevlink = "<i class=\"fa ". $chevron_icon_left ." \" style=\"color:grey\" aria-hidden=\"true\" title=\"". xla("On first page") . "\"></i>";
                         }
 
                         if ($next < $total) {
-                            $nextlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($next) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><i class=\"fa fa-chevron-circle-right chevron_color\" aria-hidden=\"true\"></i></a>";
+                            $nextlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($next) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><i class=\"fa . $chevron_icon_right . chevron_color\" aria-hidden=\"true\"></i></a>";
                         } else {
-                            $nextlink = "<i class=\"fa fa-chevron-circle-right\" style=\"color:grey\" aria-hidden=\"true\" title=\"". xla("On first page") . "\"></i>";
+                            $nextlink = "<i class=\"fa . $chevron_icon_right .\" style=\"color:grey\" aria-hidden=\"true\" title=\"". xla("On first page") . "\"></i>";
                         }
                     // Display the Messages table header.
                         echo "
@@ -679,21 +684,21 @@ if (!empty($_REQUEST['go'])) { ?>
                                     $patient .= ", " . $myrow['patient_data_fname'];
                                 }
                             } else {
-                                $patient = "* " . xlt('Patient must be set manually') . " *";
+                                $patient = "* " . xl('Patient must be set manually') . " *";
                             }
                             $count++;
                             echo "
-                                <tr id=\"row$count\" style=\"background:white\" height=\"24\">
+                                <tr id=\"row" . attr($count) . "\" style=\"background:white\" height=\"24\">
                                     <td align=\"center\" style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\">
-                                        <input type=checkbox id=\"check$count\" name=\"delete_id[]\" value=\"" .
-                                        attr($myrow['id']) . "\" onclick=\"if(this.checked==true){ selectRow('row$count'); }else{ deselectRow('row$count'); }\"></td>
+                                        <input type=checkbox id=\"check" . attr($count) . "\" name=\"delete_id[]\" value=\"" .
+                                        attr($myrow['id']) . "\" onclick=\"if(this.checked==true){ selectRow('row" . attr(addslashes($count)) . "'); }else{ deselectRow('row" . attr(addslashes($count)) . "'); }\"></td>
                                     <td style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\">
                                         <table cellspacing=0 cellpadding=0 width=100%><tr><td width=5></td><td class=\"text\">" .
                                         text($name) . "</td><td width=5></td></tr>
                                         </table></td>
                                     <td style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\">
-                                        <table cellspacing=0 cellpadding=0 width=100%><tr><td width=5></td><td class=\"text\"><a href=\"messages.php?showall=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($begin) . "&task=edit&noteid=" .
-                                        attr($myrow['id']) . "&$activity_string_html\" onclick=\"top.restoreSession()\">" .
+                                        <table cellspacing=0 cellpadding=0 width=100%><tr><td width=5></td><td class=\"text\"><a href=\"messages.php?showall=" . attr(urlencode($showall)) . "&sortby=" . attr(urlencode($sortby)) . "&sortorder=" . attr(urlencode($sortorder)) . "&begin=" . attr(urlencode($begin)) . "&task=edit&noteid=" .
+                                        attr(urlencode($myrow['id'])) . "&$activity_string_html\" onclick=\"top.restoreSession()\">" .
                                         text($patient) . "</a></td><td width=5></td></tr>
                                         </table></td>
                                     <td style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\">
@@ -707,7 +712,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                     </td>
                                     <td style=\"border-bottom: 1px #000000 solid;\">
                                         <table cellspacing=0 cellpadding=0 width=100%><tr><td width=5></td><td class=\"text\">" .
-                                            xlt($myrow['message_status']) . "</td><td width=5></td></tr>
+                                        text(getListItemTitle('message_status', $myrow['message_status'])) . "</td><td width=5></td></tr>
                                         </table>
                                     </td>
                                 </tr>";
@@ -718,10 +723,10 @@ if (!empty($_REQUEST['go'])) { ?>
                                         </form>
                                         <div class='row oe-margin-t-10'>
                                             
-                                            <div class=\"col-xs-12 col-md-12 col-lg-12\"><a href=\"messages.php?showall=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($begin) . "&task=addnew&$activity_string_html\" class=\"btn btn-default btn-add\" onclick=\"top.restoreSession()\">" .
+                                            <div class=\"col-xs-12 col-md-12 col-lg-12\"><a href=\"messages.php?showall=" . attr(urlencode($showall)) . "&sortby=" . attr(urlencode($sortby)) . "&sortorder=" . attr(urlencode($sortorder)) . "&begin=" . attr(urlencode($begin)) . "&task=addnew&$activity_string_html\" class=\"btn btn-default btn-add\" onclick=\"top.restoreSession()\">" .
                                             xlt('Add New') . "</a> &nbsp; <a href=\"javascript:confirmDeleteSelected()\" class=\"btn btn-default btn-delete\" onclick=\"top.restoreSession()\">" .
                                             xlt('Delete') . "</a>
-                                            <div  class=\"text-right\">$prevlink &nbsp; $end of $total &nbsp; $nextlink</div>
+                                            <div  class=\"text-right\">$prevlink &nbsp; " . text($end) . " " . xlt('of') . " " . text($total) . " &nbsp; $nextlink</div>
                                             </div>
                                         </div>
                                     </td>
@@ -749,7 +754,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                         alert("<?php echo xls('Please select message(s) to delete'); ?>");
                                     }
                                 }
-                            
+
 
                             // This is to allow selection of all items in Messages table for deletion.
                             function selectAll() {
@@ -861,7 +866,7 @@ if (!empty($_REQUEST['go'])) { ?>
                 $("#li-remi").removeClass("active");
                 $("#li-reca").removeClass("active");
                 $("#li-sms").removeClass("active");
-                
+
             });
             $("#reminders-li").click(function(){
                 $("#messages-div").hide(250);
@@ -901,7 +906,7 @@ if (!empty($_REQUEST['go'])) { ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 ,minDate : 0 //only future
             })
-            
+
         });
         $(document).ready(function(){
             $( "ul.navbar-nav" ).children().click(function(){
@@ -914,8 +919,8 @@ if (!empty($_REQUEST['go'])) { ?>
             $('#see-all-tooltip').attr( "title", "<?php echo xla('Click to show messages for all users'); ?>" );
             $('#see-all-tooltip').tooltip();
             $('#just-mine-tooltip').attr( "title", "<?php echo xla('Click to show messages for only the current user'); ?>" );
-            $('#just-mine-tooltip').tooltip(); 
-        });                      
+            $('#just-mine-tooltip').tooltip();
+        });
         $(function () {
             var f = $("#smsForm");
             $("#SMS_patient").autocomplete({
@@ -956,7 +961,7 @@ if (!empty($_REQUEST['go'])) { ?>
                 $("#assigned_to").val("");
                 $("#users").val("--");
             });
-            
+
             //clear inputs of patients
             $("#clear_patients").click(function(){
                 $("#reply_to").val("");
@@ -987,7 +992,7 @@ if (!empty($_REQUEST['go'])) { ?>
         };
         var PrintNote = function () {
             top.restoreSession();
-            window.open('../../patient_file/summary/pnotes_print.php?noteid=<?php echo htmlspecialchars($noteid, ENT_QUOTES); ?>', '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
+            window.open('../../patient_file/summary/pnotes_print.php?noteid=<?php echo attr(urlencode($noteid)); ?>', '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
         };
 
         var SaveNote = function () {
@@ -1031,14 +1036,14 @@ if (!empty($_REQUEST['go'])) { ?>
             parent.left_nav.setPatient(pname, pid, pubpid, '', str_dob);
             parent.left_nav.setPatientEncounter(EncounterIdArray, EncounterDateArray, CalendarCategoryArray);
             <?php if ($GLOBALS['new_tabs_layout']) { ?>
-            var docurl = '../controller.php?document&view' + "&patient_id=" + pid + "&document_id=" + doc_id + "&";
-            var paturl = 'patient_file/summary/demographics.php?pid=' + pid;
+            var docurl = '../controller.php?document&view' + "&patient_id=" + encodeURIComponent(pid) + "&document_id=" + encodeURIComponent(doc_id) + "&";
+            var paturl = 'patient_file/summary/demographics.php?pid=' + encodeURIComponent(pid);
             parent.left_nav.loadFrame('dem1', 'pat', paturl);
             parent.left_nav.loadFrame('doc0', 'enc', docurl);
             top.activateTabByName('enc', true);
             <?php } else { ?>
-            var docurl = '<?php  echo $GLOBALS['webroot'] . "/controller.php?document&view"; ?>' + "&patient_id=" + pid + "&document_id=" + doc_id + "&";
-            var paturl = '<?php  echo $GLOBALS['webroot'] . "/interface/patient_file/summary/demographics.php?pid="; ?>' + pid;
+            var docurl = '<?php  echo $GLOBALS['webroot'] . "/controller.php?document&view"; ?>' + "&patient_id=" + encodeURIComponent(pid) + "&document_id=" + encodeURIComponent(doc_id) + "&";
+            var paturl = '<?php  echo $GLOBALS['webroot'] . "/interface/patient_file/summary/demographics.php?pid="; ?>' + encodeURIComponent(pid);
             var othername = (window.name === 'RTop') ? 'RBot' : 'RTop';
             parent.frames[othername].location.href = paturl;
             location.href = docurl;
@@ -1058,7 +1063,7 @@ if (!empty($_REQUEST['go'])) { ?>
             $("#new_note").submit();
             <?php } ?>
         }
-        
+
         // This is for callback by the multi_patients_finder popup.
         function setMultiPatients(patientsList) {
             var f = document.getElementById('new_note');
@@ -1082,13 +1087,13 @@ if (!empty($_REQUEST['go'])) { ?>
         function sel_patient() {
             dlgopen('../../main/calendar/find_patient_popup.php', '_blank', 625, 400);
         }
-        
+
         function multi_sel_patient() {
             $('#reply_to').trigger('click');
             var url = '../../main/finder/multi_patients_finder.php'
             // for edit selected list
-            if($('#reply_to').val() !== ''){
-                url = url+'?patients='+$('#reply_to').val();
+            if ($('#reply_to').val() !== '') {
+                url = url + '?patients=' + $('#reply_to').val() + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>';
             }
             dlgopen(url, '_blank', 625, 400);
         }
@@ -1115,12 +1120,12 @@ if (!empty($_REQUEST['go'])) { ?>
             var m = $("#sms_mobile").val();
             var allow = $("#sms_allow").val();
             if ((pid === '') || (m === '')) {
-                alert('MedEx needs a valid mobile number to send SMS messages...');
+                alert('<?php echo xls("MedEx needs a valid mobile number to send SMS messages..."); ?>');
             } else if (allow === 'NO') {
-                alert('This patient does not allow SMS messaging!');
+                alert('<?php echo xls("This patient does not allow SMS messaging!"); ?>');
             } else {
                 top.restoreSession();
-                window.open('messages.php?nomenu=1&go=SMS_bot&pid=' + pid + '&m=' + m, 'SMS_bot', 'width=370,height=600,resizable=0');
+                window.open('messages.php?nomenu=1&go=SMS_bot&pid=' + encodeURIComponent(pid) + '&m=' + encodeURIComponent(m), 'SMS_bot', 'width=370,height=600,resizable=0');
             }
         }
     </script>

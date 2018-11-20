@@ -2,23 +2,15 @@
 /**
  * Used for displaying dated reminders.
  *
- * Copyright (C) 2012 tajemo.co.za <http://www.tajemo.co.za/>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Craig Bezuidenhout <http://www.tajemo.co.za/>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Craig Bezuidenhout <http://www.tajemo.co.za/>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2012 tajemo.co.za <http://www.tajemo.co.za/>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 // removed as jquery is already called in messages page (if you need to use jQuery, uncomment it futher down)
 require_once('../../globals.php');
@@ -43,6 +35,10 @@ require_once("$srcdir/dated_reminder_functions.php");
 // Javascript will send a post
 // ----------------------------------------------------------------------------
 if (isset($_POST['drR'])) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     // set as processed
     setReminderAsProcessed($_POST['drR']);
     // ----- get updated data
@@ -108,12 +104,12 @@ if (isset($_POST['drR'])) {
                dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_add.php', '_drAdd', 700, 500);
              }else{
                top.restoreSession();
-               dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_add.php?mID='+id, '_drAdd', 700, 500);
+               dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_add.php?mID='+encodeURIComponent(id)+'&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>', '_drAdd', 700, 500);
              }
            }
 
            function updateme(id){
-             refreshInterval = <?php echo $updateDelay ?>;
+             refreshInterval = <?php echo attr($updateDelay); ?>;
              if(id > 0){
               $(".drTD").html('<p style="text-size:3em; margin-left:200px; color:black; font-weight:bold;"><?php echo xla("Processing") ?>...</p>');
              }
@@ -124,10 +120,14 @@ if (isset($_POST['drR'])) {
              // Send the skip_timeout_reset parameter to not count this as a manual entry in the
              //  timing out mechanism in OpenEMR.
              $.post("<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders.php",
-               { drR: id, skip_timeout_reset: "1" },
+               {
+                drR: id,
+                skip_timeout_reset: "1",
+                csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+               },
                function(data) {
                 if(data == 'error'){
-                  alert("<?php echo addslashes(xl('Error Removing Message')) ?>");
+                  alert("<?php echo xls('Error Removing Message') ?>");
                 }else{
                   if(id > 0){
                     $(".drTD").html('<p style="text-size:3em; margin-left:200px; color:black; font-weight:bold;"><?php echo xla("Refreshing Reminders") ?> ...</p>');

@@ -28,7 +28,6 @@ $celltypes = array(
 function form2db($fldval)
 {
     $fldval = trim($fldval);
-    $fldval = strip_escape_custom($fldval);
     return $fldval;
 }
 
@@ -42,7 +41,6 @@ function real2db($fldval)
 function form2real($fldval)
 {
     $fldval = trim($fldval);
-    $fldval = strip_escape_custom($fldval);
     return $fldval;
 }
 

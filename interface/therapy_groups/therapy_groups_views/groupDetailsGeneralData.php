@@ -52,10 +52,10 @@
                                 <button onclick="newGroup()"><?php echo xlt('Add encounter'); ?></button>
                             <?php endif;?>
                         <?php if ($readonly == '') : ?>
-                            <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr($groupData['group_id']); ?>'"><?php echo xlt('Cancel');?></button>
-                            <button  id="saveUpdates" class="float-right"><?php echo xlt('Save');?></button>
+                            <button  onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr($groupData['group_id']); ?>'"><?php echo xlt('Cancel');?></button>
+                            <button  id="saveUpdates" ><?php echo xlt('Save');?></button>
                         <?php else : ?>
-                            <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&editGroup=1&group_id=' . attr($groupData['group_id']); ?>'"><?php echo xlt('Update');?></button>
+                            <button  onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&editGroup=1&group_id=' . attr($groupData['group_id']); ?>'"><?php echo xlt('Update');?></button>
                         <?php endif; ?>
                         <?php endif;?>
                     </div>

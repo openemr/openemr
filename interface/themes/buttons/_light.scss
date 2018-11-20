@@ -6,9 +6,9 @@
     background: #2672ec;
     color: #ffffff !important;
     display: block;
-    float: left;
+    float: $left;
     font-weight: 400;
-    margin-right: 3px;
+    margin-#{$right}: 3px;
     padding-right: 10px;
     /* sliding doors padding */
     text-decoration: none;
@@ -28,8 +28,8 @@
     color: #ffffff !important;
     display: block;
     font-weight: 400;
-    float: left;
-    margin-right: 3px;
+    float: $left;
+    margin-#{$right}: 3px;
     padding-right: 10px;
     /* sliding doors padding */
     text-decoration: none;

@@ -119,7 +119,7 @@ body {
 
 /* styles taken out of templates/documents/general_list.html */
 #documents_list {
-	width: 29%;
+	width: 100%;
 	height: 95%;
 	overflow: auto;
 	float: left;
@@ -232,10 +232,6 @@ div.tabContainer {
 div.tabContainer div.tab { border: none; color: #000; display: none; padding: 10px; }
 div.tabContainer div.current { box-shadow: 0pt; display: block; }
 
-.demographics-box div.tabContainer {
-	width:90%;
-	margin: -0.1px 2em 2em;
-}
 div.tab {
 	min-height: 180px;
 	background: #ffffff none repeat scroll 0 0;
@@ -467,3 +463,7 @@ body dl {
 }
 @import "oe-bootstrap";
 @import "oe-common/all-common-import";
+
+@include if-rtl {
+	@include rtl_style;
+}

@@ -101,7 +101,7 @@ function getPortalPatientDeleted($owner = '', $limit = '', $offset = 0, $search 
 	onsite_mail AS p
 	WHERE p.deleted != 0 AND p.owner = ? AND p.recipient_id = ?
 	$search
-	ORDER BY `date` asc
+	ORDER BY `date` desc
 	$limit
 	";
     $all = $row = array();
@@ -144,7 +144,7 @@ function getPortalPatientNotes($owner = '', $limit = '', $offset = 0, $search = 
 	onsite_mail AS p
 	WHERE p.deleted != 1 AND p.owner = ? AND p.recipient_id = ? 
 	$search
-	ORDER BY `date` asc
+	ORDER BY `date` desc
 	$limit
 	";
     $all = $row = array();
@@ -188,7 +188,7 @@ function getPortalPatientNotifications($owner = '', $limit = '', $offset = 0, $s
 	AND active = 1
 	AND date_created > DATE_SUB(NOW(), INTERVAL 1 MONTH)
 	$search
-	ORDER BY `date` asc
+	ORDER BY `date` desc
 	$limit
 	";
     $all = $row = array();
@@ -230,7 +230,7 @@ function getPortalPatientSentNotes($owner = '', $limit = '', $offset = 0, $searc
 	AND p.owner = ?
 	AND p.message_status != 'Done'
 	$search
-	ORDER BY `date` asc
+	ORDER BY `date` desc
 	$limit
 	";
     $all = $row = array();
@@ -250,6 +250,20 @@ function updatePortalMailMessageStatus($id, $message_status)
         sqlStatement("update onsite_mail set message_status = ?, activity = '1', deleted = '1',delete_date = ? where mail_chain = ? OR id = ?", array($message_status, date('Y-m-d H:i:s'), $id, $id));
     } else {
         sqlStatement("update onsite_mail set message_status = ?, activity = '1' where id = ?", array($message_status, $id));
+    }
+
+    if ($message_status == "Delete") {
+        $stats = sqlQuery("Select * From onsite_mail Where id = ?", array($id));
+        $by = $_SESSION['authUser'] ? $_SESSION['authUser'] : $_SESSION['ptName'];
+        $loguser = $_SESSION['authUser'] ? $_SESSION['authUser'] : $_SESSION['portal_username'];
+        $evt = "secure message soft delete by " . $by . " msg id: $id from " . $stats['sender_name'] . " to recipient: " . $stats['recipient_name'];
+        $log_from = '';
+        $puser = '';
+        if ($_SESSION['patient_portal_onsite_two']) {
+            $log_from = 'patient-portal';
+            $puser = $_SESSION['pid'];
+        }
+        newEvent("delete", $loguser, 'Portal', 1, $evt, $puser, $log_from, '');
     }
 }
 
@@ -293,7 +307,7 @@ function getMails($owner, $dotype, $nsrch, $nfsrch)
     }
 }
 
-function getMailDetails($id)
+function getMailDetails($id, $owner = '')
 {
     if ($owner) {
         $result = getMailById($id);

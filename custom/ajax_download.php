@@ -31,6 +31,10 @@ require_once("qrda_category1_functions.php");
 require_once("qrda_category1.inc");
 require_once("qrda_functions.php");
 
+if (!verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+    csrfNotVerified();
+}
+
 $reportID = $_POST['reportID'];
 $ruleID = $_POST['ruleID'];
 $counter = $_POST['counter'];
@@ -51,7 +55,7 @@ if ($fileName) {
         }
 
         foreach ($fileList as $eachFile) {
-                        check_file_dir_name($eachFile);
+            check_file_dir_name($eachFile);
             $zip->addFile($qrda_file_path.$eachFile, $eachFile);
         }
 

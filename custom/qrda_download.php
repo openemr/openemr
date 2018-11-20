@@ -21,12 +21,17 @@
  * @link    http://www.open-emr.org
  */
 
-    // This program exports(Download) to QRDA Category III XML.
+// This program exports(Download) to QRDA Category III XML.
 
-    require_once("../interface/globals.php");
+require_once("../interface/globals.php");
 
-    $qrda_fname = $_GET['qrda_fname'];
-        check_file_dir_name($qrda_fname);
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    csrfNotVerified();
+}
+
+$qrda_fname = $_GET['qrda_fname'];
+check_file_dir_name($qrda_fname);
+
 if ($qrda_fname != "") {
     $qrda_file_path = $GLOBALS['OE_SITE_DIR'] . "/documents/cqm_qrda/";
     $xmlurl = $qrda_file_path.$qrda_fname;
