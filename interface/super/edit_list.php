@@ -6,12 +6,11 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @author    Dan Ehrlich <daniel.ehrlich1@gmail.com>
- * @author    Teny <teny@zhservices.com>
  * @copyright Copyright (c) 2007-2017 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
@@ -21,6 +20,12 @@ require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Core\Header;
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 // Below allows the list to default to the first item on the list
 //   when list_id is blank.
@@ -844,7 +849,7 @@ function writeITLine($it_array)
         function select_clin_term_code(e) {
             current_sel_name = '';
             current_sel_clin_term = e.name;
-            dlgopen('../patient_file/encounter/find_code_dynamic.php?codetype=<?php echo attr(collect_codetypes("clinical_term", "csv")); ?>', '_blank', 900, 600);
+            dlgopen('../patient_file/encounter/find_code_dynamic.php?codetype=' + <?php echo js_url(collect_codetypes("clinical_term", "csv")); ?>, '_blank', 900, 600);
         }
 
         // This is for callback by the find-code popup.
@@ -950,11 +955,11 @@ function writeITLine($it_array)
                     for (var j = i + 1; f['opt[' + j + '][ct_key]'].value; ++j) {
                         var jkey = 'opt[' + j + ']';
                         if (f[ikey + '[ct_key]'].value == f[jkey + '[ct_key]'].value) {
-                            alert('<?php echo xls('Error: duplicated name on line') ?>' + ' ' + j);
+                            alert(<?php echo xlj('Error: duplicated name on line') ?> + ' ' + j);
                             return;
                         }
                         if (parseInt(f[ikey + '[ct_id]'].value) == parseInt(f[jkey + '[ct_id]'].value)) {
-                            alert('<?php echo xls('Error: duplicated ID on line') ?>' + ' ' + j);
+                            alert(<?php echo xlj('Error: duplicated ID on line') ?> + ' ' + j);
                             return;
                         }
                     }
@@ -968,7 +973,7 @@ function writeITLine($it_array)
                     for (var j = i+1; f['opt[' + j + '][id]']; ++j) {
                         var jkey = 'opt[' + j + '][id]';
                         if (f[ikey].value.toUpperCase() == f[jkey].value.toUpperCase()) {
-                            alert('<?php echo xls('Error: duplicated ID') ?>' + ': ' + f[jkey].value);
+                            alert(<?php echo xlj('Error: duplicated ID') ?> + ': ' + f[jkey].value);
                             f[jkey].scrollIntoView();
                             f[jkey].focus();
                             f[jkey].select();
@@ -986,6 +991,7 @@ function writeITLine($it_array)
 
 <body class="body_top">
 <form method='post' name='theform' id='theform' action='edit_list.php'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
         <div class="navbar-header">
@@ -1007,7 +1013,7 @@ function writeITLine($it_array)
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="deletelist" id="<?php echo $list_id; ?>">
+                    <a href="#" class="deletelist" id="<?php echo attr($list_id); ?>">
                         <i class="fa fa-trash"></i>&nbsp;<?php echo xlt('Delete List'); ?>
                     </a>
                 </li>
@@ -1286,6 +1292,7 @@ if ($GLOBALS['ippf_specific']) { ?>
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <form action="edit_list.php" method="post" class="form">
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal"
                             aria-label="<?php echo xla('Close'); ?>"><i
@@ -1354,12 +1361,12 @@ if ($GLOBALS['ippf_specific']) { ?>
             // the list name can only have letters, numbers, spaces and underscores
             // AND it cannot start with a number
             if ($("#newlistname").val().match(/^\d+/)) {
-                alert("<?php echo xls('List names cannot start with numbers.'); ?>");
+                alert(<?php echo xlj('List names cannot start with numbers.'); ?>);
                 return false;
             }
             var validname = $("#newlistname").val().replace(/[^A-za-z0-9 -]/g, "_"); // match any non-word characters and replace them
             if (validname != $("#newlistname").val()) {
-                if (!confirm("<?php echo xls('Your list name has been changed to meet naming requirements.') . '\n' . xls('Please compare the new name') . ', \''; ?>" + validname + "<?php echo '\' ' . xls('with the old name') . ', \''; ?>" + $("#newlistname").val() + "<?php echo '\'.\n' . xls('Do you wish to continue with the new name?'); ?>")) {
+                if (!confirm(<?php echo xlj('Your list name has been changed to meet naming requirements.'); ?> + '\n' + <?php echo xlj('Please compare the new name'); ?> + ', \'' + validname + '\' ' + <?php echo xlj('with the old name'); ?> + ', \'' + $("#newlistname").val() + '\'.\n' + <?php echo xlj('Do you wish to continue with the new name?'); ?>)) {
                     return false;
                 }
             }
@@ -1372,7 +1379,7 @@ if ($GLOBALS['ippf_specific']) { ?>
         // actually delete an entire list from the database
         var DeleteList = function (btnObj) {
             var listid = $(btnObj).attr("id");
-            if (confirm("<?php echo xls('WARNING') . ' - ' . xls('This action cannot be undone.') . '\n' . xls('Are you sure you wish to delete the entire list') . '('; ?>" + listid + ")?")) {
+            if (confirm(<?php echo xlj('WARNING'); ?> + ' - ' + <?php echo xlj('This action cannot be undone.'); ?> + '\n' + <?php echo xlj('Are you sure you wish to delete the entire list'); ?> + '(' + listid + ")?")) {
                 // submit the form to add a new field to a specific group
                 $("#formaction").val("deletelist");
                 $("#deletelistname").val(listid);

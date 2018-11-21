@@ -16,7 +16,7 @@ require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 
 if (!acl_check('admin', 'super')) {
-    die(htmlspecialchars(xl('Not authorized')));
+    die(xlt('Not authorized'));
 }
 
 $form_filename = convert_safe_file_dir_name($_REQUEST['form_filename']);
@@ -78,7 +78,7 @@ if (!empty($_POST['bn_upload'])) {
 
         $form_dest_filename = convert_safe_file_dir_name(basename($form_dest_filename));
         if ($form_dest_filename == '') {
-            die(htmlspecialchars(xl('Cannot determine a destination filename')));
+            die(xlt('Cannot determine a destination filename'));
         }
         $path_parts = pathinfo($form_dest_filename);
         if (!in_array(strtolower($path_parts['extension']), array('odt', 'txt', 'docx'))) {
@@ -98,7 +98,7 @@ if (!empty($_POST['bn_upload'])) {
 
         // Put the new file in its desired location.
         if (!move_uploaded_file($tmp_name, $templatepath)) {
-            die(htmlspecialchars(xl('Unable to create') . " '$templatepath'"));
+            die(xlt('Unable to create') . " '" . text($templatepath) . "'");
         }
     }
 }
@@ -135,13 +135,13 @@ if (!empty($_POST['bn_upload'])) {
 
  <tr>
   <td valign='top' class='detail' style='padding:10pt;' nowrap>
-    <?php echo htmlspecialchars(xl('Source File')); ?>:
+    <?php echo xlt('Source File'); ?>:
    <input type="hidden" name="MAX_FILE_SIZE" value="250000000" />
    <input type="file" name="form_file" size="40" />&nbsp;
-    <?php echo htmlspecialchars(xl('Destination Filename')) ?>:
+    <?php echo xlt('Destination Filename'); ?>:
    <input type='text' name='form_dest_filename' size='30' />
    &nbsp;
-   <input type='submit' name='bn_upload' value='<?php echo xlt('Upload') ?>' />
+   <input type='submit' name='bn_upload' value='<?php echo xla('Upload') ?>' />
   </td>
  </tr>
 
@@ -178,16 +178,16 @@ if ($dh) {
     closedir($dh);
     ksort($templateslist);
     foreach ($templateslist as $sfname) {
-        echo "    <option value='" . htmlspecialchars($sfname, ENT_QUOTES) . "'";
-        echo ">" . htmlspecialchars($sfname) . "</option>\n";
+        echo "    <option value='" . attr($sfname) . "'";
+        echo ">" . text($sfname) . "</option>\n";
     }
 }
 ?>
    </select>
    &nbsp;
-   <input type='submit' name='bn_download' value='<?php echo xlt('Download') ?>' />
+   <input type='submit' name='bn_download' value='<?php echo xla('Download') ?>' />
    &nbsp;
-   <input type='submit' name='bn_delete' value='<?php echo xlt('Delete') ?>' />
+   <input type='submit' name='bn_delete' value='<?php echo xla('Delete') ?>' />
   </td>
  </tr>
 
@@ -199,4 +199,3 @@ if ($dh) {
 </form>
 </body>
 </html>
-
