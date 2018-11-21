@@ -398,7 +398,7 @@ while ($crow = sqlFetchArray($cres)) {
                     <?php echo xlt('Print'); ?>
                 </a>
                 <a href='#' class='btn btn-default btn-transmit' onclick=
-                  "if(confirm(<?php echo xljs('This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?'); ?>)) {
+                  "if(confirm(<?php echo xlj('This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?'); ?>)) {
                     $('#form_get_hl7').attr('value','true');
                     $('#theform').submit();
                     }">

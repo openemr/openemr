@@ -354,7 +354,6 @@ if (! $_POST['form_csvexport']) {
            echo xlt('No matches found. Try search again.');
            echo "</span>";
         echo '<script>document.getElementById("report_results").style.display="none";</script>';
-        echo '<script>document.getElementById("controls").style.display="none";</script>';
     }
 
     if (!$_POST['form_refresh'] && !$_POST['form_csvexport']) { ?>
