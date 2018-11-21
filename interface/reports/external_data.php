@@ -1,30 +1,16 @@
 <?php
-// +-----------------------------------------------------------------------------+
-// Copyright (C) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-//
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-//
-// A copy of the GNU General Public License is included along with this program:
-// openemr/interface/login/GnuGPL.html
-// For more information write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
-// Author:   Jacob T Paul <jacob@zhservices.com>
-//           Vinish K <vinish@zhservices.com>
-//
-// +------------------------------------------------------------------------------+
-
+/**
+ * external_data.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jacob T Paul <jacob@zhservices.com>
+ * @author    Vinish K <vinish@zhservices.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once("../globals.php");
@@ -35,8 +21,6 @@ require_once "$srcdir/options.inc.php";
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 
-$from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
-$to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $records1 = array();
 $records2 = array();
 ?>
@@ -195,9 +179,9 @@ $records2 = array();
                                 ?>
                                 <tr>
                                     <td><span class="dm-ed-in-7"><?php echo text(oeFormatShortDate($value1['ee_date'])); ?></span></td>
-                                    <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['ee_encounter_diagnosis'], ENT_NOQUOTES); ?></span></td>
-                                    <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['provider'], ENT_NOQUOTES); ?></span></td>
-                                    <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['facility'], ENT_NOQUOTES); ?></span></td>
+                                    <td><span class="dm-ed-in-7"><?php echo text($value1['ee_encounter_diagnosis']); ?></span></td>
+                                    <td><span class="dm-ed-in-7"><?php echo text($value1['provider']); ?></span></td>
+                                    <td><span class="dm-ed-in-7"><?php echo text($value1['facility']); ?></span></td>
                                 </tr>
                             <?php
                             } ?>
@@ -229,9 +213,9 @@ $records2 = array();
                             foreach ($records2 as $value2) { ?>
                                 <tr>
                                     <td><span class="dm-ed-in-7"><?php echo text(oeFormatShortDate($value2['ep_date'])); ?></span></td>
-                                    <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['ep_code_type'] . ':' . $value2['ep_code'], ENT_NOQUOTES); ?></span></td>
-                                    <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['ep_code_text'], ENT_NOQUOTES); ?></span></td>
-                                    <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['facility'], ENT_NOQUOTES); ?></span></td>
+                                    <td><span class="dm-ed-in-7"><?php echo text($value2['ep_code_type'] . ':' . $value2['ep_code']); ?></span></td>
+                                    <td><span class="dm-ed-in-7"><?php echo text($value2['ep_code_text']); ?></span></td>
+                                    <td><span class="dm-ed-in-7"><?php echo text($value2['facility']); ?></span></td>
                                 </tr>
                             <?php
                             } ?>
@@ -255,7 +239,7 @@ $records2 = array();
         }
         ?>
     <script>
-        var listId = '#' + '<?php echo attr($list_id); ?>';
+        var listId = '#' + <?php echo js_escape($list_id); ?>;
         $(document).ready(function(){
             $(listId).addClass("active");
         });

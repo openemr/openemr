@@ -13,7 +13,7 @@
  * @copyright Copyright (c) 2008 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2010 Tomasz Wyderka <wyderkat@cofoh.com>
  * @copyright Copyright (c) 2015 Ensoftek <rammohan@ensoftek.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -23,6 +23,12 @@ require_once("$srcdir/patient.inc");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Core\Header;
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 // Ensoftek: Jul-2015: Get the facility of the logged in user.
 function getLoggedInUserFacility()
@@ -334,8 +340,8 @@ if ($_POST['form_get_hl7']==='true') {
 <?php echo text(oeFormatShortDate($from_date)) ." &nbsp; " . xlt('to')  . "&nbsp; ". text(oeFormatShortDate($to_date)); ?>
 </div>
 
-<form name='theform' id='theform' method='post' action='non_reported.php'
-onsubmit='return top.restoreSession()'>
+<form name='theform' id='theform' method='post' action='non_reported.php' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <div id="report_parameters">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 <input type='hidden' name='form_get_hl7' id='form_get_hl7' value=''/>
@@ -384,7 +390,7 @@ while ($crow = sqlFetchArray($cres)) {
             size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
           </td>
           <td class='control-label'>
-            <?php xl('To', 'e'); ?>:
+            <?php echo xlt('To'); ?>:
           </td>
           <td>
             <input type='text' name='form_to_date' id="form_to_date"
@@ -414,7 +420,7 @@ while ($crow = sqlFetchArray($cres)) {
                     <?php echo xlt('Print'); ?>
                 </a>
                 <a href='#' class='btn btn-default btn-transmit' onclick=
-                  "if(confirm('<?php echo xls('This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?'); ?>')) {
+                  "if(confirm(<?php echo xlj('This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?'); ?>)) {
                     $('#form_get_hl7').attr('value','true');
                     $('#theform').submit();
                   }">

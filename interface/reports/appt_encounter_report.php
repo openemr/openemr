@@ -23,7 +23,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -35,6 +35,12 @@ require_once("$srcdir/billing.inc");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 $facilityService = new FacilityService();
 
@@ -229,6 +235,7 @@ if ($_POST['form_refresh']) {
 </div>
 
 <form method='post' id='theform' action='appt_encounter_report.php' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 
@@ -572,7 +579,7 @@ if ($res) {
 </form>
 <script>
 <?php if ($alertmsg) {
-    echo " alert('$alertmsg');\n";
+    echo " alert(" . js_escape($alertmsg) . ");\n";
 } ?>
 </script>
 </body>
