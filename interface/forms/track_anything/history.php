@@ -259,9 +259,9 @@ while ($myrow = sqlFetchArray($query)) {
         $spell3 .= "FROM form_track_anything_results ";
         $spell3 .= "INNER JOIN form_track_anything_type ON form_track_anything_results.itemid = form_track_anything_type.track_anything_type_id ";
         $spell3 .= "WHERE track_anything_id = ? AND track_timestamp = ? AND form_track_anything_type.active = 1 ";
-        $spell3 .= "ORDER BY form_track_anything_results.track_timestamp " . escape_sort_order($ASC_DESC) . ", ";
+        $spell3 .= "ORDER BY form_track_anything_results.track_timestamp ?. ";
         $spell3 .= " form_track_anything_type.position ASC, the_name ASC ";
-        $query3  = sqlStatement($spell3, array($the_track, $thistime));
+        $query3  = sqlStatement($spell3, array($the_track, $thistime, escape_sort_order($ASC_DESC)));
 
         // print local <table>-heads
         // ----------------------------

@@ -24,6 +24,7 @@
 // Author:   Jacob T Paul <jacob@zhservices.com>
 //           Vinish K <vinish@zhservices.com>
 //
+// 
 // +------------------------------------------------------------------------------+
 
 include_once("../../globals.php");
@@ -64,19 +65,21 @@ if (!empty($count)) {
         $codetext_val = $code_text[$key] ? $code_text[$key] :'NULL';
         $description_val = $code_des[$key] ? $code_des[$key] : 'NULL';
         $care_plan_type_val = $care_plan_type[$key] ? $care_plan_type[$key] : 'NULL';
-        $sets = "id    = ". add_escape_custom($newid) .",
-            pid        = ". add_escape_custom($_SESSION["pid"]) .",
-            groupname  = '" . add_escape_custom($_SESSION["authProvider"]) . "',
-            user       = '" . add_escape_custom($_SESSION["authUser"]) . "',
-            encounter  = '" . add_escape_custom($_SESSION["encounter"]) . "',
-            authorized = ". add_escape_custom($userauthorized) .",
+        $sets = "id    = ?,
+            pid        = ?,
+            groupname  = ?,
+            user       = ?,
+            encounter  = ?,
+            authorized = ?,
             activity   = 1,
-            code       = '" . add_escape_custom($code_val) . "',
-            codetext   = '" . add_escape_custom($codetext_val) . "',
-            description= '" . add_escape_custom($description_val) . "',
-            date       =  '" . add_escape_custom($code_date[$key]) . "',
-            care_plan_type = '" .add_escape_custom($care_plan_type_val). "'";
-        sqlInsert("INSERT INTO form_care_plan SET $sets");
+            code       = ?,
+            codetext   = ?,
+            description= ?,
+            date       =  ?,
+            care_plan_type = ?";
+        sqlInsert("INSERT INTO form_care_plan SET {$sets}", array(add_escape_custom($newid), add_escape_custom($_SESSION["pid"]), add_escape_custom($_SESSION["authProvider"]), add_escape_custom($_SESSION["authUser"]),
+        add_escape_custom($_SESSION["encounter"]), add_escape_custom($userauthorized), add_escape_custom($code_val), add_escape_custom($codetext_val), add_escape_custom($description_val), add_escape_custom($code_date[$key]),
+        add_escape_custom($care_plan_type_val)));
     endforeach;
 }
 

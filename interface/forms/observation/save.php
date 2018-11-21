@@ -82,22 +82,26 @@ if (!empty($code_desc)) {
             }
         }
 
-        $sets = "id     = ". add_escape_custom($newid) .",
-            pid         = ". add_escape_custom($_SESSION["pid"]) .",
-            groupname   = '" . add_escape_custom($_SESSION["authProvider"]) . "',
-            user        = '" . add_escape_custom($_SESSION["authUser"]) . "',
-            encounter   = '" . add_escape_custom($_SESSION["encounter"]) . "',
-            authorized  = ". add_escape_custom($userauthorized) .", 
+        $sets = "id     = ?,
+            pid         = ?,
+            groupname   = ?,
+            user        = ?,
+            encounter   = ?,
+            authorized  = ?, 
             activity    = 1,
-            observation = '" . add_escape_custom($code_obs[$key]) . "',
-            code        = '" . add_escape_custom($code[$key]) . "',
-            code_type   = '" . add_escape_custom($code_type[$key]) . "',
-            description = '" . add_escape_custom($code_desc[$key]) . "',
-            table_code  = '" . add_escape_custom($table_code[$key]) . "',
-            ob_value    = '" . add_escape_custom($ob_value[$key]) . "',
-            ob_unit     = '" . add_escape_custom($ob_unit_value) . "',
-            date        = '" . add_escape_custom($code_date[$key]) . "'";
-        sqlInsert("INSERT INTO form_observation SET $sets");
+            observation = ?,
+            code        = ?,
+            code_type   = ?,
+            description = ?,
+            table_code  = ?,
+            ob_value    = ?,
+            ob_unit     = ?,
+            date        = ?";
+        sqlInsert("INSERT INTO form_observation SET $sets",
+        array(add_escape_custom($newid), add_escape_custom($_SESSION["pid"]), add_escape_custom($_SESSION["authProvider"]),
+        add_escape_custom($_SESSION["authUser"]), add_escape_custom($_SESSION["encounter"]), add_escape_custom($userauthorized),
+        add_escape_custom($code_obs[$key]), add_escape_custom($code[$key]), add_escape_custom($code_type[$key]), add_escape_custom($code_desc[$key]),
+        add_escape_custom($table_code[$key]), add_escape_custom($ob_value[$key]), add_escape_custom($ob_unit_value), add_escape_custom($code_date[$key])));
     endforeach;
 }
 

@@ -59,21 +59,24 @@ if ($mode == 'new') {
     addForm(
         $encounter,
         "New Patient Encounter",
-        sqlInsert("INSERT INTO form_encounter SET " .
-        "date = '" . add_escape_custom($date) . "', " .
-        "onset_date = '" . add_escape_custom($onset_date) . "', " .
-        "reason = '" . add_escape_custom($reason) . "', " .
-        "facility = '" . add_escape_custom($facility) . "', " .
-        "pc_catid = '" . add_escape_custom($pc_catid) . "', " .
-        "facility_id = '" . add_escape_custom($facility_id) . "', " .
-        "billing_facility = '" . add_escape_custom($billing_facility) . "', " .
-        "sensitivity = '" . add_escape_custom($sensitivity) . "', " .
-        "referral_source = '" . add_escape_custom($referral_source) . "', " .
-        "pid = '" . add_escape_custom($pid) . "', " .
-        "encounter = '" . add_escape_custom($encounter) . "', " .
-        "pos_code = '" . add_escape_custom($pos_code) . "', " .
-        "external_id = '" . add_escape_custom($external_id) . "', " .
-        "provider_id = '" . add_escape_custom($provider_id) . "'"),
+        sqlInsert("INSERT INTO form_groups_encounter SET
+        date = ?      
+        onset_date = ?,
+        reason = ?,
+        facility = ?,
+        pc_catid = ?,
+        facility_id = ?,
+        billing_facility = ?,
+        sensitivity = ?,
+        referral_source = ?,
+        pid = ?,
+        encounter = ?,
+        pos_code = ?,
+        external_id = ?,
+        provider_id = ?",
+        array(add_escape_custom($date), add_escape_custom($onset_date), add_escape_custom($reason), add_escape_custom($facility), add_escape_custom($pc_catid), add_escape_custom($facility_id),
+        add_escape_custom($billing_facility), add_escape_custom($sensitivity), add_escape_custom($referral_source), add_escape_custom($pid), 
+        add_escape_custom($encounter), add_escape_custom($pos_code), add_escape_custom($external_id), add_escape_custom($provider_id))),
         "newpatient",
         $pid,
         $userauthorized,
@@ -88,19 +91,21 @@ if ($mode == 'new') {
 
     $encounter = $result['encounter'];
   // See view.php to allow or disallow updates of the encounter date.
-    $datepart = acl_check('encounters', 'date_a') ? "date = '" . add_escape_custom($date) . "', " : "";
-    sqlStatement("UPDATE form_encounter SET " .
-    $datepart .
-    "onset_date = '" . add_escape_custom($onset_date) . "', " .
-    "reason = '" . add_escape_custom($reason) . "', " .
-    "facility = '" . add_escape_custom($facility) . "', " .
-    "pc_catid = '" . add_escape_custom($pc_catid) . "', " .
-    "facility_id = '" . add_escape_custom($facility_id) . "', " .
-    "billing_facility = '" . add_escape_custom($billing_facility) . "', " .
-    "sensitivity = '" . add_escape_custom($sensitivity) . "', " .
-    "referral_source = '" . add_escape_custom($referral_source) . "', " .
-    "pos_code = '" . add_escape_custom($pos_code) . "' " .
-    "WHERE id = '" . add_escape_custom($id) . "'");
+    $datepart = acl_check('encounters', 'date_a') ? "date = ?, " : "";
+    sqlStatement("UPDATE form_encounter SET
+    $datepart
+    onset_date = ?,
+    reason = ?,
+    facility = ?,
+    pc_catid = ?,
+    facility_id = ?,
+    billing_facility = ?,
+    sensitivity = ?,
+    referral_source = ?,
+    pos_code = ?,
+    WHERE id = ?",
+    array(add_escape_custom($date), add_escape_custom($date), add_escape_custom($onset_date), add_escape_custom($reason), add_escape_custom($facility), add_escape_custom($pc_catid), add_escape_custom($facility_id),
+    add_escape_custom($billing_facility), add_escape_custom($sensitivity), add_escape_custom($referral_source), add_escape_custom($pos_code), add_escape_custom($id)));
 } else {
     die("Unknown mode '" . text($mode) . "'");
 }
@@ -141,7 +146,8 @@ $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_catego
         ?>
 
     // Get the left_nav window, and the name of its sibling (top or bottom) frame that this form is in.
-    // This works no matter how deeply we are nested.
+    // This works no matter how deeply we are nested
+    
     var my_left_nav = top.left_nav;
     var w = window;
     for (; w.parent != top; w = w.parent);
