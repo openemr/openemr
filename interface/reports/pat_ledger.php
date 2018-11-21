@@ -920,7 +920,6 @@ if (! $_REQUEST['form_csvexport']) {
         echo xlt('No matches found. Try search again.');
         echo "</span>";
         echo '<script>document.getElementById("report_results").style.display="none";</script>';
-        echo '<script>document.getElementById("controls").style.display="none";</script>';
     }
 
     if (!$_REQUEST['form_refresh'] && !$_REQUEST['form_csvexport']) { ?>
