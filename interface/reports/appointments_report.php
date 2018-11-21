@@ -8,7 +8,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -20,6 +20,12 @@ require_once "$srcdir/appointments.inc.php";
 require_once "$srcdir/clinical_rules.php";
 
 use OpenEMR\Core\Header;
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 # Clear the pidList session whenever load this page.
 # This session will hold array of patients that are listed in this
@@ -131,7 +137,7 @@ function fetch_reminders($pid, $appt_date)
         }
 
         function oldEvt(eventid) {
-            dlgopen('../main/calendar/add_edit_event.php?eid=' + eventid, 'blank', 775, 500);
+            dlgopen('../main/calendar/add_edit_event.php?eid=' + encodeURIComponent(eventid), 'blank', 775, 500);
         }
 
         function refreshme() {
@@ -178,6 +184,7 @@ function fetch_reminders($pid, $appt_date)
 </div>
 
 <form method='post' name='theform' id='theform' action='appointments_report.php' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 
@@ -404,7 +411,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
     $totalAppontments = count($appointments);
 
     foreach ($appointments as $appointment) {
-                array_push($pid_list, $appointment['pid']);
+        array_push($pid_list, $appointment['pid']);
         $patient_id = $appointment['pid'];
         $docname  = $appointment['ulname'] . ', ' . $appointment['ufname'] . ' ' . $appointment['umname'];
 
@@ -413,7 +420,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 
         ?>
 
-        <tr valign='top' id='p1.<?php echo attr($patient_id) ?>' bgcolor='<?php echo $bgcolor ?>'>
+        <tr valign='top' id='p1.<?php echo attr($patient_id) ?>' bgcolor='<?php echo attr($bgcolor); ?>'>
         <td class="detail">&nbsp;<?php echo ($docname == $lastdocname) ? "" : text($docname) ?>
         </td>
 
@@ -438,7 +445,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
             <?php
                 //Appointment Status
             if ($pc_apptstatus != "") {
-                echo getListItemTitle('apptstat', $pc_apptstatus);
+                echo text(getListItemTitle('apptstat', $pc_apptstatus));
             }
             ?>
         </td>
@@ -457,7 +464,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
        <td colspan=<?php echo ($incl_reminders ? "3":"6") ?> class="detail" align='left'>
         <?php
         if (trim($appointment['pc_hometext'])) {
-            echo '<b>'.xlt('Comments') .'</b>: '.attr($appointment['pc_hometext']);
+            echo '<b>'.xlt('Comments') .'</b>: '.text($appointment['pc_hometext']);
         }
 
         if ($incl_reminders) {
@@ -501,7 +508,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 
 <?php
 if ($alertmsg) {
-    echo " alert('$alertmsg');\n";
+    echo " alert(" . js_escape($alertmsg) . ");\n";
 }
 ?>
 

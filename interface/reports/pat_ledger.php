@@ -13,6 +13,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/patient.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
@@ -20,8 +21,14 @@ require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['srcdir'].'/appointments.inc.php');
 
 use OpenEMR\Core\Header;
-use OpenEMR\Services\FacilityService;
 use OpenEMR\Menu\PatientMenuRole;
+use OpenEMR\Services\FacilityService;
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 $facilityService = new FacilityService();
 
@@ -140,8 +147,8 @@ function PrintEncHeader($dt, $rsn, $dr)
         $rsn = substr($rsn, 0, 50).'...';
     }
 
-    echo "<td colspan='4'><span class='bold'>".xlt('Encounter Dt / Rsn'). ": </span><span class='detail'>".text(substr($dt, 0, 10))." / ".text($rsn)."</span></td>";
-    echo "<td colspan='5'><span class='bold'>" . xlt('Provider'). ": </span><span class='detail'>".text(User_Id_Look($dr))."</span></td>";
+    echo "<td colspan='4'><span class='bold'>" . xlt('Encounter Dt / Rsn') . ": </span><span class='detail'>".text(substr($dt, 0, 10))." / ".text($rsn)."</span></td>";
+    echo "<td colspan='5'><span class='bold'>" . xlt('Provider') . ": </span><span class='detail'>".text(User_Id_Look($dr))."</span></td>";
     echo "</tr>\n";
     $orow++;
 }
@@ -372,7 +379,7 @@ if ($_REQUEST['form_csvexport']) {
         function checkSubmit() {
             var pat = document.forms[0].elements['form_patient'].value;
             if(!pat || pat == 0) {
-                alert('<?php echo xls('A Patient Must Be Selected to Generate This Report') ?>');
+                alert(<?php echo xlj('A Patient Must Be Selected to Generate This Report') ?>);
                 return false;
             }
             document.forms[0].elements['form_refresh'].value = true;
@@ -447,7 +454,7 @@ if ($_REQUEST['form_csvexport']) {
     //become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an
     //argument, containing one or more elements, the name of the current file is the first element, if there are linked
     // files they should be listed thereafter, please add _xpd suffix to the file name
-    
+
     if ($type_form !== '0') {
         $arr_files_php = array("patient_ledger_patient_xpd", "stats_full_patient_xpd", "external_data_patient_xpd");
         $current_state = collectAndOrganizeExpandSetting($arr_files_php);
@@ -464,7 +471,7 @@ if ($_REQUEST['form_csvexport']) {
 <body class="body_top">
     <div class="<?php echo $container;?> expandable">
         <?php if ($type_form == '0') { ?>
-       
+
         <?php $header_title = xl('Report') . " - " . xl('Patient Ledger by Date') ;?>
         <div class="row">
             <div class="col-sm-12">
@@ -472,7 +479,7 @@ if ($_REQUEST['form_csvexport']) {
             </div>
         </div>
         <?php } else { ?>
-        
+
         <?php $header_title = xl('Patient Ledger of');?>
         <div class="row">
             <div class="col-sm-12">
@@ -492,12 +499,13 @@ if ($_REQUEST['form_csvexport']) {
                 ?>
             </div>
         </div>
-        
+
         <?php } ?>
-        
+
         <div class="row">
             <div class="col-sm-12">
-                <form method='post' action='pat_ledger.php?form=<?php echo attr($type_form);?>&patient_id=<?php echo attr($form_pid);?>' id='theform' onsubmit='return top.restoreSession()'>
+                <form method='post' action='pat_ledger.php?form=<?php echo attr_url($type_form); ?>&patient_id=<?php echo attr_url($form_pid); ?>' id='theform' onsubmit='return top.restoreSession()'>
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                 <div id="report_parameters">
                     <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
                     <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
@@ -609,8 +617,8 @@ if ($_REQUEST['form_csvexport']) {
 
                 <?php
 } // end not export
-                $from_date = $form_from_date . ' 00:00:00';
-                $to_date = $form_to_date . ' 23:59:59';
+$from_date = $form_from_date . ' 00:00:00';
+$to_date = $form_to_date . ' 23:59:59';
 if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     $rows = array();
     $sqlBindArray = array();
@@ -939,7 +947,7 @@ if (! $_REQUEST['form_csvexport']) {
         ?>
     </script>
     <script>
-        var listId = '#' + '<?php echo attr($list_id); ?>';
+        var listId = '#' + <?php echo js_escape($list_id); ?>;
         $(document).ready(function(){
             $(listId).addClass("active");
         });
