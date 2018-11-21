@@ -43,6 +43,10 @@ if (!$thisauth) {
     die(xlt('Not authorized'));
 }
 
+//Limit variables for filter
+$list_from = ( isset($_REQUEST["list_from"]) ? intval($_REQUEST["list_from"]) : 1 );
+$list_to   = ( isset($_REQUEST["list_to"])   ? intval($_REQUEST["list_to"]) : 0);
+
 // If we are saving, then save.
 //
 if ($_POST['formaction'] == 'save' && $list_id) {
@@ -143,13 +147,15 @@ if ($_POST['formaction'] == 'save' && $list_id) {
         if ($list_id == 'immunizations') {
             $ok_map_cvx_codes = isset($_POST['ok_map_cvx_codes']) ? $_POST['ok_map_cvx_codes'] : 0;
         }
-        // erase lists options and recreate them from the submitted form data
-        sqlStatement("DELETE FROM list_options WHERE list_id = ?", array($list_id));
+
         for ($lino = 1; isset($opt["$lino"]['id']); ++$lino) {
             $iter = $opt["$lino"];
             $value = empty($iter['value']) ? 0 : (trim($iter['value']) + 0);
             $id = trim($iter['id']);
-            if (strlen($id) > 0) {
+
+            $real_id = trim($iter['real_id']);
+
+            if (strlen($real_id) > 0 || strlen($id) > 0) {
                 // Special processing for the immunizations list
                 // Map the entered cvx codes into the immunizations table cvx_code
                 // Ensure the following conditions are met to do this:
@@ -176,11 +182,13 @@ if ($_POST['formaction'] == 'save' && $list_id) {
                 // Force List Based Form names to start with LBF.
                 if ($list_id == 'lbfnames' && substr($id, 0, 3) != 'LBF') {
                     $id = "LBF$id";
+                    $real_id = "LBF$real_id";
                 }
 
                 // Force Transaction Form names to start with LBT.
                 if ($list_id == 'transactions' && substr($id, 0, 3) != 'LBT') {
                     $id = "LBT$id";
+                    $real_id = "LBT$real_id";
                 }
 
                 if ($list_id == 'apptstat' || $list_id == 'groupstat') {
@@ -188,27 +196,33 @@ if ($_POST['formaction'] == 'save' && $list_id) {
                 } else {
                     $notes = trim($iter['notes']);
                 }
-                // Insert the list item
-                sqlInsert(
-                    "INSERT INTO list_options ( " .
-                    "list_id, option_id, title, seq, is_default, option_value, mapping, notes, codes, toggle_setting_1, toggle_setting_2, activity, subtype " .
-                    ") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    array(
-                        $list_id,
-                        $id,
-                        trim($iter['title']),
-                        trim($iter['seq']),
-                        trim($iter['default']),
-                        $value,
-                        trim($iter['mapping']),
-                        $notes,
-                        trim($iter['codes']),
-                        trim($iter['toggle_setting_1']),
-                        trim($iter['toggle_setting_2']),
-                        trim($iter['activity']),
-                        trim($iter['subtype'])
-                    )
-                );
+
+                // Delete the list item
+                sqlStatement("DELETE FROM list_options WHERE list_id = ? AND option_id = ?", array($list_id, $real_id));
+                if(strlen($id) <= 0 && strlen(trim($iter['title'])) <=0 && empty($id) && empty($iter['title'])){
+                    continue;
+                }
+                    // Insert the list item
+                 sqlInsert(
+                        "INSERT INTO list_options ( " .
+                        "list_id, option_id, title, seq, is_default, option_value, mapping, notes, codes, toggle_setting_1, toggle_setting_2, activity, subtype " .
+                        ") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                     array(
+                            $list_id,
+                            $id,
+                            trim($iter['title']),
+                            trim($iter['seq']),
+                            trim($iter['default']),
+                            $value,
+                            trim($iter['mapping']),
+                            $notes,
+                            trim($iter['codes']),
+                            trim($iter['toggle_setting_1']),
+                            trim($iter['toggle_setting_2']),
+                            trim($iter['activity']),
+                            trim($iter['subtype'])
+                        )
+                 );
             }
         }
     }
@@ -297,6 +311,10 @@ function writeOptionLine(
     echo " <tr>\n";
 
     echo "  <td>";
+    //New line for hidden input, for update items
+    echo "<input type='hidden' name='opt[" . attr($opt_line_no) . "][real_id]' value='" .
+        attr($option_id) . "' size='12' maxlength='63' class='optin' />";
+
     echo "<input type='text' name='opt[" . attr($opt_line_no) . "][id]' value='" .
         attr($option_id) . "' size='12' maxlength='63' class='optin' />";
     echo "</td>\n";
@@ -992,6 +1010,10 @@ function writeITLine($it_array)
 <body class="body_top">
 <form method='post' name='theform' id='theform' action='edit_list.php'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+
+    <input type="hidden" name="list_from" value="<?php echo attr($list_from);?>"/>
+    <input type="hidden" name="list_to" value="<?php echo attr($list_to);?>"/>
+
 <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
         <div class="navbar-header">
@@ -1023,6 +1045,14 @@ function writeITLine($it_array)
                     <select name='list_id' class="form-control select-dropdown"
                             id="list_id">
                         <?php
+                        /*
+                         * Keep proper list name (otherwise list name changes according to
+                         * the options shown on the screen).
+                         */
+                        $list_id_container = trim(strip_tags($_GET["list_id_container"]));
+                        if (isset($_GET["list_id_container"]) && strlen($list_id_container) > 0) {
+                            $list_id = $list_id_container;
+                        }
 
                         // List order depends on language translation options.
                         $lang_id = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
@@ -1063,6 +1093,49 @@ function writeITLine($it_array)
                         ?>
                     </select>
                 </div>
+
+                <!--Added filter-->
+                <script type="text/javascript">
+                    function lister() {
+                        var urlFull   = new URL($(location).attr('href'));
+                        var list_from = parseInt($("#list-from").val());
+                        var list_to   = parseInt($("#list-to").val());
+                        var list_id_container = $("#list_id").val();
+
+                        if( list_from > list_to ){
+                            alert(<?php echo xlj("Please enter a enter valid range"); ?>);
+                            return false;
+                        }
+                        if( parseInt(list_from) >= 0 ){
+                            urlFull.searchParams.delete("list_from");
+                            urlFull.searchParams.set("list_from",list_from);
+                        }
+
+                        if( parseInt(list_from) >= 0 ){
+                            urlFull.searchParams.delete("list_to");
+                            urlFull.searchParams.set("list_to",list_to);
+                        }
+                        if( list_id_container.length > 0 ){
+                            urlFull.searchParams.delete("list_id_container");
+                            urlFull.searchParams.set("list_id_container", list_id_container );
+                        }
+                        window.location.replace(urlFull);
+                    }
+                </script>
+                <?php
+                    $urlFrom = ( isset($_REQUEST["list_from"]) && intval($_REQUEST["list_from"]) >= 0 ? intval($_REQUEST["list_from"]) :  1 );
+                    $urlTo   = ( isset($_REQUEST["list_to"]) && intval($_REQUEST["list_to"]) >= 0 ? intval($_REQUEST["list_to"]) : '' );
+                    if( $urlTo == 0){
+                        $urlTo = '';
+                    }
+                ?>
+                <div class="blck-filter" style="float: left; margin-top: 5px; margin-left: 10px; border:0px solid red; width: auto; ">
+                    <div id="input-type-from" style="float: left; "><?php echo xlt("From"); ?>&nbsp;<input autocomplete="off" id="list-from" value="<?php echo attr($urlFrom);?>" style = "margin-right: 10px; width: 40px;">
+                        <?php echo xlt("To"); ?>&nbsp;<input autocomplete="off" id="list-to" value="<?php echo attr($urlTo); ?>" style=" margin-right: 10px; width: 40px;">
+                    </div>
+                    <div style="float:left" ><input type="button" value="<?php echo xla('Show records'); ?>" onclick="lister()"></div>
+                </div>
+                <!--Happy end-->
 
         </div><!-- /.navbar-collapse -->
     </div>
@@ -1244,11 +1317,26 @@ if ($GLOBALS['ippf_specific']) { ?>
              *   If the edit_options setting of the main list entry is set to 1,
              *    then the list items with edit_options set to 1 will show.
              */
+
+            /**
+             * In case when we are have a get parametr "list_id_container", we are set manually variable list_id
+             * and range from...to if these is set
+             * adding 1 to from and to limits
+             * And set default order ASC for sort, because we can't use a empty string (sql_limits) for query builder
+             */
+            $sql_limits = '';
+            if ( $list_from > 0 ){
+                $list_from--;
+            }
+            if ( $list_to > 0 ) {
+                $sql_limits = " ASC LIMIT " . escape_limit($list_from) . (intval($list_to) > 0 ? ", " . escape_limit($list_to - $list_from) : "");
+            }
+
             $res = sqlStatement("SELECT lo.*
                          FROM list_options as lo
                          right join list_options as lo2 on lo2.option_id = lo.list_id AND lo2.list_id = 'lists' AND lo2.edit_options = 1
                          WHERE lo.list_id = ? AND lo.edit_options = 1
-                         ORDER BY seq,title", array($list_id));
+                         ORDER BY seq,title ".$sql_limits , array($list_id));
             while ($row = sqlFetchArray($res)) {
                 writeOptionLine(
                     $row['option_id'],
@@ -1340,6 +1428,16 @@ if ($GLOBALS['ippf_specific']) { ?>
         });
         $(".deletelist").click(function () {
             DeleteList(this);
+        });
+
+        //prevent Enter button press on filter
+        $('.blck-filter').on('keyup keypress', function(e)
+        {
+            var keyCode = e.keyCode || e.which;
+            if(keyCode == 13)
+            {
+                return false;
+            }
         });
 
         var SaveChanges = function () {
