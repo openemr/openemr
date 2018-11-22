@@ -191,7 +191,7 @@ if (array_key_exists('form_download', $_POST) && $_POST['form_download']) {
         ob_end_clean();
         ?>
       <script type="text/javascript">
-        alert(<?php echo xls('Offsite Portal web Service Failed') ?> + ":\\n" + <?php echo js_escape($response['value']); ?>);
+        alert(<?php echo xlj('Offsite Portal web Service Failed') ?> + ":\\n" + <?php echo js_escape($response['value']); ?>);
     </script>
         <?php
     }

@@ -229,7 +229,7 @@ if ($_POST['formaction'] == 'save' && $list_id) {
     // delete the lists options
     sqlStatement("DELETE FROM list_options WHERE list_id = ?", array($_POST['list_id']));
     // delete the list from the master list-of-lists
-    sqlStatement("DELETE FROM list_options WHERE list_id = 'lists' AND option_id='?", array($_POST['list_id']));
+    sqlStatement("DELETE FROM list_options WHERE list_id = 'lists' AND option_id=?", array($_POST['list_id']));
 }
 
 $opt_line_no = 0;
