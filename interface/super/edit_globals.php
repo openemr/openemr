@@ -7,7 +7,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2016-2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2016-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -53,7 +53,7 @@ function checkCreateCDB()
 
         $couch = new CouchDB();
         if (!$couch->check_connection()) {
-            echo "<script type='text/javascript'>alert('".addslashes(xl("CouchDB Connection Failed."))."');</script>";
+            echo "<script type='text/javascript'>alert(" . xlj("CouchDB Connection Failed.") . ");</script>";
             return false;
         }
 
@@ -191,7 +191,7 @@ if (array_key_exists('form_download', $_POST) && $_POST['form_download']) {
         ob_end_clean();
         ?>
       <script type="text/javascript">
-        alert('<?php echo xls('Offsite Portal web Service Failed').":\\n".text($response['value']);?>');
+        alert(<?php echo xlj('Offsite Portal web Service Failed') ?> + ":\\n" + <?php echo js_escape($response['value']); ?>);
     </script>
         <?php
     }
@@ -338,7 +338,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
       type: "POST",
       url: "<?php echo $GLOBALS['webroot']?>/library/ajax/offsite_portal_ajax.php",
       data: {
-        csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>',
+        csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>,
         action: 'check_file'
       },
       cache: false,
@@ -593,7 +593,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
 
                               echo "  <input type='text' class='form-control jscolor {hash:true}' name='form_$i' id='form_$i' " .
                                 "maxlength='15' value='" . attr($fldvalue) . "' />" .
-                                "<input type='button' value='" . xla('Default'). "' onclick=\"document.forms[0].form_$i.jscolor.fromString('" . attr($flddef) . "')\">\n";
+                                "<input type='button' value='" . xla('Default'). "' onclick=\"document.forms[0].form_$i.jscolor.fromString(" . attr_js($flddef) . ")\">\n";
                 } else if ($fldtype == 'default_visit_category') {
                                 $sql = "SELECT pc_catid, pc_catname, pc_cattype 
                 FROM openemr_postcalendar_categories
@@ -702,7 +702,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
 
                 if ($userMode) {
                               echo " </div>\n";
-                              echo "<div class='col-xs-2' style='color:red;'>" . attr($globalTitle) . "</div>\n";
+                              echo "<div class='col-xs-2' style='color:red;'>" . text($globalTitle) . "</div>\n";
                               echo "<div class='col-xs-1'><input type='checkbox' value='YES' name='toggle_" . $i . "' id='toggle_" . $i . "' " . attr($settingDefault) . "/></div>\n";
                               echo "<input type='hidden' id='globaldefault_" . $i . "' value='" . attr($globalValue) . "'>\n";
                               echo "</div>\n";
@@ -717,7 +717,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                 echo "<div class='row'>";
                 echo "<div class='col-xs-12'>";
                 echo "<input type='hidden' name='form_download' id='form_download'>";
-                echo "<button onclick=\"return validate_file()\" type='button'>" . xla('Download Offsite Portal Connection Files') . "</button>";
+                echo "<button onclick=\"return validate_file()\" type='button'>" . xlt('Download Offsite Portal Connection Files') . "</button>";
                 echo "<div id='file_error_message' class='alert alert-error'></div>";
                 echo "</div>";
                 echo "</div>";
