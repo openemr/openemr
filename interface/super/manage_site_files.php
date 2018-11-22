@@ -353,7 +353,7 @@ foreach ($imageslist as $sfname) {
 </table>
 
 <p>
-<input type='submit' name='bn_save' value='<?php echo xla('Save')) ?>' />
+<input type='submit' name='bn_save' value='<?php echo xla('Save'); ?>' />
 </p>
 
 </center>
