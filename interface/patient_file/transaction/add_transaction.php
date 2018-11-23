@@ -19,6 +19,7 @@ require_once("$srcdir/amc.php");
 require_once("$srcdir/patient.inc");
 
 use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 // This can come from the URL if it's an Add.
 $title   = empty($_REQUEST['title']) ? 'LBTref' : $_REQUEST['title'];
@@ -308,20 +309,41 @@ div.tab {
     width: auto;
 }
 </style>
+<?php
+$oemr_ui = new OemrUI(); //to display heading with selected icons and help modal if needed
+
+//begin - edit as needed
+$name = " - " . getPatientNameFirstLast($pid); //un-comment to include fname lname, use ONLY on relevant pages :))
+$heading_title = xlt('Add/Edit Patient Transaction') . $name; // Minimum needed is the heading title
+
+//3 optional icons - for ease of use and troubleshooting first create the variables and use them to populate the arrays:)
+$arrExpandable = array();//2 elements - int|bool $current_state, int:bool $expandable . $current_state= collectAndOrganizeExpandSetting($arr_files_php).
+                         //$arr_files_php is also an indexed array, current file name first, linked file names thereafter, all need _xpd suffix, names to be unique
+$action = 'back';
+$action_title = '';
+$action_href = 'transactions.php';
+$arrAction = array($action, $action_title, $action_href );//3 elements - string $action (conceal, reveal, search, reset, link and back), string $action_title - leave blank for actions
+                     // (conceal, reveal and search), string $action_href - needed for actions (reset, link and back)
+$show_help_icon = 1;
+$help_file_name = 'add_edit_transactions_dashboard_help.php';
+$arrHelp = array($show_help_icon, $help_file_name );// 2 elements - int|bool $show_help_icon, string $help_file_name - file needs to exist in Documentation/help_files directory
+//end - edit as needed
+//do not edit below
+$arrHeader = array($heading_title, $arrExpandable, $arrAction, $arrHelp); // minimum $heading_title - array($heading_title) - displays only heading
+$arrheading = $oemr_ui->pageHeading($arrHeader); // returns an indexed array containing heading string with selected icons and container string value
+$heading = $arrheading[0];
+$container = $arrheading[1];
+?>
 
 </head>
 <body class="body_top" onload="<?php echo $body_onload_code; ?>" >
-    <div class="container">
+    <div id="container_div" class="<?php echo $container;?>">
         <form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo attr_url($transid); ?>' onsubmit='return validate(this)'>
         <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
         <input type='hidden' name='mode' value='add'>
-            <?php $header_title = xl('Add/Edit Patient Transaction of');?>
             <div class="row">
                 <div class="col-sm-12">
-                    <?php
-                        $go_back_href = "transactions.php";
-                        require_once("../summary/dashboard_header_simple_return.php");
-                    ?>
+                    <?php require_once("$include_root/patient_file/summary/dashboard_header.php"); ?>
                 </div>
             </div>
             <div class="row">
@@ -551,15 +573,8 @@ div.tab {
         <!-- include support for the list-add selectbox feature -->
         <?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
     </div> <!--end of container div-->
-    <?php
-    //home of the help modal ;)
-    //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
-    if ($GLOBALS['enable_help'] == 1) {
-        echo "<script>var helpFile = 'add_edit_transactions_dashboard_help.php'</script>";
-        //help_modal.php lives in interface, set path accordingly
-        require "../../help_modal.php";
-    }
-    ?>
+    <?php $oemr_ui->helpFileModal(); // help file name passed in $arrHeading [3][1] ?>
+    <script> <?php require_once("$srcdir/js/oeUI/headerTitleAction.js"); ?></script>
 </body>
 
 <script language="JavaScript">

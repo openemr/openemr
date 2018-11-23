@@ -20,6 +20,7 @@ require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
+use OpenEMR\OeUI\OemrUI;
 
 $records1 = array();
 $records2 = array();
@@ -105,25 +106,35 @@ $records2 = array();
                 border-bottom: 2px solid #003366;
             }
         </style>
+        <script> <?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?></script>
         <?php
-        //to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will
-        //become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an
-        //argument, containing one or more elements, the name of the current file is the first element, if there are linked
-        // files they should be listed thereafter, please add _xpd suffix to the file name
+        $oemr_ui = new OemrUI(); //to display heading with selected icons and help modal if needed
+
+        //begin - edit as needed
+        $name = " - " . getPatientNameFirstLast($pid); //un-comment to include fname lname, use ONLY on relevant pages :))
+        $heading_title = xlt('External Data') . $name; // Minimum needed is the heading title
+
+        //3 optional icons - for ease of use and troubleshooting first create the variables and use them to populate the arrays:)
         $arr_files_php = array("external_data_patient_xpd", "stats_full_patient_xpd", "patient_ledger_patient_xpd");
         $current_state = collectAndOrganizeExpandSetting($arr_files_php);
-        require_once("$srcdir/expand_contract_inc.php");
-        $GLOBALS['enable_help'] = 0; // temporary till help file is written
+        $expandable = 1;
+        $arrExpandable = array($current_state, $expandable );//2 elements - int|bool $current_state, int:bool $expandable . $current_state= collectAndOrganizeExpandSetting($arr_files_php).
+                                 //$arr_files_php is also an indexed array, current file name first, linked file names thereafter, all need _xpd suffix, names to be unique
+        $arrAction = array( );//3 elements - string $action (conceal, reveal, search, reset, link and back), string $action_title - leave blank for actions
+                             // (conceal, reveal and search), string $action_href - needed for actions (reset, link and back)
+        $show_help_icon = 0; // temporarily hidden
+        $help_file_name = 'external_data_dashboard_help.php';
+        $arrHelp = array($show_help_icon, $help_file_name );// 2 elements - int|bool $show_help_icon, string $help_file_name - file needs to exist in Documentation/help_files directory
+        //end - edit as needed
+        //do not edit below
+        $arrHeader = array($heading_title, $arrExpandable, $arrAction, $arrHelp); // minimum $heading_title - array($heading_title) - displays only heading
+        $arrheading = $oemr_ui->pageHeading($arrHeader); // returns an indexed array containing heading string with selected icons and container string value
+        $heading = $arrheading[0];
+        $container = $arrheading[1];
         ?>
-        <script>
-        <?php
-        require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal
-        require_once("$include_root/expand_contract_js.php");//jQuery to provide expand/contract icon toggle if form is expandable
-        ?>
-        </script>
     </head>
     <body class="body_top">
-        <div class="<?php echo $container;?> expandable">
+        <div id="container_div" class="<?php echo $container;?>">
             <?php $header_title = xl('External Data of');?>
             <div class="row">
                 <div class="col-sm-12">
@@ -229,15 +240,8 @@ $records2 = array();
                 </div>
             </div>
         </div><!--end of container div-->
-        <?php
-        //home of the help modal ;)
-        //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page, temporary status till help file is written
-        if ($GLOBALS['enable_help'] == 1) {
-            echo "<script>var helpFile = 'external_data_dashboard_help.php'</script>";
-            require "$include_root/help_modal.php";
-            ;
-        }
-        ?>
+        <?php $oemr_ui->helpFileModal(); // help file name passed in $arrHeading [3][1] ?>
+        <script> <?php require_once("$srcdir/js/oeUI/headerTitleAction.js"); ?></script>
     <script>
         var listId = '#' + <?php echo js_escape($list_id); ?>;
         $(document).ready(function(){
