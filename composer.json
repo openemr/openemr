@@ -73,6 +73,7 @@
             "OpenEMR\\Entities\\" : "entities",
             "OpenEMR\\Services\\" : "services",
             "OpenEMR\\Repositories\\" : "repositories",
+            "OpenEMR\\Encounter\\Services\\" : "interface/patient_file/encounter/Services",
             "OpenEMR\\Admin\\" : "library/admin/src",
             "OpenEMR\\Core\\" : "library/core/src",
             "OpenEMR\\Menu\\" : "library/menu/src",
@@ -82,7 +83,8 @@
             "OpenEMR\\Billing\\" : "library/billing/src",
             "OpenEMR\\Pdf\\" : "library/pdf/src",
             "OpenEMR\\Tabs\\" : "library/tabs/src",
-            "OpenEMR\\Rx\\Weno\\" : "library/weno/src"
+            "OpenEMR\\Rx\\Weno\\" : "library/weno/src",
+            "OpenEMR\\OeUI\\" : "library/oeUI/src"
         }
     }
 }
