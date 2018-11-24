@@ -2,13 +2,13 @@
 /**
  * Facility user-specific settings.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Scott Wakefield <scott@npclinics.com.au>
- * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Scott Wakefield <scott@npclinics.com.au>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2012 NP Clinics <info@npclinics.com.au>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -17,6 +17,12 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 
 use OpenEMR\Core\Header;
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 // Ensure authorized
 if (!acl_check('admin', 'users')) {
@@ -130,7 +136,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
                         while ($user = sqlFetchArray($u_res)) {
                             foreach ($f_arr as $facility) { ?>
                                 <tr>
-                                    <td><a href="facility_user_admin.php?user_id=<?php echo attr($user['id']);?>&fac_id=<?php echo attr($facility['id']);?>" class="small_modal" onclick="top.restoreSession()"><b><?php echo text($user['username']);?></b></a>&nbsp;</td>
+                                    <td><a href="facility_user_admin.php?user_id=<?php echo attr_url($user['id']);?>&fac_id=<?php echo attr_url($facility['id']); ?>" class="small_modal" onclick="top.restoreSession()"><b><?php echo text($user['username']);?></b></a>&nbsp;</td>
                                     <td><?php echo text($user['fname'] . " " . $user['lname']);?></td>
                                     <td><?php echo text($facility['name']);?>&nbsp;</td>
                                     <?php

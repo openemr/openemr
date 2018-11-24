@@ -99,14 +99,13 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
     //Gets validation rules from Page Validation list.
     //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
     $collectthis = collectValidationPageRules("/interface/forms/newpatient/common.php");
-    $collectthis = collectValidationPageRules("/interface/forms/newpatient/common.php");
     if (empty($collectthis)) {
          $collectthis = "undefined";
     } else {
-         $collectthis = $collectthis["new_encounter"]["rules"];
+         $collectthis = json_sanitize($collectthis["new_encounter"]["rules"]);
     }
     ?>
-    var collectvalidation = <?php echo($collectthis); ?>;
+    var collectvalidation = <?php echo $collectthis; ?>;
     $(document).ready(function(){
         window.saveClicked = function(event) {
             var submit = submitme(1, event, 'new-encounter-form', collectvalidation);

@@ -7,7 +7,7 @@
  * @author    Ranganath Pathak <pathak01@hotmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Ranganath Pathak <pathak01@hotmail.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,6 +16,12 @@ require_once("../../library/acl.inc");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 $facilityService = new FacilityService();
 
@@ -184,7 +190,7 @@ $(document).ready(function(){
                                     }
                             ?>
                             <tr height="22">
-                                 <td valign="top" class="text"><b><a href="facility_admin.php?fid=<?php echo attr($iter3["id"]); ?>" class="medium_modal"><span><?php echo text($iter3["name"]);?></span></a></b>&nbsp;</td>
+                                 <td valign="top" class="text"><b><a href="facility_admin.php?fid=<?php echo attr_url($iter3["id"]); ?>" class="medium_modal"><span><?php echo text($iter3["name"]);?></span></a></b>&nbsp;</td>
                                  <td valign="top" class="text"><?php echo text($varstreet.$varcity.$varstate.$iter3["country_code"]." ".$iter3["postal_code"]); ?>&nbsp;</td>
                                  <td><?php echo text($iter3["phone"]);?>&nbsp;</td>
                             </tr>
@@ -207,7 +213,7 @@ $(document).ready(function(){
     <script language="JavaScript">
     <?php
     if ($alertmsg = trim($alertmsg)) {
-        echo "alert('$alertmsg');\n";
+        echo "alert(" . js_escape($alertmsg) . ");\n";
     }
     ?>
     </script>

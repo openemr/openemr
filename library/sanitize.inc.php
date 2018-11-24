@@ -88,6 +88,17 @@ function csrfNotVerified($toScreen = true, $toLog = true)
     die;
 }
 
+// Sanitize a json encoded entry.
+function json_sanitize($json)
+{
+    if (json_decode($json)) {
+        return json_encode(json_decode($json, true));
+    } else {
+        error_log("OPENEMR ERROR: " . $json . " is not a valid json ");
+        return false;
+    }
+}
+
 // If the label contains any illegal characters, then the script will die.
 function check_file_dir_name($label)
 {

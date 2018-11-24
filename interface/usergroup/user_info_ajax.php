@@ -16,13 +16,19 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2013 OEMR <www.oemr.org>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
 
 
 require_once("../globals.php");
 require_once("$srcdir/authentication/password_change.php");
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 $curPass=$_REQUEST['curPass'];
 $newPass=$_REQUEST['newPass'];
