@@ -1,4 +1,5 @@
 <?php
+require_once(dirname(__FILE__) . '/appointments.inc.php');
 /**
  * Allow the last name to be followed by a comma and some part of a first name(can
  *   also place middle name after the first name with a space separating them)
@@ -1422,4 +1423,77 @@ function dh_generate_select_list(
 
 
 
+
+
+//Support for therapy group appointments added by shachar z.
+function dh_fetchAppointments($from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null, $pc_catid = null, $tracker_board = false, $nextX = 0, $group_id = null, $patient_name = null)
+{
+    $sqlBindArray = array();
+
+    $where = "";
+
+    if ($provider_id) {
+        $where .= " AND e.pc_aid = ?";
+        array_push($sqlBindArray, $provider_id);
+    }
+
+    if ($patient_id) {
+        $where .= " AND e.pubpid = ?";
+        array_push($sqlBindArray, $patient_id);
+    } elseif ($group_id) {
+        //if $group_id this means we want only the group events
+        $where .= " AND e.pc_gid = ? AND p.pub_pid = ''";
+        array_push($sqlBindArray, $group_id);
+    } else {
+        $where .= " AND p.pubpid != ''";
+    }
+
+    if ($facility_id) {
+        $where .= " AND e.pc_facility = ?";
+        array_push($sqlBindArray, $facility_id);
+    }
+
+    //Appointment Status Checking
+    if ($pc_appstatus != '') {
+        $where .= " AND e.pc_apptstatus = ?";
+        array_push($sqlBindArray, $pc_appstatus);
+    }
+
+    if ($pc_catid != null) {
+        $where .= " AND e.pc_catid = ?";
+        array_push($sqlBindArray, $pc_catid);
+    }
+
+    if ($patient_name != null) {
+        $where .= " AND (p.fname LIKE CONCAT('%',?,'%') OR p.lname LIKE CONCAT('%',?,'%'))";
+        array_push($sqlBindArray, $patient_name, $patient_name);
+    }
+
+    //Without Provider checking
+    if ($with_out_provider != '') {
+        $where .= " AND e.pc_aid = ''";
+    }
+
+    //Without Facility checking
+    if ($with_out_facility != '') {
+        $where .= " AND e.pc_facility = 0";
+    }
+    echo "<script type='text/javascript'>alert('$where');</script>";
+    $appointments = fetchEvents($from_date, $to_date, $where, '', $tracker_board, $nextX, $sqlBindArray);
+    return $appointments;
+}
+
+function dh_fetch_Patient_Tracker_Events($from_date, $to_date, $provider_id = null, $facility_id = null, $form_apptstatus = null, $form_apptcat = null, $form_patient_name = null, $form_patient_id = null)
+{
+    # used to determine which providers to display in the Patient Tracker
+    if ($provider_id == 'ALL') {
+      //set null to $provider id if it's 'all'
+        $provider_id = null;
+    }
+
+    $events = fetchAppointments($from_date, $to_date, $form_patient_id, $provider_id, $facility_id, $form_apptstatus, null, null, $form_apptcat, true, 0, null, $form_patient_name);
+    return $events;
+}
+
 ?> 
+
