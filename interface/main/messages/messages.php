@@ -35,7 +35,7 @@ $collectthis = collectValidationPageRules("/interface/main/messages/messages.php
 if (empty($collectthis)) {
     $collectthis = "{}";
 } else {
-    $collectthis = $collectthis[array_keys($collectthis)[0]]["rules"];
+    $collectthis = json_sanitize($collectthis[array_keys($collectthis)[0]]["rules"]);
 }
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
@@ -851,7 +851,7 @@ if (!empty($_REQUEST['go'])) { ?>
     ?>
     <script language="javascript">
 
-        var collectvalidation = <?php echo($collectthis); ?>;
+        var collectvalidation = <?php echo $collectthis; ?>;
 
         $(document).ready(function(){
             $("#reminders-div").hide();

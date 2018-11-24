@@ -5,9 +5,10 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once("../globals.php");
 require_once("../../library/acl.inc");
@@ -46,7 +47,7 @@ $collectthis = collectValidationPageRules("/interface/usergroup/usergroup_admin_
 if (empty($collectthis)) {
     $collectthis = "undefined";
 } else {
-    $collectthis = $collectthis["new_user"]["rules"];
+    $collectthis = json_sanitize($collectthis["new_user"]["rules"]);
 }
 ?>
 <script language="JavaScript">
@@ -55,7 +56,7 @@ if (empty($collectthis)) {
 * validation on the form with new client side validation (using validate.js).
 * this enable to add new rules for this form in the pageValidation list.
 * */
-var collectvalidation = <?php echo($collectthis); ?>;
+var collectvalidation = <?php echo $collectthis; ?>;
 
 function trimAll(sString)
 {
@@ -79,32 +80,35 @@ function submitform() {
 
    //Checking if secure password is enabled or disabled.
    //If it is enabled and entered password is a weak password, alert the user to enter strong password.
-   if(document.new_user.secure_pwd.value == 1){
-      var password = trim(document.new_user.stiltskin.value);
-      if(password != "") {
-         var pwdresult = passwordvalidate(password);
-         if(pwdresult === 0){
-            alert("<?php echo xls('The password must be at least eight characters, and should');
-            echo '\n';
-            echo xls('contain at least three of the four following items:');
-            echo '\n';
-            echo xls('A number');
-            echo '\n';
-            echo xls('A lowercase letter');
-            echo '\n';
-            echo xls('An uppercase letter');
-            echo '\n';
-            echo xls('A special character');
-            echo '(';
-            echo xls('not a letter or number');
-            echo ').';
-            echo '\n';
-            echo xls('For example:');
-            echo ' healthCare@09'; ?>");
-            return false;
-         }
-      }
-   } //secure_pwd if ends here
+    if(document.new_user.secure_pwd.value == 1){
+        var password = trim(document.new_user.stiltskin.value);
+        if(password != "") {
+            var pwdresult = passwordvalidate(password);
+            if(pwdresult === 0){
+                alert(
+                    <?php echo xlj('The password must be at least eight characters, and should'); ?> +
+                    '\n' +
+                    <?php echo xlj('contain at least three of the four following items:'); ?> +
+                    '\n' +
+                    <?php echo xlj('A number'); ?> +
+                    '\n' +
+                    <?php echo xlj('A lowercase letter'); ?> +
+                    '\n' +
+                    <?php echo xlj('An uppercase letter'); ?> +
+                    '\n' +
+                    <?php echo xlj('A special character'); ?> +
+                    '\n' +
+                    '(' +
+                    <?php echo xlj('not a letter or number'); ?> +
+                    ').' +
+                    '\n' +
+                    <?php echo xlj('For example:'); ?> +
+                    ' healthCare@09'
+                );
+                return false;
+            }
+        }
+    } //secure_pwd if ends here
 
     <?php if ($GLOBALS['erx_enable']) { ?>
    alertMsg='';
@@ -204,6 +208,8 @@ function authorized_clicked() {
 
 <tr><td valign=top>
 <form name='new_user' id="new_user" method='post' action="usergroup_admin.php">
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+
 <input type='hidden' name='mode' value='new_user'>
 <input type='hidden' name='secure_pwd' value="<?php echo attr($GLOBALS['secure_password']); ?>">
 
@@ -366,8 +372,8 @@ echo generate_select_list(
  <td><select name="access_group[]" multiple style="width:120px;" class="form-control">
 <?php
 // List the access control groups
-  $list_acl_groups = acl_get_group_title_list();
-  $default_acl_group = 'Administrators';
+$list_acl_groups = acl_get_group_title_list();
+$default_acl_group = 'Administrators';
 foreach ($list_acl_groups as $value) {
     if ($default_acl_group == $value) {
         // Modified 6-2009 by BM - Translate group name if applicable
@@ -399,6 +405,7 @@ foreach ($list_acl_groups as $value) {
 <td valign=top>
 <form name='new_group' method='post' action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <br>
 <input type=hidden name=mode value=new_group>
 <span class="bold"><?php echo xlt('New Group'); ?>:</span>
@@ -430,6 +437,7 @@ foreach ($result as $iter) {
 <td valign=top>
 <form name='new_group' method='post' action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <input type=hidden name=mode value=new_group>
 <span class="bold"><?php echo xlt('Add User To Group'); ?>:</span>
 </td><td>
@@ -481,7 +489,7 @@ if (empty($GLOBALS['disable_non_default_groups'])) {
     foreach ($result5 as $iter) {
         $grouplist{$iter{"name"}} .= $iter{"user"} .
         "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
-        attr($iter{"id"}) . "' onclick='top.restoreSession()'>" . xlt("Remove") . "</a>), ";
+        attr_url($iter{"id"}) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' onclick='top.restoreSession()'>" . xlt("Remove") . "</a>), ";
     }
 
     foreach ($grouplist as $groupname => $list) {
@@ -494,7 +502,7 @@ if (empty($GLOBALS['disable_non_default_groups'])) {
 <script language="JavaScript">
 <?php
 if ($alertmsg = trim($alertmsg)) {
-    echo "alert('$alertmsg');\n";
+    echo "alert('" . js_escape($alertmsg) . "');\n";
 }
 ?>
 $(document).ready(function(){
