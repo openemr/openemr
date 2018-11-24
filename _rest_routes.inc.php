@@ -27,6 +27,8 @@ use OpenEMR\RestControllers\ONoteRestController;
 use OpenEMR\RestControllers\DocumentRestController;
 use OpenEMR\RestControllers\InsuranceRestController;
 use OpenEMR\RestControllers\MessageRestController;
+use OpenEMR\RestControllers\FhirPatientRestController;
+use OpenEMR\RestControllers\FhirEncounterRestController;
 
 RestConfig::$ROUTE_MAP = array(
     "POST /api/auth" => function () {
@@ -317,5 +319,21 @@ RestConfig::$ROUTE_MAP = array(
     "DELETE /api/patient/:pid/message/:mid" => function ($pid, $mid) {
         authorization_check("patients", "notes");
         return (new MessageRestController())->delete($pid, $mid, $data);
-    }
+    },
+    "GET /fhir/Patient" => function () {
+        authorization_check("patients", "demo");
+        return (new FhirPatientRestController(null))->getAll($_GET);
+    },
+    "GET /fhir/Patient/:pid" => function ($pid) {
+        authorization_check("patients", "demo");
+        return (new FhirPatientRestController($pid))->getOne();
+    },
+    "GET /fhir/Encounter" => function () {
+        authorization_check("encounters", "auth_a");
+        return (new FhirEncounterRestController(null))->getAll($_GET);
+    },
+    "GET /fhir/Encounter/:eid" => function ($eid) {
+        authorization_check("encounters", "auth_a");
+        return (new FhirEncounterRestController())->getOne($eid);
+    },
 );
