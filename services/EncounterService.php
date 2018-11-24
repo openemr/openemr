@@ -17,6 +17,7 @@
  *
  * @package OpenEMR
  * @author  Matthew Vita <matthewvita48@gmail.com>
+ * @author  Jerry Padgett <sjpadgett@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -112,6 +113,102 @@ class EncounterService
         return $results;
     }
 
+    public function getEncountersBySearch($search)
+    {
+        $sql = "SELECT fe.encounter as id,
+                       fe.date,
+                       fe.reason,
+                       fe.facility,
+                       fe.facility_id,
+                       fe.pid,
+                       fe.encounter,
+                       fe.onset_date,
+                       fe.sensitivity,
+                       fe.billing_note,
+                       fe.pc_catid,
+                       fe.last_level_billed,
+                       fe.last_level_closed,
+                       fe.last_stmt_date,
+                       fe.stmt_count,
+                       fe.provider_id,
+                       fe.supervisor_id,
+                       fe.invoice_refno,
+                       fe.referral_source,
+                       fe.billing_facility,
+                       fe.external_id,
+                       fe.pos_code,
+                       opc.pc_catname,
+                       fa.name AS billing_facility_name
+                       FROM form_encounter as fe
+                       LEFT JOIN openemr_postcalendar_categories as opc
+                       ON opc.pc_catid = fe.pc_catid
+                       LEFT JOIN facility as fa ON fa.id = fe.billing_facility";
+
+        if ($search['pid'] || $search['provider_id']) {
+            $sql .= " WHERE ";
+
+            $whereClauses = array();
+            if ($search['pid']) {
+                array_push($whereClauses, "pid='" . add_escape_custom($search['pid']) . "'");
+            }
+            if ($search['provider_id']) {
+                array_push($whereClauses, "provider_id='" . add_escape_custom($search['provider_id']) . "'");
+            }
+
+            $sql .= implode(" AND ", $whereClauses);
+        } else {
+            return false;
+        }
+        $sql .= " ORDER BY fe.id DESC";
+        $statementResults = sqlStatement($sql);
+
+        $results = array();
+        while ($row = sqlFetchArray($statementResults)) {
+            array_push($results, $row);
+        }
+
+        return $results;
+    }
+
+    public function getEncounter($eid)
+    {
+        $sql = "SELECT fe.encounter as id,
+                       fe.date,
+                       fe.reason,
+                       fe.facility,
+                       fe.facility_id,
+                       fe.pid,
+                       fe.onset_date,
+                       fe.sensitivity,
+                       fe.billing_note,
+                       fe.pc_catid,
+                       fe.last_level_billed,
+                       fe.last_level_closed,
+                       fe.last_stmt_date,
+                       fe.stmt_count,
+                       fe.provider_id,
+                       fe.supervisor_id,
+                       fe.invoice_refno,
+                       fe.referral_source,
+                       fe.billing_facility,
+                       fe.external_id,
+                       fe.pos_code,
+                       opc.pc_catname,
+                       fa.name AS billing_facility_name
+                       FROM form_encounter as fe
+                       LEFT JOIN openemr_postcalendar_categories as opc
+                       ON opc.pc_catid = fe.pc_catid
+                       LEFT JOIN facility as fa ON fa.id = fe.billing_facility
+                       WHERE fe.encounter=?
+                       ORDER BY fe.id
+                       DESC";
+
+        return sqlQuery($sql, array($eid));
+    }
+
+    // @todo recm changing routes
+    // encounter id is system unique so pid is not needed
+    // resources should be independent where possible
     public function getEncounterForPatient($pid, $eid)
     {
         $sql = "SELECT fe.encounter as id,

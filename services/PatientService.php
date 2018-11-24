@@ -21,23 +21,24 @@
  */
 
 namespace OpenEMR\Services;
+
 use Particle\Validator\Validator;
 
 class PatientService
 {
 
-  /**
-   * In the case where a patient doesn't have a picture uploaded,
-   * this value will be returned so that the document controller
-   * can return an empty response.
-   */
+    /**
+     * In the case where a patient doesn't have a picture uploaded,
+     * this value will be returned so that the document controller
+     * can return an empty response.
+     */
     private $patient_picture_fallback_id = -1;
 
     private $pid;
 
-  /**
-   * Default constructor.
-   */
+    /**
+     * Default constructor.
+     */
     public function __construct()
     {
     }
@@ -65,11 +66,11 @@ class PatientService
         return $this->pid;
     }
 
-  /**
-   * TODO: This should go in the ChartTrackerService and doesn't have to be static.
-   * @param $pid unique patient id
-   * @return recordset
-   */
+    /**
+     * TODO: This should go in the ChartTrackerService and doesn't have to be static.
+     * @param $pid unique patient id
+     * @return recordset
+     */
     public static function getChartTrackerInformationActivity($pid)
     {
         $sql = "SELECT ct.ct_when,
@@ -86,10 +87,10 @@ class PatientService
         return sqlStatement($sql, array($pid));
     }
 
-  /**
-   * TODO: This should go in the ChartTrackerService and doesn't have to be static.
-   * @return recordset
-   */
+    /**
+     * TODO: This should go in the ChartTrackerService and doesn't have to be static.
+     * @return recordset
+     */
     public static function getChartTrackerInformation()
     {
         $sql = "SELECT ct.ct_when,
@@ -110,7 +111,8 @@ class PatientService
         return sqlStatement($sql);
     }
 
-    public function getFreshPid() {
+    public function getFreshPid()
+    {
         $pid = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
 
         return $pid['pid'] === null ? 1 : $pid['pid'];
@@ -120,7 +122,7 @@ class PatientService
     {
         $fresh_pid = $this->getFreshPid();
 
-        $sql  = " INSERT INTO patient_data SET";
+        $sql = " INSERT INTO patient_data SET";
         $sql .= "     pid='" . add_escape_custom($fresh_pid) . "',";
         $sql .= "     title='" . add_escape_custom($data["title"]) . "',";
         $sql .= "     fname='" . add_escape_custom($data["fname"]) . "',";
@@ -148,7 +150,7 @@ class PatientService
 
     public function update($pid, $data)
     {
-        $sql  = " UPDATE patient_data SET";
+        $sql = " UPDATE patient_data SET";
         $sql .= "     title='" . add_escape_custom($data["title"]) . "',";
         $sql .= "     fname='" . add_escape_custom($data["fname"]) . "',";
         $sql .= "     mname='" . add_escape_custom($data["mname"]) . "',";
@@ -189,18 +191,28 @@ class PatientService
                    race,
                    ethnicity
                 FROM patient_data";
-        
-        if ($search['fname'] || $search['lname'] || $search['dob']) {
+
+        if ($search['name'] || $search['fname'] || $search['lname'] || $search['dob']) {
             $sql .= " WHERE ";
 
             $whereClauses = array();
-
-            if ($search['fname']) { array_push($whereClauses, "fname='" . add_escape_custom($search['fname']) . "'"); }
-            if ($search['lname']) { array_push($whereClauses, "lname='" . add_escape_custom($search['lname']) . "'"); }
-            if ($search['dob']) { array_push($whereClauses, "dob='" . add_escape_custom($search['dob']) . "'"); }
+            if ($search['name']) {
+                $search['name'] = '%' . $search['name'] . '%';
+                array_push($whereClauses, "CONCAT(lname,' ', fname) LIKE '" . add_escape_custom($search['name']) . "'");
+            }
+            if ($search['fname']) {
+                array_push($whereClauses, "fname='" . add_escape_custom($search['fname']) . "'");
+            }
+            if ($search['lname']) {
+                array_push($whereClauses, "lname='" . add_escape_custom($search['lname']) . "'");
+            }
+            if ($search['dob'] || $search['birthdate']) {
+                $search['dob'] = !empty($search['dob']) ? $search['dob'] : $search['birthdate'];
+                array_push($whereClauses, "dob='" . add_escape_custom($search['dob']) . "'");
+            }
 
             $sql .= implode(" AND ", $whereClauses);
-        } 
+        }
 
         $statementResults = sqlStatement($sql);
 
@@ -238,9 +250,9 @@ class PatientService
         return sqlQuery($sql, $this->pid);
     }
 
-  /**
-   * @return number
-   */
+    /**
+     * @return number
+     */
     public function getPatientPictureDocumentId()
     {
         $sql = "SELECT doc.id AS id

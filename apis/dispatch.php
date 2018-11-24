@@ -13,7 +13,6 @@
 include_once("./../_rest_config.php");
 
 $gbl = RestConfig::GetInstance();
-
 $routes = $gbl::$ROUTE_MAP;
 $base_path = $gbl::$ROOT_URL;
 $resource = '';
@@ -31,6 +30,7 @@ if (!empty($_REQUEST['_REWRITE_COMMAND'])) {
         }
     }
 }
+
 // Maintain site id for multi site compatibility.
 // token is a 32 character hash followed by hex encoded site id.
 if ($resource === "/api/auth") {
@@ -43,6 +43,12 @@ if ($resource === "/api/auth") {
         $token = str_split($_SERVER["HTTP_X_API_TOKEN"], 32);
         $_SERVER["HTTP_X_API_TOKEN"] = $token[0]; // reset hash to further the adventure.
         $_GET['site'] = hex2bin($token[1]); // site id
+    } else {
+        // token should always return with embedded site id
+        // remove for production and comment in 401
+        $_GET['site'] = "default";
+        //http_response_code(401);
+        //exit;
     }
 }
 
