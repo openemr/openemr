@@ -325,11 +325,17 @@ if (!$_REQUEST['flb_table']) {
                             while ($urow = sqlFetchArray($ures)) {
                                 $provid = $urow['id'];
                                 $select_provs .= "    <option value='" . attr($provid) . "'";
-                                if (isset($_POST['form_provider']) && $provid == $_POST['form_provider']) {
+                                //dh 11/11/2018 adding acl check here
+
+                                if (isset($_POST['form_provider']) && $provid == $_POST['form_provider'] && acl_check('patients', 'p_list')) {
                                     $select_provs .= " selected";
                                 } elseif (!isset($_POST['form_provider']) && $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']) {
                                     $select_provs .= " selected";
+                                } elseif (!acl_check('patients', 'p_list')){
+                                    $select_provs .= " disabled";
                                 }
+
+
                                 $select_provs .= ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
                                 $count_provs++;
                             }
@@ -340,8 +346,14 @@ if (!$_REQUEST['flb_table']) {
                                 echo "disabled";
                             }
                             ?> onchange="refineMe('provider');">
+                            <?php
+                            //adding acl check here to limit providers if patient list not allowed
+                            if (acl_check('patients', 'p_list')) {
+                                ?>
                                 <option value="" selected><?php echo xlt('All Providers'); ?></option>
-
+                            <?php
+                            }
+                            ?>
                                 <?php
                                 echo $select_provs;
                                 ?>
@@ -849,9 +861,10 @@ if ($appointment['room'] > '') {
                                 $from_time = strtotime($newarrive);
                                 $to_time = strtotime(date("Y-m-d H:i:s"));
                             }
-                            $timecheck2 = round(abs($to_time - $from_time) / 60, 0);
+                            //dh 11/11/2018 changing this to hours from minutes
+                            $timecheck2 = round(abs($to_time - $from_time) / 60 /60 , 2);
                             if (strtotime($newarrive) != '' && ($timecheck2 >= 1)) {
-                                echo text($timecheck2 . ' ' . ($timecheck2 >= 2 ? xl('minutes') : xl('minute')));
+                                echo text($timecheck2 . ' ' . ($timecheck2 >= 2 ? xl('hours') : xl('hours')));
                             }
                             // end total time in practice
                             echo text($appointment['pc_time']); ?>
