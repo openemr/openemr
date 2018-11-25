@@ -85,7 +85,7 @@ function validateUsingPageRules($fileNamePath)
             echo("\r\n");
 
             echo("\r\n");
-            echo ('var submitvalue = submitme(' . js_escape($use_validate_js) . ',event,' . js_escape($key) . ',' . json_encode(json_decode($collectThis[$key]['rules'], true)) . ');');
+            echo ('var submitvalue = submitme(' . js_escape($use_validate_js) . ',event,' . js_escape($key) . ',' . json_sanitize($collectThis[$key]['rules']) . ');');
             echo("\r\n");
             echo(' if(submitvalue){');
             echo("\r\n");

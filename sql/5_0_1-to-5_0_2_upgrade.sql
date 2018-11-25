@@ -644,3 +644,17 @@ ALTER TABLE `form_eye_mag_dispense` ADD COLUMN `CTLOSQUANTITY` varchar(255) DEFA
 #IfMissingColumn medex_prefs status
 ALTER TABLE `medex_prefs` ADD COLUMN `status` text;
 #EndIf
+
+UPDATE `list_options` SET `notes`='{"form_title":{"presence": true}}' WHERE `list_id`='page_validation' AND `option_id`='add_edit_issue#theform';
+UPDATE `list_options` SET `notes`='{"pc_catid":{"exclusion": ["_blank"]}}' WHERE `list_id`='page_validation' AND `option_id`='common#new_encounter';
+UPDATE `list_options` SET `notes`='{"form_patient":{"presence": {"message": "Patient Name Required"}}}' WHERE `list_id`='page_validation' AND `option_id`='add_edit_event#theform';
+UPDATE `list_options` SET `notes`='{"rumple":{"presence": {"message":"Required field missing: Please enter the User Name"}}, "stiltskin":{"presence": {"message":"Please enter the password"}}, "fname":{"presence": {"message":"Required field missing: Please enter the First name"}}, "lname":{"presence": {"message":"Required field missing: Please enter the Last name"}}}' WHERE `list_id`='page_validation' AND `option_id`='usergroup_admin_add#new_user';
+UPDATE `list_options` SET `notes`='{"fname":{"presence": {"message":"Required field missing: Please enter the First name"}}, "lname":{"presence": {"message":"Required field missing: Please enter the Last name"}}}' WHERE `list_id`='page_validation' AND `option_id`='user_admin#user_form';
+UPDATE `list_options` SET `notes`='{"facility":{"presence": true}, "ncolor":{"presence": true}}' WHERE `list_id`='page_validation' AND `option_id`='facility_admin#facility-form';
+UPDATE `list_options` SET `notes`='{"facility":{"presence": true}, "ncolor":{"presence": true}}' WHERE `list_id`='page_validation' AND `option_id`='facilities_add#facility-add';
+UPDATE `list_options` SET `notes`='{"group_name":{"presence": true}}' WHERE `list_id`='page_validation' AND `option_id`='therapy_groups_add#addGroup';
+UPDATE `list_options` SET `notes`='{"group_name":{"presence": true}}' WHERE `list_id`='page_validation' AND `option_id`='therapy_groups_edit#editGroup';
+UPDATE `list_options` SET `notes`='{"participant_name":{"presence": true}, "group_patient_start":{"presence": true}}' WHERE `list_id`='page_validation' AND `option_id`='tg_add#add-participant-form';
+UPDATE `list_options` SET `notes`='{"pc_catid":{"exclusion": ["_blank"]}}' WHERE `list_id`='page_validation' AND `option_id`='common#new-encounter-form';
+UPDATE `list_options` SET `notes`='{"form_group":{"presence": true}}' WHERE `list_id`='page_validation' AND `option_id`='add_edit_event#theform_groups';
+UPDATE `list_options` SET `notes`='{"form_datetime":{"futureDate":{"message": "Must be future date"}}, "reply_to":{"presence": {"message": "Please choose a patient"}}}' WHERE `list_id`='page_validation' AND `option_id`='messages#new_note';

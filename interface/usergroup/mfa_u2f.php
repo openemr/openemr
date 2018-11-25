@@ -5,9 +5,12 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
+
 
 require_once('../globals.php');
 
@@ -31,17 +34,17 @@ $action = $_REQUEST['action'];
 function doregister() {
   var f = document.forms[0];
   if (f.form_name.value.trim() == '') {
-    alert('<?php echo xls("Please enter a name for this key."); ?>');
+    alert(<?php echo xlj("Please enter a name for this key."); ?>);
     return;
   }
   var request = JSON.parse(f.form_request.value);
   u2f.register(
-    '<?php echo addslashes($appId); ?>',
+    <?php echo js_escape($appId); ?>,
     [request],
     [],
     function(data) {
       if(data.errorCode && data.errorCode != 0) {
-        alert('<?php echo xls("Registration failed with error"); ?> ' + data.errorCode);
+        alert(<?php echo xlj("Registration failed with error"); ?> + ' ' + data.errorCode);
         return;
       }
       f.form_registration.value = JSON.stringify(data);
@@ -135,7 +138,7 @@ if ($action == 'reg1') {
             array($userid, $_POST['form_name'], json_encode($data), '')
         );
     } else {
-        echo " alert('" . xls('This key name is already in use by you. Try again.') . "');\n";
+        echo " alert(" . xlj('This key name is already in use by you. Try again.') . ");\n";
     }
     echo " window.location.href = 'mfa_registrations.php';\n";
     echo "</script>\n";

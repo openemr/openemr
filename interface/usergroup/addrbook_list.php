@@ -3,26 +3,29 @@
  * The address book entry editor.
  * Available from Administration->Addr Book in the concurrent layout.
  *
- * Copyright (C) 2006-2010, 2016 Rod Roark <rod@sunsetsystems.com>
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * Improved slightly by tony@mi-squared.com 2011, added organization to view
- * and search
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Jerry Padgett <sjpadgett@gmail.com>
- * @link    http://open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    tony@mi-squared.com
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2006-2010, 2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
- require_once("../globals.php");
- require_once("$srcdir/acl.inc");
- require_once("$srcdir/options.inc.php");
- use OpenEMR\Core\Header;
+
+require_once("../globals.php");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/options.inc.php");
+
+use OpenEMR\Core\Header;
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 $popup = empty($_GET['popup']) ? 0 : 1;
 $rtn_selection = 0;
@@ -30,12 +33,12 @@ if ($popup) {
     $rtn_selection = $_GET['popup'] == 2 ? 1 : 0;
 }
 
- $form_fname = trim($_POST['form_fname']);
- $form_lname = trim($_POST['form_lname']);
- $form_specialty = trim($_POST['form_specialty']);
- $form_organization = trim($_POST['form_organization']);
- $form_abook_type = trim($_REQUEST['form_abook_type']);
- $form_external = $_POST['form_external'] ? 1 : 0;
+$form_fname = trim($_POST['form_fname']);
+$form_lname = trim($_POST['form_lname']);
+$form_specialty = trim($_POST['form_specialty']);
+$form_organization = trim($_POST['form_organization']);
+$form_abook_type = trim($_REQUEST['form_abook_type']);
+$form_external = $_POST['form_external'] ? 1 : 0;
 
 $sqlBindArray = array();
 $query = "SELECT u.*, lo.option_id AS ab_name, lo.option_value as ab_option FROM users AS u " .
@@ -105,6 +108,7 @@ $res = sqlStatement($query, $sqlBindArray);
 
         <form class='navbar-form' method='post' action='addrbook_list.php'
               onsubmit='return top.restoreSession()'>
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
             <div class="text-center">
                 <div class="form-group">
@@ -126,8 +130,7 @@ $res = sqlStatement($query, $sqlBindArray);
                     // Generates a select list named form_abook_type:
                     echo generate_select_list("form_abook_type", "abook_type", $_REQUEST['form_abook_type'], '', 'All');
                     ?>
-                    <input type='checkbox' name='form_external' value='1'<?php if ($form_external) {
-                        echo ' checked ';} ?>
+                    <input type='checkbox' name='form_external' value='1'<?php echo ($form_external) ? ' checked ' : ''; ?>
                            title='<?php echo xla("Omit internal users?") ?>'/>
                     <?php echo xlt('External Only') ?>
                     <input type='button' class='btn btn-primary' value='<?php echo xla("Add New"); ?>'
@@ -174,7 +177,7 @@ while ($row = sqlFetchArray($res)) {
        // Allow edit, since have access or (no item type and not a local user)
         $trTitle = xl('Edit'). ' ' . $displayName;
         echo " <tr class='address_names detail' style='cursor:pointer' " .
-        "onclick='doedclick_edit(" . $row['id'] . ")' title='".attr($trTitle)."'>\n";
+        "onclick='doedclick_edit(" . attr_js($row['id']) . ")' title='".attr($trTitle)."'>\n";
     } else {
        // Do not allow edit, since no access and (item is a type or is a local user)
         $trTitle = $displayName . " (" . xl("Not Allowed to Edit") . ")";
@@ -220,20 +223,18 @@ function refreshme() {
 // Process click to pop up the add window.
 function doedclick_add(type) {
  top.restoreSession();
- dlgopen('addrbook_edit.php?type=' + type, '_blank', 650, (screen.availHeight * 75/100));
+ dlgopen('addrbook_edit.php?type=' + encodeURIComponent(type), '_blank', 650, (screen.availHeight * 75/100));
 }
 
 // Process click to pop up the edit window.
 function doedclick_edit(userid) {
-    let rtn_selection = <?php echo $rtn_selection ?>;
+ let rtn_selection = <?php echo js_escape($rtn_selection); ?>;
  if(rtn_selection) {
     dlgclose('contactCallBack', userid);
  }
  top.restoreSession();
- dlgopen('addrbook_edit.php?userid=' + userid, '_blank', 650, (screen.availHeight * 75/100));
+ dlgopen('addrbook_edit.php?userid=' + encodeURIComponent(userid), '_blank', 650, (screen.availHeight * 75/100));
 }
-
-// Removed .ready and fancy box (no longer used here) - 10/23/17 sjp
 
 </script>
 </div>
