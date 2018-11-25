@@ -1,6 +1,7 @@
 <?php
 //  OpenEMR
 //  MySQL Config
+//  Referenced from /library/sqlconf.php.
 
 $host	= 'localhost';
 $port	= '3306';
