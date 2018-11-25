@@ -5,7 +5,7 @@
 $host	= 'localhost';
 $port	= '3306';
 $login	= 'openemr';
-$pass	= 'openemr1';
+$pass	= 'openemr';
 $dbase	= 'openemr';
 
 //Added ability to disable
@@ -24,7 +24,7 @@ $sqlconf["dbase"] = $dbase;
 //////////////////////////
 //////////////////////////
 //////DO NOT TOUCH THIS///
-$config = 1; /////////////
+$config = 0; /////////////
 //////////////////////////
 //////////////////////////
 //////////////////////////
