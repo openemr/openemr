@@ -1100,7 +1100,7 @@ function writeITLine($it_array)
                         var list_id_container = $("#select2-list_id-container").text();
 
                         if(list_from > list_to || list_from == list_to){
-                            alert("Please enter a enter valid range!");
+                            alert(<?php echo xlj("Please enter a enter valid range"); ?>);
                             return false;
                         }
                         if( parseInt(list_from) >= 0 ){
@@ -1124,10 +1124,10 @@ function writeITLine($it_array)
                     $urlTo   = ( isset($_GET["list_to"]) && intval($_GET["list_to"])  >= 0 ? intval($_GET["list_to"]) : (isset($_POST["list_to"]) && intval($_POST["list_to"]) >= 0 ? intval($_POST["list_to"]) : 10) );
                 ?>
                 <div class="blck-filter" style="float: left; margin-top: 5px; margin-left: 10px; border:0px solid red; width: auto; ">
-                    <div id="input-type-from" style="float: left; ">From&nbsp;<input autocomplete="off" id="list-from" value="<?php echo $urlFrom;?>" style = "margin-right: 10px; width: 40px;">
-                        To&nbsp;<input autocomplete="off" id="list-to" value="<?php echo $urlTo;?>" style=" margin-right: 10px; width: 40px;">
+                    <div id="input-type-from" style="float: left; "><?php echo xlt("From"); ?>&nbsp;<input autocomplete="off" id="list-from" value="<?php echo attr($urlFrom);?>" style = "margin-right: 10px; width: 40px;">
+                        <?php echo xlt("To"); ?>&nbsp;<input autocomplete="off" id="list-to" value="<?php echo attr($urlTo); ?>" style=" margin-right: 10px; width: 40px;">
                     </div>
-                    <div style="float:left" ><input type="button" value="Show" onclick="lister()"></div>
+                    <div style="float:left" ><input type="button" value="<?php echo xlt('Show records'); ?>" onclick="lister()"></div>
                 </div>
                 <!--Happy end-->
 
@@ -1316,7 +1316,7 @@ if ($GLOBALS['ippf_specific']) { ?>
              * In case when we are have a get parametr "list_id_container", we are set manually variable list_id
              * and range from...to if these is set
              */
-            $sql_limits = "LIMIT ".$list_from.( $list_to >=0 ? ", ".($list_to - $list_from) : "");
+            $sql_limits = "LIMIT ".escape_limit($list_from).( $list_to >= 0 ? ", ".escape_limit($list_to - $list_from) : "");
 
             $res = sqlStatement("SELECT lo.*
                          FROM list_options as lo
