@@ -210,7 +210,7 @@ class X12837P
             $out .= $claim->billingFacilityCity();
         } else {
             $log .= "*** Billing facility has no city.\n";
-        }    
+        }
         $out .= "~\n";
         if ($claim->billingFacilityState()) {
             $out .= $claim->billingFacilityState();
@@ -285,7 +285,7 @@ class X12837P
                 $out .= $claim->billingFacilityCity();
             } else {
                 $log .= "*** Pay to provider has no city.\n";
-            }    
+            }
             $out .= "*";
             if ($claim->billingFacilityState()) {
                 $out .= $claim->billingFacilityState();
@@ -381,7 +381,7 @@ class X12837P
             
             ++$edicount;
             $out .= "N4" .
-            "*"; 
+            "*";
             if ($claim->insuredCity()) {
                 $out .= $claim->insuredCity();
             } else {
@@ -913,7 +913,7 @@ class X12837P
     
             ++$edicount;
             $out .= "N4" .
-            "*"; 
+            "*";
             if ($claim->facilityCity()) {
                 $out .= $claim->facilityCity();
             } else {
