@@ -130,10 +130,13 @@ class C_Prescription extends Controller
             $this->assign("prescriptions", Prescription::prescriptions_factory($id));
         }
 
-                // flag to indicate the CAMOS form is regsitered and active
-                $this->assign("CAMOS_FORM", isRegistered("CAMOS"));
+        // flag to indicate the CAMOS form is regsitered and active
+        $this->assign("CAMOS_FORM", isRegistered("CAMOS"));
 
-                $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_list.html");
+        // Assign the CSRF_TOKEN_FORM
+        $this->assign("CSRF_TOKEN_FORM", collectCsrfToken());
+
+        $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_list.html");
     }
 
     function block_action($id, $sort = "")
