@@ -175,7 +175,7 @@ class X12837P
         } else {
             $billingFacilityName = substr($claim->billingFacilityName(), 0, 60);
             if ($billingFacilityName == '') {
-                $log .= "*** billing facility name in 2010A loop is empty\n";
+                $log .= "*** billing facility name in 2010A loop is empty.\n";
             }
             $out .= "NM1" . // Loop 2010AA Billing Provider
             "*" . "85" .
@@ -195,15 +195,35 @@ class X12837P
     
         ++$edicount;
         $out .= "N3" .
-        "*" . $claim->billingFacilityStreet() .
-        "~\n";
-    
+        "*";
+        if ($claim->billingFacilityStreet()) {
+            $out .= $claim->billingFacilityStreet();
+        } else {
+            $log .= "*** Billing facility has no street.\n";
+        }
+        $out .= "~\n";
+       
         ++$edicount;
         $out .= "N4" .
-        "*" . $claim->billingFacilityCity() .
-        "*" . $claim->billingFacilityState() .
-        "*" . $claim->x12Zip($claim->billingFacilityZip()) .
-        "~\n";
+        "*";
+        if ($claim->billingFacilityCity()) {
+            $out .= $claim->billingFacilityCity();
+        } else {
+            $log .= "*** Billing facility has no city.\n";
+        }
+        $out .= "~\n";
+        if ($claim->billingFacilityState()) {
+            $out .= $claim->billingFacilityState();
+        } else {
+            $log .= "*** Billing facility has no state.\n";
+        }
+        $out .= "*";
+        if ($claim->x12Zip($claim->billingFacilityZip())) {
+            $out .= $claim->x12Zip($claim->billingFacilityZip());
+        } else {
+            $log .= "*** Billing facility has no zip.\n";
+        }
+        $out .= "~\n";
     
         if ($claim->billingFacilityNPI() && $claim->billingFacilityETIN()) {
             ++$edicount;
@@ -243,20 +263,42 @@ class X12837P
                 "*";
             if ($claim->billingFacilityNPI()) {
                 $out .= "*XX*" . $claim->billingFacilityNPI();
+            } else {
+                $log .= "*** Pay to provider has no NPI.\n";
             }
             $out .= "~\n";
     
             ++$edicount;
             $out .= "N3" .
-                "*" . $claim->billingFacilityStreet() .
-                "~\n";
+            "*";
+            if ($claim->billingFacilityStreet()) {
+                $out .= $claim->billingFacilityStreet();
+            } else {
+                $log .= "*** Pay to provider has no street.\n";
+            }
+            $out .= "~\n";
     
             ++$edicount;
             $out .= "N4" .
-                "*" . $claim->billingFacilityCity() .
-                "*" . $claim->billingFacilityState() .
-                "*" . $claim->x12Zip($claim->billingFacilityZip()) .
-                "~\n";
+            "*";
+            if ($claim->billingFacilityCity()) {
+                $out .= $claim->billingFacilityCity();
+            } else {
+                $log .= "*** Pay to provider has no city.\n";
+            }
+            $out .= "*";
+            if ($claim->billingFacilityState()) {
+                $out .= $claim->billingFacilityState();
+            } else {
+                $log .= "*** Pay to provider has no state.\n";
+            }
+            $out .= "*";
+            if ($claim->x12Zip($claim->billingFacilityZip())) {
+                $out .= $claim->x12Zip($claim->billingFacilityZip());
+            } else {
+                $log .= "*** Pay to provider has no zip.\n";
+            }
+            $out .= "~\n";
         }
     
         // Loop 2010AC Pay-To Plan Name omitted.  Includes:
@@ -267,11 +309,11 @@ class X12837P
     
         ++$edicount;
         $out .= "HL" .        // Loop 2000B Subscriber HL Loop
-            "*" . $HLSubscriber .
-            "*" . $HLBillingPayToProvider .
-            "*" . "22" .
-            "*" . $PatientHL .
-            "~\n";
+        "*" . $HLSubscriber .
+        "*" . $HLBillingPayToProvider .
+        "*" . "22" .
+        "*" . $PatientHL .
+        "~\n";
     
         if (!$claim->payerSequence()) {
             $log .= "*** Error: Insurance information is missing!\n";
@@ -279,56 +321,103 @@ class X12837P
     
         ++$edicount;
         $out .= "SBR" .    // Subscriber Information
-            "*" . $claim->payerSequence() .
-            "*" . ($claim->isSelfOfInsured() ? '18' : '') .
-            "*" . $claim->groupNumber() .
-            "*" . ($claim->groupNumber() ? '' : $claim->groupName()) . // if groupNumber no groupName
-            "*" . $claim->insuredTypeCode() . // applies for secondary medicare
-            "*" .
-            "*" .
-            "*" .
-            "*" . $claim->claimType() .
-            "~\n";
+        "*" . $claim->payerSequence() .
+        "*" . ($claim->isSelfOfInsured() ? '18' : '') .
+        "*" . $claim->groupNumber() .
+        "*" . ($claim->groupNumber() ? '' : $claim->groupName()) . // if groupNumber no groupName
+        "*" . $claim->insuredTypeCode() . // applies for secondary medicare
+        "*" .
+        "*" .
+        "*" .
+        "*" . $claim->claimType() .
+        "~\n";
     
         // Segment PAT omitted.
     
         ++$edicount;
         $out .= "NM1" .       // Loop 2010BA Subscriber
-            "*" . "IL" .
-            "*" . "1" . // 1 = person, 2 = non-person
-            "*" . $claim->insuredLastName() .
-            "*" . $claim->insuredFirstName() .
-            "*" . $claim->insuredMiddleName() .
-            "*" .
-            "*" . // Name Suffix not used
-            "*" . "MI" .
-            // "MI" = Member Identification Number
-            // "II" = Standard Unique Health Identifier, "Required if the
-            //        HIPAA Individual Patient Identifier is mandated use."
-            //        Here we presume that is not true yet.
-            "*" . $claim->policyNumber() .
-            "~\n";
+        "*" . "IL" .
+        "*" . "1"; // 1 = person, 2 = non-person
+        if ($claim->insuredLastName()) {
+            $out .= "*" .
+            $claim->insuredLastName();
+        } else {
+            $log .= "*** Missing insured last name.\n";
+        }
+        $out .= "*";
+        if ($claim->insuredFirstName()) {
+            $out .= $claim->insuredFirstName();
+        } else {
+            $log .= "*** Missing insured first name.\n";
+        }
+        $out .= "*" .
+        $claim->insuredMiddleName() .
+        "*" .
+        "*" . // Name Suffix not used
+        "*" . "MI" .
+        // "MI" = Member Identification Number
+        // "II" = Standard Unique Health Identifier, "Required if the
+        //        HIPAA Individual Patient Identifier is mandated use."
+        //        Here we presume that is not true yet.
+        "*";
+        if ($claim->policyNumber()) {
+            $out .= $claim->policyNumber();
+        } else {
+            $log .= "*** Missing policy number.\n";
+        }
+        $out .= "~\n";
     
         // For 5010, further subscriber info is sent only if they are the patient.
         if ($claim->isSelfOfInsured()) {
             ++$edicount;
             $out .= "N3" .
-                "*" . $claim->insuredStreet() .
-                "~\n";
-    
+            "*";
+            if ($claim->insuredStreet()) {
+                $out .= $claim->insuredStreet();
+            } else {
+                $log .= "*** Missing insured street.\n";
+            }
+            $out .= "~\n";
+            
             ++$edicount;
             $out .= "N4" .
-                "*" . $claim->insuredCity() .
-                "*" . $claim->insuredState() .
-                "*" . $claim->x12Zip($claim->insuredZip()) .
-                "~\n";
+            "*";
+            if ($claim->insuredCity()) {
+                $out .= $claim->insuredCity();
+            } else {
+                $log .= "*** Missing insured city.\n";
+            }
+            $out .= "*";
+            if ($claim->insuredState()) {
+                $out .= $claim->insuredState();
+            } else {
+                $log .= "*** Missing insured state.\n";
+            }
+            $out .= "*";
+            if ($claim->x12Zip($claim->insuredZip())) {
+                $out .= $claim->x12Zip($claim->insuredZip());
+            } else {
+                $log .= "*** Missing insured zip.\n";
+            }
+            $out .= "~\n";
     
             ++$edicount;
             $out .= "DMG" .
-                "*" . "D8" .
-                "*" . $claim->insuredDOB() .
-                "*" . $claim->insuredSex() .
-                "~\n";
+            "*" .
+            "D8" .
+            "*";
+            if ($claim->insuredDOB()) {
+                $out .= $claim->insuredDOB();
+            } else {
+                $log .= "*** Missing insured DOB.\n";
+            }
+            $out .= "*";
+            if ($claim->insuredSex()) {
+                $out .= $claim->insuredSex();
+            } else {
+                $log .= "*** Missing insured sex.\n";
+            }
+            $out .= "~\n";
         }
     
         // Segment REF*SY (Subscriber Secondary Identification) omitted.
@@ -338,31 +427,56 @@ class X12837P
         ++$edicount;
         $payerName = substr($claim->payerName(), 0, 60);
         $out .= "NM1" .       // Loop 2010BB Payer
-            "*" . "PR" .
-            "*" . "2" .
-            "*" . $payerName .
-            "*" .
-            "*" .
-            "*" .
-            "*" .
-            "*" . "PI" .
-            "*" . ($encounter_claim ? $claim->payerAltID() : $claim->payerID()) .
-            "~\n";
-        if (!$claim->payerID()) {
-            $log .= "*** CMS ID is missing for payer '" . $claim->payerName() . "'.\n";
+        "*" . "PR" .
+        "*" . "2" .
+        "*";
+        if ($payerName) {
+            $out .= $payerName;
+        } else {
+            $log .= "*** Missing payer name.\n";
         }
-    
+        $out .= "*" .
+        "*" .
+        "*" .
+        "*" .
+        "*" . "PI" .
+        "*" . ($encounter_claim ? $claim->payerAltID() : $claim->payerID());
+        if (!$claim->payerID()) {
+            $log .= "*** CMS ID is missing for payer '";
+        }
+        $out .= "~\n";
+        
         ++$edicount;
         $out .= "N3" .
-            "*" . $claim->payerStreet() .
-            "~\n";
+        "*";
+        if ($claim->payerStreet()) {
+            $out .= $claim->payerStreet();
+        } else {
+            $log .= "*** Missing payer street.\n";
+        }
+        $out .= "~\n";
     
         ++$edicount;
         $out .= "N4" .
-            "*" . $claim->payerCity() .
-            "*" . $claim->payerState() .
-            "*" . $claim->x12Zip($claim->payerZip()) .
-            "~\n";
+        "*";
+        if ($claim->payerCity()) {
+            $out .= $claim->payerCity();
+        } else {
+            $log .= "*** Missing payer city.\n";
+        }
+        $out .= "*";
+        if ($claim->payerState()) {
+            $out .= $claim->payerState();
+        } else {
+            $log .= "*** Missing payer state.\n";
+        }
+        $out .= "*";
+        if ($claim->x12Zip($claim->payerZip())) {
+            $out .= $claim->x12Zip($claim->payerZip());
+        } else {
+            $log .= "*** Missing payer zip.\n";
+        }
+        $out .= "~\n";
     
         // Segment REF (Payer Secondary Identification) omitted.
         // Segment REF (Billing Provider Secondary Identification) omitted.
@@ -370,49 +484,87 @@ class X12837P
         if (!$claim->isSelfOfInsured()) {
             ++$edicount;
             $out .= "HL" .        // Loop 2000C Patient Information
-                "*" . $HLcount .
-                "*" . $HLSubscriber .
-                "*" . "23" .
-                "*" . "0" .
-                "~\n";
+            "*" . $HLcount .
+            "*" . $HLSubscriber .
+            "*" . "23" .
+            "*" . "0" .
+            "~\n";
     
             $HLcount++;
             ++$edicount;
             $out .= "PAT" .
-                "*" . $claim->insuredRelationship() .
-                "~\n";
+            "*" . $claim->insuredRelationship() .
+            "~\n";
     
             ++$edicount;
             $out .= "NM1" .       // Loop 2010CA Patient
-                "*" . "QC" .
-                "*" . "1" .
-                "*" . $claim->patientLastName() .
-                "*" . $claim->patientFirstName();
-    
+            "*" . "QC" .
+            "*" . "1" .
+            "*";
+            if ($claim->patientLastName()) {
+                $out .= $claim->patientLastName();
+            } else {
+                $log .= "*** Missing patient last name.\n";
+            }
+            $out .=  "*";
+            if ($claim->patientFirstName) {
+                $out .= $claim->patientFirstName();
+            } else {
+                $log .= "*** Missing patient first name.\n";
+            }
             if ($claim->patientMiddleName() !== '') {
                 $out .= "*" . $claim->patientMiddleName();
             }
-    
             $out .= "~\n";
     
             ++$edicount;
             $out .= "N3" .
-                "*" . $claim->patientStreet() .
-                "~\n";
+            "*";
+            if ($claim->patientStreet()) {
+                $out .= $claim->patientStreet();
+            } else {
+                $log .= "*** Missing patient street.\n";
+            }
+            $out .= "~\n";
     
             ++$edicount;
             $out .= "N4" .
-                "*" . $claim->patientCity() .
-                "*" . $claim->patientState() .
-                "*" . $claim->x12Zip($claim->patientZip()) .
-                "~\n";
+            "*";
+            if ($claim->patientCity()) {
+                $out .= $claim->patientCity();
+            } else {
+                $log .= "*** Missing patient city.\n";
+            }
+            $out .= "*";
+            if ($claim->patientState()) {
+                $out .= $claim->patientState();
+            } else {
+                $log .= "*** Missing patient state.\n";
+            }
+            $out .= "*";
+            if ($claim->x12Zip($claim->patientZip())) {
+                $out .= $claim->x12Zip($claim->patientZip());
+            } else {
+                $log .= "*** Missing patient zip.\n";
+            }
+            $out .= "~\n";
     
             ++$edicount;
             $out .= "DMG" .
-                "*" . "D8" .
-                "*" . $claim->patientDOB() .
-                "*" . $claim->patientSex() .
-                "~\n";
+            "*" . "D8" .
+            "*";
+            if ($claim->patientDOB()) {
+                $out .= $claim->patientDOB();
+            } else {
+                $log .= "*** Missing patient DOB.\n";
+            }
+            $out .= "*";
+            if ($claim->patientSex()) {
+                $out .= $claim->patientSex();
+            } else {
+                $log .= "*** Missing patient sex.\n";
+            }
+            $out .= "~\n";
     
             // Segment REF*Y4 (Property and Casualty Claim Number) omitted.
             // Segment REF (Property and Casualty Patient Identifier) omitted.
@@ -430,16 +582,16 @@ class X12837P
     
         ++$edicount;
         $out .= "CLM" .    // Loop 2300 Claim
-            "*" . $pid . "-" . $encounter .
-            "*" . sprintf("%.2f", $clm_total_charges) .
-            "*" .
-            "*" .
-            "*" . sprintf('%02d', $claim->facilityPOS()) . ":" . "B" . ":" . $claim->frequencyTypeCode() .
-            "*" . "Y" .
-            "*" . "A" .
-            "*" . ($claim->billingFacilityAssignment() ? 'Y' : 'N') .
-            "*" . "Y" .
-            "~\n";
+        "*" . $pid . "-" . $encounter .
+        "*" . sprintf("%.2f", $clm_total_charges) .
+        "*" .
+        "*" .
+        "*" . sprintf('%02d', $claim->facilityPOS()) . ":" . "B" . ":" . $claim->frequencyTypeCode() .
+        "*" . "Y" .
+        "*" . "A" .
+        "*" . ($claim->billingFacilityAssignment() ? 'Y' : 'N') .
+        "*" . "Y" .
+        "~\n";
     
         // above is for historical use of encounter onset date, now in misc_billing_options
         // Segment DTP*431 (Onset of Current Symptoms or Illness)
@@ -448,18 +600,18 @@ class X12837P
         if ($claim->onsetDate() && ($claim->onsetDate() !== $claim->serviceDate()) && ($claim->onsetDateValid())) {
             ++$edicount;
             $out .= "DTP" .       // Date of Onset
-                "*" . "431" .
-                "*" . "D8" .
-                "*" . $claim->onsetDate() .
-                "~\n";
+            "*" . "431" .
+            "*" . "D8" .
+            "*" . $claim->onsetDate() .
+            "~\n";
         } else if ($claim->miscOnsetDate() && ($claim->miscOnsetDate() !== $claim->serviceDate())
             && ($claim->box14Qualifier()) && ($claim->miscOnsetDateValid())) {
             ++$edicount;
             $out .= "DTP" .
-                "*" . $claim->box14Qualifier() .
-                "*" . "D8" .
-                "*" . $claim->miscOnsetDate() .
-                "~\n";
+            "*" . $claim->box14Qualifier() .
+            "*" . "D8" .
+            "*" . $claim->miscOnsetDate() .
+            "~\n";
         }
     
         // Segment DTP*304 (Last Seen Date)
@@ -626,14 +778,25 @@ class X12837P
         // Segment HI*BG (Condition Information) omitted.
         // Segment HCP (Claim Pricing/Repricing Information) omitted.
         if ($claim->referrerLastName()) {
-            // Medicare requires referring provider's name and UPIN.
+            // Medicare requires referring provider's name and NPI.
             ++$edicount;
             $out .= "NM1" .     // Loop 2310A Referring Provider
             "*" . "DN" .
             "*" . "1" .
-            "*" . $claim->referrerLastName() .
-            "*" . $claim->referrerFirstName() .
-            "*" . $claim->referrerMiddleName() .
+            "*";
+            if ($claim->referrerLastName()) {
+                $out .= $claim->referrerLastName;
+            } else {
+                $log .= "*** Missing referrer last name.\n";
+            }
+            $out .= "*";
+            if ($claim->referrerFirstName()) {
+                $out .= $claim->referrerFirstName();
+            } else {
+                $log .= "*** Missing referrer first name.\n";
+            }
+            $out .= "*" .
+            $claim->referrerMiddleName() .
             "*" .
             "*";
             if ($claim->referrerNPI()) {
@@ -653,9 +816,20 @@ class X12837P
             $out .= "NM1" .       // Loop 2310B Rendering Provider
             "*" . "82" .
             "*" . "1" .
-            "*" . $claim->providerLastName() .
-            "*" . $claim->providerFirstName() .
-            "*" . $claim->providerMiddleName() .
+            "*";
+            if ($claim->providerLastName()) {
+                $out .= $claim->providerLastName();
+            } else {
+                $log .= "*** Missing provider last name.\n";
+            }
+            $out .= "*";
+            if ($claim->providerFirstName()) {
+                $out .= $claim->providerFirstName();
+            } else {
+                $log .= "*** Missing provider first name.\n";
+            }
+            $out .= "*" .
+            $claim->providerMiddleName() .
             "*" .
             "*";
             if ($claim->providerNPI()) {
@@ -733,16 +907,31 @@ class X12837P
                 $out .= "N3" .
                 "*" . $claim->facilityStreet() .
                 "~\n";
+            } else {
+                $log .= "*** Missing service facility street.\n";
             }
     
-            if ($claim->facilityState()) {
-                ++$edicount;
-                $out .= "N4" .
-                "*" . $claim->facilityCity() .
-                "*" . $claim->facilityState() .
-                "*" . $claim->x12Zip($claim->facilityZip()) .
-                "~\n";
+            ++$edicount;
+            $out .= "N4" .
+            "*";
+            if ($claim->facilityCity()) {
+                $out .= $claim->facilityCity();
+            } else {
+                $log .= "*** Missing service facility city.\n";
             }
+            $out .= "*";
+            if ($claim->facilityState()) {
+                $out .= $claim->facilityState();
+            } else {
+                $log .= "*** Missing service facility state.\n";
+            }
+            $out .= "*";
+            if ($claim->x12Zip($claim->facilityZip())) {
+                $out .= $claim->x12Zip($claim->facilityZip());
+            } else {
+                $log .= "*** Missing service facility zip.\n";
+            }
+            $out .= "~\n";
         }
         // Segment REF (Service Facility Location Secondary Identification) omitted.
         // Segment PER (Service Facility Contact Information) omitted.
@@ -859,26 +1048,62 @@ class X12837P
             $out .= "NM1" . // Loop 2330A Subscriber info for other insco. Page 315/350.
             "*" . "IL" .
             "*" . "1" .
-            "*" . $claim->insuredLastName($ins) .
-            "*" . $claim->insuredFirstName($ins) .
-            "*" . $claim->insuredMiddleName($ins) .
+            "*";
+            if ($claim->insuredLastName($ins)) {
+                $out .= $claim->insuredLastName($ins);
+            } else {
+                $log .= "*** Missing other insco insured last name.\n";
+            }
+            $out .= "*";
+            if ($claim->insuredFirstName($ins)) {
+                $out .= $claim->insuredFirstName($ins);
+            } else {
+                $log .= "*** Missing other insco insured first name.\n";
+            }
+            $out .= "*" .
+            $claim->insuredMiddleName($ins) .
             "*" .
             "*" .
             "*" . "MI" .
-            "*" . $claim->policyNumber($ins) .
-            "~\n";
+            "*";
+            if ($claim->policyNumber($ins)) {
+                $out .= $claim->policyNumber($ins);
+            } else {
+                $log .= "*** Missing other insco policy number.\n";
+            }
+            $out .= "~\n";
     
             ++$edicount;
             $out .= "N3" .
-            "*" . $claim->insuredStreet($ins) .
-            "~\n";
+            "*";
+            if ($claim->insuredStreet($ins)) {
+                $out .= $claim->insuredStreet($ins);
+            } else {
+                $log .= "*** Missing other insco insured street.\n";
+            }
+            $out .= "~\n";
     
             ++$edicount;
             $out .= "N4" .
-            "*" . $claim->insuredCity($ins) .
-            "*" . $claim->insuredState($ins) .
-            "*" . $claim->x12Zip($claim->insuredZip($ins)) .
-            "~\n";
+            "*";
+            if ($claim->insuredCity($ins)) {
+                $out .= $claim->insuredCity($ins);
+            } else {
+                $log .= "*** Missing other insco insured city.\n";
+            }
+            $out .= "*";
+            if ($claim->insuredState($ins)) {
+                $out .= $claim->insuredState($ins);
+            } else {
+                $log .= "*** Missing other insco insured state.\n";
+            }
+            $out .= "*";
+            if ($claim->x12Zip($claim->insuredZip($ins))) {
+                $out .= $claim->x12Zip($claim->insuredZip($ins));
+            } else {
+                $log .= "*** Missing other insco insured zip.\n";
+            }
+            $out .= "~\n";
     
             // Segment REF (Other Subscriber Secondary Identification) omitted.
             ++$edicount;
@@ -886,30 +1111,57 @@ class X12837P
             $out .= "NM1" . // Loop 2330B Payer info for other insco. Page 322/359.
             "*" . "PR" .
             "*" . "2" .
-            "*" . $payerName .
-            "*" .
+            "*";
+            if ($payerName) {
+                $out .= $payerName;
+            } else {
+                $log .= "*** Missing other insco payer name.\n";
+            }
+            $out .= "*";
             "*" .
             "*" .
             "*" .
             "*" . "PI" .
-            "*" . $claim->payerID($ins) .
-            "~\n";
-    
-            if (!$claim->payerID($ins)) {
-                $log .= "*** CMS ID is missing for payer '" . $claim->payerName($ins) . "'.\n";
+            "*";
+            if ($claim->payerID($ins)) {
+                $out .= $claim->payerID($ins);
+            } else {
+                $log .= "*** Missing other insco payer id.\n";
             }
+            $out .= "~\n";
     
             ++$edicount;
             $out .= "N3" .
-            "*" . $claim->payerStreet($ins) .
-            "~\n";
+            "*";
+            if ($claim->payerStreet($ins)) {
+                $out .= $claim->payerStreet($ins);
+            } else {
+                $log .= "*** Missing other insco street.\n";
+            }
+            $out .= "~\n";
     
             ++$edicount;
             $out .= "N4" .
-            "*" . $claim->payerCity($ins) .
-            "*" . $claim->payerState($ins) .
-            "*" . $claim->x12Zip($claim->payerZip($ins)) .
-            "~\n";
+            "*";
+            if ($claim->payerCity($ins)) {
+                $out .= $claim->payerCity($ins);
+            } else {
+                $log .= "*** Missing other insco city.\n";
+            }
+            $out .= "*";
+            if ($claim->payerState($ins)) {
+                $out .= $claim->payerState($ins);
+            } else {
+                $log .= "*** Missing other payer state.\n";
+            }
+            $out .= "*";
+            if ($claim->x12Zip($claim->payerZip($ins))) {
+                $out .= $claim->x12Zip($claim->payerZip($ins));
+            } else {
+                $log .= "*** Missing other payer zip.\n";
+            }
+            $out .= "~\n";
+            
             // Segment DTP*573 (Claim Check or Remittance Date) omitted.
             // Segment REF (Other Payer Secondary Identifier) omitted.
             // Segment REF*G1 (Other Payer Prior Authorization Number) omitted.
