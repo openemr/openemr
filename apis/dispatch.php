@@ -45,7 +45,7 @@ if (!empty($_REQUEST['_REWRITE_COMMAND'])) {
 
 // Maintain site id for multi site compatibility.
 // token is a 32 character hash followed by hex encoded site id.
-if ($resource === "/api/auth" || $resource === "/fhir/auth") {
+if (is_authentication($resource)) {
     // Get a site id from initial login authentication.
     $data = (array)(json_decode(file_get_contents("php://input")));
     $site = empty($data['client_id']) ? "default" : $data['client_id'];
@@ -85,6 +85,11 @@ else
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\RestControllers\AuthRestController;
 
+function is_authentication($resource)
+{
+    return ($resource === "/api/auth" || $resource === "/fhir/auth");
+}
+
 function get_bearer_token()
 {
     $parse = preg_split("/[\s,]+/", $_SERVER["HTTP_AUTHORIZATION"]);
@@ -116,12 +121,12 @@ function verify_api_request($resource, $api)
 
 function authentication_check($resource)
 {
-    if ($resource !== "/api/auth" && $resource !== "/fhir/auth") {
+    if (!is_authentication($resource)) {
         $token = $_SERVER["HTTP_X_API_TOKEN"];
         $authRestController = new AuthRestController();
         if (!$authRestController->isValidToken($token)) {
             http_response_code(401);
-            exit;
+            exit();
         } else {
             $authRestController->optionallyAddMoreTokenTime($token);
         }
@@ -135,7 +140,7 @@ function authorization_check($section, $value)
 
     if (!$result) {
         http_response_code(401);
-        exit;
+        exit();
     }
 }
 
