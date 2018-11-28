@@ -2,16 +2,19 @@
 /**
  * weno rx confirm
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
 require_once('../globals.php');
 require_once("$srcdir/patient.inc");
+
 use OpenEMR\Core\Header;
 use OpenEMR\Rx\Weno\TransmitData;
 
@@ -25,7 +28,6 @@ $send = $tData->getDrugList($pid, $date);
 $provider = $tData->getProviderFacility($uid);
 $patientPharmacy = $tData->patientPharmacyInfo($pid);
 $mailOrder = $tData->mailOrderPharmacy();
-
 
 ?>
 
@@ -130,7 +132,7 @@ $mailOrder = $tData->mailOrderPharmacy();
             $("#confirm").toggle();
 
             //this is to set the pharmacy for the presciption(s)
-            $.ajax({ url: 'markTx.php?arr='+pharm_Id+','+toTran });
+            $.ajax({ url: 'markTx.php?arr=' + encodeURIComponent(pharm_Id) + ',' + encodeURIComponent(toTran) + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?> });
 
             //Makes the returned ajax call a global variable
             function getReturnJson(x){
@@ -144,7 +146,7 @@ $mailOrder = $tData->mailOrderPharmacy();
                 //this is to create the json script to be transmitted
                 $.ajax({
                     //feeds the json generator
-                    url: 'jsonScript.php?getJson='+pharm_Id+','+value,
+                    url: 'jsonScript.php?getJson=' + encodeURIComponent(pharm_Id) + ',' + encodeURIComponent(value) + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>,
 
                     success: function(response){
                         console.log(response);
@@ -195,7 +197,7 @@ $mailOrder = $tData->mailOrderPharmacy();
             // a done event to present results to user in one shot.
             $.when.apply(null, request).done(function() {
                 // all done with our requests, lets announce what weno says.
-                var announce = '<?php echo xlt("Send Complete - Prescription(s) Return Status");?>';
+                var announce = <?php echo xlj("Send Complete - Prescription(s) Return Status");?>;
                 $('#success').html('<p><h4 class="bg-info">' + announce + '</h4></p>');
                 $.each(responses, function (index, response) {
                     console.log('result: ' + response);

@@ -2,25 +2,24 @@
 /**
  * weno rx pharmacy import.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
- * @author  Alfonzo Perez  <aperez@hitechcompliance.net>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Alfonzo Perez  <aperez@hitechcompliance.net>
  * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
 require_once('../globals.php');
 
-
 $state = filter_input(INPUT_POST, "form_state"); //stores the variable sent in the post
 $srchCity = filter_input(INPUT_POST, "form_city");
 $ref = $_SERVER["HTTP_REFERER"];     //stores the url the post came from to redirect back to
 
-   /*
-   *  Opens the CSV file and reads each line
-   */
+/*
+*  Opens the CSV file and reads each line
+*/
 $path = '../../contrib/weno/pharmacyList.csv';
 $entrys = new SplFileObject($path);
 $entrys->setFlags(SplFileObject::READ_CSV);

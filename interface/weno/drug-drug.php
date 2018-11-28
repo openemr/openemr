@@ -2,13 +2,15 @@
 /**
  * Drug interaction check.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
- 
+
 
 require_once("../globals.php");
 
@@ -45,7 +47,7 @@ if (count($nameList) < 2) {
 *
 */
 $rxcui_list = implode("+", $nameList);
-$data = file_get_contents("https://rxnav.nlm.nih.gov/REST/interaction/list.json?rxcuis=".$rxcui_list);
+$data = file_get_contents("https://rxnav.nlm.nih.gov/REST/interaction/list.json?rxcuis=" . urlencode($rxcui_list));
 
 /*
 *   Content from NLM returned
