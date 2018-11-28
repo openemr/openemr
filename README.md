@@ -6,7 +6,6 @@ _(Project is in-flight - do not use in production)._
 
 This project aims to provide an easy-to-use JSON-based REST API for OpenEMR's most common functions. All code will be done in classes and separate from the view to help with codebase modernization efforts.
 
-
 ### Team
 
 - [@juggernautsei](https://github.com/juggernautsei)
@@ -14,25 +13,40 @@ This project aims to provide an easy-to-use JSON-based REST API for OpenEMR's mo
 - [@kofiav](https://github.com/kofiav)
 - [@sjpadgett](https://github.com/sjpadgett)
 
+### Prerequsite
+Enable this API service in OpenEMR menu: Administration->Globals Connectors tab.
+
 ### Endpoints
+Note: FHIR endpoints follow normal FHIR REST endpoints. Use `https://domain/apis/fhir as base URL.`
+
+_Example:_ `https://domain/apis/fhir/Patient` returns a Patients bundle resource and etc..
 
 #### POST /api/auth
 
-Obtain an API token with your login (returns an API token):
+Obtain an API token with your login (returns an API token). For FHIR replace Uri component 'api' with 'fhir':
 
 ```
-curl -X POST 'http://localhost:8300/apis/api/auth' \
+curl -X POST 'https://localhost:8300/apis/api/auth' \
 -d '{
+    "grant_type":"password",
     "username": "ServiceUser",
-    "password": "password"
+    "password": "password",
+    "client_id":"site id"
 }'
 ```
-
+Response:
+```
+{
+"token_type":"Bearer",
+"access_token":"d2870cb522230dbb8946b2f47d2c7e6664656661756c74",
+"expires_in":"3600"
+}
+```
 Each call must include the token:
 
 ```
 curl -X GET 'http://localhost:8300/apis/api/patient/1/medical_problem' \
-  -H 'x-api-token: b0583518bce37774f5ea627f7190d228'
+  -H 'Authorization: Bearer d2870cb522230dbb8946b2f47d2c7e6664656661756c74'
 ```
 
 #### POST /api/facility

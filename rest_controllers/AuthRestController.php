@@ -22,18 +22,7 @@
 
 namespace OpenEMR\RestControllers;
 
-require_once("{$GLOBALS['srcdir']}/authentication/common_operations.php");
-
-/*
-TODO: Add to migration scripts
-CREATE TABLE `api_token` (
-    `id`           bigint(20) NOT NULL AUTO_INCREMENT,
-    `user_id`      bigint(20) NOT NULL,
-    `token`        varchar(256) DEFAULT NULL,
-    `expiry`       datetime NULL,
-     PRIMARY KEY (`id`)
-    ) ENGINE = InnoDB;
-*/
+require_once("./../library/authentication/common_operations.php");
 
 class AuthRestController
 {
@@ -45,7 +34,14 @@ class AuthRestController
     {
         $is_valid = confirm_user_password($authPayload["username"], $authPayload["password"]);
 
-        if (!$is_valid) {
+        if (!$is_valid && strtolower(trim($authPayload["grant_type"])) !== 'password') {
+            http_response_code(401);
+            return;
+        }
+        if (!empty($_SESSION['api']) && !empty($_SESSION['site_id'])) {
+            $encoded_api = bin2hex(trim($_SESSION['api']));
+            $encoded_site = bin2hex(trim($_SESSION['site_id']));
+        } else {
             http_response_code(401);
             return;
         }
@@ -60,9 +56,11 @@ class AuthRestController
         sqlInsert($sql);
 
         $token = sqlQuery("SELECT token FROM api_token WHERE user_id = ? ORDER BY id DESC", array($user["id"]));
-        $encoded_site = bin2hex($_SESSION['site_id']);
+
+        $encoded_token = $token["token"] . $encoded_api . $encoded_site;
+        $give = array("token_type" => "Bearer", "access_token" => $encoded_token, "expires_in" => "3600");
         http_response_code(200);
-        return $token["token"] . $encoded_site;
+        return $give;
     }
 
     public function isValidToken($token)

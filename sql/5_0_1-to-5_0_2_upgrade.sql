@@ -640,3 +640,13 @@ ALTER TABLE `form_eye_mag_dispense` ADD COLUMN `CTLODQUANTITY` varchar(255) DEFA
 #IfMissingColumn form_eye_mag_dispense CTLOSQUANTITY
 ALTER TABLE `form_eye_mag_dispense` ADD COLUMN `CTLOSQUANTITY` varchar(255) DEFAULT NULL;
 #EndIf
+
+#IfNotTable api_token
+CREATE TABLE `api_token` (
+    `id`           bigint(20) NOT NULL AUTO_INCREMENT,
+    `user_id`      bigint(20) NOT NULL,
+    `token`        varchar(256) DEFAULT NULL,
+    `expiry`       datetime NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB;
+#EndIf

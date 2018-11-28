@@ -11078,3 +11078,19 @@ CREATE TABLE `login_mfa_registrations` (
   `var2`            varchar(256)   NOT NULL DEFAULT '' COMMENT 'Answer etc.',
   PRIMARY KEY (`user_id`, `name`)
 ) ENGINE=InnoDB;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `api_token`
+--
+
+DROP TABLE IF EXISTS `api_token`;
+CREATE TABLE `api_token` (
+    `id`           bigint(20) NOT NULL AUTO_INCREMENT,
+    `user_id`      bigint(20) NOT NULL,
+    `token`        varchar(256) DEFAULT NULL,
+    `expiry`       datetime NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB;
