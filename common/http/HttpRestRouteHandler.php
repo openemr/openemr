@@ -22,7 +22,7 @@ namespace OpenEMR\Common\Http;
 
 class HttpRestRouteHandler
 {
-    public static function dispatch($routes, $route, $request_method)
+    public static function dispatch(&$routes, $route, $request_method)
     {
         // Taken from https://stackoverflow.com/questions/11722711/url-routing-regex-php/11723153#11723153
         foreach($routes as $routePath => $routeCallback) {

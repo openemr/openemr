@@ -35,6 +35,10 @@ RestConfig::$ROUTE_MAP = array(
         $data = (array)(json_decode(file_get_contents("php://input")));
         return (new AuthRestController())->authenticate($data);
     },
+    "POST /fhir/auth" => function () {
+        $data = (array)(json_decode(file_get_contents("php://input")));
+        return (new AuthRestController())->authenticate($data);
+    },
     "GET /api/facility" => function () {
         authorization_check("admin", "users");
         return (new FacilityRestController())->getAll();
