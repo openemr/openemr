@@ -15,26 +15,26 @@ $zip->open($GLOBALS['temporary_files_dir'].'/FormularyFiles.zip');
 $zip->extractTo($GLOBALS['temporary_files_dir']);
 $zip->close();
 
- $file = "./Weno Exchange LLC/BSureFormulary.txt";
- $lines = count(file($file));
- echo text($lines). "<br>";
+$file = "./Weno Exchange LLC/BSureFormulary.txt";
+$lines = count(file($file));
+echo text($lines). "<br>";
 
- $i = 2;
+$i = 2;
 do {
     $fileName = new SplFileObject($file);
     $fileName->seek($i);
     echo text($fileName)."<br>";   //return the first line from file
- 
+
     $in = explode("|", $fileName);
- 
+
     echo text($in[2])."<br>";
     echo text($in[5])."<br>";
     echo text($in[8])."<br>";
- 
+
     $ndc = $in[2];
     $price = $in[5];
     $drugName = $in[8];
- 
+
     $find = sqlQuery("SELECT ndc FROM erx_drug_paid WHERE ndc = ?", array($ndc));
     /**
      *  Insert drug if not found in the table

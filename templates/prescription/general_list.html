@@ -41,11 +41,11 @@ function changeLinkHrefAll(addValue, value) {
 }
 
 //uses jquery to update database table
-function markTx(oThis,id){
+function markTx(oThis,id){{/literal}
     var isChecked = oThis.checked ? 1 : 0; // @TODO this is better served if checkboxs are all checked on submit with one call to markTx
-    $.get('./interface/weno/markTx.php?rx='+id+'&state='+isChecked);
+    $.get('./interface/weno/markTx.php?rx=' + encodeURIComponent(id) + '&state=' + encodeURIComponent(isChecked) + '&csrf_token_form=' + {$CSRF_TOKEN_FORM|js_url});
     return false;
-}
+{literal}}
 
 function changeLinkHref_All(id,addValue,value) {
     var myRegExp = new RegExp(":" + value + ":");
@@ -171,7 +171,7 @@ $(document).ready(function(){
                         {/if}
                         {if $GLOBALS.weno_rx_enable}
                             <td style="border-style:none;">
-                                <a id="multiprintToFax" href="{$GLOBALS.webroot}/interface/weno/validate.php" onclick="top.restoreSession()" class="css_button"><span>{xl t='Transmit'|escape:'html'} {xl t='Rx'|escape:'html'}</span></a>
+                                <a id="multiprintToFax" href="{$GLOBALS.webroot}/interface/weno/validate.php?csrf_token_form={$CSRF_TOKEN_FORM|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Transmit'|escape:'html'} {xl t='Rx'|escape:'html'}</span></a>
                             </td>
                         {/if}
                         {if $CAMOS_FORM == true}
