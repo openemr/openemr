@@ -2,23 +2,13 @@
 /**
  * MessageRestController
  *
- * Copyright (C) 2018 Matthew Vita <matthewvita48@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Matthew Vita <matthewvita48@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Matthew Vita <matthewvita48@gmail.com>
+ * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 namespace OpenEMR\RestControllers;
 
@@ -42,7 +32,7 @@ class MessageRestController
         if (is_array($validationHandlerResult)) { return $validationHandlerResult; }
 
         $serviceResult = $this->messageService->update($pid, $mid, $data);
-        return RestControllerHelper::responseHandler($serviceResult, array("mid" => $mid), 200); 
+        return RestControllerHelper::responseHandler($serviceResult, array("mid" => $mid), 200);
     }
 
     public function post($pid, $data)
@@ -53,7 +43,7 @@ class MessageRestController
         if (is_array($validationHandlerResult)) { return $validationHandlerResult; }
 
         $serviceResult = $this->messageService->insert($pid, $data);
-        return RestControllerHelper::responseHandler($serviceResult, array("mid" => $serviceResult), 201); 
+        return RestControllerHelper::responseHandler($serviceResult, array("mid" => $serviceResult), 201);
     }
 
     public function delete($pid, $mid)

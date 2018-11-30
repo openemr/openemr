@@ -2,24 +2,17 @@
 /**
  * EncounterService
  *
- * Copyright (C) 2018 Matthew Vita <matthewvita48@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Matthew Vita <matthewvita48@gmail.com>
- * @author  Jerry Padgett <sjpadgett@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Matthew Vita <matthewvita48@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
+ * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 namespace OpenEMR\Services;
 
@@ -103,7 +96,7 @@ class EncounterService
                        ORDER BY fe.id
                        DESC";
 
-        $statementResults = sqlStatement($sql, $pid);
+        $statementResults = sqlStatement($sql, array($pid));
 
         $results = array();
         while ($row = sqlFetchArray($statementResults)) {
@@ -115,6 +108,8 @@ class EncounterService
 
     public function getEncountersBySearch($search)
     {
+        $sqlBindArray = array();
+
         $sql = "SELECT fe.encounter as id,
                        fe.date,
                        fe.reason,
@@ -149,10 +144,12 @@ class EncounterService
 
             $whereClauses = array();
             if ($search['pid']) {
-                array_push($whereClauses, "pid='" . add_escape_custom($search['pid']) . "'");
+                array_push($whereClauses, "pid=?");
+                array_push($sqlBindArray, $search['pid']);
             }
             if ($search['provider_id']) {
-                array_push($whereClauses, "provider_id='" . add_escape_custom($search['provider_id']) . "'");
+                array_push($whereClauses, "provider_id=?");
+                array_push($sqlBindArray, $search['provider_id']);
             }
 
             $sql .= implode(" AND ", $whereClauses);
@@ -160,7 +157,7 @@ class EncounterService
             return false;
         }
         $sql .= " ORDER BY fe.id DESC";
-        $statementResults = sqlStatement($sql);
+        $statementResults = sqlStatement($sql, $sqlBindArray);
 
         $results = array();
         while ($row = sqlFetchArray($statementResults)) {
@@ -250,13 +247,22 @@ class EncounterService
         $soapSql  = " INSERT INTO form_soap SET";
         $soapSql .= "     date=NOW(),";
         $soapSql .= "     activity=1,";
-        $soapSql .= "     pid='" . add_escape_custom($pid) . "',";
-        $soapSql .= "     subjective='" . add_escape_custom($data["subjective"]) . "',";
-        $soapSql .= "     objective='" . add_escape_custom($data["objective"]) . "',";
-        $soapSql .= "     assessment='" . add_escape_custom($data["assessment"]) . "',";
-        $soapSql .= "     plan='" . add_escape_custom($data["plan"]) . "'";
+        $soapSql .= "     pid=?,";
+        $soapSql .= "     subjective=?,";
+        $soapSql .= "     objective=?,";
+        $soapSql .= "     assessment=?,";
+        $soapSql .= "     plan=?";
 
-        $soapResults = sqlInsert($soapSql);
+        $soapResults = sqlInsert(
+            $soapSql,
+            array(
+                $pid,
+                $data["subjective"],
+                $data["objective"],
+                $data["assessment"],
+                $data["plan"]
+            )
+        );
 
         if (!$soapResults) {
             return false;
@@ -264,14 +270,21 @@ class EncounterService
 
         $formSql = "INSERT INTO forms SET";
         $formSql .= "     date=NOW(),";
-        $formSql .= "     encounter='" . add_escape_custom($eid) . "',";
+        $formSql .= "     encounter=?,";
         $formSql .= "     form_name='SOAP',";
         $formSql .= "     authorized='1',";
-        $formSql .= "     form_id='" . add_escape_custom($soapResults) . "',";
-        $formSql .= "     pid='" . add_escape_custom($pid) . "',";
+        $formSql .= "     form_id=?,";
+        $formSql .= "     pid=?,";
         $formSql .= "     formdir='soap'";
 
-        $formResults = sqlInsert($formSql);
+        $formResults = sqlInsert(
+            $formSql,
+            array(
+                $eid,
+                $soapResults,
+                $pid
+            )
+        );
 
         return array($soapResults, $formResults);
     }
@@ -281,14 +294,24 @@ class EncounterService
         $sql  = " UPDATE form_soap SET";
         $sql .= "     date=NOW(),";
         $sql .= "     activity=1,";
-        $sql .= "     pid='" . add_escape_custom($pid) . "',";
-        $sql .= "     subjective='" . add_escape_custom($data["subjective"]) . "',";
-        $sql .= "     objective='" . add_escape_custom($data["objective"]) . "',";
-        $sql .= "     assessment='" . add_escape_custom($data["assessment"]) . "',";
-        $sql .= "     plan='" . add_escape_custom($data["plan"]) . "'";
-        $sql .= "     where id='" . add_escape_custom($sid) . "'";
+        $sql .= "     pid=?,";
+        $sql .= "     subjective=?,";
+        $sql .= "     objective=?,";
+        $sql .= "     assessment=?,";
+        $sql .= "     plan=?";
+        $sql .= "     where id=?";
 
-        return sqlStatement($sql);
+        return sqlStatement(
+            $sql,
+            array(
+                $pid,
+                $data["subjective"],
+                $data["objective"],
+                $data["assessment"],
+                $data["plan"],
+                $sid
+            )
+        );
     }
 
     public function updateVital($pid, $eid, $vid, $data)
@@ -296,22 +319,40 @@ class EncounterService
         $sql  = " UPDATE form_vitals SET";
         $sql .= "     date=NOW(),";
         $sql .= "     activity=1,";
-        $sql .= "     pid='" . add_escape_custom($pid) . "',";
-        $sql .= "     bps='" . add_escape_custom($data["bps"]) . "',";
-        $sql .= "     bpd='" . add_escape_custom($data["bpd"]) . "',";
-        $sql .= "     weight='" . add_escape_custom($data["weight"]) . "',";
-        $sql .= "     height='" . add_escape_custom($data["height"]) . "',";
-        $sql .= "     temperature='" . add_escape_custom($data["temperature"]) . "',";
-        $sql .= "     temp_method='" . add_escape_custom($data["temp_method"]) . "',";
-        $sql .= "     pulse='" . add_escape_custom($data["pulse"]) . "',";
-        $sql .= "     respiration='" . add_escape_custom($data["respiration"]) . "',";
-        $sql .= "     note='" . add_escape_custom($data["note"]) . "',";
-        $sql .= "     waist_circ='" . add_escape_custom($data["waist_circ"]) . "',";
-        $sql .= "     head_circ='" . add_escape_custom($data["head_circ"]) . "',";
-        $sql .= "     oxygen_saturation='" . add_escape_custom($data["oxygen_saturation"]) . "'";
-        $sql .= "     where id='" . add_escape_custom($vid) . "'";
+        $sql .= "     pid=?,";
+        $sql .= "     bps=?,";
+        $sql .= "     bpd=?,";
+        $sql .= "     weight=?,";
+        $sql .= "     height=?,";
+        $sql .= "     temperature=?,";
+        $sql .= "     temp_method=?,";
+        $sql .= "     pulse=?,";
+        $sql .= "     respiration=?,";
+        $sql .= "     note=?,";
+        $sql .= "     waist_circ=?,";
+        $sql .= "     head_circ=?,";
+        $sql .= "     oxygen_saturation=?";
+        $sql .= "     where id=?";
 
-        return sqlStatement($sql);
+        return sqlStatement(
+            $sql,
+            array(
+                $pid,
+                $data["bps"],
+                $data["bpd"],
+                $data["weight"],
+                $data["height"],
+                $data["temperature"],
+                $data["temp_method"],
+                $data["pulse"],
+                $data["respiration"],
+                $data["note"],
+                $data["waist_circ"],
+                $data["head_circ"],
+                $data["oxygen_saturation"],
+                $vid
+            )
+        );
     }
 
     public function insertVital($pid, $eid, $data)
@@ -319,21 +360,38 @@ class EncounterService
         $vitalSql  = " INSERT INTO form_vitals SET";
         $vitalSql .= "     date=NOW(),";
         $vitalSql .= "     activity=1,";
-        $vitalSql .= "     pid='" . add_escape_custom($pid) . "',";
-        $vitalSql .= "     bps='" . add_escape_custom($data["bps"]) . "',";
-        $vitalSql .= "     bpd='" . add_escape_custom($data["bpd"]) . "',";
-        $vitalSql .= "     weight='" . add_escape_custom($data["weight"]) . "',";
-        $vitalSql .= "     height='" . add_escape_custom($data["height"]) . "',";
-        $vitalSql .= "     temperature='" . add_escape_custom($data["temperature"]) . "',";
-        $vitalSql .= "     temp_method='" . add_escape_custom($data["temp_method"]) . "',";
-        $vitalSql .= "     pulse='" . add_escape_custom($data["pulse"]) . "',";
-        $vitalSql .= "     respiration='" . add_escape_custom($data["respiration"]) . "',";
-        $vitalSql .= "     note='" . add_escape_custom($data["note"]) . "',";
-        $vitalSql .= "     waist_circ='" . add_escape_custom($data["waist_circ"]) . "',";
-        $vitalSql .= "     head_circ='" . add_escape_custom($data["head_circ"]) . "',";
-        $vitalSql .= "     oxygen_saturation='" . add_escape_custom($data["oxygen_saturation"]) . "'";
+        $vitalSql .= "     pid=?,";
+        $vitalSql .= "     bps=?,";
+        $vitalSql .= "     bpd=?,";
+        $vitalSql .= "     weight=?,";
+        $vitalSql .= "     height=?,";
+        $vitalSql .= "     temperature=?,";
+        $vitalSql .= "     temp_method=?,";
+        $vitalSql .= "     pulse=?,";
+        $vitalSql .= "     respiration=?,";
+        $vitalSql .= "     note=?,";
+        $vitalSql .= "     waist_circ=?,";
+        $vitalSql .= "     head_circ=?,";
+        $vitalSql .= "     oxygen_saturation=?";
 
-        $vitalResults = sqlInsert($vitalSql);
+        $vitalResults = sqlInsert(
+            $vitalSql,
+            array(
+                $pid,
+                $data["bps"],
+                $data["bpd"],
+                $data["weight"],
+                $data["height"],
+                $data["temperature"],
+                $data["temp_method"],
+                $data["pulse"],
+                $data["respiration"],
+                $data["note"],
+                $data["waist_circ"],
+                $data["head_circ"],
+                $data["oxygen_saturation"]
+            )
+        );
 
         if (!$vitalResults) {
             return false;
@@ -341,14 +399,21 @@ class EncounterService
 
         $formSql = "INSERT INTO forms SET";
         $formSql .= "     date=NOW(),";
-        $formSql .= "     encounter='" . add_escape_custom($eid) . "',";
+        $formSql .= "     encounter=?,";
         $formSql .= "     form_name='Vitals',";
         $formSql .= "     authorized='1',";
-        $formSql .= "     form_id='" . add_escape_custom($vitalResults) . "',";
-        $formSql .= "     pid='" . add_escape_custom($pid) . "',";
+        $formSql .= "     form_id=?,";
+        $formSql .= "     pid=?,";
         $formSql .= "     formdir='vitals'";
 
-        $formResults = sqlInsert($formSql);
+        $formResults = sqlInsert(
+            $formSql,
+            array(
+                $eid,
+                $vitalResults,
+                $pid
+            )
+        );
 
         return array($vitalResults, $formResults);
     }

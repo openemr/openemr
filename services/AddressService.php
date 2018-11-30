@@ -2,23 +2,15 @@
 /**
  * AddressService
  *
- * Copyright (C) 2018 Matthew Vita <matthewvita48@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Matthew Vita <matthewvita48@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Matthew Vita <matthewvita48@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 namespace OpenEMR\Services;
 
@@ -57,16 +49,28 @@ class AddressService
         $freshId = $this->getFreshId();
 
         $addressesSql  = " INSERT INTO addresses SET";
-        $addressesSql .= "     id='" . add_escape_custom($freshId) . "',";
-        $addressesSql .= "     line1='" . add_escape_custom($data["line1"]) . "',";
-        $addressesSql .= "     line2='" . add_escape_custom($data["line2"]) . "',";
-        $addressesSql .= "     city='" . add_escape_custom($data["city"]) . "',";
-        $addressesSql .= "     state='" . add_escape_custom($data["state"]) . "',";
-        $addressesSql .= "     zip='" . add_escape_custom($data["zip"]) . "',";
-        $addressesSql .= "     country='" . add_escape_custom($data["country"]) . "',";
-        $addressesSql .= "     foreign_id='" . add_escape_custom($foreignId) . "'";
+        $addressesSql .= "     id=?,";
+        $addressesSql .= "     line1=?,";
+        $addressesSql .= "     line2=?,";
+        $addressesSql .= "     city=?,";
+        $addressesSql .= "     state=?,";
+        $addressesSql .= "     zip=?,";
+        $addressesSql .= "     country=?,";
+        $addressesSql .= "     foreign_id=?";
 
-        $addressesSqlResults = sqlInsert($addressesSql);
+        $addressesSqlResults = sqlInsert(
+            $addressesSql,
+            array(
+                $freshId,
+                $data["line1"],
+                $data["line2"],
+                $data["city"],
+                $data["state"],
+                $data["zip"],
+                $data["country"],
+                $foreignId
+            )
+        );
 
         if (!$addressesSqlResults) {
             return false;
@@ -78,15 +82,26 @@ class AddressService
     public function update($data, $foreignId)
     {
         $addressesSql  = " UPDATE addresses SET";
-        $addressesSql .= "     line1='" . add_escape_custom($data["line1"]) . "',";
-        $addressesSql .= "     line2='" . add_escape_custom($data["line2"]) . "',";
-        $addressesSql .= "     city='" . add_escape_custom($data["city"]) . "',";
-        $addressesSql .= "     state='" . add_escape_custom($data["state"]) . "',";
-        $addressesSql .= "     zip='" . add_escape_custom($data["zip"]) . "',";
-        $addressesSql .= "     country='" . add_escape_custom($data["country"]) . "'";
-        $addressesSql .= "     WHERE foreign_id='" . add_escape_custom($foreignId) . "'";
+        $addressesSql .= "     line1=?,";
+        $addressesSql .= "     line2=?,";
+        $addressesSql .= "     city=?,";
+        $addressesSql .= "     state=?,";
+        $addressesSql .= "     zip=?,";
+        $addressesSql .= "     country=?";
+        $addressesSql .= "     WHERE foreign_id=?";
 
-        $addressesSqlResults = sqlStatement($addressesSql);
+        $addressesSqlResults = sqlStatement(
+            $addressesSql,
+            array(
+                $data["line1"],
+                $data["line2"],
+                $data["city"],
+                $data["state"],
+                $data["zip"],
+                $data["country"],
+                $foreignId
+            )
+        );
 
         if (!$addressesSqlResults) {
             return false;

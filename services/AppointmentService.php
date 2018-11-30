@@ -2,23 +2,15 @@
 /**
  * AppointmentService
  *
- * Copyright (C) 2018 Matthew Vita <matthewvita48@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Matthew Vita <matthewvita48@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Matthew Vita <matthewvita48@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 namespace OpenEMR\Services;
 
@@ -54,6 +46,8 @@ class AppointmentService
 
     public function getAppointmentsForPatient($pid)
     {
+        $sqlBindArray = array();
+
         $sql = "SELECT pce.pc_eid,
                        pd.fname,
                        pd.lname,
@@ -72,10 +66,11 @@ class AppointmentService
                        LEFT JOIN patient_data as pd ON pd.pid = pce.pc_pid";
 
         if ($pid) {
-            $sql .= " WHERE pd.pid = " . add_escape_custom($pid);
+            $sql .= " WHERE pd.pid = ?";
+            array_push($sqlBindArray, $pid);
         }
 
-        $statementResults = sqlStatement($sql);
+        $statementResults = sqlStatement($sql, $sqlBindArray);
 
         $results = array();
         while ($row = sqlFetchArray($statementResults)) {
@@ -114,22 +109,37 @@ class AppointmentService
         $endTime = $startTime + $data['pc_duration'];
 
         $sql  = " INSERT INTO openemr_postcalendar_events SET";
-        $sql .= "     pc_pid='" . add_escape_custom($pid) . "',";
-        $sql .= "     pc_catid='" . add_escape_custom($data["pc_catid"]) . "',";
-        $sql .= "     pc_title='" . add_escape_custom($data["pc_title"]) . "',";
-        $sql .= "     pc_duration='" . add_escape_custom($data["pc_duration"]) . "',";
-        $sql .= "     pc_hometext='" . add_escape_custom($data["pc_hometext"]) . "',";
-        $sql .= "     pc_eventDate='" . add_escape_custom($data["pc_eventDate"]) . "',";
-        $sql .= "     pc_apptstatus='" . add_escape_custom($data['pc_apptstatus']) . "',";
-        $sql .= "     pc_startTime='" . add_escape_custom($startTime) . "',";
-        $sql .= "     pc_endTime='" . add_escape_custom($endTime) . "',";
-        $sql .= "     pc_facility='" . add_escape_custom($data["pc_facility"]) . "',";
-        $sql .= "     pc_billing_location='" . add_escape_custom($data["pc_billing_location"]) . "',";
+        $sql .= "     pc_pid=?,";
+        $sql .= "     pc_catid=?,";
+        $sql .= "     pc_title=?,";
+        $sql .= "     pc_duration=?,";
+        $sql .= "     pc_hometext=?,";
+        $sql .= "     pc_eventDate=?,";
+        $sql .= "     pc_apptstatus=?,";
+        $sql .= "     pc_startTime=?,";
+        $sql .= "     pc_endTime=?,";
+        $sql .= "     pc_facility=?,";
+        $sql .= "     pc_billing_location=?,";
         $sql .= "     pc_informant=1,";
         $sql .= "     pc_eventstatus=1,";
         $sql .= "     pc_sharing=1";
 
-        $results = sqlInsert($sql);
+        $results = sqlInsert(
+            $sql,
+            array(
+                $pid,
+                $data["pc_catid"],
+                $data["pc_title"],
+                $data["pc_duration"],
+                $data["pc_hometext"],
+                $data["pc_eventDate"],
+                $data['pc_apptstatus'],
+                $startTime,
+                $endTime,
+                $data["pc_facility"],
+                $data["pc_billing_location"]
+            )
+        );
 
         return $results;
     }
