@@ -20,7 +20,6 @@ class MessageService
 {
     public function __construct()
     {
-
     }
 
     public function validate($message)

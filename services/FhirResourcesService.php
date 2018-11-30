@@ -55,8 +55,9 @@ class FhirResourcesService
             $bundle->addEntry($addResource);
         }
 
-        if ($encode)
+        if ($encode) {
             return json_encode($bundle);
+        }
 
         return $bundle;
     }
@@ -88,10 +89,11 @@ class FhirResourcesService
         $patientResource->addName($name);
         $patientResource->addAddress($address);
 
-        if ($encode)
+        if ($encode) {
             return json_encode($patientResource);
-        else
+        } else {
             return $patientResource;
+        }
     }
 
     public function createPractitionerResource($id = '', $data = '', $encode = true)
@@ -116,13 +118,14 @@ class FhirResourcesService
         $resource->addName($name);
         $resource->addAddress($address);
 
-        if ($encode)
+        if ($encode) {
             return json_encode($resource);
-        else
+        } else {
             return $resource;
+        }
     }
 
-    public function createEncounterResource($eid = '', $data = '',  $encode = true)
+    public function createEncounterResource($eid = '', $data = '', $encode = true)
     {
         $pid = $data['pid'];
         $temp = $data['provider_id'];
@@ -146,10 +149,11 @@ class FhirResourcesService
         $resource->status = 'finished';
         $resource->setSubject(['reference' => "Patient/$pid"]);
 
-        if ($encode)
+        if ($encode) {
             return json_encode($resource);
-        else
+        } else {
             return $resource;
+        }
     }
 
     public function parseResource($rjson = '', $scheme = 'json')

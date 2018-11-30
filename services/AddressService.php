@@ -20,7 +20,6 @@ class AddressService
 {
     public function __construct()
     {
-
     }
 
     public function validate($insuranceCompany)
@@ -38,7 +37,8 @@ class AddressService
     }
 
 
-    public function getFreshId() {
+    public function getFreshId()
+    {
         $id = sqlQuery("SELECT MAX(id)+1 AS id FROM addresses");
 
         return $id['id'];

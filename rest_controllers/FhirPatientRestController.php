@@ -43,8 +43,9 @@ class FhirPatientRestController
     public function getAll($search)
     {
         $resourceURL = \RestConfig::$REST_FULL_URL;
-        if (strpos($resourceURL, '?') > 0)
+        if (strpos($resourceURL, '?') > 0) {
             $resourceURL = strstr($resourceURL, '?', true);
+        }
 
         $searchParam = array(
             'name' => $search['name'],
