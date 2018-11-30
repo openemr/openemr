@@ -28,7 +28,7 @@ Send an email to brady.g.miller@gmail.com . If possible, please encrypt your ema
 
 ### API
 
-Check out [API_README.md](API_README.md) for quick setup instructions
+Check out [API_README.md](API_README.md)
 
 ### For Developers
 
