@@ -2,23 +2,15 @@
 /**
  * InsuranceCompanyService
  *
- * Copyright (C) 2018 Matthew Vita <matthewvita48@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Matthew Vita <matthewvita48@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Matthew Vita <matthewvita48@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 namespace OpenEMR\Services;
 
@@ -28,7 +20,7 @@ use OpenEMR\Services\AddressService;
 class InsuranceCompanyService
 {
     private $addressService = null;
-    
+
     public function __construct()
     {
         $this->addressService = new AddressService();
@@ -122,16 +114,28 @@ class InsuranceCompanyService
         $freshId = $this->getFreshId();
 
         $sql  = " INSERT INTO insurance_companies SET";
-        $sql .= "     id='" . add_escape_custom($freshId) . "',";
-        $sql .= "     name='" . add_escape_custom($data["name"]) . "',";
-        $sql .= "     attn='" . add_escape_custom($data["attn"]) . "',";
-        $sql .= "     cms_id='" . add_escape_custom($data["cms_id"]) . "',";
-        $sql .= "     ins_type_code='" . add_escape_custom($data["ins_type_code"]) . "',";
-        $sql .= "     x12_receiver_id='" . add_escape_custom($data["x12_receiver_id"]) . "',";
-        $sql .= "     x12_default_partner_id='" . add_escape_custom($data["x12_default_partner_id"]) . "',";
-        $sql .= "     alt_cms_id='" . add_escape_custom($data["alt_cms_id"]) . "'";
+        $sql .= "     id=?,";
+        $sql .= "     name=?,";
+        $sql .= "     attn=?,";
+        $sql .= "     cms_id=?,";
+        $sql .= "     ins_type_code=?,";
+        $sql .= "     x12_receiver_id=?,";
+        $sql .= "     x12_default_partner_id=?,";
+        $sql .= "     alt_cms_id=?";
 
-        $insuranceResults = sqlInsert($sql);
+        $insuranceResults = sqlInsert(
+            $sql,
+            array(
+                $freshId,
+                $data["name"],
+                $data["attn"],
+                $data["cms_id"],
+                $data["ins_type_code"],
+                $data["x12_receiver_id"],
+                $data["x12_default_partner_id"],
+                $data["alt_cms_id"]
+            )
+        );
 
         if (!$insuranceResults) {
             return false;
@@ -149,16 +153,28 @@ class InsuranceCompanyService
     public function update($data, $iid)
     {
         $sql  = " UPDATE insurance_companies SET";
-        $sql .= "     name='" . add_escape_custom($data["name"]) . "',";
-        $sql .= "     attn='" . add_escape_custom($data["attn"]) . "',";
-        $sql .= "     cms_id='" . add_escape_custom($data["cms_id"]) . "',";
-        $sql .= "     ins_type_code='" . add_escape_custom($data["ins_type_code"]) . "',";
-        $sql .= "     x12_receiver_id='" . add_escape_custom($data["x12_receiver_id"]) . "',";
-        $sql .= "     x12_default_partner_id='" . add_escape_custom($data["x12_default_partner_id"]) . "',";
-        $sql .= "     alt_cms_id='" . add_escape_custom($data["alt_cms_id"]) . "'";
-        $sql .= "     WHERE id = " . add_escape_custom($iid);
+        $sql .= "     name=?,";
+        $sql .= "     attn=?,";
+        $sql .= "     cms_id=?,";
+        $sql .= "     ins_type_code=?,";
+        $sql .= "     x12_receiver_id=?,";
+        $sql .= "     x12_default_partner_id=?,";
+        $sql .= "     alt_cms_id=?";
+        $sql .= "     WHERE id = ?";
 
-        $insuranceResults = sqlStatement($sql);
+        $insuranceResults = sqlStatement(
+            $sql,
+            array(
+                $data["name"],
+                $data["attn"],
+                $data["cms_id"],
+                $data["ins_type_code"],
+                $data["x12_receiver_id"],
+                $data["x12_default_partner_id"],
+                $data["alt_cms_id"],
+                $iid
+            )
+        );
 
         if (!$insuranceResults) {
             return false;

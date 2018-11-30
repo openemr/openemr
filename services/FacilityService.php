@@ -2,23 +2,15 @@
 /**
  * FacilityService
  *
- * Copyright (C) 2017 Matthew Vita <matthewvita48@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Matthew Vita <matthewvita48@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Matthew Vita <matthewvita48@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 namespace OpenEMR\Services;
 
@@ -177,71 +169,126 @@ class FacilityService
     public function update($data)
     {
         $sql  = " UPDATE facility SET";
-        $sql .= "     name='" . add_escape_custom($data["name"]) . "',";
-        $sql .= "     phone='" . add_escape_custom($data["phone"]) . "',";
-        $sql .= "     fax='" . add_escape_custom($data["fax"]) . "',";
-        $sql .= "     street='" . add_escape_custom($data["street"]) . "',";
-        $sql .= "     city='" . add_escape_custom($data["city"]) . "',";
-        $sql .= "     state='" . add_escape_custom($data["state"]) . "',";
-        $sql .= "     postal_code='" . add_escape_custom($data["postal_code"]) . "',";
-        $sql .= "     country_code='" . add_escape_custom($data["country_code"]) . "',";
-        $sql .= "     federal_ein='" . add_escape_custom($data["federal_ein"]) . "',";
-        $sql .= "     website='" . add_escape_custom($data["website"]) . "',";
-        $sql .= "     email='" . add_escape_custom($data["email"]) . "',";
-        $sql .= "     color='" . add_escape_custom($data["color"]) . "',";
-        $sql .= "     service_location='" . add_escape_custom($data["service_location"]) . "',";
-        $sql .= "     billing_location='" . add_escape_custom($data["billing_location"]) . "',";
-        $sql .= "     accepts_assignment='" . add_escape_custom($data["accepts_assignment"]) . "',";
-        $sql .= "     pos_code='" . add_escape_custom($data["pos_code"]) . "',";
-        $sql .= "     domain_identifier='" . add_escape_custom($data["domain_identifier"]) . "',";
-        $sql .= "     attn='" . add_escape_custom($data["attn"]) . "',";
-        $sql .= "     tax_id_type='" . add_escape_custom($data["tax_id_type"]) . "',";
-        $sql .= "     primary_business_entity='" . add_escape_custom($data["primary_business_entity"]) . "',";
-        $sql .= "     facility_npi='" . add_escape_custom($data["facility_npi"]) . "',";
-        $sql .= "     facility_code='" . add_escape_custom($data["facility_code"]) . "',";
-        $sql .= "     facility_taxonomy='" . add_escape_custom($data["facility_taxonomy"]) . "'";
-        $sql .= " WHERE id='" . add_escape_custom($data["fid"]) . "'";
+        $sql .= "     name=?,";
+        $sql .= "     phone=?,";
+        $sql .= "     fax=?,";
+        $sql .= "     street=?,";
+        $sql .= "     city=?,";
+        $sql .= "     state=?,";
+        $sql .= "     postal_code=?,";
+        $sql .= "     country_code=?,";
+        $sql .= "     federal_ein=?,";
+        $sql .= "     website=?,";
+        $sql .= "     email=?,";
+        $sql .= "     color=?,";
+        $sql .= "     service_location=?,";
+        $sql .= "     billing_location=?,";
+        $sql .= "     accepts_assignment=?,";
+        $sql .= "     pos_code=?,";
+        $sql .= "     domain_identifier=?,";
+        $sql .= "     attn=?,";
+        $sql .= "     tax_id_type=?,";
+        $sql .= "     primary_business_entity=?,";
+        $sql .= "     facility_npi=?,";
+        $sql .= "     facility_code=?,";
+        $sql .= "     facility_taxonomy=?";
+        $sql .= " WHERE id=?";
 
-        return sqlStatement($sql);
+        return sqlStatement(
+            $sql,
+            array(
+                $data["name"],
+                $data["phone"],
+                $data["fax"],
+                $data["street"],
+                $data["city"],
+                $data["state"],
+                $data["postal_code"],
+                $data["country_code"],
+                $data["federal_ein"],
+                $data["website"],
+                $data["email"],
+                $data["color"],
+                $data["service_location"],
+                $data["billing_location"],
+                $data["accepts_assignment"],
+                $data["pos_code"],
+                $data["domain_identifier"],
+                $data["attn"],
+                $data["tax_id_type"],
+                $data["primary_business_entity"],
+                $data["facility_npi"],
+                $data["facility_code"],
+                $data["facility_taxonomy"],
+                $data["fid"]
+            )
+        );
     }
 
     public function insert($data)
     {
         $sql  = " INSERT INTO facility SET";
-        $sql .= "     name='" . add_escape_custom($data["name"]) . "',";
-        $sql .= "     phone='" . add_escape_custom($data["phone"]) . "',";
-        $sql .= "     fax='" . add_escape_custom($data["fax"]) . "',";
-        $sql .= "     street='" . add_escape_custom($data["street"]) . "',";
-        $sql .= "     city='" . add_escape_custom($data["city"]) . "',";
-        $sql .= "     state='" . add_escape_custom($data["state"]) . "',";
-        $sql .= "     postal_code='" . add_escape_custom($data["postal_code"]) . "',";
-        $sql .= "     country_code='" . add_escape_custom($data["country_code"]) . "',";
-        $sql .= "     federal_ein='" . add_escape_custom($data["federal_ein"]) . "',";
-        $sql .= "     website='" . add_escape_custom($data["website"]) . "',";
-        $sql .= "     email='" . add_escape_custom($data["email"]) . "',";
-        $sql .= "     color='" . add_escape_custom($data["color"]) . "',";
-        $sql .= "     service_location='" . add_escape_custom($data["service_location"]) . "',";
-        $sql .= "     billing_location='" . add_escape_custom($data["billing_location"]) . "',";
-        $sql .= "     accepts_assignment='" . add_escape_custom($data["accepts_assignment"]) . "',";
-        $sql .= "     pos_code='" . add_escape_custom($data["pos_code"]) . "',";
-        $sql .= "     domain_identifier='" . add_escape_custom($data["domain_identifier"]) . "',";
-        $sql .= "     attn='" . add_escape_custom($data["attn"]) . "',";
-        $sql .= "     tax_id_type='" . add_escape_custom($data["tax_id_type"]) . "',";
-        $sql .= "     primary_business_entity='" . add_escape_custom($data["primary_business_entity"]) . "',";
-        $sql .= "     facility_npi='" . add_escape_custom($data["facility_npi"]) . "',";
-        $sql .= "     facility_code='" . add_escape_custom($data["facility_code"]) . "',";
-        $sql .= "     facility_taxonomy='" . add_escape_custom($data["facility_taxonomy"]) . "'";
+        $sql .= "     name=?,";
+        $sql .= "     phone=?,";
+        $sql .= "     fax=?,";
+        $sql .= "     street=?,";
+        $sql .= "     city=?,";
+        $sql .= "     state=?,";
+        $sql .= "     postal_code=?,";
+        $sql .= "     country_code=?,";
+        $sql .= "     federal_ein=?,";
+        $sql .= "     website=?,";
+        $sql .= "     email=?,";
+        $sql .= "     color=?,";
+        $sql .= "     service_location=?,";
+        $sql .= "     billing_location=?,";
+        $sql .= "     accepts_assignment=?,";
+        $sql .= "     pos_code=?,";
+        $sql .= "     domain_identifier=?,";
+        $sql .= "     attn=?,";
+        $sql .= "     tax_id_type=?,";
+        $sql .= "     primary_business_entity=?,";
+        $sql .= "     facility_npi=?,";
+        $sql .= "     facility_code=?,";
+        $sql .= "     facility_taxonomy=?";
 
-        return sqlInsert($sql);
+        return sqlInsert(
+            $sql,
+            array(
+                $data["name"],
+                $data["phone"],
+                $data["fax"],
+                $data["street"],
+                $data["city"],
+                $data["state"],
+                $data["postal_code"],
+                $data["country_code"],
+                $data["federal_ein"],
+                $data["website"],
+                $data["email"],
+                $data["color"],
+                $data["service_location"],
+                $data["billing_location"],
+                $data["accepts_assignment"],
+                $data["pos_code"],
+                $data["domain_identifier"],
+                $data["attn"],
+                $data["tax_id_type"],
+                $data["primary_business_entity"],
+                $data["facility_npi"],
+                $data["facility_code"],
+                $data["facility_taxonomy"]
+            )
+        );
     }
 
     public function updateUsersFacility($facility_name, $facility_id)
     {
         $sql = " UPDATE users SET";
-        $sql .= " facility='" . add_escape_custom($facility_name) . "'";
-        $sql .= " WHERE facility_id='" . add_escape_custom($facility_id) . "'";
+        $sql .= " facility=?";
+        $sql .= " WHERE facility_id=?";
 
-        return sqlStatement($sql);
+        return sqlStatement($sql, array($facility_name, $facility_id));
     }
 
     /**

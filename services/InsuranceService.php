@@ -2,25 +2,18 @@
 /**
  * InsuranceService
  *
- * Copyright (C) 2018 Matthew Vita <matthewvita48@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Matthew Vita <matthewvita48@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Matthew Vita <matthewvita48@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+
 namespace OpenEMR\Services;
+
 use Particle\Validator\Validator;
 
 class InsuranceService
@@ -96,37 +89,70 @@ class InsuranceService
     public function update($pid, $type, $data)
     {
         $sql  = " UPDATE insurance_data SET ";
-        $sql .= "   provider='" . add_escape_custom($data["provider"]) . "',";
-        $sql .= "   plan_name='" . add_escape_custom($data["plan_name"]) . "',";
-        $sql .= "   policy_number='" . add_escape_custom($data["policy_number"]) . "',";
-        $sql .= "   group_number='" . add_escape_custom($data["group_number"]) . "',";
-        $sql .= "   subscriber_lname='" . add_escape_custom($data["subscriber_lname"]) . "',";
-        $sql .= "   subscriber_mname='" . add_escape_custom($data["subscriber_mname"]) . "',";
-        $sql .= "   subscriber_fname='" . add_escape_custom($data["subscriber_fname"]) . "',";
-        $sql .= "   subscriber_relationship='" . add_escape_custom($data["subscriber_relationship"]) . "',";
-        $sql .= "   subscriber_ss='" . add_escape_custom($data["subscriber_ss"]) . "',";
-        $sql .= "   subscriber_DOB='" . add_escape_custom($data["subscriber_DOB"]) . "',";
-        $sql .= "   subscriber_street='" . add_escape_custom($data["subscriber_street"]) . "',";
-        $sql .= "   subscriber_postal_code='" . add_escape_custom($data["subscriber_postal_code"]) . "',";
-        $sql .= "   subscriber_city='" . add_escape_custom($data["subscriber_city"]) . "',";
-        $sql .= "   subscriber_state='" . add_escape_custom($data["subscriber_state"]) . "',";
-        $sql .= "   subscriber_country='" . add_escape_custom($data["subscriber_country"]) . "',";
-        $sql .= "   subscriber_phone='" . add_escape_custom($data["subscriber_phone"]) . "',";
-        $sql .= "   subscriber_employer='" . add_escape_custom($data["subscriber_employer"]) . "',";
-        $sql .= "   subscriber_employer_street='" . add_escape_custom($data["subscriber_employer_street"]) . "',";
-        $sql .= "   subscriber_employer_postal_code='" . add_escape_custom($data["subscriber_employer_postal_code"]) . "',";
-        $sql .= "   subscriber_employer_state='" . add_escape_custom($data["subscriber_employer_state"]) . "',";
-        $sql .= "   subscriber_employer_country='" . add_escape_custom($data["subscriber_employer_country"]) . "',";
-        $sql .= "   subscriber_employer_city='" . add_escape_custom($data["subscriber_employer_city"]) . "',";
-        $sql .= "   copay='" . add_escape_custom($data["copay"]) . "',";
-        $sql .= "   date='" . add_escape_custom($data["date"]) . "',";
-        $sql .= "   subscriber_sex='" . add_escape_custom($data["subscriber_sex"]) . "',";
-        $sql .= "   accept_assignment='" . add_escape_custom($data["accept_assignment"]) . "',";
-        $sql .= "   policy_type='" . add_escape_custom($data["policy_type"]) . "'";
-        $sql .= "   WHERE pid='" . add_escape_custom($pid) . "'";
-        $sql .= "     AND type='" . add_escape_custom($type) . "'";
+        $sql .= "   provider=?,";
+        $sql .= "   plan_name=?,";
+        $sql .= "   policy_number=?,";
+        $sql .= "   group_number=?,";
+        $sql .= "   subscriber_lname=?,";
+        $sql .= "   subscriber_mname=?,";
+        $sql .= "   subscriber_fname=?,";
+        $sql .= "   subscriber_relationship=?,";
+        $sql .= "   subscriber_ss=?,";
+        $sql .= "   subscriber_DOB=?,";
+        $sql .= "   subscriber_street=?,";
+        $sql .= "   subscriber_postal_code=?,";
+        $sql .= "   subscriber_city=?,";
+        $sql .= "   subscriber_state=?,";
+        $sql .= "   subscriber_country=?,";
+        $sql .= "   subscriber_phone=?,";
+        $sql .= "   subscriber_employer=?,";
+        $sql .= "   subscriber_employer_street=?,";
+        $sql .= "   subscriber_employer_postal_code=?,";
+        $sql .= "   subscriber_employer_state=?,";
+        $sql .= "   subscriber_employer_country=?,";
+        $sql .= "   subscriber_employer_city=?,";
+        $sql .= "   copay=?,";
+        $sql .= "   date=?,";
+        $sql .= "   subscriber_sex=?,";
+        $sql .= "   accept_assignment=?,";
+        $sql .= "   policy_type=?";
+        $sql .= "   WHERE pid=?";
+        $sql .= "     AND type=?";
 
-        return sqlStatement($sql);
+        return sqlStatement(
+            $sql,
+            array(
+                $data["provider"],
+                $data["plan_name"],
+                $data["policy_number"],
+                $data["group_number"],
+                $data["subscriber_lname"],
+                $data["subscriber_mname"],
+                $data["subscriber_fname"],
+                $data["subscriber_relationship"],
+                $data["subscriber_ss"],
+                $data["subscriber_DOB"],
+                $data["subscriber_street"],
+                $data["subscriber_postal_code"],
+                $data["subscriber_city"],
+                $data["subscriber_state"],
+                $data["subscriber_country"],
+                $data["subscriber_phone"],
+                $data["subscriber_employer"],
+                $data["subscriber_employer_street"],
+                $data["subscriber_employer_postal_code"],
+                $data["subscriber_employer_state"],
+                $data["subscriber_employer_country"],
+                $data["subscriber_employer_city"],
+                $data["copay"],
+                $data["date"],
+                $data["subscriber_sex"],
+                $data["accept_assignment"],
+                $data["policy_type"],
+                $pid,
+                $type
+            )
+        );
     }
 
     public function insert($pid, $type, $data)
@@ -136,36 +162,69 @@ class InsuranceService
         }
 
         $sql  = " INSERT INTO insurance_data SET ";
-        $sql .= "   type='" . add_escape_custom($type) . "',";
-        $sql .= "   provider='" . add_escape_custom($data["provider"]) . "',";
-        $sql .= "   plan_name='" . add_escape_custom($data["plan_name"]) . "',";
-        $sql .= "   policy_number='" . add_escape_custom($data["policy_number"]) . "',";
-        $sql .= "   group_number='" . add_escape_custom($data["group_number"]) . "',";
-        $sql .= "   subscriber_lname='" . add_escape_custom($data["subscriber_lname"]) . "',";
-        $sql .= "   subscriber_mname='" . add_escape_custom($data["subscriber_mname"]) . "',";
-        $sql .= "   subscriber_fname='" . add_escape_custom($data["subscriber_fname"]) . "',";
-        $sql .= "   subscriber_relationship='" . add_escape_custom($data["subscriber_relationship"]) . "',";
-        $sql .= "   subscriber_ss='" . add_escape_custom($data["subscriber_ss"]) . "',";
-        $sql .= "   subscriber_DOB='" . add_escape_custom($data["subscriber_DOB"]) . "',";
-        $sql .= "   subscriber_street='" . add_escape_custom($data["subscriber_street"]) . "',";
-        $sql .= "   subscriber_postal_code='" . add_escape_custom($data["subscriber_postal_code"]) . "',";
-        $sql .= "   subscriber_city='" . add_escape_custom($data["subscriber_city"]) . "',";
-        $sql .= "   subscriber_state='" . add_escape_custom($data["subscriber_state"]) . "',";
-        $sql .= "   subscriber_country='" . add_escape_custom($data["subscriber_country"]) . "',";
-        $sql .= "   subscriber_phone='" . add_escape_custom($data["subscriber_phone"]) . "',";
-        $sql .= "   subscriber_employer='" . add_escape_custom($data["subscriber_employer"]) . "',";
-        $sql .= "   subscriber_employer_street='" . add_escape_custom($data["subscriber_employer_street"]) . "',";
-        $sql .= "   subscriber_employer_postal_code='" . add_escape_custom($data["subscriber_employer_postal_code"]) . "',";
-        $sql .= "   subscriber_employer_state='" . add_escape_custom($data["subscriber_employer_state"]) . "',";
-        $sql .= "   subscriber_employer_country='" . add_escape_custom($data["subscriber_employer_country"]) . "',";
-        $sql .= "   subscriber_employer_city='" . add_escape_custom($data["subscriber_employer_city"]) . "',";
-        $sql .= "   copay='" . add_escape_custom($data["copay"]) . "',";
-        $sql .= "   date='" . add_escape_custom($data["date"]) . "',";
-        $sql .= "   pid='" . add_escape_custom($pid) . "',";
-        $sql .= "   subscriber_sex='" . add_escape_custom($data["subscriber_sex"]) . "',";
-        $sql .= "   accept_assignment='" . add_escape_custom($data["accept_assignment"]) . "',";
-        $sql .= "   policy_type='" . add_escape_custom($data["policy_type"]) . "'";
+        $sql .= "   type=?,";
+        $sql .= "   provider=?,";
+        $sql .= "   plan_name=?,";
+        $sql .= "   policy_number=?,";
+        $sql .= "   group_number=?,";
+        $sql .= "   subscriber_lname=?,";
+        $sql .= "   subscriber_mname=?,";
+        $sql .= "   subscriber_fname=?,";
+        $sql .= "   subscriber_relationship=?,";
+        $sql .= "   subscriber_ss=?,";
+        $sql .= "   subscriber_DOB=?,";
+        $sql .= "   subscriber_street=?,";
+        $sql .= "   subscriber_postal_code=?,";
+        $sql .= "   subscriber_city=?,";
+        $sql .= "   subscriber_state=?,";
+        $sql .= "   subscriber_country=?,";
+        $sql .= "   subscriber_phone=?,";
+        $sql .= "   subscriber_employer=?,";
+        $sql .= "   subscriber_employer_street=?,";
+        $sql .= "   subscriber_employer_postal_code=?,";
+        $sql .= "   subscriber_employer_state=?,";
+        $sql .= "   subscriber_employer_country=?,";
+        $sql .= "   subscriber_employer_city=?,";
+        $sql .= "   copay=?,";
+        $sql .= "   date=?,";
+        $sql .= "   pid=?,";
+        $sql .= "   subscriber_sex=?,";
+        $sql .= "   accept_assignment=?,";
+        $sql .= "   policy_type=?";
 
-        return sqlInsert($sql);
+        return sqlInsert(
+            $sql,
+            array(
+                $type,
+                $data["provider"],
+                $data["plan_name"],
+                $data["policy_number"],
+                $data["group_number"],
+                $data["subscriber_lname"],
+                $data["subscriber_mname"],
+                $data["subscriber_fname"],
+                $data["subscriber_relationship"],
+                $data["subscriber_ss"],
+                $data["subscriber_DOB"],
+                $data["subscriber_street"],
+                $data["subscriber_postal_code"],
+                $data["subscriber_city"],
+                $data["subscriber_state"],
+                $data["subscriber_country"],
+                $data["subscriber_phone"],
+                $data["subscriber_employer"],
+                $data["subscriber_employer_street"],
+                $data["subscriber_employer_postal_code"],
+                $data["subscriber_employer_state"],
+                $data["subscriber_employer_country"],
+                $data["subscriber_employer_city"],
+                $data["copay"],
+                $data["date"],
+                $pid,
+                $data["subscriber_sex"],
+                $data["accept_assignment"],
+                $data["policy_type"]
+            )
+        );
     }
 }

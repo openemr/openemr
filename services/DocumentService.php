@@ -2,23 +2,15 @@
 /**
  * DocumentService
  *
- * Copyright (C) 2018 Matthew Vita <matthewvita48@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Matthew Vita <matthewvita48@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Matthew Vita <matthewvita48@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 namespace OpenEMR\Services;
 
@@ -113,21 +105,36 @@ class DocumentService
         $nextIdResult = sqlQuery("SELECT MAX(id)+1 as id FROM documents");
 
         $insertDocSql  = " INSERT INTO documents SET";
-        $insertDocSql .= "   id=" . add_escape_custom($nextIdResult["id"]) . ",";
+        $insertDocSql .= "   id=?,";
         $insertDocSql .= "   type='file_url',";
-        $insertDocSql .= "   size='" . add_escape_custom($fileData["size"]) . "',";
+        $insertDocSql .= "   size=?,";
         $insertDocSql .= "   date=NOW(),";
-        $insertDocSql .= "   url='" . add_escape_custom($GLOBALS['oer_config']['documents']['repository']) . add_escape_custom($categoryId) . "/" . add_escape_custom($fileData["name"]) . "',";
-        $insertDocSql .= "   mimetype='" . add_escape_custom($fileData["type"]) . "',";
-        $insertDocSql .= "   foreign_id='" . add_escape_custom($pid) . "'";
+        $insertDocSql .= "   url=?,";
+        $insertDocSql .= "   mimetype=?,";
+        $insertDocSql .= "   foreign_id=?";
 
-        sqlInsert($insertDocSql);
+        sqlInsert(
+            $insertDocSql,
+            array(
+                $nextIdResult["id"],
+                $fileData["size"],
+                $GLOBALS['oer_config']['documents']['repository'] . $categoryId . "/" . $fileData["name"],
+                $fileData["type"],
+                $pid
+            )
+        );
 
         $cateToDocsSql  = " INSERT INTO categories_to_documents SET";
-        $cateToDocsSql .= "    category_id=" . add_escape_custom($categoryId) . ",";
-        $cateToDocsSql .= "    document_id=" . add_escape_custom($nextIdResult["id"]);
+        $cateToDocsSql .= "    category_id=?,";
+        $cateToDocsSql .= "    document_id=?";
 
-        sqlInsert($cateToDocsSql);
+        sqlInsert(
+            $cateToDocsSql,
+            array(
+                $categoryId,
+                $nextIdResult["id"]
+            )
+        );
 
         $newPath = $GLOBALS['oer_config']['documents']['repository'] . "/" . $categoryId;
         if (!file_exists($newPath)) {

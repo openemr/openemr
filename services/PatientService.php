@@ -2,23 +2,15 @@
 /**
  * Patient Service
  *
- * Copyright (C) 2017 Victor Kofia <victor.kofia@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Victor Kofia <victor.kofia@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Victor Kofia <victor.kofia@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Victor Kofia <victor.kofia@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 namespace OpenEMR\Services;
 
@@ -123,23 +115,42 @@ class PatientService
         $fresh_pid = $this->getFreshPid();
 
         $sql = " INSERT INTO patient_data SET";
-        $sql .= "     pid='" . add_escape_custom($fresh_pid) . "',";
-        $sql .= "     title='" . add_escape_custom($data["title"]) . "',";
-        $sql .= "     fname='" . add_escape_custom($data["fname"]) . "',";
-        $sql .= "     mname='" . add_escape_custom($data["mname"]) . "',";
-        $sql .= "     lname='" . add_escape_custom($data["lname"]) . "',";
-        $sql .= "     street='" . add_escape_custom($data["street"]) . "',";
-        $sql .= "     postal_code='" . add_escape_custom($data["postal_code"]) . "',";
-        $sql .= "     city='" . add_escape_custom($data["city"]) . "',";
-        $sql .= "     state='" . add_escape_custom($data["state"]) . "',";
-        $sql .= "     country_code='" . add_escape_custom($data["country_code"]) . "',";
-        $sql .= "     phone_contact='" . add_escape_custom($data["phone_contact"]) . "',";
-        $sql .= "     dob='" . add_escape_custom($data["dob"]) . "',";
-        $sql .= "     sex='" . add_escape_custom($data["sex"]) . "',";
-        $sql .= "     race='" . add_escape_custom($data["race"]) . "',";
-        $sql .= "     ethnicity='" . add_escape_custom($data["ethnicity"]) . "'";
+        $sql .= "     pid=?,";
+        $sql .= "     title=?,";
+        $sql .= "     fname=?,";
+        $sql .= "     mname=?,";
+        $sql .= "     lname=?,";
+        $sql .= "     street=?,";
+        $sql .= "     postal_code=?,";
+        $sql .= "     city=?,";
+        $sql .= "     state=?,";
+        $sql .= "     country_code=?,";
+        $sql .= "     phone_contact=?,";
+        $sql .= "     dob=?,";
+        $sql .= "     sex=?,";
+        $sql .= "     race=?,";
+        $sql .= "     ethnicity=?";
 
-        $results = sqlInsert($sql);
+        $results = sqlInsert(
+            $sql,
+            array(
+                $fresh_pid,
+                $data["title"],
+                $data["fname"],
+                $data["mname"],
+                $data["lname"],
+                $data["street"],
+                $data["postal_code"],
+                $data["city"],
+                $data["state"],
+                $data["country_code"],
+                $data["phone_contact"],
+                $data["dob"],
+                $data["sex"],
+                $data["race"],
+                $data["ethnicity"]
+            )
+        );
 
         if ($results) {
             return $fresh_pid;
@@ -151,27 +162,48 @@ class PatientService
     public function update($pid, $data)
     {
         $sql = " UPDATE patient_data SET";
-        $sql .= "     title='" . add_escape_custom($data["title"]) . "',";
-        $sql .= "     fname='" . add_escape_custom($data["fname"]) . "',";
-        $sql .= "     mname='" . add_escape_custom($data["mname"]) . "',";
-        $sql .= "     lname='" . add_escape_custom($data["lname"]) . "',";
-        $sql .= "     street='" . add_escape_custom($data["street"]) . "',";
-        $sql .= "     postal_code='" . add_escape_custom($data["postal_code"]) . "',";
-        $sql .= "     city='" . add_escape_custom($data["city"]) . "',";
-        $sql .= "     state='" . add_escape_custom($data["state"]) . "',";
-        $sql .= "     country_code='" . add_escape_custom($data["country_code"]) . "',";
-        $sql .= "     phone_contact='" . add_escape_custom($data["phone_contact"]) . "',";
-        $sql .= "     dob='" . add_escape_custom($data["dob"]) . "',";
-        $sql .= "     sex='" . add_escape_custom($data["sex"]) . "',";
-        $sql .= "     race='" . add_escape_custom($data["race"]) . "',";
-        $sql .= "     ethnicity='" . add_escape_custom($data["ethnicity"]) . "'";
-        $sql .= "     where pid='" . add_escape_custom($pid) . "'";
+        $sql .= "     title=?,";
+        $sql .= "     fname=?,";
+        $sql .= "     mname=?,";
+        $sql .= "     lname=?,";
+        $sql .= "     street=?,";
+        $sql .= "     postal_code=?,";
+        $sql .= "     city=?,";
+        $sql .= "     state=?,";
+        $sql .= "     country_code=?,";
+        $sql .= "     phone_contact=?,";
+        $sql .= "     dob=?,";
+        $sql .= "     sex=?,";
+        $sql .= "     race=?,";
+        $sql .= "     ethnicity=?";
+        $sql .= "     where pid=?";
 
-        return sqlStatement($sql);
+        return sqlStatement(
+            $sql,
+            array(
+                $data["title"],
+                $data["fname"],
+                $data["mname"],
+                $data["lname"],
+                $data["street"],
+                $data["postal_code"],
+                $data["city"],
+                $data["state"],
+                $data["country_code"],
+                $data["phone_contact"],
+                $data["dob"],
+                $data["sex"],
+                $data["race"],
+                $data["ethnicity"],
+                $pid
+            )
+        );
     }
 
     public function getAll($search)
     {
+        $sqlBindArray = array();
+
         $sql = "SELECT id,
                    pid,
                    pubpid,
@@ -198,23 +230,27 @@ class PatientService
             $whereClauses = array();
             if ($search['name']) {
                 $search['name'] = '%' . $search['name'] . '%';
-                array_push($whereClauses, "CONCAT(lname,' ', fname) LIKE '" . add_escape_custom($search['name']) . "'");
+                array_push($whereClauses, "CONCAT(lname,' ', fname) LIKE ?");
+                array_push($sqlBindArray, $search['name']);
             }
             if ($search['fname']) {
-                array_push($whereClauses, "fname='" . add_escape_custom($search['fname']) . "'");
+                array_push($whereClauses, "fname=?");
+                array_push($sqlBindArray, $search['fname']);
             }
             if ($search['lname']) {
-                array_push($whereClauses, "lname='" . add_escape_custom($search['lname']) . "'");
+                array_push($whereClauses, "lname=?");
+                array_push($sqlBindArray, $search['lname']);
             }
             if ($search['dob'] || $search['birthdate']) {
                 $search['dob'] = !empty($search['dob']) ? $search['dob'] : $search['birthdate'];
-                array_push($whereClauses, "dob='" . add_escape_custom($search['dob']) . "'");
+                array_push($whereClauses, "dob=?");
+                array_push($sqlBindArray, $search['dob']);
             }
 
             $sql .= implode(" AND ", $whereClauses);
         }
 
-        $statementResults = sqlStatement($sql);
+        $statementResults = sqlStatement($sql, $sqlBindArray);
 
         $results = array();
         while ($row = sqlFetchArray($statementResults)) {
