@@ -1,17 +1,16 @@
 ![img](./public/images/openemr-rest-api.png)
 
-_(Project is in-flight - do not use in production)._
-
 ### Goal
 
 This project aims to provide an easy-to-use JSON-based REST API for OpenEMR's most common functions. All code will be done in classes and separate from the view to help with codebase modernization efforts.
 
 ### Team
 
-- [@juggernautsei](https://github.com/juggernautsei)
 - [@matthewvita](https://github.com/matthewvita)
-- [@kofiav](https://github.com/kofiav)
 - [@sjpadgett](https://github.com/sjpadgett)
+- [@juggernautsei](https://github.com/juggernautsei)
+- [@kofiav](https://github.com/kofiav)
+- [@bradymiller](https://github.com/bradymiller)
 
 ### Prerequsite
 Enable this API service in OpenEMR menu: Administration->Globals Connectors tab.
@@ -767,9 +766,9 @@ curl -X DELETE 'http://localhost:8300/apis/api/patient/1/message/1'
 
 ### Dev Notes
 
-- For business logic, make or use the services [here](https://github.com/GoTeamEpsilon/openemr-rest-api/tree/master/services)
-- For controller logic, make or use the classes [here](https://github.com/GoTeamEpsilon/openemr-rest-api/tree/master/rest_controllers)
-- For routing declarations, use the class [here](https://github.com/GoTeamEpsilon/openemr-rest-api/blob/master/_rest_routes.inc.php).
+- For business logic, make or use the services [here](https://github.com/openemr/openemr/tree/master/services)
+- For controller logic, make or use the classes [here](https://github.com/openemr/openemr/tree/master/rest_controllers)
+- For routing declarations, use the class [here](https://github.com/openemr/openemr/blob/master/_rest_routes.inc.php).
 
 
 ### Project Management
@@ -794,4 +793,4 @@ That is Peppy, an old OpenEMR mascot. Long live Peppy!
 
 ### License
 
-[GNU GPL](LICENSE)
+[GNU GPL](../LICENSE)
