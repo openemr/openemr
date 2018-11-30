@@ -26,6 +26,10 @@ Report these on the [Issue Tracker](https://github.com/openemr/openemr/issues). 
 
 Send an email to brady.g.miller@gmail.com . If possible, please encrypt your email via PGP with this [public key](https://pgp.mit.edu/pks/lookup?op=get&search=0x27DEF05B1A8A6D4F).
 
+### API
+
+Check out [API_README.md](API_README.md)
+
 ### For Developers
 
 If using OpenEMR directly from the code repository, then the following commands will build OpenEMR:
