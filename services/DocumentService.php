@@ -20,7 +20,6 @@ class DocumentService
 {
     public function __construct()
     {
-
     }
 
     public function isValidPath($path)

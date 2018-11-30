@@ -103,7 +103,8 @@ class InsuranceCompanyService
         );
     }
 
-    public function getFreshId() {
+    public function getFreshId()
+    {
         $id = sqlQuery("SELECT MAX(id)+1 AS id FROM insurance_companies");
 
         return $id['id'];
@@ -188,5 +189,4 @@ class InsuranceCompanyService
 
         return $iid;
     }
-
 }

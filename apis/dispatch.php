@@ -67,10 +67,11 @@ if (!$GLOBALS['rest_api']) {
 }
 // api flag must be four chars
 //
-if (is_fhir_request($resource))
+if (is_fhir_request($resource)) {
     $_SESSION['api'] = 'fhir';
-else
+} else {
     $_SESSION['api'] = 'oemr';
+}
 
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\RestControllers\AuthRestController;
@@ -83,7 +84,9 @@ function is_authentication($resource)
 function get_bearer_token()
 {
     $parse = preg_split("/[\s,]+/", $_SERVER["HTTP_AUTHORIZATION"]);
-    if (strtoupper(trim($parse[0])) !== 'BEARER') return false;
+    if (strtoupper(trim($parse[0])) !== 'BEARER') {
+        return false;
+    }
 
     return trim($parse[1]);
 }

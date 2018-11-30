@@ -43,7 +43,8 @@ class InsuranceRestController
         $validationResult = $this->insuranceService->validate($data);
 
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
-        if (is_array($validationHandlerResult)) { return $validationHandlerResult; }
+        if (is_array($validationHandlerResult)) {
+            return $validationHandlerResult; }
 
         $serviceResult = $this->insuranceService->insert($pid, $type, $data);
         return RestControllerHelper::responseHandler($serviceResult, $type, 200);
@@ -56,7 +57,8 @@ class InsuranceRestController
         $validationResult = $this->insuranceService->validate($data);
 
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
-        if (is_array($validationHandlerResult)) { return $validationHandlerResult; }
+        if (is_array($validationHandlerResult)) {
+            return $validationHandlerResult; }
 
         $serviceResult = $this->insuranceService->insert($pid, $type, $data);
         return RestControllerHelper::responseHandler($serviceResult, $type, 201);

@@ -116,22 +116,27 @@ class RestConfig
         if (preg_match("/^[^\/]/", self::$web_root)) {
             self::$web_root = "/" . self::$web_root;
         }
-
     }
 
     function destroySession()
     {
-        if (!isset($_SESSION)) return;
+        if (!isset($_SESSION)) {
+            return;
+        }
         $_SESSION = array();
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
-            setcookie(session_name(), '', time() - 42000,
-                $params["path"], $params["domain"],
-                $params["secure"], $params["httponly"]
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
             );
         }
     }
-
 }
 
 // Include our routes and init routes global

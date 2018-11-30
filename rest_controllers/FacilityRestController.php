@@ -40,7 +40,8 @@ class FacilityRestController
     {
         $validationResult = $this->facilityService->validate($data);
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
-        if (is_array($validationHandlerResult)) { return $validationHandlerResult; }
+        if (is_array($validationHandlerResult)) {
+            return $validationHandlerResult; }
 
         $serviceResult = $this->facilityService->insert($data);
         return RestControllerHelper::responseHandler($serviceResult, array('fid' => $serviceResult), 201);
@@ -50,7 +51,8 @@ class FacilityRestController
     {
         $validationResult = $this->facilityService->validate($data);
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
-        if (is_array($validationHandlerResult)) { return $validationHandlerResult; }
+        if (is_array($validationHandlerResult)) {
+            return $validationHandlerResult; }
 
         $serviceResult = $this->facilityService->update($data);
         return RestControllerHelper::responseHandler($serviceResult, array('fid' => $data['fid']), 200);
