@@ -36,7 +36,7 @@
         "vlucas/phpdotenv" : "2.5.1",
         "yubico/u2flib-server" : "1.0.2",
         "zendframework/zendframework" : "2.5.3",
-        "particle/validator": "^2.3"
+        "particle/validator": "2.3.3"
     },
     "config": {
         "platform": {
