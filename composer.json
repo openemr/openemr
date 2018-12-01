@@ -33,7 +33,7 @@
         "symfony/http-foundation" : "3.4.19",
         "symfony/yaml" : "3.4.19",
         "twig/twig" : "2.5.0",
-        "vlucas/phpdotenv" : "2.4.0",
+        "vlucas/phpdotenv" : "2.5.1",
         "yubico/u2flib-server" : "1.0.2",
         "zendframework/zendframework" : "2.5.3",
         "particle/validator": "^2.3"
