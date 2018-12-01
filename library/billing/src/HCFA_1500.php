@@ -13,7 +13,6 @@
 
 namespace OpenEMR\Billing;
 
-require_once(dirname(__FILE__) . "/../../gen_hcfa_1500_02_12.inc.php");
 require_once(dirname(__FILE__) . "/../../invoice_summary.inc.php");
 
 use OpenEMR\Billing\Claim;
@@ -435,7 +434,7 @@ class HCFA_1500
         }
 
         // Box 21. Diagnoses
-        process_diagnoses_02_12($claim, $log);
+        HCFA_Info::process_diagnoses_02_12($claim, $log);
 
         $proccount = $claim->procCount(); // number of procedures
 
