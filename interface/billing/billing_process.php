@@ -228,7 +228,7 @@ function process_form($ar)
                     $bill_info[] = xl("Claim ") . $claimid . xl(" has been re-opened.") . "\n";
                 } elseif (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter'])) {
                     $log = '';
-                    $segs = explode("~\n", X12837P::gen_x12_837($patient_id, $encounter, $log, isset($ar['bn_x12_encounter'])));
+                    $segs = explode("~\n", X12_5010_837P::gen_x12_837($patient_id, $encounter, $log, isset($ar['bn_x12_encounter'])));
                     fwrite($hlog, $log);
                     append_claim($segs);
                     if (! updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename)) {

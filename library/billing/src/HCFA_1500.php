@@ -18,8 +18,7 @@ require_once(dirname(__FILE__) . "/../../invoice_summary.inc.php");
 
 use OpenEMR\Billing\Claim;
 
-
-Class HCFA_1500
+class HCFA_1500
 {
     private $hcfa_curr_line = 1;
     private $hcfa_curr_col = 1;
