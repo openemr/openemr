@@ -43,6 +43,7 @@
         <delete dir="${dir.vendor}/ezyang/htmlpurifier/maintenance" verbose="true"/>
         <delete dir="${dir.vendor}/ezyang/htmlpurifier/plugins" verbose="true"/>
         <delete dir="${dir.vendor}/illuminate/support/Testing" verbose="true"/>
+        <delete dir="${dir.vendor}/mobiledetect/mobiledetectlib/docs" verbose="true"/>
         <delete dir="${dir.vendor}/phpmailer/phpmailer/examples" verbose="true"/>
         <delete dir="${dir.vendor}/phpmailer/phpmailer/test" verbose="true"/>
         <delete dir="${dir.vendor}/phpmailer/phpmailer/docs" verbose="true"/>
