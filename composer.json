@@ -24,7 +24,7 @@
         "phpmailer/phpmailer" : "6.0.6",
         "phpoffice/phpspreadsheet": "1.5.2",
         "phpseclib/phpseclib" : "2.0.12",
-        "rospdf/pdf-php" : "0.12.46",
+        "rospdf/pdf-php" : "0.12.48",
         "smarty/smarty" : "2.6.31",
         "stripe/stripe-php" : "6.10.0",
         "symfony/config" : "2.8.42",

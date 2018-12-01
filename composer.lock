@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "481031468fbcb26a1b7c265e777a9398",
+    "content-hash": "75864863bcef8b0d21ff1edd14397a7e",
     "packages": [
         {
             "name": "adldap2/adldap2",
@@ -2972,16 +2972,16 @@
         },
         {
             "name": "rospdf/pdf-php",
-            "version": "0.12.46",
+            "version": "0.12.48",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rospdf/pdf-php.git",
-                "reference": "fbfe284b7c163f3e50da668e492d134534127af5"
+                "reference": "7af97bde9fdfc91fecfa571134c84ce3dc6f88ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rospdf/pdf-php/zipball/fbfe284b7c163f3e50da668e492d134534127af5",
-                "reference": "fbfe284b7c163f3e50da668e492d134534127af5",
+                "url": "https://api.github.com/repos/rospdf/pdf-php/zipball/7af97bde9fdfc91fecfa571134c84ce3dc6f88ea",
+                "reference": "7af97bde9fdfc91fecfa571134c84ce3dc6f88ea",
                 "shasum": ""
             },
             "require": {
@@ -3037,7 +3037,7 @@
             ],
             "description": "The R&OS Pdf class supports the creation of PDF documents without any adiditional modules or extensions.",
             "homepage": "https://github.com/rospdf/pdf-php",
-            "time": "2018-06-06T21:04:16+00:00"
+            "time": "2018-08-24T18:25:10+00:00"
         },
         {
             "name": "sabberworm/php-css-parser",
