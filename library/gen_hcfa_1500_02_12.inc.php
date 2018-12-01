@@ -13,7 +13,7 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Billing\HCFA_1500;
+use OpenEMR\Billing\HCFA_Info;
 
 /**
  * comparator function for hfca_info class to allow proper sorting
@@ -59,7 +59,7 @@ function add_diagnosis(&$hcfa_entries, $number, $diag)
     $strip='/[.#]/';
     $diag = preg_replace($strip, '', strtoupper($diag));
     $row_pos=38+$row_num;
-    $hcfa_entries[]=new HCFA_1500($row_pos, $col_pos, 8, $diag);
+    $hcfa_entries[]=new HCFA_Info($row_pos, $col_pos, 8, $diag);
 }
 
 /**
@@ -79,14 +79,14 @@ function process_diagnoses_02_12(&$claim, &$log)
         $icd_indicator='9';
     }
 
-    $hcfa_entries[]=new HCFA_1500(37, 42, 1, $icd_indicator);
+    $hcfa_entries[]=new HCFA_Info(37, 42, 1, $icd_indicator);
 
     // Box 22. Medicaid Resubmission Code and Original Ref. No.
-    $hcfa_entries[]=new HCFA_1500(38, 50, 10, $claim->medicaidResubmissionCode());
-    $hcfa_entries[]=new HCFA_1500(38, 62, 15, $claim->medicaidOriginalReference());
+    $hcfa_entries[]=new HCFA_Info(38, 50, 10, $claim->medicaidResubmissionCode());
+    $hcfa_entries[]=new HCFA_Info(38, 62, 15, $claim->medicaidOriginalReference());
 
     // Box 23. Prior Authorization Number
-    $hcfa_entries[]=new HCFA_1500(40, 50, 28, $claim->priorAuth());
+    $hcfa_entries[]=new HCFA_Info(40, 50, 28, $claim->priorAuth());
 
     $diag_count=0;
     foreach ($diags as $diag) {
