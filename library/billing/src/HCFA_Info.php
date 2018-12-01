@@ -57,4 +57,3 @@ class HCFA_Info
         HCFA_1500::put_hcfa($this->row, $this->column, $this->width, $this->info, '/#/');
     }
 }
-
