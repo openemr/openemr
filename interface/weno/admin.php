@@ -60,10 +60,11 @@ if (!$drugData['ndc']) {
 ?>
 
 <br><br>
-
-<?php if (!empty($finish)) {
-    echo text($finish) . xlt("with import");
-} ?>
+<?php
+if (file_exists('../../contrib/weno/pharmacyList.csv')) {
+    echo "<a href='import_pharmacies.php?csrf_token_form=" . attr_url(collectCsrfToken()) . "' class='btn btn-default'>" . xlt("Import Pharmacies Script") . "</a> <br>";
+}
+?>
 
 </div>
 <script>
