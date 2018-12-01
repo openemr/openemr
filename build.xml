@@ -53,8 +53,6 @@
         <delete dir="${dir.vendor}/rospdf/pdf-php/tests" verbose="true"/>
         <delete dir="${dir.vendor}/sabberworm/php-css-parser/tests" verbose="true"/>
         <delete dir="${dir.vendor}/smarty/smarty/demo" verbose="true"/>
-        <delete dir="${dir.vendor}/stripe/stripe-php/tests" verbose="true"/>
-        <delete dir="${dir.vendor}/stripe/stripe-php/examples" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/config/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/console/Tester" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/console/Tests" verbose="true"/>

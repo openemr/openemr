@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "75864863bcef8b0d21ff1edd14397a7e",
+    "content-hash": "bd869a03c9a2a6d4e9f1efbc5cb175ee",
     "packages": [
         {
             "name": "adldap2/adldap2",
@@ -3690,16 +3690,16 @@
         },
         {
             "name": "stripe/stripe-php",
-            "version": "v6.10.0",
+            "version": "v6.24.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "be46d55c4a67265d6fe3eaf2ff69f6cfffe0034d"
+                "reference": "e608b6538b45d233db66838c389c6548c1152a27"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/be46d55c4a67265d6fe3eaf2ff69f6cfffe0034d",
-                "reference": "be46d55c4a67265d6fe3eaf2ff69f6cfffe0034d",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/e608b6538b45d233db66838c389c6548c1152a27",
+                "reference": "e608b6538b45d233db66838c389c6548c1152a27",
                 "shasum": ""
             },
             "require": {
@@ -3709,8 +3709,8 @@
                 "php": ">=5.4.0"
             },
             "require-dev": {
+                "php-coveralls/php-coveralls": "1.*",
                 "phpunit/phpunit": "~4.0",
-                "satooshi/php-coveralls": "~0.6.1",
                 "squizlabs/php_codesniffer": "~2.0"
             },
             "type": "library",
@@ -3741,7 +3741,7 @@
                 "payment processing",
                 "stripe"
             ],
-            "time": "2018-06-28T15:25:46+00:00"
+            "time": "2018-11-28T16:32:29+00:00"
         },
         {
             "name": "symfony/config",

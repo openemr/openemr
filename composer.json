@@ -26,7 +26,7 @@
         "phpseclib/phpseclib" : "2.0.12",
         "rospdf/pdf-php" : "0.12.48",
         "smarty/smarty" : "2.6.31",
-        "stripe/stripe-php" : "6.10.0",
+        "stripe/stripe-php" : "6.24.0",
         "symfony/config" : "2.8.42",
         "symfony/dependency-injection" : "2.8.42",
         "symfony/event-dispatcher" : "2.8.42",
