@@ -31,13 +31,12 @@
         <delete dir="${dir.vendor}/adldap2/adldap2/docs" verbose="true"/>
         <delete dir="${dir.vendor}/adodb/adodb-php/tests" verbose="true"/>
         <delete dir="${dir.vendor}/adodb/adodb-php/docs" verbose="true"/>
-        <delete dir="${dir.vendor}/doctrine/cache/tests" verbose="true"/>
-        <delete dir="${dir.vendor}/doctrine/collections/tests" verbose="true"/>
-        <delete dir="${dir.vendor}/doctrine/common/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/doctrine/cache/docs" verbose="true"/>
+        <delete dir="${dir.vendor}/doctrine/common/docs" verbose="true"/>
         <delete dir="${dir.vendor}/doctrine/couchdb/tests" verbose="true"/>
-        <delete dir="${dir.vendor}/doctrine/inflector/tests" verbose="true"/>
-        <delete dir="${dir.vendor}/doctrine/instantiator/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/doctrine/common/event-manager" verbose="true"/>
         <delete dir="${dir.vendor}/doctrine/orm/docs" verbose="true"/>
+        <delete dir="${dir.vendor}/doctrine/reflection/docs" verbose="true"/>
         <delete dir="${dir.vendor}/dompdf/dompdf/wwww" verbose="true"/>
         <delete dir="${dir.vendor}/dompdf/dompdf/tests" verbose="true"/>
         <delete dir="${dir.vendor}/ezyang/htmlpurifier/test" verbose="true"/>
