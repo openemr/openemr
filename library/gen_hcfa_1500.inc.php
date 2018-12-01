@@ -25,7 +25,7 @@ $hcfa_proc_index = 0;
  * take the data element and place it at the correct coordinates on the page
  *
  * @global int $hcfa_curr_line
- * @global type $hcfa_curr_col
+ * @global int $hcfa_curr_col
  * @global type $hcfa_data
  * @param type $line
  * @param type $col
