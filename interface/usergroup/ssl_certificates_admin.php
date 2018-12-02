@@ -78,7 +78,7 @@ $error_msg = "";
     $Authority_crt = str_replace('\\', '/', $Authority_crt);
 
     // Read in the globals.php file
-    $globals_file = $GLOBALS['webserver_root'] . "/interface/globals.php";
+    $globals_file = $GLOBALS['fileroot'] . "/interface/globals.php";
     $inputdata = file($globals_file) or die( xlt('Could not read file')." ". text($globals_file));
     $outputdata = "";
 
@@ -190,7 +190,7 @@ function create_client_cert()
         $email = trim($_POST['client_cert_email']);
     }
 
-    $opensslconf = $GLOBALS['webserver_root'] . "/library/openssl.cnf";
+    $opensslconf = $GLOBALS['fileroot'] . "/library/openssl.cnf";
     $serial = 0;
     $data = create_user_certificate(
         $user,

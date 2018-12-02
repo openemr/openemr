@@ -74,7 +74,7 @@ function create_csr(
     }
 
     /* OpenSSL functions need the path to the openssl.cnf file */
-    $opensslConf = $GLOBALS['webserver_root'] . "/library/openssl.cnf";
+    $opensslConf = $GLOBALS['fileroot'] . "/library/openssl.cnf";
     $config = array('config' => $opensslConf);
 
     /* Create the public/private key pair */
@@ -103,7 +103,7 @@ function create_csr(
 function create_crt($privkey, $csr, $cacert, $cakey)
 {
 
-    $opensslConf = $GLOBALS['webserver_root'] . "/library/openssl.cnf";
+    $opensslConf = $GLOBALS['fileroot'] . "/library/openssl.cnf";
     $config = array('config' => $opensslConf);
 
     $cert = openssl_csr_sign($csr, $cacert, $cakey, 3650, $config, rand(1000, 9999));
@@ -124,7 +124,7 @@ function create_crt($privkey, $csr, $cacert, $cakey)
 function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $cakey, $valid_days)
 {
 
-    $opensslConf = $GLOBALS['webserver_root'] . "/library/openssl.cnf";
+    $opensslConf = $GLOBALS['fileroot'] . "/library/openssl.cnf";
     $config = array('config' => $opensslConf);
 
     /* Generate a certificate signing request */

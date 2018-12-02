@@ -463,7 +463,7 @@ if ($_REQUEST['dispensed']) {
             }
             $expir_date = oeFormatShortDate($expir);
             $row['REFDATE'] = oeFormatShortDate($row['REFDATE']);
-    
+
             ?>
             <div id="RXID_<?php echo attr($row['id']); ?>"
                  style="position:relative;text-align:center;margin: 10 auto;">
@@ -1277,7 +1277,7 @@ if ($REFTYPE == "CTL") {
             </tr>
             <tr>
                 <?php
-                    $signature = $GLOBALS["webserver_root"] . "/interface/forms/eye_mag/images/sign_" . attr($_SESSION['authUserID']) . ".jpg";
+                    $signature = $GLOBALS['fileroot'] . "/interface/forms/eye_mag/images/sign_" . attr($_SESSION['authUserID']) . ".jpg";
                 if (file_exists($signature)) {
                     ?>
                     <td class="center" style="margin:25px auto;">
@@ -1303,7 +1303,7 @@ if ($REFTYPE == "CTL") {
                 </td>
             </tr>
 
-            
+
         </table>
     </div>
 </form>
