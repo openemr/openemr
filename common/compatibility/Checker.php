@@ -16,7 +16,7 @@ namespace OpenEMR\Common;
  */
 class Checker
 {
-    private static $minimumPhpVersion = "5.6.0";
+    private static $minimumPhpVersion = "7.1.0";
 
     private static function xlDelegate($value)
     {
