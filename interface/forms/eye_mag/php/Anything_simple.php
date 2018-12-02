@@ -33,7 +33,7 @@
 
     $form_name = "Eye Form";
     $form_folder = "eye_mag";
-    include_once($GLOBALS['webserver_root']."/interface/forms/".$form_folder."/php/".$form_folder."_functions.php");
+    include_once($GLOBALS['fileroot']."/interface/forms/".$form_folder."/php/".$form_folder."_functions.php");
 
     $pid = $_SESSION['pid'];
     $display = $_REQUEST['display'];
