@@ -56,15 +56,15 @@ function load_fee_sheet_options($pricelevel)
     $clFSO_code_type='substring_index(fso.fs_codes,"|",1)';
     $clFSO_code='replace(substring_index(fso.fs_codes,"|",-2),"|","")';
     
-    $sql= "SELECT codes.code,code_types.ct_key as code_type,codes.code_text,pr_price,fso.fs_category"
-        . " FROM fee_sheet_options as fso, code_types "
-        . " ,codes LEFT JOIN prices ON (codes.id=prices.pr_id AND prices.pr_level=?)"
-        . " WHERE codes.code=".$clFSO_code
-        . " AND code_types.ct_key=".$clFSO_code_type
-        . " AND codes.code_type=code_types.ct_id"
-        . " ORDER BY fso.fs_category,fso.fs_option";
+    $sql= "SELECT codes.code,code_types.ct_key as code_type,codes.code_text,pr_price,fso.fs_category
+        FROM fee_sheet_options as fso, code_types
+        codes LEFT JOIN prices ON (codes.id=prices.pr_id AND prices.pr_level=?)
+        WHERE codes.code=?
+        AND code_types.ct_key=?
+        AND codes.code_type=code_types.ct_id
+        ORDER BY fso.fs_category,fso.fs_option";
     
-    $results=sqlStatement($sql, array($pricelevel));
+    $results=sqlStatement($sql, array($pricelevel, $clFSO_code, $clFSO_code));
 
     $retval=array();
     while ($res=sqlFetchArray($results)) {

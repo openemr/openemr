@@ -1,0 +1,12 @@
+Clean up Weird SQL care_plan
+
+Skip CAMOS and eye_mag
+
+FIX:
+- Group_Attendance
+- LBF
+- misc_billing_options
+- newGroupEncounter
+- newpatient
+
+/openemr/custom/code_types.inc.php
