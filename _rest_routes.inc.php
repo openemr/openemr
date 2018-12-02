@@ -28,15 +28,9 @@ use OpenEMR\RestControllers\ONoteRestController;
 use OpenEMR\RestControllers\DocumentRestController;
 use OpenEMR\RestControllers\InsuranceRestController;
 use OpenEMR\RestControllers\MessageRestController;
-use OpenEMR\RestControllers\FhirPatientRestController;
-use OpenEMR\RestControllers\FhirEncounterRestController;
 
 RestConfig::$ROUTE_MAP = array(
     "POST /api/auth" => function () {
-        $data = (array)(json_decode(file_get_contents("php://input")));
-        return (new AuthRestController())->authenticate($data);
-    },
-    "POST /fhir/auth" => function () {
         $data = (array)(json_decode(file_get_contents("php://input")));
         return (new AuthRestController())->authenticate($data);
     },
@@ -323,7 +317,18 @@ RestConfig::$ROUTE_MAP = array(
     },
     "DELETE /api/patient/:pid/message/:mid" => function ($pid, $mid) {
         authorization_check("patients", "notes");
-        return (new MessageRestController())->delete($pid, $mid, $data);
+        return (new MessageRestController())->delete($pid, $mid);
+    },
+
+);
+
+use OpenEMR\RestControllers\FhirPatientRestController;
+use OpenEMR\RestControllers\FhirEncounterRestController;
+
+RestConfig::$FHIR_ROUTE_MAP = array(
+    "POST /fhir/auth" => function () {
+        $data = (array)(json_decode(file_get_contents("php://input")));
+        return (new AuthRestController())->authenticate($data);
     },
     "GET /fhir/Patient" => function () {
         authorization_check("patients", "demo");
