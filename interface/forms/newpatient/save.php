@@ -143,7 +143,8 @@ $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_catego
         ?>
 
     // Get the left_nav window, and the name of its sibling (top or bottom) frame that this form is in.
-    // This works no matter how deeply we are nested.
+    // This works no matter how deeply we are nested
+    
     var my_left_nav = top.left_nav;
     var w = window;
     for (; w.parent != top; w = w.parent);
