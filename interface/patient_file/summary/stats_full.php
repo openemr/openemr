@@ -20,6 +20,7 @@ require_once($GLOBALS['srcdir'].'/options.inc.php');
 
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
+use OpenEMR\OeUI\OemrUI;
 
 // Check if user has permission for any issue type.
 $auth = false;
@@ -91,32 +92,45 @@ function newEncounter() {
  location.href='../../forms/newpatient/new.php?autoloaded=1&calenc=';
 }
 </script>
-<?php
-//to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will
-//become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an
-//argument, containing one or more elements, the name of the current file is the first element, if there are linked
-// files they should be listed thereafter, please add _xpd suffix to the file name
-$arr_files_php = array("stats_full_patient_xpd", "external_data_patient_xpd", "patient_ledger_patient_xpd");
-$current_state = collectAndOrganizeExpandSetting($arr_files_php);
-require_once("$srcdir/expand_contract_inc.php");
-?>
 <script>
 <?php
 require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal
-require_once("$include_root/expand_contract_js.php");//jQuery to provide expand/contract icon toggle if form is expandable
 ?>
 </script>
+<?php
+//BEGIN - edit as needed - variables needed to construct the array $arrHeading - needed to output the Heading text with icons and Help modal code
+$name = " - " . getPatientNameFirstLast($pid); //un-comment to include fname lname, use ONLY on relevant pages :))
+$heading_title = xlt('Medical Issues') . $name; // Minimum needed is the heading title
+//3 optional icons - for ease of use and troubleshooting first create the variables and then use them to populate the arrays:)
+$arr_files_php = array("stats_full_patient_xpd", "external_data_patient_xpd", "patient_ledger_patient_xpd");
+$current_state = collectAndOrganizeExpandSetting($arr_files_php);
+$expandable = 1;
+$arrExpandable = array($current_state, $expandable );//2 elements - int|bool $current_state, int:bool $expandable . $current_state= collectAndOrganizeExpandSetting($arr_files_php).
+                         //$arr_files_php is also an indexed array, current file name first, linked file names thereafter, all need _xpd suffix, names to be unique
+$arrAction = array( );//3 elements - string $action (conceal, reveal, search, reset, link and back), string $action_title - leave blank for actions
+                     // (conceal, reveal and search), string $action_href - needed for actions (reset, link and back)
+$show_help_icon = 1;
+$help_file_name = 'issues_dashboard_help.php';
+$arrHelp = array($show_help_icon, $help_file_name );// 2 elements - int|bool $show_help_icon, string $help_file_name - file needs to exist in Documentation/help_files directory
+//END - edit as needed
+//DO NOT EDIT BELOW
+$arrHeading = array($heading_title, $arrExpandable, $arrAction, $arrHelp); // minimum $heading_title, others can be an empty arrays - displays only heading
+$oemr_ui = new OemrUI($arrHeading);
+$arr_display_heading = $oemr_ui->pageHeading(); // returns an indexed array containing heading string with selected icons and container string value
+$heading = $arr_display_heading[0];
+$container = $arr_display_heading[1];// if you want page to always open as full-width override the default returned value with $container = 'container-fluid'
+echo "<script>\r\n";
+require_once("$srcdir/js/oeUI/universalTooltip.js");
+echo "\r\n</script>\r\n";
+?>
 </head>
 
 <body class="body_top patient-medical-issues">
-    <div class="<?php echo $container;?> expandable">
+    <div id="container_div" class="<?php echo $container;?>">
         <?php $header_title = xl('Medical Issues for');?>
         <div class="row">
             <div class="col-sm-12">
-                <?php
-                $expandable = 1;
-                require_once("$include_root/patient_file/summary/dashboard_header.php")
-                ?>
+                <?php require_once("$include_root/patient_file/summary/dashboard_header.php") ?>
             </div>
         </div>
         <div class="row" >
@@ -298,14 +312,8 @@ require_once("$include_root/expand_contract_js.php");//jQuery to provide expand/
             </form>
         </div> <!-- end patient_stats -->
     </div><!--end of container div -->
-    <?php
-    //home of the help modal ;)
-    //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
-    if ($GLOBALS['enable_help'] == 1) {
-        echo "<script>var helpFile = 'issues_dashboard_help.php'</script>";
-        require "$include_root/help_modal.php";
-    }
-    ?>
+    <?php $oemr_ui->helpFileModal(); // help file name passed in $arrHeading [3][1] ?>
+    <script> <?php require_once("$srcdir/js/oeUI/headerTitleAction.js"); ?></script>
 
 </body>
 

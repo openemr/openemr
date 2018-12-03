@@ -11,6 +11,7 @@
 
 
 use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
@@ -210,11 +211,36 @@ div.tab {
     width: auto;
 }
 </style>
-
+<?php
+//BEGIN - edit as needed - variables needed to construct the array $arrHeading - needed to output the Heading text with icons and Help modal code
+$name = " - " . getPatientNameFirstLast($pid); //un-comment to include fname lname, use ONLY on relevant pages :))
+$heading_title = xlt('Edit History and Lifestyle') . $name; // Minimum needed is the heading title
+//3 optional icons - for ease of use and troubleshooting first create the variables and then use them to populate the arrays:)
+$arrExpandable = array();//2 elements - int|bool $current_state, int|bool $expandable . $current_state = collectAndOrganizeExpandSetting($arr_files_php).
+                        //$arr_files_php is also an indexed array, current file name first, linked file names thereafter, all need _xpd suffix, names to be unique
+$arrAction = array();//3 elements - string $action (conceal, reveal, search, reset, link and back), string $action_title - leave blank for actions
+                    // (conceal, reveal and search), string $action_href - needed for actions (reset, link and back)
+$arrHelp = array();// 2 elements - int|bool $show_help_icon, string $help_file_name - file needs to exist in Documentation/help_files directory
+//END - edit as needed
+//DO NOT EDIT BELOW
+$arrHeading = array($heading_title, $arrExpandable, $arrAction, $arrHelp); // minimum $heading_title, others can be an empty arrays - displays only heading
+$oemr_ui = new OemrUI($arrHeading);
+$arr_display_heading = $oemr_ui->pageHeading(); // returns an indexed array containing heading string with selected icons and container string value
+$heading = $arr_display_heading[0];
+$container = $arr_display_heading[1];// if you want page to always open as full-width override the default returned value with $container = 'container-fluid'
+echo "<script>\r\n";
+require_once("$srcdir/js/oeUI/universalTooltip.js");
+echo "\r\n</script>\r\n";
+?>
 </head>
 <body class="body_top">
 
-<div class="container">
+<div id="container_div" class="<?php echo $container;?>">
+    <div class="row">
+        <div class="col-sm-12">
+            <?php require_once("$include_root/patient_file/summary/dashboard_header.php"); ?>
+        </div>
+    </div>
     <div class="row">
         <div class="col-xs-12">
             <?php
@@ -235,9 +261,6 @@ div.tab {
 
                 <input type='hidden' name='mode' value='save'>
 
-                <div class="page-header">
-                    <h2><?php echo text(getPatientName($pid));?>&nbsp;<small><?php echo xlt('History & Lifestyle'); ?></h2>
-                </div>
                 <div class="btn-group">
                     <button type="submit" class="btn btn-default btn-save"><?php echo xlt('Save'); ?></button>
                     <a href="history.php" class="btn btn-link btn-cancel" onclick="top.restoreSession()">
@@ -263,7 +286,7 @@ div.tab {
             <?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
         </div>
     </div>
-</div>
+</div><!--end of container div-->
 </body>
 
 <script language="JavaScript">

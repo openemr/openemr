@@ -18,6 +18,7 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 
 use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 //ensure user has proper access
 if (!acl_check('admin', 'acl')) {
@@ -506,13 +507,39 @@ if (!isset($phpgacl_location)) {
          $help_icon = '';
     }
     ?>
+    <?php
+    //BEGIN - edit as needed - variables needed to construct the array $arrHeading - needed to output the Heading text with icons and Help modal code
+    //$name = " - " . getPatientNameFirstLast($pid); //un-comment to include fname lname, use ONLY on relevant pages :))
+    $heading_title = xlt('Access Control List Administration') . $name; // Minimum needed is the heading text
+    //3 optional icons - for ease of use and troubleshooting first create the variables and then use them to populate the arrays:)
+    $arrExpandable = array();//2 elements - int|bool $current_state, int|bool $expandable . $current_state = collectAndOrganizeExpandSetting($arr_files_php).
+                            //$arr_files_php is also an indexed array, current file name first, linked file names thereafter, all need _xpd suffix, names to be unique
+    $action = 'link';
+    $action_title = '';
+    $action_href = '../../gacl/admin/acl_admin.php';
+    $arrAction = array($action, $action_title, $action_href);//3 elements - string $action (conceal, reveal, search, reset, link and back), string $action_title - leave blank for actions
+                        // (conceal, reveal and search), string $action_href - needed for actions (reset, link and back)
+    $show_help_icon = 1;
+    $help_file_name = 'adminacl_help.php';
+    $arrHelp = array($show_help_icon, $help_file_name );// 2 elements - int|bool $show_help_icon, string $help_file_name - file needs to exist in Documentation/help_files directory
+    //END - edit as needed
+    //DO NOT EDIT BELOW
+    $arrHeading = array($heading_title, $arrExpandable, $arrAction, $arrHelp); // minimum $heading_title, others can be an empty arrays - displays only heading
+    $oemr_ui = new OemrUI($arrHeading);
+    $arr_display_heading = $oemr_ui->pageHeading(); // returns an indexed array containing heading string with selected icons and container string value
+    $heading = $arr_display_heading[0];
+    $container = $arr_display_heading[1];// if you want page to always open as full-width override the default returned value with $container = 'container-fluid'
+    echo "<script>\r\n";
+    require_once("$srcdir/js/oeUI/universalTooltip.js");
+    echo "\r\n</script>\r\n";
+    ?>
 </head>
 <body id="adminacl" class="body_top">
-    <div class="container">
+    <div id="container_div" class="<?php echo $container;?>">
         <div class="row">
-            <div class="col-xs-12">
-                <div class="page-header clearfix">
-                    <h2 class="clearfix"><span id='header_text'><?php echo xlt("Access Control List Administration"); ?></span> &nbsp;&nbsp; <?php echo ($phpgacl_location) ? "<a href='../../gacl/admin/acl_admin.php' onclick='top.restoreSession()'><i id='advanced-tooltip' class='fa fa-external-link fa-2x small' aria-hidden='true'></i> </a>" : ""; ?><?php echo $help_icon; ?></h2>
+            <div class="col-sm-12">
+                <div class="page-header">
+                    <?php echo  $heading; ?>
                 </div>
             </div>
         </div>
@@ -632,14 +659,7 @@ if (!isset($phpgacl_location)) {
         </div>
     </div><!--end of container div-->
     <br>
-    <?php
-    //home of the help modal ;)
-    //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
-    if ($GLOBALS['enable_help'] == 1) {
-        echo "<script>var helpFile = 'adminacl_help.php'</script>";
-        //help_modal.php lives in interface, set path accordingly
-        require "../help_modal.php";
-    }
-    ?>
+    <?php $oemr_ui->helpFileModal(); // help file name passed in $arrHeading [3][1] ?>
+<script> <?php require_once("$srcdir/js/oeUI/headerTitleAction.js"); ?></script>
 </body>
 </html>

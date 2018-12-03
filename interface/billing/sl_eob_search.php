@@ -36,6 +36,7 @@ require_once("$srcdir/acl.inc");
 require_once "$srcdir/user.inc";
 
 use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 $DEBUG = 0; // set to 0 for production, 1 to test
 
@@ -675,43 +676,46 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         }
     </style>
     <?php
-    if ($GLOBALS['enable_help'] == 1) {
-        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
-    } elseif ($GLOBALS['enable_help'] == 2) {
-        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("Enable help in Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
-    } elseif ($GLOBALS['enable_help'] == 0) {
-        $help_icon = '';
-    }
-    ?>
-    <?php
-    //to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will
-    //become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an
-    //argument, containing one or more elements, the name of the current file is the first element, if there are linked
-    // files they should be listed thereafter, please add _xpd suffix to the file name
+    //BEGIN - edit as needed - variables needed to construct the array $arrHeading - needed to output the Heading text with icons and Help modal code
+    $name = " - " . getPatientNameFirstLast($pid); //un-comment to include fname lname, use ONLY on relevant pages :))
+    $heading_title = xlt('EOB Posting - Search') . $name; // Minimum needed is the heading text
+    //3 optional icons - for ease of use and troubleshooting first create the variables and then use them to populate the arrays:)
     $arr_files_php = array("sl_eob_search_xpd");
-    $current_state = collectAndOrganizeExpandSetting($arr_files_php);
-    require_once("$srcdir/expand_contract_inc.php");
+    $current_state= collectAndOrganizeExpandSetting($arr_files_php);
+    $expandable = 1;
+    $arrExpandable = array($current_state, $expandable);//2 elements - int|bool $current_state, int|bool $expandable . $current_state = collectAndOrganizeExpandSetting($arr_files_php).
+                            //$arr_files_php is also an indexed array, current file name first, linked file names thereafter, all need _xpd suffix, names to be unique
+    $action = 'reset';
+    $action_title = '';
+    $action_href = 'sl_eob_search.php';
+    $arrAction = array($action, $action_title, $action_href);//3 elements - string $action (conceal, reveal, search, reset, link and back), string $action_title - leave blank for actions
+                        // (conceal, reveal and search), string $action_href - needed for actions (reset, link and back)
+    $show_help_icon = 1;
+    $help_file_name = 'sl_eob_help.php';
+    $arrHelp = array($show_help_icon, $help_file_name );// 2 elements - int|bool $show_help_icon, string $help_file_name - file needs to exist in Documentation/help_files directory
+    //END - edit as needed
+    //DO NOT EDIT BELOW
+    $arrHeading = array($heading_title, $arrExpandable, $arrAction, $arrHelp); // minimum $heading_title, others can be an empty arrays - displays only heading
+    $oemr_ui = new OemrUI($arrHeading);
+    $arr_display_heading = $oemr_ui->pageHeading(); // returns an indexed array containing heading string with selected icons and container string value
+    $heading = $arr_display_heading[0];
+    $container = $arr_display_heading[1];// if you want page to always open as full-width override the default returned value with $container = 'container-fluid'
+    echo "<script>\r\n";
+    require_once("$srcdir/js/oeUI/universalTooltip.js");
+    echo "\r\n</script>\r\n";
     ?>
 
 </head>
 
 <body>
-<div class="<?php echo $container; ?> expandable">
+<div id="container_div" class="<?php echo $container;?>">
     <div class="row">
-        <div class="col-sm-12">
-            <div class="page-header">
-                <h2 class="clearfix"><span id='header_text'><?php echo xlt('EOB Posting - Search'); ?></span> <i
-                        id="exp_cont_icon"
-                        class="fa <?php echo attr($expand_icon_class); ?> oe-superscript-small expand_contract"
-                        title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i> <a href='sl_eob_search.php'
-                          onclick='top.restoreSession()'
-                          title="<?php echo xla('Reset'); ?>">
-                        <i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i>
-                    </a><?php echo $help_icon; ?>
-                </h2>
+            <div class="col-sm-12">
+                <div class="page-header">
+                    <?php echo  $heading; ?>
+                </div>
             </div>
         </div>
-    </div>
     <div class="row">
         <div class="col-sm-12">
             <form id="formSearch" action="" enctype='multipart/form-data' method='post'>
@@ -768,10 +772,10 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                    title='<?php echo xla("Paid amount that you will allocate"); ?>'>
                         </div>
                         <div class="col-xs-1">
-                            <label class="control-label oe-large" for="only_with_debt"><?php echo xlt('Pt Debt'); ?>
-                                :</label>
-                            <label class="control-label oe-small" for="only_with_debt"><?php echo xlt('Debt'); ?>
-                                :</label>
+                            <label class="control-label oe-large" for="only_with_debt"><?php echo xlt('Pt Debt'); ?>:</label>
+                                
+                            <label class="control-label oe-small" for="only_with_debt"><?php echo xlt('Debt'); ?>:</label>
+                                
                             <div class="text-center">
                                 <input <?php echo $_REQUEST['only_with_debt'] ? 'checked=checked' : ''; ?>
                                     type="checkbox" name="only_with_debt" id="only_with_debt"/>
@@ -1214,16 +1218,9 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         </div>
     </div>
 </div> <!--End of Container div-->
-<br>
-<?php
-//home of the help modal ;)
-//$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
-if ($GLOBALS['enable_help'] == 1) {
-    echo "<script>var helpFile = 'sl_eob_help.php'</script>";
-//help_modal.php lives in interface, set path accordingly
-    require_once "../help_modal.php";
-}
-?>
+<?php $oemr_ui->helpFileModal(); // help file name passed in $arrHeading [3][1] ?>
+<script> <?php require_once("$srcdir/js/oeUI/headerTitleAction.js"); ?></script>
+
 <script language="JavaScript">
     function processERA() {
         var f = document.forms[0];
