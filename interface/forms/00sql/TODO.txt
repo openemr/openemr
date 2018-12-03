@@ -6,6 +6,30 @@ All openeed  files you need to do
 
 Then start at 
 - newpatient
-and BELOW!
+and BELOW
 
-/openemr/custom/code_types.inc.php
+
+-note
+-observation
+-painmap
+-physical_exam
+-prior_auth
+-procedure_order
+-requisition
+
+THESE FOLDERS HAVEN'T BEEN OPENED
+-reviewofs
+-ros
+-soap
+-track_anything
+-transfer_summary
+-treatment_plan
+-vitals
+
+THEN YOU'RE DONE!!!
+
+
+LAST THING
+
+/vitals/C_FormVitals.class
+
