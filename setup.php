@@ -59,11 +59,10 @@ ini_set("session.cookie_lifetime", "86400");
 ini_set("session.cookie_secure", "1");
 ini_set("session.cookie_httponly", "1");
 ini_set("session.cookie_samesite", "Strict");
-ini_set("session.cache_expire", "30");  
+ini_set("session.cache_expire", "30");
 ini_set("session.sid_length", "128");
 ini_set("session.sid_bits_per_character", "6");
-    
-    
+
 $state = isset($_POST["state"]) ? ($_POST["state"]) : '';
 
 // Make this true for IPPF.
