@@ -73,7 +73,7 @@ class FormReviewOfSystems extends ORDataObject
         parent::populate();
 
         $sql = "SELECT name from form_review_of_systems_checks where foreign_id = ?";
-        $results = sqlQ($sql, array(add_escape_custom($this->id)));
+        $results = sqlQ($sql, array($this->id));
 
         while ($row = sqlFetchArray($results)) {
             $this->checks[] = $row['name'];
@@ -89,7 +89,7 @@ class FormReviewOfSystems extends ORDataObject
             foreach ($this->checks as $check) {
                 if (!empty($check)) {
                     $sql = "INSERT INTO form_review_of_systems_checks set foreign_id= ?, name = ?";
-                    sqlQuery($sql, array(add_escape_custom($this->id), add_escape_custom($check)));
+                    sqlQuery($sql, array($this->id, $check));
                     //echo "$sql<br>";
                 }
             }

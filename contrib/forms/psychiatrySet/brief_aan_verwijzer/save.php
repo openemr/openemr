@@ -1,6 +1,6 @@
 <?php
 ////////////////////////////////////////////////////////////////////
-// Form:	form_brief_aan_verwijzer 
+// Form:	form_brief_aan_verwijzer
 // Package:	letter to - Dutch specific form
 // Created by:	Larry Lart
 // Version:	1.0 - 30-03-2008
@@ -31,8 +31,6 @@ if ($_GET["mode"] == "new") {
     }
 } elseif ($_GET["mode"] == "update") {
 
-    sqlQuery($strSql);
-    
     $strSql = "UPDATE form_brief_aan_verwijzer
                 SET pid = ?, groupname=?, user=?, 
                 authorized=?, activity=1, date = NOW(), 
@@ -46,7 +44,7 @@ if ($_GET["mode"] == "new") {
                 autosave_datetime=NOW() 
                   WHERE id = ?;";
 
-    sqlQuery($strSql, array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized, $_POST["introductie"], $_POST["reden_van_aanmelding"], 
+    sqlQuery($strSql, array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized, $_POST["introductie"], $_POST["reden_van_aanmelding"],
     $_POST["anamnese"], $_POST["psychiatrisch_onderzoek"], $_POST["beschrijvend_conclusie"], $_POST["advies_beleid"], $newid));
 }
 

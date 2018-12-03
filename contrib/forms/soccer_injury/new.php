@@ -35,7 +35,7 @@ function rbvalue($rbname)
         $tmp = '0';
     }
 
-    return "'$tmp'";
+    return $tmp;
 }
 
 function cbvalue($cbname)
@@ -130,9 +130,9 @@ if ($_POST['bn_save']) {
          sitreat_8 =  ?,
          sitreat_9 =  ?,
          sitreat_10 = ?,
-         sitreat_other = $sitreat_other,
+         sitreat_other = ?,
          sinoreturn = ?,
-         WHERE id = $formid";
+         WHERE id = ?";
         sqlStatement($query, array( $siinjtime, rbvalue('gameplay'), rbvalue('activity'), $simech_other, rbvalue('surface'), rbvalue('position'), rbvalue('footwear'), cbvalue('equip_1'),
         cbvalue('equip_2'), cbvalue('equip_3'), cbvalue('equip_4'), cbvalue('equip_5'), cbvalue('equip_6'), rbvalue('side'), rbvalue('removed'), cbvalue('treat_1'), cbvalue('treat_2'),
         cbvalue('treat_3'), cbvalue('treat_4'), cbvalue('treat_5'), cbvalue('treat_6'), cbvalue('treat_7'), cbvalue('treat_8'), cbvalue('treat_9'), cbvalue('treat_10'), $sistreat_other, cbvalue('noreturn'),
@@ -150,12 +150,12 @@ if ($_POST['bn_save']) {
          "sitreat_other, sinoreturn " .
          ") VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,
          ?,?,?,?,?,?,?,?,?,?,?,?,
-         ???)";
-         
+         ?,?,?)";
+
         $newid = sqlInsert($query, array($siinjtime, rbvalue('gameplay'), rbvalue('activity'), $simech_other, rbvalue('surface'), rbvalue('position'), rbvalue('footwear'), cbvalue('equip_1'),
         cbvalue('equip_2'), cbvalue('equip_3'), cbvalue('equip_4'), cbvalue('equip_5'), cbvalue('equip_6'), rbvalue('side'), rbvalue('removed'), cbvalue('treat_1'), cbvalue('treat_2'),
         cbvalue('treat_3'), cbvalue('treat_4'), cbvalue('treat_5'), cbvalue('treat_6'), cbvalue('treat_7'), cbvalue('treat_8'), cbvalue('treat_9'), cbvalue('treat_10'), $sistreat_other, cbvalue('noreturn')));
-        
+
         addForm($encounter, "Football Injury", $newid, "soccer_injury", $pid, $userauthorized);
     }
 

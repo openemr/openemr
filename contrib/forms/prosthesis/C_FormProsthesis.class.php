@@ -43,7 +43,7 @@ class C_FormProsthesis extends Controller
     function default_action_process()
     {
         if ($_POST['process'] != "true") {
-            return
+            return;
         }
 
         $this->prosthesis = new FormProsthesis($_POST['id']);

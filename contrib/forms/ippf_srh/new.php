@@ -60,6 +60,7 @@ $formid = $_GET['id'];
 //
 if ($_POST['bn_save']) {
     $sets = "";
+    $sqlBindArray= array();
     $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'SRH' AND uor > 0 AND field_id != '' AND " .
     "edit_options != 'H' " .
@@ -71,17 +72,19 @@ if ($_POST['bn_save']) {
             $sets .= ", ";
         }
 
-        $sets .= "$field_id = '" . add_escape_custom($value) . "'";
+        $sets .= escape_sql_column_name($field_id, array('form_ippf_srh')) . " = ?";
+        array_push($sqlBindArray, $value);
     }
 
     if ($formid) {
         // Updating an existing form.
-        $query = "UPDATE form_ippf_srh SET ? WHERE id = ?";
-        sqlStatement($query, array($sets, $formid));
+        $query = "UPDATE form_ippf_srh SET " . $sets . " WHERE id = ?";
+        array_push($sqlBindArray, $formid);
+        sqlStatement($query, $sqlBindArray);
     } else {
         // Adding a new form.
-        $query = "INSERT INTO form_ippf_srh SET ?";
-        $newid = sqlInsert($query, array($sets));
+        $query = "INSERT INTO form_ippf_srh SET " . $sets;
+        $newid = sqlInsert($query, $sqlBindArray);
         addForm($encounter, "IPPF SRH Data", $newid, "ippf_srh", $pid, $userauthorized);
     }
 

@@ -7,7 +7,7 @@ function review_of_systems_report($pid, $encounter, $cols, $id)
     $count = 0;
     $data = formFetch("form_review_of_systems", $id);
     $sql = "SELECT name from form_review_of_systems_checks where foreign_id = ?";
-    $results = sqlQ($sql, array(add_escape_custom($id)));
+    $results = sqlQ($sql, array($id));
     $data2 = array();
     while ($row = sqlFetchArray($results)) {
         $data2[] = $row['name'];
@@ -24,7 +24,7 @@ function review_of_systems_report($pid, $encounter, $cols, $id)
             if ($value == "on") {
                 $value = "yes";
             }
-    
+
             $key=ucwords(str_replace("_", " ", $key));
             if (is_numeric($key)) {
                 $key = "check";

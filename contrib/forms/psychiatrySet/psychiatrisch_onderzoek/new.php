@@ -36,7 +36,7 @@ function getPatientDateOfLastEncounter($nPid)
   // get date of last encounter F103 or F153
     $strEventDate = sqlQuery("SELECT MAX(pc_eventDate) AS max
                   FROM openemr_postcalendar_events
-                  WHERE pc_pid = $nPid
+                  WHERE pc_pid = ?
                   AND pc_apptstatus = '@'
                   AND ( pc_catid = 17 OR pc_catid = 25 OR pc_catid = 13 OR pc_catid = 26 )
                   AND pc_eventDate >= '2007-01-01'", array($nPid));
