@@ -1097,7 +1097,7 @@ function writeITLine($it_array)
                         var urlFull   = new URL($(location).attr('href'));
                         var list_from = parseInt($("#list-from").val());
                         var list_to   = parseInt($("#list-to").val());
-                        var list_id_container = $("#select2-list_id-container").text();
+                        var list_id_container = $("#list_id").val();
 
                         if(list_from > list_to || list_from == list_to){
                             alert(<?php echo xlj("Please enter a enter valid range"); ?>);
