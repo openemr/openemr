@@ -23,11 +23,11 @@ require_once "sites/$site_id/sqlconf.php";
 if ($config == 1) {
     header("Location: interface/login/login.php?site=$site_id");
     header("X-XSS-Protection: 1; mode=block");
-    header("strict-transport-security: max-age=84000")
+    header("strict-transport-security: max-age=84000");
     header("Content-Security-Policy: default-src 'self';");
 } else {
     header("Location: setup.php?site=$site_id");
     header("X-XSS-Protection: 1; mode=block");
-    header("strict-transport-security: max-age=84000")
+    header("strict-transport-security: max-age=84000");
     header("Content-Security-Policy: default-src 'self';");
 }
