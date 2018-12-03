@@ -244,7 +244,8 @@ function process_form($ar)
                     }
                 } elseif (isset($ar['bn_process_hcfa'])) {
                     $log = '';
-                    $lines = HCFA_1500::gen_hcfa_1500($patient_id, $encounter, $log);
+                    $hcfa = new HCFA_1500();
+                    $lines = $hcfa->gen_hcfa_1500($patient_id, $encounter, $log);
                     fwrite($hlog, $log);
                     $alines = explode("\014", $lines); // form feeds may separate pages
                     foreach ($alines as $tmplines) {
@@ -262,7 +263,8 @@ function process_form($ar)
                     }
                 } elseif (isset($ar['bn_process_hcfa_form'])) {
                     $log = '';
-                    $lines = HCFA_1500::gen_hcfa_1500($patient_id, $encounter, $log);
+                    $hcfa = new HCFA_1500();
+                    $lines = $hcfa->gen_hcfa_1500($patient_id, $encounter, $log);
                     $hcfa_image = $GLOBALS['images_static_absolute'] . "/cms1500.png";
                     fwrite($hlog, $log);
                     $alines = explode("\014", $lines); // form feeds may separate pages
@@ -290,7 +292,8 @@ function process_form($ar)
                     }
                 } elseif (isset($ar['bn_hcfa_txt_file'])) {
                     $log = '';
-                    $lines = HCFA_1500::gen_hcfa_1500($patient_id, $encounter, $log);
+                    $hcfa = new HCFA_1500();
+                    $lines = $hcfa->gen_hcfa_1500($patient_id, $encounter, $log);
                     fwrite($hlog, $log);
                     $bat_content .= $lines;
                     if (! updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename)) {
