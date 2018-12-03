@@ -59,18 +59,21 @@ $code_text = array_filter($code_text);
 
 if (!empty($code_text)) {
     foreach ($code_text as $key => $codeval) :
-        $sets = "id    = ". add_escape_custom($newid) .",
-            pid        = ". add_escape_custom($_SESSION["pid"]) .",
-            groupname  = '" . add_escape_custom($_SESSION["authProvider"]) . "',
-            user       = '" . add_escape_custom($_SESSION["authUser"]) . "',
-            encounter  = '" . add_escape_custom($_SESSION["encounter"]) . "',
-            authorized = ". add_escape_custom($userauthorized) .", 
-            activity   = '" . add_escape_custom($code_activity[$key]) . "',
-            code       = '" . add_escape_custom($code[$key]) . "',
-            codetext   = '" . add_escape_custom($code_text[$key]) . "',
-            description= '" . add_escape_custom($code_des[$key]) . "',
-            date       =  '" . add_escape_custom($code_date[$key]) . "'";
-        sqlInsert("INSERT INTO form_functional_cognitive_status SET $sets");
+        $sets = "id    = ?,
+            pid        = ?,
+            groupname  = ?,
+            user       = ?,
+            encounter  = ?,
+            authorized = ?, 
+            activity   = '?,
+            code       = ?,
+            codetext   = ?,
+            description= ?,
+            date       =  ?";
+        sqlInsert("INSERT INTO form_functional_cognitive_status SET $sets", 
+        array(add_escape_custom($newid), add_escape_custom($_SESSION["pid"]), add_escape_custom($_SESSION["authProvider"]), add_escape_custom($_SESSION["authUser"]), 
+        add_escape_custom($_SESSION["encounter"]), add_escape_custom($userauthorized), add_escape_custom($code_activity[$key]), add_escape_custom($code[$key]), 
+        add_escape_custom($code_text[$key]), add_escape_custom($code_des[$key]), add_escape_custom($code_date[$key])));
     endforeach;
 }
 

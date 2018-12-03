@@ -20,7 +20,7 @@ $returnurl = 'encounter_top.php';
 function showExamLine($line_id, $description, &$linedbrow, $sysnamedisp)
 {
     $dres = sqlStatement("SELECT * FROM form_physical_exam_diagnoses " .
-    "WHERE line_id = '$line_id' ORDER BY ordering, diagnosis");
+    "WHERE line_id = ? ORDER BY ordering, diagnosis", array($line_id)));
 
     echo " <tr>\n";
     echo "  <td align='center'><input type='checkbox' name='form_obs[$line_id][wnl]' " .
@@ -84,12 +84,12 @@ if ($_POST['bn_save']) {
  // input field.  Maybe also a diagnosis line, not clear.
 
     if ($formid) {
-        $query = "DELETE FROM form_physical_exam WHERE forms_id = '$formid'";
-        sqlStatement($query);
+        $query = "DELETE FROM form_physical_exam WHERE forms_id = ?";
+        sqlStatement($query, array($formid));
     } else {
         $formid = addForm($encounter, "Physical Exam", 0, "physical_exam", $pid, $userauthorized);
-        $query = "UPDATE forms SET form_id = id WHERE id = '$formid' AND form_id = 0";
-        sqlStatement($query);
+        $query = "UPDATE forms SET form_id = id WHERE id = ? AND form_id = 0";
+        sqlStatement($query, array($formid));
     }
 
     $form_obs = $_POST['form_obs'];
@@ -99,12 +99,12 @@ if ($_POST['bn_save']) {
         $diagnosis = $line_array['diagnosis'] ? $line_array['diagnosis'] : '';
         $comments  = $line_array['comments']  ? $line_array['comments'] : '';
         if ($wnl || $abn || $diagnosis || $comments) {
-            $query = "INSERT INTO form_physical_exam ( " .
-             "forms_id, line_id, wnl, abn, diagnosis, comments " .
-             ") VALUES ( " .
-             "'$formid', '$line_id', '$wnl', '$abn', '$diagnosis', '$comments' " .
-             ")";
-            sqlInsert($query);
+            $query = "INSERT INTO form_physical_exam (
+             forms_id, line_id, wnl, abn, diagnosis, comments
+             ) VALUES (
+             ?, ?, ?, ?, ?, ?
+             )";
+            sqlInsert($query, array($formid, $line_id, $wnl, $abn, $diagnosis, $comments));
         }
     }
 
@@ -120,7 +120,7 @@ if ($_POST['bn_save']) {
 //
 $rows = array();
 if ($formid) {
-    $res = sqlStatement("SELECT * FROM form_physical_exam WHERE forms_id = '$formid'");
+    $res = sqlStatement("SELECT * FROM form_physical_exam WHERE forms_id = ?, array($formid));
     while ($row = sqlFetchArray($res)) {
         $rows[$row['line_id']] = $row;
     }
