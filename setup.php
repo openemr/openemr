@@ -52,6 +52,18 @@ require_once dirname(__FILE__) . '/library/classes/Installer.class.php';
 //turn off PHP compatibility warnings
 ini_set("session.bug_compat_warn", "off");
 
+//secure php.ini config
+ini_set("session.use_strict_mode", "1")
+ini_set("session.use_only_cookies", "1")
+ini_set("session.cookie_lifetime", "86400");
+ini_set("session.cookie_secure", "1");
+ini_set("session.cookie_httponly", "1");
+ini_set("session.cookie_samesite", "Strict")
+ini_set("session.cache_expire", "30");  
+ini_set("session.sid_length", "128");
+ini_set("session.sid_bits_per_character", "6");
+    
+    
 $state = isset($_POST["state"]) ? ($_POST["state"]) : '';
 
 // Make this true for IPPF.
