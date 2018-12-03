@@ -41,7 +41,7 @@ if ($_POST["hospitalization_date_from"] == "0000-00-00" || $_POST["hospitalizati
 
 $id = formData('id', 'G') + 0;
 
-$sets = "pid = {$pid},
+$sets = "pid = ?,
   groupname = ?,
   user = ?,
   authorized = ?, activity=1, date = NOW(),
@@ -70,29 +70,27 @@ $sets = "pid = {$pid},
   icn_resubmission_number     = ?,
   box_14_date_qual            = ?,
   box_15_date_qual            = ?,
-  comments                    = ?"
+  comments                    = ?";
 
 
 if (empty($id)) {
     $newid = sqlInsert("INSERT INTO form_misc_billing_options SET $sets", 
-    array($_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized,
+    array($pid, $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized,
     formData("employment_related"), formData("auto_accident"), formData("accident_state"),
     formData("other_accident"), formData("outside_lab"), formData("medicaid_referral_code"), formData("epsdt_flag"), formDa, ta("provider_id"), formData("provider_qualifier_code"),
     formData("lab_amount"), formData("is_unable_to_work"), formData("onset_date"), formData("date_initial_treatment"), formData("off_work_from"), formData("off_work_to"), 
     formData("is_hospitalized"), formData("hospitalization_date_from"), formData("hospitalization_date_to"), formData("medicaid_resubmission_code"), formData("medicaid_original_reference"),
     formData("prior_auth_number"), formData("replacement_claim"), formData("icn_resubmission_number"), formData("box_14_date_qual"), formData("box_15_date_qual"), formData("comments")));
     
-    
-    );
     addForm($encounter, "Misc Billing Options", $newid, "misc_billing_options", $pid, $userauthorized);
 } else {
-    sqlStatement("UPDATE form_misc_billing_options SET $sets WHERE id = $id", 
-    array($_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized,
+    sqlStatement("UPDATE form_misc_billing_options SET $sets WHERE id = ?", 
+    array($pid, $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized,
     formData("employment_related"), formData("auto_accident"), formData("accident_state"),
     formData("other_accident"), formData("outside_lab"), formData("medicaid_referral_code"), formData("epsdt_flag"), formDa, ta("provider_id"), formData("provider_qualifier_code"),
     formData("lab_amount"), formData("is_unable_to_work"), formData("onset_date"), formData("date_initial_treatment"), formData("off_work_from"), formData("off_work_to"), 
     formData("is_hospitalized"), formData("hospitalization_date_from"), formData("hospitalization_date_to"), formData("medicaid_resubmission_code"), formData("medicaid_original_reference"),
-    formData("prior_auth_number"), formData("replacement_claim"), formData("icn_resubmission_number"), formData("box_14_date_qual"), formData("box_15_date_qual"), formData("comments"), $id)););
+    formData("prior_auth_number"), formData("replacement_claim"), formData("icn_resubmission_number"), formData("box_14_date_qual"), formData("box_15_date_qual"), formData("comments"), $id));
 }
 
 if (isset($_SESSION['billencounter'])) {

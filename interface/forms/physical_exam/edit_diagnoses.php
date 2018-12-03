@@ -33,20 +33,20 @@ if ($issue && !acl_check('patients', 'med', '', 'write')) {
  // If we are saving, then save and close the window.
  //
 if ($_POST['form_save']) {
-    $query = "DELETE FROM form_physical_exam_diagnoses WHERE line_id = '$line_id'";
-    sqlStatement($query);
+    $query = "DELETE FROM form_physical_exam_diagnoses WHERE line_id = ?";
+    sqlStatement($query, array($line_id));
 
     $form_diagnoses = $_POST['form_diagnosis'];
     $form_orderings = $_POST['form_ordering'];
     foreach ($form_diagnoses as $i => $diagnosis) {
         if ($diagnosis) {
             $ordering = $form_orderings[$i];
-            $query = "INSERT INTO form_physical_exam_diagnoses ( " .
-            "line_id, ordering, diagnosis " .
-            ") VALUES ( " .
-            "'$line_id', '$ordering', '$diagnosis' " .
-            ")";
-            sqlInsert($query);
+            $query = "INSERT INTO form_physical_exam_diagnoses (
+            line_id, ordering, diagnosis
+            ) VALUES (
+            ?, ?, ?
+            )";
+            sqlInsert($query, array($line_id, $ordering, $diagnosis));
         }
     }
 
@@ -66,7 +66,8 @@ if ($_POST['form_save']) {
 
  $dres = sqlStatement(
      "SELECT * FROM form_physical_exam_diagnoses WHERE " .
-     "line_id = '$line_id' ORDER BY ordering, diagnosis"
+     "line_id = ? ORDER BY ordering, diagnosis",
+     array($line_id)
  );
 ?>
 <form method='post' name='theform' action='edit_diagnoses.php?lineid=<?php  echo $line_id ?>'
