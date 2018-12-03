@@ -53,8 +53,8 @@ require_once dirname(__FILE__) . '/library/classes/Installer.class.php';
 ini_set("session.bug_compat_warn", "off");
 
 //secure php.ini config
-ini_set("session.use_strict_mode", "1");;
-ini_set("session.use_only_cookies", "1")
+ini_set("session.use_strict_mode", "1");
+ini_set("session.use_only_cookies", "1");
 ini_set("session.cookie_lifetime", "86400");
 ini_set("session.cookie_secure", "1");
 ini_set("session.cookie_httponly", "1");
