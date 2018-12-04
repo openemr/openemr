@@ -53,11 +53,11 @@ if ($_GET["mode"] == "new") {
 	immunization_up_to_date = ?,
 	notes = ?
 	WHERE id = ?", array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized, $_POST["diarrhea"], $_POST["with_every_bowel_movement"], $_POST["after_every_meal"], $_POST["blood_or_mucus_in_stool"], $_POST["diarrhea_onset"],
-	$_POST["worms"], $_POST["vomits"], $_POST["duration"], $_POST["projectile"], $_POST["more_often_than_2_hours"], $_POST["vomit_after_every_meal"],
-	$_POST["blood_in_vomitus"], $_POST["taking_medication"], $_POST["oral_rehydration"], $_POST["eating_solid_food"], $_POST["fever"],
-	$_POST["pain"], $_POST["lethargy"], $_POST["oral_hydration_capable"], $_POST["urine_output_last_6_hours"], $_POST["pain_with_urination"],
-	$_POST["cough_or_breathing_difficulty"], $_POST["able_to_sleep"], $_POST["nasal_discharge"], $_POST["previous_hospitalization"],
-	$_POST["siblings_affected"], $_POST["immunization_up_to_date"], $_POST["notes"], $id));
+    $_POST["worms"], $_POST["vomits"], $_POST["duration"], $_POST["projectile"], $_POST["more_often_than_2_hours"], $_POST["vomit_after_every_meal"],
+    $_POST["blood_in_vomitus"], $_POST["taking_medication"], $_POST["oral_rehydration"], $_POST["eating_solid_food"], $_POST["fever"],
+    $_POST["pain"], $_POST["lethargy"], $_POST["oral_hydration_capable"], $_POST["urine_output_last_6_hours"], $_POST["pain_with_urination"],
+    $_POST["cough_or_breathing_difficulty"], $_POST["able_to_sleep"], $_POST["nasal_discharge"], $_POST["previous_hospitalization"],
+    $_POST["siblings_affected"], $_POST["immunization_up_to_date"], $_POST["notes"], $id));
 }
 
 $_SESSION["encounter"] = $encounter;

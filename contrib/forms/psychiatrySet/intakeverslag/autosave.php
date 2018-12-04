@@ -61,8 +61,8 @@ if ($vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update") {
                 autosave_flag=1, 
                 autosave_datetime=NOW() 
                   WHERE id = ?;", array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized, $_POST["intakedatum"], $_POST["reden_van_aanmelding"], $_POST["klachten_probleemgebieden"],
-                  $_POST["hulpverlening_onderzoek"], $_POST["hulpvraag_en_doelen"], $_POST["bijzonderheden_systeem"], $_POST["werk_opleiding_vrije_tijdsbesteding"], $_POST["relatie_kinderen"], $_POST["somatische_context"], 
-                  $_POST["alcohol"], $_POST["drugs"], $_POST["roken"], $_POST["medicatie"], $_POST["familieanamnese"], $_POST["indruk_observaties"], $_POST["beschrijvende_conclusie"], $_POST["behandelvoorstel"], 
+                  $_POST["hulpverlening_onderzoek"], $_POST["hulpvraag_en_doelen"], $_POST["bijzonderheden_systeem"], $_POST["werk_opleiding_vrije_tijdsbesteding"], $_POST["relatie_kinderen"], $_POST["somatische_context"],
+                  $_POST["alcohol"], $_POST["drugs"], $_POST["roken"], $_POST["medicatie"], $_POST["familieanamnese"], $_POST["indruk_observaties"], $_POST["beschrijvende_conclusie"], $_POST["behandelvoorstel"],
                   $newid));
 
 //echo "lalalalal id=$newid, sql=$strSql<br>";

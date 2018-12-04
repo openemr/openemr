@@ -33,8 +33,6 @@ if ($_GET["mode"] == "new") {
      /// $newid = formUpdate( "form_psychiatrisch_onderzoek", $_POST, $_GET["saveid"], $userauthorized );
     }
 } elseif ($_GET["mode"] == "update") {
-
-    
     $strSql = "UPDATE form_psychiatrisch_onderzoek
                 SET pid = ?, groupname=?, user=?, 
                 authorized=?, activity=1, date = NOW(), 
@@ -52,7 +50,6 @@ if ($_GET["mode"] == "new") {
 
     sqlQuery($strSql, array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized, $_POST["datum_onderzoek"], $_POST["reden_van_aanmelding"],
     $_POST["conclusie_van_intake"], $_POST["medicatie"], $_POST["anamnese"], $_POST["psychiatrisch_onderzoek"], $_POST["beschrijvende_conclusie"], $_POST["behandelvoorstel"], $_GET["id"]));
-    
 }
 
 $_SESSION["encounter"] = $encounter;

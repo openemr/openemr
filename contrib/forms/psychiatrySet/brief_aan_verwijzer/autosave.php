@@ -49,7 +49,7 @@ if ($vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update") {
                 autosave_datetime=NOW() 
                   WHERE id = ?;";
 
-    sqlQuery($strSql, array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized, $_POST["introductie"], $_POST["reden_van_aanmelding"], 
+    sqlQuery($strSql, array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized, $_POST["introductie"], $_POST["reden_van_aanmelding"],
     $_POST["anamnese"], $_POST["psychiatrisch_onderzoek"], $_POST["beschrijvend_conclusie"], $_POST["advies_beleid"], $newid));
 
 //echo "DEBUG :: id=$newid, sql=$strSql<br>";

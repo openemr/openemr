@@ -104,7 +104,6 @@ if ($_POST['bn_save']) {
  // If updating an existing form...
  //
     if ($formid) {
-     if ($formid) {
         $query = "UPDATE form_soccer_injury SET
          siinjtime = ?,
          sigametime = ?,

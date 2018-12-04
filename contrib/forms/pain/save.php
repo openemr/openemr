@@ -16,7 +16,6 @@ if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_pain", $_POST, $_GET["id"], $userauthorized);
     addForm($encounter, "Pain Evaluation", $newid, "pain", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
-
     sqlInsert("update form_pain set pid = ?,groupname = ?, user = ?, authorized = ?, activity = 1, date = NOW(), history_of_pain = ?, 
     dull = ?, colicky = ?, sharp = ?, duration_of_pain = ?, pain_referred_to_other_sites= ?, what_relieves_pain= ?, 
     what_makes_pain_worse= ?, accompanying_symptoms_vomitting= ?, accompanying_symptoms_nausea= ?, 
@@ -29,5 +28,3 @@ $_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();
-
-

@@ -30,7 +30,6 @@ if ($_GET["mode"] == "new") {
         $newid = formUpdate("form_brief_aan_verwijzer", $_POST, $_GET["saveid"], $userauthorized);
     }
 } elseif ($_GET["mode"] == "update") {
-
     $strSql = "UPDATE form_brief_aan_verwijzer
                 SET pid = ?, groupname=?, user=?, 
                 authorized=?, activity=1, date = NOW(), 
