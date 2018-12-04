@@ -1,18 +1,22 @@
 <?php
 /**
- * Generated DocBlock
+ * contacts new.php
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  andres_paglayan <andres_paglayan>
- * @author  cornfeed <jdough823@gmail.com>
- * @author  fndtn357 <fndtn357@gmail.com>
- * @author  sunsetsystems <sunsetsystems>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    andres_paglayan <andres_paglayan>
+ * @author    sunsetsystems <sunsetsystems>
+ * @author    cornfeed <jdough823@gmail.com>
+ * @author    fndtn357 <fndtn357@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Daniel Ehrlich <daniel.ehrlich1@gmail.com>
  * @copyright Copyright (c) 2005 andres_paglayan <andres_paglayan>
+ * @copyright Copyright (c) 2007 sunsetsystems <sunsetsystems>
  * @copyright Copyright (c) 2011 cornfeed <jdough823@gmail.com>
  * @copyright Copyright (c) 2012 fndtn357 <fndtn357@gmail.com>
- * @copyright Copyright (c) 2007 sunsetsystems <sunsetsystems>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Daniel Ehrlich <daniel.ehrlich1@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 ?>
 <!-- Form generated from formsWiz -->

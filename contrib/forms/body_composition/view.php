@@ -1,22 +1,17 @@
 <?php
-//////////////////////////////////////////////////////////////////////
-// ------------------ DO NOT MODIFY VIEW.PHP !!! ---------------------
-// View.php is an exact duplicate of new.php.  If you wish to make
-// any changes, then change new.php and either (recommended) make
-// view.php a symbolic link to new.php, or copy new.php to view.php.
-//
-// And if you check in a change to either module, be sure to check
-// in the other (identical) module also.
-//
-// This nonsense will go away if we ever move to subversion.
-//////////////////////////////////////////////////////////////////////
-
-// Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * body_composition view.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Daniel Ehrlich <daniel.ehrlich1@gmail.com>
+ * @copyright Copyright (c) 2006 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Daniel Ehrlich <daniel.ehrlich1@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
@@ -122,7 +117,7 @@ if ($formid) {
 </head>
 
 <body <?php echo $top_bg_line; ?> topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">
-<form method="post" action="<?php echo $rootdir ?>/forms/body_composition/new.php?id=<?php echo attr($formid) ?>"
+<form method="post" action="<?php echo $rootdir ?>/forms/body_composition/new.php?id=<?php echo attr_url($formid) ?>"
  onsubmit="return top.restoreSession()">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 

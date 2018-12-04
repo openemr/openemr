@@ -1,22 +1,14 @@
 <?php
-/*
+/**
  * The page shown when the user requests a new form
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
- *
  * @package   OpenEMR
- * @author    Brady Miller <brady.g.miller@gmail.com>
  * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
@@ -27,7 +19,7 @@ $form_name = "My Example Form";
 /** CHANGE THIS to match the folder you created for this form **/
 $form_folder = "example";
 
-formHeader("Form: ".$forn_name);
+formHeader("Form: ".$form_name);
 
 $returnurl = 'encounter_top.php';
 ?>
@@ -45,11 +37,6 @@ $returnurl = 'encounter_top.php';
 <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
-<script language="JavaScript">
-// this line is to assist the calendar text boxes
-var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
-</script>
-
 </head>
 
 <body class="body_top">
@@ -57,11 +44,13 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 <?php echo date("F d, Y", time()); ?>
 
 <form method=post action="<?php echo $rootdir;?>/forms/<?php echo $form_folder; ?>/save.php?mode=new" name="my_form">
-<span class="title"><?php xl($form_name, 'e'); ?></span><br>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+
+<span class="title"><?php echo xlt($form_name); ?></span><br>
 
 <!-- Save/Cancel buttons -->
-<input type="button" class="save" value="<?php xl('Save', 'e'); ?>"> &nbsp;
-<input type="button" class="dontsave" value="<?php xl('Don\'t Save', 'e'); ?>"> &nbsp;
+<input type="button" class="save" value="<?php echo xla('Save'); ?>"> &nbsp;
+<input type="button" class="dontsave" value="<?php echo xla('Don\'t Save'); ?>"> &nbsp;
 
 <!-- container for the main body of the form -->
 <div id="form_container">
@@ -72,14 +61,14 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 Date:
    <input type='text' size='10' class='datepicker' name='form_date' id='form_date'
     value='<?php echo date('Y-m-d', time()); ?>'
-    title='<?php xl('yyyy-mm-dd', 'e'); ?>' />
+    title='<?php echo xla('yyyy-mm-dd'); ?>' />
 </td></tr>
 <tr><td>
 Name: <input id="name" name="name" type="text" size="50" maxlength="250">
 Date of Birth:
    <input type='text' size='10' class='datepicker' name='dob' id='dob'
-    value='<?php echo $date ?>'
-    title='<?php xl('yyyy-mm-dd Date of Birth', 'e'); ?>' />
+    value='<?php echo attr($date); ?>'
+    title='<?php echo xla('yyyy-mm-dd Date of Birth'); ?>' />
 </td></tr>
 <tr><td>
 Phone: <input name="phone" id="phone" type="text" size="15" maxlength="15">
@@ -103,15 +92,15 @@ Signature?
 Date of signature:
    <input type='text' size='10' class='datepicker' name='sig_date' id='sig_date'
     value='<?php echo date('Y-m-d', time()); ?>'
-    title='<?php xl('yyyy-mm-dd', 'e'); ?>' />
+    title='<?php echo xla('yyyy-mm-dd'); ?>' />
 </div>
 </div>
 
 </div> <!-- end form_container -->
 
 <!-- Save/Cancel buttons -->
-<input type="button" class="save" value="<?php xl('Save', 'e'); ?>"> &nbsp;
-<input type="button" class="dontsave" value="<?php xl('Don\'t Save', 'e'); ?>"> &nbsp;
+<input type="button" class="save" value="<?php echo xla('Save'); ?>"> &nbsp;
+<input type="button" class="dontsave" value="<?php echo xla('Don\'t Save'); ?>"> &nbsp;
 </form>
 
 </body>
@@ -135,4 +124,3 @@ $(document).ready(function(){
 </script>
 
 </html>
-
