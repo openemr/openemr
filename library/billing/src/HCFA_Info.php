@@ -52,11 +52,11 @@ class HCFA_Info
     /**
      * Add the info to the form
      */
-    public function put()
+    public function put($hcfa_1500)
     {
         // Override the default value for "strip" with put_hcfa to keep periods
 
-        HCFA_1500::put_hcfa($this->row, $this->column, $this->width, $this->info, '/#/');
+        $hcfa_1500->put_hcfa($this->row, $this->column, $this->width, $this->info, '/#/');
     }
     /**
      * comparator function for hfca_info class to allow proper sorting
@@ -65,4 +65,15 @@ class HCFA_Info
      * @param type $second
      * @return int
      */
+    public static function cmp_hcfa_info($first, $second)
+    {
+        $first_value = $first->get_position();
+        $second_value = $second->get_position();
+
+        if ($first_value == $second_value) {
+            return 0;
+        }
+
+        return ($first_value < $second_value) ? -1 : 1;
+    }
 }

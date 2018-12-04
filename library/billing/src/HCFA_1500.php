@@ -115,24 +115,12 @@ class HCFA_1500
             $diag_count++;
         }
         // Sort the entries to put them in the page base sequence.
-        usort($hcfa_entries, array(self::cmp_hcfa_info()));
+        usort($hcfa_entries, 'cmp_hcfa_info');
 
         foreach ($hcfa_entries as $hcfa_entry) {
-            $hcfa_entry->put();
+            $hcfa_entry->put($this);
         }
     }
-    public static function cmp_hcfa_info($first, $second)
-    {
-        $first_value = $first->get_position();
-        $second_value = $second->get_position();
-
-        if ($first_value == $second_value) {
-            return 0;
-        }
-
-        return ($first_value < $second_value) ? -1 : 1;
-    }
-
     /**
      * calculate where on the form a given diagnosis belongs and add it to the entries
      *
