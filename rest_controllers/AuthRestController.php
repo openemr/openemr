@@ -91,6 +91,11 @@ class AuthRestController
         return acl_check($section, $value, $username);
     }
 
+    public function aclCheckByUsername($username, $section, $value)
+    {
+        return acl_check($section, $value, $username);
+    }
+
     public function optionallyAddMoreTokenTime($token)
     {
         $tokenResult = sqlQuery("SELECT user_id, token, expiry FROM api_token WHERE token=?", array($token));

@@ -15,9 +15,11 @@
 require_once("./../_rest_config.php");
 
 $gbl = RestConfig::GetInstance();
-$routes = $gbl::$ROUTE_MAP;
+$context = $gbl->GetContext();
 $base_path = $gbl::$ROOT_URL;
+$routes = array();
 $resource = '';
+
 // Parse needed information from Redirect or REQUEST_URI
 if (!empty($_REQUEST['_REWRITE_COMMAND'])) {
     $resource = "/" . $_REQUEST['_REWRITE_COMMAND'];
@@ -33,14 +35,15 @@ if (!empty($_REQUEST['_REWRITE_COMMAND'])) {
     }
 }
 
+$ignoreAuth = true;
 // Maintain site id for multi site compatibility.
-// token is a 32 character hash followed by hex encoded site id.
+// token is a 32 character hash followed by hex encoded 4 char api flag and site id.
 if (is_authentication($resource)) {
     // Get a site id from initial login authentication.
     $data = (array)(json_decode(file_get_contents("php://input")));
     $site = empty($data['client_id']) ? "default" : $data['client_id'];
     $_GET['site'] = $site;
-} else {
+} elseif (!$context) {
     $token = get_bearer_token();
     if (strlen($token) > 40) {
         $api_token = substr($token, 0, 32);
@@ -55,9 +58,12 @@ if (is_authentication($resource)) {
         http_response_code(401);
         exit();
     }
+} else {
+    // continue already authorized session.
+    // let globals verify again.
+    $ignoreAuth = false;
 }
 
-$ignoreAuth = true;
 require_once("./../interface/globals.php");
 require_once("./../library/acl.inc");
 
@@ -66,11 +72,14 @@ if (!$GLOBALS['rest_api']) {
     exit();
 }
 // api flag must be four chars
+// Pass only routes for current api.
 //
 if (is_fhir_request($resource)) {
     $_SESSION['api'] = 'fhir';
+    $routes = $gbl::$FHIR_ROUTE_MAP;
 } else {
     $_SESSION['api'] = 'oemr';
+    $routes = $gbl::$ROUTE_MAP;
 }
 
 use OpenEMR\Common\Http\HttpRestRouteHandler;
@@ -128,17 +137,26 @@ function authentication_check($resource)
 
 function authorization_check($section, $value)
 {
-    $authRestController = new AuthRestController();
-    $result = $authRestController->aclCheck($_SERVER["HTTP_X_API_TOKEN"], $section, $value);
+    global $context;
 
+    $authRestController = new AuthRestController();
+    if ($context) {
+        $result = $authRestController->aclCheckByUsername($_SESSION['authUser'], $section, $value);
+    } else {
+        $result = $authRestController->aclCheck($_SERVER["HTTP_X_API_TOKEN"], $section, $value);
+    }
     if (!$result) {
         http_response_code(401);
         exit();
     }
 }
 
-authentication_check($resource);
+if (!$context) {
+    authentication_check($resource);
+}
 // dispatch $routes called by ref.
 HttpRestRouteHandler::dispatch($routes, $resource, $_SERVER["REQUEST_METHOD"]);
 // Tear down session for security.
-$gbl->destroySession();
+if (!$context) {
+    $gbl->destroySession();
+}
