@@ -58,7 +58,7 @@ if (isset($mode)) {
 
 <a href="superbill_custom_full.php" onclick="top.restoreSession()">
 <span class=title><?php echo xlt('Superbill'); ?></span>
-<font class=more><?php echo $tmore;?></font></a>
+<font class=more><?php echo text($tmore); ?></font></a>
 
 <a href="encounter_bottom.php" onclick="top.restoreSession()">
 
