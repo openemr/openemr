@@ -9,7 +9,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 // also a handy place to add utility methods
 //
 class RestConfig
@@ -22,6 +21,9 @@ class RestConfig
 
     /** @var routemap is an array of patterns and routes */
     public static $ROUTE_MAP;
+
+    /** @var fhir routemap is an array of patterns and routes */
+    public static $FHIR_ROUTE_MAP;
 
     /** @var app root is the root directory of the application */
     public static $APP_ROOT;
@@ -82,12 +84,26 @@ class RestConfig
     }
 
     /**
-     * Returns the context, used for storing session information
-     * @return Context
+     * Returns the api's context in form of token. e.g api called from OpenEMR authorized session.
+     * @return token or false if not local.
      */
     function GetContext()
     {
         if ($this->context == null) {
+            $local_auth = isset($_SERVER['HTTP_APPSECRET']) ? $_SERVER['HTTP_APPSECRET'] : false;
+            if ($local_auth) {
+                session_id($local_auth); // a must for cURL. See Fhir Provider Client request.
+            } else {
+                session_name("OpenEMR"); // works for browser/ajax.
+            }
+            session_start();
+            $app_token = isset($_SERVER['HTTP_APPTOKEN']) ? $_SERVER['HTTP_APPTOKEN'] : false;
+            $session_verified = ($app_token === $local_auth); // @todo future may force any http client to pass session id
+            if (isset($_SESSION['authUserID']) && !empty($_SESSION['authUser'])) {
+                $this->context = $_SESSION['csrf_token'];
+            } else {
+                session_destroy();
+            }
         }
 
         return $this->context;
