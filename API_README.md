@@ -13,7 +13,7 @@ This project aims to provide an easy-to-use JSON-based REST API for OpenEMR's mo
 - [@bradymiller](https://github.com/bradymiller)
 
 ### Prerequsite
-Enable this API service in OpenEMR menu: Administration->Globals Connectors tab.
+Enable this API service in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR REST API"
 
 ### Endpoints
 Note: FHIR endpoints follow normal FHIR REST endpoints. Use `https://domain/apis/fhir as base URL.`
