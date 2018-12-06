@@ -151,7 +151,7 @@ if ($_POST['formaction'] == 'save' && $list_id) {
 
             $real_id = trim($iter['real_id']);
 
-            if ( strlen($real_id) > 0) {
+            if (strlen($real_id) > 0 || strlen($id) > 0) {
                 // Special processing for the immunizations list
                 // Map the entered cvx codes into the immunizations table cvx_code
                 // Ensure the following conditions are met to do this:
@@ -194,17 +194,16 @@ if ($_POST['formaction'] == 'save' && $list_id) {
                 }
 
                 // Delete the list item
-                sqlStatement("DELETE FROM list_options WHERE list_id = ? AND option_id = ?",
-                                            array($list_id, $real_id));
-                if( strlen($id) <= 0 && strlen(trim($iter['title'])) <=0 && empty($id) && empty($iter['title']) ){
-                  continue;
+                sqlStatement("DELETE FROM list_options WHERE list_id = ? AND option_id = ?", array($list_id, $real_id));
+                if(strlen($id) <= 0 && strlen(trim($iter['title'])) <=0 && empty($id) && empty($iter['title'])){
+                    continue;
                 }
                     // Insert the list item
                  sqlInsert(
                         "INSERT INTO list_options ( " .
                         "list_id, option_id, title, seq, is_default, option_value, mapping, notes, codes, toggle_setting_1, toggle_setting_2, activity, subtype " .
                         ") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                        array(
+                     array(
                             $list_id,
                             $id,
                             trim($iter['title']),
@@ -222,7 +221,6 @@ if ($_POST['formaction'] == 'save' && $list_id) {
                  );
             }
         }
-
     }
 } elseif ($_POST['formaction'] == 'addlist') {
     // make a new list ID from the new list name
@@ -1047,7 +1045,7 @@ function writeITLine($it_array)
                          * the options shown on the screen).
                          */
                         $list_id_container = trim(strip_tags($_GET["list_id_container"]));
-                        if( isset($_GET["list_id_container"]) && strlen($list_id_container) > 0 ){
+                        if (isset($_GET["list_id_container"]) && strlen($list_id_container) > 0) {
                             $list_id = $list_id_container;
                         }
 
