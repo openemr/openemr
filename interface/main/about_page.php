@@ -119,8 +119,13 @@ $version = $versionService->fetch();
                     <span class="text"><?php echo xlt("Please consider sending in a donation to"); ?> OpenEMR:</span><br>
                     <a href="http://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=V6EVVTYYK264C" target="_blank" class="btn btn-lg btn-block"><i class="fa fa-2x fa-heart"></i><br/><?php echo xlt("DONATE NOW!"); ?></a>
                 </div>
+                <div class="review">
+                    <a href="https://www.softwareadvice.com/medical/openemr-review/?step=1" title="<?php echo xla("Voice your opinion"); ?>" target="_blank"><img src="<?php echo $GLOBALS['images_static_relative']; ?>/review-logo.png"></a>
+                </div>
+
             </div>
         </div>
+    </div>
 
 
     <div class="product-registration-modal" style="display: none">
