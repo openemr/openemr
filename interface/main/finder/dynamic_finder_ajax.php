@@ -16,6 +16,67 @@
 require_once("../../globals.php");
 require_once($GLOBALS['srcdir']."/options.inc.php");
 
+
+//Function do translate from another language to English
+if (!(function_exists('ltox'))) {
+
+    /**
+     * @param $wordInLang
+     * @param bool $oneWord
+     * @return bool or English text of var
+     */
+    function ltox( $wordInLang, $oneWord = true )
+    {
+        //$oneWord this variable for future using in case if we are need search by full string
+        if( strlen($wordInLang) <=0 ) return false;
+
+        // set language id
+        if (!empty($_SESSION['language_choice'])) {
+            $lang_id = $_SESSION['language_choice'];
+        } else {
+            $lang_id = 1;
+        }
+
+        if( $lang_id != 1 ){
+            $sql = "SELECT constant_name FROM lang_constants WHERE cons_id = (SELECT cons_id FROM lang_definitions WHERE lower(definition) REGEXP '^".mb_strtolower($wordInLang)."[^][[:space:]]*$'  LIMIT 1)";
+            $res = sqlStatement($sql);
+            if ($row = sqlFetchArray($res)) {
+                $wordInLang = $row["constant_name"];
+            }
+        }
+
+        return $wordInLang;
+    }
+}
+//Function partiality translate date to need format
+if(!(function_exists('DateToYYYYMMDD_Partial'))){
+    function DateToYYYYMMDD_Partial($DateValue)
+    {
+        // Get current display date format
+        //
+        //dd/mm/yyyy - 2
+        //mm/dd/yyyy - 1
+        //yyyy-mm-dd - 0
+        //
+        $date_display_format = $GLOBALS['date_display_format'];
+        if( $date_display_format > 0) {
+            $date_inp    = explode("/", $DateValue);
+
+            $day_input   = attr(trim($date_display_format == 1 ? $date_inp[1] : $date_inp[0]));
+            $month_input = attr(trim($date_display_format == 1 ? $date_inp[0] : $date_inp[1]));
+            $year_input  = attr(trim($date_inp[2]));
+
+            $day_input   = str_pad($day_input, 2, '0', STR_PAD_LEFT);
+            $month_input = (strlen($month_input) > 0 ? str_pad($month_input, 2, '0', STR_PAD_LEFT) . "-" : "");
+            $year_input  = (strlen($year_input) > 0 ? $year_input."-" : "");
+
+            $DateValue = $year_input.$month_input.$day_input;
+        }
+        return $DateValue;
+    }
+}
+
+
 if (!verifyCsrfToken($_GET["csrf_token_form"])) {
     csrfNotVerified();
 }
@@ -63,10 +124,14 @@ if (isset($_GET['iSortCol_0'])) {
 // Global filtering.
 //
 $where = '';
+$sSearch = add_escape_custom(trim($_GET['sSearch']));
+$cnt_columns = count($aColumns) - 1;
+$newWhere = Array();
+
 if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
-    $sSearch = add_escape_custom(trim($_GET['sSearch']));
-    foreach ($aColumns as $colname) {
-        $where .= $where ? "OR " : "WHERE ( ";
+    foreach ($aColumns as $index_col => $colname) {
+        $where .= $where ? ($cnt_columns != $index_col ? "OR " : "" ) : "WHERE ( ";
+
         if ($colname == 'name') {
             if ($searchMethodInPatientList) { // exact search
                 $where .=
@@ -82,7 +147,14 @@ if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
         } elseif ($searchMethodInPatientList) {
             $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch' ";
         } else { // exact search
-            $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch%' ";
+            if( $colname == "DOB" ){
+                $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '%".DateToYYYYMMDD_Partial($sSearch)."%' ";
+            }elseif( $colname == "sex" ){
+                $where .= " OR `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".ltox($sSearch)."%' ";
+            }
+            else{
+                $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch%' ";
+            }
         }
     }
 
@@ -93,30 +165,39 @@ if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
 
 // Column-specific filtering.
 //
+$newWhere = Array();
 for ($i = 0; $i < count($aColumns); ++$i) {
     $colname = $aColumns[$i];
     if (isset($_GET["bSearchable_$i"]) && $_GET["bSearchable_$i"] == "true" && $_GET["sSearch_$i"] != '') {
-        $where .= $where ? ' AND' : 'WHERE';
+        //$where .= $where ? ' AND' : 'WHERE';
         $sSearch = add_escape_custom($_GET["sSearch_$i"]);
         if ($colname == 'name') {
             if ($searchMethodInPatientList) { // exact search
-                $where .= " ( " .
+                $newWhere[] = " ( " .
                     "lname LIKE '$sSearch' OR " .
                     "fname LIKE '$sSearch' OR " .
                     "mname LIKE '$sSearch' )";
             } else {  // like search
-                $where .= " ( " .
+                $newWhere[] = " ( " .
                     "lname LIKE '$sSearch%' OR " .
                     "fname LIKE '$sSearch%' OR " .
                     "mname LIKE '$sSearch%' )";
             }
         } elseif ($searchMethodInPatientList) {
-            $where .= " `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch'"; // exact search
+            $newWhere[] = " `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch'"; // exact search
         } else {
-            $where .= " `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch%'"; // like search
+            if( $colname == "DOB" ){
+                $newWhere[] = "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '%".DateToYYYYMMDD_Partial($sSearch)."%' ";
+            }elseif( $colname == "sex" ){
+                $newWhere[] = "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".ltox($sSearch)."%' ";
+            }
+            else{
+                $newWhere[] = "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch%' ";
+            }
         }
     }
 }
+$where .= (count($newWhere) > 0 ? ($where ? " AND" : "WHERE" ).implode(" AND ", $newWhere) : "");
 
 // Compute list of column names for SELECT clause.
 // Always includes pid because we need it for row identification.
