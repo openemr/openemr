@@ -1,4 +1,6 @@
 <?php
+header("strict-transport-security: max-age=8884000");
+
 /**
  * Login screen.
  *
