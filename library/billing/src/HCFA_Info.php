@@ -74,6 +74,6 @@ class HCFA_Info
             return 0;
         }
 
-        return ($first_value < $second_value) ? -1 : 1;
+        return $first_value<$second_value ? -1 : 1;
     }
 }

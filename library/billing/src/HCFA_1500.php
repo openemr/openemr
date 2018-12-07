@@ -55,7 +55,7 @@ class HCFA_1500
     public function put_hcfa($line, $col, $maxlen, $data, $strip = '/[.#]/')
     {
         if ($line < $this->hcfa_curr_line) {
-            die("Data item at ($line, $col) precedes current line.");
+            die("Data item at ($line, $col) precedes current line $this->hcfa_curr_line and $data");
         }
 
         while ($this->hcfa_curr_line < $line) {
@@ -115,7 +115,7 @@ class HCFA_1500
             $diag_count++;
         }
         // Sort the entries to put them in the page base sequence.
-        usort($hcfa_entries, 'cmp_hcfa_info');
+        usort($hcfa_entries, array('OpenEMR\Billing\HCFA_Info', 'cmp_hcfa_info'));
 
         foreach ($hcfa_entries as $hcfa_entry) {
             $hcfa_entry->put($this);
