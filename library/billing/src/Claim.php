@@ -874,9 +874,9 @@ class Claim
     {
         if (strcmp($this->claimType($ins), 'MB') == 0 && $this->payerSequence($ins) != 'P') {
             return $this->payers[$ins]['data']['policy_type'];
+        } else {
+            return '';
         }
-
-        return '';
     }
 
   // Is the patient also the subscriber?
