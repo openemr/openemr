@@ -40,7 +40,7 @@ $ignoreAuth = true;
 // token is a 32 character hash followed by hex encoded 4 char api flag and site id.
 if (is_authentication($resource)) {
     // Get a site id from initial login authentication.
-    $data = (array)(json_decode(file_get_contents("php://input")));
+    $data = (array) json_decode((file_get_contents("php://input")));
     $site = empty($data['client_id']) ? "default" : $data['client_id'];
     $_GET['site'] = $site;
 } elseif (!$context) {

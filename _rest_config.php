@@ -85,14 +85,14 @@ class RestConfig
 
     /**
      * Returns the api's context in form of token. e.g api called from OpenEMR authorized session.
-     * @return token or false if not local.
+     * @return token or null if not local.
      */
     function GetContext()
     {
         if ($this->context == null) {
             $local_auth = isset($_SERVER['HTTP_APPSECRET']) ? $_SERVER['HTTP_APPSECRET'] : false;
             if ($local_auth) {
-                session_id($local_auth); // a must for cURL. See Fhir Provider Client request.
+                session_id($local_auth); // a must for cURL. See oeHttp Client request.
             } else {
                 session_name("OpenEMR"); // works for browser/ajax.
             }
@@ -152,6 +152,24 @@ class RestConfig
                 $params["httponly"]
             );
         }
+    }
+
+    static function getPostData($data)
+    {
+        if (count($_POST)) {
+            return $_POST;
+        } elseif ($post_data = file_get_contents('php://input')) {
+            if ($post_json = json_decode($post_data, true)) {
+                return $post_json;
+            } else {
+                parse_str($post_data, $post_variables);
+                if (count($post_variables)) {
+                    return $post_variables;
+                }
+            }
+        }
+            // Not able to retrieve POST data, return FALSE.
+            return false;
     }
 }
 
