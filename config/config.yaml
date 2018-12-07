@@ -16,12 +16,6 @@ assets:
         script: jquery.min.js
         autoload: true
         allowNoLoad: true
-    jquery-1-10-2:
-        basePath: %assets_static_relative%/jquery-1-10-2/
-        script: jquery.min.js
-    jquery-1-11-3:
-        basePath: %assets_static_relative%/jquery-1-11-3/dist/
-        script: jquery.min.js
     bootstrap:
         basePath: %assets_static_relative%/bootstrap/dist/
         script: js/bootstrap.min.js
