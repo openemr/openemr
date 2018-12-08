@@ -10,10 +10,7 @@
 <html>
 <head>
 
-{headerShow}
-
-<link rel="stylesheet" href="{$GLOBALS.css_header}" type="text/css">
-<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-min-1-2-2/index.js"></script>
+{headerTemplate assets='no_bootstrap|no_fontawesome|no_textformat|no_dialog'}
 
 {literal}
 <style type="text/css" title="mystyles" media="all">
@@ -27,10 +24,10 @@
 function changeLinkHref(id,addValue,value) {
     var myRegExp = new RegExp(":" + value + ":");
     if (addValue){ //add value to href
-        document.getElementById(id).href += ':' + value + ':';
+        if(document.getElementById(id) !== null)document.getElementById(id).href += ':' + value + ':';
     }
     else { //remove value from href
-       document.getElementById(id).href = document.getElementById(id).href.replace(myRegExp,'');
+        if(document.getElementById(id) !== null)document.getElementById(id).href = document.getElementById(id).href.replace(myRegExp,'');
     }
 }
 
@@ -41,19 +38,19 @@ function changeLinkHrefAll(addValue, value) {
 }
 
 //uses jquery to update database table
-function markTx(oThis,id){
+function markTx(oThis,id){{/literal}
     var isChecked = oThis.checked ? 1 : 0; // @TODO this is better served if checkboxs are all checked on submit with one call to markTx
-    $.get('./interface/weno/markTx.php?rx='+id+'&state='+isChecked);
+    $.get('./interface/weno/markTx.php?rx=' + encodeURIComponent(id) + '&state=' + encodeURIComponent(isChecked) + '&csrf_token_form=' + {$CSRF_TOKEN_FORM|js_url});
     return false;
-}
+{literal}}
 
 function changeLinkHref_All(id,addValue,value) {
     var myRegExp = new RegExp(":" + value + ":");
     if (addValue){ //add value to href
-        document.getElementById(id).href += ':' + value + ':';
+        if(document.getElementById(id) !== null)document.getElementById(id).href += ':' + value + ':';
     }
     else { //remove value from href
-        document.getElementById(id).href = document.getElementById(id).href.replace(myRegExp,'');
+        if(document.getElementById(id) !== null)document.getElementById(id).href = document.getElementById(id).href.replace(myRegExp,'');
         // TajEmo Work By CB 2012/06/14 02:17:16 PM remove the target change
     //document.getElementById(id).target = '';
     }
@@ -63,6 +60,10 @@ function Check(chk) {
     var len=chk.length;
     if (len==undefined) {chk.checked=true;}
     else {
+        //clean the checked id's before check all the list again
+        document.getElementById('multiprint').href = document.getElementById('multiprint').href.substring(0, document.getElementById('multiprint').href.indexOf('=') + 1);
+        document.getElementById('multiprintcss').href = document.getElementById('multiprintcss').href.substring(0, document.getElementById('multiprintcss').href.indexOf('=') + 1);
+        document.getElementById('multiprintToFax').href = document.getElementById('multiprintToFax').href.substring(0, document.getElementById('multiprintToFax').href.indexOf('=') +1);
         for (pr = 0; pr < chk.length; pr++){
             if($(chk[pr]).parents("tr.inactive").length==0)
                 {
@@ -146,19 +147,28 @@ $(document).ready(function(){
                 <table>
                     <tr>
                         <td>
+                        {if $GLOBALS.rx_zend_pdf_template}
+                            <a target="_blank" id="multiprint" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-pdf-template/{$GLOBALS.rx_zend_pdf_action}?id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Download'|escape:'html'} ({xl t='PDF'|escape:'html'})</span></a>
+                        {else}
                             <a id="multiprint" href="{$CONTROLLER}prescription&multiprint&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Download'|escape:'html'} ({xl t='PDF'|escape:'html'})</span></a>
+                        {/if}
                         </td>
                         <td>
+                        {if $GLOBALS.rx_zend_html_template}
+                            <a target="_blank" id="multiprintcss" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-html-template/{$GLOBALS.rx_zend_html_action}?id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='View Printable Version'|escape:'html'} ({xl t='HTML'|escape:'html'})</span></a>
+                        {else}
                           <!-- TajEmo work by CB 2012/06/14 02:16:32 PM target="_script" opens better -->
                             <a target="_script" id="multiprintcss" href="{$CONTROLLER}prescription&multiprintcss&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='View Printable Version'|escape:'html'} ({xl t='HTML'|escape:'html'})</span></a>
+                        {/if}
                         </td>
+                        {if $GLOBALS.rx_use_fax_template}
                         <td style="border-style:none;">
                             <a id="multiprintToFax" href="{$CONTROLLER}prescription&multiprintfax&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Download'|escape:'html'} ({xl t='Fax'|escape:'html'})</span></a>
                         </td>
-
+                        {/if}
                         {if $GLOBALS.weno_rx_enable}
                             <td style="border-style:none;">
-                                <a id="multiprintToFax" href="{$GLOBALS.webroot}/interface/weno/validate.php" onclick="top.restoreSession()" class="css_button"><span>{xl t='Transmit'|escape:'html'} {xl t='Rx'|escape:'html'}</span></a>
+                                <a id="multiprintToFax" href="{$GLOBALS.webroot}/interface/weno/validate.php?csrf_token_form={$CSRF_TOKEN_FORM|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Transmit'|escape:'html'} {xl t='Rx'|escape:'html'}</span></a>
                             </td>
                         {/if}
                         {if $CAMOS_FORM == true}
@@ -289,12 +299,12 @@ $(document).ready(function(){
 <script language='JavaScript'>
 
 $(document).ready(function(){
-$("#multiprint").click(function() { return CheckForChecks(document.presc.check_list); });
-$("#multiprintcss").click(function() { return CheckForChecks(document.presc.check_list); });
-$("#multiprintToFax").click(function() { return CheckForChecks(document.presc.check_list); });
-$(".editscript").click(function() { ShowScript(this); });
-$(".onescript").mouseover(function() { $(this).children().toggleClass("highlight"); });
-$(".onescript").mouseout(function() { $(this).children().toggleClass("highlight"); });
+$("#multiprint").on("click", function() { return CheckForChecks(document.presc.check_list); });
+$("#multiprintcss").on("click", function() { return CheckForChecks(document.presc.check_list); });
+$("#multiprintToFax").on("click", function() { return CheckForChecks(document.presc.check_list); });
+$(".editscript").on("click", function() { ShowScript(this); });
+$(".onescript").on("mouseover", function() { $(this).children().toggleClass("highlight"); });
+$(".onescript").on("mouseout", function() { $(this).children().toggleClass("highlight"); });
 });
 
 var ShowScript = function(eObj) {

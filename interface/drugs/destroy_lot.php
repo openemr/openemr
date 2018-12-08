@@ -12,22 +12,14 @@
  */
 
 
- require_once("../globals.php");
- require_once("$srcdir/acl.inc");
- require_once("drugs.inc.php");
+require_once("../globals.php");
+require_once("$srcdir/acl.inc");
+require_once("drugs.inc.php");
 
-function QuotedOrNull($fld)
-{
-    if ($fld) {
-        return "'".add_escape_custom($fld)."'";
-    }
 
-    return "NULL";
-}
-
- $drug_id = $_REQUEST['drug'];
- $lot_id  = $_REQUEST['lot'];
- $info_msg = "";
+$drug_id = $_REQUEST['drug'];
+$lot_id  = $_REQUEST['lot'];
+$info_msg = "";
 
 if (!acl_check('admin', 'drugs')) {
     die(xlt('Not authorized'));
@@ -46,14 +38,14 @@ if (!$lot_id) {
 <?php html_header_show();?>
 <title><?php echo xlt('Destroy Lot') ?></title>
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
 <style>
 td { font-size:10pt; }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 <script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
 
@@ -76,12 +68,26 @@ td { font-size:10pt; }
  // If we are saving, then save and close the window.
  //
 if ($_POST['form_save']) {
-    sqlStatement("UPDATE drug_inventory SET " .
-    "destroy_date = "     . QuotedOrNull($_POST['form_date']) . ", "  .
-    "destroy_method = '"  . add_escape_custom($_POST['form_method'])    . "', " .
-    "destroy_witness = '" . add_escape_custom($_POST['form_witness'])   . "', " .
-    "destroy_notes = '"   . add_escape_custom($_POST['form_notes'])     . "' "  .
-    "WHERE drug_id = ? AND inventory_id = ?", array($drug_id,$lot_id));
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
+    sqlStatement(
+        "UPDATE drug_inventory SET " .
+        "destroy_date = ?, "  .
+        "destroy_method = ?, " .
+        "destroy_witness = ?, " .
+        "destroy_notes = ? "  .
+        "WHERE drug_id = ? AND inventory_id = ?",
+        array(
+            (empty($_POST['form_date']) ? "NULL" : $_POST['form_date']),
+            $_POST['form_method'],
+            $_POST['form_witness'],
+            $_POST['form_notes'],
+            $drug_id,
+            $lot_id
+        )
+    );
 
   // Close this window and redisplay the updated list of drugs.
   //
@@ -100,7 +106,9 @@ if ($_POST['form_save']) {
   "AND inventory_id = ?", array($drug_id,$lot_id));
 ?>
 
-<form method='post' name='theform' action='destroy_lot.php?drug=<?php echo attr($drug_id) ?>&lot=<?php echo attr($lot_id) ?>'>
+<form method='post' name='theform' action='destroy_lot.php?drug=<?php echo attr(urlencode($drug_id)); ?>&lot=<?php echo attr(urlencode($lot_id)); ?>'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+
 <center>
 
 <table border='0' width='100%'>
@@ -146,7 +154,7 @@ if ($_POST['form_save']) {
   <td valign='top' nowrap><b><?php echo xlt('Method of Destruction'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_method' maxlength='250'
-    value='<?php echo text($row['destroy_method']) ?>' style='width:100%' />
+    value='<?php echo attr($row['destroy_method']) ?>' style='width:100%' />
   </td>
  </tr>
 
@@ -154,7 +162,7 @@ if ($_POST['form_save']) {
   <td valign='top' nowrap><b><?php echo xlt('Witness'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_witness' maxlength='250'
-    value='<?php echo text($row['destroy_witness']) ?>' style='width:100%' />
+    value='<?php echo attr($row['destroy_witness']) ?>' style='width:100%' />
   </td>
  </tr>
 
@@ -162,7 +170,7 @@ if ($_POST['form_save']) {
   <td valign='top' nowrap><b><?php echo xlt('Notes'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_notes' maxlength='250'
-    value='<?php echo text($row['destroy_notes']) ?>' style='width:100%' />
+    value='<?php echo attr($row['destroy_notes']) ?>' style='width:100%' />
   </td>
  </tr>
 

@@ -1,19 +1,27 @@
 <?php
- // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ * fax_view.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2016 Rod Roark <rod@sunsetsystems.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
-    require_once("../globals.php");
 
-    $ffname = '';
-    $jobid = $_GET['jid'];
+require_once("../globals.php");
+
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    csrfNotVerified();
+}
+
+$ffname = '';
+$jobid = $_GET['jid'];
 if ($jobid) {
-    $jfname = $GLOBALS['hylafax_basedir'] . "/sendq/q$jobid";
+    $jfname = $GLOBALS['hylafax_basedir'] . "/sendq/q" . check_file_dir_name($jobid);
     if (!file_exists($jfname)) {
-        $jfname = $GLOBALS['hylafax_basedir'] . "/doneq/q$jobid";
+        $jfname = $GLOBALS['hylafax_basedir'] . "/doneq/q" . check_file_dir_name($jobid);
     }
 
     $jfhandle = fopen($jfname, 'r');
@@ -21,7 +29,7 @@ if ($jobid) {
         echo "I am in these groups: ";
         passthru("groups");
         echo "<br />";
-        die(xl("Cannot open ") . $jfname);
+        die(xlt("Cannot open ") . text($jfname));
     }
 
     while (!feof($jfhandle)) {
@@ -35,40 +43,40 @@ if ($jobid) {
 
     fclose($jfhandle);
     if (!$ffname) {
-        die(xl("Cannot find postscript document reference in ") . $jfname);
+        die(xlt("Cannot find postscript document reference in ") . text($jfname));
     }
 } else if ($_GET['scan']) {
-    $ffname = $GLOBALS['scanner_output_directory'] . '/' . $_GET['scan'];
+    $ffname = $GLOBALS['scanner_output_directory'] . '/' . check_file_dir_name($_GET['scan']);
 } else {
-    $ffname = $GLOBALS['hylafax_basedir'] . '/recvq/' . $_GET['file'];
+    $ffname = $GLOBALS['hylafax_basedir'] . '/recvq/' . check_file_dir_name($_GET['file']);
 }
 
 if (!file_exists($ffname)) {
-    die(xl("Cannot find ") . $ffname);
+    die(xlt("Cannot find ") . text($ffname));
 }
 
 if (!is_readable($ffname)) {
-    die(xl("I do not have permission to read ") . $ffname);
+    die(xlt("I do not have permission to read ") . text($ffname));
 }
 
-    ob_start();
+ob_start();
 
-    $ext = substr($ffname, strrpos($ffname, '.'));
+$ext = substr($ffname, strrpos($ffname, '.'));
 if ($ext == '.ps') {
-    passthru("TMPDIR=/tmp ps2pdf '$ffname' -");
+    passthru("TMPDIR=/tmp ps2pdf '" . escapeshellarg($ffname) . "' -");
 } else if ($ext == '.pdf' || $ext == '.PDF') {
-        readfile($ffname);
+    readfile($ffname);
 } else {
-    passthru("tiff2pdf '$ffname'");
+    passthru("tiff2pdf '" . escapeshellarg($ffname) . "'");
 }
 
-    header("Pragma: public");
-    header("Expires: 0");
-    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-    header("Content-Type: application/pdf");
-    header("Content-Length: " . ob_get_length());
-    header("Content-Disposition: inline; filename=" . basename($ffname, $ext) . '.pdf');
+header("Pragma: public");
+header("Expires: 0");
+header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+header("Content-Type: application/pdf");
+header("Content-Length: " . ob_get_length());
+header("Content-Disposition: inline; filename=" . basename($ffname, $ext) . '.pdf');
 
-    ob_end_flush();
+ob_end_flush();
 
-    exit;
+exit;

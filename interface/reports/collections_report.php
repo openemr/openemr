@@ -25,6 +25,12 @@ require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Core\Header;
 
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
+
 $alertmsg = '';
 $bgcolor = "#aaaaaa";
 $export_patient_count = 0;
@@ -202,13 +208,13 @@ function endPatient($ptrow)
         $export_dollars += $pt_balance;
     } else {
         if ($ptrow['count'] > 1) {
-            echo " <tr bgcolor='$bgcolor'>\n";
+            echo " <tr bgcolor='" . attr($bgcolor) . "'>\n";
             /***************************************************************
           echo "  <td class='detail' colspan='$initial_colspan'>";
           echo "&nbsp;</td>\n";
           echo "  <td class='detotal' colspan='$final_colspan'>&nbsp;Total Patient Balance:</td>\n";
             ***************************************************************/
-            echo "  <td class='detotal' colspan='" . ($initial_colspan + $final_colspan) .
+            echo "  <td class='detotal' colspan='" . attr(($initial_colspan + $final_colspan)) .
             "'>&nbsp;" . xlt('Total Patient Balance') . ":</td>\n";
             /**************************************************************/
             if ($form_age_cols) {
@@ -258,7 +264,7 @@ function endInsurance($insrow)
         $export_patient_count += 1;
         $export_dollars += $ins_balance;
     } else {
-        echo " <tr bgcolor='$bgcolor'>\n";
+        echo " <tr bgcolor='" . attr($bgcolor) . "'>\n";
         echo "  <td class='detail'>" . text($insrow['insname']) . "</td>\n";
         echo "  <td class='detotal' align='right'>&nbsp;" .
         text(oeFormatMoney($insrow['charges'])) . "&nbsp;</td>\n";
@@ -366,6 +372,7 @@ if ($_POST['form_csvexport']) {
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Collections'); ?></span>
 
 <form method='post' action='collections_report.php' enctype='multipart/form-data' id='theform' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 
@@ -1009,7 +1016,7 @@ if ($form_age_cols) {
           echo "  <th class='dehead' align='right'>";
               echo $form_age_inc * $c;
         if (++$c < $form_age_cols) {
-            echo "-" . ($form_age_inc * $c - 1);
+            echo "-" . text(($form_age_inc * $c - 1));
         } else {
             echo "+";
         }
@@ -1146,7 +1153,7 @@ if ($ptrow['count'] == 1) {
 }
 ?>
   <td class="detail">
-     &nbsp;<a href="../billing/sl_eob_invoice.php?id=<?php echo attr($row['id']) ?>"
+     &nbsp;<a href="../billing/sl_eob_invoice.php?id=<?php echo attr_url($row['id']) ?>"
     target="_blank"><?php echo empty($row['irnumber']) ? text($row['invnumber']) : text($row['irnumber']); ?></a>
   </td>
   <td class="detail">
@@ -1359,7 +1366,7 @@ if (!$_POST['form_csvexport']) {
 <script language="JavaScript">
 <?php
 if ($alertmsg) {
-    echo "alert('" . addslashes($alertmsg) . "');\n";
+    echo "alert(" . js_escape($alertmsg) . ");\n";
 }
 ?>
 </script>

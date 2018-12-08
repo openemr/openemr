@@ -19,6 +19,10 @@
  */
 $timeslotHeightVal=20;
 $timeslotHeightUnit="px";
+
+$chevron_icon_left = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
+$chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
+
 [-/php-]
 
 <script language='JavaScript'>
@@ -81,6 +85,18 @@ $timeslotHeightUnit="px";
   theForm.submit();
  }
 
+ function ShowImage(src)
+ {
+     var img = document.getElementById('popupImage');
+     var div = document.getElementById('popup');
+     img.src = src;
+     div.style.display = "block";
+ }
+
+ function HideImage()
+ {
+     document.getElementById('popup').style.display = "none";
+ }
 </script>
 
 [-php-]
@@ -170,13 +186,13 @@ echo "   <a href='#' title='" . xl("Search Appointment") . "'
 <a href='#' name='bnsubmit' value='[-php-]echo xl ("Today")[-/php-]' onClick='GoToToday(theform);'  class='css_button'/><span>[-php-] echo xl("Today")[-/php-]</span></a>
 [-php-]
 echo "   <a id='prevweek' href='$PREV_WEEK_URL' onclick='top.restoreSession()' title='" . xl("Previous Week") . "'>
-            <i class='fa fa-chevron-circle-left chevron_color' aria-hidden='true'></i></a>\n";
+            <i class='fa ".$chevron_icon_left." chevron_color' aria-hidden='true'></i></a>\n";
 $atmp = array_keys($A_EVENTS);
 echo date('d', strtotime($atmp[0])) . " " . xl(date('M', strtotime($atmp[0]))) . " " . date('Y', strtotime($atmp[0]));
 echo " - ";
 echo date('d', strtotime($atmp[count($atmp)-1])) . " " . xl(date('M', strtotime($atmp[count($atmp)-1]))) . " " . date('Y', strtotime($atmp[count($atmp)-1]));
 echo "   <a id='nextweek' href='$NEXT_WEEK_URL' onclick='top.restoreSession()' title='" . xl("Next Week") . "'>
-            <i class= 'fa fa-chevron-circle-right chevron_color' aria-hidden='true'></i></a>\n";
+            <i class= 'fa ".$chevron_icon_right." chevron_color' aria-hidden='true'></i></a>\n";
 [-/php-]
 </div>
 
@@ -203,7 +219,7 @@ $cMonth = date("m", $caldate);
 $cYear = date("Y", $caldate);
 $cDay = date("d", $caldate);
 
-    include_once($GLOBALS['webserver_root'].'/interface/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php');
+    include_once($GLOBALS['fileroot'].'/interface/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php');
 [-/php-]
 
 <table border="0" cellpadding="0" cellspacing="0">
@@ -379,7 +395,9 @@ echo "   <tr><td><div class='view1' style=background-color:".$f['color'].";font-
 [-assign var="day"     value=$DATE|date_format:"%d"|string_format:"%1d"-]
 [-assign var="month"   value=$DATE|date_format:"%m"|string_format:"%1d"-]
 [-assign var="year"    value=$DATE|date_format:"%Y"|string_format:"%4d"-]
-
+    <div id="popup" class="pop-up">
+        <img id="popupImage" alt="" />
+    </div>
 </div> <!-- end bottomLeft -->
 <div id="bigCal">
 [-php-]
@@ -742,7 +760,10 @@ foreach ($providers as $provider) {
                     $link_title .= xl('Age') . ": ".$patient_age."\n" . xl('DOB') . ": ".$patient_dob.htmlspecialchars($comment, ENT_QUOTES)."\n";
                     $link_title .= "(" . xl('Click to view') . ")";
                     $content .= "<a href='javascript:goPid($patientid)' title='$link_title'>";
-                    $content .= "<img src='{$this->_tpl_vars[TPL_IMAGE_PATH]}/user-green.gif' border='0' title='$link_title' alt='View Patient' />";
+                    $content .= "<img src='{$this->_tpl_vars[TPL_IMAGE_PATH]}/user-green.gif'
+                                      onmouseover=\"javascript:ShowImage('".$GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=".attr($patientid)."&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture');\"
+                                      onmouseout=\"javascript:HideImage();\"
+                                      border='0' title='$link_title' alt='View Patient' />";
 
                     if ($catid == 1) $content .= "<strike>";
                     $content .= htmlspecialchars($lname);
@@ -756,8 +777,8 @@ foreach ($providers as $provider) {
                         }
                     }
                     if ($catid == 1) $content .= "</strike>";
-
                     $content .= "</a>";
+                    $content .= '<a class="show-appointment shown"></a>';
                 }
                 elseif($groupid){
                     $divTitle .= "\n" . getTypeName($grouptype) . "\n";
@@ -895,6 +916,16 @@ foreach ($providers as $provider) {
         $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });
         $(".event").mouseout(function() { $(this).toggleClass("event_highlight"); });
 
+        $(".show-appointment").on('click', function() {
+            var self = $( this );
+            if (self.hasClass('shown')) {
+                self.parent().parent('.event_appointment').css('opacity' , '0.1').css('pointer-events' , 'none');
+                self.removeClass('shown').addClass('unshown').css('pointer-events' , 'all');
+            } else {
+                self.parent().parent('.event_appointment').css('opacity' , '1').css('pointer-events' , 'unset');
+                self.removeClass('unshown').addClass('shown').css('pointer-events' , 'unset');
+            }
+        })
 
         $(".tdMonthName-small").click(function() {
 

@@ -36,7 +36,7 @@
 #openSignModal .modal-body {
 	position: relative;
 	padding: 10px;
-	background: #f2f3ff;
+	/*background: #f2f3ff;*/
 }
 
 #openSignModal .input-group .input-group-addon {
@@ -49,6 +49,23 @@
 	cursor: pointer;
 	border-radius: 5px;
 }
+body.modal-open {
+    overflow: hidden;
+    position: fixed;
+}
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1040;
+    background-color: #000;
+}
+/*.modal-backdrop.in {
+    filter: alpha(opacity=100);
+    opacity: .8;
+}*/
 
 .signature {
 	width: auto !important;
@@ -68,8 +85,8 @@
 }
 
 #openSignModal .close {
-	background: #fff0f0 !important;
-	opacity: .8;
+	background: #ffffff !important;
+	opacity: .9;
 	color: #000000;
 	line-height: 35px;
 	position: absolute;
@@ -88,5 +105,5 @@
 }
 
 #openSignModal .close:hover {
-	background: #00d9ff;
+	background-color: #f0f0f0;
 }

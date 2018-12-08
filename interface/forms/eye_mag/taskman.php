@@ -43,7 +43,10 @@ if (!$_SERVER['HTTP_HOST']) {
     $_SERVER['HTTP_HOST']='default'; //need to figure out how to do this for non-default installs
 }
 
-$ignoreAuth=1;
+// Check if running as a cronjob
+if (php_sapi_name() === 'cli') {
+    $ignoreAuth=1;
+}
 
 require_once("../../globals.php");
 require_once("$srcdir/acl.inc");

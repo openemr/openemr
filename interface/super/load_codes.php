@@ -2,23 +2,15 @@
 /**
  * Upload and install a designated code set to the codes table.
  *
- * Copyright (C) 2014 Rod Roark <rod@sunsetsystems.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2014 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 set_time_limit(0);
 
@@ -51,8 +43,13 @@ $code_type = empty($_POST['form_code_type']) ? '' : $_POST['form_code_type'];
 <?php
 // Handle uploads.
 if (!empty($_POST['bn_upload'])) {
+    //verify csrf
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     if (empty($code_types[$code_type])) {
-        die(xlt('Code type not yet defined') . ": '$code_type'");
+        die(xlt('Code type not yet defined') . ": '" . text($code_type) . "'");
     }
 
     $code_type_id = $code_types[$code_type]['id'];
@@ -148,14 +145,15 @@ if (!empty($_POST['bn_upload'])) {
     }
 
     echo "<p style='color:green'>" .
-       xlt('LOAD SUCCESSFUL. Codes inserted') . ": $inscount, " .
-       xlt('replaced') . ": $repcount" .
+       xlt('LOAD SUCCESSFUL. Codes inserted') . ": " . text($inscount) . ", " .
+       xlt('replaced') . ": " . text($repcount) .
        "</p>\n";
 }
 
 ?>
 <form method='post' action='load_codes.php' enctype='multipart/form-data'
  onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <center>
 
@@ -174,7 +172,7 @@ if (!empty($_POST['bn_upload'])) {
    <select name='form_code_type'>
 <?php
 foreach (array('RXCUI') as $codetype) {
-    echo "    <option value='$codetype'>$codetype</option>\n";
+    echo "    <option value='" . attr($codetype) . "'>" . text($codetype) . "</option>\n";
 }
 ?>
    </select>
@@ -182,7 +180,7 @@ foreach (array('RXCUI') as $codetype) {
  </tr>
  <tr>
   <td class='detail' nowrap>
-    <?php echo htmlspecialchars(xl('Source File')); ?>
+    <?php echo xlt('Source File'); ?>
    <input type="hidden" name="MAX_FILE_SIZE" value="350000000" />
   </td>
   <td class='detail' nowrap>

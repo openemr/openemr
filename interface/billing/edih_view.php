@@ -39,14 +39,14 @@ if (!acl_check('acct', 'eob')) {
     <title><?php echo xlt("edi history"); ?></title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <!-- jQuery-ui and datatables -->
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/themes/sunny/jquery-ui.min.css" />
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui-1-10-13/css/dataTables.jqueryui.min.css" />
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller-jqui-1-4-2/css/scroller.jqueryui.min.css" />
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-themes-1-10-4/themes/sunny/jquery-ui.min.css" />
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui/css/dataTables.jqueryui.css" />
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller-jqui/css/scroller.jqueryui.css" />
 
     <!-- edi_history css -->
     <link rel="stylesheet" href="<?php echo $web_root?>/library/css/edi_history_v2.css" type="text/css" />
 
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
 </head>
 <!-- style for OpenEMR color -->
@@ -67,6 +67,7 @@ if (!acl_check('acct', 'eob')) {
         <tr vertical-align="middle">
          <td align="center">
             <form id="formupl" name="form_upl" action="edih_main.php" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                 <fieldset>
                 <legend><?php echo xlt("Select one or more files to upload"); ?></legend>
                 <input type="file" id="uplmulti" name="fileUplMulti[]" multiple />
@@ -78,13 +79,14 @@ if (!acl_check('acct', 'eob')) {
          </td>
          <td align="center">
             <form id="processnew" name="process_new" action="edih_main.php" method="GET">
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                 <fieldset>
                 <legend><?php echo xlt("Process new files for CSV records"); ?>:</legend>
                 <input type="checkbox" id="processhtml" name="process_html" form="processnew"  value="htm" checked /> <?php echo xlt("HTML Output?"); ?>
                 <input type="checkbox" id="processerr" name="process_err" form="processnew"  value="err" checked /> <?php echo xlt("Show Errors Only?"); ?> &nbsp;&nbsp;<br>
                 <input type="hidden" name="ProcessFiles" form="processnew" value="ProcessNew" />
                 <label for="process"><?php echo xlt("Process New Files"); ?></label>
-                <input type="submit" id="fuplprocess" name="process" form="processnew" value=<?php echo xla("Process"); ?> />
+                <input type="submit" id="fuplprocess" name="process" form="processnew" value="<?php echo xla("Process"); ?>" />
                 </fieldset>
             </form>
          </td>
@@ -105,6 +107,7 @@ if (!acl_check('acct', 'eob')) {
         <td colspan=4>
 
         <form id="formcsvtables" name="form_csvtables" action="edih_main.php" method="GET">
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
             <fieldset>
                 <legend><?php echo xlt("View CSV tables"); ?>:</legend>
                 <table>
@@ -154,6 +157,7 @@ if (!acl_check('acct', 'eob')) {
         </td>
         <td colspan=2>
             <form id="formcsvhist" name="hist_csv" action="edih_main.php" method="get">
+               <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                <fieldset>
                   <legend><?php echo xlt("Per Encounter"); ?></legend>
                   <table cols='2'>
@@ -189,6 +193,7 @@ if (!acl_check('acct', 'eob')) {
 
     <div id="x12text" >
         <form id="x12view" name="x12_view" action="edih_main.php" enctype="multipart/form-data" method="post">
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
         <fieldset>
         <legend><?php echo xlt("View EDI x12 file"); ?>:</legend>
         <table>
@@ -227,6 +232,7 @@ if (!acl_check('acct', 'eob')) {
             <tr>
                 <td>
                     <form id ="formlog" name="form_log" action="edih_main.php" enctype="multipart/form-data" method="post">
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                     <fieldset><legend><?php echo xlt("Inspect the log"); ?></legend>
                     <label for="logfile"><?php echo xlt("View Log"); ?></label>
                     <select id="logselect" name="log_select"> </select>
@@ -238,6 +244,7 @@ if (!acl_check('acct', 'eob')) {
                     </form>
                 </td>
                 <td><form id ="formnotes" name="form_notes" action="edih_main.php" enctype="multipart/form-data" method="post">
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                     <fieldset><legend><?php echo xlt("Notes"); ?></legend>
                     <label for="notesget"><?php echo xlt("Notes"); ?></label>
                     <input id="notesget" type="button" name="notes_get" form="formnotes" value="<?php echo xla("Open"); ?>" />
@@ -263,6 +270,7 @@ if (!acl_check('acct', 'eob')) {
             <tr>
                 <td colspan=2>
                     <form id="formarchive" name="form_archive" action="edih_main.php" enctype="multipart/form-data" method="POST">
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                     <fieldset><legend><?php echo xlt("Archive old files"); ?></legend>
                     <label for="archive_sel"><?php echo xlt("Older than"); ?>:</label>
                     <select id="archiveselect" name="archive_sel">
@@ -283,12 +291,13 @@ if (!acl_check('acct', 'eob')) {
                     </form>
                 </td>
                 <td><form id="formarchrestore" name="form_archrestore" action="edih_main.php" enctype="multipart/form-data" method="POST">
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                     <fieldset><legend><?php echo xlt("Restore Archive"); ?></legend>
                     <label for="archrestore_sel"><?php echo xlt("Restore"); ?>:</label>
                     <select id="archrestoresel" name="archrestore_sel"> </select>
                     <input type="hidden" name="ArchiveRestore" form="formarchrestore" value="restore" />
                     <label for="arch_restore"><?php echo xlt("Restore"); ?>:</label>
-                    <input type="submit" id="archrestore" name="arch_restore" form="formarchrestore" value=<?php echo xla("Restore"); ?> />
+                    <input type="submit" id="archrestore" name="arch_restore" form="formarchrestore" value="<?php echo xla("Restore"); ?>" />
                     </fieldset>
                     </form>
                 </td>
@@ -301,12 +310,12 @@ if (!acl_check('acct', 'eob')) {
 </div>
 <!-- End tabs section -->
 <!--  -->
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-10-2/index.js" type="text/javascript"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/ui/minified/jquery-ui.custom.min.js" type="text/javascript"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-1-10-13/js/jquery.dataTables.min.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui-1-10-13/js/dataTables.jqueryui.min.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller-1-4-2/js/dataTables.scroller.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-10-2/jquery.js" type="text/javascript"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/ui/minified/jquery-ui.min.js" type="text/javascript"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net/js/jquery.dataTables.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-jqui/js/dataTables.jqueryui.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-scroller/js/dataTables.scroller.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 <script type="text/javascript" src="<?php echo $web_root?>/library/textformat.js"></script>
 
 <!-- end DataTables js Begin local js -->
@@ -354,7 +363,10 @@ if (!acl_check('acct', 'eob')) {
     jQuery(function() {
         jQuery.ajax({
             url: 'edih_main.php',
-            data: { srvinfo: 'yes' },
+            data: {
+                srvinfo: 'yes',
+                csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>'
+            },
             dataType: 'json',
             success: function(rsp){ phpserver = rsp }
         });
@@ -364,7 +376,10 @@ if (!acl_check('acct', 'eob')) {
         jQuery.ajax({
             type: 'GET',
             url: 'edih_main.php',
-            data: { csvtbllist: 'yes' },
+            data: {
+                csvtbllist: 'yes',
+                csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>'
+            },
             dataType: 'json',
             success: function(data) {
               var options = jQuery('#csvselect').attr('options');
@@ -388,7 +403,10 @@ if (!acl_check('acct', 'eob')) {
         jQuery.ajax({
             type: 'GET',
             url: 'edih_main.php',
-            data: { loglist: 'yes' },
+            data: {
+                loglist: 'yes',
+                csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>'
+            },
             dataType: 'json',
             success: function(data) {
               var options = jQuery('#logselect').attr('options');
@@ -409,7 +427,10 @@ if (!acl_check('acct', 'eob')) {
         jQuery.ajax({
             type: 'GET',
             url: 'edih_main.php',
-            data: { archlist: 'yes' },
+            data: {
+                archlist: 'yes',
+                csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>'
+            },
             dataType: 'json',
             success: function(data) {
                 //var options = jQuery('#archrestoresel').attr('options');
@@ -809,7 +830,10 @@ jQuery-UI dialog
         jQuery.ajax({
             type: 'get',
             url: jQuery('#formlog').attr('action'),
-            data: { archivelog: 'yes' },
+            data: {
+                archivelog: 'yes',
+                csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>'
+            },
             dataType: "json",
             success: function(data) {
                 var str = "<p><?php echo xla('Archive Log Files'); ?></p><ul id='logarchlist'>";
@@ -869,7 +893,10 @@ jQuery-UI dialog
         jQuery.ajax({
             type:'GET',
             url: jQuery('#formnotes').attr('action'),
-            data: { getnotes: "yes"},
+            data: {
+                getnotes: "yes",
+                csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>'
+            },
             dataType: "text",
             success: function(data){
                 jQuery('#notesrsp').html('');
@@ -887,7 +914,7 @@ jQuery-UI dialog
         e.preventDefault();
         var notetxt = jQuery('#notesrsp :textarea').val();
         var noteURL = jQuery('#formnotes').attr('action');
-        jQuery.post(noteURL, { putnotes: 'yes', tnotes: notetxt },
+        jQuery.post(noteURL, { putnotes: 'yes', tnotes: notetxt, csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>' },
             function(data){ jQuery('#notesrsp').append(data); });
     });
 
@@ -946,7 +973,7 @@ jQuery-UI dialog
             type: 'GET',
             //cache: false,
             dataType: 'html',
-            data: { archivereport: 'yes', period: sprd },
+            data: { archivereport: 'yes', period: sprd, csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>' },
 
             success: function(data) {
                 //rspElem.html(data);

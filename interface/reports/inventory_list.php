@@ -1,22 +1,32 @@
 <?php
- // Copyright (C) 2008-2016 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ * inventory_list.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2008-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
+require_once("../globals.php");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/options.inc.php");
+require_once("$include_root/drugs/drugs.inc.php");
 
- require_once("../globals.php");
- require_once("$srcdir/acl.inc");
- require_once("$srcdir/options.inc.php");
- require_once("$include_root/drugs/drugs.inc.php");
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
- // Check authorization.
- $thisauth = acl_check('admin', 'drugs');
+// Check authorization.
+$thisauth = acl_check('admin', 'drugs');
 if (!$thisauth) {
-    die(xl('Not authorized'));
+    die(xlt('Not authorized'));
 }
 
 function addWarning($msg)
@@ -26,7 +36,7 @@ function addWarning($msg)
         $warnings .= '<br />';
     }
 
-    $warnings .= $msg;
+    $warnings .= text($msg);
 }
 
 // this is "" or "submit".
@@ -52,7 +62,7 @@ $res = sqlStatement("SELECT d.*, SUM(di.on_hand) AS on_hand " .
 <?php html_header_show(); ?>
 
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
-<title><?php  xl('Inventory List', 'e'); ?></title>
+<title><?php echo xlt('Inventory List'); ?></title>
 
 <style>
 /* specifically include & exclude from printing */
@@ -82,7 +92,7 @@ table.mymaintable td, table.mymaintable th {
 </style>
 
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-9-1/jquery.min.js"></script>
 <script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
@@ -108,9 +118,10 @@ table.mymaintable td, table.mymaintable th {
 
 <center>
 
-<h2><?php echo htmlspecialchars(xl('Inventory List'))?></h2>
+<h2><?php echo xlt('Inventory List'); ?></h2>
 
-<form method='post' action='inventory_list.php' name='theform'>
+<form method='post' action='inventory_list.php' name='theform' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 <!-- form_action is set to "submit" at form submit time -->
@@ -121,9 +132,9 @@ table.mymaintable td, table.mymaintable th {
    <table class='text'>
     <tr>
      <td nowrap>
-        <?php echo htmlspecialchars(xl('For the past')); ?>
-      <input type="input" name="form_days" size='3' value="<?php echo $form_days; ?>" />
-        <?php echo htmlspecialchars(xl('days')); ?>
+        <?php echo xlt('For the past'); ?>
+      <input type="input" name="form_days" size='3' value="<?php echo attr($form_days); ?>" />
+        <?php echo xlt('days'); ?>
      </td>
     </tr>
    </table>
@@ -133,11 +144,11 @@ table.mymaintable td, table.mymaintable th {
     <tr>
      <td valign='middle'>
       <a href='#' class='css_button' onclick='mysubmit("submit")' style='margin-left:1em'>
-       <span><?php echo htmlspecialchars(xl('Submit'), ENT_NOQUOTES); ?></span>
+       <span><?php echo xlt('Submit'); ?></span>
       </a>
 <?php if ($form_action) { ?>
       <a href='#' class='css_button' id='printbutton' style='margin-left:1em'>
-       <span><?php echo htmlspecialchars(xl('Print'), ENT_NOQUOTES); ?></span>
+       <span><?php echo xlt('Print'); ?></span>
       </a>
 <?php } ?>
      </td>
@@ -154,14 +165,14 @@ table.mymaintable td, table.mymaintable th {
 <table width='98%' id='mymaintable' class='mymaintable'>
  <thead style='display:table-header-group'>
   <tr class='head'>
-   <th><?php  xl('Name', 'e'); ?></th>
-   <th><?php  xl('NDC', 'e'); ?></th>
-   <th><?php  xl('Form', 'e'); ?></th>
-   <th align='right'><?php echo htmlspecialchars(xl('QOH')); ?></th>
-   <th align='right'><?php echo htmlspecialchars(xl('Reorder')); ?></th>
-   <th align='right'><?php echo htmlspecialchars(xl('Avg Monthly')); ?></th>
-   <th align='right'><?php echo htmlspecialchars(xl('Stock Months')); ?></th>
-   <th><?php echo htmlspecialchars(xl('Warnings')); ?></th>
+   <th><?php echo xlt('Name'); ?></th>
+   <th><?php echo xlt('NDC'); ?></th>
+   <th><?php echo xlt('Form'); ?></th>
+   <th align='right'><?php echo xlt('QOH'); ?></th>
+   <th align='right'><?php echo xlt('Reorder'); ?></th>
+   <th align='right'><?php echo xlt('Avg Monthly'); ?></th>
+   <th align='right'><?php echo xlt('Stock Months'); ?></th>
+   <th><?php echo xlt('Warnings'); ?></th>
   </tr>
  </thead>
  <tbody>
@@ -175,9 +186,9 @@ while ($row = sqlFetchArray($res)) {
     $srow = sqlQuery("SELECT " .
     "SUM(quantity) AS sale_quantity " .
     "FROM drug_sales WHERE " .
-    "drug_id = '$drug_id' AND " .
-    "sale_date > DATE_SUB(NOW(), INTERVAL $form_days DAY) " .
-    "AND pid != 0");
+    "drug_id = ? AND " .
+    "sale_date > DATE_SUB(NOW(), INTERVAL " . escape_limit($form_days) . " DAY) " .
+    "AND pid != 0", array($drug_id));
 
     ++$encount;
     $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
@@ -192,13 +203,13 @@ while ($row = sqlFetchArray($res)) {
     if ($sale_quantity != 0) {
         $stock_months = sprintf('%0.1f', $on_hand * $months / $sale_quantity);
         if ($stock_months < 1.0) {
-            addWarning(htmlspecialchars(xl('QOH is less than monthly usage')));
+            addWarning(xlt('QOH is less than monthly usage'));
         }
     }
 
   // Check for reorder point reached.
     if (!empty($row['reorder_point']) && $on_hand <= $row['reorder_point']) {
-        addWarning(htmlspecialchars(xl('Reorder point has been reached')));
+        addWarning(xlt('Reorder point has been reached'));
     }
 
   // Compute the smallest quantity that might be taken from a lot based on the
@@ -208,10 +219,10 @@ while ($row = sqlFetchArray($res)) {
         $sminrow = sqlQuery("SELECT " .
         "MIN(quantity) AS min_sale " .
         "FROM drug_sales WHERE " .
-        "drug_id = '$drug_id' AND " .
-        "sale_date > DATE_SUB(NOW(), INTERVAL $form_days DAY) " .
+        "drug_id = ? AND " .
+        "sale_date > DATE_SUB(NOW(), INTERVAL " . escape_limit($form_days) . " DAY) " .
         "AND pid != 0 " .
-        "AND quantity > 0");
+        "AND quantity > 0", array($drug_id));
         $min_sale = 0 + $sminrow['min_sale'];
     }
 
@@ -219,40 +230,40 @@ while ($row = sqlFetchArray($res)) {
   // expired, soon to expire, or with insufficient quantity for selling.
     $ires = sqlStatement("SELECT * " .
     "FROM drug_inventory WHERE " .
-    "drug_id = '$drug_id' AND " .
+    "drug_id = ? AND " .
     "on_hand > 0 AND " .
     "destroy_date IS NULL AND ( " .
-    "on_hand < '$min_sale' OR " .
+    "on_hand < ? OR " .
     "expiration IS NOT NULL AND expiration < DATE_ADD(NOW(), INTERVAL 30 DAY) " .
-    ") ORDER BY lot_number");
+    ") ORDER BY lot_number", array($drug_id, $min_sale));
 
   // Generate warnings associated with individual lots.
     while ($irow = sqlFetchArray($ires)) {
         $lotno = $irow['lot_number'];
         if ($irow['on_hand'] < $min_sale) {
-            addWarning(htmlspecialchars(xl('Lot') . " '$lotno' " . xl('quantity seems unusable')));
+            addWarning(text(xl('Lot') . " '$lotno' " . xl('quantity seems unusable')));
         }
 
         if (!empty($irow['expiration'])) {
             $expdays = (int) ((strtotime($irow['expiration']) - time()) / (60 * 60 * 24));
             if ($expdays <= 0) {
-                addWarning(htmlspecialchars(xl('Lot') . " '$lotno' " . xl('has expired')));
+                addWarning(text(xl('Lot') . " '$lotno' " . xl('has expired')));
             } else if ($expdays <= 30) {
-                addWarning(htmlspecialchars(xl('Lot') . " '$lotno' " . xl('expires in') . " $expdays " . xl('days')));
+                addWarning(text(xl('Lot') . " '$lotno' " . xl('expires in') . " $expdays " . xl('days')));
             }
         }
     }
 
-    echo " <tr class='detail' bgcolor='$bgcolor'>\n";
-    echo "  <td>" . htmlentities($row['name']) . "</td>\n";
-    echo "  <td>" . htmlentities($row['ndc_number']) . "</td>\n";
+    echo " <tr class='detail' bgcolor='" . attr($bgcolor) . "'>\n";
+    echo "  <td>" . text($row['name']) . "</td>\n";
+    echo "  <td>" . text($row['ndc_number']) . "</td>\n";
     echo "  <td>" .
        generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
        "</td>\n";
-    echo "  <td align='right'>" . $row['on_hand'] . "</td>\n";
-    echo "  <td align='right'>" . $row['reorder_point'] . "</td>\n";
-    echo "  <td align='right'>$monthly</td>\n";
-    echo "  <td align='right'>$stock_months</td>\n";
+    echo "  <td align='right'>" . text($row['on_hand']) . "</td>\n";
+    echo "  <td align='right'>" . text($row['reorder_point']) . "</td>\n";
+    echo "  <td align='right'>" . text($monthly) . "</td>\n";
+    echo "  <td align='right'>" . text($stock_months) . "</td>\n";
     echo "  <td style='color:red'>$warnings</td>\n";
     echo " </tr>\n";
 }

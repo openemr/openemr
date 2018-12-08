@@ -1,14 +1,17 @@
 <?php
-// Copyright (C) 2014-2017 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This is the place to put JavaScript functions that are needed to support
-// options.inc.php. Include this in the <head> section of relevant modules.
-// It's a .php module so that translation can be supported.
+/**
+ * This is the place to put JavaScript functions that are needed to support
+ * options.inc.php. Include this in the <head> section of relevant modules.
+ * It's a .php module so that translation can be supported.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2014-2017 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 ?>
 <script type="text/javascript">
 
@@ -28,10 +31,10 @@ function updateAgeString(fieldid, asof, format, description) {
     var days  = Math.round(msecs / (24 * 60 * 60 * 1000));
     var weeks = Math.floor(days / 7);
     days = days % 7;
-    if (description == '') description = '<?php echo xls('Gest age') ?>';
+    if (description == '') description = <?php echo xlj('Gest age') ?>;
     age = description + ' ' +
-      weeks + (weeks == 1 ? ' <?php echo xls('week') ?>' : ' <?php echo xls('weeks') ?>') + ' ' +
-      days  + (days  == 1 ? ' <?php echo xls('day') ?>' : ' <?php echo xls('days') ?>');
+      weeks + (weeks == 1 ? ' ' + <?php echo xlj('week') ?> : ' ' + <?php echo xlj('weeks') ?>) + ' ' +
+      days  + (days  == 1 ? ' ' + <?php echo xlj('day') ?> : ' ' + <?php echo xlj('days') ?>);
   }
   else {
     // Years or months.
@@ -48,10 +51,10 @@ function updateAgeString(fieldid, asof, format, description) {
     else {
       age = '' + ageInMonths;
       if (format == 0) {
-        age = age + ' ' + (ageInMonths == 1 ? '<?php echo xls('month') ?>' : '<?php echo xls('months') ?>'); 
+        age = age + ' ' + (ageInMonths == 1 ? <?php echo xlj('month') ?> : <?php echo xlj('months') ?>);
       }
     }
-    if (description == '') description = '<?php echo xls('Age') ?>';
+    if (description == '') description = <?php echo xlj('Age') ?>;
     if (age != '') age = description + ' ' + age;
   }
   document.getElementById('span_' + fieldid).innerHTML = age;
@@ -90,7 +93,7 @@ function checkSkipConditions() {
     if (srcelem == null) srcelem = document.getElementById('text_' + tofind);
 
     if (srcelem == null) {
-      if (!cskerror) alert('<?php echo xls('Cannot find a skip source field for'); ?> "' + tofind + '"');
+      if (!cskerror) alert(<?php echo xlj('Cannot find a skip source field for'); ?> + ' "' + tofind + '"');
       myerror = true;
       continue;
     }
@@ -106,7 +109,7 @@ function checkSkipConditions() {
         }
     }else if( typeof srcelem.options!=="undefined" && srcelem.type == 'select-one' ){
         elem_val=srcelem.options[srcelem.selectedIndex].value;
-        
+
     }else if( srcelem.type == 'select-multiple' ) {
         elem_val = new Array();
         is_multiple = true;
@@ -126,7 +129,7 @@ function checkSkipConditions() {
                 elem_val = elem_val.split("|");
                 is_multiple = true;
             }
-        } 
+        }
         if(elem_val == null) elem_val = srcelem.innerText;
     }
     //this is a feature fix for the multiple select list option
@@ -139,17 +142,17 @@ function checkSkipConditions() {
                 condition = (-1 == elem_val.indexOf(value)); break;
             case 'se':
                 condition = srcelem.checked  ; break; // doesn't make sense?
-            case 'ns': 
+            case 'ns':
                 condition = !srcelem.checked;  break;
         }
-                
+
     } else {
         if (operator == 'eq') condition = elem_val == value; else
         if (operator == 'ne') condition = elem_val != value; else
         if (operator == 'se') condition = srcelem.checked  ; else
         if (operator == 'ns') condition = !srcelem.checked;
     }
-    
+
     // Logic to accumulate multiple conditions for the same target.
     // alert('target = ' + target + ' prevandor = ' + prevandor + ' prevcond = ' + prevcond); // debugging
     if (prevandor == 'and') condition = condition && prevcond; else
@@ -175,7 +178,7 @@ function checkSkipConditions() {
               trgelem2 = document.getElementById('form_' + target);
           }
           if (trgelem1 == null && trgelem2 == null) {
-              if (!cskerror) alert('<?php echo xls('Cannot find a skip target field for'); ?> "' + target + '"');
+              if (!cskerror) alert(<?php echo xlj('Cannot find a skip target field for'); ?> + ' "' + target + '"');
               myerror = true;
               continue;
           }
@@ -232,25 +235,25 @@ var lbfCanvases = {}; // contains the LC instance for each canvas.
 //
 function lbfCanvasSetup(canid, canWidth, canHeight) {
   LC.localize({
-    "stroke"    : "<?php echo xls('stroke'); ?>",
-    "fill"      : "<?php echo xls('fill'); ?>",
-    "bg"        : "<?php echo xls('bg{{image canvas label}}'); ?>",
-    "Clear"     : "<?php echo xls('Clear'); ?>",
+    "stroke"    : <?php echo xlj('stroke'); ?>,
+    "fill"      : <?php echo xlj('fill'); ?>,
+    "bg"        : <?php echo xlj('bg{{image canvas label}}'); ?>,
+    "Clear"     : <?php echo xlj('Clear'); ?>,
     // The following are tooltip translations, however they do not work due to
     // a bug in LiterallyCanvas 0.4.13.  We'll leave them here pending a fix.
-    "Eraser"    : "<?php echo xls('Eraser'); ?>",
-    "Pencil"    : "<?php echo xls('Pencil'); ?>",
-    "Line"      : "<?php echo xls('Line'); ?>",
-    "Rectangle" : "<?php echo xls('Rectangle'); ?>",
-    "Ellipse"   : "<?php echo xls('Ellipse'); ?>",
-    "Text"      : "<?php echo xls('Text'); ?>",
-    "Polygon"   : "<?php echo xls('Polygon'); ?>",
-    "Pan"       : "<?php echo xls('Pan'); ?>",
-    "Eyedropper": "<?php echo xls('Eyedropper'); ?>",
-    "Undo"      : "<?php echo xls('Undo'); ?>",
-    "Redo"      : "<?php echo xls('Redo'); ?>",
-    "Zoom out"  : "<?php echo xls('Zoom out'); ?>",
-    "Zoom in"   : "<?php echo xls('Zoom in'); ?>",
+    "Eraser"    : <?php echo xlj('Eraser'); ?>,
+    "Pencil"    : <?php echo xlj('Pencil'); ?>,
+    "Line"      : <?php echo xlj('Line'); ?>,
+    "Rectangle" : <?php echo xlj('Rectangle'); ?>,
+    "Ellipse"   : <?php echo xlj('Ellipse'); ?>,
+    "Text"      : <?php echo xlj('Text'); ?>,
+    "Polygon"   : <?php echo xlj('Polygon'); ?>,
+    "Pan"       : <?php echo xlj('Pan'); ?>,
+    "Eyedropper": <?php echo xlj('Eyedropper'); ?>,
+    "Undo"      : <?php echo xlj('Undo'); ?>,
+    "Redo"      : <?php echo xlj('Redo'); ?>,
+    "Zoom out"  : <?php echo xlj('Zoom out'); ?>,
+    "Zoom in"   : <?php echo xlj('Zoom in'); ?>,
   });
   var tmpImage = document.getElementById(canid + '_img');
   var shape = LC.createShape('Image', {x: 0, y: 0, image: tmpImage});
@@ -259,7 +262,7 @@ function lbfCanvasSetup(canid, canWidth, canHeight) {
     strokeWidths: [1, 2, 3, 5, 8, 12],
     defaultStrokeWidth: 2,
     backgroundShapes: [shape],
-    imageURLPrefix: '<?php echo $GLOBALS['assets_static_relative'] ?>/literallycanvas-0-4-13/img'
+    imageURLPrefix: '<?php echo $GLOBALS['assets_static_relative'] ?>/literallycanvas/img'
   });
   if (canHeight > 261) {
     // TBD: Do something to make the widget bigger?

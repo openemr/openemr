@@ -53,7 +53,7 @@ function patient_reminder_widget($patient_id, $dateTarget = '')
 
     if (empty($listReminders)) {
         // No reminders to show.
-        echo htmlspecialchars(xl('No active patient reminders.'), ENT_NOQUOTES);
+        echo xlt('No active patient reminders.');
         return;
     }
 
@@ -69,9 +69,9 @@ function patient_reminder_widget($patient_id, $dateTarget = '')
         echo "</span></td><td style='padding:0 1em 0 1em;'><span class='small'>";
         // show reminder sent date
         if (empty($reminder['date_sent'])) {
-            echo htmlspecialchars(xl('Reminder Not Sent Yet'), ENT_NOQUOTES);
+            echo xlt('Reminder Not Sent Yet');
         } else {
-            echo htmlspecialchars(xl('Reminder Sent On').": ".$reminder['date_sent'], ENT_NOQUOTES);
+            echo text(xl('Reminder Sent On').": ".$reminder['date_sent']);
         }
 
         echo "</span></td></tr>";

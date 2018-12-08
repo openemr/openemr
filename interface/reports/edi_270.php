@@ -26,6 +26,12 @@ require_once("$srcdir/edi.inc");
 
 use OpenEMR\Core\Header;
 
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
+
 // Element data seperator
 $eleDataSep     = "*";
 
@@ -86,6 +92,7 @@ if ($exclude_policy != "") {
 								   p.sex,
 								   p.pid,
 								   p.pubpid,
+								   i.subscriber_ss,
 								   i.policy_number,
 								   i.provider as payer_id,
 								   i.subscriber_relationship,
@@ -93,7 +100,7 @@ if ($exclude_policy != "") {
 								   i.subscriber_fname,
 								   i.subscriber_mname,
 								   DATE_FORMAT(i.subscriber_dob, '%%m/%%d/%%Y') as subscriber_dob,
-								   i.subscriber_ss,
+								   i.policy_number,
 								   i.subscriber_sex,
 								   DATE_FORMAT(i.date,'%%Y%%m%%d') as date,
 								   d.lname as provider_lname,
@@ -135,7 +142,7 @@ if ($exclude_policy != "") {
     if (isset($_POST['form_savefile']) && !empty($_POST['form_savefile']) && $res) {
         header('Content-Type: text/plain');
         header(sprintf(
-            'Content-Disposition: attachment; filename="elig-270..%s.%s.txt"',
+            'Content-Disposition: attachment; filename="elig-270.%s.%s.txt"',
             $from_date,
             $to_date
         ));
@@ -181,8 +188,8 @@ if ($exclude_policy != "") {
 
         <script type="text/javascript">
 
-            var stringDelete = "<?php echo xla('Do you want to remove this record?'); ?>?";
-            var stringBatch  = "<?php echo xla('Please select X12 partner, required to create the 270 batch'); ?>";
+            var stringDelete = <?php echo xlj('Do you want to remove this record?'); ?>;
+            var stringBatch  = <?php echo xlj('Please select X12 partner, required to create the 270 batch'); ?>;
 
             // for form refresh
 
@@ -278,6 +285,7 @@ if ($exclude_policy != "") {
         </div>
 
         <form method='post' name='theform' id='theform' action='edi_270.php' onsubmit="return top.restoreSession()">
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
             <input type="hidden" name="removedrows" id="removedrows" value="">
             <div id="report_parameters">
                 <table>
@@ -388,7 +396,7 @@ if ($exclude_policy != "") {
     <script language='JavaScript'>
         <?php
         if ($alertmsg) {
-            echo " alert('$alertmsg');\n";
+            echo " alert(" . js_escape($alertmsg) . ");\n";
         } ?>
     </script>
 

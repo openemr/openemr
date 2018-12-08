@@ -13,13 +13,25 @@
 require_once("../globals.php");
 require_once("$srcdir/log.inc");
 require_once("$srcdir/crypto.php");
+require_once("$srcdir/acl.inc");
+
+if (!acl_check('admin', 'users')) {
+    die(xlt("Not Authorized"));
+}
+
+if (!empty($_GET)) {
+    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
+
 ?>
 <html>
 <head>
 <?php html_header_show();?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
 <style>
 #logview {
@@ -51,8 +63,8 @@ require_once("$srcdir/crypto.php");
 </style>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
 <script>
 //function to disable the event type field if the event name is disclosure
@@ -130,6 +142,7 @@ $sortby = isset($_GET['sortby']) ? $_GET['sortby'] : '';
 $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
 
 ?>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <input type="hidden" name="direction" id="direction" value="<?php echo !empty($direction) ? attr($direction) : 'asc'; ?>">
 <input type="hidden" name="sortby" id="sortby" value="<?php echo attr($sortby); ?>">
 <input type=hidden name=csum value="">
@@ -252,8 +265,8 @@ echo "</select>\n";
 </td><td>
 <?php
 $type_event = isset($_GET['type_event']) ? $_GET['type_event'] : '';
-$event_types=array("select", "update", "insert", "delete", "replace");
-$lcount=count($event_types);
+$event_types = array("select", "update", "insert", "delete", "replace");
+$lcount = count($event_types);
 if ($eventname=="disclosure") {
     echo "<select name='type_event' disabled='disabled'>\n";
     echo " <option value=''>" . xlt('All') . "</option>\n";
@@ -482,6 +495,9 @@ function validatelog(){
      }
      $.ajax({
             url:"../../library/log_validation.php",
+            data: {
+                    csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>'
+            },
             asynchronous : true,
             method: "post",
             success :function(response){

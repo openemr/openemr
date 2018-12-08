@@ -1,31 +1,20 @@
 <?php
 /**
- * Used for displaying log of dated reminders.
+ * Used for adding dated reminders.
  *
- * Copyright (C) 2012 tajemo.co.za <http://www.tajemo.co.za/>
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Craig Bezuidenhout <http://www.tajemo.co.za/>
- * @author Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Craig Bezuidenhout <http://www.tajemo.co.za/>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2012 tajemo.co.za <http://www.tajemo.co.za/>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  */
 
 
     require_once("../../globals.php");
     require_once("$srcdir/acl.inc");
     require_once("$srcdir/dated_reminder_functions.php");
+
     use OpenEMR\Core\Header;
 
     $isAdmin =acl_check('admin', 'users');
@@ -35,6 +24,10 @@
     -------------------  HANDLE POST ---------------------
   */
 if ($_GET) {
+    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     if (!$isAdmin) {
         if (empty($_GET['sentBy']) and empty($_GET['sentTo'])) {
             $_GET['sentTo'] = array(intval($_SESSION['authId']));
@@ -74,15 +67,15 @@ if ($_GET) {
 
     foreach ($remindersArray as $RA) {
         echo '<tr class="heading">
-              <td>',text($RA['messageID']),'</td>
-              <td>',text($RA['sDate']),'</td>
-              <td>',text($RA['fromName']),'</td>
-              <td>',text($RA['ToName']),'</td>
-              <td>',text($RA['PatientName']),'</td>
-              <td>',text($RA['message']),'</td>
-              <td>',text($RA['dDate']),'</td>
-              <td>',text($RA['pDate']),'</td>
-              <td>',text($RA['processedByName']),'</td>
+              <td>'.text($RA['messageID']).'</td>
+              <td>'.text($RA['sDate']).'</td>
+              <td>'.text($RA['fromName']).'</td>
+              <td>'.text($RA['ToName']).'</td>
+              <td>'.text($RA['PatientName']).'</td>
+              <td>'.text($RA['message']).'</td>
+              <td>'.text($RA['dDate']).'</td>
+              <td>'.text($RA['pDate']).'</td>
+              <td>'.text($RA['processedByName']).'</td>
             </tr>';
     }
 
@@ -152,6 +145,8 @@ if ($_GET) {
         <div class="row hideaway">
             <div class="col-xs-12">
                 <form method="get" id="logForm" onsubmit="return top.restoreSession()">
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+
                     <fieldset>
                         <legend><?php echo xlt('Filters') ?></legend>
                         <div class="col-xs-12">
@@ -173,7 +168,7 @@ if ($_GET) {
                                     <?php
                                     if ($isAdmin) {
                                         foreach ($allUsers as $user) {
-                                            echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>';
+                                            echo '<option value="'.attr($user['id']).'">'.text($user['fname'].' '.$user['mname'].' '.$user['lname']).'</option>';
                                         }
                                     }
                                     ?>
@@ -186,7 +181,7 @@ if ($_GET) {
                                     <?php
                                     if ($isAdmin) {
                                         foreach ($allUsers as $user) {
-                                            echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>';
+                                            echo '<option value="'.attr($user['id']).'">'.text($user['fname'].' '.$user['mname'].' '.$user['lname']).'</option>';
                                         }
                                     }
                                     ?>

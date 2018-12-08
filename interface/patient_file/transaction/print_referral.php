@@ -1,58 +1,62 @@
 <?php
-// Copyright (C) 2008-2017 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * print_referral.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2008-2017 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
-
-include_once("../../globals.php");
+require_once("../../globals.php");
 require_once("$srcdir/transactions.inc");
 require_once("$srcdir/options.inc.php");
-include_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc");
 
 $template_file = $GLOBALS['OE_SITE_DIR'] . "/referral_template.html";
 
 $TEMPLATE_LABELS = array(
-  'label_clinic_id'             => htmlspecialchars(xl('Clinic ID')),
-  'label_client_id'             => htmlspecialchars(xl('Client ID')),
-  'label_control_no'            => htmlspecialchars(xl('Control No.')),
-  'label_date'                  => htmlspecialchars(xl('Date')),
-  'label_webpage_title'         => htmlspecialchars(xl('Referral Form')),
-  'label_form1_title'           => htmlspecialchars(xl('Referral Form')),
-  'label_name'                  => htmlspecialchars(xl('Name')),
-  'label_age'                   => htmlspecialchars(xl('Age')),
-  'label_gender'                => htmlspecialchars(xl('Gender')),
-  'label_address'               => htmlspecialchars(xl('Address')),
-  'label_postal'                => htmlspecialchars(xl('Postal')),
-  'label_phone'                 => htmlspecialchars(xl('Phone')),
-  'label_ref_reason'            => htmlspecialchars(xl('Reference Reason')),
-  'label_diagnosis'             => htmlspecialchars(xl('Diagnosis')),
-  'label_ref_class'             => htmlspecialchars(xl('Reference classification (risk level)')),
-  'label_dr_name_sig'           => htmlspecialchars(xl('Doctor\'s name and signature')),
-  'label_refer_to'              => htmlspecialchars(xl('Referred to')),
-  'label_clinic'                => htmlspecialchars(xl('Health centre/clinic')),
-  'label_history_summary'       => htmlspecialchars(xl('Client medical history summary')),
-  'label_bp'                    => htmlspecialchars(xl('Blood pressure')),
-  'label_ht'                    => htmlspecialchars(xl('Height')),
-  'label_wt'                    => htmlspecialchars(xl('Weight')),
-  'label_ref_name_sig'          => htmlspecialchars(xl('Referer name and signature')),
-  'label_special_name_sig'      => htmlspecialchars(xl('Specialist name and signature')),
-  'label_form2_title'           => htmlspecialchars(xl('Counter Referral Form')),
-  'label_findings'              => htmlspecialchars(xl('Findings')),
-  'label_final_diagnosis'       => htmlspecialchars(xl('Final Diagnosis')),
-  'label_services_provided'     => htmlspecialchars(xl('Services provided')),
-  'label_recommendations'       => htmlspecialchars(xl('Recommendations and treatment')),
-  'label_scripts_and_referrals' => htmlspecialchars(xl('Prescriptions and other referrals')),
-  'label_subhead_clinic'        => htmlspecialchars(xl('Clinic Copy')),
-  'label_subhead_patient'       => htmlspecialchars(xl('Client Copy')),
-  'label_subhead_referred'      => htmlspecialchars(xl('For Referred Organization/Practitioner'))
+  'label_clinic_id'             => xlt('Clinic ID'),
+  'label_client_id'             => xlt('Client ID'),
+  'label_control_no'            => xlt('Control No.'),
+  'label_date'                  => xlt('Date'),
+  'label_webpage_title'         => xlt('Referral Form'),
+  'label_form1_title'           => xlt('Referral Form'),
+  'label_name'                  => xlt('Name'),
+  'label_age'                   => xlt('Age'),
+  'label_gender'                => xlt('Gender'),
+  'label_address'               => xlt('Address'),
+  'label_postal'                => xlt('Postal'),
+  'label_phone'                 => xlt('Phone'),
+  'label_ref_reason'            => xlt('Reference Reason'),
+  'label_diagnosis'             => xlt('Diagnosis'),
+  'label_ref_class'             => xlt('Reference classification (risk level)'),
+  'label_dr_name_sig'           => xlt('Doctor\'s name and signature'),
+  'label_refer_to'              => xlt('Referred to'),
+  'label_clinic'                => xlt('Health centre/clinic'),
+  'label_history_summary'       => xlt('Client medical history summary'),
+  'label_bp'                    => xlt('Blood pressure'),
+  'label_ht'                    => xlt('Height'),
+  'label_wt'                    => xlt('Weight'),
+  'label_ref_name_sig'          => xlt('Referer name and signature'),
+  'label_special_name_sig'      => xlt('Specialist name and signature'),
+  'label_form2_title'           => xlt('Counter Referral Form'),
+  'label_findings'              => xlt('Findings'),
+  'label_final_diagnosis'       => xlt('Final Diagnosis'),
+  'label_services_provided'     => xlt('Services provided'),
+  'label_recommendations'       => xlt('Recommendations and treatment'),
+  'label_scripts_and_referrals' => xlt('Prescriptions and other referrals'),
+  'label_subhead_clinic'        => xlt('Clinic Copy'),
+  'label_subhead_patient'       => xlt('Client Copy'),
+  'label_subhead_referred'      => xlt('For Referred Organization/Practitioner')
 );
 
 if (!is_file($template_file)) {
-    die("$template_file does not exist!");
+    die(text($template_file). " does not exist!");
 }
 
 $transid = empty($_REQUEST['transid']) ? 0 : $_REQUEST['transid'] + 0;
@@ -156,11 +160,11 @@ fclose($fh);
 $s = str_replace("{header1}", genFacilityTitle($TEMPLATE_LABELS['label_form1_title'], -1, $logo), $s);
 $s = str_replace("{header2}", genFacilityTitle($TEMPLATE_LABELS['label_form2_title'], -1, $logo), $s);
 
-$s = str_replace("{fac_name}", $facrow['name'], $s);
-$s = str_replace("{fac_facility_npi}", $facrow['facility_npi'], $s);
-$s = str_replace("{ref_id}", $trow['id'], $s);
-$s = str_replace("{ref_pid}", $patient_id, $s);
-$s = str_replace("{pt_age}", $patient_age, $s);
+$s = str_replace("{fac_name}", text($facrow['name']), $s);
+$s = str_replace("{fac_facility_npi}", text($facrow['facility_npi']), $s);
+$s = str_replace("{ref_id}", text($trow['id']), $s);
+$s = str_replace("{ref_pid}", text($patient_id), $s);
+$s = str_replace("{pt_age}", text($patient_age), $s);
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'LBTref' ORDER BY group_id, seq");
@@ -183,20 +187,20 @@ foreach ($patdata as $key => $value) {
     if ($key == "sex") {
         $s = str_replace("{pt_$key}", generate_display_field(array('data_type'=>'1','list_id'=>'sex'), $value), $s);
     } else {
-        $s = str_replace("{pt_$key}", $value, $s);
+        $s = str_replace("{pt_$key}", text($value), $s);
     }
 }
 
 foreach ($frrow as $key => $value) {
-    $s = str_replace("{from_$key}", $value, $s);
+    $s = str_replace("{from_$key}", text($value), $s);
 }
 
 foreach ($torow as $key => $value) {
-    $s = str_replace("{to_$key}", $value, $s);
+    $s = str_replace("{to_$key}", text($value), $s);
 }
 
 foreach ($vrow as $key => $value) {
-    $s = str_replace("{v_$key}", $value, $s);
+    $s = str_replace("{v_$key}", text($value), $s);
 }
 
 foreach ($TEMPLATE_LABELS as $key => $value) {

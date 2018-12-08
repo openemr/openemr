@@ -19,7 +19,7 @@ if ($lookup != "") {
 }
 
 // Falling through for user dialog.
-$users = sqlStatementNoLog("SELECT id,fname,lname,npi,taxonomy FROM users WHERE " . "authorized=? AND active=?", array(1,1));
+$users = sqlStatementNoLog("SELECT id,fname,lname,npi,taxonomy FROM users WHERE authorized=? AND active=?", array(1,1));
 ?>
 <html>
 <head>
@@ -74,7 +74,7 @@ function lookup_codes($group, $term)
         $label = $v['code'] . " : " . $v['desc'] . ($v['desc1'] ? (" :: " . $v['desc1']) : "");
         if (preg_match($s, $label)) {
             $gotem[] = array(
-                'label' => htmlspecialchars($label, ENT_QUOTES),
+                'label' => attr($label),
                 'value' => $v['code']
             );
         }

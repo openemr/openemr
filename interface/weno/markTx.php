@@ -2,14 +2,22 @@
 /**
  * weno rx mark tx.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+
 require_once("../globals.php");
+
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    csrfNotVerified();
+}
+
 $date = date("Y-m-d");
 $script = filter_input(INPUT_GET, "rx");
 $boxState = filter_input(INPUT_GET, "state");
@@ -43,12 +51,12 @@ if ($e_script[0] === "RefillRx") { // Not sure I see reason this is needed Only 
 
 if ($_GET['arr']) {
     //First number is the pharmacy. The next number(s) are the records to be update with pharmacy info
-    
+
     $scriptUpdate = explode(",", $_GET['arr']);
 
     $i = count($scriptUpdate) - 1; //Since first number is always the pharmacy -1
     $ii = 1;
-     
+
     while ($i >= $ii) {
             $query = "UPDATE prescriptions SET pharmacy_id = ? WHERE id = ?" ;
             sqlStatement($query, array(trim($scriptUpdate[0]), $scriptUpdate[$ii]));

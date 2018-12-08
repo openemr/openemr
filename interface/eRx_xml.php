@@ -1,26 +1,17 @@
 <?php
-
 /**
  * interface/eRx_xml.php Functions for interacting with NewCrop communications.
  *
- * Copyright (C) 2011 ZMG LLC <sam@zhservices.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 3 of the License, or (at your option) any
- * later version.  This program is distributed in the hope that it will be
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
- * Public License for more details.  You should have received a copy of the GNU
- * General Public License along with this program.
- * If not, see <http://opensource.org/licenses/gpl-license.php>.
- *
- * @package    OpenEMR
- * @subpackage NewCrop
- * @author     Eldho Chacko <eldho@zhservices.com>
- * @author     Vinish K <vinish@zhservices.com>
- * @link       http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Eldho Chacko <eldho@zhservices.com>
+ * @author    Vinish K <vinish@zhservices.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2011 ZMG LLC <sam@zhservices.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 use OpenEMR\Services\FacilityService;
 
@@ -140,7 +131,7 @@ function user_role($doc, $r)
     global $msg;
     $userRole=sqlQuery("select * from users where username=?", array($_SESSION['authUser']));
     if (!$userRole['newcrop_user_role']) {
-        echo xl('Unauthorized access to ePrescription');
+        echo xlt('Unauthorized access to ePrescription');
         die;
     }
 
@@ -199,7 +190,7 @@ function account($doc, $r)
     global $msg, $facilityService;
     $erxSiteID= $facilityService->getPrimaryBusinessEntity();
     if (!$erxSiteID['federal_ein']) {
-        echo htmlspecialchars(xl("Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system."), ENT_NOQUOTES);
+        echo xlt("Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.");
         die;
     }
 
@@ -601,7 +592,7 @@ function Patient($doc, $r, $pid)
         $patient_data['lname']=trimData($patient_data['lname'], 35);
         //$msg = validation(xl('Patient Last name'),$patient_data['lname'],$msg);
     if ($patient_data['lname']=='') {
-        $dem_check.=htmlspecialchars(xl("Patient Last name is missing"), ENT_NOQUOTES)."<br>";
+        $dem_check.=xlt("Patient Last name is missing")."<br>";
     }
 
         $last = $doc->createElement("last");
@@ -613,7 +604,7 @@ function Patient($doc, $r, $pid)
         $patient_data['fname']=trimData($patient_data['fname'], 35);
         //$msg = validation(xl('Patient First name'),$patient_data['fname'],$msg);
     if ($patient_data['fname']=='') {
-        $dem_check.=htmlspecialchars(xl("Patient First name is missing"), ENT_NOQUOTES)."<br>";
+        $dem_check.=xlt("Patient First name is missing")."<br>";
     }
 
         $first = $doc->createElement("first");
@@ -634,7 +625,7 @@ function Patient($doc, $r, $pid)
         $patient_data['street']=trimData($patient_data['street'], 35);
         $msg = validation(xl('Patient Address'), $patient_data['street'], $msg);
     if (trim($patient_data['street'])=='') {
-        $warning_msg .= "<br>".htmlspecialchars(xl("Patient Address is missing"), ENT_NOQUOTES);
+        $warning_msg .= "<br>".xlt("Patient Address is missing");
     }
 
         $address1 = $doc->createElement("address1");
@@ -644,7 +635,7 @@ function Patient($doc, $r, $pid)
         $PatientAddress->appendChild($address1);
         //$msg = validation(xl('Patient City'),$patient_data['city'],$msg);
     if ($patient_data['city']=='') {
-        $dem_check.=htmlspecialchars(xl("Patient City is missing"), ENT_NOQUOTES)."<br>";
+        $dem_check.=xlt("Patient City is missing")."<br>";
     }
 
         $city = $doc->createElement("city");
@@ -670,7 +661,7 @@ function Patient($doc, $r, $pid)
 
         //$msg = validation(xl('Patient Country'),$patient_data['country_code'],$msg);
     if (trim($patient_data['country_code'])=='' && $GLOBALS['erx_default_patient_country']=='') {
-        $dem_check.=htmlspecialchars(xl("Patient Country is missing. Also you have not set default Patient Country in Global Settings"), ENT_NOQUOTES)."<br>";
+        $dem_check.=xlt("Patient Country is missing. Also you have not set default Patient Country in Global Settings")."<br>";
     } elseif (trim($patient_data['country_code'])=='') {
         $patient_data['country_code'] = $GLOBALS['erx_default_patient_country'];
     }
@@ -695,7 +686,7 @@ function Patient($doc, $r, $pid)
     $b->appendChild($PatientContact);
     $PatientCharacteristics = $doc->createElement("PatientCharacteristics");
     if (trim($patient_data['date_of_birth'])=='' || $patient_data['date_of_birth']=='00000000') {
-        $warning_msg .= "<br>".htmlspecialchars(xl("Patient Date Of Birth is missing"), ENT_NOQUOTES);
+        $warning_msg .= "<br>".xlt("Patient Date Of Birth is missing");
     }
 
     if ($patient_data['date_of_birth'] && $patient_data['date_of_birth']!='00000000') {
@@ -707,7 +698,7 @@ function Patient($doc, $r, $pid)
     }
 
     if (trim($patient_data['sex'])=='') {
-        $warning_msg .= "<br>".htmlspecialchars(xl("Patient Gender is missing"), ENT_NOQUOTES);
+        $warning_msg .= "<br>".xlt("Patient Gender is missing");
     }
 
     if ($patient_data['sex']) {
@@ -798,7 +789,7 @@ function PatientMedication($doc, $r, $pid, $med_limit)
     }
 
     $res_med=sqlStatement("select * from lists where type='medication' and pid=? and title<>''
-	and erx_uploaded='0' $active order by enddate limit 0,$med_limit", array($pid));
+	and erx_uploaded='0' $active order by enddate limit 0," . escape_limit($med_limit), array($pid));
     $uploaded_med_arr="";
     while ($row_med=sqlFetchArray($res_med)) {
         $uploaded_med_arr[]=$row_med['id'];

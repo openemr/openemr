@@ -21,7 +21,7 @@
     font-size: 0.8em;
 }
 .sellistclass {
-    float: left;
+    float: $left;
 }
 .disabled_button {
     color: grey;
@@ -98,8 +98,8 @@ body.admin-layout input[type="button"] {
     height: 22px;
 }
 .oe-text-to-right{
-    text-align: right;
+    text-align: $right;
 }
 .oe-text-to-left{
-    text-align: left;
+    text-align: $left;
 }

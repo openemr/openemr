@@ -35,15 +35,15 @@ if ($isAuthorized !== true) {
 <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 <meta charset="utf-8" />
 <?php if ($isAuthorized !== true) {?>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-12-1/themes/base/jquery-ui.min.css" rel="stylesheet" type="text/css" />
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js" type="text/javascript"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/emodal-1-2-65/dist/eModal.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-12-1/jquery-ui.min.js"></script>
+ <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/css/bootstrap.min.css">
+ <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-themes/themes/base/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/emodal-1-2-65/dist/eModal.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui/jquery-ui.min.js"></script>
 
 <script type="text/javascript">
 $( document ).ready(function() {
@@ -946,13 +946,13 @@ textarea{
 <h3 class='formhide'><em><?php echo xlt('Claim Edit') ?> </em><button class="btn btn-xs btn-warning" onclick="myZoom()" ><?php echo xlt('Zoom'); ?></button></h3>
 <div class="navbar-fixed-top formhide" id='menu'>
 <?php if ($pid && $encounter) {?>
-    <button class="btn btn-xs btn-success" onclick="disposeSave('form')" title=<?php echo xlt("Save for printing with form") ?>><?php echo xlt('Pdf With Form'); ?></button>
-    <button class="btn btn-xs btn-success" onclick="disposeSave('noform')" title=<?php echo xlt("Save for printing to a pre printed sheet"); ?>><?php echo xlt('Pdf Without Form'); ?></button>
-    <button class="btn btn-xs btn-success" onclick="postClaim('batch_save')" title=<?php echo xlt("Save claim for batch processing"); ?>><?php echo xlt('Save Claim'); ?></button>
+    <button class="btn btn-xs btn-success" onclick="disposeSave('form')" title=<?php echo xla("Save for printing with form") ?>><?php echo xlt('Pdf With Form'); ?></button>
+    <button class="btn btn-xs btn-success" onclick="disposeSave('noform')" title=<?php echo xla("Save for printing to a pre printed sheet"); ?>><?php echo xlt('Pdf Without Form'); ?></button>
+    <button class="btn btn-xs btn-success" onclick="postClaim('batch_save')" title=<?php echo xla("Save claim for batch processing"); ?>><?php echo xlt('Save Claim'); ?></button>
     <?php } else {?>
     <button class="btn btn-xs btn-success" onclick="postClaim('payer_save')"><?php echo xlt('Save Payer'); ?></button>
     <?php } ?>
-    <button class="btn btn-xs btn-danger" onclick="resetClaim()" title=<?php echo xlt("Reset claim form to Fee Sheet Version"); ?>><?php echo xlt('Reset Version'); ?></button>
+    <button class="btn btn-xs btn-danger" onclick="resetClaim()" title=<?php echo xla("Reset claim form to Fee Sheet Version"); ?>><?php echo xlt('Reset Version'); ?></button>
     <button class="btn btn-info btn-xs" type="button" onclick="window.scrollTo(0, 0);$('#formhelp').toggle()"><?php echo xlt('Help'); ?></button>
     <button class="btn btn-xs btn-danger" onclick="cleanUp()"><?php echo xlt('Return'); ?></button>
 </div>

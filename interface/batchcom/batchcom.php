@@ -34,6 +34,10 @@ $sort_by_choices = array(xl('Zip Code')=>'patient_data.postal_code', xl('Last Na
 
 // process form
 if ($_POST['form_action']=='process') {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     //validation uses the functions in batchcom.inc.php
     //validate dates
     if (!check_date_format($_POST['app_s'])) {
@@ -184,6 +188,7 @@ if ($_POST['form_action']=='process') {
     }
     ?>
     <form name="select_form" method="post" action="">
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
         <div class="row">
             <div class="col-md-3 well form-group">
                 <label for="process_type"><?php echo xlt("Process") . ":"; ?></label>

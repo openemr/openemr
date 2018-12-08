@@ -106,6 +106,8 @@ class C_Prescription extends Controller
             $this->prescriptions[0]->set_patient_id($patient_id);
         }
 
+        $this->assign("GBL_CURRENCY_SYMBOL", $GLOBALS['gbl_currency_symbol']);
+
         // If quantity to dispense is not already set from a POST, set its
         // default value.
         if (! $this->get_template_vars('DISP_QUANTITY')) {
@@ -128,10 +130,13 @@ class C_Prescription extends Controller
             $this->assign("prescriptions", Prescription::prescriptions_factory($id));
         }
 
-                // flag to indicate the CAMOS form is regsitered and active
-                $this->assign("CAMOS_FORM", isRegistered("CAMOS"));
+        // flag to indicate the CAMOS form is regsitered and active
+        $this->assign("CAMOS_FORM", isRegistered("CAMOS"));
 
-                $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_list.html");
+        // Assign the CSRF_TOKEN_FORM
+        $this->assign("CSRF_TOKEN_FORM", collectCsrfToken());
+
+        $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_list.html");
     }
 
     function block_action($id, $sort = "")
@@ -187,12 +192,17 @@ class C_Prescription extends Controller
         if (empty($_POST['active'])) {
             $_POST['active'] = '-1';
         }
+        if (!empty($_POST['start_date'])) {
+            $_POST['start_date'] = DateToYYYYMMDD($_POST['start_date']);
+        }
 
         $this->prescriptions[0] = new Prescription($_POST['id']);
         parent::populate_object($this->prescriptions[0]);
         //echo $this->prescriptions[0]->toString(true);
         $this->prescriptions[0]->persist();
         $_POST['process'] = "";
+
+        $this->assign("GBL_CURRENCY_SYMBOL", $GLOBALS['gbl_currency_symbol']);
 
         // If the "Prescribe and Dispense" button was clicked, then
         // redisplay as in edit_action() but also replicate the fee and

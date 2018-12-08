@@ -23,7 +23,7 @@ body {
 .logout {
 	color: #000000;
 	text-decoration: none;
-	text-align: right;
+	text-align: $right;
 }
 
 .alert-custom {
@@ -110,7 +110,7 @@ body {
 
 /* styles taken out of templates/documents/general_list.html */
 #documents_list {
-	width: 29%;
+	width: 100%;
 	height: 95%;
 	overflow: auto;
 	float: left;
@@ -310,3 +310,7 @@ div.category-display {
 }
 @import "oe-bootstrap";
 @import "oe-common/all-common-import";
+
+@include if-rtl {
+	@include rtl_style;
+}

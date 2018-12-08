@@ -12,8 +12,8 @@
 */
 
 
- include_once("../interface/globals.php");
- include_once("../library/patient.inc");
+ require_once("../interface/globals.php");
+ require_once("../library/patient.inc");
 
  use OpenEMR\Core\Header;
 
@@ -130,7 +130,7 @@ function addInsurance($row, $seq)
  $insrow = array();
 foreach (array('primary','secondary','tertiary') as $value) {
     $insrow[] = sqlQuery("SELECT id FROM insurance_data WHERE " .
-    "pid = '$pid' AND type = '$value' ORDER BY date DESC LIMIT 1");
+    "pid = ? AND type = ? ORDER BY date DESC LIMIT 1", array($pid, $value));
 }
 
  $query = "SELECT " .
@@ -176,9 +176,9 @@ foreach (array('primary','secondary','tertiary') as $value) {
   // "LEFT OUTER JOIN insurance_data AS i1 ON i1.pid = p.pid AND i1.type = 'primary'   " .
   // "LEFT OUTER JOIN insurance_data AS i2 ON i2.pid = p.pid AND i2.type = 'secondary' " .
   // "LEFT OUTER JOIN insurance_data AS i3 ON i3.pid = p.pid AND i3.type = 'tertiary'  " .
-  "LEFT OUTER JOIN insurance_data AS i1 ON i1.id = '" . $insrow[0]['id'] . "' " .
-  "LEFT OUTER JOIN insurance_data AS i2 ON i2.id = '" . $insrow[1]['id'] . "' " .
-  "LEFT OUTER JOIN insurance_data AS i3 ON i3.id = '" . $insrow[2]['id'] . "' " .
+  "LEFT OUTER JOIN insurance_data AS i1 ON i1.id = ? " .
+  "LEFT OUTER JOIN insurance_data AS i2 ON i2.id = ? " .
+  "LEFT OUTER JOIN insurance_data AS i3 ON i3.id = ? " .
   //
   "LEFT OUTER JOIN insurance_companies AS c1 ON c1.id = i1.provider " .
   "LEFT OUTER JOIN insurance_companies AS c2 ON c2.id = i2.provider " .
@@ -186,9 +186,9 @@ foreach (array('primary','secondary','tertiary') as $value) {
   "LEFT OUTER JOIN addresses AS a1 ON a1.foreign_id = c1.id " .
   "LEFT OUTER JOIN addresses AS a2 ON a2.foreign_id = c2.id " .
   "LEFT OUTER JOIN addresses AS a3 ON a3.foreign_id = c3.id " .
-  "WHERE p.pid = '$pid' LIMIT 1";
+  "WHERE p.pid = ? LIMIT 1";
 
- $row = sqlFetchArray(sqlStatement($query));
+ $row = sqlFetchArray(sqlStatement($query, array($insrow[0]['id'], $insrow[1]['id'], $insrow[2]['id'], $pid)));
 
  $rowed = getEmployerData($pid);
 
@@ -246,8 +246,8 @@ foreach (array('primary','secondary','tertiary') as $value) {
  //
 if ($row['providerID']) {
     $query = "select id, fname, mname, lname from users where authorized = 1";
-    $query .= " AND id = " . $row['providerID'];
-    $prow = sqlFetchArray(sqlStatement($query));
+    $query .= " AND id = ?";
+    $prow = sqlFetchArray(sqlStatement($query, array($row['providerID'])));
     OpenTag("pcp");
     Add("id", $prow['id']);
     Add("lname", $prow['lname']);

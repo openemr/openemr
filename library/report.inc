@@ -114,8 +114,8 @@ $insurance_data_array = array(
 
 function getPatientReport($pid)
 {
-    $sql = "select * from patient_data where pid='$pid' order by date ASC";
-    $res = sqlStatement("$sql");
+    $sql = "select * from patient_data where pid=? order by date ASC";
+    $res = sqlStatement($sql, array($pid));
     while ($list = sqlFetchArray($res)) {
         while (list($key, $value) = each($list)) {
             if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date']) {
@@ -131,8 +131,8 @@ function getPatientReport($pid)
 
 function getHistoryReport($pid)
 {
-        $sql = "select * from history_data where pid='$pid' order by date ASC";
-        $res = sqlStatement("$sql");
+    $sql = "select * from history_data where pid=? order by date ASC";
+    $res = sqlStatement($sql, array($pid));
     while ($list = sqlFetchArray($res)) {
         while (list($key, $value) = each($list)) {
             if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date']) {
@@ -142,13 +142,13 @@ function getHistoryReport($pid)
         }
     }
 
-        return $ret;
+    return $ret;
 }
 
 function getInsuranceReport($pid, $type = "primary")
 {
-        $sql = "select * from insurance_data where pid='$pid' and type='$type' order by date ASC";
-        $res = sqlStatement("$sql");
+    $sql = "select * from insurance_data where pid=? and type=? order by date ASC";
+    $res = sqlStatement($sql, array($pid, $type));
     while ($list = sqlFetchArray($res)) {
         while (list($key, $value) = each($list)) {
             if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date']) {
@@ -158,13 +158,13 @@ function getInsuranceReport($pid, $type = "primary")
         }
     }
 
-        return $ret;
+    return $ret;
 }
 
 function getEmployerReport($pid)
 {
-        $sql = "select * from employer_data where pid='$pid' order by date ASC";
-        $res = sqlStatement("$sql");
+    $sql = "select * from employer_data where pid=? order by date ASC";
+    $res = sqlStatement($sql, array($pid));
     while ($list = sqlFetchArray($res)) {
         while (list($key, $value) = each($list)) {
             if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date']) {
@@ -174,13 +174,13 @@ function getEmployerReport($pid)
         }
     }
 
-        return $ret;
+    return $ret;
 }
 
-function getListsReport($pid)
+function getListsReport($id)
 {
-        $sql = "select * from lists where id='$id' order by date ASC";
-        $res = sqlStatement("$sql");
+    $sql = "select * from lists where id=? order by date ASC";
+    $res = sqlStatement($sql, array($id));
     while ($list = sqlFetchArray($res)) {
         while (list($key, $value) = each($list)) {
             if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date']) {
@@ -190,25 +190,25 @@ function getListsReport($pid)
         }
     }
 
-        return $ret;
+    return $ret;
 }
 
 function printListData($pid, $list_type, $list_activity = "%")
 {
-    $res = sqlStatement("select * from lists where pid='$pid' and type='$list_type' and activity like '$list_activity' order by date");
+    $res = sqlStatement("select * from lists where pid=? and type=? and activity like ? order by date", array($pid, $list_type, $list_activity));
     while ($result = sqlFetchArray($res)) {
-        print "<span class=bold>" . $result{"title"} . ":</span><span class=text> " . $result{"comments"} . "</span><br>\n";
+        print "<span class=bold>" . text($result{"title"}) . ":</span><span class=text> " . text($result{"comments"}) . "</span><br>\n";
     }
 }
 
 function printPatientNotes($pid)
 {
   // exclude ALL deleted notes
-    $res = sqlStatement("select * from pnotes where pid = '$pid' and deleted != 1 and activity = 1 order by date");
+    $res = sqlStatement("select * from pnotes where pid = ? and deleted != 1 and activity = 1 order by date", array($pid));
     while ($result = sqlFetchArray($res)) {
-        print "<span class=bold>" . oeFormatSDFT(strtotime($result{"date"})) .
+        print "<span class=bold>" . text(oeFormatSDFT(strtotime($result{"date"}))) .
         ":</span><span class=text> " .
-        stripslashes(oeFormatPatientNote($result['body'])) . "</span><br>\n";
+            nl2br(text(oeFormatPatientNote($result['body']))) . "</span><br>\n";
     }
 }
 
@@ -272,26 +272,18 @@ function printPatientTransactions($pid)
 
 function printPatientBilling($pid)
 {
-    $res = sqlStatement("select * from billing where pid='$pid' order by date");
+    $res = sqlStatement("select * from billing where pid=? order by date", array($pid));
     while ($result = sqlFetchArray($res)) {
-        echo "<span class=bold>" . oeFormatSDFT(strtotime($result{"date"})) . " : </span>";
-        echo "<span class=text>(".$result{"code_type"}.") ";
-        echo $result['code_type'] == 'COPAY' ? oeFormatMoney($result['code']) : $result['code'];
-        echo " - ". wordwrap(htmlspecialchars($result['code_text']), 70, "\n", true)."</span>";
+        echo "<span class=bold>" . text(oeFormatSDFT(strtotime($result{"date"}))) . " : </span>";
+        echo "<span class=text>(" . text($result{"code_type"}) . ") ";
+        echo $result['code_type'] == 'COPAY' ? text(oeFormatMoney($result['code'])) : text($result['code']);
+        echo " - ". wordwrap(text($result['code_text']), 70, "\n", true)."</span>";
         echo "<br>\n";
     }
 }
 
 function getPatientBillingEncounter($pid, $encounter)
 {
-  /*******************************************************************
-	$sql = "SELECT billing.*, u.id, u.fname, u.mname, u.lname, " .
-    "CONCAT(u.fname,' ', u.lname) AS provider_name, u.federaltaxid " .
-    "FROM billing LEFT JOIN users AS u ON u.id = billing.provider_id " .
-    "WHERE pid='" . add_escape_custom($pid) . "' AND " .
-    "encounter = '" . add_escape_custom($encounter) .
-    "' AND activity='1' ORDER BY date";
-  *******************************************************************/
     $erow = sqlQuery("SELECT provider_id FROM form_encounter WHERE " .
     "pid = ? AND encounter = ? " .
     "ORDER BY id DESC LIMIT 1", array($pid, $encounter));
@@ -301,12 +293,12 @@ function getPatientBillingEncounter($pid, $encounter)
     "FROM billing AS b " .
     "LEFT JOIN users AS u ON " .
     "( b.provider_id != 0 AND u.id = b.provider_id ) OR " .
-    "( b.provider_id  = 0 AND u.id = $inv_provider ) " .
-    "WHERE pid='" . add_escape_custom($pid) . "' AND " .
-    "encounter = '" . add_escape_custom($encounter) .
-    "' AND activity = '1' ORDER BY date";
-  /******************************************************************/
-    $res = sqlStatement($sql);
+    "( b.provider_id  = 0 AND u.id = ? ) " .
+    "WHERE pid= ? AND " .
+    "encounter = ? " .
+    "AND activity = '1' ORDER BY date";
+
+    $res = sqlStatement($sql, array($inv_provider, $pid, $encounter));
     $billings = array();
     while ($result = sqlFetchArray($res)) {
         $billings[] = $result;
@@ -318,33 +310,33 @@ function getPatientBillingEncounter($pid, $encounter)
 function printPatientForms($pid, $cols)
 {
     //this function takes a $pid
-    $inclookupres = sqlStatement("select distinct formdir from forms where pid='$pid' AND deleted=0");
+    $inclookupres = sqlStatement("select distinct formdir from forms where pid=? AND deleted=0", array($pid));
     while ($result = sqlFetchArray($inclookupres)) {
         include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
     }
 
-    $res = sqlStatement("select * from forms where pid='$pid' AND deleted=0 order by date");
+    $res = sqlStatement("select * from forms where pid=? AND deleted=0 order by date", array($pid));
     while ($result = sqlFetchArray($res)) {
         if ($result{"form_name"} == "New Patient Encounter") {
             echo "<div class='text encounter'>\n";
-            echo "<h1>" . $result["form_name"] . "</h1>";
+            echo "<h1>" . text($result["form_name"]) . "</h1>";
 
             // display the provider info
             $tmp = sqlQuery("SELECT u.title, u.fname, u.mname, u.lname " .
                                     "FROM forms AS f, users AS u WHERE " .
-                                    "f.pid = '$pid' AND f.encounter = ".$result['encounter']." AND " .
+                                    "f.pid = ? AND f.encounter = ? AND " .
                                     "f.formdir = 'newpatient' AND u.username = f.user " .
                                     " AND f.deleted=0 ". //--JRM--
-                                    "ORDER BY f.id LIMIT 1");
-            echo " ".xl('Provider').": ".$tmp['title']." ".
-                $tmp['fname']." ".$tmp['mname']." ".$tmp['lname'];
+                                    "ORDER BY f.id LIMIT 1", array($pid, $result['encounter']));
+            echo " ".xlt('Provider') . ": " . text($tmp['title']) . " " .
+                text($tmp['fname']) . " " . text($tmp['mname']) . " " . text($tmp['lname']);
             echo "<br/>";
         } else {
             echo "<div class='text encounter_form'>";
-            echo "<h1>" . $result["form_name"] . "</h1>";
+            echo "<h1>" . text($result["form_name"]) . "</h1>";
         }
 
-        echo "(" . oeFormatSDFT(strtotime($result["date"])) . ") ";
+        echo "(" . text(oeFormatSDFT(strtotime($result["date"]))) . ") ";
 
         if (acl_check('acct', 'rep') || acl_check('acct', 'eob') || acl_check('acct', 'bill')) {
             if ($result{"form_name"} == "New Patient Encounter") {
@@ -362,8 +354,8 @@ function printPatientForms($pid, $cols)
                     array($pid, $result['encounter'])
                 );
                 while ($brow=sqlFetchArray($bres)) {
-                    echo "<span class='bold'>&nbsp;".xl('Procedure').": </span><span class='text'>" .
-                        $brow['code'] . " " . $brow['code_text'] . "</span><br>\n";
+                    echo "<span class='bold'>&nbsp;" . xlt('Procedure') . ": </span><span class='text'>" .
+                        text($brow['code']) . " " . text($brow['code_text']) . "</span><br>\n";
                 }
             }
         }
@@ -495,7 +487,7 @@ function printRecData($data_array, $recres, $N)
             $count = 0;
         }
 
-        print "<td valign=top><span class=bold>$aval</span><br><span class=text>";
+        print "<td valign=top><span class=bold>" . text($aval) . "</span><br><span class=text>";
         printData($recres, $akey, "<br>", "Y-m-d");
         print "</span></td>\n";
         $count++;
@@ -511,7 +503,7 @@ function printData($retar, $key, $sep, $date_format)
         $length = sizeof($retar{$key});
         for ($iter = $length; $iter>=1; $iter--) {
             if ($retar{$key}[$iter]{"value"} != "0000-00-00 00:00:00") {
-                print $retar{$key}[$iter]{"value"} . " (" . oeFormatSDFT(strtotime($retar{$key}[$iter]{"date"})) . ")$sep";
+                print text($retar{$key}[$iter]{"value"}) . " (" . text(oeFormatSDFT(strtotime($retar{$key}[$iter]{"date"}))) . ")$sep";
             }
         }
     }

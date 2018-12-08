@@ -17,6 +17,11 @@ require_once("../../interface/globals.php");
 require_once("$fileroot/custom/code_types.inc.php");
 require_once("$fileroot/interface/drugs/drugs.inc.php");
 
+//verify csrf
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    csrfNotVerified();
+}
+
 function write_code_info($codetype, $code, $selector, $pricelevel)
 {
     global $code_types;

@@ -78,11 +78,16 @@ function userSelect() {
     </div>
 
 <form method='post' action='chart_tracker.php' class='form-horizontal' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <?php
 // This is the place for status messages.
 
 if ($form_newloc || $form_newuser) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     $tracker = new ChartTracker();
     $tracker->setPid($form_curpid);
     $tracker->setWhen(new \DateTime(date('Y-m-d H:i:s')));
@@ -96,7 +101,11 @@ if ($form_newloc || $form_newuser) {
 $row = array();
 
 if ($form_newid) {
-  // Find out where the chart is now.
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
+    // Find out where the chart is now.
     $query = "SELECT pd.pid, pd.pubpid, pd.fname, pd.mname, pd.lname, " .
     "pd.ss, pd.DOB, ct.ct_userid, ct.ct_location, ct.ct_when " .
     "FROM patient_data AS pd " .

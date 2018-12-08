@@ -5,24 +5,12 @@
  * This class contains all the interaction with the database
  * that are used by the holidays/clinic closed events.
  *
- * Copyright (C) 2016 Sharon Cohen <sharonco@matrix.co.il>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  sharonco <sharonco@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    sharonco <sharonco@matrix.co.il>
+ * @copyright Copyright (c) 2016 Sharon Cohen <sharonco@matrix.co.il>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 class Holidays_Storage
 {
@@ -88,7 +76,7 @@ class Holidays_Storage
                 "a:6:{s:17:\"event_repeat_freq\";s:1:\"0\";s:22:\"event_repeat_freq_type\";s:1:\"0\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";s:6:\"exdate\";s:0:\"\";}",
                 1,//allday
                 1,//status
-                $_SESSION['pc_facility'],//facility
+                isset($_SESSION['pc_facility']) ? $_SESSION['pc_facility'] : 0,//facility
                 2 //SHARING_PUBLIC
             );
 

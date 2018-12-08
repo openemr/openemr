@@ -10,7 +10,7 @@
  * @author    Rishabh Software
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016 Rishabh Software
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -21,6 +21,12 @@ require_once "$srcdir/appointments.inc.php";
 
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 $facilityService = new FacilityService();
 
@@ -43,15 +49,15 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                 var toDate = $("#form_to_date").val();
 
                 if (fromDate === '') {
-                    alert("<?php echo xls('Please select From date'); ?>");
+                    alert(<?php echo xlj('Please select From date'); ?>);
                     return false;
                 }
                 if (toDate === '') {
-                    alert("<?php echo xls('Please select To date'); ?>");
+                    alert(<?php echo xlj('Please select To date'); ?>);
                     return false;
                 }
                 if (Date.parse(fromDate) > Date.parse(toDate)) {
-                    alert("<?php echo xls('From date should be less than To date'); ?>");
+                    alert(<?php echo xlj('From date should be less than To date'); ?>);
                     return false;
                 }
                 else {
@@ -79,6 +85,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
         <span class='title'><?php echo xlt('Daily Summary Report'); ?></span>
         <!-- start of search parameters -->
         <form method='post' name='report_form' id='report_form' action='' onsubmit='return top.restoreSession()'>
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
             <div id="report_parameters">
                 <table class="tableonly">
                     <tr>

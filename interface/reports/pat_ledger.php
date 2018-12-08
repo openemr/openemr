@@ -13,6 +13,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/patient.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
@@ -20,7 +21,14 @@ require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['srcdir'].'/appointments.inc.php');
 
 use OpenEMR\Core\Header;
+use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Services\FacilityService;
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 $facilityService = new FacilityService();
 
@@ -139,8 +147,8 @@ function PrintEncHeader($dt, $rsn, $dr)
         $rsn = substr($rsn, 0, 50).'...';
     }
 
-    echo "<td colspan='4'><span class='bold'>".xlt('Encounter Dt / Rsn'). ": </span><span class='detail'>".text(substr($dt, 0, 10))." / ".text($rsn)."</span></td>";
-    echo "<td colspan='5'><span class='bold'>" . xlt('Provider'). ": </span><span class='detail'>".text(User_Id_Look($dr))."</span></td>";
+    echo "<td colspan='4'><span class='bold'>" . xlt('Encounter Dt / Rsn') . ": </span><span class='detail'>".text(substr($dt, 0, 10))." / ".text($rsn)."</span></td>";
+    echo "<td colspan='5'><span class='bold'>" . xlt('Provider') . ": </span><span class='detail'>".text(User_Id_Look($dr))."</span></td>";
     echo "</tr>\n";
     $orow++;
 }
@@ -371,7 +379,7 @@ if ($_REQUEST['form_csvexport']) {
         function checkSubmit() {
             var pat = document.forms[0].elements['form_patient'].value;
             if(!pat || pat == 0) {
-                alert('<?php echo xls('A Patient Must Be Selected to Generate This Report') ?>');
+                alert(<?php echo xlj('A Patient Must Be Selected to Generate This Report') ?>);
                 return false;
             }
             document.forms[0].elements['form_refresh'].value = true;
@@ -427,7 +435,6 @@ if ($_REQUEST['form_csvexport']) {
             }
         }
     </style>
-
     <script language="JavaScript">
         $(document).ready(function() {
             var win = top.printLogSetup ? top : opener.top;
@@ -442,127 +449,188 @@ if ($_REQUEST['form_csvexport']) {
             });
         });
     </script>
+    <?php
+    //to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will
+    //become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an
+    //argument, containing one or more elements, the name of the current file is the first element, if there are linked
+    // files they should be listed thereafter, please add _xpd suffix to the file name
+
+    if ($type_form !== '0') {
+        $arr_files_php = array("patient_ledger_patient_xpd", "stats_full_patient_xpd", "external_data_patient_xpd");
+        $current_state = collectAndOrganizeExpandSetting($arr_files_php);
+        require_once("$srcdir/expand_contract_inc.php");
+    }
+    ?>
+    <script>
+    <?php
+    require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal
+    require_once("$include_root/expand_contract_js.php");//jQuery to provide expand/contract icon toggle if form is expandable
+    ?>
+    </script>
 </head>
 <body class="body_top">
-<?php if ($type_form == '0') { ?>
-<span class='title' id='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Patient Ledger by Date'); ?></span>
-<?php } else { ?>
-<span class='title' id='title'><?php echo xlt('Patient Ledger'); ?></span>
-<?php } ?>
-<form method='post' action='pat_ledger.php?form=<?php echo attr($type_form);?>&patient_id=<?php echo attr($form_pid);?>' id='theform' onsubmit='return top.restoreSession()'>
-<div id="report_parameters">
-<input type='hidden' name='form_refresh' id='form_refresh' value=''/>
-<input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
-<table>
- <tr>
-    <?php if ($type_form == '1') { ?>
-    <td width='35%'>
-    <?php } else { ?>
-  <td width='70%'>
-    <?php } ?>
-    <div style='float:left'>
-    <table class='text'>
-        <tr>
+    <div class="<?php echo $container;?> expandable">
         <?php if ($type_form == '0') { ?>
-            <td class='control-label'>
-                <?php echo xlt('Facility'); ?>:
-            </td>
-            <td>
-            <?php dropdown_facility($form_facility, 'form_facility', true); ?>
-            </td>
-      <td class='control-label'><?php echo xlt('Provider'); ?>:</td>
-      <td><?php
-        $query = "SELECT id, lname, fname FROM users WHERE ".
-                "authorized=1 AND active!=0 ORDER BY lname, fname";
-        $ures = sqlStatement($query);
-        echo "   <select name='form_provider' class='form-control'>\n";
-        echo "    <option value=''>-- " . xlt('All') . " --\n";
-        while ($urow = sqlFetchArray($ures)) {
-            $provid = $urow['id'];
-            echo "    <option value='" . attr($provid) ."'";
-            if ($provid == $_REQUEST['form_provider']) {
-                echo " selected";
-            }
 
-            echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
-        }
-
-        echo "   </select>\n";
-        ?></td>
-        </tr><tr>
-        <?php } ?>
-      <td class='control-label'>
-        <?php echo xlt('From'); ?>:&nbsp;&nbsp;&nbsp;&nbsp;
-      </td>
-      <td>
-        <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
-      </td>
-      <td class='control-label' class='control-label'>
-        <?php echo xlt('To'); ?>:
-      </td>
-      <td>
-        <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
-      </td>
-        <?php if ($type_form == '0') { ?>
-      <td><span class='control-label'><?php echo xlt('Patient'); ?>:&nbsp;&nbsp;</span></td>
-      <td>
-        <input type='text' size='20' name='form_patient' class='form-control' style='width:100%;cursor:pointer;cursor:hand' id='form_patient' value='<?php echo ($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
+        <?php $header_title = xl('Report') . " - " . xl('Patient Ledger by Date') ;?>
+        <div class="row">
+            <div class="col-sm-12">
+               <h2><?php echo text($header_title); ?></h2>
+            </div>
+        </div>
         <?php } else { ?>
-        <input type='hidden' name='form_patient' value='<?php echo attr($form_patient); ?>' />
+
+        <?php $header_title = xl('Patient Ledger of');?>
+        <div class="row">
+            <div class="col-sm-12">
+                <?php
+                $expandable = 1; // to include expandable icon in title
+                require_once("$include_root/patient_file/summary/dashboard_header.php")
+                ?>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <?php
+                $list_id = "ledger"; // to indicate nav item is active, count and give correct id
+                // Collect the patient menu then build it
+                $menuPatient = new PatientMenuRole();
+                $menuPatient->displayHorizNavBarMenu();
+                ?>
+            </div>
+        </div>
+
         <?php } ?>
-        <input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
-        <input type='hidden' name='form_dob' value='<?php echo attr($form_dob); ?>' />
 
-      </td>
-        </tr>
-    </table>
-    </div>
-  </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
-        <tr>
-            <td>
-                <div class="text-center">
-          <div class="btn-group" role="group">
-                      <a href='#' class='btn btn-default btn-save' onclick="checkSubmit();" >
-                        <?php echo xlt('Submit'); ?>
-            </a>
-                    <?php if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) { ?>
-              <a href='#' class='btn btn-default btn-print' id='printbutton'>
-                <?php echo xlt('Print Ledger'); ?>
-              </a>
-                <?php if ($type_form == '1') { ?>
-                <a href="../patient_file/summary/demographics.php" class="btn btn-default btn-transmit" onclick="top.restoreSession()">
-                    <?php echo xlt('Back To Patient');?>
-                </a>
-                <?php } ?>
-                    <?php } ?>
-          </div>
-                </div>
-            </td>
-        </tr>
-    </table>
-  </td>
- </tr>
-</table>
-</div> <!-- end of parameters -->
+        <div class="row">
+            <div class="col-sm-12">
+                <form method='post' action='pat_ledger.php?form=<?php echo attr_url($type_form); ?>&patient_id=<?php echo attr_url($form_pid); ?>' id='theform' onsubmit='return top.restoreSession()'>
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                <div id="report_parameters">
+                    <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
+                    <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
+                    <table>
+                        <tr>
+                            <?php
+                            if ($type_form == '1') { ?>
+                            <td width='35%'>
+                            <?php
+                            } else { ?>
+                            <td width='70%'>
+                            <?php
+                            } ?>
+                                <div style='float:left'>
+                                    <table class='text'>
+                                        <tr>
+                                            <?php
+                                            if ($type_form == '0') { ?>
+                                            <td class='control-label'>
+                                                <?php echo xlt('Facility'); ?>:
+                                            </td>
+                                            <td>
+                                            <?php dropdown_facility($form_facility, 'form_facility', true); ?>
+                                            </td>
+                                            <td class='control-label'><?php echo xlt('Provider'); ?>:</td>
+                                            <td>
+                                            <?php
+                                            $query = "SELECT id, lname, fname FROM users WHERE ".
+                                            "authorized=1 AND active!=0 ORDER BY lname, fname";
+                                            $ures = sqlStatement($query);
+                                            echo "   <select name='form_provider' class='form-control'>\n";
+                                            echo "    <option value=''>-- " . xlt('All') . " --\n";
+                                            while ($urow = sqlFetchArray($ures)) {
+                                                $provid = $urow['id'];
+                                                echo "    <option value='" . attr($provid) ."'";
+                                                if ($provid == $_REQUEST['form_provider']) {
+                                                    echo " selected";
+                                                }
+                                                echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
+                                            }
+                                            echo "   </select>\n";
+                                            ?>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <?php
+                                            } ?>
+                                            <td class='control-label'>
+                                                <?php echo xlt('From'); ?>:&nbsp;&nbsp;&nbsp;&nbsp;
+                                            </td>
+                                            <td>
+                                                <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
+                                            </td>
+                                            <td class='control-label' class='control-label'>
+                                                <?php echo xlt('To'); ?>:
+                                            </td>
+                                            <td>
+                                                <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
+                                            </td>
+                                            <?php
+                                            if ($type_form == '0') { ?>
+                                            <td><span class='control-label'><?php echo xlt('Patient'); ?>:&nbsp;&nbsp;</span></td>
+                                            <td>
+                                                <input type='text' size='20' name='form_patient' class='form-control' style='width:100%;cursor:pointer;cursor:hand' id='form_patient' value='<?php echo ($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
+                                            <?php
+                                            } else { ?>
+                                                <input type='hidden' name='form_patient' value='<?php echo attr($form_patient); ?>' />
+                                            <?php
+                                            } ?>
+                                                <input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
+                                                <input type='hidden' name='form_dob' value='<?php echo attr($form_dob); ?>' />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </td>
+                            <td align='left' valign='middle' height="100%">
+                                <table style='border-left:1px solid; width:100%; height:100%' >
+                                    <tr>
+                                        <td>
+                                            <div class="text-center">
+                                                <div class="btn-group" role="group">
+                                                    <a href='#' class='btn btn-default btn-save' onclick="checkSubmit();" >
+                                                    <?php echo xlt('Submit'); ?>
+                                                    </a>
+                                                    <?php
+                                                    if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) { ?>
+                                                        <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                                                        <?php echo xlt('Print Ledger'); ?>
+                                                        </a>
+                                                        <?php
+                                                        if ($type_form == '1') { ?>
+                                                            <a href="../patient_file/summary/demographics.php" class="btn btn-default btn-transmit" onclick="top.restoreSession()">
+                                                            <?php echo xlt('Back To Patient');?>
+                                                            </a>
+                                                        <?php
+                                                        } ?>
+                                                    <?php
+                                                    } ?>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div> <!-- end of parameters -->
 
-<?php
+                <?php
 } // end not export
-  $from_date = $form_from_date . ' 00:00:00';
-  $to_date = $form_to_date . ' 23:59:59';
+$from_date = $form_from_date . ' 00:00:00';
+$to_date = $form_to_date . ' 23:59:59';
 if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     $rows = array();
     $sqlBindArray = array();
     $query = "select b.code_type, b.code, b.code_text, b.pid, b.provider_id, ".
-        "b.billed, b.payer_id, b.units, b.fee, b.bill_date, b.id, ".
-        "ins.name, ".
-        "fe.encounter, fe.date, fe.reason, fe.provider_id ".
-        "FROM form_encounter AS fe ".
-        "LEFT JOIN billing AS b ON b.pid=fe.pid AND b.encounter=fe.encounter ".
-        "LEFT JOIN insurance_companies AS ins ON b.payer_id = ins.id ".
-        "LEFT OUTER JOIN code_types AS c ON c.ct_key = b.code_type ".
-        "WHERE fe.date >= ? AND fe.date <= ? AND fe.pid = ? ";
+    "b.billed, b.payer_id, b.units, b.fee, b.bill_date, b.id, ".
+    "ins.name, ".
+    "fe.encounter, fe.date, fe.reason, fe.provider_id ".
+    "FROM form_encounter AS fe ".
+    "LEFT JOIN billing AS b ON b.pid=fe.pid AND b.encounter=fe.encounter ".
+    "LEFT JOIN insurance_companies AS ins ON b.payer_id = ins.id ".
+    "LEFT OUTER JOIN code_types AS c ON c.ct_key = b.code_type ".
+    "WHERE fe.date >= ? AND fe.date <= ? AND fe.pid = ? ";
     array_push($sqlBindArray, $from_date, $to_date, $form_pid);
     if ($form_facility) {
         $query .= "AND fe.facility_id = ? ";
@@ -596,91 +664,103 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         $patient = sqlQuery("SELECT * from patient_data WHERE pid=?", array($form_patient));
         $pat_dob = $patient['DOB'];
         $pat_name = $patient['fname']. ' ' . $patient['lname'];
-?>
-<div id="report_header">
-<table width="98%"  border="0" cellspacing="0" cellpadding="0">
-  <tr>
-    <td class="title" ><?php echo text($facility{'name'}); ?></td>
-  </tr>
-  <tr>
-    <td class="title" ><?php echo text($facility{'street'}); ?></td>
-  </tr>
-  <tr>
-    <td class="title" ><?php echo text($facility{'city'}).", ".text($facility{'state'})." ".text($facility{'postal_code'}); ?></td>
-  </tr>
-  <tr>
-    <td class="title" ><?php echo xlt('Phone').': ' .text($facility{'phone'}); ?></td>
-  </tr>
-  <tr>
-    <td class="title" ><?php echo xlt('Tax Id').': ' .text($facility{'federal_ein'}); ?></td>
-  </tr>
-  <tr><td>&nbsp;</td></tr>
-  <tr>
-    <td class="title" ><?php echo xlt('Patient Ledger'); ?></td>
-  </tr>
-    <tr>
-        <?php
-            $title = xl('All Providers');
-        if ($form_provider) {
-            $title = xl('For Provider') . ': '.User_Id_Look($form_provider);
-        }
-        ?>
-    <td class="title" ><?php echo text($title); ?></td>
-    </tr>
-    <tr>
-        <?php
-            $title = xl('For Dates') . ': ' . oeFormatShortDate($form_from_date) . ' - ' . oeFormatShortDate($form_to_date);
-        ?>
-    <td class="title" ><?php echo text($title); ?></td>
-    </tr>
-</table>
-<br/>
-<table width="100%" border="0" cellspacing="0" cellpadding="0">
-  <tr>
-    <td class='bold' ><?php echo xlt('Date')?>:
-        <?php echo text(date('Y-m-d')); ?></td>
-    <td class='bold' ><?php echo xlt('Patient')?>:
-        <?php if ($type_form == '1') { ?>
-            <?php echo text($pat_name); ?></td>
-        <?php } else { ?>
-            <?php echo text($form_patient); ?></td>
-        <?php } ?>
-    <td class='bold' ><?php echo xlt('DOB')?>:
-        <?php if ($type_form == '1') { ?>
-            <?php echo text($pat_dob);?></td>
-        <?php } else { ?>
-            <?php echo text($form_dob); ?></td>
-        <?php } ?>
-    <td class='bold' > <?php echo xlt('ID')?>:
-        <?php echo text($form_pid);?></td>
-  </tr>
-</table>
-</div>
-<div id="report_results">
-<table >
- <tr>
-    <td class='bold' ><?php echo xlt('Code'); ?></td>
-    <td colspan="2" class='bold' ><?php echo xlt('Description'); ?></td>
-    <td class='bold' ><?php echo xlt('Billed Date'); ?> / <?php echo xlt('Payor'); ?></td>
-    <td class='bold' ><?php echo xlt('Type'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <?php echo xlt('Units'); ?></td>
-    <td class='bold' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Charge'); ?></td>
-    <td align='right' class='bold' >&nbsp;&nbsp;<?php echo xlt('Payment'); ?></td>
-    <td align='right' class='bold' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Adjustment'); ?></td>
-    <td align='right' class='bold' >&nbsp;&nbsp;&nbsp;<?php echo xlt('Balance'); ?></td>
- </tr>
- <tr>
-    <td>&nbsp;&nbsp;&nbsp;</td>
-    <td colspan="2" >&nbsp;&nbsp;&nbsp;</td>
-    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    &nbsp;&nbsp;&nbsp;</td>
-    <td class='bold' >&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Appl'); ?></td>
-    <td align='right' class='bold' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Tot'); ?></td>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
- </tr>
-    <?php
+    ?>
+        <div id="report_header">
+            <table width="98%"  border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td class="title" ><?php echo text($facility{'name'}); ?></td>
+                </tr>
+                <tr>
+                    <td class="title" ><?php echo text($facility{'street'}); ?></td>
+                </tr>
+                <tr>
+                    <td class="title" ><?php echo text($facility{'city'}).", ".text($facility{'state'})." ".text($facility{'postal_code'}); ?></td>
+                </tr>
+                <tr>
+                    <td class="title" ><?php echo xlt('Phone').': ' .text($facility{'phone'}); ?></td>
+                </tr>
+                <tr>
+                    <td class="title" ><?php echo xlt('Tax Id').': ' .text($facility{'federal_ein'}); ?></td>
+                </tr>
+                <tr><td>&nbsp;</td></tr>
+                <tr>
+                    <td class="title" ><?php echo xlt('Patient Ledger'); ?></td>
+                </tr>
+                <tr>
+                <?php
+                $title = xl('All Providers');
+                if ($form_provider) {
+                    $title = xl('For Provider') . ': '.User_Id_Look($form_provider);
+                }
+                ?>
+                    <td class="title" ><?php echo text($title); ?></td>
+                                </tr>
+                                <tr>
+                                <?php
+                                $title = xl('For Dates') . ': ' . oeFormatShortDate($form_from_date) . ' - ' . oeFormatShortDate($form_to_date);
+                                ?>
+                    <td class="title" ><?php echo text($title); ?></td>
+                                </tr>
+                            </table>
+                            <br/>
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                    <td class='bold' ><?php echo xlt('Date')?>:
+                        <?php echo text(date('Y-m-d')); ?>
+                    </td>
+                    <td class='bold' ><?php echo xlt('Patient')?>:
+                    <?php
+                    if ($type_form == '1') { ?>
+                                        <?php echo text($pat_name); ?>
+                                    </td>
+                                    <?php
+                    } else { ?>
+                                        <?php echo text($form_patient); ?>
+                                    </td>
+                                    <?php
+                    } ?>
+                                    <td class='bold' ><?php echo xlt('DOB')?>:
+                                    <?php
+                                    if ($type_form == '1') { ?>
+                                        <?php echo text($pat_dob);?>
+                                    </td>
+                                    <?php
+                                    } else { ?>
+                                        <?php echo text($form_dob); ?>
+                                    </td>
+                                    <?php
+                                    } ?>
+                                    <td class='bold'> <?php echo xlt('ID')?>:
+                                        <?php echo text($form_pid);?>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="report_results">
+                        <table>
+                            <tr>
+                                <td class='bold' ><?php echo xlt('Code'); ?></td>
+                                <td colspan="2" class='bold' ><?php echo xlt('Description'); ?></td>
+                                <td class='bold' ><?php echo xlt('Billed Date'); ?> / <?php echo xlt('Payor'); ?></td>
+                                <td class='bold' ><?php echo xlt('Type'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <?php echo xlt('Units'); ?></td>
+                                <td class='bold' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Charge'); ?></td>
+                                <td align='right' class='bold' >&nbsp;&nbsp;<?php echo xlt('Payment'); ?></td>
+                                <td align='right' class='bold' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Adjustment'); ?></td>
+                                <td align='right' class='bold' >&nbsp;&nbsp;&nbsp;<?php echo xlt('Balance'); ?></td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;&nbsp;&nbsp;</td>
+                                <td colspan="2" >&nbsp;&nbsp;&nbsp;</td>
+                                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                &nbsp;&nbsp;&nbsp;</td>
+                                <td class='bold' >&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Appl'); ?></td>
+                                <td align='right' class='bold' >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Tot'); ?></td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                    <?php
     }
 
     $orow = 0;
@@ -762,8 +842,8 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             }
         }
 
-            $prev_encounter_id = $erow{'encounter'};
-            $prev_row = $erow;
+        $prev_encounter_id = $erow{'encounter'};
+        $prev_row = $erow;
     }
 
     if ($prev_encounter_id != -1) {
@@ -785,8 +865,8 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         }
     }
 
-    // This is the end of the encounter/charge loop -
-        $uac = GetAllUnapplied($form_pid, $from_date, $to_date);
+// This is the end of the encounter/charge loop -
+    $uac = GetAllUnapplied($form_pid, $from_date, $to_date);
     if (count($uac) > 0) {
         if ($orow) {
             $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
@@ -806,29 +886,30 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_adj)) ."</td>\n";
         echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_bal)) . "</td>\n";
         echo " </tr>\n";
-        ?>
-        </table>
-        <tr><td>&nbsp;</td></tr><br><br>
-        <?php if ($GLOBALS['print_next_appointment_on_ledger'] == 1) {
-            $next_day = mktime(0, 0, 0, date('m'), date('d')+1, date('Y'));
-            # add one day to date so it will not get todays appointment
-            $current_date2 = date('Y-m-d', $next_day);
-            $events = fetchNextXAppts($current_date2, $form_pid);
-            $next_appoint_date = oeFormatShortDate($events[0]['pc_eventDate']);
-            $next_appoint_time = substr($events[0]['pc_startTime'], 0, 5);
-            if (strlen($events[0]['umname']) != 0) {
-                $next_appoint_provider = $events[0]['ufname'] . ' ' . $events[0]['umname'] . ' ' .  $events[0]['ulname'];
-            } else {
-                $next_appoint_provider = $events[0]['ufname'] . ' ' .  $events[0]['ulname'];
-            }
+    ?>
+    </table>
+    <tr><td>&nbsp;</td></tr><br><br>
+    <?php
+    if ($GLOBALS['print_next_appointment_on_ledger'] == 1) {
+        $next_day = mktime(0, 0, 0, date('m'), date('d')+1, date('Y'));
+    # add one day to date so it will not get todays appointment
+        $current_date2 = date('Y-m-d', $next_day);
+        $events = fetchNextXAppts($current_date2, $form_pid);
+        $next_appoint_date = oeFormatShortDate($events[0]['pc_eventDate']);
+        $next_appoint_time = substr($events[0]['pc_startTime'], 0, 5);
+        if (strlen($events[0]['umname']) != 0) {
+            $next_appoint_provider = $events[0]['ufname'] . ' ' . $events[0]['umname'] . ' ' .  $events[0]['ulname'];
+        } else {
+            $next_appoint_provider = $events[0]['ufname'] . ' ' .  $events[0]['ulname'];
+        }
 
-            if (strlen($next_appoint_time) != 0) { ?>
-                <tr>
-                <td class="title" ><?php echo xlt('Next Appointment Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') . ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider); ?></td>
-                </tr>
-            <?php
-            }
-} // end ($GLOBALS['print_next_appointment_on_ledger'] == 1)
+        if (strlen($next_appoint_time) != 0) { ?>
+                                        <tr>
+                                        <td class="title" ><?php echo xlt('Next Appointment Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') . ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider); ?></td>
+                                        </tr>
+                                    <?php
+        }
+    } // end ($GLOBALS['print_next_appointment_on_ledger'] == 1)
     } // end (!$_REQUEST['form_csvexport'] && $orow)
     echo "</div>\n";
 }
@@ -839,15 +920,37 @@ if (! $_REQUEST['form_csvexport']) {
         echo xlt('No matches found. Try search again.');
         echo "</span>";
         echo '<script>document.getElementById("report_results").style.display="none";</script>';
-        echo '<script>document.getElementById("controls").style.display="none";</script>';
     }
 
     if (!$_REQUEST['form_refresh'] && !$_REQUEST['form_csvexport']) { ?>
-    <div class='text'>
-        <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
-    </div><?php
+                    <div class='text'>
+                        <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
+                    </div><?php
     } ?>
-</form>
+                </form>
+            </div>
+        </div>
+    </div><!--end of container div-->
+    <?php
+    //home of the help modal ;)
+    //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
+    if ($GLOBALS['enable_help'] == 1) {
+        echo "<script>var helpFile = 'ledger_dashboard_help.php'</script>";
+        require "$include_root/help_modal.php";
+    }
+    ?>
+     <script>
+        <?php
+        // jQuery script to change expanded/centered state dynamically
+        require_once("$include_root/expand_contract_js.php");
+        ?>
+    </script>
+    <script>
+        var listId = '#' + <?php echo js_escape($list_id); ?>;
+        $(document).ready(function(){
+            $(listId).addClass("active");
+        });
+    </script>
 </body>
 
 </html>

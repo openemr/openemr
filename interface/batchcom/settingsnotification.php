@@ -27,6 +27,10 @@ if (!acl_check('admin', 'notification')) {
  $type = 'SMS/Email Settings';
 // process form
 if ($_POST['form_action']=='save') {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     if ($_POST['Send_SMS_Before_Hours']=="") {
         $form_err .= xl('Empty value in "SMS Hours"') . '<br>';
     }
@@ -95,10 +99,11 @@ if ($result) {
         }
 
         if ($sql_msg) {
-            echo '<div class="alert alert-info">' . xlt('The following errors occurred') . ': ' . text($sql_msg) . '</div>';
+            echo '<div class="alert alert-info">' . xlt('The following occurred') . ': ' . text($sql_msg) . '</div>';
         }
         ?>
         <form name="select_form" method="post" action="">
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
             <input type="hidden" name="type" value="SMS">
             <input type="Hidden" name="SettingsId" value="<?php echo attr($SettingsId);?>">
 

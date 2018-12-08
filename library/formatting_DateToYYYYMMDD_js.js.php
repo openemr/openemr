@@ -19,7 +19,7 @@
 function DateToYYYYMMDD_js(value){
     var value = value.replace(/\//g,'-');
     var parts = value.split('-');
-    var date_display_format = <?php echo (empty($GLOBALS['date_display_format']) ? 0 : $GLOBALS['date_display_format']) ?>;
+    var date_display_format = <?php echo js_escape((empty($GLOBALS['date_display_format']) ? 0 : $GLOBALS['date_display_format'])) ?>;
 
     if (date_display_format == 1)      // mm/dd/yyyy, note year is added below
         value = parts[2] + '-' + parts[0]  + '-' + parts[1];

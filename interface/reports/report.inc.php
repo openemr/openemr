@@ -1,38 +1,17 @@
 <?php
-// +-----------------------------------------------------------------------------+
-//
-// Common php functions are stored in this page.
-// 
-// Copyright (C) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-//
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-//
-// A copy of the GNU General Public License is included along with this program:
-// openemr/interface/login/GnuGPL.html
-// For more information write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
-// Author:   Eldho Chacko <eldho@zhservices.com>
-//           Paul Simon K <paul@zhservices.com> 
-//
-// +------------------------------------------------------------------------------+
+/**
+ * Common php functions are stored in this page.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Eldho Chacko <eldho@zhservices.com>
+ * @author    Paul Simon K <paul@zhservices.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
-function stripslashes_deep($value)
-{
-    $value = is_array($value) ? array_map('stripslashes_deep', $value) : strip_escape_custom($value);
-    return $value;
-}
 
 //Parses the search value part of the criteria and prepares for sql.
 function PrepareSearchItem($SearchItem)
@@ -60,7 +39,7 @@ function BuildArrayForReport($Query)
     $array_data=array();
     $res = sqlStatement($Query);
     while ($row=sqlFetchArray($res)) {
-        $array_data[$row['id']]=htmlspecialchars($row['name'], ENT_QUOTES);
+        $array_data[$row['id']]=attr($row['name']);
     }
 
     return $array_data;
@@ -78,8 +57,8 @@ function InsuranceCompanyDisplay()
                 'scrolling=no marginwidth=0 src="" marginheight=0>hello</iframe>'.
         '<input type="hidden" id="hidden_ajax_close_value" value="'.attr($_POST['type_code']).'" /><input name="type_code"  id="type_code" class="text "'.
         'style=" width:140px;"  title="'.xla("Type Id or Name.3 characters minimum (including spaces).").'"'.
-        'onfocus="hide_frame_to_hide();appendOptionTextCriteria(\''.$ThisPageSearchCriteriaDisplay[$ThisPageSearchCriteriaIndex].'\','.
-                                    '\''.$ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex].'\','.
+        'onfocus="hide_frame_to_hide();appendOptionTextCriteria('.attr_js($ThisPageSearchCriteriaDisplay[$ThisPageSearchCriteriaIndex]).','.
+                                    ''.attr_js($ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]).','.
                                     'document.getElementById(\'type_code\').value,document.getElementById(\'div_insurance_or_patient\').innerHTML,'.
                                     '\' = \','.
                                     '\'text\')" onblur="show_frame_to_hide()" onKeyDown="PreventIt(event)" value="'.attr($_POST['type_code']).'"  autocomplete="off"   /><br>'.
@@ -93,8 +72,8 @@ function InsuranceCompanyDisplay()
       '<tr height="5"><td colspan="2"></td></tr>'.
       '<tr>'.
         '<td><div  name="div_insurance_or_patient" id="div_insurance_or_patient" class="text"  style="border:1px solid black; padding-left:5px; width:50px; height:17px;">'.attr($_POST['hidden_type_code']).'</div><input type="hidden" name="description"  id="description" /></td>'.
-        '<td><a href="#" onClick="CleanUpAjax(\''.$ThisPageSearchCriteriaDisplay[$ThisPageSearchCriteriaIndex].'\','.
-                                    '\''.$ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex].'\',\' = \')"><img src="'.$web_root.'/interface/pic/Clear.gif" border="0" /></a></td>'.
+        '<td><a href="#" onClick="CleanUpAjax('.attr_js($ThisPageSearchCriteriaDisplay[$ThisPageSearchCriteriaIndex]).','.
+                                    attr_js($ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]).',\' = \')"><img src="'.$web_root.'/interface/pic/Clear.gif" border="0" /></a></td>'.
       '</tr>'.
     '</table>'.
     '<input type="hidden" name="hidden_type_code" id="hidden_type_code" value="'.attr($_POST['hidden_type_code']).'"/>';

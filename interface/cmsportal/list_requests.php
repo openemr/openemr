@@ -118,7 +118,7 @@ if (!empty($_POST['bn_delete'])) {
 <?php html_header_show();?>
 
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
 <title><?php echo xlt('Portal Requests'); ?></title>
 
@@ -130,8 +130,8 @@ a, a:visited, a:hover { color:#0000cc; }
 
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
@@ -152,7 +152,7 @@ function openRequest(postid, type) {
  //
  // To open results in the same frame:
  if (type.indexOf('Demographics') == 0) {
-  document.location.href = 'patient_select.php?postid=' + postid;
+  document.location.href = 'patient_select.php?postid=' + postid + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>';
  } else
  if (type.indexOf('Insurance') == 0) {
   document.location.href = 'insurance_form.php?postid=' + postid;

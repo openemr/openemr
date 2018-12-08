@@ -1,23 +1,33 @@
 <?php
- // Copyright (C) 2006-2010, 2016 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ * addrbook_edit.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
+require_once("../globals.php");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/options.inc.php");
 
- include_once("../globals.php");
- include_once("$srcdir/acl.inc");
- require_once("$srcdir/options.inc.php");
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
- // Collect user id if editing entry
- $userid = $_REQUEST['userid'];
+// Collect user id if editing entry
+$userid = $_REQUEST['userid'];
 
- // Collect type if creating a new entry
- $type = $_REQUEST['type'];
+// Collect type if creating a new entry
+$type = $_REQUEST['type'];
 
- $info_msg = "";
+$info_msg = "";
 
 function invalue($name)
 {
@@ -32,10 +42,10 @@ function invalue($name)
 ?>
 <html>
 <head>
-<title><?php echo $userid ? xlt('Edit') : xlt('Add New') ?> <?php echo xlt('Person'); ?></title>
+<title><?php echo $userid ? xlt('Edit Entry') : xlt('Add New Entry') ?></title>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-9-1/jquery.min.js"></script>
 
 <style>
 td { font-size:10pt; }
@@ -56,14 +66,14 @@ td { font-size:10pt; }
 
  var type_options_js = Array();
     <?php
-  // Collect the type options. Possible values are:
-  // 1 = Unassigned (default to person centric)
-  // 2 = Person Centric
-  // 3 = Company Centric
+    // Collect the type options. Possible values are:
+    // 1 = Unassigned (default to person centric)
+    // 2 = Person Centric
+    // 3 = Company Centric
     $sql = sqlStatement("SELECT option_id, option_value FROM list_options WHERE " .
     "list_id = 'abook_type' AND activity = 1");
     while ($row_query = sqlFetchArray($sql)) {
-        echo "type_options_js"."['" . attr($row_query['option_id']) . "']=" . attr($row_query['option_value']) . ";\n";
+        echo "type_options_js[" . js_escape($row_query['option_id']) . "]=" . js_escape($row_query['option_value']) . ";\n";
     }
     ?>
 
@@ -229,7 +239,7 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
   // Close this window and redisplay the updated list.
     echo "<script language='JavaScript'>\n";
     if ($info_msg) {
-        echo " alert('".addslashes($info_msg)."');\n";
+        echo " alert(".js_escape($info_msg).");\n";
     }
 
     echo " window.close();\n";
@@ -252,14 +262,15 @@ if ($type) { // note this only happens when its new
 <script language="JavaScript">
  $(document).ready(function() {
   // customize the form via the type options
-  typeSelect("<?php echo attr($row['abook_type']); ?>");
+  typeSelect(<?php echo js_escape($row['abook_type']); ?>);
   if(typeof abook_type != 'undefined' && abook_type == 'ord_lab') {
     $('#cpoe_span').css('display','inline');
    }
  });
 </script>
 
-<form method='post' name='theform' id="theform" action='addrbook_edit.php?userid=<?php echo attr($userid) ?>'>
+<form method='post' name='theform' id="theform" action='addrbook_edit.php?userid=<?php echo attr_url($userid) ?>'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <center>
 
 <table border='0' width='100%'>
@@ -308,9 +319,7 @@ if ($type) { // note this only happens when its new
     value='<?php echo attr($row['organization']); ?>'
     style='width:100%' class='inputtext' />
     <span id='cpoe_span' style="display:none;">
-        <input type='checkbox' title="<?php echo xla('CPOE'); ?>" name='form_cpoe' id='form_cpoe' value='1' <?php if ($row['cpoe']=='1') {
-            echo "CHECKED";
-} ?>/>
+        <input type='checkbox' title="<?php echo xla('CPOE'); ?>" name='form_cpoe' id='form_cpoe' value='1' <?php echo ($row['cpoe']=='1') ? "CHECKED" : ""; ?>/>
         <label for='form_cpoe'><b><?php echo xlt('CPOE'); ?></b></label>
    </span>
   </td>

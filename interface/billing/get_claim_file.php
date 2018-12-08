@@ -13,6 +13,10 @@
 require_once(dirname(__FILE__) . "/../globals.php");
 require_once $GLOBALS['OE_SITE_DIR'] . "/config.php";
 
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    csrfNotVerified();
+}
+
 $content_type = "text/plain";
 $claim_file_dir = $GLOBALS['OE_SITE_DIR'] . "/edi/";
 
@@ -28,7 +32,7 @@ if (strtolower(substr($fname, (strlen($fname)-4))) == ".pdf") {
 $fname = $claim_file_dir . $fname;
 
 if (!file_exists($fname)) {
-    echo xl("The claim file: ") . text($_GET['key']) . xl(" could not be accessed.");
+    echo xlt("The claim file: ") . text($_GET['key']) . xlt(" could not be accessed.");
 } else {
     $fp = fopen($fname, 'r');
 

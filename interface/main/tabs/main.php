@@ -1,34 +1,31 @@
 <?php
-use Esign\Api;
-use OpenEMR\Core\Header;
-
 /**
- * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
- * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>
+ * main.php
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Kevin Yeh <kevin.y@integralemr.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Kevin Yeh <kevin.y@integralemr.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (c) 2016 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
-
-
-/* Include our required headers */
 require_once('../../globals.php');
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
+
+use Esign\Api;
+use OpenEMR\Core\Header;
+
+// ensure token_main matches so this script can not be run by itself
+if ((empty($_SESSION['token_main_php'])) ||
+    (empty($_GET['token_main'])) ||
+    ($_GET['token_main'] != $_SESSION['token_main_php'])) {
+    die(xlt('Authentication Error'));
+}
+// this will not allow copy/paste of the link to this main.php page or a refresh of this main.php page
+unset($_SESSION['token_main_php']);
 
 $esignApi = new Api();
 
@@ -39,6 +36,8 @@ $esignApi = new Api();
 
 <script type="text/javascript">
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+
+var isPortalEnabled = "<?php echo $GLOBALS['portal_onsite_two_enable'] == 1; ?>";
 
 // Since this should be the parent window, this is to prevent calls to the
 // window that opened this window. For example when a new window is opened
@@ -66,17 +65,51 @@ function goRepeaterServices(){
     //  timing out mechanism in OpenEMR.
     top.restoreSession();
     $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/dated_reminders_counter.php",
-        { skip_timeout_reset: "1" },
+        {
+            skip_timeout_reset: "1",
+            csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+        },
         function(data) {
             // Go knockout.js
             app_view_model.application_data.user().messages(data);
         }
     );
+    // Notify App for various portal alerts
+    if (isPortalEnabled) {
+        top.restoreSession();
+        $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/dated_reminders_counter.php",
+            {
+                skip_timeout_reset: "1",
+                isPortal: "1",
+                csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+            },
+            function (counts) {
+                data = JSON.parse(counts);
+                let mail = data.mailCnt;
+                let chats = data.chatCnt;
+                let audits = data.auditCnt;
+                let total = data.total;
+                let enable = (1 * mail) + (1 * audits);
+
+                app_view_model.application_data.user().portal(enable);
+                if (enable) {
+                    app_view_model.application_data.user().portalAlerts(total);
+                    app_view_model.application_data.user().portalAudits(audits);
+                    app_view_model.application_data.user().portalMail(mail);
+                    app_view_model.application_data.user().portalChats(chats);
+                }
+            }
+        );
+    }
 
     top.restoreSession();
     // run background-services
     $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/execute_background_services.php",
-        { skip_timeout_reset: "1", ajax: "1" }
+        {
+            skip_timeout_reset: "1",
+            ajax: "1",
+            csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+        }
     );
 
     // auto run this function every 60 seconds
@@ -128,6 +161,8 @@ var xl_strings_tabs_view_model = <?php echo json_encode(array(
     'new' => xla('New')
 ));
 ?>;
+// Set the csrf_token_js token that is used in the below js/tabs_view_model.js script
+var csrf_token_js = "<?php echo attr(collectCsrfToken()); ?>";
 </script>
 <script type="text/javascript" src="js/tabs_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
 

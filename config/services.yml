@@ -5,7 +5,7 @@ services:
             - { name: kernel.event_subscriber }
     admin.admin_menu_builder:
         class: OpenEMR\Admin\Service\AdminMenuBuilder
-        arguments: [@event_dispatcher]
+        arguments: ['@event_dispatcher']
     calendar.event_subscriber:
         class: OpenEMR\Calendar\EventListener\CalendarSubscriber
         tags:

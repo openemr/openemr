@@ -40,7 +40,7 @@ $collectthis = collectValidationPageRules("/interface/usergroup/facilities_add.p
 if (empty($collectthis)) {
     $collectthis = "undefined";
 } else {
-    $collectthis = $collectthis["facility-add"]["rules"];
+    $collectthis = json_sanitize($collectthis["facility-add"]["rules"]);
 }
 
 // Old Browser comp trigger on js
@@ -59,7 +59,7 @@ dlgclose();
 <script type="text/javascript">
 /// todo, move this to a common library
 
-var collectvalidation = <?php echo($collectthis); ?>;
+var collectvalidation = <?php echo $collectthis; ?>;
 
 function submitform() {
 
@@ -165,9 +165,9 @@ function pick(anchorname,target) {
 function displayAlert()
 {
     if(document.getElementById('primary_business_entity').checked==false)
-    alert("<?php echo addslashes(xl('Primary Business Entity tax id is used as account id for NewCrop ePrescription. Changing the facility will affect the working in NewCrop.'));?>");
+    alert(<?php echo xlj('Primary Business Entity tax id is used as account id for NewCrop ePrescription. Changing the facility will affect the working in NewCrop.'); ?>);
     else if(document.getElementById('primary_business_entity').checked==true)
-    alert("<?php echo addslashes(xl('Once the Primary Business Facility is set, it should not be changed. Changing the facility will affect the working in NewCrop ePrescription.'));?>");
+    alert(<?php echo xlj('Once the Primary Business Facility is set, it should not be changed. Changing the facility will affect the working in NewCrop ePrescription.'); ?>);
 }
 </script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
@@ -176,13 +176,13 @@ function displayAlert()
 <body class="body_top">
 <table>
 <tr><td>
-    <span class="title"><?php xl('Add Facility', 'e'); ?></span>&nbsp;&nbsp;&nbsp;</td>
+    <span class="title"><?php echo xlt('Add Facility'); ?></span>&nbsp;&nbsp;&nbsp;</td>
     <td colspan=5 align=center style="padding-left:2px;">
         <a onclick="submitform();" class="css_button large_button" name='form_save' id='form_save' href='#'>
-            <span class='css_button_span large_button_span'><?php xl('Save', 'e');?></span>
+            <span class='css_button_span large_button_span'><?php echo xlt('Save'); ?></span>
         </a>
         <a class="css_button large_button" id='cancel' href='#' >
-            <span class='css_button_span large_button_span'><?php xl('Cancel', 'e');?></span>
+            <span class='css_button_span large_button_span'><?php echo xlt('Cancel'); ?></span>
         </a>
 </td></tr>
 </table>
@@ -190,53 +190,54 @@ function displayAlert()
 <br>
 
 <form name='facility-add' id='facility-add' method='post' action="facilities.php">
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
     <input type=hidden name=mode value="facility">
     <table border=0 cellpadding=0 cellspacing=0>
         <tr>
-        <td><span class="text"><?php xl('Name', 'e'); ?>: </span></td><td><input type=entry name=facility size=20 value=""></td>
+        <td><span class="text"><?php echo xlt('Name'); ?>: </span></td><td><input type=entry name=facility size=20 value=""></td>
         <td width=20>&nbsp;</td>
-        <td><span class="text"><?php xl('Phone', 'e'); ?>: </span></td><td><input type=entry name=phone size=20 value=""></td>
+        <td><span class="text"><?php echo xlt('Phone'); ?>: </span></td><td><input type=entry name=phone size=20 value=""></td>
         </tr>
         <tr>
-        <td><span class="text"><?php xl('Address', 'e'); ?>: </span></td><td><input type=entry size=20 name=street value=""></td>
+        <td><span class="text"><?php echo xlt('Address'); ?>: </span></td><td><input type=entry size=20 name=street value=""></td>
         <td>&nbsp;</td>
-        <td><span class="text"><?php xl('Fax', 'e'); ?>: </span></td><td><input type=entry name=fax size=20 value=""></td>
+        <td><span class="text"><?php echo xlt('Fax'); ?>: </span></td><td><input type=entry name=fax size=20 value=""></td>
         </tr>
         <tr>
-        <td><span class="text"><?php xl('City', 'e'); ?>: </span></td><td><input type=entry size=20 name=city value=""></td>
+        <td><span class="text"><?php echo xlt('City'); ?>: </span></td><td><input type=entry size=20 name=city value=""></td>
         <td>&nbsp;</td>
-        <td><span class="text"><?php xl('Zip Code', 'e'); ?>: </span></td><td><input type=entry size=20 name=postal_code value=""></td>
+        <td><span class="text"><?php echo xlt('Zip Code'); ?>: </span></td><td><input type=entry size=20 name=postal_code value=""></td>
         </tr>
         <tr>
-        <td><span class="text"><?php xl('State', 'e'); ?>: </span></td><td><input type=entry size=20 name=state value=""></td>
+        <td><span class="text"><?php echo xlt('State'); ?>: </span></td><td><input type=entry size=20 name=state value=""></td>
         <td>&nbsp;</td>
-        <td><span class="text"><?php xl('Tax ID', 'e'); ?>: </span></td><td><select name=tax_id_type><option value="EI"><?php xl('EIN', 'e'); ?></option><option value="SY"><?php xl('SSN', 'e'); ?></option></select><input type=entry size=11 name=federal_ein value=""></td>
+        <td><span class="text"><?php echo xlt('Tax ID'); ?>: </span></td><td><select name=tax_id_type><option value="EI"><?php echo xlt('EIN'); ?></option><option value="SY"><?php echo xlt('SSN'); ?></option></select><input type=entry size=11 name=federal_ein value=""></td>
         </tr>
         <tr>
-        <td height="22"><span class="text"><?php xl('Country', 'e'); ?>: </span></td><td><input type=entry size=20 name=country_code value=""></td>
+        <td height="22"><span class="text"><?php echo xlt('Country'); ?>: </span></td><td><input type=entry size=20 name=country_code value=""></td>
         <td>&nbsp;</td>
-        <td><span class="text"><?php ($GLOBALS['simplified_demographics'] ? xl('Facility Code', 'e') : xl('Facility NPI', 'e')); ?>:
+        <td><span class="text"><?php echo ($GLOBALS['simplified_demographics'] ? xlt('Facility Code') : xlt('Facility NPI')); ?>:
         </span></td><td><input type=entry size=20 name=facility_npi value=""></td>
         </tr>
         <tr>
-            <td>&nbsp;</td><td>&nbsp;</td><td width="20"></td><td><span class=text><?php (xl('Facility Taxonomy', 'e')); ?>:</span></td>
+            <td>&nbsp;</td><td>&nbsp;</td><td width="20"></td><td><span class=text><?php echo xlt('Facility Taxonomy'); ?>:</span></td>
             <td><input type=entry size=20 name=facility_taxonomy value=""></td>
         </tr>
         <tr>
-        <td><span class="text"><?php xl('Website', 'e'); ?>: </span></td><td><input type=entry size=20 name=website value=""></td>
+        <td><span class="text"><?php echo xlt('Website'); ?>: </span></td><td><input type=entry size=20 name=website value=""></td>
         <td>&nbsp;</td>
-        <td><span class="text"><?php xl('Email', 'e'); ?>: </span></td><td><input type=entry size=20 name=email value=""></td>
+        <td><span class="text"><?php echo xlt('Email'); ?>: </span></td><td><input type=entry size=20 name=email value=""></td>
         </tr>
 
         <tr>
-          <td><span class='text'><?php xl('Billing Location', 'e'); ?>: </span></td><td><input type='checkbox' name='billing_location' value = '1'></td>
+          <td><span class='text'><?php echo xlt('Billing Location'); ?>: </span></td><td><input type='checkbox' name='billing_location' value = '1'></td>
           <td>&nbsp;</td>
-          <td><span class='text'><?php xl('Accepts Assignment', 'e'); ?><br>(<?php xl('only if billing location', 'e'); ?>): </span></td> <td><input type='checkbox' name='accepts_assignment' value = '1'></td>
+          <td><span class='text'><?php echo xlt('Accepts Assignment'); ?><br>(<?php echo xlt('only if billing location'); ?>): </span></td> <td><input type='checkbox' name='accepts_assignment' value = '1'></td>
         </tr>
         <tr>
-          <td><span class='text'><?php xl('Service Location', 'e'); ?>: </span></td> <td><input type='checkbox' name='service_location' value = '1'></td>
+          <td><span class='text'><?php echo xlt('Service Location'); ?>: </span></td> <td><input type='checkbox' name='service_location' value = '1'></td>
           <td>&nbsp;</td>
-          <td><span class='text'><?php echo htmlspecialchars(xl('Color'), ENT_QUOTES); ?>: </span></td> <td><input type=entry name=ncolor id=ncolor size=20 value=""><span>[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick"><?php echo htmlspecialchars(xl('Pick'), ENT_QUOTES); ?></a>]</span></td>
+          <td><span class='text'><?php echo xlt('Color'); ?>: </span></td> <td><input type=entry name=ncolor id=ncolor size=20 value=""><span>[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick"><?php echo xlt('Pick'); ?></a>]</span></td>
         </tr>
     <?php
     $disabled='';
@@ -246,24 +247,23 @@ function displayAlert()
     }
     ?>
      <tr>
-          <td><span class='text'><?php xl('Primary Business Entity', 'e'); ?>: </span></td>
-          <td><input type='checkbox' name='primary_business_entity' id='primary_business_entity' value='1' <?php if ($facility['primary_business_entity'] == 1) {
-                echo 'checked';
-} ?> <?php if ($GLOBALS['erx_enable']) {
-                ?> onchange='return displayAlert()' <?php
-} ?> <?php echo $disabled;?>></td>
+          <td><span class='text'><?php echo xlt('Primary Business Entity'); ?>: </span></td>
+          <td><input type='checkbox' name='primary_business_entity' id='primary_business_entity' value='1' <?php echo ($facility['primary_business_entity'] == 1) ? 'checked' : ''; ?>
+                <?php if ($GLOBALS['erx_enable']) { ?>
+                    onchange='return displayAlert()'
+                <?php } ?> <?php echo $disabled;?>></td>
           <td>&nbsp;</td>
          </tr>
         <tr>
-            <td><span class=text><?php xl('POS Code', 'e'); ?>: </span></td>
+            <td><span class=text><?php echo xlt('POS Code'); ?>: </span></td>
             <td colspan="6">
                 <select name="pos_code">
                 <?php
                 $pc = new POSRef();
 
                 foreach ($pc->get_pos_ref() as $pos) {
-                    echo "<option value=\"" . $pos["code"] . "\" ";
-                    echo ">" . $pos['code']  . ": ". text($pos['title']);
+                    echo "<option value=\"" . attr($pos["code"]) . "\" ";
+                    echo ">" . text($pos['code'])  . ": ". text($pos['title']);
                     echo "</option>\n";
                 }
 
@@ -272,19 +272,19 @@ function displayAlert()
             </td>
         </tr>
         <tr>
-            <td><span class="text"><?php xl('Billing Attn', 'e'); ?>:</span></td>
+            <td><span class="text"><?php echo xlt('Billing Attn'); ?>:</span></td>
             <td colspan="4"><input type="text" name="attn" size="45"></td>
         </tr>
         <tr>
-            <td><span class="text"><?php xl('CLIA Number', 'e'); ?>:</span></td>
+            <td><span class="text"><?php echo xlt('CLIA Number'); ?>:</span></td>
             <td colspan="4"><input type="text" name="domain_identifier" size="45"></td>
         </tr>
         <tr>
-            <td><span class="text"><?php xl('Facility ID', 'e'); ?>:</span></td>
+            <td><span class="text"><?php echo xlt('Facility ID'); ?>:</span></td>
             <td colspan="4"><input type="text" name="facility_id" size="20"></td>
         </tr>
         <tr height="25" style="valign:bottom;">
-        <td><font class="mandatory">*</font><span class="text"> <?php echo xl('Required', 'e'); ?></span></td><td>&nbsp;</td><td>&nbsp;</td>
+        <td><font class="mandatory">*</font><span class="text"> <?php echo xlt('Required'); ?></span></td><td>&nbsp;</td><td>&nbsp;</td>
         <td>&nbsp;</td><td>&nbsp;</td>
         </tr>
     </table>
@@ -293,7 +293,7 @@ function displayAlert()
 <script language="JavaScript">
 <?php
 if ($alertmsg = trim($alertmsg)) {
-    echo "alert('$alertmsg');\n";
+    echo "alert(" . js_escape($alertmsg) . ");\n";
 }
 ?>
 </script>

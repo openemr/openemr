@@ -2,34 +2,28 @@
 /**
  * Display patient notes.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
+require_once("../../globals.php");
+require_once("$srcdir/pnotes.inc");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/options.inc.php");
 
- require_once("../../globals.php");
- require_once("$srcdir/pnotes.inc");
- require_once("$srcdir/acl.inc");
- require_once("$srcdir/patient.inc");
- require_once("$srcdir/options.inc.php");
+if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+    csrfNotVerified();
+}
 
- // form parameter docid can be passed to restrict the display to a document.
- $docid = empty($_REQUEST['docid']) ? 0 : 0 + $_REQUEST['docid'];
+// form parameter docid can be passed to restrict the display to a document.
+$docid = empty($_REQUEST['docid']) ? 0 : 0 + $_REQUEST['docid'];
 
- //ajax for type 2 notes widget
+//ajax for type 2 notes widget
 if (isset($_GET['docUpdateId'])) {
     return disappearPnote($_GET['docUpdateId']);
 }
@@ -37,8 +31,8 @@ if (isset($_GET['docUpdateId'])) {
 ?>
 <?php if ($GLOBALS['portal_offsite_enable'] == 1) { ?>
 <ul class="tabNav">
-  <li class="current" ><a href="#"><?php echo htmlspecialchars(xl('Inbox'), ENT_NOQUOTES); ?></a></li>
-  <li><a href="#"><?php echo htmlspecialchars(xl('Sent Items'), ENT_NOQUOTES); ?></a></li>
+  <li class="current" ><a href="#"><?php echo xlt('Inbox'); ?></a></li>
+  <li><a href="#"><?php echo xlt('Sent Items'); ?></a></li>
 </ul>
 <?php } ?>
 <div class='tabContainer' >
@@ -61,7 +55,7 @@ if (isset($_GET['docUpdateId'])) {
     }
 
     if (!$thisauth) {
-        echo "<p>(" . htmlspecialchars(xl('Notes not authorized'), ENT_NOQUOTES) . ")</p>\n";
+        echo "<p>(" . xlt('Notes not authorized') . ")</p>\n";
     } else { ?>
         <table width='100%' border='0' cellspacing='1' cellpadding='1' style='border-collapse:collapse;' >
         <?php
@@ -83,11 +77,15 @@ if (isset($_GET['docUpdateId'])) {
         if ($result != null) {
             $notes_count = 0;//number of notes so far displayed
             echo "<tr class='text' style='border-bottom:2px solid #000;' >\n";
-            echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('From'), ENT_NOQUOTES) ."</b></td>\n";
-            echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('To'), ENT_NOQUOTES) ."</b></td>\n";
-            echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('Date'), ENT_NOQUOTES) ."</b></td>\n";
-            echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('Subject'), ENT_NOQUOTES) ."</b></td>\n";
-            echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('Content'), ENT_NOQUOTES) ."</b></td>\n";
+            echo "<td valign='top' class='text' ><b>". xlt('From') . "</b></td>\n";
+            echo "<td valign='top' class='text' ><b>". xlt('To') . "</b></td>\n";
+            if ($GLOBALS['messages_due_date']) {
+                echo "<td valign='top' class='text' ><b>". xlt('Due date') . "</b></td>\n";
+            } else {
+                echo "<td valign='top' class='text' ><b>". xlt('Date') . "</b></td>\n";
+            }
+            echo "<td valign='top' class='text' ><b>". xlt('Subject') . "</b></td>\n";
+            echo "<td valign='top' class='text' ><b>". xlt('Content') . "</b></td>\n";
             echo "<td valign='top' class='text' ></td>\n";
             echo "</tr>\n";
             foreach ($result as $iter) {
@@ -96,17 +94,17 @@ if (isset($_GET['docUpdateId'])) {
                 $body = $iter['body'];
                 $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '', $body);
                 $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}'.$patientname.'${2}', $body);
-                echo " <tr class='text' id='".htmlspecialchars($iter['id'], ENT_QUOTES)."' style='border-bottom:1px dashed;height:30px;' >\n";
+                echo " <tr class='text' id='" . text($iter['id']) . "' style='border-bottom:1px dashed;height:30px;' >\n";
 
                 // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
-                echo "<td valign='top' class='text'>".htmlspecialchars($iter['user'], ENT_NOQUOTES)."</td>\n";
-                echo "<td valign='top' class='text'>".htmlspecialchars($iter['assigned_to'], ENT_NOQUOTES)."</td>\n";
-                echo "<td valign='top' class='text'>".htmlspecialchars(oeFormatDateTime(date('Y-m-d H:i', strtotime($iter['date']))), ENT_NOQUOTES)."</td>\n";
+                echo "<td valign='top' class='text'>" . text($iter['user']) . "</td>\n";
+                echo "<td valign='top' class='text'>" . text($iter['assigned_to']) . "</td>\n";
+                echo "<td valign='top' class='text'>" . text(oeFormatDateTime(date('Y-m-d H:i', strtotime($iter['date'])))) . "</td>\n";
                 echo "  <td valign='top' class='text'><b>";
                 echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
                 echo "</b></td>\n";
 
-                echo "  <td valign='top' class='text'>$body</td>\n";
+                echo "  <td valign='top' class='text'>" . text($body) . "</td>\n";
                 echo "<td valign='top' class='text'><button data-id='" . attr($iter['id']) . "' class='complete_btn'>" . xlt('Completed') . "</button></td>\n";
                 echo " </tr>\n";
 
@@ -132,10 +130,10 @@ if (isset($_GET['docUpdateId'])) {
         } else { ?>
             <br/>
             <span class='text'>
-            <?php echo htmlspecialchars(xl('Displaying the following number of most recent notes:'), ENT_NOQUOTES); ?>
+            <?php echo xlt('Displaying the following number of most recent notes:'); ?>
             <b><?php echo text($N);?></b><br>
             <a href='pnotes_full.php?s=0' onclick='top.restoreSession()'>
-            <?php echo htmlspecialchars(xl('Click here to view them all.'), ENT_NOQUOTES); ?></a>
+            <?php echo xlt('Click here to view them all.'); ?></a>
         </span><?php
         } ?>
 
@@ -152,7 +150,7 @@ if (isset($_GET['docUpdateId'])) {
             <?php
             $has_sent_note = 0;
             if (!$thisauth) {
-                echo "<p>(" . htmlspecialchars(xl('Notes not authorized'), ENT_NOQUOTES) . ")</p>\n";
+                echo "<p>(" . xlt('Notes not authorized') . ")</p>\n";
             } else { ?>
                 <table width='100%' border='0' cellspacing='1' cellpadding='1' style='border-collapse:collapse;' >
                     <?php
@@ -170,32 +168,36 @@ if (isset($_GET['docUpdateId'])) {
                     if ($result_sent != null) {
                         $notes_sent_count = 0;//number of notes so far displayed
                         echo "<tr class='text' style='border-bottom:2px solid #000;' >\n";
-                        echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('To'), ENT_NOQUOTES) ."</b></td>\n";
-                        echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('Date'), ENT_NOQUOTES) ."</b></td>\n";
-                        echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('Subject'), ENT_NOQUOTES) ."</b></td>\n";
-                        echo "<td valign='top' class='text' ><b>". htmlspecialchars(xl('Content'), ENT_NOQUOTES) ."</b></td>\n";
+                        echo "<td valign='top' class='text' ><b>". xlt('To') ."</b></td>\n";
+                        if ($GLOBALS['messages_due_date']) {
+                            echo "<td valign='top' class='text' ><b>". xlt('Due date') ."</b></td>\n";
+                        } else {
+                            echo "<td valign='top' class='text' ><b>". xlt('Date') ."</b></td>\n";
+                        }
+                        echo "<td valign='top' class='text' ><b>". xlt('Subject') ."</b></td>\n";
+                        echo "<td valign='top' class='text' ><b>". xlt('Content') ."</b></td>\n";
                         echo "</tr>\n";
                         foreach ($result_sent as $iter) {
                             $has_sent_note = 1;
                             $body = $iter['body'];
                             if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
-                                $body = nl2br(htmlspecialchars(oeFormatPatientNote($body), ENT_NOQUOTES));
+                                $body = nl2br(text(oeFormatPatientNote($body)));
                             } else {
-                                $body = htmlspecialchars(oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date'])) .
-                                        ' (' . $iter['user'] . ') ', ENT_NOQUOTES) .
-                                    nl2br(htmlspecialchars(oeFormatPatientNote($body), ENT_NOQUOTES));
+                                $body = text(oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date'])) .
+                                        ' (' . $iter['user'] . ') ') .
+                                    nl2br(text(oeFormatPatientNote($body)));
                             }
 
                             $body = preg_replace('/(:\d{2}\s\()'.$iter['pid'].'(\sto\s)/', '${1}'.$patientname.'${2}', $body);
                             $body = strlen($body) > 120 ? substr($body, 0, 120)."<b>.......</b>" : $body;
-                            echo " <tr class='text' id='".htmlspecialchars($iter['id'], ENT_QUOTES)."' style='border-bottom:1px dashed;height:30px;' >\n";
+                            echo " <tr class='text' id='" . attr($iter['id']) . "' style='border-bottom:1px dashed;height:30px;' >\n";
                             // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
-                            echo "<td valign='top' class='text'>".htmlspecialchars($iter['assigned_to'], ENT_NOQUOTES)."</td>\n";
-                            echo "<td valign='top' class='text'>".htmlspecialchars($iter['date'], ENT_NOQUOTES)."</td>\n";
+                            echo "<td valign='top' class='text'>" . text($iter['assigned_to']) . "</td>\n";
+                            echo "<td valign='top' class='text'>" . text($iter['date']) . "</td>\n";
                             echo "  <td valign='top' class='text'><b>";
                             echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
                             echo "</b></td>\n";
-                            echo "  <td valign='top' class='text'>$body</td>\n";
+                            echo "  <td valign='top' class='text'>" . text($body) . "</td>\n";
                             echo " </tr>\n";
                             $notes_sent_count++;
                         }
@@ -217,9 +219,9 @@ if (isset($_GET['docUpdateId'])) {
                 } else { ?>
                     <br/>
                     <span class='text'>
-        <?php echo htmlspecialchars(xl('Displaying the following number of most recent notes'), ENT_NOQUOTES).":"; ?>
+        <?php echo text('Displaying the following number of most recent notes') . ":"; ?>
                         <b><?php echo text($M);?></b><br>
-        <a href='pnotes_full.php?s=1' onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Click here to view them all.'), ENT_NOQUOTES); ?></a>
+        <a href='pnotes_full.php?s=1' onclick='top.restoreSession()'><?php echo xlt('Click here to view them all.'); ?></a>
         </span>
                     <?php
                 } ?>
@@ -244,14 +246,17 @@ $(document).ready(function(){
         //console.log($(this).attr('data-id'));
         var btn = $(this);
         $.ajax({
-            method: "GET",
-            url: "pnotes_fragment.php?docUpdateId=" + btn.attr('data-id'),
+            method: "POST",
+            url: "pnotes_fragment.php?docUpdateId=" + encodeURIComponent(btn.attr('data-id')),
+            data: {
+                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+            }
         })
-            .done(function() {
-                btn.prop("disabled",true);
-                btn.unbind('mouseenter mouseleave');
-                btn.css('background-color', 'gray');
-            });
+        .done(function() {
+            btn.prop("disabled",true);
+            btn.unbind('mouseenter mouseleave');
+            btn.css('background-color', 'gray');
+        });
     });
 
 });

@@ -7,7 +7,7 @@
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
 
@@ -29,7 +29,7 @@ if ($GLOBALS['use_active_directory']) {
 
 <script language='JavaScript'>
 //Validating password and display message if password field is empty - starts
-var webroot='<?php echo $webroot?>';
+var webroot=<?php echo js_escape($webroot); ?>;
 function update_password()
 {
     top.restoreSession();
@@ -42,6 +42,7 @@ function update_password()
             curPass:    $("input[name='curPass']").val(),
             newPass:    $("input[name='newPass']").val(),
             newPass2:   $("input[name='newPass2']").val(),
+            csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
         },
         function(data)
         {
@@ -59,7 +60,6 @@ function update_password()
 
 <?php
 
-$ip=$_SERVER['REMOTE_ADDR'];
 $res = sqlStatement("select fname,lname,username from users where id=?", array($_SESSION["authId"]));
 $row = sqlFetchArray($res);
       $iter=$row;
@@ -81,7 +81,7 @@ $row = sqlFetchArray($res);
   <div class="row">
      <div class="col-xs-12">
         <form method='post' action='user_info.php' class='form-horizontal' onsubmit='return update_password()'>
-        <input type=hidden name=secure_pwd value="<?php echo $GLOBALS['secure_password']; ?>">
+        <input type=hidden name=secure_pwd value="<?php echo attr($GLOBALS['secure_password']); ?>">
         <div class="form-group">
            <label class='control-label col-sm-2'><?php echo xlt('Full Name') . ":"; ?></label>
            <div class="col-sm-10">

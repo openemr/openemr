@@ -225,7 +225,7 @@ function edih_ziptoarray($zipfilename, $param_ar, $single = false)
     }
 
     if ($zip_obj->status != 0) {
-        $err .= "Error code: " . $zip_obj->status ." ". $zip_obj->getStatusString() . "<br />" . PHP_EOL;
+        $err .= "Error code: " . text($zip_obj->status) ." ". text($zip_obj->getStatusString()) . "<br />" . PHP_EOL;
         csv_edihist_log('edih_ziptoarray: '.$zipfilename.' '.$err);
         $f_zr['reject'][] = array('name'=>$zipfilename, 'comment'=>$err);
         return $f_zr;
@@ -264,13 +264,13 @@ function edih_ziptoarray($zipfilename, $param_ar, $single = false)
             //
             if ($newCrc !== $oldCrc && ($oldCrc + 4294967296) !== $newCrc) {
                 // failure case, mismatched crc file integrity values
-                $html_str .= "CRC error: The files don't match! Removing file $bnm <br />" . PHP_EOL;
+                $html_str .= "CRC error: The files don't match! Removing file " . text($bnm) . " <br />" . PHP_EOL;
                 $isGone = unlink($newname);
                 if ($isGone) {
                     $is_tmpzip = false;
-                    $html_str .= "File Removed $bnm<br />".PHP_EOL;
+                    $html_str .= "File Removed " . text($bnm) . "<br />".PHP_EOL;
                 } else {
-                    $html_str .= "Failed to removed file $bnm<br />".PHP_EOL;
+                    $html_str .= "Failed to removed file " . text($bnm) . "<br />".PHP_EOL;
                 }
             } else {
                 // passed the CRC test, now type and verify file
@@ -551,7 +551,7 @@ function edih_sort_upload($files_array, $html_out = true, $err_only = true)
                 $tp_dir = $p_ar[$key]['directory'];
                 $tp_base = basename($tp_dir);
                 $idx = 0;
-                $prc_htm .= "<li>type $key</li>".PHP_EOL;
+                $prc_htm .= "<li>type " . text($key) . "</li>".PHP_EOL;
                 if (!is_array($val) || !count($val)) {
                     $prc_htm .= "<li>no new files</li>" . PHP_EOL;
                     continue;
@@ -562,7 +562,7 @@ function edih_sort_upload($files_array, $html_out = true, $err_only = true)
                     // a matching file name will not be replaced
                     $nfb = basename($nf);
                     $testname = $tp_dir.DS.$nfb;
-                    $prc_htm .= "<li>$nfb</li>".PHP_EOL;
+                    $prc_htm .= "<li>" . text($nfb) . "</li>".PHP_EOL;
                     if (is_file($testname)) {
                         $prc_htm .= "<li> -- file exists</li>" .PHP_EOL;
                     } elseif (rename($nf, $testname)) {
@@ -579,20 +579,20 @@ function edih_sort_upload($files_array, $html_out = true, $err_only = true)
             } elseif ($key == 'reject') {
                 $prc_htm .= "<li><bd>Reject:</bd></li>".PHP_EOL;
                 foreach ($val as $idx => $nf) {
-                    $prc_htm .= "<li>".$nf['name']."</li>".PHP_EOL;
-                    $prc_htm .= "<li> --".$nf['comment']."</li>".PHP_EOL;
+                    $prc_htm .= "<li>" . text($nf['name']) . "</li>".PHP_EOL;
+                    $prc_htm .= "<li> --" . text($nf['comment']) . "</li>".PHP_EOL;
                 }
             } elseif ($key == 'remark') {
                 $rmk_htm .= "<p><bd>Remarks:</bd><br>".PHP_EOL;
                 foreach ($val as $idx => $r) {
-                    $rmk_htm .= $r."<br>".PHP_EOL;
+                    $rmk_htm .= text($r) . "<br>".PHP_EOL;
                 }
 
                 $rmk_htm .= "</p>".PHP_EOL;
             } else {
-                $prc_htm .= "<li>$key type not stored</li>".PHP_EOL;
+                $prc_htm .= "<li>" . text($key) . " type not stored</li>".PHP_EOL;
                 foreach ($val as $idx => $nf) {
-                    $prc_htm .= "<li>".basename($nf)."</li>".PHP_EOL;
+                    $prc_htm .= "<li>" . text(basename($nf)) . "</li>".PHP_EOL;
                 }
             }
 

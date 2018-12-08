@@ -1,4 +1,13 @@
 <?php
+/**
+ * Default values for optional variables that are allowed to be set by callers.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 // Checks if the server's PHP version is compatible with OpenEMR:
 require_once(dirname(__FILE__) . "/../common/compatibility/Checker.php");
@@ -11,8 +20,6 @@ $response = Checker::checkPhpVersion();
 if ($response !== true) {
     die($response);
 }
-
-// Default values for optional variables that are allowed to be set by callers.
 
 //This is to help debug the ssl mysql connection. This will send messages to php log to show if mysql connections have a cipher set up.
 $GLOBALS['debug_ssl_mysql_connection'] = false;
@@ -106,7 +113,7 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
             if ((isset($_GET['auth'])) && ($_GET['auth'] == "logout")) {
                 $GLOBALS['login_screen'] = "login_screen.php";
                 $srcdir = "../library";
-                include_once("$srcdir/auth.inc");
+                require_once("$srcdir/auth.inc");
             }
             die("Site ID is missing from session data!");
         }
@@ -118,7 +125,7 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
     }
 
     if (empty($tmp) || preg_match('/[^A-Za-z0-9\\-.]/', $tmp)) {
-        die("Site ID '". htmlspecialchars($tmp, ENT_NOQUOTES) . "' contains invalid characters.");
+        die("Site ID '". text($tmp) . "' contains invalid characters.");
     }
 
     if (isset($_SESSION['site_id']) && ($_SESSION['site_id'] != $tmp)) {
@@ -126,10 +133,10 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
         session_unset(); // clear session, clean logout
         if (isset($landingpage) && !empty($landingpage)) {
           // OpenEMR Patient Portal use
-            header('Location: index.php?site='.$tmp);
+            header('Location: index.php?site=' . urlencode($tmp));
         } else {
           // Main OpenEMR use
-            header('Location: ../login/login.php?site='.$tmp); // Assuming in the interface/main directory
+            header('Location: ../login/login.php?site=' . urlencode($tmp)); // Assuming in the interface/main directory
         }
 
         exit;
@@ -196,33 +203,29 @@ $GLOBALS['login_screen'] = $GLOBALS['rootdir'] . "/login_screen.php";
 // Variable set for Eligibility Verification [EDI-271] path
 $GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/edi/";
 
-//  Check necessary writeable paths exist for mPDF tool
-if (is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/')) {
-    if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/')) {
-        mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/', 0755);
-    }
-
-    if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/')) {
-        mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/', 0755);
-    }
-} else {
-    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/', 0755, true);
-    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/', 0755);
+//  Set and check that necessary writeable path exist for mPDF tool
+$GLOBALS['MPDF_WRITE_DIR'] = $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp';
+if (! is_dir($GLOBALS['MPDF_WRITE_DIR'])) {
+    mkdir($GLOBALS['MPDF_WRITE_DIR'], 0755, true);
 }
-
-// Safe bet support directories exist, define them.
-define("_MPDF_TEMP_PATH", $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/');
-define("_MPDF_TTFONTDATAPATH", $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/');
 
 // Includes composer autoload
 // Note this also brings in following library files:
 //  library/htmlspecialchars.inc.php - Include convenience functions with shorter names than "htmlspecialchars" (for security)
 //  library/formdata.inc.php - Include sanitization/checking functions (for security)
 //  library/sanitize.inc.php - Include sanitization/checking functions (for security)
+//  library/formatting.inc.php - Includes functions for date/time internationalization and formatting
 //  library/date_functions.php - Includes functions for date internationalization
 //  library/validation/validate_core.php - Includes functions for page validation
 //  library/translation.inc.php - Includes translation functions
 require_once $GLOBALS['vendor_dir'] ."/autoload.php";
+
+// Set up csrf token
+// This is done in cases where it is not yet set for the session
+// (note this is permanently done for the session in the main_screen.php script)
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = createCsrfToken();
+}
 
 /**
  * @var Dotenv Allow a `.env` file to be read in and applied as $_SERVER variables.
@@ -357,7 +360,8 @@ if (!empty($glrow)) {
             $GLOBALS['language_menu_show'][] = $gl_value;
         } elseif ($gl_name == 'css_header') {
             //Escape css file name using 'attr' for security (prevent XSS).
-            $GLOBALS[$gl_name] = $rootdir.'/themes/'.attr($gl_value).'?v='.$v_js_includes;
+            $GLOBALS[$gl_name] = $web_root.'/public/themes/'.attr($gl_value).'?v='.$v_js_includes;
+            $css_header = $GLOBALS[$gl_name];
             $temp_css_theme_name = $gl_value;
         } elseif ($gl_name == 'weekend_days') {
             $GLOBALS[$gl_name] = explode(',', $gl_value);
@@ -394,7 +398,7 @@ if (!empty($glrow)) {
 
   // Language cleanup stuff.
     $GLOBALS['language_menu_login'] = false;
-    if ((count($GLOBALS['language_menu_show']) >= 1) || $GLOBALS['language_menu_showall']) {
+    if ((count($GLOBALS['language_menu_show']) > 1) || $GLOBALS['language_menu_showall']) {
         $GLOBALS['language_menu_login'] = true;
     }
 
@@ -436,12 +440,13 @@ if (!empty($glrow)) {
         $new_theme = 'rtl_' . $temp_css_theme_name;
 
         // Check file existance
-        if (file_exists($include_root.'/themes/'.$new_theme)) {
+        if (file_exists($webserver_root.'/public/themes/'.$new_theme)) {
             //Escape css file name using 'attr' for security (prevent XSS).
-            $GLOBALS['css_header'] = $rootdir.'/themes/'.attr($new_theme).'?v='.$v_js_includes;
+            $GLOBALS['css_header'] = $web_root.'/public/themes/'.attr($new_theme).'?v='.$v_js_includes;
+            $css_header = $GLOBALS['css_header'];
         } else {
             // throw a warning if rtl'ed file does not exist.
-            error_log("Missing theme file ".text($include_root).'/themes/'.text($new_theme));
+            error_log("Missing theme file ".text($webserver_root).'/public/themes/'.text($new_theme));
         }
     }
 
@@ -466,7 +471,7 @@ if (!empty($glrow)) {
     $GLOBALS['translate_appt_categories'] = true;
     $timeout = 7200;
     $openemr_name = 'OpenEMR';
-    $css_header = "$rootdir/themes/style_default.css";
+    $css_header = "$web_root/public/themes/style_default.css";
     $GLOBALS['css_header'] = $css_header;
     $GLOBALS['schedule_start'] = 8;
     $GLOBALS['schedule_end'] = 17;
@@ -487,26 +492,13 @@ $GLOBALS['restore_sessions'] = 1; // 0=no, 1=yes, 2=yes+debug
 //
 $top_bg_line = ' bgcolor="#dddddd" ';
 $GLOBALS['style']['BGCOLOR2'] = "#dddddd";
-$bottom_bg_line = $top_bg_line;
-$title_bg_line = ' bgcolor="#bbbbbb" ';
-$nav_bg_line = ' bgcolor="#94d6e7" ';
-$login_filler_line = ' bgcolor="#f7f0d5" ';
 $logocode = "<img class='img-responsive center-block' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/login_logo.gif'>";
 // optimal size for the tiny logo is height 43 width 86 px
 // inside the open emr they will be auto reduced
 $tinylogocode1 = "<img class='tinylogopng' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_1.png'>";
 $tinylogocode2 = "<img class='tinylogopng' src='" . $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_2.png'>";
 
-$linepic = "$rootdir/pic/repeat_vline9.gif";
-$table_bg = ' bgcolor="#cccccc" ';
 $GLOBALS['style']['BGCOLOR1'] = "#cccccc";
-$GLOBALS['style']['TEXTCOLOR11'] = "#222222";
-$GLOBALS['style']['HIGHLIGHTCOLOR'] = "#dddddd";
-$GLOBALS['style']['BOTTOM_BG_LINE'] = $bottom_bg_line;
-// The height in pixels of the Logo bar at the top of the login page:
-$GLOBALS['logoBarHeight'] = 110;
-// The height in pixels of the Navigation bar:
-$GLOBALS['navBarHeight'] = 22;
 // The height in pixels of the Title bar:
 $GLOBALS['titleBarHeight'] = 50;
 
@@ -547,7 +539,6 @@ if (!empty($version)) {
 
 $srcdir = $GLOBALS['srcdir'];
 $login_screen = $GLOBALS['login_screen'];
-$GLOBALS['css_header'] = $css_header;
 $GLOBALS['backpic'] = $backpic;
 
 // 1 = send email message to given id for Emergency Login user activation,
@@ -571,7 +562,7 @@ if (($ignoreAuth_offsite_portal === true) && ($GLOBALS['portal_offsite_enable'] 
 }
 
 if (!$ignoreAuth) {
-    include_once("$srcdir/auth.inc");
+    require_once("$srcdir/auth.inc");
 }
 
 
@@ -616,10 +607,8 @@ function strterm($string, $length)
     }
 }
 
-// Override temporary_files_dir if PHP >= 5.2.1.
-if (version_compare(phpversion(), "5.2.1", ">=")) {
-    $GLOBALS['temporary_files_dir'] = rtrim(sys_get_temp_dir(), '/');
-}
+// Override temporary_files_dir
+$GLOBALS['temporary_files_dir'] = rtrim(sys_get_temp_dir(), '/');
 
 // turn off PHP compatibility warnings
 ini_set("session.bug_compat_warn", "off");

@@ -53,6 +53,14 @@ class PatientMenuRole extends MenuRole
         if (!$menu_parsed) {
             die("\nJSON ERROR: " . json_last_error());
         }
+        //to make the url absolute to web root and to account for external urls i.e. those beginning with http or https
+        foreach ($menu_parsed as $menu_obj) {
+            $rel_url = $menu_obj -> url;
+            if ($rel_url && !strpos($rel_url, "://")) {
+                $menu_obj -> url = $GLOBALS['webroot'] ."/". $rel_url;
+            }
+        }
+        $menu_parsed = json_decode(json_encode($menu_parsed));
         $this->menuUpdateEntries($menu_parsed);
         $menu_restrictions=array();
         $this->menuApplyRestrictions($menu_parsed, $menu_restrictions);
@@ -148,5 +156,54 @@ class PatientMenuRole extends MenuRole
                 array_push($menu_list->children, $subEntry);
             }
         }
+    }
+    /**
+     * displays a bootstrap3 horizontal nav bar
+     */
+    
+    public function displayHorizNavBarMenu()
+    {
+        $pid = $_SESSION['pid'];
+        $menu_restrictions = $this->getMenu();
+        $li_id = 1;
+        $str_top = <<<EOT
+        <nav class="navbar navbar-default navbar-color navbar-static-top patient-menu">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button class="navbar-toggle" data-target="#myNavbar" data-toggle="collapse" type="button"><span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span></button>
+                </div>
+                <div class="collapse navbar-collapse" id="myNavbar" >
+                    <ul class="nav navbar-nav">
+EOT;
+        echo $str_top. "\r\n";
+        foreach ($menu_restrictions as $key => $value) {
+            if (!empty($value->children)) {
+                // flatten to only show children items
+                foreach ($value->children as $children_key => $children_value) {
+                    $link = ($children_value->pid != "true") ? $children_value->url : $children_value->url . attr($pid);
+                    $class = isset($children_value->class) ? $children_value->class : '';
+                    $list = '<li class="oe-bold-black ' . attr($class) . '" id="' . attr($children_value->menu_id) . '">';
+                    $list .= '<a href="' . attr($link) . '" onclick="' . $children_value->on_click .'"> ' . text($children_value->label) . ' </a>';
+                    $list .= '</li>';
+                }
+                echo $list. "\r\n";
+            } else {
+                $link = ($value->pid != "true") ? $value->url : $value->url . attr($pid);
+                $class = isset($value->class) ? $value->class : '';
+                $list = '<li class="oe-bold-black ' . attr($class) . '" id="' . attr($value->menu_id) . '">';
+                $list .= '<a href="' . attr($link) . '" onclick="' . $value->on_click .'"> ' . text($value->label) . ' </a>';
+                $list .= '</li>';
+            }
+            echo $list. "\r\n";
+            $li_id++;
+        }
+        $str_bot = <<<EOB
+                    </ul>
+                </div>
+            </div>
+        </nav>
+EOB;
+        echo $str_bot. "\r\n";
+        return;
     }
 }

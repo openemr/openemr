@@ -16,6 +16,7 @@ class C_FormEvaluation extends Controller
         $this->assign("FORM_ACTION", $GLOBALS['web_root']);
         $this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
         $this->assign("STYLE", $GLOBALS['style']);
+        $this->assign("CSRF_TOKEN_FORM", collectCsrfToken());
     }
 
     function default_action()
@@ -57,9 +58,9 @@ class C_FormEvaluation extends Controller
         addForm($GLOBALS['encounter'], "Evaluation Form", $this->evaluation->id, "evaluation", $GLOBALS['pid'], $_SESSION['userauthorized']);
 
         if (!empty($_POST['cpt_code'])) {
-            $sql = "select * from codes where code ='" . add_escape_custom($_POST['cpt_code']) . "' order by id";
+            $sql = "select * from codes where code = ? ORDER BY id";
 
-            $results = sqlQ($sql);
+            $results = sqlQ($sql, array($_POST['cpt_code']));
 
             $row = sqlFetchArray($results);
             if (!empty($row)) {

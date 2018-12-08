@@ -15,7 +15,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010-2016 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -23,6 +23,12 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 // Specify if product or warehouse is the first column.
 $product_first = (!empty($_POST['form_by']) && $_POST['form_by'] == 'w') ? 0 : 1;
@@ -45,7 +51,7 @@ function getEndInventory($product_id = 0, $warehouse_id = '~')
     if ($warehouse_id !== '~') {
         $whidcond = $warehouse_id === '' ?
         "AND ( di.warehouse_id IS NULL OR di.warehouse_id = '' )" :
-        "AND di.warehouse_id = '$warehouse_id'";
+        "AND di.warehouse_id = '" . add_escape_custom($warehouse_id) . "'";
     }
 
     $prodcond = '';
@@ -54,29 +60,29 @@ function getEndInventory($product_id = 0, $warehouse_id = '~')
     }
 
     if ($product_id) {
-        $prodcond = "AND di.drug_id = '$product_id'";
+        $prodcond = "AND di.drug_id = '" . add_escape_custom($product_id) . "'";
     }
 
   // Get sum of current inventory quantities + destructions done after the
   // report end date (which is effectively a type of transaction).
     $eirow = sqlQuery("SELECT sum(di.on_hand) AS on_hand " .
     "FROM drug_inventory AS di WHERE " .
-    "( di.destroy_date IS NULL OR di.destroy_date > '$form_to_date' ) " .
-    "$prodcond $whidcond");
+    "( di.destroy_date IS NULL OR di.destroy_date > ? ) " .
+    "$prodcond $whidcond", array($form_to_date));
 
   // Get sum of sales/adjustments/purchases after the report end date.
     $sarow = sqlQuery("SELECT sum(ds.quantity) AS quantity " .
     "FROM drug_sales AS ds, drug_inventory AS di WHERE " .
-    "ds.sale_date > '$form_to_date' AND " .
+    "ds.sale_date > ? AND " .
     "di.inventory_id = ds.inventory_id " .
-    "$prodcond $whidcond");
+    "$prodcond $whidcond", array($form_to_date));
 
   // Get sum of transfers out after the report end date.
     $xfrow = sqlQuery("SELECT sum(ds.quantity) AS quantity " .
     "FROM drug_sales AS ds, drug_inventory AS di WHERE " .
-    "ds.sale_date > '$form_to_date' AND " .
+    "ds.sale_date > ? AND " .
     "di.inventory_id = ds.xfer_inventory_id " .
-    "$prodcond $whidcond");
+    "$prodcond $whidcond", array($form_to_date));
 
     return $eirow['on_hand'] + $sarow['quantity'] - $xfrow['quantity'];
 }
@@ -143,49 +149,49 @@ function thisLineItem(
                 <tr bgcolor="#ddddff">
                 <?php if ($product_first) { ?>
                     <td class="detail">
-                        <?php echo htmlspecialchars($prodleft);
+                        <?php echo text($prodleft);
                         $prodleft = " "; ?>
                     </td>
                     <td class="detail" colspan='3'>
                         <?php
                         if ($_POST['form_details']) {
-                            echo htmlspecialchars(xl('Total for')) . ' ';
+                            echo xlt('Total for') . ' ';
                         }
-                        echo htmlspecialchars($warehouse); ?>
+                        echo text($warehouse); ?>
                     </td>
                 <?php } else { ?>
                     <td class="detail">
-                        <?php echo htmlspecialchars($whleft);
+                        <?php echo text($whleft);
                         $whleft = " "; ?>
                     </td>
                     <td class="detail" colspan='3'>
                         <?php
                         if ($_POST['form_details']) {
-                            echo htmlspecialchars(xl('Total for')) . ' ';
+                            echo xlt('Total for') . ' ';
                         }
-                        echo htmlspecialchars($product); ?>
+                        echo text($product); ?>
                     </td>
                 <?php } ?>
                 <td class="dehead" align="right">
-                    <?php echo $secei - $secqtys[0] - $secqtys[1] - $secqtys[2] - $secqtys[3] - $secqtys[4]; ?>
+                    <?php echo text($secei - $secqtys[0] - $secqtys[1] - $secqtys[2] - $secqtys[3] - $secqtys[4]); ?>
                 </td>
                 <td class="dehead" align="right">
-                    <?php echo $secqtys[0]; ?>
+                    <?php echo text($secqtys[0]); ?>
                 </td>
                 <td class="dehead" align="right">
-                    <?php echo $secqtys[1]; ?>
+                    <?php echo text($secqtys[1]); ?>
                 </td>
                 <td class="dehead" align="right">
-                    <?php echo $secqtys[2]; ?>
+                    <?php echo text($secqtys[2]); ?>
                 </td>
                 <td class="dehead" align="right">
-                    <?php echo $secqtys[3]; ?>
+                    <?php echo text($secqtys[3]); ?>
                 </td>
                 <td class="dehead" align="right">
-                    <?php echo $secqtys[4]; ?>
+                    <?php echo text($secqtys[4]); ?>
                 </td>
                 <td class="dehead" align="right">
-                    <?php echo $secei; ?>
+                    <?php echo text($secei); ?>
                 </td>
                 </tr>
             <?php
@@ -218,29 +224,29 @@ function thisLineItem(
                 &nbsp;
                 </td>
                 <td class="detail" colspan="3">
-                <?php echo htmlspecialchars(xl('Total for')) . ' ';
-                echo htmlspecialchars($product_first ? $product : $warehouse); ?>
+                <?php echo xlt('Total for') . ' ';
+                echo text($product_first ? $product : $warehouse); ?>
                 </td>
                 <td class="dehead" align="right">
-                <?php echo $priei - $priqtys[0] - $priqtys[1] - $priqtys[2] - $priqtys[3] - $priqtys[4]; ?>
+                <?php echo text($priei - $priqtys[0] - $priqtys[1] - $priqtys[2] - $priqtys[3] - $priqtys[4]); ?>
                 </td>
                 <td class="dehead" align="right">
-                <?php echo $priqtys[0]; ?>
+                <?php echo text($priqtys[0]); ?>
                 </td>
                 <td class="dehead" align="right">
-                <?php echo $priqtys[1]; ?>
+                <?php echo text($priqtys[1]); ?>
                 </td>
                 <td class="dehead" align="right">
-                <?php echo $priqtys[2]; ?>
+                <?php echo text($priqtys[2]); ?>
                 </td>
                 <td class="dehead" align="right">
-                <?php echo $priqtys[3]; ?>
+                <?php echo text($priqtys[3]); ?>
                 </td>
                 <td class="dehead" align="right">
-                <?php echo $priqtys[4]; ?>
+                <?php echo text($priqtys[4]); ?>
                 </td>
                 <td class="dehead" align="right">
-                <?php echo $priei; ?>
+                <?php echo text($priei); ?>
                 </td>
                 </tr>
                 <?php
@@ -281,20 +287,20 @@ function thisLineItem(
             <tr>
             <?php if ($product_first) { ?>
                 <td class="detail">
-                    <?php echo htmlspecialchars($prodleft);
+                    <?php echo text($prodleft);
                     $prodleft = " "; ?>
                 </td>
                 <td class="detail">
-                    <?php echo htmlspecialchars($whleft);
+                    <?php echo text($whleft);
                     $whleft = " "; ?>
                 </td>
             <?php } else { ?>
                 <td class="detail">
-                    <?php echo htmlspecialchars($whleft);
+                    <?php echo text($whleft);
                     $whleft = " "; ?>
                 </td>
                 <td class="detail">
-                    <?php echo htmlspecialchars($prodleft);
+                    <?php echo text($prodleft);
                     $prodleft = " "; ?>
                 </td>
             <?php } ?>
@@ -302,25 +308,25 @@ function thisLineItem(
                 <?php echo text(oeFormatShortDate($transdate)); ?>
             </td>
             <td class="detail">
-                <?php echo htmlspecialchars($invnumber); ?>
+                <?php echo text($invnumber); ?>
             </td>
             <td class="detail">
                 &nbsp;
             </td>
             <td class="dehead" align="right">
-                <?php echo $qtys[0]; ?>
+                <?php echo text($qtys[0]); ?>
             </td>
             <td class="dehead" align="right">
-                <?php echo $qtys[1]; ?>
+                <?php echo text($qtys[1]); ?>
             </td>
             <td class="dehead" align="right">
-                <?php echo $qtys[2]; ?>
+                <?php echo text($qtys[2]); ?>
             </td>
             <td class="dehead" align="right">
-                <?php echo $qtys[3]; ?>
+                <?php echo text($qtys[3]); ?>
             </td>
             <td class="dehead" align="right">
-                <?php echo $qtys[4]; ?>
+                <?php echo text($qtys[4]); ?>
             </td>
             <td class="detail">
                 &nbsp;
@@ -337,14 +343,14 @@ function thisLineItem(
 } // end function
 
 if (! acl_check('acct', 'rep')) {
-    die(htmlspecialchars(xl("Unauthorized access.")));
+    die(xlt("Unauthorized access."));
 }
 
 // this is "" or "submit" or "export".
 $form_action = $_POST['form_action'];
 
-$form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
-$form_to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
+$form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
+$form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
 $form_product  = $_POST['form_product'];
 
 if ($form_action == 'export') {
@@ -386,10 +392,10 @@ else {
 <html>
 <head>
 <?php html_header_show();?>
-<title><?php echo htmlspecialchars(xl('Inventory Activity')) ?></title>
+<title><?php echo xlt('Inventory Activity'); ?></title>
 
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
 <style type="text/css">
  /* specifically include & exclude from printing */
@@ -417,8 +423,8 @@ table.mymaintable td, table.mymaintable th {
 
 
 <script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-9-1/jquery.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 <script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language='JavaScript'>
@@ -431,7 +437,7 @@ table.mymaintable td, table.mymaintable th {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
-            <?php $datetimepicker_formatInput = false; ?>
+            <?php $datetimepicker_formatInput = true; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
@@ -452,9 +458,10 @@ table.mymaintable td, table.mymaintable th {
 
 <center>
 
-<h2><?php echo htmlspecialchars(xl('Inventory Activity'))?></h2>
+<h2><?php echo xlt('Inventory Activity'); ?></h2>
 
-<form method='post' action='inventory_activity.php?product=<?php echo htmlspecialchars($product_first, ENT_QUOTES); ?>'>
+<form method='post' action='inventory_activity.php?product=<?php echo attr_url($product_first); ?>' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 <!-- form_action is set to "submit" or "export" at form submit time -->
@@ -465,34 +472,32 @@ table.mymaintable td, table.mymaintable th {
    <table class='text'>
     <tr>
      <td class='label_custom'>
-        <?php echo htmlspecialchars(xl('By')); ?>:
+        <?php echo xlt('By'); ?>:
      </td>
      <td nowrap>
       <select name='form_by'>
-       <option value='p'><?php echo htmlspecialchars(xl('Product')); ?></option>
-       <option value='w'<?php echo (!$product_first) ? ' selected' : ''; ?>><?php echo htmlspecialchars(xl('Warehouse')); ?></option>
+       <option value='p'><?php echo xlt('Product'); ?></option>
+       <option value='w'<?php echo (!$product_first) ? ' selected' : ''; ?>><?php echo xlt('Warehouse'); ?></option>
       </select>
      </td>
      <td class='label_custom'>
-        <?php echo htmlspecialchars(xl('From')); ?>:
+        <?php echo xlt('From'); ?>:
      </td>
      <td nowrap>
       <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10'
-       value='<?php echo htmlspecialchars($form_from_date, ENT_QUOTES) ?>'
-       title='<?php echo htmlspecialchars(xl('yyyy-mm-dd'), ENT_QUOTES) ?>'>
+       value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
      </td>
      <td class='label_custom'>
-        <?php echo htmlspecialchars(xl('To')); ?>:
+        <?php echo xlt('To'); ?>:
      </td>
      <td nowrap>
       <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10'
-       value='<?php echo htmlspecialchars($form_to_date, ENT_QUOTES) ?>'
-       title='<?php echo htmlspecialchars(xl('yyyy-mm-dd'), ENT_QUOTES) ?>'>
+       value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
      </td>
     </tr>
     <tr>
      <td class='label_custom'>
-        <?php echo htmlspecialchars(xl('For'), ENT_NOQUOTES); ?>:
+        <?php echo xlt('For'); ?>:
      </td>
      <td nowrap>
 <?php
@@ -501,22 +506,22 @@ table.mymaintable td, table.mymaintable th {
 $query = "SELECT drug_id, name FROM drugs ORDER BY name, drug_id";
 $pres = sqlStatement($query);
 echo "      <select name='form_product'>\n";
-echo "       <option value=''>-- " . htmlspecialchars(xl('All Products')) . " --\n";
+echo "       <option value=''>-- " . xlt('All Products') . " --\n";
 while ($prow = sqlFetchArray($pres)) {
     $drug_id = $prow['drug_id'];
-    echo "       <option value='$drug_id'";
+    echo "       <option value='" . attr($drug_id) . "'";
     if ($drug_id == $form_product) {
         echo " selected";
     }
 
-    echo ">" . htmlspecialchars($prow['name']) . "\n";
+    echo ">" . text($prow['name']) . "\n";
 }
 
 echo "      </select>\n";
 ?>
      </td>
      <td class='label_custom'>
-        <?php echo htmlspecialchars(xl('Details')); ?>:
+        <?php echo xlt('Details'); ?>:
      </td>
      <td colspan='3' nowrap>
       <input type='checkbox' name='form_details' value='1'<?php echo ($_POST['form_details']) ? " checked" : "";?> />
@@ -529,14 +534,14 @@ echo "      </select>\n";
     <tr>
      <td valign='middle'>
       <a href='#' class='css_button' onclick='mysubmit("submit")' style='margin-left:1em'>
-       <span><?php echo htmlspecialchars(xl('Submit')); ?></span>
+       <span><?php echo xlt('Submit'); ?></span>
       </a>
 <?php if ($form_action) { ?>
       <a href='#' class='css_button' id='printbutton' style='margin-left:1em'>
-       <span><?php echo htmlspecialchars(xl('Print')); ?></span>
+       <span><?php echo xlt('Print'); ?></span>
       </a>
       <a href='#' class='css_button' onclick='mysubmit("export")' style='margin-left:1em'>
-       <span><?php echo htmlspecialchars(xl('CSV Export')); ?></span>
+       <span><?php echo xlt('CSV Export'); ?></span>
       </a>
 <?php } ?>
      </td>
@@ -554,43 +559,43 @@ echo "      </select>\n";
  <thead>
  <tr bgcolor="#dddddd">
   <td class="dehead">
-    <?php echo htmlspecialchars($product_first ? xl('Product') : xl('Warehouse')); ?>
+    <?php echo text($product_first ? xl('Product') : xl('Warehouse')); ?>
   </td>
 <?php if ($_POST['form_details']) { ?>
   <td class="dehead">
-    <?php echo htmlspecialchars($product_first ? xl('Warehouse') : xl('Product')); ?>
+    <?php echo text($product_first ? xl('Warehouse') : xl('Product')); ?>
   </td>
   <td class="dehead">
-    <?php echo htmlspecialchars(xl('Date')); ?>
+    <?php echo xlt('Date'); ?>
   </td>
   <td class="dehead">
-    <?php echo htmlspecialchars(xl('Invoice')); ?>
+    <?php echo xlt('Invoice'); ?>
   </td>
 <?php } else { ?>
   <td class="dehead" colspan="3">
-    <?php echo htmlspecialchars($product_first ? xl('Warehouse') : xl('Product')); ?>
+    <?php echo text($product_first ? xl('Warehouse') : xl('Product')); ?>
   </td>
 <?php } ?>
   <td class="dehead" align="right" width="8%">
-    <?php echo htmlspecialchars(xl('Start')); ?>
+    <?php echo xlt('Start'); ?>
   </td>
   <td class="dehead" align="right" width="8%">
-    <?php echo htmlspecialchars(xl('Sales')); ?>
+    <?php echo xlt('Sales'); ?>
   </td>
   <td class="dehead" align="right" width="8%">
-    <?php echo htmlspecialchars(xl('Distributions')); ?>
+    <?php echo xlt('Distributions'); ?>
   </td>
   <td class="dehead" align="right" width="8%">
-    <?php echo htmlspecialchars(xl('Purchases')); ?>
+    <?php echo xlt('Purchases'); ?>
   </td>
   <td class="dehead" align="right" width="8%">
-    <?php echo htmlspecialchars(xl('Transfers')); ?>
+    <?php echo xlt('Transfers'); ?>
   </td>
   <td class="dehead" align="right" width="8%">
-    <?php echo htmlspecialchars(xl('Adjustments')); ?>
+    <?php echo xlt('Adjustments'); ?>
   </td>
   <td class="dehead" align="right" width="8%">
-    <?php echo htmlspecialchars(xl('End')); ?>
+    <?php echo xlt('End'); ?>
   </td>
  </tr>
  </thead>
@@ -612,6 +617,8 @@ if ($form_action) { // if submit or export
     $secqtys   = array(0, 0, 0, 0, 0);
     $last_inventory_id = 0;
 
+    $sqlBindArray = array();
+
     $query = "SELECT s.sale_id, s.sale_date, s.quantity, s.fee, s.pid, s.encounter, " .
     "s.xfer_inventory_id, s.distributor_id, d.name, lo.title, " .
     "di.drug_id, di.warehouse_id, di.inventory_id, di.destroy_date, di.on_hand, " .
@@ -619,17 +626,20 @@ if ($form_action) { // if submit or export
     "FROM drug_inventory AS di " .
     "JOIN drugs AS d ON d.drug_id = di.drug_id " .
     "LEFT JOIN drug_sales AS s ON " .
-    "s.sale_date >= '$from_date' AND s.sale_date <= '$to_date' AND " .
+    "s.sale_date >= ? AND s.sale_date <= ? AND " .
     "s.drug_id = di.drug_id AND " .
     "( s.inventory_id = di.inventory_id OR s.xfer_inventory_id = di.inventory_id ) " .
     "LEFT JOIN list_options AS lo ON lo.list_id = 'warehouse' AND " .
     "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
     "LEFT JOIN form_encounter AS fe ON fe.pid = s.pid AND fe.encounter = s.encounter " .
-    "WHERE ( di.destroy_date IS NULL OR di.destroy_date >= '$form_from_date' )";
+    "WHERE ( di.destroy_date IS NULL OR di.destroy_date >= ? )";
+
+    array_push($sqlBindArray, $from_date, $to_date, $form_from_date);
 
     // If a product was specified.
     if ($form_product) {
-        $query .= " AND di.drug_id = '$form_product'";
+        $query .= " AND di.drug_id = ?";
+        array_push($sqlBindArray, $form_product);
     }
 
     if ($product_first) {
@@ -640,7 +650,7 @@ if ($form_action) { // if submit or export
         "di.inventory_id, s.sale_date, s.sale_id";
     }
 
-    $res = sqlStatement($query);
+    $res = sqlStatement($query, $sqlBindArray);
     while ($row = sqlFetchArray($res)) {
         // If new lot and it was destroyed during the reporting period,
         // generate a pseudo-adjustment for that.
@@ -704,28 +714,28 @@ if ($form_action) { // if submit or export
         ?>
         <tr bgcolor="#dddddd">
         <td class="detail" colspan="4">
-            <?php echo htmlspecialchars(xl('Grand Total')); ?>
+            <?php echo xlt('Grand Total'); ?>
         </td>
         <td class="dehead" align="right">
-            <?php echo $grei - $grandqtys[0] - $grandqtys[1] - $grandqtys[2] - $grandqtys[3] - $grandqtys[4]; ?>
+            <?php echo text($grei - $grandqtys[0] - $grandqtys[1] - $grandqtys[2] - $grandqtys[3] - $grandqtys[4]); ?>
         </td>
         <td class="dehead" align="right">
-            <?php echo $grandqtys[0]; ?>
+            <?php echo text($grandqtys[0]); ?>
         </td>
         <td class="dehead" align="right">
-            <?php echo $grandqtys[1]; ?>
+            <?php echo text($grandqtys[1]); ?>
         </td>
         <td class="dehead" align="right">
-            <?php echo $grandqtys[2]; ?>
+            <?php echo text($grandqtys[2]); ?>
         </td>
         <td class="dehead" align="right">
-            <?php echo $grandqtys[3]; ?>
+            <?php echo text($grandqtys[3]); ?>
         </td>
         <td class="dehead" align="right">
-            <?php echo $grandqtys[4]; ?>
+            <?php echo text($grandqtys[4]); ?>
         </td>
         <td class="dehead" align="right">
-            <?php echo $grei; ?>
+            <?php echo text($grei); ?>
         </td>
         </tr>
         <?php

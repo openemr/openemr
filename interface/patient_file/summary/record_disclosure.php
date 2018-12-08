@@ -1,30 +1,15 @@
 <?php
 /**
- *
  * Patient disclosures main screen.
  *
- * Copyright (C) Visolve <vicareplus_engg@visolve.com>
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Visolve <vicareplus_engg@visolve.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Visolve <vicareplus_engg@visolve.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) Visolve <vicareplus_engg@visolve.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-
-
 
 
 require_once("../../globals.php");
@@ -39,12 +24,12 @@ if (isset($_GET['editlid'])) {
 <html>
 <head>
 <link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
 <!-- supporting javascript code -->
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
 <script type="text/javascript">
 //function to validate fields in record disclosure page
@@ -101,43 +86,45 @@ $(document).ready(function () {
 <div style='float: left; margin-right: 5px'><?php
 if ($editlid) {
     ?><!--Edit the disclosures-->
-    <span class="title"><?php echo htmlspecialchars(xl('Edit Disclosure'), ENT_NOQUOTES); ?></span><?php
+    <span class="title"><?php echo xlt('Edit Disclosure'); ?></span><?php
 } else { ?>
-        <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure'), ENT_NOQUOTES); ?></span><?php
+        <span class="title"><?php echo xlt('Record Disclosure'); ?></span><?php
 } ?>
 </div>
 
 <form name="disclosure_form" id="disclosure_form" method="POST" action="disclosure_full.php">
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+
     <div><button class='css_button_span large_button_span' name='form_save' id='form_save'>
-            <?php echo htmlspecialchars(xl('Save'), ENT_NOQUOTES); ?>
+            <?php echo xlt('Save'); ?>
         </button></div>
     <div><a class="css_button large_button" id='cancel' href='#' onclick='top.restoreSession();dlgclose()'> <span
-                class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Cancel'), ENT_NOQUOTES); ?></span>
+                class='css_button_span large_button_span'><?php echo xlt('Cancel'); ?></span>
         </a></div>
     <br>
 <input type=hidden name=mode value="disclosure">
 <table border=0 cellpadding=3 cellspacing=0 align='center'>
     <br>
     <tr>
-        <td><span class='text'><?php echo htmlspecialchars(xl('Date'), ENT_NOQUOTES); ?>:</span></td>
+        <td><span class='text'><?php echo xlt('Date'); ?>:</span></td>
         <td><!--retrieve disclosures from extended_log table for modifications-->
         <?php
         if ($editlid) {
             $dres=sqlQuery("select date,recipient,description,event from extended_log where id=?", array($editlid));
-                       $description=$dres{"description"};
+            $description=$dres{"description"};
             $app_event=$dres{"event"};
             $disc_date=$dres{"date"};
-                       $recipient_name=$dres{"recipient"};
+            $recipient_name=$dres{"recipient"};
             ?>
-            <input type=hidden name=disclosure_id value="<?php echo htmlspecialchars($editlid, ENT_QUOTES); ?>">
+            <input type=hidden name=disclosure_id value="<?php echo attr($editlid); ?>">
             <input type=hidden name=updatemode value="disclosure_update">
-            <input type='entry' size='20' class='datepicker' name='dates' id='dates' value='<?php echo htmlspecialchars($disc_date, ENT_QUOTES);?>' style="background-color:white"/>&nbsp; <?php
+            <input type='entry' size='20' class='datepicker' name='dates' id='dates' value='<?php echo attr($disc_date);?>' style="background-color:white"/>&nbsp; <?php
         } else {
             ?> <input type='entry' size='20' class='datepicker' name='dates' id='dates' value='' style="background-color:white"/>&nbsp;<?php
         } ?>
     </tr>
     <tr>
-        <td><span class=text><?php echo htmlspecialchars(xl('Type of Disclosure'), ENT_NOQUOTES); ?>: </span></TD>
+        <td><span class=text><?php echo xlt('Type of Disclosure'); ?>: </span></TD>
         <td><?php
         if ($editlid) {
             //To incorporate the disclosure types  into the list_options listings
@@ -149,12 +136,12 @@ if ($editlid) {
         </td>
     </tr>
     <tr>
-        <td><span class=text><?php echo htmlspecialchars(xl('Recipient of the Disclosure'), ENT_NOQUOTES); ?>:
+        <td><span class=text><?php echo xlt('Recipient of the Disclosure'); ?>:
         </span></td>
         <td class='text'>
         <?php
         if ($editlid) {
-            ?> <input type=entry name=recipient_name size=20 value="<?php echo htmlspecialchars($recipient_name, ENT_QUOTES); ?>"></td>
+            ?> <input type=entry name=recipient_name size=20 value="<?php echo attr($recipient_name); ?>"></td>
             <?php
         } else {?>
             <input type=entry name=recipient_name size=20 value="">
@@ -164,10 +151,10 @@ if ($editlid) {
     </tr>
     <tr>
         <td>
-        <span class=text><?php echo htmlspecialchars(xl('Description of the Disclosure'), ENT_NOQUOTES); ?>:</span></td>
+        <span class=text><?php echo xlt('Description of the Disclosure'); ?>:</span></td>
         <?php if ($editlid) { ?>
             <td>
-            <textarea name=desc_disc wrap=auto rows=4 cols=30><?php echo htmlspecialchars($description, ENT_NOQUOTES); ?></textarea>
+            <textarea name=desc_disc wrap=auto rows=4 cols=30><?php echo text($description); ?></textarea>
         <?php } else {?>
             <td>
             <textarea name=desc_disc wrap=auto rows=4 cols=30></textarea>

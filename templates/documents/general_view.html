@@ -21,7 +21,7 @@
 
  // Process click on Delete link.
  function deleteme(docid) {literal}{{/literal}
-  dlgopen('interface/patient_file/deleter.php?document=' + docid, '_blank', 500, 450);
+  dlgopen('interface/patient_file/deleter.php?document=' + encodeURIComponent(docid) + '&csrf_token_form=' + "{$csrf_token_form|urlencode|escape:'javascript'}", '_blank', 500, 450);
   return false;
  {literal}}{/literal}
 
@@ -113,10 +113,11 @@ function ImgProcedure() {literal}{{/literal}
     type: "POST",
     dataType: "html",
     data:
-    {
+    {{/literal}
+      csrf_token_form : "{$csrf_token_form|escape:'html'}",
       ccr_ajax : "yes",
-      document_id : docid,
-    },
+      document_id : docid
+    {literal}},
     success: function(data){
       alert(data);
       top.restoreSession();

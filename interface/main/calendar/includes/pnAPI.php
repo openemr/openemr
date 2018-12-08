@@ -808,7 +808,7 @@ function pnVarPrepForStore()
     foreach (func_get_args() as $ourvar) {
         // Prepare var
         if (!get_magic_quotes_runtime()) {
-            $ourvar = addslashes($ourvar);
+            $ourvar = add_escape_custom($ourvar);
         }
 
         // Add to array

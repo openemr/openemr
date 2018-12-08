@@ -5,12 +5,13 @@
  * @package OpenEMR
  * @link    http://www.open-emr.org
  * @author  Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2010-2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
 require_once("../../globals.php");
+
 use OpenEMR\Core\Header;
 
 ?>
@@ -33,7 +34,8 @@ use OpenEMR\Core\Header;
                     amc_id: "provide_rec_pat_amc",
                     complete: false,
                     mode: "add_force",
-                    patient_id: <?php echo attr($pid); ?>
+                    patient_id: <?php echo js_escape($pid); ?>,
+                    csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
                 });
             });
         });

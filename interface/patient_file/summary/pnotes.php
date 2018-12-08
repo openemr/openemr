@@ -2,37 +2,27 @@
 /**
  * Display patient notes.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
+require_once("../../globals.php");
+require_once("$srcdir/pnotes.inc");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/options.inc.php");
 
- require_once("../../globals.php");
- require_once("$srcdir/pnotes.inc");
- require_once("$srcdir/acl.inc");
- require_once("$srcdir/patient.inc");
- require_once("$srcdir/options.inc.php");
+// form parameter docid can be passed to restrict the display to a document.
+$docid = empty($_REQUEST['docid']) ? 0 : intval($_REQUEST['docid']);
 
- // form parameter docid can be passed to restrict the display to a document.
- $docid = empty($_REQUEST['docid']) ? 0 : intval($_REQUEST['docid']);
+// form parameter orderid can be passed to restrict the display to a procedure order.
+$orderid = empty($_REQUEST['orderid']) ? 0 : intval($_REQUEST['orderid']);
 
- // form parameter orderid can be passed to restrict the display to a procedure order.
- $orderid = empty($_REQUEST['orderid']) ? 0 : intval($_REQUEST['orderid']);
-
- $patient_id = $pid;
+$patient_id = $pid;
 if ($docid) {
     $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid));
     $patient_id = intval($row['foreign_id']);
@@ -41,20 +31,20 @@ if ($docid) {
     $patient_id = intval($row['patient_id']);
 }
 
- $urlparms = "docid=$docid&orderid=$orderid";
+ $urlparms = "docid=" . attr_url($docid) . "&orderid=" . attr_url($orderid);
 ?>
 <html>
 <head>
 <?php html_header_show();?>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/jquery-min-1-2-2/index.js"></script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 </head>
 <body class="body_bottom">
 
 <?php
- $thisauth = acl_check('patients', 'notes');
+$thisauth = acl_check('patients', 'notes');
 if ($thisauth) {
     $tmp = getPatientData($patient_id, "squad");
     if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
@@ -63,7 +53,7 @@ if ($thisauth) {
 }
 
 if (!$thisauth) {
-    echo "<p>(" . htmlspecialchars(xl('Notes not authorized'), ENT_NOQUOTES) . ")</p>\n";
+    echo "<p>(" . xlt('Notes not authorized') . ")</p>\n";
     echo "</body>\n</html>\n";
     exit();
 }
@@ -75,18 +65,18 @@ if (!$thisauth) {
 
 <a href="pnotes_full.php?<?php echo $urlparms; ?>" onclick="top.restoreSession()">
 
-<span class="title"><?php echo htmlspecialchars(xl('Notes'), ENT_NOQUOTES); ?>
+<span class="title"><?php echo xlt('Notes'); ?>
 <?php
 if ($docid) {
     echo " " . xlt("linked to document") . " ";
     $d = new Document($docid);
-    echo $d->get_url_file();
+    echo text($d->get_url_file());
 } else if ($orderid) {
-    echo " " . xlt("linked to procedure order") . " $orderid";
+    echo " " . xlt("linked to procedure order") . " " . text($orderid);
 }
 ?>
 </span>
-<span class=more><?php echo htmlspecialchars($tmore, ENT_NOQUOTES);?></span>
+<span class=more><?php echo text($tmore);?></span>
 </a>
 <?php endif; ?>
 
@@ -114,17 +104,17 @@ $balance = get_patient_balance($patient_id);
 if ($balance != "0") {
     $formatted = sprintf((xl('$').'%01.2f'), $balance);
     echo " <tr class='text billing'>\n";
-    echo "  <td>" . $colorbeg . htmlspecialchars(xl('Balance Due'), ENT_NOQUOTES) .
+    echo "  <td>" . $colorbeg . xlt('Balance Due') .
     $colorend . "</td><td>" . $colorbeg .
-    htmlspecialchars($formatted, ENT_NOQUOTES) . $colorend."</td>\n";
+    text($formatted) . $colorend."</td>\n";
     echo " </tr>\n";
 }
 
 if ($billing_note) {
     echo " <tr class='text billing'>\n";
-    echo "  <td>" . $colorbeg . htmlspecialchars(xl('Billing Note'), ENT_NOQUOTES) .
+    echo "  <td>" . $colorbeg . xlt('Billing Note') .
     $colorend . "</td><td>" . $colorbeg .
-    htmlspecialchars($billing_note, ENT_NOQUOTES) . $colorend . "</td>\n";
+    text($billing_note) . $colorend . "</td>\n";
     echo " </tr>\n";
 }
 
@@ -152,8 +142,8 @@ if ($result != null) {
             echo "   <a ";
             echo "href='pnotes_full.php?active=1&$urlparms" .
             "' class='alert' onclick='top.restoreSession()'>";
-            echo htmlspecialchars(xl('Some notes were not displayed.', '', '', ' '), ENT_NOQUOTES) .
-            htmlspecialchars(xl('Click here to view all.'), ENT_NOQUOTES) . "</a>\n";
+            echo xlt('Some notes were not displayed.') . ' ' .
+            xlt('Click here to view all.') . "</a>\n";
             echo "  </td>\n";
             echo " </tr>\n";
             break;
@@ -161,13 +151,13 @@ if ($result != null) {
 
         $body = $iter['body'];
         if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
-            $body = nl2br(htmlspecialchars($body, ENT_NOQUOTES));
+            $body = nl2br(text($body));
         } else {
-            $body = htmlspecialchars(date('Y-m-d H:i', strtotime($iter['date'])), ENT_NOQUOTES) .
-            ' (' . htmlspecialchars($iter['user'], ENT_NOQUOTES) . ') ' . nl2br(htmlspecialchars($body, ENT_NOQUOTES));
+            $body = text(date('Y-m-d H:i', strtotime($iter['date']))) .
+            ' (' . text($iter['user']) . ') ' . nl2br(text($body));
         }
 
-        echo " <tr class='text noterow' id='".htmlspecialchars($iter['id'], ENT_QUOTES)."'>\n";
+        echo " <tr class='text noterow' id='" . text($iter['id']) . "'>\n";
 
         // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
         echo "  <td valign='top' class='bold'>";
@@ -194,18 +184,7 @@ if ($result != null) {
 $(document).ready(function(){
     $(".noterow").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".noterow").mouseout(function() { $(this).toggleClass("highlight"); });
-    $(".noterow").click(function() { EditNote(this); });
 });
-
-var EditNote = function(note) {
-<?php if (acl_check('patients', 'notes', '', array('write','addonly'))) : ?>
-    top.restoreSession();
-    location.href = "pnotes_full.php?<?php echo $urlparms; ?>&noteid=" + note.id + "&active=1";
-<?php else : ?>
-    // no-op
-    alert("<?php echo htmlspecialchars(xl('You do not have access to view/edit this note'), ENT_QUOTES); ?>");
-<?php endif; ?>
-}
 
 </script>
 

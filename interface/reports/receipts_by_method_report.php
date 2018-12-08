@@ -27,6 +27,12 @@ require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Core\Header;
 
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
+
 // This controls whether we show pt name, policy number and DOS.
 $showing_ppd = true;
 
@@ -300,7 +306,7 @@ $form_proc_code = $tmp_code_array[1];
 
         // This invokes the find-code popup.
         function sel_procedure() {
-            dlgopen('../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("procedure", "csv")) ?>', '_blank', 500, 400);
+            dlgopen('../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr_url(collect_codetypes("procedure", "csv")) ?>', '_blank', 500, 400);
         }
     </script>
 </head>
@@ -310,6 +316,7 @@ $form_proc_code = $tmp_code_array[1];
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Receipts Summary'); ?></span>
 
 <form method='post' action='receipts_by_method_report.php' id='theform' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 
@@ -341,7 +348,7 @@ $form_proc_code = $tmp_code_array[1];
             </td>
 
             <td>
-            <?php dropdown_facility(strip_escape_custom($form_facility), 'form_facility', false); ?>
+            <?php dropdown_facility($form_facility, 'form_facility', false); ?>
             </td>
 
             <td class='control-label'>
@@ -375,7 +382,7 @@ $form_proc_code = $tmp_code_array[1];
                <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
             </td>
             <td class='control-label'>
-                <?php xl('To', 'e'); ?>:
+                <?php echo xlt('To'); ?>:
             </td>
             <td>
                <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
@@ -476,14 +483,14 @@ if ($_POST['form_refresh']) {
         "WHERE b.code_type = 'COPAY' AND b.activity = 1 AND b.fee != 0 AND " .
         "fe.date >= ? AND fe.date <= ?";
         array_push($sqlBindArray, $form_from_date.' 00:00:00', $form_to_date.' 23:59:59');
-      // If a facility was specified.
+        // If a facility was specified.
         if ($form_facility) {
             $query .= " AND fe.facility_id = ?";
             array_push($sqlBindArray, $form_facility);
         }
 
         $query .= " ORDER BY fe.date, b.pid, b.encounter, fe.id";
-      //
+
         $res = sqlStatement($query, $sqlBindArray);
         while ($row = sqlFetchArray($res)) {
             $rowmethod = $form_report_by == 1 ? 'Patient' : 'Co-Pay';

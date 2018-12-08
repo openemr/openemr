@@ -30,6 +30,10 @@ require_once "$srcdir/report_database.inc";
 require_once("$srcdir/options.inc.php");
 require_once("qrda_category1.inc");
 
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    csrfNotVerified();
+}
+
 $report_id = (isset($_GET['report_id'])) ? trim($_GET['report_id']) : "";
 $provider_id = (isset($_GET['provider_id'])) ? trim($_GET['provider_id']) : "";
 
@@ -50,7 +54,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-4-3/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-4-3/jquery.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui-1.8.5.custom.min.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
 <script language="JavaScript">
@@ -98,7 +102,8 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
                 reportID: reportID,
                 counter: counter,
                 ruleID: $("#text" + counter).val(),
-                provider_id: provider_id
+                provider_id: provider_id,
+                csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>'
             },
             context: document.body,
             success :
@@ -119,7 +124,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
                 if ( zipFileArray.length ) {
                     var zipFiles = zipFileArray.join(",");
                     //console.log(zipFiles);
-                    window.location = 'ajax_download.php?fileName=' + zipFiles;
+                    window.location = 'ajax_download.php?fileName=' + encodeURIComponent(zipFiles) + '&csrf_token_form=' + '<?php echo attr(urlencode($_SESSION['csrf_token'])); ?>';
                     zipFileArray.length = 0;
                 }
                 if ( failureMessage ) {

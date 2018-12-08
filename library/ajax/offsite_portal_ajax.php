@@ -29,6 +29,11 @@ require_once(dirname(__FILE__)."/../../interface/globals.php");
 require_once("$srcdir/acl.inc");
 require_once(dirname(__FILE__)."/../../myportal/soap_service/portal_connectivity.php");
 
+//verify csrf
+if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+    csrfNotVerified();
+}
+
 if ($_POST['action'] == 'check_file' && acl_check('admin', 'super')) {
     $client = portal_connection();
     $error_message = '';

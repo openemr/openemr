@@ -10,12 +10,9 @@
 <html>
 <head>
 
-{headerShow}
-<link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="{$GLOBALS.css_header}" type="text/css">
-<link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/dropzone-4-3-0/dist/dropzone.css">
+{headerTemplate assets='datetime-picker|jquery-ui'}
+<link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.css">
 <link href="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
-<link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 {literal}
 <style type="text/css">
 .warn_diagnostic {
@@ -41,46 +38,67 @@ overflow: auto;
 }
 </style>
 {/literal}
-<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/jquery-ui.min.js"></script>
 <script type="text/javascript" src="{$GLOBALS.webroot}/library/js/DocumentTreeMenu.js"></script>
-<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/dropzone-4-3-0/dist/dropzone.js"></script>
-<script type="text/javascript" src="library/dialog.js?v={$GLOBALS.v_js_includes}"></script>
-<script type="text/javascript" src="library/textformat.js?v={$GLOBALS.v_js_includes}"></script>
-<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.js"></script>
 
 <script type="text/javascript">
     // dropzone javascript asset translation(s)
     Dropzone.prototype.defaultOptions.dictDefaultMessage = "{xl t='Drop files here to upload'}";
 </script>
-
+<title>{xl t='Documents'|escape:'html'}</title>
 </head>
-<!--<body bgcolor="{$STYLE.BGCOLOR2}">-->
 <!-- ViSolve - Call expandAll function on loading of the page if global value 'expand_document' is set -->
 {if $GLOBALS.expand_document_tree}
   <body class="body_top" onload="javascript:objTreeMenu_1.expandAll();return false;">
 {else}
   <body class="body_top">
 {/if}
-
-<div id="documents_list">
-    <div class="ui-widget"style="float:right;">
-        <button id='pid' class="pBtn" type="button" style="float:right;">0</button>
-         <input id="selectPatient" type="text" placeholder="{$place_hld|escape:'html'}">
-    </div>
-<a id="list_collapse" href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">&nbsp;({xl t='Collapse all'|escape:'html'})</a>
-<div class="title">{xl t='Documents'|escape:'html'}</div>
-{$tree_html}
-</div>
-<div id="documents_actions">
-		{if $message}
-			<div class='text' style="margin-bottom:-10px; margin-top:-8px"><i>{$message|escape:'html'}</i></div><br>
-		{/if}
-		{if $messages}
-            <div class='text' style="margin-bottom:-10px; margin-top:-8px"><i>{$messages|escape:'html'}</i></div><br>
-		{/if}
-		{$activity}
-</div>
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-sm-12">
+			<div class="page-header">
+					<h2>{xl t='Documents'|escape:'html'}&nbsp;&nbsp;  <a href='interface/patient_file/summary/demographics.php' onclick='top.restoreSession()'  title="{xl t='Go Back'|escape:'html'}" ><i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i></a></h2>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-3">
+			<div id="documents_list">
+				<fieldset>
+				<legend>{xl t='Documents List'|escape:'html'}</legend>
+                <div style="padding: 0 10px">
+                    <div class="ui-widget"style="float:right;">
+                        <button id='pid' class="pBtn" type="button" style="float:right;">0</button>
+                         <input id="selectPatient" type="text" placeholder="{$place_hld|escape:'html'}">
+                    </div>
+                    <a id="list_collapse" href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">&nbsp;({xl t='Collapse all'|escape:'html'})</a>
+                    {$tree_html}
+                </div>
+			</div>
+			</fieldset>
+		</div>
+	
+		<div class="col-sm-9">
+			<div id="documents_actions">
+			
+				<fieldset>
+				
+					<legend>{xl t='Document Uploader/Viewer'|escape:'html'}</legend>
+                    <div style="padding: 0 10px">
+						{if $message}
+							<div class='text' style="margin-bottom:-10px; margin-top:-8px; padding:10px;"><i>{$message|escape:'html'}</i></div><br>
+						{/if}
+						{if $messages}
+							<div class='text' style="margin-bottom:-10px; margin-top:-8px; padding:10px;"><i>{$messages|escape:'html'}</i></div><br>
+						{/if}
+						{$activity}
+					</div>
+				</fieldset>
+			
+			</div>
+		</div>
+	</div>
+</div><!--end of container div-->
 <script type="text/javascript">
 var curpid = "{$cur_pid|escape:'html'}";
 var newVersion="{$is_new|escape:'html'}";

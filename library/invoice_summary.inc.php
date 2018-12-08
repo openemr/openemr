@@ -108,7 +108,15 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
             $codes[$code]['dtl'][$tmpkey] = $tmp;
         }
     }
-
+    // Get insurance data for stuff
+    $ins_data = array();
+    $res = sqlStatement("SELECT insurance_data.type as type, insurance_companies.name as name " .
+        "FROM insurance_data " .
+        "INNER JOIN insurance_companies ON insurance_data.provider = insurance_companies.id " .
+        "WHERE insurance_data.pid = ?", array($patient_id));
+    while ($row = sqlFetchArray($res)) {
+        $ins_data[$row['type']] = $row['name'];
+    }
   // Get payments and adjustments. (includes copays)
     $res = sqlStatement("SELECT " .
     "a.code_type, a.code, a.modifier, a.memo, a.payer_type, a.adj_amount, a.pay_amount, a.reason_code, " .
@@ -159,6 +167,9 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
                 $tmp['chg'] = 0 - $row['adj_amount'];
                 // $tmp['rsn'] = (empty($row['memo']) || empty($row['session_id'])) ? 'Unknown adjustment' : $row['memo'];
                 $tmp['rsn'] = empty($row['memo']) ? 'Unknown adjustment' : $row['memo'];
+                $tmp['rsn'] = str_replace("Ins1", $ins_data['primary'], $tmp['rsn']);
+                $tmp['rsn'] = str_replace("Ins2", $ins_data['secondary'], $tmp['rsn']);
+                $tmp['rsn'] = str_replace("Ins3", $ins_data['tertiary'], $tmp['rsn']);
                 $tmpkey = $paydate . $keysuff1++;
             } else {
                 $tmpkey = $paydate . $keysuff2++;

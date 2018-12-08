@@ -2,37 +2,26 @@
 /**
  * Billing notes.
  *
- * Copyright (C) 2007 Rod Roark <rod@sunsetsystems.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2007 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
+require_once("../../globals.php");
+require_once("$srcdir/log.inc");
+require_once("$srcdir/acl.inc");
 
- include_once("../../globals.php");
- include_once("$srcdir/log.inc");
- include_once("$srcdir/acl.inc");
+$feid = $_GET['feid'] + 0; // id from form_encounter table
 
- $feid = $_GET['feid'] + 0; // id from form_encounter table
-
- $info_msg = "";
+$info_msg = "";
 
 if (!acl_check('acct', 'bill', '', 'write')) {
-    die(htmlspecialchars(xl('Not authorized'), ENT_NOQUOTES));
+    die(xlt('Not authorized'));
 }
 ?>
 <html>
@@ -48,6 +37,10 @@ if (!acl_check('acct', 'bill', '', 'write')) {
 <body>
 <?php
 if ($_POST['form_submit'] || $_POST['form_cancel']) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     $fenote = trim($_POST['form_note']);
     if ($_POST['form_submit']) {
         sqlStatement("UPDATE form_encounter " .
@@ -59,7 +52,7 @@ if ($_POST['form_submit'] || $_POST['form_cancel']) {
     }
 
   // escape and format note for viewing
-    $fenote = htmlspecialchars($fenote, ENT_QUOTES);
+    $fenote = $fenote;
     $fenote = str_replace("\r\n", "<br />", $fenote);
     $fenote = str_replace("\n", "<br />", $fenote);
     if (! $fenote) {
@@ -67,7 +60,7 @@ if ($_POST['form_submit'] || $_POST['form_cancel']) {
     }
 
     echo "<script language='JavaScript'>\n";
-    echo " parent.closeNote($feid, '$fenote')\n";
+    echo " parent.closeNote(" . js_escape($feid) . ", " . js_escape($fenote) . ")\n";
     echo "</script></body></html>\n";
     exit();
 }
@@ -77,14 +70,15 @@ $tmp = sqlQuery("SELECT billing_note FROM form_encounter " .
 $fenote = $tmp['billing_note'];
 ?>
 
-<form method='post' action='edit_billnote.php?feid=<?php echo htmlspecialchars($feid, ENT_QUOTES); ?>' onsubmit='return top.restoreSession()'>
+<form method='post' action='edit_billnote.php?feid=<?php echo attr_url($feid); ?>' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <center>
-<textarea name='form_note' style='width:100%'><?php echo htmlspecialchars($fenote, ENT_NOQUOTES); ?></textarea>
+<textarea name='form_note' style='width:100%'><?php echo text($fenote); ?></textarea>
 <p>
-<input type='submit' name='form_submit' value='<?php echo htmlspecialchars(xl('Save'), ENT_QUOTES); ?>' />
+<input type='submit' name='form_submit' value='<?php echo xla('Save'); ?>' />
 &nbsp;&nbsp;
-<input type='submit' name='form_cancel' value='<?php echo htmlspecialchars(xl('Cancel'), ENT_QUOTES); ?>' />
+<input type='submit' name='form_cancel' value='<?php echo xla('Cancel'); ?>' />
 </center>
 </form>
 </body>

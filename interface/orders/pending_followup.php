@@ -34,8 +34,8 @@ function thisLineItem($row, $codetype, $code)
     }
 
     $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
-    "code_type = '" . $code_types[$codetype]['id'] . "' AND " .
-    "code = '$code' LIMIT 1");
+    "code_type = ? AND " .
+    "code = ? LIMIT 1", array($code_types[$codetype]['id'], $code));
     $code_text = $crow['code_text'];
 
     if ($_POST['form_csvexport']) {
@@ -49,13 +49,13 @@ function thisLineItem($row, $codetype, $code)
     } else {
     ?>
    <tr>
-    <td class="detail"><?php echo $row['patient_name'  ]; ?></td>
-    <td class="detail"><?php echo $row['pubpid'        ]; ?></td>
-    <td class="detail"><?php echo $row['date_ordered'  ]; ?></td>
-    <td class="detail"><?php echo $row['procedure_name']; ?></td>
-    <td class="detail"><?php echo $provname;              ?></td>
-    <td class="detail"><?php echo $code;                  ?></td>
-    <td class="detail"><?php echo $code_text;             ?></td>
+    <td class="detail"><?php echo text($row['patient_name'  ]); ?></td>
+    <td class="detail"><?php echo text($row['pubpid'        ]); ?></td>
+    <td class="detail"><?php echo text($row['date_ordered'  ]); ?></td>
+    <td class="detail"><?php echo text($row['procedure_name']); ?></td>
+    <td class="detail"><?php echo text($provname);              ?></td>
+    <td class="detail"><?php echo text($code);                  ?></td>
+    <td class="detail"><?php echo text($code_text);             ?></td>
  </tr>
 <?php
     } // End not csv export
@@ -70,6 +70,10 @@ $form_to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_facility  = $_POST['form_facility'];
 
 if ($_POST['form_csvexport']) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     header("Pragma: public");
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -91,12 +95,12 @@ if ($_POST['form_csvexport']) {
 <?php html_header_show();?>
 
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
-<title><?php xl('Pending Followup from Results', 'e') ?></title>
+<title><?php echo xlt('Pending Followup from Results') ?></title>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-9-1/jquery.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
 
 <script language="JavaScript">
@@ -119,9 +123,10 @@ if ($_POST['form_csvexport']) {
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <center>
 
-<h2><?php xl('Pending Followup from Results', 'e')?></h2>
+<h2><?php echo xlt('Pending Followup from Results')?></h2>
 
-<form method='post' action='pending_followup.php'>
+<form method='post' action='pending_followup.php' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <table border='0' cellpadding='3'>
 
@@ -135,27 +140,27 @@ if ($_POST['form_csvexport']) {
   echo "    <option value=''>-- All Facilities --\n";
 foreach ($fres as $frow) {
     $facid = $frow['id'];
-    echo "    <option value='$facid'";
+    echo "    <option value='" . attr($facid) . "'";
     if ($facid == $form_facility) {
         echo " selected";
     }
 
-    echo ">" . $frow['name'] . "\n";
+    echo ">" . text($frow['name']) . "\n";
 }
 
   echo "   </select>\n";
 ?>
    &nbsp;<?php echo xlt('From:'); ?>
-   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
+   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date); ?>'
     title='yyyy-mm-dd'>
 
    &nbsp;<?php echo xlt('To'); ?>:
-   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
+   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date); ?>'
     title='yyyy-mm-dd'>
    &nbsp;
-   <input type='submit' name='form_refresh' value="<?php xl('Refresh', 'e') ?>">
+   <input type='submit' name='form_refresh' value="<?php echo xla('Refresh') ?>">
    &nbsp;
-   <input type='submit' name='form_csvexport' value="<?php xl('Export to CSV', 'e') ?>">
+   <input type='submit' name='form_csvexport' value="<?php echo xla('Export to CSV') ?>">
    &nbsp;
    <input type='button' value='<?php echo xla('Print'); ?>' id='printbutton' />
   </td>
@@ -170,13 +175,13 @@ foreach ($fres as $frow) {
 
 <table border='0' cellpadding='1' cellspacing='2' width='98%'>
  <tr bgcolor="#dddddd">
-  <td class="dehead"><?php xl('Patient', 'e') ?></td>
-  <td class="dehead"><?php xl('ID', 'e') ?></td>
-  <td class="dehead"><?php xl('Ordered', 'e') ?></td>
-  <td class="dehead"><?php xl('Procedure', 'e') ?></td>
-  <td class="dehead"><?php xl('Provider', 'e') ?></td>
-  <td class="dehead"><?php xl('Code', 'e') ?></td>
-  <td class="dehead"><?php xl('Service', 'e') ?></td>
+  <td class="dehead"><?php echo xlt('Patient') ?></td>
+  <td class="dehead"><?php echo xlt('ID') ?></td>
+  <td class="dehead"><?php echo xlt('Ordered') ?></td>
+  <td class="dehead"><?php echo xlt('Procedure') ?></td>
+  <td class="dehead"><?php echo xlt('Provider') ?></td>
+  <td class="dehead"><?php echo xlt('Code') ?></td>
+  <td class="dehead"><?php echo xlt('Service') ?></td>
  </tr>
 <?php
 } // end not export
@@ -184,6 +189,12 @@ foreach ($fres as $frow) {
 // If generating a report.
 //
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
+    $sqlBindArray = array();
+
     $from_date = $form_from_date;
     $to_date   = $form_to_date;
 
@@ -205,16 +216,19 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     "AND pts.related_code != '' " .
     "LEFT JOIN users AS u1 ON u1.id = po.provider_id " .
     "WHERE " .
-    "po.date_ordered >= '$from_date' AND po.date_ordered <= '$to_date'";
+    "po.date_ordered >= ? AND po.date_ordered <= ?";
+
+    array_push($sqlBindArray, $from_date, $to_date);
 
     if ($form_facility) {
-        $query .= " AND fe.facility_id = '$form_facility'";
+        $query .= " AND fe.facility_id = ?";
+        array_push($sqlBindArray, $form_facility);
     }
 
     $query .= " ORDER BY pd.lname, pd.fname, pd.mname, po.patient_id, " .
     "po.date_ordered, po.procedure_order_id";
 
-    $res = sqlStatement($query);
+    $res = sqlStatement($query, $sqlBindArray);
     while ($row = sqlFetchArray($res)) {
         $patient_id = $row['patient_id'];
         $date_ordered = $row['date_ordered'];
@@ -229,12 +243,12 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
             $brow = sqlQuery("SELECT count(*) AS count " .
             "FROM billing AS b, form_encounter AS fe WHERE " .
-            "b.pid = '$patient_id' AND " .
-            "b.code_type = '$codetype' AND " .
-            "b.code = '$code' AND " .
+            "b.pid = ? AND " .
+            "b.code_type = ? AND " .
+            "b.code = ? AND " .
             "b.activity = 1 AND " .
             "fe.pid = b.pid AND fe.encounter = b.encounter AND " .
-            "fe.date >= '$date_ordered 00:00:00'");
+            "fe.date >= ?", array($patient_id, $codetype, $code, $date_ordered.' 00:00:00'));
 
             // If there was such a service, then this followup is not pending.
             if (!empty($brow['count'])) {

@@ -1,8 +1,13 @@
 <?php
-
-////////////////////////////////////////////////////////////////////////////////
-// THIS MODULE REPLACES cptcm_codes.php, hcpcs_codes.php AND icd9cm_codes.php.
-////////////////////////////////////////////////////////////////////////////////
+/**
+ * search_code.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 require_once("../../globals.php");
 require_once("../../../custom/code_types.inc.php");
@@ -22,7 +27,7 @@ $code_type = $_GET['type'];
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 <!-- add jQuery support -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/jquery-min-1-2-2/index.js"></script>
 
 </head>
 <body class="body_bottom">
@@ -33,25 +38,35 @@ $code_type = $_GET['type'];
 
 <td valign=top>
 
-<form name="search_form" id="search_form" method="post" action="search_code.php?type=<?php echo $code_type ?>">
+<form name="search_form" id="search_form" method="post" action="search_code.php?type=<?php echo attr_url($code_type); ?>">
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+
 <input type="hidden" name="mode" value="search">
 
-<span class="title"><?php echo $code_type ?> <?php xl('Codes', 'e'); ?></span><br>
+<span class="title"><?php echo text($code_type); ?> <?php echo xlt('Codes'); ?></span><br>
 
 <input type="textbox" id="text" name="text" size=15>
 
-<input type='submit' id="submitbtn" name="submitbtn" value='<?php xl('Search', 'e'); ?>'>
+<input type='submit' id="submitbtn" name="submitbtn" value='<?php echo xla('Search'); ?>'>
 <div id="searchspinner" style="display: inline; visibility:hidden;"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif"></div>
 
 </form>
 
 <?php
 if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] == "") {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     echo "<div id='resultsummary' style='background-color:lightgreen;'>";
     echo "Enter search criteria above</div>";
 }
 
 if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "") {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
   // $sql = "SELECT * FROM codes WHERE (code_text LIKE '%" . $_POST["text"] .
   //   "%' OR code LIKE '%" . $_POST["text"] . "%') AND code_type = '" .
   //   $code_types[$code_type]['id'] . "' ORDER BY code LIMIT " . ($M + 1);
@@ -66,7 +81,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
     "code LIKE ?) AND " .
     "code_type = ? " .
     "ORDER BY code ".
-    " LIMIT " . ($M + 1).
+    " LIMIT " . escape_limit(($M + 1)) .
     "";
 
     if ($res = sqlStatement($sql, array($pid, "%".$_POST["text"]."%", "%".$_POST["text"]."%", $code_types[$code_type]['id']))) {
@@ -76,11 +91,11 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
 
         echo "<div id='resultsummary' style='background-color:lightgreen;'>";
         if (count($result) > $M) {
-            echo "Showing the first ".$M." results";
+            echo "Showing the first " . text($M) . " results";
         } else if (count($result) == 0) {
             echo "No results found";
         } else {
-            echo "Showing all ".count($result)." results";
+            echo "Showing all " . text(count($result)) . " results";
         }
 
         echo "</div>";
@@ -99,17 +114,18 @@ if ($result) {
         }
 
         echo "<div class='oneresult' style='padding: 3px 0px 3px 0px;'>";
-        echo "<a target='".xl('Diagnosis')."' href='diagnosis.php?mode=add" .
-            "&type="     . urlencode($code_type) .
-            "&code="     . urlencode($iter{"code"}) .
-            "&modifier=" . urlencode($iter{"modifier"}) .
-            "&units="    . urlencode($iter{"units"}) .
-            // "&fee="      . urlencode($iter{"fee"}) .
-            "&fee="      . urlencode($iter['pr_price']) .
-            "&text="     . urlencode($iter{"code_text"}) .
+        echo "<a target='" . xla('Diagnosis') . "' href='diagnosis.php?mode=add" .
+            "&type="     . attr_url($code_type) .
+            "&code="     . attr_url($iter{"code"}) .
+            "&modifier=" . attr_url($iter{"modifier"}) .
+            "&units="    . attr_url($iter{"units"}) .
+            // "&fee="      . attr_url($iter{"fee"}) .
+            "&fee="      . attr_url($iter['pr_price']) .
+            "&text="     . attr_url($iter{"code_text"}) .
+            "&csrf_token_form=" . attr_url(collectCsrfToken()) .
             "' onclick='top.restoreSession()'>";
-        echo ucwords("<b>" . strtoupper($iter{"code"}) . "&nbsp;" . $iter['modifier'] .
-            "</b>" . " " . strtolower($iter{"code_text"}));
+        echo ucwords("<b>" . text(strtoupper($iter{"code"})) . "&nbsp;" . text($iter['modifier']) .
+            "</b>" . " " . text(strtolower($iter{"code_text"})));
         echo "</a><br>\n";
         echo "</div>";
 
@@ -117,7 +133,7 @@ if ($result) {
         $total++;
 
         if ($total == $M) {
-            echo "</span><span class='alert-custom'>".xl('Some codes were not displayed.')."</span>\n";
+            echo "</span><span class='alert-custom'>" . xlt('Some codes were not displayed.') . "</span>\n";
             break;
         }
     }

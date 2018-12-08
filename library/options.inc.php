@@ -2036,8 +2036,8 @@ function generate_display_field($frow, $currvalue)
         }
         // If match is not found in main and backup lists, return the key with exclamation mark
         if ($s == '') {
-            $s = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES)).
-            '<sup><i class="fa fas fa-exclamation-circle ml-1"></i></sup>';
+            $s = nl2br(text(xl_list_label($currvalue))).
+            '<sup> <i class="fa fas fa-exclamation-circle ml-1"></i></sup>';
         }
     } // simple text field
     elseif ($data_type == 2) {
@@ -2804,13 +2804,13 @@ function accumActionConditions($field_id, &$condition_str, &$condarr)
             $condition_str .= ",\n";
         }
         $condition_str .= "{" .
-            "target:'"   . addslashes($field_id)              . "', " .
-            "action:'"   . addslashes($action)                . "', " .
-            "id:'"       . addslashes($condition['id'])       . "', " .
-            "itemid:'"   . addslashes($condition['itemid'])   . "', " .
-            "operator:'" . addslashes($condition['operator']) . "', " .
-            "value:'"    . addslashes($condition['value'])    . "', " .
-            "andor:'"    . addslashes($andor)                 . "'}";
+            "target:"   . js_escape($field_id)              . ", " .
+            "action:"   . js_escape($action)                . ", " .
+            "id:"       . js_escape($condition['id'])       . ", " .
+            "itemid:"   . js_escape($condition['itemid'])   . ", " .
+            "operator:" . js_escape($condition['operator']) . ", " .
+            "value:"    . js_escape($condition['value'])    . ", " .
+            "andor:"    . js_escape($andor)                 . "}";
     }
 }
 
@@ -3073,8 +3073,8 @@ function display_layout_tabs($formtype, $result1, $result2 = '')
         }
 ?>
         <li <?php echo $first ? 'class="current"' : '' ?>>
-        <a href="#" id="header_tab_<?php echo htmlspecialchars($group_name, ENT_QUOTES); ?>">
-        <?php echo htmlspecialchars(xl_layout_label($group_name), ENT_NOQUOTES); ?></a>
+        <a href="#" id="header_tab_<?php echo attr($group_name); ?>">
+        <?php echo text(xl_layout_label($group_name)); ?></a>
         </li>
 <?php
         $first = false;
@@ -3522,14 +3522,14 @@ function generate_layout_validation($form_id)
             $fldtitle  = $frow['description'];
         }
 
-        $fldname   = htmlspecialchars("form_$field_id", ENT_QUOTES);
+        $fldname   = attr("form_$field_id");
 
         if ($data_type == 40) {
-            $fldid = addslashes("form_$field_id");
+            $fldid = "form_" . $field_id;
             // Move canvas image data to its hidden form field so the server will get it.
             echo
-            " var canfld = f['$fldid'];\n" .
-            " if (canfld) canfld.value = lbfCanvasGetData('$fldid');\n";
+            " var canfld = f[" . js_escape($fldid) . "];\n" .
+            " if (canfld) canfld.value = lbfCanvasGetData(" . js_escape($fldid) . ");\n";
             continue;
         }
 
@@ -3547,8 +3547,8 @@ function generate_layout_validation($form_id)
             case 26:
                 echo
                 "  if (f.$fldname.selectedIndex <= 0) {\n" .
-                "   alert(\"" . addslashes(xl('Please choose a value for')) .
-                ":\\n" . addslashes(xl_layout_label($fldtitle)) . "\");\n" .
+                "   alert(" . xlj('Please choose a value for') . " + " .
+                "\":\\n\" + " . js_escape(xl_layout_label($fldtitle)) . ");\n" .
                 "   if (f.$fldname.focus) f.$fldname.focus();\n" .
                 "   return false;\n" .
                 "  }\n";
@@ -3557,7 +3557,7 @@ function generate_layout_validation($form_id)
                 echo
                 " if (f.$fldname.selectedIndex <= 0) {\n" .
                 "  if (f.$fldname.focus) f.$fldname.focus();\n" .
-                "  		errMsgs[errMsgs.length] = '" . addslashes(xl_layout_label($fldtitle)) . "'; \n" .
+                "  		errMsgs[errMsgs.length] = " . js_escape(xl_layout_label($fldtitle)) . "; \n" .
                 " }\n";
                 break;
             case 27: // radio buttons
@@ -3565,8 +3565,8 @@ function generate_layout_validation($form_id)
                 " var i = 0;\n" .
                 " for (; i < f.$fldname.length; ++i) if (f.$fldname[i].checked) break;\n" .
                 " if (i >= f.$fldname.length) {\n" .
-                "   alert(\"" . addslashes(xl('Please choose a value for')) .
-                ":\\n" . addslashes(xl_layout_label($fldtitle)) . "\");\n" .
+                "   alert(" . xlj('Please choose a value for') . " + " .
+                "\":\\n\" + " . js_escape(xl_layout_label($fldtitle)) . ");\n" .
                 "   return false;\n" .
                 " }\n";
                 break;
@@ -3579,7 +3579,7 @@ function generate_layout_validation($form_id)
                 "  		if (f.$fldname.focus) f.$fldname.focus();\n" .
                 "  		$('#" . $fldname . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','red'); } ); " .
                 "  		$('#" . $fldname . "').attr('style','background:red'); \n" .
-                "  		errMsgs[errMsgs.length] = '" . addslashes(xl_layout_label($fldtitle)) . "'; \n" .
+                "  		errMsgs[errMsgs.length] = " . js_escape(xl_layout_label($fldtitle)) . "; \n" .
                 " } else { " .
                 " 		$('#" . $fldname . "').attr('style',''); " .
                 "  		$('#" . $fldname . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','');  } ); " .
@@ -3593,7 +3593,7 @@ function generate_layout_validation($form_id)
                     " multi_choice_made=multi_choice_made || multi_select.options[options_index].selected; \n".
                 "    } \n" .
                 " if(!multi_choice_made)
-            errMsgs[errMsgs.length] = '" . addslashes(xl_layout_label($fldtitle)) . "'; \n" .
+            errMsgs[errMsgs.length] = " . js_escape(xl_layout_label($fldtitle)) . "; \n" .
                 "";
                 break;
         }
@@ -3630,8 +3630,7 @@ function dropdown_facility(
     $have_selected = false;
     $fres = $facilityService->getAll();
 
-    $name = htmlspecialchars($name, ENT_QUOTES);
-    echo "   <select class='form-control' name='$name' id='$name'";
+    echo "   <select class='form-control' name='" . attr($name) . "' id='" . attr($name) . "'";
     if ($onchange) {
         echo " onchange='$onchange'";
     }
@@ -3646,8 +3645,8 @@ function dropdown_facility(
             $have_selected = true;
         }
 
-        $option_content = htmlspecialchars('-- ' . xl('All Facilities') . ' --', ENT_NOQUOTES);
-        echo "    <option value=\"$option_value\" $option_selected_attr>$option_content</option>\n";
+        $option_content = '-- ' . xl('All Facilities') . ' --';
+        echo "    <option value='" . attr($option_value) . "' $option_selected_attr>" . text($option_content) . "</option>\n";
     } elseif ($allow_unspecified) {
         $option_value = '0';
         $option_selected_attr = '';
@@ -3656,21 +3655,21 @@ function dropdown_facility(
             $have_selected = true;
         }
 
-        $option_content = htmlspecialchars('-- ' . xl('Unspecified') . ' --', ENT_NOQUOTES);
-        echo "    <option value=\"$option_value\" $option_selected_attr>$option_content</option>\n";
+        $option_content = '-- ' . xl('Unspecified') . ' --';
+        echo "    <option value='" . attr($option_value) . "' $option_selected_attr>" . text($option_content) . "</option>\n";
     }
 
     foreach ($fres as $frow) {
         $facility_id = $frow['id'];
-        $option_value = htmlspecialchars($facility_id, ENT_QUOTES);
+        $option_value = $facility_id;
         $option_selected_attr = '';
         if ($selected == $facility_id) {
             $option_selected_attr = ' selected="selected"';
             $have_selected = true;
         }
 
-        $option_content = htmlspecialchars($frow['name'], ENT_NOQUOTES);
-        echo "    <option value=\"$option_value\" $option_selected_attr>$option_content</option>\n";
+        $option_content = $frow['name'];
+        echo "    <option value='" . attr($option_value) . "' $option_selected_attr>" . text($option_content) . "</option>\n";
     }
 
     if ($allow_unspecified && $allow_allfacilities) {
@@ -3681,15 +3680,15 @@ function dropdown_facility(
             $have_selected = true;
         }
 
-        $option_content = htmlspecialchars('-- ' . xl('Unspecified') . ' --', ENT_NOQUOTES);
-        echo "    <option value=\"$option_value\" $option_selected_attr>$option_content</option>\n";
+        $option_content = '-- ' . xl('Unspecified') . ' --';
+        echo "    <option value='" . attr($option_value) . "' $option_selected_attr>" . text($option_content) . "</option>\n";
     }
 
     if (!$have_selected) {
-        $option_value = htmlspecialchars($selected, ENT_QUOTES);
-        $option_label = htmlspecialchars('(' . xl('Do not change') . ')', ENT_QUOTES);
-        $option_content = htmlspecialchars(xl('Missing or Invalid'), ENT_NOQUOTES);
-        echo "    <option value='$option_value' label='$option_label' selected='selected'>$option_content</option>\n";
+        $option_value = $selected;
+        $option_label = '(' . xl('Do not change') . ')';
+        $option_content = xl('Missing or Invalid');
+        echo "    <option value='" . attr($option_value) . "' label='" . attr($option_label) . "' selected='selected'>" . text($option_content) . "</option>\n";
     }
 
     echo "   </select>\n";
@@ -3723,16 +3722,16 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
         // show button, since authorized
         // first prepare class string
         if ($buttonClass) {
-            $class_string = "css_button_small ".htmlspecialchars($buttonClass, ENT_NOQUOTES);
+            $class_string = "css_button_small " . $buttonClass;
         } else {
             $class_string = "css_button_small";
         }
 
         // next, create the link
         if ($linkMethod == "javascript") {
-            echo "<td><a class='" . $class_string . "' href='javascript:;' onclick='" . $buttonLink . "'";
+            echo "<td><a class='" . attr($class_string) . "' href='javascript:;' onclick='" . $buttonLink . "'";
         } else {
-            echo "<td><a class='" . $class_string . "' href='" . $buttonLink . "'";
+            echo "<td><a class='" . attr($class_string) . "' href='" . $buttonLink . "'";
             if (!isset($_SESSION['patient_portal_onsite']) && !isset($_SESSION['patient_portal_onsite_two'])) {
                 // prevent an error from occuring when calling the function from the patient portal
                 echo " onclick='top.restoreSession()'";
@@ -3740,19 +3739,19 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
         }
 
         echo "><span>" .
-        htmlspecialchars($buttonLabel, ENT_NOQUOTES) . "</span></a></td>";
+            text($buttonLabel) . "</span></a></td>";
     }
 
     if ($forceExpandAlways) {
         // Special case to force the widget to always be expanded
-        echo "<td><span class='text'><b>" . htmlspecialchars($title, ENT_NOQUOTES) . "</b></span>";
+        echo "<td><span class='text'><b>" . text($title) . "</b></span>";
         $indicatorTag ="style='display:none'";
     }
 
     $indicatorTag = isset($indicatorTag) ?  $indicatorTag : "";
-    echo "<td><a " . $indicatorTag . " href='javascript:;' class='small' onclick='toggleIndicator(this,\"" .
-    htmlspecialchars($label, ENT_QUOTES) . "_ps_expand\")'><span class='text'><b>";
-    echo htmlspecialchars($title, ENT_NOQUOTES) . "</b></span>";
+    echo "<td><a " . $indicatorTag . " href='javascript:;' class='small' onclick='toggleIndicator(this," .
+        attr_js($label."_ps_expand") . ")'><span class='text'><b>";
+    echo text($title) . "</b></span>";
 
     if (isset($_SESSION['patient_portal_onsite']) || isset($_SESSION['patient_portal_onsite_two'])) {
         // collapse all entries in the patient portal
@@ -3763,7 +3762,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
         $text = xl('expand');
     }
 
-    echo " (<span class='indicator'>" . htmlspecialchars($text, ENT_QUOTES) .
+    echo " (<span class='indicator'>" . text($text) .
     "</span>)</a></td>";
     echo "</tr></table>";
     echo "</div>";
@@ -3780,12 +3779,12 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
     }
 
     if ($bodyClass) {
-        $styling .= " class='" . $bodyClass . "'";
+        $styling .= " class='" . attr($bodyClass) . "'";
     }
 
   //next, create the first div tag to hold the information
   // note the code that calls this function will then place the ending div tag after the data
-    echo "<div id='" . htmlspecialchars($label, ENT_QUOTES) . "_ps_expand' " . $styling . ">";
+    echo "<div id='" . attr($label) . "_ps_expand' " . $styling . ">";
 }
 
 //billing_facility fuction will give the dropdown list which contain billing faciliies.
@@ -3815,16 +3814,28 @@ function getListItemTitle($list, $option)
 
     return xl_list_label($row['title']);
 }
+
+//function to get the translated title value in Patient Transactions
+function getLayoutTitle($list, $option)
+{
+    $row = sqlQuery("SELECT grp_title FROM layout_group_properties " .
+    "WHERE grp_mapping = ? AND grp_form_id = ? ", array($list, $option));
+
+    if (empty($row['grp_title'])) {
+        return $option;
+    }
+    return xl_list_label($row['grp_title']);
+}
 //Added on 5-jun-2k14 (regarding get the smoking code descriptions)
 function getSmokeCodes()
 {
-     $smoking_codes_arr = array();
-     $smoking_codes = sqlStatement("SELECT option_id,codes FROM list_options WHERE list_id='smoking_status' AND activity = 1");
+    $smoking_codes_arr = array();
+    $smoking_codes = sqlStatement("SELECT option_id,codes FROM list_options WHERE list_id='smoking_status' AND activity = 1");
     while ($codes_row = sqlFetchArray($smoking_codes)) {
         $smoking_codes_arr[$codes_row['option_id']] = $codes_row['codes'];
     }
 
-     return $smoking_codes_arr;
+    return $smoking_codes_arr;
 }
 
 // Get the current value for a layout based form field.
@@ -3948,10 +3959,10 @@ function lbf_current_value($frow, $formid, $encounter)
 function lbf_canvas_head($small = true)
 {
     $s = <<<EOD
-<link  href="{$GLOBALS['assets_static_relative']}/literallycanvas-0-4-13/css/literallycanvas.css" rel="stylesheet" />
-<script src="{$GLOBALS['assets_static_relative']}/react-15-1-0/react-with-addons.min.js"></script>
-<script src="{$GLOBALS['assets_static_relative']}/react-15-1-0/react-dom.min.js"></script>
-<script src="{$GLOBALS['assets_static_relative']}/literallycanvas-0-4-13/js/literallycanvas.min.js"></script>
+<link  href="{$GLOBALS['assets_static_relative']}/literallycanvas/css/literallycanvas.css" rel="stylesheet" />
+<script src="{$GLOBALS['assets_static_relative']}/react-15-1-0/build/react-with-addons.min.js"></script>
+<script src="{$GLOBALS['assets_static_relative']}/react-15-1-0/build/react-dom.min.js"></script>
+<script src="{$GLOBALS['assets_static_relative']}/literallycanvas/js/literallycanvas.min.js"></script>
 EOD;
     if ($small) {
         $s .= <<<EOD
@@ -3993,24 +4004,27 @@ EOD;
 /**
  * Test if modifier($test) is in array of options for data type.
  *
- * @param json array $options or could be string of form "ABCU"
+ * @param json array $options ["G","P","T"], ["G"] or could be legacy string with form "GPT", "G", "012"
  * @param string $test
  * @return boolean
  */
 function isOption($options, $test)
 {
-    if (empty($options) || !isset($test)) {
+    if (empty($options) || !isset($test) || $options == "null") {
         return false; // why bother?
     }
-    if (strpos($options, ',') === false) { // could be string of char's or single element of json
-        json_decode($options);
-        if (is_string($options) && ! (json_last_error() === JSON_ERROR_NONE)) { // nope, it's string.
+    if (strpos($options, ',') === false) { // not json array of modifiers.
+        // could be string of char's or single element of json ["RO"] or "TP" or "P" e.t.c.
+        json_decode($options, true); // test if options json. json_last_error() will return JSON_ERROR_SYNTAX if not.
+        // if of form ["RO"] (single modifier) means not legacy so continue on.
+        if (is_string($options) && (json_last_error() !== JSON_ERROR_NONE)) { // nope, it's string.
             $t = str_split(trim($options)); // very good chance it's legacy modifier string.
-            $options = json_encode($t); // make it array.
+            $options = json_encode($t); // make it json array to convert from legacy to new modifier json schema.
         }
     }
-    $options = json_decode($options);
 
-    return !is_null($options) && in_array($test, $options, true) ? true : false; // finally!
+    $options = json_decode($options, true); // all should now be json
+
+    return !is_null($options) && in_array($test, $options, true) ? true : false; // finally the truth!
 }
 ?>

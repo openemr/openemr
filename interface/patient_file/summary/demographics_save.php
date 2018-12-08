@@ -1,8 +1,23 @@
 <?php
-include_once("../../globals.php");
-include_once("$srcdir/patient.inc");
-include_once("$srcdir/acl.inc");
-include_once("$srcdir/options.inc.php");
+/**
+ * demographics_save.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+
+require_once("../../globals.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/options.inc.php");
+
+if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+    csrfNotVerified();
+}
 
 // Check authorization.
 if ($pid) {

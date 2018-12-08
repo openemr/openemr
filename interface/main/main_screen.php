@@ -2,27 +2,175 @@
 /**
  * The outside frame that holds all of the OpenEMR User Interface.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-
-
 
 /* Include our required headers */
 require_once('../globals.php');
+
+use OpenEMR\Core\Header;
+use u2flib_server\U2F;
+
+///////////////////////////////////////////////////////////////////////
+// Functions to support MFA.
+///////////////////////////////////////////////////////////////////////
+
+function posted_to_hidden($name)
+{
+    if (isset($_POST[$name])) {
+        echo "<input type='hidden' name='" . attr($name) . "' value='" . attr($_POST[$name]) . "' />\n";
+    }
+}
+
+function generate_html_start($title)
+{
+    global $appId;
+    ?>
+<html>
+<head>
+    <?php Header::setupHeader(); ?>
+<title><?php echo text($title); ?></title>
+<script src="<?php echo $GLOBALS['webroot'] ?>/library/js/u2f-api.js"></script>
+<script>
+function doAuth() {
+  var f = document.forms[0];
+  var requests = JSON.parse(f.form_requests.value);
+  // The server's getAuthenticateData() repeats the same challenge in all requests.
+  var challenge = requests[0].challenge;
+  var registeredKeys = new Array();
+  for (var i = 0; i < requests.length; ++i) {
+    registeredKeys[i] = {"version": requests[i].version, "keyHandle": requests[i].keyHandle};
+  }
+  u2f.sign(
+    '<?php echo addslashes($appId); ?>',
+    challenge,
+    registeredKeys,
+    function(data) {
+      if(data.errorCode && data.errorCode != 0) {
+        alert('<?php echo xls("Key access failed with error"); ?> ' + data.errorCode);
+        return;
+      }
+      f.form_response.value = JSON.stringify(data);
+      f.submit();
+    },
+    60
+  );
+}
+</script>
+</head>
+<body class='body_top'>
+<center>
+<h2><?php echo text($title); ?></h2>
+<form method="post"
+ action="main_screen.php?auth=login&site=<?php echo attr(urlencode($_GET['site'])); ?>"
+ target="_top" name="challenge_form">
+    <?php
+    posted_to_hidden('new_login_session_management');
+    posted_to_hidden('authProvider');
+    posted_to_hidden('languageChoice');
+    posted_to_hidden('authUser');
+    posted_to_hidden('clearPass');
+}
+
+function generate_html_end()
+{
+    echo "</form></center></body></html>\n";
+    session_unset();
+    session_destroy();
+    unset($_COOKIE[session_name()]);
+    return 0;
+}
+
+$errormsg = '';
+
+///////////////////////////////////////////////////////////////////////
+// Begin code to support U2F.
+///////////////////////////////////////////////////////////////////////
+
+$regs = array();          // for mapping device handles to their names
+$registrations = array(); // the array of stored registration objects
+$res1 = sqlStatement(
+    "SELECT a.name, a.var1 FROM login_mfa_registrations AS a " .
+    "WHERE a.user_id = ? AND a.method = 'U2F' ORDER BY a.name",
+    array($_SESSION['authId'])
+);
+while ($row1 = sqlFetchArray($res1)) {
+    $regobj = json_decode($row1['var1']);
+    $regs[json_encode($regobj->keyHandle)] = $row1['name'];
+    $registrations[] = $regobj;
+}
+if (!empty($registrations)) {
+    // There is at least one U2F key registered so we have to request or verify key data.
+    // https is required, and with a proxy the server might not see it.
+    $scheme = "https://"; // isset($_SERVER['HTTPS']) ? "https://" : "http://";
+    $appId = $scheme . $_SERVER['HTTP_HOST'];
+    $u2f = new u2flib_server\U2F($appId);
+    $userid = $_SESSION['authId'];
+    $form_response = empty($_POST['form_response']) ? '' : $_POST['form_response'];
+    if ($form_response) {
+        // We have key data, check if it matches what was registered.
+        $tmprow = sqlQuery("SELECT login_work_area FROM users_secure WHERE id = ?", array($userid));
+        try {
+            $registration = $u2f->doAuthenticate(
+                json_decode($tmprow['login_work_area']), // these are the original challenge requests
+                $registrations,
+                json_decode($_POST['form_response'])
+            );
+            // Stored registration data needs to be updated because the usage count has changed.
+            // We have to use the matching registered key.
+            $strhandle = json_encode($registration->keyHandle);
+            if (isset($regs[$strhandle])) {
+                sqlStatement(
+                    "UPDATE login_mfa_registrations SET `var1` = ? WHERE " .
+                    "`user_id` = ? AND `method` = 'U2F' AND `name` = ?",
+                    array(json_encode($registration), $userid, $regs[$strhandle])
+                );
+            } else {
+                error_log("Unexpected keyHandle returned from doAuthenticate(): '$strhandle'");
+            }
+            // Keep track of when challenges were last answered correctly.
+            sqlStatement(
+                "UPDATE users_secure SET last_challenge_response = NOW() WHERE id = ?",
+                array($_SESSION['authId'])
+            );
+        } catch (u2flib_server\Error $e) {
+            // Authentication failed so we will build the U2F form again.
+            $form_response = '';
+            $errormsg = xl('Authentication error') . ": " . $e->getMessage();
+        }
+    }
+    if (!$form_response) {
+        // There is no key data yet or authentication failed, so we need to solicit it.
+        $requests = json_encode($u2f->getAuthenticateData($registrations));
+        // Persist the challenge also in the database because the browser is untrusted.
+        sqlStatement(
+            "UPDATE users_secure SET login_work_area = ? WHERE id = ?",
+            array($requests, $userid)
+        );
+        generate_html_start(xl('U2F Key Verification'));
+        echo "<p>\n";
+        echo xlt('Insert your key into a USB port and click the Authenticate button below.');
+        echo " " . xlt('Then press the flashing button on your key within 1 minute.') . "</p>\n";
+        echo "<table><tr><td>\n";
+        echo "<input type='button' value='" . xla('Authenticate') . "' onclick='doAuth()' />\n";
+        echo "<input type='hidden' name='form_requests' value='" . attr($requests) . "' />\n";
+        echo "<input type='hidden' name='form_response' value='' />\n";
+        echo "</td></tr></table>\n";
+        if ($errormsg) {
+            echo "<p style='color:red;font-weight:bold'>" . text($errormsg) . "</p>\n";
+        }
+        exit(generate_html_end());
+    }
+}
+
+///////////////////////////////////////////////////////////////////////
+// End of U2F logic.
+///////////////////////////////////////////////////////////////////////
 
 // Creates a new session id when load this outer frame
 // (allows creations of separate OpenEMR frames to view patients concurrently
@@ -32,12 +180,17 @@ require_once('../globals.php');
 // within the OpenEMR instance by calling top.restoreSession() whenever
 // refreshing or starting a new script.
 if (isset($_POST['new_login_session_management'])) {
-  // This is a new login, so create a new session id and remove the old session
+    // This is a new login, so create a new session id and remove the old session
     session_regenerate_id(true);
 } else {
-  // This is not a new login, so create a new session id and do NOT remove the old session
+    // This is not a new login, so check csrf and then create a new session id and do NOT remove the old session
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
     session_regenerate_id(false);
 }
+// Create the csrf_token
+$_SESSION['csrf_token'] = createCsrfToken();
 
 $_SESSION["encounter"] = '';
 
@@ -67,24 +220,24 @@ if ($GLOBALS['password_expiration_days'] != 0) {
 
 if ($is_expired) {
   //display the php file containing the password expiration message.
-    $frame1url = "pwd_expires_alert.php";
+    $frame1url = "pwd_expires_alert.php?csrf_token_form=" . attr(urlencode(collectCsrfToken()));
     $frame1target = "adm";
 } else if (!empty($_POST['patientID'])) {
     $patientID = 0 + $_POST['patientID'];
     if (empty($_POST['encounterID'])) {
         // Open patient summary screen (without a specific encounter)
-        $frame1url = "../patient_file/summary/demographics.php?set_pid=".attr($patientID);
+        $frame1url = "../patient_file/summary/demographics.php?set_pid=" . attr(urlencode($patientID));
         $frame1target = "pat";
     } else {
         // Open patient summary screen with a specific encounter
         $encounterID = 0 + $_POST['encounterID'];
-        $frame1url = "../patient_file/summary/demographics.php?set_pid=".attr($patientID)."&set_encounterid=".attr($encounterID);
+        $frame1url = "../patient_file/summary/demographics.php?set_pid=" . attr(urlencode($patientID)) . "&set_encounterid=" . attr(urlencode($encounterID));
         $frame1target = "pat";
     }
 } else if (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
-    $frame1url = "calendar/index.php?pid=" . attr($_GET['pid']);
+    $frame1url = "calendar/index.php?pid=" . attr(urlencode($_GET['pid']));
     if (isset($_GET['date'])) {
-        $frame1url .= "&date=" . attr($_GET['date']);
+        $frame1url .= "&date=" . attr(urlencode($_GET['date']));
     }
 
     $frame1target = "cal";
@@ -131,12 +284,14 @@ if ($GLOBALS['new_tabs_layout']) {
     $_SESSION['frame1target'] = $frame1target;
     $_SESSION['frame2url'] = $frame2url;
     $_SESSION['frame2target'] = $frame2target;
-  // mdsupport - Apps processing invoked for valid app selections from list
+    // mdsupport - Apps processing invoked for valid app selections from list
     if ((isset($_POST['appChoice'])) && ($_POST['appChoice'] !== '*OpenEMR')) {
         $_SESSION['app1'] = $_POST['appChoice'];
     }
 
-    header('Location: '.$web_root."/interface/main/tabs/main.php");
+    // Pass a unique token, so main.php script can not be run on its own
+    $_SESSION['token_main_php'] = createUniqueToken();
+    header('Location: ' . $web_root . "/interface/main/tabs/main.php?token_main=" . urlencode($_SESSION['token_main_php']));
     exit();
 }
 
@@ -146,7 +301,7 @@ if ($GLOBALS['new_tabs_layout']) {
 <title>
 <?php echo text($openemr_name) ?>
 </title>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-9-1/jquery.min.js"></script>
 <script type="text/javascript" src="../../library/topdialog.js"></script>
     <script type="text/javascript" src="tabs/js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
 
@@ -210,26 +365,23 @@ if (empty($GLOBALS['gbl_tall_nav_area'])) {
 <frameset rows='<?php echo attr($GLOBALS['titleBarHeight']) + 5 ?>,*' frameborder='1' border='1' framespacing='1' onunload='imclosing()'>
  <frame src='main_title.php' name='Title' scrolling='no' frameborder='1' noresize />
     <?php if ($lang_dir != 'rtl') { ?>
-
      <frameset cols='<?php echo attr($nav_area_width) . ',*'; ?>' id='fsbody' frameborder='1' border='4' framespacing='4'>
         <?php echo $sidebar_tpl ?>
         <?php echo $main_tpl ?>
      </frameset>
 
     <?php } else { ?>
-
      <frameset cols='<?php echo  '*,' . attr($nav_area_width); ?>' id='fsbody' frameborder='1' border='4' framespacing='4'>
         <?php echo $main_tpl ?>
         <?php echo $sidebar_tpl ?>
      </frameset>
 
-    <?php }?>
+    <?php } ?>
 
  </frameset>
 </frameset>
 
 <?php } else { // use tall nav area ?>
-
 <frameset cols='<?php echo attr($nav_area_width); ?>,*' id='fsbody' frameborder='1' border='4' framespacing='4' onunload='imclosing()'>
  <frameset rows='*,0' frameborder='0' border='0' framespacing='0'>
   <frame src='left_nav.php' name='left_nav' />

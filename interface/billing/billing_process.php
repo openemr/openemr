@@ -2,35 +2,32 @@
 /*
  * Billing process Program
  *
- * This program process data for claims generation
- *
- * Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
- * Copyright (C) 2014 Brady Miller <brady.g.miller@gmail.com>
- * Copyright (C) 2017 Jerry Padgett <sjpadgett@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see http://opensource.org/licenses/gpl-license.php.
+ * This program processes data for claims generation
  *
  * @package OpenEMR
- * @author Terry Hill <terry@lilysystems.com>
  * @author Brady Miller <brady.g.miller@gmail.com>
+ * @author Terry Hill <terry@lilysystems.com>
  * @author Jerry Padgett <sjpadgett@gmail.com>
- * @link http://www.open-emr.org
+ * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2014 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
+ * @copyright Copyright (C) 2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
+ * @link https://github.com/openemr/openemr/tree/master
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-include_once("../globals.php");
-include_once("$srcdir/patient.inc");
-include_once("$srcdir/billrep.inc");
-include_once("$srcdir/billing.inc");
-include_once("$srcdir/gen_x12_837.inc.php");
-include_once("$srcdir/gen_hcfa_1500.inc.php");
+ 
+require_once("../globals.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/billrep.inc");
+require_once("$srcdir/billing.inc");
+require_once("$srcdir/gen_hcfa_1500.inc.php");
+
+use OpenEMR\Billing\X12837P;
+
+if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+    csrfNotVerified();
+}
 
 if ($GLOBALS['ub04_support']) {
     require_once("./ub04_dispose.php");
@@ -223,7 +220,7 @@ function process_form($ar)
             }
 
             if (! $tmp) {
-                die(xl("Claim ") . $claimid . xl(" update failed, not in database?"));
+                die(xlt("Claim ") . text($claimid) . xlt(" update failed, not in database?"));
             } else {
                 if (isset($ar['bn_mark'])) {
                     $bill_info[] = xl("Claim ") . $claimid . xl(" was marked as billed only.") . "\n";
@@ -231,7 +228,7 @@ function process_form($ar)
                     $bill_info[] = xl("Claim ") . $claimid . xl(" has been re-opened.") . "\n";
                 } elseif (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter'])) {
                     $log = '';
-                    $segs = explode("~\n", gen_x12_837($patient_id, $encounter, $log, isset($ar['bn_x12_encounter'])));
+                    $segs = explode("~\n", X12837P::gen_x12_837($patient_id, $encounter, $log, isset($ar['bn_x12_encounter'])));
                     fwrite($hlog, $log);
                     append_claim($segs);
                     if (! updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename)) {
@@ -389,7 +386,7 @@ function process_form($ar)
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript"
-    src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
+    src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-9-1/jquery.min.js"></script>
 <script>
     $(document).ready( function() {
         $("#close-link").click( function() {

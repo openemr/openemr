@@ -2,22 +2,12 @@
 /**
  * Viewing and modification/creation of office notes.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 
@@ -34,6 +24,10 @@ $active = (isset($_REQUEST['active'])) ? $_REQUEST['active'] : -1;
 
 //this code handles changing the state of activity tags when the user updates them through the interface
 if (isset($_POST['mode'])) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     if ($_POST['mode'] == "update") {
         foreach ($_POST as $var => $val) {
             if ($val == "true" || $val == "false") {
@@ -60,6 +54,7 @@ if (isset($_POST['mode'])) {
 <div id="officenotes_edit">
 
 <form method="post" name="new_note" action="office_comments_full.php" onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <?php
 /* BACK should go to the main Office Notes screen */
@@ -88,6 +83,7 @@ if ($userauthorized) {
 <hr>
 
 <form method="post" name="update_activity" action="office_comments_full.php" onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <?php //change the view on the current mode, whether all, active, or inactive
 if ($active==="1") {
@@ -125,13 +121,12 @@ if ($notes) {
         $result_count++;
 
         $date = $note->getDate()->format('Y-m-d');
-        $date = oeFormatShortDate($date);
 
         $todaysDate = new DateTime();
         if ($todaysDate->format('Y-m-d') == $date) {
-            $date_string = xl("Today") . ", " . $date;
+            $date_string = xl("Today") . ", " . oeFormatShortDate($date);
         } else {
-            $date_string = $date;
+            $date_string = oeFormatShortDate($date);
         }
 
         if ($note->getActivity()) {
@@ -161,13 +156,13 @@ if ($notes) {
 <tr><td>
 <?php
 if ($offset>($N-1)) {
-    echo "<a class='css_button' href=office_comments_full.php?active=".attr($active)."&offset=".attr($offset-$N)." onclick='top.restoreSession()'>".xlt('Previous')."</a>";
+    echo "<a class='css_button' href=office_comments_full.php?active=".attr(urlencode($active))."&offset=".attr(urlencode($offset-$N))." onclick='top.restoreSession()'>".xlt('Previous')."</a>";
 }
 ?>
 </td><td align=right>
 <?php
 if ($result_count == $N) {
-    echo "<a class='css_button' href=office_comments_full.php?active=".attr($active)."&offset=".attr($offset+$N)." onclick='top.restoreSession()'>".xlt('Next')."</a>";
+    echo "<a class='css_button' href=office_comments_full.php?active=".attr(urlencode($active))."&offset=".attr(urlencode($offset+$N))." onclick='top.restoreSession()'>".xlt('Next')."</a>";
 }
 ?>
 </td></tr>

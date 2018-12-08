@@ -6,12 +6,11 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @author    Dan Ehrlich <daniel.ehrlich1@gmail.com>
- * @author    Teny <teny@zhservices.com>
  * @copyright Copyright (c) 2007-2017 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
@@ -21,6 +20,12 @@ require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Core\Header;
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 // Below allows the list to default to the first item on the list
 //   when list_id is blank.
@@ -47,9 +52,9 @@ if ($_POST['formaction'] == 'save' && $list_id) {
         sqlStatement("DELETE FROM fee_sheet_options");
         for ($lino = 1; isset($opt["$lino"]['category']); ++$lino) {
             $iter = $opt["$lino"];
-            $category = formTrim($iter['category']);
-            $option = formTrim($iter['option']);
-            $codes = formTrim($iter['codes']);
+            $category = trim($iter['category']);
+            $option = trim($iter['option']);
+            $codes = trim($iter['codes']);
             if (strlen($category) > 0 && strlen($option) > 0) {
                 sqlInsert("INSERT INTO fee_sheet_options ( " .
                     "fs_category, fs_option, fs_codes " .
@@ -61,19 +66,19 @@ if ($_POST['formaction'] == 'save' && $list_id) {
         sqlStatement("DELETE FROM code_types");
         for ($lino = 1; isset($opt["$lino"]['ct_key']); ++$lino) {
             $iter = $opt["$lino"];
-            $ct_key = formTrim($iter['ct_key']);
-            $ct_id = formTrim($iter['ct_id']) + 0;
-            $ct_seq = formTrim($iter['ct_seq']) + 0;
-            $ct_mod = formTrim($iter['ct_mod']) + 0;
-            $ct_just = formTrim($iter['ct_just']);
-            $ct_mask = formTrim($iter['ct_mask']);
+            $ct_key = trim($iter['ct_key']);
+            $ct_id = trim($iter['ct_id']) + 0;
+            $ct_seq = trim($iter['ct_seq']) + 0;
+            $ct_mod = trim($iter['ct_mod']) + 0;
+            $ct_just = trim($iter['ct_just']);
+            $ct_mask = trim($iter['ct_mask']);
             $ct_fee = empty($iter['ct_fee']) ? 0 : 1;
             $ct_rel = empty($iter['ct_rel']) ? 0 : 1;
             $ct_nofs = empty($iter['ct_nofs']) ? 0 : 1;
             $ct_diag = empty($iter['ct_diag']) ? 0 : 1;
             $ct_active = empty($iter['ct_active']) ? 0 : 1;
-            $ct_label = formTrim($iter['ct_label']);
-            $ct_external = formTrim($iter['ct_external']) + 0;
+            $ct_label = trim($iter['ct_label']);
+            $ct_external = trim($iter['ct_external']) + 0;
             $ct_claim = empty($iter['ct_claim']) ? 0 : 1;
             $ct_proc = empty($iter['ct_proc']) ? 0 : 1;
             $ct_term = empty($iter['ct_term']) ? 0 : 1;
@@ -112,22 +117,22 @@ if ($_POST['formaction'] == 'save' && $list_id) {
         sqlStatement("DELETE FROM issue_types");
         for ($lino = 1; isset($opt["$lino"]['category']); ++$lino) {
             $iter = $opt["$lino"];
-            $it_category = formTrim($iter['category']);
-            $it_type = formTrim($iter['type']);
+            $it_category = trim($iter['category']);
+            $it_type = trim($iter['type']);
             if ((strlen($it_category) > 0) && (strlen($it_type) > 0)) {
                 sqlInsert("INSERT INTO issue_types (" .
                     "`active`,`category`,`ordering`, `type`, `plural`, `singular`, `abbreviation`, `style`, " .
                     "`force_show`, `aco_spec`) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", array(
-                    formTrim($iter['active']),
+                    trim($iter['active']),
                     $it_category,
-                    formTrim($iter['ordering']),
+                    trim($iter['ordering']),
                     $it_type,
-                    formTrim($iter['plural']),
-                    formTrim($iter['singular']),
-                    formTrim($iter['abbreviation']),
-                    formTrim($iter['style']),
-                    formTrim($iter['force_show']),
-                    formTrim($iter['aco_spec']),
+                    trim($iter['plural']),
+                    trim($iter['singular']),
+                    trim($iter['abbreviation']),
+                    trim($iter['style']),
+                    trim($iter['force_show']),
+                    trim($iter['aco_spec']),
                 ));
             }
         }
@@ -142,8 +147,8 @@ if ($_POST['formaction'] == 'save' && $list_id) {
         sqlStatement("DELETE FROM list_options WHERE list_id = ?", array($list_id));
         for ($lino = 1; isset($opt["$lino"]['id']); ++$lino) {
             $iter = $opt["$lino"];
-            $value = empty($iter['value']) ? 0 : (formTrim($iter['value']) + 0);
-            $id = formTrim($iter['id']);
+            $value = empty($iter['value']) ? 0 : (trim($iter['value']) + 0);
+            $id = trim($iter['id']);
             if (strlen($id) > 0) {
                 // Special processing for the immunizations list
                 // Map the entered cvx codes into the immunizations table cvx_code
@@ -179,9 +184,9 @@ if ($_POST['formaction'] == 'save' && $list_id) {
                 }
 
                 if ($list_id == 'apptstat' || $list_id == 'groupstat') {
-                    $notes = formTrim($iter['apptstat_color']) . '|' . formTrim($iter['apptstat_timealert']);
+                    $notes = trim($iter['apptstat_color']) . '|' . trim($iter['apptstat_timealert']);
                 } else {
-                    $notes = formTrim($iter['notes']);
+                    $notes = trim($iter['notes']);
                 }
                 // Insert the list item
                 sqlInsert(
@@ -191,17 +196,17 @@ if ($_POST['formaction'] == 'save' && $list_id) {
                     array(
                         $list_id,
                         $id,
-                        formTrim($iter['title']),
-                        formTrim($iter['seq']),
-                        formTrim($iter['default']),
+                        trim($iter['title']),
+                        trim($iter['seq']),
+                        trim($iter['default']),
                         $value,
-                        formTrim($iter['mapping']),
+                        trim($iter['mapping']),
                         $notes,
-                        formTrim($iter['codes']),
-                        formTrim($iter['toggle_setting_1']),
-                        formTrim($iter['toggle_setting_2']),
-                        formTrim($iter['activity']),
-                        formTrim($iter['subtype'])
+                        trim($iter['codes']),
+                        trim($iter['toggle_setting_1']),
+                        trim($iter['toggle_setting_2']),
+                        trim($iter['activity']),
+                        trim($iter['subtype'])
                     )
                 );
             }
@@ -224,7 +229,7 @@ if ($_POST['formaction'] == 'save' && $list_id) {
     // delete the lists options
     sqlStatement("DELETE FROM list_options WHERE list_id = ?", array($_POST['list_id']));
     // delete the list from the master list-of-lists
-    sqlStatement("DELETE FROM list_options WHERE list_id = 'lists' AND option_id='?", array($_POST['list_id']));
+    sqlStatement("DELETE FROM list_options WHERE list_id = 'lists' AND option_id=?", array($_POST['list_id']));
 }
 
 $opt_line_no = 0;
@@ -844,7 +849,7 @@ function writeITLine($it_array)
         function select_clin_term_code(e) {
             current_sel_name = '';
             current_sel_clin_term = e.name;
-            dlgopen('../patient_file/encounter/find_code_dynamic.php?codetype=<?php echo attr(collect_codetypes("clinical_term", "csv")); ?>', '_blank', 900, 600);
+            dlgopen('../patient_file/encounter/find_code_dynamic.php?codetype=' + <?php echo js_url(collect_codetypes("clinical_term", "csv")); ?>, '_blank', 900, 600);
         }
 
         // This is for callback by the find-code popup.
@@ -950,11 +955,11 @@ function writeITLine($it_array)
                     for (var j = i + 1; f['opt[' + j + '][ct_key]'].value; ++j) {
                         var jkey = 'opt[' + j + ']';
                         if (f[ikey + '[ct_key]'].value == f[jkey + '[ct_key]'].value) {
-                            alert('<?php echo xls('Error: duplicated name on line') ?>' + ' ' + j);
+                            alert(<?php echo xlj('Error: duplicated name on line') ?> + ' ' + j);
                             return;
                         }
                         if (parseInt(f[ikey + '[ct_id]'].value) == parseInt(f[jkey + '[ct_id]'].value)) {
-                            alert('<?php echo xls('Error: duplicated ID on line') ?>' + ' ' + j);
+                            alert(<?php echo xlj('Error: duplicated ID on line') ?> + ' ' + j);
                             return;
                         }
                     }
@@ -968,7 +973,7 @@ function writeITLine($it_array)
                     for (var j = i+1; f['opt[' + j + '][id]']; ++j) {
                         var jkey = 'opt[' + j + '][id]';
                         if (f[ikey].value.toUpperCase() == f[jkey].value.toUpperCase()) {
-                            alert('<?php echo xls('Error: duplicated ID') ?>' + ': ' + f[jkey].value);
+                            alert(<?php echo xlj('Error: duplicated ID') ?> + ': ' + f[jkey].value);
                             f[jkey].scrollIntoView();
                             f[jkey].focus();
                             f[jkey].select();
@@ -986,6 +991,7 @@ function writeITLine($it_array)
 
 <body class="body_top">
 <form method='post' name='theform' id='theform' action='edit_list.php'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
         <div class="navbar-header">
@@ -1007,7 +1013,7 @@ function writeITLine($it_array)
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="deletelist" id="<?php echo $list_id; ?>">
+                    <a href="#" class="deletelist" id="<?php echo attr($list_id); ?>">
                         <i class="fa fa-trash"></i>&nbsp;<?php echo xlt('Delete List'); ?>
                     </a>
                 </li>
@@ -1286,6 +1292,7 @@ if ($GLOBALS['ippf_specific']) { ?>
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <form action="edit_list.php" method="post" class="form">
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal"
                             aria-label="<?php echo xla('Close'); ?>"><i
@@ -1354,12 +1361,12 @@ if ($GLOBALS['ippf_specific']) { ?>
             // the list name can only have letters, numbers, spaces and underscores
             // AND it cannot start with a number
             if ($("#newlistname").val().match(/^\d+/)) {
-                alert("<?php echo xls('List names cannot start with numbers.'); ?>");
+                alert(<?php echo xlj('List names cannot start with numbers.'); ?>);
                 return false;
             }
             var validname = $("#newlistname").val().replace(/[^A-za-z0-9 -]/g, "_"); // match any non-word characters and replace them
             if (validname != $("#newlistname").val()) {
-                if (!confirm("<?php echo xls('Your list name has been changed to meet naming requirements.') . '\n' . xls('Please compare the new name') . ', \''; ?>" + validname + "<?php echo '\' ' . xls('with the old name') . ', \''; ?>" + $("#newlistname").val() + "<?php echo '\'.\n' . xls('Do you wish to continue with the new name?'); ?>")) {
+                if (!confirm(<?php echo xlj('Your list name has been changed to meet naming requirements.'); ?> + '\n' + <?php echo xlj('Please compare the new name'); ?> + ', \'' + validname + '\' ' + <?php echo xlj('with the old name'); ?> + ', \'' + $("#newlistname").val() + '\'.\n' + <?php echo xlj('Do you wish to continue with the new name?'); ?>)) {
                     return false;
                 }
             }
@@ -1372,7 +1379,7 @@ if ($GLOBALS['ippf_specific']) { ?>
         // actually delete an entire list from the database
         var DeleteList = function (btnObj) {
             var listid = $(btnObj).attr("id");
-            if (confirm("<?php echo xls('WARNING') . ' - ' . xls('This action cannot be undone.') . '\n' . xls('Are you sure you wish to delete the entire list') . '('; ?>" + listid + ")?")) {
+            if (confirm(<?php echo xlj('WARNING'); ?> + ' - ' + <?php echo xlj('This action cannot be undone.'); ?> + '\n' + <?php echo xlj('Are you sure you wish to delete the entire list'); ?> + '(' + listid + ")?")) {
                 // submit the form to add a new field to a specific group
                 $("#formaction").val("deletelist");
                 $("#deletelistname").val(listid);

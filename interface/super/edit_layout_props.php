@@ -2,23 +2,15 @@
 /**
  * Edit Layout Properties.
  *
- * Copyright (C) 2016-2017 Rod Roark <rod@sunsetsystems.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2016-2017 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
@@ -29,7 +21,7 @@ $alertmsg = "";
 // Check authorization.
 $thisauth = acl_check('admin', 'super');
 if (!$thisauth) {
-    die(xl('Not authorized'));
+    die(xlt('Not authorized'));
 }
 
 $layout_id = empty($_GET['layout_id']) ? '' : $_GET['layout_id'];
@@ -47,14 +39,12 @@ td { font-size:10pt; }
 
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
-
-var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
 // The name of the input element to receive a found code.
 var current_sel_name = '';
@@ -63,7 +53,7 @@ var current_sel_name = '';
 function sel_related(elem, codetype) {
  current_sel_name = elem ? elem.name : '';
  var url = '<?php echo $rootdir ?>/patient_file/encounter/find_code_dynamic.php';
- if (codetype) url += '?codetype=' + codetype;
+ if (codetype) url += '?codetype=' + encodeURIComponent(codetype);
  dlgopen(url, '_blank', 800, 500);
 }
 
@@ -111,6 +101,10 @@ function get_related() {
 
 <?php
 if ($_POST['form_submit'] && !$alertmsg) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     if ($group_id) {
         $sets =
             "grp_subtitle = ?, "   .
@@ -189,9 +183,9 @@ if ($_POST['form_submit'] && !$alertmsg) {
     //
     echo "<script language='JavaScript'>\n";
     if ($alertmsg) {
-        echo " alert('" . addslashes($alertmsg) . "');\n";
+        echo " alert(" . js_escape($alertmsg) . ");\n";
     }
-    echo " if (opener.refreshme) opener.refreshme('" . attr($layout_id) . "');\n";
+    echo " if (opener.refreshme) opener.refreshme(" . js_escape($layout_id) . ");\n";
     echo " window.close();\n";
     echo "</script></body></html>\n";
     exit();
@@ -226,7 +220,8 @@ if ($layout_id) {
 }
 ?>
 
-<form method='post' action='edit_layout_props.php?<?php echo "layout_id=" . attr($layout_id) . "&group_id=" . attr($group_id); ?>'>
+<form method='post' action='edit_layout_props.php?<?php echo "layout_id=" . attr_url($layout_id) . "&group_id=" . attr_url($group_id); ?>'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <center>
 
 <table border='0' width='100%'>
@@ -282,8 +277,7 @@ if ($layout_id) {
     <?php echo xlt('Active'); ?>
   </td>
   <td>
-   <input type='checkbox' name='form_activity' <?php if ($row['grp_activity']) {
-        echo "checked";} ?> />
+   <input type='checkbox' name='form_activity' <?php echo ($row['grp_activity']) ? "checked" : ""; ?> />
   </td>
  </tr>
 
@@ -318,11 +312,11 @@ if ($layout_id) {
 <?php
   echo "<option value='0'>" . xlt('Default') . "</option>\n";
 for ($cols = 2; $cols <= 10; ++$cols) {
-    echo "<option value='$cols'";
+    echo "<option value='" . attr($cols) . "'";
     if ($cols == $row['grp_columns']) {
         echo " selected";
     }
-    echo ">$cols</option>\n";
+    echo ">" . text($cols) . "</option>\n";
 }
 ?>
    </select>
@@ -340,11 +334,11 @@ for ($cols = 2; $cols <= 10; ++$cols) {
 <?php
   echo "<option value='0'>" . xlt('Default') . "</option>\n";
 for ($size = 5; $size <= 15; ++$size) {
-    echo "<option value='$size'";
+    echo "<option value='" . attr($size) . "'";
     if ($size == $row['grp_size']) {
         echo " selected";
     }
-    echo ">$size</option>\n";
+    echo ">" . text($size) . "</option>\n";
 }
 ?>
    </select>
@@ -404,7 +398,7 @@ foreach ($list_aco_objects as $seckey => $dummy) {
         if ("$seckey|$acokey" == $row['grp_aco_spec']) {
             echo " selected";
         }
-        echo ">" . xla($aco_title) . "</option>\n";
+        echo ">" . xlt($aco_title) . "</option>\n";
     }
     echo " </optgroup>\n";
 }
@@ -415,40 +409,34 @@ foreach ($list_aco_objects as $seckey => $dummy) {
 
  <tr>
   <td valign='top' width='1%' nowrap>
-   <input type='checkbox' name='form_services' <?php if ($row['grp_services']) {
-        echo "checked";} ?> />
+   <input type='checkbox' name='form_services' <?php echo ($row['grp_services']) ? "checked" : ""; ?> />
     <?php echo xlt('Show Services Section'); ?>
   </td>
   <td>
    <input type='text' size='40' name='form_services_codes' onclick='sel_related(this, "MA")' style='width:100%'
-    value='<?php if ($row['grp_services'] != '*') {
-        echo attr($row['grp_services']);} ?>' />
+    value='<?php echo ($row['grp_services'] != '*') ? attr($row['grp_services']) : ""; ?>' />
   </td>
  </tr>
 
  <tr>
   <td valign='top' width='1%' nowrap>
-   <input type='checkbox' name='form_products' <?php if ($row['grp_products']) {
-        echo "checked";} ?> />
+   <input type='checkbox' name='form_products' <?php echo ($row['grp_products']) ? "checked" : ""; ?> />
     <?php echo xlt('Show Products Section'); ?>
   </td>
   <td>
    <input type='text' size='40' name='form_products_codes' onclick='sel_related(this, "PROD")' style='width:100%'
-    value='<?php if ($row['grp_products'] != '*') {
-        echo attr($row['grp_products']);} ?>' />
+    value='<?php echo ($row['grp_products'] != '*') ? attr($row['grp_products']) : ""; ?>' />
   </td>
  </tr>
 
  <tr>
   <td valign='top' width='1%' nowrap>
-   <input type='checkbox' name='form_diags' <?php if ($row['grp_diags']) {
-        echo "checked";} ?> />
+   <input type='checkbox' name='form_diags' <?php echo ($row['grp_diags']) ? "checked" : ""; ?> />
     <?php echo xlt('Show Diagnoses Section'); ?>
   </td>
   <td>
    <input type='text' size='40' name='form_diags_codes' onclick='sel_related(this, "ICD10")' style='width:100%'
-    value='<?php if ($row['grp_diags'] != '*') {
-        echo attr($row['grp_diags']);} ?>' />
+    value='<?php echo ($row['grp_diags'] != '*') ? attr($row['grp_diags']) : ""; ?>' />
   </td>
  </tr>
 
@@ -468,7 +456,7 @@ foreach ($list_aco_objects as $seckey => $dummy) {
 <script language='JavaScript'>
 <?php
 if ($alertmsg) {
-    echo " alert('" . addslashes($alertmsg) . "');\n";
+    echo " alert(" . js_escape($alertmsg) . ");\n";
     echo " window.close();\n";
 }
 ?>

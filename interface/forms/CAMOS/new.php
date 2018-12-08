@@ -1,6 +1,6 @@
 <?php
-include_once("../../globals.php");
-include_once("../../../library/api.inc");
+require_once("../../globals.php");
+require_once("../../../library/api.inc");
 $out_of_encounter = false;
 if ((($_SESSION['encounter'] == '') || ($_SESSION['pid'] == '')) || ($_GET['mode'] == 'external')) {
     $out_of_encounter = true;
@@ -56,47 +56,35 @@ if ($_POST['hidden_item']) {
 if (substr($_POST['hidden_mode'], 0, 3) == 'add') {
     if ($_POST['hidden_selection'] == 'change_category') {
         $preselect_category_override = $_POST['change_category'];
-
-        $category = formDataCore($category);
-
-        $query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_category")." (user, category) values ('".$_SESSION['authUser']."', '";
-        $query .= $category."')";
-        sqlInsert($query);
+        $query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_category")." (user, category) values (?, ?)";
+        sqlInsert($query, array($_SESSION['authUser'], $category));
     } elseif ($_POST['hidden_selection'] == 'change_subcategory') {
         $preselect_subcategory_override = $_POST['change_subcategory'];
         $category_id = $_POST['hidden_category'];
         if ($category_id >= 0) {
-            $subcategory = formDataCore($subcategory);
-
-            $query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." (user, subcategory, category_id) values ('".$_SESSION['authUser']."', '";
-            $query .= $subcategory."', '".$category_id."')";
-            sqlInsert($query);
+            $query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." (user, subcategory, category_id) values (?, ?, ?)";
+            sqlInsert($query, array($_SESSION['authUser'], $subcategory, $category_id));
         }
     } elseif ($_POST['hidden_selection'] == 'change_item') {
         $preselect_item_override = $_POST['change_item'];
         $category_id = $_POST['hidden_category'];
         $subcategory_id = $_POST['hidden_subcategory'];
         if (($category_id >= 0 ) && ($subcategory_id >=0)) {
-            $item = formDataCore($item);
-
-            $query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_item")." (user, item, content, subcategory_id) values ('".$_SESSION['authUser']."', '";
-            $query .= $item."', '".$content."', '".$subcategory_id."')";
-            sqlInsert($query);
+            $query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_item")." (user, item, content, subcategory_id) values (?, ?, ?, ?)";
+            sqlInsert($query, array($_SESSION['authUser'], $item, $content, $subcategory_id));
         }
     } elseif ($_POST['hidden_selection'] == 'change_content') {
         $item_id = $_POST['hidden_item'];
         if ($item_id >= 0) {
             if ($_POST['hidden_mode'] == 'add to') {
-                $tmp = sqlQuery("SELECT content from ".mitigateSqlTableUpperCase("form_CAMOS_item")." where id = ".$item_id);
+                $tmp = sqlQuery("SELECT content from ".mitigateSqlTableUpperCase("form_CAMOS_item")." where id = ?", array($item_id));
                 if (isset($tmp)) {
                     $content .= "\n".$tmp['content'];
                 }
             }
 
-            $content = add_escape_custom($content);
-
-            $query = "UPDATE ".mitigateSqlTableUpperCase("form_CAMOS_item")." set content = '".$content."' where id = ".$item_id;
-            sqlInsert($query);
+            $query = "UPDATE ".mitigateSqlTableUpperCase("form_CAMOS_item")." set content = ? where id = ?";
+            sqlInsert($query, array($content, $item_id));
         }
     }
 } elseif ($_POST['hidden_mode'] == 'delete') {
@@ -159,7 +147,7 @@ if (substr($_POST['hidden_mode'], 0, 3) == 'add') {
             $query = "DELETE FROM ".escape_table_name($to_delete_from_table)." WHERE id like ?";
             sqlInsert($query, array($to_delete_id));
         } else {
-            $query = "SELECT count(id) FROM ".escape_table_name($to_delete_from_subtable)." WHERE ".$tablename."_id like ?";
+            $query = "SELECT count(id) FROM ".escape_table_name($to_delete_from_subtable)." WHERE " . add_escape_custom($tablename) . "_id like ?";
             $statement = sqlStatement($query, array($to_delete_id));
             if ($result = sqlFetchArray($statement)) {
                 if ($result['count(id)'] == 0) {
@@ -187,7 +175,7 @@ if (substr($_POST['hidden_mode'], 0, 3) == 'add') {
         $to_alter_column = 'item';
     }
 
-    sqlInsert("UPDATE ".escape_table_name($to_alter_table)." set ".$to_alter_column." = ? where id =  ?", array($newval, $to_alter_id));
+    sqlInsert("UPDATE ".escape_table_name($to_alter_table)." set " . add_escape_custom($to_alter_column) . " = ? where id =  ?", array($newval, $to_alter_id));
 }
 
   //preselect column items
@@ -199,11 +187,11 @@ if ($preselect_category == '' && !$out_of_encounter) {
     //at this point, if this variable has not been set, CAMOS must have been start over
     //so let's get the most recent values from form_CAMOS for this patient's pid
     $tmp = sqlQuery("SELECT max(id) AS max FROM ".mitigateSqlTableUpperCase("form_CAMOS")." WHERE " .
-    "pid = '" . $_SESSION['pid'] . "'");
+    "pid = ?", array($_SESSION['pid']));
     $maxid = $tmp['max'] ? $tmp['max'] : 0;
 
-    $query = "SELECT category, subcategory, item FROM ".mitigateSqlTableUpperCase("form_CAMOS")." WHERE id = $maxid";
-    $statement = sqlStatement($query);
+    $query = "SELECT category, subcategory, item FROM ".mitigateSqlTableUpperCase("form_CAMOS")." WHERE id = ?";
+    $statement = sqlStatement($query, array($maxid));
     if ($result = sqlFetchArray($statement)) {
         $preselect_category = $result['category'];
         $preselect_subcategory = $result['subcategory'];
@@ -397,17 +385,16 @@ function content_blur() {
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
   //ICD9
     $icd9_flag = false;
-    $query = "SELECT code_text, code FROM billing WHERE encounter=".$_SESSION['encounter'].
-    " AND pid=".$_SESSION['pid']." AND code_type like 'ICD9' AND activity=1";
-    $statement = sqlStatement($query);
+    $query = "SELECT code_text, code FROM billing WHERE encounter=? AND pid=? AND code_type like 'ICD9' AND activity=1";
+    $statement = sqlStatement($query, array($_SESSION['encounter'], $_SESSION['pid']));
     if ($result = sqlFetchArray($statement)) {
         $icd9_flag = true;
         echo "icd9_list = \"\\n\\n\\\n";
-        echo $result['code']." ".$result['code_text']."\\n\\\n";
+        echo attr(addslashes($result['code'])) . " " . attr(addslashes($result['code_text'])) . "\\n\\\n";
     }
 
     while ($result = sqlFetchArray($statement)) {
-        echo $result['code']." ".$result['code_text']."\\n\\\n";
+        echo attr(addslashes($result['code'])) . " " . attr(addslashes($result['code_text'])) . "\\n\\\n";
     }
 
     if ($icd9_flag) {
@@ -419,7 +406,7 @@ $query = "SELECT id, category FROM ".mitigateSqlTableUpperCase("form_CAMOS_categ
 $statement = sqlStatement($query);
 $i = 0;
 while ($result = sqlFetchArray($statement)) {
-    echo "array1[".$i."] = new Array(\"".fixquotes($result['category'])."\",\"".$result['id']."\", new Array());\n";
+    echo "array1[" . attr(addslashes($i)) . "] = new Array(\"".fixquotes($result['category'])."\",\"".attr(addslashes($result['id']))."\", new Array());\n";
     $i++;
 }
 
@@ -427,7 +414,7 @@ $i=0;
 $query = "SELECT id, subcategory, category_id FROM ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." ORDER BY subcategory";
 $statement = sqlStatement($query);
 while ($result = sqlFetchArray($statement)) {
-    echo "array2[".$i."] = new Array(\"".fixquotes($result['subcategory'])."\", \"".$result['category_id']."\", \"".$result['id']."\", new Array());\n";
+    echo "array2[".attr(addslashes($i))."] = new Array(\"".fixquotes($result['subcategory'])."\", \"".attr(addslashes($result['category_id']))."\", \"".attr(addslashes($result['id']))."\", new Array());\n";
     $i++;
 }
 
@@ -435,8 +422,8 @@ $i=0;
 $query = "SELECT id, item, content, subcategory_id FROM ".mitigateSqlTableUpperCase("form_CAMOS_item")." ORDER BY item";
 $statement = sqlStatement($query);
 while ($result = sqlFetchArray($statement)) {
-    echo "array3[".$i."] = new Array(\"".fixquotes($result['item'])."\", \"".fixquotes(str_replace($quote_search_content, $quote_replace_content, strip_tags($result['content'], "<b>,<i>")))."\", \"".$result['subcategory_id'].
-    "\",\"".$result['id']."\");\n";
+    echo "array3[".attr(addslashes($i))."] = new Array(\"".fixquotes($result['item'])."\", \"".fixquotes(str_replace($quote_search_content, $quote_replace_content, strip_tags($result['content'], "<b>,<i>")))."\", \"".attr(addslashes($result['subcategory_id'])).
+    "\",\"".attr(addslashes($result['id']))."\");\n";
     $i++;
 }
 ?>
@@ -480,19 +467,19 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
         $clone_category = $_POST['category'] ? $_POST['category'] : '';
         $clone_category_term = '';
         if ($clone_category != '') {
-            $clone_category_term = " where category like '".$clone_category."'";
+            $clone_category_term = " where category like '" . add_escape_custom($clone_category) . "'";
         }
 
         $clone_subcategory = $_POST['subcategory'] ? $_POST['subcategory'] : '';
         $clone_subcategory_term = '';
         if ($clone_subcategory != '') {
-            $clone_subcategory_term = " and subcategory like '".$_POST['subcategory']."'";
+            $clone_subcategory_term = " and subcategory like '" . add_escape_custom($_POST['subcategory']) . "'";
         }
 
         $clone_item = $_POST['item'] ? $_POST['item'] : '';
         $clone_item_term = '';
         if ($clone_item != '') {
-            $clone_item_term = " and item like '".$_POST['item']."'";
+            $clone_item_term = " and item like '" . add_escape_custom($_POST['item']) . "'";
         }
 
         $clone_search = trim($_POST['clone_others_search']);
@@ -522,7 +509,7 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
                 $clone_search = substr($clone_search, 1);
             }
 
-            $clone_search_term = " and content like '%$clone_search%'";
+            $clone_search_term = " and content like '%" . add_escape_custom($clone_search) . "%'";
         }
 
         if (substr($_POST['hidden_mode'], 0, 12) == 'clone others') {
@@ -533,14 +520,14 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
                     $tmp = $result1['category'];
                     $tmp = "/*import::category::$tmp*/"."\n";
                     $clone_data_array[$tmp] = $tmp;
-                    $query2 = "select id,subcategory from ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." where category_id= ?";
-                    $statement2 = sqlStatement($query2, $result1['id']);
+                    $query2 = "select id,subcategory from ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." where category_id=?";
+                    $statement2 = sqlStatement($query2, array($result1['id']));
                     while ($result2 = sqlFetchArray($statement2)) {
                         $tmp = $result2['subcategory'];
                         $tmp = "/*import::subcategory::$tmp*/"."\n";
                         $clone_data_array[$tmp] = $tmp;
-                        $query3 = "select item, content from ".mitigateSqlTableUpperCase("form_CAMOS_item")." where subcategory_id=".$result2['id'];
-                        $statement3 = sqlStatement($query3);
+                        $query3 = "select item, content from ".mitigateSqlTableUpperCase("form_CAMOS_item")." where subcategory_id=?";
+                        $statement3 = sqlStatement($query3, array($result2['id']));
                         while ($result3 = sqlFetchArray($statement3)) {
                             $tmp = $result3['item'];
                             $tmp = "/*import::item::$tmp*/"."\n";
@@ -559,7 +546,7 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
                   $line = $matches[2];
                   $line = '%'.trim($line).'%';
                   $search_term = preg_replace('/\s+/', '%', $line);
-                  $query = "select code, code_type,code_text,modifier,units,fee from $table where code_text like ? limit $limit";
+                  $query = "select code, code_type,code_text,modifier,units,fee from " . escape_table_name($table) . " where code_text like ? limit " . escape_limit($limit);
                   $statement = sqlStatement($query, array($search_term));
                 while ($result = sqlFetchArray($statement)) {
                     $code_type = $result['code_type'];
@@ -595,14 +582,14 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
                 if ($_POST['hidden_mode'] == 'clone others selected') { //clone from search box
                     $query = "select id, category, subcategory, item, content from ".mitigateSqlTableUpperCase("form_CAMOS")." ".
                         $clone_category_term.$clone_subcategory_term.$clone_item_term.
-                    $clone_search_term.$pid_clause." order by id desc limit $limit";
+                    $clone_search_term.$pid_clause." order by id desc limit " . escape_limit($limit);
                 } else {
                     $query = "select id, category, subcategory, item, content from ".mitigateSqlTableUpperCase("form_CAMOS")." ".
                     " where " .
                     //"category like '%$clone_search%' or" .
                   //" subcategory like '%$clone_search%' or" .
                   //" item like '%$clone_search%' or" .
-                    " content like '%$clone_search%'".$pid_clause." order by id desc limit $limit";
+                    " content like '%" . add_escape_custom($clone_search) . "%'".$pid_clause." order by id desc limit " . escape_limit($limit);
                 }
 
                   $statement = sqlStatement($query);
@@ -619,8 +606,6 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
                 }
             }
         } else {//end of clone others
-            $query = "SELECT date(date) as date, subcategory, item, content FROM ".mitigateSqlTableUpperCase("form_CAMOS")." WHERE category like '".
-            $clone_category."' and pid=".$_SESSION['pid']." order by id desc";
 
             if ($_POST['hidden_mode'] == 'clone last visit') {
                 //go back $stepback # of encounters...
@@ -630,22 +615,26 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
             //OK, now I have tried tracking last encounter from billing, then form_encounter.  Now, we are going to
             //try from forms where form_name like 'CAMOS%' so we will not bother with encounters that have no CAMOS entries...
                 $stepback = $_POST['stepback'] ? $_POST['stepback'] : 1;
-                $tmp = sqlQuery("SELECT max(encounter) as max FROM forms where encounter < " .
-                $_SESSION['encounter'] . " and form_name like 'CAMOS%' and pid= " . $_SESSION['pid']);
+                $tmp = sqlQuery("SELECT max(encounter) as max FROM forms where encounter < ?" .
+                    " and form_name like 'CAMOS%' and pid= ?", array($_SESSION['encounter'], $_SESSION['pid']));
                 $last_encounter_id = $tmp['max'] ? $tmp['max'] : 0;
                 for ($i=0; $i<$stepback-1; $i++) {
-                        $tmp = sqlQuery("SELECT max(encounter) as max FROM forms where encounter < " .
-                          $last_encounter_id . " and form_name like 'CAMOS%' and pid= " . $_SESSION['pid']);
+                        $tmp = sqlQuery("SELECT max(encounter) as max FROM forms where encounter < ?" .
+                            " and form_name like 'CAMOS%' and pid= ?", array($last_encounter_id, $_SESSION['pid']));
                         $last_encounter_id = $tmp['max'] ? $tmp['max'] : 0;
                 }
 
                 $query = "SELECT category, subcategory, item, content FROM ".mitigateSqlTableUpperCase("form_CAMOS")." " .
                 "join forms on (".mitigateSqlTableUpperCase("form_CAMOS").".id = forms.form_id) where " .
-                "forms.encounter = '$last_encounter_id' and ".mitigateSqlTableUpperCase("form_CAMOS").".pid=" .
-                $_SESSION['pid']." order by ".mitigateSqlTableUpperCase("form_CAMOS").".id";
+                "forms.encounter = ? and ".mitigateSqlTableUpperCase("form_CAMOS").".pid=? " .
+                " order by ".mitigateSqlTableUpperCase("form_CAMOS").".id";
+                $statement = sqlStatement($query, array($last_encounter_id, $_SESSION['pid']));
+            } else {
+                $query = "SELECT date(date) as date, subcategory, item, content FROM ".mitigateSqlTableUpperCase("form_CAMOS")." WHERE category like ? ".
+                    " and pid=? order by id desc";
+                $statement = sqlStatement($query, array($clone_category, $_SESSION['pid']));
             }
 
-            $statement = sqlStatement($query);
             while ($result = sqlFetchArray($statement)) {
                 if (preg_match('/^[\s\r\n]*$/', $result['content']) == 0) {
                     if ($_POST['hidden_mode'] == 'clone last visit') {
@@ -674,8 +663,8 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
             }
 
             if ($_POST['hidden_mode'] == 'clone last visit') {
-                $query = "SELECT t1.* FROM form_vitals as t1 join forms as t2 on (t1.id = t2.form_id) WHERE t2.encounter = '$last_encounter_id' and t1.pid=".$_SESSION['pid']." and t2.form_name like 'Vitals'";
-                $statement = sqlStatement($query);
+                $query = "SELECT t1.* FROM form_vitals as t1 join forms as t2 on (t1.id = t2.form_id) WHERE t2.encounter = ? and t1.pid=? and t2.form_name like 'Vitals'";
+                $statement = sqlStatement($query, array($last_encounter_id, $_SESSION['pid']));
                 if ($result = sqlFetchArray($statement)) {
                     $weight = $result['weight'];
                     $height = $result['height'];
@@ -689,8 +678,8 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
                     $clone_data_array[$clone_vitals] = $clone_vitals;
                 }
 
-                $query = "SELECT code_type, code, code_text, modifier, units, fee, justify FROM billing WHERE encounter = '$last_encounter_id' and pid=".$_SESSION['pid']." and activity=1 order by id";
-                $statement = sqlStatement($query);
+                $query = "SELECT code_type, code, code_text, modifier, units, fee, justify FROM billing WHERE encounter = ? and pid=? and activity=1 order by id";
+                $statement = sqlStatement($query, array($last_encounter_id, $_SESSION['pid']));
                 while ($result = sqlFetchArray($statement)) {
                     $clone_code_type = $result['code_type'];
                     $clone_code = $result['code'];
@@ -923,7 +912,7 @@ function js_button(mode,selection) {
   var f2 = document.CAMOS;
 //check lock next
 if ( (mode == 'add') && (selection == 'change_content') && (isLocked()) ) {
-  alert("<?php xl("You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, '/*lock::*/'", "e"); ?>");
+  alert("<?php echo xls("You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, '/*lock::*/'"); ?>");
   return;
 }
 //end check lock
@@ -932,31 +921,31 @@ if ( (mode == 'add') && (selection == 'change_content') && (isLocked()) ) {
 if ( (mode == 'add') || (mode == 'alter') ) {
   if (selection == 'change_category') {
     if (trimString(f2.change_category.value) == "") {
-      alert("<?php xl("You cannot add a blank value for a category!", "e"); ?>");
+      alert("<?php echo xls("You cannot add a blank value for a category!"); ?>");
       return;
     }
     if (selectContains(f2.select_category, trimString(f2.change_category.value))) {
-      alert("<?php xl("There is already a category named", "e"); ?>"+" "+f2.change_category.value+".");
+      alert("<?php echo xls("There is already a category named"); ?>"+" "+f2.change_category.value+".");
       return;
     }
   }
   if (selection == 'change_subcategory') {
     if (trimString(f2.change_subcategory.value) == "") {
-      alert("<?php xl("You cannot add a blank value for a subcategory!", "e"); ?>");
+      alert("<?php echo xls("You cannot add a blank value for a subcategory!"); ?>");
       return;
     }
     if (selectContains(f2.select_subcategory, trimString(f2.change_subcategory.value))) {
-      alert("<?php xl("There is already a subcategory named", "e"); ?>"+" "+f2.change_subcategory.value+".");
+      alert("<?php echo xls("There is already a subcategory named"); ?>"+" "+f2.change_subcategory.value+".");
       return;
     }
   }
   if (selection == 'change_item') {
     if (trimString(f2.change_item.value) == "") {
-      alert("<?php xl("You cannot add a blank value for an item!", "e"); ?>");
+      alert("<?php echo xls("You cannot add a blank value for an item!"); ?>");
       return;
     }
     if (selectContains(f2["select_item[]"], trimString(f2.change_item.value))) {
-      alert("<?php xl("There is already an item named", "e"); ?>"+" "+f2.change_item.value+".");
+      alert("<?php echo xls("There is already an item named"); ?>"+" "+f2.change_item.value+".");
       return;
     }
   }
@@ -964,7 +953,7 @@ if ( (mode == 'add') || (mode == 'alter') ) {
 //end of check for blank or duplicate submissions
 
   if (mode == 'delete') {
-    if (!confirm("<?php xl("Are you sure you want to delete this item from the database?", "e"); ?>")) {
+    if (!confirm("<?php echo xls("Are you sure you want to delete this item from the database?"); ?>")) {
       return;
     }
   }
@@ -1055,6 +1044,7 @@ if (!$out_of_encounter) {
       myarray['content'] = (f2.textarea_content.value).substring(f2.textarea_content.selectionStart, f2.textarea_content.selectionEnd);
     }
     else {myarray['content'] = f2.textarea_content.value;}
+    myarray['csrf_token_form'] = "<?php echo attr(collectCsrfToken()); ?>";
     var str = setformvalues(myarray);
 //    alert(str);
     processajax ('<?php print $GLOBALS['webroot'] ?>/interface/forms/CAMOS/ajax_save.php', myobj, "post", str);
@@ -1094,31 +1084,32 @@ function processEnter(e,message) {
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0 onload="init()">
 <div name="form_container" onKeyPress="gotoOne(event)">
 <form method=post action="<?php echo $rootdir;?>/forms/CAMOS/save.php?mode=new" name="CAMOS">
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <?php
 if (!$out_of_encounter) {
 //	echo "<h1>$out_of_encounter</h1>\n";
 ?>
-<input type=button name=clone value='<?php xl('Clone', 'e'); ?>' onClick="js_button('clone', 'clone')">
-<input type=button name=clone_visit value='<?php xl('Clone Past Visit', 'e'); ?>' onClick="js_button('clone last visit', 'clone last visit')">
+<input type=button name=clone value='<?php echo xla('Clone'); ?>' onClick="js_button('clone', 'clone')">
+<input type=button name=clone_visit value='<?php echo xla('Clone Past Visit'); ?>' onClick="js_button('clone last visit', 'clone last visit')">
 <select name=stepback>
-  <option value=1><?php xl('Back one visit', 'e'); ?></option>
-  <option value=2><?php xl('Back two visits', 'e'); ?></option>
-  <option value=3><?php xl('Back three visits', 'e'); ?></option>
-  <option value=4><?php xl('Back four visits', 'e'); ?></option>
-  <option value=5><?php xl('Back five visits', 'e'); ?></option>
-  <option value=6><?php xl('Back six visits', 'e'); ?></option>
-  <option value=7><?php xl('Back seven visits', 'e'); ?></option>
-  <option value=8><?php xl('Back eight visits', 'e'); ?></option>
-  <option value=9><?php xl('Back nine visits', 'e'); ?></option>
-  <option value=10><?php xl('Back ten visits', 'e'); ?></option>
-  <option value=11><?php xl('Back eleven visits', 'e'); ?></option>
-  <option value=12><?php xl('Back twelve visits', 'e'); ?></option>
+  <option value=1><?php echo xlt('Back one visit'); ?></option>
+  <option value=2><?php echo xlt('Back two visits'); ?></option>
+  <option value=3><?php echo xlt('Back three visits'); ?></option>
+  <option value=4><?php echo xlt('Back four visits'); ?></option>
+  <option value=5><?php echo xlt('Back five visits'); ?></option>
+  <option value=6><?php echo xlt('Back six visits'); ?></option>
+  <option value=7><?php echo xlt('Back seven visits'); ?></option>
+  <option value=8><?php echo xlt('Back eight visits'); ?></option>
+  <option value=9><?php echo xlt('Back nine visits'); ?></option>
+  <option value=10><?php echo xlt('Back ten visits'); ?></option>
+  <option value=11><?php echo xlt('Back eleven visits'); ?></option>
+  <option value=12><?php echo xlt('Back twelve visits'); ?></option>
 </select>
 <?php
-echo "<a href='{$GLOBALS['form_exit_url']}' onclick='top.restoreSession()'>[".xl('Leave The Form')."]</a>";
+echo "<a href='{$GLOBALS['form_exit_url']}' onclick='top.restoreSession()'>[".xlt('Leave The Form')."]</a>";
 ?>
-<input type=button name='hide columns' value='<?php xl('Hide/Show Columns', 'e'); ?>' onClick="hide_columns()">
-<input type=button name='submit form' value='<?php xl('Submit Selected Content', 'e'); ?>' onClick="js_button('submit','submit_selection')">
+<input type=button name='hide columns' value='<?php echo xla('Hide/Show Columns'); ?>' onClick="hide_columns()">
+<input type=button name='submit form' value='<?php echo xla('Submit Selected Content'); ?>' onClick="js_button('submit','submit_selection')">
 <?php
 } //end of if !$out_of_encounter
 ?>
@@ -1128,43 +1119,43 @@ echo "<a href='{$GLOBALS['form_exit_url']}' onclick='top.restoreSession()'>[".xl
 <div id=id_mainbox style="display:inline">
 <?php
 if ($error != '') {
-    echo "<h1> error: ".$error."</h1>\n";
+    echo "<h1> error: ".text($error)."</h1>\n";
 }
 ?>
 <table border=1>
 <tr>
   <td>
   <div id=id_category_column_header style="display:inline">
-    <?php xl('Category', e)?>
+    <?php echo xlt('Category'); ?>
   </div> <!-- end of id_category_column_header -->
   </td>
   <td>
   <div id=id_subcategory_column_header style="display:inline">
-    <?php xl('Subcategory', e)?>
+    <?php echo xlt('Subcategory'); ?>
   </div> <!-- end of id_subcategory_column_header -->
   </td>
   <td>
   <div id=id_item_column_header style="display:inline">
-    <?php xl('Item', e)?>
+    <?php echo xlt('Item'); ?>
   </div> <!-- end of id_item_column_header -->
   </td>
   <td>
-    <?php xl('Content', e)?>
+    <?php echo xlt('Content'); ?>
   </td>
 </tr>
 
 <tr>
   <td>
   <div id=id_category_column style="display:inline">
-    <select name=select_category size=<?php echo $select_size ?> onchange="click_category()"></select><br>
+    <select name=select_category size=<?php echo attr($select_size); ?> onchange="click_category()"></select><br>
 <?php
 
 if (myAuth() == 1) {//root user only can see administration option
 ?>
     <input type=text name=change_category><br>
-    <input type=button name=add1 value='<?php xl('add', 'e'); ?>' onClick="js_button('add','change_category')">
-    <input type=button name=alter1 value='<?php xl('alter', 'e'); ?>' onClick="js_button('alter','change_category')">
-    <input type=button name=del1 value='<?php xl('del', 'e'); ?>' onClick="js_button('delete','change_category')"><br>
+    <input type=button name=add1 value='<?php echo xla('add'); ?>' onClick="js_button('add','change_category')">
+    <input type=button name=alter1 value='<?php echo xla('alter'); ?>' onClick="js_button('alter','change_category')">
+    <input type=button name=del1 value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_category')"><br>
 <?php
 }
 ?>
@@ -1172,15 +1163,15 @@ if (myAuth() == 1) {//root user only can see administration option
   </td>
   <td>
   <div id=id_subcategory_column style="display:inline">
-    <select name=select_subcategory size=<?php echo $select_size ?> onchange="click_subcategory()"></select><br>
+    <select name=select_subcategory size=<?php echo attr($select_size); ?> onchange="click_subcategory()"></select><br>
 <?php
 
 if (myAuth() == 1) {//root user only can see administration option
 ?>
     <input type=text name=change_subcategory><br>
-    <input type=button name=add2 value='<?php xl('add', 'e'); ?>' onClick="js_button('add','change_subcategory')">
-    <input type=button name=alter1 value='<?php xl('alter', 'e'); ?>' onClick="js_button('alter','change_subcategory')">
-    <input type=button name=del2 value='<?php xl('del', 'e'); ?>' onClick="js_button('delete','change_subcategory')"><br>
+    <input type=button name=add2 value='<?php echo xla('add'); ?>' onClick="js_button('add','change_subcategory')">
+    <input type=button name=alter1 value='<?php echo xla('alter'); ?>' onClick="js_button('alter','change_subcategory')">
+    <input type=button name=del2 value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_subcategory')"><br>
 <?php
 }
 ?>
@@ -1188,15 +1179,15 @@ if (myAuth() == 1) {//root user only can see administration option
   </td>
   <td>
   <div id=id_item_column style="display:inline">
-    <select name=select_item[] size=<?php echo $select_size ?> onchange="click_item()" multiple="multiple"></select><br>
+    <select name=select_item[] size=<?php echo attr($select_size); ?> onchange="click_item()" multiple="multiple"></select><br>
 <?php
 
 if (myAuth() == 1) {//root user only can see administration option
 ?>
     <input type=text name=change_item><br>
-    <input type=button name=add3 value='<?php xl('add', 'e'); ?>' onClick="js_button('add','change_item')">
-    <input type=button name=alter1 value='<?php xl('alter', 'e'); ?>' onClick="js_button('alter','change_item')">
-    <input type=button name=del3 value='<?php xl('del', 'e'); ?>' onClick="js_button('delete','change_item')"><br>
+    <input type=button name=add3 value='<?php echo xla('add'); ?>' onClick="js_button('add','change_item')">
+    <input type=button name=alter1 value='<?php echo xla('alter'); ?>' onClick="js_button('alter','change_item')">
+    <input type=button name=del3 value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_item')"><br>
 <?php
 }
 ?>
@@ -1204,24 +1195,24 @@ if (myAuth() == 1) {//root user only can see administration option
   </td>
   <td>
 <div id=id_textarea_content style="display:inline">
-    <textarea name=textarea_content cols=<?php echo $textarea_cols ?> rows=<?php echo $textarea_rows ?> onFocus="content_focus()" onBlur="content_blur()" onDblClick="specialSelect(this,'/*','*/')" tabindex=2></textarea>
+    <textarea name=textarea_content cols=<?php echo attr($textarea_cols); ?> rows=<?php echo attr($textarea_rows); ?> onFocus="content_focus()" onBlur="content_blur()" onDblClick="specialSelect(this,'/*','*/')" tabindex=2></textarea>
     <br/>
-<input type=text size=35 name=clone_others_search value='<?php echo $_POST['clone_others_search'] ?>' tabindex=1 onKeyPress="processEnter(event,'clone_others_search')"/>
-<input type=button name=clone_others_search_button value='<?php xl('Search', 'e'); ?>' onClick="js_button('clone others', 'clone others')"/>
-<input type=button name=clone_others_selected_search_button value='<?php xl('Search Selected', 'e'); ?>' onClick="js_button('clone others selected', 'clone others selected')"/>
+<input type=text size=35 name=clone_others_search value='<?php echo attr($_POST['clone_others_search']); ?>' tabindex=1 onKeyPress="processEnter(event,'clone_others_search')"/>
+<input type=button name=clone_others_search_button value='<?php echo xla('Search'); ?>' onClick="js_button('clone others', 'clone others')"/>
+<input type=button name=clone_others_selected_search_button value='<?php echo xla('Search Selected'); ?>' onClick="js_button('clone others selected', 'clone others selected')"/>
 <?php
 
 if (myAuth() == 1) {//root user only can see administration option
 ?>
 <div id=id_main_content_buttons style="display:block">
-    <input type=button name=add4 value='<?php xl('Add', 'e'); ?>' onClick="js_button('add','change_content')">
-    <input type=button name=add4 value='<?php xl('Add to', 'e'); ?>' onClick="js_button('add to','change_content')">
-    <input type=button name=lock value='<?php xl('Lock', 'e'); ?>' onClick="lock_content()">
+    <input type=button name=add4 value='<?php echo xla('Add'); ?>' onClick="js_button('add','change_content')">
+    <input type=button name=add4 value='<?php echo xla('Add to'); ?>' onClick="js_button('add to','change_content')">
+    <input type=button name=lock value='<?php echo xla('Lock'); ?>' onClick="lock_content()">
 <?php
 
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
 ?>
-    <input type=button name=icd9 value='<?php xl('ICD9', 'e'); ?>' onClick="append_icd9()">
+    <input type=button name=icd9 value='<?php echo xla('ICD9'); ?>' onClick="append_icd9()">
 </div> <!-- end of id_main_content_buttons-->
 <?php
 }
@@ -1248,16 +1239,16 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
 
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
 ?>
-<input type=button name='submit form' value='<?php xl('Submit All Content', 'e'); ?>' onClick="js_button('submit','submit')">
-<input type=button name='submit form' value='<?php xl('Submit Selected Content', 'e'); ?>' onClick="js_button('submit','submit_selection')">
+<input type=button name='submit form' value='<?php echo xla('Submit All Content'); ?>' onClick="js_button('submit','submit')">
+<input type=button name='submit form' value='<?php echo xla('Submit Selected Content'); ?>' onClick="js_button('submit','submit_selection')">
 <?php
 }
 ?>
 <?php
 
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
-    echo "<a href='{$GLOBALS['form_exit_url']}' onclick='top.restoreSession()'>[".xl('Leave The Form')."]</a>";
-    echo "<a href='".$GLOBALS['webroot'] . "/interface/forms/CAMOS/help.html' target='new'> | [".xl('Help')."]</a>";
+    echo "<a href='{$GLOBALS['form_exit_url']}' onclick='top.restoreSession()'>[".xlt('Leave The Form')."]</a>";
+    echo "<a href='".$GLOBALS['webroot'] . "/interface/forms/CAMOS/help.html' target='new'> | [".xlt('Help')."]</a>";
 //  echo $previous_encounter_data; //probably don't need anymore now that we have clone last visit
 }
 ?>
@@ -1283,7 +1274,7 @@ function searchName($string)
  //match one or more names and return clause for query of pids
     $string = trim($string);
     if ($string == 'this') {
-        return " and (pid = ".$_SESSION['pid'].") ";
+        return " and (pid = '".add_escape_custom($_SESSION['pid'])."') ";
     }
 
     global $limit;
@@ -1306,10 +1297,10 @@ function searchName($string)
         $name1 = "%".$name2."%";
     }
 
-    $query = sqlStatement("select pid from patient_data where fname like '$name1' or fname like '$name2' or " .
-    "lname like '$name1' or lname like '$name2' limit $limit");
+    $query = sqlStatement("select pid from patient_data where fname like ? or fname like ? or " .
+    "lname like ? or lname like ? limit " . escape_limit($limit), array($name1, $name2, $name1, $name2));
     while ($results = sqlFetchArray($query)) {
-        array_push($data, $results['pid']);
+        array_push($data, "'" . add_escape_custom($results['pid'])) . "'";
     }
 
     if (count($data) > 0) {
@@ -1332,8 +1323,8 @@ function getMyPatientData($form_id, $show_phone_flag)
     "t1.phone_home, t1.phone_biz, t1.phone_contact, t1.phone_cell, " .
     "date_format(t1.DOB,'%m-%d-%y') as DOB, date_format(t2.date,'%m-%d-%y') as date, " .
     "datediff(current_date(),t2.date) as days " .
-    "from patient_data as t1 join forms as t2 on (t1.pid = t2.pid) where t2.form_id=$form_id " .
-    "and form_name like 'CAMOS%'");
+    "from patient_data as t1 join forms as t2 on (t1.pid = t2.pid) where t2.form_id=? " .
+    "and form_name like 'CAMOS%'", array($form_id));
     if ($results = sqlFetchArray($query)) {
         $pid = $results['pid'];
         $fname = $results['fname'];

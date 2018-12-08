@@ -8,15 +8,22 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2006-2016 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Core\Header;
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 // Prepare a string for CSV export.
 function qescape($str)
@@ -118,6 +125,7 @@ $(document).ready(function() {
 </div>
 
 <form name='theform' id='theform' method='post' action='patient_list.php' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 
@@ -291,9 +299,9 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             echo '"' . qescape($row['fname']) . '",';
             echo '"' . qescape($row['mname']) . '",';
             echo '"' . qescape($row['pubpid']) . '",';
-            echo '"' . qescape($row['street']) . '",';
-            echo '"' . qescape($row['city']) . '",';
-            echo '"' . qescape($row['state']) . '",';
+            echo '"' . qescape(xl($row['street'])) . '",';
+            echo '"' . qescape(xl($row['city'])) . '",';
+            echo '"' . qescape(xl($row['state'])) . '",';
             echo '"' . qescape($row['postal_code']) . '",';
             echo '"' . qescape($row['phone_home']) . '",';
             echo '"' . qescape($row['phone_biz']) . '"' . "\n";
@@ -310,13 +318,13 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         <?php echo text($row['pubpid']); ?>
    </td>
    <td>
-        <?php echo text($row['street']); ?>
+        <?php echo xlt($row['street']); ?>
    </td>
    <td>
-        <?php echo text($row['city']); ?>
+        <?php echo xlt($row['city']); ?>
    </td>
    <td>
-        <?php echo text($row['state']); ?>
+        <?php echo xlt($row['state']); ?>
    </td>
    <td>
         <?php echo text($row['postal_code']); ?>

@@ -14,7 +14,12 @@
 // create file header.
 // menu for fields could be added in the future
 require_once("../globals.php");
+
 use OpenEMR\Core\Header;
+
+if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+    csrfNotVerified();
+}
 
 ?>
 <html>
@@ -63,7 +68,7 @@ use OpenEMR\Core\Header;
     </ul>
     <?php
     if ($m_error) {
-        echo '<div class="alert alert-danger">' . xlt('Could not send email due to a server problem.') . ' ' . $m_error_count . ' ' . xlt('emails not sent') . '</div>';
+        echo '<div class="alert alert-danger">' . xlt('Could not send email due to a server problem.') . ' ' . text($m_error_count) . ' ' . xlt('emails not sent') . '</div>';
     }
     ?>
 </main>

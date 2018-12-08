@@ -12,9 +12,11 @@
 // is just the caller's selection list of recent encounters.
 
 
-
-
 require_once("../globals.php");
+
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    csrfNotVerified();
+}
 
 $res = sqlStatement("SELECT date, encounter, reason FROM form_encounter " .
   "WHERE pid = ? " .
@@ -25,8 +27,8 @@ echo "s.options.length = 0;\n";
 
 while ($row = sqlFetchArray($res)) {
     echo "s.options[s.options.length] = new Option(" .
-    "'" . substr($row['date'], 0, 10) . " " .
-    addslashes(strtr(substr($row['reason'], 0, 40), "\r\n", "  ")) . "', " .
-    "'" . $row['encounter'] . "'" .
+    "'" . attr(substr($row['date'], 0, 10)) . " " .
+    attr(strtr(substr($row['reason'], 0, 40), "\r\n", "  ")) . "', " .
+    "'" . attr($row['encounter']) . "'" .
     ");\n";
 }

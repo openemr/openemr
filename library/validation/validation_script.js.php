@@ -29,7 +29,7 @@
 /*Other pages depend if the page in the lists options (page validation)is active and exists)*/
 if ($use_validate_js) {
 ?>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/moment-2-13-0/moment.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/moment/moment.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_modified.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_extend.js"></script>
 <?php
@@ -229,19 +229,25 @@ function submitme(new_validate,e,form_id, constraints) {
                 // console.log(message);
                 switch (message){
                     case 'Patient Name Required':
-                        return '<?php echo xla('Patient Name Required');?>';
+                        return <?php echo xlj('Patient Name Required');?>;
                     case 'An end date later than the start date is required for repeated events!':
-                       return '<?php echo xla('An end date later than the start date is required for repeated events!');?>';
+                       return <?php echo xlj('An end date later than the start date is required for repeated events!');?>;
                     case 'Required field missing: Please enter the User Name':
-                        return '<?php echo xla('Required field missing: Please enter the User Name', 'e');?>';
+                        return <?php echo xlj('Required field missing: Please enter the User Name');?>;
                     case 'Please enter the password':
-                        return '<?php echo xla('Please enter the password'); ?>';
+                        return <?php echo xlj('Please enter the password'); ?>;
                     case 'Required field missing: Please enter the First name':
-                        return '<?php echo xla('Required field missing: Please enter the First name');?>';
+                        return <?php echo xlj('Required field missing: Please enter the First name');?>;
                     case 'Required field missing: Please enter the Last name':
-                        return '<?php echo xla('Required field missing: Please enter the Last name');?>';
+                        return <?php echo xlj('Required field missing: Please enter the Last name');?>;
+                    case 'Please choose a patient':
+                        return <?php echo xlj('Please choose a patient');?>;
+                    case 'Must be future date':
+                        return <?php echo xlj('Must be future date');?>;
+                    case 'Recipient required unless status is Done':
+                        return <?php echo xlj('Recipient required unless status is Done');?>;
                     default:
-                       return '<?php echo xla('is not valid');?>';
+                       return <?php echo xlj('is not valid');?>;
                 }
             }
             //the result of validation

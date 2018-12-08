@@ -100,19 +100,37 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag')
     global $form_name;
     global $choice;
 
-  /** openEMR note:  eye_mag Index is id,
-    * linked to encounter in form_encounter
-    * whose encounter is linked to id in forms.
-  */
+  /**
+   * openEMR note:  eye_mag Index is id,
+   * linked to encounter in form_encounter
+   * whose encounter is linked to id in forms.
+   */
 
-    $query="select form_encounter.date as encounter_date,form_eye_mag.*
-  from form_eye_mag ,forms,form_encounter
-  where
-  form_encounter.encounter =? and
-  form_encounter.encounter = forms.encounter and
-  form_eye_mag.id=forms.form_id and
-  forms.pid =form_eye_mag.pid and
-  form_eye_mag.pid=? ";
+    $query ="  select  *,form_encounter.date as encounter_date
+
+               from forms,form_encounter,form_eye_base,
+                form_eye_hpi,form_eye_ros,form_eye_vitals,
+                form_eye_acuity,form_eye_refraction,form_eye_biometrics,
+                form_eye_external, form_eye_antseg,form_eye_postseg,
+                form_eye_neuro,form_eye_locking
+                    where
+                    forms.deleted != '1'  and
+                    forms.formdir='eye_mag' and
+                    forms.encounter=form_encounter.encounter  and
+                    forms.form_id=form_eye_base.id and
+                    forms.form_id=form_eye_hpi.id and
+                    forms.form_id=form_eye_ros.id and
+                    forms.form_id=form_eye_vitals.id and
+                    forms.form_id=form_eye_acuity.id and
+                    forms.form_id=form_eye_refraction.id and
+                    forms.form_id=form_eye_biometrics.id and
+                    forms.form_id=form_eye_external.id and
+                    forms.form_id=form_eye_antseg.id and
+                    forms.form_id=form_eye_postseg.id and
+                    forms.form_id=form_eye_neuro.id and
+                    forms.form_id=form_eye_locking.id and
+                    forms.encounter=? and 
+                    forms.pid=? ";
     $objQuery =sqlQuery($query, array($encounter,$pid));
     @extract($objQuery);
 
@@ -214,14 +232,31 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
     global $facilityService;
   //if $cols == 'Fax', we are here from taskman, making a fax and this a one page short form - leave out PMSFH, prescriptions
   //and any clinical area that is blank.
-    $query="select form_encounter.date as encounter_date,form_eye_mag.id as form_id,form_encounter.*, form_eye_mag.*
-            from form_eye_mag ,forms,form_encounter
-            where
-            form_encounter.encounter =? and
-            form_encounter.encounter = forms.encounter and
-            form_eye_mag.id=forms.form_id and
-            forms.deleted != '1' and
-            form_eye_mag.pid=? ";
+     $query ="  select  *,form_encounter.date as encounter_date
+
+               from forms,form_encounter,form_eye_base,
+                form_eye_hpi,form_eye_ros,form_eye_vitals,
+                form_eye_acuity,form_eye_refraction,form_eye_biometrics,
+                form_eye_external, form_eye_antseg,form_eye_postseg,
+                form_eye_neuro,form_eye_locking
+                    where
+                    forms.deleted != '1'  and
+                    forms.formdir='eye_mag' and
+                    forms.encounter=form_encounter.encounter  and
+                    forms.form_id=form_eye_base.id and
+                    forms.form_id=form_eye_hpi.id and
+                    forms.form_id=form_eye_ros.id and
+                    forms.form_id=form_eye_vitals.id and
+                    forms.form_id=form_eye_acuity.id and
+                    forms.form_id=form_eye_refraction.id and
+                    forms.form_id=form_eye_biometrics.id and
+                    forms.form_id=form_eye_external.id and
+                    forms.form_id=form_eye_antseg.id and
+                    forms.form_id=form_eye_postseg.id and
+                    forms.form_id=form_eye_neuro.id and
+                    forms.form_id=form_eye_locking.id and
+                    forms.encounter=? and 
+                    forms.pid=? ";
 
     $encounter_data =sqlQuery($query, array($encounter,$pid));
     @extract($encounter_data);
@@ -966,7 +1001,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
         ?><!-- start of the refraction boxes -->
         <?php
         if ($ODVA||$OSVA||$ARODSPH||$AROSSPH||$MRODSPH||$MROSSPH||$CRODSPH||$CROSSPH||$CTLODSPH||$CTLOSSPH) { ?>
-          
+
           <br />
           <table class="refraction_tables">
                <tr>
@@ -1985,19 +2020,17 @@ if ($ODCMT||$OSCMT) { ?>
 
                     echo  $item['plan']."</div><br />";
                 }
+                $query = "SELECT * FROM form_eye_mag_orders where form_id=? and pid=? ORDER BY id ASC";
+                $PLAN_results = sqlStatement($query, array($form_id, $pid ));
 
-                if ($PLAN && $PLAN != '0') { ?>
+
+                if ($PLAN_results) { ?>
                     <b><?php echo xlt('Orders')."/".xlt('Next Visit'); ?>:</b>
                     <br />
                     <div style="padding-left:15px;padding-bottom:10px;width:400px;">
                         <?php
-                        $PLAN_items = explode('|', $PLAN);
-                        foreach ($PLAN_items as $item) {
-                            echo  $item."<br />";
-                        }
-
-                        if ($PLAN2) {
-                            echo $PLAN2."<br />";
+                        while ($plan_row = sqlFetchArray($PLAN_results)) {
+                            echo  $plan_row['ORDER_DETAILS']."<br />";
                         }
                         ?>
                     </div>
@@ -2013,23 +2046,25 @@ if ($ODCMT||$OSCMT) { ?>
             display_draw_image("IMPPLAN", $encounter, $pid);
 
             if ($PDF_OUTPUT) {
-              //display a stored optional electronic sig for this providerID, ie the patient's Doc not the tech
-                $from_file = $GLOBALS["webserver_root"] ."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
+                //display a stored optional electronic sig for this providerID, ie the patient's Doc not the tech
+                //Isn't there a place in sites/..default../images for a jpg signature file for Rx printing or some other openEMR task?
+                $from_file = $GLOBALS['fileroot'] ."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
                 if (file_exists($from_file)) {
-                    echo "<img style='width:50mm;' src='$from_file'><hr style='width:40mm;' />".
-                    text($providerNAME)."<br />
-                <i style='font-size:9px;'>".xlt('electronically signed on')." ".oeFormatShortDate()."</i>";
+                    echo "<img style='width:50mm;' src='$from_file'><hr style='width:40mm;' />";
                 }
-                ?>
-              <br />
-              <span style="border-top:1pt solid black;padding-left:50px;"><?php echo text($providerNAME); ?></span>
-                <?php
             } else {
-                $signature = $GLOBALS["webserver_root"]."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
+                $signature = $GLOBALS['fileroot']."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
                 if (file_exists($signature)) {
-                    echo "<img src='".$GLOBALS['web_root']."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg'  style='width:30mm; height:6mm;bottom:1px;' height='10' />";
+                        echo "<img style='width:50mm;' src='".$GLOBALS['web_root']."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg'><hr style='width:40mm;' />";
                 }
             }
+            echo "<br /><i style='font-size:9px;'>".xlt('electronically signed on')." ".oeFormatShortDate()."</i>";
+
+            ?>
+              <br />
+              <span style="padding-left:30px;"><?php echo text($providerNAME); ?></span>
+                <?php
+
             ?>
 
 

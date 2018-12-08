@@ -141,6 +141,10 @@ if (count($_POST)) {
  * functions called in the if stanzas are now in edih_io.php
  */
 if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     //
     // === log user access on POST requests ===========
     csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
@@ -185,6 +189,10 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
     }  // end if (strtolower($_SERVER['REQUEST_METHOD']) == 'post')
     //
 } elseif (strtolower($_SERVER['REQUEST_METHOD']) == 'get') {
+    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     //
     if (isset($_GET['srvinfo']) && $_GET['srvinfo'] == 'yes') {
         // initial ajax request

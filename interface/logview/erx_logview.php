@@ -19,14 +19,24 @@ require_once($srcdir.'/log.inc');
 
 $error_log_path = $GLOBALS['OE_SITE_DIR'].'/documents/erx_error';
 
-if (array_key_exists('filename', $_REQUEST)) {
-    $filename = $_REQUEST['filename'];
+if (array_key_exists('filename', $_GET)) {
+    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
+    $filename = $_GET['filename'];
+    check_file_dir_name($filename);
 } else {
     $filename = '';
 }
 
-if (array_key_exists('start_date', $_REQUEST)) {
-    $start_date = $_REQUEST['start_date'];
+if (array_key_exists('start_date', $_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
+    $start_date = $_POST['start_date'];
+    check_file_dir_name($start_date); // this is incorporated into filename when seeking, so will check it
 } else {
     $start_date = '';
 }
@@ -60,11 +70,11 @@ if ($filename) {
     <head>
         <?php html_header_show(); ?>
         <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
         <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-7-2/jquery.min.js"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
         <script language="JavaScript">
             $(document).ready(function(){
@@ -81,6 +91,8 @@ if ($filename) {
     </head>
     <body class="body_top">
         <form method="post">
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+
         <font class="title"><?php echo xlt('eRx Logs'); ?></font><br><br>
         <table>
             <tr>
@@ -88,10 +100,10 @@ if ($filename) {
                     <span class="text"><?php echo xlt('Date'); ?>: </span>
                 </td>
                 <td>
-                    <input type="text" size="10" class='datepicker' name="start_date" id="start_date" value="<?php echo $start_date ? substr($start_date, 0, 10) : date('Y-m-d'); ?>" title="<?php echo xlt('yyyy-mm-dd Date of service'); ?>" />
+                    <input type="text" size="10" class='datepicker' name="start_date" id="start_date" value="<?php echo $start_date ? attr(substr($start_date, 0, 10)) : date('Y-m-d'); ?>" title="<?php echo xla('yyyy-mm-dd Date of service'); ?>" />
                 </td>
                 <td>
-                    <input type="submit" name="search_logs" value="<?php echo xlt('Search'); ?>">
+                    <input type="submit" name="search_logs" value="<?php echo xla('Search'); ?>">
                 </td>
             </tr>
         </table>
@@ -99,7 +111,11 @@ if ($filename) {
 <?php
 
     $check_for_file = 0;
-if (array_key_exists('search_logs', $_REQUEST)) {
+if (array_key_exists('search_logs', $_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     if ($handle = opendir($error_log_path)) {
         while (false !== ($file = readdir($handle))) {
             $file_as_in_folder = 'erx_error-'.$start_date.'.log';
@@ -109,15 +125,15 @@ if (array_key_exists('search_logs', $_REQUEST)) {
                 $fd = fopen($error_log_path.'/'.$file, 'r');
                 $bat_content = fread($fd, filesize($error_log_path.'/'.$file));
 ?>
-                <p><?php echo xlt('Download'); ?>: <a href="erx_logview.php?filename=<?php echo htmlspecialchars($file, ENT_QUOTES); ?>"><?php echo htmlspecialchars($file, ENT_NOQUOTES); ?></a></p>
-                <textarea rows="35" cols="132"><?php echo htmlspecialchars($bat_content, ENT_QUOTES); ?></textarea>
+                <p><?php echo xlt('Download'); ?>: <a href="erx_logview.php?filename=<?php echo attr(urlencode($file)); ?>&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>"><?php echo text($file); ?></a></p>
+                <textarea rows="35" cols="132"><?php echo text($bat_content); ?></textarea>
 <?php
             }
         }
     }
 
     if ($check_for_file == 0) {
-        echo xlt('No log file exist for the selected date').': '.$start_date;
+        echo xlt('No log file exist for the selected date') . ': ' . text($start_date);
     }
 }
 

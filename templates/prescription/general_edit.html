@@ -11,7 +11,7 @@
 <html>
 <head>
 
-    {headerTemplate assets='jquery-ui|jquery-ui-base'}
+    {headerTemplate assets='jquery-ui|jquery-ui-base|datetime-picker'}
 
 {literal}
 <style type="text/css">
@@ -109,7 +109,7 @@ select{
         {if $prescription->get_refills() >= $prescription->get_dispensation_count()}
             <input type="submit" name="disp_button"class='css_button_small'  style="margin:0 5px 0 2px;" value="{xl t='Save and Dispense'|escape:'html'}" />
             <input class="input-sm" type="text" name="disp_quantity" size="2" maxlength="10" value="{$DISP_QUANTITY|escape:'html'}" />
-            units, $
+            units, {$GBL_CURRENCY_SYMBOL|escape:'html'}
             <input class="input-sm" type="text" name="disp_fee" size="5" maxlength="10" value="{$DISP_FEE|escape:'html'}" />
         {else}&nbsp;
             {xl t='prescription has reached its limit of'|escape:'html'} {$prescription->get_refills()|escape:'html'} {xl t='refills'|escape:'html'}.
@@ -160,8 +160,7 @@ select{
 <tr>
   <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Starting Date'|escape:'html'}</td>
   <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-    {html_select_date class="input-sm" start_year="-10" end_year="+5" time=$prescription->start_date prefix="start_date_"}
-    <input type="hidden" name="start_date" value="{$prescription->start_date|escape:'html'}">
+      <input   type="text" size="10" class="datepicker" name="start_date" id="start_date" value="{$prescription->start_date|oeFormatShortDate|escape:'html'}" />
   </td>
 </tr>
 <tr>
@@ -272,6 +271,7 @@ select{
 <!-- for the fancy jQuery stuff -->
 <script type="text/javascript">
 
+
 function submitfun() {
     top.restoreSession();
     if (CheckForErrors(this)) {
@@ -356,7 +356,13 @@ function CheckRequired(objID) {
     return true;
 }
 
-</script>
+
+$(document).ready(function(){{/literal}
+    {datetimepickerSupport input='format'}
+{literal}});</script>
+
+
+
 {/literal}
 
 </html>

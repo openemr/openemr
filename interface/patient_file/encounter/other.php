@@ -1,5 +1,15 @@
 <?php
-include_once("../../globals.php");
+/**
+ * other.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+require_once("../../globals.php");
 
 //the number of rows to display before resetting and starting a new column:
 $N=10
@@ -20,7 +30,7 @@ $N=10
 
 <dl>
 
-<form method='post' name='other_form' action="diagnosis.php?mode=add&type=OTHER"
+<form method='post' name='other_form' action="diagnosis.php?mode=add&type=OTHER&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>"
  target='Diagnosis' onsubmit='return top.restoreSession()'>
 <script type="text/javascript">
 function clearform(atrib){
@@ -37,20 +47,20 @@ function isNumberKey(evt)
       {var charCode = (evt.which) ? evt.which : event.keyCode
          if (charCode > 31 && (charCode < 48 || charCode > 57))
          {
-         alert("<?php xl('Units must be a number', 'e'); ?>");
+         alert(<?php echo xlj('Units must be a number'); ?>);
          return false;
          }
 return true;  }
 </script>
-<dt><span class=title><?php xl('Other', 'e'); ?></span></dt>
+<dt><span class=title><?php echo xlt('Other'); ?></span></dt>
 
 <br>
 <table>
 <tr>
-<td class="text"><?php xl('code', 'e'); ?></td>
-<td class="text"><?php xl('description', 'e'); ?></td>
-<td class="text">&nbsp;&nbsp;&nbsp;<?php xl('fee', 'e'); ?></td>
-<td class="text"><?php xl('units', 'e'); ?></td>
+<td class="text"><?php echo xlt('code'); ?></td>
+<td class="text"><?php echo xlt('description'); ?></td>
+<td class="text">&nbsp;&nbsp;&nbsp;<?php echo xlt('fee'); ?></td>
+<td class="text"><?php echo xlt('units'); ?></td>
 <td></td>
 </tr>
 <tr>
@@ -60,10 +70,10 @@ return true;  }
 <input type=hidden name=units>
   <td class="text"><input type=entry name=codeH size=4>&nbsp;&nbsp;</td>
   <td class="text"><input type=entry name=textH size=13 value="">&nbsp;&nbsp;</td>
-  <td class="text"><?php xl('$', 'e'); ?> </span><input type=entry name=feeH size=5></td>
+  <td class="text"><?php echo xlt('$'); ?> </span><input type=entry name=feeH size=5></td>
   <td> <input type=text name="noofunits" onkeypress="return isNumberKey(event)" size=3 value=1></td>
   <td>&nbsp;<a class='text' onclick="clearform('clear')" href="javascript:top.restoreSession();document.other_form.submit();">
-    <?php xl('Save', 'e'); ?> </a>
+    <?php echo xlt('Save'); ?> </a>
   </td>
 </tr>
 </table>

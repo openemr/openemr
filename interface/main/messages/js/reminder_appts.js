@@ -26,7 +26,17 @@ function recall_name_click(field) {
  * Function to insert patient data into addRecall fields
  * pid is sent to server for the data to display
  */
-function setpatient(pid, lname='', fname='', dob='') {
+function setpatient(pid, lname, fname, dob) {
+    if (lname==null){
+        lname='';
+    }
+    if (fname==null){
+        fname='';
+    }
+    if (dob==null){
+        dob='';
+    }
+
     top.restoreSession();
     $.ajax({
         type: "POST",
@@ -166,7 +176,10 @@ function checkAll(chk, set) {
 /**
  * This function sends a list of checked items to the server for processing.
  */
-function process_this(material, id, eid='') {
+function process_this(material, id, eid) {
+    if (eid==null){
+        eid='';
+    }
     var make_this = [];
     var make_that = [];
     var make_all = [];
@@ -309,7 +322,10 @@ function goMedEx() {
 
 /****  END FUNCTIONS RELATED TO NAVIGATION *****/
 
-function show_this(colorish='') {
+function show_this(colorish) {
+    if (colorish==null){
+        colorish='';
+    }
     var facV = $("#form_facility").val();
     var provV = $("#form_provider").val();
     var pidV = $("#form_patient_id").val();

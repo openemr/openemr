@@ -1,10 +1,13 @@
 <?php
-// Copyright (C) 2010 Brady Miller <brady.g.miller@gmail.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * user.inc
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 // Set effective user - If no user id is provided, then use the currently logged in user
@@ -135,4 +138,31 @@ function prevSetting($uspfx, $postvar, $label, $initval)
     }
 
     return $pset;
+}
+
+/**
+ * Function to set the state of expandable forms as per user choice, user default or global default
+ * @return the current state of the file after updating table user_settings
+ */
+
+function collectAndOrganizeExpandSetting($filenames = array())
+{
+    $current_filename = $filenames[0];
+    $global_value = $GLOBALS['expand_form'];
+
+    if (getUserSetting($current_filename) > -1) {
+        $current_state = getUserSetting($current_filename);
+    } elseif ($global_value) {
+        $current_state = $global_value;
+    } else {
+        $current_state = 0;
+    }
+
+    if (count($filenames)) {
+        foreach ($filenames as $filename) {
+            setUserSetting($filename, $current_state);
+        }
+    }
+
+     return $current_state;
 }

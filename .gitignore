@@ -1,4 +1,20 @@
-/vendor/**/.git
+# logs
 /logs
+
+# environment vars
 .env
+
+# vendor and assets
+node_modules
+/vendor/*
+/public/assets/*
+/public/themes/*
+!/public/assets/manual-added-packages
+!/public/assets/modified
+/.docs/.out/*
+
+# ccda service build
+ccdaservice/node_modules
+
+# dev editor configs
 /.idea/*

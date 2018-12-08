@@ -17,14 +17,6 @@ require_once("$srcdir/acl.inc");
 require_once("drugs.inc.php");
 require_once("$srcdir/options.inc.php");
 
-function QuotedOrNull($fld)
-{
-    if ($fld) {
-        return "'".add_escape_custom($fld)."'";
-    }
-
-    return "NULL";
-}
 
 function checkWarehouseUsed($warehouse_id)
 {
@@ -115,16 +107,16 @@ if (!$drug_id) {
 <head>
 <?php html_header_show();?>
 <title><?php echo $lot_id ? xlt("Edit") : xlt("Add New");
-xlt('Lot', 'e', ' '); ?></title>
+echo " " . xlt('Lot'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
 <style>
 td { font-size:10pt; }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
@@ -133,11 +125,11 @@ td { font-size:10pt; }
  function validate() {
   var f = document.forms[0];
   if (f.form_source_lot.value == '0' && f.form_lot_number.value.search(/\S/) < 0) {
-   alert('<?php echo addslashes(xl('A lot number is required')); ?>');
+   alert('<?php echo xls('A lot number is required'); ?>');
    return false;
   }
   if (f.form_trans_type.value == '6' && f.form_distributor_id.value == '') {
-   alert('<?php echo addslashes(xl('A distributor is required')); ?>');
+   alert('<?php echo xls('A distributor is required'); ?>');
    return false;
   }
   return true;
@@ -208,6 +200,10 @@ if ($lot_id) {
 // If we are saving, then save and close the window.
 //
 if ($_POST['form_save'] || $_POST['form_delete']) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     $form_quantity = $_POST['form_quantity'] + 0;
     $form_cost = sprintf('%0.2f', $_POST['form_cost']);
     $form_source_lot = $_POST['form_source_lot'] + 0;
@@ -252,14 +248,26 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
                 if (($row['on_hand'] + $form_quantity) < 0) {
                     $info_msg = xl('Transaction failed, insufficient quantity in destination lot');
                 } else {
-                    sqlStatement("UPDATE drug_inventory SET " .
-                    "lot_number = '"   . add_escape_custom($_POST['form_lot_number'])    . "', " .
-                    "manufacturer = '" . add_escape_custom($_POST['form_manufacturer'])  . "', " .
-                    "expiration = "    . QuotedOrNull($_POST['form_expiration']) . ", "  .
-                    "vendor_id = '"    . add_escape_custom($_POST['form_vendor_id'])     . "', " .
-                    "warehouse_id = '" . add_escape_custom($_POST['form_warehouse_id'])  . "', " .
-                    "on_hand = on_hand + '" . add_escape_custom($form_quantity)            . "' "  .
-                    "WHERE drug_id = ? AND inventory_id = ?", array($drug_id,$lot_id));
+                    sqlStatement(
+                        "UPDATE drug_inventory SET " .
+                        "lot_number = ?, " .
+                        "manufacturer = ?, " .
+                        "expiration = ?, "  .
+                        "vendor_id = ?, " .
+                        "warehouse_id = ?, " .
+                        "on_hand = on_hand + ? "  .
+                        "WHERE drug_id = ? AND inventory_id = ?",
+                        array(
+                            $_POST['form_lot_number'],
+                            $_POST['form_manufacturer'],
+                            (empty($_POST['form_expiration']) ? "NULL" : $_POST['form_expiration']),
+                            $_POST['form_vendor_id'],
+                            $_POST['form_warehouse_id'],
+                            $form_quantity,
+                            $drug_id,
+                            $lot_id
+                        )
+                    );
                 }
             } else {
                 sqlStatement("DELETE FROM drug_inventory WHERE drug_id = ? " .
@@ -270,18 +278,29 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
             if ($form_quantity < 0) {
                 $info_msg = xl('Transaction failed, quantity is less than zero');
             } else {
-                $lot_id = sqlInsert("INSERT INTO drug_inventory ( " .
-                "drug_id, lot_number, manufacturer, expiration, " .
-                "vendor_id, warehouse_id, on_hand " .
-                ") VALUES ( " .
-                "'" . add_escape_custom($drug_id) . "', "                            .
-                "'" . add_escape_custom($_POST['form_lot_number'])   . "', " .
-                "'" . add_escape_custom($_POST['form_manufacturer']) . "', " .
-                QuotedOrNull($_POST['form_expiration'])      . ", "  .
-                "'" . add_escape_custom($_POST['form_vendor_id'])    . "', " .
-                "'" . add_escape_custom($_POST['form_warehouse_id']) . "', " .
-                "'" . add_escape_custom($form_quantity)                . "' "  .
-                ")");
+                $lot_id = sqlInsert(
+                    "INSERT INTO drug_inventory ( " .
+                    "drug_id, lot_number, manufacturer, expiration, " .
+                    "vendor_id, warehouse_id, on_hand " .
+                    ") VALUES ( " .
+                    "?, "                            .
+                    "?, " .
+                    "?, " .
+                    "?, "  .
+                    "?, " .
+                    "?, " .
+                    "? "  .
+                    ")",
+                    array(
+                        $drug_id,
+                        $_POST['form_lot_number'],
+                        $_POST['form_manufacturer'],
+                        (empty($_POST['form_expiration']) ? "NULL" : $_POST['form_expiration']),
+                        $_POST['form_vendor_id'],
+                        $_POST['form_warehouse_id'],
+                        $form_quantity
+                    )
+                );
             }
         }
 
@@ -293,19 +312,32 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
                 $form_sale_date = date('Y-m-d');
             }
 
-            sqlInsert("INSERT INTO drug_sales ( " .
-            "drug_id, inventory_id, prescription_id, pid, encounter, user, " .
-            "sale_date, quantity, fee, xfer_inventory_id, distributor_id, notes " .
-            ") VALUES ( " .
-            "'" . add_escape_custom($drug_id) . "', " .
-            "'" . add_escape_custom($lot_id) . "', '0', '0', '0', " .
-            "'" . add_escape_custom($_SESSION['authUser']) . "', " .
-            "'" . add_escape_custom($form_sale_date) . "', " .
-            "'" . add_escape_custom(0 - $form_quantity)  . "', " .
-            "'" . add_escape_custom(0 - $form_cost)      . "', " .
-            "'" . add_escape_custom($form_source_lot) . "', " .
-            "'" . add_escape_custom($form_distributor_id) . "', " .
-            "'" . add_escape_custom($form_notes) . "' )");
+            sqlInsert(
+                "INSERT INTO drug_sales ( " .
+                "drug_id, inventory_id, prescription_id, pid, encounter, user, " .
+                "sale_date, quantity, fee, xfer_inventory_id, distributor_id, notes " .
+                ") VALUES ( " .
+                "?, " .
+                "?, '0', '0', '0', " .
+                "?, " .
+                "?, " .
+                "?, " .
+                "?, " .
+                "?, " .
+                "?, " .
+                "? )",
+                array(
+                    $drug_id,
+                    $lot_id,
+                    $_SESSION['authUser'],
+                    $form_sale_date,
+                    (0 - $form_quantity),
+                    (0 - $form_cost),
+                    $form_source_lot,
+                    $form_distributor_id,
+                    $form_notes
+                )
+            );
 
             // If this is a transfer then reduce source QOH, and also copy some
             // fields from the source when they are missing.
@@ -339,8 +371,9 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
 }
 ?>
 
-<form method='post' name='theform' action='add_edit_lot.php?drug=<?php echo attr($drug_id) ?>&lot=<?php echo attr($lot_id) ?>'
+<form method='post' name='theform' action='add_edit_lot.php?drug=<?php echo attr(urlencode($drug_id)); ?>&lot=<?php echo attr(urlencode($lot_id)); ?>'
  onsubmit='return validate()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <center>
 
 <table border='0' width='100%'>
@@ -511,7 +544,7 @@ while ($lrow = sqlFetchArray($lres)) {
 <?php if ($lot_id) { ?>
 &nbsp;
 <input type='button' value='<?php echo xla('Destroy...'); ?>'
- onclick="window.location.href='destroy_lot.php?drug=<?php echo attr($drug_id) ?>&lot=<?php echo attr($lot_id) ?>'" />
+ onclick="window.location.href='destroy_lot.php?drug=<?php echo attr(urlencode($drug_id)); ?>&lot=<?php echo attr(urlencode($lot_id)); ?>'" />
 <?php } ?>
 
 &nbsp;

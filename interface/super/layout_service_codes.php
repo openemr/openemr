@@ -6,9 +6,12 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'] . '/acl.inc');
@@ -48,6 +51,11 @@ function applyCode($layoutid, $codetype, $code, $description)
 <?php
 // Handle uploads.
 if (!empty($_POST['bn_upload'])) {
+    //verify csrf
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     $thecodes = array();
     $tmp_name = $_FILES['form_file']['tmp_name'];
 
@@ -125,6 +133,7 @@ if (!empty($_POST['bn_upload'])) {
 ?>
 <form method='post' action='layout_service_codes.php' enctype='multipart/form-data'
  onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <center>
 
@@ -137,7 +146,7 @@ if (!empty($_POST['bn_upload'])) {
  </tr>
  <tr>
   <td class='detail' nowrap>
-    <?php echo htmlspecialchars(xl('Source CSV File')); ?>
+    <?php echo xlt('Source CSV File'); ?>
    <input type="hidden" name="MAX_FILE_SIZE" value="350000000" />
   </td>
   <td class='detail' nowrap>

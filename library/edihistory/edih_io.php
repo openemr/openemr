@@ -141,31 +141,31 @@ function edih_html_heading($option, $title = '')
     //$str_html .= " <link rel='stylesheet' href='jscript/style/csv_new.css' type='text/css' media='print, projection, screen' />".PHP_EOL;
     //$str_html .= " <link rel='stylesheet' href='../css/edi_history.css' type='text/css' />".PHP_EOL;
     $str_html .= " <link rel='stylesheet' href='$webdir/library/css/edi_history.css' type='text/css' />".PHP_EOL;
-    $str_html .= " <link type='text/javascript' src='$vendordir/jquery-min-1-9-1/index.js'  />".PHP_EOL;
+    $str_html .= " <link type='text/javascript' src='$vendordir/jquery-1-9-1/jquery.min.js'  />".PHP_EOL;
     $str_html .= " <link type='text/javascript' src='$webdir/library/js/jquery-ui-1.8.21.custom.min.js'  />".PHP_EOL;
     //
     $str_html .= "</head>".PHP_EOL."<body>".PHP_EOL;
 
     if ($option == 'newfiles') {
-        $str_html = str_replace('##TITLE##', 'Process New Files '.$title, $str_html);
+        $str_html = str_replace('##TITLE##', 'Process New Files '.text($title), $str_html);
     } elseif ($option == 'eradisplay') {
-        $str_html = str_replace('##TITLE##', 'ERA Display '.$title, $str_html);
+        $str_html = str_replace('##TITLE##', 'ERA Display '.text($title), $str_html);
     } elseif ($option == 'claimstatus') {
-        $str_html = str_replace('##TITLE##', 'Claim Status '.$title, $str_html);
+        $str_html = str_replace('##TITLE##', 'Claim Status '.text($title), $str_html);
     } elseif ($option == 'eligibility') {
-        $str_html = str_replace('##TITLE##', 'Eligiility '.$title, $str_html);
+        $str_html = str_replace('##TITLE##', 'Eligiility '.text($title), $str_html);
     } elseif ($option == 'authorization') {
-        $str_html = str_replace('##TITLE##', 'Authorization '.$title, $str_html);
+        $str_html = str_replace('##TITLE##', 'Authorization '.text($title), $str_html);
     } elseif ($option == 'x12display') {
-        $str_html = str_replace('##TITLE##', 'x12 File '.$title, $str_html);
+        $str_html = str_replace('##TITLE##', 'x12 File '.text($title), $str_html);
     } elseif ($option == 'csvtable') {
-        $str_html = str_replace('##TITLE##', 'CSV Table '.$title, $str_html);
+        $str_html = str_replace('##TITLE##', 'CSV Table '.text($title), $str_html);
     } elseif ($option == 'textdisplay') {
-        $str_html = str_replace('##TITLE##', 'Text '.$title, $str_html);
+        $str_html = str_replace('##TITLE##', 'Text '.text($title), $str_html);
     } elseif ($option == 'readme') {
-        $str_html = str_replace('##TITLE##', 'Readme '.$title, $str_html);
+        $str_html = str_replace('##TITLE##', 'Readme '.text($title), $str_html);
     } else {
-        $str_html = str_replace('##TITLE##', 'OEMR edi_history '.$title, $str_html);
+        $str_html = str_replace('##TITLE##', 'OEMR edi_history '.text($title), $str_html);
     }
 
     //
@@ -342,8 +342,8 @@ function edih_disp_file_process()
                 //$str_html .= "<table class='$tp' cols=$col_ct><caption>$tp Files Summary $dtl</caption>".PHP_EOL;
                 //$str_html .= csv_thead_html($tp, 'file');
                 //$str_html .= "<tbody>".PHP_EOL;
-                $str_html .= "<h2 class='prcs'>$tp $dirct files $dtl</h2>".PHP_EOL;
-                $str_html .= "<dl class='$tp'>".PHP_EOL;
+                $str_html .= "<h2 class='prcs'>" . text($tp) . " " . text($dirct) . " files " . text($dtl) . "</h2>".PHP_EOL;
+                $str_html .= "<dl class='" . attr($tp) . "'>".PHP_EOL;
             }
 
             foreach ($upload_ar as $fn) {
@@ -359,11 +359,11 @@ function edih_disp_file_process()
             //$str_html .= ($htm) ? "</tbody>".PHP_EOL."</table>".PHP_EOL : "";
             $str_html .= ($htm) ? "</dl>".PHP_EOL : "";
         } else {
-            $str_html .= "<p>No new $tp files</p>";
+            $str_html .= "<p>No new " . text($tp) . " files</p>";
         }
     }
 
-    $capt_html = "<p>Process new files ($fct files)</p>".PHP_EOL;
+    $capt_html = "<p>Process new files (" . text($fct) . " files)</p>".PHP_EOL;
     return $capt_html . $str_html;
 }
 
@@ -480,7 +480,7 @@ function edih_disp_x12trans()
                 if ($fname) {
                     $str_htm .= edih_display_text($fname, $rsptype, $trace, $err);
                 } else {
-                    $str_htm .= "<p>Did not find $trace in the $rsptype claims table.</p>";
+                    $str_htm .= "<p>Did not find " . text($trace) . " in the " . text($rsptype) . " claims table.</p>";
                 }
 
                 //$fnar = csv_file_by_enctr($trace, $rsptype, $srchtype='ptidn' );
@@ -522,7 +522,7 @@ function edih_disp_x12trans()
                     if ($fname) {
                         $str_htm .= edih_display_text($fname, $rsptype, $trace);
                     } else {
-                        $str_htm .= "<p>Did not find $trace in type $rsptype csv_claims table</p>".PHP_EOL;
+                        $str_htm .= "<p>Did not find " . text($trace) . " in type " . text($rsptype) . " csv_claims table</p>".PHP_EOL;
                         csv_edihist_log("edih_disp_x12trans: Did not find $trace in type $rsptype csv_claims table");
                     }
                 } else {
@@ -564,7 +564,7 @@ function edih_disp_x12trans()
                 if ($fname) {
                     $str_htm .= edih_display_text($fname, $rsptype, $trace);
                 } else {
-                    $str_htm .= "<p>Did not find $trace in type $rsptype csv_claims table</p>".PHP_EOL;
+                    $str_htm .= "<p>Did not find " . text($trace) . " in type " . text($rsptype) . " csv_claims table</p>".PHP_EOL;
                     csv_edihist_log("edih_disp_x12trans: Did not find $trace in type $rsptype csv_claims table");
                 }
             } elseif ($clm01) {
@@ -623,7 +623,7 @@ function edih_disp_x12file()
 
     // post request from x12 file tab
     if (count($_FILES) && isset($_FILES['fileUplx12'])) {
-        $fnupl = htmlentities($_FILES['fileUplx12']['name']);
+        $fnupl = $_FILES['fileUplx12']['name'];
         // the upload files validator
         $f_array = edih_upload_files();
         //
@@ -634,8 +634,8 @@ function edih_disp_x12file()
                 $cmt = (count($f_array['reject'][0])) ? $f_array['reject'][0]['comment'] : '';
                 //$str_html = edih_html_heading('error');
                 $str_htm .= "<p>Rejected file:</p>".PHP_EOL;
-                $str_htm .= "<p>$fn<br>".PHP_EOL;
-                $str_htm .= " -- $cmt</p>".PHP_EOL;
+                $str_htm .= "<p>" . text($fn) . "<br>".PHP_EOL;
+                $str_htm .= " -- " . text($cmt) . "</p>".PHP_EOL;
                 //
                 csv_edihist_log("edih_disp_x12file: rejected file $fn comment: $cmt");
                 //
@@ -649,14 +649,14 @@ function edih_disp_x12file()
                 //
                 if (!$fn) {
                     //$str_htm = edih_html_heading('error');
-                    $str_htm .= "<p>Path error for $fn1</p>" . PHP_EOL;
+                    $str_htm .= "<p>Path error for " . text($fn1) . "</p>" . PHP_EOL;
                     csv_edihist_log("edih_disp_x12file: Path error for $fn1");
                     return $str_htm;
                 }
             }
         } else {
             //$str_htm = edih_html_heading('error');
-            $str_htm .= "<p>File not accepted $fnupl</p>" . PHP_EOL;
+            $str_htm .= "<p>File not accepted " . text($fnupl) . "</p>" . PHP_EOL;
             csv_edihist_log("edih_disp_x12file: File not accepted $fnupl");
             return $str_htm;
         }
@@ -696,7 +696,7 @@ function edih_disp_x12file()
             $ft = $rsptype;
             $trace = '';
             if (!$fn) {
-                $str_htm .= "<p>997/999 Trace value $trace not found for type $rsptype</p>" . PHP_EOL;
+                $str_htm .= "<p>997/999 Trace value " . text($trace) . " not found for type " . text($rsptype) . "</p>" . PHP_EOL;
                 csv_edihist_log("edih_disp_x12file: 997/999 Trace value $trace not found for type $rsptype");
                 return $str_htm;
             }
@@ -705,7 +705,7 @@ function edih_disp_x12file()
 
     if (!$fn) {
         //$str_htm = edih_html_heading('error');
-        $str_htm .= "<p>Name error for file: type $ft icn $icn trace $trace rsp $rsptype</p>" . PHP_EOL;
+        $str_htm .= "<p>Name error for file: type " . text($ft) . " icn " . text($icn) . " trace " . text($trace) . " rsp " . text($rsptype) . "</p>" . PHP_EOL;
         csv_edihist_log("edih_disp_x12file: Name error for file: type $ft icn $icn trace $trace rsp $rsptype");
         return $str_htm;
     }
@@ -781,7 +781,7 @@ function edih_disp_csvtable()
         if (strlen($_GET['csv_date_start']) == 10 && strpos($_GET['csv_date_start'], '/') == 4) {
             $dts = str_replace('/', '-', $dts);
         } else {
-            $str_html = "<p>Date $dts must be in YYYY-MM-DD format, no / or . please</p>".PHP_EOL;
+            $str_html = "<p>Date " . text($dts) . " must be in YYYY-MM-DD format, no / or . please</p>".PHP_EOL;
             csv_edihist_log("invalid date $dts submitted for csv_table filter");
             return $str_html;
         }
@@ -951,21 +951,21 @@ function ibr_disp_997_for_batch()
             foreach ($result as $rslt) {
                 $ext = substr($rslt[1], -3);
                 //
-                $str_html .= "Date: {$rslt[0]} <br />".PHP_EOL;
-                $str_html .= "File: <a target=\"blank\" href=edi_history_main.php?fvkey={$rslt[1]}>{$rslt[1]}</a> <br />".PHP_EOL;
-                $str_html .= "Batch ICN: {$rslt[3]} <br />";
+                $str_html .= "Date: " . text($rslt[0]) . " <br />".PHP_EOL;
+                $str_html .= "File: <a target=\"blank\" href=edi_history_main.php?fvkey=" . attr($rslt[1]) . ">" . text($rslt[1]) . "</a> <br />".PHP_EOL;
+                $str_html .= "Batch ICN: " . text($rslt[3]) . " <br />";
                 // error count or code in position 4
                 if ($ext == '999' || $ext == '997') {
-                    $str_html .= "Rejects: {$rslt[4]} <br />".PHP_EOL;
+                    $str_html .= "Rejects: " . text($rslt[4]) . " <br />".PHP_EOL;
                     // don't have dialog from this dialog, so don't link
                     //$str_html .= "Rejects: <a class=\"codeval\" target=\"_blank\" href=\"edi_history_main.php?fv997={$rslt[1]}&err997={$rslt[4]}\">{$rslt[4]}</a><br />".PHP_EOL;
                 } elseif ($ext == 'ta1' || $ext == 'ack') {
-                    $str_html .= "Code: {$rslt[4]} <br />".PHP_EOL;
+                    $str_html .= "Code: " . text($rslt[4]) . " <br />".PHP_EOL;
                     //$str_html .= "Code: <a class=\"codeval\" target=\"_blank\" href=\"edi_history_main.php?ackfile={$rslt[1]}&ackcode={$rslt[4]}\">{$rslt[4]}</a><br />".PHP_EOL;
                 }
             }
         } else {
-            $str_html .= "Did not find corresponding 997/999 file for $ctln<br />".PHP_EOL;
+            $str_html .= "Did not find corresponding 997/999 file for " . text($ctln) . "<br />".PHP_EOL;
         }
     } else {
         $str_html .= "Invalid value for ICN number<br />".PHP_EOL;
@@ -995,13 +995,13 @@ function edih_disp_era_processed()
             if ($row['global_amount'] === '0') {
                 $str_html .= " fully allocated";
             } else {
-                $str_html .= " ({$row['global_amount']} not allocated)";
+                $str_html .= " (" . text($row['global_amount']) . " not allocated)";
             }
         } else {
-            $str_html .= "trace $ckno not posted";
+            $str_html .= "trace " . text($ckno) . " not posted";
         }
     } else {
-        $str_html .= "trace $ckno not found";
+        $str_html .= "trace " . text($ckno) . " not found";
     }
 
     return $str_html;

@@ -8,7 +8,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -19,6 +19,12 @@ require_once("$srcdir/options.inc.php");
 require_once("../drugs/drugs.inc.php");
 
 use OpenEMR\Core\Header;
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 $form_from_date  = (!empty($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01');
 $form_to_date    = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
@@ -98,6 +104,7 @@ $form_facility   = isset($_POST['form_facility']) ? $_POST['form_facility'] : ''
 </div>
 
 <form name='theform' id='theform' method='post' action='prescriptions_report.php' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 
@@ -315,7 +322,7 @@ if ($_POST['form_refresh']) {
         <?php echo text($reactions); ?>
   </td>
   <td>
-     <a href='../drugs/dispense_drug.php?sale_id=<?php echo attr($row['sale_id']); ?>'
+     <a href='../drugs/dispense_drug.php?sale_id=<?php echo attr_url($row['sale_id']); ?>'
     style='color:#0000ff' target='_blank'>
     <?php echo text(oeFormatShortDate($row['sale_date'])); ?>
    </a>

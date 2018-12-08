@@ -14,6 +14,7 @@ require_once("../globals.php");
 require_once("$srcdir/registry.inc");
 require_once("../../library/acl.inc");
 require_once("batchcom.inc.php");
+
 use OpenEMR\Core\Header;
 
 // gacl control
@@ -35,6 +36,10 @@ $email_sender = "EMR Group";
 $email_subject = "Welcome to EMR Group";
 // process form
 if ($_POST['form_action']=='save') {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     //validation uses the functions in notification.inc.php
     if ($_POST['email_sender']=="") {
         $form_err .= xl('Empty value in "Email Sender"') . '<br>';
@@ -118,10 +123,11 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
         }
 
         if ($sql_msg) {
-            echo '<div class="alert alert-info">' . xlt('The following errors occurred') . ': ' . text($sql_msg) . '</div>';
+            echo '<div class="alert alert-info">' . xlt('The following occurred') . ': ' . text($sql_msg) . '</div>';
         }
         ?>
         <form name="select_form" method="post" action="">
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
             <input type="Hidden" name="type" value="Email">
             <input type="Hidden" name="notification_id" value="<?php echo attr($notification_id);?>">
             <div class="row">

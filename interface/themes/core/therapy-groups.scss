@@ -108,7 +108,7 @@ table.dataTable#therapy_groups_list tbody td {
 #file_type_whitelist .subject-black-list, #file_type_whitelist .subject-white-list {
     display: inline-block;
     width: 420px;
-    float: left;
+    float: $left;
 }
 #file_type_whitelist {
     height: 400px;
@@ -133,12 +133,12 @@ table.dataTable#therapy_groups_list tbody td {
     display: inline-block;
     width: 58px;
     margin: 130px 30px 30px 30px;
-    float: left;
+    float: $left;
 }
 #file_type_whitelist .subject-info-save {
     width: 60px;
     margin: 170px 30px 30px 30px;
-    float: left;
+    float: $left;
 }
 #file_type_whitelist input[type=button] {
     float: none !important;
@@ -152,4 +152,21 @@ table.dataTable#therapy_groups_list tbody td {
 }
 #file_type_whitelist .top-list {
     margin: 20px 20px 2px 20px;
+}
+#new-encounter-group-title{
+    float: $left;
+}
+#new-encounter-group-buttons{
+    float:$left;
+    margin-#{$left}:8px;
+    margin-top:-3px
+}
+
+@include if-rtl {
+    #white-list, #black-list {
+        direction: ltr;
+    }
+    #therapy_groups_list_container #clear_filters{
+        float: right;
+    }
 }

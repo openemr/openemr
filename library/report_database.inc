@@ -439,6 +439,7 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
     } else {
         $rez = sqlStatementCdrEngine($sql_query, $sqlParameters);
         // create array of listing for return
+        $returnval = array();
         for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
             $returnval[$iter]=$row;
         }

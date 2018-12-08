@@ -272,18 +272,18 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     // seldom will this get used as more of U.I is moved to Bootstrap
     // but better to continue than stop because of a dependency...
     //
-    let jqurl = top.webroot_url + '/public/assets/jquery-min-1-9-1/index.js';
-    if (typeof jQuery.fn.jquery === 'undefined') {
+    let jqurl = top.webroot_url + '/public/assets/jquery-1-9-1/jquery.min.js';
+    if (typeof jQuery === 'undefined') {
         includeScript(jqurl, false, 'script'); // true is async
     }
     jQuery(function () {
         // Check for dependencies we will need.
         // webroot_url is a global defined in main_screen.php or main.php.
 
-        let bscss = top.webroot_url + '/public/assets/bootstrap-3-3-4/dist/css/bootstrap.min.css';
-        let bscssRtl = top.webroot_url + '/public/assets/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css';
-        let bsurl = top.webroot_url + '/public/assets/bootstrap-3-3-4/dist/js/bootstrap.min.js';
-        let jqui = top.webroot_url + '/public/assets/jquery-ui-1-12-1/jquery-ui.min.js';
+        let bscss = top.webroot_url + '/public/assets/bootstrap/dist/css/bootstrap.min.css';
+        let bscssRtl = top.webroot_url + '/public/assets/bootstrap-rtl/dist/css/bootstrap-rtl.min.css';
+        let bsurl = top.webroot_url + '/public/assets/bootstrap/dist/js/bootstrap.min.js';
+        let jqui = top.webroot_url + '/public/assets/jquery-ui/jquery-ui.min.js';
 
         let version = jQuery.fn.jquery.split(' ')[0].split('.');
         if ((version[0] < 2 && version[1] < 9) || (version[0] == 1 && version[1] == 9 && version[2] < 1)) {

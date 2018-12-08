@@ -1,9 +1,13 @@
 <?php
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
+/**
+ * pnotes_full_add.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once("../../globals.php");
@@ -36,12 +40,12 @@ if ($docid) {
 
 // Check authorization.
 if (!acl_check('patients', 'notes', '', array('write','addonly'))) {
-    die(htmlspecialchars(xl('Not authorized'), ENT_NOQUOTES));
+    die(xlt('Not authorized'));
 }
 
 $tmp = getPatientData($patient_id, "squad");
 if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
-    die(htmlspecialchars(xl('Not authorized for this squad.'), ENT_NOQUOTES));
+    die(xlt('Not authorized for this squad.'));
 }
 
 //the number of records to display per screen
@@ -76,6 +80,10 @@ if ($form_active) {
 // this code handles changing the state of activity tags when the user updates
 // them through the interface
 if (isset($mode)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     if ($mode == "update") {
         foreach ($_POST as $var => $val) {
             if (strncmp($var, 'act', 3) == 0) {
@@ -133,9 +141,10 @@ if (isset($mode)) {
 $title = '';
 $assigned_to = $_SESSION['authUser'];
 if ($noteid) {
-    $prow = getPnoteById($noteid, 'title,assigned_to,body');
+    $prow = getPnoteById($noteid, 'title,assigned_to,body,date');
     $title = $prow['title'];
     $assigned_to = $prow['assigned_to'];
+    $datetime = $prow['date'];
 }
 
 // Get the users list.  The "Inactive" test is a kludge, we should create
@@ -164,12 +173,15 @@ $result = getPnotesByDate(
 <?php html_header_show();?>
 
 <link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css" type="text/css">
 
 <!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <!--<script type="text/javascript" src="../../../library/dialog.js?v=<?php /*echo $v_js_includes; */?>"></script>-->
 <script type="text/javascript" src="../../../library/js/common.js"></script>
+<script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+
 
 <script type="text/javascript">
 function submitform(attr) {
@@ -194,14 +206,14 @@ if ($orderid) {
     $title_docname .= " " . xl("linked to procedure order") . " $orderid";
 }
 
-$urlparms = "docid=$docid&orderid=$orderid";
+$urlparms = "docid=" . attr_url($docid) . "&orderid= " . attr_url($orderid);
 ?>
 
 <form border='0' method='post' name='new_note' id="new_note" action='pnotes_full.php?<?php echo $urlparms; ?>'>
-
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
     <div>
-        <div style='float:left; margin-right: 5px'>
-            <span class="title"><?php echo xlt('Patient Note') . $title_docname; ?></span>
+        <div id="pnotes_title">
+            <span class="title"><?php echo xlt('Patient Note') . text($title_docname); ?></span>
         </div>
         <div>
             <?php if ($noteid) { ?>
@@ -209,7 +221,7 @@ $urlparms = "docid=$docid&orderid=$orderid";
             <a href="#" class="css_button" id="printnote"><span><?php echo xlt('View Printable Version'); ?></span></a>
             <?php } ?>
             <a class="css_button large_button" id='cancel' href='javascript:;'>
-            <span class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Cancel'), ENT_NOQUOTES);?></span>
+            <span class='css_button_span large_button_span'><?php echo xlt('Cancel'); ?></span>
             </a>
         </div>
     </div>
@@ -218,21 +230,21 @@ $urlparms = "docid=$docid&orderid=$orderid";
 
 <input type='hidden' name='mode' id="mode" value="new">
 <input type='hidden' name='trigger' id="trigger" value="add">
-<input type='hidden' name='offset' id="offset" value="<?php echo $offset ?>">
-<input type='hidden' name='form_active' id="form_active" value="<?php echo htmlspecialchars($form_active, ENT_QUOTES) ?>">
-<input type='hidden' name='form_inactive' id="form_inactive" value="<?php echo htmlspecialchars($form_inactive, ENT_QUOTES) ?>">
-<input type='hidden' name='noteid' id="noteid" value="<?php echo htmlspecialchars($noteid, ENT_QUOTES) ?>">
-<input type='hidden' name='form_doc_only' id="form_doc_only" value="<?php echo htmlspecialchars($form_doc_only, ENT_QUOTES) ?>">
+<input type='hidden' name='offset' id="offset" value="<?php echo attr($offset); ?>">
+<input type='hidden' name='form_active' id="form_active" value="<?php echo attr($form_active); ?>">
+<input type='hidden' name='form_inactive' id="form_inactive" value="<?php echo attr($form_inactive); ?>">
+<input type='hidden' name='noteid' id="noteid" value="<?php echo attr($noteid); ?>">
+<input type='hidden' name='form_doc_only' id="form_doc_only" value="<?php echo attr($form_doc_only); ?>">
 <table border='0' cellspacing='8'>
  <tr>
   <td class='text'>
     <?php
     if ($noteid) {
        // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
-        echo htmlspecialchars(xl('Amend Existing Note'), ENT_NOQUOTES) .
+        echo xlt('Amend Existing Note') .
         "<b> &quot;" . generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $title) . "&quot;</b>\n";
     } else {
-        echo htmlspecialchars(xl('Add New Note'), ENT_NOQUOTES) . "\n";
+        echo xlt('Add New Note') . "\n";
     }
     ?>
   </td>
@@ -241,40 +253,52 @@ $urlparms = "docid=$docid&orderid=$orderid";
   <td class='text'>
     <br/>
 
-   <b><?php echo htmlspecialchars(xl('Type'), ENT_NOQUOTES); ?>:</b>
+   <b><?php echo xlt('Type'); ?>:</b>
     <?php
    // Added 6/2009 by BM to incorporate the patient notes into the list_options listings
     generate_form_field(array('data_type'=>1,'field_id'=>'note_type','list_id'=>'note_type','empty_title'=>'SKIP'), $title);
     ?>
    &nbsp; &nbsp;
-   <b><?php echo htmlspecialchars(xl('To'), ENT_NOQUOTES); ?>:</b>
+   <b><?php echo xlt('To'); ?>:</b>
    <select name='assigned_to'>
 <?php
 while ($urow = sqlFetchArray($ures)) {
-    echo "    <option value='" . htmlspecialchars($urow['username'], ENT_QUOTES) . "'";
+    echo "    <option value='" . attr($urow['username']) . "'";
     if ($urow['username'] == $assigned_to) {
         echo " selected";
     }
 
-    echo ">" . htmlspecialchars($urow['lname'], ENT_NOQUOTES);
+    echo ">" . text($urow['lname']);
     if ($urow['fname']) {
-        echo htmlspecialchars(", ".$urow['fname'], ENT_NOQUOTES);
+        echo text(", ".$urow['fname']);
     }
 
     echo "</option>\n";
 }
 ?>
-   <option value=''><?php echo htmlspecialchars(xl('Mark Note as Completed'), ENT_NOQUOTES); ?></option>
+   <option value=''><?php echo xlt('Mark Note as Completed'); ?></option>
    </select>
   </td>
  </tr>
+<?php if ($GLOBALS['messages_due_date']) { ?>
+ <tr>
+     <td>
+         <b><?php echo xlt('Due date'); ?>:</b>
+        <?php
+        generate_form_field(array('data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'), empty($datetime) ? date('Y-m-d H:i') : $datetime);
+        ?>
+     </td>
+ </tr>
+<?php
+}
+?>
  <tr>
   <td>
 <?php
 if ($noteid) {
     $body = $prow['body'];
     $body = preg_replace(array('/(\sto\s)-patient-(\))/', '/(:\d{2}\s\()' . $patient_id . '(\sto\s)/'), '${1}' . $patientname . '${2}', $body);
-    $body = nl2br(htmlspecialchars($body, ENT_NOQUOTES));
+    $body = nl2br(text(oeFormatPatientNote($body)));
     echo "<div class='text'>".$body."</div>";
 }
 ?>
@@ -283,26 +307,28 @@ if ($noteid) {
 
     <?php if ($noteid) { ?>
     <!-- existing note -->
-    <a href="#" class="css_button" id="newnote" title="<?php echo htmlspecialchars(xl('Add as a new note'), ENT_QUOTES); ?>" ><span><?php echo htmlspecialchars(xl('Save as new note'), ENT_NOQUOTES); ?></span></a>
-    <a href="#" class="css_button" id="appendnote" title="<?php echo htmlspecialchars(xl('Append to the existing note'), ENT_QUOTES); ?>"><span><?php echo htmlspecialchars(xl('Append this note'), ENT_NOQUOTES); ?></span></a>
+    <a href="#" class="css_button" id="newnote" title="<?php echo xla('Add as a new note'); ?>" ><span><?php echo xlt('Save as new note'); ?></span></a>
+    <a href="#" class="css_button" id="appendnote" title="<?php echo xla('Append to the existing note'); ?>"><span><?php echo xlt('Append this note'); ?></span></a>
     <?php } else { ?>
-    <a href="#" class="css_button" id="newnote" title="<?php echo htmlspecialchars(xl('Add as a new note'), ENT_QUOTES); ?>" ><span><?php echo htmlspecialchars(xl('Save as new note'), ENT_NOQUOTES); ?></span></a>
+    <a href="#" class="css_button" id="newnote" title="<?php echo xla('Add as a new note'); ?>" ><span><?php echo xlt('Save as new note'); ?></span></a>
     <?php } ?>
 
   </td>
  </tr>
 </table>
 <br>
+<br>
 </form>
 <form border='0' method='post' name='update_activity' id='update_activity'
  action="pnotes_full.php?<?php echo $urlparms; ?>">
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <!-- start of previous notes DIV -->
 <div class=pat_notes>
 
 
 <input type='hidden' name='mode' value="update">
-<input type='hidden' name='offset' id='noteid' value="<?php echo $offset;?>">
+<input type='hidden' name='offset' id='noteid' value="<?php echo attr($offset); ?>">
 <input type='hidden' name='noteid' id='noteid' value="0">
 </form>
 
@@ -313,11 +339,11 @@ if ($noteid) {
 if ($offset > ($N-1)) {
     echo "   <a class='link' href='pnotes_full.php" .
     "?$urlparms" .
-    "&form_active=" . htmlspecialchars($form_active, ENT_QUOTES) .
-    "&form_inactive=" . htmlspecialchars($form_inactive, ENT_QUOTES) .
-    "&form_doc_only=" . htmlspecialchars($form_doc_only, ENT_QUOTES) .
-    "&offset=" . ($offset-$N) . "' onclick='top.restoreSession()'>[" .
-    htmlspecialchars(xl('Previous'), ENT_NOQUOTES) . "]</a>\n";
+    "&form_active=" . attr_url($form_active) .
+    "&form_inactive=" . attr_url($form_inactive) .
+    "&form_doc_only=" . attr_url($form_doc_only) .
+    "&offset=" . attr_url($offset-$N) . "' onclick='top.restoreSession()'>[" .
+    xlt('Previous') . "]</a>\n";
 }
 ?>
   </td>
@@ -326,11 +352,11 @@ if ($offset > ($N-1)) {
 if ($result_count == $N) {
     echo "   <a class='link' href='pnotes_full.php" .
     "?$urlparms" .
-    "&form_active=" . htmlspecialchars($form_active, ENT_QUOTES) .
-    "&form_inactive=" . htmlspecialchars($form_inactive, ENT_QUOTES) .
-    "&form_doc_only=" . htmlspecialchars($form_doc_only, ENT_QUOTES) .
-    "&offset=" . ($offset+$N) . "' onclick='top.restoreSession()'>[" .
-    htmlspecialchars(xl('Next'), ENT_NOQUOTES) . "]</a>\n";
+    "&form_active=" . attr_url($form_active) .
+    "&form_inactive=" . attr_url($form_inactive) .
+    "&form_doc_only=" . attr_url($form_doc_only) .
+    "&offset=" . attr_url($offset+$N) . "' onclick='top.restoreSession()'>[" .
+    xlt('Next') . "]</a>\n";
 }
 ?>
   </td>
@@ -345,7 +371,7 @@ if ($result_count == $N) {
 if ($_GET['set_pid']) {
     $ndata = getPatientData($patient_id, "fname, lname, pubpid");
 ?>
- parent.left_nav.setPatient(<?php echo "'" . addslashes($ndata['fname']." ".$ndata['lname']) . "'," . addslashes($patient_id) . ",'" . addslashes($ndata['pubpid']) . "',window.name"; ?>);
+ parent.left_nav.setPatient(<?php echo js_escape($ndata['fname']." ".$ndata['lname']) . "," . js_escape($patient_id) . "," . js_escape($ndata['pubpid']) . ",window.name"; ?>);
 <?php
 }
 
@@ -358,7 +384,7 @@ if ($noteid /* && $title == 'New Document' */) {
         $docid = $matches[1];
         $docname = $matches[2];
     ?>
-     window.open('../../../controller.php?document&retrieve&patient_id=<?php echo htmlspecialchars($patient_id, ENT_QUOTES) ?>&document_id=<?php echo htmlspecialchars($docid, ENT_QUOTES) ?>&<?php echo htmlspecialchars($docname, ENT_QUOTES)?>&as_file=true',
+     window.open('../../../controller.php?document&retrieve&patient_id=<?php echo attr_url($patient_id); ?>&document_id=<?php echo attr_url($docid); ?>&<?php echo attr_url($docname)?>&as_file=true',
   '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
 <?php
     }
@@ -410,11 +436,11 @@ $(document).ready(function(){
 
     var PrintNote = function () {
         top.restoreSession();
-        window.open('pnotes_print.php?noteid=<?php echo htmlspecialchars($noteid, ENT_QUOTES); ?>', '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
+        window.open('pnotes_print.php?noteid=<?php echo attr_url($noteid); ?>', '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
     }
 
     var DeleteNote = function(note) {
-        if (confirm("<?php echo htmlspecialchars(xl('Are you sure you want to delete this note?', '', '', '\n ').xl('This action CANNOT be undone.'), ENT_QUOTES); ?>")) {
+        if (confirm(<?php echo xlj('Are you sure you want to delete this note?'); ?> + '\n ' + <?php echo xlj('This action CANNOT be undone.'); ?>)) {
             top.restoreSession();
             // strip the 'del' part of the object's ID
             $("#noteid").val(note.id.replace(/del/, ""));
@@ -443,6 +469,15 @@ $(document).ready(function(){
             dlgclose('refreshme', false);
         });
     });
+
+    $('.datetimepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = true; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = true; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        ,minDate : 0 //only future
+    })
+
 });
 </script>
 

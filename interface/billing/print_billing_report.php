@@ -4,14 +4,14 @@
 
 
 
-include_once("../globals.php");
+require_once("../globals.php");
 
-include_once("$srcdir/patient.inc");
-include_once("$srcdir/../interface/reports/report.inc.php");
-include_once("$srcdir/billrep.inc");
-include_once("$srcdir/forms.inc");
-include_once("$srcdir/billing.inc");
-include_once("$srcdir/report.inc");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/../interface/reports/report.inc.php");
+require_once("$srcdir/billrep.inc");
+require_once("$srcdir/forms.inc");
+require_once("$srcdir/billing.inc");
+require_once("$srcdir/report.inc");
 
 //how many columns to use when displaying information
 $COLS=6;
@@ -174,7 +174,7 @@ if ($ret = getBillsBetweenReport($code_type)) {
 
             print "<font class=bold>" . xlt("Patient Data") . ":</font><br>";
             printRecDataOne($patient_data_array, getRecPatientData($iter{"pid"}), $COLS);
-        
+
             print "<font class=bold>" . xlt("Employer Data") . ":</font><br>";
             printRecDataOne($employer_data_array, getRecEmployerData($iter{"pid"}), $COLS);
 
@@ -186,7 +186,7 @@ if ($ret = getBillsBetweenReport($code_type)) {
 
             print "<font class=bold>" . xlt("Tertiary Insurance Data") . ":</font><br>";
             printRecDataOne($insurance_data_array, getRecInsuranceData($iter{"pid"}, "tertiary"), $COLS);
-        
+
             //==================================
             print "</td></tr><tr>\n";
             $old_pid = $iter{"pid"};

@@ -1,14 +1,13 @@
 <?php
-
-// gacl control
-$thisauth = acl_check('admin', 'language');
-
-if (!$thisauth) {
-    echo "<html>\n<body>\n";
-    echo "<p>" . htmlspecialchars(xl('You are not authorized for this.'), ENT_NOQUOTES) . "</p>\n";
-    echo "</body>\n</html>\n";
-    exit();
-}
+/**
+ * language.inc.php script
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 function check_pattern($data, $pat)
 {
@@ -23,15 +22,15 @@ function check_pattern($data, $pat)
 //
 function insert_language_log($lang_desc, $lang_code, $cons_name, $def)
 {
-    
+
   // set up the mysql collation string to ensure case is sensitive in the mysql queries
     if (!$disable_utf8_flag) {
         $case_sensitive_collation = "COLLATE utf8_bin";
     } else {
         $case_sensitive_collation = "COLLATE latin_bin";
     }
-    
-    
+
+
     if ($cons_name == '') {
         // NEW LANGUAGE
         // (ensure not a repeat log entry)

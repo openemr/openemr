@@ -1,30 +1,24 @@
 <?php
 /**
- * Copyright (C) 2014-2016 Rod Roark <rod@sunsetsystems.com>
+ * Given a list ID, name of a target form field and a default value, this creates
+ * JavaScript that will write Option values into the target selection list.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2014-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-// Given a list ID, name of a target form field and a default value, this creates
-// JavaScript that will write Option values into the target selection list.
-
-
 
 
 require_once("../globals.php");
+
+//verify csrf
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    csrfNotVerified();
+}
 
 $listid  = $_GET['listid'];
 $target  = $_GET['target'];
@@ -33,11 +27,11 @@ $current = $_GET['current'];
 $res = sqlStatement("SELECT option_id FROM list_options WHERE list_id = ? AND activity = 1 " .
   "ORDER BY seq, option_id", array($listid));
 
-echo "var itemsel = document.forms[0]['$target'];\n";
+echo "var itemsel = document.forms[0][" . js_escape($target) . "];\n";
 echo "var j = 0;\n";
-echo "itemsel.options[j++] = new Option('-- " . xls('Please Select') . " --','',false,false);\n";
+echo "itemsel.options[j++] = new Option(" . js_escape("-- ".xl('Please Select')." --") . ",'',false,false);\n";
 while ($row = sqlFetchArray($res)) {
-    $tmp = addslashes($row['option_id']);
+    $tmp = js_escape($row['option_id']);
     $def = $row['option_id'] == $current ? 'true' : 'false';
-    echo "itemsel.options[j++] = new Option('$tmp','$tmp',$def,$def);\n";
+    echo "itemsel.options[j++] = new Option($tmp,$tmp,$def,$def);\n";
 }

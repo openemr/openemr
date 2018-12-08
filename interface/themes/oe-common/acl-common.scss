@@ -1,12 +1,12 @@
 /*-------------------openemr ACL-------------------*/
 
-.loading {
+#adminacl .loading {
     text-decoration: blink;
     font-size: 10px;
     color: red;
     font-weight: bold;
 }
-.alert {
+#adminacl .alert {
     font-size: 10px;
     color: red;
     font-weight: bold;
@@ -24,5 +24,9 @@
 .section a, .section a:visited, .section a:hover {
     text-decoration: none;
     color: #000000 !important;
+}
+
+#membership_show, #acl_show {
+    margin-#{$right}:4px;
 }
 /*-------------------openemr ACL-------------------*/

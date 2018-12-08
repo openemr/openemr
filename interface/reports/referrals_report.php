@@ -9,7 +9,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2008-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2016 Roberto Vasquez <robertogagliotta@gmail.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -19,6 +19,12 @@ require_once("$srcdir/patient.inc");
 require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Core\Header;
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01');
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
@@ -50,7 +56,7 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
          // The OnClick handler for referral display.
 
         function show_referral(transid) {
-            dlgopen('../patient_file/transaction/print_referral.php?transid=' + transid,
+            dlgopen('../patient_file/transaction/print_referral.php?transid=' + encodeURIComponent(transid),
                 '_blank', 550, 400,true); // Force new window rather than iframe because of the dynamic generation of the content in print_referral.php
             return false;
         }
@@ -91,6 +97,7 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 </div>
 
 <form name='theform' id='theform' method='post' action='referrals_report.php' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
@@ -215,7 +222,7 @@ if ($_POST['form_refresh']) {
         ?>
     </td>
     <td>
-     <a href='#' onclick="return show_referral(<?php echo attr($row['id']); ?>)">
+     <a href='#' onclick="return show_referral(<?php echo js_escape($row['id']); ?>)">
         <?php echo text(oeFormatShortDate($row['refer_date'])); ?>&nbsp;
      </a>
     </td>

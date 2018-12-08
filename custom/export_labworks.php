@@ -12,8 +12,8 @@
  // them to an Atlas LabWorks server to facilitate lab requisitions.
  /////////////////////////////////////////////////////////////////////
 
- include_once("../interface/globals.php");
- include_once("../library/patient.inc");
+ require_once("../interface/globals.php");
+ require_once("../library/patient.inc");
 
  // FTP parameters that you must customize.  If you are not sending
  // then set $FTP_SERVER to an empty string.
@@ -94,7 +94,7 @@ function mydie($msg)
  $insrow = array();
 foreach (array('primary','secondary') as $value) {
     $insrow[] = sqlQuery("SELECT id FROM insurance_data WHERE " .
-    "pid = '$pid' AND type = '$value' ORDER BY date DESC LIMIT 1");
+    "pid = ? AND type = ? ORDER BY date DESC LIMIT 1", array($pid, $value));
 }
 
  $query = "SELECT " .
@@ -116,28 +116,30 @@ foreach (array('primary','secondary') as $value) {
   "FROM patient_data AS p " .
   // "LEFT OUTER JOIN insurance_data AS i1 ON i1.pid = p.pid AND i1.type = 'primary' " .
   // "LEFT OUTER JOIN insurance_data AS i2 ON i2.pid = p.pid AND i2.type = 'secondary' " .
-  "LEFT OUTER JOIN insurance_data AS i1 ON i1.id = '" . $insrow[0]['id'] . "' " .
-  "LEFT OUTER JOIN insurance_data AS i2 ON i2.id = '" . $insrow[1]['id'] . "' " .
+  "LEFT OUTER JOIN insurance_data AS i1 ON i1.id = ? " .
+  "LEFT OUTER JOIN insurance_data AS i2 ON i2.id = ? " .
   //
   "LEFT OUTER JOIN insurance_companies AS c1 ON c1.id = i1.provider " .
   "LEFT OUTER JOIN insurance_companies AS c2 ON c2.id = i2.provider " .
   "LEFT OUTER JOIN addresses AS a1 ON a1.foreign_id = c1.id " .
   "LEFT OUTER JOIN addresses AS a2 ON a2.foreign_id = c2.id " .
-  "WHERE p.pid = '$pid' LIMIT 1";
+  "WHERE p.pid = ? LIMIT 1";
 
- $row = sqlFetchArray(sqlStatement($query));
+ $row = sqlFetchArray(sqlStatement($query, array($insrow[0]['id'], $insrow[1]['id'], $pid)));
 
  // Get primary care doc info.  If none was selected in the patient
  // demographics then pick the #1 doctor in the clinic.
  //
  $query = "select id, fname, mname, lname from users where authorized = 1";
+ $sqlBindArray = array();
 if ($row['providerID']) {
-    $query .= " AND id = " . $row['providerID'];
+    $query .= " AND id = ?";
+    array_push($sqlBindArray, $row['providerID']);
 } else {
     $query .= " ORDER BY id LIMIT 1";
 }
 
- $prow = sqlFetchArray(sqlStatement($query));
+ $prow = sqlFetchArray(sqlStatement($query, $sqlBindArray));
 
  // Patient Section.
  //
@@ -262,7 +264,7 @@ while (false !== ($filename = readdir($dh))) {
  @touch($initialpath); // work around possible php bug
  $fh = @fopen($initialpath, "w");
 if (! $fh) {
-    mydie("Unable to open $initialpath for writing");
+    mydie("Unable to open " . text($initialpath) . " for writing");
 }
 
  fwrite($fh, $out);
@@ -301,7 +303,7 @@ if ($FTP_SERVER) {
 <body>
 <center>
 <p>&nbsp;</p>
-<p>Demographics for <?php echo $row['fname'] . " " . $row['lname'] ?>
+<p>Demographics for <?php echo text($row['fname']) . " " . text($row['lname']); ?>
  have been exported to LabWorks.</p>
 <p>&nbsp;</p>
 <form>

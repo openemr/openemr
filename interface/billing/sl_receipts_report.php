@@ -159,6 +159,7 @@ $form_facility   = $_POST['form_facility'];
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Cash Receipts by Provider'); ?></span>
 
 <form method='post' action='sl_receipts_report.php' id='theform' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 
@@ -304,6 +305,10 @@ $form_facility   = $_POST['form_facility'];
 
 <?php
 if ($_POST['form_refresh']) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
 ?>
 <div id="report_results">
 <table border='0' cellpadding='1' cellspacing='2' width='98%' id='mymaintable'>

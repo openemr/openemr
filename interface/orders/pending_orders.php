@@ -61,6 +61,10 @@ $form_to_date   = isset($_POST['form_to_date']) ? DateToYYYYMMDD($_POST['form_to
 $form_facility  = $_POST['form_facility'];
 
 if ($_POST['form_csvexport']) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     header("Pragma: public");
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -106,7 +110,8 @@ if ($_POST['form_csvexport']) {
 
 <h2><?php echo xlt('Pending Orders')?></h2>
 
-<form method='post' action='pending_orders.php'>
+<form method='post' action='pending_orders.php' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <table border='0' cellpadding='3'>
 
@@ -160,6 +165,10 @@ if ($_POST['form_csvexport']) {
 // If generating a report.
 //
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     $sqlBindArray = array();
     $query = "SELECT po.patient_id, po.date_ordered, " .
     "pd.pubpid, " .

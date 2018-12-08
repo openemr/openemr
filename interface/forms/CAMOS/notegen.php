@@ -22,14 +22,15 @@ if (!($_POST['submit_pdf'] || $_POST['submit_html']) && ($_GET['pid'] && $_GET['
 <html>
 <head>
 <title>
-<?php xl('Print Notes', 'e'); ?>
+<?php echo xlt('Print Notes'); ?>
 </title>
 </head>
 <body>
-<?php xl('Choose print format for this encounter report.', 'e'); ?><br><br>
+<?php echo xlt('Choose print format for this encounter report.'); ?><br><br>
 <form method=post name=choose_patients>
-<input type='submit' name='submit_pdf' value='<?php xl('Print (PDF)', 'e'); ?>'>
-<input type='submit' name='submit_html' value='<?php xl('Print (HTML)', 'e'); ?>'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type='submit' name='submit_pdf' value='<?php echo xla('Print (PDF)'); ?>'>
+<input type='submit' name='submit_html' value='<?php echo xla('Print (HTML)'); ?>'>
 </form>
 </body>
 </html>
@@ -43,15 +44,15 @@ if (!$_POST['submit_pdf'] && !$_POST['submit_html'] && !($_GET['pid'] && $_GET['
 <head>
 
 <title>
-<?php xl('Print Notes', 'e'); ?>
+<?php echo xlt('Print Notes'); ?>
 </title>
 
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 <script type="text/javascript" src="<?php echo $depth ?>library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $depth ?>library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
@@ -70,35 +71,35 @@ $(document).ready(function(){
 </head>
 
 <body>
-<script language='JavaScript'> var mypcc = '1'; </script>
 
 <form method=post name=choose_patients>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <table>
 <tr><td>
-<span class='text'><?php xl('Start (yyyy-mm-dd): ', 'e') ?></span>
+<span class='text'><?php echo xlt('Start (yyyy-mm-dd): ') ?></span>
 </td><td>
-<input type='text' size='10' name='start' id='start' value='<?php echo $_POST['end'] ? $_POST['end'] : date('Y-m-d') ?>'
+<input type='text' size='10' name='start' id='start' value='<?php echo $_POST['end'] ? attr($_POST['end']) : date('Y-m-d') ?>'
 class='datepicker'
-title='<?php xl('yyyy-mm-dd last date of this event', 'e'); ?>' />
+title='<?php echo xla('yyyy-mm-dd last date of this event'); ?>' />
 </td></tr>
 <tr><td>
-<span class='text'><?php xl('End (yyyy-mm-dd): ', 'e') ?></span>
+<span class='text'><?php echo xlt('End (yyyy-mm-dd): ') ?></span>
 </td><td>
-<input type='text' size='10' name='end' id='end' value ='<?php echo $_POST['end'] ? $_POST['end'] : date('Y-m-d') ?>'
+<input type='text' size='10' name='end' id='end' value ='<?php echo $_POST['end'] ? attr($_POST['end']) : date('Y-m-d') ?>'
 class='datepicker'
-title='<?php xl('yyyy-mm-dd last date of this event', 'e'); ?>' />
+title='<?php echo xla('yyyy-mm-dd last date of this event'); ?>' />
 </td></tr>
 <tr><td></td><td></td></tr>
-<tr><td><?php xl('Last Name', 'e'); ?>: </td><td>
+<tr><td><?php echo xlt('Last Name'); ?>: </td><td>
 <input type='text' name='lname'/>
 </td></tr>
-<tr><td><?php xl('First Name', 'e'); ?>: </td><td>
+<tr><td><?php echo xlt('First Name'); ?>: </td><td>
 <input type='text' name='fname'/>
 </td></tr>
 <tr><td>
-<input type='submit' name='submit_pdf' value='<?php xl('Print (PDF)', 'e'); ?>'>
-<input type='submit' name='submit_html' value='<?php xl('Print (HTML)', 'e'); ?>'>
+<input type='submit' name='submit_pdf' value='<?php echo xla('Print (PDF)'); ?>'>
+<input type='submit' name='submit_html' value='<?php echo xla('Print (HTML)'); ?>'>
 </td><td>
 </td></tr>
 </table>
@@ -109,9 +110,12 @@ title='<?php xl('yyyy-mm-dd last date of this event', 'e'); ?>' />
 }
 
 if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['encounter'])) {
-    // note we are cleaning input, trimming, and preparing the variables for database insert
-    //  before sending through this function
-    $output = getFormData(formData("start", "P", true), formData("end", "P", true), formData("lname", "P", true), formData("fname", "P", true));
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
+    // note we are trimming variables before sending through this function
+    $output = getFormData(trim($_POST["start"]), trim($_POST["end"]), trim($_POST["lname"]), trim($_POST["fname"]));
     ksort($output);
     if ($_POST['submit_html']) { //print as html
 ?>
@@ -161,44 +165,44 @@ foreach ($output as $datekey => $dailynote) {
         //new page code here
         print "<DIV class='page'>";
 
-        print xl("Date").": ".$notecontents['date'] . "<br/>";
-        print xl("Name").": ".$notecontents['name'] . "<br/>";
-            print xl("DOB").": ".$notecontents['dob'] . "<br/>";
-                    print xl("Claim")."# ".$notecontents['pubpid'] . "<br/>";
+        print xlt("Date").": ".text($notecontents['date']) . "<br/>";
+        print xlt("Name").": ".text($notecontents['name']) . "<br/>";
+            print xlt("DOB").": ".text($notecontents['dob']) . "<br/>";
+                    print xlt("Claim")."# ".text($notecontents['pubpid']) . "<br/>";
 
         print "<br/>";
-        print xl("Chief Complaint").": ".$notecontents['reason'] . "<br/>";
+        print xlt("Chief Complaint").": ".text($notecontents['reason']) . "<br/>";
         if ($notecontents['vitals']) {
             print "<br/>";
-            print $notecontents['vitals'] . "<br/>";
+            print text($notecontents['vitals']) . "<br/>";
         }
 
         if (count($notecontents['exam']) > 0) {
             print "<br/>";
-            print "<span class='heading'>" . xl("Progress Notes") . "</span><br/>";
+            print "<span class='heading'>" . xlt("Progress Notes") . "</span><br/>";
             print "<br/>";
             foreach ($notecontents['exam'] as $examnote) {
-                print nl2br(replace($pid, $enc, $examnote)) . "<br/>";
+                print nl2br(text(replace($pid, $enc, $examnote))) . "<br/>";
             }
         }
 
         if (count($notecontents['prescriptions']) > 0) {
             print "<br/>";
-            print "<span class='heading'>" . xl("Prescriptions") . "</span><br/>";
+            print "<span class='heading'>" . xlt("Prescriptions") . "</span><br/>";
             print "<br/>";
             foreach ($notecontents['prescriptions'] as $rx) {
-                print nl2br(replace($pid, $enc, $rx)) . "<br/>";
+                print nl2br(text(replace($pid, $enc, $rx))) . "<br/>";
             }
         }
 
         if (count($notecontents['other']) > 0) {
             print "<br/>";
-            print "<span class='heading'>" . xl("Other") . "</span><br/>";
+            print "<span class='heading'>" . xlt("Other") . "</span><br/>";
             print "<br/>";
             foreach ($notecontents['other'] as $other => $othercat) {
-                print nl2br($other) . "<br/>";
+                print nl2br(text($other)) . "<br/>";
                 foreach ($othercat as $items) {
-                    print nl2br(replace($pid, $enc, $items)) . "<br/>";
+                    print nl2br(text(replace($pid, $enc, $items))) . "<br/>";
                 }
             }
         }
@@ -211,10 +215,10 @@ foreach ($output as $datekey => $dailynote) {
 
             if (count($tmp) > 0) {
                 print "<br/>";
-                print "<span class='heading'>" . xl("Coding") . "</span><br/>";
+                print "<span class='heading'>" . xlt("Coding") . "</span><br/>";
                 print "<br/>";
                 foreach ($tmp as $code => $val) {
-                    print nl2br($code) . "<br/>";
+                    print nl2br(text($code)) . "<br/>";
                 }
             }
         }
@@ -222,34 +226,34 @@ foreach ($output as $datekey => $dailynote) {
         if (count($notecontents['calories']) > 0) {
             $sum = 0;
             print "<br/>";
-            print "<span class='heading'>" . xl("Calories") . "</span><br/>";
+            print "<span class='heading'>" . xlt("Calories") . "</span><br/>";
             print "<br/>";
             foreach ($notecontents['calories'] as $calories => $value) {
-                print $value['content'].' - '.$value['item'].' - '.$value['date'] . "<br/>";
+                print text($value['content']).' - '.text($value['item']).' - '.text($value['date']) . "<br/>";
                 $sum += $value['content'];
             }
 
             print "--------" . "<br/>";
-            print $sum . "<br/>";
+            print text($sum) . "<br/>";
         }
 
         print "<br/>";
         print "<br/>";
-        print "<span class='heading'>" . xl("Digitally Signed") . "</span><br/>";
+        print "<span class='heading'>" . xlt("Digitally Signed") . "</span><br/>";
 
         $query = sqlStatement("select t2.id, t2.fname, t2.lname, t2.title from forms as t1 join users as t2 on " .
-            "(t1.user like t2.username) where t1.pid=$pid and t1.encounter=$encounter");
+            "(t1.user like t2.username) where t1.pid=? and t1.encounter=?", array($pid, $encounter));
         if ($results = sqlFetchArray($query)) {
             $name = $results['fname']." ".$results['lname'].", ".$results['title'];
             $user_id = $results['id'];
         }
 
         $path = $GLOBALS['fileroot']."/interface/forms/CAMOS";
-        if (file_exists($path."/sig".$user_id.".jpg")) {
+        if (file_exists($path."/sig".convert_safe_file_dir_name($user_id).".jpg")) {
         //show the image here
         }
 
-        print "<span class='heading'>" . $name . "</span><br/>";
+        print "<span class='heading'>" . text($name) . "</span><br/>";
             print "</DIV>"; //end of last page
     }
 }
@@ -356,15 +360,15 @@ foreach ($output as $datekey => $dailynote) {
                 $pdf->ezText(xl("Digitally Signed"), 12);
 
                 $query = sqlStatement("select t2.id, t2.fname, t2.lname, t2.title from forms as t1 join users as t2 on " .
-                "(t1.user like t2.username) where t1.pid=$pid and t1.encounter=$encounter");
-                if ($results = sqlFetchArray($query)) {
+                "(t1.user like t2.username) where t1.pid=? and t1.encounter=?");
+                if ($results = sqlFetchArray($query, array($pid, $encounter))) {
                         $name = $results['fname']." ".$results['lname'].", ".$results['title'];
                         $user_id = $results['id'];
                 }
 
                 $path = $GLOBALS['fileroot']."/interface/forms/CAMOS";
                 if (file_exists($path."/sig".$user_id.".jpg")) {
-                        $pdf->ezImage($path."/sig".$user_id.".jpg", '', '72', '', 'left', '');
+                        $pdf->ezImage($path."/sig".convert_safe_file_dir_name($user_id).".jpg", '', '72', '', 'left', '');
                 }
 
                 $pdf->ezText($name, 12);
@@ -379,19 +383,18 @@ function getFormData($start_date, $end_date, $lname, $fname)
 {
  //dates in sql format
 
-        // All 4 parameters have previously been trimmed, globally validated,
-    //  and prepared for database insert
+        // All 4 parameters have previously been trimmed
 
     $name_clause = '';
-    $date_clause = "date(t2.date) >= '".$start_date."' and date(t2.date) <= '".$end_date."' ";
+    $date_clause = "date(t2.date) >= '" . add_escape_custom($start_date) . "' and date(t2.date) <= '" . add_escape_custom($end_date) . "' ";
     if ($lname || $fname) {
-        $name_clause = "and t3.lname like '%".$lname."%' and t3.fname like '%".$fname."%' ";
+        $name_clause = "and t3.lname like '%" . add_escape_custom($lname) . "%' and t3.fname like '%" . add_escape_custom($fname) . "%' ";
     }
 
     $dates = array();
     if ($_GET['pid'] && $_GET['encounter']) {
         $date_clause = '';
-        $name_clause = "t2.pid=".$_GET['pid']." and t2.encounter=".$_GET['encounter']." ";
+        $name_clause = "t2.pid='" . add_escape_custom($_GET['pid']) . "' and t2.encounter='" . add_escape_custom($_GET['encounter']) . "' ";
     }
 
     $query1 = sqlStatement(
@@ -430,8 +433,8 @@ function getFormData($start_date, $end_date, $lname, $fname)
         }
 
         // get icd9 codes for this encounter
-        $query2 = sqlStatement("select * from billing where encounter = ".
-            $results1['enc']." and pid = ".$results1['pid']." and code_type like 'ICD9' and activity=1");
+        $query2 = sqlStatement("select * from billing where encounter = ?".
+            " and pid = ? and code_type like 'ICD9' and activity=1", array($results1['enc'], $results1['pid']));
         while ($results2 = sqlFetchArray($query2)) {
             array_push(
                 $dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['billing'],
@@ -440,16 +443,14 @@ function getFormData($start_date, $end_date, $lname, $fname)
         }
 
         if (strtolower($results1['form_name']) == 'vitals') { // deal with Vitals
-            $query2 = sqlStatement("select * from form_vitals where id = " .
-                    $results1['form_id']);
+            $query2 = sqlStatement("select * from form_vitals where id = ?", array($results1['form_id']));
             if ($results2 = sqlFetchArray($query2)) {
                 $dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['vitals'] = formatVitals($results2);
             }
         }
 
         if (substr(strtolower($results1['form_name']), 0, 5) == 'camos') { // deal with camos
-            $query2 = sqlStatement("select category,subcategory,item,content,date_format(date,'%h:%i %p') as date from ".mitigateSqlTableUpperCase("form_CAMOS")." where id = " .
-                    $results1['form_id']);
+            $query2 = sqlStatement("select category,subcategory,item,content,date_format(date,'%h:%i %p') as date from ".mitigateSqlTableUpperCase("form_CAMOS")." where id = ?", array($results1['form_id']));
             if ($results2 = sqlFetchArray($query2)) {
                 if ($results2['category'] == 'exam') {
                     array_push($dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['exam'], $results2['content']);

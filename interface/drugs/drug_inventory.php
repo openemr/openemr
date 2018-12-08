@@ -6,15 +6,15 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
- require_once("../globals.php");
- require_once("$srcdir/acl.inc");
- require_once("drugs.inc.php");
- require_once("$srcdir/options.inc.php");
+require_once("../globals.php");
+require_once("$srcdir/acl.inc");
+require_once("drugs.inc.php");
+require_once("$srcdir/options.inc.php");
 
- use OpenEMR\Core\Header;
+use OpenEMR\Core\Header;
 
- // Check authorization.
- $thisauth = acl_check('admin', 'drugs');
+// Check authorization.
+$thisauth = acl_check('admin', 'drugs');
 if (!$thisauth) {
     die(xlt('Not authorized'));
 }
@@ -183,7 +183,7 @@ while ($row = sqlFetchArray($res)) {
         $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
         $lastid = $row['drug_id'];
         echo " <tr class='detail' bgcolor='$bgcolor'>\n";
-        echo "  <td onclick='dodclick(".attr($lastid).")'>" .
+        echo "  <td onclick='dodclick(" . attr(addslashes($lastid)) . ")'>" .
         "<a href='' onclick='return false'>" .
         text($row['name']) . "</a></td>\n";
         echo "  <td>" . ($row['active'] ? xlt('Yes') : xlt('No')) . "</td>\n";
@@ -195,7 +195,7 @@ while ($row = sqlFetchArray($res)) {
         echo "  <td>" .
         generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['unit']) .
         "</td>\n";
-        echo "  <td onclick='doiclick(".attr($lastid).",0)' title='" . xla('Add new lot and transaction') . "'>" .
+        echo "  <td onclick='doiclick(" . attr(addslashes($lastid)) . ",0)' title='" . xla('Add new lot and transaction') . "'>" .
         "<a href='' onclick='return false'>" . xlt('New') . "</a></td>\n";
     } else {
         echo " <tr class='detail' bgcolor='$bgcolor'>\n";
@@ -203,7 +203,7 @@ while ($row = sqlFetchArray($res)) {
     }
 
     if (!empty($row['inventory_id'])) {
-        echo "  <td onclick='doiclick(" . attr($lastid) . "," . attr($row['inventory_id']) . ")'>" .
+        echo "  <td onclick='doiclick(" . attr(addslashes($lastid)) . "," . attr(addslashes($row['inventory_id'])) . ")'>" .
         "<a href='' onclick='return false'>" . text($row['lot_number']) . "</a></td>\n";
         echo "  <td>" . text($row['title']) . "</td>\n";
         echo "  <td>" . text($row['on_hand']) . "</td>\n";

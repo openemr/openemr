@@ -24,17 +24,17 @@
  * @package: OpenEMR
  * @subpackage: ediHistory
  */
- 
+
 /* ********* project notes =================
  * determine GET and POST array elements
  * process new files -- type and csv data values
  * display tables -- links with GET and POST
  * find files -- find transactions
  * format display
- * 
+ *
  * ==========================================
  */
-  
+
 /*********** php code here ****************************************************************/
 
 /**
@@ -112,7 +112,7 @@ class edih_x12_file
                             $this->envelopes = $this->edih_x12_envelopes();
                             $this->type = $this->edih_x12_type();
                         } else {
-                            $this->message[] = 'edih_x12_file: error in creating segment array ' . $this->filename . PHP_EOL;
+                            $this->message[] = 'edih_x12_file: error in creating segment array ' . text($this->filename) . PHP_EOL;
                         }
                     } else {
                         // read file contents to try and determine x12 type
@@ -122,7 +122,7 @@ class edih_x12_file
             }
         } else {
             // invalid file path
-            $this->message[] = 'edih_x12_file: invalid file path ' . $file_path;
+            $this->message[] = 'edih_x12_file: invalid file path ' . text($file_path);
         }
 
         $this->constructing = false;
@@ -150,7 +150,7 @@ class edih_x12_file
         // do verifications
         $v = $this->edih_x12_scan($file_text);
         if (!strpos($v, 's')) {
-            $this->message[] = 'edih_file_text(): failed scan of file text ('.$v.')';
+            $this->message[] = 'edih_file_text(): failed scan of file text (' . text($v) . ')';
             return $ret_ar;
         }
 
@@ -304,7 +304,7 @@ class edih_x12_file
             $finfo = new finfo(FILEINFO_MIME);
             $mimeinfo = $finfo->buffer($ftxt);
             if (strncmp($mimeinfo, 'text/plain; charset=us-ascii', 28) !== 0) {
-                $this->message[] = 'edih_x12_scan: '.$this->filename.' : invalid mime info: <br />'.$mimeinfo;
+                $this->message[] = 'edih_x12_scan: ' . text($this->filename) . ' : invalid mime info: <br />' . text($mimeinfo);
                 //
                 return $hasval;
             }
@@ -313,8 +313,8 @@ class edih_x12_file
         //
         if (preg_match('/[^\x20-\x7E\x0A\x0D]|(<\?)|(<%)|(<asp)|(#!)|(\$\{)|(<scr)|(script:)/is', $ftxt, $matches, PREG_OFFSET_CAPTURE)) {
             //
-            $this->message[] = 'edih_x12_scan: suspect characters in file '.$this->filename.'<br />'.
-            ' character: '.$matches[0][0].'  position: '. $matches[0][1];
+            $this->message[] = 'edih_x12_scan: suspect characters in file ' . text($this->filename) . '<br />' .
+            ' character: ' . text($matches[0][0]) . '  position: ' . text($matches[0][1]);
             //
             return $hasval;
         }
@@ -401,7 +401,7 @@ class edih_x12_file
                         $tp_tmp[] = $gs_ar[1];
                     } else {
                         $tp_tmp[] = $gs_ar[1];
-                        $this->message[] = 'edih_x12_type: unknown x12 type '.$gs_ar[1];
+                        $this->message[] = 'edih_x12_type: unknown x12 type ' . text($gs_ar[1]);
                     }
                 }
             }
@@ -425,7 +425,7 @@ class edih_x12_file
                         $tp_tmp[] = $gs_ar1[1];
                     } else {
                         $tp_tmp[] = $gs_ar1[1];
-                        $this->message[] = 'edih_x12_type: unknown x12 type '.$gs_ar1[1];
+                        $this->message[] = 'edih_x12_type: unknown x12 type ' . text($gs_ar1[1]);
                     }
                 }
             } else {
@@ -698,7 +698,7 @@ class edih_x12_file
                 } else {
                     $gs_fid = 'NA';
                     $env_ar['GS'][$gs_ct]['type'] = 'NA';
-                    $this->message[] = 'edih_x12_envelopes: Unknown GS type '.$seg_ar[1];
+                    $this->message[] = 'edih_x12_envelopes: Unknown GS type ' . text($seg_ar[1]);
                 }
 
                 continue;
@@ -737,7 +737,7 @@ class edih_x12_file
                 $env_ar['ST'][$st_ct]['bht03'] = array();
                 // GS file id FA can be 999 or 997
                 if ($gs_fid != $st_type && strpos($st_type, '99') === false) {
-                    $this->message[] = "edih_x12_envelopes: ISA $icn, GS $gsn $gs_fid ST $stn $st_type type mismatch".PHP_EOL;
+                    $this->message[] = "edih_x12_envelopes: ISA " . text($icn) . ", GS " . text($gsn . " " . $gs_fid) . " ST " . text($stn . " " . $st_type) . " type mismatch".PHP_EOL;
                 }
 
                 //
@@ -792,7 +792,7 @@ class edih_x12_file
                 if (strncmp($sn, 'TRN'.$de, 4) == 0) {
                     $seg_ar = explode($de, $seg_text);
                     if (!isset($seg_ar[2]) || !isset($seg_ar[3])) {
-                        $this->message[] = 'error in 835 TRN segment '.$seg_text;
+                        $this->message[] = 'error in 835 TRN segment ' . text($seg_text);
                     }
 
                     $env_ar['ST'][$st_ct]['trace'] = (isset($seg_ar[2])) ? $seg_ar[2] : "";
@@ -812,7 +812,7 @@ class edih_x12_file
                     if (isset($seg_ar[1])) {
                         $env_ar['ST'][$st_ct]['acct'][] = $seg_ar[1];
                     } else {
-                        $this->message[] = 'error in 835 CLP segment '.$seg_text;
+                        $this->message[] = 'error in 835 CLP segment ' . text($seg_text);
                     }
 
                     continue;
@@ -836,7 +836,7 @@ class edih_x12_file
                     if (isset($seg_ar[1])) {
                         $env_ar['ST'][$st_ct]['acct'][] = $seg_ar[1];
                     } else {
-                        $this->message[] = 'error in 837 CLM segment '.$seg_text;
+                        $this->message[] = 'error in 837 CLM segment ' . text($seg_text);
                     }
 
                     continue;
@@ -862,11 +862,11 @@ class edih_x12_file
 
                 // errors
                 if ($se_num != $stn) {
-                    $this->message[] = 'edih_x12_envelopes: ST-SE number mismatch '.$stn.' '. $se_num.' in ISA '.$icn.PHP_EOL;
+                    $this->message[] = 'edih_x12_envelopes: ST-SE number mismatch ' . text($stn) . ' ' . text($se_num) . ' in ISA ' . text($icn) . PHP_EOL;
                 }
 
                 if (intval($seg_ar[1]) != $st_segs_ct) {
-                    $this->message[] = 'edih_x12_envelopes: ST-SE segment count mismatch '.$st_segs_ct.' '.$seg_ar[1].' in ISA '.$icn.PHP_EOL;
+                    $this->message[] = 'edih_x12_envelopes: ST-SE segment count mismatch ' . text($st_segs_ct) . ' ' . text($seg_ar[1]) . ' in ISA ' . text($icn) . PHP_EOL;
                 }
 
                 continue;
@@ -900,23 +900,23 @@ class edih_x12_file
                 $iea_ct++;
                 //
                 if (count($env_ar['GS']) != $seg_ar[1]) {
-                    $this->message[] = 'edih_x12_envelopes: GS count mismatch in ISA '.$icn.PHP_EOL;
+                    $this->message[] = 'edih_x12_envelopes: GS count mismatch in ISA ' . text($icn) . PHP_EOL;
                     $gsct = count($env_ar['GS']);
-                    $this->message[] = 'GS group count: '.$gsct.' IEA01: '.$seg_ar[1].' segment: '.$seg_text;
+                    $this->message[] = 'GS group count: ' . text($gsct) . ' IEA01: ' . text($seg_ar[1]) . ' segment: ' . text($seg_text);
                 }
 
                 if ($env_ar['ISA'][$icn]['icn'] !== $seg_ar[2]) {
-                    $this->message[] = 'edih_x12_envelopes: ISA-IEA identifier mismatch ISA '.$icn.' IEA '.$seg_ar[2];
+                    $this->message[] = 'edih_x12_envelopes: ISA-IEA identifier mismatch ISA ' . text($icn) . ' IEA ' . text($seg_ar[2]);
                 }
 
                 if ($iea_ct == $isa_ct) {
                     $trnset_seg_ct += $isa_segs_ct;
                     //if ( $i+1 != $trnset_seg_ct ) {
                     if ($i != $trnset_seg_ct) {
-                        $this->message[] = 'edih_x12_envelopes: IEA segment count error '.($i).' : '.$trnset_seg_ct;
+                        $this->message[] = 'edih_x12_envelopes: IEA segment count error ' . text($i) . ' : ' . text($trnset_seg_ct);
                     }
                 } else {
-                    $this->message[] = 'edih_x12_envelopes: ISA-IEA count mismatch ISA '.$isa_ct.' IEA '.$iea_ct;
+                    $this->message[] = 'edih_x12_envelopes: ISA-IEA count mismatch ISA ' . text($isa_ct) . ' IEA ' . text($iea_ct);
                 }
 
                 continue;
@@ -1071,7 +1071,7 @@ class edih_x12_file
         }
 
         if (!strpos('|HB|271|HS|270|HR|276|HI|278|HN|277|HP|835|FA|999|HC|837', $tp)) {
-            $this->message[] = 'edih_x12_transaction: wrong edi type for transaction search '.$tp;
+            $this->message[] = 'edih_x12_transaction: wrong edi type for transaction search ' . text($tp);
             return $ret_ar;
         }
 
@@ -1109,7 +1109,7 @@ class edih_x12_file
 
         // verify we have type
         if ($srch_ar[0]['type'] == 'NA' || !$srch_ar[0]['type']) {
-            $this->edih_message('edih_x12_transaction(): invalid file type '.$srch_ar[0]['type']);
+            $this->edih_message('edih_x12_transaction(): invalid file type ' . text($srch_ar[0]['type']));
             return $ret_ar;
         }
 
@@ -1350,8 +1350,8 @@ class edih_x12_file
         //
         return $ret_ar;
     }
-    
-    
+
+
     /**
      * Get a slice of the segments array
      * Supply an array with one or more of the following keys and values:
@@ -1439,7 +1439,7 @@ class edih_x12_file
 
         //
         if ($trace && strpos('|HP|FA', $ft) === false) {
-            $this->message[] = 'edih_x12_slice() incorrect type ['.$ft.'] for trace';
+            $this->message[] = 'edih_x12_slice() incorrect type [' . text($ft) . '] for trace';
             return $ret_ar;
         }
 
@@ -1450,7 +1450,7 @@ class edih_x12_file
                 $icnpos =  strpos($f_str, $de.$icn.$de);
                 if ($icnpos === false) {
                     // $icn not found
-                    $this->message[] = 'edih_x12_slice() did not find ISA13 '.$icn;
+                    $this->message[] = 'edih_x12_slice() did not find ISA13 ' . text($icn);
                     // debug
                     //echo $this->edih_message().PHP_EOL;
                     return $ret_ar;
@@ -1472,7 +1472,7 @@ class edih_x12_file
                 $gspos =  strpos($srchstr, $de.$gsn.$de);
                 if ($gspos === false) {
                     // $gsn not found
-                    $this->message[] = 'edih_x12_slice() did not find GS06 '.$gsn;
+                    $this->message[] = 'edih_x12_slice() did not find GS06 ' . text($gsn);
                     return $ret_ar;
                 } else {
                     $gspos = strrpos(substr($srchstr, 0, $gspos), $dt) + 1;
@@ -1494,7 +1494,7 @@ class edih_x12_file
                 $stpos = strpos($srchstr, $seg_st);
                 if ($stpos === false) {
                     // $stn not found
-                    $this->message[] = 'edih_x12_slice() did not find ST02 '.$stn;
+                    $this->message[] = 'edih_x12_slice() did not find ST02 ' . text($stn);
                     return $ret_ar;
                 } else {
                     $stpos = $stpos + 1;
@@ -1512,7 +1512,7 @@ class edih_x12_file
                 $trpos = strpos($f_str, $de.$trace);
                 if ($trpos === false) {
                     // $icn not found
-                    $this->message[] = 'edih_x12_slice() did not find trace '.$trace;
+                    $this->message[] = 'edih_x12_slice() did not find trace ' . text($trace);
                     return $ret_ar;
                 }
 

@@ -1,11 +1,23 @@
 <?php
+/**
+ * stats.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
+require_once("../../globals.php");
+require_once("$srcdir/lists.inc");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/options.inc.php");
 
-include_once("../../globals.php");
-include_once("$srcdir/lists.inc");
-include_once("$srcdir/acl.inc");
-include_once("$srcdir/options.inc.php");
+if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+    csrfNotVerified();
+}
 ?>
 
 <div id="patient_stats_summary">
@@ -87,26 +99,26 @@ if ($_POST['embeddedScreen']) {
 if (sqlNumRows($res) == 0) {
 ?>
   <tr class=text>
-<td><?php echo htmlspecialchars(xl('None'), ENT_NOQUOTES);?></td>
+<td><?php echo xlt('None'); ?></td>
   </tr>
 <?php
 }
 
 while ($row_currentMed=sqlFetchArray($res)) {
-    $runit=generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), htmlspecialchars($row_currentMed['unit'], ENT_NOQUOTES));
-    $rin=generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), htmlspecialchars($row_currentMed['form'], ENT_NOQUOTES));
-    $rroute=generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), htmlspecialchars($row_currentMed['route'], ENT_NOQUOTES));
-    $rint=generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), htmlspecialchars($row_currentMed['interval'], ENT_NOQUOTES));
+    $runit = generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row_currentMed['unit']);
+    $rin = generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row_currentMed['form']);
+    $rroute = generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row_currentMed['route']);
+    $rint = generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), $row_currentMed['interval']);
 ?>
   <tr class=text >
-<td><?php echo htmlspecialchars($row_currentMed['drug'], ENT_NOQUOTES);?></td>
+<td><?php echo text($row_currentMed['drug']);?></td>
 <td><?php
         $unit='';
 if ($row_currentMed['size'] > 0) {
-    $unit=$row_currentMed['size']." ".$runit." ";
+    $unit = text($row_currentMed['size']) . " " . $runit . " ";
 }
 
-        echo htmlspecialchars($unit." ".$row_currentMed['dosage']." ".$rin." ".$rroute." ".$rint, ENT_NOQUOTES);
+        echo $unit . " " . text($row_currentMed['dosage']) . " " . $rin . " " . $rroute . " " . $rint;
 ?></td>
   </tr>
 <?php
@@ -143,7 +155,7 @@ if ($row_currentMed['size'] > 0) {
                 $widgetButtonLink = "load_location(\"${GLOBALS['webroot']}/interface/eRx.php?page=medentry\")";
             } else {
                 $widgetButtonLabel = xl("Edit");
-                $widgetButtonLink = "load_location(\"${GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=" . $key . "\")";
+                $widgetButtonLink = "load_location(\"${GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=" . attr_url($key) . "\")";
             }
 
             $widgetButtonClass = "";
@@ -157,9 +169,9 @@ if ($row_currentMed['size'] > 0) {
         ?>
             <tr class='issuetitle'>
             <td colspan='$numcols'>
-            <span class="text"><b><?php echo htmlspecialchars($arr[0], ENT_NOQUOTES); ?></b></span>
-            <a href="javascript:;" class="small" onclick="load_location('stats_full.php?active=all&category=" . $key . "')">
-            (<b><?php echo htmlspecialchars(xl('Manage'), ENT_NOQUOTES); ?></b>)
+            <span class="text"><b><?php echo text($arr[0]); ?></b></span>
+            <a href="javascript:;" class="small" onclick="load_location(<?php echo attr_js("stats_full.php?active=all&category=".urlencode($key)); ?>)">
+            (<b><?php echo xlt('Manage'); ?></b>)
             </a>
             </td>
             </tr>
@@ -170,10 +182,10 @@ if ($row_currentMed['size'] > 0) {
         if (sqlNumRows($pres) == 0) {
             if (getListTouch($pid, $key)) {
                 // Data entry has happened to this type, so can display an explicit None.
-                echo "  <tr><td colspan='$numcols' class='text'>&nbsp;&nbsp;" . htmlspecialchars(xl('None'), ENT_NOQUOTES) . "</td></tr>\n";
+                echo "  <tr><td colspan='$numcols' class='text'>&nbsp;&nbsp;" . xlt('None') . "</td></tr>\n";
             } else {
                 // Data entry has not happened to this type, so show 'Nothing Recorded"
-                echo "  <tr><td colspan='$numcols' class='text'>&nbsp;&nbsp;" . htmlspecialchars(xl('Nothing Recorded'), ENT_NOQUOTES) . "</td></tr>\n";
+                echo "  <tr><td colspan='$numcols' class='text'>&nbsp;&nbsp;" . xlt('Nothing Recorded') . "</td></tr>\n";
             }
         }
 
@@ -196,9 +208,9 @@ if ($row_currentMed['size'] > 0) {
                     $reaction = " (" . $row['reaction'] . ")";
                 }
 
-                echo "  <td colspan='$numcols' style='color:red;font-weight:bold;'>&nbsp;&nbsp;" . htmlspecialchars($row['title'] . $reaction, ENT_NOQUOTES) . "</td>\n";
+                echo "  <td colspan='" . attr($numcols) . "' style='color:red;font-weight:bold;'>&nbsp;&nbsp;" . text($row['title'] . $reaction) . "</td>\n";
             } else {
-                echo "  <td colspan='$numcols'>&nbsp;&nbsp;" . htmlspecialchars($row['title'], ENT_NOQUOTES) . "</td>\n";
+                echo "  <td colspan='" . attr($numcols) . "'>&nbsp;&nbsp;" . text($row['title']) . "</td>\n";
             }
 
             echo " </tr>\n";
@@ -230,7 +242,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
         if (sqlNumRows($dres) > 0 && $need_head) {
             $need_head = false;
             echo " <tr>\n";
-            echo "  <td colspan='$numcols' valign='top'>\n";
+            echo "  <td colspan='" . attr($numcols) . "' valign='top'>\n";
             echo "   <span class='title'>Injury Log</span>\n";
             echo "  </td>\n";
             echo " </tr>\n";
@@ -241,10 +253,10 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
             echo " <tr>\n";
             echo "  <td colspan='$numcols'>&nbsp;&nbsp;";
             echo "<a class='link' href='javascript:;' ";
-            echo "onclick='load_location(\"../../forms/$formname/new.php?popup=1&id=";
-            echo htmlspecialchars($row['id'], ENT_QUOTES) . "\")'>" .
-            htmlspecialchars($start_date, ENT_NOQUOTES) . " " .
-            htmlspecialchars($template_name, ENT_NOQUOTES) . "</a></td>\n";
+            echo "onclick='load_location(\"../../forms/" . attr($formname) . "/new.php?popup=1&id=";
+            echo attr_url($row['id']) . "\")'>" .
+            text($start_date) . " " .
+            text($template_name) . "</a></td>\n";
             echo " </tr>\n";
         }
     }
@@ -271,9 +283,9 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
     expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
 } else { ?>
 <td colspan='<?php echo $numcols ?>' valign='top'>
-<span class="text"><b><?php echo htmlspecialchars(xl('Immunizations', 'e'), ENT_NOQUOTES); ?></b></span>
+<span class="text"><b><?php echo xlt('Immunizations'); ?></b></span>
 <a href="javascript:;" class="small" onclick="javascript:load_location('immunizations.php')">
-    (<b><?php echo htmlspecialchars(xl('Manage'), ENT_NOQUOTES) ?></b>)
+    (<b><?php echo xlt('Manage'); ?></b>)
 </a>
 </td></tr>
 <tr><td>
@@ -293,15 +305,15 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
 
 if (sqlNumRows($result) == 0) {
     echo " <table><tr>\n";
-    echo "  <td colspan='$numcols' class='text'>&nbsp;&nbsp;" . htmlspecialchars(xl('None'), ENT_NOQUOTES) . "</td>\n";
+    echo "  <td colspan='$numcols' class='text'>&nbsp;&nbsp;" . xlt('None') . "</td>\n";
     echo " </tr></table>\n";
 }
 
 while ($row=sqlFetchArray($result)) {
     echo "&nbsp;&nbsp;";
     echo "<a class='link'";
-    echo "' href='javascript:;' onclick='javascript:load_location(\"immunizations.php?mode=edit&id=".htmlspecialchars($row['id'], ENT_QUOTES) . "\")'>" .
-    htmlspecialchars($row{'immunization_data'}, ENT_NOQUOTES);
+    echo "' href='javascript:;' onclick='javascript:load_location(" . attr_js("immunizations.php?mode=edit&id=".urlencode($row['id'])."&csrf_token_form=".urlencode(collectCsrfToken())) . ")'>" .
+    text($row{'immunization_data'});
 
     // Figure out which name to use (ie. from cvx list or from the custom list)
     if ($GLOBALS['use_custom_immun_list']) {
@@ -355,25 +367,25 @@ $res=sqlStatement("select * from prescriptions where patient_id=? and active='1'
 if (sqlNumRows($res)==0) {
     ?>
     <tr class=text>
-        <td><?php echo htmlspecialchars(xl('None'), ENT_NOQUOTES);?></td>
+        <td><?php echo xlt('None');?></td>
     </tr>
     <?php
 }
 
 while ($row_currentMed=sqlFetchArray($res)) {
-    $runit=generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row_currentMed['unit']);
-    $rin=generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row_currentMed['form']);
-    $rroute=generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row_currentMed['route']);
-    $rint=generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), $row_currentMed['interval']);
+    $runit = generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row_currentMed['unit']);
+    $rin = generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row_currentMed['form']);
+    $rroute = generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row_currentMed['route']);
+    $rint = generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), $row_currentMed['interval']);
     ?>
     <tr class=text >
-        <td><?php echo $row_currentMed['drug'];?></td>
+        <td><?php echo text($row_currentMed['drug']); ?></td>
         <td><?php $unit='';
         if ($row_currentMed['size']>0) {
-            $unit=$row_currentMed['size']." ".$runit." ";
+            $unit = text($row_currentMed['size']) . " " . $runit . " ";
         }
 
-        echo htmlspecialchars($unit." ".$row_currentMed['dosage']." ".$rin." ".$rroute." ".$rint, ENT_NOQUOTES);?></td>
+        echo $unit . " " . text($row_currentMed['dosage']) . " " . $rin . " " . $rroute . " " . $rint; ?></td>
     </tr>
 <?php
 }
@@ -396,17 +408,18 @@ while ($row_currentMed=sqlFetchArray($res)) {
         $linkMethod = "javascript";
         $widgetTitle = xl('Prescription');
         $widgetButtonLabel = xl("Edit");
-        $oeLink = $GLOBALS['webroot'] . "/controller.php?prescription&list&id=" . attr($pid);
+        $oeLink = $GLOBALS['webroot'] . "/controller.php?prescription&list&id=" . attr_url($pid);
         $widgetButtonLink = 'editScripts("' . $oeLink . '")';
+
         $widgetButtonClass = "iframe rx_modal";
     }
 
     $bodyClass = "summary_item small";
-    $widgetAuth = true;
+    $widgetAuth=acl_check('patients', 'rx', '', array('write','addonly'));
     $fixedWidth = false;
     expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
 } else { ?>
-    <span class='text'><b><?php echo htmlspecialchars(xl('Prescriptions'), ENT_NOQUOTES); ?></b></span>
+    <span class='text'><b><?php echo xlt('Prescriptions'); ?></b></span>
     </td></tr>
     </tr><td>
 <?php } ?>
@@ -455,7 +468,7 @@ if ($erx_upload_complete == 1) {
         }
 
         echo " <tr class='text $rowclass;'>\n";
-        echo "  <td colspan='$numcols'>&nbsp;&nbsp;" . htmlspecialchars($row['title'], ENT_NOQUOTES) . "</td>\n";
+        echo "  <td colspan='$numcols'>&nbsp;&nbsp;" . text($row['title']) . "</td>\n";
         echo " </tr>\n";
     }
 

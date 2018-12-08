@@ -17,6 +17,12 @@ require_once("$srcdir/patient.inc");
 
 use OpenEMR\Core\Header;
 
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
+
 $from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
 $to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
 
@@ -50,8 +56,8 @@ function bucks($amt)
 
         // The OnClick handler for receipt display.
         function show_receipt(pid,timestamp) {
-            dlgopen('../patient_file/front_payment.php?receipt=1&patient=' + pid +
-                '&time=' + timestamp, '_blank', 550, 400, '', '', {
+            dlgopen('../patient_file/front_payment.php?receipt=1&patient=' + encodeURIComponent(pid) +
+                '&time=' + encodeURIComponent(timestamp), '_blank', 550, 400, '', '', {
                 onClosed: 'reload'
             });
          }
@@ -95,6 +101,7 @@ function bucks($amt)
 </div>
 
 <form name='theform' method='post' action='front_receipts_report.php' id='theform' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 
@@ -194,7 +201,7 @@ if (true || $_POST['form_refresh']) {
     ?>
    <tr>
     <td nowrap>
-     <a href="javascript:show_receipt(<?php echo $row['pid'] . ",'$timestamp'"; ?>)">
+     <a href="javascript:show_receipt(<?php echo attr_js($row['pid']); ?>, <?php echo attr_js($timestamp); ?>)">
         <?php echo text(oeFormatShortDate(substr($row['dtime'], 0, 10))) . text(substr($row['dtime'], 10, 6)); ?>
    </a>
   </td>

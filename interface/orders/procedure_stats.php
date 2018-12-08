@@ -299,7 +299,7 @@ if ($form_output == 3) {
 <?php html_header_show(); ?>
 <title><?php echo text($report_title); ?></title>
 
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
 <style type="text/css">
 body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
@@ -307,8 +307,8 @@ body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
 .detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
 </style>
 <script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="JavaScript">
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -332,7 +332,8 @@ $('.datepicker').datetimepicker({
 
 <h2><?php echo $report_title; ?></h2>
 
-<form name='theform' method='post' action='procedure_stats.php'>
+<form name='theform' method='post' action='procedure_stats.php' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <table border='0' cellspacing='5' cellpadding='1'>
 
@@ -453,6 +454,10 @@ title='<?php echo xla('Click to generate the report'); ?>' />
 } // end not export
 
 if ($_POST['form_submit']) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     $pd_fields = '';
     foreach ($arr_show as $askey => $asval) {
         if (substr($askey, 0, 1) == '.') {
@@ -465,7 +470,7 @@ if ($_POST['form_submit']) {
             continue;
         }
 
-        $pd_fields .= ', pd.' . $askey;
+        $pd_fields .= ', pd.' . escape_sql_column_name($askey, array('patient_data'));
     }
 
     $sexcond = '';

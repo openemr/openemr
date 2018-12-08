@@ -5,7 +5,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2010-2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,6 +17,12 @@ require_once "$srcdir/clinical_rules.php";
 require_once "$srcdir/report_database.inc";
 
 use OpenEMR\Core\Header;
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 // See if showing an old report or creating a new report
 $report_id = (isset($_GET['report_id'])) ? trim($_GET['report_id']) : "";
@@ -111,8 +117,6 @@ if (!empty($report_id)) {
 
     <?php require $GLOBALS['srcdir'] . "/formatting_DateToYYYYMMDD_js.js.php" ?>
 
- var mypcc = '<?php echo text($GLOBALS['phone_country_code']) ?>';
-
  $(document).ready(function() {
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
@@ -130,7 +134,7 @@ if (!empty($report_id)) {
 
    // Validate first
    if (!(validateForm())) {
-     alert("<?php echo xls("Rule Set and Plan Set selections are not consistent. Please fix and Submit again."); ?>");
+     alert(<?php echo xlj("Rule Set and Plan Set selections are not consistent. Please fix and Submit again."); ?>);
      return false;
    }
 
@@ -143,7 +147,7 @@ if (!empty($report_id)) {
    $("#xmlb_button").hide();
    $("#xmlc_button").hide();
    $("#print_button").hide();
-    $("#genQRDA").hide();
+   $("#genQRDA").hide();
 
    // hide instructions
    $("#instructions_text").hide();
@@ -151,6 +155,7 @@ if (!empty($report_id)) {
    // Collect an id string via an ajax request
    top.restoreSession();
    $.get("../../library/ajax/collect_new_report_id.php",
+     { csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?> },
      function(data){
        // Set the report id in page form
        $("#form_new_report_id").attr("value",data);
@@ -168,7 +173,8 @@ if (!empty($report_id)) {
           plan: $("#form_plan_filter").val(),
           labs: $("#labs_manual_entry").val(),
           pat_prov_rel: $("#form_pat_prov_rel").val(),
-          execute_report_id: $("#form_new_report_id").val()
+          execute_report_id: $("#form_new_report_id").val(),
+          csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
          });
    });
  }
@@ -178,19 +184,20 @@ if (!empty($report_id)) {
    top.restoreSession();
    // Do not send the skip_timeout_reset parameter, so don't close window before report is done.
    $.post("../../library/ajax/status_report.php",
-     {status_report_id: report_id},
+     {
+       status_report_id: report_id,
+       csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+     },
      function(data){
        if (data == "PENDING") {
          // Place the pending string in the DOM
-         $('#status_span').replaceWith("<span id='status_span'><?php echo xlt("Preparing To Run Report"); ?></span>");
+         $('#status_span').replaceWith("<span id='status_span'><?php echo xla("Preparing To Run Report"); ?></span>");
        }
        else if (data == "COMPLETE") {
          // Go into the results page
          top.restoreSession();
-         link_report = "cqm.php?report_id="+report_id;
+         link_report = "cqm.php?report_id=" + encodeURIComponent(report_id);
          window.open(link_report,'_self',false);
-         //$("#processing").hide();
-         //$('#status_span').replaceWith("<a id='view_button' href='cqm.php?report_id="+report_id+"' class='css_button' onclick='top.restoreSession()'><span><?php echo xlt('View Report'); ?></span></a>");
        }
        else {
          // Place the string in the DOM
@@ -206,9 +213,9 @@ if (!empty($report_id)) {
       //QRDA Category III Export
       if(sNested == "QRDA"){
         var form_rule_filter = theform.form_rule_filter.value
-        var sLoc = '../../custom/export_qrda_xml.php?target_date=' + DateToYYYYMMDDHHMMSS_js(theform.form_target_date.value) + '&qrda_version=3&rule_filter=cqm_2014&form_provider='+theform.form_provider.value+"&report_id=<?php echo attr($report_id);?>";
+        var sLoc = '../../custom/export_qrda_xml.php?target_date=' + encodeURIComponent(DateToYYYYMMDDHHMMSS_js(theform.form_target_date.value)) + '&qrda_version=3&rule_filter=cqm_2014&form_provider=' + encodeURIComponent(theform.form_provider.value) + '&report_id=' + <?php echo js_url($report_id); ?> + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>;
       }else{
-        var sLoc = '../../custom/export_registry_xml.php?&target_date=' + DateToYYYYMMDDHHMMSS_js(theform.form_target_date.value) + '&nested=' + sNested;
+        var sLoc = '../../custom/export_registry_xml.php?&target_date=' + encodeURIComponent(DateToYYYYMMDDHHMMSS_js(theform.form_target_date.value)) + '&nested=' + encodeURIComponent(sNested) + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>;
       }
       dlgopen(sLoc, '_blank', 600, 500);
       return false;
@@ -217,9 +224,9 @@ if (!empty($report_id)) {
  //QRDA I - 2014 Download
  function downloadQRDA() {
     top.restoreSession();
-    var reportID = '<?php echo attr($report_id); ?>';
+    var reportID = <?php echo js_escape($report_id); ?>;
     var provider = $("#form_provider").val();
-    sLoc = '../../custom/download_qrda.php?&report_id=' + reportID + '&provider_id=' + provider;
+    sLoc = '../../custom/download_qrda.php?&report_id=' + encodeURIComponent(reportID) + '&provider_id=' + encodeURIComponent(provider) + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>;
     dlgopen(sLoc, '_blank', 600, 500);
  }
 
@@ -248,7 +255,7 @@ if (!empty($report_id)) {
          ToDate = DateToYYYYMMDDHHMMSS_js(d.form_target_date.value);
           if ( (FromDate.length > 0) && (ToDate.length > 0) ) {
              if (FromDate > ToDate){
-                  alert("<?php echo xls('End date must be later than Begin date!'); ?>");
+                  alert(<?php echo xlj('End date must be later than Begin date!'); ?>);
                   return false;
              }
          }
@@ -339,6 +346,7 @@ if (!empty($report_id)) {
 </span>
 
 <form method='post' name='theform' id='theform' action='cqm.php?type=<?php echo attr($type_report) ;?>' onsubmit='return validateForm()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 <?php
@@ -349,7 +357,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
 ?>
 <table>
  <tr>
-  <td scope="row" width='<?php echo $widthDyn;?>'>
+  <td scope="row" width='<?php echo attr($widthDyn); ?>'>
     <div style='float:left'>
 
     <table class='text'>
@@ -690,7 +698,7 @@ $existProvider = false;
 foreach ($dataSheet as $row) {
 ?>
 
-<tr bgcolor='<?php echo $bgcolor ?>'>
+<tr bgcolor='<?php echo attr($bgcolor); ?>'>
 
 <?php
 if (isset($row['is_main']) || isset($row['is_sub'])) {
@@ -759,7 +767,7 @@ if (isset($row['is_main']) || isset($row['is_sub'])) {
     }
 
     if (isset($row['itemized_test_id']) && ($row['pass_filter'] > 0)) {
-        echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=all&report_id=".attr($report_id)."&itemized_test_id=".attr($row['itemized_test_id'])."&numerator_label=".urlencode(attr($row['numerator_label']))."' onclick='top.restoreSession()'>" . text($row['pass_filter']) . "</a></td>";
+        echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=all&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($row['itemized_test_id']) . "&numerator_label=" . attr_url($row['numerator_label']) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($row['pass_filter']) . "</a></td>";
     } else {
         echo "<td align='center'>" . text($row['pass_filter']) . "</td>";
     }
@@ -768,7 +776,7 @@ if (isset($row['is_main']) || isset($row['is_sub'])) {
         // Note that amc will likely support in excluded items in the future for MU2
         if (($type_report != "standard") && isset($row['itemized_test_id']) && ($row['excluded'] > 0)) {
             // Note standard reporting exluded is different than cqm/amc and will not support itemization
-            echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exclude&report_id=".attr($report_id)."&itemized_test_id=".attr($row['itemized_test_id'])."&numerator_label=".urlencode(attr($row['numerator_label']))."' onclick='top.restoreSession()'>" . text($row['excluded']) . "</a></td>";
+            echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exclude&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($row['itemized_test_id']) . "&numerator_label=" . attr_url($row['numerator_label']) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($row['excluded']) . "</a></td>";
         } else {
             echo "<td align='center'>" . text($row['excluded']) . "</td>";
         }
@@ -778,14 +786,14 @@ if (isset($row['is_main']) || isset($row['is_sub'])) {
         // Note that amc will likely support in exception items in the future for MU2
         if (isset($row['itemized_test_id']) && ($row['exception'] > 0)) {
            // Note standard reporting exluded is different than cqm/amc and will not support itemization
-            echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exception&report_id=".attr($report_id)."&itemized_test_id=".attr($row['itemized_test_id'])."&numerator_label=".urlencode(attr($row['numerator_label']))."' onclick='top.restoreSession()'>" . text($row['exception']) . "</a></td>";
+            echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exception&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($row['itemized_test_id']) . "&numerator_label=" . attr_url($row['numerator_label']) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($row['exception']) . "</a></td>";
         } else {
              echo "<td align='center'>" . text($row['exception']) . "</td>";
         }
     }
 
     if (isset($row['itemized_test_id']) && ($row['pass_target'] > 0)) {
-        echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=pass&report_id=".attr($report_id)."&itemized_test_id=".attr($row['itemized_test_id'])."&numerator_label=".urlencode(attr($row['numerator_label']))."' onclick='top.restoreSession()'>" . text($row['pass_target']) . "</a></td>";
+        echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=pass&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($row['itemized_test_id']) . "&numerator_label=" . attr_url($row['numerator_label']) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($row['pass_target']) . "</a></td>";
     } else {
         echo "<td align='center'>" . text($row['pass_target']) . "</td>";
     }
@@ -804,7 +812,7 @@ if (isset($row['is_main']) || isset($row['is_sub'])) {
     }
 
     if (isset($row['itemized_test_id']) && ($failed_items > 0)) {
-        echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=fail&report_id=".attr($report_id)."&itemized_test_id=".attr($row['itemized_test_id'])."&numerator_label=".urlencode(attr($row['numerator_label']))."' onclick='top.restoreSession()'>" . text($failed_items) . "</a></td>";
+        echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=fail&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($row['itemized_test_id']) . "&numerator_label=" . attr_url($row['numerator_label']) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($failed_items) . "</a></td>";
     } else {
         echo "<td align='center'>" . text($failed_items) . "</td>";
     }

@@ -5,7 +5,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2011-2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2011-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,6 +16,12 @@ require_once "$srcdir/options.inc.php";
 require_once "$srcdir/amc.php";
 
 use OpenEMR\Core\Header;
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 // Collect form parameters (set defaults if empty)
 $begin_date = (isset($_POST['form_begin_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim($_POST['form_begin_date'])) : "";
@@ -62,7 +68,8 @@ $provider  = trim($_POST['form_provider']);
        mode: mode,
        patient_id: patient_id,
        object_category: "transactions",
-       object_id: transaction_id
+       object_id: transaction_id,
+       csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
      }
    );
  }
@@ -71,7 +78,7 @@ $provider  = trim($_POST['form_provider']);
    if ( $('#send_sum_elec_flag_' + patient_id + '_' + transaction_id).prop('checked') ) {
      if ( !$('#send_sum_flag_' + patient_id + '_' + transaction_id).prop('checked') ) {
        $('#send_sum_elec_flag_' + patient_id + '_' + transaction_id).prop("checked", false);
-       alert("<?php echo xls('Can not set this unless the Summary of Care Sent toggle is set.'); ?>");
+       alert(<?php echo xlj('Can not set this unless the Summary of Care Sent toggle is set.'); ?>);
        return false;
      }
      var mode = "add";
@@ -86,7 +93,8 @@ $provider  = trim($_POST['form_provider']);
        mode: mode,
        patient_id: patient_id,
        object_category: "transactions",
-       object_id: transaction_id
+       object_id: transaction_id,
+       csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
      }
    );
  }
@@ -104,7 +112,8 @@ $provider  = trim($_POST['form_provider']);
        complete: true,
        mode: mode,
        date_created: date_created,
-       patient_id: patient_id
+       patient_id: patient_id,
+       csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
      }
    );
  }
@@ -123,7 +132,8 @@ $provider  = trim($_POST['form_provider']);
        mode: mode,
        patient_id: patient_id,
        object_category: "form_encounter",
-       object_id: encounter_id
+       object_id: encounter_id,
+       csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
      }
    );
  }
@@ -168,6 +178,7 @@ $provider  = trim($_POST['form_provider']);
 <?php echo xlt('Automated Measure Calculations (AMC) Tracking'); ?></span>
 
 <form method='post' name='theform' id='theform' action='amc_tracking.php' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 
@@ -361,12 +372,12 @@ foreach ($resultsArray as $result) {
     }
 
     if ($rule == "send_sum_amc") {
-        echo "<td><input type='checkbox' id='send_sum_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='send_sum(\"".attr($result['pid'])."\",\"".attr($result['id'])."\")'>" . xlt('Yes') . "</td>";
-        echo "<td><input type='checkbox' id='send_sum_elec_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='send_sum_elec(\"".attr($result['pid'])."\",\"".attr($result['id'])."\")'>" . xlt('Yes') . "</td>";
+        echo "<td><input type='checkbox' id='send_sum_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='send_sum(".attr_js($result['pid']).",".attr_js($result['id']).")'>" . xlt('Yes') . "</td>";
+        echo "<td><input type='checkbox' id='send_sum_elec_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='send_sum_elec(".attr_js($result['pid']).",".attr_js($result['id']).")'>" . xlt('Yes') . "</td>";
     } else if ($rule == "provide_rec_pat_amc") {
-        echo "<td><input type='checkbox' id='provide_rec_pat_flag_".attr($result['pid'])."' onclick='provide_rec_pat(\"".attr($result['pid'])."\",\"".attr($result['date'])."\")'>" . xlt('Yes') . "</td>";
+        echo "<td><input type='checkbox' id='provide_rec_pat_flag_".attr($result['pid'])."' onclick='provide_rec_pat(".attr_js($result['pid']).",".attr_js($result['date']).")'>" . xlt('Yes') . "</td>";
     } else { //$rule == "provide_sum_pat_amc"
-        echo "<td><input type='checkbox' id='provide_sum_pat_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='provide_sum_pat(\"".attr($result['pid'])."\",\"".attr($result['id'])."\")'>" . xlt('Yes') . "</td>";
+        echo "<td><input type='checkbox' id='provide_sum_pat_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='provide_sum_pat(".attr_js($result['pid']).",".attr_js($result['id']).")'>" . xlt('Yes') . "</td>";
     }
 
         echo "</tr>";

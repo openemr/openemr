@@ -3,10 +3,10 @@
 
 [-* we want to include our stylesheet for this view*-]
 <link rel="stylesheet" href="[-$TPL_STYLE_PATH-]/ajax_search.css" type="text/css">
-<link rel="stylesheet" href="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css" type="text/css">
+<link rel="stylesheet" href="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery-datetimepicker/build/jquery.datetimepicker.min.css" type="text/css">
 
-<script type="text/javascript" src="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
 <!-- js for the popup window -->
 <script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/dialog.js?v=[-php-] echo $v_js_includes; [-/php-]"></script>
@@ -24,7 +24,7 @@
 [-php-] xl('Return to calendar','e'); [-/php-]</a>
 <div id="calsearch_params">
 <form name="theform" id="theform" action="[-$FORM_ACTION-]" method="POST"> <!-- onsubmit="return top.restoreSession()"> -->
-[-php-] xl('Keywords','e'); [-/php-]: <input type="text" name="pc_keywords" id="pc_keywords" value="[-php-]echo htmlspecialchars(strip_escape_custom($_POST['pc_keywords']),ENT_QUOTES);[-/php-]" />
+[-php-] xl('Keywords','e'); [-/php-]: <input type="text" name="pc_keywords" id="pc_keywords" value="[-php-]echo htmlspecialchars($_POST['pc_keywords'],ENT_QUOTES);[-/php-]" />
 <select name="pc_keywords_andor">
     <option value="AND">[-php-] xl('AND','e'); [-/php-]</option>
     <option value="OR">[-php-] xl('OR','e'); [-/php-]</option>
@@ -42,8 +42,8 @@
 [-/if-]
 <br>
 [-php-] xl('between','e'); [-/php-]
-<input type="text" class='datepicker' name="start" id="start" value="[-$DATE_START-]" size="10"/>
-<input type="text" class='datepicker' name="end" id="end" value="[-$DATE_END-]" size="10"/>
+<input type="text" class='datepicker' name="start" id="start" value="[-$DATE_START|escape:'html'-]" size="10"/>
+<input type="text" class='datepicker' name="end" id="end" value="[-$DATE_END|escape:'html'-]" size="10"/>
 <br>
 [-php-] xl('for','e'); [-/php-]
 <select name="provider_id" id="provider_id">
@@ -115,7 +115,7 @@ foreach ($this->get_template_vars('A_EVENTS') as $eDate => $date_events) {
 
         // patient
         echo "<td class='calsearch_patient'>";
-        echo $event['patient_name'];
+        echo text($event['patient_name']);
         echo "</td>";
 /*
         echo "<td>";

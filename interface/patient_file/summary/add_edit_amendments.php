@@ -2,32 +2,24 @@
 /**
  * Add/Edit Amendments
  *
- * Copyright (C) 2014 Ensoftek
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Hema Bandaru <hemab@drcloudemr.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Hema Bandaru <hemab@drcloudemr.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2014 Ensoftek
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
-
-include_once("../../globals.php");
-include_once("$srcdir/options.inc.php");
+require_once("../../globals.php");
+require_once("$srcdir/options.inc.php");
 
 if (isset($_POST['mode'])) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     $currentUser = $_SESSION['authUserID'];
     $created_time = date('Y-m-d H:i');
     if ($_POST["amendment_id"] == "") {
@@ -89,7 +81,7 @@ if (isset($_POST['mode'])) {
         $created_time
     );
     sqlStatement($query, $sqlBindArray);
-    header("Location:add_edit_amendments.php?id=$amendment_id");
+    header("Location:add_edit_amendments.php?id=" . urlencode($amendment_id));
     exit;
 }
 
@@ -119,14 +111,14 @@ $customAttributes = ( $onlyRead ) ? array("disabled" => "true") : null;
 <?php html_header_show();?>
 
 <!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
 <!-- page styles -->
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
 <style>
 .highlight {
@@ -147,10 +139,10 @@ tr.selected {
 
 function formValidation() {
     if ( $("#amendment_date").val() == "" ) {
-        alert("<?php echo xls('Select Amendment Date'); ?>");
+        alert(<?php echo xlj('Select Amendment Date'); ?>);
         return;
     } else if ( $("#form_amendment_by").val() == "" ) {
-        alert("<?php echo xls('Select Requested By'); ?>");
+        alert(<?php echo xlj('Select Requested By'); ?>);
         return;
     }
 
@@ -177,6 +169,7 @@ $(document).ready(function() {
 <body class="body_top">
 
 <form action="add_edit_amendments.php" name="add_edit_amendments" id="add_edit_amendments" method="post" onsubmit='return top.restoreSession()'>
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
     <table>
     <tr>
@@ -201,11 +194,11 @@ $(document).ready(function() {
             <td>
             <?php if (! $onlyRead) { ?>
                 <input type='text' size='10' class='datepicker' name="amendment_date" id="amendment_date"
-                    value='<?php echo $amendment_date ? htmlspecialchars(oeFormatShortDate($amendment_date), ENT_QUOTES) : oeFormatShortDate(); ?>'
+                    value='<?php echo $amendment_date ? attr(oeFormatShortDate($amendment_date)) : attr(oeFormatShortDate()); ?>'
                 />
             <?php } else { ?>
                 <input type='text' size='10' name="amendment_date" id="amendment_date" readonly
-                    value='<?php echo $amendment_date ? htmlspecialchars(oeFormatShortDate($amendment_date), ENT_QUOTES) : oeFormatShortDate(); ?>'
+                    value='<?php echo $amendment_date ? attr(oeFormatShortDate($amendment_date)) : attr(oeFormatShortDate()); ?>'
                 />
             <?php } ?>
             </td>

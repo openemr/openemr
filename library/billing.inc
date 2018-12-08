@@ -3,12 +3,12 @@
 
 function getBillingById($id, $cols = "*")
 {
-    return sqlQuery("select $cols from billing where id='$id' and activity=1 order by date DESC limit 0,1");
+    return sqlQuery("select $cols from billing where id=? and activity=1 order by date DESC limit 0,1", array($id));
 }
 
 function getBillingByPid($pid, $cols = "*")
 {
-    return  sqlQuery("select $cols from billing where pid ='$pid' and activity=1 order by date DESC limit 0,1");
+    return  sqlQuery("select $cols from billing where pid =? and activity=1 order by date DESC limit 0,1", array($pid));
 }
 
 function getBillingByEncounter($pid, $encounter, $cols = "code_type, code, code_text")
@@ -53,17 +53,17 @@ function addBilling(
 
 function authorizeBilling($id, $authorized = "1")
 {
-    sqlQuery("update billing set authorized = '$authorized' where id = '$id'");
+    sqlQuery("update billing set authorized = ? where id = ?", array($authorized, $id));
 }
 
 function deleteBilling($id)
 {
-    sqlStatement("update billing set activity = 0 where id = '$id'");
+    sqlStatement("update billing set activity = 0 where id = ?", array($id));
 }
 
 function clearBilling($id)
 {
-    sqlStatement("update billing set justify = '' where id = '$id'");
+    sqlStatement("update billing set justify = '' where id = ?", array($id));
 }
 
 // This function supports the Billing page (billing_process.php),
@@ -339,8 +339,8 @@ function isEncounterBilled($pid, $encounter)
 function getCopay($patient_id, $encdate)
 {
     $tmp = sqlQuery("SELECT provider, copay FROM insurance_data " .
-    "WHERE pid = '$patient_id' AND type = 'primary' " .
-    "AND date <= '$encdate' ORDER BY date DESC LIMIT 1");
+    "WHERE pid = ? AND type = 'primary' " .
+    "AND date <= ? ORDER BY date DESC LIMIT 1", array($patient_id, $encdate));
     if ($tmp['provider']) {
         return sprintf('%01.2f', 0 + $tmp['copay']);
     }
@@ -528,7 +528,7 @@ function doVoid($patient_id, $encounter_id, $purge = false, $time = '')
         );
     } else if ($usingirnpools) {
         // Non-purge means just assign a new invoice reference number.
-        $new_invoice_refno = add_escape_custom(updateInvoiceRefNumber());
+        $new_invoice_refno = updateInvoiceRefNumber();
         sqlStatement(
             "UPDATE form_encounter " .
             "SET invoice_refno = ? " .

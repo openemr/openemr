@@ -29,6 +29,7 @@
 //   Bahasa Indonesia               // xl('Bahasa Indonesia')
 //   Bengali                        // xl('Bengali')
 //   Bosnian                        // xl('Bosnian')
+//   Bulgarian                      // xl('Bulgarian')
 //   Chinese (Simplified)           // xl('Chinese (Simplified)')
 //   Chinese (Traditional)          // xl('Chinese (Traditional)')
 //   Croatian                       // xl('Croatian')
@@ -69,6 +70,7 @@
 //   Spanish (Spain)                // xl('Spanish (Spain)')
 //   Swedish                        // xl('Swedish')
 //   Tamil                          // xl('Tamil')
+//   Telugu                         // xl('Telugu')
 //   Thai                           // xl('Thai')
 //   Turkish                        // xl('Turkish')
 //   Ukrainian                      // xl('Ukrainian')
@@ -102,6 +104,8 @@ if (stristr(PHP_OS, 'WIN')) {
 // List of user specific tabs and globals
 $USER_SPECIFIC_TABS = array('Appearance',
     'Locale',
+    'Features',
+    'Billing',
     'Report',
     'Calendar',
     'CDR',
@@ -119,6 +123,10 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'us_weight_format',
     'date_display_format',
     'time_display_format',
+    'enable_help',
+    'posting_adj_disable',
+    'messages_due_date',
+    'expand_form',
     'ledger_begin_date',
     'print_next_appointment_on_ledger',
     'calendar_view_type',
@@ -931,8 +939,20 @@ $GLOBALS_METADATA = array(
             ),                       // data type
             '1',                     // default = Print End of Day Report 1
             xl('This will allow the display of help modal on help enabled pages')
-        )
+        ),
+        'messages_due_date' => array(
+            xl('Messages - due date'),
+            'bool',                           // data type
+            '0',                              // default false
+            xl('Enables choose due date to message')
+        ),
 
+        'expand_form' => array(
+            xl('Expand Form'),
+            'bool',                           // data type
+            '0',                              // default false
+            xl('Open all expandable forms in expanded state')
+        )
     ),
     // Report Tab
     //
@@ -1090,6 +1110,13 @@ $GLOBALS_METADATA = array(
             xl('Default selection for rendering provider in fee sheet.')
         ),
 
+        'posting_adj_disable' => array(
+            xl('Disable Auto Adjustment Calculations in EOB Posting'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Turn off auto calculations of adjustments in EOB')
+        ),
+
         'show_payment_history' => array(
             xl('Show all payment history in Patient Ledger'),
             'bool',                           // data type
@@ -1142,6 +1169,13 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',                              // default = false
             xl('This feature will allow the default POS facility code to be overriden from the encounter.')
+        ),
+
+        'statement_logo' => array(
+            xl('Statement Logo GIF Filename'),
+            'text',                           // data type
+            'practice_logo.gif',                               // data type
+            xl('Place your logo in sites/default/images and type the filename including gif extension here.')
         ),
 
         'use_custom_statement' => array(
@@ -2423,13 +2457,6 @@ $GLOBALS_METADATA = array(
             xl('You may put text here as the default complaint in the New Patient Encounter form.')
         ),
 
-        'default_new_encounter_form' => array(
-            xl('Default Encounter Form ID'),
-            'text',                           // data type
-            '',
-            xl('To automatically open the specified form. Some sports teams use football_injury_audit here.')
-        ),
-
         'MedicareReferrerIsRenderer' => array(
             xl('Medicare Referrer Is Renderer'),
             'bool',                           // data type
@@ -2517,6 +2544,20 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '1',
             xl('Enable Version 2 Onsite Patient Portal new patient to self register.')
+        ),
+
+        'allow_portal_appointments' => array(
+            xl('Allow Version 2 Onsite Online Appointments'),
+            'bool',                           // data type
+            '1',
+            xl('Allow Version 2 Onsite Patient to make and view appointments online.')
+        ),
+
+        'allow_portal_chat' => array(
+            xl('Allow Version 2 Onsite Online Secure Chat'),
+            'bool',                           // data type
+            '1',
+            xl('Allow Version 2 Onsite Patient to use Secure Chat Application.')
         ),
 
         'portal_two_payments' => array(
@@ -2648,6 +2689,13 @@ $GLOBALS_METADATA = array(
             'text',
             'https://hapi.fhir.org/baseDstu3/',
             xl('Base URL for FHIR Server. Url should end with /')
+        ),
+
+        'rest_api' => array(
+            xl('Enable OpenEMR REST API'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR RESTful API. SSL Required')
         ),
 
         'medex_enable' => array(
@@ -2993,8 +3041,37 @@ $GLOBALS_METADATA = array(
             '30',
             xl('Rx Bottom Margin (px)')
         ),
+        'rx_use_fax_template' => array(
+            xl('Show button for download fax template'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('Show button in the prescription list for download fax template')
+        ),
+        'rx_zend_html_template' => array(
+            xl('Rx html print - zend module'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Use an html template from zend module')
+        ),
+        'rx_zend_html_action' => array(
+            xl('Name of zend template for html print'),
+            'text',                           // data type
+            'default',
+            xl('Name of zend template for html print, possible to add custom template in the PrescriptionTemplate module')
+        ),
+        'rx_zend_pdf_template' => array(
+            xl('Rx pdf - zend template'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Use a pdf template from zend module')
+        ),
+        'rx_zend_pdf_action' => array(
+            xl('Name of zend template for pdf export'),
+            'text',                           // data type
+            'default',
+            xl('Name of zend template for pdf export, possible to add custom template in the PrescriptionTemplate module')
+        ),
     ),
-
     'PDF' => array(
         'pdf_layout' => array(
             xl('Layout'),

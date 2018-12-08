@@ -126,7 +126,7 @@ if ($_GET['group'] == true) {
 if (empty($collectthis)) {
     $collectthis = "undefined";
 } else {
-    $collectthis = $collectthis[array_keys($collectthis)[0]]["rules"];
+    $collectthis = json_sanitize($collectthis[array_keys($collectthis)[0]]["rules"]);
 }
 ?>
 <?php $group_disabled = ($_GET['group'] && !$g_edit && $have_group_global_enabled )?' disabled=true; ':'';?>
@@ -874,6 +874,8 @@ if (empty($collectthis)) {
     $patientid = '';
     if ($_REQUEST['patientid']) {
         $patientid = $_REQUEST['patientid'];
+    } elseif (!empty($_SESSION['pid'])) {
+        $patientid = ($_SESSION['pid']);
     }
 
     $patientname = null;
@@ -1307,16 +1309,28 @@ var weekDays = new Array(
   else f.form_repeat_type.selectedIndex = 5; // Added by epsdky 2016 (details in commit)
  }
 
- // This is for callback by the find-available popup.
- function setappt(year,mon,mday,hours,minutes) {
-  var f = document.forms[0];
-  f.form_date.value = '' + year + '-' +
-   ('' + (mon  + 100)).substring(1) + '-' +
-   ('' + (mday + 100)).substring(1);
-  f.form_ampm.selectedIndex = (hours >= 12) ? 1 : 0;
-  f.form_hour.value = (hours > 12) ? hours - 12 : hours;
-  f.form_minute.value = ('' + (minutes + 100)).substring(1);
- }
+    // This is for callback by the find-available popup.
+    function setappt(year,mon,mday,hours,minutes) {
+        var f = document.forms[0];
+        <?php
+        $currentDateFormat = $GLOBALS['date_display_format'];
+        if ($currentDateFormat == 0) { ?>
+        f.form_date.value =  '' + year + '-' +
+            ('' + (mon  + 100)).substring(1) + '-' +
+            ('' + (mday + 100)).substring(1);
+        <?php } elseif ($currentDateFormat == 1) { ?>
+        f.form_date.value = ('' + (mon  + 100)).substring(1) + '/' +
+            ('' + (mday + 100)).substring(1) + '/' +
+            '' + year;
+        <?php } elseif ($currentDateFormat == 2) { ?>
+        f.form_date.value = ('' + (mday + 100)).substring(1) + '/' +
+            ('' + (mon  + 100)).substring(1) + '/' +
+            '' + year;
+        <?php } ?>
+        f.form_ampm.selectedIndex = (hours >= 12) ? 1 : 0;
+        f.form_hour.value = (hours > 12) ? hours - 12 : hours;
+        f.form_minute.value = ('' + (minutes + 100)).substring(1);
+    }
 
     // Invoke the find-available popup.
     function find_available(extra) {
@@ -2028,7 +2042,7 @@ function are_days_checked(){
 * validation on the form with new client side validation (using validate.js).
 * this enable to add new rules for this form in the pageValidation list.
 * */
-var collectvalidation = <?php echo($collectthis); ?>;
+var collectvalidation = <?php echo $collectthis; ?>;
 function validateform(event,valu){
 
     $('#form_save').attr('disabled', true);
