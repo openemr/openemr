@@ -40,8 +40,8 @@ $ignoreAuth = true;
 // token is a 32 character hash followed by hex encoded 4 char api flag and site id.
 if (is_authentication($resource)) {
     // Get a site id from initial login authentication.
-    $data = (array) json_decode((file_get_contents("php://input")));
-    $site = empty($data['client_id']) ? "default" : $data['client_id'];
+    $data = (array) $gbl->getPostData((file_get_contents("php://input")));
+    $site = empty($data['scope']) ? "default" : $data['scope'];
     $_GET['site'] = $site;
 } elseif (!$context) {
     $token = get_bearer_token();

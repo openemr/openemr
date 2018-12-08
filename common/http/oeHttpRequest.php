@@ -19,6 +19,7 @@ class oeHttpRequest extends oeOAuth
 {
     public function __construct($client)
     {
+        parent::__construct();
         // default base for publish client.
         $url = trim($GLOBALS['fhir_base_url']);
         $url = substr($url, -1) == '/' ? $url : $url . '/';
@@ -44,23 +45,52 @@ class oeHttpRequest extends oeOAuth
         return new self(...$args);
     }
 
-    public function setDebug($flag)
+    public function setDebug($port = '')
     {
-        $this->DEBUG_MODE = $flag;
-        $this->usingHeaders(['Cookie' => 'XDEBUG_SESSION=PHPSTORM']);
-        if ($this->useProxy) {
-            $this->setOptions(['proxy' => 'localhost:' . $this->useProxy]);
+        if ($port) {
+            $this->setOptions(['proxy' => 'localhost:' . $port]);
+            $this->useProxy = true;
         }
+        return $this->tap($this, function ($request) {
+            $this->DEBUG_MODE = true;
+            return $this->usingHeaders(['Cookie' => 'XDEBUG_SESSION=PHPSTORM']);
+        });
     }
 
-    public function setUseProxy($port)
+    public function setApiContext($isExternal = false)
     {
-        $this->useProxy = $port;
+        return $this->tap($this, function ($request) use ($isExternal) {
+            $this->apiNative = !$isExternal;
+        });
     }
 
     public function asJson()
     {
         return $this->bodyFormat('json')->contentType('application/json');
+    }
+
+    public function withOAuth($credentials = [], $endpoint = '', $grant_type = 'password')
+    {
+        if (empty($credentials['scope']) && $credentials['grant_type'] == 'password') {
+            $credentials['scope'] = $_SESSION['site_id'];
+        }
+
+        return $this->tap($this, function ($request) use ($credentials, $endpoint) {
+            if ($endpoint) {
+                $this->usingAuthEndpoint($endpoint);
+            }
+            $this->auth_config = array_merge($this->auth_config, $credentials);
+            return $this->initOAuthClient();
+        });
+    }
+
+    public function reAuth()
+    {
+        $this->apiNative = false;
+        $this->apiOAuth = true;
+        return $this->tap($this, function ($request) {
+            return $this->initOAuthClient();
+        });
     }
 
     public function asFormParams()
@@ -120,11 +150,6 @@ class oeHttpRequest extends oeOAuth
         });
     }
 
-    public function setApiContext($isInternal)
-    {
-        $this->apiNative = $isInternal;
-    }
-
     public function get($url, $queryParams = [])
     {
         return $this->send('GET', $url, [
@@ -173,7 +198,7 @@ class oeHttpRequest extends oeOAuth
 
         if ($this->apiOAuth) {
             $this->setOptions([
-                'handler' => static::$stack,
+                'handler' => $this->stack,
                 'auth' => 'oauth'
             ]);
         }
