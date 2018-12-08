@@ -19,6 +19,8 @@ require_once("$srcdir/report.inc");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/edi.inc");
 
+use OpenEMR\Core\Header;
+
 if (!empty($_POST)) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
         csrfNotVerified();
@@ -142,9 +144,11 @@ if (isset($_FILES) && !empty($_FILES)) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
+
 <title><?php echo xlt('EDI-271 Response File Upload'); ?></title>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+
+<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome']); ?>
+
 <style type="text/css">
 
 /* specifically include & exclude from printing */
@@ -172,10 +176,6 @@ if (isset($_FILES) && !empty($_FILES)) {
 
 </style>
 
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-3-2/jquery.js"></script>
-
 <script type="text/javascript">
         function edivalidation(){
 
@@ -187,7 +187,7 @@ if (isset($_FILES) && !empty($_FILES)) {
             }
             else
             {
-                $("#theform").submit();
+                $("#theform").trigger("submit");
             }
 
         }

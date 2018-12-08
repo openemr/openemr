@@ -24,6 +24,8 @@ if ($GLOBALS['enable_group_therapy']) {
     require_once("$srcdir/group.inc");
 }
 
+use OpenEMR\Core\Header;
+
 $is_group = ($attendant_type == 'gid') ? true : false;
 
 // "issue" parameter exists if we are being invoked by clicking an issue title
@@ -162,12 +164,11 @@ function generatePageElement($start, $pagesize, $billing, $issue, $text)
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <!-- Main style sheet comes after the page-specific stylesheet to facilitate overrides. -->
 <link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/css/encounters.css" type="text/css">
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/jquery-min-1-2-2/index.js"></script>
+<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog']); ?>
+
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajtooltip.js"></script>
 
 <script language="JavaScript">
@@ -220,14 +221,14 @@ function changePageSize()
 }
 window.onload=function()
 {
-    $("#selPagesize").change(changePageSize);
+    $("#selPagesize").on("change", changePageSize);
 }
 
 // Mouseover handler for encounter form names. Brings up a custom tooltip
 // to display the form's contents.
 function efmouseover(elem, ptid, encid, formname, formid) {
  ttMouseOver(elem, "encounters_ajax.php?ptid=" + encodeURIComponent(ptid) + "&encid=" + encodeURIComponent(encid) +
-  "&formname=" + encodeURIComponent(formname) + "&formid=" + encodeURIComponent(formid) + "&csrf_token_form=" + <?php echo js_escape(urlencode(collectCsrfToken())); ?>);
+  "&formname=" + encodeURIComponent(formname) + "&formid=" + encodeURIComponent(formid) + "&csrf_token_form=" + <?php echo js_url(collectCsrfToken()); ?>);
 }
 
 </script>
@@ -817,17 +818,17 @@ while ($drow /* && $count <= $N */) {
 // jQuery stuff to make the page a little easier to use
 
 $(document).ready(function(){
-    $(".encrow").mouseover(function() { $(this).toggleClass("highlight"); });
-    $(".encrow").mouseout(function() { $(this).toggleClass("highlight"); });
-    $(".encrow").click(function() { toencounter(this.id); });
+    $(".encrow").on("mouseover", function() { $(this).toggleClass("highlight"); });
+    $(".encrow").on("mouseout", function() { $(this).toggleClass("highlight"); });
+    $(".encrow").on("click", function() { toencounter(this.id); });
 
-    $(".docrow").mouseover(function() { $(this).toggleClass("highlight"); });
-    $(".docrow").mouseout(function() { $(this).toggleClass("highlight"); });
-    $(".docrow").click(function() { todocument(this.id); });
+    $(".docrow").on("mouseover", function() { $(this).toggleClass("highlight"); });
+    $(".docrow").on("mouseout", function() { $(this).toggleClass("highlight"); });
+    $(".docrow").on("click", function() { todocument(this.id); });
 
-    $(".billing_note_text").mouseover(function() { $(this).toggleClass("billing_note_text_highlight"); });
-    $(".billing_note_text").mouseout(function() { $(this).toggleClass("billing_note_text_highlight"); });
-    $(".billing_note_text").click(function(evt) { evt.stopPropagation(); editNote(this.id); });
+    $(".billing_note_text").on("mouseover", function() { $(this).toggleClass("billing_note_text_highlight"); });
+    $(".billing_note_text").on("mouseout", function() { $(this).toggleClass("billing_note_text_highlight"); });
+    $(".billing_note_text").on("click", function(evt) { evt.stopPropagation(); editNote(this.id); });
 });
 
 </script>
