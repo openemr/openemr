@@ -27,6 +27,8 @@
 require_once("../../globals.php");
 include_once($GLOBALS["srcdir"] . "/api.inc");
 
+use OpenEMR\Core\Header;
+
 $returnurl = 'encounter_top.php';
 if (!$formid) {
     $formid = $_POST['formid']; // call from track_anything encounter
@@ -71,8 +73,6 @@ $globalplot_c   = array();  # flag if global plot-button is shown
 $track_count    = 0;        # counts tracks and generates div-ids
 //-----------end setup vars
 
-
-
 echo "<html><head>";
 // Javascript support and Javascript-functions
 //******* **********************************
@@ -80,11 +80,10 @@ echo "<html><head>";
 
 <?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog', 'dygraphs']); ?>
+
 <link rel="stylesheet" href="style.css" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.css" type="text/css"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-3-2/jquery.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.js?v=<?php echo $v_js_includes; ?>"></script>
+
 <script type="text/javascript">
 //-------------- checkboxes checked checker --------------------
 // Pass the checkbox name to the function
