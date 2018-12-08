@@ -2,6 +2,8 @@
 require_once("../../../interface/globals.php");
 require_once("./Utils.php");
 
+use OpenEMR\Core\Header;
+
 /* Use this code to identify duplicate patients in OpenEMR
  *
  */
@@ -23,13 +25,12 @@ if (! isset($parameters['match_name']) &&
     $parameters['match_name'] = 'on';
     $parameters['match_dob'] = 'on';
 }
-    
+
 $oemrdb = $GLOBALS['dbh'];
 ?>
-
 <html>
 <head>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/jquery-min-1-2-2/index.js"></script>
+<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_main-theme', 'no_textformat', 'no_dialog']); ?>
 <style>
 body {
     font-family: arial, helvetica, times new roman;
@@ -51,7 +52,7 @@ body {
 .match_block table td {
     padding: 5px;
 }
-    
+
 .highlight {
     background-color: #99a;
     color: white;
@@ -62,7 +63,7 @@ body {
 .bold {
     font-weight: bold;
 }
-    
+
 </style>
 </head>
 <body>
@@ -71,19 +72,19 @@ body {
 Matching criteria:
 <input type="checkbox" name="match_name" id="match_name" <?php if ($parameters['match_name']) {
     echo "CHECKED";
-} ?>> 
+} ?>>
 <label for="match_name">Name</label>
 <input type="checkbox" name="match_dob" id="match_dob" <?php if ($parameters['match_dob']) {
     echo "CHECKED";
-} ?>> 
+} ?>>
 <label for="match_dob">DOB</label>
 <input type="checkbox" name="match_sex" id="match_sex" <?php if ($parameters['match_sex']) {
     echo "CHECKED";
-} ?>> 
+} ?>>
 <label for="match_sex">Gender</label>
 <input type="checkbox" name="match_ssn" id="match_ssn" <?php if ($parameters['match_ssn']) {
     echo "CHECKED";
-} ?>> 
+} ?>>
 <label for="match_ssn">SSN</label>
 <br>
 Order results by:
@@ -232,31 +233,31 @@ if ($parameters['go'] == "Go") {
 $(document).ready(function(){
 
     // capture RETURN keypress
-    $("#limit").keypress(function(evt) { if (evt.keyCode == 13) $("#do_search").click(); });
+    $("#limit").on("keypress", function(evt) { if (evt.keyCode == 13) $("#do_search").click(); });
 
     // perform the database search for duplicates
-    $("#do_search").click(function() { 
+    $("#do_search").on("click", function() {
         $("#thebiglist").html("<p style='margin:10px;'><img src='<?php echo $GLOBALS['webroot']; ?>/interface/pic/ajax-loader.gif'> Searching ...</p>");
-        $("#search_form").submit();
+        $("#search_form").trigger("submit");
         return true;
     });
 
     // pop up an OpenEMR window directly to the patient info
-    var moreinfoWin = null; 
-    $(".moreinfo").click(function(evt) { 
+    var moreinfoWin = null;
+    $(".moreinfo").on("click", function(evt) {
         if (moreinfoWin) { moreinfoWin.close(); }
         moreinfoWin = window.open("<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/patient_file.php?set_pid="+$(this).attr("oemrid"), "moreinfo");
         evt.stopPropagation();
     });
 
     // highlight the block of matching records
-    $(".match_block").mouseover(function() { $(this).toggleClass("highlight_block"); });
-    $(".match_block").mouseout(function() { $(this).toggleClass("highlight_block"); });
-    $(".onerow").mouseover(function() { $(this).toggleClass("highlight"); });
-    $(".onerow").mouseout(function() { $(this).toggleClass("highlight"); });
+    $(".match_block").on("mouseover", function() { $(this).toggleClass("highlight_block"); });
+    $(".match_block").on("mouseout", function() { $(this).toggleClass("highlight_block"); });
+    $(".onerow").on("mouseover", function() { $(this).toggleClass("highlight"); });
+    $(".onerow").on("mouseout", function() { $(this).toggleClass("highlight"); });
 
     // begin the merge of a block into a single record
-    $(".onerow").click(function() {
+    $(".onerow").on("click", function() {
         var dupecount = $(this).attr("dupecount");
         var masterid = $(this).attr("oemrid");
         var newurl = "mergerecords.php?dupecount="+dupecount+"&masterid="+masterid;
@@ -275,7 +276,7 @@ function removedupe(dupeid) {
     var dcounter = parseInt($("#dupecounter").html());
     $("#dupecounter").html(dcounter-1);
 }
-    
+
 </script>
 
 </html>
