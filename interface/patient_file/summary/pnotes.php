@@ -16,6 +16,8 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Core\Header;
+
 // form parameter docid can be passed to restrict the display to a document.
 $docid = empty($_REQUEST['docid']) ? 0 : intval($_REQUEST['docid']);
 
@@ -35,11 +37,7 @@ if ($docid) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/jquery-min-1-2-2/index.js"></script>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-
+<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog']); ?>
 </head>
 <body class="body_bottom">
 
@@ -182,8 +180,8 @@ if ($result != null) {
 // jQuery stuff to make the page a little easier to use
 
 $(document).ready(function(){
-    $(".noterow").mouseover(function() { $(this).toggleClass("highlight"); });
-    $(".noterow").mouseout(function() { $(this).toggleClass("highlight"); });
+    $(".noterow").on("mouseover", function() { $(this).toggleClass("highlight"); });
+    $(".noterow").on("mouseout", function() { $(this).toggleClass("highlight"); });
 });
 
 </script>

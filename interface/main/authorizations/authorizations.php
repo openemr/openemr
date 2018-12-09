@@ -19,6 +19,8 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Core\Header;
+
 // The number of authorizations to display in the quick view:
 // MAR 20041008 the full authorizations screen sucks... no links to the patient charts
 // increase to a high number to make the mini frame more useful.
@@ -45,9 +47,7 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
-<link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/jquery-min-1-2-2/index.js"></script>
+<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog']); ?>
 <style>
 /* min & max buttons are hidden in the newer concurrent layout */
 #min {
@@ -244,9 +244,9 @@ if ($authorize) {
 var origRows = null;
 $(document).ready(function(){
 
-    $(".noterow").mouseover(function() { $(this).toggleClass("highlight"); });
-    $(".noterow").mouseout(function() { $(this).toggleClass("highlight"); });
-    $(".noterow").click(function() { EditNote(this); });
+    $(".noterow").on("mouseover", function() { $(this).toggleClass("highlight"); });
+    $(".noterow").on("mouseout", function() { $(this).toggleClass("highlight"); });
+    $(".noterow").on("click", function() { EditNote(this); });
 
 });
 
@@ -254,10 +254,10 @@ var EditNote = function(note) {
     var parts = note.id.split("~");
 <?php if (true) : ?>
     top.restoreSession();
-    location.href = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/pnotes_full.php?noteid=" + parts[1] + "&set_pid=" + parts[0] + "&active=1";
+    location.href = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/pnotes_full.php?noteid=" + encodeURIComponent(parts[1]) + "&set_pid=" + encodeURIComponent(parts[0]) + "&active=1";
 <?php else : ?>
     // no-op
-    alert("<?php echo xls('You do not have access to view/edit this note'); ?>");
+    alert(<?php echo xlj('You do not have access to view/edit this note'); ?>);
 <?php endif; ?>
 }
 
