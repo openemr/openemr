@@ -160,7 +160,7 @@ function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue)
     if ($qResults) {
         $row = sqlFetchArray($qResults);
         if ($row['numrows'] > 0) {
-            $sqlstmt = "update " . escape_table_name($tablename) . " set " . escape_sql_column_name($pid_col, array()) . "=? where " . escape_sql_column_name($pid_col, array()) . "=?";
+            $sqlstmt = "update " . escape_table_name($tablename) . " set " . escape_sql_column_name($pid_col, array($tablename)) . "=? where " . escape_sql_column_name($pid_col, array($tablename)) . "=?";
             if ($commitchanges == true) {
                 $qResults = sqlStatement($sqlstmt, array($newvalue, $oldvalue));
             }
