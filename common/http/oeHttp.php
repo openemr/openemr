@@ -46,10 +46,8 @@ class oeOAuth
 
     public function __construct()
     {
-        $endpoint = trim($GLOBALS['fhir_base_url']); // default
-        $endpoint = substr($endpoint, -1) == '/' ? $endpoint : $endpoint . '/auth';
         $this->auth_options = [
-            'base_uri' => $endpoint,
+            'base_uri' => '',
             'http_errors' => false,
             'verify' => false,
         ];

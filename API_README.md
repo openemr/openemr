@@ -13,10 +13,15 @@ This project aims to provide an easy-to-use JSON-based REST API for OpenEMR's mo
 - [@bradymiller](https://github.com/bradymiller)
 
 ### Prerequsite
-Enable this API service in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR REST API"
+Enable this API service in OpenEMR menu: Administration->Globals Connectors tab.
+
+### Using API Internally
+There are several ways to make API calls from an authorized session and maintain security:
+* cURL or Guzzle requests
+* oeHttp OpenEMR Http Rest Client
 
 ### Endpoints
-Note: FHIR endpoints follow normal FHIR REST endpoints. Use `https://domain/apis/fhir as base URL.`
+Note: FHIR endpoints follow normal FHIR REST endpoints. Use `https://domain/apis/fhir as base UR.`
 
 _Example:_ `https://domain/apis/fhir/Patient` returns a Patients bundle resource and etc..
 
@@ -30,7 +35,7 @@ curl -X POST 'https://localhost:8300/apis/api/auth' \
     "grant_type":"password",
     "username": "ServiceUser",
     "password": "password",
-    "client_id":"site id"
+    "scope":"site id"
 }'
 ```
 Response:

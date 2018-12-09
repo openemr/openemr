@@ -86,7 +86,8 @@
             "OpenEMR\\Billing\\" : "library/billing/src",
             "OpenEMR\\Pdf\\" : "library/pdf/src",
             "OpenEMR\\Tabs\\" : "library/tabs/src",
-            "OpenEMR\\Rx\\Weno\\" : "library/weno/src"
+            "OpenEMR\\Rx\\Weno\\" : "library/weno/src",
+            "HL7\\FHIR\\STU3\\": "phpfhir/HL7/FHIR/STU3/src"
         }
     }
 }

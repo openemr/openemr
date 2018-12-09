@@ -34,7 +34,7 @@ class FhirPatientRestController
     public function getOne()
     {
         $oept = $this->patientService->getOne();
-        $pid = $this->patientService->getPid();
+        $pid = 'patient-' . $this->patientService->getPid();
         $patientResource = $this->fhirService->createPatientResource($pid, $oept, false);
 
         return RestControllerHelper::responseHandler($patientResource, null, 200);
@@ -49,7 +49,8 @@ class FhirPatientRestController
 
         $searchParam = array(
             'name' => $search['name'],
-            'dob' => $search['birthdate']);
+            'dob' => $search['birthdate']
+        );
 
         $searchResult = $this->patientService->getAll($searchParam);
         if ($searchResult === false) {

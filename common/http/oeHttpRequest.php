@@ -20,16 +20,14 @@ class oeHttpRequest extends oeOAuth
     public function __construct($client)
     {
         parent::__construct();
-        // default base for publish client.
-        $url = trim($GLOBALS['fhir_base_url']);
-        $url = substr($url, -1) == '/' ? $url : $url . '/';
+
         $this->client = $client;
         $this->bodyFormat = "json";
         $this->options = [
-            'base_uri' => $url,
+            'base_uri' => '',
             'http_errors' => false,
-            'verify' => false // @todo set true for production. Will not work with self signed certs.
-        ];
+            'verify' => false];
+
         // set here in class as default
         // otherwise has to be invoked via setDebug.
         if ($this->DEBUG_MODE) {
@@ -133,7 +131,7 @@ class oeHttpRequest extends oeOAuth
         });
     }
 
-    public function usingApiBaseUri($baseUri)
+    public function usingBaseUri($baseUri)
     {
         $baseUri = substr($baseUri, -1) == '/' ? $baseUri : $baseUri . '/';
         return $this->tap($this, function ($request) use ($baseUri) {
