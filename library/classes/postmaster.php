@@ -10,6 +10,8 @@
 // if ($SMTP_Auth=="No") { $connection = true; }
 // Also, remove "25" in line 185 and change $Port to $this->Port on line 612 so that it can read Admin's setting
 
+use PHPMailer\PHPMailer\PHPMailer;
+
 class MyMailer extends PHPMailer
 {
     var $Mailer;
