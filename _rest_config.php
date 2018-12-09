@@ -168,8 +168,8 @@ class RestConfig
                 }
             }
         }
-            // Not able to retrieve POST data, return FALSE.
-            return false;
+
+        return false;
     }
 }
 
