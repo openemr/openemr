@@ -12,7 +12,6 @@
 
 require_once("../interface/globals.php");
 require_once("./libs/controller/ClientAppController.php");
-require 'vendor/autoload.php';
 
 use OpenEMR\Core\Header;
 

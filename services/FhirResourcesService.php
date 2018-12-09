@@ -12,9 +12,6 @@
 
 namespace OpenEMR\Services;
 
-// @TODO move to OpenEMR composer auto
-require_once dirname(dirname(__FILE__)) . "/phpfhir/vendor/autoload.php";
-
 use HL7\FHIR\STU3\FHIRDomainResource\FHIREncounter;
 use HL7\FHIR\STU3\FHIRDomainResource\FHIRPatient;
 use HL7\FHIR\STU3\FHIRDomainResource\FHIRPractitioner;
@@ -62,12 +59,12 @@ class FhirResourcesService
         return $bundle;
     }
 
-    public function createPatientResource($pid = '', $data = '', $encode = true)
+    public function createPatientResource($resourceId = '', $data = '', $encode = true)
     {
-        // @todo add disply text after meta
+        // @todo add display text after meta
         $nowDate = date("Y-m-d\TH:i:s");
         $id = new FhirId();
-        $id->setValue($pid);
+        $id->setValue($resourceId);
         $name = new FHIRHumanName();
         $address = new FHIRAddress();
         $gender = new FHIRAdministrativeGender();
@@ -127,16 +124,16 @@ class FhirResourcesService
 
     public function createEncounterResource($eid = '', $data = '', $encode = true)
     {
-        $pid = $data['pid'];
+        $pid = 'patient-' . $data['pid'];
         $temp = $data['provider_id'];
         //$r = $this->createPractitionerResource($data['provider_id'], $temp);
         $resource = new FHIREncounter();
         $id = new FhirId();
-        $id->setValue($eid);
+        $id->setValue('encounter-' . $eid);
         $resource->setId($id);
         $participant = new FHIREncounterParticipant();
         $prtref = new FHIRReference;
-        $temp = 'Practitioner/' . $data['provider_id'];
+        $temp = 'Practitioner/provider-' . $data['provider_id'];
         $prtref->setReference($temp);
         $participant->setIndividual($prtref);
         $date = date('Y-m-d', strtotime($data['date']));

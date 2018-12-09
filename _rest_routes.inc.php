@@ -29,9 +29,12 @@ use OpenEMR\RestControllers\DocumentRestController;
 use OpenEMR\RestControllers\InsuranceRestController;
 use OpenEMR\RestControllers\MessageRestController;
 
+// Note some Http clients may not send auth as json so a function
+// is implemented to determine and parse encoding on auth route's.
+//
 RestConfig::$ROUTE_MAP = array(
     "POST /api/auth" => function () {
-        $data = (array)(json_decode(file_get_contents("php://input")));
+        $data = (array) RestConfig::getPostData((file_get_contents("php://input")));
         return (new AuthRestController())->authenticate($data);
     },
     "GET /api/facility" => function () {
@@ -327,7 +330,7 @@ use OpenEMR\RestControllers\FhirEncounterRestController;
 
 RestConfig::$FHIR_ROUTE_MAP = array(
     "POST /fhir/auth" => function () {
-        $data = (array)(json_decode(file_get_contents("php://input")));
+        $data = (array) RestConfig::getPostData((file_get_contents("php://input")));
         return (new AuthRestController())->authenticate($data);
     },
     "GET /fhir/Patient" => function () {
