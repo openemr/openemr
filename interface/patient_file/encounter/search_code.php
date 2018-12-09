@@ -9,8 +9,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+
 require_once("../../globals.php");
 require_once("../../../custom/code_types.inc.php");
+
+use OpenEMR\Core\Header;
 
 //the maximum number of records to pull out with the search:
 $M = 30;
@@ -23,11 +26,7 @@ $code_type = $_GET['type'];
 
 <html>
 <head>
-<?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-
-<!-- add jQuery support -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/jquery-min-1-2-2/index.js"></script>
+<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog']); ?>
 
 </head>
 <body class="body_bottom">
@@ -158,11 +157,11 @@ if ($result) {
 // jQuery stuff to make the page a little easier to use
 
 $(document).ready(function(){
-    $("#text").focus();
-    $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
-    $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
+    $("#text").trigger("focus");
+    $(".oneresult").on("mouseover", function() { $(this).toggleClass("highlight"); });
+    $(".oneresult").on("mouseout", function() { $(this).toggleClass("highlight"); });
     //$(".oneresult").click(function() { SelectPatient(this); });
-    $("#search_form").submit(function() { SubmitForm(this); });
+    $("#search_form").on("submit", function() { SubmitForm(this); });
 });
 
 // show the 'searching...' status and submit the form
