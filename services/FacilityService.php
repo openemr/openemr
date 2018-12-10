@@ -6,6 +6,7 @@
  * @link      http://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -191,7 +192,12 @@ class FacilityService
         $sql .= "     primary_business_entity=?,";
         $sql .= "     facility_npi=?,";
         $sql .= "     facility_code=?,";
-        $sql .= "     facility_taxonomy=?";
+        $sql .= "     facility_taxonomy=?,";
+        $sql .= "     mail_street=?,";
+        $sql .= "     mail_street2=?,";
+        $sql .= "     mail_city=?,";
+        $sql .= "     mail_state=?,";
+        $sql .= "     mail_zip=?";
         $sql .= " WHERE id=?";
 
         return sqlStatement(
@@ -220,7 +226,12 @@ class FacilityService
                 $data["facility_npi"],
                 $data["facility_code"],
                 $data["facility_taxonomy"],
-                $data["fid"]
+                $data["fid"],
+                $data["mail_street"],
+                $data["mail_street2"],
+                $data["mail_city"],
+                $data["mail_state"],
+                $data["mail_zip"]
             )
         );
     }
@@ -250,8 +261,12 @@ class FacilityService
         $sql .= "     primary_business_entity=?,";
         $sql .= "     facility_npi=?,";
         $sql .= "     facility_code=?,";
-        $sql .= "     facility_taxonomy=?";
-
+        $sql .= "     facility_taxonomy=?,";
+        $sql .= "     mail_street=?,";
+        $sql .= "     mail_street2=?,";
+        $sql .= "     mail_city=?,";
+        $sql .= "     mail_state=?,";
+        $sql .= "     mail_zip=?";
         return sqlInsert(
             $sql,
             array(
@@ -324,7 +339,11 @@ class FacilityService
         $sql .= "        FAC.color,";
         $sql .= "        FAC.primary_business_entity,";
         $sql .= "        FAC.facility_code,";
-        $sql .= "        FAC.extra_validation";
+        $sql .= "        FAC.mail_street,";
+        $sql .= "        FAC.mail_street2,";
+        $sql .= "        FAC.mail_city,";
+        $sql .= "        FAC.mail_state,";
+        $sql .= "        FAC.mail_zip";
         $sql .= " FROM facility FAC";
 
         return QueryUtils::selectHelper($sql, $map);
