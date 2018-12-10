@@ -1,4 +1,3 @@
-<?php
 /**
  * Universal jquery tooltip
  *
@@ -8,7 +7,6 @@
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-?>
 $(function () {
     $(document).tooltip({
         show: {

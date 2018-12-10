@@ -951,7 +951,7 @@ if (! $_REQUEST['form_csvexport']) {
         </div>
     </div><!--end of container div-->
     <?php $oemr_ui->helpFileModal();?>
-    <script> <?php require_once("$srcdir/js/oeUI/headerTitleAction.js"); ?></script>
+    <script> <?php require_once("$srcdir/js/oeUI/headerTitleAction.js.php"); ?></script>
     <script>
         var listId = '#' + <?php echo js_escape($list_id); ?>;
         $(document).ready(function(){

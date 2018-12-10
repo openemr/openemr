@@ -61,7 +61,7 @@ $(document).ready(function () {
         if ($action == 'search') {
             echo "var showTitle = " .  xlj('Click to show search') . ";\r\n";
             echo "var hideTitle = " . xlj('Click to hide search') . ";\r\n";
-        } elseif($action == 'reveal' || $action == 'conceal'){
+        } elseif ($action == 'reveal' || $action == 'conceal') {
             echo "var hideTitle = " .  xlj('Click to Hide') . "\r\n;";
             echo "var showTitle = " . xlj('Click to Show') . "\r\n;";
         }
@@ -71,9 +71,9 @@ $(document).ready(function () {
         <?php
         if ($action == 'search') {
             echo "$(this).toggleClass('fa-search-plus fa-search-minus'); \r\n";
-        } elseif($action == 'reveal'){
+        } elseif ($action == 'reveal') {
             echo "$(this).toggleClass('fa-eye fa-eye-slash'); \r\n";
-        } elseif($action == 'conceal'){
+        } elseif ($action == 'conceal') {
             echo "$(this).toggleClass('fa-eye-slash fa-eye'); \r\n";
         }
         ?>

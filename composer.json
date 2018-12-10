@@ -36,7 +36,9 @@
         "vlucas/phpdotenv" : "2.5.1",
         "yubico/u2flib-server" : "1.0.2",
         "zendframework/zendframework" : "2.5.3",
-        "particle/validator": "2.3.3"
+        "particle/validator": "2.3.3",
+        "guzzlehttp/guzzle": "6.3.3",
+        "kamermans/guzzle-oauth2-subscriber": "1.0.5"
     },
     "config": {
         "platform": {
@@ -85,7 +87,8 @@
             "OpenEMR\\Pdf\\" : "library/pdf/src",
             "OpenEMR\\Tabs\\" : "library/tabs/src",
             "OpenEMR\\Rx\\Weno\\" : "library/weno/src",
-            "OpenEMR\\OeUI\\" : "library/oeUI/src"
+            "HL7\\FHIR\\STU3\\": "phpfhir/HL7/FHIR/STU3/src"
+			"OpenEMR\\OeUI\\" : "library/oeUI/src"
         }
     }
 }

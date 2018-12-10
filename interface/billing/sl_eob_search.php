@@ -1214,7 +1214,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
     </div>
 </div> <!--End of Container div-->
 <?php $oemr_ui->helpFileModal(); // help file name passed in $arrHeading [3][1] ?>
-<script> <?php require_once("$srcdir/js/oeUI/headerTitleAction.js"); ?></script>
+<script> <?php require_once("$srcdir/js/oeUI/headerTitleAction.js.php"); ?></script>
 
 <script language="JavaScript">
     function processERA() {

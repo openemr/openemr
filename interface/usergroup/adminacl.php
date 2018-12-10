@@ -649,6 +649,6 @@ if (!isset($phpgacl_location)) {
     </div><!--end of container div-->
     <br>
     <?php $oemr_ui->helpFileModal();?>
-<script> <?php require_once("$srcdir/js/oeUI/headerTitleAction.js"); ?></script>
+<script> <?php require_once("$srcdir/js/oeUI/headerTitleAction.js.php"); ?></script>
 </body>
 </html>

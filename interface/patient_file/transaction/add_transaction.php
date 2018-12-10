@@ -573,7 +573,7 @@ echo "\r\n</script>\r\n";
         <?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
     </div> <!--end of container div-->
     <?php $oemr_ui->helpFileModal(); // help file name passed in $arrHeading [3][1] ?>
-    <script> <?php require_once("$srcdir/js/oeUI/headerTitleAction.js"); ?></script>
+    <script> <?php require_once("$srcdir/js/oeUI/headerTitleAction.js.php"); ?></script>
 </body>
 
 <script language="JavaScript">

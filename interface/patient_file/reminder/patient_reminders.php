@@ -369,7 +369,7 @@ echo "\r\n</script>\r\n";
             </div>
         </div>
     </div><!--end of container div-->
-<script> <?php require_once("$srcdir/js/oeUI/headerTitleAction.js"); ?></script>
+<script> <?php require_once("$srcdir/js/oeUI/headerTitleAction.js.php"); ?></script>
 <script language="javascript">
 
 $(document).ready(function(){

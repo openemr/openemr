@@ -22,7 +22,6 @@ class OemrUI
     private $action_title;
     private $arrAction;
     private $arrow_direction;
-    private $arrExpandable;
     private $arrexpandIcon;
     private $arrOeUiSettings;
     private $close;
@@ -45,12 +44,10 @@ class OemrUI
     /**
     * Used to create the html string that will display the formatted heading with selected icons - expandable, action and help and generate the html code for the help modal.
     *
-    * @param array $arrOeUiSettings is an associative array that contains 8 elements, string 'heading_title', int|bool 'expandable', int|bool 'current_state',
-    * string 'action', string 'action_title', string 'action_href', int|bool 'show_help_icon' and string 'help_file_name'.
-    * int|bool 'current_state' (expanded = 1, centered = 0)value is obtained from function collectAndOrganizeExpandSetting(array("")), this function needs an
-    * indexed array as an argument that contains the file name of the current file as the first element, the name of any other file that needs to open in a similar state
-    * needs to be included in this array,all names must be unique
-    * and have a '_xpd' suffix.
+    * @param array $arrOeUiSettings is an associative array that contains 10 elements, string 'heading_title', int|bool 'include_patient_name', int|bool 'expandable', array 'expandable_files',
+    * string 'action', string 'action_title', string 'action_href', int|bool 'show_help_icon' and string 'help_file_name'. The 10 th element int|bool 'current_state' (expanded = 1, centered = 0)     * value is obtained from function collectAndOrganizeExpandSetting(array("")), this function needs an indexed array as an argument (array 'expandable_files') that
+    * contains the file name of the current file as the first element, the name of any other file that needs to open in a similar state
+    * needs to be included in this array,all names must be unique and have a '_xpd' suffix.
     * It will be used to generate up to 4 values - string $heading, string $expandable_icon, string $action_icon and string $help_icon that will form the html string used to output
     * the formatted heading of the page.
     * If a feature is not required set the corresponding element in the array to an empty string
@@ -91,13 +88,12 @@ class OemrUI
     /**
     * Used to create the html string that will display the formatted expandable icon - fa-expand or fa-compress.
     *
-    * @param array $arrExpandable - int|bool - the current state of the form and int|bool - whether form is expandable or not
+    * @param $expandable - int|bool - whether form is expandable or not and $current_state int|bool - the current state of the form
     *
     * @return array containing string $expandable_icon - the formatted html string of the expand icon and string $container - the value of the container class 'container' or 'container-fluid'
     *
     */
-    //private function expandIcon($expandable = '', $current_state = '')
-    private function expandIcon()
+    private function expandIcon($expandable = '', $current_state = '')
     {
         $current_state = $this->current_state;
         $expandable = $this->expandable;
@@ -151,20 +147,20 @@ class OemrUI
         $action_href = ($action_href) ? $action_href : "#";
         switch ($action) {
             case "reset":
-                $action_title = ($action_title) ? $action_title : "Reset";
-                $action_icon = "<a href='" . attr($action_href) ."' onclick='top.restoreSession()'><i id='advanced-action' class='fa fa-undo fa-2x small' title='" . xla($action_title) ."' aria-hidden='true'></i></a>";
+                $action_title = ($action_title) ? $action_title : xl("Reset");
+                $action_icon = "<a href='" . attr($action_href) ."' onclick='top.restoreSession()'><i id='advanced-action' class='fa fa-undo fa-2x small' title='" . attr($action_title) ."' aria-hidden='true'></i></a>";
                 break;
             case "conceal":
-                $action_title = "Click to Hide"; // default needed for jQuery to function
-                $action_icon = "<i id='show_hide' class='fa fa-2x small fa-eye-slash' title='" . xla($action_title) . "'></i>";
+                $action_title = xl("Click to Hide"); // default needed for jQuery to function
+                $action_icon = "<i id='show_hide' class='fa fa-2x small fa-eye-slash' title='" . attr($action_title) . "'></i>";
                 break;
             case "reveal":
-                $action_title = "Click to Show"; // default needed for jQuery to function
-                $action_icon = "<i id='show_hide' class='fa fa-2x small fa-eye' title='" . xla($action_title) . "'></i>";
+                $action_title = xl("Click to Show"); // default needed for jQuery to function
+                $action_icon = "<i id='show_hide' class='fa fa-2x small fa-eye' title='" . attr($action_title) . "'></i>";
                 break;
             case "search":
-                $action_title = "Click to show search"; // default needed for jQuery to function
-                $action_icon = "<i id='show_hide' class='fa fa-search-plus fa-2x small' title='" . xla($action_title) . "'></i>";
+                $action_title = xl("Click to show search"); // default needed for jQuery to function
+                $action_icon = "<i id='show_hide' class='fa fa-search-plus fa-2x small' title='" . attr($action_title) . "'></i>";
                 break;
             case "link":
                 if (strpos($action_href, 'http') !== false) {
@@ -172,17 +168,17 @@ class OemrUI
                 } else {
                     $target = '_self';
                 }
-                $action_title = ($action_title) ? $action_title : "Click to go to page";
-                $action_icon = "<a href='" . attr($action_href) . "' target = '" .attr($target)."' onclick='top.restoreSession()'><i id='advanced-action' class='fa fa-external-link fa-2x small' title='" . xla($action_title) ."' aria-hidden='true'></i></a>";
+                $action_title = ($action_title) ? $action_title : xl("Click to go to page");
+                $action_icon = "<a href='" . attr($action_href) . "' target = '" .attr($target)."' onclick='top.restoreSession()'><i id='advanced-action' class='fa fa-external-link fa-2x small' title='" . attr($action_title) ."' aria-hidden='true'></i></a>";
                 break;
             case "back":
-                $action_title = ($action_title) ? $action_title : "Go Back";
+                $action_title = ($action_title) ? $action_title : xl("Go Back");
                 if ($_SESSION ['language_direction'] == 'ltr') {
                     $arrow_direction = 'fa-arrow-circle-left';
                 } elseif ($_SESSION ['language_direction'] == 'rtl') {
                     $arrow_direction = 'fa-arrow-circle-right';
                 }
-                $action_icon = "<a href='" . attr($action_href) ."' onclick='top.restoreSession()'><i id='advanced-action' class='fa " . attr($arrow_direction) . " fa-2x small' title='" . xla($action_title) ."' aria-hidden='true'></i></a>";
+                $action_icon = "<a href='" . attr($action_href) ."' onclick='top.restoreSession()'><i id='advanced-action' class='fa " . attr($arrow_direction) . " fa-2x small' title='" . attr($action_title) ."' aria-hidden='true'></i></a>";
                 break;
             default:
                 $action_icon = '';
@@ -204,14 +200,14 @@ class OemrUI
         $display_help_icon = $this->display_help_icon;
         if ($display_help_icon) {
             if ($_SESSION ['language_direction'] == 'ltr') {
-                $help_icon_title = "To enable help - Go to the User Name on top right > Settings > Features > Enable Help Modal";
+                $help_icon_title = xl("To enable help - Go to the User Name on top right > Settings > Features > Enable Help Modal");
             } elseif ($_SESSION ['language_direction'] == 'rtl') {
-                $help_icon_title = "To enable help - Go to the User Name on top left > Settings > Features > Enable Help Modal";
+                $help_icon_title = xl("To enable help - Go to the User Name on top left > Settings > Features > Enable Help Modal");
             }
             if ($GLOBALS['enable_help'] == 1) {
                 $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
             } elseif ($GLOBALS['enable_help'] == 2) {
-                $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla($help_icon_title) . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+                $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . attr($help_icon_title) . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
             } elseif ($GLOBALS['enable_help'] == 0) {
                  $help_icon = '';
             }
@@ -247,7 +243,7 @@ class OemrUI
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content  oe-modal-content" style="height:700px">
                         <div class="modal-header clearfix">
-                            <button type="button" class="close" data-dismiss="modal" aria-label=$close>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="$close">
                             <span aria-hidden="true" style="color:#000000; font-size:1.5em;">×</span></button>
                         </div>
                         <div class="modal-body" style="height:80%;">

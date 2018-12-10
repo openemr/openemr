@@ -310,7 +310,7 @@ echo "\r\n</script>\r\n";
         </div> <!-- end patient_stats -->
     </div><!--end of container div -->
     <?php $oemr_ui->helpFileModal();?>
-    <script> <?php require_once("$srcdir/js/oeUI/headerTitleAction.js"); ?></script>
+    <script> <?php require_once("$srcdir/js/oeUI/headerTitleAction.js.php"); ?></script>
 
 </body>
 
