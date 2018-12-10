@@ -23,6 +23,7 @@ require_once($GLOBALS['srcdir'].'/appointments.inc.php');
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\OeUI\OemrUI;
 
 if (!empty($_POST)) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -449,46 +450,64 @@ if ($_REQUEST['form_csvexport']) {
             });
         });
     </script>
-    <?php
-    //to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will
-    //become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an
-    //argument, containing one or more elements, the name of the current file is the first element, if there are linked
-    // files they should be listed thereafter, please add _xpd suffix to the file name
-
-    if ($type_form !== '0') {
-        $arr_files_php = array("patient_ledger_patient_xpd", "stats_full_patient_xpd", "external_data_patient_xpd");
-        $current_state = collectAndOrganizeExpandSetting($arr_files_php);
-        require_once("$srcdir/expand_contract_inc.php");
-    }
-    ?>
     <script>
-    <?php
-    require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal
-    require_once("$include_root/expand_contract_js.php");//jQuery to provide expand/contract icon toggle if form is expandable
-    ?>
+    <?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal?>
     </script>
+    <?php
+    if ($type_form == '0') {
+        $arrOeUiSettings = array(
+        'heading_title' => xl('Report') . " - " . xl('Patient Ledger by Date'),
+        'include_patient_name' => false,
+        'expandable' => true,
+        'expandable_files' => array("patient_ledger_report_xpd"),//all file names need suffix _xpd
+        'action' => "conceal",//conceal, reveal, search, reset, link or back
+        'action_title' => "",
+        'action_href' => "",//only for actions - reset, link and back
+        'show_help_icon' => false,
+        'help_file_name' => ""
+        );
+    } else {
+        $arrOeUiSettings = array(
+        'heading_title' => xl('Patient Ledger'),
+        'include_patient_name' => true,
+        'expandable' => true,
+        'expandable_files' => array("patient_ledger_patient_xpd", "stats_full_patient_xpd", "external_data_patient_xpd"),//all file names need suffix _xpd
+        'action' => "conceal",//conceal, reveal, search, reset, link or back
+        'action_title' => "",
+        'action_href' => "",//only for actions - reset, link and back
+        'show_help_icon' => true,
+        'help_file_name' => "ledger_dashboard_help.php"
+        );
+    }
+    // DO NOT EDIT BELOW
+    if ($arrOeUiSettings['expandable'] && $arrOeUiSettings['expandable_files']) {
+        $arrOeUiSettings['current_state'] = collectAndOrganizeExpandSetting($arrOeUiSettings['expandable_files']);
+    }
+    if ($arrOeUiSettings['include_patient_name']) {
+        $arrOeUiSettings['heading_title'] .= " - " . getPatientNameFirstLast($pid);
+    }
+    $oemr_ui = new OemrUI($arrOeUiSettings);
+    echo "<script>\r\n";
+    require_once("$srcdir/js/oeUI/universalTooltip.js");
+    echo "\r\n</script>\r\n";
+    ?>
 </head>
 <body class="body_top">
-    <div class="<?php echo $container;?> expandable">
-        <?php if ($type_form == '0') { ?>
-
-        <?php $header_title = xl('Report') . " - " . xl('Patient Ledger by Date') ;?>
-        <div class="row">
-            <div class="col-sm-12">
-               <h2><?php echo text($header_title); ?></h2>
-            </div>
-        </div>
-        <?php } else { ?>
-
-        <?php $header_title = xl('Patient Ledger of');?>
+    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <div class="row">
             <div class="col-sm-12">
                 <?php
-                $expandable = 1; // to include expandable icon in title
-                require_once("$include_root/patient_file/summary/dashboard_header.php")
-                ?>
+                if ($type_form != '0') {
+                    require_once("$include_root/patient_file/summary/dashboard_header.php");
+                } else {
+                    echo '<div class="page-header">'. "\r\n";
+                    echo  $oemr_ui->pageHeading() . "\r\n";
+                    echo '</div>'. "\r\n";
+                } ?>
+
             </div>
         </div>
+        <?php if ($type_form != '0') { ?>
         <div class="row">
             <div class="col-sm-12">
                 <?php
@@ -502,7 +521,7 @@ if ($_REQUEST['form_csvexport']) {
 
         <?php } ?>
 
-        <div class="row">
+        <div class="row hideaway" >
             <div class="col-sm-12">
                 <form method='post' action='pat_ledger.php?form=<?php echo attr_url($type_form); ?>&patient_id=<?php echo attr_url($form_pid); ?>' id='theform' onsubmit='return top.restoreSession()'>
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
@@ -931,20 +950,8 @@ if (! $_REQUEST['form_csvexport']) {
             </div>
         </div>
     </div><!--end of container div-->
-    <?php
-    //home of the help modal ;)
-    //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
-    if ($GLOBALS['enable_help'] == 1) {
-        echo "<script>var helpFile = 'ledger_dashboard_help.php'</script>";
-        require "$include_root/help_modal.php";
-    }
-    ?>
-     <script>
-        <?php
-        // jQuery script to change expanded/centered state dynamically
-        require_once("$include_root/expand_contract_js.php");
-        ?>
-    </script>
+    <?php $oemr_ui->helpFileModal();?>
+    <script> <?php require_once("$srcdir/js/oeUI/headerTitleAction.js"); ?></script>
     <script>
         var listId = '#' + <?php echo js_escape($list_id); ?>;
         $(document).ready(function(){

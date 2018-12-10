@@ -19,6 +19,7 @@ require_once("$srcdir/options.js.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
+use OpenEMR\OeUI\OemrUI;
 
 ?>
 <html>
@@ -56,10 +57,34 @@ if (!empty($grparr['']['grp_size'])) {
 }
 <?php } ?>
 </style>
+<?php
+$arrOeUiSettings = array(
+    'heading_title' => xl('History and Lifestyle'),
+    'include_patient_name' => true,
+    'expandable' => false,
+    'expandable_files' => array(),//all file names need suffix _xpd
+    'action' => "",//conceal, reveal, search, reset, link or back
+    'action_title' => "",
+    'action_href' => "",//only for actions - reset, link or back
+    'show_help_icon' => true,
+    'help_file_name' => "history_dashboard_help.php"
+);
+// DO NOT EDIT BELOW
+if ($arrOeUiSettings['expandable'] && $arrOeUiSettings['expandable_files']) {
+    $arrOeUiSettings['current_state'] = collectAndOrganizeExpandSetting($arrOeUiSettings['expandable_files']);
+}
+if ($arrOeUiSettings['include_patient_name']) {
+    $arrOeUiSettings['heading_title'] .= " - " . getPatientNameFirstLast($pid);
+}
+$oemr_ui = new OemrUI($arrOeUiSettings);
+echo "<script>\r\n";
+require_once("$srcdir/js/oeUI/universalTooltip.js");
+echo "\r\n</script>\r\n";
+?>
 </head>
 <body class="body_top">
 
-<div class="container">
+<div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
     <div class="row">
         <div class="col-sm-12">
             <?php
@@ -85,14 +110,10 @@ if (!empty($grparr['']['grp_size'])) {
         </div>
     </div>
     <?php
-    if (acl_check('patients', 'med', '', array('write','addonly'))) {
-        $header_title = xl('History and Lifestyle of');?>
+    if (acl_check('patients', 'med', '', array('write','addonly'))) {?>
         <div class="row">
             <div class="col-sm-12">
-                <?php
-                //require_once("../summary/dashboard_header.php");
-                require_once("$include_root/patient_file/summary/dashboard_header.php");
-                ?>
+                <?php require_once("$include_root/patient_file/summary/dashboard_header.php");?>
             </div>
         </div>
         <div class="row">
@@ -130,28 +151,19 @@ if (!empty($grparr['']['grp_size'])) {
     </div>
 
 </div><!--end of container div -->
-<?php
-//home of the help modal ;)
-//$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
-if ($GLOBALS['enable_help'] == 1) {
-    echo "<script>var helpFile = 'history_dashboard_help.php'</script>";
-    require "$include_root/help_modal.php";
-}
-?>
-
-
+<?php $oemr_ui->helpFileModal();?>
+<script>
+    var listId = '#' + <?php echo js_escape($list_id); ?>;
+    $(document).ready(function(){
+        $(listId).addClass("active");
+    });
+</script>
 <script type="text/javascript">
     // Array of skip conditions for the checkSkipConditions() function.
     var skipArray = [
         <?php echo js_escape($condition_str); ?>
     ];
     checkSkipConditions();
-
-    var listId = '#' + <?php echo js_escape($list_id); ?>;
-    $(document).ready(function(){
-        $(listId).addClass("active");
-    });
-
 </script>
 
 </body>
