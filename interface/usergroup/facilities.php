@@ -52,7 +52,11 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] !
       "primary_business_entity" => trim(isset($_POST["primary_business_entity"]) ? $_POST["primary_business_entity"] : ''),
       "facility_npi" => trim(isset($_POST["facility_npi"]) ? $_POST["facility_npi"] : ''),
       "facility_taxonomy" => trim(isset($_POST["facility_taxonomy"]) ? $_POST["facility_taxonomy"] : ''),
-      "facility_code" => trim(isset($_POST["facility_id"]) ? $_POST["facility_id"] : '')
+      "facility_code" => trim(isset($_POST["facility_id"]) ? $_POST["facility_id"] : ''),
+      "mail_street" => trim(isset($_POST[":mail_street"]) ? $_POST["mail_street"] : ''),
+        "mail_city" => trim(isset($_POST["mail_city"]) ? $_POST["mail_city"] : ''),
+        "mail_state" => trim(isset($_POST["mail_state"]) ? $_POST["mail_state"] : ''),
+        "mail_zip" => trim(isset($_POST["mail_zip"]) ? $_POST["mail_zip"] : '')
     );
 
     $insert_id = $facilityService->insert($newFacility);
@@ -85,7 +89,11 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] =
       "primary_business_entity" => trim(isset($_POST["primary_business_entity"]) ? $_POST["primary_business_entity"] : ''),
       "facility_npi" => trim(isset($_POST["facility_npi"]) ? $_POST["facility_npi"] : ''),
       "facility_taxonomy" => trim(isset($_POST["facility_taxonomy"]) ? $_POST["facility_taxonomy"] : ''),
-      "facility_code" => trim(isset($_POST["facility_id"]) ? $_POST["facility_id"] : '')
+      "facility_code" => trim(isset($_POST["facility_id"]) ? $_POST["facility_id"] : ''),
+        "mail_street" => trim(isset($_POST["mail_street"]) ? $_POST["mail_street"] : ''),
+        "mail_city" => trim(isset($_POST["mail_city"]) ? $_POST["mail_city"] : ''),
+        "mail_state" => trim(isset($_POST["mail_state"]) ? $_POST["mail_state"] : ''),
+        "mail_zip" => trim(isset($_POST["mail_zip"]) ? $_POST["mail_zip"] : '')
     );
 
     $facilityService->update($newFacility);
@@ -158,7 +166,8 @@ $(document).ready(function(){
                         <thead>
                             <tr>
                                 <th><?php echo xlt('Name'); ?></th>
-                                <th><?php echo xlt('Address'); ?></th>
+                                <th><?php echo xlt('Billing Address'); ?></th>
+                                <th><?php echo xlt('Mailing Address'); ?></th>
                                 <th><?php echo xlt('Phone'); ?></th>
                             </tr>
                         </thead>
@@ -176,6 +185,9 @@ $(document).ready(function(){
                                     $varstreet="";//these are assigned conditionally below,blank assignment is done so that old values doesn't get propagated to next level.
                                     $varcity="";
                                     $varstate="";
+                                    $varmstreet="";
+                                    $varmcity="";
+                                    $varmstate="";
                                     $varstreet=$iter3["street"];
                                     if ($iter3["street"]!="") {
                                         $varstreet=$iter3["street"].",";
@@ -188,10 +200,24 @@ $(document).ready(function(){
                                     if ($iter3["state"]!="") {
                                         $varstate=$iter3["state"].",";
                                     }
+
+                                    $varmstreet=$iter3["mail_street"];
+                                    if ($iter3["mail_street"] !=""){
+                                        $varmstreet=$iter3["mail_street"].",";
+                                    }
+
+                                    if ($iter3["mail_city"]!=""){
+                                        $varmcity=$iter3["mail_city"].",";
+                                    }
+
+                                    if ($iter3["mail_state"]!=""){
+                                        $varmstate=$iter3["mail_state"].",";
+                                    }
                             ?>
                             <tr height="22">
-                                 <td valign="top" class="text"><b><a href="facility_admin.php?fid=<?php echo attr_url($iter3["id"]); ?>" class="medium_modal"><span><?php echo text($iter3["name"]);?></span></a></b>&nbsp;</td>
+                                 <td valign="top" class="text"><b><a href="facility_admin.php?fid=<?php echo attr($iter3["id"]); ?>" class="medium_modal"><span><?php echo text($iter3["name"]);?></span></a></b>&nbsp;</td>
                                  <td valign="top" class="text"><?php echo text($varstreet.$varcity.$varstate.$iter3["country_code"]." ".$iter3["postal_code"]); ?>&nbsp;</td>
+                                 <td valign="top" class="text"><?php echo text($varmstreet.$varmcity.$varmstate.$iter3['mail_zip']); ?></td>
                                  <td><?php echo text($iter3["phone"]);?>&nbsp;</td>
                             </tr>
                             <?php

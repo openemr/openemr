@@ -274,6 +274,45 @@ if (isset($_GET["fid"])) {
         <tr height="20" valign="bottom">
             <td colspan=2><span class="text"><font class="mandatory">*</font> <?php echo xlt('Required'); ?></span></td>
         </tr>
+        <tr>
+            <td>
+                <hr>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <label><?php xl('Mailing Address', 'e'); ?>: </label>
+            </td>
+            <td>
+                <input type=entry size=20 name=mail_street value="<?php echo htmlspecialchars($facility["mail_street"], ENT_QUOTES) ?>">
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <label><?php xl('City', 'e'); ?>: </label>
+            </td>
+            <td>
+                <input type=entry size=20 name=mail_city value="<?php echo htmlspecialchars($facility["mail_city"], ENT_QUOTES) ?>">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label><?php xl('State', 'e'); ?>: </label>
+            </td>
+            <td>
+                <input type=entry size=20 name=mail_state value="<?php echo htmlspecialchars($facility["mail_state"], ENT_QUOTES) ?>">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label><?php xl('Zip', 'e'); ?>: </label>
+            </td>
+            <td>
+                <input type=entry size=20 name=mail_zip value="<?php echo htmlspecialchars($facility["mail_zip"], ENT_QUOTES) ?>">
+            </td>
+        </tr>
 
     </table>
 </form>

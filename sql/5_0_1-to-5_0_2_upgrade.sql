@@ -669,3 +669,7 @@ CREATE TABLE `api_token` (
 ) ENGINE = InnoDB;
 #EndIf
 
+#IfMissingColumn users patient_menu_role
+ALTER TABLE `facility` ADD `mail_street` VARCHAR(30) NOT NULL AFTER `facility_taxonomy`, ADD `mail_city` VARCHAR(35) NOT NULL AFTER `mail_street`, ADD `mail_state` VARCHAR(2) NOT NULL AFTER `mail_city`, ADD `mail_zip` VARCHAR(10) NOT NULL AFTER `mail_state`;
+ALTER TABLE `facility` ADD `oid` INT(15) NOT NULL DEFAULT '0' FIRST;
+#EndIf
