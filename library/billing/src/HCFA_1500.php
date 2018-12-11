@@ -52,7 +52,7 @@ class HCFA_1500
      * @param type $strip   regular expression for what to strip from the data. period and has are the defaults
      *                      02/12 version needs to include periods in the diagnoses hence the need to override
      */
-    public function put_hcfa($line, $col, $maxlen, $data, $strip = '/[.#]/')
+    private function put_hcfa($line, $col, $maxlen, $data, $strip = '/[.#]/')
     {
         if ($line < $this->hcfa_curr_line) {
             die("Data item at ($line, $col) precedes current line $this->hcfa_curr_line and $data");
@@ -118,7 +118,7 @@ class HCFA_1500
         usort($hcfa_entries, array('OpenEMR\Billing\HCFA_Info', 'cmp_hcfa_info'));
 
         foreach ($hcfa_entries as $hcfa_entry) {
-            $hcfa_entry->put_hcfa($hcfa_entry->getRow, $hcfa_entry->getColumn, $hcfa_entry->getWidth, $hcfa_entry->getInfo, '/#/');
+            $this->put_hcfa($hcfa_entry->getRow, $hcfa_entry->getColumn, $hcfa_entry->getWidth, $hcfa_entry->getInfo, '/#/');
         }
     }
     /**
@@ -176,7 +176,7 @@ class HCFA_1500
         return $this->hcfa_data;
     }
 
-    public function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
+    private function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
     {
 
         $this->hcfa_curr_line = 1;

@@ -15,8 +15,6 @@
 
 namespace OpenEMR\Billing;
 
-use OpenEMR\Billing\HCFA_1500;
-
 class HCFA_Info
 {
     protected $row;
@@ -68,7 +66,7 @@ class HCFA_Info
      *
      * @return type integer
      */
-    public function get_position()
+    private function get_position()
     {
         return $this->row*100+$this->column;
     }
@@ -80,7 +78,7 @@ class HCFA_Info
      * @param type $second
      * @return int
      */
-    public static function cmp_hcfa_info($first, $second)
+    public function cmp_hcfa_info($first, $second)
     {
         $first_value = $first->get_position();
         $second_value = $second->get_position();
