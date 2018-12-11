@@ -73,54 +73,39 @@ $oemr_ui = new OemrUI(); //to display heading with selected icons and help modal
 
 //begin - edit as needed
 if ($mode == "simple") {
-        $name = " - " . getPatientNameFirstLast($pid); //un-comment to include fname lname, use ONLY on relevant pages :))
-        $heading_title = xlt('Patient Reminders') . $name; // Minimum needed is the heading text
-        //3 optional icons - for ease of use and troubleshooting first create the variables and use them to populate the arrays:)
-        $arr_files_php = array('patient_reminders_xpd');
-        $current_state= collectAndOrganizeExpandSetting($arr_files_php);
-        $expandable = 1;
-        $arrExpandable = array($current_state, $expandable);//2 elements - int|bool $current_state, int:bool $expandable . $current_state= collectAndOrganizeExpandSetting($arr_files_php).
-                                                           //$arr_files_php is also an indexed array, current file name first, linked file names thereafter, all need _xpd suffix, names to be unique
-        $action = 'back';
-        $action_title = '';
-        $action_href = '../summary/demographics.php';
-        $arrAction = array($action, $action_title, $action_href);//3 elements - string $action (conceal, reveal, search, reset, link and back), string $action_title - leave blank for actions
-                            // (conceal, reveal and search), string $action_href - needed for actions (reset, link and back)
-        
-        $arrHelp = array();// 2 elements - int|bool $show_help_icon, string $help_file_name - file needs to exist in Documentation/help_files directory
+        $arrOeUiSettings = array(
+            'heading_title' => xl('Patient Reminders'),
+            'include_patient_name' => true,
+            'expandable' => true,
+            'expandable_files' => array('patient_reminders_patient_xpd'),//all file names need suffix _xpd
+            'action' => "back",//conceal, reveal, search, reset, link or back
+            'action_title' => "",
+            'action_href' => "../summary/demographics.php",//only for actions - reset, link or back
+            'show_help_icon' => false,
+            'help_file_name' => ""
+        );
 } else {
-    //$name = " - " . getPatientNameFirstLast($pid); //un-comment to include fname lname, use ONLY on relevant pages :))
-    $heading_title = xlt('Patient Reminders') . $name; // Minimum needed is the heading text
-    //3 optional icons - for ease of use and troubleshooting first create the variables and use them to populate the arrays:)
-    $arr_files_php = array('patient_reminders_xpd');
-    $current_state= collectAndOrganizeExpandSetting($arr_files_php);
-    $expandable = 1;
-    $arrExpandable = array($current_state, $expandable);//2 elements - int|bool $current_state, int:bool $expandable . $current_state= collectAndOrganizeExpandSetting($arr_files_php).
-                                                   //$arr_files_php is also an indexed array, current file name first, linked file names thereafter, all need _xpd suffix, names to be unique
-    $action = 'conceal';
-    $action_title = '';
-    $action_href = '';
-    $arrAction = array($action, $action_title, $action_href);//3 elements - string $action (conceal, reveal, search, reset, link and back), string $action_title - leave blank for actions
-                    // (conceal, reveal and search), string $action_href - needed for actions (reset, link and back)
-        
-    $arrHelp = array();// 2 elements - int|bool $show_help_icon, string $help_file_name - file needs to exist in Documentation/help_files directory
+    $arrOeUiSettings = array(
+            'heading_title' => xl('Patient Reminders'),
+            'include_patient_name' => false,
+            'expandable' => true,
+            'expandable_files' => array('patient_reminders_xpd'),//all file names need suffix _xpd
+            'action' => "conceal",//conceal, reveal, search, reset, link or back
+            'action_title' => "",
+            'action_href' => "",//only for actions - reset, link or back
+            'show_help_icon' => false,
+            'help_file_name' => ""
+        );
 }
-//do not edit below
-$arrHeading = array($heading_title, $arrExpandable, $arrAction, $arrHelp); // minimum $heading_title - array($heading_title) - displays only heading
-$arr_display_heading = $oemr_ui->pageHeading($arrHeading); // returns an indexed array containing heading string with selected icons and container string value
-$heading = $arr_display_heading[0];
-$container = $arr_display_heading[1];// if you want page to open only full-width override the default returned value with $container = 'container-fluid';
-echo "<script>\r\n";
-require_once("$srcdir/js/oeUI/universalTooltip.js");
-echo "\r\n</script>\r\n";
+$oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
 <body class='body_top'>
-    <div id="container_div" class="<?php echo $container;?>">
+    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <div class="row">
             <div class="col-sm-12">
                 <div class="page-header">
-                    <?php echo  $heading; ?>
+                    <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>
         </div>

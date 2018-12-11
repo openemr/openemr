@@ -94,17 +94,7 @@ $arrOeUiSettings = array(
     'show_help_icon' => true,
     'help_file_name' => "report_dashboard_help.php"
 );
-// DO NOT EDIT BELOW
-if ($arrOeUiSettings['expandable'] && $arrOeUiSettings['expandable_files']) {
-    $arrOeUiSettings['current_state'] = collectAndOrganizeExpandSetting($arrOeUiSettings['expandable_files']);
-}
-if ($arrOeUiSettings['include_patient_name']) {
-    $arrOeUiSettings['heading_title'] .= " - " . getPatientNameFirstLast($pid);
-}
 $oemr_ui = new OemrUI($arrOeUiSettings);
-echo "<script>\r\n";
-require_once("$srcdir/js/oeUI/universalTooltip.js");
-echo "\r\n</script>\r\n";
 ?>
 </head>
 

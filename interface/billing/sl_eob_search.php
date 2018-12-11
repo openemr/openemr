@@ -687,17 +687,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
     'show_help_icon' => 1,
     'help_file_name' => "sl_eob_help.php"
     );
-    // DO NOT EDIT BELOW
-    if ($arrOeUiSettings['expandable'] && $arrOeUiSettings['expandable_files']) {
-        $arrOeUiSettings['current_state'] = collectAndOrganizeExpandSetting($arrOeUiSettings['expandable_files']);
-    }
-    if ($arrOeUiSettings['include_patient_name']) {
-        $arrOeUiSettings['heading_title'] .= " - " . getPatientNameFirstLast($pid);
-    }
     $oemr_ui = new OemrUI($arrOeUiSettings);
-    echo "<script>\r\n";
-    require_once("$srcdir/js/oeUI/universalTooltip.js");
-    echo "\r\n</script>\r\n";
     ?>
 
 </head>
@@ -710,7 +700,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                     <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>
-        </div>
+    </div>
     <div class="row">
         <div class="col-sm-12">
             <form id="formSearch" action="" enctype='multipart/form-data' method='post'>

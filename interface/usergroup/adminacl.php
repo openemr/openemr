@@ -501,7 +501,7 @@ if (!isset($phpgacl_location)) {
     <?php
     $arrOeUiSettings = array(
         'heading_title' => xl('Access Control List Administration'),
-        'include_patient_name' => false,
+        'include_patient_name' => false,//include only if appropriate
         'expandable' => false,
         'expandable_files' => array(),//all file names need suffix _xpd
         'action' => "link",//conceal, reveal, search, reset, link or back
@@ -510,17 +510,7 @@ if (!isset($phpgacl_location)) {
         'show_help_icon' => true,
         'help_file_name' => "adminacl_help.php"
     );
-    // DO NOT EDIT BELOW
-    if ($arrOeUiSettings['expandable'] && $arrOeUiSettings['expandable_files']) {
-        $arrOeUiSettings['current_state'] = collectAndOrganizeExpandSetting($arrOeUiSettings['expandable_files']);
-    }
-    if ($arrOeUiSettings['include_patient_name']) {
-        $arrOeUiSettings['heading_title'] .= " - " . getPatientNameFirstLast($pid);
-    }
     $oemr_ui = new OemrUI($arrOeUiSettings);
-    echo "<script>\r\n";
-    require_once("$srcdir/js/oeUI/universalTooltip.js");
-    echo "\r\n</script>\r\n";
     ?>
 </head>
 <body id="adminacl" class="body_top">

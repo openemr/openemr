@@ -44,8 +44,9 @@ class OemrUI
     /**
     * Used to create the html string that will display the formatted heading with selected icons - expandable, action and help and generate the html code for the help modal.
     *
-    * @param array $arrOeUiSettings is an associative array that contains 10 elements, string 'heading_title', int|bool 'include_patient_name', int|bool 'expandable', array 'expandable_files',
-    * string 'action', string 'action_title', string 'action_href', int|bool 'show_help_icon' and string 'help_file_name'. The 10 th element int|bool 'current_state' (expanded = 1, centered = 0)     * value is obtained from function collectAndOrganizeExpandSetting(array("")), this function needs an indexed array as an argument (array 'expandable_files') that
+    * @param array $arrOeUiSettings is an associative array that contains 9 elements, string 'heading_title', int|bool 'include_patient_name', int|bool 'expandable', array 'expandable_files',
+    * string 'action', string 'action_title', string 'action_href', int|bool 'show_help_icon' and string 'help_file_name'. The int|bool 'current_state' (expanded = 1, centered = 0)  value is obtained from function
+    * collectAndOrganizeExpandSetting(array("")), this function needs an indexed array as an argument (array 'expandable_files') that
     * contains the file name of the current file as the first element, the name of any other file that needs to open in a similar state
     * needs to be included in this array,all names must be unique and have a '_xpd' suffix.
     * It will be used to generate up to 4 values - string $heading, string $expandable_icon, string $action_icon and string $help_icon that will form the html string used to output
@@ -54,12 +55,15 @@ class OemrUI
     */
     public function __construct($arrOeUiSettings = array())
     {
-        $this->heading = $arrOeUiSettings['heading_title'];
+        $this->heading = ($arrOeUiSettings['include_patient_name'])? $arrOeUiSettings['heading_title'] . " - " . getPatientNameFirstLast($_SESSION['pid']):$arrOeUiSettings['heading_title'];
         $this->expandable = $arrOeUiSettings['expandable'];
-        $this->current_state = $arrOeUiSettings['current_state'];
         $this->arrAction = array($arrOeUiSettings['action'], $arrOeUiSettings['action_title'], $arrOeUiSettings['action_href']);
         $this->display_help_icon = $arrOeUiSettings['show_help_icon'];
         $this->help_file = $arrOeUiSettings['help_file_name'];
+        if ($arrOeUiSettings['expandable'] && $arrOeUiSettings['expandable_files']) {
+            $this->current_state = collectAndOrganizeExpandSetting($arrOeUiSettings['expandable_files']);
+        }
+        echo "\r\n<script src='" . $GLOBALS['webroot'] . "/library/js/oeUI/universalTooltip.js?v=" . $v_js_includes. "'></script>\r\n";
     }
     
     /**
@@ -235,7 +239,7 @@ class OemrUI
             $modal_body = "<iframe src=\"$help_file\" id='targetiframe' style='height:100%; width:100%; overflow-x: hidden; border:none'
                                 allowtransparency='true'></iframe>";
         } else {
-            $modal_body = "<h3> <i class='fa fa-exclamation-triangle  oe-text-red' aria-hidden='true'></i> " . xlt("Check if a help file exists for this page in") . " " . text("Documentation/help_files") . ".<br><br>" . xlt("Then pass it's name as an argument in") . " " . text("function helpFileModal"). ".<br><br>" . xlt("If the help file does not exist create one and place it in") . " " . text("Documentation/help_files") . ".<br>" . "</h3>";
+            $modal_body = "<h3> <i class='fa fa-exclamation-triangle  oe-text-red' aria-hidden='true'></i> " . xlt("Check if a help file exists for this page in") . " " . text("Documentation/help_files") . ".<br><br>" . xlt("Then pass it's name as a value to the element" ." " . text("'help_file_name'") . " "  .  "in the associative array") . " " . text("\$arrOeUiSettings"). ".<br><br>" . xlt("If the help file does not exist create one and place it in") . " " . text("Documentation/help_files") . ".<br>" . "</h3>";
         }
         $help_modal = <<<HELP
         <div class="row">
