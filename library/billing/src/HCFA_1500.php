@@ -118,7 +118,7 @@ class HCFA_1500
         usort($hcfa_entries, array('OpenEMR\Billing\HCFA_Info', 'cmp_hcfa_info'));
 
         foreach ($hcfa_entries as $hcfa_entry) {
-            $hcfa_entry->put($this);
+            $hcfa_entry->put_hcfa($hcfa_entry->getRow, $hcfa_entry->getColumn, $hcfa_entry->getWidth, $hcfa_entry->getInfo, '/#/');
         }
     }
     /**

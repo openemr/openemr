@@ -38,6 +38,26 @@ class HCFA_Info
         $this->width=$width;
         $this->info=$info;
     }
+    
+    /**
+     * getters for properties
+     *
+     */
+    public function getRow() {
+		return $this->row;
+	}
+    
+    public function getColumn() {
+		return $this->column;
+	}
+
+    public function getWidth() {
+		return $this->width;
+	}
+
+    public function getInfo() {
+		return $this->info;
+	}
 
     /**
      * Determine relative position of an element
@@ -49,15 +69,6 @@ class HCFA_Info
         return $this->row*100+$this->column;
     }
 
-    /**
-     * Add the info to the form
-     */
-    public function put($hcfa_1500)
-    {
-        // Override the default value for "strip" with put_hcfa to keep periods
-
-        $hcfa_1500->put_hcfa($this->row, $this->column, $this->width, $this->info, '/#/');
-    }
     /**
      * comparator function for hfca_info class to allow proper sorting
      *
