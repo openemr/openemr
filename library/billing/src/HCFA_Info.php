@@ -45,22 +45,22 @@ class HCFA_Info
      */
     public function getRow()
     {
-		return $this->row;
+        return $this->row;
 	}
     
     public function getColumn()
     {
-		return $this->column;
+        return $this->column;
 	}
 
     public function getWidth()
     {
-		return $this->width;
+        return $this->width;
 	}
 
     public function getInfo()
     {
-		return $this->info;
+        return $this->info;
 	}
 
     /**
