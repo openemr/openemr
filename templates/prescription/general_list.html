@@ -136,11 +136,11 @@ $(document).ready(function(){
 {if $prescriptions}
 <span class="title"><b>{xl t='List'|escape:'html'}</b></span>
 <div id="drug-drug">
-    <h3>Drug-Drug Interaction</h3>
+    <h3>{xl t='Drug-Drug Interaction'|text}</h3>
     <div id="return_info">
-        {$INTERACTION}
+        {$INTERACTION|text}
     </div>
-    <p title="Severity information will be missing if interaction is found"><a href="#" style="font-size: x-small">*Notice</a></p>
+    <p title="{xl t='Severity information will be missing if interaction is found'|attr}"><a href="#" style="font-size: x-small">*{xl t='Notice'|text}</a></p>
     <hr>
 </div>
 <div id="prescription_list">

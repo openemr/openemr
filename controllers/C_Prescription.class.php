@@ -45,9 +45,9 @@ class C_Prescription extends Controller
         /*
         *   check to see if RxNorm installed
         */
-        $rxn = sqlQuery("SELECT table_name FROM information_schema.tables WHERE table_name = 'RXNCONSO' OR table_name = 'rxnconso'");
+        $rxn = sqlQuery("SELECT table_name FROM information_schema.tables WHERE table_name = ?", array(mitigateSqlTableUpperCase('RXNCONSO'));
         if ($rxn == false) {
-           $interaction = "Could not find RxNorm Table! Please install.";
+           $interaction = xl("Could not find RxNorm Table! Please install.");
         } elseif ($rxn == true) {
            /*
             *   Grab medication list from prescriptions list
@@ -62,14 +62,14 @@ class C_Prescription extends Controller
                 $nameList[] = $rXn['rxcui'];
             }
             if (count($nameList) < 2) {
-                $interaction = "Need more than one drug.";
+                $interaction = xl("Need more than one drug.");
 
             } else {
                 /*
                 *  If there are drugs to compare, collect the data
                 */
                 $rxcui_list = implode(", ", $nameList);
-                $data = file_get_contents("https://rxnav.nlm.nih.gov/REST/interaction/list.json?rxcuis=".$rxcui_list);
+                $data = file_get_contents("https://rxnav.nlm.nih.gov/REST/interaction/list.json?rxcuis=" . urlencode($rxcui_list));
                 $json = json_decode($data, true);
 
                 if (!empty($json['fullInteractionTypeGroup'][0]['fullInteractionType'])) {
@@ -81,7 +81,7 @@ class C_Prescription extends Controller
                         $interaction .= xlt('Description').":". text($item['interactionPair'][0]['description']);
                     }
                 } else {
-                    $interaction = 'No interactions found';
+                    $interaction = xl('No interactions found');
                 }
             }
 
