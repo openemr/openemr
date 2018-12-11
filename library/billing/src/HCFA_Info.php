@@ -43,19 +43,23 @@ class HCFA_Info
      * getters for properties
      *
      */
-    public function getRow() {
+    public function getRow()
+    {
 		return $this->row;
 	}
     
-    public function getColumn() {
+    public function getColumn()
+    {
 		return $this->column;
 	}
 
-    public function getWidth() {
+    public function getWidth()
+    {
 		return $this->width;
 	}
 
-    public function getInfo() {
+    public function getInfo()
+    {
 		return $this->info;
 	}
 
