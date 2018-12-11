@@ -46,22 +46,22 @@ class HCFA_Info
     public function getRow()
     {
         return $this->row;
-	}
+    }
     
     public function getColumn()
     {
         return $this->column;
-	}
+    }
 
     public function getWidth()
     {
         return $this->width;
-	}
+    }
 
     public function getInfo()
     {
         return $this->info;
-	}
+    }
 
     /**
      * Determine relative position of an element
