@@ -135,7 +135,14 @@ $(document).ready(function(){
 
 {if $prescriptions}
 <span class="title"><b>{xl t='List'|escape:'html'}</b></span>
-
+<div id="drug-drug">
+    <h3>Drug-Drug Interaction</h3>
+    <div id="return_info">
+        {$INTERACTION}
+    </div>
+    <p title="Severity information will be missing if interaction is found"><a href="#" style="font-size: x-small">*Notice</a></p>
+    <hr>
+</div>
 <div id="prescription_list">
 
 <form name="presc">
