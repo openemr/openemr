@@ -69,9 +69,6 @@ if ($mode == "simple") {
     }
 </script>
 <?php
-$oemr_ui = new OemrUI(); //to display heading with selected icons and help modal if needed
-
-//begin - edit as needed
 if ($mode == "simple") {
         $arrOeUiSettings = array(
             'heading_title' => xl('Patient Reminders'),
