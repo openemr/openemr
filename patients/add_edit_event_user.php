@@ -129,14 +129,14 @@ if ($eid) {
                               LEFT JOIN facility ON (openemr_postcalendar_events.pc_facility = facility.id)
                               WHERE pc_eid = ?", array($eid));
     if (!$facility['pc_facility']) {
-        $qmin = sqlQuery("SELECT facility_id as minId, facility FROM users WHERE id = ".$facility['pc_aid']);
+        $qmin = sqlQuery("SELECT facility_id as minId, facility FROM users WHERE id = ?", array($facility['pc_aid']));
         $min  = $qmin['minId'];
         $min_name = $qmin['facility'];
 
         // multiple providers case
         if ($GLOBALS['select_multi_providers']) {
             $mul  = $facility['pc_multiple'];
-            sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = $min WHERE pc_multiple = $mul");
+            sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = ? WHERE pc_multiple = ?", array($min, $mul));
         }
 
         // EOS multiple
@@ -439,64 +439,35 @@ if ($_POST['form_action'] == "save") {
                 "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
                 "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
                 "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility " .
-                ") VALUES ( " .
-                "'" . $_POST['form_category']             . "', " .
-                "'" . $new_multiple_value             . "', " .
-                "'" . $provider                           . "', " .
-                "'" . $_POST['form_pid']                  . "', " .
-                "'" . $_POST['form_title']                . "', " .
-                "NOW(), "                                         .
-                "'" . $_POST['form_comments']             . "', " .
-                "'" . $_SESSION['authUserID']             . "', " .
-                "'" . $event_date                         . "', " .
-                "'" . fixDate($_POST['form_enddate'])     . "', " .
-                "'" . ($duration * 60)                    . "', " .
-                "'" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
-                "'$recurrspec', "                                 .
-                "'$starttime', "                                  .
-                "'$endtime', "                                    .
-                "'" . $_POST['form_allday']               . "', " .
-                "'" . $_POST['form_apptstatus']           . "', " .
-                "'" . $_POST['form_prefcat']              . "', " .
-                "'$locationspec', "                               .
-                "1, " .
-                "1, " .(int)$_POST['facility']. " )"); // FF stuff
+                ") VALUES (                                  
+                 ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?
+                 ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, ?)",
+                array($_POST['form_category'], $new_multiple_value, $provider, $_POST['form_pid'], $_POST['form_title'],
+                $_POST['form_comments'], $_SESSION['authUserID'], $event_date, fixDate($_POST['form_enddate']), ($duration * 60), ($_POST['form_repeat'] ? '1' : '0'),
+                $recurrspec, $starttime, $endtime, $_POST['form_allday'], $_POST['form_apptstatus'], $_POST['form_prefcat'], $locationspec, (int)$_POST['facility'])); // FF stuff
             } // foreach
         } else {
-            sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
-            "pc_catid, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
-            "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
-            "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
-            "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility " .
-            ") VALUES ( " .
-            "'" . $_POST['form_category']             . "', " .
-            "'" . $_POST['form_provider']             . "', " .
-            "'" . $_POST['form_pid']                  . "', " .
-            "'" . $_POST['form_title']                . "', " .
-            "NOW(), "                                         .
-            "'" . $_POST['form_comments']             . "', " .
-            "'" . $_SESSION['authUserID']             . "', " .
-            "'" . $event_date                         . "', " .
-            "'" . fixDate($_POST['form_enddate'])     . "', " .
-            "'" . ($duration * 60)                    . "', " .
-            "'" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
-            "'$recurrspec', "                                 .
-            "'$starttime', "                                  .
-            "'$endtime', "                                    .
-            "'" . $_POST['form_allday']               . "', " .
-            "'" . $_POST['form_apptstatus']           . "', " .
-            "'" . $_POST['form_prefcat']              . "', " .
-            "'$locationspec', "                               .
-            "1, " .
-            "1," .(int)$_POST['facility']. ")"); // FF stuff
+                sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
+                "pc_catid, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
+                "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
+                "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
+                "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility                                                                                  
+                 ) VALUES (                                                                                                                                                         
+                 ?, ?, ?, ?, NOW(), ?, ?, ?, ?                                                                                                                                      
+                 ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, ?)",
+                 array($_POST['form_category'], $provider, $_POST['form_pid'], $_POST['form_title'],
+                 $_POST['form_comments'], $_SESSION['authUserID'], $event_date, fixDate($_POST['form_enddate']), ($duration * 60), ($_POST['form_repeat'] ? '1' : '0'),
+                 $recurrspec, $starttime, $endtime, $_POST['form_allday'], $_POST['form_apptstatus'], $_POST['form_prefcat'], $locationspec, (int)$_POST['facility'])); // FF stuff
+
         } // INSERT single
+
     } // else - insert
 
   // Save new DOB if it's there.
     $patient_dob = trim($_POST['form_dob']);
     if ($patient_dob && $_POST['form_pid']) {
-        sqlStatement("UPDATE patient_data SET DOB = '$patient_dob' WHERE " .
-        "pid = '" . $_POST['form_pid'] . "'");
+        sqlStatement("UPDATE patient_data SET DOB = ? WHERE " .
+        "pid = ?", array($patient_dob, $_POST['form_pid']));
     }
 
   // Auto-create a new encounter if appropriate.
@@ -510,11 +481,10 @@ if ($_POST['form_action'] == "save") {
 // Applied by Cassian Lup (cassian.lup@clinicdr.com)
 
     if (0) {
-        $tmprow = sqlQuery("SELECT count(*) AS count FROM form_encounter WHERE " .
-        "pid = '" . $_POST['form_pid'] . "' AND date = '$event_date 00:00:00'");
+        $tmprow = sqlQuery("SELECT count(*) AS count FROM form_encounter WHERE 
+        pid = ? AND date = ? 00:00:00", array($_POST['form_pid'], $event_date));
         if ($tmprow['count'] == 0) {
-              $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = '" .
-            $_POST['form_provider'] . "'");
+              $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", array($_POST['form_provider']));
               $username = $tmprow['username'];
               $facility = $tmprow['facility'];
               $facility_id = $tmprow['facility_id'];
@@ -523,20 +493,20 @@ if ($_POST['form_action'] == "save") {
               addForm(
                   $encounter,
                   "New Patient Encounter",
-                  sqlInsert("INSERT INTO form_encounter SET " .
-                  "date = '$event_date', " .
-                  "onset_date = '$event_date', " .
-                  "reason = '" . $_POST['form_comments'] . "', " .
-                  "facility = '$facility', " .
-                  "facility_id = '$facility_id', " .
-                  "pid = '" . $_POST['form_pid'] . "', " .
-                  "encounter = '$encounter'"),
+                  sqlInsert("INSERT INTO form_encounter SET
+                  date = ?,
+                  onset_date = ?,
+                  reason = ?,
+                  facility = ?,
+                  facility_id = ?,
+                  pid = ?,
+                  encounter = ?", array($event_date, $event_date, $_POST['form_comments'], $facility, $facility_id, $_POST['form_pid'], $encounter, )),
                   "newpatient",
                   $_POST['form_pid'],
                   "1",
                   "NOW()",
-                  $username
-              );
+                  $username);
+
               $info_msg .= "New encounter $encounter was created. ";
         }
     }
@@ -548,7 +518,7 @@ if ($_POST['form_action'] == "save") {
         // what is multiple key around this $eid?
         $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
         if ($row['pc_multiple']) {
-            sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_multiple = {$row['pc_multiple']}");
+            sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_multiple = ?", array($row['pc_multiple']));
         } else {
                         sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
         }

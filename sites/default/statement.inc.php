@@ -553,8 +553,8 @@ function create_statement($stmt)
     // Contacts
     $atres = sqlStatement("select f.attn,f.phone from facility f " .
         " left join users u on f.id=u.facility_id " .
-        " left join  billing b on b.provider_id=u.id and b.pid = '".$stmt['pid']."'  " .
-        " where billing_location=1");
+        " left join  billing b on b.provider_id=u.id and b.pid = ?  " .
+        " where billing_location=1", array($stmt['pid']));
     $row = sqlFetchArray($atres);
     $billing_contact = "{$row['attn']}";
     $billing_phone = "{$row['phone']}";
