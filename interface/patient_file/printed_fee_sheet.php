@@ -305,7 +305,7 @@ height: " . attr($page_height) . "pt;
 </style>";
 
 $html .= "<title>" . text($frow['name']) . "</title>
-<script type='text/javascript' src='" . $GLOBALS['assets_static_relative'] . "/manual-added-packages/jquery-min-1-2-2/index.js'></script>
+<script type='text/javascript' src='" . $GLOBALS['assets_static_relative'] . "/jquery/dist/jquery.min.js'></script>
 <script type=\"text/javascript\" src=\"../../library/dialog.js?v=" . $v_js_includes . "\"></script>
 <script language=\"JavaScript\">";
 

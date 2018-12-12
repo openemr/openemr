@@ -20,6 +20,8 @@ require_once('../../globals.php');
 require_once("$srcdir/group.inc");
 require_once("../../therapy_groups/therapy_groups_controllers/therapy_groups_controller.php");
 
+use OpenEMR\Core\Header;
+
 if (!empty($_POST)) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
         csrfNotVerified();
@@ -41,13 +43,11 @@ if ($_POST['searchby'] && $_POST['searchparm']) {
     }
 }
 ?>
-
 <html>
 <head>
-    <?php html_header_show(); ?>
     <title><?php echo xlt('Group Finder'); ?></title>
-    <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-    <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+    <?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog', 'opener']); ?>
+
     <style>
         form {
             padding: 0px;
@@ -162,9 +162,6 @@ if ($_POST['searchby'] && $_POST['searchparm']) {
         }
     </style>
 
-    <script type="text/javascript"
-            src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/jquery-min-1-2-2/index.js"></script>
-
     <script language="JavaScript">
 
         function selgid(gid, name, end_date) {
@@ -253,15 +250,12 @@ if ($_POST['searchby'] && $_POST['searchparm']) {
     // jQuery stuff to make the page a little easier to use
 
     $(document).ready(function(){
-        $("#searchparm").focus();
-        $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
-        $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
-        $(".oneresult").click(function() { SelectGroup(this); });
-        //ViSolve
-        $(".noresult").click(function () { SubmitForm(this);});
+        $("#searchparm").trigger("focus");
+        $(".oneresult").on("mouseover", function() { $(this).toggleClass("highlight"); });
+        $(".oneresult").on("mouseout", function() { $(this).toggleClass("highlight"); });
+        $(".oneresult").on("click", function() { SelectGroup(this); });
 
-        //$(".event").dblclick(function() { EditEvent(this); });
-        $("#theform").submit(function() { SubmitForm(this); });
+        $("#theform").on("submit" , function() { SubmitForm(this); });
 
     });
 
