@@ -500,7 +500,7 @@ if ($_POST['form_action'] == "save") {
                   facility = ?,
                   facility_id = ?,
                   pid = ?,
-                  encounter = ?", array($event_date, $event_date, $_POST['form_comments'], $facility, $facility_id, $_POST['form_pid'], $encounter, )),
+                  encounter = ?", array($event_date, $event_date, $_POST['form_comments'], $facility, $facility_id, $_POST['form_pid'], $encounter)),
                   "newpatient",
                   $_POST['form_pid'],
                   "1",
