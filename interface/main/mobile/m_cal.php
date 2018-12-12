@@ -26,10 +26,12 @@
  * @copyright Copyright (c) 2018 MedEx <magauran@MedExBank.com>
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
  */
-
+//error_reporting(E_ALL);
+//ini_set('display_errors', 1);
 require_once "../../globals.php";
 require_once "$srcdir/patient.inc";
 require_once "$srcdir/options.inc.php";
+require_once "$srcdir/formatting.inc.php";
 require_once $GLOBALS['srcdir']."/../vendor/mobiledetect/mobiledetectlib/Mobile_Detect.php";
 require_once "m_functions.php";
 
@@ -50,14 +52,11 @@ $setting_year       = prevSetting($uspfx, 'setting_year', 'setting_year', $year)
     common_head();
 ?>
 
-<style>
-    .jumbotronA {margin: 8px auto 40px;display:inherit;}
-</style>
 <body style="background-color: #fff;" >
 <?php common_header($display); ?>
 
     <?php
-    if ($_GET['eid']) {
+    if (!empty($_GET['eid'])) {
         echo "<script>$(document).ready(function () { ScrollIt(); }); </script>";
     }
         
@@ -91,14 +90,14 @@ $setting_year       = prevSetting($uspfx, 'setting_year', 'setting_year', $year)
         $startday = jddayofweek($jd, 0);
         
         // get the month as a name
-        $monthname = jdmonthname($jd, 1)
+        $monthname = jdmonthname($jd, 1);
     ?>
     <div id="gb-main" class="container-fluid">
         <form id="save_media" name="save_media" action="#" method="post" enctype="multipart/form-data">
 
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
-                    <img src="<?php echo $GLOBALS['webroot']; ?>/public/images/calendar.png" id="head_img" alt="OpenEMR <?php echo xla('Calendar'); ?>">
+                    <img src="images/calendar.png" id="head_img" alt="OpenEMR <?php echo xla('Calendar'); ?>">
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
                     <div class="row text-center">
@@ -168,8 +167,8 @@ $setting_year       = prevSetting($uspfx, 'setting_year', 'setting_year', $year)
                 </div>
                 <div class="col-xs-12 col-sm-7 col-md-7 col-lg-7 col-sm-offset-1 col-md-offset-1 col-lg-offset-1 jumbotronA custom-file-upload">
                      <div class="visit">
-                         <span class="section_title"><?php echo xlt('Schedule'); ?></span>
-                         <br />
+                         <span class="section_title"><?php echo xlt('Schedule'); ?>:
+                         
                          <?php
                             $query = "SELECT concat(fname,' ',lname) as name, id FROM users WHERE authorized = 1";
                             $prov_results = sqlStatement($query);
@@ -180,23 +179,23 @@ $setting_year       = prevSetting($uspfx, 'setting_year', 'setting_year', $year)
                         
                             if (sqlNumRows($prov_results) ==1) {
                                 $row = sqlFetchArray($prov_results);
-                                echo "<div class='prov_line white'><a href='m_cal.php?day=$today&month=$thismonth&provider=" . attr($row["id"]) . "'>" . text($row["name"]) . "</a></div>";
+                                echo text($row["name"]);
                             } else {
                                 ?>
-                                <div class="visit <?php echo ((empty($provider) ? 'white' : '')); ?>">
-                                <?php
-                                    echo "<ax href='m_cal.php?day=$today&month=$thismonth'>". xlt('All Providers') ."</ax>";
-                                    ?>
-                                </div>
-                                <?php
-                            }
-                            while ($row = sqlFetchArray($prov_results)) {
-                                ?>
-                                <div class="visit <?php echo(($provider == $row["id"]) ? 'white' : ''); ?>">
+                                <select name="prov_select" id="prov_select">
+                                    <option <?php echo((empty($provider) ? 'selected="selected"' : '')); ?>>
+                                        <?php echo xlt('All Providers'); ?>
+                                    </option>
+        
                                     <?php
-                                        echo "<ax href='m_cal.php?day=$today&month=$thismonth&provider=" . attr($row["id"]) . "'>" . text($row["name"]) . "</a>";
-                                    ?>
-                                </div>
+                                        while ($row = sqlFetchArray($prov_results)) {
+                                            ?>
+                                            <option <?php echo(($provider == $row["id"]) ? 'selected="selected"' : ''); ?> value="<?php echo $row['id']; ?>">
+                                                <?php echo text($row["name"]); ?>
+                                            </option>
+                                            <?php
+                                        } ?>
+                                </select>
                                 <?php
                             }
                             
@@ -226,27 +225,16 @@ $setting_year       = prevSetting($uspfx, 'setting_year', 'setting_year', $year)
                         while ($row = sqlFetchArray($result)) {
                             if (is_null($row["name"])) {
                                 echo '<div class="cal_cat" style="background-color:' . $row["pc_catcolor"] . '">';
-                                echo $row["pc_catname"] . "</div>";
+                                echo $row["pc_catname"] . " ". $row['pc_hometext'] ."</div>";
                                 continue;
                             }
                             echo '<div class="col-xs-12 visit" style="background-color:' . $row["pc_catcolor"] . '">';
-                            //check if the appointment has a note
                             echo '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">';
-                            if (!empty($row["pc_hometext"])) {
-                                //plan to hide reason on small screen and display via js when clicked...  TODO
-                                echo "<ax href='m_cal.php?day=$today&month=$thismonth&provider=$provider&eid=" . $row["pc_eid"] . "&offset=" . $p_count . "'>";
-                                echo $row["name"];
-                            } //no note
-                            else {
-                                echo $row["name"];
-                            }
-    
-                            echo "</ax></div>";
-                             //if the user wants to view a note, show it
+                            echo $row["name"];
+                            echo "</div>";
                             echo '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">' . $row["pc_hometext"] . "</div>";
-                            //output the time in a clear format
-                            echo '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">'. date("g:i a", strtotime($row["pc_startTime"])) . "</div>";
-    echo "</div>";
+                            echo '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">' . oeFormatTime($row["pc_startTime"]) . "</div>";
+                    echo "</div>";
     
                         }
                         ?>
@@ -257,6 +245,15 @@ $setting_year       = prevSetting($uspfx, 'setting_year', 'setting_year', $year)
     </div>
 
 <?php common_footer($display); ?>
+<script>
+    $(document).ready(function() {
+        $("#prov_select").change(function () {
+            var prov_sched = this.value;
+            top.restoreSession();
+            window.location = "m_cal.php?provider="+prov_sched+"&day=<?php echo $day; ?>&month=<?php echo $month; ?>";
+        });
+    });
+</script>
 </body>
 
 </html>

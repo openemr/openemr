@@ -46,7 +46,7 @@
         <script type="text/javascript">
             <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
         </script>
-      </head>
+    </head>
     <?php
 }
     
@@ -55,8 +55,8 @@ function common_style()
     ?>
     <style>
         #head_img {
-            margin: 2vh;
-            max-height: 15vh;
+            margin: 1vh;
+            max-height: 8vh;
         }
         
         .btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle) {
@@ -114,6 +114,7 @@ function common_style()
             font-family: Roboto, HelveticaNeue, Arial, sans-serif;
             font-size: 10pt;
             margin: 0;
+            overflow-x: hidden;
         }
         #gb-main {
             display: -webkit-box;
@@ -175,11 +176,10 @@ function common_style()
         }
         .custom-file-upload {
             border: 1px solid #ccc;
-            display: inline-block;
-            padding: 12px 12px;
+            padding: 5px;
             cursor: pointer;
             border-radius: 5px;
-            margin: 8px auto;
+            margin: 8px auto auto;
             text-align: center;
             background-color: #2d98cf66;
             box-shadow: 1px 1px 3px #c0c0c0;
@@ -189,6 +189,8 @@ function common_style()
         }
         #preview {
             text-align: center;
+            overflow: auto;
+            height: calc(100vh - 230px);
         }
         #preview  img {
             vertical-align: top;
@@ -218,20 +220,40 @@ function common_style()
         .card-title {
             overflow:hidden;
         }
+        .card {
+            min-height: 170px;
+        }
         .jumbotronA {
-            min-height:400px;
-            margin:8px;
-            margin-bottom: 40px;
+            margin: 8px 20px;
         }
         td {
             text-align: center;
         }
+
+        .message {
+            text-align: center;
+            font-size: 0.9em;
+            height: calc(100vh - 180px);
+            left: 10px;
+            right: 10px;
+            border: 8px solid #2d98cf66;
+            display: list-item;
+            padding: 8px 8px 40px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 8px auto;
+            background-color: #fff;
+            box-shadow: 1px 1px 3px #c0c0c0;
+            overflow-x: hidden;
+        }
+
         @media (min-width:1200px){
             .auto-clear .col-lg-1:nth-child(12n+1){clear:left;}
             .auto-clear .col-lg-2:nth-child(6n+1){clear:left;}
             .auto-clear .col-lg-3:nth-child(4n+1){clear:left;}
             .auto-clear .col-lg-4:nth-child(3n+1){clear:left;}
             .auto-clear .col-lg-6:nth-child(odd){clear:left;}
+            .long {max-width: 100%; height: calc(100vh - 180px);}
         }
         @media (min-width:992px) and (max-width:1199px){
             .auto-clear .col-md-1:nth-child(12n+1){clear:left;}
@@ -239,6 +261,7 @@ function common_style()
             .auto-clear .col-md-3:nth-child(4n+1){clear:left;}
             .auto-clear .col-md-4:nth-child(3n+1){clear:left;}
             .auto-clear .col-md-6:nth-child(odd){clear:left;}
+            .long {max-width: 100%; height: calc(100vh - 180px);}
         }
         @media (min-width:768px) and (max-width:991px){
             .auto-clear .col-sm-1:nth-child(12n+1){clear:left;}
@@ -246,6 +269,7 @@ function common_style()
             .auto-clear .col-sm-3:nth-child(4n+1){clear:left;}
             .auto-clear .col-sm-4:nth-child(3n+1){clear:left;}
             .auto-clear .col-sm-6:nth-child(odd){clear:left;}
+            .long {max-width: 100%; height: calc(100vh - 180px);}
         }
         @media (max-width:767px) {
             .auto-clear .col-xs-1:nth-child(12n+1) {clear: left;}
@@ -253,7 +277,8 @@ function common_style()
             .auto-clear .col-xs-3:nth-child(4n+1) {clear: left;}
             .auto-clear .col-xs-4:nth-child(3n+1) {clear: left;}
             .auto-clear .col-xs-6:nth-child(odd) {clear: left;}
-            .jumbotronA {display:none;margin: 8px auto;}
+            .jumbotronA {margin: 8px auto 50px;}
+            .long { height: calc(100vh - 150px);height:100%;}
             #head_img {margin: 2vH 0 0 0;max-height: 15vH;}
         }
 
@@ -263,12 +288,13 @@ function common_style()
             .auto-clear .col-xs-3:nth-child(4n+1){clear:left;}
             .auto-clear .col-xs-4:nth-child(3n+1){clear:left;}
             .auto-clear .col-xs-6:nth-child(odd){clear:left;}
-            .jumbotronA {display:none;margin: 8px auto;}
+            .jumbotronA {margin: 8px auto 50px;}
+            .long {max-width: 270px; height: calc(100vh - 180px);}
             #head_img {margin: 2vH 0 0 0;max-height: 10vH;}
         }
         .section_title {font-size:1.2em;text-decoration:underline;font-weight:600;margin-bottom:8px;}
-       
-          .fbar {
+
+        .fbar {
               background: #f2f2f2;
               line-height: 20px;
               text-align: center;
@@ -327,6 +353,248 @@ function common_style()
         }
         //end footer
     </style>
+
+    <style type="text/css">
+        .incoming { margin-top: 10px; margin-bottom: 10px; clear: both; }
+        .outgoing { margin-top: 10px; margin-bottom: 10px; clear: both; float:right; }
+        .precell { border: 1px solid white; max-width: 450px; }
+        .cell { border: 1px solid red; }
+        .textcell { max-width: 450px; }
+
+        .blue_box, .green_box {
+            display: block;
+            clear:both;
+        }
+
+        .green_box span {
+            background-color: green;
+            color: white;
+            padding: 10px 5px;
+            display: block;
+            float: left;
+            text-align:left;
+        }
+        #first_name {
+            font-size: 12px;
+            float: right;
+        }
+        .space {
+            margin-bottom: 10px;
+            clear: both;
+        }
+
+        .padding_Info_text {
+            padding-top : 50px;
+            padding-bottom : 10px;
+        }
+
+
+        .blue_box, .green_box, .gray_box, .lightblue_box, .button_div{
+            display: block;
+            clear:both;
+            max-width: 86%;
+            border-radius: 4px;
+            padding: 5px 10px;
+            float: left;
+            text-align:left;
+        }
+        .lightblue_box {
+            background-color:#a6bfd5;
+            color: #fff;
+
+        }
+        .blue_box span {
+            background-color: #337ab7;
+            color: white;
+        }
+        .gray_box span {
+            background-color: #E0E4E0;
+        }
+        .green_box span {
+            background-color: green;
+            color: #fff;
+        }
+        .yellow_box span {
+            background-color: yellow;
+            color: #000;
+        }
+
+        .arrow_right  {
+            position: relative;
+            background: #337ab7;
+            border: 1px solid #c2e1f5;
+            border-radius: 10px;
+            display: block;
+            float: right;
+            clear:both;
+        }
+        .arrow_right:after, .arrow_right:before {
+            left: 100%;
+            top: 50%;
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .arrow_right:after {
+            border-color: rgba(30, 5, 252, 0);
+            border-left-color: #337ab7;;
+            border-width: 5px;
+            margin-top: -5px;
+        }
+
+        .arrow_left {
+            position: relative;
+            background: #E0E4E0;
+        }
+        .arrow_left:after, .arrow_left:before {
+            right: 99%;
+            top: -5px;
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .arrow_left:after {
+            border-color: rgba(136, 183, 213, 0);
+            border-right-color: #E0E4E0;
+            border-width: 5px;
+            margin-top: 13px;
+        }
+        .date_right {
+            font-size:0.8em;float:right;margin-top:4px;clear: both;
+        }
+        .date_left {
+            font-size:0.8em;float:left;margin-top:4px;clear: both;
+        }
+        #message_data_right, #search_data_right{
+            background-color: #fffef1;
+            padding: 10px 20px;
+            overflow: auto;
+            height: calc(100vh - 308px);
+        }
+        
+        #Content
+        {
+            margin: 0px auto;
+            padding: 2px 10px 3px;
+            
+            background-color: #ECECEC;;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            border-bottom: 2pt solid #eae3ce;
+        }
+        .line_bottom_style {
+            position: relative;
+            font-size: 0.9em;
+            width: 100%;
+            bottom: 0px;
+            left: 0px;
+            height: 36px;
+            color: black;
+            background-color: #ECECEC;
+            border-radius: 0;
+            top:unset;
+            width: 100%;
+            border-bottom-left-radius: 5px;
+            border-bottom-right-radius: 5px;
+            border-top: 2pt solid #eae3ce;
+        }
+        .logo {
+            height:50px;
+            vertical-align:bottom;
+            max-width:200px;}
+        
+        #documents_list {
+            width:100%;
+        }
+        .line_2_style {
+            min-height:17px;
+        }
+
+        body { margin: 0px 0px; padding: 0px; text-align:center; background-color:transparent !important;}
+        #first_name {
+            font-size: 12px;
+            float: right;
+        }
+        .space {
+            margin-bottom: 10px;
+            clear: both;
+        }
+
+        .padding_Info_text {
+            padding-top : 50px;
+            padding-bottom : 10px;
+        }
+
+        .arrow_right  {
+            position: relative;
+            border: 1px solid #c2e1f5;
+            border-radius: 10px;
+            display: block;
+            float: right;
+            clear:both;
+        }
+        .arrow_right:after, .arrow_right:before {
+            left: 100%;
+            top: 50%;
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .arrow_right:after {
+            border-color: rgba(30, 5, 252, 0);
+            border-left-color: #337ab7;;
+            border-width: 5px;
+            margin-top: -5px;
+        }
+
+        .arrow_left {
+            position: relative;
+            background: #E0E4E0;
+        }
+        .arrow_left:after, .arrow_left:before {
+            right: 99%;
+            top: -5px;
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .arrow_left:after {
+            border-color: rgba(136, 183, 213, 0);
+            border-right-color: #E0E4E0;
+            border-width: 5px;
+            margin-top: 13px;
+        }
+        .dialogIframe {
+            border:none !important;
+            background-color: transparent;
+        }
+        @keyframes blink {
+            from, to { opacity: 1 }
+            90% { opacity: 0.2 }
+        }
+
+        .shrinkToFit {
+            Xwidth: 90%;
+            height: 90%;
+        }
+
+    </style>
     
     <?php
 }
@@ -345,24 +613,28 @@ function common_header($display = '')
                 if ($display =='photo') {
                     echo ' class="active" ';
                 } ?>
-                        href="<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/camera.php?v=<?php echo mt_rand(); ?>"><?php echo xlt('Upload'); ?></a>
+                        href="<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/camera.php?v=<?php echo mt_rand(); ?>"><?php echo xlt('Imaging'); ?></a>
                 <a <?php
                 if ($display == 'cal') {
                     echo ' class="active" ';
                 } ?>
                         href="<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/m_cal.php?v=<?php echo mt_rand(); ?>"><?php echo xlt('Calendar'); ?></a>
-                <a <?php
-                if ($display =='flow') {
-                    echo ' class="active" ';
-                } ?>
-                        href="<?php echo $GLOBALS['webroot']; ?>/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1"><?php echo xlt('Flow'); ?></a>
-                <?php if ($GLOBALS['medex_enable'] =='1') { ?>
-                <a <?php
-                if ($display =='sms') {
-                    echo ' class="active" ';
-                } ?>
-                        href="<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=new"><?php echo xlt('SMS'); ?></a>
-                <?php } ?>
+                 <a <?php
+                    if ($display =='flow') {
+                        echo ' class="active" ';
+                    } ?>
+                        href="<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/m_flow.php?v=<?php echo mt_rand(); ?>"><?php echo xlt('Flow'); ?></a>
+                <?php
+                    if ($GLOBALS['medex_enable'] =='1') { ?>
+                    
+                        <a <?php
+                            if ($display =='sms') {
+                                echo ' class="active" ';
+                            } ?>
+                                href="<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/SMS.php?v=<?php echo mt_rand(); ?>&dir=back&show=new"><?php echo xlt('SMS'); ?></a>
+                    <?php
+                    }
+                    ?>
             </div>
         </header>
 
@@ -375,6 +647,8 @@ function common_footer($display = "")
     $versionService = new VersionService();
     $version = $versionService->fetch();
     ?>
+    <br />
+    <footer>
         <div class="fbar M6hT6 As6eLe">
             <div class="JQyAhb" >
                 <span style="display:inline-block;position:relative; text-align:center;">
@@ -391,10 +665,124 @@ function common_footer($display = "")
                     <a class="Fx4vi"
                        href="../../../acknowledge_license_cert.html"><?php echo xlt('License'); ?></a>
                     <a class="Fx4vi"
-                       href="main.php?desktop=1"><?php echo xlt('Desktop site'); ?></a>
+                       href="index.php?desktop=1"><?php echo xlt('Desktop site'); ?></a>
                 </span>
             </div>
         </div>
+    </footer>
 
     <?php
 }
+
+function common_js()
+{
+    
+    ?>
+    
+    function search4Docs() {
+        top.restoreSession();
+        $.ajax({
+            type: "POST",
+            url: "m_save.php",
+            //url: "../../../controller.php?document&list&pid="+$("#pid").val(),
+            //url     :"/openemr/controller.php?document&list&patient_id=3371&parent_id=24&",
+            data: {
+                go          : 'search_Docs',
+                pid         : $("#pid").val(),
+                category    : $("#category").val()
+            }
+        }).done(function(result) {
+            $('#preview').html(result).show();
+            $("#search_data_right").hide();
+        });
+    }
+    
+    function search4SMS() {
+        var name = $("#outpatient").val();
+        if (name.length < 3) {
+            //turn button red for 3 seconds
+            setInterval(function() {
+                $('#sms_search2').animate( { backgroundColor: 'red' }, 1000)
+                .animate( { backgroundColor: 'green' }, 1000);
+            }, 1000);
+            $('#sms_search').animate( { backgroundColor: 'red' }, 3000);
+            $('#sms_search').animate( { backgroundColor: '#063f80' }, 3000);
+            return;
+        }
+        //turn button green for 3 seconds
+        setInterval(function() {
+        $('#sms_search2').animate( { backgroundColor: 'red' }, 1000)
+        .animate( { backgroundColor: 'green' }, 1000);
+        }, 1000);
+        $('#sms_search').animate( { backgroundColor: 'red' }, 3000);
+        $('#sms_search').animate( { backgroundColor: '#009933' }, 3000);
+    
+        top.restoreSession();
+        $('#search_data_right').html('<div class="text-center">\n'+
+        '                        <i class="fa fa-spinner fa-pulse fa-fw" style="font-size: 100px; color: #000080; padding: 20px"></i>\n'+
+        '                        <h2 >Loading data...</h2>\n'+
+        '                    </div>');
+
+
+       // $("#message_data div").css("background-color", "transparent");
+
+        $.ajax({
+            type: "POST",
+            url: "../messages/messages.php?nomenu=1",
+            data: {
+                pid         : 'find',
+                action      : 'new_SMS',
+                SMS_bot     : '1',
+                outpatient  : $("#outpatient").val(),
+                show        : 'pat_list',
+                r           : '1'
+            }
+        }).done(function(result) {
+            $('#search_data_right').html(result);
+            $("#search_data_right").scrollTop(function() { return this.scrollHeight; });
+        
+            timing = 5000;
+            refreshTable(pid,timing);
+        });
+    }
+
+    function refreshTable(pid,timing='') {
+        top.restoreSession();
+    
+        // Add 5 seconds to pause interval until 1 minute is reached,
+        // then refresh q 1 minute while window is open
+        if (timing < 60000) {
+            timing = timing + 5000;
+        }
+    
+        $.ajax({
+            type: "POST",
+            url: "m_save.php?nomenu=1",
+            data: {
+                r  			: '1',
+                pid 		: pid,
+                SMS_bot 	: '1',
+                go 		    : 'SMS_refresh',
+                device      : 'mobile',
+                dfrom       : $("#msg_last_updated").val()
+            }
+        }).done(function(result){
+            if (result) {
+                results = JSON.parse(result);
+                if (results.msg_last_updated >'') {
+                    $('#msg_last_updated').val(results.msg_last_updated);
+                    $('#message_data_right').append(results.msg_content);
+                    $("#message_data_right").scrollTop(function() { return this.scrollHeight; });
+                    timing = 5000;
+                }
+            }
+            setTimeout(function(){
+                refreshTable(pid,timing);
+                }, timing);
+        });
+    }
+    <?php
+}
+
+
+

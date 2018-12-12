@@ -106,7 +106,7 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
     var reply = [];
     <?php
     if (!empty($setting_mRoom)) {
-        echo "var mRoom = ".attr($setting_mRoom).";";
+        echo "var mRoom = '".attr($setting_mRoom)."';";
     } else {
         echo "var mRoom;";
     }
@@ -121,7 +121,7 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
 
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
-                <img src="<?php echo $GLOBALS['webroot']; ?>/public/images/uploads.png" id="head_img" alt="<?php echo xla('File Uploader'); ?>">
+                <img src="images/uploads.png" id="head_img" alt="<?php echo xla('File Uploader'); ?>">
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
                 <div class="row text-center">
@@ -135,6 +135,8 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
                         <br /><br />
                         <select id="findRoom" name="findRoom" type="text"
                                 class="form-control byNameDisplay">
+                            <option value='all'><?php echo xlt("Checked In"); ?> </option>
+                            
                             <?php
                                 $rows = sqlStatement("SELECT * FROM list_options WHERE " .
                                     "list_id = ? AND activity = 1 ", array('patient_flow_board_rooms'));
@@ -204,6 +206,11 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
                                 <label for="file-upload-c" class="btn btn-primary disabled">
                                     <i class="fa fa-cloud-upload"></i> <?php echo xlt('Other'); ?>
                                 </label>
+                        <label onclick="search4Docs();" class="btn btn-primary disabled">
+                            <i class="fa fa-file-image-o"></i> <?php echo xlt('Docs'); ?>
+                        </label>
+
+                        <input type="hidden" id="doc-search" name="doc-search"  />
                                 <input type="hidden" id="pid" name="pid" value="<?php echo attr($pid); ?>" />
                                 <input type="hidden" id="go" name="go" value="save_media" />
                             
@@ -212,7 +219,78 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
                 </div>
             </div>
             <div class="col-xs-12 col-sm-7 col-md-7 col-lg-7 col-sm-offset-1 col-md-offset-1 col-lg-offset-1 jumbotronA custom-file-upload">
+                <div id="Content" class="Content">
+                    <div id="PID_contact" class="line_1_style">
+                        <span style="position:relative; float:left;width:80px;"><i class="left fa fa-file-image-o"></i>&nbsp;<?php echo xlt('Documents'); ?> </span>
+                        <span style="font-weight:600;float:left;padding-left:45px;"><?php echo $now_time; ?> </span>
+                        <?php
+                            if ($count_news) {
+                                ?>
+                                <span style="position: relative;
+									float:right;
+									margin-right:10px;
+									animation: blink 3s infinite;
+									color: red;font-weight:600;">
+									<span onclick="goNews();">
+										<blink><i class="fa fa-bolt red" >&nbsp;New</i></blink>
+									</span>
+							</span>
+                                <?php
+                            }
+                        ?>
+                    </div>
+                    <div id="nav_contact" class="line_2_style">
+                        <?php
+                            if (empty($data['show'])) { ?>
+
+                                <center>
+									<span style="position:relative;margin: 0px auto;font-size:0.9em;top:3px;" id="pname">
+									<?php
+                                        $name =  $fname." ".$lname;
+                                        $name = (strlen($name) > 20) ? substr($name,0,17).'...' : $name;
+                                        echo $name." ".$who['p_phone_cell'];
+                                    ?>
+									</span>
+                                </center>
+
+                                <span id="new_SMS_icon" style="position: relative;float: right;" onclick="goNew_SMS();">
+									    <i class="fa fa-users"></i>
+								    </span>
+                                <?php
+                            } else if ($data['show']=="new") {
+                                ?>
+                                <span style="position:relative;float:left;top: 3px;" onclick="goBack();"><span class="glyphicon glyphicon-chevron-left"></span></span>
+                                <center>
+									<span style="position:relative;margin: 0px 30px 0px 0px;">
+										New Messages
+									</span>
+                                </center>
+                                <span style="position: relative;float: right;" onclick="goNew_SMS();">
+									<i class="fa fa-users"></i>
+								</span>
+                                <?php
+                            } else {
+                                if ($data['show'] != 'list') {
+                                    echo '<span style="position: relative;float: left;top: 4px;" onclick="goNews();">
+										<i class="fa fa-list"></i>
+										</span>
+									';
+                                }
+                    
+                                ?>
+                                <?php
+                            } ?>
+                    </div>
+                </div>
                 <div id="preview" class=""></div>
+                <div id="search_data_right">
+                    
+                    <h2><?php echo xlt('Document Viewer'); ?></h2>
+                   
+                </div>
+                <div id="message_data_right"></div>
+                
+                
             </div>
         </div>
         <input type="file" id="file-upload-a" name="file2" accept="image/*" capture="camera" onchange="handleFiles(this.files);"  />
@@ -267,6 +345,10 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
     function handleFiles(files) {
         send_form(files);
         $(".jumbotronA").show();
+        $("#search_data_right").hide();
+        $("#message_data_right").hide();
+        $("#preview").show();
+        
         for (var i = 0; i < files.length; i++) {
             var file = files[i];
             if (file.type.startsWith('image/')) {
@@ -374,14 +456,29 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
         }
     }
     
+    function show_this(panel) {
+        $("#message_data_right").hide();
+        $("#NEW_SMS").hide();
+        $("#message").hide();
+        $("#new_SMS_icon").hide();
+        
+        $("#message_data div").click(function() {
+            $(this).css("background", "#fffef1");
+        });
+        $("#"+panel).show();
+    
+    }
+    <?php common_js(); ?>
     $(document).ready(function () {
-        $( "#findPatient" ).hide();
+        $( "#findPatient").hide();
+        $("#preview").hide();
+        $("#search_data_right").show();
         <?php
         if ($setting_mFind=="byRoom") { ?>
             $("#findRoom").show();
             <?php
             if ($size == 1) { ?>
-                $( "#findPatient" ) . show();
+                $( "#findPatient" ).show();
                 $( "#patient_matches" ).hide();
                 pid = $( "#patient_matches" ).val();
                  $( "#pid" ).val(pid);
@@ -469,7 +566,7 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
                     $( "#patient_matches" ).hide();
                 }
             });
-            if (mRoom >'') { $( "#findRoom" ).trigger('change'); }
+             $( "#findRoom" ).trigger('change');
         });
         
         $("#findRoom").on('change', function() {
@@ -512,6 +609,10 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
             $( "#pid" ).val(pid);
             label_enable();
         });
+    
+            var myDiv = document.getElementsByClassName("jumbotronA");
+            window.scrollTo(0, myDiv.innerHeight);
+            show_this("Content");
     });
 </script>
 </body>
