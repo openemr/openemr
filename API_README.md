@@ -30,7 +30,7 @@ _Example:_ `https://domain/apis/fhir/Patient` returns a Patients bundle resource
 Obtain an API token with your login (returns an API token). For FHIR replace Uri component 'api' with 'fhir':
 
 ```
-curl -X POST 'https://localhost:8300/apis/api/auth' \
+curl -X POST -H 'Content-Type: application/json' 'https://localhost:8300/apis/api/auth' \
 -d '{
     "grant_type":"password",
     "username": "ServiceUser",
