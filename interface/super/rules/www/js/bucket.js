@@ -1,5 +1,5 @@
 /*
- * 
+ *
  */
 var bucket = function( args ) {
 
@@ -39,15 +39,15 @@ var bucket = function( args ) {
     var fn_wire_events = function() {
         $('#change_category').click( function() {
             $("#fld_category_lbl").hide();
-            var select = $("<select></select");
+            var select = $("<select></select>");
             $("#fld_category_lbl").parent().append( select );
             fn_prep_options( select, 'categories', 'fld_category', $(this) );
             $(this).hide();
         });
-        
+
         $('#change_item').click( function() {
             $("#fld_item_lbl").hide();
-            var select = $("<select></select");
+            var select = $("<select></select>");
             $("#fld_item_lbl").parent().append( select );
             fn_prep_options( select, 'items', 'fld_item', $(this));
             $(this).hide();
