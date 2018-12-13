@@ -45,7 +45,7 @@ class C_Prescription extends Controller
         /*
         *   check to see if RxNorm installed
         */
-        $rxn = sqlQuery("SELECT table_name FROM information_schema.tables WHERE table_name = ?", array(mitigateSqlTableUpperCase('RXNCONSO'));
+        $rxn = sqlQuery("SELECT table_name FROM information_schema.tables WHERE table_name = ?", array(mitigateSqlTableUpperCase('RXNCONSO')));
         if ($rxn == false) {
            $interaction = xl("Could not find RxNorm Table! Please install.");
         } elseif ($rxn == true) {
