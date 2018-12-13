@@ -1,5 +1,5 @@
 /*
- * 
+ *
  */
 var custom = function( args ) {
 
@@ -31,7 +31,7 @@ var custom = function( args ) {
     }
 
     var fn_wire_events = function() {
-        $('#fld_table').change( function() {
+        $('#fld_table').on("change", function() {
             fn_work();
         });
     }
