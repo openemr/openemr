@@ -85,7 +85,7 @@ class HCFA_1500
      * @param type $claim
      * @param string $log
      */
-    private function process_diagnoses_02_12(&$claim, &$log)
+    private function process_diagnoses_02_12($claim, &$log)
     {
         $hcfa_entries=array();
         $diags = $claim->diagArray(false);
@@ -118,7 +118,7 @@ class HCFA_1500
         usort($hcfa_entries, array('OpenEMR\Billing\HCFA_Info', 'cmp_hcfa_info'));
 
         foreach ($hcfa_entries as $hcfa_entry) {
-            $this->put_hcfa($hcfa_entry->getRow, $hcfa_entry->getColumn, $hcfa_entry->getWidth, $hcfa_entry->getInfo, '/#/');
+            $this->put_hcfa($hcfa_entry->getRow(), $hcfa_entry->getColumn(), $hcfa_entry->getWidth(), $hcfa_entry->getInfo(), '/#/');
         }
     }
     /**
@@ -156,6 +156,7 @@ class HCFA_1500
         $this->hcfa_proc_index = 0;
 
         $today = time();
+
         $claim = new Claim($pid, $encounter);
 
         $log .= "Generating HCFA claim $pid-$encounter for " .
@@ -170,13 +171,14 @@ class HCFA_1500
             }
 
             $this->gen_hcfa_1500_page($pid, $encounter, $log, $claim);
+
         }
 
         $log .= "\n";
         return $this->hcfa_data;
     }
 
-    private function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
+    private function gen_hcfa_1500_page($pid, $encounter, &$log, $claim)
     {
 
         $this->hcfa_curr_line = 1;
@@ -524,23 +526,23 @@ class HCFA_1500
         // co-pay for the first page only.
         $clm_total_charges = 0;
         $clm_amount_adjusted = 0;
-        $clm_amount_paid = $hcfa_proc_index ? 0 : $claim->patientPaidAmount();
+        $clm_amount_paid = $this->hcfa_proc_index ? 0 : $claim->patientPaidAmount();
 
         // Procedure loop starts here.
-        for ($svccount = 0; $svccount < 6 && $hcfa_proc_index < $proccount; ++$hcfa_proc_index) {
-            $dia = $claim->diagIndexArray($hcfa_proc_index);
+        for ($svccount = 0; $svccount < 6 && $this->hcfa_proc_index < $proccount; ++$this->hcfa_proc_index) {
+            $dia = $claim->diagIndexArray($this->hcfa_proc_index);
 
-            if (!$claim->cptCharges($hcfa_proc_index)) {
-                $log .= "*** Procedure '" . $claim->cptKey($hcfa_proc_index) .
+            if (!$claim->cptCharges($this->hcfa_proc_index)) {
+                $log .= "*** Procedure '" . $claim->cptKey($this->hcfa_proc_index) .
                     "' has no charges!\n";
             }
 
             if (empty($dia)) {
-                $log .= "*** Procedure '" . $claim->cptKey($hcfa_proc_index) .
+                $log .= "*** Procedure '" . $claim->cptKey($this->hcfa_proc_index) .
                     "' is not justified!\n";
             }
 
-            $clm_total_charges += $claim->cptCharges($hcfa_proc_index);
+            $clm_total_charges += floatval($claim->cptCharges($this->hcfa_proc_index));
 
             // Compute prior payments and "hard" adjustments.
             for ($ins = 1; $ins < $claim->payerCount(); ++$ins) {
@@ -548,7 +550,7 @@ class HCFA_1500
                     continue; // skip future payers
                 }
 
-                $payerpaid = $claim->payerTotals($ins, $claim->cptKey($hcfa_proc_index));
+                $payerpaid = $claim->payerTotals($ins, $claim->cptKey($this->hcfa_proc_index));
                 $clm_amount_paid += $payerpaid[1];
                 $clm_amount_adjusted += $payerpaid[2];
             }
@@ -558,7 +560,7 @@ class HCFA_1500
 
             // Drug Information. Medicaid insurers want this with HCPCS codes.
             //
-            $ndc = $claim->cptNDCID($hcfa_proc_index);
+            $ndc = $claim->cptNDCID($this->hcfa_proc_index);
             if ($ndc) {
                 if (preg_match('/^(\d\d\d\d\d)-(\d\d\d\d)-(\d\d)$/', $ndc, $tmp)) {
                     $ndc = $tmp[1] . $tmp[2] . $tmp[3];
@@ -567,12 +569,12 @@ class HCFA_1500
                     $log .= "*** NDC code '$ndc' has invalid format!\n";
                 }
 
-                $this->put_hcfa($lino, 1, 50, "N4$ndc   " . $claim->cptNDCUOM($hcfa_proc_index) .
-                    $claim->cptNDCQuantity($hcfa_proc_index));
+                $this->put_hcfa($lino, 1, 50, "N4$ndc   " . $claim->cptNDCUOM($this->hcfa_proc_index) .
+                    $claim->cptNDCQuantity($this->hcfa_proc_index));
             }
 
             //Note Codes.
-            $this->put_hcfa($lino, 25, 7, $claim->cptNotecodes($hcfa_proc_index));
+            $this->put_hcfa($lino, 25, 7, $claim->cptNotecodes($this->hcfa_proc_index));
 
             // 24i and 24j Top. ID Qualifier and Rendering Provider ID
             if ($claim->supervisorNumber()) {
@@ -583,9 +585,9 @@ class HCFA_1500
                 // BCBS of TN indicated they want it this way.  YMMV.  -- Rod
                 $this->put_hcfa($lino, 65, 2, $claim->supervisorNumberType());
                 $this->put_hcfa($lino, 68, 10, $claim->supervisorNumber());
-            } else if ($claim->providerNumber($hcfa_proc_index)) {
-                $this->put_hcfa($lino, 65, 2, $claim->providerNumberType($hcfa_proc_index));
-                $this->put_hcfa($lino, 68, 10, $claim->providerNumber($hcfa_proc_index));
+            } else if ($claim->providerNumber($this->hcfa_proc_index)) {
+                $this->put_hcfa($lino, 65, 2, $claim->providerNumberType($this->hcfa_proc_index));
+                $this->put_hcfa($lino, 68, 10, $claim->providerNumber($this->hcfa_proc_index));
             } else if ($claim->claimType() == 'MC') {
                 $this->put_hcfa($lino, 65, 2, 'ZZ');
                 $this->put_hcfa($lino, 68, 14, $claim->providerTaxonomy());
@@ -609,13 +611,13 @@ class HCFA_1500
             // Not currently supported.
 
             // 24d. Procedures, Services or Supplies
-            $this->put_hcfa($lino, 25, 7, $claim->cptCode($hcfa_proc_index));
+            $this->put_hcfa($lino, 25, 7, $claim->cptCode($this->hcfa_proc_index));
             // replace colon with space for printing
-            $this->put_hcfa($lino, 33, 12, str_replace(':', ' ', $claim->cptModifier($hcfa_proc_index)));
+            $this->put_hcfa($lino, 33, 12, str_replace(':', ' ', $claim->cptModifier($this->hcfa_proc_index)));
 
             // 24e. Diagnosis Pointer
             $tmp = '';
-            foreach ($claim->diagIndexArray($hcfa_proc_index) as $value) {
+            foreach ($claim->diagIndexArray($this->hcfa_proc_index) as $value) {
                 $value = chr($value + 64);
                 $tmp .= $value;
             }
@@ -626,11 +628,11 @@ class HCFA_1500
             $this->put_hcfa($lino, 50, 8, str_replace(
                 '.',
                 ' ',
-                sprintf('%8.2f', $claim->cptCharges($hcfa_proc_index))
+                sprintf('%8.2f', $claim->cptCharges($this->hcfa_proc_index))
             ));
 
             // 24g. Days or Units
-            $this->put_hcfa($lino, 59, 3, $claim->cptUnits($hcfa_proc_index));
+            $this->put_hcfa($lino, 59, 3, $claim->cptUnits($this->hcfa_proc_index));
 
             // 24h. EPSDT Family Plan
             //
@@ -639,7 +641,7 @@ class HCFA_1500
             }
 
             // 24j. Rendering Provider NPI
-            $this->put_hcfa($lino, 68, 10, $claim->providerNPI($hcfa_proc_index));
+            $this->put_hcfa($lino, 68, 10, $claim->providerNPI($this->hcfa_proc_index));
         }
 
         // 25. Federal Tax ID Number
