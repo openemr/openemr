@@ -18,7 +18,7 @@ require_once(dirname(__FILE__) . "/../../invoice_summary.inc.php");
 
 use OpenEMR\Billing\Claim;
 
-class X12837P
+class X12_5010_837P
 {
     public static function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
     {
