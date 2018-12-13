@@ -25,6 +25,8 @@
 require_once("../globals.php");
 require_once("portal.inc.php");
 
+use OpenEMR\Core\Header;
+
 // This function builds an array of document categories recursively.
 // Borrowed from interface/fax/fax_dispatch.php.
 //
@@ -128,8 +130,7 @@ $ptid = lookup_openemr_patient($userlogin);
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
-<link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
+<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_dialog']); ?>
 
 <style>
 
@@ -138,9 +139,6 @@ tr.detail { font-size:10pt; background-color:#ddddff; }
 td input  { background-color:transparent; }
 
 </style>
-
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/jquery-min-1-2-2/index.js"></script>
 
 <script language="JavaScript">
 

@@ -1,12 +1,12 @@
 <?php
-
 /**
- * patient.inc includes functions for manipulating patient information.
+ * lab.inc
  *
  * @package OpenEMR
  * @link    http://www.open-emr.org
  * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2010 OpenEMR Support LLC
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -139,4 +139,38 @@ function getBarId($lab_id, $pid)
     $bar = sqlQuery($sql, array($lab_id,$pid));
 
     return $bar;
+}
+
+/**
+ *
+ * @param <type> $facilityID
+ * @return <type> the result set, false if the input is malformed
+ */
+function getFacilityInfo($facilityID)
+{
+    // facility ID will be in the format XX_YY, where XX is the lab-assigned id, Y is the user.id record representing that lab facility, and the _ is a divider.
+    $facility = explode("_", $facilityID);
+
+    if (count($facility) > 1) {
+        $query = "select
+                title,fname,lname,street,city,state,zip,organization,phone
+                from users where id = " . $facility[1];
+
+        $res = sqlStatement($query);
+        return sqlFetchArray($res);
+    }
+
+    return false;
+}
+
+function formatPhone($phone)
+{
+    $phone = preg_replace("/[^0-9]/", "", $phone);
+    if (strlen($phone) == 7) {
+        return preg_replace("/([0-9]{3})([0-9]{4})/", "$1-$2", $phone);
+    } elseif (strlen($phone) == 10) {
+        return preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "($1) $2-$3", $phone);
+    } else {
+        return $phone;
+    }
 }

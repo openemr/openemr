@@ -1,7 +1,7 @@
-/* 
+/*
  */
 var list_rules = function( args ) {
-    
+
     var fn_create_row = function( rowData ) {
         var clone = $('.rule_row.template').clone().removeClass('template');
         var anchor = clone.find('.rule_title a');
@@ -47,11 +47,11 @@ var list_rules = function( args ) {
     }
 
     var fn_wire_events = function() {
-        $('.header_title').click( function() {
+        $('.header_title').on("click", function() {
             fn_sort( 'rule_title' );
         });
 
-        $('.header_type').click( function() {
+        $('.header_type').on("click", function() {
             fn_sort( 'rule_type' );
         });
     }

@@ -23,7 +23,7 @@
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
-require_once("../orders/lab_exchange_tools.php");
+require_once("$srcdir/lab.inc");
 
 // Indicates if we are entering in batch mode.
 $form_batch = empty($_GET['batch']) ? 0 : 1;
