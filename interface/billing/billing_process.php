@@ -21,9 +21,9 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/billrep.inc");
 require_once("$srcdir/billing.inc");
-require_once("$srcdir/gen_hcfa_1500.inc.php");
 
-use OpenEMR\Billing\X12837P;
+use OpenEMR\Billing\X12_5010_837P;
+use OpenEMR\Billing\HCFA_1500;
 
 if (!verifyCsrfToken($_POST["csrf_token_form"])) {
     csrfNotVerified();
@@ -228,7 +228,7 @@ function process_form($ar)
                     $bill_info[] = xl("Claim ") . $claimid . xl(" has been re-opened.") . "\n";
                 } elseif (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter'])) {
                     $log = '';
-                    $segs = explode("~\n", X12837P::gen_x12_837($patient_id, $encounter, $log, isset($ar['bn_x12_encounter'])));
+                    $segs = explode("~\n", X12_5010_837P::gen_x12_837($patient_id, $encounter, $log, isset($ar['bn_x12_encounter'])));
                     fwrite($hlog, $log);
                     append_claim($segs);
                     if (! updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename)) {
@@ -244,7 +244,8 @@ function process_form($ar)
                     }
                 } elseif (isset($ar['bn_process_hcfa'])) {
                     $log = '';
-                    $lines = gen_hcfa_1500($patient_id, $encounter, $log);
+                    $hcfa = new HCFA_1500();
+                    $lines = $hcfa->gen_hcfa_1500($patient_id, $encounter, $log);
                     fwrite($hlog, $log);
                     $alines = explode("\014", $lines); // form feeds may separate pages
                     foreach ($alines as $tmplines) {
@@ -262,7 +263,8 @@ function process_form($ar)
                     }
                 } elseif (isset($ar['bn_process_hcfa_form'])) {
                     $log = '';
-                    $lines = gen_hcfa_1500($patient_id, $encounter, $log);
+                    $hcfa = new HCFA_1500();
+                    $lines = $hcfa->gen_hcfa_1500($patient_id, $encounter, $log);
                     $hcfa_image = $GLOBALS['images_static_absolute'] . "/cms1500.png";
                     fwrite($hlog, $log);
                     $alines = explode("\014", $lines); // form feeds may separate pages
@@ -290,7 +292,8 @@ function process_form($ar)
                     }
                 } elseif (isset($ar['bn_hcfa_txt_file'])) {
                     $log = '';
-                    $lines = gen_hcfa_1500($patient_id, $encounter, $log);
+                    $hcfa = new HCFA_1500();
+                    $lines = $hcfa->gen_hcfa_1500($patient_id, $encounter, $log);
                     fwrite($hlog, $log);
                     $bat_content .= $lines;
                     if (! updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename)) {
