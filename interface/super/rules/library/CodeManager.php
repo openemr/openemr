@@ -45,11 +45,7 @@ class CodeManager
         $codes = array();
 
         for ($iter=0; $row=sqlFetchArray($stmt); $iter++) {
-            $code = new Code();
-            $code->code = $row['code'];
-            $code->text = $row['code_text'];
-            $code->id = $row['id'];
-            $code->codeType = $row['code_type'];
+            $code = new Code($row['id'], $row['code'], $row['code_text'], $row['code_type']);
             array_push($codes, $code);
         }
 
@@ -65,13 +61,8 @@ class CodeManager
         if (!$row) {
             return null;
         }
-        
-        $code = new Code();
-        $code->code = $row['code'];
-        $code->text = $row['code_text'];
-        $code->id = $row['id'];
-        $code->codeType = $row['code_type'];
 
+        $code = new Code($row['id'], $row['code'], $row['code_text'], $row['code_type']);
         return $code;
     }
 }
