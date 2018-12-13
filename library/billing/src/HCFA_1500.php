@@ -171,7 +171,6 @@ class HCFA_1500
             }
 
             $this->gen_hcfa_1500_page($pid, $encounter, $log, $claim);
-
         }
 
         $log .= "\n";
