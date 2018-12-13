@@ -190,7 +190,8 @@ function common_style()
         #preview {
             text-align: center;
             overflow: auto;
-            height: calc(100vh - 230px);
+            height: calc(100vh - 290px);
+            min-height: 70vh;
         }
         #preview  img {
             vertical-align: top;
@@ -225,6 +226,7 @@ function common_style()
         }
         .jumbotronA {
             margin: 8px 20px;
+            min-height: 70vh;
         }
         td {
             text-align: center;
@@ -233,7 +235,7 @@ function common_style()
         .message {
             text-align: center;
             font-size: 0.9em;
-            height: calc(100vh - 180px);
+            height: calc(100vh - 240px);
             left: 10px;
             right: 10px;
             border: 8px solid #2d98cf66;
@@ -253,7 +255,7 @@ function common_style()
             .auto-clear .col-lg-3:nth-child(4n+1){clear:left;}
             .auto-clear .col-lg-4:nth-child(3n+1){clear:left;}
             .auto-clear .col-lg-6:nth-child(odd){clear:left;}
-            .long {max-width: 100%; height: calc(100vh - 180px);}
+            .long {max-width: 100%; height: calc(100vh - 280px);}
         }
         @media (min-width:992px) and (max-width:1199px){
             .auto-clear .col-md-1:nth-child(12n+1){clear:left;}
@@ -261,7 +263,7 @@ function common_style()
             .auto-clear .col-md-3:nth-child(4n+1){clear:left;}
             .auto-clear .col-md-4:nth-child(3n+1){clear:left;}
             .auto-clear .col-md-6:nth-child(odd){clear:left;}
-            .long {max-width: 100%; height: calc(100vh - 180px);}
+            .long {max-width: 100%; height: calc(100vh - 280px);}
         }
         @media (min-width:768px) and (max-width:991px){
             .auto-clear .col-sm-1:nth-child(12n+1){clear:left;}
@@ -269,7 +271,7 @@ function common_style()
             .auto-clear .col-sm-3:nth-child(4n+1){clear:left;}
             .auto-clear .col-sm-4:nth-child(3n+1){clear:left;}
             .auto-clear .col-sm-6:nth-child(odd){clear:left;}
-            .long {max-width: 100%; height: calc(100vh - 180px);}
+            .long {max-width: 100%; height: calc(100vh - 240px);}
         }
         @media (max-width:767px) {
             .auto-clear .col-xs-1:nth-child(12n+1) {clear: left;}
@@ -278,7 +280,7 @@ function common_style()
             .auto-clear .col-xs-4:nth-child(3n+1) {clear: left;}
             .auto-clear .col-xs-6:nth-child(odd) {clear: left;}
             .jumbotronA {margin: 8px auto 50px;}
-            .long { height: calc(100vh - 150px);height:100%;}
+            .long { height: calc(100vh - 290px);min-height:70vh;}
             #head_img {margin: 2vH 0 0 0;max-height: 15vH;}
         }
 
@@ -289,7 +291,9 @@ function common_style()
             .auto-clear .col-xs-4:nth-child(3n+1){clear:left;}
             .auto-clear .col-xs-6:nth-child(odd){clear:left;}
             .jumbotronA {margin: 8px auto 50px;}
-            .long {max-width: 270px; height: calc(100vh - 180px);}
+            .long {height: calc(100vh - 180px);}
+            #preview {height: calc(100vh - 90px);}
+            #search_data_right {height: calc(100vh - 170px); min-height: 70vH; }
             #head_img {margin: 2vH 0 0 0;max-height: 10vH;}
         }
         .section_title {font-size:1.2em;text-decoration:underline;font-weight:600;margin-bottom:8px;}
@@ -428,6 +432,12 @@ function common_style()
             float: right;
             clear:both;
         }
+        .Content {
+            position:absolute;
+            left:5px;
+            top:5px;
+            right:5px;
+        }
         .arrow_right:after, .arrow_right:before {
             left: 100%;
             top: 50%;
@@ -475,35 +485,35 @@ function common_style()
         }
         #message_data_right, #search_data_right{
             background-color: #fffef1;
-            padding: 10px 20px;
+            padding: 10px 20px 60px;
             overflow: auto;
-            height: calc(100vh - 308px);
+            top: 45px;
+            position: absolute;
+            right: 5px;
+            left: 5px;
+            bottom: 41px;
         }
         
         #Content
         {
             margin: 0px auto;
             padding: 2px 10px 3px;
-            
             background-color: #ECECEC;;
-            border-top-left-radius: 5px;
-            border-top-right-radius: 5px;
+            Xborder-top-left-radius: 5px;
+            Xborder-top-right-radius: 5px;
             border-bottom: 2pt solid #eae3ce;
+            
         }
         .line_bottom_style {
-            position: relative;
+            position: absolute;
             font-size: 0.9em;
-            width: 100%;
-            bottom: 0px;
-            left: 0px;
+            bottom: 5px;
+            left: 5px;
+            right:5px;
             height: 36px;
             color: black;
             background-color: #ECECEC;
             border-radius: 0;
-            top:unset;
-            width: 100%;
-            border-bottom-left-radius: 5px;
-            border-bottom-right-radius: 5px;
             border-top: 2pt solid #eae3ce;
         }
         .logo {
@@ -590,8 +600,15 @@ function common_style()
         }
 
         .shrinkToFit {
-            Xwidth: 90%;
-            height: 90%;
+             height: 90%;
+        }
+        
+        .pname {
+            position:relative;
+            margin: 0px auto;
+            font-size:0.9em;
+            top:3px;
+            font-weight: bold;
         }
 
     </style>
@@ -684,8 +701,6 @@ function common_js()
         $.ajax({
             type: "POST",
             url: "m_save.php",
-            //url: "../../../controller.php?document&list&pid="+$("#pid").val(),
-            //url     :"/openemr/controller.php?document&list&patient_id=3371&parent_id=24&",
             data: {
                 go          : 'search_Docs',
                 pid         : $("#pid").val(),
@@ -722,10 +737,7 @@ function common_js()
         '                        <i class="fa fa-spinner fa-pulse fa-fw" style="font-size: 100px; color: #000080; padding: 20px"></i>\n'+
         '                        <h2 >Loading data...</h2>\n'+
         '                    </div>');
-
-
-       // $("#message_data div").css("background-color", "transparent");
-
+    
         $.ajax({
             type: "POST",
             url: "../messages/messages.php?nomenu=1",

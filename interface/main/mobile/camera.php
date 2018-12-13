@@ -121,7 +121,7 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
 
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
-                <img src="images/uploads.png" id="head_img" alt="<?php echo xla('File Uploader'); ?>">
+                <img src="<?php echo $webroot; ?>/public/images/uploads.png" id="head_img" alt="<?php echo xla('File Uploader'); ?>">
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
                 <div class="row text-center">
@@ -219,7 +219,8 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
                 </div>
             </div>
             <div class="col-xs-12 col-sm-7 col-md-7 col-lg-7 col-sm-offset-1 col-md-offset-1 col-lg-offset-1 jumbotronA custom-file-upload">
-                <div id="Content" class="Content">
+                <div id="preview" class="">
+                    <div id="Content" class="Content">
                     <div id="PID_contact" class="line_1_style">
                         <span style="position:relative; float:left;width:80px;"><i class="left fa fa-file-image-o"></i>&nbsp;<?php echo xlt('Documents'); ?> </span>
                         <span style="font-weight:600;float:left;padding-left:45px;"><?php echo $now_time; ?> </span>
@@ -282,14 +283,11 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
                             } ?>
                     </div>
                 </div>
-                <div id="preview" class=""></div>
-                <div id="search_data_right">
-                    
-                    <h2><?php echo xlt('Document Viewer'); ?></h2>
-                   
+                    <div id="search_data_right">
+                        <h2><?php echo xlt('Document Viewer'); ?></h2>
+                    </div>
+                    <div id="message_data_right"></div>
                 </div>
-                <div id="message_data_right"></div>
-                
                 
             </div>
         </div>

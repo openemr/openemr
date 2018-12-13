@@ -32,7 +32,6 @@ require_once "../../globals.php";
 require_once "$srcdir/patient.inc";
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/formatting.inc.php";
-require_once $GLOBALS['srcdir']."/../vendor/mobiledetect/mobiledetectlib/Mobile_Detect.php";
 require_once "m_functions.php";
 
 $detect             = new Mobile_Detect;
@@ -97,7 +96,7 @@ $setting_year       = prevSetting($uspfx, 'setting_year', 'setting_year', $year)
 
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
-                    <img src="images/calendar.png" id="head_img" alt="OpenEMR <?php echo xla('Calendar'); ?>">
+                    <img src="<?php echo $webroot; ?>/public/images/calendar.png" id="head_img" alt="OpenEMR <?php echo xla('Calendar'); ?>">
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
                     <div class="row text-center">

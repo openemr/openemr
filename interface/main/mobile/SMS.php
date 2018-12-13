@@ -28,7 +28,6 @@
 require_once('../../globals.php');
 require_once "$srcdir/patient.inc";
 require_once "$srcdir/options.inc.php";
-require_once $GLOBALS['srcdir']."/../vendor/mobiledetect/mobiledetectlib/Mobile_Detect.php";
 require_once("m_functions.php");
 require_once("$srcdir/MedEx/API.php");
 
@@ -67,7 +66,7 @@ if (!empty($_SESSION['desktop']) || ($device_type == 'computer')) {
     
     <div class="row">
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
-            <img src="images/SMSBot.png" id="head_img" alt="OpenEMR <?php echo xla('SMS Bot'); ?>">
+            <img src="<?php echo $webroot; ?>/public/images/SMSBot.png" id="head_img" alt="OpenEMR <?php echo xla('SMS Bot'); ?>">
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
             
@@ -80,7 +79,7 @@ if ($GLOBALS['medex_enable'] == '1') {
     $logged_in['status']['display']="mob";
     $MedEx->display->SMS_bot($logged_in['status']);
 } else {
-    echo '<span class="well"><?php echo xlt('Your site is not enabled for SMS through MedEx'); ?></span>';
+    echo '<span class="well">'. xlt("Your site is not enabled for SMS through MedEx").'</span>';
 }
 ?>      </div></div></div>
         <div class="col-xs-12 col-sm-7 col-md-7 col-lg-7  jumbotronA custom-file-upload">
@@ -113,14 +112,15 @@ if ($GLOBALS['medex_enable'] == '1') {
                             <?php
                                 if (empty($data['show'])) { ?>
                                 
-									<span style="position:relative;margin: 0px auto;font-size:0.9em;top:3px;" id="pname">
+									<span  class="pname" id="pname">
 									<?php
                                         $name =  $fname." ".$lname;
                                         $name = (strlen($name) > 20) ? substr($name,0,17).'...' : $name;
                                         echo text($name." ".$who['p_phone_cell']);
                                     ?>
 									</span>
-                                    <span id="new_SMS_icon" style="position: relative;float: right;top:3px;" onclick="goNew_SMS();">
+                                    <span id="new_SMS_icon" class="pname" style="position: absolute;right: 5px;"
+                                           onclick="goNew_SMS();">
 									    <i class="fa fa-users"></i>
 								    </span>
                                     <?php
@@ -172,11 +172,11 @@ if ($GLOBALS['medex_enable'] == '1') {
                     <a href="https://medexbank.com/index.html" class="logo">
                         <img src="https://medexbank.com/images/MedEx2.1.png"
                              target="_blank"></a><br />
-                    <h2>SMS: <?php echo xlt('Patient Search'); ?>'</h2>
+                    <h2>SMS: <?php echo xlt('Patient Search'); ?></h2>
                         <ul class="text-left" style="margin:0px auto 30px;width: 50%;">
                             <li id="short_search"> <?php echo xlt('min 3 characters required'); ?></li>
                             <li> <?php echo xlt('search first or last names'); ?></li>
-                            <li> <?php echo xlt('select Patient to begin SMS session'); ?>'</li>
+                            <li> <?php echo xlt('select Patient to begin SMS session'); ?></li>
                         </ul>
                 </div>
             
@@ -231,7 +231,7 @@ if ($GLOBALS['medex_enable'] == '1') {
     var pid;
     function goForward(pid) {
         top.restoreSession();
-        $("#NEW_SMS").hide();
+        $("#NEW_SMS").show();
         $('#search_data_right').hide();
         $('#message_data_right').show();
         $("#new_SMS_icon").show();

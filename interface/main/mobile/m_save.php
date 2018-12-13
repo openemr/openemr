@@ -89,7 +89,7 @@
                     <img type='".$docs[0][$i]['mimetype']."'
                     class='shrinkToFit'
                     src='/openemr/controller.php?document&retrieve&patient_id=".$docs[0][$i]['foreign_id']."&document_id=".$docs[0][$i]['id']."&as_file=false' />
-<div class='card-body'><b class='card-title'>". $docs[0][$i]['name']." (".$docs[0][$i]['date'].") <br></b></div>
+<div class='card-body'><b class='card-title'>". text($docs[0][$i]['name'])." (".text($docs[0][$i]['date']).") <br></b></div>
 </div></div>";
         }
         echo $out;
@@ -285,16 +285,5 @@
             $docs_by_date[$row2['encounter_date']][] = $row2;
         }
         
-        /*$documents['categories']=$categories;
-        $documents['my_name']=$my_name;
-        $documents['children_names']=$children_names;
-        $documents['parent_name'] = $parent_name;
-        $documents['zones'] = $zones;
-        $documents['docs_in_zone'] = $docs_in_zone;
-        $documents['docs_in_cat_id'] = $docs_in_cat_id;
-        $documents['docs_in_name'] = $docs_in_name;
-        $documents['docs_by_date'] = $docs_by_date;
-        */
-        //var_dump($documents['docs_in_cat_id']);
         return array($documents);
     }
