@@ -40,7 +40,15 @@ function createUniqueToken($length = 32)
         die("OpenEMR Error : OpenEMR is not working because missing openssl extension.");
     }
 
-    $uniqueToken = base64_encode(openssl_random_pseudo_bytes($length));
+    try {
+        $uniqueToken = base64_encode(random_bytes($length));
+    } catch (Error $e) {
+        error_log('OpenEMR Error : OpenEMR is not working because of random_bytes() Error: ' . $e->getMessage());
+        die("OpenEMR Error : OpenEMR is not working because because of random_bytes() Error.");
+    } catch (Exception $e) {
+        error_log('OpenEMR Error : OpenEMR is not working because because of random_bytes() Exception: ' . $e->getMessage());
+        die("OpenEMR Error : OpenEMR is not working because because of random_bytes() Exception.");
+    }
 
     if (empty($uniqueToken)) {
         error_log("OpenEMR Error : OpenEMR is not working because a random unique token is not being formed correctly.");

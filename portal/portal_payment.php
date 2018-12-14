@@ -75,7 +75,7 @@ $ccdata = array();
 $invdata = array();
 
 if ($edata) {
-    $ccdata = json_decode(aes256Decrypt($edata['checksum']), true);
+    $ccdata = json_decode(aes256DecryptTwo($edata['checksum']), true);
     $invdata = json_decode($edata['table_args'], true);
     echo "<script  type='text/javascript'>var jsondata='" . $edata['table_args'] . "';var ccdata='" . $edata['checksum'] . "'</script>";
 }
