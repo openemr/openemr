@@ -20,10 +20,10 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/billrep.inc");
-require_once("$srcdir/billing.inc");
 
 use OpenEMR\Billing\X12_5010_837P;
 use OpenEMR\Billing\HCFA_1500;
+use OpenEMR\Billing\Billing;
 
 if (!verifyCsrfToken($_POST["csrf_token_form"])) {
     csrfNotVerified();
@@ -195,28 +195,28 @@ function process_form($ar)
 
             $tmp = 1;
             if (isset($ar['HiddenMarkAsCleared']) && $ar['HiddenMarkAsCleared'] == 'yes') {
-                $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 2); // $sql .= " billed = 1, ";
+                $tmp = Billing::updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 2); // $sql .= " billed = 1, ";
             }
             if (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter'])) {
-                $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 1, '', $target, $claim_array['partner']);
+                $tmp = Billing::updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 1, '', $target, $claim_array['partner']);
             } elseif (isset($ar['bn_ub04_x12'])) {
                 $ub04id = get_ub04_array($patient_id, $encounter);
                 $ub_save = json_encode($ub04id);
-                $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 1, '', $target, $claim_array['partner'] . '-837I', 0, $ub_save);
+                $tmp = Billing::updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 1, '', $target, $claim_array['partner'] . '-837I', 0, $ub_save);
             } elseif (isset($ar['bn_process_ub04_form']) || isset($ar['bn_process_ub04'])) {
                 $ub04id = get_ub04_array($patient_id, $encounter);
                 $ub_save = json_encode($ub04id);
-                $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 1, '', 'ub04', - 1, 0, $ub_save);
+                $tmp = Billing::updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 1, '', 'ub04', - 1, 0, $ub_save);
             } elseif (isset($ar['bn_process_hcfa']) || isset($ar['bn_hcfa_txt_file']) || isset($ar['bn_process_hcfa_form'])) {
-                $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 1, '', 'hcfa');
+                $tmp = Billing::updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 1, '', 'hcfa');
             } elseif (isset($ar['bn_mark'])) {
                 // $sql .= " billed = 1, ";
-                $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 2);
+                $tmp = Billing::updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 2);
             } elseif (isset($ar['bn_reopen'])) {
-                $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 0);
+                $tmp = Billing::updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 0);
             } elseif (isset($ar['bn_external'])) {
                 // $sql .= " billed = 1, ";
-                $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 2);
+                $tmp = Billing::updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 2);
             }
 
             if (! $tmp) {
@@ -231,7 +231,7 @@ function process_form($ar)
                     $segs = explode("~\n", X12_5010_837P::gen_x12_837($patient_id, $encounter, $log, isset($ar['bn_x12_encounter'])));
                     fwrite($hlog, $log);
                     append_claim($segs);
-                    if (! updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename)) {
+                    if (! Billing::updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename)) {
                         $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
                     }
                 } elseif (isset($ar['bn_ub04_x12'])) {
@@ -239,7 +239,7 @@ function process_form($ar)
                     $segs = explode("~\n", generate_x12_837I($patient_id, $encounter, $log, $ub04id));
                     fwrite($hlog, $log);
                     append_claim($segs);
-                    if (! updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename, 'X12-837I', - 1, 0, json_encode($ub04id))) {
+                    if (! Billing::updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename, 'X12-837I', - 1, 0, json_encode($ub04id))) {
                         $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
                     }
                 } elseif (isset($ar['bn_process_hcfa'])) {
@@ -258,7 +258,7 @@ function process_form($ar)
                             'leading' => 12
                         ));
                     }
-                    if (! updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename)) {
+                    if (! Billing::updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename)) {
                         $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
                     }
                 } elseif (isset($ar['bn_process_hcfa_form'])) {
@@ -279,7 +279,7 @@ function process_form($ar)
                             'leading' => 12
                         ));
                     }
-                    if (! updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename)) {
+                    if (! Billing::updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename)) {
                         $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
                     }
                 } elseif (isset($ar['bn_process_ub04_form']) || isset($ar['bn_process_ub04'])) {
@@ -287,7 +287,7 @@ function process_form($ar)
                     $log = "";
                     $template[] = buildTemplate($patient_id, $encounter, "", "", $log);
                     fwrite($hlog, $log);
-                    if (! updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename, 'ub04', - 1, 0, json_encode($ub04id))) {
+                    if (! Billing::updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename, 'ub04', - 1, 0, json_encode($ub04id))) {
                         $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
                     }
                 } elseif (isset($ar['bn_hcfa_txt_file'])) {
@@ -296,7 +296,7 @@ function process_form($ar)
                     $lines = $hcfa->gen_hcfa_1500($patient_id, $encounter, $log);
                     fwrite($hlog, $log);
                     $bat_content .= $lines;
-                    if (! updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename)) {
+                    if (! Billing::updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename)) {
                         $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
                     }
                 } else {

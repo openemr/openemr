@@ -1,5 +1,6 @@
 <?php
-/*
+/* HCFA_1500 Class
+ *
  * This program creates the HCFA 1500 claim form.
  *
  * @package OpenEMR
