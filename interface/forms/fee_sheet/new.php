@@ -20,8 +20,6 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Core\Header;
 use OpenEMR\Billing\Billing;
 
-
-
 //acl check
 if (!acl_check_form('fee_sheet')) {
     ?>
