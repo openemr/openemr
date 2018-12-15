@@ -185,6 +185,10 @@ class C_Document extends Controller
                     fclose($tmpfile);
                     if ($doDecryption) {
                         $filetext = $this->decrypt($filetext, $passphrase);
+                        if ($filetext === false) {
+                            error_log("OpenEMR Error: Unable to decrypt a document since decryption failed.");
+                            $filetext = "";
+                        }
                     }
                     if ($_POST['destination'] != '') {
                         $fname = $_POST['destination'];
