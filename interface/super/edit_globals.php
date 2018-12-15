@@ -274,8 +274,9 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
                         $fldvalue=0;
                     }
                     if (!$force_off_enable_auditlog_encryption && ($fldid == "enable_auditlog_encryption") && ($fldvalue==1)) {
-                        // Run below function to set up the encryption key
-                        aes256PrepKey();
+                        // Run below functions to set up the encryption keys
+                        aes256PrepKey("two", "a");
+                        aes256PrepKey("two", "b");
                     }
 
                       // special treatment for some vars
