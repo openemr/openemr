@@ -11,6 +11,7 @@
 
 
 use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
@@ -210,11 +211,29 @@ div.tab {
     width: auto;
 }
 </style>
-
+<?php
+$arrOeUiSettings = array(
+    'heading_title' => xl('Edit History and Lifestyle'),
+    'include_patient_name' => true,
+    'expandable' => false,
+    'expandable_files' => array(),//all file names need suffix _xpd
+    'action' => "back",//conceal, reveal, search, reset, link or back
+    'action_title' => "",
+    'action_href' => "history.php",//only for actions - reset, link or back
+    'show_help_icon' => false,
+    'help_file_name' => ""
+);
+$oemr_ui = new OemrUI($arrOeUiSettings);
+?>
 </head>
 <body class="body_top">
 
-<div class="container">
+<div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
+    <div class="row">
+        <div class="col-sm-12">
+            <?php require_once("$include_root/patient_file/summary/dashboard_header.php"); ?>
+        </div>
+    </div>
     <div class="row">
         <div class="col-xs-12">
             <?php
@@ -235,9 +254,6 @@ div.tab {
 
                 <input type='hidden' name='mode' value='save'>
 
-                <div class="page-header">
-                    <h2><?php echo text(getPatientName($pid));?>&nbsp;<small><?php echo xlt('History & Lifestyle'); ?></h2>
-                </div>
                 <div class="btn-group">
                     <button type="submit" class="btn btn-default btn-save"><?php echo xlt('Save'); ?></button>
                     <a href="history.php" class="btn btn-link btn-cancel" onclick="top.restoreSession()">
@@ -263,7 +279,8 @@ div.tab {
             <?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
         </div>
     </div>
-</div>
+</div><!--end of container div-->
+<?php $oemr_ui->oeBelowContainerDiv();?>
 </body>
 
 <script language="JavaScript">
