@@ -7,8 +7,9 @@
   // of the License, or (at your option) any later version.
 
   require_once("patient.inc");
-  require_once("billing.inc");
   require_once("invoice_summary.inc.php");
+
+  use OpenEMR\Billing\Billing;
 
   $chart_id_cash   = 0;
   $chart_id_ar     = 0;

@@ -1,5 +1,5 @@
 <?php
- /**
+/*
  * Fee Sheet Program used to create charges, copays and add diagnosis codes to the encounter
  *
  * @package   OpenEMR
@@ -11,12 +11,16 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-use OpenEMR\Core\Header;
 
 require_once("../../globals.php");
 require_once("$srcdir/FeeSheetHtml.class.php");
 require_once("codes.php");
 require_once("$srcdir/options.inc.php");
+
+use OpenEMR\Core\Header;
+use OpenEMR\Billing\Billing;
+
+
 
 //acl check
 if (!acl_check_form('fee_sheet')) {
@@ -540,7 +544,7 @@ if (!$alertmsg && $_POST['bn_reopen']) {
     unset($_POST['prod']);
 }
 
-$billresult = getBillingByEncounter($fs->pid, $fs->encounter, "*");
+$billresult = Billing::getBillingByEncounter($fs->pid, $fs->encounter, "*");
 ?>
 <html>
 <?php Header::setupHeader(['knockout', 'jquery-ui', 'jquery-ui-base']);?>
@@ -820,7 +824,7 @@ require_once("$srcdir/expand_contract_inc.php");
                 onsubmit="return validate(this)">
                     <input type='hidden' name='newcodes' value=''>
                     <?php
-                        $isBilled = !$add_more_items && isEncounterBilled($fs->pid, $fs->encounter);
+                        $isBilled = !$add_more_items && Billing::isEncounterBilled($fs->pid, $fs->encounter);
                     if ($isBilled) {
                         echo "<p><font color='green'>" .
                         xlt("This encounter has been billed. To make changes, re-open it or select Add More Items.") .

@@ -16,17 +16,17 @@ namespace OpenEMR\Billing;
 
 class Billing
 {
-    public function getBillingById($id, $cols = "*")
+    public static function getBillingById($id, $cols = "*")
     {
         return sqlQuery("select $cols from billing where id=? and activity=1 order by date DESC limit 0,1", array($id));
     }
 
-    public function getBillingByPid($pid, $cols = "*")
+    public static function getBillingByPid($pid, $cols = "*")
     {
         return sqlQuery("select $cols from billing where pid =? and activity=1 order by date DESC limit 0,1", array($pid));
     }
 
-    public function getBillingByEncounter($pid, $encounter, $cols = "code_type, code, code_text")
+    public static function getBillingByEncounter($pid, $encounter, $cols = "code_type, code, code_text")
     {
         $res = sqlStatement("select $cols from billing where encounter = ? and pid=? and activity=1 order by code_type, date ASC", array($encounter, $pid));
 
@@ -318,7 +318,7 @@ class Billing
     // Determine if the encounter is billed.  It is considered billed if it
     // has at least one chargeable item, and all of them are billed.
     //
-    public function isEncounterBilled($pid, $encounter)
+    public static function isEncounterBilled($pid, $encounter)
     {
         $billed = -1; // no chargeable services yet
 
