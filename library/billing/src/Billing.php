@@ -55,7 +55,7 @@ class Billing
         $notecodes = '',
         $pricelevel = '',
         $revenue_code = ""
-    ){
+    ) {
 
         $sql = "INSERT INTO billing (date, encounter, code_type, code, code_text, " .
             "pid, authorized, user, groupname, activity, billed, provider_id, " .
@@ -125,7 +125,7 @@ class Billing
         $partner_id = -1,
         $crossover = 0,
         $submitted_claim = ''
-    ){
+    ) {
 
         $sqlBindArray = array();
         if (!$newversion) {
