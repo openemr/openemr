@@ -29,8 +29,8 @@ function aes256Encrypt($sValue, $customPassword = null, $baseEncode = true)
         // Collect the encryption key. If it does not exist, then create it
         $sSecretKey = aes256PrepKey("two", "a");
     } else {
-        // Turn the password into a hash to use as the key
-        $sSecretKey = hash("sha256", $customPassword);
+        // Turn the password into a hash(note use binary) to use as the key
+        $sSecretKey = hash("sha256", $customPassword, true);
     }
     // Collect the separate key for the HMAC hash. If it does not exist, then create it
     $sSecretKeyHmac = aes256PrepKey("two", "b");
@@ -78,30 +78,36 @@ function aes256Encrypt($sValue, $customPassword = null, $baseEncode = true)
  * @param  string  $sValue          Encrypted data that will be decrypted.
  * @param  string  $customPassword  If null, then use standard key. If provide a password, then will derive key from this.
  * @param  string  $baseEncode      True if wish to base64_decode() encrypted data.
- * @return string                   returns the decrypted data.
+ * @return string or false          returns the decrypted data or false if failed.
  */
 function aes256DecryptTwo($sValue, $customPassword = null, $baseEncode = true)
 {
     if (!extension_loaded('openssl')) {
         error_log("OpenEMR Error : Decryption is not working because missing openssl extension.");
+        return false;
     }
 
     if (empty($customPassword)) {
         // Collect the encryption key.
         $sSecretKey = aes256PrepKey("two", "a");
     } else {
-        // Turn the password into a hash to use as the key
-        $sSecretKey = hash("sha256", $customPassword);
+        // Turn the password into a hash(note use primary) to use as the key
+        $sSecretKey = hash("sha256", $customPassword, true);
     }
     // Collect the separate key for the HMAC hash. If it does not exist, then create it
     $sSecretKeyHmac = aes256PrepKey("two", "b");
 
     if (empty($sSecretKey) || empty($sSecretKeyHmac)) {
         error_log("OpenEMR Error : Encryption is not working because key(s) is blank.");
+        return false;
     }
 
     if ($baseEncode) {
-        $raw = base64_decode($sValue);
+        $raw = base64_decode($sValue, true);
+        if ($raw === false) {
+            error_log("OpenEMR Error : Encryption did not work because illegal characters were noted in base64_encoded data.");
+            return false;
+        }
     } else {
         $raw = $sValue;
     }
