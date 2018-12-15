@@ -51,7 +51,7 @@ function newEvent($event, $user, $groupname, $success, $comments = "", $patient_
                      " VALUES ( ".
                      $adodb->qstr($last_log_id) . "," .
                      $adodb->qstr($encrypt_comment) . "," .
-                     "'', '1')";
+                     "'', '2')";
     sqlInsertClean_audit($encryptLogQry);
 
     if (($patient_id=="NULL") || ($patient_id==null)) {
@@ -871,7 +871,7 @@ function auditSQLEvent($statement, $outcome, $binds = null)
                      " VALUES ( ".
                       $adodb->qstr($last_log_id) . "," .
                       $adodb->qstr($encrypt_comment) . "," .
-                      $adodb->qstr($checksumGenerate) .", '1')";
+                      $adodb->qstr($checksumGenerate) .", '2')";
     sqlInsertClean_audit($encryptLogQry);
 
     send_atna_audit_msg($user, $group, $event, $pid, $success, $comments);

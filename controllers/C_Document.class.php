@@ -463,7 +463,7 @@ class C_Document extends Controller
 
     function decrypt($crypttext, $key)
     {
-        return aes256Decrypt($crypttext, $key, false);
+        return aes256DecryptTwo($crypttext, $key, false);
     }
 
     /**
