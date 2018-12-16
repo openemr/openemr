@@ -19,6 +19,7 @@ require_once("$srcdir/amc.php");
 require_once("$srcdir/patient.inc");
 
 use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 // This can come from the URL if it's an Add.
 $title   = empty($_REQUEST['title']) ? 'LBTref' : $_REQUEST['title'];
@@ -308,20 +309,30 @@ div.tab {
     width: auto;
 }
 </style>
+<?php
+$arrOeUiSettings = array(
+    'heading_title' => xl('Add/Edit Patient Transaction'),
+    'include_patient_name' => true,
+    'expandable' => false,
+    'expandable_files' => array(),//all file names need suffix _xpd
+    'action' => "back",//conceal, reveal, search, reset, link or back
+    'action_title' => "",
+    'action_href' => "transactions.php",//only for actions - reset, link and back
+    'show_help_icon' => true,
+    'help_file_name' => "add_edit_transactions_dashboard_help.php"
+);
+$oemr_ui = new OemrUI($arrOeUiSettings);
+?>
 
 </head>
 <body class="body_top" onload="<?php echo $body_onload_code; ?>" >
-    <div class="container">
+    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo attr_url($transid); ?>' onsubmit='return validate(this)'>
         <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
         <input type='hidden' name='mode' value='add'>
-            <?php $header_title = xl('Add/Edit Patient Transaction of');?>
             <div class="row">
                 <div class="col-sm-12">
-                    <?php
-                        $go_back_href = "transactions.php";
-                        require_once("../summary/dashboard_header_simple_return.php");
-                    ?>
+                    <?php require_once("$include_root/patient_file/summary/dashboard_header.php"); ?>
                 </div>
             </div>
             <div class="row">
@@ -551,15 +562,7 @@ div.tab {
         <!-- include support for the list-add selectbox feature -->
         <?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
     </div> <!--end of container div-->
-    <?php
-    //home of the help modal ;)
-    //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
-    if ($GLOBALS['enable_help'] == 1) {
-        echo "<script>var helpFile = 'add_edit_transactions_dashboard_help.php'</script>";
-        //help_modal.php lives in interface, set path accordingly
-        require "../../help_modal.php";
-    }
-    ?>
+    <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>
 
 <script language="JavaScript">

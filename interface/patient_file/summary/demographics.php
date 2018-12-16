@@ -32,6 +32,7 @@ require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Reminder\BirthdayReminder;
+use OpenEMR\OeUI\OemrUI;
 
 if (isset($_GET['set_pid'])) {
     include_once("$srcdir/pid.inc");
@@ -673,10 +674,25 @@ if (!empty($grparr['']['grp_size'])) {
 
 </style>
 <title><?php echo xlt("Dashboard{{patient file}}"); ?></title>
+
+<?php
+$arrOeUiSettings = array(
+    'heading_title' => xl('Medical Record Dashboard'),
+    'include_patient_name' => true,
+    'expandable' => false,
+    'expandable_files' => array(),//all file names need suffix _xpd
+    'action' => "",//conceal, reveal, search, reset, link or back
+    'action_title' => "",
+    'action_href' => "",//only for actions - reset, link or back
+    'show_help_icon' => true,
+    'help_file_name' => "medical_dashboard_help.php"
+    );
+$oemr_ui = new OemrUI($arrOeUiSettings);
+?>
 </head>
 
 <body class="body_top patient-demographics">
-    <div class="container">
+    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='display: none;' onclick='top.restoreSession()'></a>
 
         <a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr_url($pid); ?>&user_id=<?php echo attr_url($_SESSION['authId']); ?>' id='birthday_popup' style='display: none;' onclick='top.restoreSession()'></a>
@@ -695,8 +711,7 @@ if (!empty($grparr['']['grp_size'])) {
         }?>
 
             <?php
-            if ($thisauth) {
-                $header_title = xl('Medical Record Dashboard of');?>
+            if ($thisauth) {?>
                 <div class="row">
                     <div class="col-sm-12">
                         <?php require_once("$include_root/patient_file/summary/dashboard_header.php"); ?>
@@ -1891,14 +1906,7 @@ if (!empty($grparr['']['grp_size'])) {
 
         </div> <!-- end main content div -->
     </div><!-- end container div -->
-    <?php
-    //home of the help modal ;)
-    //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
-    if ($GLOBALS['enable_help'] == 1) {
-        echo "<script>var helpFile = 'medical_dashboard_help.php'</script>";
-        require "$include_root/help_modal.php";
-    }
-    ?>
+    <?php $oemr_ui->oeBelowContainerDiv();?>
 <script language='JavaScript'>
 // Array of skip conditions for the checkSkipConditions() function.
 var skipArray = [
