@@ -68,18 +68,18 @@ $rc = sqlInsert("INSERT INTO list_options ( " .
 // return JSON data of list items on success
 echo '{ "error":"", "options": [';
 // send the 'Unassigned' empty variable
-echo '{"id":"","title":"' . xl('Unassigned') . '"}';
+echo '{"id":"","title":' . xlj('Unassigned') . '}';
 $comma = ",";
 $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq", array($list_id));
 while ($lrow = sqlFetchArray($lres)) {
     echo $comma;
-    echo '{"id":"'.$lrow['option_id'].'",';
+    echo '{"id":' . js_escape($lrow['option_id']) . ',';
 
     // translate title if translate-lists flag set and not english
     if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
-        echo '"title":"' . xl($lrow['title']) .'"}';
+        echo '"title":' . xlj($lrow['title']) .'}';
     } else {
-        echo '"title":"'.$lrow['title'].'"}';
+        echo '"title":' . js_escape($lrow['title']) . '}';
     }
 }
 

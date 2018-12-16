@@ -40,6 +40,9 @@ class C_Prescription extends Controller
         $this->pconfig = $GLOBALS['oer_config']['prescriptions'];
         $this->RxList = new RxList();
 
+        // Assign the CSRF_TOKEN_FORM
+        $this->assign("CSRF_TOKEN_FORM", collectCsrfToken());
+
         if ($GLOBALS['inhouse_pharmacy']) {
             // Make an array of drug IDs and selectors for the template.
             $drug_array_values = array(0);
@@ -66,19 +69,19 @@ class C_Prescription extends Controller
                     $drug_attributes .= ',';
                 }
 
-                $drug_attributes .=    "['"  .
-                    attr($row['name'])       . "',"  . //  0
-                    attr($row['form'])       . ",'"  . //  1
-                    attr($row['dosage'])     . "','" . //  2
-                    attr($row['size'])       . "',"  . //  3
-                    attr($row['unit'])       . ","   . //  4
-                    attr($row['route'])      . ","   . //  5
-                    attr($row['period'])     . ","   . //  6
-                    attr($row['substitute']) . ","   . //  7
-                    attr($row['quantity'])   . ","   . //  8
-                    attr($row['refills'])    . ","   . //  9
-                    attr($row['quantity'])   . ","   . //  10 quantity per_refill
-                    attr($row['drug_code'])  . "]";    //  11 rxnorm drug code
+                $drug_attributes .=    "["  .
+                    js_escape($row['name'])       . ","  . //  0
+                    js_escape($row['form'])       . ","  . //  1
+                    js_escape($row['dosage'])     . "," . //  2
+                    js_escape($row['size'])       . ","  . //  3
+                    js_escape($row['unit'])       . ","   . //  4
+                    js_escape($row['route'])      . ","   . //  5
+                    js_escape($row['period'])     . ","   . //  6
+                    js_escape($row['substitute']) . ","   . //  7
+                    js_escape($row['quantity'])   . ","   . //  8
+                    js_escape($row['refills'])    . ","   . //  9
+                    js_escape($row['quantity'])   . ","   . //  10 quantity per_refill
+                    js_escape($row['drug_code'])  . "]";    //  11 rxnorm drug code
             }
 
             $this->assign("DRUG_ARRAY_VALUES", $drug_array_values);
@@ -132,9 +135,6 @@ class C_Prescription extends Controller
 
         // flag to indicate the CAMOS form is regsitered and active
         $this->assign("CAMOS_FORM", isRegistered("CAMOS"));
-
-        // Assign the CSRF_TOKEN_FORM
-        $this->assign("CSRF_TOKEN_FORM", collectCsrfToken());
 
         $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_list.html");
     }

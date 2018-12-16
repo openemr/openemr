@@ -295,7 +295,8 @@ if ($value_select) {
                                 values: thevalues,
                                 track:  thetitle,
                                 items:  theitem,
-                                thecheckboxes: checkboxfake
+                                thecheckboxes: checkboxfake,
+                                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
                             },
                         dataType: "json",
                         success: function(returnData){

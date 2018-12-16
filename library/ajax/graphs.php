@@ -87,10 +87,10 @@ function graphsGetValues($name)
         //  (Note am skipping values of zero, this could be made to be
         //   optional in the future when using lab values)
         $values = SqlStatement("SELECT " .
-        add_escape_custom($name) . ", " .
+            escape_sql_column_name($name, array($table)) . ", " .
         "date " .
-        "FROM " . add_escape_custom($table) . " " .
-        "WHERE " . add_escape_custom($name) . " != 0 " .
+        "FROM " . escape_table_name($table) . " " .
+        "WHERE " . escape_sql_column_name($name, array($table)) . " != 0 " .
         "AND pid = ? ORDER BY date", array($pid));
     }
 

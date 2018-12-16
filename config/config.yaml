@@ -61,6 +61,9 @@ assets:
     jquery-ui-cupertino:
         basePath: %assets_static_relative%/jquery-ui-themes/themes/cupertino/
         link: jquery-ui.min.css
+    jquery-ui-lightness:
+        basePath: %assets_static_relative%/jquery-ui-themes/themes/ui-lightness/
+        link: jquery-ui.min.css
     jquery-ui-lightness-1-10-4:
         basePath: %assets_static_relative%/jquery-ui-themes-1-10-4/themes/ui-lightness/
         link: jquery-ui.min.css

@@ -1175,7 +1175,7 @@ $(function() {
 
   //autocomplete
   $(".auto").autocomplete({
-    source: "../../../library/ajax/imm_autocomplete/search.php",
+    source: "../../../library/ajax/imm_autocomplete/search.php?csrf_token_form=" + <?php echo js_url(collectCsrfToken()); ?>,
     minLength: 1
   });
 
