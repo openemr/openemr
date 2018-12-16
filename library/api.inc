@@ -2,7 +2,7 @@
 //our api for 3rd party developers
 require_once(dirname(__FILE__) . "/../interface/globals.php");
 
-use OpenEMR\Billing\Billing;
+use OpenEMR\Billing\BillingUtilities;
 
 $GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
 

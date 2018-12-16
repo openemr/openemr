@@ -18,7 +18,7 @@ require_once("codes.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Core\Header;
-use OpenEMR\Billing\Billing;
+use OpenEMR\Billing\BillingUtilities;
 
 //acl check
 if (!acl_check_form('fee_sheet')) {
@@ -542,7 +542,7 @@ if (!$alertmsg && $_POST['bn_reopen']) {
     unset($_POST['prod']);
 }
 
-$billresult = Billing::getBillingByEncounter($fs->pid, $fs->encounter, "*");
+$billresult = BillingUtilities::getBillingByEncounter($fs->pid, $fs->encounter, "*");
 ?>
 <html>
 <?php Header::setupHeader(['knockout', 'jquery-ui', 'jquery-ui-base']);?>
@@ -822,7 +822,7 @@ require_once("$srcdir/expand_contract_inc.php");
                 onsubmit="return validate(this)">
                     <input type='hidden' name='newcodes' value=''>
                     <?php
-                        $isBilled = !$add_more_items && Billing::isEncounterBilled($fs->pid, $fs->encounter);
+                        $isBilled = !$add_more_items && BillingUtilities::isEncounterBilled($fs->pid, $fs->encounter);
                     if ($isBilled) {
                         echo "<p><font color='green'>" .
                         xlt("This encounter has been billed. To make changes, re-open it or select Add More Items.") .
