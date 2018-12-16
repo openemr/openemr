@@ -17,6 +17,7 @@ require_once("$srcdir/patient.inc");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
+use OpenEMR\OeUI\OemrUI;
 
 // get various authorization levels
 $auth_notes_a  = acl_check('encounters', 'notes_a');
@@ -58,12 +59,25 @@ function show_date_fun(){
 }
 <?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>
 </script>
+<?php
+$arrOeUiSettings = array(
+    'heading_title' => xl('Patient Reports'),
+    'include_patient_name' => true,
+    'expandable' => false,
+    'expandable_files' => array(),//all file names need suffix _xpd
+    'action' => "",//conceal, reveal, search, reset, link or back
+    'action_title' => "",
+    'action_href' => "",//only for actions - reset, link or back
+    'show_help_icon' => true,
+    'help_file_name' => "report_dashboard_help.php"
+);
+$oemr_ui = new OemrUI($arrOeUiSettings);
+?>
 </head>
 
 <body class="body_top">
-    <div class="container">
+    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <div id="patient_reports"> <!-- large outer DIV -->
-        <?php $header_title = xl('Patient Reports for');?>
         <div class="row">
             <div class="col-sm-12">
                 <?php require_once("$include_root/patient_file/summary/dashboard_header.php");?>
@@ -527,14 +541,7 @@ function show_date_fun(){
 
         </div>  <!-- close patient_reports DIV -->
     </div><!--end of container div-->
-    <?php
-    //home of the help modal ;)
-    //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
-    if ($GLOBALS['enable_help'] == 1) {
-        echo "<script>var helpFile = 'report_dashboard_help.php'</script>";
-        require "$include_root/help_modal.php";
-    }
-    ?>
+    <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>
 
 <script language="javascript">
