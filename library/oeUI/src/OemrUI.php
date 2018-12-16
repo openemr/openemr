@@ -66,7 +66,7 @@ class OemrUI
     */
     public function __construct($arrOeUiSettings = array())
     {
-        $this->heading = ($arrOeUiSettings['include_patient_name'])? $arrOeUiSettings['heading_title'] . " - " . getPatientNameFirstLast($_SESSION['pid']):$arrOeUiSettings['heading_title'];
+        $this->heading = ($arrOeUiSettings['include_patient_name'] && !empty($arrOeUiSettings['heading_title']))? $arrOeUiSettings['heading_title'] . " - " . getPatientNameFirstLast($_SESSION['pid']):$arrOeUiSettings['heading_title'];
         $this->expandable = $arrOeUiSettings['expandable'];
         $this->arrFiles = $arrOeUiSettings['expandable_files'];
         $this->arrAction = array($arrOeUiSettings['action'], $arrOeUiSettings['action_title'], $arrOeUiSettings['action_href']);
@@ -93,11 +93,11 @@ class OemrUI
             $action_icon = $this->actionIcon();
             $help_icon = $this->helpIcon();
             $expandable_icon = $arrexpandIcon[0];
-            $container = $arrexpandIcon[1];
+            //$container = $arrexpandIcon[1];
             $heading = "<h2>$heading $expandable_icon $action_icon $help_icon</h2>";
         } else {
             $heading = "<h2>" . xlt("Please supply a heading") . " <i class='fa fa-smile-o' aria-hidden='true'></i></h2>";
-            $container = 'container';
+            //$container = 'container';
         }
         return $heading;
     }
