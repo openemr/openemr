@@ -404,15 +404,6 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
         background: #c1c1c1;
     }
     </style>
-    <?php
-    //to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will
-    //become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an
-    //argument, containing one or more elements, the name of the current file is the first element, if there are linked
-    // files they should be listed thereafter, please add _xpd suffix to the file name
-    // $arr_files_php = array("new_payment_xpd", "search_payments_xpd", "era_payments_xpd");
-    // $current_state = collectAndOrganizeExpandSetting($arr_files_php);
-    // require_once("$srcdir/expand_contract_inc.php");
-    ?>
     <title><?php echo xlt('New Payment'); ?></title>
     <?php
     $arrOeUiSettings = array(
