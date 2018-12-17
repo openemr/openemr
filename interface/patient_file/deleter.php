@@ -21,8 +21,8 @@ require_once($GLOBALS['srcdir'].'/log.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/sl_eob.inc.php');
 
-use OpenEMR\Core\Header;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Core\Header;
 
 if (!empty($_GET)) {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {

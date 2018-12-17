@@ -3,6 +3,8 @@
 require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormProsthesis.class.php");
 
+use OpenEMR\Billing\BillingUtilities;
+
 class C_FormProsthesis extends Controller
 {
 

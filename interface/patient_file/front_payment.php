@@ -22,9 +22,9 @@ require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 
+use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
-use OpenEMR\Billing\BillingUtilities;
 
 $pid = $_REQUEST['hidden_patient_code'] > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
 

@@ -17,8 +17,8 @@ require_once("$srcdir/FeeSheetHtml.class.php");
 require_once("codes.php");
 require_once("$srcdir/options.inc.php");
 
-use OpenEMR\Core\Header;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Core\Header;
 
 //acl check
 if (!acl_check_form('fee_sheet')) {

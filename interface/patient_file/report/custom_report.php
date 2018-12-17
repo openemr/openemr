@@ -31,8 +31,8 @@ require_once("$srcdir/appointments.inc.php");
 
 use ESign\Api;
 use Mpdf\Mpdf;
-use OpenEMR\Services\FacilityService;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
 

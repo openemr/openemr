@@ -21,9 +21,9 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/billrep.inc");
 
-use OpenEMR\Billing\X12_5010_837P;
-use OpenEMR\Billing\HCFA_1500;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\HCFA_1500;
+use OpenEMR\Billing\X12_5010_837P;
 
 if (!verifyCsrfToken($_POST["csrf_token_form"])) {
     csrfNotVerified();

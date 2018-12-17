@@ -14,8 +14,8 @@ require_once("$srcdir/forms.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/report.inc");
 
-use OpenEMR\Services\FacilityService;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Services\FacilityService;
 
 if (!empty($_POST)) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {

@@ -542,7 +542,7 @@ class HCFA_1500
                     "' is not justified!\n";
             }
 
-            $clm_total_charges += floatval()$claim->cptCharges($this->hcfa_proc_index);
+            $clm_total_charges += floatval($claim->cptCharges($this->hcfa_proc_index));
 
             // Compute prior payments and "hard" adjustments.
             for ($ins = 1; $ins < $claim->payerCount(); ++$ins) {

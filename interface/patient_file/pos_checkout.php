@@ -47,9 +47,9 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("../../custom/code_types.inc.php");
 
+use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
-use OpenEMR\Billing\BillingUtilities;
 
 $facilityService = new FacilityService();
 

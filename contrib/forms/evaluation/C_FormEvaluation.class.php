@@ -3,6 +3,8 @@
 require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormEvaluation.class.php");
 
+use OpenEMR\Billing\BillingUtilities;
+
 class C_FormEvaluation extends Controller
 {
 

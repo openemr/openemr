@@ -12,8 +12,8 @@ require_once("../globals.php");
 require_once("$srcdir/gen_x12_837i.inc.php");
 require_once("$srcdir/invoice_summary.inc.php");
 
-use OpenEMR\Billing\Claim;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\Claim;
 use OpenEMR\Pdf\PdfCreator;
 
 $dispose = isset($_POST['handler']) ? $_POST['handler'] : $_GET['handler'];

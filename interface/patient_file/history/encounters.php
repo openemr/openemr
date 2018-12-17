@@ -23,8 +23,8 @@ if ($GLOBALS['enable_group_therapy']) {
     require_once("$srcdir/group.inc");
 }
 
-use OpenEMR\Core\Header;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Core\Header;
 
 $is_group = ($attendant_type == 'gid') ? true : false;
 

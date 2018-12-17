@@ -18,8 +18,8 @@ require_once("$srcdir/report.inc");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/edi.inc");
 
-use OpenEMR\Core\Header;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
