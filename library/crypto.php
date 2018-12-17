@@ -26,14 +26,15 @@ function aes256Encrypt($sValue, $customPassword = null, $baseEncode = true)
     }
 
     if (empty($customPassword)) {
-        // Collect the encryption key. If it does not exist, then create it
+        // Collect the encryption keys. If they does not exist, then create them
+        // The first key is for encryption. Then second key is for the HMAC hash
         $sSecretKey = aes256PrepKey("two", "a");
+        $sSecretKeyHmac = aes256PrepKey("two", "b");
     } else {
-        // Turn the password into a hash(note use binary) to use as the key
+        // Turn the password into a hash(note use binary) to use as the keys
         $sSecretKey = hash("sha256", $customPassword, true);
+        $sSecretKeyHmac = $sSecretKey;
     }
-    // Collect the separate key for the HMAC hash. If it does not exist, then create it
-    $sSecretKeyHmac = aes256PrepKey("two", "b");
 
     if (empty($sSecretKey) || empty($sSecretKeyHmac)) {
         error_log("OpenEMR Error : Encryption is not working because key(s) is blank.");
@@ -88,14 +89,15 @@ function aes256DecryptTwo($sValue, $customPassword = null, $baseEncode = true)
     }
 
     if (empty($customPassword)) {
-        // Collect the encryption key.
+        // Collect the encryption keys.
+        // The first key is for encryption. Then second key is for the HMAC hash
         $sSecretKey = aes256PrepKey("two", "a");
+        $sSecretKeyHmac = aes256PrepKey("two", "b");
     } else {
-        // Turn the password into a hash(note use primary) to use as the key
+        // Turn the password into a hash(note use binary) to use as the keys
         $sSecretKey = hash("sha256", $customPassword, true);
+        $sSecretKeyHmac = $sSecretKey;
     }
-    // Collect the separate key for the HMAC hash. If it does not exist, then create it
-    $sSecretKeyHmac = aes256PrepKey("two", "b");
 
     if (empty($sSecretKey) || empty($sSecretKeyHmac)) {
         error_log("OpenEMR Error : Encryption is not working because key(s) is blank.");
