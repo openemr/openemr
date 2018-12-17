@@ -207,7 +207,7 @@ $GLOBALS_METADATA = array(
         'css_header' => array(
             xl('General Theme (need to logout/login after change this setting)'),
             'css',
-            'style_dune.css',
+            'style_light.css',
             xl('Pick a general theme (need to logout/login after change this setting).')
         ),
 
