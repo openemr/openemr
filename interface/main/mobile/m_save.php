@@ -4,24 +4,11 @@
      *
      * Copyright (C) 2018 Raymond Magauran <magauran@MedExBank.com>
      *
-     * LICENSE: This program is free software: you can redistribute it and/or modify
-     *  it under the terms of the GNU Affero General Public License as
-     *  published by the Free Software Foundation, either version 3 of the
-     *  License, or (at your option) any later version.
-     *
-     *  This program is distributed in the hope that it will be useful,
-     *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-     *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-     *  GNU Affero General Public License for more details.
-     *
-     *  You should have received a copy of the GNU Affero General Public License
-     *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-     *
      * @package OpenEMR
      * @author Ray Magauran <magauran@MedExBank.com>
      * @link http://www.open-emr.org
      * @copyright Copyright (c) 2018 MedEx <magauran@MedExBank.com>
-     * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
+     * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
      */
     
     require_once "../../globals.php";
@@ -85,12 +72,16 @@
         for ($i=0; $i< count($docs[0]); $i++) {
            // $out .= "<pre>".print_r($docs, true)."</pre>";
             $out .= '<div class="col-xs-6 col-sm-6 col-md-6 col-md-offset-1 col-lg-4 text-center custom-file-upload">';
-            $out .="<div class='card bg-success'>
-                    <img type='".$docs[0][$i]['mimetype']."'
-                    class='shrinkToFit'
-                    src='/openemr/controller.php?document&retrieve&patient_id=".$docs[0][$i]['foreign_id']."&document_id=".$docs[0][$i]['id']."&as_file=false' />
-<div class='card-body'><b class='card-title'>". text($docs[0][$i]['name'])." (".text($docs[0][$i]['date']).") <br></b></div>
+            $out .="<div class='card bg-success'>";
+            if ($docs[0][$i]['mimetype'] == 'video/quicktime') {
+                $out .= "<embed style='width: 100%;' AUTOPLAY=false CONTROLLER=true LOOP=false PLUGINSPAGE='http://www.apple.com/quicktime/' ";
+            } else {
+                $out .= "<img type='" . attr($docs[0][$i]['mimetype']) . "' class='shrinkToFit' ";
+            }
+            $out .= "src='/openemr/controller.php?document&retrieve&patient_id=" . attr_url($docs[0][$i]['foreign_id']) . "&document_id=" . attr_url($docs[0][$i]['id']) . "&as_file=false' />
+<div class='card-body'><b class='card-title'>" . text($docs[0][$i]['name']) . " (" . text($docs[0][$i]['date']) . ") <br></b></div>
 </div></div>";
+        
         }
         echo $out;
         exit;
@@ -191,7 +182,6 @@
                       WHERE list_id = 'apptstat' and toggle_setting_1 ='1' and activity='1'
                     ) and
                   pc_eventDate = CURDATE() )";
-            //echo $query;
             $results_byRoom = sqlStatement($query, array($_REQUEST['room']));
             while ($row = sqlFetchArray($results_byRoom)) {
                 $row['room'] = text($_REQUEST['setting_mRoom']);

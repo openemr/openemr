@@ -6,24 +6,11 @@
      *
      * Copyright (C) 2018 Raymond Magauran <magauran@MedExBank.com>
      *
-     * LICENSE: This program is free software: you can redistribute it and/or modify
-     *  it under the terms of the GNU Affero General Public License as
-     *  published by the Free Software Foundation, either version 3 of the
-     *  License, or (at your option) any later version.
-     *
-     *  This program is distributed in the hope that it will be useful,
-     *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-     *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-     *  GNU Affero General Public License for more details.
-     *
-     *  You should have received a copy of the GNU Affero General Public License
-     *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-     *
      * @package OpenEMR
      * @author Ray Magauran <magauran@MedExBank.com>
      * @link http://www.open-emr.org
      * @copyright Copyright (c) 2018 MedEx <magauran@MedExBank.com>
-     * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
+     * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
      */
     use OpenEMR\Core\Header;
     use OpenEMR\Services\VersionService;
@@ -630,17 +617,17 @@ function common_header($display = '')
                 if ($display =='photo') {
                     echo ' class="active" ';
                 } ?>
-                        href="<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/camera.php?v=<?php echo mt_rand(); ?>"><?php echo xlt('Imaging'); ?></a>
+                        href="<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/camera.php?v=<?php echo $GLOBALS['v_js_includes']; ?>"><?php echo xlt('Imaging'); ?></a>
                 <a <?php
                 if ($display == 'cal') {
                     echo ' class="active" ';
                 } ?>
-                        href="<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/m_cal.php?v=<?php echo mt_rand(); ?>"><?php echo xlt('Calendar'); ?></a>
+                        href="<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/m_cal.php?v=<?php echo $GLOBALS['v_js_includes']; ?>"><?php echo xlt('Calendar'); ?></a>
                  <a <?php
                     if ($display =='flow') {
                         echo ' class="active" ';
                     } ?>
-                        href="<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/m_flow.php?v=<?php echo mt_rand(); ?>"><?php echo xlt('Flow'); ?></a>
+                        href="<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/m_flow.php?v=<?php echo $GLOBALS['v_js_includes']; ?>"><?php echo xlt('Flow'); ?></a>
                 <?php
                     if ($GLOBALS['medex_enable'] =='1') { ?>
                     
@@ -648,7 +635,7 @@ function common_header($display = '')
                             if ($display =='sms') {
                                 echo ' class="active" ';
                             } ?>
-                                href="<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/SMS.php?v=<?php echo mt_rand(); ?>&dir=back&show=new"><?php echo xlt('SMS'); ?></a>
+                                href="<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/SMS.php?v=<?php echo $GLOBALS['v_js_includes']; ?>&dir=back&show=new"><?php echo xlt('SMS'); ?></a>
                     <?php
                     }
                     ?>
@@ -672,17 +659,17 @@ function common_footer($display = "")
                     <a class="Fx4vi"
                        href="https://open-emr.org">OpenEMR</a>
                     <a class="Fx4vi"
-                       href="//community.open-emr.org/"><?php echo xlt('Forum'); ?></a>
+                       href="https://community.open-emr.org/"><?php echo xlt('Forum'); ?></a>
                     <a class="Fx4vi"
-                       href="//chat.open-emr.org/home"><?php echo xlt('Chat'); ?></a>
+                       href="https://chat.open-emr.org/home"><?php echo xlt('Chat'); ?></a>
                     <a class="Fx4vi"
-                       href="//www.open-emr.org/wiki/index.php/OpenEMR_<?php echo attr($version->getMajor()).".".attr($version->getMinor()).".".attr($version->getPatch()); ?>_Users_Guide"><?php echo xlt('User Manuals'); ?></a>
+                       href="https://www.open-emr.org/wiki/index.php/OpenEMR_<?php echo attr($version->getMajor()).".".attr($version->getMinor()).".".attr($version->getPatch()); ?>_Users_Guide"><?php echo xlt('User Manuals'); ?></a>
                     <a class="Fx4vi"
-                       href="//www.open-emr.org/blog/"><?php echo xlt('Blog'); ?></a>
+                       href="https://www.open-emr.org/blog/"><?php echo xlt('Blog'); ?></a>
                     <a class="Fx4vi"
                        href="../../../acknowledge_license_cert.html"><?php echo xlt('License'); ?></a>
                     <a class="Fx4vi"
-                       href="index.php?desktop=1"><?php echo xlt('Desktop site'); ?></a>
+                       href="camera.php?desktop=1"><?php echo xlt('Desktop site'); ?></a>
                 </span>
             </div>
         </div>
@@ -735,7 +722,7 @@ function common_js()
         top.restoreSession();
         $('#search_data_right').html('<div class="text-center">\n'+
         '                        <i class="fa fa-spinner fa-pulse fa-fw" style="font-size: 100px; color: #000080; padding: 20px"></i>\n'+
-        '                        <h2 >Loading data...</h2>\n'+
+        '                        <h2 ><?php echo xlt("Loading data"); ?>...</h2>\n'+
         '                    </div>');
     
         $.ajax({

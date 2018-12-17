@@ -6,29 +6,15 @@
  *
  * Copyright (C) 2018 Raymond Magauran <magauran@MedExBank.com>
  *
- * LICENSE: This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of the
- *  License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @package OpenEMR
  * @author Ray Magauran <magauran@MedExBank.com>
  * @link http://www.open-emr.org
  * @copyright Copyright (c) 2018 MedEx <magauran@MedExBank.com>
- * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 require_once "../../globals.php";
 require_once "$srcdir/patient.inc";
 require_once "$srcdir/options.inc.php";
-require_once $GLOBALS['srcdir']."/../vendor/mobiledetect/mobiledetectlib/Mobile_Detect.php";
 require_once "m_functions.php";
 
 $detect             = new Mobile_Detect;
@@ -88,15 +74,15 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
 <script>
     var projects = [
         {
-            label: "<?php echo xla('Select Document Category'); ?>"
+            label: <?php echo xlj('Select Document Category'); ?>
         }<?php
         $categories =  sqlStatement("Select * from categories");
         
         while ($row1 = sqlFetchArray($categories)) {
             echo ',
                 {
-                    label: "'.attr($row1['name']).'",
-                    catID: "'.attr($row1['id']).'"
+                    label: '.js_escape($row1['name']).',
+                    catID: '.js_escape($row1['id']).'
                 }';
         }
         ?>
@@ -106,7 +92,7 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
     var reply = [];
     <?php
     if (!empty($setting_mRoom)) {
-        echo "var mRoom = '".attr($setting_mRoom)."';";
+        echo "var mRoom = ".js_escape($setting_mRoom).";";
     } else {
         echo "var mRoom;";
     }
@@ -121,7 +107,7 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
 
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
-                <img src="<?php echo $webroot; ?>/public/images/uploads.png" id="head_img" alt="<?php echo xla('File Uploader'); ?>">
+                <img src="<?php echo $GLOBALS['images_static_relative']; ?>/uploads.png" id="head_img" alt="<?php echo xla('File Uploader'); ?>">
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
                 <div class="row text-center">
@@ -223,7 +209,7 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
                     <div id="Content" class="Content">
                     <div id="PID_contact" class="line_1_style">
                         <span style="position:relative; float:left;width:80px;"><i class="left fa fa-file-image-o"></i>&nbsp;<?php echo xlt('Documents'); ?> </span>
-                        <span style="font-weight:600;float:left;padding-left:45px;"><?php echo $now_time; ?> </span>
+                        <span style="font-weight:600;float:left;padding-left:45px;"><?php echo attr($now_time); ?> </span>
                         <?php
                             if ($count_news) {
                                 ?>
@@ -233,7 +219,7 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
 									animation: blink 3s infinite;
 									color: red;font-weight:600;">
 									<span onclick="goNews();">
-										<blink><i class="fa fa-bolt red" >&nbsp;New</i></blink>
+										<blink><i class="fa fa-bolt red" >&nbsp;<?php echo xlt('New'); ?></i></blink>
 									</span>
 							</span>
                                 <?php
@@ -249,7 +235,7 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
 									<?php
                                         $name =  $fname." ".$lname;
                                         $name = (strlen($name) > 20) ? substr($name,0,17).'...' : $name;
-                                        echo $name." ".$who['p_phone_cell'];
+                                        echo text($name." ".$who['p_phone_cell']);
                                     ?>
 									</span>
                                 </center>
@@ -263,7 +249,7 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
                                 <span style="position:relative;float:left;top: 3px;" onclick="goBack();"><span class="glyphicon glyphicon-chevron-left"></span></span>
                                 <center>
 									<span style="position:relative;margin: 0px 30px 0px 0px;">
-										New Messages
+										<?php echo xlt('New Messages'); ?>
 									</span>
                                 </center>
                                 <span style="position: relative;float: right;" onclick="goNew_SMS();">
@@ -310,7 +296,7 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
         var pid = $("#pid").val();
         
         if ( (pid <='0')||(category <='0')) {
-            alert("<?php echo xls('Please select a patient and a category'); ?>");
+            alert(<?php echo xlj('Please select a patient and a category'); ?>);
             return;
         }
         var formData = new FormData();
