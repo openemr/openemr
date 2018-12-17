@@ -93,9 +93,11 @@ class OemrUI
             $action_icon = $this->actionIcon();
             $help_icon = $this->helpIcon();
             $expandable_icon = $arrexpandIcon[0];
+            //$container = $arrexpandIcon[1];
             $heading = "<h2>$heading $expandable_icon $action_icon $help_icon</h2>";
         } else {
             $heading = "<h2>" . xlt("Please supply a heading") . " <i class='fa fa-smile-o' aria-hidden='true'></i></h2>";
+            //$container = 'container';
         }
         return $heading;
     }

@@ -24,6 +24,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\FacilityService;
 
 $pid = $_REQUEST['hidden_patient_code'] > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
@@ -946,17 +947,33 @@ function make_insurance() {
 }
 </style>
 <title><?php echo xlt('Record Payment'); ?></title>
+<?php $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname']; ?>
+<?php
+$arrOeUiSettings = array(
+    'heading_title' => xl('Accept Payment'),
+    'include_patient_name' => true,// use only in appropriate pages
+    'expandable' => false,
+    'expandable_files' => array(),//all file names need suffix _xpd
+    'action' => "",//conceal, reveal, search, reset, link or back
+    'action_title' => "",
+    'action_href' => "",//only for actions - reset, link or back
+    'show_help_icon' => false,
+    'help_file_name' => ""
+);
+$oemr_ui = new OemrUI($arrOeUiSettings);
+?>
 </head>
 <body>
-        <div class="container"><!--begin container div for form-->
-            <div class="row">
+    <div class="container"><!--begin container div for form-->
+        <div class="row">
+            <div class="col-sm-12">
                 <div class="page-header">
-                    <h2><?php echo xlt('Accept Payment for'); ?><?php echo " " . text($patdata['fname']) . " " .
-                            text($patdata['lname']) . " (" . text($patdata['pubpid']) . ")" ?></h2>
-                    <?php $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname']; ?>
+                    <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>
-            <div class= "row">
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
                 <form method='post' action='front_payment.php<?php echo ($payid) ? "?payid=".attr_url($payid) : ""; ?>' onsubmit='return validate();'>
                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                    <input name='form_pid' type='hidden' value='<?php echo attr($pid) ?>'>
@@ -1253,13 +1270,14 @@ function make_insurance() {
                     </div>
                 </form>
             </div>
-            <script language="JavaScript">
-            calctotal();
-            </script>
-        </center>
-        <?php
+        </div>
+        <script language="JavaScript">
+        calctotal();
+        </script>
+    <?php
 }
-        ?>
+    ?>
     </div><!--end of container div of accept payment i.e the form-->
+    <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>
 </html>

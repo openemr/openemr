@@ -38,6 +38,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/payment.inc.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 //===============================================================================
     $screen='new_payment';
@@ -408,21 +409,32 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
     //become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an
     //argument, containing one or more elements, the name of the current file is the first element, if there are linked
     // files they should be listed thereafter, please add _xpd suffix to the file name
-    $arr_files_php = array("new_payment_xpd", "search_payments_xpd", "era_payments_xpd");
-    $current_state = collectAndOrganizeExpandSetting($arr_files_php);
-    require_once("$srcdir/expand_contract_inc.php");
+    // $arr_files_php = array("new_payment_xpd", "search_payments_xpd", "era_payments_xpd");
+    // $current_state = collectAndOrganizeExpandSetting($arr_files_php);
+    // require_once("$srcdir/expand_contract_inc.php");
     ?>
     <title><?php echo xlt('New Payment'); ?></title>
+    <?php
+    $arrOeUiSettings = array(
+        'heading_title' => xl('Payments'),
+        'include_patient_name' => false,// use only in appropriate pages
+        'expandable' => true,
+        'expandable_files' => array("new_payment_xpd", "search_payments_xpd", "era_payments_xpd"),//all file names need suffix _xpd
+        'action' => "",//conceal, reveal, search, reset, link or back
+        'action_title' => "",
+        'action_href' => "",//only for actions - reset, link or back
+        'show_help_icon' => false,
+        'help_file_name' => ""
+    );
+    $oemr_ui = new OemrUI($arrOeUiSettings);
+    ?>
 </head>
 <body class="body_top" onload="OnloadAction()">
-    <div class="<?php echo $container;?> expandable">
+    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <div class="row">
             <div class="col-sm-12">
                 <div class="page-header">
-                    <h2>
-                        <?php echo xlt('Payments'); ?> <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract" 
-                        title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i>
-                    </h2>
+                    <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>
         </div>
@@ -508,47 +520,12 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
         </div><!-- end of row div -->
         <div class="clearfix">.</div>
     </div><!-- end of container div -->
-    
-
+    <?php $oemr_ui->oeBelowContainerDiv();?>
+<script src = '<?php echo $webroot;?>/library/js/oeUI/oeFileUploads.js'></script>
 <script>
-
-$(function() {
-    //https://www.abeautifulsite.net/whipping-file-inputs-into-shape-with-bootstrap-3
-    // We can attach the `fileselect` event to all file inputs on the page
-    $(document).on('change', ':file', function() {
-        var input = $(this),
-            numFiles = input.get(0).files ? input.get(0).files.length :
-            1,
-            label = input.val().replace(/\\/g, '/').replace(
-                /.*\//, '');
-        input.trigger('fileselect', [numFiles, label]);
-    });
-    // We can watch for our custom `fileselect` event like this
-    $(document).ready(function() {
-        $(':file').on('fileselect', function(event, numFiles,
-            label) {
-            var input = $(this).parents('.input-group')
-                .find(':text'),
-                log = numFiles > 1 ? numFiles +
-                ' files selected' : label;
-            if (input.length) {
-                input.val(log);
-            } else {
-                if (log) alert(log);
-            }
-        });
-    });
-});
 $(document).ready(function() {
     $('select').removeClass('class1 text')
 });
 </script>
-<script>
-<?php
-    // jQuery script to change expanded/centered state dynamically
-    require_once("../expand_contract_js.php")
-    ?>
-</script>
-
 </body>
 </html>
