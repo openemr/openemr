@@ -38,6 +38,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/payment.inc.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 //===============================================================================
 //Deletion of payment and its corresponding distributions.
@@ -404,29 +405,28 @@ document.onclick=HideTheAjaxDivs;
     overflow-x: hidden !Important;
 }
 </style>
-<?php
-//to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will 
-//become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single indexed array as an 
-//argument, containing one or more elements, the name of the current file is the first element, if there are linked 
-// files they should be listed thereafter, please add _xpd suffix to the file name
-$arr_files_php = array("search_payments_xpd", "new_payment_xpd", "era_payments_xpd");
-$current_state = collectAndOrganizeExpandSetting($arr_files_php);
-require_once("$srcdir/expand_contract_inc.php");
-?>
-<script>
-<?php require_once("$include_root/expand_contract_js.php");//jQuery to provide expand/contract icon toggle if form is expandable ?>
-</script>
 <title><?php echo xlt("Search Payments"); ?></title>
+<?php
+$arrOeUiSettings = array(
+    'heading_title' => xl('Payments'),
+    'include_patient_name' => false,// use only in appropriate pages
+    'expandable' => true,
+    'expandable_files' => array("search_payments_xpd", "new_payment_xpd", "era_payments_xpd"),//all file names need suffix _xpd
+    'action' => "",//conceal, reveal, search, reset, link or back
+    'action_title' => "",
+    'action_href' => "",//only for actions - reset, link or back
+    'show_help_icon' => false,
+    'help_file_name' => ""
+);
+$oemr_ui = new OemrUI($arrOeUiSettings);
+?>
 </head>
 <body class="body_top" onload="OnloadAction()">
-    <div class="<?php echo $container;?> expandable">
+    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <div class="row">
             <div class="col-sm-12">
                 <div class="page-header">
-                    <h2>
-                        <?php echo xlt('Payments'); ?> <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract" 
-                        title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i>
-                    </h2>
+                    <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>
         </div>
@@ -688,29 +688,7 @@ require_once("$srcdir/expand_contract_inc.php");
                 </form>
             </div>
         </div>
-
-    </div>
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                <div class="modal-dialog oe-modal-dialog modal-lg">
-                    <div class="modal-content oe-modal-content">
-                        <!--<div class="modal-header" style="border:hidden"></div>-->
-                        <div class="modal-body">
-                            <iframe src="" id="targetiframe" style="height:650px; width:100%; overflow-x: hidden; border:none" allowtransparency="true"></iframe>
-                        </div>
-                        <div class="modal-footer" style="margin-top:0px;">
-                           <button class="btn btn-link btn-cancel pull-right" data-dismiss="modal" type="button"><?php echo xlt('close'); ?></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
-    function loadiframe(htmlHref) { //load iframe
-         document.getElementById('targetiframe').src = htmlHref;
-    }
-    </script>
+    </div><!--end of container div-->
+    <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>
 </html>
