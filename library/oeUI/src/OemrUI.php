@@ -48,7 +48,7 @@ class OemrUI
     private $print;
     private $target;
     private $web_root;
-       
+
     /**
     * Create the html string that will display the formatted heading with selected icons - expandable,
     * action and help and generate the html code for the help modal and output all the jQuery needed to make it work.
@@ -77,7 +77,7 @@ class OemrUI
         }
         echo "\r\n<script src='" . $GLOBALS['webroot'] . "/library/js/oeUI/universalTooltip.js?v=" . $v_js_includes. "'></script>\r\n";
     }
-    
+
     /**
     * Creates the html string that will display the formatted heading with selected icons - expandable, action and help.
     *
@@ -93,11 +93,9 @@ class OemrUI
             $action_icon = $this->actionIcon();
             $help_icon = $this->helpIcon();
             $expandable_icon = $arrexpandIcon[0];
-            //$container = $arrexpandIcon[1];
             $heading = "<h2>$heading $expandable_icon $action_icon $help_icon</h2>";
         } else {
             $heading = "<h2>" . xlt("Please supply a heading") . " <i class='fa fa-smile-o' aria-hidden='true'></i></h2>";
-            //$container = 'container';
         }
         return $heading;
     }
@@ -115,7 +113,7 @@ class OemrUI
     {
         $current_state = $this->current_state;
         $expandable = $this->expandable;
-        
+
         if ($current_state) {
             $container = 'container-fluid';
             $expand_title = xl('Click to Contract and set to henceforth open in Centered mode');
@@ -131,7 +129,7 @@ class OemrUI
         }
         return array($expandable_icon, $container);
     }
-    
+
     /**
     * Will return the container class value either 'container' or 'container-fluid'
     *
@@ -143,7 +141,7 @@ class OemrUI
         $container = $arrexpandIcon[1] ? $arrexpandIcon[1]:'container';
         return $container;
     }
-    
+
     /**
     * Creates the html string that will display the formatted action/re-direction icon - for conceal, reveal, search, reset, link and back.
     *
@@ -203,7 +201,7 @@ class OemrUI
         }
         return $action_icon;
     }
-    
+
     /**
     * Creates the html string that will display the formatted help icon - fa-question-circle.
     *
@@ -231,7 +229,7 @@ class OemrUI
         }
         return $help_icon;
     }
-       
+
     /**
     * Output the help modal html along with the jQuery to make it work.
     *
@@ -276,7 +274,7 @@ class OemrUI
         </div>
 HELP;
         echo $help_modal. "\r\n";
-    
+
         $jquery_draggable = <<<JQD
         <script>
         // Jquery draggable
@@ -300,7 +298,7 @@ JQD;
         echo $jquery_draggable. "\r\n";
         return;
     }
-    
+
     /**
     * Generates the jQuery for the form to toggle between 'expanded' and 'centered' states.
     *
@@ -369,7 +367,7 @@ EXP;
         echo $header_expand_js ."\r\n";
         return;
     }
-    
+
     /**
     * Generates the jQuery to enable an element to toggle between hidden and revealed states.
     *
@@ -389,7 +387,7 @@ EXP;
                 var elementTitle = '';
 SHWTOP;
         echo $action_top_js ."\r\n";
-               
+
         if ($arrAction[0] == 'search') {
             echo "var showTitle = " .  xlj('Click to show search') . "\r\n;";
             echo "var hideTitle = " . xlj('Click to hide search') . "\r\n;";
@@ -397,7 +395,7 @@ SHWTOP;
             echo "var hideTitle = " .  xlj('Click to Hide') . "\r\n;";
             echo "var showTitle = " . xlj('Click to Show') . "\r\n;";
         }
-                               
+
         if ($arrAction[0] == 'search') {
             echo "$(this).toggleClass('fa-search-plus fa-search-minus'); \r\n";
         } elseif ($arrAction[0] == 'reveal') {
@@ -405,7 +403,7 @@ SHWTOP;
         } elseif ($arrAction[0] == 'conceal') {
             echo "$(this).toggleClass('fa-eye-slash fa-eye'); \r\n";
         }
-                
+
                 $action_bot_js = <<<SHWBOT
                 $('.hideaway').toggle(500);
                 if ($(this).is('.fa-eye') || $(this).is('.fa-search-plus')) {
@@ -421,7 +419,7 @@ SHWBOT;
         echo $action_bot_js . "\r\n";
         return;
     }
-    
+
     /**
     * Output the help modal html with needed jQuery, jQuery to enable an element to toggle between 'hidden' and 'revealed states'
     * and/or 'expand' and 'centered' states.
