@@ -31,10 +31,10 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/billing.inc");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Billing\BillingUtilities;
 
 if (!empty($_POST)) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -432,7 +432,7 @@ if ($res) {
             } // End IPPF stuff
         } // end while
 
-        $copays -= getPatientCopay($patient_id, $encounter);
+        $copays -= BillingUtilities::getPatientCopay($patient_id, $encounter);
 
        // The following is removed, perhaps temporarily, because gcac reporting
        // no longer depends on gcac issues.  -- Rod 2009-08-11

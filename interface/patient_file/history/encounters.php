@@ -14,7 +14,6 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
-require_once("$srcdir/billing.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/acl.inc");
@@ -25,6 +24,7 @@ if ($GLOBALS['enable_group_therapy']) {
 }
 
 use OpenEMR\Core\Header;
+use OpenEMR\Billing\BillingUtilities;
 
 $is_group = ($attendant_type == 'gid') ? true : false;
 
@@ -620,7 +620,7 @@ while ($result4 = sqlFetchArray($res4)) {
         $arid = 0;
     if ($thisauth && $auth_sensitivity && $authPostCalendarCategory) {
         $binfo = array('', '', '', '', '');
-        if ($subresult2 = getBillingByEncounter($pid, $result4['encounter'], "code_type, code, modifier, code_text, fee")) {
+        if ($subresult2 = BillingUtilities::getBillingByEncounter($pid, $result4['encounter'], "code_type, code, modifier, code_text, fee")) {
             // Get A/R info, if available, for this encounter.
             $arinvoice = array();
             $arlinkbeg = "";

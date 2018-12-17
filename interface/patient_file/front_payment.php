@@ -14,7 +14,6 @@
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/billing.inc");
 require_once("$srcdir/payment.inc.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/sl_eob.inc.php");
@@ -25,6 +24,7 @@ require_once("$srcdir/encounter_events.inc.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Billing\BillingUtilities;
 
 $pid = $_REQUEST['hidden_patient_code'] > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
 
@@ -1165,8 +1165,8 @@ function make_insurance() {
                                         $gottoday = true;
                                     }
                                     //------------------------------------------------------------------------------------
-                                    $inscopay = getCopay($pid, $dispdate);
-                                    $patcopay = getPatientCopay($pid, $enc);
+                                    $inscopay = BillingUtilities::getCopay($pid, $dispdate);
+                                    $patcopay = BillingUtilities::getPatientCopay($pid, $enc);
                                     //Insurance Payment
                                     //-----------------
                                     $drow = sqlQuery(

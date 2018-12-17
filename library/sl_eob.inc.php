@@ -157,7 +157,7 @@ function arPostCharge($patient_id, $encounter_id, $session_id, $amount, $units, 
         $modifier = substr($code, $tmp+1);
     }
 
-    addBilling(
+    BillingUtilities::addBilling(
         $encounter_id,
         $codetype,
         $codeonly,

@@ -22,7 +22,8 @@ require_once("$srcdir/parse_era.inc.php");
 require_once("claim_status_codes.php");
 require_once("adjustment_reason_codes.php");
 require_once("remark_codes.php");
-require_once("$srcdir/billing.inc");
+
+use OpenEMR\Billing\BillingUtilities;
 
 $debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
 $paydate = parse_date($_GET['paydate']);
@@ -302,7 +303,7 @@ function era_callback(&$out)
                     $code_value = substr($code_value, 0, -1);
                     //We store the reason code to display it with description in the billing manager screen.
                     //process_file is used as for the denial case file name will not be there, and extra field(to store reason) can be avoided.
-                    updateClaim(true, $pid, $encounter, $_REQUEST['InsId'], substr($inslabel, 3), 7, 0, $code_value);
+                    BillingUtilities::updateClaim(true, $pid, $encounter, $_REQUEST['InsId'], substr($inslabel, 3), 7, 0, $code_value);
                 }
             }
 

@@ -38,7 +38,7 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
             if (!empty($value)) {
                 $code_array = explode(" ", $value, 2);
 
-                addBilling(date("Ymd"), 'CPT4', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
+                BillingUtilities::addBilling(date("Ymd"), 'CPT4', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
             }
         } //case where key looks like "[a-zA-Z]*diagnosis[0-9]" which is special, it is used to auto add ICD codes
 
@@ -46,7 +46,7 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
             //icd auto add ICD9-CM
             if (!empty($value)) {
                 $code_array = explode(" ", $value, 2);
-                addBilling(date("Ymd"), 'ICD9-M', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
+                BillingUtilities::addBilling(date("Ymd"), 'ICD9-M', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
             }
         } else {
             $sql .= " " . escape_sql_column_name($key, array($tableName)) . " = '" . add_escape_custom($value) . "',";

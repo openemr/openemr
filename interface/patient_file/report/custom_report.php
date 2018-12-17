@@ -15,7 +15,6 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
-require_once("$srcdir/billing.inc");
 require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
@@ -33,6 +32,7 @@ require_once("$srcdir/appointments.inc.php");
 use ESign\Api;
 use Mpdf\Mpdf;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Billing\BillingUtilities;
 
 $facilityService = new FacilityService();
 

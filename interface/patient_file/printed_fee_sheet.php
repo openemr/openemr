@@ -16,9 +16,9 @@
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/billing.inc");
 
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Billing\BillingUtilities;
 
 $facilityService = new FacilityService();
 

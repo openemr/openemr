@@ -12,7 +12,6 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/log.inc");
-require_once("$srcdir/billing.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/transactions.inc");
 require_once("$srcdir/lists.inc");
@@ -20,6 +19,7 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Billing\BillingUtilities;
 
 // The number of authorizations to display in the quick view:
 // MAR 20041008 the full authorizations screen sucks... no links to the patient charts

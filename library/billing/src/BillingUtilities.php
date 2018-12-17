@@ -37,7 +37,7 @@ class BillingUtilities
         return $all;
     }
 
-    public function addBilling(
+    public static function addBilling(
         $encounter_id,
         $code_type,
         $code,
@@ -66,17 +66,17 @@ class BillingUtilities
             $ndc_info, $justify, $notecodes, $pricelevel, $revenue_code));
     }
 
-    public function authorizeBilling($id, $authorized = "1")
+    public static function authorizeBilling($id, $authorized = "1")
     {
         sqlQuery("update billing set authorized = ? where id = ?", array($authorized, $id));
     }
 
-    public function deleteBilling($id)
+    public static function deleteBilling($id)
     {
         sqlStatement("update billing set activity = 0 where id = ?", array($id));
     }
 
-    public function clearBilling($id)
+    public static function clearBilling($id)
     {
         sqlStatement("update billing set justify = '' where id = ?", array($id));
     }
@@ -351,7 +351,7 @@ class BillingUtilities
     // Get the co-pay amount that is effective on the given date.
     // Or if no insurance on that date, return -1.
     //
-    public function getCopay($patient_id, $encdate)
+    public static function getCopay($patient_id, $encdate)
     {
         $tmp = sqlQuery("SELECT provider, copay FROM insurance_data " .
             "WHERE pid = ? AND type = 'primary' " .
@@ -364,7 +364,7 @@ class BillingUtilities
     }
 
     // Get the total co-pay amount paid by the patient for an encounter
-    public function getPatientCopay($patient_id, $encounter)
+    public static function getPatientCopay($patient_id, $encounter)
     {
         $resMoneyGot = sqlStatement(
             "SELECT sum(pay_amount) as PatientPay FROM ar_activity where " .
@@ -379,7 +379,7 @@ class BillingUtilities
 
     // Get the "next invoice reference number" from this user's pool of reference numbers.
     //
-    public function getInvoiceRefNumber()
+    public static function getInvoiceRefNumber()
     {
         $trow = sqlQuery(
             "SELECT lo.notes " .
@@ -395,9 +395,9 @@ class BillingUtilities
     // This identifies the "digits" portion of that number and adds 1 to it.
     // If it contains more than one string of digits, the last is used.
     //
-    public function updateInvoiceRefNumber()
+    public static function updateInvoiceRefNumber()
     {
-        $irnumber = getInvoiceRefNumber();
+        $irnumber = self::getInvoiceRefNumber();
         // Here "?" specifies a minimal match, to get the most digits possible:
         if (preg_match('/^(.*?)(\d+)(\D*)$/', $irnumber, $matches)) {
             $newdigs = sprintf('%0' . strlen($matches[2]) . 'd', $matches[2] + 1);
@@ -417,7 +417,7 @@ class BillingUtilities
     // Common function for voiding a receipt or checkout.  When voiding a checkout you can specify
     // $time as a timestamp (yyyy-mm-dd hh:mm:ss) or 'all'; default is the last checkout.
     //
-    public function doVoid($patient_id, $encounter_id, $purge = false, $time = '')
+    public static function doVoid($patient_id, $encounter_id, $purge = false, $time = '')
     {
         $what_voided = $purge ? 'checkout' : 'receipt';
         $date_original = '';
@@ -471,7 +471,7 @@ class BillingUtilities
         );
         $old_invoice_refno = $encrow['invoice_refno'];
         //
-        $usingirnpools = getInvoiceRefNumber();
+        $usingirnpools = self::getInvoiceRefNumber();
         // If not (undoing a checkout or using IRN pools), nothing is done.
         if ($purge || $usingirnpools) {
             $query = "INSERT INTO voids SET " .
@@ -543,7 +543,7 @@ class BillingUtilities
             );
         } else if ($usingirnpools) {
             // Non-purge means just assign a new invoice reference number.
-            $new_invoice_refno = updateInvoiceRefNumber();
+            $new_invoice_refno = self::updateInvoiceRefNumber();
             sqlStatement(
                 "UPDATE form_encounter " .
                 "SET invoice_refno = ? " .

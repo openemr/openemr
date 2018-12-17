@@ -54,7 +54,6 @@ class Userforms extends UserAudit
             $type = $data[3];
             global $ISSUE_TYPES;
             require_once("../../library/forms.inc");
-            require_once("../../library/billing.inc");
             require_once("../../library/pnotes.inc");
             require_once("../../library/patient.inc");
             require_once("../../library/options.inc.php");
@@ -62,6 +61,9 @@ class Userforms extends UserAudit
             require_once("../../library/lists.inc");
             require_once("../../library/report.inc");
             require_once("../../custom/code_types.inc.php");
+
+            use OpenEMR\Billing\BillingUtilities;
+
             foreach ($repArr as $value) {
                 ob_start();
                 if ($type=="profile") {

@@ -535,7 +535,7 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'] || $_POST['bn_sa
 // Handle reopen request.  In that case no other changes will be saved.
 // If there was a checkout this will undo it.
 if (!$alertmsg && $_POST['bn_reopen']) {
-    doVoid($fs->pid, $fs->encounter, true);
+    BillingUtilities::doVoid($fs->pid, $fs->encounter, true);
     $current_checksum = $fs->visitChecksum();
   // Remove the line items so they are refreshed from the database on redisplay.
     unset($_POST['bill']);

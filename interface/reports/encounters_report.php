@@ -19,11 +19,11 @@
 
 require_once("../globals.php");
 require_once("$srcdir/forms.inc");
-require_once("$srcdir/billing.inc");
 require_once("$srcdir/patient.inc");
 require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Core\Header;
+use OpenEMR\Billing\BillingUtilities;
 
 if (!empty($_POST)) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -413,7 +413,7 @@ if ($res) {
             $coded = "";
             $billed_count = 0;
             $unbilled_count = 0;
-            if ($billres = getBillingByEncounter(
+            if ($billres = BillingUtilities::getBillingByEncounter(
                 $row['pid'],
                 $row['encounter'],
                 "code_type, code, code_text, billed"

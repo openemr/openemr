@@ -43,7 +43,6 @@ global $ignoreAuth;
 
 require_once('../../interface/globals.php');
 require_once("$srcdir/forms.inc");
-require_once("$srcdir/billing.inc");
 require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
@@ -61,6 +60,8 @@ require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 if ($GLOBALS['gbl_portal_cms_enable']) {
     require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
 }
+
+use OpenEMR\Billing\BillingUtilities;
 
 // For those who care that this is the patient report.
 $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
