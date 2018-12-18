@@ -287,39 +287,48 @@ if ($orderid) {
 $urlparms = "docid=" . attr_url($docid) . "&orderid=" . attr_url($orderid);
 ?>
 
-    <div>
-        <span class="title"><?php echo xlt('Patient Messages') . text($title_docname); ?></span>
+    <div class="row">
+        <div class="col-md-12">
+            <span class="title"><?php echo xlt('Patient Messages') . text($title_docname); ?></span>
+        </div>
     </div>
-    <div id='namecontainer_pnotes' class='namecontainer_pnotes'>
-        <?php echo xlt('for'); ?>&nbsp;<span class="title">
+    <div class="row oe-margin-b-10" >
+        <div id='namecontainer_pnotes' class='namecontainer_pnotes col-md-12'>
+            <?php echo xlt('for'); ?>&nbsp;<span class="title">
       <a href="../summary/demographics.php" onclick="return top.restoreSession()"><?php echo text(getPatientName($patient_id)); ?></a></span>
+        </div>
     </div>
-    <div>
-        <a href="pnotes_full_add.php?<?php echo $urlparms; ?>" class="css_button note_modal" onclick='return top.restoreSession()'><span><?php echo xlt('Add'); ?></span></a>
-        <a href="demographics.php" class="css_button" onclick="top.restoreSession()">
-            <span><?php echo xlt('View Patient'); ?></span>
-        </a>
+    <div class="row oe-margin-b-20">
+        <div class="col-md-12">
+            <a href="pnotes_full_add.php?<?php echo $urlparms; ?>" class="btn btn-default note_modal" onclick='return top.restoreSession()'><span><?php echo xlt('Add'); ?></span></a>
+            <a href="demographics.php" class="btn btn-default" onclick="top.restoreSession()">
+                <span><?php echo xlt('View Patient'); ?></span>
+            </a>
+            <a href="#" class="change_activity btn btn-default" ><span><?php echo xlt('Update Active'); ?></span></a>
+            <a href="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" class="btn btn-default" id='Submit' onclick='return top.restoreSession()'><span><?php echo xlt('Refresh'); ?></span></a>
+        </div>
+
     </div>
-    <br/>
-    <br/>
-    <div>
-    <?php if ($active == "all") { ?>
-      <span><?php echo xlt('Show All'); ?></span>
-    <?php } else { ?>
-      <a href="pnotes_full.php?<?php echo $urlparms; ?>" class="link" onclick="return top.restoreSession()"><span><?php echo xlt('Show All'); ?></span></a>
-    <?php } ?>
-    |
-    <?php if ($active == '1') { ?>
-      <span><?php echo xlt('Show Active'); ?></span>
-    <?php } else { ?>
-      <a href="pnotes_full.php?form_active=1&<?php echo $urlparms; ?>" class="link" onclick="return top.restoreSession()"><span><?php echo xlt('Show Active'); ?></span></a>
-    <?php } ?>
-    |
-    <?php if ($active == '0') { ?>
-      <span><?php echo xlt('Show Inactive'); ?></span>
-    <?php } else { ?>
-      <a href="pnotes_full.php?form_inactive=1&<?php echo $urlparms; ?>" class="link" onclick="return top.restoreSession()"><span><?php echo xlt('Show Inactive'); ?></span></a>
-    <?php } ?>
+    <div class="row">
+        <div class="col-md-12">
+            <?php if ($active == "all") { ?>
+                <span><?php echo xlt('Show All'); ?></span>
+            <?php } else { ?>
+                <a href="pnotes_full.php?<?php echo $urlparms; ?>" class="link btn btn-default" onclick="return top.restoreSession()"><span><?php echo xlt('Show All'); ?></span></a>
+            <?php } ?>
+            |
+            <?php if ($active == '1') { ?>
+                <span><?php echo xlt('Show Active'); ?></span>
+            <?php } else { ?>
+                <a href="pnotes_full.php?form_active=1&<?php echo $urlparms; ?>" class="link btn btn-default" onclick="return top.restoreSession()"><span><?php echo xlt('Show Active'); ?></span></a>
+            <?php } ?>
+            |
+            <?php if ($active == '0') { ?>
+                <span><?php echo xlt('Show Inactive'); ?></span>
+            <?php } else { ?>
+                <a href="pnotes_full.php?form_inactive=1&<?php echo $urlparms; ?>" class="link btn btn-default" onclick="return top.restoreSession()"><span><?php echo xlt('Show Inactive'); ?></span></a>
+            <?php } ?>
+        </div>
     </div>
 
     <input type='hidden' name='mode' id="mode" value="new">
@@ -375,10 +384,10 @@ if ($billing_note) {
 </div>
 <br>
 <?php } ?>
-<ul class="tabNav">
-  <li class="<?php echo $inbox; ?>" ><a onclick="show_div('inbox')" href="#"><?php echo xlt('Inbox'); ?></a></li>
-  <li class="<?php echo $outbox; ?>" ><a onclick="show_div('outbox')" href="#"><?php echo xlt('Sent Items'); ?></a></li>
-</ul>
+<!--<ul class="tabNav">
+  <li class="<?php /*echo $inbox; */?>" ><a onclick="show_div('inbox')" href="#"><?php /*echo xlt('Inbox'); */?></a></li>
+  <li class="<?php /*echo $outbox; */?>" ><a onclick="show_div('outbox')" href="#"><?php /*echo xlt('Sent Items'); */?></a></li>
+</ul>-->
 <div class='tabContainer' >
   <div id='inbox_div' <?php echo $inbox_style; ?> >
 <form border='0' method='post' name='update_activity' id='update_activity'
@@ -392,13 +401,7 @@ if ($billing_note) {
 <input type='hidden' name='noteid' id='noteid' value="0">
 <table border='0' cellpadding="1" class="text">
 <?php if ($result != "") : ?>
- <tr>
-  <td colspan='5' style="padding: 5px;" >
-    <a href="#" class="change_activity" ><span><?php echo xlt('Update Active'); ?></span></a>
-    |
-    <a href="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" class="" id='Submit' onclick='return top.restoreSession()'><span><?php echo xlt('Refresh'); ?></span></a>
-  </td>
- </tr></table>
+</table>
 <?php endif; ?>
 
 <table border='0' cellpadding="1"  class="text" width = "80%">
