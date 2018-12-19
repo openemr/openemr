@@ -29,7 +29,6 @@ class PatientMenuRole extends MenuRole
         //   to functions in this class.
         parent::__construct();
         $this->menu_update_map["Modules"]="updateModulesDemographicsMenu";
-
     }
 
     /**
