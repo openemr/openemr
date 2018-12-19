@@ -29,6 +29,7 @@ class PatientMenuRole extends MenuRole
         //   to functions in this class.
         parent::__construct();
         $this->menu_update_map["Modules"]="updateModulesDemographicsMenu";
+
     }
 
     /**
@@ -195,7 +196,7 @@ EOT;
             } else {
                 $link = ($value->pid != "true") ? $value->url : $value->url . attr($pid);
                 $class = isset($value->class) ? $value->class : '';
-                $list = '<li class="oe-bold-black' . attr($class) . '" id="' . attr($value->menu_id) . '">';
+                $list = '<li class="oe-bold-black ' . attr($class) . '" id="' . attr($value->menu_id) . '">';
                 $list .= '<a href="' . attr($link) . '" onclick="' . $value->on_click .'"> ' . text($value->label) . ' </a>';
                 $list .= '</li>';
             }
