@@ -19,7 +19,6 @@ require_once("../globals.php");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/parse_era.inc.php");
-require_once("claim_status_codes.php");
 require_once("adjustment_reason_codes.php");
 require_once("remark_codes.php");
 
@@ -201,7 +200,7 @@ function era_callback_check(&$out)
 }
 function era_callback(&$out)
 {
-    global $encount, $debug, $claim_status_codes, $adjustment_reasons, $remark_codes;
+    global $encount, $debug, $adjustment_reasons, $remark_codes;
     global $invoice_total, $last_code, $paydate;
     global $InsertionId;//last inserted ID of
 
@@ -268,7 +267,7 @@ function era_callback(&$out)
         writeMessageLine(
             $bgcolor,
             'infdetail',
-            "Claim status $csc: " . $claim_status_codes[$csc]
+            "Claim status $csc: " . BillingUtilities::claim_status_codes_CLP02[$csc]
         );
 
     // Show an error message if the claim is missing or already posted.
