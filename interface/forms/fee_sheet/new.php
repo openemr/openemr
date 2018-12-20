@@ -12,6 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+
 require_once("../../globals.php");
 require_once("$srcdir/FeeSheetHtml.class.php");
 require_once("codes.php");
@@ -19,6 +20,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 //acl check
 if (!acl_check_form('fee_sheet')) {
@@ -784,34 +786,31 @@ $name = $enrow['fname'] . ' ';
 $name .= (!empty($enrow['mname'])) ? $enrow['mname'] . ' ' . $enrow['lname'] : $enrow['lname'];
 $date = xl('for Encounter on') . ' ' . oeFormatShortDate(substr($enrow['date'], 0, 10));
 $title = array(xl('Fee Sheet for'), text($name), text($date));
-//echo join(" ", $title);
-
-if ($GLOBALS['enable_help'] == 1) {
-    $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xl("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
-} elseif ($GLOBALS['enable_help'] == 2) {
-    $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xl("Enable help in Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
-} elseif ($GLOBALS['enable_help'] == 0) {
-     $help_icon = '';
-}
-
-//to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will 
-//become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an 
-//argument, containing one or more elements, the name of the current file is the first element, if there are linked 
-// files they should be listed thereafter, please add _xpd suffix to the file name
-$arr_files_php = array("fee_sheet_new_xpd");
-$current_state = collectAndOrganizeExpandSetting($arr_files_php);
-require_once("$srcdir/expand_contract_inc.php");
+$heading =  join(" ", $title);
+?>
+<?php
+$arrOeUiSettings = array(
+    'heading_title' => xl($heading),
+    'include_patient_name' => false,// use only in appropriate pages
+    'expandable' => true,
+    'expandable_files' => array("fee_sheet_new_xpd"),//all file names need suffix _xpd
+    'action' => "",//conceal, reveal, search, reset, link or back
+    'action_title' => "",
+    'action_href' => "",//only for actions - reset, link or back
+    'show_help_icon' => true,
+    'help_file_name' => "fee_sheet_help.php"
+);
+$oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
 
 
 <body class="body_top">
-    <div class="<?php echo $container;?> expandable">
+    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
          <div class="row">
             <div class="col-sm-12">
                 <div class="page-header clearfix">
-                    <h2 id="header_title" class="clearfix"><span id='header_text'><?php echo join(" ", $title); ?></span> <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract" title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i><?php echo $help_icon; ?>
-                    </h2>
+                    <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>
            </div>
@@ -1478,15 +1477,7 @@ require_once("$srcdir/expand_contract_inc.php");
             </div>
         </div>
     </div><!--End of div container -->
-    <?php
-    //home of the help modal ;)
-    //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
-    if ($GLOBALS['enable_help'] == 1) {
-        echo "<script>var helpFile = 'fee_sheet_help.php'</script>";
-        //help_modal.php lives in interface, set path accordingly
-        require_once "../../help_modal.php";
-    }
-    ?>
+    <?php $oemr_ui->oeBelowContainerDiv();?>
     <script>
     $( document ).ready(function() {
         $('select').addClass("form-control");
@@ -1502,13 +1493,7 @@ require_once("$srcdir/expand_contract_inc.php");
         ?>
     </script>
     
-    <script>
-        <?php
-        // jQuery script to change expanded/centered state dynamically
-        require_once("../../expand_contract_js.php")
-        ?>
-    </script>
-    
+        
 </body>
 </html>
 <?php if (!empty($_POST['running_as_ajax'])) {

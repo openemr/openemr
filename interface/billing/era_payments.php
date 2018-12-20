@@ -38,6 +38,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/sl_eob.inc.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 $hidden_type_code = isset($_POST['hidden_type_code']) ? $_POST['hidden_type_code'] : '';
 $check_date = isset($_POST['check_date']) ? $_POST['check_date'] : '';
@@ -244,16 +245,27 @@ if ($_FILES['form_erafile']['size']) {
     require_once("$srcdir/expand_contract_inc.php");
     ?>
     <title><?php echo xlt('ERA Posting'); ?></title>
+    <?php
+    $arrOeUiSettings = array(
+        'heading_title' => xl('Payments'),
+        'include_patient_name' => false,// use only in appropriate pages
+        'expandable' => true,
+        'expandable_files' => array("era_payments_xpd", "search_payments_xpd", "new_payment_xpd"),//all file names need suffix _xpd
+        'action' => "",//conceal, reveal, search, reset, link or back
+        'action_title' => "",
+        'action_href' => "",//only for actions - reset, link or back
+        'show_help_icon' => false,
+        'help_file_name' => ""
+    );
+    $oemr_ui = new OemrUI($arrOeUiSettings);
+    ?>
 </head>
 <body class="body_top" onload="OnloadAction()">
-    <div class="<?php echo $container;?> expandable">
+    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <div class="row">
             <div class="col-sm-12">
                 <div class="page-header">
-                    <h2>
-                        <?php echo xlt('Payments'); ?> <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract"
-                        title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i>
-                    </h2>
+                    <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>
         </div>
@@ -355,39 +367,7 @@ if ($_FILES['form_erafile']['size']) {
             </div>
         </div>
     </div><!-- End of Container Div-->
-    <script>
-        $(function() {
-            //https://www.abeautifulsite.net/whipping-file-inputs-into-shape-with-bootstrap-3
-            // We can attach the `fileselect` event to all file inputs on the page
-            $(document).on('change', ':file', function() {
-                var input = $(this),
-                numFiles = input.get(0).files ? input.get(0).files.length : 1,
-                label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-                input.trigger('fileselect', [numFiles, label]);
-            });
-
-            // We can watch for our custom `fileselect` event like this
-            $(document).ready( function() {
-                $(':file').on('fileselect', function(event, numFiles, label) {
-                    var input = $(this).parents('.input-group').find(':text'),
-                    log = numFiles > 1 ? numFiles + ' files selected' : label;
-
-                    if( input.length ) {
-                    input.val(log);
-                    }
-                    else {
-                    if( log ) alert(log);
-                    }
-                });
-            });
-
-            });
-    </script>
-    <script>
-        <?php
-        // jQuery script to change expanded/centered state dynamically
-        require_once("../expand_contract_js.php");
-        ?>
-    </script>
+    <?php $oemr_ui->oeBelowContainerDiv();?>
+    <script src = '<?php echo $webroot;?>/library/js/oeUI/oeFileUploads.js'></script>
 </body>
 </html>

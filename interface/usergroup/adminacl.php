@@ -18,6 +18,7 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 
 use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 //ensure user has proper access
 if (!acl_check('admin', 'acl')) {
@@ -498,21 +499,26 @@ if (!isset($phpgacl_location)) {
         });
     </script>
     <?php
-    if ($GLOBALS['enable_help'] == 1) {
-        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
-    } elseif ($GLOBALS['enable_help'] == 2) {
-        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
-    } elseif ($GLOBALS['enable_help'] == 0) {
-         $help_icon = '';
-    }
+    $arrOeUiSettings = array(
+        'heading_title' => xl('Access Control List Administration'),
+        'include_patient_name' => false,//include only if appropriate
+        'expandable' => false,
+        'expandable_files' => array(),//all file names need suffix _xpd
+        'action' => "link",//conceal, reveal, search, reset, link or back
+        'action_title' => "",
+        'action_href' => "../../gacl/admin/acl_admin.php",//only for actions - reset, link or back
+        'show_help_icon' => true,
+        'help_file_name' => "adminacl_help.php"
+    );
+    $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>
 <body id="adminacl" class="body_top">
-    <div class="container">
+    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <div class="row">
-            <div class="col-xs-12">
-                <div class="page-header clearfix">
-                    <h2 class="clearfix"><span id='header_text'><?php echo xlt("Access Control List Administration"); ?></span> &nbsp;&nbsp; <?php echo ($phpgacl_location) ? "<a href='../../gacl/admin/acl_admin.php' onclick='top.restoreSession()'><i id='advanced-tooltip' class='fa fa-external-link fa-2x small' aria-hidden='true'></i> </a>" : ""; ?><?php echo $help_icon; ?></h2>
+            <div class="col-sm-12">
+                <div class="page-header">
+                    <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>
         </div>
@@ -632,14 +638,6 @@ if (!isset($phpgacl_location)) {
         </div>
     </div><!--end of container div-->
     <br>
-    <?php
-    //home of the help modal ;)
-    //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
-    if ($GLOBALS['enable_help'] == 1) {
-        echo "<script>var helpFile = 'adminacl_help.php'</script>";
-        //help_modal.php lives in interface, set path accordingly
-        require "../help_modal.php";
-    }
-    ?>
+    <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>
 </html>

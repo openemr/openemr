@@ -163,7 +163,7 @@ if ($formid) {
 
  <tr>
   <td align='center' width='1%' nowrap><b><?php xl('WNL', 'e'); ?></b></td>
-  <td align='center' width='1%' nowrap><b><?php xl('ABN1', 'e'); ?></b></td>
+  <td align='center' width='1%' nowrap><b><?php xl('ABNL', 'e'); ?></b></td>
   <td align='left'   width='1%' nowrap><b><?php xl('System', 'e'); ?></b></td>
   <td align='left'   width='1%' nowrap><b><?php xl('Specific', 'e'); ?></b></td>
   <td align='left'   width='1%' nowrap><b><?php xl('Diagnosis', 'e'); ?></b></td>

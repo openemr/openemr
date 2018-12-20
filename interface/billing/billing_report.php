@@ -23,6 +23,7 @@ require_once "$srcdir/options.inc.php";
 require_once "adjustment_reason_codes.php";
 
 use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 $EXPORT_INC = "$webserver_root/custom/BillingExport.php";
 // echo $GLOBALS['daysheet_provider_totals'];
@@ -411,27 +412,33 @@ $oauthorized = $my_authorized;
     document.onclick = TakeActionOnHide;
 </script>
 <!-- =============Included for Insurance ajax criteria==== -->
-<?php
-//to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will
-//become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an
-//argument, containing one or more elements, the name of the current file is the first element, if there are linked
-// files they should be listed thereafter, please add _xpd suffix to the file name
-$arr_files_php = array("billing_report_xpd");
-$current_state = collectAndOrganizeExpandSetting($arr_files_php);
-require_once("$srcdir/expand_contract_inc.php");
-?>
 <title><?php echo xlt('Billing Manager'); ?></title>
+<?php
+$arrOeUiSettings = array(
+    'heading_title' => xl('Billing Manager'),
+    'include_patient_name' => false,// use only in appropriate pages
+    'expandable' => true,
+    'expandable_files' => array('billing_report_xpd'),//all file names need suffix _xpd
+    'action' => "conceal",//conceal, reveal, search, reset, link or back
+    'action_title' => "",
+    'action_href' => "",//only for actions - reset, link or back
+    'show_help_icon' => false,
+    'help_file_name' => ""
+);
+$oemr_ui = new OemrUI($arrOeUiSettings);
+?>
 </head>
 <body class="body_top" onLoad="TestExpandCollapse()">
-<div class="<?php echo $container;?> expandable">
+<div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
 <div class="row">
     <div class="col-sm-12">
         <div class="page-header">
-            <h2>
+            <!--<h2>
                 <?php echo xlt('Billing Manager') ?> <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract"
                 title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i> <i id="show_hide" class="fa fa-eye-slash fa-2x small"
                 title="<?php echo xla('Click to Hide'); ?>"></i>
-            </h2>
+            </h2>-->
+            <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
         </div>
     </div>
 </div>
@@ -1140,7 +1147,7 @@ require_once("$srcdir/expand_contract_inc.php");
                                         } else {
                                             $lhtml .= xlt("Not Specified.");
                                         }
-                                        ++$lcount;
+                                                                            ++$lcount;
                                     }
 
                                     if ($crow['process_time']) {
@@ -1329,54 +1336,7 @@ require_once("$srcdir/expand_contract_inc.php");
     </div>
 </div>
 </div><!--end of container div -->
-<div class="row">
-    <div class="col-sm-12">
-        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog oe-modal-dialog modal-lg">
-                <div class="modal-content oe-modal-content">
-                    <div class="modal-header clearfix">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"
-                                                                                                          style="color:#000000; font-size:1.5em;">×</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <iframe src="" id="targetiframe" style="height:650px; width:100%; overflow-x: hidden; border:none"
-                                allowtransparency="true"></iframe>
-                    </div>
-                    <div class="modal-footer" style="margin-top:0px;">
-                        <button class="btn btn-link btn-cancel pull-right" data-dismiss="modal"
-                                type="button"><?php echo xlt('close'); ?></button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<script>
-$(document).ready(function () {
-    $('#help-href').click(function () {
-        document.getElementById('targetiframe').src = '';
-    })
-    $('#view-log-link').click(function () {
-        document.getElementById('targetiframe').src = 'customize_log.php';
-    })
-});
-</script>
-<script>
-$('#show_hide').click(function () {
-    var elementTitle = $('#show_hide').prop('title');
-    var hideTitle = '<?php echo xla('Click to Hide'); ?>';
-    var showTitle = '<?php echo xla('Click to Show'); ?>';
-    $('.hideaway').toggle('1000');
-    $(this).toggleClass('fa-eye-slash fa-eye');
-    if (elementTitle == hideTitle) {
-        elementTitle = showTitle;
-    } else if (elementTitle == showTitle) {
-        elementTitle = hideTitle;
-    }
-    $('#show_hide').prop('title', elementTitle);
-});
-</script>
+<?php $oemr_ui->oeBelowContainerDiv();?>
 <script>
 set_button_states();
 <?php
@@ -1416,14 +1376,9 @@ $(document).ready(function () {
 </script>
 <script>
 $(document).ready(function () {
-    $('#update-tooltip').tooltip({title: "<?php echo xla('Click Update List to display billing information filtered by the selected Current Criteria'); ?>"});
+//using jquery-ui tooltip instead of bootstrap tooltip
+        $('#update-tooltip').attr("title", "<?php echo xla('Click Update List to display billing information filtered by the selected Current Criteria'); ?>").tooltip();
 });
-</script>
-<script>
-    <?php
-    // jQuery script to change expanded/centered state dynamically
-    require_once("../expand_contract_js.php")
-    ?>
 </script>
 <input type="hidden" name="divnos" id="divnos" value="<?php echo attr($divnos) ?>"/>
 <input type='hidden' name='ajax_mode' id='ajax_mode' value=''/>

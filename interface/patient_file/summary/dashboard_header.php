@@ -17,15 +17,7 @@ $portal_login_href = $url_webroot ."/interface/patient_file/summary/create_porta
 ?>
 
 <div class="page-header clearfix">
-    <?php
-    if ($expandable == 1) {?>
-        <h2 id="header_title" class="clearfix"><span id='header_text'><?php echo attr($header_title)?><?php echo " " . text(getPatientNameFirstLast($pid));?></span>  <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract" title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i><?php echo $help_icon; ?>
-        </h2>
-    <?php
-    } else {?>
-        <h2 id="header_title" class="clearfix"><span id='header_text'><?php echo attr($header_title)?><?php echo " " . text(getPatientNameFirstLast($pid));?></span><?php echo $help_icon; ?></h2>
-    <?php
-    }?>
+        <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
 <?php
 // If patient is deceased, then show this (along with the number of days patient has been deceased for)
 $days_deceased = is_patient_deceased($pid);

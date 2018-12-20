@@ -34,7 +34,7 @@ function physical_exam_report($pid, $encounter, $cols, $id)
             if ($sysname != '*') { // observation line
                    echo " <tr>\n";
                    echo "  <td class='text' align='center'>" . ($linedbrow['wnl'] ? "WNL" : "") . "&nbsp;&nbsp;</td>\n";
-                   echo "  <td class='text' align='center'>" . ($linedbrow['abn'] ? "ABN1" : "") . "&nbsp;&nbsp;</td>\n";
+                   echo "  <td class='text' align='center'>" . ($linedbrow['abn'] ? "ABNL" : "") . "&nbsp;&nbsp;</td>\n";
                    echo "  <td class='text' nowrap>$sysnamedisp&nbsp;&nbsp;</td>\n";
                    echo "  <td class='text' nowrap>$description&nbsp;&nbsp;</td>\n";
                    echo "  <td class='text'>" . $linedbrow['diagnosis'] . "&nbsp;&nbsp;</td>\n";
