@@ -828,7 +828,7 @@ class BillingUtilities
         'N367' => 'The claim information has been forwarded to a Health Savings Account processor for review.',
         'N368' => 'You must appeal the determination of the previously ajudicated claim.',
         'N369' => 'Alert: Although this claim has been processed, it is deficient according to state legislation/regulation.',
-);
+    );
 
 
     public static function getBillingById($id, $cols = "*")
