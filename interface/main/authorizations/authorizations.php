@@ -18,7 +18,6 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 
-use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Core\Header;
 
 // The number of authorizations to display in the quick view:
