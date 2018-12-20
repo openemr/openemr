@@ -1,5 +1,5 @@
 <?php
- /**
+/*
  * Fee Sheet Program used to create charges, copays and add diagnosis codes to the encounter
  *
  * @package   OpenEMR
@@ -11,13 +11,16 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-use OpenEMR\Core\Header;
-use OpenEMR\OeUI\OemrUI;
+
 
 require_once("../../globals.php");
 require_once("$srcdir/FeeSheetHtml.class.php");
 require_once("codes.php");
 require_once("$srcdir/options.inc.php");
+
+use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 //acl check
 if (!acl_check_form('fee_sheet')) {
@@ -534,14 +537,14 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'] || $_POST['bn_sa
 // Handle reopen request.  In that case no other changes will be saved.
 // If there was a checkout this will undo it.
 if (!$alertmsg && $_POST['bn_reopen']) {
-    doVoid($fs->pid, $fs->encounter, true);
+    BillingUtilities::doVoid($fs->pid, $fs->encounter, true);
     $current_checksum = $fs->visitChecksum();
   // Remove the line items so they are refreshed from the database on redisplay.
     unset($_POST['bill']);
     unset($_POST['prod']);
 }
 
-$billresult = getBillingByEncounter($fs->pid, $fs->encounter, "*");
+$billresult = BillingUtilities::getBillingByEncounter($fs->pid, $fs->encounter, "*");
 ?>
 <html>
 <?php Header::setupHeader(['knockout', 'jquery-ui', 'jquery-ui-base']);?>
@@ -818,7 +821,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 onsubmit="return validate(this)">
                     <input type='hidden' name='newcodes' value=''>
                     <?php
-                        $isBilled = !$add_more_items && isEncounterBilled($fs->pid, $fs->encounter);
+                        $isBilled = !$add_more_items && BillingUtilities::isEncounterBilled($fs->pid, $fs->encounter);
                     if ($isBilled) {
                         echo "<p><font color='green'>" .
                         xlt("This encounter has been billed. To make changes, re-open it or select Add More Items.") .

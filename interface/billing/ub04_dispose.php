@@ -12,6 +12,7 @@ require_once("../globals.php");
 require_once("$srcdir/gen_x12_837i.inc.php");
 require_once("$srcdir/invoice_summary.inc.php");
 
+use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\Claim;
 use OpenEMR\Pdf\PdfCreator;
 
@@ -44,7 +45,7 @@ if ($dispose) {
         //
         $flg = exist_ub04_claim($pid, $encounter, true);
         if ($flg === true) {
-            updateClaim(false, $pid, $encounter, - 1, - 1, - 1, - 1, '', 'ub04', - 1, 0, "");
+            BillingUtilities::updateClaim(false, $pid, $encounter, - 1, - 1, - 1, - 1, '', 'ub04', - 1, 0, "");
         }
         $ub04id = get_ub04_array($pid, $encounter);
         $ub04id = json_encode($ub04id);
@@ -87,9 +88,9 @@ function saveTemplate($encounter, $pid, $ub04id, $action = 'form')
     }
     $flg = exist_ub04_claim($pid, $encounter, true);
     if ($flg === true) {
-        updateClaim(false, $pid, $encounter, - 1, - 1, - 1, - 1, '', 'ub04', - 1, 0, $ub04id);
+        BillingUtilities::updateClaim(false, $pid, $encounter, - 1, - 1, - 1, - 1, '', 'ub04', - 1, 0, $ub04id);
     } else {
-        updateClaim(true, $pid, $encounter, - 1, - 1, 1, 1, '', 'ub04', - 1, 0, $ub04id);
+        BillingUtilities::updateClaim(true, $pid, $encounter, - 1, - 1, 1, 1, '', 'ub04', - 1, 0, $ub04id);
     }
 }
 

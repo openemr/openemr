@@ -58,6 +58,7 @@ require_once("$srcdir/report.inc");
 require_once("$srcdir/html2pdf/html2pdf.class.php");
 
 use Mpdf\Mpdf;
+use OpenEMR\Billing\BillingUtilities;
 
 $returnurl = 'encounter_top.php';
 
@@ -805,7 +806,7 @@ if ($_REQUEST["mode"] == "new") {
                 $item["fee"] = $res["pr_price"];
             }
             $item["justify"] .= ":";
-            addBilling($encounter, $item["codetype"], $item["code"], $item["codedesc"], $pid, '1', $providerID, $item["modifier"], $item["units"], $item["fee"], $ndc_info, $item["justify"], $billed, '');
+            BillingUtilities::addBilling($encounter, $item["codetype"], $item["code"], $item["codedesc"], $pid, '1', $providerID, $item["modifier"], $item["units"], $item["fee"], $ndc_info, $item["justify"], $billed, '');
         }
         echo "OK";
         exit;

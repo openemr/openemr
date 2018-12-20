@@ -43,7 +43,6 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 require_once(dirname(__FILE__) . "/lib/appsql.class.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/billing.inc");
 require_once("$srcdir/payment.inc.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/sl_eob.inc.php");
@@ -54,6 +53,8 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 require_once("$srcdir/log.inc");
 require_once("$srcdir/crypto.php");
+
+use OpenEMR\Billing\BillingUtilities;
 
 $appsql = new ApplicationTable();
 $pid = isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $pid;
@@ -1104,8 +1105,8 @@ WHERE encounter = ?", array($payrow['encounter']
                 }
 
 // ------------------------------------------------------------------------------------
-                $inscopay = getCopay($pid, $dispdate);
-                $patcopay = getPatientCopay($pid, $enc);
+                $inscopay = BillingUtilities::getCopay($pid, $dispdate);
+                $patcopay = BillingUtilities::getPatientCopay($pid, $enc);
 // Insurance Payment
 // -----------------
                 $drow = sqlQuery("SELECT  SUM(pay_amount) AS payments, " . "SUM(adj_amount) AS adjustments  FROM ar_activity WHERE " . "pid = ? and encounter = ? and " . "payer_type != 0 and account_code!='PCP' ", array($pid, $enc

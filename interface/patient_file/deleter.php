@@ -21,6 +21,7 @@ require_once($GLOBALS['srcdir'].'/log.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/sl_eob.inc.php');
 
+use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Core\Header;
 
 if (!empty($_GET)) {
@@ -407,7 +408,7 @@ if ($_POST['form_submit']) {
         "WHERE pid = ? AND encounter = ?", array($patient_id, $encounter_id));
         sqlStatement("UPDATE drug_sales SET billed = 0 WHERE " .
         "pid = ? AND encounter = ?", array($patient_id, $encounter_id));
-        updateClaim(true, $patient_id, $encounter_id, -1, -1, 1, 0, ''); // clears for rebilling
+        BillingUtilities::updateClaim(true, $patient_id, $encounter_id, -1, -1, 1, 0, ''); // clears for rebilling
     } else if ($transaction) {
         if (!acl_check('admin', 'super')) {
             die("Not authorized!");

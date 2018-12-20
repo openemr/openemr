@@ -11,10 +11,10 @@
 
 require_once(dirname(__file__)."/../globals.php");
 require_once("$srcdir/forms.inc");
-require_once("$srcdir/billing.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/report.inc");
 
+use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Services\FacilityService;
 
 if (!empty($_POST)) {
@@ -370,7 +370,7 @@ foreach ($newpatient as $patient) {
         }
 
         // Calculate the copay for the encounter
-        $copays = getPatientCopay($pids[$iCounter], $ta[1]);
+        $copays = BillingUtilities::getPatientCopay($pids[$iCounter], $ta[1]);
         //}
         echo "<tr><td>&nbsp;</td></tr>";
         echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xlt('Sub-Total')."</td><td class='text'>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";

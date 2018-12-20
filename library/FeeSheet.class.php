@@ -23,10 +23,6 @@
  * @link    http://www.open-emr.org
  */
 
-
-
-
-
 require_once(dirname(__FILE__) . "/../interface/globals.php");
 require_once(dirname(__FILE__) . "/acl.inc");
 require_once(dirname(__FILE__) . "/../custom/code_types.inc.php");
@@ -36,6 +32,9 @@ require_once(dirname(__FILE__) . "/appointment_status.inc.php");
 require_once(dirname(__FILE__) . "/classes/Prescription.class.php");
 require_once(dirname(__FILE__) . "/forms.inc");
 require_once(dirname(__FILE__) . "/log.inc");
+
+use OpenEMR\Billing\BillingUtilities;
+
 // For logging checksums set this to true.
 define('CHECKSUM_LOGGING', true);
 
@@ -570,7 +569,7 @@ class FeeSheet
   //
     public function loadServiceItems()
     {
-        $billresult = getBillingByEncounter($this->pid, $this->encounter, "*");
+        $billresult = BillingUtilities::getBillingByEncounter($this->pid, $this->encounter, "*");
         if ($billresult) {
             foreach ($billresult as $iter) {
                 if (!$this->ALLOW_COPAYS && $iter["code_type"] == 'COPAY') {
@@ -853,7 +852,7 @@ class FeeSheet
                 if ($id) {
                     if ($del) {
                         $this->logFSMessage(xl('Service deleted'));
-                        deleteBilling($id);
+                        BillingUtilities::deleteBilling($id);
                     } else {
                         $tmp = sqlQuery(
                             "SELECT * FROM billing WHERE id = ? AND (billed = 0 or billed is NULL) AND activity = 1",
@@ -920,7 +919,7 @@ class FeeSheet
                 else if (!$del) {
                     $this->logFSMessage(xl('Service added'));
                     $code_text = lookup_code_descriptions($code_type.":".$code);
-                    addBilling(
+                    BillingUtilities::addBilling(
                         $this->encounter,
                         $code_type,
                         $code,

@@ -12,7 +12,8 @@
 
 require_once("../../globals.php");
 require_once("../../../custom/code_types.inc.php");
-require_once("$srcdir/billing.inc");
+
+use OpenEMR\Billing\BillingUtilities;
 
 //the number of rows to display before resetting and starting a new column:
 $N=10;
@@ -32,11 +33,11 @@ if (isset($mode)) {
 
     if ($mode == "add") {
         if (strtolower($type) == "copay") {
-            addBilling($encounter, $type, sprintf("%01.2f", $code), $text, $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, sprintf("%01.2f", 0 - $code));
+            BillingUtilities::addBilling($encounter, $type, sprintf("%01.2f", $code), $text, $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, sprintf("%01.2f", 0 - $code));
         } elseif (strtolower($type) == "other") {
-            addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, sprintf("%01.2f", $fee));
+            BillingUtilities::addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, sprintf("%01.2f", $fee));
         } else {
-            addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, $fee);
+            BillingUtilities::addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, $fee);
         }
     }
 }

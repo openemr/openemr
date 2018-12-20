@@ -6,14 +6,15 @@
   // as published by the Free Software Foundation; either version 2
   // of the License, or (at your option) any later version.
 
-  require_once("patient.inc");
-  require_once("billing.inc");
-  require_once("invoice_summary.inc.php");
+require_once("patient.inc");
+require_once("invoice_summary.inc.php");
 
-  $chart_id_cash   = 0;
-  $chart_id_ar     = 0;
-  $chart_id_income = 0;
-  $services_id     = 0;
+use OpenEMR\Billing\BillingUtilities;
+
+$chart_id_cash   = 0;
+$chart_id_ar     = 0;
+$chart_id_income = 0;
+$services_id     = 0;
 
 
   // Try to figure out our invoice number (pid.encounter) from the
@@ -156,7 +157,7 @@ function arPostCharge($patient_id, $encounter_id, $session_id, $amount, $units, 
         $modifier = substr($code, $tmp+1);
     }
 
-    addBilling(
+    BillingUtilities::addBilling(
         $encounter_id,
         $codetype,
         $codeonly,
@@ -244,12 +245,12 @@ function arSetupSecondary($patient_id, $encounter_id, $debug, $crossover = 0)
     if ($new_payer_id) {
         // Queue up the claim.
         if (!$debug) {
-            updateClaim(true, $patient_id, $encounter_id, $new_payer_id, $new_payer_type, $status, 5, '', 'hcfa', '', $crossover);
+            BillingUtilities::updateClaim(true, $patient_id, $encounter_id, $new_payer_id, $new_payer_type, $status, 5, '', 'hcfa', '', $crossover);
         }
     } else {
       // Just reopen the claim.
         if (!$debug) {
-            updateClaim(true, $patient_id, $encounter_id, -1, -1, $status, 0, '', '', '', $crossover);
+            BillingUtilities::updateClaim(true, $patient_id, $encounter_id, -1, -1, $status, 0, '', '', '', $crossover);
         }
     }
 

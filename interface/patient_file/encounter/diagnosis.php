@@ -11,8 +11,9 @@
 
 
 require_once("../../globals.php");
-require_once("$srcdir/billing.inc");
 require_once("$srcdir/acl.inc");
+
+use OpenEMR\Billing\BillingUtilities;
 
 $mode              = $_REQUEST['mode'];
 $type              = $_REQUEST['type'];
@@ -54,7 +55,7 @@ if (isset($mode)) {
         $provid = $tmp['id'] ? $tmp['id'] : $_SESSION["authUserID"];
 
         if (strtolower($type) == "copay") {
-            addBilling(
+            BillingUtilities::addBilling(
                 $encounter,
                 $type,
                 sprintf("%01.2f", $code),
@@ -67,7 +68,7 @@ if (isset($mode)) {
                 sprintf("%01.2f", 0 - $code)
             );
         } elseif (strtolower($type) == "other") {
-            addBilling(
+            BillingUtilities::addBilling(
                 $encounter,
                 $type,
                 $code,
@@ -91,7 +92,7 @@ if (isset($mode)) {
                 }
             }
 
-            addBilling(
+            BillingUtilities::addBilling(
                 $encounter,
                 $type,
                 $code,
@@ -257,7 +258,7 @@ if (!empty($_GET["back"]) || !empty($_POST["back"])) {
 </a>
 <table border="0">
 <?php
-if ($result = getBillingByEncounter($pid, $encounter, "*")) {
+if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
     $billing_html = array();
     $total = 0.0;
     $ndclino = 0;
