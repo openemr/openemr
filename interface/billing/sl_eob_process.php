@@ -19,10 +19,8 @@ require_once("../globals.php");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/parse_era.inc.php");
-require_once("claim_status_codes.php");
-require_once("adjustment_reason_codes.php");
-require_once("remark_codes.php");
-require_once("$srcdir/billing.inc");
+
+use OpenEMR\Billing\BillingUtilities;
 
 $debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
 $paydate = parse_date($_GET['paydate']);
@@ -200,7 +198,7 @@ function era_callback_check(&$out)
 }
 function era_callback(&$out)
 {
-    global $encount, $debug, $claim_status_codes, $adjustment_reasons, $remark_codes;
+    global $encount, $debug;
     global $invoice_total, $last_code, $paydate;
     global $InsertionId;//last inserted ID of
 
@@ -267,7 +265,7 @@ function era_callback(&$out)
         writeMessageLine(
             $bgcolor,
             'infdetail',
-            "Claim status $csc: " . $claim_status_codes[$csc]
+            "Claim status $csc: " . BillingUtilities::claim_status_codes_CLP02[$csc]
         );
 
     // Show an error message if the claim is missing or already posted.
@@ -302,7 +300,7 @@ function era_callback(&$out)
                     $code_value = substr($code_value, 0, -1);
                     //We store the reason code to display it with description in the billing manager screen.
                     //process_file is used as for the denial case file name will not be there, and extra field(to store reason) can be avoided.
-                    updateClaim(true, $pid, $encounter, $_REQUEST['InsId'], substr($inslabel, 3), 7, 0, $code_value);
+                    BillingUtilities::updateClaim(true, $pid, $encounter, $_REQUEST['InsId'], substr($inslabel, 3), 7, 0, $code_value);
                 }
             }
 
@@ -447,7 +445,8 @@ function era_callback(&$out)
             // Report miscellaneous remarks.
             if ($svc['remark']) {
                 $rmk = $svc['remark'];
-                writeMessageLine($bgcolor, 'infdetail', "$rmk: " . $remark_codes[$rmk]);
+                writeMessageLine($bgcolor, 'infdetail', "$rmk: " .
+                    BillingUtilities::remittance_advice_remark_codes[$rmk]);
             }
 
             // Post and report the payment for this service item from the ERA.
@@ -491,7 +490,8 @@ function era_callback(&$out)
             // Post and report adjustments from this ERA.  Posted adjustment reasons
             // must be 25 characters or less in order to fit on patient statements.
             foreach ($svc['adj'] as $adj) {
-                $description = $adj['reason_code'] . ': ' . $adjustment_reasons[$adj['reason_code']];
+                $description = $adj['reason_code'] . ': ' .
+                    BillingUtilities::claim_adjustment_reason_codes[$adj['reason_code']];
                 if ($adj['group_code'] == 'PR' || !$primary) {
                     // Group code PR is Patient Responsibility.  Enter these as zero
                     // adjustments to retain the note without crediting the claim.

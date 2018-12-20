@@ -45,9 +45,9 @@
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/billing.inc");
 require_once("../../custom/code_types.inc.php");
 
+use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\FacilityService;
@@ -550,7 +550,7 @@ function generate_receipt($patient_id, $encounter = 0)
                 // table with a code type of TAX seems easiest.
                 // They will have to be stripped back out when building this
                 // script's input form.
-                addBilling(
+                BillingUtilities::addBilling(
                     $form_encounter,
                     'TAX',
                     'TAX',
@@ -648,7 +648,7 @@ function generate_receipt($patient_id, $encounter = 0)
         if (isset($_POST['form_irnumber'])) {
             $invoice_refno = trim($_POST['form_irnumber']);
         } else {
-            $invoice_refno = updateInvoiceRefNumber();
+            $invoice_refno = BillingUtilities::updateInvoiceRefNumber();
         }
         if ($invoice_refno) {
             sqlStatement("UPDATE form_encounter " .
@@ -945,7 +945,7 @@ function generate_receipt($patient_id, $encounter = 0)
 
                                     // Process copays
                                     //
-                                    $totalCopay = getPatientCopay($patient_id, $encounter);
+                                    $totalCopay = BillingUtilities::getPatientCopay($patient_id, $encounter);
                                     if ($totalCopay < 0) {
                                         write_form_line("COPAY", "", "", "", "", $totalCopay, "", "");
                                     }
@@ -1065,7 +1065,7 @@ function generate_receipt($patient_id, $encounter = 0)
                             <?php
                             // If this user has a non-empty irnpool assigned, show the pending
                             // invoice reference number.
-                            $irnumber = getInvoiceRefNumber();
+                            $irnumber = BillingUtilities::getInvoiceRefNumber();
                             if (!empty($irnumber)) {
                             ?>
                             <div class="col-xs-12 oe-custom-line">

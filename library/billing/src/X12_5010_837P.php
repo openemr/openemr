@@ -1,7 +1,7 @@
 <?php
-/* X12837P Class
+/* X12_5010_837P Class
  * 
- * This program creates a 5010 837P file
+ * This program creates an X12 5010 837P file.
  *
  * @package OpenEMR
  * @author Rod Roark <rod@sunsetsystems.com>

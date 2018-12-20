@@ -25,9 +25,10 @@
 //
 // +------------------------------------------------------------------------------+
 
-
-
 require_once("server_audit.php");
+
+use OpenEMR\Billing\BillingUtilities;
+
 class Userforms extends UserAudit
 {
 
@@ -54,7 +55,6 @@ class Userforms extends UserAudit
             $type = $data[3];
             global $ISSUE_TYPES;
             require_once("../../library/forms.inc");
-            require_once("../../library/billing.inc");
             require_once("../../library/pnotes.inc");
             require_once("../../library/patient.inc");
             require_once("../../library/options.inc.php");
@@ -62,6 +62,7 @@ class Userforms extends UserAudit
             require_once("../../library/lists.inc");
             require_once("../../library/report.inc");
             require_once("../../custom/code_types.inc.php");
+
             foreach ($repArr as $value) {
                 ob_start();
                 if ($type=="profile") {
@@ -314,7 +315,7 @@ class Userforms extends UserAudit
         $copays = 0.00;
         foreach ($ar['newpatient'] as $be) {
             $ta = split(":", $be);
-            $billing = getPatientBillingEncounter($pid, $ta[1]);
+            $billing = BillingUtilities::getBillingByEncounter($pid, $ta[1]);
             $billings[] = $billing;
             foreach ($billing as $b) {
             ?>
