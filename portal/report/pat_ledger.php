@@ -29,9 +29,7 @@ global $ignoreAuth;
 require_once('../../interface/globals.php');
 require_once($GLOBALS['srcdir'].'/patient.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
-require_once($GLOBALS['srcdir'].'/formatting.inc.php');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
-require_once($GLOBALS['srcdir'].'/formdata.inc.php');
 require_once($GLOBALS['srcdir'].'/appointments.inc.php');
 
 $enc_units = $total_units = 0;
