@@ -393,7 +393,7 @@ $urlparms = "docid=" . attr_url($docid) . "&orderid=" . attr_url($orderid);
     <input type='hidden' name='form_doc_only' id="form_doc_only" value="<?php echo attr($form_doc_only); ?>">
 </form>
 
-<?php if($GLOBALS['portal_offsite_enable']) { ?>
+<?php if ($GLOBALS['portal_offsite_enable']) { ?>
 <ul class="tabNav">
   <li class="<?php echo $inbox; ?>" ><a onclick="show_div('inbox')" href="#"><?php echo xlt('Inbox'); ?></a></li>
   <li class="<?php echo $outbox; ?>" ><a onclick="show_div('outbox')" href="#"><?php echo xlt('Sent Items'); ?></a></li>
