@@ -23,7 +23,6 @@ require_once "$srcdir/options.inc.php";
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/edi.inc");
 
-use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
