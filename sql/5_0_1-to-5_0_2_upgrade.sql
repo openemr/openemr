@@ -669,3 +669,6 @@ CREATE TABLE `api_token` (
 ) ENGINE = InnoDB;
 #EndIf
 
+#IfMissingColumn pnotes update_by
+ALTER TABLE `pnotes` ADD `update_by` INT NOT NULL AFTER `is_msg_encrypted`, ADD `update_date` DATETIME DEFAULT NULL AFTER `update_by`;
+#EndIf
