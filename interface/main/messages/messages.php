@@ -1030,7 +1030,10 @@ if (!empty($_REQUEST['go'])) { ?>
             $.ajax({
                 type: 'get',
                 url: '<?php echo $GLOBALS['webroot'] . "/library/ajax/set_pt.php";?>',
-                data: {set_pid: pid},
+                data: {
+                    set_pid: pid,
+                    csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+                },
                 async: false
             });
             parent.left_nav.setPatient(pname, pid, pubpid, '', str_dob);

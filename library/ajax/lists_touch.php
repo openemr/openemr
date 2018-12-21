@@ -1,20 +1,22 @@
 <?php
-// Copyright (C) 2011 Brady Miller <brady.g.miller@gmail.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-//
-// This file contains a function to keep track of which issues
-// types get modified.
-//
-
+/**
+ * This file contains a function to keep track of which issues
+ * types get modified.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2011-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 require_once(dirname(__FILE__) . "/../lists.inc");
+
+if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+    csrfNotVerified();
+}
 
 //  IF there is a pid and type then will set the entry in lists_touch table
 if (!(empty($_POST['patient_id'])) && !(empty($_POST['type']))) {

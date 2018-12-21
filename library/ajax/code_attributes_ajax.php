@@ -9,7 +9,9 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015-2017 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -92,11 +94,11 @@ function write_code_info($codetype, $code, $selector, $pricelevel)
   // error_log("Warehouse string is: " . $wh); // debugging
 
     echo "code_attributes_handler(" .
-    "'" . addslashes($codetype) . "'," .
-    "'" . addslashes($code) . "'," .
-    "'" . addslashes($desc) . "'," .
-    "'" . addslashes($price) . "'," .
-    "'" . addslashes($wh) . "');";
+    js_escape($codetype) . "," .
+    js_escape($code) . "," .
+    js_escape($desc) . "," .
+    js_escape($price) . "," .
+    js_escape($wh) . ");";
 }
 
 $pricelevel = isset($_GET['pricelevel']) ? $_GET['pricelevel'] : '';

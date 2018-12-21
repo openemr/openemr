@@ -52,8 +52,11 @@ if ($is_group && !acl_check("groups", "glog", false, array('view','write'))) {
 $esignApi = new Api();
 ?>
 
-<?php // if the track_anything form exists, then include the styling and js functions for graphing
+<?php // if the track_anything form exists, then include the styling and js functions (and js variable) for graphing
 if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
+ <script type="text/javascript">
+ var csrf_token_js = <?php echo js_escape(collectCsrfToken()); ?>;
+ </script>
  <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/report.js"></script>
  <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/style.css" type="text/css">
 <?php } ?>

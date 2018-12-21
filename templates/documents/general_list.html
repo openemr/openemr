@@ -4,15 +4,14 @@
 * @package   OpenEMR
 * @link      http://www.open-emr.org
 * @author    Brady Miller <brady.g.miller@gmail.com>
-* @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+* @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
 * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 *}
 <html>
 <head>
 
-{headerTemplate assets='datetime-picker|jquery-ui'}
+{headerTemplate assets='datetime-picker|jquery-ui|jquery-ui-lightness'}
 <link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.css">
-<link href="{$GLOBALS.assets_static_relative}/jquery-ui-1-12-1/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 {literal}
 <style type="text/css">
 .warn_diagnostic {
@@ -43,9 +42,9 @@ overflow: auto;
 
 <script type="text/javascript">
     // dropzone javascript asset translation(s)
-    Dropzone.prototype.defaultOptions.dictDefaultMessage = "{xl t='Drop files here to upload'}";
+    Dropzone.prototype.defaultOptions.dictDefaultMessage = {xl t='Drop files here to upload'|js_escape};
 </script>
-<title>{xl t='Documents'|escape:'html'}</title>
+<title>{xl t='Documents'|text}</title>
 </head>
 <!-- ViSolve - Call expandAll function on loading of the page if global value 'expand_document' is set -->
 {if $GLOBALS.expand_document_tree}
@@ -57,7 +56,7 @@ overflow: auto;
 	<div class="row">
 		<div class="col-sm-12">
 			<div class="page-header">
-					<h2>{xl t='Documents'|escape:'html'}&nbsp;&nbsp;  <a href='interface/patient_file/summary/demographics.php' onclick='top.restoreSession()'  title="{xl t='Go Back'|escape:'html'}" ><i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i></a></h2>
+					<h2>{xl t='Documents'|text}&nbsp;&nbsp;  <a href='interface/patient_file/summary/demographics.php' onclick='top.restoreSession()'  title="{xl t='Go Back'|attr}" ><i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i></a></h2>
 			</div>
 		</div>
 	</div>
@@ -65,45 +64,45 @@ overflow: auto;
 		<div class="col-sm-3">
 			<div id="documents_list">
 				<fieldset>
-				<legend>{xl t='Documents List'|escape:'html'}</legend>
+				<legend>{xl t='Documents List'|text}</legend>
                 <div style="padding: 0 10px">
                     <div class="ui-widget"style="float:right;">
                         <button id='pid' class="pBtn" type="button" style="float:right;">0</button>
-                         <input id="selectPatient" type="text" placeholder="{$place_hld|escape:'html'}">
+                         <input id="selectPatient" type="text" placeholder="{$place_hld|attr}">
                     </div>
-                    <a id="list_collapse" href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">&nbsp;({xl t='Collapse all'|escape:'html'})</a>
+                    <a id="list_collapse" href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">&nbsp;({xl t='Collapse all'|text})</a>
                     {$tree_html}
                 </div>
 			</div>
 			</fieldset>
 		</div>
-	
+
 		<div class="col-sm-9">
 			<div id="documents_actions">
-			
+
 				<fieldset>
-				
-					<legend>{xl t='Document Uploader/Viewer'|escape:'html'}</legend>
+
+					<legend>{xl t='Document Uploader/Viewer'|text}</legend>
                     <div style="padding: 0 10px">
 						{if $message}
-							<div class='text' style="margin-bottom:-10px; margin-top:-8px; padding:10px;"><i>{$message|escape:'html'}</i></div><br>
+							<div class='text' style="margin-bottom:-10px; margin-top:-8px; padding:10px;"><i>{$message|text}</i></div><br>
 						{/if}
 						{if $messages}
-							<div class='text' style="margin-bottom:-10px; margin-top:-8px; padding:10px;"><i>{$messages|escape:'html'}</i></div><br>
+							<div class='text' style="margin-bottom:-10px; margin-top:-8px; padding:10px;"><i>{$messages|text}</i></div><br>
 						{/if}
 						{$activity}
 					</div>
 				</fieldset>
-			
+
 			</div>
 		</div>
 	</div>
 </div><!--end of container div-->
 <script type="text/javascript">
-var curpid = "{$cur_pid|escape:'html'}";
-var newVersion="{$is_new|escape:'html'}";
-var demoPid = "{$demo_pid|escape:'html'}";
-var inUseMsg = "{$used_msg|escape:'html'}";
+var curpid = {$cur_pid|js_escape};
+var newVersion= {$is_new|js_escape};
+var demoPid = {$demo_pid|js_escape};
+var inUseMsg = {$used_msg|js_escape};
 {literal}
 if(curpid == demoPid && !newVersion){
     $(".ui-widget").hide();
@@ -113,18 +112,18 @@ else{
 }
 $(function() {
     $( "#selectPatient" ).autocomplete({
-    	source: "{/literal}{$GLOBALS.webroot}{literal}/library/ajax/document_helpers.php",
+    	source: "{/literal}{$GLOBALS.webroot}/library/ajax/document_helpers.php?csrf_token_form=" + {$CSRF_TOKEN_FORM|js_url}{literal},
     	focus: function(event, sel) {
             event.preventDefault();
         },
         select: function(event, sel) {
             event.preventDefault();
-            if (sel.item.value == '00' && ! sel.item.label.match('{/literal}{xl t="Reset"|escape:"html"}{literal}')){
+            if (sel.item.value == '00' && ! sel.item.label.match({/literal}{xl t="Reset"|js_escape}{literal})){
             	alert(inUseMsg);
             	return false;
             }
             $(this).val(sel.item.label);
-            location.href = "{/literal}{$GLOBALS.webroot}{literal}/controller.php?document&list&patient_id="+sel.item.value+"&patient_name=" + sel.item.label;
+            location.href = "{/literal}{$GLOBALS.webroot}{literal}/controller.php?document&list&patient_id=" + encodeURIComponent(sel.item.value) + "&patient_name=" + encodeURIComponent(sel.item.label);
             $("#pid").text(sel.item.value);
         },
         minLength: 3
@@ -143,7 +142,7 @@ $("#list_collapse").detach().appendTo("#objTreeMenu_1_node_1 nobr");
 $(function () {
     $("img[id^='icon_objTreeMenu_']").tooltip({
         items: $("img[src*='file3.png']"),
-        content: '{/literal}{xl t="Double Click on this icon to pop up document in a new viewer."|escape:"html"}{literal}'
+        content: {/literal}{xl t="Double Click on this icon to pop up document in a new viewer."|js_escape}{literal}
     });
 
     $("img[id^='icon_objTreeMenu_']").on('dblclick', function (e) {
@@ -153,7 +152,7 @@ $(function () {
         if (!popsrc.includes('&view&')) {
             return false;
         } else if (diview.toLowerCase().includes('.dcm') || diview.toLowerCase().includes('.zip')) {
-            popsrc = "{/literal}{$GLOBALS.webroot}{literal}/library/dicom_frame.php?web_path=" + popsrc;
+            popsrc = "{/literal}{$GLOBALS.webroot}{literal}/library/dicom_frame.php?web_path=" + encodeURIComponent(popsrc);
             dflg = true;
         }
         popsrc = popsrc.replace('&view&', '&retrieve&') + 'as_file=false';
@@ -163,8 +162,8 @@ $(function () {
             window.open(popsrc, wname, opt);
         };
 
-        let btnText = '{/literal}{xl t="Full Screen"|escape:"html"}{literal}';
-        let btnClose = '{/literal}{xl t="Close"|escape:"html"}{literal}';
+        let btnText = {/literal}{xl t="Full Screen"|js_escape}{literal};
+        let btnClose = {/literal}{xl t="Close"|js_escape}{literal};
         let size = 'modal-xl';
         let sizeHeight = 'full';
         if (dflg) {
