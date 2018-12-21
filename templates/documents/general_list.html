@@ -112,7 +112,7 @@ else{
 }
 $(function() {
     $( "#selectPatient" ).autocomplete({
-    	source: "{/literal}{$GLOBALS.webroot}{literal}/library/ajax/document_helpers.php?csrf_token_form=" + {$CSRF_TOKEN_FORM|js_url},
+    	source: "{/literal}{$GLOBALS.webroot}/library/ajax/document_helpers.php?csrf_token_form=" + {$CSRF_TOKEN_FORM|js_url}{literal},
     	focus: function(event, sel) {
             event.preventDefault();
         },
