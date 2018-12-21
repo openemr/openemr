@@ -1,6 +1,6 @@
 <?php
 /**
- * Generated DocBlock
+ * restoreSession.php
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -86,7 +86,10 @@ function printLogPrint(elem) {
  comments = win.printlogdata || win.document.body.innerHTML;
  top.restoreSession();
  $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/log_print_action_ajax.php",
-  { comments: comments }
+  {
+    comments: comments,
+    csrf_token_form: <?php echo json_encode(collectCsrfToken()); ?>
+  }
  );
 <?php } ?>
  return true;

@@ -318,7 +318,13 @@ $(document).ready(function(){
 
     $(".noneCheck").click(function() {
       top.restoreSession();
-      $.post( "../../../library/ajax/lists_touch.php", { type: this.name, patient_id: <?php echo js_escape($pid); ?> });
+      $.post( "../../../library/ajax/lists_touch.php",
+          {
+              type: this.name,
+              patient_id: <?php echo js_escape($pid); ?>,
+              csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
+          }
+      );
       $(this).hide();
     });
 });

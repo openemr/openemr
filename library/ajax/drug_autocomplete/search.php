@@ -2,14 +2,21 @@
 /**
  * weno rx search.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+
 require_once('../../../interface/globals.php');
+
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    csrfNotVerified();
+}
 
 if (isset($_GET['term'])) {
     $return_arr = array();

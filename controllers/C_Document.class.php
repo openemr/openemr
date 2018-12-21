@@ -32,6 +32,8 @@ class C_Document extends Controller
         $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "document&");
 
+        $this->assign("CSRF_TOKEN_FORM", collectCsrfToken());
+
         //get global config options for this namespace
         $this->_config = $GLOBALS['oer_config']['documents'];
 
@@ -51,7 +53,6 @@ class C_Document extends Controller
         $this->assign("category_name", $category_name);
         $this->assign("hide_encryption", $GLOBALS['hide_document_encryption']);
         $this->assign("patient_id", $patient_id);
-        $this->assign("csrf_token_form", collectCsrfToken());
 
         // Added by Rod to support document template download from general_upload.html.
         // Cloned from similar stuff in manage_document_templates.php.

@@ -4,7 +4,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *}
 
@@ -21,7 +21,7 @@
 
  // Process click on Delete link.
  function deleteme(docid) {literal}{{/literal}
-  dlgopen('interface/patient_file/deleter.php?document=' + encodeURIComponent(docid) + '&csrf_token_form=' + "{$csrf_token_form|urlencode|escape:'javascript'}", '_blank', 500, 450);
+  dlgopen('interface/patient_file/deleter.php?document=' + encodeURIComponent(docid) + '&csrf_token_form=' + {$csrf_token_form|js_url}, '_blank', 500, 450);
   return false;
  {literal}}{/literal}
 
@@ -35,8 +35,8 @@
  function showpnotes(docid) {literal}{{/literal}
  {literal}
  if (top.tab_mode) {
-     let btnClose = '{/literal}{xl t="Done"|escape:"html"}{literal}';
-     let url = top.webroot_url + '/interface/patient_file/summary/pnotes.php?docid=' + docid;
+     let btnClose = {/literal}{xl t="Done"|js_escape}{literal};
+     let url = top.webroot_url + '/interface/patient_file/summary/pnotes.php?docid=' + encodeURIComponent(docid);
      dlgopen(url, 'pno1', 'modal-xl', 500, '', '', {
          buttons: [
              {text: btnClose, close: true, style: 'default btn-xs'}
@@ -52,13 +52,13 @@
  {/literal}
   var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
   parent.left_nav.forceDual();
-  parent.left_nav.loadFrame('pno1', othername, 'patient_file/summary/pnotes.php?docid=' + docid);
+  parent.left_nav.loadFrame('pno1', othername, 'patient_file/summary/pnotes.php?docid=' + encodeURIComponent(docid));
   return false;
  {literal}}{/literal}
 
  function submitNonEmpty( e ) {literal}{{/literal}
 	if ( e.elements['passphrase'].value.length == 0 ) {literal}{{/literal}
-		alert( "{xl t='You must enter a pass phrase to encrypt the document'}" );
+		alert( {xl t='You must enter a pass phrase to encrypt the document'|js_escape} );
 	{literal}}{/literal} else {literal}{{/literal}
 		e.submit();
 	{literal}}{/literal}
@@ -69,11 +69,11 @@ function tagUpdate() {literal}{{/literal}
 	var f = document.forms['document_tag'];
 	if (f.encounter_check.checked) {literal}{{/literal}
 		if(f.visit_category_id.value==0) {literal}{{/literal}
-			alert(" {xl t='Please select visit category'}" );
+			alert({xl t='Please select visit category'|js_escape} );
 			return false;
 		{literal}}{/literal}
 	{literal}}{/literal} else if (f.encounter_id.value == 0 ) {literal}{{/literal}
-		alert(" {xl t='Please select encounter'}");
+		alert({xl t='Please select encounter'|js_escape});
 		return false;
 	{literal}}{/literal}
 	//top.restoreSession();
@@ -99,7 +99,7 @@ function set_checkbox() {literal}{{/literal}
 function ImgProcedure() {literal}{{/literal}
 	var f = document.forms['img_procedure_tag'];
 	if(f.image_procedure_id.value == 0 ) {literal}{{/literal}
-		alert("{xl t='Please select image procedure'}");
+		alert({xl t='Please select image procedure'|js_escape});
 		return false;
 	{literal}}{/literal}
 	f.procedure_code.value = f.image_procedure_id.options[f.image_procedure_id.selectedIndex].getAttribute('data-code');
@@ -114,7 +114,7 @@ function ImgProcedure() {literal}{{/literal}
     dataType: "html",
     data:
     {{/literal}
-      csrf_token_form : "{$csrf_token_form|escape:'html'}",
+      csrf_token_form : {$csrf_token_form|js_escape},
       ccr_ajax : "yes",
       document_id : docid
     {literal}},
@@ -134,20 +134,20 @@ function ImgProcedure() {literal}{{/literal}
     <tr>
         <td>
             <div style="margin-bottom: 6px;padding-bottom: 6px;border-bottom:3px solid gray;">
-            <h4>{$file->get_url_web()|escape:'html'}
+            <h4>{$file->get_url_web()|text}
               <div class="btn-group btn-toggle">
-                <button class="btn btn-xs btn-default properties">{xl t='Properties'|escape:'html'}</button>
-                <button class="btn btn-xs btn-primary active">{xl t='Contents'|escape:'html'}</button>
+                <button class="btn btn-xs btn-default properties">{xl t='Properties'|text}</button>
+                <button class="btn btn-xs btn-primary active">{xl t='Contents'|text}</button>
               </div>
             <span style="float:right;">
-            <a class="css_button" href='' onclick='return popoutcontent(this)' title="{xl t='Pop Out Full Screen.'|escape:'html'}">
+            <a class="css_button" href='' onclick='return popoutcontent(this)' title="{xl t='Pop Out Full Screen.'|attr}">
                 <span class="glyphicon glyphicon-fullscreen"></span></a>
-            <a class="css_button" href="{$web_path}" title="{xl t='Original file'|escape:'html'}" onclick="top.restoreSession()"><span>{xl t='Download'|escape:'html'}</span></a>
-            <a class="css_button" href='' onclick='return showpnotes({$file->get_id()})'><span>{xl t='Show Notes'|escape:'html'}</span></a>
+            <a class="css_button" href="{$web_path}" title="{xl t='Original file'|attr}" onclick="top.restoreSession()"><span>{xl t='Download'|text}</span></a>
+            <a class="css_button" href='' onclick='return showpnotes({$file->get_id()|attr_js})'><span>{xl t='Show Notes'|text}</span></a>
             {$delete_string}
             {if $file->get_ccr_type($file->get_id()) eq "CCR" and ($file->get_mimetype($file->get_id()) eq "application/xml" or $file->get_mimetype($file->get_id()) eq "text/xml") and
             $file->get_imported($file->get_id()) eq 0 }
-            <a class="css_button" href='javascript:' onclick='return import_ccr({$file->get_id()})'><span>{xl t='Import'|escape:'html'}</span></a>
+            <a class="css_button" href='javascript:' onclick='return import_ccr({$file->get_id()|attr_js})'><span>{xl t='Import'|text}</span></a>
             {/if}
             </span>
             </h4>
@@ -161,15 +161,15 @@ function ImgProcedure() {literal}{{/literal}
                 <form method="post" name="document_encrypt" action="{$web_path}" onsubmit="return top.restoreSession()">
                 <div>
                     <div style="float:left">
-                        <b>{xl t='Encryption'|escape:'html'}</b>&nbsp;
+                        <b>{xl t='Encryption'|text}</b>&nbsp;
                     </div>
                     <div style="float:none">
-                        <a href="javascript:;" onclick="submitNonEmpty( document.forms['document_encrypt'] );">(<span>{xl t='download encrypted file'|escape:'html'})</span></a>
+                        <a href="javascript:;" onclick="submitNonEmpty( document.forms['document_encrypt'] );">(<span>{xl t='download encrypted file'|text})</span></a>
                     </div>
                 </div>
                 <div>
-                    {xl t='Pass Phrase'|escape:'html'}:
-                    <input title="{xl t='Supports TripleDES encryption/decryption only.'|escape:'html'} {xl t='Leaving the pass phrase blank will not encrypt the document'|escape:'html'}" type='text' size='20' name='passphrase' id='passphrase' value=''/>
+                    {xl t='Pass Phrase'|text}:
+                    <input title="{xl t='Supports TripleDES encryption/decryption only.'|attr} {xl t='Leaving the pass phrase blank will not encrypt the document'|attr}" type='text' size='20' name='passphrase' id='passphrase' value=''/>
                     <input type="hidden" name="encrypted" value="true"></input>
               	</div>
                 </form>
@@ -180,11 +180,11 @@ function ImgProcedure() {literal}{{/literal}
                 <form method="post" name="document_validate" action="{$VALIDATE_ACTION}" onsubmit="return top.restoreSession()">
                 <div>
                     <div style="float:left">
-                        <b>{xl t='Sha-1 Hash'|escape:'html'}:</b>&nbsp;
-                        <i>{$file->get_hash()|escape:'html'}</i>&nbsp;
+                        <b>{xl t='Sha-1 Hash'|text}:</b>&nbsp;
+                        <i>{$file->get_hash()|text}</i>&nbsp;
                     </div>
                     <div style="float:none">
-                        <a href="javascript:;" onclick="document.forms['document_validate'].submit();">(<span>{xl t='validate'|escape:'html'})</span></a>
+                        <a href="javascript:;" onclick="document.forms['document_validate'].submit();">(<span>{xl t='validate'|text})</span></a>
                     </div>
                 </div>
                 </form>
@@ -194,20 +194,20 @@ function ImgProcedure() {literal}{{/literal}
                 <form method="post" name="document_update" action="{$UPDATE_ACTION}" onsubmit="return top.restoreSession()">
                 <div>
                     <div style="float:left">
-                        <b>{xl t='Update'|escape:'html'}</b>&nbsp;
+                        <b>{xl t='Update'|text}</b>&nbsp;
                     </div>
                     <div style="float:none">
-                        <a href="javascript:;" onclick="document.forms['document_update'].submit();">(<span>{xl t='submit'|escape:'html'})</span></a>
+                        <a href="javascript:;" onclick="document.forms['document_update'].submit();">(<span>{xl t='submit'|text})</span></a>
                     </div>
                 </div>
                 <div>
-                    {xl t='Rename'|escape:'html'}:
-                    <input type='text' size='20' name='docname' id='docname' value='{$file->get_url_web()|escape:'html'}'/>
+                    {xl t='Rename'|text}:
+                    <input type='text' size='20' name='docname' id='docname' value='{$file->get_url_web()|attr}'/>
               	</div>
                 <div>
-                    {xl t='Date'|escape:'html'}:
+                    {xl t='Date'|text}:
                     <input type='text' size='10' class='datepicker' name='docdate' id='docdate'
-                     value='{$DOCDATE|escape:'html'}' title='{xl t='yyyy-mm-dd document date'|escape:'html'}' />
+                     value='{$DOCDATE|attr}' title='{xl t='yyyy-mm-dd document date'|attr}' />
                     <select name="issue_id">{$ISSUES_LIST}</select>
                 </div>
                 </form>
@@ -219,18 +219,18 @@ function ImgProcedure() {literal}{{/literal}
                 <form method="post" name="document_move" action="{$MOVE_ACTION}" onsubmit="return top.restoreSession()">
                 <div>
                     <div style="float:left">
-                        <b>{xl t='Move'|escape:'html'}</b>&nbsp;
+                        <b>{xl t='Move'|text}</b>&nbsp;
                     </div>
                     <div style="float:none">
-                        <a href="javascript:;" onclick="document.forms['document_move'].submit();">(<span>{xl t='submit'|escape:'html'})</span></a>
+                        <a href="javascript:;" onclick="document.forms['document_move'].submit();">(<span>{xl t='submit'|text})</span></a>
                     </div>
                 </div>
 
                 <div>
                         <select name="new_category_id">{$tree_html_listbox}</select>&nbsp;
-                        {xl t='Move to Patient'|escape:'html'} # <input type="text" name="new_patient_id" size="4" />
+                        {xl t='Move to Patient'|text} # <input type="text" name="new_patient_id" size="4" />
                         <a href="javascript:{literal}{}{/literal}"
-                         onclick="top.restoreSession();var URL='controller.php?patient_finder&find&form_id={"document_move['new_patient_id']"|escape:"url"}&form_name={"document_move['new_patient_name']"|escape:"url"}'; window.open(URL, 'document_move', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left=425,top=250');">
+                         onclick="top.restoreSession();var URL='controller.php?patient_finder&find&form_id={"document_move['new_patient_id']"|attr_url}&form_name={"document_move['new_patient_name']"|attr_url}'; window.open(URL, 'document_move', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left=425,top=250');">
                         <img src="images/stock_search-16.png" border="0" /></a>
                         <input type="hidden" name="new_patient_name" value="" />
                 </div>
@@ -244,19 +244,19 @@ function ImgProcedure() {literal}{{/literal}
 
 				<div >
 				   <div style="float:left">
-					   <b>{xl t='Tag to Encounter'|escape:'html'}</b>&nbsp;
+					   <b>{xl t='Tag to Encounter'|text}</b>&nbsp;
 				   </div>
 
 				   <div style="float:none">
-					   <a href="javascript:;" onclick="tagUpdate();">(<span>{xl t='submit'|escape:'html'})</span></a>
+					   <a href="javascript:;" onclick="tagUpdate();">(<span>{xl t='submit'|text})</span></a>
 				   </div>
 			   </div>
 
 				 <div>
 					<select id="encounter_id"  name="encounter_id"  >{$ENC_LIST}</select>&nbsp;
-					<a href="{$clear_encounter_tag}" class="hide_clear">(<span>{xl t='clear'|escape:'html'})</span></a>&nbsp;&nbsp;
-					<input type="checkbox" name="encounter_check" id="encounter_check"  onclick='set_checkbox(this)'/> <label for="encounter_check"><b>{xl t='Create Encounter'|escape:'html'}</b></label>&nbsp;&nbsp;
-					   {xl t='Visit Category'|escape:'html'} : &nbsp;<select id="visit_category_id"  name="visit_category_id"  disabled>{$VISIT_CATEGORY_LIST}</select>&nbsp;
+					<a href="{$clear_encounter_tag}" class="hide_clear">(<span>{xl t='clear'|text})</span></a>&nbsp;&nbsp;
+					<input type="checkbox" name="encounter_check" id="encounter_check"  onclick='set_checkbox(this)'/> <label for="encounter_check"><b>{xl t='Create Encounter'|text}</b></label>&nbsp;&nbsp;
+					   {xl t='Visit Category'|text} : &nbsp;<select id="visit_category_id"  name="visit_category_id"  disabled>{$VISIT_CATEGORY_LIST}</select>&nbsp;
 
 			   </div>
 			   </form>
@@ -267,15 +267,15 @@ function ImgProcedure() {literal}{{/literal}
 			<input type='hidden' name='procedure_code' value=''>
 			<div>
 				<div style="float:left">
-					<b>{xl t='Tag to Image Procedure'|escape:'html'}</b>&nbsp;
+					<b>{xl t='Tag to Image Procedure'|text}</b>&nbsp;
 				</div>
 				<div style="float:none">
-					<a href="javascript:;" onclick="ImgProcedure();">(<span>{xl t='submit'|escape:'html'})</span></a>
+					<a href="javascript:;" onclick="ImgProcedure();">(<span>{xl t='submit'|text})</span></a>
 				</div>
 			</div>
 			<div>
 				<select id="image_procedure_id"  name="image_procedure_id">{$IMAGE_PROCEDURE_LIST}</select>&nbsp;
-				<a href="{$clear_procedure_tag}">(<span>{xl t='clear'|escape:'html'})</span></a>
+				<a href="{$clear_procedure_tag}">(<span>{xl t='clear'|text})</span></a>
 			</div>
 			</form>
 		   </div>
@@ -286,15 +286,15 @@ function ImgProcedure() {literal}{{/literal}
             <div class="text">
                 <div>
                     <div style="float:left">
-                        <b>{xl t='Notes'|escape:'html'}</b>&nbsp;
+                        <b>{xl t='Notes'|text}</b>&nbsp;
                     </div>
                     <div style="float:none">
-                        <a href="javascript:;" onclick="document.notes.identifier.value='no';document.forms['notes'].submit();">(<span>{xl t='add'|escape:'html'}</span>)</a>
-                    	&nbsp;&nbsp;&nbsp;<b>{xl t='Email'|escape:'html'}</b>&nbsp;
+                        <a href="javascript:;" onclick="document.notes.identifier.value='no';document.forms['notes'].submit();">(<span>{xl t='add'|text}</span>)</a>
+                    	&nbsp;&nbsp;&nbsp;<b>{xl t='Email'|text}</b>&nbsp;
                     	<input type="text" size="25" name="provide_email" id="provide_email" />
                     	<input type="hidden" name="identifier" id="identifier" />
                         <a href="javascript:;" onclick="javascript:document.notes.identifier.value='yes';document.forms['notes'].submit();">
-                        	(<span>{xl t='Send'|escape:'html'}</span>)
+                        	(<span>{xl t='Send'|text}</span>)
                         </a>
                     </div>
                     <div>
@@ -305,18 +305,18 @@ function ImgProcedure() {literal}{{/literal}
                     </div>
                 <div>
                     <textarea cols="53" rows="8" wrap="virtual" name="note" style="width:100%"></textarea><br>
-                    <input type="hidden" name="process" value="{$PROCESS|escape:'html'}" />
-                    <input type="hidden" name="foreign_id" value="{$file->get_id()|escape:'html'}" />
+                    <input type="hidden" name="process" value="{$PROCESS|attr}" />
+                    <input type="hidden" name="foreign_id" value="{$file->get_id()|attr}" />
 
                     {if $notes}
                     <div style="margin-top:7px">
                         {foreach name=note_loop from=$notes item=note}
                         <div>
-                        {xl t='Note'|escape:'html'} #{$note->get_id()|escape:'html'}
-                        {xl t='Date:'|escape:'html'} {$note->get_date()|escape:'html'}
-                        {$note->get_note()|escape:'html'}
+                        {xl t='Note'|text} #{$note->get_id()|text}
+                        {xl t='Date:'|text} {$note->get_date()|text}
+                        {$note->get_note()|text}
                         {if $note->get_owner()}
-                            &nbsp;-{user_info id=$note->get_owner()}
+                            &nbsp;-{user_info id=$note->get_owner()|text}
                         {/if}
                         </div>
                         {/foreach}
@@ -325,23 +325,23 @@ function ImgProcedure() {literal}{{/literal}
                 </div>
             </div>
             </form>
-            <h4>{xl t='Contents'|escape:'html'}</h4>
+            <h4>{xl t='Contents'|text}</h4>
 		</td>
 	</tr>
 	<tr id="DocContents" style="height:100%">
 		<td>
             {if $file->get_mimetype() eq "image/tiff" or $file->get_mimetype() eq "text/plain"}
-			<embed frameborder="0" style="height:84vh" type="{$file->get_mimetype()|escape:'html'}" src="{$web_path|escape:'html'}as_file=false"></embed>
+			<embed frameborder="0" style="height:84vh" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></embed>
 			{elseif $file->get_mimetype() eq "image/png" or
 			 $file->get_mimetype() eq "image/jpg" or
 			 $file->get_mimetype() eq "image/jpeg" or
 			 $file->get_mimetype() eq "image/gif" or
 			 $file->get_mimetype() eq "application/pdf" }
-			<iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|escape:'html'}" src="{$web_path|escape:'html'}as_file=false"></iframe>
+			<iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></iframe>
             {elseif $file->get_mimetype() eq "application/dicom" or $file->get_mimetype() eq "application/dicom+zip"}
-            <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|escape:'html'}" src="{$webroot}/library/dicom_frame.php?web_path={$web_path|escape:'html'}as_file=false"></iframe>
+            <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|attr}" src="{$webroot}/library/dicom_frame.php?web_path={$web_path|attr}as_file=false"></iframe>
             {elseif $file->get_ccr_type($file->get_id()) ne "CCR" and $file->get_ccr_type($file->get_id()) ne "CCD"}
-            <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|escape:'html'}" src="{$web_path|escape:'html'}as_file=true"></iframe>
+            <iframe frameborder="0" style="height:84vh" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=true"></iframe>
 			{/if}
 		</td>
 	</tr>
