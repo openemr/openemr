@@ -25,7 +25,6 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once("$srcdir/appointments.inc.php");
 require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
-require_once("$srcdir/parse_era.inc.php");
 require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
@@ -35,6 +34,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 require_once "$srcdir/user.inc";
 
+use OpenEMR\Billing\ParseERA;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
@@ -135,7 +135,7 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
     }
 }
 
-// This is called back by parse_era() if we are processing X12 835's.
+// This is called back by ParseERA::parse_era() if we are processing X12 835's.
 function era_callback(&$out)
 {
     global $where, $eracount, $eraname;
@@ -907,7 +907,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 }
 
                                 echo "<!-- Notes from ERA upload processing:\n";
-                                $alertmsg .= parse_era($tmp_name, 'era_callback');
+                                $alertmsg .= ParseERA::parse_era($tmp_name, 'era_callback');
                                 echo "-->\n";
                                 $erafullname = $GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi";
 
@@ -923,7 +923,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                             } // End 835 upload
 
                             if ($eracount) {
-                                // Note that parse_era() modified $eracount and $where.
+                                // Note that ParseERA::parse_era() modified $eracount and $where.
                                 if (!$where) {
                                     $where = '1 = 2';
                                 }
