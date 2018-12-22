@@ -1275,7 +1275,7 @@ class BillingUtilities
         'N810' => 'Due to federal, state or local disaster declaration, this claim has been processed at the in-network level of benefit. At the conclusion or expiration of the disaster declaration, network payment rules will be reinstated.',
         'N811' => 'Missing Federal Sequestration Reduction from Prior Payer.',
         'N812' => 'The start service date through end service date cannot span greater than 18 months.'
-);
+    );
 
     public static function getBillingById($id, $cols = "*")
     {
