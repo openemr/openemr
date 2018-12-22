@@ -10,9 +10,6 @@
 <?php $ruleId = $viewBean->id;?>
 <?php $groupId = $viewBean->groupId;?>
 
-<script type="text/javascript">
-</script>
-
 <table class="header">
   <tr>
         <td class="title"><?php echo out(xl('Rule Edit')); ?></td>
