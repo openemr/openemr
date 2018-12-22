@@ -1,42 +1,25 @@
 <?php
-// +-----------------------------------------------------------------------------+
-// Copyright (C) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-//
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-//
-// A copy of the GNU General Public License is included along with this program:
-// openemr/interface/login/GnuGPL.html
-// For more information write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
-// Author:   Eldho Chacko <eldho@zhservices.com>
-//           Paul Simon K <paul@zhservices.com>
-//
-// +------------------------------------------------------------------------------+
-//===============================================================================
-//Electronic posting is handled here.
-//===============================================================================
-
+/*
+ * The functions of this class support the billing process like the script billing_process.php.
+ *
+ * @package OpenEMR
+ * @author Eldho Chacko <eldho@zhservices.com>
+ * @author Paul Simon K <paul@zhservices.com>
+ * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (C) 2018 Stephen Waite <stephen.waite@cmsvt.com>
+ * @link http://www.open-emr.org
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
-require_once("$srcdir/parse_era.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/sl_eob.inc.php");
 
+use OpenEMR\Billing\ParseERA;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
@@ -47,7 +30,7 @@ $deposit_date = isset($_POST['deposit_date']) ? $_POST['deposit_date'] : '';
 $type_code = isset($_POST['type_code']) ? $_POST['type_code'] : '';
 
 //===============================================================================
-// This is called back by parse_era() if we are processing X12 835's.
+// This is called back by ParseERA::parse_era() if we are processing X12 835's.
 $alertmsg = '';
 $where = '';
 $eraname = '';
@@ -81,7 +64,7 @@ if ($_FILES['form_erafile']['size']) {
         exec("unzip -p " . escapeshellarg($tmp_name.".zip") . " > " . escapeshellarg($tmp_name));
         unlink("$tmp_name.zip");
     }
-    $alertmsg .= parse_era($tmp_name, 'era_callback');
+    $alertmsg .= ParseERA::parse_era($tmp_name, 'era_callback');
     $erafullname = $GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi";
     if (is_file($erafullname)) {
         $alertmsg .=  xl("Warning").': '. xl("Set").' '.$eraname.' '. xl("was already uploaded").' ';

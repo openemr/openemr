@@ -11,16 +11,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 // Buffer all output so we can archive it to a file.
 ob_start();
 
 require_once("../globals.php");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once("$srcdir/sl_eob.inc.php");
-require_once("$srcdir/parse_era.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\ParseERA;
 
 $debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
 $paydate = parse_date($_GET['paydate']);
@@ -144,7 +143,7 @@ function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor)
     }
 }
 
-    // This is called back by parse_era() once per claim.
+    // This is called back by ParseERA::parse_era() once per claim.
     //
 function era_callback_check(&$out)
 {
@@ -682,7 +681,7 @@ if (!$debug) {
 <center>
 <?php
 if ($_GET['original']=='original') {
-    $alertmsg = parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi", 'era_callback');
+    $alertmsg = ParseERA::parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi", 'era_callback');
     echo $StringToEcho;
 } else {
     ?>
@@ -716,8 +715,8 @@ if ($_GET['original']=='original') {
     global $InsertionId;
 
     $eraname=$_REQUEST['eraname'];
-    $alertmsg = parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi");
-    $alertmsg = parse_era($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi", 'era_callback');
+    $alertmsg = ParseERA::parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi");
+    $alertmsg = ParseERA::parse_era($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi", 'era_callback');
     if (!$debug) {
           $StringIssue=xl("Total Distribution for following check number is not full").': ';
           $StringPrint='No';

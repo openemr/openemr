@@ -20,8 +20,8 @@ require_once "$srcdir/patient.inc";
 require_once "$srcdir/../interface/reports/report.inc.php"; // Criteria Section common php page
 require_once "$srcdir/billrep.inc";
 require_once "$srcdir/options.inc.php";
-require_once "adjustment_reason_codes.php";
 
+use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
