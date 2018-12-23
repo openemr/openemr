@@ -308,7 +308,7 @@ $urlparms = "docid=" . attr_url($docid) . "&orderid=" . attr_url($orderid);
             <a href="#" class="change_activity btn btn-default" ><span><?php echo xlt('Update Active'); ?></span></a>
             <a href="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" class="btn btn-default" id='Submit' onclick='return top.restoreSession()'><span><?php echo xlt('Refresh'); ?></span></a>
             <a href="demographics.php" class="btn btn-default" onclick="top.restoreSession()">
-                <span><?php echo xlt('View Patient'); ?></span>
+                <span><?php echo xlt('Back to Patient'); ?></span>
             </a>
         </div>
 
@@ -520,11 +520,11 @@ if ($result != "") {
         echo getListItemTitle("message_status", $iter['message_status']);
         echo "  </td>\n";
         echo "  <td class='notecell'>";
-        echo oeFormatDateTime($iter['update_date']);
+        echo text(oeFormatDateTime($iter['update_date']));
         echo "  </td>\n";
         echo "  <td class='notecell'>";
         $updateBy = $userService->getUser($iter['update_by']);
-        echo !is_null($updateBy) ? $updateBy->getFname() . ' ' . $updateBy->getLname() : '';
+        echo !is_null($updateBy) ? text($updateBy->getFname()) . ' ' . text($updateBy->getLname()) : '';
         echo "  </td>\n";
         echo " </tr>\n";
 
