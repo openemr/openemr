@@ -9,8 +9,6 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Billing;
-
 // This returns an associative array keyed on procedure code, representing
 // all charge items for one invoice.  This array's values are themselves
 // associative arrays having the following keys:
@@ -34,9 +32,9 @@ namespace OpenEMR\Billing;
 //  dsc - for tax charges, a description of the tax
 //  arseq - ar_activity.sequence_no when it applies.
 
-require_once("sl_eob.inc.php");
 require_once(dirname(__FILE__) . "/../custom/code_types.inc.php");
 
+use OpenEMR\Billing\SLEOB;
 
 // for Integrated A/R.
 //
