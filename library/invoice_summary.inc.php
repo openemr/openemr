@@ -1,10 +1,15 @@
 <?php
-// Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * @package OpenEMR
+ * @author Rod Roark <rod@sunsetsystems.com>
+ * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2009 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
+ * @link http://www.open-emr.org
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+namespace OpenEMR\Billing;
 
 // This returns an associative array keyed on procedure code, representing
 // all charge items for one invoice.  This array's values are themselves
@@ -215,7 +220,7 @@ function ar_responsible_party($patient_id, $encounter_id)
         return $next_level;
     }
 
-    if (arGetPayerID($patient_id, substr($row['date'], 0, 10), $next_level)) {
+    if (SLEOB::arGetPayerID($patient_id, substr($row['date'], 0, 10), $next_level)) {
         return $next_level;
     }
 

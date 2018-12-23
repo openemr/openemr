@@ -4,25 +4,16 @@
  * sl_eob_search.php.  For automated (X12 835) remittance posting
  * see sl_eob_process.php.
  *
- * Copyright (C) 2005-2016 Rod Roark <rod@sunsetsystems.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Roberto Vasquez <robertogagliotta@gmail.com>
  * @author  Terry Hill <terry@lillysystems.com>
  * @author  Jerry Padgett <sjpadgett@gmail.com>
- * @link    http://www.open-emr.org
+ * @author  Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
+ * @link http://www.open-emr.org
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -30,11 +21,11 @@ require_once("../globals.php");
 require_once("$srcdir/log.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/forms.inc");
-require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once "$srcdir/user.inc";
 
+use OpenEMR\Billing\SLEOB;
 use OpenEMR\Core\Header;
 
 $debug = 0; // set to 1 for debugging mode
@@ -320,7 +311,7 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
             echo "<p><b>" . xlt("This module is in test mode. The database will not be changed.") . "</b><p>\n";
         }
 
-        $session_id = arGetSession($form_payer_id, $form_reference, $form_check_date, $form_deposit_date, $form_pay_total);
+        $session_id = SLEOB::arGetSession($form_payer_id, $form_reference, $form_check_date, $form_deposit_date, $form_pay_total);
 // The sl_eob_search page needs its invoice links modified to invoke
 // javascript to load form parms for all the above and submit.
 // At the same time that page would be modified to work off the
@@ -372,7 +363,7 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
             }
 
             if (0.0 + $thispay) {
-                arPostPayment($patient_id, $encounter_id, $session_id, $thispay, $code, $payer_type, '', $debug, '', $thiscodetype);
+                SLEOB::arPostPayment($patient_id, $encounter_id, $session_id, $thispay, $code, $payer_type, '', $debug, '', $thiscodetype);
                 $paytotal += $thispay;
             }
 
@@ -403,7 +394,7 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
                         $reason .= ' ' . $_POST['form_insurance'];
                     }
                 }
-                arPostAdjustment($patient_id, $encounter_id, $session_id, $thisadj, $code, $payer_type, $reason, $debug, '', $thiscodetype);
+                SLEOB::arPostAdjustment($patient_id, $encounter_id, $session_id, $thisadj, $code, $payer_type, $reason, $debug, '', $thiscodetype);
             }
         }
 
@@ -414,7 +405,7 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
         sqlStatement("UPDATE form_encounter SET last_level_closed = ?, stmt_count = ? WHERE pid = ? AND encounter = ?", array($form_done, $form_stmt_count, $patient_id, $encounter_id));
 
         if ($_POST['form_secondary']) {
-            arSetupSecondary($patient_id, $encounter_id, $debug);
+            SLEOB::arSetupSecondary($patient_id, $encounter_id, $debug);
         }
         echo "<script language='JavaScript'>\n";
         echo " if (opener.document.forms[0] != undefined) {\n";
@@ -495,7 +486,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         <label class="control-label" for="insurance_name"><?php echo xlt('Insurance'); ?>:</label>
                         <?php
                         for ($i = 1; $i <= 3; ++$i) {
-                            $payerid = arGetPayerID($patient_id, $svcdate, $i);
+                            $payerid = SLEOB::arGetPayerID($patient_id, $svcdate, $i);
                             if ($payerid) {
                                 $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE id = ?", array($payerid));
                                 $insurance .= "$i: " . $tmp['name'] . "\n";
@@ -568,7 +559,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                             // we no longer expect any payments from that company for the claim.
                             $last_level_closed = 0 + $ferow['last_level_closed'];
                             foreach (array(0 => 'None', 1 => 'Ins1', 2 => 'Ins2', 3 => 'Ins3') as $key => $value) {
-                                if ($key && !arGetPayerID($patient_id, $svcdate, $key)) {
+                                if ($key && !SLEOB::arGetPayerID($patient_id, $svcdate, $key)) {
                                     continue;
                                 }
                                 $checked = ($last_level_closed == $key) ? " checked" : "";
