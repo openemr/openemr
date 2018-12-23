@@ -44,7 +44,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
     var zipFileArray = new Array();
     var failureMessage = "";
     $(document).ready(function(){
-        $("#checkAll").on ("change", function() {
+        $("#checkAll").on("change", function() {
             var checked =  ( $("#checkAll").prop("checked") ) ? true : false;
             $("#thisForm input:checkbox").each(function() {
                 $(this).prop("checked", checked);
