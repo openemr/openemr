@@ -366,27 +366,6 @@ if ($GLOBALS['enable_help'] == 1) {
                                     <div class="clearfix"></div>
                                 </div>
                                 <?php }?>
-                                <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
-                                <div class="form-group">
-                                    <label for='facility_id' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('POS Code'); ?>:</label>
-                                    <div class="col-sm-8">
-                                        <select name="pos_code" id="pos_code" class='form-control col-sm-9'>
-                                        <?php
-                                        $pc = new POSRef();
-                                        foreach ($pc->get_pos_ref() as $pos) {
-                                            echo "<option value=\"" . attr($pos["code"]) . "\" ";
-                                            if ($pos["code"] == $result['pos_code'] || $pos["code"] == $posCode) {
-                                                echo "selected";
-                                            }
-                                            echo ">" . text($pos['code'])  . ": ". xlt($pos['title']);
-                                            echo "</option>\n";
-                                        }
-                                        ?>
-                                        </select>
-                                    </div>
-                                    <div class="clearfix"></div>
-                                    </div>
-                                <?php }?>
                                 <div class="form-group">
                                     <label for='facility_id' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Facility'); ?>:</label>
                                     <div class="col-sm-8">
@@ -399,16 +378,16 @@ if ($GLOBALS['enable_help'] == 1) {
                                                 $drow = sqlFetchArray($dres);
                                                 $def_facility = $drow['facility_id'];
                                             }
+                                            $posCode = '';
                                             $facilities = $facilityService->getAllServiceLocations();
                                             if ($facilities) {
-                                                foreach ($facilities as $iter) {
-                                                    if ($iter['billing_location'] == 1) {
-                                                        $posCode = $iter['pos_code'];
-                                                    }
-                                            ?>
+                                                foreach ($facilities as $iter) { ?>
                                             <option value="<?php echo attr($iter['id']); ?>"
                                                 <?php
                                                 if ($def_facility == $iter['id']) {
+                                                    if (!$viewmode) {
+                                                        $posCode = $iter['pos_code'];
+                                                    }
                                                     echo "selected";
                                                 }?>><?php echo text($iter['name']); ?>
                                             </option>
@@ -424,12 +403,34 @@ if ($GLOBALS['enable_help'] == 1) {
                                     <label for='billing_facility' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Billing Facility'); ?>:</label>
                                     <div id="ajaxdiv" class="col-sm-8">
                                         <?php
-                                            billing_facility('billing_facility', $result['billing_facility']);
+                                            $default_bill_fac = isset($result['billing_facility']) ? $result['billing_facility'] : $def_facility;
+                                            billing_facility('billing_facility', $default_bill_fac);
                                         ?>
                                     </div>
                                     <div class="clearfix"></div>
                                 </div>
                         </div>
+                        <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
+                            <div class="form-group">
+                                <label for='pos_code' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('POS Code'); ?>:</label>
+                                <div class="col-sm-8">
+                                    <select name="pos_code" id="pos_code" class='form-control col-sm-9'>
+                                        <?php
+                                        $pc = new POSRef();
+                                        foreach ($pc->get_pos_ref() as $pos) {
+                                            echo "<option value=\"" . attr($pos["code"]) . "\" ";
+                                            if (($pos["code"] == $result['pos_code'] && $viewmode) || ($pos["code"] == $posCode && !$viewmode)) {
+                                                echo "selected";
+                                            }
+                                            echo ">" . text($pos['code'])  . ": ". xlt($pos['title']);
+                                            echo "</option>\n";
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        <?php }?>
                     </fieldset>
                     <fieldset>
                         <legend><?php echo xlt('Reason for Visit')?></legend>
