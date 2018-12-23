@@ -543,7 +543,7 @@ ALTER TABLE `form_eye_mag_orders`
     ADD `form_id` bigint(20) NOT NULL AFTER `id`,
     DROP INDEX `VISIT_ID`;
 ALTER TABLE `form_eye_mag_orders`
-    ADD UNIQUE `VISIT_ID` (`pid`, `ORDER_DETAILS`, `ORDER_DATE_PLACED`);
+    ADD UNIQUE KEY `VISIT_ID` (`pid`, `ORDER_DETAILS`, `ORDER_DATE_PLACED`);
 
 INSERT into `form_eye_base` (`id`,`date`,`pid`,`user`,`groupname`,`authorized`, `activity`)
   select `id`,`date`,`pid`,`user`,`groupname`,`authorized`, `activity` from `form_eye_mag`;
