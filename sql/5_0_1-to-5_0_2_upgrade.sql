@@ -669,3 +669,10 @@ CREATE TABLE `api_token` (
 ) ENGINE = InnoDB;
 #EndIf
 
+#IfMissingColumn pnotes update_by
+ALTER TABLE `pnotes` ADD `update_by` INT NOT NULL;
+#EndIf
+
+#IfMissingColumn pnotes update_date
+ALTER TABLE `pnotes` ADD `update_date` DATETIME DEFAULT NULL;
+#EndIf
