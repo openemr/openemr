@@ -12,10 +12,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once('../globals.php');
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/payment_jav.inc.php");
+
+use OpenEMR\Core\Header;
 
 $curdate = date_create(date("Y-m-d"));
 date_sub($curdate, date_interval_create_from_date_string("7 days"));
@@ -38,23 +39,10 @@ $display_expand_msg = "display:none;";
 $display_collapse_msg = "display:inline;";
 
 ?>
-
 <html>
 <head>
-
-<?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href='<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/qtip2-2-2-1/jquery.qtip.min.css' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
-
-
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-7-2/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui-1.8.6.custom.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/qtip2-2-2-1/jquery.qtip.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_jquery', 'datetime-picker', 'common', 'jquery-ui', 'qtip2-2-2-1']); ?>
 
 <script type="text/javascript">
     var global_date_format = '<?php echo DateFormatRead(); ?>';
