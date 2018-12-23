@@ -4,21 +4,17 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *}
 <html>
 <head>
 
-{headerTemplate assets='no_bootstrap|no_fontawesome|no_textformat|no_dialog'}
+{headerTemplate assets='no_textformat|no_dialog'}
 
 {literal}
-<style type="text/css" title="mystyles" media="all">
-.inactive {
-  color:#777777;
-}
-</style>
-
 <script language="javascript">
 
 function changeLinkHref(id,addValue,value) {
@@ -134,15 +130,7 @@ $(document).ready(function(){
 <body id="prescription_list" class="body_top">
 
 {if $prescriptions}
-<span class="title"><b>{xl t='List'|escape:'html'}</b></span>
-<div id="drug-drug">
-    <h3>{xl t='Drug-Drug Interaction'|text}</h3>
-    <div id="return_info">
-        {$INTERACTION|text}
-    </div>
-    <p title="{xl t='Severity information will be missing if interaction is found'|attr}"><a href="#" style="font-size: x-small">*{xl t='Notice'|text}</a></p>
-    <hr>
-</div>
+<h3>{xl t='List'|escape:'html'}</h3>
 <div id="prescription_list">
 
 <form name="presc">
@@ -201,19 +189,19 @@ $(document).ready(function(){
 </div>
 
 
-<table width="100%" class="showborder_head" cellspacing="0px" cellpadding="2px">
+<table class="table">
+    <thead>
     <tr>
        <!-- TajEmo Changes 2012/06/14 02:01:43 PM by CB added Heading for checkbox column -->
-        <th width="8px">&nbsp;</th>
-            <th width="8px">&nbsp;</th>
-
-        <th width="70px">{xl t='Drug'|escape:'html'}</th>
-        <th width="70px">{xl t='RxNorm'|escape:'html'}</th>
-        <th width="70px">{xl t='Created'|escape:'html'}<br />{xl t='Changed'|escape:'html'}</th>
-        <th width="20px">{xl t='Dosage'|escape:'html'}</th>
-        <th width="20px">{xl t='Qty'|escape:'html'}.</th>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>{xl t='Drug'|escape:'html'}</th>
+        <th>{xl t='RxNorm'|escape:'html'}</th>
+        <th>{xl t='Created'|escape:'html'}<br />{xl t='Changed'|escape:'html'}</th>
+        <th>{xl t='Dosage'|escape:'html'}</th>
+        <th>{xl t='Qty'|escape:'html'}.</th>
         <th>{xl t='Unit'|escape:'html'}</th>
-        <th width="20px">{xl t='Refills'|escape:'html'}</th>
+        <th>{xl t='Refills'|escape:'html'}</th>
         <th>{xl t='Provider'|escape:'html'}</th>
         {if $GLOBALS.weno_rx_enable}
             <th>{xl t='Send'|escape:'html'}<br>{xl t='NewRx'|escape:'html'}</th>
@@ -221,16 +209,17 @@ $(document).ready(function(){
             <th>{xl t='Last'|escape:'html'}<br>{xl t='Tx Date'|escape:'html'}</th>
         {/if}
     </tr>
-
+    </thead>
+    <tbody>
     {foreach from=$prescriptions item=prescription}
   <!-- TajEmo Changes 2012/06/14 02:03:17 PM by CB added cursor:pointer for easier user understanding -->
-  <tr style="cursor:pointer" id="{$prescription->id|escape:'html'}" class="showborder onescript {if $prescription->active <= 0} inactive{/if}" title="{xl t='Click to view/edit'|escape:'html'}">
+  <tr id="{$prescription->id|escape:'html'}" class="showborder onescript {if $prescription->active <= 0} inactive{/if}">
      <td align="center">
       <input class="check_list" id="check_list" type="checkbox" value="{$prescription->id|escape:'html'}" {if $prescription->encounter == $prescription->get_encounter() && $prescription->active > 0}checked="checked" {/if}onclick="changeLinkHref('multiprint',this.checked, this.value);changeLinkHref('multiprintcss',this.checked, this.value);changeLinkHref('multiprintToFax',this.checked, this.value)" title="{xl t='Select for printing'|escape:'html'}">
     </td>
     {if $prescription->erx_source==0}
     <td class="editscript"  id="{$prescription->id}">
-        <a class='editscript css_button_small' id='{$prescription->id}' href="controller.php?prescription&edit&id={$prescription->id}" style="margin-top:-2px"><span>{xl t='Edit'|escape:'html'}</span></a>
+        <a class='editscript css_button_small' id='{$prescription->id}' href="controller.php?prescription&edit&id={$prescription->id}"><span>{xl t='Edit'|escape:'html'}</span></a>
       <!-- TajEmo Changes 2012/06/14 02:02:22 PM by CB commented out, to avoid duplicate display of drug name
         {if $prescription->active > 0}<b>{/if}{$prescription->drug}{if $prescription->active > 0}</b>{/if}&nbsp;
       -->
@@ -291,11 +280,23 @@ $(document).ready(function(){
     {/if}
   </tr>
     {/foreach}
-
+    </tbody>
 </table>
 
 </form>
 </div>
+
+{if $GLOBALS.rx_show_drug_drug}
+    <div id="drug-drug">
+        <hr>
+        <h3>{xl t='Drug-Drug Interaction'|text}</h3>
+        <p title="{xl t='Severity information will be missing if interaction is found'|attr}"><a href="#">*{xl t='Notice'|text}</a></p>
+        <div id="return_info">
+            {$INTERACTION}
+        </div>
+        <hr>
+    </div>
+{/if}
 
 {else}
 <div class="text" style="margin-top:10px">{xl t='There are currently no prescriptions'|escape:'html'}.</div>
