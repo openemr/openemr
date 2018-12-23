@@ -669,7 +669,18 @@ CREATE TABLE `api_token` (
 ) ENGINE = InnoDB;
 #EndIf
 
-#IfMissingColumn users patient_menu_role
-ALTER TABLE `facility` ADD `mail_street` VARCHAR(30) NOT NULL AFTER `facility_taxonomy`, ADD `mail_city` VARCHAR(35) NOT NULL AFTER `mail_street`, ADD `mail_state` VARCHAR(2) NOT NULL AFTER `mail_city`, ADD `mail_zip` VARCHAR(10) NOT NULL AFTER `mail_state`;
-ALTER TABLE `facility` ADD `oid` INT(15) NOT NULL DEFAULT '0' FIRST;
+#IfMissingColumn mail_street facility
+ALTER TABLE `facility` ADD `mail_street` VARCHAR(30) NOT NULL;
+#EndIf
+#IfMissingColumn mail_city facility
+ALTER TABLE `facility` ADD `mail_city` VARCHAR(35) NOT NULL;
+#EndIf
+#IfMissingColumn mail_state facility
+ALTER TABLE `facility` ADD `mail_state` VARCHAR(2) NOT NULL;
+#EndIf
+#IfMissingColumn mail_zip facility
+ALTER TABLE `facility` ADD `mail_zip` VARCHAR(10) NOT NULL;
+#EndIf
+#IfMissingColumn oid facility
+ALTER TABLE `facility` ADD `oid` VARCHAR(31) NOT NULL DEFAULT '0' COMMENT 'HIEs CCDA and FHIR an OID is required/wanted' NOT NULL DEFAULT '0';
 #EndIf

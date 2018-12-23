@@ -1620,8 +1620,7 @@ CREATE TABLE `standardized_tables_track` (
 
 DROP TABLE IF EXISTS `facility`;
 CREATE TABLE `facility` (
-  `oid` int(15) NOT NULL DEFAULT '0' COMMET 'HIEs CCDA and FHIR an OID is required/wanted',
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL auto_increment,
   `name` varchar(255) DEFAULT NULL,
   `phone` varchar(30) DEFAULT NULL,
   `fax` varchar(30) DEFAULT NULL,
@@ -1650,7 +1649,9 @@ CREATE TABLE `facility` (
   `mail_street` varchar(30) NOT NULL,
   `mail_city` varchar(50) NOT NULL,
   `mail_state` varchar(3) NOT NULL,
-  `mail_zip` varchar(10) NOT NULL
+  `mail_zip` varchar(10) NOT NULL,
+  `oid` VARCHAR(31) NOT NULL DEFAULT '0' COMMENT 'HIEs CCDA and FHIR an OID is required/wanted',
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 ;
 
 --
