@@ -1344,7 +1344,7 @@ class BillingUtilities
     }
 
     // This function supports the Billing page (billing_process.php),
-    // and initiation of secondary processing (sl_eob.inc.php).
+    // and initiation of secondary processing (\OpenEMR\Billing\SLEOB.php).
     // It is called in the following situations:
     //
     // * billing_process.php sets bill_time, bill_process, payer and target on

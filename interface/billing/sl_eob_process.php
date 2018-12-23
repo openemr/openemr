@@ -16,10 +16,10 @@ ob_start();
 
 require_once("../globals.php");
 require_once("$srcdir/invoice_summary.inc.php");
-require_once("$srcdir/sl_eob.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\ParseERA;
+use OpenEMR\Billing\SLEOB;
 
 $debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
 $paydate = parse_date($_GET['paydate']);
@@ -190,7 +190,7 @@ function era_callback_check(&$out)
                 $check_date=$out['check_date'.$check_count]?$out['check_date'.$check_count]:$_REQUEST['paydate'];
                 $post_to_date=$_REQUEST['post_to_date']!=''?$_REQUEST['post_to_date']:date('Y-m-d');
                 $deposit_date=$_REQUEST['deposit_date']!=''?$_REQUEST['deposit_date']:date('Y-m-d');
-                $InsertionId[$out['check_number'.$check_count]]=arPostSession($_REQUEST['InsId'], $out['check_number'.$check_count], $out['check_date'.$check_count], $out['check_amount'.$check_count], $post_to_date, $deposit_date, $debug);
+                $InsertionId[$out['check_number'.$check_count]]=SLEOB::arPostSession($_REQUEST['InsId'], $out['check_number'.$check_count], $out['check_date'.$check_count], $out['check_amount'.$check_count], $post_to_date, $deposit_date, $debug);
             }
         }
     }
@@ -224,7 +224,7 @@ function era_callback(&$out)
         $last_code = '';
         $invoice_total = 0.00;
         $bgcolor = (++$encount & 1) ? "#ddddff" : "#ffdddd";
-        list($pid, $encounter, $invnumber) = slInvoiceNumber($out);
+        list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
 
         // Get details, if we have them, for the invoice.
         $inverror = true;
@@ -326,7 +326,7 @@ function era_callback(&$out)
         $check_date      = $paydate ? $paydate : parse_date($out['check_date']);
         $production_date = $paydate ? $paydate : parse_date($out['production_date']);
 
-        $insurance_id = arGetPayerID($pid, $service_date, substr($inslabel, 3));
+        $insurance_id = SLEOB::arGetPayerID($pid, $service_date, substr($inslabel, 3));
         if (empty($ferow['lname'])) {
               $patient_name = $out['patient_fname'] . ' ' . $out['patient_lname'];
         } else {
@@ -383,7 +383,7 @@ function era_callback(&$out)
                 // was inserted, or in red if we are in error mode).
                 $description = "CPT4:$codekey Added by $inslabel $production_date";
                 if (!$error && !$debug) {
-                    arPostCharge(
+                    SLEOB::arPostCharge(
                         $pid,
                         $encounter,
                         0,
@@ -453,7 +453,7 @@ function era_callback(&$out)
             // i.e. a payment reversal.
             if ($svc['paid']) {
                 if (!$error && !$debug) {
-                    arPostPayment(
+                    SLEOB::arPostPayment(
                         $pid,
                         $encounter,
                         $InsertionId[$out['check_number']],
@@ -522,7 +522,7 @@ function era_callback(&$out)
                     $reason .= sprintf("%.2f", $adj['amount']);
                     // Post a zero-dollar adjustment just to save it as a comment.
                     if (!$error && !$debug) {
-                        arPostAdjustment(
+                        SLEOB::arPostAdjustment(
                             $pid,
                             $encounter,
                             $InsertionId[$out['check_number']],
@@ -541,7 +541,7 @@ function era_callback(&$out)
                 } // Other group codes for primary insurance are real adjustments.
                 else {
                     if (!$error && !$debug) {
-                        arPostAdjustment(
+                        SLEOB::arPostAdjustment(
                             $pid,
                             $encounter,
                             $InsertionId[$out['check_number']],
@@ -610,8 +610,8 @@ function era_callback(&$out)
             }
 
             // Check for secondary insurance.
-            if ($primary && arGetPayerID($pid, $service_date, 2)) {
-                arSetupSecondary($pid, $encounter, $debug, $out['crossover']);
+            if ($primary && SLEOB::arGetPayerID($pid, $service_date, 2)) {
+                SLEOB::arSetupSecondary($pid, $encounter, $debug, $out['crossover']);
 
                 if ($out['crossover']<>1) {
                     writeMessageLine(

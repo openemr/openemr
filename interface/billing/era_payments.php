@@ -17,9 +17,9 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/sl_eob.inc.php");
 
 use OpenEMR\Billing\ParseERA;
+use OpenEMR\Billing\SLEOB;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
@@ -42,7 +42,7 @@ function era_callback(&$out)
     ++$eracount;
     $eraname = $out['gs_date'] . '_' . ltrim($out['isa_control_number'], '0') .
     '_' . ltrim($out['payer_id'], '0');
-    list($pid, $encounter, $invnumber) = slInvoiceNumber($out);
+    list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
     if ($pid && $encounter) {
         if ($where) {
             $where .= ' OR ';

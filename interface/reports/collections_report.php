@@ -16,13 +16,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
 require_once("../../library/patient.inc");
 require_once("../../library/invoice_summary.inc.php");
-require_once("../../library/sl_eob.inc.php");
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Billing\SLEOB;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -746,7 +745,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
         $insname = '';
         if (! $duncount) {
             for ($i = 1; $i <= 3; ++$i) {
-                $tmp = arGetPayerID($patient_id, $svcdate, $i);
+                $tmp = SLEOB::arGetPayerID($patient_id, $svcdate, $i);
 
                 if (empty($tmp)) {
                     break;
@@ -808,7 +807,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
             $row['ins1'] = $insname;
         } else {
             if (empty($payerids)) {
-                $tmp = arGetPayerID($patient_id, $svcdate, 1);
+                $tmp = SLEOB::arGetPayerID($patient_id, $svcdate, 1);
                 if (!empty($tmp)) {
                     $payerids[] = $tmp;
                 }

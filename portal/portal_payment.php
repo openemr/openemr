@@ -45,7 +45,6 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/payment.inc.php");
 require_once("$srcdir/forms.inc");
-require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once("../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");

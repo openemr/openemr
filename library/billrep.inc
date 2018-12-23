@@ -1,5 +1,6 @@
 <?php
-    require_once(dirname(__FILE__) . "/../interface/reports/report.inc.php");
+require_once(dirname(__FILE__) . "/../interface/reports/report.inc.php");
+
 function GenerateTheQueryPart()
 {
     global $query_part,$query_part2,$billstring,$auth;

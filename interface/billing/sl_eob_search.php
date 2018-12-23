@@ -25,7 +25,6 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once("$srcdir/appointments.inc.php");
 require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
-require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/../controllers/C_Document.class.php");
@@ -35,6 +34,7 @@ require_once("$srcdir/acl.inc");
 require_once "$srcdir/user.inc";
 
 use OpenEMR\Billing\ParseERA;
+use OpenEMR\Billing\SLEOB;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
@@ -144,7 +144,7 @@ function era_callback(&$out)
 // $eraname = $out['isa_control_number'];
     $eraname = $out['gs_date'] . '_' . ltrim($out['isa_control_number'], '0') .
         '_' . ltrim($out['payer_id'], '0');
-    list($pid, $encounter, $invnumber) = slInvoiceNumber($out);
+    list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
 
     if ($pid && $encounter) {
         if ($where) {
@@ -1059,7 +1059,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 // yet closed out insurance.
                                 //
                                 if (!$duncount) {
-                                    for ($i = 1; $i <= 3 && arGetPayerID($row['pid'], $row['date'], $i);
+                                    for ($i = 1; $i <= 3 && SLEOB::arGetPayerID($row['pid'], $row['date'], $i);
                                          ++$i) {
                                     }
                                     $duncount = $row['last_level_closed'] + 1 - $i;
