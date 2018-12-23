@@ -135,7 +135,7 @@ assets:
         script: jquery.qtip.min.js
         link: jquery.qtip.min.css
     qtip2-2-2-1:
-        basePath: %assets_static_relative%/qtip2-2-2-1/
+        basePath: %assets_static_relative%/manual-added-packages/qtip2-2-2-1/
         script: jquery.qtip.min.js
         link: jquery.qtip.min.css
     angular:
