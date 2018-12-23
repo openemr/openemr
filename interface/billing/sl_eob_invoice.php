@@ -10,7 +10,7 @@
  * @author  Terry Hill <terry@lillysystems.com>
  * @author  Jerry Padgett <sjpadgett@gmail.com>
  * @author  Stephen Waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
  * @link http://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

@@ -25,7 +25,6 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/payment.inc.php");
 
 use OpenEMR\Billing\ParseERA;
-use OpenEMR\Billing\SLEOB;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 

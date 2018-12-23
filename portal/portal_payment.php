@@ -53,7 +53,6 @@ require_once("$srcdir/log.inc");
 require_once("$srcdir/crypto.php");
 
 use OpenEMR\Billing\BillingUtilities;
-use OpenEMR\Billing\SLEOB;
 
 $appsql = new ApplicationTable();
 $pid = isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $pid;

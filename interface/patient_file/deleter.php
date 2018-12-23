@@ -21,7 +21,6 @@ require_once($GLOBALS['srcdir'].'/log.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 
 use OpenEMR\Billing\BillingUtilities;
-use OpenEMR\Billing\SLEOB;
 use OpenEMR\Core\Header;
 
 if (!empty($_GET)) {

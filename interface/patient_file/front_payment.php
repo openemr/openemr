@@ -22,7 +22,6 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
-use OpenEMR\Billing\SLEOB;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\FacilityService;
