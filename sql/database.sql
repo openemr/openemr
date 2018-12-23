@@ -6202,6 +6202,8 @@ CREATE TABLE `pnotes` (
   `message_status` VARCHAR(20) NOT NULL DEFAULT 'New',
   `portal_relation` VARCHAR(100) NULL,
   `is_msg_encrypted` TINYINT(2) DEFAULT '0' COMMENT 'Whether messsage encrypted 0-Not encrypted, 1-Encrypted',
+  `update_by` INT NOT NULL,
+  `update_date` DATETIME DEFAULT NULL,
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;

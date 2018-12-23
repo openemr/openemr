@@ -19,6 +19,7 @@ require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['srcdir'].'/gprelations.inc.php');
 
 use OpenEMR\Core\Header;
+use OpenEMR\Services\UserService;
 
 if ($_GET['set_pid']) {
     require_once($GLOBALS['srcdir'].'/pid.inc');
@@ -32,6 +33,9 @@ $docid = empty($_REQUEST['docid']) ? 0 : 0 + $_REQUEST['docid'];
 $orderid = empty($_REQUEST['orderid']) ? 0 : intval($_REQUEST['orderid']);
 
 $patient_id = $pid;
+
+$userService = new UserService();
+
 if ($docid) {
     $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid));
     $patient_id = intval($row['foreign_id']);
@@ -181,7 +185,7 @@ $patientname = $pres['lname'] . ", " . $pres['fname'];
 $result = getPnotesByDate(
     "",
     $active,
-    'id,date,body,user,activity,title,assigned_to,message_status',
+    'id,date,body,user,activity,title,assigned_to,message_status,update_date,update_by',
     $patient_id,
     $N,
     $offset,
@@ -193,7 +197,7 @@ $result = getPnotesByDate(
 $result_sent = getSentPnotesByDate(
     "",
     $active,
-    'id,date,body,user,activity,title,assigned_to,message_status',
+    'id,date,body,user,activity,title,assigned_to,message_status,update_date,update_by',
     $patient_id,
     $M,
     $offset_sent,
@@ -287,39 +291,97 @@ if ($orderid) {
 $urlparms = "docid=" . attr_url($docid) . "&orderid=" . attr_url($orderid);
 ?>
 
-    <div>
-        <span class="title"><?php echo xlt('Patient Messages') . text($title_docname); ?></span>
-    </div>
-    <div id='namecontainer_pnotes' class='namecontainer_pnotes'>
-        <?php echo xlt('for'); ?>&nbsp;<span class="title">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="page-header">
+                <h2><?php echo xlt('Patient Messages') . text($title_docname); ?></h2>
+                <div id='namecontainer_pnotes' class='namecontainer_pnotes oe-margin-b-20'>
+                    <?php echo xlt('for'); ?>&nbsp;<span class="title">
       <a href="../summary/demographics.php" onclick="return top.restoreSession()"><?php echo text(getPatientName($patient_id)); ?></a></span>
+                </div>
+            </div>
+        </div>
     </div>
-    <div>
-        <a href="pnotes_full_add.php?<?php echo $urlparms; ?>" class="css_button note_modal" onclick='return top.restoreSession()'><span><?php echo xlt('Add'); ?></span></a>
-        <a href="demographics.php" class="css_button" onclick="top.restoreSession()">
-            <span><?php echo xlt('View Patient'); ?></span>
-        </a>
+    <div class="row oe-margin-b-10">
+        <div class="col-md-12">
+            <a href="pnotes_full_add.php?<?php echo $urlparms; ?>" class="btn btn-default note_modal" onclick='return top.restoreSession()'><span><?php echo xlt('Add'); ?></span></a>
+            <a href="#" class="change_activity btn btn-default" ><span><?php echo xlt('Update Active'); ?></span></a>
+            <a href="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" class="btn btn-default" id='Submit' onclick='return top.restoreSession()'><span><?php echo xlt('Refresh'); ?></span></a>
+            <a href="demographics.php" class="btn btn-default" onclick="top.restoreSession()">
+                <span><?php echo xlt('Back to Patient'); ?></span>
+            </a>
+        </div>
+
     </div>
-    <br/>
-    <br/>
-    <div>
-    <?php if ($active == "all") { ?>
-      <span><?php echo xlt('Show All'); ?></span>
-    <?php } else { ?>
-      <a href="pnotes_full.php?<?php echo $urlparms; ?>" class="link" onclick="return top.restoreSession()"><span><?php echo xlt('Show All'); ?></span></a>
-    <?php } ?>
-    |
-    <?php if ($active == '1') { ?>
-      <span><?php echo xlt('Show Active'); ?></span>
-    <?php } else { ?>
-      <a href="pnotes_full.php?form_active=1&<?php echo $urlparms; ?>" class="link" onclick="return top.restoreSession()"><span><?php echo xlt('Show Active'); ?></span></a>
-    <?php } ?>
-    |
-    <?php if ($active == '0') { ?>
-      <span><?php echo xlt('Show Inactive'); ?></span>
-    <?php } else { ?>
-      <a href="pnotes_full.php?form_inactive=1&<?php echo $urlparms; ?>" class="link" onclick="return top.restoreSession()"><span><?php echo xlt('Show Inactive'); ?></span></a>
-    <?php } ?>
+    <div class="row oe-margin-b-10">
+        <div class="col-md-12">
+
+            <?php
+            // Get the billing note if there is one.
+            $billing_note = "";
+            $colorbeg = "";
+            $colorend = "";
+            $resnote = getPatientData($patient_id, "billing_note");
+            if (!empty($resnote['billing_note'])) {
+                $billing_note = $resnote['billing_note'];
+                $colorbeg = "<span style='color:red'>";
+                $colorend = "</span>";
+            }
+
+            //Display what the patient owes
+            $balance = get_patient_balance($patient_id);
+            ?>
+
+            <?php if ($billing_note || $balance) { ?>
+
+                <div style='margin-top:3px'>
+                    <table width='80%'>
+                        <?php
+                        if ($balance != "0") {
+                            // $formatted = sprintf((xl('$').'%01.2f'), $balance);
+                            $formatted = oeFormatMoney($balance);
+                            echo " <tr class='text billing'>\n";
+                            echo "  <td>" . $colorbeg . xlt('Balance Due') .
+                                $colorend . "&nbsp;" . $colorbeg . text($formatted) .
+                                $colorend . "</td>\n";
+                            echo " </tr>\n";
+                        }
+
+                        if ($billing_note) {
+                            echo " <tr class='text billing'>\n";
+                            echo "  <td>" . $colorbeg . xlt('Billing Note') .
+                                $colorend . "&nbsp;" . $colorbeg . text($billing_note) .
+                                $colorend . "</td>\n";
+                            echo " </tr>\n";
+                        }
+                        ?>
+                    </table>
+                </div>
+
+            <?php } ?>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <?php if ($active == "all") { ?>
+                <span><?php echo xlt('Show All'); ?></span>
+            <?php } else { ?>
+                <a href="pnotes_full.php?<?php echo $urlparms; ?>" class="link btn btn-default" onclick="return top.restoreSession()"><span><?php echo xlt('Show All'); ?></span></a>
+            <?php } ?>
+            |
+            <?php if ($active == '1') { ?>
+                <span><?php echo xlt('Show Active'); ?></span>
+            <?php } else { ?>
+                <a href="pnotes_full.php?form_active=1&<?php echo $urlparms; ?>" class="link btn btn-default" onclick="return top.restoreSession()"><span><?php echo xlt('Show Active'); ?></span></a>
+            <?php } ?>
+            |
+            <?php if ($active == '0') { ?>
+                <span><?php echo xlt('Show Inactive'); ?></span>
+            <?php } else { ?>
+                <a href="pnotes_full.php?form_inactive=1&<?php echo $urlparms; ?>" class="link btn btn-default" onclick="return top.restoreSession()"><span><?php echo xlt('Show Inactive'); ?></span></a>
+            <?php } ?>
+        </div>
     </div>
 
     <input type='hidden' name='mode' id="mode" value="new">
@@ -331,54 +393,12 @@ $urlparms = "docid=" . attr_url($docid) . "&orderid=" . attr_url($orderid);
     <input type='hidden' name='form_doc_only' id="form_doc_only" value="<?php echo attr($form_doc_only); ?>">
 </form>
 
-
-<?php
-// Get the billing note if there is one.
-$billing_note = "";
-$colorbeg = "";
-$colorend = "";
-$resnote = getPatientData($patient_id, "billing_note");
-if (!empty($resnote['billing_note'])) {
-    $billing_note = $resnote['billing_note'];
-    $colorbeg = "<span style='color:red'>";
-    $colorend = "</span>";
-}
-
-//Display what the patient owes
-$balance = get_patient_balance($patient_id);
-?>
-
-<?php if ($billing_note || $balance) { ?>
-
-<div style='margin-top:3px'>
-<table width='80%'>
-<?php
-if ($balance != "0") {
-  // $formatted = sprintf((xl('$').'%01.2f'), $balance);
-    $formatted = oeFormatMoney($balance);
-    echo " <tr class='text billing'>\n";
-    echo "  <td>" . $colorbeg . xlt('Balance Due') .
-    $colorend . "&nbsp;" . $colorbeg . text($formatted) .
-    $colorend . "</td>\n";
-    echo " </tr>\n";
-}
-
-if ($billing_note) {
-    echo " <tr class='text billing'>\n";
-    echo "  <td>" . $colorbeg . xlt('Billing Note') .
-    $colorend . "&nbsp;" . $colorbeg . text($billing_note) .
-    $colorend . "</td>\n";
-    echo " </tr>\n";
-}
-?>
-</table>
-</div>
-<br>
-<?php } ?>
+<?php if ($GLOBALS['portal_offsite_enable']) { ?>
 <ul class="tabNav">
   <li class="<?php echo $inbox; ?>" ><a onclick="show_div('inbox')" href="#"><?php echo xlt('Inbox'); ?></a></li>
   <li class="<?php echo $outbox; ?>" ><a onclick="show_div('outbox')" href="#"><?php echo xlt('Sent Items'); ?></a></li>
 </ul>
+<?php } ?>
 <div class='tabContainer' >
   <div id='inbox_div' <?php echo $inbox_style; ?> >
 <form border='0' method='post' name='update_activity' id='update_activity'
@@ -392,16 +412,10 @@ if ($billing_note) {
 <input type='hidden' name='noteid' id='noteid' value="0">
 <table border='0' cellpadding="1" class="text">
 <?php if ($result != "") : ?>
- <tr>
-  <td colspan='5' style="padding: 5px;" >
-    <a href="#" class="change_activity" ><span><?php echo xlt('Update Active'); ?></span></a>
-    |
-    <a href="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" class="" id='Submit' onclick='return top.restoreSession()'><span><?php echo xlt('Refresh'); ?></span></a>
-  </td>
- </tr></table>
+</table>
 <?php endif; ?>
 
-<table border='0' cellpadding="1"  class="text" width = "80%">
+<table border='0' cellpadding="1"  class="text" width = "100%">
 <?php
 // display all of the notes for the day, as well as others that are active
 // from previous dates, up to a certain number, $N
@@ -414,6 +428,8 @@ if ($result != "") {
     echo "  <th>" . xlt('Type') . "</th>\n";
     echo "  <th>" . xlt('Content') . "</th>\n";
     echo "  <th>" . xlt('Status') . "</th>\n";
+    echo "  <th>" . xlt('Last update') . "</th>\n";
+    echo "  <th>" . xlt('Update by') . "</th>\n";
     echo " </tr>\n";
 
     $result_count = 0;
@@ -502,6 +518,13 @@ if ($result != "") {
         echo "  </td>\n";
         echo "  <td class='notecell' id='" . attr($row_note_id) . "'>\n";
         echo getListItemTitle("message_status", $iter['message_status']);
+        echo "  </td>\n";
+        echo "  <td class='notecell'>";
+        echo text(oeFormatDateTime($iter['update_date']));
+        echo "  </td>\n";
+        echo "  <td class='notecell'>";
+        $updateBy = $userService->getUser($iter['update_by']);
+        echo !is_null($updateBy) ? text($updateBy->getFname()) . ' ' . text($updateBy->getLname()) : '';
         echo "  </td>\n";
         echo " </tr>\n";
 

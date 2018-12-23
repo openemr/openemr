@@ -658,3 +658,21 @@ UPDATE `list_options` SET `notes`='{"participant_name":{"presence": true}, "grou
 UPDATE `list_options` SET `notes`='{"pc_catid":{"exclusion": ["_blank"]}}' WHERE `list_id`='page_validation' AND `option_id`='common#new-encounter-form';
 UPDATE `list_options` SET `notes`='{"form_group":{"presence": true}}' WHERE `list_id`='page_validation' AND `option_id`='add_edit_event#theform_groups';
 UPDATE `list_options` SET `notes`='{"form_datetime":{"futureDate":{"message": "Must be future date"}}, "reply_to":{"presence": {"message": "Please choose a patient"}}}' WHERE `list_id`='page_validation' AND `option_id`='messages#new_note';
+
+#IfNotTable api_token
+CREATE TABLE `api_token` (
+    `id`           bigint(20) NOT NULL AUTO_INCREMENT,
+    `user_id`      bigint(20) NOT NULL,
+    `token`        varchar(256) DEFAULT NULL,
+    `expiry`       datetime NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB;
+#EndIf
+
+#IfMissingColumn pnotes update_by
+ALTER TABLE `pnotes` ADD `update_by` INT NOT NULL;
+#EndIf
+
+#IfMissingColumn pnotes update_date
+ALTER TABLE `pnotes` ADD `update_date` DATETIME DEFAULT NULL;
+#EndIf

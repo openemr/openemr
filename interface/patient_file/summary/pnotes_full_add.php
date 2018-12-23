@@ -292,8 +292,8 @@ while ($urow = sqlFetchArray($ures)) {
 <?php
 }
 ?>
- <tr>
-  <td>
+<tr>
+    <td>
 <?php
 if ($noteid) {
     $body = $prow['body'];
@@ -302,19 +302,25 @@ if ($noteid) {
     echo "<div class='text'>".$body."</div>";
 }
 ?>
-    <br/>
-   <textarea name='note' id='note' rows='4' cols='58'></textarea>
+    </td>
+</tr>
+<tr>
+    <td>
+        <textarea name='note' id='note' rows='4' cols='58'></textarea>
+    </td>
+</tr>
+<tr>
+    <td>
+        <?php if ($noteid) { ?>
+            <!-- existing note -->
+            <a href="#" class="css_button" id="newnote" title="<?php echo xla('Add as a new note'); ?>" ><span><?php echo xlt('Save as new note'); ?></span></a>
+            <a href="#" class="css_button" id="appendnote" title="<?php echo xla('Append to the existing note'); ?>"><span><?php echo xlt('Append this note'); ?></span></a>
+        <?php } else { ?>
+            <a href="#" class="css_button" id="newnote" title="<?php echo xla('Add as a new note'); ?>" ><span><?php echo xlt('Save as new note'); ?></span></a>
+        <?php } ?>
+    </td>
+</tr>
 
-    <?php if ($noteid) { ?>
-    <!-- existing note -->
-    <a href="#" class="css_button" id="newnote" title="<?php echo xla('Add as a new note'); ?>" ><span><?php echo xlt('Save as new note'); ?></span></a>
-    <a href="#" class="css_button" id="appendnote" title="<?php echo xla('Append to the existing note'); ?>"><span><?php echo xlt('Append this note'); ?></span></a>
-    <?php } else { ?>
-    <a href="#" class="css_button" id="newnote" title="<?php echo xla('Add as a new note'); ?>" ><span><?php echo xlt('Save as new note'); ?></span></a>
-    <?php } ?>
-
-  </td>
- </tr>
 </table>
 <br>
 <br>
