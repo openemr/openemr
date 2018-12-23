@@ -24,8 +24,6 @@ require_once("$srcdir/billrep.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/payment.inc.php");
 
-use OpenEMR\Billing\ParseERA;
-use OpenEMR\Billing\SLEOB;
 use OpenEMR\Core\Header;
 
 $screen='edit_payment';
@@ -726,7 +724,7 @@ fieldset {
             <h2><?php echo xlt('Payments'); ?></h2>
         </div>
     </div>
-    
+
     <div class="row" >
         <nav class="navbar navbar-default navbar-color navbar-static-top" >
             <div class="container-fluid">
@@ -760,7 +758,7 @@ fieldset {
         } else {
             echo "return false;";
         }
-        ?> 
+        ?>
         ' style="display:inline" >
             <?php
             if ($payment_id*1>0) { ?>
@@ -822,7 +820,7 @@ fieldset {
                                 $Table='yes';
                     ?>
                     <input id="HiddenRemainderTd<?php echo $CountIndex; ?>" name="HiddenRemainderTd<?php echo $CountIndex; ?>" type="hidden" value="<?php echo htmlspecialchars(round($RemainderJS, 2)); ?>">
-                <div class = "table-responsive">  
+                <div class = "table-responsive">
                 <table class="table-condensed" id="TableDistributePortion" >
                 <thead bgcolor="#DDDDDD" class="text">
                     <td class="left top" >&nbsp;</td>
