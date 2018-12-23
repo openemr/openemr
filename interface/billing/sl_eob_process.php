@@ -671,8 +671,6 @@ if (!$debug) {
  .infdetail { color:#0000ff; font-family:sans-serif; font-size:9pt; font-weight:normal }
 </style>
 <title><?php echo xlt('EOB Posting - Electronic Remittances')?></title>
-<script language="JavaScript">
-</script>
 </head>
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <form action="sl_eob_process.php" method="get" >

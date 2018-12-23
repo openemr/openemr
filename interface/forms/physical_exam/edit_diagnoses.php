@@ -23,8 +23,6 @@ if ($issue && !acl_check('patients', 'med', '', 'write')) {
 <title><?php xl('Edit Diagnoses for', 'e');?><?php echo $line_id ?></title>
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 
-<script language="JavaScript">
-</script>
 
 </head>
 
