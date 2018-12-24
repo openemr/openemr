@@ -30,7 +30,6 @@ if ($is_lbf) {
 
 //Bring in the style sheet
 ?>
-
 <?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
@@ -59,7 +58,7 @@ if ($is_lbf) {
   }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-7-2/jquery.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript">
@@ -119,18 +118,18 @@ $(document).ready(function(){
   // Place click callback for graphing
 <?php if ($is_lbf) { ?>
   // For LBF the <td> has an id of label_id_$fieldid
-  $(".graph").click(function(e){ show_graph(<?php echo js_escape($formname); ?>, this.id.substring(9), $(this).text()) });
+  $(".graph").on("click", function(e){ show_graph(<?php echo js_escape($formname); ?>, this.id.substring(9), $(this).text()) });
 <?php } else { ?>
-  $(".graph").click(function(e){ show_graph('form_vitals', this.id, $(this).text()) });
+  $(".graph").on("click", function(e){ show_graph('form_vitals', this.id, $(this).text()) });
 <?php } ?>
 
   // Show hovering effects for the .graph links
-  $(".graph").hover(
+  $(".graph").on("mouseenter",
     function(){
-         $(this).css({color:'#ff5555'}); //mouseover
-    },
+         $(this).css({color:'#ff5555'});
+    }).on("mouseleave",
     function(){
-         $(this).css({color:'#0000cc'}); // mouseout
+         $(this).css({color:'#0000cc'});
     }
   );
 

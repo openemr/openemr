@@ -2,20 +2,6 @@
 <head>
 {headerTemplate assets='datetime-picker'}
 
-
-<script type="text/javascript">
-var mypcc = '{php} echo $GLOBALS['phone_country_code'] {/php}';
-{literal}
-// Only load jquery if not already closing. This page serves two purposes now,
-//  for entring of vitals and for graphing/trending previous vitals by being embedded
-//  in the interface/patient_file/encounter/trend_form.php page.
-if (typeof jQuery == 'undefined') {
-  document.write("<script type='text/javascript' src='{/literal}{php}echo $GLOBALS['assets_static_relative'];{/php}{literal}/jquery-1-7-2/jquery.min.js'><\/script>{/literal}")
-}
-</script>
-
-
-
 {literal}
 <script type="text/javascript">
 function vitalsFormSubmitted() {
@@ -80,7 +66,7 @@ function vitalsFormSubmitted() {
     border-right: 1px solid black;
     padding-right:5px;
     text-align: left;
-    
+
 }
 th.currentvalues, th.historicalvalues{
     background: #E5E5E5;
@@ -350,7 +336,7 @@ margin:1px !Important;
                             </tr>
                         </tbody>
                     </table>
-            
+
                 <div class="form-group clearfix">
                     <div class="text-left position-override">
                             <div class="btn-group" role="group">
@@ -430,10 +416,10 @@ function addGCSelector()
 }
 
 $(document).ready(function(){
-    $("#growthchart").click(function() { ShowGrowthchart(); });
-    $("#pdfchart").click(function() { ShowGrowthchart(1); });
-    $("#htmlchart").click(function() { ShowGrowthchart(2); });
-    $("#cancel").click(function() { location.href=cancellink; });
+    $("#growthchart").on("click", function() { ShowGrowthchart(); });
+    $("#pdfchart").on("click", function() { ShowGrowthchart(1); });
+    $("#htmlchart").on("click", function() { ShowGrowthchart(2); });
+    $("#cancel").on("click", function() { location.href=cancellink; });
     addGCSelector();
 
     $('.datetimepicker').datetimepicker({
