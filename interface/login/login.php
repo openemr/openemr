@@ -366,7 +366,11 @@ if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)) : // B
                                 <select class="form-control" name="facility" size="1">
                                     <option value="user_default"><?php echo xlt('My default facility'); ?></option>
                                     <?php foreach ($facilities as $facility) : ?>
-                                        <option value="<?php echo attr($facility['id']);?>" <?php if (!is_null($facilitySelected) && $facilitySelected == $facility['id']) echo 'selected'; ?>><?php echo text($facility['name']);?></option>
+                                        <?php if (!is_null($facilitySelected) && $facilitySelected == $facility['id']) : ?>
+                                            <option value="<?php echo attr($facility['id']);?>" selected ><?php echo text($facility['name']);?></option>
+                                        <?php else : ?>
+                                            <option value="<?php echo attr($facility['id']);?>"><?php echo text($facility['name']);?></option>
+                                        <?php endif; ?>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
