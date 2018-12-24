@@ -28,6 +28,7 @@
 
 
 use OpenEMR\Core\Header;
+use OpenEMR\Services\FacilityService;
 
 $ignoreAuth=true;
 require_once("../globals.php");
@@ -240,6 +241,12 @@ if (count($emr_app)) {
                         } else {
                             echo "<input type='hidden' name='languageChoice' value='".attr($defaultLangID)."' />\n";
                         }
+
+                        if ($GLOBALS['login_into_facility']) {
+                            $facilityService = new FacilityService();
+                            $facilities = $facilityService->getAll();
+                            $facilitySelected = ($GLOBALS['set_facility_cookie'] && isset($_COOKIE['pc_facility'])) ? $_COOKIE['pc_facility'] : null;
+                        }
                         ?>
                     </div>
                 </div>
@@ -352,6 +359,19 @@ if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)) : // B
                             </div>
                         </div>
                     <?php endif; // End language menu block ?>
+                    <?php if ($GLOBALS['login_into_facility']) : // Begin facilities menu block ?>
+                        <div class="form-group">
+                            <label for="facility" class="control-label text-right"><?php echo xlt('Facility'); ?>:</label>
+                            <div>
+                                <select class="form-control" name="facility" size="1">
+                                    <option value="user_default"><?php echo xlt('My default facility'); ?></option>
+                                    <?php foreach ($facilities as $facility):?>
+                                        <option value="<?php echo attr($facility['id']);?>" <?php if(!is_null($facilitySelected)) { echo 'selected'; } ?>><?php echo text($facility['name']);?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                    <?php endif; // End facilities menu block ?>
                     <div class="form-group pull-right">
                         <button type="submit" class="btn btn-default btn-lg" onClick="transmit_form()"><i class="fa fa-sign-in"></i>&nbsp;&nbsp;<?php echo xlt('Login');?></button>
                     </div>
