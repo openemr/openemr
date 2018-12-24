@@ -213,7 +213,7 @@ $(document).ready(function(){
     <tbody>
     {foreach from=$prescriptions item=prescription}
   <!-- TajEmo Changes 2012/06/14 02:03:17 PM by CB added cursor:pointer for easier user understanding -->
-  <tr id="{$prescription->id|escape:'html'}" class="showborder onescript {if $prescription->active <= 0} inactive{/if}">
+  <tr id="{$prescription->id|attr}" class="showborder onescript {if $prescription->active <= 0} inactive{/if}">
      <td align="center">
       <input class="check_list" id="check_list" type="checkbox" value="{$prescription->id|attr}" {if $prescription->encounter == $prescription->get_encounter() && $prescription->active > 0}checked="checked" {/if}onclick="changeLinkHref('multiprint',this.checked, this.value);changeLinkHref('multiprintcss',this.checked, this.value);changeLinkHref('multiprintToFax',this.checked, this.value)" title="{xl t='Select for printing'|attr}">
     </td>
