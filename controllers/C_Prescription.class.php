@@ -154,7 +154,6 @@ class C_Prescription extends Controller
                 }
                 if (count($nameList) < 2) {
                     $interaction = xlt("Need more than one drug.");
-
                 } else {
                     // If there are drugs to compare, collect the data
                     // (array_filter removes empty items)
@@ -176,7 +175,6 @@ class C_Prescription extends Controller
                         $interaction = xlt('No interactions found');
                     }
                 }
-
             }
             $this->assign("INTERACTION", $interaction);
         }
