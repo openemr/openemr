@@ -318,27 +318,26 @@ function editAppointment(mode,deid){
                         <div id="reports" class="panel-body"></div>
                         <div class="panel-footer"></div>
                     </div>
-
                 </div>
                 <!-- /.col -->
+                <?php if (!empty($GLOBALS['portal_onsite_document_download'])) { ?>
                 <div class="col-sm-6">
                     <div class="panel panel-primary collapse" id="downloadpanel">
                         <header class="panel-heading"> <?php echo xlt('Download Documents'); ?> </header>
                         <div id="docsdownload" class="panel-body">
-                        <?php if (!empty($GLOBALS['portal_onsite_document_download'])) { ?>
                             <div>
                                 <span class="text"><?php echo xlt('Download all patient documents');?></span>
                                 <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
                                 <input type="button" class="generateDoc_download" value="<?php echo xla('Download'); ?>" />
                                 </form>
                             </div>
-                        <?php } ?>
                         </div><!-- /.panel-body -->
                         <div class="panel-footer"></div>
                     </div>
                 </div><!-- /.col -->
+                <?php } ?>
             </div>
-
+            <?php if ($GLOBALS['portal_two_ledger']) { ?>
             <div class="row">
                 <div class="col-sm-12">
                     <div class="panel panel-primary collapse" id="ledgerpanel">
@@ -350,7 +349,7 @@ function editAppointment(mode,deid){
                     </div>
                 </div><!-- /.col -->
             </div>
-
+            <?php } ?>
             <div class="row">
                 <div class="col-sm-12">
                     <div class="panel panel-primary collapse" id="profilepanel">
