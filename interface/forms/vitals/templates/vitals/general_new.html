@@ -455,7 +455,7 @@ function ShowGrowthchart(doPDF) {
     newURL = webroot + '/interface/forms/vitals/growthchart/chart.php?pid=' + encodeURIComponent(pid) + '&data=' + encodeURIComponent(datastring);
     if (doPDF == 1) newURL += "&pdf=1";
     if (doPDF == 2) newURL += "&html=1";
-    newURL += "&chart_type=" + encodeURIComponent($("#chart_type").val()) + "&csrf_token_form=" + {/literal}{$CSRF_TOKEN_FORM|js_escape}{literal};
+    newURL += "&chart_type=" + encodeURIComponent($("#chart_type").val()) + "&csrf_token_form=" + {/literal}{$CSRF_TOKEN_FORM|js_url}{literal};
     // do the new window stuff
     top.restoreSession();
     window.open(newURL, '_blank', "menubar=1,toolbar=1,scrollbars=1,resizable=1,width=600,height=450");
