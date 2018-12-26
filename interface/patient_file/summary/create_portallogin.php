@@ -8,7 +8,7 @@
  * @author    Jacob T Paul <jacob@zhservices.com>
  * @author    Paul Simon <paul@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (c) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -16,13 +16,15 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Core\Header;
+
 // Collect portalsite parameter (either off for offsite or on for onsite); only allow off or on
 $portalsite = isset($_GET['portalsite']) ? $_GET['portalsite'] : $portalsite = "off";
 if ($portalsite != "off" && $portalsite != "on") {
     $portalsite = "off";
 }
 
- $row = sqlQuery("SELECT pd.*,pao.portal_username,pao.portal_pwd,pao.portal_pwd_status FROM patient_data AS pd LEFT OUTER JOIN patient_access_" . escape_identifier($portalsite, array("on","off"), true) . "site AS pao ON pd.pid=pao.pid WHERE pd.pid=?", array($pid));
+$row = sqlQuery("SELECT pd.*,pao.portal_username,pao.portal_pwd,pao.portal_pwd_status FROM patient_data AS pd LEFT OUTER JOIN patient_access_" . escape_identifier($portalsite, array("on","off"), true) . "site AS pao ON pd.pid=pao.pid WHERE pd.pid=?", array($pid));
 
 function generatePassword($length = 6, $strength = 1)
 {
@@ -179,13 +181,11 @@ if (isset($_POST['form_save']) && $_POST['form_save']=='SUBMIT') {
 
     exit;
 } ?>
-
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-7-2/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog', 'opener']); ?>
+
 <script type="text/javascript">
 function transmit(){
     // get a public key to encrypt the password info and send

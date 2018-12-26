@@ -1,4 +1,14 @@
 <?php
+/**
+ * vitals C_FormVitals.class.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 
 require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once($GLOBALS['fileroot'] . "/library/patient.inc");
@@ -23,6 +33,9 @@ class C_FormVitals extends Controller
       // Options for units of measurement and things to omit.
         $this->assign("units_of_measurement", $GLOBALS['units_of_measurement']);
         $this->assign("gbl_vitals_options", $GLOBALS['gbl_vitals_options']);
+
+        // Assign the CSRF_TOKEN_FORM
+        $this->assign("CSRF_TOKEN_FORM", collectCsrfToken());
     }
 
     function default_action_old()
@@ -51,15 +64,14 @@ class C_FormVitals extends Controller
             $vitals = new FormVitals();
         }
 
-        $dbconn = $GLOBALS['adodb']['db'];
         //Combined query for retrieval of vital information which is not deleted
         $sql = "SELECT fv.*, fe.date AS encdate " .
         "FROM form_vitals AS fv, forms AS f, form_encounter AS fe WHERE " .
-        "fv.id != $form_id and fv.pid = " . $GLOBALS['pid'] . " AND " .
+        "fv.id != ? and fv.pid = ? AND " .
         "f.formdir = 'vitals' AND f.deleted = 0 AND f.form_id = fv.id AND " .
         "fe.pid = f.pid AND fe.encounter = f.encounter " .
         "ORDER BY encdate DESC, fv.date DESC";
-        $result = $dbconn->Execute($sql);
+        $res = sqlStatement($sql, array($form_id, $GLOBALS['pid']));
 
         // get the patient's current age
         $patient_data = getPatientData($GLOBALS['pid']);
@@ -69,26 +81,26 @@ class C_FormVitals extends Controller
         $this->assign("patient_dob", $patient_dob);
 
         $i = 1;
-        while ($result && !$result->EOF) {
-            $results[$i]['id'] = $result->fields['id'];
-            $results[$i]['encdate'] = substr($result->fields['encdate'], 0, 10);
-            $results[$i]['date'] = $result->fields['date'];
-            $results[$i]['activity'] = $result->fields['activity'];
-            $results[$i]['bps'] = $result->fields['bps'];
-            $results[$i]['bpd'] = $result->fields['bpd'];
-            $results[$i]['weight'] = $result->fields['weight'];
-            $results[$i]['height'] = $result->fields['height'];
-            $results[$i]['temperature'] = $result->fields['temperature'];
-            $results[$i]['temp_method'] = $result->fields['temp_method'];
-            $results[$i]['pulse'] = $result->fields['pulse'];
-            $results[$i]['respiration'] = $result->fields['respiration'];
-            $results[$i]['BMI'] = $result->fields['BMI'];
-            $results[$i]['BMI_status'] = $result->fields['BMI_status'];
-                $results[$i]['note'] = $result->fields['note'];
-            $results[$i]['waist_circ'] = $result->fields['waist_circ'];
-            $results[$i]['head_circ'] = $result->fields['head_circ'];
-            $results[$i++]['oxygen_saturation'] = $result->fields['oxygen_saturation'];
-            $result->MoveNext();
+        while ($result = sqlFetchArray($res)) {
+            $results[$i]['id'] = $result['id'];
+            $results[$i]['encdate'] = substr($result['encdate'], 0, 10);
+            $results[$i]['date'] = $result['date'];
+            $results[$i]['activity'] = $result['activity'];
+            $results[$i]['bps'] = $result['bps'];
+            $results[$i]['bpd'] = $result['bpd'];
+            $results[$i]['weight'] = $result['weight'];
+            $results[$i]['height'] = $result['height'];
+            $results[$i]['temperature'] = $result['temperature'];
+            $results[$i]['temp_method'] = $result['temp_method'];
+            $results[$i]['pulse'] = $result['pulse'];
+            $results[$i]['respiration'] = $result['respiration'];
+            $results[$i]['BMI'] = $result['BMI'];
+            $results[$i]['BMI_status'] = $result['BMI_status'];
+            $results[$i]['note'] = $result['note'];
+            $results[$i]['waist_circ'] = $result['waist_circ'];
+            $results[$i]['head_circ'] = $result['head_circ'];
+            $results[$i]['oxygen_saturation'] = $result['oxygen_saturation'];
+            $i++;
         }
 
         $this->assign("vitals", $vitals);
