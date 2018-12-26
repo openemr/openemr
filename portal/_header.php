@@ -133,25 +133,24 @@ use OpenEMR\Core\Header;
                             data-parent="#panelgroup"> <i class="fa fa-calendar-o"></i> <span><?php echo xlt("Appointment"); ?></span>
                     </a></li>
                     <?php } ?>
-                    <li class="dropdown accounting-menu"><a href="#"
-                        class="dropdown-toggle" data-toggle="dropdown"> <i
-                            class="fa fa-book"></i> <span><?php echo xlt('Accountings'); ?></span>
-                    </a>
-                        <ul class="dropdown-menu">
-                            <?php if ($GLOBALS['portal_two_ledger']) { ?>
-                                <li data-toggle="pill"><a href="#ledgerpanel" data-toggle="collapse"
-                                    data-parent="#panelgroup"> <i class="fa fa-folder-open"></i> <span><?php echo xlt('Ledger'); ?></span>
-                                </a></li>
-                            <?php } ?>
-                            <?php if ($GLOBALS['portal_two_payments']) { ?>
-                                <li data-toggle="pill"><a href="#paymentpanel" data-toggle="collapse"
-                                    data-parent="#panelgroup"> <i class="fa fa-credit-card"></i> <span><?php echo xlt('Make Payment'); ?></span>
-                                </a></li>
-                            <?php } ?>
-                            <?php if (!$GLOBALS['portal_two_ledger'] && !$GLOBALS['portal_two_payments']) { ?>
-                                <li data-toggle="pill"><a href=""> <i class="fa fa-info"></i> <span><?php echo xlt('Disabled') ?></span></a></li>
-                            <?php } ?>
-                        </ul></li>
+                    <?php if ($GLOBALS['portal_two_ledger'] && $GLOBALS['portal_two_payments']) { ?>
+                        <li class="dropdown accounting-menu"><a href="#"
+                            class="dropdown-toggle" data-toggle="dropdown"> <i
+                                class="fa fa-book"></i> <span><?php echo xlt('Accountings'); ?></span>
+                        </a>
+                            <ul class="dropdown-menu">
+                                <?php if ($GLOBALS['portal_two_ledger']) { ?>
+                                    <li data-toggle="pill"><a href="#ledgerpanel" data-toggle="collapse"
+                                        data-parent="#panelgroup"> <i class="fa fa-folder-open"></i> <span><?php echo xlt('Ledger'); ?></span>
+                                    </a></li>
+                                <?php } ?>
+                                <?php if ($GLOBALS['portal_two_payments']) { ?>
+                                    <li data-toggle="pill"><a href="#paymentpanel" data-toggle="collapse"
+                                        data-parent="#panelgroup"> <i class="fa fa-credit-card"></i> <span><?php echo xlt('Make Payment'); ?></span>
+                                    </a></li>
+                                <?php } ?>
+                             </ul></li>
+                    <?php } ?>
                     <li class="dropdown reporting-menu"><a href="#"
                         class="dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-calendar"></i> <span><?php echo xlt('Reports'); ?></span></a>
                         <ul class="dropdown-menu">
