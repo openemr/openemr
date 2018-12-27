@@ -39,9 +39,8 @@ if (!$thisauth) {
 }
 
 //Limit variables for filter
-$list_from = ( isset($_GET["list_from"]) ? intval($_GET["list_from"]) : (isset($_POST["list_from"]) ? intval($_POST["list_from"]) : 0) );
-$list_to   = ( isset($_GET["list_to"]) ? intval($_GET["list_to"]) : (isset($_POST["list_to"]) ? intval($_POST["list_to"]) : 10) );
-
+$list_from = ( isset($_REQUEST["list_from"]) ? intval($_REQUEST["list_from"]) : 1 );
+$list_to   = ( isset($_REQUEST["list_to"])   ? intval($_REQUEST["list_to"]) : 0);
 
 // If we are saving, then save.
 //
@@ -1097,7 +1096,7 @@ function writeITLine($it_array)
                         var list_to   = parseInt($("#list-to").val());
                         var list_id_container = $("#list_id").val();
 
-                        if(list_from > list_to || list_from == list_to){
+                        if( list_from > list_to ){
                             alert(<?php echo xlj("Please enter a enter valid range"); ?>);
                             return false;
                         }
@@ -1118,11 +1117,14 @@ function writeITLine($it_array)
                     }
                 </script>
                 <?php
-                    $urlFrom = ( isset($_GET["list_from"]) && intval($_GET["list_from"]) >= 0 ? intval($_GET["list_from"]) : (isset($_POST["list_from"]) && intval($_POST["list_from"]) >= 0 ? intval($_POST["list_from"]) : 0) );
-                    $urlTo   = ( isset($_GET["list_to"]) && intval($_GET["list_to"])  >= 0 ? intval($_GET["list_to"]) : (isset($_POST["list_to"]) && intval($_POST["list_to"]) >= 0 ? intval($_POST["list_to"]) : 10) );
+                    $urlFrom = ( isset($_REQUEST["list_from"]) && intval($_REQUEST["list_from"]) >= 0 ? intval($_REQUEST["list_from"]) :  1 );
+                    $urlTo   = ( isset($_REQUEST["list_to"]) && intval($_REQUEST["list_to"]) >= 0 ? intval($_REQUEST["list_to"]) : '' );
+                    if( $urlTo == 0){
+                        $urlTo = '';
+                    }
                 ?>
                 <div class="blck-filter" style="float: left; margin-top: 5px; margin-left: 10px; border:0px solid red; width: auto; ">
-                    <div id="input-type-from" style="float: left; "><?php echo xlt("From"); ?>&nbsp;<input autocomplete="off" id="list-from" value="<?php echo attr($urlFrom);?>" style = "margin-right: 10px; width: 40px;">
+                    <div id="input-type-from" style="float: left; "><?php echo xlt("From"); ?>&nbsp;<input aumtocomplete="off" id="list-from" value="<?php echo attr($urlFrom);?>" style = "margin-right: 10px; width: 40px;">
                         <?php echo xlt("To"); ?>&nbsp;<input autocomplete="off" id="list-to" value="<?php echo attr($urlTo); ?>" style=" margin-right: 10px; width: 40px;">
                     </div>
                     <div style="float:left" ><input type="button" value="<?php echo xlt('Show records'); ?>" onclick="lister()"></div>
@@ -1313,8 +1315,15 @@ if ($GLOBALS['ippf_specific']) { ?>
             /**
              * In case when we are have a get parametr "list_id_container", we are set manually variable list_id
              * and range from...to if these is set
+             * adding 1 to from and to limits
              */
-            $sql_limits = "LIMIT ".escape_limit($list_from).( $list_to >= 0 ? ", ".escape_limit($list_to - $list_from) : "");
+//            $list_from = ($list_from <= 0 ? 0 : $list_from);
+            if ( $list_from > 0 ){
+                $list_from--;
+            }
+            if ( $list_to > 0 ) {
+                $sql_limits = "LIMIT " . escape_limit($list_from) . (intval($list_to) > 0 ? ", " . escape_limit($list_to - $list_from) : "");
+            }
 
             $res = sqlStatement("SELECT lo.*
                          FROM list_options as lo
@@ -1411,6 +1420,16 @@ if ($GLOBALS['ippf_specific']) { ?>
         });
         $(".deletelist").click(function () {
             DeleteList(this);
+        });
+
+        //prevent Enter button press on filter
+        $('.blck-filter').on('keyup keypress', function(e)
+        {
+            var keyCode = e.keyCode || e.which;
+            if(keyCode == 13)
+            {
+                return false;
+            }
         });
 
         var SaveChanges = function () {
