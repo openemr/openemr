@@ -112,7 +112,7 @@ function validate_user_password($username, &$password, $provider)
     return $valid;
 }
 
-function verify_user_gacl_group($user)
+function verify_user_gacl_group($user, $provider)
 {
     global $phpgacl_location;
 
