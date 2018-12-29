@@ -2539,6 +2539,13 @@ $GLOBALS_METADATA = array(
             xl('Use servers protocol and host in urls (portal internal only).')
         ),
 
+        'enforce_signin_email' => array(
+            xl('Enforce E-Mail in Portal Log On Dialog'),
+            'bool',                           // data type
+            '1',
+            xl('Patient is required to enter their contact e-mail if present in Demographics Contact.')
+        ),
+
         'portal_onsite_two_register' => array(
             xl('Allow Version 2 Onsite New Patient Registration Widget'),
             'bool',                           // data type
@@ -2962,7 +2969,7 @@ $GLOBALS_METADATA = array(
             '0',
             xl('Rx Show State Lic. #')
         ),
-        'rx_show_drug_drug' => array(
+        'rx_show_drug-drug' => array(
             xl('Rx NLM Drug-Drug'),
             'bool',                           // data type
             '0',
