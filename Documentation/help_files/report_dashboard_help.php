@@ -243,7 +243,7 @@ require_once("../../interface/globals.php");
                     <p><i class="fa fa-exclamation-triangle oe-text-red"  aria-hidden="true"></i> <strong><?php echo xlt("You will need Administrator privileges to setup phiMail Direct Messaging");?>.</strong>
                     
                     <p><?php echo xlt("The first step is signing up for a production Direct messaging account with EMR Direct by registering on their website");?>.
-                     <a href="https://www.emrdirect.com/subscribe"" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                     <a href="https://www.emrdirect.com/subscribe"" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                     
                     <p><?php echo xlt("Subscribers will receive the username, password, and server address information with which to configure OpenEMR");?>.
                     
@@ -306,10 +306,10 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Assign the message to the correct patient by clicking Patient: Click to select, assign a Type and forward the message on to the correct clinician or staff member");?>.
                     
                     <p><?php echo xlt("More information on the use of phiMail messages is available  here");?>.
-                    <a href="https://www.open-emr.org/wiki/index.php/Direct" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                    <a href="https://www.open-emr.org/wiki/index.php/Direct" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                     
                     <p><?php echo xlt("Detailed information on how to setup and troubleshoot phiMail messages is available here");?>.
-                    <a href="https://raw.githubusercontent.com/openemr/openemr/master/Documentation/Direct_Messaging_README.txt" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                    <a href="https://raw.githubusercontent.com/openemr/openemr/master/Documentation/Direct_Messaging_README.txt" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                 </div>
             </div>
         </div><!--end of container div-->

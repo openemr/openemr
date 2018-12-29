@@ -206,7 +206,7 @@ if ($state == 7) {
     Please refer to openemr/Documentation. Many forms and other useful scripts can be found at openemr/contrib.</li>
 <li>To ensure a consistent look and feel throughout the application,
     <a href='http://www.mozilla.org/products/firefox/'>Firefox</a> and <a href="https://www.google.com/chrome/browser/desktop/index.html">Chrome</a> are recommended. The OpenEMR development team exclusively tests with modern versions of these browsers.</li>
-<li>The OpenEMR project home page, documentation, and forums can be found at <a href = "http://www.open-emr.org" target="_blank">http://www.open-emr.org</a></li>
+<li>The OpenEMR project home page, documentation, and forums can be found at <a href = "http://www.open-emr.org" rel="noopener" target="_blank">http://www.open-emr.org</a></li>
 <li>We pursue grants to help fund the future development of OpenEMR.  To apply for these grants, we need to estimate how many times this program is installed and how many practices are evaluating or using this software.  It would be awesome if you would email us at <a href="mailto:president@oemr.org">president@oemr.org</a> if you have installed this software. The more details about your plans with this software, the better, but even just sending us an email stating you just installed it is very helpful.</li>
 </ul>
 <p>
@@ -250,7 +250,7 @@ if (($config == 1) && ($state < 4)) {
 
         case 2:
             echo "<b>Step $state</b><br><br>\n";
-            echo "Now you need to supply the MySQL server information and path information. Detailed instructions on each item can be found in the <a href='Documentation/INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual file.
+            echo "Now you need to supply the MySQL server information and path information. Detailed instructions on each item can be found in the <a href='Documentation/INSTALL' rel="noopener" target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual file.
 <br><br>\n
 <FORM METHOD='POST'>
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='3'>
@@ -670,7 +670,7 @@ if (($config == 1) && ($state < 4)) {
 
             echo "<li>In order to take full advantage of the patient documents capability you must make sure that settings in php.ini file include \"file_uploads = On\", that \"upload_max_filesize\" is appropriate for your use and that \"upload_tmp_dir\" is set to a correct value that will work on your system.</li>\n";
             if (!$gotFileFlag) {
-                echo "<li>If you are having difficulty finding your php.ini file, then refer to the <a href='Documentation/INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual for suggestions.</li>\n";
+                echo "<li>If you are having difficulty finding your php.ini file, then refer to the <a href='Documentation/INSTALL' rel="noopener" target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual for suggestions.</li>\n";
             }
 
             echo "</ul>";
@@ -712,7 +712,7 @@ it is important to secure these directories. Additionally, some settings are req
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Deny from all<br>
 &nbsp;&nbsp;&lt;/Directory&gt;<br><br>";
 
-            echo "If you are having difficulty finding your apache configuration file, then refer to the <a href='Documentation/INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual for suggestions.<br><br>\n";
+            echo "If you are having difficulty finding your apache configuration file, then refer to the <a href='Documentation/INSTALL' rel="noopener" target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual for suggestions.<br><br>\n";
             echo "<br>We recommend you print these instructions for future reference.<br><br>";
             echo "Click 'continue' for further instructions.";
 
@@ -731,9 +731,9 @@ it is important to secure these directories. Additionally, some settings are req
             echo "<p>Welcome to OpenEMR.  This utility will step you through the installation and configuration of OpenEMR for your practice.</p>\n";
             echo "<ul><li>Before proceeding, be sure that you have a properly installed and configured MySQL server available, and a PHP configured webserver.</li>\n";
 
-            echo "<li>Detailed installation instructions can be found in the <a href='Documentation/INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual file.</li>\n";
+            echo "<li>Detailed installation instructions can be found in the <a href='Documentation/INSTALL' rel="noopener" target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual file.</li>\n";
 
-            echo "<li>If you are upgrading from a previous version, do NOT use this script.  Please read the 'Upgrading' section found in the <a href='Documentation/INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual file.</li></ul>";
+            echo "<li>If you are upgrading from a previous version, do NOT use this script.  Please read the 'Upgrading' section found in the <a href='Documentation/INSTALL' rel="noopener" target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual file.</li></ul>";
 
             if ($checkPermissions) {
                 echo "<p>We will now ensure correct file and directory permissions before starting installation:</p>\n";

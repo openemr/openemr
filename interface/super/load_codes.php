@@ -210,7 +210,7 @@ foreach (array('RXCUI') as $codetype) {
 <!-- No translation because this text is long and US-specific and quotes other English-only text. -->
 <p class='text'>
 <b>RXCUI codes</b> may be downloaded from
-<a href='http://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html' target='_blank'>
+<a href='http://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html' rel="noopener" target='_blank'>
 www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html</a>.
 Get the "Current Prescribable Content Monthly Release" zip file, marked "no license required".
 Then you can upload that file as-is here, or extract the file RXNCONSO.RRF from it and upload just

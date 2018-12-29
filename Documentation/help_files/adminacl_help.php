@@ -262,7 +262,7 @@ use OpenEMR\Core\Header;
 
                 <p><?php echo xlt("You have to have an understanding how the program is structured and the ability and willingness to modify the underlying code."); ?>
 
-                <p><?php echo xlt("Click on the the following link to learn more about what is involved."); ?> <strong><a href="http://www.open-emr.org/wiki/index.php/ACL_Fine_Granular_Control" target="_blank"><?php echo xlt("ACL Fine Granular Control"); ?></a></strong>
+                <p><?php echo xlt("Click on the the following link to learn more about what is involved."); ?> <strong><a href="http://www.open-emr.org/wiki/index.php/ACL_Fine_Granular_Control" rel="noopener" target="_blank"><?php echo xlt("ACL Fine Granular Control"); ?></a></strong>
 
                 <p><?php echo xlt("Best of Luck."); ?> :)
             </div>
