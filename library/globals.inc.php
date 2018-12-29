@@ -2969,7 +2969,7 @@ $GLOBALS_METADATA = array(
             '0',
             xl('Rx Show State Lic. #')
         ),
-        'rx_show_drug-drug' => array(
+        'rx_show_drug_drug' => array(
             xl('Rx NLM Drug-Drug'),
             'bool',                           // data type
             '0',

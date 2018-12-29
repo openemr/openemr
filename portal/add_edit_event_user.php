@@ -482,12 +482,12 @@ if ($_POST['form_action'] == "save") {
 
 if ($_POST['form_action'] != "") {
   // Leave
-    $type = $insert ? xlt("A New Appointment") : xlt("An Updated Appointment");
-    $note = $type . " " . xlt("request was received from portal patient ");
-    $note .= text($_SESSION['ptName']) . " " . xlt("regarding appointment dated ") . text($event_date) . " " . text($starttime) . ". ";
-    $note .= !empty($_POST['form_comments']) ? (xlt("Reason ") . text($_POST['form_comments'])) : "";
-    $note .=  ". " . xlt("Use Portal Dashboard to confirm with patient.");
-    $title = xlt("Patient Reminders");
+    $type = $insert ? xl("A New Appointment") : xl("An Updated Appointment");
+    $note = $type . " " . xl("request was received from portal patient") . " ";
+    $note .= $_SESSION['ptName'] . " " . xl("regarding appointment dated") . " " . $event_date . " " . $starttime . ". ";
+    $note .= !empty($_POST['form_comments']) ? (xl("Reason") . " " . $_POST['form_comments']) : "";
+    $note .=  ". " . xl("Use Portal Dashboard to confirm with patient.");
+    $title = xl("Patient Reminders");
     $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", array($_POST['form_provider_ae']));
     $rtn = addPnote($_POST['form_pid'], $note, 1, 1, $title, $user['username'], '', 'New');
 
