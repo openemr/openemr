@@ -1,5 +1,5 @@
 <?php
-// +-----------------------------------------------------------------------------+ 
+// +-----------------------------------------------------------------------------+
 // Copyright (C) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
 //
@@ -19,9 +19,9 @@
 // openemr/interface/login/GnuGPL.html
 // For more information write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
+//
 // Author:   Eldho Chacko <eldho@zhservices.com>
-//           Paul Simon K <paul@zhservices.com> 
+//           Paul Simon K <paul@zhservices.com>
 //
 // +------------------------------------------------------------------------------+
 //===============================================================================
@@ -108,7 +108,7 @@ function FilterSelection(listSelected) {
      }
 
     var newValueSelected = (listSelected.options[listSelected.selectedIndex].value);
-    
+
     var list=document.getElementById('type_name');
     var newValue = (list.options[list.selectedIndex].value);
     if (newValue=='patient') {
@@ -162,7 +162,7 @@ function ValidateDateGreaterThanNow(DateValue,DateFormat)
   if(PassedDate > Now)
    return false;
   else
-   return true; 
+   return true;
  }
 function DateCheckGreater(DateValue1,DateValue2,DateFormat)
  {//Checks which date is greater.The 3 formats of date is taken care of.
@@ -318,7 +318,7 @@ function FillAmount()
         <?php
     }
     ?>
-  
+
   TempTotal=0;
   for(RowCount=1;;RowCount++)
    {
