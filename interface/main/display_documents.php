@@ -48,30 +48,49 @@ $display_collapse_msg = "display:inline;";
     var global_date_format = '<?php echo DateFormatRead(); ?>';
     $(document).ready(function() {
         $("#docdiv a").each(function() {
-            $(this).qtip({
-                content : '<iframe class="qtip-box" src="' + $(this).attr('title') + '" />',
-                hide : {
-                    delay : 20,
-                    fixed : true
-                },
-                position : {
-                    at : 'bottom left',
-                    viewport : $(window),
-                    adjust: {
-                        x: 20
-                    },
-                },
-                style: 'qtip-style'
-            })
-        })
+       
+            let name = $(this).get(0);
+            
+            let tooltip = document.getElementsByClassName('tooltip_container')[0];
+            let tooltipDoc = document.getElementsByClassName('tooltip_doc')[0];
 
-    $('.datepicker').datetimepicker({
-        <?php $datetimepicker_timepicker = false; ?>
-        <?php $datetimepicker_showseconds = false; ?>
-        <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-    });
+            let tooltipVisible = false;
+            let imgZoomed = false;
+
+            name.addEventListener('mouseenter',() => {
+                //check if the document is already visible
+                if(!tooltipVisible){
+                    
+                    //set the position of tooltip to that of the table cell 
+                    let rect = name.getBoundingClientRect();
+                    let nameTop = rect.top + window.pageYOffset;
+                    let nameLeft = rect.left + window.pageXOffset;
+                    tooltip.style.left = nameLeft;
+                    tooltip.style.top = nameTop;
+                     
+                    tooltipDoc.src = $(this).attr('title');
+                    tooltip.style.display = 'block';
+                    tooltipDoc.style.maxHeight = '100%';
+                    
+                    tooltipVisible = true;
+                }
+                
+            });
+            //hide the tooltip when the cursor goes out of the image
+            tooltip.addEventListener('mouseleave',() => {
+                tooltip.style.display = 'none';
+                tooltipVisible = false;
+            });
+            
+        })
+  
+        $('.datepicker').datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = true; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+        });
     });
 
     function validateDate(fromDate,toDate){
@@ -124,6 +143,24 @@ $display_collapse_msg = "display:inline;";
     overflow: hidden;
     valign : absbottom;
 }
+
+.tooltip_container{
+    background-color:lightgrey;
+    width:75%;
+    height:50%;
+    z-index: 1;
+    display:none;
+    position:absolute;
+    box-sizing:border-box;
+    border:10px solid lightgrey;
+}
+
+
+.tooltip_doc{
+    width:100%;
+    height:100%;
+}
+
 
 </style>
 </head>
@@ -226,6 +263,10 @@ $display_collapse_msg = "display:inline;";
     <?php
     } ?>
     </table>
-</div>
+    </div>
+
+    <div class="tooltip_container">
+        <iframe class="tooltip_doc"></frame>
+    </div>   
 </body>
 </html>
