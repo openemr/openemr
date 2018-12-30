@@ -48,42 +48,41 @@ $display_collapse_msg = "display:inline;";
     var global_date_format = '<?php echo DateFormatRead(); ?>';
     $(document).ready(function() {
         $("#docdiv a").each(function() {
-       
+
             let name = $(this).get(0);
-            
+
             let tooltip = document.getElementsByClassName('tooltip_container')[0];
             let tooltipDoc = document.getElementsByClassName('tooltip_doc')[0];
 
             let tooltipVisible = false;
-            let imgZoomed = false;
 
             name.addEventListener('mouseenter',() => {
                 //check if the document is already visible
                 if(!tooltipVisible){
-                    
-                    //set the position of tooltip to that of the table cell 
+
+                    //set the position of tooltip to that of the table cell
                     let rect = name.getBoundingClientRect();
                     let nameTop = rect.top + window.pageYOffset;
                     let nameLeft = rect.left + window.pageXOffset;
                     tooltip.style.left = nameLeft;
                     tooltip.style.top = nameTop;
-                     
+
                     tooltipDoc.src = $(this).attr('title');
                     tooltip.style.display = 'block';
                     tooltipDoc.style.maxHeight = '100%';
-                    
+
                     tooltipVisible = true;
                 }
-                
+
             });
             //hide the tooltip when the cursor goes out of the image
             tooltip.addEventListener('mouseleave',() => {
                 tooltip.style.display = 'none';
                 tooltipVisible = false;
             });
-            
+
         })
-  
+
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
@@ -267,6 +266,6 @@ $display_collapse_msg = "display:inline;";
 
     <div class="tooltip_container">
         <iframe class="tooltip_doc"></frame>
-    </div>   
+    </div>
 </body>
 </html>
