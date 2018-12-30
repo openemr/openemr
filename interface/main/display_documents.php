@@ -48,17 +48,17 @@ $display_collapse_msg = "display:inline;";
     var global_date_format = '<?php echo DateFormatRead(); ?>';
     $(document).ready(function() {
         $("#docdiv a").each(function() {
-            
+       
             let name = $(this).get(0);
             
-            let tooltip = document.getElementsByClassName('zoomed_img_tooltip')[0];
-            let tooltipImg = document.getElementsByClassName('zoomed_img')[0];
+            let tooltip = document.getElementsByClassName('tooltip_container')[0];
+            let tooltipDoc = document.getElementsByClassName('tooltip_doc')[0];
 
             let tooltipVisible = false;
             let imgZoomed = false;
 
             name.addEventListener('mouseenter',() => {
-                //check if the image is already visible
+                //check if the document is already visible
                 if(!tooltipVisible){
                     
                     //set the position of tooltip to that of the table cell 
@@ -68,9 +68,9 @@ $display_collapse_msg = "display:inline;";
                     tooltip.style.left = nameLeft;
                     tooltip.style.top = nameTop;
                      
-                    tooltipImg.src = $(this).attr('title');
+                    tooltipDoc.src = $(this).attr('title');
                     tooltip.style.display = 'block';
-                    tooltipImg.style.maxHeight = '100%';
+                    tooltipDoc.style.maxHeight = '100%';
                     
                     tooltipVisible = true;
                 }
@@ -80,19 +80,6 @@ $display_collapse_msg = "display:inline;";
             tooltip.addEventListener('mouseleave',() => {
                 tooltip.style.display = 'none';
                 tooltipVisible = false;
-            });
-            
-            //toggle between zoomed in and zoomed out
-            tooltipImg.addEventListener('click',() => {
-                imgZoomed = !imgZoomed;
-                if(imgZoomed){
-                    tooltipImg.style.cursor = 'zoom-out';
-                    tooltipImg.style.maxHeight = '';
-                }
-                else{
-                    tooltipImg.style.cursor = 'zoom-in';
-                    tooltipImg.style.maxHeight = '100%';
-                }
             });
             
         })
@@ -157,9 +144,8 @@ $display_collapse_msg = "display:inline;";
     valign : absbottom;
 }
 
-.zoomed_img_tooltip{
+.tooltip_container{
     background-color:lightgrey;
-    overflow:scroll;
     width:75%;
     height:50%;
     z-index: 1;
@@ -169,8 +155,10 @@ $display_collapse_msg = "display:inline;";
     border:10px solid lightgrey;
 }
 
-.zoomed_img{
-    cursor:zoom-in;
+
+.tooltip_doc{
+    width:100%;
+    height:100%;
 }
 
 
@@ -277,8 +265,8 @@ $display_collapse_msg = "display:inline;";
     </table>
     </div>
 
-    <div class="zoomed_img_tooltip">
-        <img class="zoomed_img"></img>
+    <div class="tooltip_container">
+        <iframe class="tooltip_doc"></frame>
     </div>   
 </body>
 </html>
