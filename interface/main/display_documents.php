@@ -7,10 +7,13 @@
  * @link      http://www.open-emr.org
  * @author    Hema Bandaru <hemab@drcloudemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Harshal Lele <harshallele97@gmail.com>
  * @copyright Copyright (c) 2014 Ensoftek
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Harshal Lele <harshallele97@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once('../globals.php');
 require_once("$srcdir/patient.inc");
@@ -41,49 +44,47 @@ $display_collapse_msg = "display:inline;";
 ?>
 <html>
 <head>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-7-2/jquery.min.js"></script>
-<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_jquery', 'datetime-picker', 'common', 'jquery-ui', 'qtip2-2-2-1']); ?>
+<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'datetime-picker', 'common']); ?>
 
 <script type="text/javascript">
     var global_date_format = '<?php echo DateFormatRead(); ?>';
     $(document).ready(function() {
         $("#docdiv a").each(function() {
-       
+
             let name = $(this).get(0);
-            
+
             let tooltip = document.getElementsByClassName('tooltip_container')[0];
             let tooltipDoc = document.getElementsByClassName('tooltip_doc')[0];
 
             let tooltipVisible = false;
-            let imgZoomed = false;
 
             name.addEventListener('mouseenter',() => {
                 //check if the document is already visible
                 if(!tooltipVisible){
-                    
-                    //set the position of tooltip to that of the table cell 
+
+                    //set the position of tooltip to that of the table cell
                     let rect = name.getBoundingClientRect();
                     let nameTop = rect.top + window.pageYOffset;
                     let nameLeft = rect.left + window.pageXOffset;
                     tooltip.style.left = nameLeft;
                     tooltip.style.top = nameTop;
-                     
+
                     tooltipDoc.src = $(this).attr('title');
                     tooltip.style.display = 'block';
                     tooltipDoc.style.maxHeight = '100%';
-                    
+
                     tooltipVisible = true;
                 }
-                
+
             });
             //hide the tooltip when the cursor goes out of the image
             tooltip.addEventListener('mouseleave',() => {
                 tooltip.style.display = 'none';
                 tooltipVisible = false;
             });
-            
+
         })
-  
+
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
@@ -98,7 +99,7 @@ $display_collapse_msg = "display:inline;";
         var todate = $("#" + toDate).val();
         if ( (frmdate.length > 0) && (todate.length > 0) ) {
             if ( DateCheckGreater(frmdate, todate, global_date_format) == false ){
-                alert("<?php echo xls('To date must be later than From date!'); ?>");
+                alert(<?php echo xlj('To date must be later than From date!'); ?>);
                 return false;
             }
         }
@@ -169,8 +170,8 @@ $display_collapse_msg = "display:inline;";
 
 <div>
     <span class='title'><?php echo xlt('Lab Documents'); ?></span>
-    <span id='docexpand' onclick='expandOrCollapse(1,"doc")' style='cursor:pointer;<?php echo $display_expand_msg ?>'>(expand)</span>
-    <span id='doccollapse' onclick='expandOrCollapse(2,"doc")' style='cursor:pointer;<?php echo $display_collapse_msg ?>'>(collapse)</span>
+    <span id='docexpand' onclick='expandOrCollapse(1,"doc")' style='cursor:pointer;<?php echo $display_expand_msg ?>'>(<?php echo xlt('expand'); ?>)</span>
+    <span id='doccollapse' onclick='expandOrCollapse(2,"doc")' style='cursor:pointer;<?php echo $display_collapse_msg ?>'>(<?php echo xlt('collapse'); ?>)</span>
     <br><br>
     <div id='docfilterdiv'<?php echo $display_div; ?>>
     <table style="margin-left:10px; " width='40%'>
@@ -236,7 +237,7 @@ $display_collapse_msg = "display:inline;";
     <?php
     if (sqlNumRows($resultSet)) {
         while ($row = sqlFetchArray($resultSet)) {
-            $url = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr(urlencode($row["foreign_id"])) . "&document_id=" . attr(urlencode($row["id"])) . '&as_file=false';
+            $url = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($row["foreign_id"]) . "&document_id=" . attr_url($row["id"]) . '&as_file=false';
             // Get the notes for this document.
             $notes = array();
             $note = '';
@@ -267,6 +268,6 @@ $display_collapse_msg = "display:inline;";
 
     <div class="tooltip_container">
         <iframe class="tooltip_doc"></frame>
-    </div>   
+    </div>
 </body>
 </html>
