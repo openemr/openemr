@@ -15,6 +15,7 @@ require_once('../globals.php');
 
 use OpenEMR\Core\Header;
 use u2flib_server\U2F;
+use OpenEMR\Services\FacilityService;
 
 ///////////////////////////////////////////////////////////////////////
 // Functions to support MFA.
@@ -193,6 +194,21 @@ if (isset($_POST['new_login_session_management'])) {
 $_SESSION['csrf_token'] = createCsrfToken();
 
 $_SESSION["encounter"] = '';
+
+if ($GLOBALS['login_into_facility']) {
+    $facility_id = $_POST['facility'];
+    if ($facility_id === 'user_default') {
+        //get the default facility of login user from users table
+        $facilityService = new FacilityService();
+        $facility = $facilityService->getFacilityForUser($_SESSION['authUserID']);
+        $facility_id = $facility['id'];
+    }
+    $_SESSION['facilityId'] = $facility_id;
+    if ($GLOBALS['set_facility_cookie']) {
+        // set cookie with facility for the calender screens
+        setcookie("pc_facility", $_SESSION['facilityId'], time() + (3600 * 365), $GLOBALS['webroot']);
+    }
+}
 
 // Fetch the password expiration date
 $is_expired=false;
