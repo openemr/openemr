@@ -839,6 +839,13 @@ $GLOBALS_METADATA = array(
             xl('Set a facility cookie to remember the selected facility between logins.')
         ),
 
+        'login_into_facility' => array(
+            xl('Login Into Facility'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Select your current facility in the login page')
+        ),
+
         'receipts_by_provider' => array(
             xl('Print Receipts by Provider'),
             'bool',

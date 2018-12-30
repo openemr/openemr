@@ -129,7 +129,7 @@ class FacilityService
         return $this->get(array(
             "where" => "WHERE USER.id = ?",
             "data"  => array($userId),
-            "join"  => "JOIN users USER ON FAC.name = USER.facility",
+            "join"  => "JOIN users USER ON FAC.id = USER.facility_id",
             "limit" => 1
         ));
     }
