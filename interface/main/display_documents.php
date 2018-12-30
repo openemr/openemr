@@ -7,10 +7,13 @@
  * @link      http://www.open-emr.org
  * @author    Hema Bandaru <hemab@drcloudemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Harshal Lele <harshallele97@gmail.com>
  * @copyright Copyright (c) 2014 Ensoftek
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Harshal Lele <harshallele97@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once('../globals.php');
 require_once("$srcdir/patient.inc");
@@ -96,7 +99,7 @@ $display_collapse_msg = "display:inline;";
         var todate = $("#" + toDate).val();
         if ( (frmdate.length > 0) && (todate.length > 0) ) {
             if ( DateCheckGreater(frmdate, todate, global_date_format) == false ){
-                alert("<?php echo xls('To date must be later than From date!'); ?>");
+                alert(<?php echo xlj('To date must be later than From date!'); ?>);
                 return false;
             }
         }
@@ -167,8 +170,8 @@ $display_collapse_msg = "display:inline;";
 
 <div>
     <span class='title'><?php echo xlt('Lab Documents'); ?></span>
-    <span id='docexpand' onclick='expandOrCollapse(1,"doc")' style='cursor:pointer;<?php echo $display_expand_msg ?>'>(expand)</span>
-    <span id='doccollapse' onclick='expandOrCollapse(2,"doc")' style='cursor:pointer;<?php echo $display_collapse_msg ?>'>(collapse)</span>
+    <span id='docexpand' onclick='expandOrCollapse(1,"doc")' style='cursor:pointer;<?php echo $display_expand_msg ?>'>(<?php echo xlt('expand'); ?>)</span>
+    <span id='doccollapse' onclick='expandOrCollapse(2,"doc")' style='cursor:pointer;<?php echo $display_collapse_msg ?>'>(<?php echo xlt('collapse'); ?>)</span>
     <br><br>
     <div id='docfilterdiv'<?php echo $display_div; ?>>
     <table style="margin-left:10px; " width='40%'>
@@ -234,7 +237,7 @@ $display_collapse_msg = "display:inline;";
     <?php
     if (sqlNumRows($resultSet)) {
         while ($row = sqlFetchArray($resultSet)) {
-            $url = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr(urlencode($row["foreign_id"])) . "&document_id=" . attr(urlencode($row["id"])) . '&as_file=false';
+            $url = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($row["foreign_id"]) . "&document_id=" . attr_url($row["id"]) . '&as_file=false';
             // Get the notes for this document.
             $notes = array();
             $note = '';
