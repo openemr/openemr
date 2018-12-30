@@ -459,6 +459,7 @@ if ($result != "") {
         }
 
         $body = $iter['body'];
+        $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}'.$patientname.'${2}', $body);
         $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to') . '${3}', $body);
         if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
             $body = nl2br(text(oeFormatPatientNote($body)));
@@ -467,7 +468,6 @@ if ($result != "") {
             ' (' . text($iter['user']) . ') ' . nl2br(text(oeFormatPatientNote($body)));
         }
 
-        $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}'.$patientname.'${2}', $body);
         if (($iter{"activity"}) && ($iter['message_status'] != "Done")) {
             $checked = "checked";
         } else {
