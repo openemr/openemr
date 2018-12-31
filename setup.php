@@ -125,10 +125,11 @@ $zendModuleConfigFile = $zendModuleConfigFolder. "application.config.php.tmp";
 // correct permissions.
 if (is_dir($OE_SITE_DIR)) {
     $writableFileList = array($installer->conftmpfile, $zendModuleConfigFile);
-    $writableDirList = array( $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2, $OE_SITE_DIR, $zendModuleConfigFolder);
+    $writableDirList = array( $billingDirectory, $billingDirectory2, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2, $OE_SITE_DIR, $zendModuleConfigFolder);
+    $writableRecursiveDirList = array($lettersDirectory, $docsDirectory);
 } else {
     $writableFileList = array();
-    $writableDirList = array($OE_SITES_BASE, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
+    $writableRecursiveDirList = array($OE_SITES_BASE, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
 }
 
 // Include the sqlconf file if it exists yet.
@@ -763,10 +764,10 @@ it is important to secure these directories. Additionally, some settings are req
                 $errorWritable = 0;
                 foreach ($writableDirList as $tempDir) {
                     if (is_writable($tempDir)) {
-                            echo "'".realpath($tempDir)."' directory is <FONT COLOR='green'><b>ready</b></FONT>.<br>\n";
+                        echo "'".realpath($tempDir)."' directory is <FONT COLOR='green'><b>ready</b></FONT>.<br>\n";
                     } else {
-                            echo "<p><FONT COLOR='red'>UNABLE</FONT> to open directory '".realpath($tempDir)."' for writing by web server.<br>\n";
-                            echo "(configure directory permissions; see below for further instructions)</p>\n";
+                        echo "<p><FONT COLOR='red'>UNABLE</FONT> to open directory '".realpath($tempDir)."' for writing by web server.<br>\n";
+                        echo "(configure directory permissions; see below for further instructions)</p>\n";
                         $errorWritable = 1;
                     }
                 }
@@ -774,6 +775,28 @@ it is important to secure these directories. Additionally, some settings are req
                 if ($errorWritable) {
                     echo "<p><FONT COLOR='red'>You can't proceed until all directories are ready.</FONT><br>\n";
                     echo "In linux, recommend changing owners of these directories to the web server. For example, in many linux OS's the web server user is 'apache', 'nobody', or 'www-data'. So if 'apache' were the web server user name, could use the command 'chown apache:apache directory_name' command.<br>\n";
+                    echo "Fix above directory permissions and then click the 'Check Again' button to re-check directories.<br>\n";
+                    echo "<FORM METHOD='POST'><INPUT TYPE='SUBMIT' VALUE='Check Again'></p>" .
+                        "<INPUT TYPE='HIDDEN' NAME='site' VALUE='$site_id'></FORM><br>\n";
+                    break;
+                }
+
+
+                echo "<br><FONT COLOR='green'>Ensuring following directories have proper permissions...</FONT><br>\n";
+                $errorWritable = 0;
+                foreach ($writableRecursiveDirList as $tempDir) {
+                    if (is_writable($tempDir)) {
+                            echo "'".realpath($tempDir)."' directory is <FONT COLOR='green'><b>ready</b></FONT>.<br>\n";
+                    } else {
+                            echo "<p><FONT COLOR='red'>UNABLE</FONT> to open directory '".realpath($tempDir)."' for writing recursively by web server.<br>\n";
+                            echo "(configure directory permissions; see below for further instructions)</p>\n";
+                        $errorWritable = 1;
+                    }
+                }
+
+                if ($errorWritable) {
+                    echo "<p><FONT COLOR='red'>You can't proceed until all directories are ready.</FONT><br>\n";
+                    echo "In linux, recommend changing owners of these directories (recursive permission) to the web server. For example, in many linux OS's the web server user is 'apache', 'nobody', or 'www-data'. So if 'apache' were the web server user name, could use the command 'chown -R apache:apache directory_name' command.<br>\n";
                         echo "Fix above directory permissions and then click the 'Check Again' button to re-check directories.<br>\n";
                     echo "<FORM METHOD='POST'><INPUT TYPE='SUBMIT' VALUE='Check Again'></p>" .
                     "<INPUT TYPE='HIDDEN' NAME='site' VALUE='$site_id'></FORM><br>\n";
