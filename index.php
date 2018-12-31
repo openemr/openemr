@@ -18,7 +18,7 @@ if (empty($site_id) || preg_match('/[^A-Za-z0-9\\-.]/', $site_id)) {
     die("Site ID '".htmlspecialchars($site_id, ENT_NOQUOTES)."' contains invalid characters.");
 }
 
-require_once "sites/$site_id/sqlconf.php";
+require_once (is_file("sites/$site_id/sqlconf.php") ? "sites/$site_id/sqlconf.php" : "sites/$site_id/sqlconf.php.tmp") ;
 
 if ($config == 1) {
     header("Location: interface/login/login.php?site=$site_id");
