@@ -227,7 +227,7 @@ if (!acl_check('acct', 'eob')) {
     <div id="edinotes">
         <table>
             <tr>
-                <td colspan=2><a href="<?php echo $web_root?>/Documentation/Readme_edihistory.html" target="_blank"><?php echo xlt("View the README file"); ?></a></td>
+                <td colspan=2><a href="<?php echo $web_root?>/Documentation/Readme_edihistory.html" rel="noopener" target="_blank"><?php echo xlt("View the README file"); ?></a></td>
             </tr>
             <tr>
                 <td>

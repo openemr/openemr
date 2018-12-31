@@ -65,7 +65,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("The Allscripts solution integrates the Allscripts ePrescribe web site with openEMR");?>.
                     
                     <p><?php echo xlt("Further information regarding using the e-prescribing modules can be found by clicking this link");?>.
-                    <a href="https://www.open-emr.org/wiki/index.php/OpenEMR_ePrescribe" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                    <a href="https://www.open-emr.org/wiki/index.php/OpenEMR_ePrescribe" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                     
                     <p><?php echo xlt("At present e-prescribing from openEMR is possible only in the United States");?>.
                     
@@ -74,7 +74,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Information regarding the Patient Portal is also shown in the header section");?>.
                     
                     <p><?php echo xlt("There are multiple options regarding patient portals and information on how to setup the patient portal is available here");?>.
-                    <a href="https://www.open-emr.org/wiki/index.php/Patient_Portal" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                    <a href="https://www.open-emr.org/wiki/index.php/Patient_Portal" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                     
                     <p><?php echo xlt("To enable Patient Portal go to Administration > Portal > Enable Version 2 Onsite Patient Portal, Enable Offsite Patient Portal or Enable CMS Portal");?>.
                     
@@ -163,13 +163,13 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Demographics - patient demographics and insurance information");?>.
                     
                     <p><?php echo xlt("Patient Reminders - a list reminders for preventive or follow-up care according to patient preferences based on demographic data, specific conditions, and/or medication list as well as the status of the notification");?>.
-                    <a href="https://www.open-emr.org/wiki/index.php/Patient_Reminders" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                    <a href="https://www.open-emr.org/wiki/index.php/Patient_Reminders" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                     
                     <p><?php echo xlt("Disclosures - Record disclosures made for treatment, payment, and health care operations with date, time, patient identification (name or number), user identification (name or number), and a description of the disclosure");?>.
-                    <a href="https://www.open-emr.org/wiki/index.php/7._Recording_Disclosure" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                    <a href="https://www.open-emr.org/wiki/index.php/7._Recording_Disclosure" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                     
                     <p><?php echo xlt("Amendments - Enable a user to electronically select the record affected by a patient’s request for amendment and either append the amendment to the affected record or include a link that indicates the amendment’s location");?>.
-                    <a href="https://www.open-emr.org/wiki/index.php/Amendments_(MU2)" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                    <a href="https://www.open-emr.org/wiki/index.php/Amendments_(MU2)" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                     
                     <p><?php echo xlt("ID Card/Photos - will display any ID Card or patient photo that has been uploaded to Documents > Patient Information > Patient ID Card and Patient Photograph folders");?>.
                     
@@ -180,7 +180,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("A Clinical Decision Rule is patient specific information that is filtered and presented at appropriate times to enhance health and health care");?>.
                     
                     <p><?php echo xlt("A detailed guide on how to enable and setup a Clinical Decision rule is found here");?>.
-                    <a href="https://open-emr.org/wiki/images/c/ca/Clinical_Decision_Rules_Manual.pdf" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                    <a href="https://open-emr.org/wiki/images/c/ca/Clinical_Decision_Rules_Manual.pdf" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                                         
                     <p><?php echo xlt("Once a rule is setup it can be enabled for a particular patient");?>.
                     
@@ -192,7 +192,7 @@ require_once("../../interface/globals.php");
                          </ul>
                     
                     <p><?php echo xlt("More information about Clinical Decision Rule can be found here");?>.
-                    <a href="https://www.open-emr.org/wiki/index.php/CDR_User_Manual" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                    <a href="https://www.open-emr.org/wiki/index.php/CDR_User_Manual" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                     
                     <p><?php echo xlt("Appointments - shows all future appointments as well as Recalls");?>.
                     
@@ -211,7 +211,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Prescription - lists the prescriptions of the current patient");?>.
                     
                     <p><?php echo xlt("Tracks - if the Track Anything feature is enabled it will display a list of values that can be tracked and graphed");?>.
-                    <a href="https://www.open-emr.org/wiki/index.php/Track_Anything_Form" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                    <a href="https://www.open-emr.org/wiki/index.php/Track_Anything_Form" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                 </div>    
             </div>
            

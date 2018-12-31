@@ -103,12 +103,12 @@ if ($action == 'reg1') {
       </p>
       <p>
         <?php echo xlt('For U2F support on Linux see'); ?>:
-      <a href='https://www.key-id.com/enable-fido-u2f-linux/' target='_blank'>
+      <a href='https://www.key-id.com/enable-fido-u2f-linux/' rel="noopener" target='_blank'>
       https://www.key-id.com/enable-fido-u2f-linux/</a>
       </p>
       <p>
         <?php echo xlt('For Firefox see'); ?>:
-      <a href='https://www.trishtech.com/2018/07/enable-fido-u2f-security-key-yubikey-in-mozilla-firefox/' target='_blank'>
+      <a href='https://www.trishtech.com/2018/07/enable-fido-u2f-security-key-yubikey-in-mozilla-firefox/' rel="noopener" target='_blank'>
       https://www.trishtech.com/2018/07/enable-fido-u2f-security-key-yubikey-in-mozilla-firefox/</a>
       </p>
     </div>

@@ -262,7 +262,7 @@ require_once("../../interface/globals.php");
                     <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
                     
                     <p><?php echo xlt("More information about Issues can be found here");?>.
-                    <a href="https://www.open-emr.org/wiki/index.php/Issues_&_Immunizations" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                    <a href="https://www.open-emr.org/wiki/index.php/Issues_&_Immunizations" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                 </div>
             </div>
            

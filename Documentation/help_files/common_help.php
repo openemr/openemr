@@ -102,7 +102,7 @@ require_once("../../interface/globals.php");
 
                 <p><?php echo xlt("Hold down Ctrl button to select multiple issues");?>.
 
-                <p><?php echo xlt("For more information on Issues see the ");?>. <strong><a href="https://www.open-emr.org/wiki/index.php/Issues_%26_Immunizations" target="_blank" class="oe-help-redirect"><?php echo xlt("Issues and Immunizations wiki page");?></a></strong>
+                <p><?php echo xlt("For more information on Issues see the ");?>. <strong><a href="https://www.open-emr.org/wiki/index.php/Issues_%26_Immunizations" rel="noopener" target="_blank" class="oe-help-redirect"><?php echo xlt("Issues and Immunizations wiki page");?></a></strong>
             </div>
         </div><!--end of container div-->
     </body>
