@@ -68,7 +68,7 @@ echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
         .script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore/underscore-min.js")
         .script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment/moment.js")
         .script("<?php echo $GLOBALS['assets_static_relative']; ?>/backbone/backbone-min.js")
-        .script("<?php echo $GLOBALS['assets_static_relative']; ?>/modified/emodal-1-2-65/dist/eModal.js")
+        .script("<?php echo $GLOBALS['assets_static_relative']; ?>/emodal/dist/eModal.min.js")
         .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")
         .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
         .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
