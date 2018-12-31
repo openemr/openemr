@@ -110,9 +110,6 @@ assets:
     jscolor:
         basePath: %assets_static_relative%/jscolor/
         script: jscolor.js
-    jscolor-1-4-5:
-        basePath: %assets_static_relative%/jscolor-1-4-5/
-        script: jscolor.js
     emodal:
         basePath: %assets_static_relative%/emodal/dist/
         script: eModal.min.js
