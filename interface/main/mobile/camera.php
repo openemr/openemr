@@ -15,7 +15,6 @@
 require_once "../../globals.php";
 require_once "$srcdir/patient.inc";
 require_once "$srcdir/options.inc.php";
-require_once $GLOBALS['srcdir']."/../vendor/mobiledetect/mobiledetectlib/Mobile_Detect.php";
 require_once "m_functions.php";
 
 $detect             = new Mobile_Detect;
@@ -33,17 +32,17 @@ if (($_POST['setting_new_window']) ||
 }
 
 if (!empty($_GET['desktop'])) {
-    $desktop = $_GET['desktop'];
+    $_SESSION['desktop'] = $_GET['desktop'];
 } else {
-    $desktop        = "";
+    $_SESSION['desktop'] = "";
 }
 $categories         = array();
 $doc                = array();
 $display            = "photo";
-$pid                = "";
+$pid                = '';
 
 // If “Go to full website” link is clicked, redirect mobile user to main website
-if (!empty($_SESSION['desktop']) || ($device_type == 'computer')) {
+if (!empty($_SESSION['desktop'])) {
     $desktop_url = $GLOBALS['webroot']."/interface/main/tabs/main.php";
     header("Location:" . $desktop_url);
 }
@@ -184,15 +183,20 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
                             }
                             ?>
                         </select>
-                               <label for="file-upload-a" class="btn btn-primary">
+                               <label for="file-upload-a" class="btn btn-primary disabled">
                                     <i class="fa fa-camera"></i> <?php echo xlt('Photo'); ?>
                                 </label>
-                                <label for="file-upload-b" class="btn btn-primary"><i class="fa fa-film"></i> <?php echo xlt('Video'); ?>
+                                <label for="file-upload-b" class="btn btn-primary disabled"><i class="fa fa-film"></i> <?php echo xlt('Video'); ?>
                                 </label>
         
-                                <label for="file-upload-c" class="btn btn-primary">
+                                <label for="file-upload-c" class="btn btn-primary disabled">
                                     <i class="fa fa-cloud-upload"></i> <?php echo xlt('Other'); ?>
                                 </label>
+                        <label onclick="search4Docs();" class="btn btn-primary disabled">
+                            <i class="fa fa-file-image-o"></i> <?php echo xlt('Docs'); ?>
+                        </label>
+
+                        <input type="hidden" id="doc-search" name="doc-search"  />
                                 <input type="hidden" id="pid" name="pid" value="<?php echo attr($pid); ?>" />
                                 <input type="hidden" id="go" name="go" value="save_media" />
                             
@@ -201,7 +205,76 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
                 </div>
             </div>
             <div class="col-xs-12 col-sm-7 col-md-7 col-lg-7 col-sm-offset-1 col-md-offset-1 col-lg-offset-1 jumbotronA custom-file-upload">
-                <div id="preview" class=""></div>
+                <div id="preview" class="">
+                    <div id="Content" class="Content">
+                    <div id="PID_contact" class="line_1_style">
+                        <span style="position:relative; float:left;width:80px;"><i class="left fa fa-file-image-o"></i>&nbsp;<?php echo xlt('Documents'); ?> </span>
+                        <span style="font-weight:600;float:left;padding-left:45px;"><?php echo attr($now_time); ?> </span>
+                        <?php
+                            if ($count_news) {
+                                ?>
+                                <span style="position: relative;
+									float:right;
+									margin-right:10px;
+									animation: blink 3s infinite;
+									color: red;font-weight:600;">
+									<span onclick="goNews();">
+										<blink><i class="fa fa-bolt red" >&nbsp;<?php echo xlt('New'); ?></i></blink>
+									</span>
+							</span>
+                                <?php
+                            }
+                        ?>
+                    </div>
+                    <div id="nav_contact" class="line_2_style">
+                        <?php
+                            if (empty($data['show'])) { ?>
+
+                                <center>
+									<span style="position:relative;margin: 0px auto;font-size:0.9em;top:3px;" id="pname">
+									<?php
+                                        $name =  $fname." ".$lname;
+                                        $name = (strlen($name) > 20) ? substr($name,0,17).'...' : $name;
+                                        echo text($name." ".$who['p_phone_cell']);
+                                    ?>
+									</span>
+                                </center>
+
+                                <span id="new_SMS_icon" style="position: relative;float: right;" onclick="goNew_SMS();">
+									    <i class="fa fa-users"></i>
+								    </span>
+                                <?php
+                            } else if ($data['show']=="new") {
+                                ?>
+                                <span style="position:relative;float:left;top: 3px;" onclick="goBack();"><span class="glyphicon glyphicon-chevron-left"></span></span>
+                                <center>
+									<span style="position:relative;margin: 0px 30px 0px 0px;">
+										<?php echo xlt('New Messages'); ?>
+									</span>
+                                </center>
+                                <span style="position: relative;float: right;" onclick="goNew_SMS();">
+									<i class="fa fa-users"></i>
+								</span>
+                                <?php
+                            } else {
+                                if ($data['show'] != 'list') {
+                                    echo '<span style="position: relative;float: left;top: 4px;" onclick="goNews();">
+										<i class="fa fa-list"></i>
+										</span>
+									';
+                                }
+                    
+                                ?>
+                                <?php
+                            } ?>
+                    </div>
+                </div>
+                    <div id="search_data_right">
+                        <h2><?php echo xlt('Document Viewer'); ?></h2>
+                    </div>
+                    <div id="message_data_right"></div>
+                </div>
+                
             </div>
         </div>
         <input type="file" id="file-upload-a" name="file2" accept="image/*" capture="camera" onchange="handleFiles(this.files);"  />
@@ -214,17 +287,16 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
 
 </div>
 <br />
-&nbsp;
+&nbsp; &nbsp;
 <br />
 <script>
     
     function send_form(files) {
-        console.log(files);
         var category = $("#category").val();
         var pid = $("#pid").val();
         
         if ( (pid <='0')||(category <='0')) {
-            alert("<?php echo xla('Please select a patient and a category'); ?>");
+            alert(<?php echo xlj('Please select a patient and a category'); ?>);
             return;
         }
         var formData = new FormData();
@@ -237,7 +309,7 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
         
         var url = "<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/m_save.php";
         top.restoreSession();
-        $("#div_response").html('<span style="color:red;"><?php echo xla('loading'); ?>...</span>');
+        $("#div_response").html('<span style="color:red;"><?php echo xla('Loading'); ?>...</span>');
         $.ajax({
                    type: 'POST',
                    url: url,
@@ -252,12 +324,15 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
                    $("#div_response").html('<span style="color:red;">' + reply.message + '.</span>');
                    
         });
-        
     }
     
     function handleFiles(files) {
         send_form(files);
         $(".jumbotronA").show();
+        $("#search_data_right").hide();
+        $("#message_data_right").hide();
+        $("#preview").show();
+        
         for (var i = 0; i < files.length; i++) {
             var file = files[i];
             if (file.type.startsWith('image/')) {
@@ -332,10 +407,13 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
                 card.classList.add('card');
                 card.appendChild(obj);
     
-                var named = document.createElement('a');
+                var named = document.createElement('b');
                 named.classList.add('card-title');
-                named.href = "<?php echo $GLOBALS['webroot']; ?>/controller.php?document&view&patient_id="+pid+"&doc_id="+reply.DOC_ID;
-                named.insertAdjacentHTML('beforeend', file.name.substring(0,5)+'...');
+                // we do not have the doc_ID back since it it ajax and asynchronous.
+                // so comment out for now
+                // named.href = "<?php echo $GLOBALS['webroot']; ?>/controller.php?document&retrieve&patient_id="+pid.value+"&doc_id="+reply.DOC_ID+"&as_file=true&show_original=true";
+                //named.onclick = function() { top.restoreSession(); }
+                named.insertAdjacentHTML('beforeend', file.name.substring(0,18)+'...');
                 
                 var card_body = document.createElement('div');
                 card_body.classList.add('card-body');
@@ -362,14 +440,29 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
         }
     }
     
+    function show_this(panel) {
+        $("#message_data_right").hide();
+        $("#NEW_SMS").hide();
+        $("#message").hide();
+        $("#new_SMS_icon").hide();
+        
+        $("#message_data div").click(function() {
+            $(this).css("background", "#fffef1");
+        });
+        $("#"+panel).show();
+    
+    }
+    <?php common_js(); ?>
     $(document).ready(function () {
-        $( "#findPatient" ).hide();
+        $( "#findPatient").hide();
+        $("#preview").hide();
+        $("#search_data_right").show();
         <?php
         if ($setting_mFind=="byRoom") { ?>
             $("#findRoom").show();
             <?php
             if ($size == 1) { ?>
-                $( "#findPatient" ) . show();
+                $( "#findPatient" ).show();
                 $( "#patient_matches" ).hide();
                 pid = $( "#patient_matches" ).val();
                  $( "#pid" ).val(pid);
@@ -397,12 +490,14 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
         label_enable();
         
         $("#findPatient").autocomplete({
-                                           source: "<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/m_save.php?go=pat_search&here=2",
-                                           minLength: 2,
+                                           source: "<?php echo $GLOBALS['webroot']; ?>/interface/main/mobile/m_save.php?go=pat_search",
+                                           minLength: 3,
                                            open: function( event, ui ) {
+                                               //turns off double touch needed: single touch works as user expects
                                                if (navigator.userAgent.match(/(iPod|iPhone|iPad)/)) {
                                                    $('.ui-autocomplete').off('menufocus hover mouseover mouseenter');
                                                }
+                                               top.restoreSession();
                                            },
                                            select: function (event, ui) {
                                                event.preventDefault();
@@ -455,7 +550,7 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
                     $( "#patient_matches" ).hide();
                 }
             });
-            if (mRoom >'') { $( "#findRoom" ).trigger('change'); }
+             $( "#findRoom" ).trigger('change');
         });
         
         $("#findRoom").on('change', function() {
@@ -498,6 +593,10 @@ if (($setting_mFind == 'byRoom') && (!empty($setting_mRoom))) {
             $( "#pid" ).val(pid);
             label_enable();
         });
+    
+            var myDiv = document.getElementsByClassName("jumbotronA");
+            window.scrollTo(0, myDiv.innerHeight);
+            show_this("Content");
     });
 </script>
 </body>
