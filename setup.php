@@ -118,13 +118,14 @@ $gaclWritableDirectory = dirname(__FILE__)."/gacl/admin/templates_c";
 $requiredDirectory1 = dirname(__FILE__)."/interface/main/calendar/modules/PostCalendar/pntemplates/compiled";
 $requiredDirectory2 = dirname(__FILE__)."/interface/main/calendar/modules/PostCalendar/pntemplates/cache";
 
-$zendModuleConfigFile = dirname(__FILE__)."/interface/modules/zend_modules/config/application.config.php";
+$zendModuleConfigFolder = dirname(__FILE__)."/interface/modules/zend_modules/config/";
+$zendModuleConfigFile = $zendModuleConfigFolder. "application.config.php.tmp";
 
 //These are files and dir checked before install for
 // correct permissions.
 if (is_dir($OE_SITE_DIR)) {
-    $writableFileList = array($installer->conffile,$zendModuleConfigFile);
-    $writableDirList = array($docsDirectory, $billingDirectory, $billingDirectory2, $lettersDirectory, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
+    $writableFileList = array($installer->conftmpfile, $zendModuleConfigFile);
+    $writableDirList = array( $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2, $OE_SITE_DIR, $zendModuleConfigFolder);
 } else {
     $writableFileList = array();
     $writableDirList = array($OE_SITES_BASE, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
@@ -772,7 +773,7 @@ it is important to secure these directories. Additionally, some settings are req
 
                 if ($errorWritable) {
                     echo "<p><FONT COLOR='red'>You can't proceed until all directories are ready.</FONT><br>\n";
-                    echo "In linux, recommend changing owners of these directories to the web server. For example, in many linux OS's the web server user is 'apache', 'nobody', or 'www-data'. So if 'apache' were the web server user name, could use the command 'chown -R apache:apache directory_name' command.<br>\n";
+                    echo "In linux, recommend changing owners of these directories to the web server. For example, in many linux OS's the web server user is 'apache', 'nobody', or 'www-data'. So if 'apache' were the web server user name, could use the command 'chown apache:apache directory_name' command.<br>\n";
                         echo "Fix above directory permissions and then click the 'Check Again' button to re-check directories.<br>\n";
                     echo "<FORM METHOD='POST'><INPUT TYPE='SUBMIT' VALUE='Check Again'></p>" .
                     "<INPUT TYPE='HIDDEN' NAME='site' VALUE='$site_id'></FORM><br>\n";

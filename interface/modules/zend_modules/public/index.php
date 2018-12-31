@@ -55,5 +55,18 @@ require_once(dirname(__FILE__)."/../../../../library/log.inc");
 
 chdir(dirname(__DIR__));
 
+$configFolder = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir'].$GLOBALS['zendModDir']."/config/";
+$fileName = $configFolder . "application.config.php";
+$tmpFile = $configFolder . "application.config.php.tmp";
+if (!is_file($fileName)) {
+    if (!is_writable($configFolder)) {
+        die(xlt("Unable to create application config Please give write permission to folder "). $configFolder);
+    }
+    if (!is_writable($tmpFile)) {
+        die(xlt("Unable to create application config Please give write permission to"). $tmpFile);
+    }
+    copy($tmpFile, $fileName);
+}
+
 // Run the application!
 Zend\Mvc\Application::init(require 'config/application.config.php')->run();

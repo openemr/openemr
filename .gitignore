@@ -18,3 +18,7 @@ ccdaservice/node_modules
 
 # dev editor configs
 /.idea/*
+
+# configuration files
+/sites/default/sqlconf.php
+/interface/modules/zend_modules/config/application.config.php

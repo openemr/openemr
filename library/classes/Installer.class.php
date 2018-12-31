@@ -35,6 +35,7 @@ class Installer
         // Record name of sql access file
         $GLOBALS['OE_SITES_BASE'] = dirname(__FILE__) . '/../../sites';
         $GLOBALS['OE_SITE_DIR'] = $GLOBALS['OE_SITES_BASE'] . '/' . $this->site;
+        $this->conftmpfile  =  $GLOBALS['OE_SITE_DIR'] . '/sqlconf.php.tmp';
         $this->conffile  =  $GLOBALS['OE_SITE_DIR'] . '/sqlconf.php';
 
         // Record names of sql table files
@@ -388,6 +389,10 @@ class Installer
 
     public function write_configuration_file()
     {
+        if (!is_file($this->conffile)) {
+            copy($this->conftmpfile, $this->conffile);
+        }
+
         @touch($this->conffile); // php bug
         $fd = @fopen($this->conffile, 'w');
         if (! $fd) {

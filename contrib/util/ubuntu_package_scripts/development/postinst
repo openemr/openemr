@@ -222,7 +222,9 @@ case "$1" in
 
       # Set file and directory permissions
       chmod 666 $SITEDIR/sqlconf.php
-      chown $WEB_GROUP.$WEB_USER $OPENEMR/interface/modules/zend_modules/config/application.config.php
+      chown $WEB_GROUP.$WEB_USER $SITEDIR/
+      chown $WEB_GROUP.$WEB_USER $OPENEMR/interface/modules/zend_modules/config/
+      chown $WEB_GROUP.$WEB_USER $OPENEMR/interface/modules/zend_modules/config/application.config.php.tmp
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/documents
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/edi
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/era
