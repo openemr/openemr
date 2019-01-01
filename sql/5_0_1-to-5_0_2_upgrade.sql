@@ -670,7 +670,7 @@ CREATE TABLE `api_token` (
 #EndIf
 
 #IfMissingColumn pnotes update_by
-ALTER TABLE `pnotes` ADD `update_by` INT NOT NULL;
+ALTER TABLE `pnotes` ADD `update_by` bigint(20) default NULL;
 #EndIf
 
 #IfMissingColumn pnotes update_date
