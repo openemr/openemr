@@ -7,19 +7,77 @@
  * @author    Ensoftek, Inc
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015 Ensoftek, Inc
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+
+/**
+ * Standard function to encrypt
+ *
+ * @param  string  $value           This is the data to encrypt.
+ * @param  string  $customPassword  Do not use this unless supporting legacy stuff(ie. the download encrypted file feature).
+ *
+ */
+function encryptStandard($value, $customPassword = null)
+{
+    # This is the current encrypt/decrypt version
+    # (this will always be a three digit number that we will
+    #  increment when update the encrypt/decrypt methodology
+    #  which allows being able to maintain backward compatibility
+    #  to decrypt values from prior versions)
+    $encryptionVersion = "003";
+
+    $encryptedValue = $encryptionVersion . aes256Encrypt($value, $customPassword);
+
+    return $encryptedValue;
+}
+
+/**
+ * Standard function to decrypt
+ *
+ * @param  string  $value           This is the data to encrypt.
+ * @param  string  $customPassword  Do not use this unless supporting legacy stuff(ie. the download encrypted file feature).
+ *
+ */
+function decryptStandard($value, $customPassword = null)
+{
+    # Collect the encrypt/decrypt version and remove it from the value
+    $encryptionVersion = intval(mb_substr($value, 0, 3, '8bit'));
+    $trimmedValue = mb_substr($value, 3, null, '8bit');
+
+    # Map the encrypt/decrypt version to the correct decryption function
+    if (($encryptionVersion == 2) || ($encryptionVersion == 3)) {
+        return aes256DecryptTwo($trimmedValue, $customPassword);
+    } else if ($encryptionVersion == 1) {
+        return aes256DecryptOne($trimmedValue, $customPassword);
+    } else {
+        error_log("OpenEMR Error : Decryption is not working because of unknown encrypt/decrypt version.");
+        return false;
+    }
+}
+
+/**
+ * Check if a crypt block is valid to use for the standard method
+ * (basically checks if first 3 values are numbers)
+ */
+function cryptCheckStandard($value)
+{
+    if (preg_match('/^\d\d\d/', $value)) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 /**
  * Function to AES256 encrypt a given string
  *
  * @param  string  $sValue          Raw data that will be encrypted.
  * @param  string  $customPassword  If null, then use standard key. If provide a password, then will derive key from this.
- * @param  string  $baseEncode      True if wish to base64_encode() encrypted data.
  * @return string                   returns the encrypted data.
  */
-function aes256Encrypt($sValue, $customPassword = null, $baseEncode = true)
+function aes256Encrypt($sValue, $customPassword = null)
 {
     if (!extension_loaded('openssl')) {
         error_log("OpenEMR Error : Encryption is not working because missing openssl extension.");
@@ -65,11 +123,7 @@ function aes256Encrypt($sValue, $customPassword = null, $baseEncode = true)
     // prepend the encrypted value with the $hmacHash and $iv
     $completedValue = $hmacHash . $iv . $processedValue;
 
-    if ($baseEncode) {
-        return base64_encode($completedValue);
-    } else {
-        return $completedValue;
-    }
+    return base64_encode($completedValue);
 }
 
 
@@ -78,10 +132,9 @@ function aes256Encrypt($sValue, $customPassword = null, $baseEncode = true)
  *
  * @param  string  $sValue          Encrypted data that will be decrypted.
  * @param  string  $customPassword  If null, then use standard key. If provide a password, then will derive key from this.
- * @param  string  $baseEncode      True if wish to base64_decode() encrypted data.
  * @return string or false          returns the decrypted data or false if failed.
  */
-function aes256DecryptTwo($sValue, $customPassword = null, $baseEncode = true)
+function aes256DecryptTwo($sValue, $customPassword = null)
 {
     if (!extension_loaded('openssl')) {
         error_log("OpenEMR Error : Decryption is not working because missing openssl extension.");
@@ -104,15 +157,12 @@ function aes256DecryptTwo($sValue, $customPassword = null, $baseEncode = true)
         return false;
     }
 
-    if ($baseEncode) {
-        $raw = base64_decode($sValue, true);
-        if ($raw === false) {
-            error_log("OpenEMR Error : Encryption did not work because illegal characters were noted in base64_encoded data.");
-            return false;
-        }
-    } else {
-        $raw = $sValue;
+    $raw = base64_decode($sValue, true);
+    if ($raw === false) {
+        error_log("OpenEMR Error : Encryption did not work because illegal characters were noted in base64_encoded data.");
+        return false;
     }
+
 
     $ivLength = openssl_cipher_iv_length('AES-256-CBC');
     $hmacHash = mb_substr($raw, 0, 32, '8bit');
@@ -140,10 +190,9 @@ function aes256DecryptTwo($sValue, $customPassword = null, $baseEncode = true)
  *
  * @param  string  $sValue          Encrypted data that will be decrypted.
  * @param  string  $customPassword  If null, then use standard key. If provide a password, then will derive key from this.
- * @param  string  $baseEncode      True if wish to base64_decode() encrypted data.
  * @return string                   returns the decrypted data.
  */
-function aes256DecryptOne($sValue, $customPassword = null, $baseEncode = true)
+function aes256DecryptOne($sValue, $customPassword = null)
 {
     if (!extension_loaded('openssl')) {
         error_log("OpenEMR Error : Decryption is not working because missing openssl extension.");
@@ -161,11 +210,7 @@ function aes256DecryptOne($sValue, $customPassword = null, $baseEncode = true)
         error_log("OpenEMR Error : Encryption is not working.");
     }
 
-    if ($baseEncode) {
-        $raw = base64_decode($sValue);
-    } else {
-        $raw = $sValue;
-    }
+    $raw = base64_decode($sValue);
 
     $ivLength = openssl_cipher_iv_length('AES-256-CBC');
 

@@ -127,7 +127,15 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
                 if (in_array($fldid, $USER_SPECIFIC_GLOBALS)) {
                     list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
                     $label = "global:".$fldid;
-                    $fldvalue = trim($_POST["form_$i"]);
+                    if ($fldtype == "encrypted") {
+                        if (empty(trim($_POST["form_$i"]))) {
+                            $fldvalue = '';
+                        } else {
+                            $fldvalue = encryptStandard(trim($_POST["form_$i"]));
+                        }
+                    } else {
+                        $fldvalue = trim($_POST["form_$i"]);
+                    }
                     setUserSetting($label, $fldvalue, $_SESSION['authId'], false);
                     if ($_POST["toggle_$i"] == "YES") {
                         removeUserSetting($label);
@@ -208,13 +216,6 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
         csrfNotVerified();
     }
 
-    $force_off_enable_auditlog_encryption = true;
-  // Need to force enable_auditlog_encryption off if the php openssl module
-  // is not installed or the AES-256-CBC cipher is not available.
-    if (extension_loaded('openssl') && in_array('AES-256-CBC', openssl_get_cipher_methods())) {
-        $force_off_enable_auditlog_encryption = false;
-    }
-
   // Aug 22, 2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
   // Check the current status of Audit Logging
     $auditLogStatusFieldOld = $GLOBALS['enable_auditlog'];
@@ -261,25 +262,21 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
                     $fldvalue = $fldvalue ? SHA1($fldvalue) : $fldvalueold; // TODO: salted passwords?
                 }
 
+                if ($fldtype == 'encrypted') {
+                    if (empty(trim($fldvalue))) {
+                        $fldvalue = '';
+                    } else {
+                        $fldvalue = encryptStandard($fldvalue);
+                    }
+                }
+
                 // We rely on the fact that set of keys in globals.inc === set of keys in `globals`  table!
 
                 if (!isset($old_globals[$fldid]) // if the key not found in database - update database
                     ||
                    ( isset($old_globals[$fldid]) && $old_globals[ $fldid ]['gl_value'] !== $fldvalue ) // if the value in database is different
                 ) {
-                    // Need to force enable_auditlog_encryption off if the php openssl module
-                    // is not installed or the AES-256-CBC cipher is not available.
-                    if ($force_off_enable_auditlog_encryption && ($fldid == "enable_auditlog_encryption")) {
-                        error_log("OPENEMR ERROR: UNABLE to support auditlog encryption since the php openssl module is not installed or the AES-256-CBC cipher is not available", 0);
-                        $fldvalue=0;
-                    }
-                    if (!$force_off_enable_auditlog_encryption && ($fldid == "enable_auditlog_encryption") && ($fldvalue==1)) {
-                        // Run below functions to set up the encryption keys
-                        aes256PrepKey("two", "a");
-                        aes256PrepKey("two", "b");
-                    }
-
-                      // special treatment for some vars
+                    // special treatment for some vars
                     switch ($fldid) {
                         case 'first_day_week':
                             // update PostCalendar config as well
@@ -525,6 +522,32 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
 
                               echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
                                 "maxlength='255' value='" . attr($fldvalue) . "' />\n";
+                } else if ($fldtype == 'encrypted') {
+                    if (empty($fldvalue)) {
+                        // empty value
+                        $fldvalueDecrypted = '';
+                    } else if (cryptCheckStandard($fldvalue)) {
+                        // normal behavior when not empty
+                        $fldvalueDecrypted = decryptStandard($fldvalue);
+                    } else {
+                        // this is used when value has not yet been encrypted (only happens once when upgrading)
+                        $fldvalueDecrypted = $fldvalue;
+                    }
+                    echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
+                        "maxlength='255' value='" . attr($fldvalueDecrypted) . "' />\n";
+                    if ($userMode) {
+                        if (empty($globalValue)) {
+                            // empty value
+                            $globalTitle = '';
+                        } else if (cryptCheckStandard($globalValue)) {
+                            // normal behavior when not empty
+                            $globalTitle = decryptStandard($globalValue);
+                        } else {
+                            // this is used when value has not yet been encrypted (only happens once when upgrading)
+                            $globalTitle = $globalValue;
+                        }
+                    }
+                    $fldvalueDecrypted = '';
                 } else if ($fldtype == 'pwd') {
                     if ($userMode) {
                         $globalTitle = $globalValue;
@@ -702,11 +725,15 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                 }
 
                 if ($userMode) {
-                              echo " </div>\n";
-                              echo "<div class='col-xs-2' style='color:red;'>" . text($globalTitle) . "</div>\n";
-                              echo "<div class='col-xs-1'><input type='checkbox' value='YES' name='toggle_" . $i . "' id='toggle_" . $i . "' " . attr($settingDefault) . "/></div>\n";
-                              echo "<input type='hidden' id='globaldefault_" . $i . "' value='" . attr($globalValue) . "'>\n";
-                              echo "</div>\n";
+                    echo " </div>\n";
+                    echo "<div class='col-xs-2' style='color:red;'>" . text($globalTitle) . "</div>\n";
+                    echo "<div class='col-xs-1'><input type='checkbox' value='YES' name='toggle_" . $i . "' id='toggle_" . $i . "' " . $settingDefault . "/></div>\n";
+                    if ($fldtype == 'encrypted') {
+                        echo "<input type='hidden' id='globaldefault_" . $i . "' value='" . attr($globalTitle) . "'>\n";
+                    } else {
+                        echo "<input type='hidden' id='globaldefault_" . $i . "' value='" . attr($globalValue) . "'>\n";
+                    }
+                    echo "</div>\n";
                 } else {
                               echo " </div></div>\n";
                 }

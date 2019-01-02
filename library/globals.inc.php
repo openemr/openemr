@@ -1995,7 +1995,7 @@ $GLOBALS_METADATA = array(
 
         'SMTP_PASS' => array(
             xl('SMTP Password for Authentication'),
-            'text',                           // data type
+            'encrypted',                      // data type
             '',                               // default
             xl('Must be empty if SMTP authentication is not used.')
         ),

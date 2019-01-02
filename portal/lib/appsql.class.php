@@ -27,7 +27,6 @@
  *            wrapper class for moving some care coordination zend product
  */
 require_once(dirname(__FILE__) . '/../../library/sql.inc');
-require_once(dirname(__FILE__) . '/../../library/crypto.php');
 class ApplicationTable
 {
 
@@ -362,7 +361,7 @@ class ApplicationTable
         $encrypt_comment = 'No';
         if (! empty($comments)) {
             if ($GLOBALS["enable_auditlog_encryption"]) {
-                $comments = aes256Encrypt($comments);
+                $comments = encryptStandard($comments);
                 $encrypt_comment = 'Yes';
             }
         }
@@ -375,7 +374,7 @@ class ApplicationTable
         $ret = sqlInsertClean_audit($sql);
 
         $last_log_id = $GLOBALS['adodb']['db']->Insert_ID();
-        $encryptLogQry = "INSERT INTO log_comment_encrypt (log_id, encrypt, checksum) " . " VALUES ( " . $adodb->qstr($last_log_id) . "," . $adodb->qstr($encrypt_comment) . "," . "'')";
+        $encryptLogQry = "INSERT INTO log_comment_encrypt (log_id, encrypt, checksum, version) " . " VALUES ( " . $adodb->qstr($last_log_id) . "," . $adodb->qstr($encrypt_comment) . "," . "'','3')";
         sqlInsertClean_audit($encryptLogQry);
 
         if (( $patient_id == "NULL" ) || ( $patient_id == null )) {

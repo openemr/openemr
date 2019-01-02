@@ -88,7 +88,7 @@ function SaveAudit($pid, $amts, $cc)
         $audit['table_args'] =  $amts;
         $audit['action_user'] = "0";
         $audit['action_taken_time'] = "";
-        $audit['checksum'] = aes256Encrypt($cc);
+        $audit['checksum'] = encryptStandard($cc);
 
         $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
         $audit['date'] = $edata['date'];
@@ -119,7 +119,7 @@ function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'no
         $audit['table_args'] = $amts;
         $audit['action_user'] = isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : "0";
         $audit['action_taken_time'] = date("Y-m-d H:i:s");
-        $audit['checksum'] = aes256Encrypt($cc);
+        $audit['checksum'] = encryptStandard($cc);
 
         $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
         $audit['date'] = $edata['date'];

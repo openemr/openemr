@@ -185,7 +185,7 @@ class C_Document extends Controller
                     $filetext = fread($tmpfile, $_FILES['file']['size'][$key]);
                     fclose($tmpfile);
                     if ($doDecryption) {
-                        $filetext = $this->decrypt($filetext, $passphrase);
+                        $filetext = decryptStandard($filetext, $passphrase);
                         if ($filetext === false) {
                             error_log("OpenEMR Error: Unable to decrypt a document since decryption failed.");
                             $filetext = "";
@@ -461,16 +461,6 @@ class C_Document extends Controller
         return $this->list_action($patient_id);
     }
 
-    function encrypt($plaintext, $key)
-    {
-        return aes256Encrypt($plaintext, $key, false);
-    }
-
-    function decrypt($crypttext, $key)
-    {
-        return aes256DecryptTwo($crypttext, $key, false);
-    }
-
     /**
      * Retrieve file from hard disk / CouchDB.
      * In case that file isn't download this function will return thumbnail image (if exist).
@@ -560,7 +550,7 @@ class C_Document extends Controller
             $f = fopen($tmpcouchpath, "r");
             if ($doEncryption) {
                 $filetext = fread($f, filesize($tmpcouchpath));
-                    $ciphertext = $this->encrypt($filetext, $passphrase);
+                    $ciphertext = encryptStandard($filetext, $passphrase);
                     $tmpfilepath = $GLOBALS['temporary_files_dir'];
                     $tmpfilename = "/encrypted_aes_".$d->get_url_file();
                     $tmpfile = fopen($tmpfilepath.$tmpfilename, "w+");
@@ -643,7 +633,7 @@ class C_Document extends Controller
                 }
                 if ($doEncryption) {
                     $filetext = fread($f, filesize($url));
-                    $ciphertext = $this->encrypt($filetext, $passphrase);
+                    $ciphertext = encryptStandard($filetext, $passphrase);
                     $tmpfilepath = $GLOBALS['temporary_files_dir'];
                     $tmpfilename = "/encrypted_aes_".$d->get_url_file();
                     $tmpfile = fopen($tmpfilepath.$tmpfilename, "w+");
