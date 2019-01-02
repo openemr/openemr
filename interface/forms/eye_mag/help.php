@@ -48,7 +48,7 @@ if ($showit=='ext') {
     <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-themes-1-10-4/themes/ui-lightness/jquery-ui.min.css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure/0.5.0/pure-min.css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/qtip2-2-2-1/jquery.qtip.min.css" />
+    <!-- <link rel="stylesheet" href="<?php //echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/qtip2-2-2-1/jquery.qtip.min.css" /> -->
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
 
