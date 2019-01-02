@@ -356,7 +356,7 @@ if (($config == 1) && ($state < 4)) {
                 echo " <td class='text'>(Clone the source site's database instead of creating a fresh one.)</td>\n";
                 echo "</tr>\n";
             }
-            $randomusername = chr(rand(65,90)) . chr(rand(65,90)) . chr(rand(65,90)) . "-admin-" . rand(0,9) . rand(0,9);
+            $randomusername = chr(rand(65, 90)) . chr(rand(65, 90)) . chr(rand(65, 90)) . "-admin-" . rand(0, 9) . rand(0, 9);
 
             echo "<TR VALIGN='TOP' class='noclone'><TD COLSPAN=2><font color='red'>OPENEMR USER:</font></TD></TR>";
             echo "<TR VALIGN='TOP' class='noclone'><TD><span class='text'>Initial User:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='iuser' VALUE='".$randomusername."' minlength=12></TD><TD><span class='text'>(This is the login name of user that will be created for you. Limit this to one word with at least 12 characters.)</span></TD></TR>
