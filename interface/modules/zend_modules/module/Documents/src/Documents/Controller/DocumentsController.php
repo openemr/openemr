@@ -91,7 +91,7 @@ class DocumentsController extends AbstractActionController
 
                 // Decrypt Encrypted File
                 if ($encrypted_file == '1') {
-                    $plaintext  = \Documents\Plugin\Documents::decrypt($filetext, $encryption_key);
+                    $plaintext  = decryptStandard($filetext, $encryption_key);
                     if ($plaintext === false) {
                         error_log("OpenEMR Error: Unable to decrypt a document since decryption failed.");
                         $plaintext = "";

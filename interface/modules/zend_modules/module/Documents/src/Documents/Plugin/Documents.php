@@ -43,31 +43,6 @@ class Documents extends AbstractPlugin
     }
 
     /**
-     * encrypt - Encrypts a plain text
-     * Supports AES-256-CBC encryption
-     * @param String $plain_text Plain Text to be encrypted
-     * @param String $key Encryption Key
-     * @return String
-     */
-    public function encrypt($plaintext, $key)
-    {
-                $obj = new \C_Document();
-                $obj->encrypt($plaintext, $key);
-    }
-
-    /**
-     * decrypt  - Decrypts an Encrypted String
-     * @param String $crypttext Encrypted String
-     * @param String $key Decryption Key
-     * @return String
-     */
-    public function decrypt($crypttext, $key)
-    {
-                $obj = new \C_Document();
-                $obj->decrypt($crypttext, $key);
-    }
-
-    /**
      * couchDB - Couch DB Connection
      *               - Uses Doctrine  CouchDBClient
      * @return Object $connection

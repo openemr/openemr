@@ -1,7 +1,5 @@
 <?php
 
-require_once(dirname(__FILE__) . "/crypto.php");
-
 function newEvent($event, $user, $groupname, $success, $comments = "", $patient_id = null, $log_from = 'open-emr', $menu_item = 'dashboard', $ccda_doc_id = 0)
 {
     $adodb = $GLOBALS['adodb']['db'];
@@ -17,7 +15,7 @@ function newEvent($event, $user, $groupname, $success, $comments = "", $patient_
     $encrypt_comment = 'No';
     if (!empty($comments)) {
         if ($GLOBALS["enable_auditlog_encryption"]) {
-            $comments =  aes256Encrypt($comments);
+            $comments =  encryptStandard($comments);
             $encrypt_comment = 'Yes';
         }
     }
@@ -51,7 +49,7 @@ function newEvent($event, $user, $groupname, $success, $comments = "", $patient_
                      " VALUES ( ".
                      $adodb->qstr($last_log_id) . "," .
                      $adodb->qstr($encrypt_comment) . "," .
-                     "'', '2')";
+                     "'', '3')";
     sqlInsertClean_audit($encryptLogQry);
 
     if (($patient_id=="NULL") || ($patient_id==null)) {
@@ -839,7 +837,7 @@ function auditSQLEvent($statement, $outcome, $binds = null)
     $encrypt_comment = 'No';
     //July 1, 2014: Ensoftek: Check and encrypt audit logging
     if (array_key_exists('enable_auditlog_encryption', $GLOBALS) && $GLOBALS["enable_auditlog_encryption"]) {
-        $comments =  aes256Encrypt($comments);
+        $comments =  encryptStandard($comments);
         $encrypt_comment = 'Yes';
     }
 
@@ -871,7 +869,7 @@ function auditSQLEvent($statement, $outcome, $binds = null)
                      " VALUES ( ".
                       $adodb->qstr($last_log_id) . "," .
                       $adodb->qstr($encrypt_comment) . "," .
-                      $adodb->qstr($checksumGenerate) .", '2')";
+                      $adodb->qstr($checksumGenerate) .", '3')";
     sqlInsertClean_audit($encryptLogQry);
 
     send_atna_audit_msg($user, $group, $event, $pid, $success, $comments);

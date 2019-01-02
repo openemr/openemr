@@ -50,7 +50,6 @@ require_once("../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 require_once("$srcdir/log.inc");
-require_once("$srcdir/crypto.php");
 
 use OpenEMR\Billing\BillingUtilities;
 
@@ -74,7 +73,7 @@ $ccdata = array();
 $invdata = array();
 
 if ($edata) {
-    $ccdata = json_decode(aes256DecryptTwo($edata['checksum']), true);
+    $ccdata = json_decode(decryptStandard($edata['checksum']), true);
     $invdata = json_decode($edata['table_args'], true);
     echo "<script  type='text/javascript'>var jsondata='" . $edata['table_args'] . "';var ccdata='" . $edata['checksum'] . "'</script>";
 }

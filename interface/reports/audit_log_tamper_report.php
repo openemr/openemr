@@ -14,7 +14,6 @@
 
 require_once("../globals.php");
 require_once("$srcdir/log.inc");
-require_once("$srcdir/crypto.php");
 
 if (!empty($_GET)) {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -243,7 +242,19 @@ if ($ret = getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' =
         }
 
         if ($commentEncrStatus == "Yes") {
-            if ($encryptVersion == 2) {
+            if ($encryptVersion == 3) {
+                // Use new openssl method
+                if (extension_loaded('openssl')) {
+                    $trans_comments = decryptStandard($iter["comments"]);
+                    if ($trans_comments !== false) {
+                        $trans_comments = preg_replace($patterns, $replace, trim($trans_comments));
+                    } else {
+                        $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
+                    }
+                } else {
+                    $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
+                }
+            } else if ($encryptVersion == 2) {
                 // Use new openssl method
                 if (extension_loaded('openssl')) {
                     $trans_comments = aes256DecryptTwo($iter["comments"]);

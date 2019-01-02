@@ -69,7 +69,8 @@
             "library/formatting.inc.php",
             "library/date_functions.php",
             "library/validation/validate_core.php",
-            "library/translation.inc.php"
+            "library/translation.inc.php",
+            "library/crypto.php"
         ],
         "psr-4" : {
             "OpenEMR\\Common\\" : "common",
