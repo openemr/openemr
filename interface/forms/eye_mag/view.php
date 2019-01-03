@@ -169,22 +169,18 @@ if ($refresh and $refresh != 'fullscreen') {
     }
     exit;
 }
-?><!DOCTYPE html>
+?><?php Header::docType(); ?>
 <html>
-  <head>
-      <title> <?php echo xlt('Chart'); ?>: <?php echo text($pat_data['fname'])." ".text($pat_data['lname'])." ".text($visit_date); ?></title>
-      <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
-      <meta charset="utf-8">
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <meta name="description" content="OpenEMR: Eye Exam">
-      <meta name="author" content="OpenEMR: Ophthalmology">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
+    <head>
+        <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor', 'qtip2' ]); ?>
+        <meta name="description" content="OpenEMR: Eye Exam">
+        <meta name="author" content="OpenEMR: Ophthalmology">
 
-        <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor' ]); ?>
+        <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
+        <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
-      <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
-
-  </head>
+        <title> <?php echo xlt('Chart'); ?>: <?php echo text($pat_data['fname'])." ".text($pat_data['lname'])." ".text($visit_date); ?></title>
+    </head>
   <!--Need a margin-top due to fixed nav, move to style.css to separate view stuff? Long way from that... -->
   <body class="bgcolor2" background="<?php echo $GLOBALS['backpic']?>" style="margin:5px 0 0 0;">
     <?php

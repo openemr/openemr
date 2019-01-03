@@ -15,10 +15,11 @@ use OpenEMR\Core\Header;
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title><?php echo xlt('OpenEMR Portal'); ?> | <?php echo xlt('Home'); ?></title>
-<meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+
+
+
 <meta name="description" content="Developed By sjpadgett@gmail.com">
+<title><?php echo xlt('OpenEMR Portal'); ?> | <?php echo xlt('Home'); ?></title>
 
     <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'jquery-ui', 'jquery-ui-sunny', 'emodal']); ?>
 

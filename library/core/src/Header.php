@@ -27,6 +27,16 @@ class Header
 {
 
     /**
+     * Standardized docType
+     */
+    public static function docType($exception = false)
+    {
+        if (!$exception) {
+            echo '<!DOCTYPE html>';
+        }
+    }
+
+    /**
      * Setup various <head> elements.
      *
      * See root_dir/config/config.yaml for available assets

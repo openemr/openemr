@@ -24,14 +24,12 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta charset="utf-8">
-
-        <title><?php $this->eprint($this->title); ?></title>
-        <meta content="width=device-width, initial-scale=1, user-scalable=yes" name="viewport">
-        <meta http-equiv="X-Frame-Options" content="deny">
-        <base href="<?php $this->eprint($this->ROOT_URL); ?>" />
+        <?php html_header_show(); ?>
         <meta name="description" content="Patient Portal" />
         <meta name="author" content="Form | sjpadgett@gmail.com" />
+
+        <title><?php $this->eprint($this->title); ?></title>
+        <base href="<?php $this->eprint($this->ROOT_URL); ?>" />
 
         <!-- Styles -->
         <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />

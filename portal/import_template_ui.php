@@ -80,10 +80,10 @@ function getTemplateList($dir)
 ?>
 <html>
 <head>
-<meta charset="UTF-8">
-<title><?php echo xlt('OpenEMR Portal'); ?> | <?php echo xlt('Import'); ?></title>
-<meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+<?php html_header_show(); ?>
 <meta name="description" content="Developed By sjpadgett@gmail.com">
+
+<title><?php echo xlt('OpenEMR Portal'); ?> | <?php echo xlt('Import'); ?></title>
 
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />

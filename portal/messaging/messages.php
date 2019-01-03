@@ -92,17 +92,13 @@ function getAuthPortalUsers()
     return $resultpd;
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
+<?php Header::docType(); ?>
+<html>
 <head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<meta charset="utf-8">
-<title><?php echo xlt("Secure Messaging"); ?></title>
-<meta name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=1">
+<?php Header::setupHeader(['summernote', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model']); ?>
 <meta name="description" content="Mail Application" />
 
-<?php Header::setupHeader(['summernote', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model']); ?>
+<title><?php echo xlt("Secure Messaging"); ?></title>
 
 </head>
 <body class="skin-blue">

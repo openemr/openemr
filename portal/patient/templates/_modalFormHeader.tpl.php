@@ -24,14 +24,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-
-<title><?php $this->eprint($this->title); ?></title>
-<meta content="width=device-width, initial-scale=1, user-scalable=no"	name="viewport">
-
-
+<?php html_header_show(); ?>
 <meta name="description" content="Patient Profile" />
 <meta name="author" content="Form | sjpadgett@gmail.com" />
+
+<title><?php $this->eprint($this->title); ?></title>
 
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js" type="text/javascript"></script>
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
