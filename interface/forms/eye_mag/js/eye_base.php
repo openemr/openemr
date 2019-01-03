@@ -2147,33 +2147,23 @@ var allPanels = $('.building_blocks > dd').hide();
 
                   });
 
-                  /*
-                  $('[title]').qtip({
-                                    position: {
-                                    my: 'top Right',  // Position my top left...
-                                    at: 'bottom Left', // at the bottom right of...
-                                    target: 'mouse' // my target
-                                    }
-                                    }
-                                    );
-                    */
                   $('#form_PCP,#form_rDOC').change(function() {
                                                    update_DOCS();   
                                                    });
 
                   $('#tooltips_status').html($('#PREFS_TOOLTIPS').val());
                   if ($("#PREFS_TOOLTIPS").val() == "<?php echo xla('Off'); ?>") {
-                  //$('[title]').qtip('disable');
+                  
                   }
                   $('#tooltips_toggle,#tooltips_status').click(function() {
                                                                if ($("#PREFS_TOOLTIPS").val() == "<?php echo xla('On'); ?>") {
                                                                $('#PREFS_TOOLTIPS').val('<?php echo xla('Off'); ?>');
                                                                $("#tooltips_status").html('<?php echo xla('are off'); ?>');
-                                                               //$('[title]').qtip('disable');
+                                                               
                                                                } else {
                                                                $('#PREFS_TOOLTIPS').val('<?php echo xla('On'); ?>');
                                                                $('#tooltips_status').html('<?php echo xla('are on'); ?>');
-                                                               //$('[title]').qtip('enable');
+                                                               
                                                                }
                                                                update_PREFS();
                                                                });
