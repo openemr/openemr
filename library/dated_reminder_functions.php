@@ -38,7 +38,12 @@ function GetPortalAlertCounts()
     $qrtn = sqlQueryNoLog($query, array($s_user));
     $counts['chatCnt'] = $qrtn['count_chats'] ? $qrtn['count_chats'] : "0";
 
-    $counts['total'] = $counts['mailCnt'] + $counts['auditCnt'] + $counts['chatCnt'];
+    $query = "SELECT Count(`m`.status) AS count_payments FROM onsite_portal_activity `m` " .
+        "WHERE `m`.status LIKE ? AND `m`.activity = ?";
+    $qrtn = sqlQueryNoLog($query, array('%waiting%', 'payment'));
+    $counts['paymentCnt'] = $qrtn['count_payments'] ? $qrtn['count_payments'] : "0";
+
+    $counts['total'] = $counts['mailCnt'] + $counts['auditCnt'] + $counts['chatCnt'] + $counts['paymentCnt'];
     return json_encode($counts);
 }
 

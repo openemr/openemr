@@ -26,7 +26,6 @@
         "phpseclib/phpseclib" : "2.0.12",
         "rospdf/pdf-php" : "0.12.48",
         "smarty/smarty" : "2.6.31",
-        "stripe/stripe-php" : "6.24.0",
         "symfony/config" : "3.4.19",
         "symfony/dependency-injection" : "3.4.19",
         "symfony/event-dispatcher" : "3.4.19",
@@ -38,7 +37,10 @@
         "zendframework/zendframework" : "2.5.3",
         "particle/validator": "2.3.3",
         "guzzlehttp/guzzle": "6.3.3",
-        "kamermans/guzzle-oauth2-subscriber": "1.0.5"
+        "kamermans/guzzle-oauth2-subscriber": "1.0.5",
+        "league/omnipay": "3.0.1",
+        "academe/omnipay-authorizenetapi": "3.0.4",
+        "omnipay/stripe": "3.0.1"
     },
     "config": {
         "platform": {

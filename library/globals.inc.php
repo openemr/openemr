@@ -831,13 +831,6 @@ $GLOBALS_METADATA = array(
             xl('Set a facility cookie to remember the selected facility between logins.')
         ),
 
-        'login_into_facility' => array(
-            xl('Login Into Facility'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Select your current facility in the login page')
-        ),
-
         'receipts_by_provider' => array(
             xl('Print Receipts by Provider'),
             'bool',
@@ -1995,7 +1988,7 @@ $GLOBALS_METADATA = array(
 
         'SMTP_PASS' => array(
             xl('SMTP Password for Authentication'),
-            'encrypted',                      // data type
+            'text',                           // data type
             '',                               // default
             xl('Must be empty if SMTP authentication is not used.')
         ),
@@ -2706,10 +2699,10 @@ $GLOBALS_METADATA = array(
         ),
 
         'fhir_base_url' => array(
-            xl('FHIR Server Base Address'),
+            xl('FHIR Server Base URI'),
             'text',
             'https://hapi.fhir.org/baseDstu3/',
-            xl('Base URL for FHIR Server. Url should end with /')
+            xl('Base URI for FHIR Server. Url should end with /')
         ),
 
         'rest_api' => array(
@@ -2717,6 +2710,45 @@ $GLOBALS_METADATA = array(
             'bool',
             '0',
             xl('Enable OpenEMR RESTful API. SSL Required')
+        ),
+
+        'payment_gateway' => array(
+            xl('Select Credit Card Payment Gateway'),
+            array(
+                'InHouse' => xl('In House'),
+                'AuthorizeNet' => xl('Authorize.Net'),
+                'Stripe' => xl('Stripe')
+            ),
+            'InHouse',
+            xl('Enable a Payment Gateway Service for processing credit card transactions')
+        ),
+
+        'gateway_mode_production' => array(
+            xl('Set Gateway to Production Mode'),
+            'bool',                           // data type
+            '0',
+            xl('Check this to go live. Not checked is testing mode.')
+        ),
+
+        'gateway_public_key' => array(
+            xl('Gateway Publishable Key'),
+            'text',
+            '5ccg4qbjvdA66pZBr4Pt2C4YEtFXmHtevE4zMLUZ3DE26yc5JrCarK5uF3MjGm5y',
+            xl('The public access key for secure tokenize of credit or debit card authorization. PCI compliance')
+        ),
+
+        'gateway_api_key' => array(
+            xl('Gateway API Login Auth Name or Secret'),
+            'text',
+            '8seGJk8A4E',
+            xl('The Auth Name or API key for selected account.Auth Name for Authorize.Net and API Secret for Stripe')
+        ),
+
+        'gateway_transaction_key' => array(
+            xl('Gateway Transaction Key'),
+            'text',
+            '9Peg2rE66FxP2p5p',
+            xl('Mainly Authorize.Net uses two keys')
         ),
 
         'medex_enable' => array(

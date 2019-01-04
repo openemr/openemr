@@ -146,6 +146,13 @@
                             <span class="label label-success" style="display:inline" data-bind="text: portalChats()"></span>
                         </a>
                     </li>
+                    <li class="divider"></li>
+                    <li style="display: inline-flex;">
+                        <a href="#" data-bind="click: viewPortalPayments">
+                            <i class="fa fa-envelope"></i>&nbsp;<?php echo xlt("Portal Payments"); ?>&nbsp;
+                            <span class="label label-success" style="display:inline" data-bind="text: portalPayments()"></span>
+                        </a>
+                    </li>
                 </ul>
             </div>
         <!-- /ko -->
