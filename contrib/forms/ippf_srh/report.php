@@ -6,8 +6,8 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-include_once("../../globals.php");
-include_once($GLOBALS["srcdir"] . "/api.inc");
+require_once("../../globals.php");
+require_once($GLOBALS["srcdir"] . "/api.inc");
 
 // This function is invoked from printPatientForms in report.inc
 // when viewing a "comprehensive patient report".  Also from
@@ -17,6 +17,6 @@ function ippf_srh_report($pid, $encounter, $cols, $id)
 {
     require_once($GLOBALS["srcdir"] . "/options.inc.php");
     echo "<table>\n";
-    display_layout_rows('SRH', sqlQuery("SELECT * FROM form_ippf_srh WHERE id = '$id'"));
+    display_layout_rows('SRH', sqlQuery("SELECT * FROM form_ippf_srh WHERE id = ?", array($id)));
     echo "</table>\n";
 }

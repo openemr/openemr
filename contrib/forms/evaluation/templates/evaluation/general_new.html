@@ -1,7 +1,16 @@
+{**
+ * evaluation general_new.html
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *}
 <html>
 
 <head>
-{php}html_header_show();{/php}
+{headerShow}
 
 {literal}
 
@@ -73,7 +82,7 @@ a {
 
 </head>
 
-<body bgcolor="{$STYLE.BGCOLOR2}">
+<body bgcolor="{$STYLE.BGCOLOR2|attr}">
 
 {literal}
 
@@ -111,19 +120,19 @@ function calculate_bmi(button) {
 
 	<td>
 
-		<span class=text>TEMP: </span><input size=3 type=entry name="temp" value="{$evaluation->get_temp()|escape:'html'}" ></input>
+		<span class=text>TEMP: </span><input size=3 type=entry name="temp" value="{$evaluation->get_temp()|attr}" ></input>
 
-		<span class=text>P: </span><input size=3 type=entry name="p" value="{$evaluation->get_p()|escape:'html'}" ></input>
+		<span class=text>P: </span><input size=3 type=entry name="p" value="{$evaluation->get_p()|attr}" ></input>
 
-		<span class=text>R: </span><input size=3 type=entry name="r" value="{$evaluation->get_r()|escape:'html'}" ></input>
+		<span class=text>R: </span><input size=3 type=entry name="r" value="{$evaluation->get_r()|attr}" ></input>
 
-		<span class=text>BP: </span><input size=3 type=entry name="bp" value="{$evaluation->get_bp()|escape:'html'}" ></input>
+		<span class=text>BP: </span><input size=3 type=entry name="bp" value="{$evaluation->get_bp()|attr}" ></input>
 
-		<span class=text>HT: </span><input size=3 type=entry name="ht" value="{$evaluation->get_ht()|escape:'html'}" ></input>
+		<span class=text>HT: </span><input size=3 type=entry name="ht" value="{$evaluation->get_ht()|attr}" ></input>
 
-		<span class=text>WT: </span><input size=3 type=entry name="wt" value="{$evaluation->get_wt()|escape:'html'}" ></input>
+		<span class=text>WT: </span><input size=3 type=entry name="wt" value="{$evaluation->get_wt()|attr}" ></input>
 
-		<span class=text>LMP: </span><input size=10 type=entry name="lmp" value="{$evaluation->get_lmp()|escape:'html'}" ></input>
+		<span class=text>LMP: </span><input size=10 type=entry name="lmp" value="{$evaluation->get_lmp()|attr}" ></input>
 
 	</td>
 
@@ -131,7 +140,7 @@ function calculate_bmi(button) {
 
 	<td>
 
-		<span class=text>BMI: </span><input size=5 type=entry name="bmi" value="{$evaluation->get_bmi()|escape:'html'}" ></input>
+		<span class=text>BMI: </span><input size=5 type=entry name="bmi" value="{$evaluation->get_bmi()|attr}" ></input>
 
 		<input type="button" onClick="calculate_bmi(this);" value="Calculate">
 
@@ -153,7 +162,7 @@ function calculate_bmi(button) {
 
 <tr>
 
-	<td><p><textarea name="complaint" cols="75" rows="3" wrap="virtual" >{$evaluation->get_complaint()|escape:'html'}</textarea></p><br /></td>
+	<td><p><textarea name="complaint" cols="75" rows="3" wrap="virtual" >{$evaluation->get_complaint()|text}</textarea></p><br /></td>
 
 </tr>
 
@@ -165,7 +174,7 @@ function calculate_bmi(button) {
 
 <tr>
 
-	<td><p><textarea name="hpi" cols="75" rows="3" wrap="virtual" >{$evaluation->get_hpi()|escape:'html'}</textarea></p><br /></td>
+	<td><p><textarea name="hpi" cols="75" rows="3" wrap="virtual" >{$evaluation->get_hpi()|text}</textarea></p><br /></td>
 
 </tr>
 
@@ -183,7 +192,7 @@ function calculate_bmi(button) {
 
 		{if $smarty.foreach.loops.first ne 1}<br>{/if}
 
-		{$title|escape:'html'}
+		{$title|text}
 
 	</td>
 
@@ -199,7 +208,7 @@ function calculate_bmi(button) {
 
 				{if !is_numeric($row_title)}
 
-					<td>{$row_title|escape:'html'}</td>
+					<td>{$row_title|text}</td>
 
 					<td class="form_text">{html_checkboxes name="checks" options=$row selected=$evaluation->checks separator="&nbsp;</td><td class=\"form_text\">"}</td>
 
@@ -225,11 +234,11 @@ function calculate_bmi(button) {
 
 						<td></td>
 
-						<td class="form_text">OD 20/<input type="text" name="eyes_od" size="4" value="{$evaluation->get_eyes_od()|escape:'html'}"></td>
+						<td class="form_text">OD 20/<input type="text" name="eyes_od" size="4" value="{$evaluation->get_eyes_od()|attr}"></td>
 
-						<td class="form_text">OS 20/<input type="text" name="eyes_os" size="4" value="{$evaluation->get_eyes_os()|escape:'html'}"></td>
+						<td class="form_text">OS 20/<input type="text" name="eyes_os" size="4" value="{$evaluation->get_eyes_os()|attr}"></td>
 
-						<td class="form_text">OU 20/<input type="text" name="eyes_ou" size="4" value="{$evaluation->get_eyes_ou()|escape:'html'}"></td>
+						<td class="form_text">OU 20/<input type="text" name="eyes_ou" size="4" value="{$evaluation->get_eyes_ou()|attr}"></td>
 
 					{/if}
 
@@ -263,7 +272,7 @@ function calculate_bmi(button) {
 
 <tr>
 
-	<td><textarea name="comments" wrap="virtual" cols="75" rows="8">{$evaluation->get_comments()|escape:'html'}</textarea></td>
+	<td><textarea name="comments" wrap="virtual" cols="75" rows="8">{$evaluation->get_comments()|text}</textarea></td>
 
 </tr>
 
@@ -275,7 +284,7 @@ function calculate_bmi(button) {
 
 <tr>
 
-	<td><textarea name="assesment" wrap="virtual" cols="75" rows="8">{$evaluation->get_assesment()|escape:'html'}</textarea></td>
+	<td><textarea name="assesment" wrap="virtual" cols="75" rows="8">{$evaluation->get_assesment()|text}</textarea></td>
 
 </tr>
 
@@ -293,15 +302,15 @@ function calculate_bmi(button) {
 
 </table>
 
-<input type="hidden" name="id" value="{$evaluation->get_id()|escape:'html'}" />
+<input type="hidden" name="id" value="{$evaluation->get_id()|attr}" />
 
-<input type="hidden" name="activity" value="{$evaluation->get_activity()|escape:'html'}">
+<input type="hidden" name="activity" value="{$evaluation->get_activity()|attr}">
 
-<input type="hidden" name="pid" value="{$evaluation->get_pid()|escape:'html'}">
+<input type="hidden" name="pid" value="{$evaluation->get_pid()|attr}">
 
 <input type="hidden" name="process" value="true">
 
-<input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|escape:'html'}">
+<input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}">
 
 </form>
 

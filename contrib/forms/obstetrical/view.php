@@ -17,7 +17,7 @@
 ?>
 <!-- Forms generated from formsWiz -->
 <?php
-include_once("../../globals.php");
+require_once("../../globals.php");
 ?>
 <html><head>
 <?php html_header_show();?>

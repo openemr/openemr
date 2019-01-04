@@ -58,9 +58,9 @@ class C_FormReviewOfSystems extends Controller
         addForm($GLOBALS['encounter'], "Review Of Systems", $this->review_of_systems->id, "review_of_systems", $GLOBALS['pid'], $_SESSION['userauthorized']);
 
         if (!empty($_POST['cpt_code'])) {
-            $sql = "select * from codes where code ='" . add_escape_custom($_POST['cpt_code']) . "' order by id";
+            $sql = "select * from codes where code = ? order by id";
 
-            $results = sqlQ($sql);
+            $results = sqlQ($sql, array($_POST['cpt_code']));
 
             $row = sqlFetchArray($results);
             if (!empty($row)) {
