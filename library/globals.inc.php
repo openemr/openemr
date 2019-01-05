@@ -831,6 +831,13 @@ $GLOBALS_METADATA = array(
             xl('Set a facility cookie to remember the selected facility between logins.')
         ),
 
+        'login_into_facility' => array(
+            xl('Login Into Facility'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Select your current facility in the login page')
+        ),
+
         'receipts_by_provider' => array(
             xl('Print Receipts by Provider'),
             'bool',
@@ -1988,7 +1995,7 @@ $GLOBALS_METADATA = array(
 
         'SMTP_PASS' => array(
             xl('SMTP Password for Authentication'),
-            'text',                           // data type
+            'encrypted',                           // data type
             '',                               // default
             xl('Must be empty if SMTP authentication is not used.')
         ),
@@ -2699,10 +2706,10 @@ $GLOBALS_METADATA = array(
         ),
 
         'fhir_base_url' => array(
-            xl('FHIR Server Base URI'),
+            xl('FHIR Server Base Address'),
             'text',
             'https://hapi.fhir.org/baseDstu3/',
-            xl('Base URI for FHIR Server. Url should end with /')
+            xl('Base URL for FHIR Server.')
         ),
 
         'rest_api' => array(
@@ -2732,21 +2739,21 @@ $GLOBALS_METADATA = array(
 
         'gateway_public_key' => array(
             xl('Gateway Publishable Key'),
-            'text',
+            'encrypted',
             '5ccg4qbjvdA66pZBr4Pt2C4YEtFXmHtevE4zMLUZ3DE26yc5JrCarK5uF3MjGm5y',
             xl('The public access key for secure tokenize of credit or debit card authorization. PCI compliance')
         ),
 
         'gateway_api_key' => array(
             xl('Gateway API Login Auth Name or Secret'),
-            'text',
+            'encrypted',
             '8seGJk8A4E',
             xl('The Auth Name or API key for selected account.Auth Name for Authorize.Net and API Secret for Stripe')
         ),
 
         'gateway_transaction_key' => array(
             xl('Gateway Transaction Key'),
-            'text',
+            'encrypted',
             '9Peg2rE66FxP2p5p',
             xl('Mainly Authorize.Net uses two keys')
         ),

@@ -1218,13 +1218,13 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
             <tr>
                 <td class="dehead" align="center"><?php echo xlt('Total'); ?></td>
                 <td class="dehead" id='td_total_1' align="center"></td>
-                <td class="dehead" id='td_total_2' align="center"><?php echo attr(bucks($sum_charges)) ?></td>
-                <td class="dehead" id='td_total_3' align="center"><?php echo attr(bucks($sum_inspaid)) ?></td>
-                <td class="dehead" id='td_total_4' align="center"><?php echo attr(bucks($sum_ptpaid)) ?></td>
-                <td class="dehead" id='td_total_5' align="center"><?php echo attr(bucks($sum_patcopay)) ?></td>
-                <td class="dehead" id='td_total_6' align="center"><?php echo attr(bucks($sum_copay)) ?></td>
-                <td class="dehead" id='td_total_7' align="center"><?php echo attr(bucks($sum_balance)) ?></td>
-                <td class="dehead" id='td_total_8' align="center"><?php echo attr(bucks($sum_duept)) ?></td>
+                <td class="dehead" id='td_total_2' align="center"><?php echo text(bucks($sum_charges)) ?></td>
+                <td class="dehead" id='td_total_3' align="center"><?php echo text(bucks($sum_inspaid)) ?></td>
+                <td class="dehead" id='td_total_4' align="center"><?php echo text(bucks($sum_ptpaid)) ?></td>
+                <td class="dehead" id='td_total_5' align="center"><?php echo text(bucks($sum_patcopay)) ?></td>
+                <td class="dehead" id='td_total_6' align="center"><?php echo text(bucks($sum_copay)) ?></td>
+                <td class="dehead" id='td_total_7' align="center"><?php echo text(bucks($sum_balance)) ?></td>
+                <td class="dehead" id='td_total_8' align="center"><?php echo text(bucks($sum_duept)) ?></td>
                 <td class="dehead" align="center">
                     <input class="form-control" name='form_paytotal' id='form_paytotal' value='' style='color:#3b9204;' readonly/>
                 </td>
@@ -1232,7 +1232,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
         </table>
         <?php
         if (isset($ccdata["cardHolderName"])) {
-            echo '<div class="col-xs-6"><div class="panel panel-default height">';
+            echo '<div class="col-xs-5"><div class="panel panel-default height">';
             if (!isset($_SESSION['authUserID'])) {
                 echo '<div class="panel-heading">' . xlt("Payment Information") .
                     '<span style="color:#cc0000"><em> ' . xlt("Pending Auth since") . ': </em>' . text($edata["date"]) . '</span></div>';
@@ -1247,9 +1247,9 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
         }
         ?>
         <div class="panel-body">
-            <strong><?php echo xlt('Card Name'); ?>: </strong><span id="cn"><?php echo attr($ccdata["cc_type"]) ?></span><br>
-            <strong><?php echo xlt('Name on Card'); ?>: </strong><span id="nc"><?php echo attr($ccdata["cardHolderName"]) ?></span>
-            <strong><?php echo xlt('Card Holder Zip'); ?>: </strong><span id="czip"><?php echo attr($ccdata["zip"]) ?></span><br>
+            <strong><?php echo xlt('Card Name'); ?>: </strong><span id="cn"><?php echo text($ccdata["cc_type"]) ?></span><br>
+            <strong><?php echo xlt('Name on Card'); ?>: </strong><span id="nc"><?php echo text($ccdata["cardHolderName"]) ?></span>
+            <strong><?php echo xlt('Card Holder Zip'); ?>: </strong><span id="czip"><?php echo text($ccdata["zip"]) ?></span><br>
             <strong><?php echo xlt('Card Number'); ?>: </strong><span id="ccn">
         <?php
         if (isset($_SESSION['authUserID']) || isset($ccdata["transId"])) {
@@ -1260,21 +1260,24 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
         ?>
         <?php
         if (!isset($ccdata["transId"])) { ?>
-                <strong><?php echo xlt('Exp Date'); ?>:  </strong><span id="ed"><?php echo attr($ccdata["month"]) . "/" . attr($ccdata["year"]) ?></span>
-                <strong><?php echo xlt('CVV'); ?>:  </strong><span id="cvvpin"><?php echo attr($ccdata["cardCode"]) ?></span><br>
+                <strong><?php echo xlt('Exp Date'); ?>:  </strong><span id="ed"><?php echo text($ccdata["month"]) . "/" . text($ccdata["year"]) ?></span>
+                <strong><?php echo xlt('CVV'); ?>:  </strong><span id="cvvpin"><?php echo text($ccdata["cardCode"]) ?></span><br>
         <?php } else { ?>
-                <strong><?php echo xlt('Transaction Id'); ?>:  </strong><span id="ed"><?php echo attr($ccdata["transId"]) . "/" . attr($ccdata["year"]) ?></span>
-                <strong><?php echo xlt('Authorization'); ?>:  </strong><span id="cvvpin"><?php echo attr($ccdata["authCode"]) ?></span><br>
+                <strong><?php echo xlt('Transaction Id'); ?>:  </strong><span id="ed"><?php echo text($ccdata["transId"]) . "/" . text($ccdata["year"]) ?></span>
+                <strong><?php echo xlt('Authorization'); ?>:  </strong><span id="cvvpin"><?php echo text($ccdata["authCode"]) ?></span><br>
         <?php } ?>
-        <strong><?php echo xlt('Charge Total'); ?>:  </strong><span id="ct"><?php echo attr($invdata["form_paytotal"]) ?></span><br>
+        <strong><?php echo xlt('Charge Total'); ?>:  </strong><span id="ct"><?php echo text($invdata["form_paytotal"]) ?></span><br>
         </div>
         </div>
         </div>
         <div>
         <?php
         if (!isset($_SESSION['authUserID'])) {
-            echo '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' .
-                xlt("Pay Invoice") . '</button>';
+            if (!isset($ccdata["cardHolderName"])) {
+                echo '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
+            } else {
+                echo '<h4><span class="bg-danger">' . xlt("Locked Payment Pending") . '</span></h4>';
+            }
         } else {
             echo "<button type='submit' class='btn btn-success' form='invoiceForm'>" . xlt('Post Payment') . "</button>";
         }
@@ -1322,7 +1325,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                                                    autocomplete="off" maxlength="19" pattern="\d"
                                                    onchange="validateCC()"
                                                    title="<?php echo xla('Card Number'); ?>" value=""/>&nbsp;&nbsp;
-                                            <h4 name="cardtype" id="cardtype" style="display: inline-block; color:#cc0000;">Validating</h4>
+                                            <h4 name="cardtype" id="cardtype" style="display: inline-block; color:#cc0000;"><?php echo xlt('Validating') ?></h4>
                                         </div>
                                     </div>
                                 </div>
@@ -1438,10 +1441,12 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                 <div class="modal-footer">
                     <div class="button-group">
                         <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
-                        <?php if ($GLOBALS['payment_gateway'] == 'InHouse') { ?>
+                        <?php
+                        if ($GLOBALS['payment_gateway'] == 'InHouse') { ?>
                             <button id="paySubmit" class="btn btn-primary"><?php echo xlt('Send Payment'); ?></button>
                         <?php } else if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') { ?>
-                            <button id="payAurhorizeNet" class="btn btn-primary" onclick="sendPaymentDataToAnet(event)"><?php echo xlt('Pay Now'); ?></button>
+                            <button id="payAurhorizeNet" class="btn btn-primary"
+                                    onclick="sendPaymentDataToAnet(event)"><?php echo xlt('Pay Now'); ?></button>
                         <?php }
 if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
                             <button id="stripeSubmit" class="btn btn-primary"><?php echo xlt('Pay Now'); ?></button>
