@@ -145,8 +145,8 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
             );
             $thispid = $tmprow['pid'];
             sqlStatement(
-              "LOCK TABLES " . escape_table_name('form_' . $spreadsheet_form_name) .
-              " WRITE, log WRITE"
+                "LOCK TABLES " . escape_table_name('form_' . $spreadsheet_form_name) .
+                " WRITE, log WRITE"
             );
             $tmprow = sqlQuery("SELECT MAX(id) AS maxid FROM " .
               escape_table_name('form_' . $spreadsheet_form_name));
@@ -181,9 +181,11 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
         // which must not match any existing template name.
         $new_template_name = form2real($_POST['form_new_template_name']);
         if ($new_template_name != $template_name) {
-            $trow = sqlQuery("SELECT id FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
-            " WHERE id < 0 AND rownbr = -1 AND colnbr = -1 AND value = ?",
-            array(real2db($new_template_name)));
+            $trow = sqlQuery(
+                "SELECT id FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
+                " WHERE id < 0 AND rownbr = -1 AND colnbr = -1 AND value = ?",
+                array(real2db($new_template_name))
+            );
             if ($trow['id']) {
                   $alertmsg = "Template \"" . real2form($new_template_name) .
                     "\" already exists!";
@@ -204,8 +206,8 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
             } // If adding a new template...
             else {
                 sqlStatement(
-                  "LOCK TABLES " . escape_table_name('form_' . $spreadsheet_form_name) .
-                  " WRITE, log WRITE"
+                    "LOCK TABLES " . escape_table_name('form_' . $spreadsheet_form_name) .
+                    " WRITE, log WRITE"
                 );
                 $tmprow = sqlQuery("SELECT MIN(id) AS minid FROM " .
                   escape_table_name('form_' . $spreadsheet_form_name));
@@ -279,23 +281,23 @@ if ($formid) {
     $dres = sqlStatement("SELECT * FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
     " WHERE id = ? ORDER BY rownbr, colnbr", array($formid));
     $tmprow = sqlQuery(
-      "SELECT MAX(rownbr) AS rowmax, MAX(colnbr) AS colmax " .
-      "FROM " . escape_table_name('form_' . $spreadsheet_form_name) . " WHERE id = ?",
-      array($formid)
+        "SELECT MAX(rownbr) AS rowmax, MAX(colnbr) AS colmax " .
+        "FROM " . escape_table_name('form_' . $spreadsheet_form_name) . " WHERE id = ?",
+        array($formid)
     );
     $num_used_rows = $tmprow['rowmax'] + 1;
     $num_used_cols = $tmprow['colmax'] + 1;
 } # Otherwise if we are editing a template, get it.
 else if ($tempid) {
     $dres = sqlStatement(
-      "SELECT * FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
-      " WHERE id = ? ORDER BY rownbr, colnbr",
-      array($tempid)
+        "SELECT * FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
+        " WHERE id = ? ORDER BY rownbr, colnbr",
+        array($tempid)
     );
     $tmprow = sqlQuery(
-      "SELECT MAX(rownbr) AS rowmax, MAX(colnbr) AS colmax " .
-      "FROM " . escape_table_name('form_' . $spreadsheet_form_name) . " WHERE id = ?",
-      array($tempid)
+        "SELECT MAX(rownbr) AS rowmax, MAX(colnbr) AS colmax " .
+        "FROM " . escape_table_name('form_' . $spreadsheet_form_name) . " WHERE id = ?",
+        array($tempid)
     );
     $num_used_rows = $tmprow['rowmax'] + 1;
     $num_used_cols = $tmprow['colmax'] + 1;
