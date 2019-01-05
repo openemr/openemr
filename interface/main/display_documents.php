@@ -123,20 +123,6 @@ $display_collapse_msg = "display:inline;";
 </script>
 
 <style type="text/css">
-.qtip-box{
-    width : 100%;
-    height : 95%;
-}
-
-.qtip-style {
-    width: 75%;
-    max-width: 75%;
-    height: 50%;
-    max-height: 50%;
-}
-.qtip {
-    max-width : 100%;
-}
 
 .linkcell {
     max-width: 250px ;
