@@ -40,20 +40,20 @@ function GenerateQueryPart($keyValues)
         $inValues = explode(',', $keyValues['form_encounter.pid'][1]);
         $params = array_merge($params, $inValues);
         $inStringArray = [];
-        for($i=0; $i<count($inValues); $i++) {
+        for ($i = 0; $i < count($inValues); $i++) {
             $inStringArray[] = '?';
         }
-        $query_part .= ' AND form_encounter.pid in (' . implode(',',$inStringArray) . ')';
+        $query_part .= ' AND form_encounter.pid in (' . implode(',', $inStringArray) . ')';
     }
 
     if (isset($keyValues['form_encounter.encounter'])) {//comes like '781,780'
         $inValues = explode(',', $keyValues['form_encounter.encounter'][1]);
         $params = array_merge($params, $inValues);
         $inStringArray = [];
-        for($i=0; $i<count($inValues); $i++) {
+        for ($i = 0; $i < count($inValues); $i++) {
             $inStringArray[] = '?';
         }
-        $query_part .= ' AND form_encounter.encounter in (' . implode(',',$inStringArray) . ')';
+        $query_part .= ' AND form_encounter.encounter in (' . implode(',', $inStringArray) . ')';
     }
     if (isset($keyValues['insurance_data.provider'])) {
         if ($keyValues['insurance_data.provider'][1] === "'1'") {
@@ -67,17 +67,18 @@ function GenerateQueryPart($keyValues)
     return array_merge([$query_part], $params);
 }
 
-function GenerateQueryPartTwo ($keyValues) {
+function GenerateQueryPartTwo($keyValues)
+{
     $queryPartTwo = '';
     $params = [];
     if (isset($keyValues['form_encounter.pid'])) {//comes like '781,780'
         $inValues = explode(',', $keyValues['form_encounter.pid'][1]);
         $params = array_merge($params, $inValues);
         $inStringArray = [];
-        for($i=0; $i<count($inValues); $i++) {
+        for ($i = 0; $i < count($inValues); $i++) {
             $inStringArray[] = '?';
         }
-        $queryPartTwo .= ' AND pid in (' . implode(',',$inValues) . ')';
+        $queryPartTwo .= ' AND pid in (' . implode(',', $inValues) . ')';
     }
 
     return array_merge([$queryPartTwo], $params);
@@ -111,7 +112,7 @@ function loadParamsFromFinalPageCriteria($finalPageCriteria)
             $params[$split[0]] = ['=', "'" . substr($split[1], 1, -1) . "'"];
         } else {
             $split = explode(' ', $SearchItem, 2); //comes like 781,780' - as if for an 'in' statement.
-            $params[$split[0]] = ['',   substr($split[1], 0, -1)];
+            $params[$split[0]] = ['', substr($split[1], 0, -1)];
         }
     }
 
@@ -123,7 +124,7 @@ function getBillsBetween($code_type, $cols = "id,date,pid,code_type,code,user,au
 {
     $keyValues = isset($_REQUEST['final_this_page_criteria']) ? loadParamsFromFinalPageCriteria($_REQUEST['final_this_page_criteria']) : [];
 
-    list($query_part,$query_part_params) = GenerateQueryPart($keyValues);
+    list($query_part, $query_part_params) = GenerateQueryPart($keyValues);
     list($auth, $auth_params) = GenerateAuthPart($keyValues);
     list($billstring, $billstring_params) = GenerateBillstring($keyValues);
     $params = array_merge($query_part_params, $auth_params, $billstring_params);
@@ -162,10 +163,10 @@ function getBillsBetweenReport(
 {
     $keyValues = isset($_REQUEST['final_this_page_criteria']) ? loadParamsFromFinalPageCriteria($_REQUEST['final_this_page_criteria']) : [];
 
-    list($query_part,$query_part_params) = GenerateQueryPart($keyValues);
+    list($query_part, $query_part_params) = GenerateQueryPart($keyValues);
     list($auth, $auth_params) = GenerateAuthPart($keyValues);
     list($billstring, $billstring_params) = GenerateBillstring($keyValues);
-    list($query_part2,$query_part2_params) = GenerateQueryPartTwo($keyValues);
+    list($query_part2, $query_part2_params) = GenerateQueryPartTwo($keyValues);
     $params = array_merge($query_part_params, $auth_params, $billstring_params);
 
     // Selecting by the date in the billing table is wrong, because that is
@@ -210,10 +211,10 @@ function getBillsListBetween(
 
     $keyValues = isset($_REQUEST['final_this_page_criteria']) ? loadParamsFromFinalPageCriteria($_REQUEST['final_this_page_criteria']) : [];
 
-    list($query_part,$query_part_params) = GenerateQueryPart($keyValues);
+    list($query_part, $query_part_params) = GenerateQueryPart($keyValues);
     list($auth, $auth_params) = GenerateAuthPart($keyValues);
     list($billstring, $billstring_params) = GenerateBillstring($keyValues);
-    list($query_part2,$query_part2_params) = GenerateQueryPartTwo($keyValues);
+    list($query_part2, $query_part2_params) = GenerateQueryPartTwo($keyValues);
     $params = array_merge($auth_params, $billstring_params, $query_part_params);
 
     // See above comment in getBillsBetween().
@@ -254,22 +255,22 @@ function billCodesList($list, $skip = "()")
     $inListValues = explode(',', $list);
     $params = array_merge($params, $inListValues);
     $inListStringArray = [];
-    for($i=0; $i<count($inListValues); $i++) {
+    for ($i = 0; $i < count($inListValues); $i++) {
         $inListStringArray[] = '?';
     }
 
     if ($skip == "()") {
-        sqlStatement("update billing set billed=1 where id in (".implode(',',$inListStringArray).")", $params);
+        sqlStatement("update billing set billed=1 where id in (" . implode(',', $inListStringArray) . ")", $params);
     } else {
         $skip = trim($skip, '()');
         $inSkipValues = explode(',', $skip);
         $params = array_merge($params, $inSkipValues);
         $inSkipStringArray = [];
-        for($i=0; $i<count($inSkipValues); $i++) {
+        for ($i = 0; $i < count($inSkipValues); $i++) {
             $inSkipStringArray[] = '?';
         }
 
-        sqlStatement("update billing set billed=1 where id in (".implode(',',$inListStringArray).") and id not in (".implode(',',$inSkipStringArray).")", $params);
+        sqlStatement("update billing set billed=1 where id in (" . implode(',', $inListStringArray) . ") and id not in (" . implode(',', $inSkipStringArray) . ")", $params);
     }
 
     return;
@@ -279,7 +280,7 @@ function ReturnOFXSql()
 {
     $keyValues = isset($_REQUEST['final_this_page_criteria']) ? loadParamsFromFinalPageCriteria($_REQUEST['final_this_page_criteria']) : [];
 
-    list($query_part,$query_part_params) = GenerateQueryPart($keyValues);
+    list($query_part, $query_part_params) = GenerateQueryPart($keyValues);
     list($auth, $auth_params) = GenerateAuthPart($keyValues);
     list($billstring, $billstring_params) = GenerateBillstring($keyValues);
     $params = array_merge($auth_params, $billstring_params, $query_part_params);
