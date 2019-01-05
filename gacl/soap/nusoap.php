@@ -1985,7 +1985,7 @@ class soap_server extends nusoap_base {
 						}
 						$funcCall = substr($funcCall, 0, -1).')';
 						$this->debug('function call:<br>'.$funcCall);
-						@eval("\$method_response = $funcCall;");
+						$method_response = $funcCall;
 					} else {
 						$this->debug('calling method using call_user_func_array()');
 						$method_response = call_user_func_array("$this->methodname",$request_data);
