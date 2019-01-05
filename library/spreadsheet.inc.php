@@ -31,12 +31,6 @@ function form2db($fldval)
     return $fldval;
 }
 
-// encode a plain string for database writing.
-function real2db($fldval)
-{
-    return addslashes($fldval);
-}
-
 // Get the actual string from a form field.
 function form2real($fldval)
 {
@@ -82,12 +76,12 @@ if (!$popup && !$encounter) { // $encounter comes from globals.php
 // or if we are loading a form then it comes from that.
 $template_name = '';
 if ($tempid) {
-    $trow = sqlQuery("SELECT value FROM form_$spreadsheet_form_name WHERE " .
-    "id = $tempid AND rownbr = -1 AND colnbr = -1");
+    $trow = sqlQuery("SELECT value FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
+    " WHERE id = ? AND rownbr = -1 AND colnbr = -1", array($tempid));
     $template_name = $trow['value'];
 } else if ($formid) {
-    $trow = sqlQuery("SELECT value FROM form_$spreadsheet_form_name WHERE " .
-    "id = $formid AND rownbr = -1 AND colnbr = -1");
+    $trow = sqlQuery("SELECT value FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
+    " WHERE id = ? AND rownbr = -1 AND colnbr = -1", array($formid));
     list($form_completed, $start_date, $template_name) = explode('|', $trow['value'], 3);
 }
 
@@ -124,11 +118,19 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
 
         // If updating an existing form...
         if ($formid) {
-            sqlStatement("UPDATE form_$spreadsheet_form_name SET "      .
-            "value = '$form_completed|$start_date|$template_name' " .
-            "WHERE id = '$formid' AND rownbr = -1 AND colnbr = -1");
-            sqlStatement("DELETE FROM form_$spreadsheet_form_name WHERE " .
-              "id = '$formid' AND rownbr >= 0 AND colnbr >= 0");
+            sqlStatement(
+                "UPDATE " . escape_table_name('form_' . $spreadsheet_form_name) .
+                " SET value = ? WHERE id = ? AND rownbr = -1 AND colnbr = -1",
+                array(
+                    $form_completed . '|' . $start_date . '|' . $template_name,
+                    $formid
+                )
+            );
+            sqlStatement(
+                "DELETE FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
+                " WHERE id = ? AND rownbr >= 0 AND colnbr >= 0",
+                array($formid)
+            );
         } // If adding a new form...
         else {
             $tmprow = sqlQuery(
@@ -136,19 +138,26 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
                 array($thisenc)
             );
             $thispid = $tmprow['pid'];
-            sqlStatement("LOCK TABLES form_$spreadsheet_form_name WRITE, log WRITE");
-            $tmprow = sqlQuery("SELECT MAX(id) AS maxid FROM form_$spreadsheet_form_name");
+            sqlStatement(
+                "LOCK TABLES " . escape_table_name('form_' . $spreadsheet_form_name) .
+                " WRITE, log WRITE"
+            );
+            $tmprow = sqlQuery("SELECT MAX(id) AS maxid FROM " .
+              escape_table_name('form_' . $spreadsheet_form_name));
             $formid = $tmprow['maxid'] + 1;
             if ($formid <= 0) {
                 $formid = 1;
             }
 
-            sqlInsert("INSERT INTO form_$spreadsheet_form_name ( " .
-              "id, rownbr, colnbr, datatype, value " .
-              ") VALUES ( " .
-              "$formid, -1, -1, 0, " .
-              "'$form_completed|$start_date|$template_name' " .
-              ")");
+            sqlInsert(
+                "INSERT INTO " . escape_table_name('form_' .$spreadsheet_form_name) . " ( " .
+                "id, rownbr, colnbr, datatype, value " .
+                ") VALUES ( ?, -1, -1, 0, ? )",
+                array(
+                    $formid,
+                    $form_completed . '|' . $start_date . '|' . $template_name
+                )
+            );
             sqlStatement("UNLOCK TABLES");
             addForm(
                 $thisenc,
@@ -166,9 +175,11 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
         // which must not match any existing template name.
         $new_template_name = form2real($_POST['form_new_template_name']);
         if ($new_template_name != $template_name) {
-            $trow = sqlQuery("SELECT id FROM form_$spreadsheet_form_name WHERE " .
-            "id < 0 AND rownbr = -1 AND colnbr = -1 AND value = '" .
-            real2db($new_template_name) . "'");
+            $trow = sqlQuery(
+                "SELECT id FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
+                " WHERE id < 0 AND rownbr = -1 AND colnbr = -1 AND value = ?",
+                array($new_template_name)
+            );
             if ($trow['id']) {
                   $alertmsg = "Template \"" . real2form($new_template_name) .
                     "\" already exists!";
@@ -181,23 +192,33 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
         if (!$alertmsg) {
             // If updating an existing template...
             if ($tempid) {
-                sqlStatement("DELETE FROM form_$spreadsheet_form_name WHERE " .
-                "id = '$tempid' AND rownbr >= 0 AND colnbr >= 0");
+                sqlStatement(
+                    "DELETE FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
+                    " WHERE id = ? AND rownbr >= 0 AND colnbr >= 0",
+                    array($tempid)
+                );
             } // If adding a new template...
             else {
-                sqlStatement("LOCK TABLES form_$spreadsheet_form_name WRITE, log WRITE");
-                $tmprow = sqlQuery("SELECT MIN(id) AS minid FROM form_$spreadsheet_form_name");
+                sqlStatement(
+                    "LOCK TABLES " . escape_table_name('form_' . $spreadsheet_form_name) .
+                    " WRITE, log WRITE"
+                );
+                $tmprow = sqlQuery("SELECT MIN(id) AS minid FROM " .
+                  escape_table_name('form_' . $spreadsheet_form_name));
                 $tempid = $tmprow['minid'] - 1;
                 if ($tempid >= 0) {
                     $tempid = -1;
                 }
 
-                sqlInsert("INSERT INTO form_$spreadsheet_form_name ( " .
-                "id, rownbr, colnbr, datatype, value " .
-                ") VALUES ( " .
-                "$tempid, -1, -1, 0, " .
-                "'" . real2db($template_name) . "' " .
-                ")");
+                sqlInsert(
+                    "INSERT INTO " . escape_table_name('form_' . $spreadsheet_form_name) . " ( " .
+                    "id, rownbr, colnbr, datatype, value " .
+                    ") VALUES ( ?, -1, -1, 0, ? )",
+                    array(
+                        $tempid,
+                        $template_name
+                    )
+                );
                 sqlStatement("UNLOCK TABLES");
             }
 
@@ -213,17 +234,22 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
                 $celltype = substr($tmp, 0, 1) + 0;
                 $cellvalue = form2db(substr($tmp, 1));
                 if ($celltype) {
-                    sqlInsert("INSERT INTO form_$spreadsheet_form_name ( " .
-                    "id, rownbr, colnbr, datatype, value " .
-                    ") VALUES ( " .
-                    "$saveid, $i, $j, $celltype, '$cellvalue' )");
+                    sqlInsert(
+                        "INSERT INTO " . escape_table_name('form_' . $spreadsheet_form_name) .
+                        " ( id, rownbr, colnbr, datatype, value ) " .
+                        "VALUES ( ?, ?, ?, ?, ? )",
+                        array($saveid, $i, $j, $celltype, $cellvalue)
+                    );
                 }
             }
         }
     }
 } else if ($_POST['bn_delete_template'] && $tempid) {
-    sqlStatement("DELETE FROM form_$spreadsheet_form_name WHERE " .
-    "id = '$tempid'");
+    sqlStatement(
+        "DELETE FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
+        " WHERE id = ?",
+        array($tempid)
+    );
     $tempid = 0;
     $template_name = '';
 }
@@ -239,25 +265,34 @@ if ($_POST['bn_save_form'] && !$alertmsg && !$popup) {
 // an encounter form.
 
 // Get the array of template names.
-$tres = sqlStatement("SELECT id, value FROM form_$spreadsheet_form_name WHERE " .
-  "id < 0 AND rownbr = -1 AND colnbr = -1 ORDER BY value");
+$tres = sqlStatement("SELECT id, value FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
+  " WHERE id < 0 AND rownbr = -1 AND colnbr = -1 ORDER BY value");
 
 $dres = false;
 
 # If we are reloading a form, get it.
 if ($formid) {
-    $dres = sqlStatement("SELECT * FROM form_$spreadsheet_form_name WHERE " .
-    "id = '$formid' ORDER BY rownbr, colnbr");
-    $tmprow = sqlQuery("SELECT MAX(rownbr) AS rowmax, MAX(colnbr) AS colmax " .
-    "FROM form_$spreadsheet_form_name WHERE id = '$formid'");
+    $dres = sqlStatement("SELECT * FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
+    " WHERE id = ? ORDER BY rownbr, colnbr", array($formid));
+    $tmprow = sqlQuery(
+        "SELECT MAX(rownbr) AS rowmax, MAX(colnbr) AS colmax " .
+        "FROM " . escape_table_name('form_' . $spreadsheet_form_name) . " WHERE id = ?",
+        array($formid)
+    );
     $num_used_rows = $tmprow['rowmax'] + 1;
     $num_used_cols = $tmprow['colmax'] + 1;
 } # Otherwise if we are editing a template, get it.
 else if ($tempid) {
-    $dres = sqlStatement("SELECT * FROM form_$spreadsheet_form_name WHERE " .
-    "id = '$tempid' ORDER BY rownbr, colnbr");
-    $tmprow = sqlQuery("SELECT MAX(rownbr) AS rowmax, MAX(colnbr) AS colmax " .
-    "FROM form_$spreadsheet_form_name WHERE id = '$tempid'");
+    $dres = sqlStatement(
+        "SELECT * FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
+        " WHERE id = ? ORDER BY rownbr, colnbr",
+        array($tempid)
+    );
+    $tmprow = sqlQuery(
+        "SELECT MAX(rownbr) AS rowmax, MAX(colnbr) AS colmax " .
+        "FROM " . escape_table_name('form_' . $spreadsheet_form_name) . " WHERE id = ?",
+        array($tempid)
+    );
     $num_used_rows = $tmprow['rowmax'] + 1;
     $num_used_cols = $tmprow['colmax'] + 1;
 }
