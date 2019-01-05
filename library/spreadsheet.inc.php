@@ -31,12 +31,6 @@ function form2db($fldval)
     return $fldval;
 }
 
-// encode a plain string for database writing.
-function real2db($fldval)
-{
-    return addslashes($fldval);
-}
-
 // Get the actual string from a form field.
 function form2real($fldval)
 {
@@ -128,7 +122,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
                 "UPDATE " . escape_table_name('form_' . $spreadsheet_form_name) .
                 " SET value = ? WHERE id = ? AND rownbr = -1 AND colnbr = -1",
                 array(
-                    $form_completed|$start_date|$template_name,
+                    $form_completed . '|' . $start_date . '|' . $template_name,
                     $formid
                 )
             );
@@ -161,7 +155,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
                 ") VALUES ( ?, -1, -1, 0, ? )",
                 array(
                     $formid,
-                    $form_completed|$start_date|$template_name
+                    $form_completed . '|' . $start_date . '|' . $template_name
                 )
             );
             sqlStatement("UNLOCK TABLES");
@@ -184,7 +178,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
             $trow = sqlQuery(
                 "SELECT id FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
                 " WHERE id < 0 AND rownbr = -1 AND colnbr = -1 AND value = ?",
-                array(real2db($new_template_name))
+                array($new_template_name)
             );
             if ($trow['id']) {
                   $alertmsg = "Template \"" . real2form($new_template_name) .
@@ -222,7 +216,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
                     ") VALUES ( ?, -1, -1, 0, ? )",
                     array(
                         $tempid,
-                        real2db($template_name)
+                        $template_name
                     )
                 );
                 sqlStatement("UNLOCK TABLES");
