@@ -2146,24 +2146,24 @@ var allPanels = $('.building_blocks > dd').hide();
                     }
 
                   });
-
+                  $('[title]').tooltip();
                   $('#form_PCP,#form_rDOC').change(function() {
                                                    update_DOCS();   
                                                    });
 
                   $('#tooltips_status').html($('#PREFS_TOOLTIPS').val());
                   if ($("#PREFS_TOOLTIPS").val() == "<?php echo xla('Off'); ?>") {
-                  
+                    $('[title]').tooltip('destroy');
                   }
                   $('#tooltips_toggle,#tooltips_status').click(function() {
                                                                if ($("#PREFS_TOOLTIPS").val() == "<?php echo xla('On'); ?>") {
                                                                $('#PREFS_TOOLTIPS').val('<?php echo xla('Off'); ?>');
                                                                $("#tooltips_status").html('<?php echo xla('are off'); ?>');
-                                                               
+                                                                    $('[title]').tooltip('destroy');
                                                                } else {
                                                                $('#PREFS_TOOLTIPS').val('<?php echo xla('On'); ?>');
                                                                $('#tooltips_status').html('<?php echo xla('are on'); ?>');
-                                                               
+                                                               $('[title]').tooltip();
                                                                }
                                                                update_PREFS();
                                                                });
