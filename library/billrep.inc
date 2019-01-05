@@ -1,10 +1,10 @@
 <?php
-require_once(dirname(__FILE__) . "/../interface/reports/report.inc.php");
+require_once dirname(__FILE__) . "/../interface/reports/report.inc.php";
 
 /**
  * Returns an array, where the zero'th element is the billstring, and any following elements are bound params.
  *
- * @param $keyValues
+ * @param  $keyValues
  * @return array
  */
 function GenerateBillstring($keyValues)
@@ -96,7 +96,7 @@ function GenerateAuthPart($params)
  * Takes an assortments of string built key value pairs and converts them to a key value array with a 'like' or '='
  * modifier to keep track when build the 'bound' query.
  *
- * @param $finalPageCriteria
+ * @param  $finalPageCriteria
  * @return array
  */
 function loadParamsFromFinalPageCriteria($finalPageCriteria)
@@ -189,8 +189,10 @@ function getBillsBetweenReport($code_type, $cols = "id,date,pid,code_type,code,u
         $all[$iter] = $row;
     }
 
-    $query = sqlStatement("SELECT pid, 'COPAY' AS code_type, pay_amount AS code, date(post_time) AS date " .
-        "FROM ar_activity where 1=1 $query_part2 and payer_type=0 and account_code='PCP'");
+    $query = sqlStatement(
+        "SELECT pid, 'COPAY' AS code_type, pay_amount AS code, date(post_time) AS date " .
+        "FROM ar_activity where 1=1 $query_part2 and payer_type=0 and account_code='PCP'"
+    );
     //new fees screen copay gives account_code='PCP' openemr payment screen copay gives code='CO-PAY'
     for ($iter; $row = sqlFetchArray($query, $query_part2_params); $iter++) {
         $all[$iter] = $row;

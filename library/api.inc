@@ -1,6 +1,6 @@
 <?php
 //our api for 3rd party developers
-require_once(dirname(__FILE__) . "/../interface/globals.php");
+require_once dirname(__FILE__) . "/../interface/globals.php";
 
 use OpenEMR\Billing\BillingUtilities;
 
@@ -11,7 +11,7 @@ function formHeader($title = "My Form")
     ?>
     <html>
     <head>
-<?php html_header_show();?>
+    <?php html_header_show();?>
     <link rel=stylesheet href="<?php echo $GLOBALS['css_header']?>" type="text/css">
     <title><?php echo $title?></title>
     </head>
@@ -29,8 +29,9 @@ function formFooter()
 
 /**
  * Original Query: "insert into " . escape_table_name($tableName) . " set " . $attendant_type . "='" . add_escape_custom($_SESSION['pid']) . "',groupname='" . add_escape_custom($_SESSION['authProvider']) . "',user='" . add_escape_custom($_SESSION['authUser']) . "',authorized='" . add_escape_custom($authorized) . "',activity=1, date = NOW(),";
- * @param $tableName
- * @param $attendant_type
+ *
+ * @param  $tableName
+ * @param  $attendant_type
  * @return string
  */
 function buildInsertFormResultsQuery($tableName, $params)
@@ -45,8 +46,8 @@ QUERY;
 /**
  * original update " . escape_table_name($tableName) . " set pid ='" . add_escape_custom($_SESSION['pid']) . "',groupname='" . add_escape_custom($_SESSION['authProvider']) . "',user='" . add_escape_custom($_SESSION['authUser']) . "',authorized='" . add_escape_custom($authorized) . "',activity=1, date = NOW(),
  *
- * @param $tableName
- * @param $inputParams
+ * @param  $tableName
+ * @param  $inputParams
  * @return string
  */
 function buildUpdateFormResultsQuery($tableName, $inputParams)
