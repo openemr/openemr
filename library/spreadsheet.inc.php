@@ -149,7 +149,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
               " WRITE, log WRITE"
             );
             $tmprow = sqlQuery("SELECT MAX(id) AS maxid FROM " .
-              escape_table_name('form_' . $spreadsheet_form_name);
+              escape_table_name('form_' . $spreadsheet_form_name));
             $formid = $tmprow['maxid'] + 1;
             if ($formid <= 0) {
                 $formid = 1;
