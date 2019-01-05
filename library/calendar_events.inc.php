@@ -1,21 +1,31 @@
 <?php
-// Get a result set of squad events for the given squad, player and day.
-// This is only useful for sports teams.
-//
+/**
+ * @note: this appears to no longer be used.
+ * Get a result set of squad events for the given squad, player and day.
+ * This is only useful for sports teams.
+ *
+ * @param $date
+ * @param $squad
+ * @param $plid
+ * @return recordset
+ */
 function getSquadEvents($date, $squad, $plid)
 {
-    return sqlStatement("SELECT e.pc_eid, e.pc_hometext, " .
-    "e.pc_eventDate, e.pc_endDate, e.pc_startTime, " .
-    "e.pc_duration, e.pc_recurrtype, e.pc_recurrspec, " .
-    "p.pid, p.minutes, p.fitness_related " .
-    "FROM openemr_postcalendar_events AS e " .
-    "JOIN openemr_postcalendar_categories AS c ON " .
-    "c.pc_catdesc LIKE 'Squad=$squad' AND c.pc_catid = e.pc_catid " .
-    "LEFT JOIN player_event AS p ON " .
-    "p.pid = '$plid' AND p.date = '$date' AND p.pc_eid = e.pc_eid " .
-    "WHERE ((e.pc_endDate >= '$date' AND e.pc_eventDate <= '$date') OR " .
-    "(e.pc_endDate = '0000-00-00' AND e.pc_eventDate = '$date')) " .
-    "ORDER BY e.pc_startTime, e.pc_eid");
+    $params = ['Squad='.$squad, $plid, $date, $date, $date, $date];
+    $sql = <<<QUERY
+SELECT
+  e.pc_eid, e.pc_hometext, e.pc_eventDate, e.pc_endDate, e.pc_startTime, e.pc_duration, e.pc_recurrtype, e.pc_recurrspec, p.pid, p.minutes, p.fitness_related
+FROM openemr_postcalendar_events AS e
+  JOIN openemr_postcalendar_categories AS c
+    ON c.pc_catdesc LIKE ? AND c.pc_catid = e.pc_catid
+  LEFT JOIN player_event AS p
+    ON p.pid = ? AND p.date = ? AND p.pc_eid = e.pc_eid
+WHERE ((e.pc_endDate >= ? AND e.pc_eventDate <= ?)
+       OR (e.pc_endDate = '0000-00-00' AND e.pc_eventDate = ?))
+ORDER BY e.pc_startTime, e.pc_eid
+QUERY;
+
+    return sqlStatement($sql, $params);
 }
 
 // Determine if the specified event applies to the specified date (YYYY-MM-DD).

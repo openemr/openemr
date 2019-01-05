@@ -52,18 +52,15 @@ if (isset($_POST['mode'])) {
     }
 
     if ($_POST['mode'] == 'export') {
-        $sql = ReturnOFXSql();
-        $db = get_db();
-        $results = $db->Execute($sql);
+        $results = ReturnOFXSql();
         $billings = array();
-        if ($results->RecordCount() == 0) {
+        if (sizeof($results) == 0) {
             echo "<fieldset id='error_info' style='border:1px solid #ff5d5a !Important; background-color: #ff5d5a !Important; color: #fff ! Important; font-weight: bold; font-family:sans-serif; border-radius:5px; padding:20px 5px !Important;'>";
             echo xlt("No Bills Found to Include in OFX Export") . "<br>";
             echo "</fieldset>";
         } else {
-            while (!$results->EOF) {
-                $billings[] = $results->fields;
-                $results->MoveNext();
+            foreach($results as $result) {
+                $billings[] = $result->fields;
             }
             $ofx = new OFX($billings);
             header("Pragma: public");

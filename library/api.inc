@@ -27,11 +27,46 @@ function formFooter()
     <?php
 }
 
+/**
+ * Original Query: "insert into " . escape_table_name($tableName) . " set " . $attendant_type . "='" . add_escape_custom($_SESSION['pid']) . "',groupname='" . add_escape_custom($_SESSION['authProvider']) . "',user='" . add_escape_custom($_SESSION['authUser']) . "',authorized='" . add_escape_custom($authorized) . "',activity=1, date = NOW(),";
+ * @param $tableName
+ * @param $attendant_type
+ * @return string
+ */
+function buildInsertFormResultsQuery($tableName, $params)
+{
+    $escapedTableName = escape_table_name($tableName);
+    $boundColumns = implode('= ?,', array_keys($params)) . '= ?,';
+    return <<<QUERY
+INSERT INTO {$escapedTableName} SET date = NOW(), {$boundColumns};
+QUERY;
+}
+
+/**
+ * original update " . escape_table_name($tableName) . " set pid ='" . add_escape_custom($_SESSION['pid']) . "',groupname='" . add_escape_custom($_SESSION['authProvider']) . "',user='" . add_escape_custom($_SESSION['authUser']) . "',authorized='" . add_escape_custom($authorized) . "',activity=1, date = NOW(),
+ *
+ * @param $tableName
+ * @param $inputParams
+ * @return string
+ */
+function buildUpdateFormResultsQuery($tableName, $inputParams) {
+    $escapedTableName = escape_table_name($tableName);
+    $boundColumns = implode('= ?,', array_keys($inputParams)) . '= ?,';
+    return <<<QUERY
+UPDATE {$escapedTableName} SET date = NOW(), {$boundColumns} WHERE id=?;
+QUERY;
+}
+
 function formSubmit($tableName, $values, $id, $authorized = "0")
 {
-        global $attendant_type;
-
-    $sql = "insert into " . escape_table_name($tableName) . " set " .  $attendant_type . "='".add_escape_custom($_SESSION['pid'])."',groupname='".add_escape_custom($_SESSION['authProvider'])."',user='".add_escape_custom($_SESSION['authUser'])."',authorized='".add_escape_custom($authorized)."',activity=1, date = NOW(),";
+    global $attendant_type;
+    $params = [
+        $attendant_type => add_escape_custom($_SESSION['pid']),
+        'groupname' => add_escape_custom($_SESSION['authProvider']),
+        'user' => add_escape_custom($_SESSION['authUser']),
+        'authorized' => add_escape_custom($authorized),
+        'activity' => 1
+    ];
     foreach ($values as $key => $value) {
         if (strpos($key, "openemr_net_cpt") === 0) {
             //code to auto add cpt code
@@ -41,34 +76,38 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
                 BillingUtilities::addBilling(date("Ymd"), 'CPT4', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
             }
         } //case where key looks like "[a-zA-Z]*diagnosis[0-9]" which is special, it is used to auto add ICD codes
-
-        elseif (strpos($key, "diagnosis") == (strlen($key) -10) && !(strpos($key, "diagnosis")=== false )) {
+        elseif (strpos($key, "diagnosis") == (strlen($key) - 10) && !(strpos($key, "diagnosis") === false)) {
             //icd auto add ICD9-CM
             if (!empty($value)) {
                 $code_array = explode(" ", $value, 2);
                 BillingUtilities::addBilling(date("Ymd"), 'ICD9-M', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
             }
         } else {
-            $sql .= " " . escape_sql_column_name($key, array($tableName)) . " = '" . add_escape_custom($value) . "',";
+            $params[escape_sql_column_name($key, array($tableName))] = add_escape_custom($value);
         }
     }
 
-    $sql = substr($sql, 0, -1);
-    return sqlInsert($sql);
+    $sql = buildInsertFormResultsQuery($tableName, $params);
+    return sqlInsert($sql, array_values($params));
 }
 
 
 function formUpdate($tableName, $values, $id, $authorized = "0")
 {
-    $sql = "update " . escape_table_name($tableName) . " set pid ='".add_escape_custom($_SESSION['pid'])."',groupname='".add_escape_custom($_SESSION['authProvider'])."',user='".add_escape_custom($_SESSION['authUser'])."',authorized='".add_escape_custom($authorized)."',activity=1, date = NOW(),";
+    $params = [
+        'pid' =>  add_escape_custom($_SESSION['pid']),
+        'groupname' => add_escape_custom($_SESSION['authProvider']),
+        'user' => add_escape_custom($_SESSION['authUser']),
+        'authorized' => add_escape_custom($authorized),
+        'activity' => 1
+    ];
     foreach ($values as $key => $value) {
-        $sql .= " " . escape_sql_column_name($key, array($tableName)) . " = '" . add_escape_custom($value) . "',";
+        $params[escape_sql_column_name($key, array($tableName))] = add_escape_custom($value);
     }
 
-    $sql = substr($sql, 0, -1);
-    $sql .= " where id='".add_escape_custom($id)."'";
-
-    return sqlInsert($sql);
+    $sql = buildUpdateFormResultsQuery($tableName, $params);
+    $params['id'] = $id; // set the 'final' value, which isn't column bound.
+    return sqlInsert($sql, array_values($params));
 }
 
 function formJump($address = '')
@@ -87,43 +126,48 @@ function formJump($address = '')
 
 function formFetch($tableName, $id, $cols = "*", $activity = "1")
 {
-        // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
-    return sqlQuery("select $cols from `" . escape_table_name($tableName) . "` where id=? and pid = ? and activity like ? order by date DESC LIMIT 0,1", array($id,$GLOBALS['pid'],$activity)) ;
+    // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
+    return sqlQuery("select $cols from `" . escape_table_name($tableName) . "` where id=? and pid = ? and activity like ? order by date DESC LIMIT 0,1", array($id, $GLOBALS['pid'], $activity));
 }
 
 function formGetIds($tableName, $cols = "*", $limit = 'all', $start = 0, $activity = "1")
 {
+    $params = [$_SESSION['pid']];
     if ($limit == "all") {
-                // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
-                $sql = "select $cols from `" . escape_table_name($tableName) . "` where pid like '$pid' ";
+        // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
+        $sql = "select $cols from `" . escape_table_name($tableName) . "` where pid like ?";
         if ($activity != "all") {
-                $sql .= "and activity like '$activity' ";
+            $sql .= "and activity like ? ";
+            $params[] = $activity;
         }
 
-                $sql .= "order by date DESC";
+        $sql .= "order by date DESC";
     } else {
-        $sql = "select $cols from pnotes where pid like '$pid' ";
+        $sql = "select $cols from pnotes where pid like ?";
         $sql .= " AND deleted != 1 "; // exclude ALL deleted notes
         if ($activity != "all") {
-                $sql .= "and activity like '$activity' ";
+            $sql .= "and activity like ? ";
+            $params[] = $activity;
         }
 
-        $sql .= "order by date DESC LIMIT $start, $limit";
+        $sql .= "order by date DESC LIMIT ?, ?";
+        $params[] =  $start;
+        $params[] = $limit;
     }
 
-        $res = sqlStatement($sql);
+    $res = sqlStatement($sql, $params);
 
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-            $all[$iter] = $row;
+        $all[$iter] = $row;
     }
 
-        return $all;
+    return $all;
 }
 
 function formDisappear($tableName, $id)
 {
-        // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
-    if (sqlStatement("update `" . escape_table_name($tableName) . "` set activity = '0' where id='$id' and pid='$pid'")) {
+    // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
+    if (sqlStatement("update `" . escape_table_name($tableName) . "` set activity = '0' where id=? and pid=?", [$id, add_escape_custom($_SESSION['pid'])])) {
         return true;
     }
 
@@ -132,11 +176,12 @@ function formDisappear($tableName, $id)
 
 function formReappear($tableName, $id)
 {
-        // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
-    if (sqlStatement("update `" . escape_table_name($tableName) . "` set activity = '1' where id='$id' and pid='$pid'")) {
+    // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
+    if (sqlStatement("update `" . escape_table_name($tableName) . "` set activity = '1' where id=? and pid=?", [$id, add_escape_custom($_SESSION['pid'])])) {
         return true;
     }
 
     return false;
 }
+
 ?>
