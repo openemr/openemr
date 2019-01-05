@@ -103,7 +103,6 @@ function loadParamsFromFinalPageCriteria($finalPageCriteria)
 {
     $params = [];
     foreach ($finalPageCriteria as $criteria_key => $SearchItem) {
-
         if (strstr($SearchItem, ' like ') !== false) {
             $split = explode(' like ', $SearchItem);
             $params[$split[0]] = ['like', "'" . substr($split[1], 1, -1) . "'"];
@@ -156,10 +155,7 @@ function getBillsBetween($code_type, $cols = "id,date,pid,code_type,code,user,au
     return $all;
 }
 
-function getBillsBetweenReport(
-    $code_type,
-    $cols = "id,date,pid,code_type,code,user,authorized,x12_partner_id"
-)
+function getBillsBetweenReport($code_type, $cols = "id,date,pid,code_type,code,user,authorized,x12_partner_id")
 {
     $keyValues = isset($_REQUEST['final_this_page_criteria']) ? loadParamsFromFinalPageCriteria($_REQUEST['final_this_page_criteria']) : [];
 
@@ -203,12 +199,8 @@ function getBillsBetweenReport(
     return $all;
 }
 
-function getBillsListBetween(
-    $code_type,
-    $cols = "billing.id, form_encounter.date, billing.pid, billing.code_type, billing.code, billing.user"
-)
+function getBillsListBetween($code_type, $cols = "billing.id, form_encounter.date, billing.pid, billing.code_type, billing.code, billing.user")
 {
-
     $keyValues = isset($_REQUEST['final_this_page_criteria']) ? loadParamsFromFinalPageCriteria($_REQUEST['final_this_page_criteria']) : [];
 
     list($query_part, $query_part_params) = GenerateQueryPart($keyValues);

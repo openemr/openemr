@@ -49,7 +49,8 @@ QUERY;
  * @param $inputParams
  * @return string
  */
-function buildUpdateFormResultsQuery($tableName, $inputParams) {
+function buildUpdateFormResultsQuery($tableName, $inputParams)
+{
     $escapedTableName = escape_table_name($tableName);
     $boundColumns = implode('= ?,', array_keys($inputParams)) . '= ?,';
     return <<<QUERY
