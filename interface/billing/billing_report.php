@@ -60,7 +60,7 @@ if (isset($_POST['mode'])) {
             echo "</fieldset>";
         } else {
             while ($result = sqlFetchArray($results)) {
-                $billings[] = $result->fields;
+                $billings[] = $result;
             }
             $ofx = new OFX($billings);
             header("Pragma: public");
