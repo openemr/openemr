@@ -59,7 +59,7 @@ if (isset($_POST['mode'])) {
             echo xlt("No Bills Found to Include in OFX Export") . "<br>";
             echo "</fieldset>";
         } else {
-            foreach ($results as $result) {
+            while ($result = sqlFetchArray($results)) {
                 $billings[] = $result->fields;
             }
             $ofx = new OFX($billings);
