@@ -166,7 +166,7 @@ require_once("../../interface/globals.php");
                 
                 <p><?php echo xlt("For full billing functionality in the United States CPT/HCPCS codes will then need to be installed"); ?>.
                 
-                <p><?php echo xlt("Read this wiki page for more details"); ?>. <a href="http://www.open-emr.org/wiki/index.php/Code_Types" rel="noopener" target="_blank"><?php echo xlt("Installing codes in openEMR"); ?> </a>
+                <p><?php echo xlt("Read this wiki page for more details"); ?>. <a href="https://www.open-emr.org/wiki/index.php/Code_Types" rel="noopener" target="_blank"><?php echo xlt("Installing codes in openEMR"); ?> </a>
                 
                 <p><?php echo xlt("Importing the entire CPT code set after you license it from the American Medical Association would get you all the relevant CPT codes in one fell swoop"); ?>.
                 
@@ -194,7 +194,7 @@ require_once("../../interface/globals.php");
                 <h4 class="oe-help-heading"><?php echo xlt("Customize the Fee Sheet"); ?><a href="#"><i class="fa fa-arrow-circle-up float-right oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><?php echo xlt("There are several ways to customize the fee sheet. It depends on how comfortable you are in adding information to the database itself"); ?>.
                 
-                <p><?php echo xlt("Read these two wiki articles for customizing the Fee Sheet"); ?>. <strong><a href="http://www.open-emr.org/wiki/index.php/HOWTO:_Create_Multiple_Code_Fee_Sheet_List_Categories" rel="noopener" target="_blank"><?php echo xlt("Article"); ?> 1 </a></strong> <strong><a href="http://openemr.sourceforge.net/wiki/index.php/Preparing_for_Billing_and_using_the_Fee_Sheet" rel="noopener" target="_blank"><?php echo xlt("Article"); ?> 2</a></strong>
+                <p><?php echo xlt("Read these two wiki articles for customizing the Fee Sheet"); ?>. <strong><a href="https://www.open-emr.org/wiki/index.php/HOWTO:_Create_Multiple_Code_Fee_Sheet_List_Categories" rel="noopener" target="_blank"><?php echo xlt("Article"); ?> 1 </a></strong> <strong><a href="http://openemr.sourceforge.net/wiki/index.php/Preparing_for_Billing_and_using_the_Fee_Sheet" rel="noopener" target="_blank"><?php echo xlt("Article"); ?> 2</a></strong>
                 
                 <p><?php echo xlt("If you do not want to do so the following method involves adding data manually using the openEMR interface"); ?>.
                 
