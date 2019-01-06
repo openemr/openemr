@@ -2740,21 +2740,21 @@ $GLOBALS_METADATA = array(
         'gateway_public_key' => array(
             xl('Gateway Publishable Key'),
             'encrypted',
-            '5ccg4qbjvdA66pZBr4Pt2C4YEtFXmHtevE4zMLUZ3DE26yc5JrCarK5uF3MjGm5y',
+            '',
             xl('The public access key for secure tokenize of credit or debit card authorization. PCI compliance')
         ),
 
         'gateway_api_key' => array(
             xl('Gateway API Login Auth Name or Secret'),
             'encrypted',
-            '8seGJk8A4E',
+            '',
             xl('The Auth Name or API key for selected account.Auth Name for Authorize.Net and API Secret for Stripe')
         ),
 
         'gateway_transaction_key' => array(
             xl('Gateway Transaction Key'),
             'encrypted',
-            '9Peg2rE66FxP2p5p',
+            '',
             xl('Mainly Authorize.Net uses two keys')
         ),
 
