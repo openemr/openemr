@@ -374,8 +374,8 @@ class InsuranceCompany extends ORDataObject
         . "ID: " . $this->id."\n"
         . "Name: " . $this->name ."\n"
         . "Attn:" . $this->attn . "\n"
-        . "CMS ID:" . $this->cms_id . "\n"
-        . "ALT CMS ID:" . $this->alt_cms_id . "\n"
+        . "Payer ID:" . $this->cms_id . "\n"
+        . "ALT Payer ID:" . $this->alt_cms_id . "\n"
         //. "Phone: " . $this->phone_numbers[0]->toString($html) . "\n"
         . "Address: " . $this->address->toString($html) . "\n";
 

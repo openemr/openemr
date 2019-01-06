@@ -442,7 +442,7 @@ class X12_5010_837P
         "*" . "PI" .
         "*" . ($encounter_claim ? $claim->payerAltID() : $claim->payerID());
         if (!$claim->payerID()) {
-            $log .= "*** CMS ID is missing for payer '";
+            $log .= "*** Payer ID is missing for payer '";
         }
         $out .= "~\n";
         
