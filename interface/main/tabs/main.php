@@ -88,8 +88,9 @@ function goRepeaterServices(){
                 let mail = data.mailCnt;
                 let chats = data.chatCnt;
                 let audits = data.auditCnt;
+                let payments = data.paymentCnt;
                 let total = data.total;
-                let enable = (1 * mail) + (1 * audits);
+                let enable = (1 * mail) + (1 * audits); // payments are among audits.
 
                 app_view_model.application_data.user().portal(enable);
                 if (enable) {
@@ -97,6 +98,7 @@ function goRepeaterServices(){
                     app_view_model.application_data.user().portalAudits(audits);
                     app_view_model.application_data.user().portalMail(mail);
                     app_view_model.application_data.user().portalChats(chats);
+                    app_view_model.application_data.user().portalPayments(payments);
                 }
             }
         );

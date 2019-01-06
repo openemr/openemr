@@ -1,24 +1,12 @@
 <?php
 /**
+ *  Patient Portal
  *
- * Copyright (C) 2016-2018 Jerry Padgett <sjpadgett@gmail.com>
- *
- * LICENSE: This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of the
- *  License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @package OpenEMR
- * @author Jerry Padgett <sjpadgett@gmail.com>
- * @link http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Core\Header;
@@ -41,10 +29,22 @@ use OpenEMR\Core\Header;
 
 <script src="sign/assets/signpad.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
 <script src="sign/assets/signer.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
-    <script type="text/javascript">
-        var tab_mode = true; // for dialogs
-        <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
-    </script>
+<script type="text/javascript">
+    var tab_mode = true; // for dialogs
+    <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+</script>
+
+<?php if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
+    <script type="text/javascript" src="https://js.stripe.com/v3/"></script>
+<?php } ?>
+<?php if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') {
+    // Must be loaded from their server
+    $script = "https://jstest.authorize.net/v1/Accept.js"; // test script
+    if ($GLOBALS['gateway_mode_production']) {
+        $script = "https://js.authorize.net/v1/Accept.js"; // Production script
+    } ?>
+    <script type="text/javascript" src=<?php echo $script; ?> charset="utf-8"></script>
+<?php } ?>
 </head>
 <body class="skin-blue fixed">
     <header class="header">
@@ -82,8 +82,7 @@ use OpenEMR\Core\Header;
                     <li class="dropdown user user-menu"><a href="#"
                         class="dropdown-toggle" data-toggle="dropdown"> <i
                             class="fa fa-user"></i> <span><?php echo text($result['fname']." ".$result['lname']); ?>
-                                <i class="caret"></i></span>
-                    </a>
+                                <i class="caret"></i></span></a>
                         <ul class="dropdown-menu dropdown-custom dropdown-menu-right">
                             <li class="dropdown-header text-center"><?php echo xlt('Account'); ?></li>
                             <li><a href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"> <i class="fa fa-envelope-o fa-fw pull-right"></i>
@@ -99,7 +98,8 @@ use OpenEMR\Core\Header;
 
                             <li><a href="logout.php"><i class="fa fa-ban fa-fw pull-right"></i>
                                     <?php echo xlt('Logout'); ?></a></li>
-                        </ul></li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </nav>
@@ -126,7 +126,8 @@ use OpenEMR\Core\Header;
                     <li data-toggle="pill"><a href="#lists" data-toggle="collapse"
                         data-parent="#panelgroup"> <i class="fa fa-list"></i> <span><?php echo xlt('Lists'); ?></span>
                     </a></li>
-                    <li><a href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr($pid); ?>"> <i class="fa fa-gavel"></i> <span><?php echo xlt('Patient Documents'); ?></span>
+                    <li><a href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr($pid); ?>"> <i class="fa fa-gavel"></i>
+                            <span><?php echo xlt('Patient Documents'); ?></span>
                     </a></li>
                     <?php if ($GLOBALS['allow_portal_appointments']) { ?>
                         <li data-toggle="pill"><a href="#appointmentpanel" data-toggle="collapse"
@@ -135,9 +136,7 @@ use OpenEMR\Core\Header;
                     <?php } ?>
                     <?php if ($GLOBALS['portal_two_ledger'] && $GLOBALS['portal_two_payments']) { ?>
                         <li class="dropdown accounting-menu"><a href="#"
-                            class="dropdown-toggle" data-toggle="dropdown"> <i
-                                class="fa fa-book"></i> <span><?php echo xlt('Accountings'); ?></span>
-                        </a>
+                            class="dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-book"></i> <span><?php echo xlt('Accountings'); ?></span></a>
                             <ul class="dropdown-menu">
                                 <?php if ($GLOBALS['portal_two_ledger']) { ?>
                                     <li data-toggle="pill"><a href="#ledgerpanel" data-toggle="collapse"
@@ -149,7 +148,8 @@ use OpenEMR\Core\Header;
                                         data-parent="#panelgroup"> <i class="fa fa-credit-card"></i> <span><?php echo xlt('Make Payment'); ?></span>
                                     </a></li>
                                 <?php } ?>
-                             </ul></li>
+                             </ul>
+                        </li>
                     <?php } ?>
                     <li class="dropdown reporting-menu"><a href="#"
                         class="dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-calendar"></i> <span><?php echo xlt('Reports'); ?></span></a>

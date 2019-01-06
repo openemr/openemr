@@ -68,6 +68,25 @@ class ApplicationTable
 
         return $return;
     }
+
+    public function getPortalAuditRec($recid)
+    {
+        $return = false;
+        $result = false;
+        try {
+            $sql = "Select * From onsite_portal_activity Where  id = ?";
+            $return = sqlStatementNoLog($sql, $recid);
+            $result = true;
+        } catch (Exception $e) {
+            $this->errorHandler($e, $sql);
+        }
+        if ($result === true) {
+            return sqlFetchArray($return);
+        } else {
+            return false;
+        }
+    }
+
     public function getPortalAudit($patientid, $action = 'review', $activity = 'profile', $status = 'waiting', $auditflg = 1, $rtn = 'last', $oelog = true, $error = true)
     {
         $return = false;
@@ -81,12 +100,12 @@ class ApplicationTable
             );
         try {
             $sql = "Select * From onsite_portal_activity As pa Where  pa.patient_id = ? And  pa.activity = ? And  pa.require_audit = ? ".
-                                    "And pa.status = ? And  pa.pending_action = ? ORDER BY pa.date DESC LIMIT 1"; // @todo setup condional for limit
+                                    "And pa.status = ? And  pa.pending_action = ? ORDER BY pa.date ASC LIMIT 1";
             $return = sqlStatementNoLog($sql, $audit);
             $result = true;
         } catch (Exception $e) {
             if ($error) {
-                $this->errorHandler($e, $logsql, $audit);
+                $this->errorHandler($e, $sql, $audit);
             }
         }
 
