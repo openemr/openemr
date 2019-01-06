@@ -645,7 +645,7 @@ class eRxXMLBuilder
 
         while ($healthplan = sqlFetchArray($healthplans)) {
             $element = $this->getDocument()->createElement('PatientFreeformHealthplans');
-            $element->appendChild($this->createElementText('healthplanName', $this->trimData($this->stripSpecialCharacter($healthplan['name'], 35))));
+            $element->appendChild($this->createElementText('healthplanName', $this->trimData($this->stripSpecialCharacter($healthplan['name']), 35)));
 
             $elements[] = $element;
         }
