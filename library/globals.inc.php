@@ -1416,7 +1416,7 @@ $GLOBALS_METADATA = array(
         ),
         'couchdb_pass' => array(
             xl('CouchDB Password'),
-            'text',
+            'encrypted',                     // data type
             '',
             xl('Password to connect to CouchDB'),
         ),
@@ -2062,7 +2062,7 @@ $GLOBALS_METADATA = array(
 
         'phone_gateway_password' => array(
             xl('Phone Gateway Password'),
-            'text',                           // data type
+            'encrypted',                      // data type
             '',                               // default
             xl('Password for Phone Gateway.')
         ),
@@ -2683,7 +2683,7 @@ $GLOBALS_METADATA = array(
 
         'gbl_portal_cms_password' => array(
             xl('CMS Portal Password'),
-            'text',                           // data type
+            'encrypted',                      // data type
             '',
             xl('Password for the above user')
         ),
@@ -2778,7 +2778,7 @@ $GLOBALS_METADATA = array(
 
         'erx_account_password' => array(
             xl('NewCrop eRx Password'),
-            'pass',
+            'encrypted',
             '',
             xl('Account Password issued for NewCrop eRx service.')
         ),
@@ -2858,7 +2858,7 @@ $GLOBALS_METADATA = array(
 
         'weno_account_pass' => array(
             xl('Weno eRx Account Pass'),
-            'text',
+            'encrypted',                      // data type
             '7C84773D5063B20BC9E41636A091C6F17E9C1E34',
             xl('Account Id issued for Weno eRx service.')
         ),
@@ -2905,7 +2905,7 @@ $GLOBALS_METADATA = array(
 
         'phimail_password' => array(
             xl('phiMail Password'),
-            'pass',                           // data type
+            'encrypted',                      // data type
             '',
             xl('Contact EMR Direct to subscribe to the phiMail Direct messaging service')
         ),
