@@ -124,7 +124,6 @@ function getUserFacilities($uID)
 function getNamefromUsername($username)
 {
     $query = "select * from users where username like ? and username != ''", array($username);
-
     $res = sqlQuery($query);
     return $res;
 }
