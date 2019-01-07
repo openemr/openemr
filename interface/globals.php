@@ -21,11 +21,17 @@ if ($response !== true) {
     die($response);
 }
 
-// Throw error if the php openssl module is not installed or the AES-256-CBC cipher is not available.
-if (!(extension_loaded('openssl')) || !(in_array('AES-256-CBC', openssl_get_cipher_methods()))) {
-    error_log("OPENEMR ERROR: OpenEMR is not working since the php openssl module is not installed or the AES-256-CBC cipher is not available.", 0);
-    die("OpenEMR Error : OpenEMR is not working since the php openssl module is not installed or the AES-256-CBC cipher is not available.");
+// Throw error if the php openssl module is not installed.
+if (!(extension_loaded('openssl'))) {
+    error_log("OPENEMR ERROR: OpenEMR is not working since the php openssl module is not installed.", 0);
+    die("OpenEMR Error : OpenEMR is not working since the php openssl module is not installed.");
 }
+// Throw error if the openssl aes-256-cbc cipher is not available.
+if (!(in_array('aes-256-cbc', openssl_get_cipher_methods()))) {
+    error_log("OPENEMR ERROR: OpenEMR is not working since the openssl aes-256-cbc cipher is not available.", 0);
+    die("OpenEMR Error : OpenEMR is not working since the openssl aes-256-cbc cipher is not available.");
+}
+
 
 //This is to help debug the ssl mysql connection. This will send messages to php log to show if mysql connections have a cipher set up.
 $GLOBALS['debug_ssl_mysql_connection'] = false;

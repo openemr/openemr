@@ -99,7 +99,7 @@ function aes256Encrypt($sValue, $customPassword = null)
     }
 
     try {
-        $iv = random_bytes(openssl_cipher_iv_length('AES-256-CBC'));
+        $iv = random_bytes(openssl_cipher_iv_length('aes-256-cbc'));
     } catch (Error $e) {
         error_log('OpenEMR Error : Encryption is not working because of random_bytes() Error: ' . $e->getMessage());
     } catch (Exception $e) {
@@ -108,7 +108,7 @@ function aes256Encrypt($sValue, $customPassword = null)
 
     $processedValue = openssl_encrypt(
         $sValue,
-        'AES-256-CBC',
+        'aes-256-cbc',
         $sSecretKey,
         OPENSSL_RAW_DATA,
         $iv
@@ -164,7 +164,7 @@ function aes256DecryptTwo($sValue, $customPassword = null)
     }
 
 
-    $ivLength = openssl_cipher_iv_length('AES-256-CBC');
+    $ivLength = openssl_cipher_iv_length('aes-256-cbc');
     $hmacHash = mb_substr($raw, 0, 32, '8bit');
     $iv = mb_substr($raw, 32, $ivLength, '8bit');
     $encrypted_data = mb_substr($raw, ($ivLength+32), null, '8bit');
@@ -174,7 +174,7 @@ function aes256DecryptTwo($sValue, $customPassword = null)
     if (hash_equals($hmacHash, $calculatedHmacHash)) {
         return openssl_decrypt(
             $encrypted_data,
-            'AES-256-CBC',
+            'aes-256-cbc',
             $sSecretKey,
             OPENSSL_RAW_DATA,
             $iv
@@ -212,14 +212,14 @@ function aes256DecryptOne($sValue, $customPassword = null)
 
     $raw = base64_decode($sValue);
 
-    $ivLength = openssl_cipher_iv_length('AES-256-CBC');
+    $ivLength = openssl_cipher_iv_length('aes-256-cbc');
 
     $iv = substr($raw, 0, $ivLength);
     $encrypted_data = substr($raw, $ivLength);
 
     return openssl_decrypt(
         $encrypted_data,
-        'AES-256-CBC',
+        'aes-256-cbc',
         $sSecretKey,
         OPENSSL_RAW_DATA,
         $iv
