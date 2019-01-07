@@ -15,7 +15,7 @@ function getNextAppointment($pid)
 //this function returns calendar data given date and provider
 function getCalendarDay($datetime, $owner, $groupname)
 {
-	$query = "select * from calendar where time like ? and owner like ? and groupname like ? order by time", array($datetime, $owner, $groupname);
+    $query = "select * from calendar where time like ? and owner like ? and groupname like ? order by time", array($datetime, $owner, $groupname);
     $rez = sqlStatement($query);
     for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
