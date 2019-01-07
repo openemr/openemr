@@ -5,7 +5,7 @@ require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
 //function returns the next most recent appointment given a pid
 function getNextAppointment($pid)
 {
-	$query = "select * from calendar where pid = ? and time>now() order by time limit 1", array($pid);
+    $query = "select * from calendar where pid = ? and time>now() order by time limit 1", array($pid);
     $rez = sqlStatement($query);
     echo "<!-- getNextAppointment $pid -$query- -->";
     return sqlFetchArray($rez);
