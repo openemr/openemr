@@ -318,7 +318,7 @@ function fetch_reminders($pid, $appt_date)
                                 <a href='#' class='btn btn-default btn-transmit' onclick='window.open("../patient_file/printed_fee_sheet.php?fill=2", "_blank").opener = null' onsubmit='return top.restoreSession()'>
                                     <?php echo xlt('Superbills'); ?>
                                 </a>
-                                <a href='#' class='btn btn-default btn-transmit' onclick='window.open("../patient_file/addr_appt_label.php", "_blank")' onsubmit='return top.restoreSession()'>
+                                <a href='#' class='btn btn-default btn-transmit' onclick='window.open("../patient_file/addr_appt_label.php", "_blank").opener = null' onsubmit='return top.restoreSession()'>
                                     <?php echo xlt('Address Labels'); ?>
                                 </a>
                             <?php } ?>
