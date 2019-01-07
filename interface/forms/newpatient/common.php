@@ -143,6 +143,21 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
         var dte = document.getElementById('form_date').value;
         var facility = document.forms[0].facility_id.value;
         ajax_bill_loc(pid, dte, facility);
+        <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
+            $.ajax({
+                url: "./../../../library/ajax/facility_ajax_code.php",
+                method: "GET",
+                data: {
+                    mode: "get_pos",
+                    facility_id: facility
+                }})
+                .done(function (fid) {
+                    document.forms[0].pos_code.value = fid;
+                })
+                .fail(function (xhr) {
+                    console.log('error', xhr);
+                });
+        <?php } ?>
     }
 
     // Handler for Cancel clicked when creating a new encounter.
