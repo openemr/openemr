@@ -556,7 +556,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                 xl('Until then you will continue to see payment details here.') . "\n" . xl('Thank You.');
             echo json_encode($amsg);
             ?>;
-        var publicKey = <?php echo json_encode(decryptStandard($GLOBALS['gateway_public_key'])) ?>;
+        var publicKey = <?php echo json_encode(decryptStandard($GLOBALS['gateway_public_key'])); ?>;
         var apiKey = <?php echo json_encode(decryptStandard($GLOBALS['gateway_api_key'])); ?>;
 
         function calctotal() {
