@@ -42,7 +42,7 @@ class MyMailer extends PHPMailer
                 $this->SMTPAuth = $SMTP_Auth;
                 $this->Host = $GLOBALS['SMTP_HOST'];
                 $this->Username = $GLOBALS['SMTP_USER'];
-                $this->Password = (!empty($GLOBALS['SMTP_PASS'])) ? decryptStandard($GLOBALS['SMTP_PASS']) : '';
+                $this->Password = decryptStandard($GLOBALS['SMTP_PASS']);
                 $this->Port = $GLOBALS['SMTP_PORT'];
                 $this->SMTPSecure = $GLOBALS['SMTP_SECURE'];
                 break;

@@ -42,6 +42,10 @@ function encryptStandard($value, $customPassword = null)
  */
 function decryptStandard($value, $customPassword = null)
 {
+    if (empty($value)) {
+        return "";
+    }
+
     # Collect the encrypt/decrypt version and remove it from the value
     $encryptionVersion = intval(mb_substr($value, 0, 3, '8bit'));
     $trimmedValue = mb_substr($value, 3, null, '8bit');
@@ -63,6 +67,10 @@ function decryptStandard($value, $customPassword = null)
  */
 function cryptCheckStandard($value)
 {
+    if (empty($value)) {
+        return false;
+    }
+
     if (preg_match('/^\d\d\d/', $value)) {
         return true;
     } else {
