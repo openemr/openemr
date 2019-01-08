@@ -554,10 +554,10 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
         var chargeMsg = <?php $amsg = xl('Payment was successfully authorized and your card is charged.') . "\n" .
                 xl("You will be notified when your payment is applied for this invoice.") . "\n" .
                 xl('Until then you will continue to see payment details here.') . "\n" . xl('Thank You.');
-            echo json_encode($amsg); // backward compatable 5.0.1
+            echo json_encode($amsg);
             ?>;
-        var publicKey = <?php echo json_encode($GLOBALS['gateway_public_key']); ?>;
-        var apiKey = <?php echo json_encode($GLOBALS['gateway_api_key']); ?>;
+        var publicKey = <?php echo json_encode(decryptStandard($GLOBALS['gateway_public_key'])) ?>;
+        var apiKey = <?php echo json_encode(decryptStandard($GLOBALS['gateway_api_key'])); ?>;
 
         function calctotal() {
             var flag = 0;
@@ -870,6 +870,11 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
 
         $('#openPayModal').on('show.bs.modal', function () {
             let total = $("#form_paytotal").val();
+            if(Number(total) < 1) {
+                let error = <?php echo json_encode("Please enter a payment amount"); ?>;
+                alert(error);
+                return false;
+            }
             $("#payTotal").text(total);
             $("#paymentAmount").val(total);
         });
@@ -1522,13 +1527,13 @@ if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
                 function acceptResponseHandler(response) {
                     if (response.messages.resultCode === "Error") {
                         let i = 0;
+                        let errorMsg = '';
                         while (i < response.messages.message.length) {
-                            console.log(
-                                response.messages.message[i].code + ": " +
-                                response.messages.message[i].text
-                            );
+                            errorMsg = errorMsg + response.messages.message[i].code + ": " +response.messages.message[i].text;
+                            console.log(errorMsg);
                             i = i + 1;
                         }
+                        alert(errorMsg);
                     } else {
                         paymentFormUpdate(response.opaqueData);
                     }

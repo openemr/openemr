@@ -44,6 +44,10 @@ if ($_POST['mode'] == 'AuthorizeNet') {
     $transaction['opaqueDataValue'] = $_POST['dataValue'];
     try {
         $response = $pay->submitPaymentToken($transaction);
+        if (is_string($response)) {
+            echo $response;
+            exit();
+        }
         $r = $response->getParsedData();
         $cc = array();
         $cc["cardHolderName"] = $_POST["cardHolderName"];
@@ -77,8 +81,11 @@ if ($_POST['mode'] == 'Stripe') {
     $transaction['token'] = $_POST['stripeToken'];
     try {
         $response = $pay->submitPaymentToken($transaction);
+        if (is_string($response)) {
+            echo $response;
+            exit();
+        }
         $r = $response->getSource();
-
         $cc = array();
         $cc["cardHolderName"] = $_POST["cardHolderName"];
         $cc['status'] = $response->isSuccessful() ? "Payment Successful" : "Failed";
