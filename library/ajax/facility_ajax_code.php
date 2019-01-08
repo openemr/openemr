@@ -21,11 +21,11 @@ if (!verifyCsrfToken($_POST["csrf_token_form"])) {
     csrfNotVerified();
 }
 
-if ($_REQUEST['mode'] == 'get_pos') {
+if ($_POST['mode'] == 'get_pos') {
     // put here for encounter facility changes sjp
     //
-    $fid = $_REQUEST['facility_id'] ? (int)$_REQUEST['facility_id'] : exit('0');
-    $pos = sqlQueryNoLog("SELECT pos_code FROM facility WHERE id = ?", array($fid));
+    $fid = $_POST['facility_id'] ? (int)$_POST['facility_id'] : exit('0');
+    $pos = sqlQuery("SELECT pos_code FROM facility WHERE id = ?", array($fid));
     echo ((int)$pos['pos_code'] < 10) ? ("0" . $pos['pos_code']) : $pos['pos_code'];
     exit();
 }

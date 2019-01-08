@@ -146,10 +146,11 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
         <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
             $.ajax({
                 url: "./../../../library/ajax/facility_ajax_code.php",
-                method: "GET",
+                method: "POST",
                 data: {
                     mode: "get_pos",
-                    facility_id: facility
+                    facility_id: facility,
+                    csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
                 }})
                 .done(function (fid) {
                     document.forms[0].pos_code.value = fid;
