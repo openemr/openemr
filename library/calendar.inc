@@ -15,7 +15,7 @@ function getNextAppointment($pid)
 //this function returns calendar data given date and provider
 function getCalendarDay($datetime, $owner, $groupname)
 {
-    $query = "select * from calendar where time like ? and owner like ? and groupname like ? order by time", array($datetime, $owner, $groupname);
+    $query = "select * from calendar where time like ? and owner like ? and groupname like ? order by time", array($datetime. '%', $owner, $groupname);
     $rez = sqlStatement($query);
     for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
@@ -151,7 +151,7 @@ function getCalendarRanges($fromdate, $todate, $username)
 //get calendar dates in a range of dates
 function getCalendarbyTimeandRange($time, $fromdate, $todate, $username)
 {
-    $query = "select * from calendar where time like ? and time>= ? and time< ? and owner like ? order by time", array($time, $fromdate, $todate, $username);
+    $query = "select * from calendar where time like ? and time>= ? and time< ? and owner like ? order by time", array('%' .$time. '%', $fromdate, $todate, $username);
     $rez = sqlStatement($query);
     for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
