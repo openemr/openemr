@@ -21,9 +21,18 @@ if (!verifyCsrfToken($_POST["csrf_token_form"])) {
     csrfNotVerified();
 }
 
-$pid=$_POST['pid'];
-$facility=$_POST['facility'];
-$date=$_POST['date'];
-$q=sqlStatement("SELECT pc_billing_location FROM openemr_postcalendar_events WHERE pc_pid=? AND pc_eventDate=? AND pc_facility=?", array($pid,$date,$facility));
-$row=sqlFetchArray($q);
+if ($_REQUEST['mode'] == 'get_pos') {
+    // put here for encounter facility changes sjp
+    //
+    $fid = $_REQUEST['facility_id'] ? (int)$_REQUEST['facility_id'] : exit('0');
+    $pos = sqlQueryNoLog("SELECT pos_code FROM facility WHERE id = ?", array($fid));
+    echo ((int)$pos['pos_code'] < 10) ? ("0" . $pos['pos_code']) : $pos['pos_code'];
+    exit();
+}
+
+$pid = $_POST['pid'];
+$facility = $_POST['facility'];
+$date = $_POST['date'];
+$q = sqlStatement("SELECT pc_billing_location FROM openemr_postcalendar_events WHERE pc_pid=? AND pc_eventDate=? AND pc_facility=?", array($pid, $date, $facility));
+$row = sqlFetchArray($q);
 billing_facility('billing_facility', $row['pc_billing_location']);
