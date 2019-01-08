@@ -25,8 +25,8 @@ class PaymentGateway
     public function __construct($name)
     {
         $this->production = !$GLOBALS['gateway_mode_production'];
-        $this->apiKey = $GLOBALS['gateway_api_key'] ? decryptStandard($GLOBALS['gateway_api_key']) : '';
-        $this->transactionKey = $GLOBALS['gateway_transaction_key'] ? decryptStandard($GLOBALS['gateway_transaction_key']) : '';
+        $this->apiKey = decryptStandard($GLOBALS['gateway_api_key']);
+        $this->transactionKey = decryptStandard($GLOBALS['gateway_transaction_key']);
         // Setup payment Gateway
         $this->setGateway($name);
     }
