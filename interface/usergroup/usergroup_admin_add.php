@@ -276,7 +276,7 @@ if ($fres) {
 </tr>
 <tr>
 <td><span class="text"><?php echo xlt('Federal Tax ID'); ?>: </span></td><td><input type=entry name='federaltaxid' style="width:120px;" class="form-control"></td>
-<td><span class="text"><?php echo xlt('Federal Drug ID'); ?>: </span></td><td><input type=entry name='federaldrugid' style="width:120px;" class="form-control"></td>
+<td><span class="text"><?php echo xlt('DEA number'); ?>: </span></td><td><input type=entry name='federaldrugid' style="width:120px;" class="form-control"></td>
 </tr>
 <tr>
 <td><span class="text"><?php echo xlt('UPIN'); ?>: </span></td><td><input type="entry" name="upin" style="width:120px;" class="form-control"></td>
