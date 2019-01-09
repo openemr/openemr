@@ -17,14 +17,24 @@
 require_once("../../interface/globals.php");
 require_once("$srcdir/options.inc.php");
 
-if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-    csrfNotVerified();
+if (empty($_POST) && empty($_GET)) {
+    die;
+}
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
+if (!empty($_GET)) {
+    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+        csrfNotVerified();
+    }
 }
 
-if ($_POST['mode'] == 'get_pos') {
+if ($_GET['mode'] == 'get_pos') {
     // put here for encounter facility changes sjp
     //
-    $fid = $_POST['facility_id'] ? (int)$_POST['facility_id'] : exit('0');
+    $fid = $_GET['facility_id'] ? (int)$_GET['facility_id'] : exit('0');
     $pos = sqlQuery("SELECT pos_code FROM facility WHERE id = ?", array($fid));
     echo ((int)$pos['pos_code'] < 10) ? ("0" . $pos['pos_code']) : $pos['pos_code'];
     exit();

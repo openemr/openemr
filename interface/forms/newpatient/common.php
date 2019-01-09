@@ -146,7 +146,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
         <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
             $.ajax({
                 url: "./../../../library/ajax/facility_ajax_code.php",
-                method: "POST",
+                method: "GET",
                 data: {
                     mode: "get_pos",
                     facility_id: facility,
