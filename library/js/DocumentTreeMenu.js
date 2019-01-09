@@ -305,15 +305,15 @@ function arrayCopy(input)
 			*/
 			if (fireEvents) {
 				nodeObject = this.nodeRefs[layerID];
-	
+
 				if (nodeObject.ontoggle != null) {
-					eval(nodeObject.ontoggle);
+					nodeObject.ontoggle();
 				}
-				
+			
 				if (newDisplay == 'none' && nodeObject.oncollapse != null) {
-					eval(nodeObject.oncollapse);
+					nodeObject.oncollapse();
 				} else if (newDisplay == 'inline' && nodeObject.onexpand != null){
-					eval(nodeObject.onexpand);
+					nodeObject.onexpand();
 				}
 			}
 
