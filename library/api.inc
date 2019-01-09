@@ -13,7 +13,7 @@ function formHeader($title = "My Form")
     <head>
 <?php html_header_show();?>
     <link rel=stylesheet href="<?php echo $GLOBALS['css_header']?>" type="text/css">
-    <title><?php echo $title?></title>
+    <title><?php echo text($title); ?></title>
     </head>
     <body background="<?php echo $GLOBALS['backpic']?>" topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
     <?php
@@ -31,7 +31,8 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
 {
         global $attendant_type;
 
-    $sql = "insert into " . escape_table_name($tableName) . " set " .  $attendant_type . "='".add_escape_custom($_SESSION['pid'])."',groupname='".add_escape_custom($_SESSION['authProvider'])."',user='".add_escape_custom($_SESSION['authUser'])."',authorized='".add_escape_custom($authorized)."',activity=1, date = NOW(),";
+    $sqlBindingArray = [$_SESSION['pid'], $_SESSION['authProvider'], $_SESSION['authUser'], $authorized];
+    $sql = "insert into " . escape_table_name($tableName) . " set " .  escape_sql_column_name($attendant_type, array($tableName)) . "=?, groupname=?, user=?, authorized=?, activity=1, date = NOW(),";
     foreach ($values as $key => $value) {
         if (strpos($key, "openemr_net_cpt") === 0) {
             //code to auto add cpt code
@@ -49,26 +50,30 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
                 BillingUtilities::addBilling(date("Ymd"), 'ICD9-M', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
             }
         } else {
-            $sql .= " " . escape_sql_column_name($key, array($tableName)) . " = '" . add_escape_custom($value) . "',";
+            $sql .= " " . escape_sql_column_name($key, array($tableName)) . " = ?,";
+            $sqlBindingArray[] = $value;
         }
     }
 
     $sql = substr($sql, 0, -1);
-    return sqlInsert($sql);
+    return sqlInsert($sql, $sqlBindingArray);
 }
 
 
 function formUpdate($tableName, $values, $id, $authorized = "0")
 {
-    $sql = "update " . escape_table_name($tableName) . " set pid ='".add_escape_custom($_SESSION['pid'])."',groupname='".add_escape_custom($_SESSION['authProvider'])."',user='".add_escape_custom($_SESSION['authUser'])."',authorized='".add_escape_custom($authorized)."',activity=1, date = NOW(),";
+    $sqlBindingArray = [$_SESSION['pid'], $_SESSION['authProvider'], $_SESSION['authUser'], $authorized];
+    $sql = "update " . escape_table_name($tableName) . " set pid =?, groupname=?, user=? ,authorized=?, activity=1, date = NOW(),";
     foreach ($values as $key => $value) {
-        $sql .= " " . escape_sql_column_name($key, array($tableName)) . " = '" . add_escape_custom($value) . "',";
+        $sql .= " " . escape_sql_column_name($key, array($tableName)) . " = ?,";
+        $sqlBindingArray[] = $value;
     }
 
     $sql = substr($sql, 0, -1);
-    $sql .= " where id='".add_escape_custom($id)."'";
+    $sql .= " where id=?";
+    $sqlBindingArray[] = $id;
 
-    return sqlInsert($sql);
+    return sqlInsert($sql, $sqlBindingArray);
 }
 
 function formJump($address = '')
@@ -76,7 +81,7 @@ function formJump($address = '')
     echo "<script>\n";
     if ($address) {
         echo "top.restoreSession();\n";
-        echo "location.href = '" . addslashes($address) . "';\n";
+        echo "location.href = " . js_escape($address) . ";\n";
     } else {
         echo "parent.closeTab(window.name, true);\n";
     }
@@ -93,37 +98,42 @@ function formFetch($tableName, $id, $cols = "*", $activity = "1")
 
 function formGetIds($tableName, $cols = "*", $limit = 'all', $start = 0, $activity = "1")
 {
+    $sqlBindingArray = array();
     if ($limit == "all") {
-                // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
-                $sql = "select $cols from `" . escape_table_name($tableName) . "` where pid like '$pid' ";
+        // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
+        $sql = "select $cols from `" . escape_table_name($tableName) . "` where pid like ? ";
+        $sqlBindingArray[] = $pid;
         if ($activity != "all") {
-                $sql .= "and activity like '$activity' ";
+            $sql .= "and activity like ? ";
+            $sqlBindingArray[] = $activity;
         }
 
-                $sql .= "order by date DESC";
+            $sql .= "order by date DESC";
     } else {
-        $sql = "select $cols from pnotes where pid like '$pid' ";
+        $sql = "select $cols from pnotes where pid like ? ";
+        $sqlBindingArray[] = $pid;
         $sql .= " AND deleted != 1 "; // exclude ALL deleted notes
         if ($activity != "all") {
-                $sql .= "and activity like '$activity' ";
+            $sql .= "and activity like ? ";
+            $sqlBindingArray[] = $activity;
         }
 
-        $sql .= "order by date DESC LIMIT $start, $limit";
+        $sql .= "order by date DESC LIMIT " . escape_limit($start) . ", " . escape_limit($limit);
     }
 
-        $res = sqlStatement($sql);
+        $res = sqlStatement($sql, $sqlBindingArray);
 
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-            $all[$iter] = $row;
+        $all[$iter] = $row;
     }
 
-        return $all;
+    return $all;
 }
 
 function formDisappear($tableName, $id)
 {
         // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
-    if (sqlStatement("update `" . escape_table_name($tableName) . "` set activity = '0' where id='$id' and pid='$pid'")) {
+    if (sqlStatement("update `" . escape_table_name($tableName) . "` set activity = '0' where id=? and pid=?", [$id, $pid])) {
         return true;
     }
 
@@ -133,7 +143,7 @@ function formDisappear($tableName, $id)
 function formReappear($tableName, $id)
 {
         // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
-    if (sqlStatement("update `" . escape_table_name($tableName) . "` set activity = '1' where id='$id' and pid='$pid'")) {
+    if (sqlStatement("update `" . escape_table_name($tableName) . "` set activity = '1' where id=? and pid=?", [$id, $pid])) {
         return true;
     }
 
