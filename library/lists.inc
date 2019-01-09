@@ -98,15 +98,15 @@ $ISSUE_CLASSIFICATIONS = array(
 
 function getListById($id, $cols = "*")
 {
-    return sqlQuery("select $cols from lists where id='$id' order by date DESC limit 0,1");
+    return sqlQuery("select ? from lists where id=? order by date DESC limit 0,1", array($cols, $id));
 }
 
 function getListByType($pid, $type, $cols = "*", $active = "all", $limit = "all", $offset = "0")
 {
     if ($active == "all") {
-        $sql = "select $cols from lists where pid='$pid' and type='$type' order by date DESC";
+        $sql = "select ? from lists where pid=? and type=? order by date DESC", array($cols, $pid, $type);
     } else {
-        $sql = "select $cols from lists where pid='$pid' and type='$type' and activity='$active' order by date DESC";
+        $sql = "select ? from lists where pid=? and type=? and activity=? order by date DESC", array($cols, $pid, $type, $active);
     }
 
     if ($limit != "all") {
@@ -123,18 +123,18 @@ function getListByType($pid, $type, $cols = "*", $active = "all", $limit = "all"
 
 function addList($pid, $type, $title, $comments, $activity = "1")
 {
-    return sqlInsert("insert into lists (date, pid, type, title, activity, comments, user, groupname) values (NOW(), '$pid', '$type', '$title', '$activity', '$comments', '".$_SESSION['authUser']."', '".$_SESSION['authProvider']."')");
+    return sqlInsert("insert into lists (date, pid, type, title, activity, comments, user, groupname) values (NOW(), ?, ?, ?, ?, ?, ?, ?)", array($pid, $type, $title, $activity, $comments, .$_SESSION['authUser']., .$_SESSION['authProvider'].));
 }
 
 function disappearList($id)
 {
-    sqlStatement("update lists set activity = '0' where id='$id'");
+    sqlStatement("update lists set activity = '0' where id=?", array($id));
     return true;
 }
 
 function reappearList($id)
 {
-    sqlStatement("update lists set activity = '1' where id='$id'");
+    sqlStatement("update lists set activity = '1' where id=?", array($id));
     return true;
 }
 
