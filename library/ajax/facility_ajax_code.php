@@ -17,18 +17,8 @@
 require_once("../../interface/globals.php");
 require_once("$srcdir/options.inc.php");
 
-if (empty($_POST) && empty($_GET)) {
-    die;
-}
-if (!empty($_POST)) {
-    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
-        csrfNotVerified();
-    }
-}
-if (!empty($_GET)) {
-    if (!verifyCsrfToken($_GET["csrf_token_form"])) {
-        csrfNotVerified();
-    }
+if (!verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+    csrfNotVerified();
 }
 
 if ($_GET['mode'] == 'get_pos') {
