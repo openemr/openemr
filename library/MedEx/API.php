@@ -813,10 +813,29 @@ class Events extends Base
                 
                 if (!empty($event['appt_stats'])) {
                     $prepare_me ='';
-                    $appt_stats = explode('|', $event['appt_stats']);
-                    foreach ($appt_stats as $appt_stat) {
+                    $no_fu          = '';
+                    if ($event['appt_stats'] =="?") {
+                        // "?" is a NoShow patient calendar appointment status
+                        // if no appt is made now+ 1year (=$no_interval) send
+                        // change $no_interval (unit is days) to suit your needs
+                        $no_fu= $event['E_fire_time'];
+                        $no_interval = "30";
                         $prepare_me .= "?,";
-                        $escapedArr[]=$appt_stat;
+                        $escapedArr[]=$event['appt_stats'];
+                    } elseif ($event['appt_stats'] =="p") {
+                        // "p" is a PROSPECTIVE patient calendar appointment status
+                        // if no appt is made now+ 1year (=$no_interval) send
+                        // change $no_interval (unit is days) to suit your needs
+                        $no_fu= $event['E_fire_time'];
+                        $no_interval = "365";
+                        $prepare_me .= "?,";
+                        $escapedArr[]=$event['appt_stats'];
+                    } else {
+                        $appt_stats = explode('|', $event['appt_stats']);
+                        foreach ($appt_stats as $appt_stat) {
+                            $prepare_me .= "?,";
+                            $escapedArr[]=$appt_stat;
+                        }
                     }
                     $prepare_me = rtrim($prepare_me, ",");
                     $appt_status = " AND cal.pc_apptstatus in (".$prepare_me.") ";
@@ -957,6 +976,17 @@ class Events extends Base
                     if ($results==false) {
                             continue; //not happening - either not allowed or not possible
                     }
+                    if ($no_fu) {
+                        $sql_NoFollowUp = "SELECT pc_pid FROM openemr_postcalendar_events WHERE
+                                pc_eventDate > '". $appt['pc_pid'] ."' AND
+                                pc_eventDate > ( '". $appt['pc_eventDate']. "' + INTERVAL ". $no_interval ." DAY)";
+                        $result = sqlQuery($sql_NoFollowUp);
+                        $this->MedEx->logging->log_this($result);
+                        if (count($result) > '') {
+                            continue;
+                        }
+               
+                    }
                     if ($appt['pc_recurrtype'] !='0') {
                         $recurrents = $this->addRecurrent($appt, "+", $start_date, $end_date, "GOGREEN");
                         $count_recurrents += $recurrents;
@@ -995,10 +1025,9 @@ class Events extends Base
                     $appt3[] = $appt2;
                 }
                 
-                $this->MedEx->logging->log_this("Stop");
             }
         }
-
+        $this->MedEx->logging->log_this("Done generating events\ntoken=".$token."\n");
         if (!empty($RECALLS_completed)) {
             $deletes = $this->process_deletes($token, $RECALLS_completed);
         }
@@ -1122,8 +1151,7 @@ class Events extends Base
             
             #Add a new tracker item for this appt.
             $datetime = date("Y-m-d H:i:s");
-            sqlInsert(
-                "INSERT INTO `patient_tracker` " .
+            sqlInsert("INSERT INTO `patient_tracker` " .
                                 "(`date`, `apptdate`, `appttime`, `eid`, `pid`, `original_user`, `encounter`, `lastseq`) " .
                                 "VALUES (?,?,?,?,?,'MedEx','0','1')",
                 array($datetime, $selected_date, $appt['pc_startTime'], $pc_eid, $appt['pc_pid'])
@@ -1431,20 +1459,21 @@ class Events extends Base
         return $age;
     }
 
-    private function getDatesInRecurring($appt, $interval, $start_days = '', $end_days = '')
-    {
+    private function getDatesInRecurring($appt, $interval, $start_days='', $end_days='') {
         $start = date('Y-m-d', strtotime($interval.$start_days . ' day'));
         $end = date('Y-m-d', strtotime($interval.$end_days . ' day'));
         $aryRange=array();
 
-        $iDateFrom=mktime(1, 0, 0, substr($start, 5, 2), substr($start, 8, 2), substr($start, 0, 4));
-        $iDateTo=mktime(1, 0, 0, substr($end, 5, 2), substr($end, 8, 2), substr($end, 0, 4));
+        $iDateFrom=mktime(1,0,0,substr($start,5,2),     substr($start,8,2),substr($start,0,4));
+        $iDateTo=mktime(1,0,0,substr($end,5,2),     substr($end,8,2),substr($end,0,4));
 
-        if ($iDateTo>=$iDateFrom) {
-            array_push($aryRange, date('Y-m-d', $iDateFrom)); // first entry
-            while ($iDateFrom<$iDateTo) {
+        if ($iDateTo>=$iDateFrom)
+        {
+            array_push($aryRange,date('Y-m-d',$iDateFrom)); // first entry
+            while ($iDateFrom<$iDateTo)
+            {
                 $iDateFrom+=86400; // add 24 hours
-                array_push($aryRange, date('Y-m-d', $iDateFrom));
+                array_push($aryRange,date('Y-m-d',$iDateFrom));
             }
         }
         $this->MedEx->logging->log_this($aryRange);
@@ -3036,7 +3065,7 @@ if (!empty($logged_in['products']['not_ordered'])) {
             $fields['pid_list'] = $responseA['pid_list'];
             $fields['list_hits']  = $responseA['list_hits'];
         }
-        $this->curl->setUrl($this->MedEx->getUrl('custom/SMS_bot&token='.$logged_in['token']));
+        $this->curl->setUrl($this->MedEx->getUrl('custom/SMS_bot&token='.$logged_in['token']."&r=".$logged_in['display']));
         $this->curl->setData($fields);
         $this->curl->makeRequest();
         $response = $this->curl->getResponse();
@@ -3048,6 +3077,13 @@ if (!empty($logged_in['products']['not_ordered'])) {
         }
         return false;
     }
+    
+    /**
+     * This function synchronizes a patient demographic data with MedEx
+     * @param $pid
+     * @param $logged_in
+     * @return mixed
+     */
     public function syncPat($pid, $logged_in)
     {
         if ($pid == 'pat_list') {
@@ -3483,9 +3519,8 @@ class MedEx
             $response['success']    = "200";
         }
         $sql = "UPDATE medex_prefs set status = ?";
-        $info['status'] = json_encode($response);
-        sqlQuery($sql, array($info['status']));
-        return $info;
+        sqlQuery($sql, array(json_encode($response)));
+        return $response;
     }
     
     public function login($force = '')
@@ -3512,8 +3547,9 @@ class MedEx
         }
         if (($expired =='1') || ($force=='1')) {
             $info = $this->just_login($info);
+        } else {
+            $info['status'] = json_decode($info['status'], true);
         }
-        $info['status'] = json_decode($info['status'], true);
         if (isset($info['status']['success']) && isset($info['status']['token'])) {
             return $info;
         } else if (isset($info['error'])) {
