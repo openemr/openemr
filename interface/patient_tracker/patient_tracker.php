@@ -211,7 +211,6 @@ if (!$_REQUEST['flb_table']) {
             border-radius: 8px;
             padding: 10px;
             margin: 15px auto;
-            min-width: 400px;
             overflow: hidden;
         }
 

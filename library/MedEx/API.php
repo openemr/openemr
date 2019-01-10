@@ -3088,9 +3088,17 @@ if (!empty($logged_in['products']['not_ordered'])) {
     {
         if ($pid == 'pat_list') {
             global $data;
-            $values = $_REQUEST['outpatient'];
-            $sqlSync = "SELECT * FROM patient_data WHERE fname LIKE ? OR lname LIKE ? LIMIT 20";
-            $datas = sqlStatement($sqlSync, array("%".$values."%","%".$values."%"));
+            $values = rtrim($_POST['outpatient']);
+            $match = preg_split("/(?<=\w)\b\s*[!?.]*/", $values, -1, PREG_SPLIT_NO_EMPTY);
+            if ((preg_match('/ /', $values)) && (!empty($match[1])) ){
+                $sqlSync = "SELECT * FROM patient_data WHERE (fname LIKE ? OR fname LIKE ?) AND (lname LIKE ? OR lname LIKE ?) LIMIT 20";
+                $datas = sqlStatement($sqlSync, array("%".$match[0]."%","%".$match[1]."%","%".$match[0]."%","%".$match[1]."%"));
+            } else {
+                $sqlSync = "SELECT * FROM patient_data WHERE fname LIKE ? OR lname LIKE ? LIMIT 20";
+                $datas = sqlStatement($sqlSync, array("%".$values."%","%".$values."%"));
+            }
+            
+            
             while ($hit = sqlFetchArray($datas)) {
                 $data['list'][] = $hit;
                 $pid_list[] = $hit['pid'];
@@ -3551,11 +3559,11 @@ class MedEx
             $info['status'] = json_decode($info['status'], true);
         }
         if (isset($info['status']['success']) && isset($info['status']['token'])) {
-            return $info;
+            return $info['status'];
         } else if (isset($info['error'])) {
             $this->lastError = $info['error'];
             sqlQuery("UPDATE `background_services` SET `active`='0' WHERE `name`='MedEx'");
-            return $info;
+            return $info['status'];
         }
         return false;
     }

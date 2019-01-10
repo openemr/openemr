@@ -9,6 +9,7 @@
  * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
  */
 
+
 require_once "../../globals.php";
 require_once "$srcdir/acl.inc";
 require_once "$srcdir/lists.inc";
@@ -17,18 +18,26 @@ require_once "$srcdir/patient.inc";
 require_once "$srcdir/MedEx/API.php";
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
+
+
 if ($_REQUEST['go'] == 'sms_search') {
     $param = "%" . $_GET['term'] . "%";
     $query = "SELECT * FROM patient_data WHERE fname LIKE ? OR lname LIKE ?";
     $result = sqlStatement($query, array($param, $param));
     while ($frow = sqlFetchArray($result)) {
-        $data['Label'] = 'Name';
-        $data['value'] = $frow['fname'] . " " . $frow['lname'];
-        $data['pid'] = $frow['pid'];
-        $data['mobile'] = $frow['phone_cell'];
-        $data['allow'] = $frow['hipaa_allowsms'];
+        $data['Label']  = 'Name';
+        $data['value']  = text($frow['fname'] . " " . $frow['lname']);
+        $data['pid']    = text($frow['pid']);
+        $data['mobile'] = text($frow['phone_cell']);
+        $data['allow']  = text($frow['hipaa_allowsms']);
+        $sql = "SELECT * FROM `medex_outgoing` where msg_pid=? ORDER BY `medex_outgoing`.`msg_uid` DESC LIMIT 1";
+        $data['sql'] = $sql;
+        $result2 = sqlQuery($sql, array($frow['pid']));
+        $data['msg_last_updated'] = $result2['msg_date'];
+        $data['medex_uid'] = $result2['medex_uid'];
         $results[] = $data;
     }
+    
     echo json_encode($results);
     exit;
 }
@@ -99,6 +108,8 @@ if ($_REQUEST['MedEx'] == "start") {
             $data['logo_url'] = $prefix . $_SERVER['HTTP_HOST'] . $GLOBALS['images_static_relative'] . "/menu-logo.png";
         }
         $response = $MedEx->setup->autoReg($data);
+        $MedEx->logging->log_this("Returned from autoReg called from save.php");
+        $MedEx->logging->log_this($response);
         if (($response['API_key'] > '') && ($response['customer_id'] > '')) {
             sqlQuery("DELETE FROM medex_prefs");
             $runQuery = "SELECT * FROM facility ORDER BY name";
@@ -120,16 +131,15 @@ if ($_REQUEST['MedEx'] == "start") {
 							VALUES (?,?,?,?,?,?,?,?,?,?)";
             sqlStatement($sqlINSERT, array($response['customer_id'], $response['API_key'], $_POST['new_email'], $facilities, $providers, "1", "1", "1", "1", "5160"));
             sqlQuery("UPDATE `background_services` SET `active`='1',`execute_interval`='5' WHERE `name`='MedEx'");
-        }
 
-        $info = $MedEx->login('1');
+            $info = $MedEx->login('1');
 
-        if ($info['status']['token']) {
-            $info['status']['show'] = xlt("Sign-up successful for") . " " . $data['company'] . ".<br />" . xlt("Proceeding to Preferences") . ".<br />" .
-                xlt("If this page does not refresh, reload the Messages page manually") . ".<br />";
-            //get js to reroute user to preferences.
-            echo json_encode($info['status']);
-            sqlQuery("UPDATE `background_services` SET `active`='1',`execute_interval`='29' WHERE `name`='MedEx'");
+            if ($info['status']['token']) {
+                $info['status']['show'] = xlt("Sign-up successful for") . " " . $data['company'] . ".<br />" . xlt("Proceeding to Preferences") . ".<br />" . xlt("If this page does not refresh, reload the Messages page manually") . ".<br />";
+                //get js to reroute user to preferences.
+                echo json_encode($info['status']);
+                sqlQuery("UPDATE `background_services` SET `active`='1',`execute_interval`='5' WHERE `name`='MedEx'");
+            }
         } else {
             $response_prob = array();
             $response_prob['show'] = xlt("We ran into some problems connecting your EHR to the MedEx servers") . ".<br >
