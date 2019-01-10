@@ -27,7 +27,7 @@ Generic Access Control List
 Mike Benoit (<a href="mailto:ipso@snappymail.ca">ipso@snappymail.ca</a>)<br>
 James Russell (<a href="mailto:james-phpgacl@ps2-pro.com">james-phpgacl@ps2-pro.com</a>)<br>
 Karsten Dambekalns (<a href="mailto:k.dambekalns@fishfarm.de">k.dambekalns@fishfarm.de</a>)<br>
-Русский перевод Феськов Кузьма (<a href="mailto:kuzma@russofile.ru">kuzma@russofile.ru</a>) (<a href="https://php.russofile.ru" rel="noopener" target="_blank">http://php.russofile.ru</a>)<br>
+Русский перевод Феськов Кузьма (<a href="mailto:kuzma@russofile.ru">kuzma@russofile.ru</a>) (<a href="http://php.russofile.ru" rel="noopener" target="_blank">http://php.russofile.ru</a>)<br>
 Copyright © 2002,2003, Mike Benoit<br>
 Copyright © 2003, James Russell<br>
 Copyright © 2003, Karsten Dambekalns<br>
@@ -40,7 +40,7 @@ Last Updated: 5/20/03 - 18:55:08<br>
 <p>Это предполагает подробный контроль доступа с простым управлением и высокой скоростью.
 <p>Скрипт написан на PHP (отсюда его название – phpGACL) – это популярный скриптовый язык, который обычно используется для динамического создания страниц сети. GACL часть phpGACL – Родовой список контроля доступа.
 <h2>Где взять?</h2>
-<p>PhpGACL хостится на sourceforge.net здесь <a href="https://phpGACL.sourceforge.net/" rel="noopener" target="_blank">https://phpGACL.sourceforge.net/</a>
+<p>PhpGACL хостится на sourceforge.net здесь <a href="http://phpGACL.sourceforge.net/" rel="noopener" target="_blank">http://phpGACL.sourceforge.net/</a>
 <h2>Что нужно для запуска?</h2>
 <P>PhpGACL требует реляционную базу данных для хранения информации о правах. Доступ к базе данных осуществляется через абстрактный класс доступа к базам данных ADOdb (<a href="https://php.weblogs.com/adodb" rel="noopener" target="_blank">https://php.weblogs.com/adodb</a>). Данный класс позволяет работать с такими базами данных как: PostgreSQL, MySQL, Oracle.
 <p>Поскольку phpGACL написан на языке PHP, то он требует установки PHP версии не ниже 4.2. ACL (Администрирование списка контроля доступа) дополнена веб-интерфейсом, потому необходимо наличие веб-сервера с поддержкой PHP, например, Apache (<a href="https://httpd.apache.org/" rel="noopener" target="_blank">https://httpd.apache.org/</a>).
@@ -49,7 +49,7 @@ Last Updated: 5/20/03 - 18:55:08<br>
 <p>James Russel (<a href="mailto:james-phpgacl@ps2-pro.com">james-phpgacl@ps2-pro.com</a>) и
 <p>Karsten Dambekalns (<a href="mailto:k.dambekalns@fishfarm.de">k.dambekalns@fishfarm.de</a>) – авторы документации.
 <p>Feskov Kuzma (<a href="mailto:kuzma@russofile.ru">kuzma@russofile.ru</a>) – русский перевод
-<p>Последняя версия перевода всегда здесь: <a href="https://php.russofile.ru" rel="noopener" target="_blank">https://php.russofile.ru</a>
+<p>Последняя версия перевода всегда здесь: <a href="http://php.russofile.ru" rel="noopener" target="_blank">http://php.russofile.ru</a>
 <h1>Введение</h1>
 <h2>Понимание контроля действия</h2>
 <p>Хан – капитан “Сокола тысячелетия” и Чуви – его второй офицер. Они взяли на борт несколько пассажиров: Люка, Оби-Вана, R2-D2 и C3PO. Хан должен определить ограничения доступа для различных мест (комнат) корабля, например: кабина, машинный зал, двигатели и внешнее оружие.
@@ -250,7 +250,7 @@ Last Updated: 5/20/03 - 18:55:08<br>
 └─Пассажиры                  [ALLOW: Lounge] (разрешить: пассажирский зал)
   ├─Джедаи                   <strong>[ALLOW: Cockpit] (разрешить: кабину)</strong>
   │ ├─<strong>Оби-Ван</strong>
-  │ └─<strong>Люк</strong>                    [ALLOW: Guns] (разрешить: оружие) 
+  │ └─<strong>Люк</strong>                    [ALLOW: Guns] (разрешить: оружие)
   ├─R2D2                     [ALLOW: Engines] (разрешить: машинное отделение)
   └─C3PO
 </pre>
@@ -297,7 +297,7 @@ Last Updated: 5/20/03 - 18:55:08<br>
 ├─Пассажиры                  [ALLOW: Lounge] (разрешить: пассажирский зал)
 │ ├─Джедаи                   [ALLOW: Cockpit] (разрешить: кабину)
 │ │ ├─Оби-Ван
-│ │ └─Люк                    [ALLOW: Guns] (разрешить: оружие) 
+│ │ └─Люк                    [ALLOW: Guns] (разрешить: оружие)
 │ ├─R2D2
 │ └─C3PO
 └─Инженеры                   <strong>[ALLOW: Engines, Guns] (разрешить: маш.зал, оружие)</strong>
@@ -318,7 +318,7 @@ Last Updated: 5/20/03 - 18:55:08<br>
 ├─Пассажиры                   [ALLOW: Lounge] (разрешить: пассажирский зал)
 │ ├─Джедаи                    [ALLOW: Cockpit] (разрешить: кабина)
 │ │ ├─Оби-Ван
-│ │ └─Люк                     [ALLOW: Guns] (разрешить: оружие) 
+│ │ └─Люк                     [ALLOW: Guns] (разрешить: оружие)
 │ ├─R2D2
 │ └─C3PO
 └─Инженеры                    [ALLOW: Engines, Guns] (разрешить: маш.зал, оружие)
@@ -339,7 +339,7 @@ Last Updated: 5/20/03 - 18:55:08<br>
 ├─Пассажиры                   [ALLOW: Lounge] (разрешить: пассажирский зал)
 │ ├─Джедаи                    [ALLOW: Cockpit] (разрешить: кабина)
 │ │ ├─Оби-Ван
-│ │ └─Люк                     [ALLOW: Guns] (разрешить: оружие) 
+│ │ └─Люк                     [ALLOW: Guns] (разрешить: оружие)
 │ ├─R2D2
 │ └─C3PO
 └─Инженеры                    [ALLOW: Engines, Guns] (разрешить: маш.зал, оружие)
@@ -405,7 +405,7 @@ Last Updated: 5/20/03 - 18:55:08<br>
 <table align="center" cellpadding="5"><tr><td bgcolor="lightgrey">
 <pre>
 add_object_section(
-    string NAME,        Короткое описание того, для чего этот Раздел 
+    string NAME,        Короткое описание того, для чего этот Раздел
                         используется (пример, 'Levels in building'
                         (“Этажи в здании”)).
     string VALUE,       Название Раздела (пример, 'Floors' (“Этажи”)).
@@ -426,7 +426,7 @@ add_object_section(
 ├─Пассажиры                  [ALLOW: Lounge]
 │ ├─Джедаи                   [ALLOW: Cockpit]
 │ │ ├─<strong>"Люди > Оби-Ван"</strong>
-│ │ └─<strong>"Люди > Люк"</strong>           [ALLOW: Guns] 
+│ │ └─<strong>"Люди > Люк"</strong>           [ALLOW: Guns]
 │ ├─<strong>"Андроиды > R2D2"</strong>
 │ └─<strong>"Андроиды > C3PO"</strong>
 └─Инженеры                   [ALLOW: Engines, Guns]
@@ -793,7 +793,7 @@ del_object (
 <p>Если вы определите только название, то возможны неоднозначные результаты (так как название не обязано быть уникальным). В этом случае вы получите сообщение об ошибке.
 <pre>
 get_object_section_section_id (
-    string NAME,        Короткое описание того, для чего предназначин Раздел 
+    string NAME,        Короткое описание того, для чего предназначин Раздел
                         (например, Этажи в здании”)
     string VALUE,       Название Раздела (например, “Этаж”)
     string GROUP_TYPE)  Тип объекта доступа (ARO, AXO, ACO)
@@ -805,7 +805,7 @@ get_object_section_section_id (
 <p>Добавляет новый Раздел объектов.
 <pre>
 add_object_section(
-    string NAME,        Короткое описание того, для чего предназначин Раздел 
+    string NAME,        Короткое описание того, для чего предназначин Раздел
                         (например, Этажи в здании”)
     string VALUE,       Название Раздела (например, “Этаж”)
     int ORDER,          Ценность Раздела. Учитывается в пользовательском интерфейсе при выводе списка выбора.
