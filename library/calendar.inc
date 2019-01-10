@@ -5,8 +5,8 @@ require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
 //function returns the next most recent appointment given a pid
 function getNextAppointment($pid)
 {
-    $query = "select * from calendar where pid = ? and time>now() order by time limit 1", array($pid);
-    $rez = sqlStatement($query);
+    $query = "select * from calendar where pid = ? and time>now() order by time limit 1";
+    $rez = sqlStatement($query, [$pid]);
     echo "<!-- getNextAppointment " . text($pid) . " -" . text($query) . "- -->";
     return sqlFetchArray($rez);
 }
@@ -15,8 +15,8 @@ function getNextAppointment($pid)
 //this function returns calendar data given date and provider
 function getCalendarDay($datetime, $owner, $groupname)
 {
-    $query = "select * from calendar where time like ? and owner like ? and groupname like ? order by time", array($datetime. '%', $owner, $groupname);
-    $rez = sqlStatement($query);
+    $query = "select * from calendar where time like ? and owner like ? and groupname like ? order by time";
+    $rez = sqlStatement($query, [$datetime.'%', $owner, $groupname]);
     for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
     }
@@ -32,8 +32,8 @@ function toggleNoShow($cid)
     $row=sqlFetchArray($rez);
     $oldnoshowval = $row{noshow};
     $newnoshowval = !($oldnoshowval);
-    $query = "update calendar set noshow= ? where id= ?", array($newnoshowval, $cid);
-    sqlStatement($query);
+    $query = "update calendar set noshow= ? where id= ?";
+    sqlStatement($query, [$newnoshowval, $cid]);
 }
 
 
@@ -123,8 +123,8 @@ function getUserFacilities($uID)
 //retrieve the name based on the username
 function getNamefromUsername($username)
 {
-    $query = "select * from users where username like ? and username != ''", array($username);
-    $res = sqlQuery($query);
+    $query = "select * from users where username like ? and username != ''";
+    $res = sqlQuery($query, [$username]);
     return $res;
 }
 
@@ -151,8 +151,8 @@ function getCalendarRanges($fromdate, $todate, $username)
 //get calendar dates in a range of dates
 function getCalendarbyTimeandRange($time, $fromdate, $todate, $username)
 {
-    $query = "select * from calendar where time like ? and time>= ? and time< ? and owner like ? order by time", array('% ' .$time. '%', $fromdate, $todate, $username);
-    $rez = sqlStatement($query);
+    $query = "select * from calendar where time like ? and time>= ? and time< ? and owner like ? order by time";
+    $rez = sqlStatement($query, ['% '.$time.'%', $fromdate, $todate, $username]);
     for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
     }
