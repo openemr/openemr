@@ -98,15 +98,15 @@ $ISSUE_CLASSIFICATIONS = array(
 
 function getListById($id, $cols = "*")
 {
-    return sqlQuery("select ? from lists where id=? order by date DESC limit 0,1", array($cols, $id));
+    return sqlQuery("select $cols from lists where id=? order by date DESC limit 0,1", array($id));
 }
 
 function getListByType($pid, $type, $cols = "*", $active = "all", $limit = "all", $offset = "0")
 {
     if ($active == "all") {
-        $sql = "select ? from lists where pid=? and type=? order by date DESC", array($cols, $pid, $type);
+        $sql = "select $cols from lists where pid=? and type=? order by date DESC", array($pid, $type);
     } else {
-        $sql = "select ? from lists where pid=? and type=? and activity=? order by date DESC", array($cols, $pid, $type, $active);
+        $sql = "select $cols from lists where pid=? and type=? and activity=? order by date DESC", array( $pid, $type, $active);
     }
 
     if ($limit != "all") {
