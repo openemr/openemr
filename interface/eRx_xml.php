@@ -32,7 +32,7 @@ function getErxCredentials()
     $cred=array();
     $cred[]=$GLOBALS['erx_account_partner_name'];
     $cred[]=$GLOBALS['erx_account_name'];
-    $cred[]=$GLOBALS['erx_account_password'];
+    $cred[]=decryptStandard($GLOBALS['erx_account_password']);
 
     return $cred;
 }

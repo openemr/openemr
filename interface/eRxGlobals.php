@@ -136,7 +136,7 @@ class eRxGlobals
      */
     public function getAccountPassword()
     {
-        return $this->getGlobalValue('erx_account_password');
+        return decryptStandard($this->getGlobalValue('erx_account_password'));
     }
 
     /**

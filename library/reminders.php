@@ -391,7 +391,7 @@ function send_reminders()
     *     //  feature has been commented out for now.
     *     // Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.
     *      $siteId = $GLOBALS['phone_gateway_username'];
-    *      $token = $GLOBALS['phone_gateway_password'];
+    *      $token = decryptStandard($GLOBALS['phone_gateway_password']);
     *      $endpoint = $GLOBALS['phone_gateway_url'];
     *      $client = new MaviqClient($siteId, $token, $endpoint);
     *      //Set up params.
