@@ -205,7 +205,7 @@ class FeeSheet
   //
     public function logFSMessage($action)
     {
-        newEvent(
+        (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent(
             'fee-sheet',
             $_SESSION['authUser'],
             $_SESSION['authProvider'],
@@ -238,7 +238,7 @@ class FeeSheet
         if (CHECKSUM_LOGGING) {
             $comment = "Checksum = '$ret'";
             $comment .= ", Saved = " . ($saved ? "true" : "false");
-            newEvent("checksum", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $comment, $this->pid);
+            (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("checksum", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $comment, $this->pid);
         }
 
         return $ret;

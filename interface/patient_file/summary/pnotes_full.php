@@ -153,7 +153,7 @@ if (isset($mode)) {
     } elseif ($mode == "delete") {
         if ($noteid) {
             deletePnote($noteid);
-            newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id ".$noteid);
+            (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id ".$noteid);
         }
 
         $noteid = '';

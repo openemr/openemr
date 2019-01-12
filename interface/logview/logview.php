@@ -352,7 +352,7 @@ if (($eventname == "") && ($type_event != "")) {
         $gev = $getevent;
 }
 
-if ($ret = getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent,'direction' => $_GET['direction']))) {
+if ($ret = (new OpenEMR\Common\Logging\EventAuditLogger())->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent,'direction' => $_GET['direction']))) {
     foreach ($ret as $iter) {
         //translate comments
         $patterns = array ('/^success/','/^failure/','/ encounter/');
@@ -361,7 +361,7 @@ if ($ret = getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' =
         $log_id = $iter['id'];
         $commentEncrStatus = "No";
         $encryptVersion = 0;
-        $logEncryptData = logCommentEncryptData($log_id);
+        $logEncryptData = (new OpenEMR\Common\Logging\EventAuditLogger())->logCommentEncryptData($log_id);
         if (count($logEncryptData) > 0) {
             $commentEncrStatus = $logEncryptData['encrypt'];
             $encryptVersion = $logEncryptData['version'];
@@ -433,7 +433,7 @@ if ($ret = getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' =
 
 if (($eventname=="disclosure") || ($gev == "")) {
     $eventname="disclosure";
-    if ($ret = getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' =>$eventname))) {
+    if ($ret = (new OpenEMR\Common\Logging\EventAuditLogger())->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' =>$eventname))) {
         foreach ($ret as $iter) {
             $comments=xl('Recipient Name').":".$iter["recipient"].";".xl('Disclosure Info').":".$iter["description"];
             ?>

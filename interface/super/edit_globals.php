@@ -304,7 +304,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
     $auditLogStatusNew = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'enable_auditlog'");
     $auditLogStatusFieldNew = $auditLogStatusNew['gl_value'];
     if ($auditLogStatusFieldOld != $auditLogStatusFieldNew) {
-         auditSQLAuditTamper($auditLogStatusFieldNew);
+        (new OpenEMR\Common\Logging\EventAuditLogger())->auditSQLAuditTamper($auditLogStatusFieldNew);
     }
 
     echo "<script type='text/javascript'>";

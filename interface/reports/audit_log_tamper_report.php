@@ -212,7 +212,7 @@ if (($eventname == "") && ($type_event != "")) {
 
 $dispArr = array();
 $icnt = 1;
-if ($ret = getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent))) {
+if ($ret = (new OpenEMR\Common\Logging\EventAuditLogger())->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent))) {
     foreach ($ret as $iter) {
         //translate comments
         $patterns = array ('/^success/','/^failure/','/ encounter/');
@@ -222,7 +222,7 @@ if ($ret = getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' =
         $log_id = $iter['id'];
         $commentEncrStatus = "No";
         $encryptVersion = 0;
-        $logEncryptData = logCommentEncryptData($log_id);
+        $logEncryptData = (new OpenEMR\Common\Logging\EventAuditLogger())->logCommentEncryptData($log_id);
 
         if (count($logEncryptData) > 0) {
             $commentEncrStatus = $logEncryptData['encrypt'];

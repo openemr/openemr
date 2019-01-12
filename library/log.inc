@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * @deprecated - moved to a class.
+ * @see OpenEMR\Common\Logging\EventAuditLogger::newEvent
+ * @param $event
+ * @param $user
+ * @param $groupname
+ * @param $success
+ * @param string $comments
+ * @param null $patient_id
+ * @param string $log_from
+ * @param string $menu_item
+ * @param int $ccda_doc_id
+ */
 function newEvent($event, $user, $groupname, $success, $comments = "", $patient_id = null, $log_from = 'open-emr', $menu_item = 'dashboard', $ccda_doc_id = 0)
 {
     $adodb = $GLOBALS['adodb']['db'];
@@ -59,6 +72,14 @@ function newEvent($event, $user, $groupname, $success, $comments = "", $patient_
     send_atna_audit_msg($user, $groupname, $event, $patient_id, $success, $comments);
 }
 
+/**
+ * @deprecated - moved to a class.
+ * @see OpenEMR\Common\Logging\EventAuditLogger::getEventByDate
+ * @param $date
+ * @param string $user
+ * @param string $cols
+ * @return mixed
+ */
 function getEventByDate($date, $user = "", $cols = "DISTINCT date, event, user, groupname, patient_id, success, comments, checksum")
 {
     $sql = "SELECT $cols FROM log WHERE date >= '$date 00:00:00' AND date <= '$date 23:59:59'";
@@ -76,6 +97,9 @@ function getEventByDate($date, $user = "", $cols = "DISTINCT date, event, user, 
 }
 
 /******************
+ * @deprecated - moved to a class.
+ * @see OpenEMR\Common\Logging\EventAuditLogger::getEvents
+ *
  * Get records from the LOG and Extended_Log table
  * using the optional parameters:
  *   date : a specific date  (defaults to today)
@@ -226,7 +250,10 @@ function getEvents($params)
     return $all;
 }
 
-/* Given an SQL insert/update that was just performeds:
+/**
+ * @deprecated - moved to a class.
+ * @see OpenEMR\Common\Logging\EventAuditLogger::sql_checksum_of_modified_row
+ * Given an SQL insert/update that was just performeds:
  * - Find the table and primary id of the row that was created/modified
  * - Calculate the SHA1 checksum of that row (with all the
  *   column values concatenated together).
@@ -385,7 +412,10 @@ function sql_checksum_of_modified_row($statement)
         return sha1($column_values);
 }
 
-/* Create an XML audit record corresponding to RFC 3881.
+/**
+ * @deprecated - moved to a class.
+ * @see OpenEMR\Common\Logging\EventAuditLogger::create_rfc3881_msg
+ * Create an XML audit record corresponding to RFC 3881.
  * The parameters passed are the column values (from table 'log')
  * for a single audit record.
  */
@@ -525,7 +555,10 @@ function create_rfc3881_msg($user, $group, $event, $patient_id, $outcome, $comme
 }
 
 
-/* Create a TLS (SSLv3) connection to the given host/port.
+/**
+ * @deprecated - moved to a class.
+ * @see OpenEMR\Common\Logging\EventAuditLogger::create_tls_conn
+ * Create a TLS (SSLv3) connection to the given host/port.
  * $localcert is the path to a PEM file with a client certificate and private key.
  * $cafile is the path to the CA certificate file, for
  *  authenticating the remote machine's certificate.
@@ -567,7 +600,11 @@ function create_tls_conn($host, $port, $localcert, $cafile)
 }
 
 
-/* This function is used to send audit records to an Audit Repository Server,
+/**
+ * @deprecated - moved to a class.
+ * @see OpenEMR\Common\Logging\EventAuditLogger::send_atna_audit_msg
+ *
+ *  This function is used to send audit records to an Audit Repository Server,
  * as described in the Audit Trail and Node Authentication (ATNA) standard.
  * Given the fields in a single audit record:
  * - Create an XML audit message according to RFC 3881, including the RFC5425 syslog header.
@@ -596,7 +633,10 @@ function send_atna_audit_msg($user, $group, $event, $patient_id, $outcome, $comm
 }
 
 
-/* Add an entry into the audit log table, indicating that an
+/**
+ * @deprecated - moved to a class.
+ * @see OpenEMR\Common\Logging\EventAuditLogger::auditSQLEvent
+ *  Add an entry into the audit log table, indicating that an
  * SQL query was performed. $outcome is true if the statement
  * successfully completed.  Determine the event type based on
  * the tables present in the SQL query.
@@ -876,8 +916,15 @@ function auditSQLEvent($statement, $outcome, $binds = null)
     //return $ret;
 }
 
-// May-29-2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
-// Insert Audit Logging Status into the LOG table.
+//
+
+/**
+ * @deprecated - moved to a class.
+ * @see OpenEMR\Common\Logging\EventAuditLogger::auditSQLAuditTamper
+ * May-29-2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
+ * Insert Audit Logging Status into the LOG table.
+ * @param $enable
+ */
 function auditSQLAuditTamper($enable)
 {
     $user =  isset($_SESSION['authUser']) ? $_SESSION['authUser'] : "";
@@ -913,6 +960,9 @@ function auditSQLAuditTamper($enable)
 }
 
 /**
+ * @deprecated - moved to a class.
+ * @see OpenEMR\Common\Logging\EventAuditLogger::recordDisclosure
+ *
  * Record the patient disclosures.
  * @param $dates    - The date when the disclosures are sent to the thrid party.
  * @param $event    - The type of the disclosure.
@@ -933,7 +983,10 @@ function recordDisclosure($dates, $event, $pid, $recipient, $description, $user)
             $adodb->qstr($description) .")";
         $ret = sqlInsertClean_audit($sql);
 }
+
 /**
+ * @deprecated - moved to a class.
+ * @see OpenEMR\Common\Logging\EventAuditLogger::updateRecordedDisclosure
  * Edit the disclosures that is recorded.
  * @param $dates  - The date when the disclosures are sent to the thrid party.
  * @param $event  - The type of the disclosure.
@@ -952,8 +1005,11 @@ function updateRecordedDisclosure($dates, $event, $recipient, $description, $dis
           $ret = sqlInsertClean_audit($sql);
 }
 /**
- * Delete the disclosures that is recorded.
- * $deleteid - The id of the record which is to be deleted.
+ * @deprecated - moved to a class.
+ * @see OpenEMR\Common\Logging\EventAuditLogger::deleteDisclosure
+ *
+ * Delete the disclosures that is recorded
+ * @param $deletelid - The id of the record which is to be deleted.
  */
 function deleteDisclosure($deletelid)
 {
@@ -961,7 +1017,13 @@ function deleteDisclosure($deletelid)
         $ret = sqlInsertClean_audit($sql);
 }
 
-//July 1, 2014: Ensoftek: Utility function to get data from table(log_comment_encrypt)
+/**
+ * @deprecated - moved to a class.
+ * @see OpenEMR\Common\Logging\EventAuditLogger::logCommentEncryptData
+ * July 1, 2014: Ensoftek: Utility function to get data from table(log_comment_encrypt)
+ * @param $log_id
+ * @return array
+ */
 function logCommentEncryptData($log_id)
 {
     $encryptRow = array();
@@ -976,8 +1038,14 @@ function logCommentEncryptData($log_id)
 }
 
 /**
+ * @deprecated - moved to a class.
+ * @see OpenEMR\Common\Logging\EventAuditLogger::eventCategoryFinder
  * Function used to determine category of the event
  *
+ * @param $sql
+ * @param $event
+ * @param $table
+ * @return string
  */
 function eventCategoryFinder($sql, $event, $table)
 {

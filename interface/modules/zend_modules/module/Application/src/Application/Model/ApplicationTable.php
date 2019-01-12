@@ -87,7 +87,7 @@ class ApplicationTable extends AbstractTableGateway
        * Logging, if the $log is true
        */
         if ($log) {
-            auditSQLEvent($sql, $result, $params);
+            (new OpenEMR\Common\Logging\EventAuditLogger())->auditSQLEvent($sql, $result, $params);
         }
 
         return $return;

@@ -52,7 +52,7 @@ if ($_POST['confirm']) {
         );
     }
     // log the event
-    newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Form ".$_POST['formname']." deleted from Encounter ".$_POST['encounter']);
+    (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Form ".$_POST['formname']." deleted from Encounter ".$_POST['encounter']);
 
     // redirect back to the encounter
     $address = "{$GLOBALS['rootdir']}/patient_file/encounter/$returnurl";

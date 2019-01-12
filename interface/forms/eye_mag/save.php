@@ -1266,7 +1266,7 @@ function row_delete($table, $where)
             $logstring .= $key . "='" . addslashes($value) . "'";
         }
 
-        newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
+        (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
         ++$count;
     }
 

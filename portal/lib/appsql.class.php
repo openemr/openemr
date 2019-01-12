@@ -63,7 +63,7 @@ class ApplicationTable
         }
 
         if ($log) {
-            auditSQLEvent($sql, $result, $params);
+            (new OpenEMR\Common\Logging\EventAuditLogger())->auditSQLEvent($sql, $result, $params);
         }
 
         return $return;
@@ -110,7 +110,7 @@ class ApplicationTable
         }
 
         if ($oelog) {
-            auditSQLEvent($sql, $result, $audit);
+            (new OpenEMR\Common\Logging\EventAuditLogger())->auditSQLEvent($sql, $result, $audit);
         }
 
         if ($rtn == 'last') {
@@ -400,6 +400,6 @@ class ApplicationTable
             $patient_id = 0;
         }
 
-        send_atna_audit_msg($user, $groupname, $event, $patient_id, $success, $comments);
+        (new OpenEMR\Common\Logging\EventAuditLogger())->send_atna_audit_msg($user, $groupname, $event, $patient_id, $success, $comments);
     }
 }// app query class

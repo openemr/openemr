@@ -37,7 +37,7 @@ class ADODB_mysqli_log extends ADODB_mysqli
         // Stash the insert ID into lastidado so it doesn't get clobbered when
         // we insert into the audit log.
         $GLOBALS['lastidado']=$this->Insert_ID();
-        auditSQLEvent($sql, $outcome, $inputarr);
+        (new OpenEMR\Common\Logging\EventAuditLogger())->auditSQLEvent($sql, $outcome, $inputarr);
         return $retval;
     }
 

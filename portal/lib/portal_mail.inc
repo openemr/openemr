@@ -263,7 +263,7 @@ function updatePortalMailMessageStatus($id, $message_status)
             $log_from = 'patient-portal';
             $puser = $_SESSION['pid'];
         }
-        newEvent("delete", $loguser, 'Portal', 1, $evt, $puser, $log_from, '');
+        (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("delete", $loguser, 'Portal', 1, $evt, $puser, $log_from, '');
     }
 }
 

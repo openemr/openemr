@@ -440,7 +440,7 @@ class Userforms extends UserAudit
                 try {
                     $event = isset($data['event']) ? $data['event'] : 'patient-record';
                     $menu_item = isset($data['menu_item']) ? $data['menu_item'] : 'Dashboard';
-                    newEvent($event, 1, '', 1, '', $pid, $log_from = 'patient-portal', $menu_item);
+                    (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent($event, 1, '', 1, '', $pid, $log_from = 'patient-portal', $menu_item);
                 } catch (Exception $e) {
                 }
 
@@ -687,7 +687,7 @@ class Userforms extends UserAudit
 
                 if (substr($ret, 5)=="ERROR") {
                     //log the failure
-                    newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
+                    (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
                     return( xl("The message could not be sent at this time."));
                 }
 
@@ -699,11 +699,11 @@ class Userforms extends UserAudit
                     $msg_id=explode(" ", trim($ret), 4);
                 if ($msg_id[0]!="QUEUED" || !isset($msg_id[2])) { //unexpected response
                     $ret = "UNEXPECTED RESPONSE: " . $ret;
-                    newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
+                    (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
                     return( xl("There was a problem sending the message."));
                 }
 
-                    newEvent("transmit-".$xml_type, $reqBy, $_SESSION['authProvider'], 1, $ret, $pid);
+                    (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("transmit-".$xml_type, $reqBy, $_SESSION['authProvider'], 1, $ret, $pid);
                     $adodb=$GLOBALS['adodb']['db'];
 
             //            $sql="INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,patient_id,user_id) " .

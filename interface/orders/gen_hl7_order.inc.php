@@ -530,7 +530,7 @@ function send_hl7_order($ppid, $out)
     }
 
   // Falling through to here indicates success.
-    newEvent(
+    (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent(
         "proc_order_xmit",
         $_SESSION['authUser'],
         $_SESSION['authProvider'],

@@ -34,10 +34,10 @@ if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
     $disclosure_id=trim($_POST['disclosure_id']);
     if (isset($_POST["updatemode"]) and $_POST["updatemode"] == "disclosure_update") {
         //update the recorded disclosure in the extended_log table.
-        updateRecordedDisclosure($dates, $event, $recipient_name, $disclosure_desc, $disclosure_id);
+        (new OpenEMR\Common\Logging\EventAuditLogger())->updateRecordedDisclosure($dates, $event, $recipient_name, $disclosure_desc, $disclosure_id);
     } else {
         //insert the disclosure records in the extended_log table.
-        recordDisclosure($dates, $event, $pid, $recipient_name, $disclosure_desc, $uname);
+        (new OpenEMR\Common\Logging\EventAuditLogger())->recordDisclosure($dates, $event, $pid, $recipient_name, $disclosure_desc, $uname);
     }
     // added ajax submit to record_disclosure thus an exit() 12/19/17
     exit();
@@ -50,7 +50,7 @@ if (isset($_GET['deletelid'])) {
 
     $deletelid=$_GET['deletelid'];
     //function to delete the recorded disclosures
-    deleteDisclosure($deletelid);
+    (new OpenEMR\Common\Logging\EventAuditLogger())->deleteDisclosure($deletelid);
 }
 ?>
 <html>

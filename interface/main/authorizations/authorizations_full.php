@@ -18,7 +18,7 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
         csrfNotVerified();
     }
 
-    newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], 1, '', $_GET["pid"]);
+    (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], 1, '', $_GET["pid"]);
     sqlStatement("update billing set authorized=1 where pid=?", array($_GET["pid"]));
     sqlStatement("update forms set authorized=1 where pid=?", array($_GET["pid"]));
     sqlStatement("update pnotes set authorized=1 where pid=?", array($_GET["pid"]));

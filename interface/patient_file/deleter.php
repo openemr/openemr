@@ -61,7 +61,7 @@ function row_delete($table, $where)
             $logstring .= $key . "= '" . $value . "' ";
         }
 
-        newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
+        (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
         ++$count;
     }
 
@@ -81,7 +81,7 @@ function row_delete($table, $where)
 function row_modify($table, $set, $where)
 {
     if (sqlQuery("SELECT * FROM " . escape_table_name($table) . " WHERE $where")) {
-        newEvent("deactivate", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $where");
+        (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("deactivate", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $where");
         $query = "UPDATE " . escape_table_name($table) . " SET $set WHERE $where";
         if (!$GLOBALS['sql_string_no_show_screen']) {
             echo text($query) . "<br>\n";

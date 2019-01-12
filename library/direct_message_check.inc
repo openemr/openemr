@@ -422,7 +422,7 @@ function phimail_close($fp)
 
 function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check")
 {
-    newEvent($event, "phimail-service", 0, $success, $text, $pid);
+    (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent($event, "phimail-service", 0, $success, $text, $pid);
 }
 
 /**

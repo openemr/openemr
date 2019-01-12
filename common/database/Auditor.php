@@ -82,7 +82,7 @@ final class Auditor implements SQLLogger
     {
         $sql = $this->queries[$this->currentQueryIndex]['sql'];
         $params = $this->queries[$this->currentQueryIndex]['params'];
-        auditSQLEvent($sql, true, $params);
+        (new OpenEMR\Common\Logging\EventAuditLogger())->auditSQLEvent($sql, true, $params);
         unset($this->queries[$this->currentQueryIndex]);
     }
 }
