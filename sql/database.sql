@@ -5384,7 +5384,7 @@ CREATE TABLE `onsite_documents` (
   `denial_reason` varchar(255) NOT NULL,
   `authorized_signature` text,
   `patient_signature` text,
-  `full_document` blob,
+  `full_document` mediumblob,
   `file_name` varchar(255) NOT NULL,
   `file_path` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
