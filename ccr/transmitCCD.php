@@ -28,6 +28,7 @@ require_once(dirname(__FILE__) . "/../library/patient.inc");
 require_once(dirname(__FILE__) . "/../library/direct_message_check.inc");
 
 use OpenEMR\Common\Logging\EventAuditLogger;
+
 /*
  * Connect to a phiMail Direct Messaging server and transmit
  * a CCD document to the specified recipient. If the message is accepted by the
@@ -37,7 +38,6 @@ use OpenEMR\Common\Logging\EventAuditLogger;
  * @param string requested_by user | patient
  * @return string result of operation
  */
-
 function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
 {
     global $pid;
