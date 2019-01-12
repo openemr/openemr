@@ -15,9 +15,9 @@
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/log.inc");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 function collectLayoutNames($condition, $mapping = '')
 {
@@ -246,7 +246,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true)
 
     if ($add && !$column_exists) {
         sqlStatement("ALTER TABLE `$tablename` ADD `" . add_escape_custom($field_id) . "` TEXT");
-        (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent(
+        EventAuditLogger::instance()->newEvent(
             "alter_table",
             $_SESSION['authUser'],
             $_SESSION['authProvider'],
@@ -259,7 +259,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true)
         "`" . add_escape_custom($field_id) . "` IS NOT NULL AND `" . add_escape_custom($field_id) . "` != '' LIMIT 1");
         if (!isset($tmp['field_id'])) {
             sqlStatement("ALTER TABLE `$tablename` DROP `" . add_escape_custom($field_id) . "`");
-            (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent(
+            EventAuditLogger::instance()->newEvent(
                 "alter_table",
                 $_SESSION['authUser'],
                 $_SESSION['authProvider'],
@@ -308,7 +308,7 @@ function renameColumn($layout_id, $old_field_id, $new_field_id)
     }
     $query = "ALTER TABLE `$tablename` CHANGE `" . add_escape_custom($old_field_id) . "` `" . add_escape_custom($new_field_id) . "` $colstr";
     sqlStatement($query);
-    (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent(
+    EventAuditLogger::instance()->newEvent(
         "alter_table",
         $_SESSION['authUser'],
         $_SESSION['authProvider'],

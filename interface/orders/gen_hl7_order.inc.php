@@ -35,6 +35,7 @@
 */
 
 require_once("$webserver_root/custom/code_types.inc.php");
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 function hl7Text($s)
 {
@@ -530,7 +531,7 @@ function send_hl7_order($ppid, $out)
     }
 
   // Falling through to here indicates success.
-    (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent(
+    EventAuditLogger::instance()->newEvent(
         "proc_order_xmit",
         $_SESSION['authUser'],
         $_SESSION['authProvider'],

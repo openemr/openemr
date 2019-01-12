@@ -14,6 +14,8 @@ require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/immunization_helper.php");
 
+use OpenEMR\Common\Logging\EventAuditLogger;
+
 if (isset($_GET['mode'])) {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {
         csrfNotVerified();
@@ -86,7 +88,7 @@ if (isset($_GET['mode'])) {
         }
     } elseif ($_GET['mode'] == "delete") {
         // log the event
-        (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Immunization id ".$_GET['id']." deleted from pid ".$pid);
+        EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Immunization id ".$_GET['id']." deleted from pid ".$pid);
         // delete the immunization
         $sql="DELETE FROM immunizations WHERE id =? LIMIT 1";
         sqlStatement($sql, array($_GET['id']));

@@ -10,6 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Logging\EventAuditLogger;
+
 class ADODB_mysqli_log extends ADODB_mysqli
 {
     /**
@@ -37,7 +39,7 @@ class ADODB_mysqli_log extends ADODB_mysqli
         // Stash the insert ID into lastidado so it doesn't get clobbered when
         // we insert into the audit log.
         $GLOBALS['lastidado']=$this->Insert_ID();
-        (new OpenEMR\Common\Logging\EventAuditLogger())->auditSQLEvent($sql, $outcome, $inputarr);
+        EventAuditLogger::instance()->auditSQLEvent($sql, $outcome, $inputarr);
         return $retval;
     }
 

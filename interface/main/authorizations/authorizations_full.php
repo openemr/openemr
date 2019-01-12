@@ -13,12 +13,14 @@
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
 
+use OpenEMR\Common\Logging\EventAuditLogger;
+
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {
         csrfNotVerified();
     }
 
-    (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], 1, '', $_GET["pid"]);
+    EventAuditLogger::instance()->newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], 1, '', $_GET["pid"]);
     sqlStatement("update billing set authorized=1 where pid=?", array($_GET["pid"]));
     sqlStatement("update forms set authorized=1 where pid=?", array($_GET["pid"]));
     sqlStatement("update pnotes set authorized=1 where pid=?", array($_GET["pid"]));

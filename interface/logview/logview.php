@@ -11,8 +11,9 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/log.inc");
 require_once("$srcdir/acl.inc");
+
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 if (!acl_check('admin', 'users')) {
     die(xlt("Not Authorized"));
@@ -352,7 +353,7 @@ if (($eventname == "") && ($type_event != "")) {
         $gev = $getevent;
 }
 
-if ($ret = (new OpenEMR\Common\Logging\EventAuditLogger())->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent,'direction' => $_GET['direction']))) {
+if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent,'direction' => $_GET['direction']))) {
     foreach ($ret as $iter) {
         //translate comments
         $patterns = array ('/^success/','/^failure/','/ encounter/');
@@ -361,7 +362,7 @@ if ($ret = (new OpenEMR\Common\Logging\EventAuditLogger())->getEvents(array('sda
         $log_id = $iter['id'];
         $commentEncrStatus = "No";
         $encryptVersion = 0;
-        $logEncryptData = (new OpenEMR\Common\Logging\EventAuditLogger())->logCommentEncryptData($log_id);
+        $logEncryptData = EventAuditLogger::instance()->logCommentEncryptData($log_id);
         if (count($logEncryptData) > 0) {
             $commentEncrStatus = $logEncryptData['encrypt'];
             $encryptVersion = $logEncryptData['version'];
@@ -433,7 +434,7 @@ if ($ret = (new OpenEMR\Common\Logging\EventAuditLogger())->getEvents(array('sda
 
 if (($eventname=="disclosure") || ($gev == "")) {
     $eventname="disclosure";
-    if ($ret = (new OpenEMR\Common\Logging\EventAuditLogger())->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' =>$eventname))) {
+    if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' =>$eventname))) {
         foreach ($ret as $iter) {
             $comments=xl('Recipient Name').":".$iter["recipient"].";".xl('Disclosure Info').":".$iter["description"];
             ?>

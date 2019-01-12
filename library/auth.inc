@@ -24,10 +24,10 @@
 
 //----------THINGS WE ALWAYS DO
 
-require_once("{$GLOBALS['srcdir']}/log.inc");
 // added for the phpGACL group check -- JRM
 require_once("{$GLOBALS['srcdir']}/acl.inc");
 require_once("$srcdir/authentication/login_operations.php");
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 $incoming_site_id = '';
 
@@ -65,7 +65,7 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
 } else if ((isset($_GET['auth'])) && ($_GET['auth'] == "logout")) {
     //If session has timed out / been destroyed, logout record for null user/provider will be invalid.
     if (!empty($_SESSION['authUser']) && !empty($_SESSION['authProvider'])) {
-        (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "success");
+        EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "success");
     }
     authCloseSession();
     authLoginScreen(true);
@@ -84,7 +84,7 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
         //LOG EVERYTHING
         //newEvent("view", $_SESSION['authUser'], $_SESSION['authProvider'], $_SERVER['REQUEST_URI']);
     } else {
-        (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("login", $_POST['authUser'], $_POST['authProvider'], 0, "insufficient data sent");
+        EventAuditLogger::instance()->newEvent("login", $_POST['authUser'], $_POST['authProvider'], 0, "insufficient data sent");
         authLoginScreen();
     }
 }
@@ -97,7 +97,7 @@ if (!isset($_SESSION["last_update"])) {
      //via ajax scripts where this output is not getting sent to browser.
      //--Note DAEMON_FLAG is ok because it is run from a frame in the browser.
     if (((time() - $_SESSION["last_update"]) > $timeout) && empty($_REQUEST['skip_timeout_reset'])) {
-        (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "timeout");
+        EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "timeout");
         authCloseSession();
         authLoginScreen(true);
     } else {

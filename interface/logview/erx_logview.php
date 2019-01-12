@@ -16,7 +16,6 @@
 
 
 require_once(__DIR__.'/../globals.php');
-require_once($srcdir.'/log.inc');
 
 use OpenEMR\Core\Header;
 

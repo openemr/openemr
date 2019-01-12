@@ -11,7 +11,7 @@
 
 
 require_once(dirname(__FILE__). "/../interface/globals.php");
-require_once(dirname(__FILE__)."/log.inc");
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 // Function called to set the global session variable for patient id (pid) number.
 function setpid($new_pid)
@@ -42,5 +42,5 @@ function setpid($new_pid)
     $_SESSION['pid'] = $new_pid_int;
     $pid = $new_pid_int;
 
-    (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("view", $_SESSION["authUser"], $_SESSION["authProvider"], 1, '', $pid);
+    EventAuditLogger::instance()->newEvent("view", $_SESSION["authUser"], $_SESSION["authProvider"], 1, '', $pid);
 }

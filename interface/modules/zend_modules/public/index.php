@@ -51,7 +51,6 @@ require_once(dirname(__FILE__)."/../../../globals.php");
 require_once(dirname(__FILE__)."/../../../../library/forms.inc");
 require_once(dirname(__FILE__)."/../../../../library/options.inc.php");
 require_once(dirname(__FILE__)."/../../../../library/acl.inc");
-require_once(dirname(__FILE__)."/../../../../library/log.inc");
 
 chdir(dirname(__DIR__));
 

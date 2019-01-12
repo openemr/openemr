@@ -12,6 +12,7 @@
  */
 
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 // Post a payment to the payments table.
 //
@@ -251,7 +252,7 @@ function row_delete($table, $where)
             $logstring .= $key . "='" . addslashes($value) . "'";
         }
 
-        (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
+        EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
         ++$count;
     }
 

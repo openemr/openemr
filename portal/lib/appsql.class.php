@@ -27,6 +27,9 @@
  *            wrapper class for moving some care coordination zend product
  */
 require_once(dirname(__FILE__) . '/../../library/sql.inc');
+
+use OpenEMR\Common\Logging\EventAuditLogger;
+
 class ApplicationTable
 {
 
@@ -63,7 +66,7 @@ class ApplicationTable
         }
 
         if ($log) {
-            (new OpenEMR\Common\Logging\EventAuditLogger())->auditSQLEvent($sql, $result, $params);
+            EventAuditLogger::instance()->auditSQLEvent($sql, $result, $params);
         }
 
         return $return;
@@ -110,7 +113,7 @@ class ApplicationTable
         }
 
         if ($oelog) {
-            (new OpenEMR\Common\Logging\EventAuditLogger())->auditSQLEvent($sql, $result, $audit);
+            EventAuditLogger::instance()->auditSQLEvent($sql, $result, $audit);
         }
 
         if ($rtn == 'last') {
@@ -400,6 +403,6 @@ class ApplicationTable
             $patient_id = 0;
         }
 
-        (new OpenEMR\Common\Logging\EventAuditLogger())->send_atna_audit_msg($user, $groupname, $event, $patient_id, $success, $comments);
+        EventAuditLogger::instance()->send_atna_audit_msg($user, $groupname, $event, $patient_id, $success, $comments);
     }
 }// app query class

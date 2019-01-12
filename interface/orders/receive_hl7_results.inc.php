@@ -22,6 +22,7 @@
 */
 
 require_once("$srcdir/forms.inc");
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 $rhl7_return = array();
 
@@ -31,7 +32,7 @@ function rhl7LogMsg($msg, $fatal = true)
     if ($fatal) {
         $rhl7_return['mssgs'][] = '*' . $msg;
         $rhl7_return['fatal'] = true;
-        (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("lab-results-error", $_SESSION['authUser'], $_SESSION['authProvider'], 0, $msg);
+        EventAuditLogger::instance()->newEvent("lab-results-error", $_SESSION['authUser'], $_SESSION['authProvider'], 0, $msg);
     } else {
         $rhl7_return['mssgs'][] = '>' . $msg;
     }

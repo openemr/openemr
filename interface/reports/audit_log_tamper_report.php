@@ -13,7 +13,8 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/log.inc");
+
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 if (!empty($_GET)) {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -212,7 +213,7 @@ if (($eventname == "") && ($type_event != "")) {
 
 $dispArr = array();
 $icnt = 1;
-if ($ret = (new OpenEMR\Common\Logging\EventAuditLogger())->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent))) {
+if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent))) {
     foreach ($ret as $iter) {
         //translate comments
         $patterns = array ('/^success/','/^failure/','/ encounter/');
@@ -222,7 +223,7 @@ if ($ret = (new OpenEMR\Common\Logging\EventAuditLogger())->getEvents(array('sda
         $log_id = $iter['id'];
         $commentEncrStatus = "No";
         $encryptVersion = 0;
-        $logEncryptData = (new OpenEMR\Common\Logging\EventAuditLogger())->logCommentEncryptData($log_id);
+        $logEncryptData = EventAuditLogger::instance()->logCommentEncryptData($log_id);
 
         if (count($logEncryptData) > 0) {
             $commentEncrStatus = $logEncryptData['encrypt'];

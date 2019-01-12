@@ -20,6 +20,7 @@
  * @author Jerry Padgett <sjpadgett@gmail.com>
  * @link http://www.open-emr.org
  */
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 function addPortalMailboxMail(
     $owner,
@@ -263,7 +264,7 @@ function updatePortalMailMessageStatus($id, $message_status)
             $log_from = 'patient-portal';
             $puser = $_SESSION['pid'];
         }
-        (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("delete", $loguser, 'Portal', 1, $evt, $puser, $log_from, '');
+        EventAuditLogger::instance()->newEvent("delete", $loguser, 'Portal', 1, $evt, $puser, $log_from, '');
     }
 }
 

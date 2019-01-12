@@ -59,6 +59,7 @@ require_once("$srcdir/html2pdf/html2pdf.class.php");
 
 use Mpdf\Mpdf;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 $returnurl = 'encounter_top.php';
 
@@ -1266,7 +1267,7 @@ function row_delete($table, $where)
             $logstring .= $key . "='" . addslashes($value) . "'";
         }
 
-        (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
+        EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
         ++$count;
     }
 

@@ -2,10 +2,11 @@
 namespace OpenEMR\Common\Logging;
 
 use \DateTime;
+use Waryway\PhpTraitsLibrary\Singleton;
 
 class EventAuditLogger
 {
-
+    use Singleton;
     /**
      * Event action codes indicate whether the event is read/write.
      * C = create, R = read, U = update, D = delete, E = execute

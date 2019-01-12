@@ -24,7 +24,6 @@ require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'].'/csv_like_join.php');
-require_once($GLOBALS['srcdir'].'/log.inc');
 require_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
 
 $pid = 0 + (empty($_REQUEST['pid']) ? $pid : $_REQUEST['pid']);

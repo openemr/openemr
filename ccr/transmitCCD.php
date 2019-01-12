@@ -24,10 +24,10 @@
  * @link    http://www.open-emr.org
  */
 
-require_once(dirname(__FILE__) . "/../library/log.inc");
 require_once(dirname(__FILE__) . "/../library/patient.inc");
 require_once(dirname(__FILE__) . "/../library/direct_message_check.inc");
 
+use OpenEMR\Common\Logging\EventAuditLogger;
 /*
  * Connect to a phiMail Direct Messaging server and transmit
  * a CCD document to the specified recipient. If the message is accepted by the
@@ -137,7 +137,7 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
     if (substr($ret, 5)=="ERROR") {
         //log the failure
 
-        (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
+        EventAuditLogger::instance()->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
         return( xl("The message could not be sent at this time."));
     }
 
@@ -149,11 +149,11 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
     $msg_id=explode(" ", trim($ret), 4);
     if ($msg_id[0]!="QUEUED" || !isset($msg_id[2])) { //unexpected response
         $ret = "UNEXPECTED RESPONSE: " . $ret;
-        (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
+        EventAuditLogger::instance()->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
         return( xl("There was a problem sending the message."));
     }
 
-    (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent("transmit-".$xml_type, $reqBy, $_SESSION['authProvider'], 1, $ret, $pid);
+    EventAuditLogger::instance()->newEvent("transmit-".$xml_type, $reqBy, $_SESSION['authProvider'], 1, $ret, $pid);
     $adodb=$GLOBALS['adodb']['db'];
     $sql="INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,patient_id,user_id) " .
     "VALUES ('S', ?, ?, ?, 'S', NOW(), ?, ?)";
