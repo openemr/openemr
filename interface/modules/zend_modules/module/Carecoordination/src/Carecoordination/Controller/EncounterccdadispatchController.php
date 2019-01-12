@@ -22,9 +22,10 @@
 */
 namespace Carecoordination\Controller;
 
+use Application\Listener\Listener;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
-use Application\Listener\Listener;
 use Exception;
 
 class EncounterccdadispatchController extends AbstractActionController
