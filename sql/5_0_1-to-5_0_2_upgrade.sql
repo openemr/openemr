@@ -676,3 +676,7 @@ ALTER TABLE `pnotes` ADD `update_by` bigint(20) default NULL;
 #IfMissingColumn pnotes update_date
 ALTER TABLE `pnotes` ADD `update_date` DATETIME DEFAULT NULL;
 #EndIf
+
+#IfNotColumnType onsite_documents full_document MEDIUMBLOB
+ALTER TABLE `onsite_documents` CHANGE `full_document` `full_document` MEDIUMBLOB;
+#EndIf
