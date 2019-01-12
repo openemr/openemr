@@ -1012,7 +1012,7 @@ MSG;
      * @param  $table
      * @return string
      */
-    public function eventCategoryFinder($sql, $event, $table)
+    private function eventCategoryFinder($sql, $event, $table)
     {
         if ($event == 'delete') {
             if (strpos($sql, "lists:") === 0) {
