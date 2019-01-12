@@ -633,10 +633,6 @@ ALTER TABLE `users_secure` ADD COLUMN `login_work_area` text;
 ALTER TABLE `onsite_messages` CHANGE `sender_id` `sender_id` VARCHAR(64) NULL COMMENT 'who sent id';
 #EndIf
 
-#IfNotColumnType onsite_documents full_document MEDIUMBLOB
-ALTER TABLE `onsite_documents` CHANGE `full_document` `full_document` MEDIUMBLOB NULL DEFAULT NULL;
-#EndIf
-
 #IfMissingColumn form_eye_mag_dispense CTLODQUANTITY
 ALTER TABLE `form_eye_mag_dispense` ADD COLUMN `CTLODQUANTITY` varchar(255) DEFAULT NULL;
 #EndIf
@@ -679,4 +675,8 @@ ALTER TABLE `pnotes` ADD `update_by` bigint(20) default NULL;
 
 #IfMissingColumn pnotes update_date
 ALTER TABLE `pnotes` ADD `update_date` DATETIME DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType onsite_documents full_document MEDIUMBLOB
+ALTER TABLE `onsite_documents` CHANGE `full_document` `full_document` MEDIUMBLOB;
 #EndIf
