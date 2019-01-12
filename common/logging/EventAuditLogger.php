@@ -7,6 +7,7 @@ use Waryway\PhpTraitsLibrary\Singleton;
 class EventAuditLogger
 {
     use Singleton;
+    
     /**
      * Event action codes indicate whether the event is read/write.
      * C = create, R = read, U = update, D = delete, E = execute
@@ -538,23 +539,23 @@ MSG;
     private function determineRFC3881EventActionCode($event)
     {
         switch (substr($event, -7)) {
-        case '-create':
-            return self::EVENT_ACTION_CODE_CREATE;
+            case '-create':
+                return self::EVENT_ACTION_CODE_CREATE;
                 break;
-        case '-insert':
-            return self::EVENT_ACTION_CODE_INSERT;
+            case '-insert':
+                return self::EVENT_ACTION_CODE_INSERT;
                 break;
-        case '-select':
-            return self::EVENT_ACTION_CODE_SELECT;
+            case '-select':
+                return self::EVENT_ACTION_CODE_SELECT;
                 break;
-        case '-update':
-            return self::EVENT_ACTION_CODE_UPDATE;
+            case '-update':
+                return self::EVENT_ACTION_CODE_UPDATE;
                 break;
-        case '-delete':
-            return self::EVENT_ACTION_CODE_DELETE;
+            case '-delete':
+                return self::EVENT_ACTION_CODE_DELETE;
                 break;
-        default:
-            return self::EVENT_ACTION_CODE_EXECUTE;
+            default:
+                return self::EVENT_ACTION_CODE_EXECUTE;
                 break;
         }
     }
@@ -1086,5 +1087,4 @@ MSG;
 
         return $event;
     }
-
 }

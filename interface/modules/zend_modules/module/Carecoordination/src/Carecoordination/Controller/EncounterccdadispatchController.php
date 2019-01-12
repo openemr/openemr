@@ -149,7 +149,7 @@ class EncounterccdadispatchController extends AbstractActionController
                         $event = isset($parameterArray['event']) ? $parameterArray['event'] : 'patient-record';
                         $menu_item = isset($parameterArray['menu_item']) ? $parameterArray['menu_item'] : 'Dashboard';
 
-                        (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent($event, $this->patient_username, '', 1, '', $this->patient_id, $log_from = 'patient-portal', $menu_item, $ccdaDocumentId);
+                        EventAuditLogger::instance()->newEvent($event, $this->patient_username, '', 1, '', $this->patient_id, $log_from = 'patient-portal', $menu_item, $ccdaDocumentId);
                     } catch (Exception $e) {
                     }
                 }
@@ -189,7 +189,7 @@ class EncounterccdadispatchController extends AbstractActionController
                     $event = isset($parameterArray['event']) ? $parameterArray['event'] : 'patient-record';
                     $menu_item = isset($parameterArray['menu_item']) ? $parameterArray['menu_item'] : 'Dashboard';
 
-                    (new OpenEMR\Common\Logging\EventAuditLogger())->newEvent($event, $this->patient_username, '', 1, '', $this->patient_id, $log_from = 'patient-portal', $menu_item, $ccdaDocumentId);
+                    EventAuditLogger::instance()->newEvent($event, $this->patient_username, '', 1, '', $this->patient_id, $log_from = 'patient-portal', $menu_item, $ccdaDocumentId);
                 } catch (Exception $e) {
                 }
 
