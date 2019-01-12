@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9e442fdb0964255b50a4a5c1daff8e1f",
+    "content-hash": "67d988b27e2d03f1a5676f6539f5bffa",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -5755,6 +5755,42 @@
                 "environment"
             ],
             "time": "2018-07-29T20:33:41+00:00"
+        },
+        {
+            "name": "waryway/php-traits-library",
+            "version": "1.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Waryway/PhpTraitsLibrary.git",
+                "reference": "ec0b630770bdd84168d2cd5e61bd93f45095e035"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Waryway/PhpTraitsLibrary/zipball/ec0b630770bdd84168d2cd5e61bd93f45095e035",
+                "reference": "ec0b630770bdd84168d2cd5e61bd93f45095e035",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "6.4.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Waryway\\PhpTraitsLibrary\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kyle Wiering",
+                    "email": "kyle@waryway.com"
+                }
+            ],
+            "description": "General use traits",
+            "time": "2017-12-23T14:22:07+00:00"
         },
         {
             "name": "webmozart/assert",

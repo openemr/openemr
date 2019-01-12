@@ -21,6 +21,7 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 //acl check
 if (!acl_check_form('fee_sheet')) {
@@ -458,7 +459,7 @@ if (isset($_POST['form_checksum'])) {
     if ($_POST['form_checksum'] != $current_checksum) {
         $alertmsg = xl('Someone else has just changed this visit. Please cancel this page and try again.');
         $comment = "CHECKSUM ERROR, expecting '{$_POST['form_checksum']}'";
-        newEvent("checksum", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $comment, $pid);
+        EventAuditLogger::instance()->newEvent("checksum", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $comment, $pid);
     }
 }
 

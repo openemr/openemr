@@ -15,6 +15,7 @@
 require_once("../../globals.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 // allow a custom 'delete' form
 $deleteform = $incdir . "/forms/" . $_REQUEST["formname"]."/delete.php";
@@ -52,7 +53,7 @@ if ($_POST['confirm']) {
         );
     }
     // log the event
-    newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Form ".$_POST['formname']." deleted from Encounter ".$_POST['encounter']);
+    EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Form ".$_POST['formname']." deleted from Encounter ".$_POST['encounter']);
 
     // redirect back to the encounter
     $address = "{$GLOBALS['rootdir']}/patient_file/encounter/$returnurl";

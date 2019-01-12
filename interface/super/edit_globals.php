@@ -17,10 +17,10 @@ require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/globals.inc.php");
 require_once("$srcdir/user.inc");
-require_once("$srcdir/log.inc");
 require_once(dirname(__FILE__)."/../../myportal/soap_service/portal_connectivity.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 $userMode = (array_key_exists('mode', $_GET) && $_GET['mode'] == 'user');
 
@@ -304,7 +304,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
     $auditLogStatusNew = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'enable_auditlog'");
     $auditLogStatusFieldNew = $auditLogStatusNew['gl_value'];
     if ($auditLogStatusFieldOld != $auditLogStatusFieldNew) {
-         auditSQLAuditTamper($auditLogStatusFieldNew);
+        EventAuditLogger::instance()->auditSQLAuditTamper($auditLogStatusFieldNew);
     }
 
     echo "<script type='text/javascript'>";

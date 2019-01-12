@@ -17,11 +17,11 @@
 
 
 require_once('../globals.php');
-require_once($GLOBALS['srcdir'].'/log.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 if (!empty($_GET)) {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -61,7 +61,7 @@ function row_delete($table, $where)
             $logstring .= $key . "= '" . $value . "' ";
         }
 
-        newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
+        EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
         ++$count;
     }
 
@@ -81,7 +81,7 @@ function row_delete($table, $where)
 function row_modify($table, $set, $where)
 {
     if (sqlQuery("SELECT * FROM " . escape_table_name($table) . " WHERE $where")) {
-        newEvent("deactivate", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $where");
+        EventAuditLogger::instance()->newEvent("deactivate", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $where");
         $query = "UPDATE " . escape_table_name($table) . " SET $set WHERE $where";
         if (!$GLOBALS['sql_string_no_show_screen']) {
             echo text($query) . "<br>\n";

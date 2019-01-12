@@ -13,10 +13,10 @@
 
 
 require_once("../../globals.php");
-require_once("$srcdir/log.inc");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 //retrieve the user name
 $res = sqlQuery("select username from users where username=?", array($_SESSION{"authUser"}));
@@ -34,10 +34,10 @@ if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
     $disclosure_id=trim($_POST['disclosure_id']);
     if (isset($_POST["updatemode"]) and $_POST["updatemode"] == "disclosure_update") {
         //update the recorded disclosure in the extended_log table.
-        updateRecordedDisclosure($dates, $event, $recipient_name, $disclosure_desc, $disclosure_id);
+        EventAuditLogger::instance()->updateRecordedDisclosure($dates, $event, $recipient_name, $disclosure_desc, $disclosure_id);
     } else {
         //insert the disclosure records in the extended_log table.
-        recordDisclosure($dates, $event, $pid, $recipient_name, $disclosure_desc, $uname);
+        EventAuditLogger::instance()->recordDisclosure($dates, $event, $pid, $recipient_name, $disclosure_desc, $uname);
     }
     // added ajax submit to record_disclosure thus an exit() 12/19/17
     exit();
@@ -50,7 +50,7 @@ if (isset($_GET['deletelid'])) {
 
     $deletelid=$_GET['deletelid'];
     //function to delete the recorded disclosures
-    deleteDisclosure($deletelid);
+    EventAuditLogger::instance()->deleteDisclosure($deletelid);
 }
 ?>
 <html>

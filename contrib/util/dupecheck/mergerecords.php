@@ -12,8 +12,9 @@
 
 require_once("../../../interface/globals.php");
 require_once("../../../library/pnotes.inc");
-require_once("../../../library/log.inc");
 require_once("./Utils.php");
+
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 if (!empty($_POST)) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -142,7 +143,7 @@ foreach ($parameters['otherid'] as $otherID) {
 
     // add a log entry regarding the merged data
     if ($commitchanges == true) {
-        newEvent("data_merge", $_SESSION['authUser'], "Default", 1, "Merged PID ".$otherPID." data into master PID ".$masterPID);
+        EventAuditLogger::instance()->newEvent("data_merge", $_SESSION['authUser'], "Default", 1, "Merged PID ".$otherPID." data into master PID ".$masterPID);
     }
 
     echo "<li>Added entry to log</li>";

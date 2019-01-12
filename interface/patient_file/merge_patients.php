@@ -17,7 +17,6 @@ set_time_limit(0);
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/log.inc");
 
 use OpenEMR\Core\Header;
 

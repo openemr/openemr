@@ -13,7 +13,7 @@
 
 
 require_once("../../interface/globals.php");
-require_once("$srcdir/log.inc");
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 if (!verifyCsrfToken($_POST["csrf_token_form"])) {
     csrfNotVerified();
@@ -24,4 +24,4 @@ $h2t = &$instance;
 $h2t->width = 0;
 $h2t->_convert(false);
 
-newEvent("print", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $h2t->get_text());
+EventAuditLogger::instance()->newEvent("print", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $h2t->get_text());

@@ -18,7 +18,6 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/log.inc");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once("../../library/acl.inc");
 require_once("$srcdir/auth.inc");
