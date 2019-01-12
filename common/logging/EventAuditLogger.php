@@ -1,9 +1,22 @@
 <?php
+
 namespace OpenEMR\Common\Logging;
 
 use \DateTime;
 use Waryway\PhpTraitsLibrary\Singleton;
 
+/**
+ * Class to log auditted events - must be highly performant
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * @author    For additional authors, see git blame
+ * @copyright Copyright (c) 2012-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 class EventAuditLogger
 {
     use Singleton;
@@ -188,29 +201,6 @@ MSG;
         }
 
         $this->send_atna_audit_msg($user, $groupname, $event, $patient_id, $success, $comments);
-    }
-
-    /**
-     * @deprecated - doesn't appear to be in use.
-     * @param      $date
-     * @param      string $user
-     * @param      string $cols
-     * @return     mixed
-     */
-    public function getEventByDate($date, $user = "", $cols = "DISTINCT date, event, user, groupname, patient_id, success, comments, checksum")
-    {
-        $sql = "SELECT $cols FROM log WHERE date >= '$date 00:00:00' AND date <= '$date 23:59:59'";
-        if ($user) {
-            $sql .= " AND user LIKE '$user'";
-        }
-
-        $sql .= " ORDER BY date DESC LIMIT 5000";
-        $res = sqlStatement($sql);
-        for ($iter=0; $row=sqlFetchArray($res); $iter++) {
-            $all[$iter] = $row;
-        }
-
-        return $all;
     }
 
     /******************

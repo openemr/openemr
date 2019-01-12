@@ -25,6 +25,7 @@ namespace OpenEMR\Common\Database;
 
 use \Doctrine\DBAL\Logging\SQLLogger;
 use OpenEMR\Common\Logging\Logger;
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 final class Auditor implements SQLLogger
 {
