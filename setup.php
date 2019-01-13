@@ -27,6 +27,10 @@
 //  are done with the multisite procedure.
 $allow_multisite_setup = false;
 
+// Set the maximum excution time and time limit to unlimited.
+ini_set('max_execution_time', 0);
+set_time_limit(0);
+
 // Warning. If you set $allow_cloning_setup to true, this is a potential security vulnerability.
 // Recommend setting it back to false (or removing this setup.php script entirely) after you
 //  are done with the cloning setup procedure.
