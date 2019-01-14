@@ -194,6 +194,7 @@ class FacilityService
         $sql .= "     facility_code=?,";
         $sql .= "     facility_taxonomy=?,";
         $sql .= "     mail_street=?,";
+        $sql .= "     mail_street2=?,";
         $sql .= "     mail_city=?,";
         $sql .= "     mail_state=?,";
         $sql .= "     mail_zip=?";
@@ -227,6 +228,7 @@ class FacilityService
                 $data["facility_taxonomy"],
                 $data["fid"],
                 $data["mail_street"],
+                $data["mail_street2"],
                 $data["mail_city"],
                 $data["mail_state"],
                 $data["mail_zip"]
@@ -261,6 +263,7 @@ class FacilityService
         $sql .= "     facility_code=?,";
         $sql .= "     facility_taxonomy=?,";
         $sql .= "     mail_street=?,";
+        $sql .= "     mail_street2=?,";
         $sql .= "     mail_city=?,";
         $sql .= "     mail_state=?,";
         $sql .= "     mail_zip=?";
@@ -337,6 +340,7 @@ class FacilityService
         $sql .= "        FAC.primary_business_entity,";
         $sql .= "        FAC.facility_code,";
         $sql .= "        FAC.mail_street,";
+        $sql .= "        FAC.mail_street2,";
         $sql .= "        FAC.mail_city,";
         $sql .= "        FAC.mail_state,";
         $sql .= "        FAC.mail_zip";

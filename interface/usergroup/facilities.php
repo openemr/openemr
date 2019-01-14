@@ -54,6 +54,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] !
       "facility_taxonomy" => trim(isset($_POST["facility_taxonomy"]) ? $_POST["facility_taxonomy"] : ''),
       "facility_code" => trim(isset($_POST["facility_id"]) ? $_POST["facility_id"] : ''),
       "mail_street" => trim(isset($_POST[":mail_street"]) ? $_POST["mail_street"] : ''),
+        "mail_street2" => trim(isset($_POST[":mail_street2"]) ? $_POST["mail_street2"] : ''),
         "mail_city" => trim(isset($_POST["mail_city"]) ? $_POST["mail_city"] : ''),
         "mail_state" => trim(isset($_POST["mail_state"]) ? $_POST["mail_state"] : ''),
         "mail_zip" => trim(isset($_POST["mail_zip"]) ? $_POST["mail_zip"] : '')
@@ -91,6 +92,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] =
       "facility_taxonomy" => trim(isset($_POST["facility_taxonomy"]) ? $_POST["facility_taxonomy"] : ''),
       "facility_code" => trim(isset($_POST["facility_id"]) ? $_POST["facility_id"] : ''),
         "mail_street" => trim(isset($_POST["mail_street"]) ? $_POST["mail_street"] : ''),
+        "mail_street2" => trim(isset($_POST[":mail_street2"]) ? $_POST["mail_street2"] : ''),
         "mail_city" => trim(isset($_POST["mail_city"]) ? $_POST["mail_city"] : ''),
         "mail_state" => trim(isset($_POST["mail_state"]) ? $_POST["mail_state"] : ''),
         "mail_zip" => trim(isset($_POST["mail_zip"]) ? $_POST["mail_zip"] : '')
