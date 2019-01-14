@@ -1072,9 +1072,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $lhtml .= "<select name='claims[" . attr($this_encounter_id) . "][partner]' style='background-color:$bgcolor'>";
                                 $x = new X12Partner();
                                 $partners = $x->_utility_array($x->x12_partner_factory());
+                                $insur_xPartner = get_Default_X12($iter['enc_pid']); //0; //Added to select default the partner 1-13-2019
                                 foreach ($partners as $xid => $xname) {
                                     $lhtml .= '<option label="' . attr($xname) . '" value="' . attr($xid) . '"';
-                                    if ($xid == $default_x12_partner) {
+                                    if ($xid == $default_x12_partner  || $xid = $insur_xPartner) {
                                         $lhtml .= "selected";
                                     }
                                     $lhtml .= '>' . text($xname) . '</option>';
