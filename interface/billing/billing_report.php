@@ -9,7 +9,7 @@
 * @author    Jerry Padgett <sjpadgett@gmail.com>
 * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
 * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
-* @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
+* @copyright Copyright (c) 2018-2019 Jerry Padgett <sjpadgett@gmail.com>
 * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
@@ -99,6 +99,8 @@ $oto_date = $to_date;
 $ocode_type = $code_type;
 $ounbilled = $unbilled;
 $oauthorized = $my_authorized;
+$x = new X12Partner();
+$partners = $x->_utility_array($x->x12_partner_factory());
 ?>
 <!DOCTYPE html >
 <html>
@@ -113,6 +115,14 @@ $oauthorized = $my_authorized;
     }
 </style>
 <script>
+    var partners = <?php echo json_encode($partners); ?>;
+    function onNewPayer(oEvent) {
+        let p = oEvent.target.options[event.target.selectedIndex].dataset.partner;
+        let partnerSelect = oEvent.target.options[event.target.selectedIndex].dataset.partner;
+        partnerSelect = partnerSelect ? partnerSelect : -1;
+        document.getElementById("partners").value = partnerSelect;
+    }
+
     function select_all() {
         for ($i = 0; $i < document.update_form.length; $i++) {
             $name = document.update_form[$i].name;
@@ -214,8 +224,7 @@ $oauthorized = $my_authorized;
         });
         return true;
     }
-</script>
-<script>
+
     var EncounterDateArray = new Array;
     var CalendarCategoryArray = new Array;
     var EncounterIdArray = new Array;
@@ -1025,7 +1034,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $lcount += 2;
                                 $lhtml .= "<br />\n";
                                 $lhtml .= "&nbsp;<span class='form-group'>" . xlt('Bill') . ": ";
-                                $lhtml .= "<select name='claims[" . attr($this_encounter_id) . "][payer]' style='background-color:$bgcolor'>";
+                                $lhtml .= "<select name='claims[" . attr($this_encounter_id) . "][payer]' onchange='onNewPayer(event)' style='background-color:$bgcolor'>";
 
                                 $query = "SELECT id.provider AS id, id.type, id.date, " .
                                 "ic.x12_default_partner_id AS ic_x12id, ic.name AS provider " .
@@ -1061,7 +1070,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 $default_x12_partner = $row['ic_x12id'];
                                             }
                                         }
-                                        $lhtml .= ">" . text($row['type']) . ": " . text($row['provider']) . "</option>";
+                                        $lhtml .= " data-partner='" . attr($row['ic_x12id']) . "'>" . text($row['type']) . ": " . text($row['provider']) . "</option>";
                                     }
                                     $count++;
                                 }
@@ -1069,17 +1078,18 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $lhtml .= "<option value='-1'>" . xlt("Unassigned") . "</option>\n";
                                 $lhtml .= "</select>&nbsp;&nbsp;\n";
                                 $lhtml .= "&nbsp;<span class='form-group'>X12: ";
-                                $lhtml .= "<select name='claims[" . attr($this_encounter_id) . "][partner]' style='background-color:$bgcolor'>";
-                                $x = new X12Partner();
-                                $partners = $x->_utility_array($x->x12_partner_factory());
+                                $lhtml .= "<select id='partners' name='claims[" . attr($this_encounter_id) . "][partner]' style='margin-top:5px; background-color:$bgcolor'>";
+                                $lhtml .= "<option value='-1' label='Unassigned'>" . xlt("Partner not configured") . "</option>\n";
                                 foreach ($partners as $xid => $xname) {
+                                    if (empty(trim($xname))) {
+                                        continue;
+                                    }
                                     $lhtml .= '<option label="' . attr($xname) . '" value="' . attr($xid) . '"';
                                     if ($xid == $default_x12_partner) {
                                         $lhtml .= "selected";
                                     }
                                     $lhtml .= '>' . text($xname) . '</option>';
                                 }
-                                $lhtml .= "<option value='-1' label='Unassigned'>" . xlt("Unassigned") . "</option>\n";
                                 $lhtml .= "</select></span>";
                                 $DivPut = 'yes';
 
@@ -1372,12 +1382,9 @@ $(document).ready(function () {
         <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
-});
-</script>
-<script>
-$(document).ready(function () {
-//using jquery-ui tooltip instead of bootstrap tooltip
-        $('#update-tooltip').attr("title", "<?php echo xla('Click Update List to display billing information filtered by the selected Current Criteria'); ?>").tooltip();
+    // jquery-ui tooltip converted to bootstrap tooltip
+    $('#update-tooltip').attr("title", "<?php echo xla('Click Update List to display billing information filtered by the selected Current Criteria'); ?>").tooltip();
+
 });
 </script>
 <input type="hidden" name="divnos" id="divnos" value="<?php echo attr($divnos) ?>"/>
