@@ -169,9 +169,14 @@ if (isset($_GET["fid"])) {
             <td width='220px'><input type='entry' name='phone' size='20' value='<?php echo attr($facility['phone']); ?>'></td>
         </tr>
         <tr>
-            <td><span class=text><?php echo xlt('Address'); ?>: </span></td><td><input type=entry size=20 name=street value="<?php echo attr($facility["street"]); ?>"></td>
+            <td><span class=text><?php echo xlt('Address'); ?>: </span></td><td><input type=entry size=20 name="street" value="<?php echo attr($facility["street"]); ?>"></td>
             <td><span class='text'><?php echo xlt('Fax'); ?> <?php echo xlt('as'); ?> (000) 000-0000:</span></td>
-            <td><input type='entry' name='fax' size='20' value='<?php echo attr($facility['fax']); ?>'></td>
+            <td><input type='entry' name="fax" size='20' value='<?php echo attr($facility['fax']); ?>'></td>
+        </tr>
+        <tr>
+            <td><span class=text><?php echo xlt('Dept'); ?>: </span></td><td><input type=entry size=20 name="dept" value="<?php echo attr($facility["dept"]); ?>"></td>
+            <td><span class='text'></span></td>
+            <td><span class='text'></span></td>
         </tr>
         <tr>
 
@@ -285,7 +290,16 @@ if (isset($_GET["fid"])) {
                 <label><?php xl('Mailing Address', 'e'); ?>: </label>
             </td>
             <td>
-                <input type=entry size=20 name=mail_street value="<?php echo htmlspecialchars($facility["mail_street"], ENT_QUOTES) ?>">
+                <input type="entry" size="20" name="mail_street" value="<?php echo htmlspecialchars($facility["mail_street"], ENT_QUOTES) ?>">
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <label><?php xl('Dept', 'e'); ?>: </label>
+            </td>
+            <td>
+                <input type="entry" size="20" name="mail_street2" value="<?php echo htmlspecialchars($facility["mail_street2"], ENT_QUOTES) ?>">
             </td>
         </tr>
 
@@ -294,7 +308,7 @@ if (isset($_GET["fid"])) {
                 <label><?php xl('City', 'e'); ?>: </label>
             </td>
             <td>
-                <input type=entry size=20 name=mail_city value="<?php echo htmlspecialchars($facility["mail_city"], ENT_QUOTES) ?>">
+                <input type="entry" size="20" name="mail_city" value="<?php echo htmlspecialchars($facility["mail_city"], ENT_QUOTES) ?>">
             </td>
         </tr>
         <tr>
@@ -302,7 +316,7 @@ if (isset($_GET["fid"])) {
                 <label><?php xl('State', 'e'); ?>: </label>
             </td>
             <td>
-                <input type=entry size=20 name=mail_state value="<?php echo htmlspecialchars($facility["mail_state"], ENT_QUOTES) ?>">
+                <input type="entry" size="20" name="mail_state" value="<?php echo htmlspecialchars($facility["mail_state"], ENT_QUOTES) ?>">
             </td>
         </tr>
         <tr>
@@ -310,7 +324,7 @@ if (isset($_GET["fid"])) {
                 <label><?php xl('Zip', 'e'); ?>: </label>
             </td>
             <td>
-                <input type=entry size=20 name=mail_zip value="<?php echo htmlspecialchars($facility["mail_zip"], ENT_QUOTES) ?>">
+                <input type="entry" size="20" name="mail_zip" value="<?php echo htmlspecialchars($facility["mail_zip"], ENT_QUOTES) ?>">
             </td>
         </tr>
 

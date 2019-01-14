@@ -298,7 +298,16 @@ function displayAlert()
                 <label><?php xl('Mailing Address', 'e'); ?>: </label>
             </td>
             <td>
-                <input type=entry size=20 name=mail_street value="<?php echo htmlspecialchars($facility["mail_street"], ENT_QUOTES) ?>">
+                <input type="entry" size="20" name="mail_street" value="<?php echo htmlspecialchars($facility["mail_street"], ENT_QUOTES) ?>">
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <label><?php xl('Dept', 'e'); ?>: </label>
+            </td>
+            <td>
+                <input type="entry" size="20" name="mail_street2" value="<?php echo htmlspecialchars($facility["mail_street2"], ENT_QUOTES) ?>">
             </td>
         </tr>
 
@@ -307,7 +316,7 @@ function displayAlert()
                 <label><?php xl('City', 'e'); ?>: </label>
             </td>
             <td>
-                <input type=entry size=20 name=mail_city value="<?php echo htmlspecialchars($facility["mail_city"], ENT_QUOTES) ?>">
+                <input type="entry" size="20" name="mail_city" value="<?php echo htmlspecialchars($facility["mail_city"], ENT_QUOTES) ?>">
             </td>
         </tr>
         <tr>
@@ -315,7 +324,7 @@ function displayAlert()
                 <label><?php xl('State', 'e'); ?>: </label>
             </td>
             <td>
-                <input type=entry size=20 name=mail_state value="<?php echo htmlspecialchars($facility["mail_state"], ENT_QUOTES) ?>">
+                <input type="entry" size="20" name="mail_state" value="<?php echo htmlspecialchars($facility["mail_state"], ENT_QUOTES) ?>">
             </td>
         </tr>
         <tr>
@@ -323,7 +332,7 @@ function displayAlert()
                 <label><?php xl('Zip', 'e'); ?>: </label>
             </td>
             <td>
-                <input type=entry size=20 name=mail_zip value="<?php echo htmlspecialchars($facility["mail_zip"], ENT_QUOTES) ?>">
+                <input type="entry" size="20" name="mail_zip" value="<?php echo htmlspecialchars($facility["mail_zip"], ENT_QUOTES) ?>">
             </td>
         </tr>
     </table>

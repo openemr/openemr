@@ -1647,6 +1647,7 @@ CREATE TABLE `facility` (
   `extra_validation` tinyint(1) NOT NULL DEFAULT '1',
   `facility_taxonomy` varchar(15) DEFAULT NULL,
   `mail_street` varchar(30) NOT NULL,
+  `mail_street2` varchar(30) NOT NULL,
   `mail_city` varchar(50) NOT NULL,
   `mail_state` varchar(3) NOT NULL,
   `mail_zip` varchar(10) NOT NULL,
