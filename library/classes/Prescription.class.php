@@ -788,7 +788,10 @@ class Prescription extends ORDataObject
                 " ORDER BY " . add_escape_custom($order_by);
         $results = sqlQ($sql, array($patient_id));
         while ($row = sqlFetchArray($results)) {
-            $prescriptions[] = new Prescription($row['id']);
+            $prescription                  = new Prescription($row['id']);
+            $prescription->date_added      = oeFormatShortDate($prescription->date_added);
+            $prescription->date_modified   = oeFormatShortDate($prescription->date_modified);
+            $prescriptions[]               = $prescription;
         }
 
         return $prescriptions;
