@@ -1005,8 +1005,8 @@ function writeITLine($it_array)
 <body class="body_top">
 <form method='post' name='theform' id='theform' action='edit_list.php'>
 
-    <input type="hidden" name="list_from" value="<?php echo $list_from;?>"/>
-    <input type="hidden" name="list_to" value="<?php echo $list_to;?>"/>
+    <input type="hidden" name="list_from" value="<?php echo attr($list_from);?>"/>
+    <input type="hidden" name="list_to" value="<?php echo ($list_to);?>"/>
 
 <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
@@ -1124,10 +1124,10 @@ function writeITLine($it_array)
                     }
                 ?>
                 <div class="blck-filter" style="float: left; margin-top: 5px; margin-left: 10px; border:0px solid red; width: auto; ">
-                    <div id="input-type-from" style="float: left; "><?php echo xlt("From"); ?>&nbsp;<input aumtocomplete="off" id="list-from" value="<?php echo attr($urlFrom);?>" style = "margin-right: 10px; width: 40px;">
-                        <?php echo xlt("To"); ?>&nbsp;<input autocomplete="off" id="list-to" value="<?php echo attr($urlTo); ?>" style=" margin-right: 10px; width: 40px;">
+                    <div id="input-type-from" style="float: left; "><?php echo xla("From"); ?>&nbsp;<input autocomplete="off" id="list-from" value="<?php echo attr($urlFrom);?>" style = "margin-right: 10px; width: 40px;">
+                        <?php echo xla("To"); ?>&nbsp;<input autocomplete="off" id="list-to" value="<?php echo attr($urlTo); ?>" style=" margin-right: 10px; width: 40px;">
                     </div>
-                    <div style="float:left" ><input type="button" value="<?php echo xlt('Show records'); ?>" onclick="lister()"></div>
+                    <div style="float:left" ><input type="button" value="<?php echo xla('Show records'); ?>" onclick="lister()"></div>
                 </div>
                 <!--Happy end-->
 
@@ -1316,20 +1316,21 @@ if ($GLOBALS['ippf_specific']) { ?>
              * In case when we are have a get parametr "list_id_container", we are set manually variable list_id
              * and range from...to if these is set
              * adding 1 to from and to limits
+             * And set default order ASC for sort, because we can't use a empty string (sql_limits) for query builder
              */
-//            $list_from = ($list_from <= 0 ? 0 : $list_from);
+            $sql_limits = '';
             if ( $list_from > 0 ){
                 $list_from--;
             }
             if ( $list_to > 0 ) {
-                $sql_limits = "LIMIT " . escape_limit($list_from) . (intval($list_to) > 0 ? ", " . escape_limit($list_to - $list_from) : "");
+                $sql_limits = " ASC LIMIT " . escape_limit($list_from) . (intval($list_to) > 0 ? ", " . escape_limit($list_to - $list_from) : "");
             }
 
             $res = sqlStatement("SELECT lo.*
-                         FROM list_options as lo
-                         right join list_options as lo2 on lo2.option_id = lo.list_id AND lo2.edit_options = 1
+                         FROM list_options AS lo
+                         RIGHT JOIN list_options AS lo2 ON lo2.option_id = lo.list_id AND lo2.edit_options = 1
                          WHERE lo.list_id = ? AND lo.edit_options = 1
-                         ORDER BY seq,title ".$sql_limits, array($list_id));
+                         ORDER BY seq,title ".$sql_limits , array($list_id));
             while ($row = sqlFetchArray($res)) {
                 writeOptionLine(
                     $row['option_id'],
