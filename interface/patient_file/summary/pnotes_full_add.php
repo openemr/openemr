@@ -213,7 +213,7 @@ $urlparms = "docid=" . attr_url($docid) . "&orderid= " . attr_url($orderid);
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
     <div>
         <div id="pnotes_title">
-            <span class="title"><?php echo xlt('Patient Note') . text($title_docname); ?></span>
+            <span class="title"><?php echo xlt('Patient Message') . text($title_docname); ?></span>
         </div>
         <div>
             <?php if ($noteid) { ?>
@@ -241,10 +241,10 @@ $urlparms = "docid=" . attr_url($docid) . "&orderid= " . attr_url($orderid);
     <?php
     if ($noteid) {
        // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
-        echo xlt('Amend Existing Note') .
+        echo xlt('Amend Existing Message') .
         "<b> &quot;" . generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $title) . "&quot;</b>\n";
     } else {
-        echo xlt('Add New Note') . "\n";
+        echo xlt('Add New Message') . "\n";
     }
     ?>
   </td>
@@ -276,7 +276,7 @@ while ($urow = sqlFetchArray($ures)) {
     echo "</option>\n";
 }
 ?>
-   <option value=''><?php echo xlt('Mark Note as Completed'); ?></option>
+   <option value=''><?php echo xlt('Mark Message as Completed'); ?></option>
    </select>
   </td>
  </tr>
@@ -313,10 +313,10 @@ if ($noteid) {
     <td>
         <?php if ($noteid) { ?>
             <!-- existing note -->
-            <a href="#" class="css_button" id="newnote" title="<?php echo xla('Add as a new note'); ?>" ><span><?php echo xlt('Save as new note'); ?></span></a>
-            <a href="#" class="css_button" id="appendnote" title="<?php echo xla('Append to the existing note'); ?>"><span><?php echo xlt('Append this note'); ?></span></a>
+            <a href="#" class="css_button" id="newnote" title="<?php echo xla('Add as a new message'); ?>" ><span><?php echo xlt('Save as new message'); ?></span></a>
+            <a href="#" class="css_button" id="appendnote" title="<?php echo xla('Append to the existing message'); ?>"><span><?php echo xlt('Append this message'); ?></span></a>
         <?php } else { ?>
-            <a href="#" class="css_button" id="newnote" title="<?php echo xla('Add as a new note'); ?>" ><span><?php echo xlt('Save as new note'); ?></span></a>
+            <a href="#" class="css_button" id="newnote" title="<?php echo xla('Add as a new message'); ?>" ><span><?php echo xlt('Save as new message'); ?></span></a>
         <?php } ?>
     </td>
 </tr>
@@ -446,7 +446,7 @@ $(document).ready(function(){
     }
 
     var DeleteNote = function(note) {
-        if (confirm(<?php echo xlj('Are you sure you want to delete this note?'); ?> + '\n ' + <?php echo xlj('This action CANNOT be undone.'); ?>)) {
+        if (confirm(<?php echo xlj('Are you sure you want to delete this message?'); ?> + '\n ' + <?php echo xlj('This action CANNOT be undone.'); ?>)) {
             top.restoreSession();
             // strip the 'del' part of the object's ID
             $("#noteid").val(note.id.replace(/del/, ""));
