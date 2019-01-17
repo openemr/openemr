@@ -648,9 +648,45 @@ STP2TBLTOP1;
 STP2TBLTOP2;
                             echo $step2tabletop2 ."\r\n";
                         }
+                        // Include a "source" site ID drop-list and a checkbox to indicate
+                        // if cloning its database.  When checked, do not display initial user
+                        // and group stuff below.
+                        $dh = opendir($OE_SITES_BASE);
+                        if (!$dh) {
+                            die("Cannot read directory '$OE_SITES_BASE'.");
+                        }
+
+                        $siteslist = array();
+                        while (false !== ($sfname = readdir($dh))) {
+                            if (substr($sfname, 0, 1) == '.') {
+                                continue;
+                            }
+
+                            if ($sfname == 'CVS') {
+                                continue;
+                            }
+
+                            if ($sfname == $site_id) {
+                                continue;
+                            }
+
+                            $sitedir = "$OE_SITES_BASE/$sfname";
+                            if (!is_dir($sitedir)) {
+                                continue;
+                            }
+
+                            if (!is_file("$sitedir/sqlconf.php")) {
+                                continue;
+                            }
+
+                            $siteslist[$sfname] = $sfname;
+                        }
+
+                        closedir($dh);
+                        // If this is not the first site...
                         if (!empty($siteslist)) {
                             ksort($siteslist);
-                            $source_site = <<<SOURCESITE
+                            $source_site_top = <<<SOURCESITETOP
                         <div class="row">
                             <div class="col-xs-12 ">
                                 <div class="col-sm-4">
@@ -660,6 +696,8 @@ STP2TBLTOP2;
                                         </div>
                                         <div>
                                             <select name='source_site_id'id='source_site_id' class='form-control'>
+SOURCESITETOP;
+                                                echo $source_site_top . "\r\n";
                                                 foreach ($siteslist as $sfname) {
                                                     echo "<option value='$sfname'";
                                                     if ($sfname == 'default') {
@@ -668,6 +706,7 @@ STP2TBLTOP2;
 
                                                     echo ">$sfname</option>";
                                                 }
+                                            $source_site_bot = <<<SOURCESITEBOT
                                             </select>
                                         
                                         </div>
@@ -693,8 +732,8 @@ STP2TBLTOP2;
                                 </div>
                             </div>
                         </div>
-SOURCESITE;
-                            echo $source_site ."\r\n";
+SOURCESITEBOT;
+                            echo $source_site_bot ."\r\n";
                         }
                         $randomusername = chr(rand(65, 90)) . chr(rand(65, 90)) . chr(rand(65, 90)) . "-admin-" . rand(0, 9) . rand(0, 9);
                         $step2tablebot = <<<STP2TBLBOT
