@@ -3,19 +3,24 @@ $GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
 function getFormById($id, $cols = "*")
 {
     $sql = "select ? FROM forms WHERE id='?' AND deleted = 0 ORDER BY date DESC LIMIT 0,1";
-    //echo $sql . "<br />";
+    //echo $sql . "<br />
+";
     return sqlQuery($sql,array($cols,$id));
 }
 function getFormInfoById($id, $cols = "*")
 {
     $sql = "select ? FROM forms WHERE id='?' AND deleted = 0 ORDER BY date DESC LIMIT 0,1";
-    //echo $sql . "<br />";
+    //echo $sql . "
+<br/>
+";
     $result =  sqlQuery($sql,array($cols,$id));
     if ($result['formdir'] == "newpatient") {
         $result['formdir'] = "encounter";
     }
     $sql = "select * from form_" . $result['formdir'] . " where id='" . $result['form_id']  . "'";
-    //echo $sql . "<br />";
+    //echo $sql . "
+<br/>
+";
     $result =  sqlQuery($sql);
     //print_r($result);
     return $result;
@@ -175,19 +180,24 @@ $GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
 function getFormById($id, $cols = "*")
 {
     $sql = "select ? FROM forms WHERE id='?' AND deleted = 0 ORDER BY date DESC LIMIT 0,1";
-    //echo $sql . "<br />";
+    //echo $sql . "<br />
+";
     return sqlQuery($sql,array($cols,$id));
 }
 function getFormInfoById($id, $cols = "*")
 {
     $sql = "select ? FROM forms WHERE id='?' AND deleted = 0 ORDER BY date DESC LIMIT 0,1";
-    //echo $sql . "<br />";
+    //echo $sql . "
+<br/>
+";
     $result =  sqlQuery($sql,array($cols,$id));
     if ($result['formdir'] == "newpatient") {
         $result['formdir'] = "encounter";
     }
     $sql = "select * from form_" . $result['formdir'] . " where id='" . $result['form_id']  . "'";
-    //echo $sql . "<br />";
+    //echo $sql . "
+<br/>
+";
     $result =  sqlQuery($sql);
     //print_r($result);
     return $result;
