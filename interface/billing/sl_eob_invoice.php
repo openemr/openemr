@@ -444,7 +444,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
         </div>
     </div>
     <div class="row">
-        <form action='sl_eob_invoice.php?id=<?php echo attr(urlencode($trans_id)); ?>' method='post' onsubmit='return validate(this)'>
+        <form action='sl_eob_invoice.php?id=<?php echo attr_url($trans_id); ?>' method='post' onsubmit='return validate(this)'>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>"/>
             <input type="hidden" name="isPosting" value="<?php echo attr($from_posting); ?>"/>
             <fieldset>

@@ -156,13 +156,13 @@ if ($notes) {
 <tr><td>
 <?php
 if ($offset>($N-1)) {
-    echo "<a class='css_button' href=office_comments_full.php?active=".attr(urlencode($active))."&offset=".attr(urlencode($offset-$N))." onclick='top.restoreSession()'>".xlt('Previous')."</a>";
+    echo "<a class='css_button' href=office_comments_full.php?active=".attr_url($active)."&offset=".attr_url($offset-$N)." onclick='top.restoreSession()'>".xlt('Previous')."</a>";
 }
 ?>
 </td><td align=right>
 <?php
 if ($result_count == $N) {
-    echo "<a class='css_button' href=office_comments_full.php?active=".attr(urlencode($active))."&offset=".attr(urlencode($offset+$N))." onclick='top.restoreSession()'>".xlt('Next')."</a>";
+    echo "<a class='css_button' href=office_comments_full.php?active=".attr_url($active)."&offset=".attr_url($offset+$N)." onclick='top.restoreSession()'>".xlt('Next')."</a>";
 }
 ?>
 </td></tr>

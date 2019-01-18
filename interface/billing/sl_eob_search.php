@@ -758,9 +758,9 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                         </div>
                         <div class="col-xs-1">
                             <label class="control-label oe-large" for="only_with_debt"><?php echo xlt('Pt Debt'); ?>:</label>
-                                
+
                             <label class="control-label oe-small" for="only_with_debt"><?php echo xlt('Debt'); ?>:</label>
-                                
+
                             <div class="text-center">
                                 <input <?php echo $_REQUEST['only_with_debt'] ? 'checked=checked' : ''; ?>
                                     type="checkbox" name="only_with_debt" id="only_with_debt"/>
@@ -1104,7 +1104,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                            onclick="return npopup(<?php echo attr(addslashes($row['pid'])) ?>)"><?php echo text($row['lname']) . ', ' . text($row['fname']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;
-                                        <a href="sl_eob_invoice.php?isPosting=1&id=<?php echo attr(urlencode($row['id'])); ?>"
+                                        <a href="sl_eob_invoice.php?isPosting=1&id=<?php echo attr_url($row['id']); ?>"
                                            target="_blank"><?php echo text($row['pid']) . '.' . text($row['encounter']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;<?php echo text(oeFormatShortDate($svcdate)); ?></td>
@@ -1210,7 +1210,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         var f = document.forms[0];
         var debug = f.form_without.checked ? '1' : '0';
         var paydate = f.form_paydate.value;
-        window.open('sl_eob_process.php?eraname=<?php echo attr(urlencode($eraname)); ?>&debug=' + debug + '&paydate=' + paydate + '&original=original' + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>', '_blank');
+        window.open('sl_eob_process.php?eraname=' + <?php echo js_url($eraname); ?> + '&debug=' + encodeURIComponent(debug) + '&paydate=' + encodeURIComponent(paydate) + '&original=original' + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank');
         return false;
     }
 
