@@ -45,7 +45,7 @@ require_once(dirname(__FILE__) . '/library/authentication/password_hashing.php')
 require_once dirname(__FILE__) . '/library/classes/Installer.class.php';
 
 $state = isset($_POST["state"]) ? ($_POST["state"]) : '';
-$installer1 = new Installer($_REQUEST);
+$installer = new Installer($_REQUEST);
 // Make this true for IPPF.
 $ippf_specific = false;
 
@@ -119,7 +119,7 @@ if (!$COMMAND_LINE && empty($_REQUEST['site'])) {
         </div><!--end of container div-->
 SITEID;
     echo $site_id . "\r\n";
-    $installer1->setupHelpModal();
+    $installer->setupHelpModal();
     echo "</body>". "\r\n";
     echo "</html>". "\r\n";
 
@@ -146,7 +146,6 @@ if (!$allow_multisite_setup && $site_id != 'default') {
 // checking, then can be manually disabled here.
 $checkPermissions = true;
 
-$installer = new Installer($_REQUEST);
 global $OE_SITE_DIR; // The Installer sets this
 
 $docsDirectory = "$OE_SITE_DIR/documents";
@@ -314,6 +313,11 @@ function cloneClicked() {
 
             if (!(extension_loaded("mbstring") )) {
                 echo "$error: PHP mb_string extension missing. To continue, install and enable mb_string extension, then restart web server.";
+                exit(1);
+            }
+            
+            if (!(extension_loaded("openssl") )) {
+                echo "$error: PHP openssl extension missing. To continue, install PHP openssl extension, then restart web server.";
                 exit(1);
             }
             ?>
@@ -813,7 +817,7 @@ SOURCESITEBOT;
                                             <label class="control-label" for="igroup">Initial Group:</label> <a href="#igroup_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div>
-                                            <input name='igroup' id='igroup' class='form-control' type='text' value=''>
+                                            <input name='igroup' id='igroup' class='form-control' type='text' value='Default'>
                                         </div>
                                     </div>                       
                                     <div id="igroup_info" class="collapse">
@@ -1068,7 +1072,6 @@ STP2TBLBOT;
                             $btn_text = 'Proceed to Step 4';
                             echo "<br>";
                             echo "<p class='bg-warning'>Click <b>$btn_text</b> to install and configure access controls (php-GACL). $note: This process will take a few minutes.</p>";
-                            //echo "<p class='bg-success'>Upon successful completion will automatically take you to the next step.</p>";
                             echo "<p class='bg-success oe-spinner' style = 'visibility:hidden;'>Upon successful completion will automatically take you to the next step.<i class='fa fa-spinner fa-pulse fa-fw'></i></p>";
                             $next_state = 4;
                         }
@@ -1087,7 +1090,6 @@ STP2TBLBOT;
                                         <input name='port' type='hidden' value='{$installer->port}'>
                                         <input name='loginhost' type='hidden' value='{$installer->loginhost}'>
                                         <input name='dbname' type='hidden' value='{$installer->dbname}'>
-                                        <input name='clone_database' type='hidden' value='{$installer->clone_database}'>
 FRMTOP;
                                     echo $form_top . "\r\n";
                         if ($allow_cloning_setup) {
@@ -1342,7 +1344,7 @@ TMF;
                         echo $theme_form ."\r\n";
                         echo '<div class="row hideaway" style="display:none;">'."\r\n";
                         echo '<div class="col-sm-12">'."\r\n";
-                        echo '    <h4>Select New Theme:</h4>'."\r\n";
+                        echo '    <h4>Select New Theme: <h5>(scroll down to view all)</h5></h4>'."\r\n";
                         echo '    <br>'."\r\n";
                         $installer->displayThemesDivs();
                         break;
