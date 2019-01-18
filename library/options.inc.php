@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007-2017 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2019 Rod Roark <rod@sunsetsystems.com>
 // Copyright © 2010 by Andrew Moore <amoore@cpan.org>
 // Copyright © 2010 by "Boyd Stephen Smith Jr." <bss@iguanasuicide.net>
 //
@@ -3102,7 +3102,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
             continue;
         }
         $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
-        $subtitle = empty($grparr[$this_group]['grp_subtitle']) ? '' : $grparr[$this_group]['grp_subtitle'];
+        $subtitle = empty($grparr[$this_group]['grp_subtitle']) ? '' : xl_layout_label($grparr[$this_group]['grp_subtitle']);
 
         $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
           "WHERE form_id = ? AND uor > 0 AND group_id = ? " .
@@ -3267,7 +3267,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
             continue;
         }
         $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
-        $subtitle = empty($grparr[$this_group]['grp_subtitle']) ? '' : $grparr[$this_group]['grp_subtitle'];
+        $subtitle = empty($grparr[$this_group]['grp_subtitle']) ? '' : xl_layout_label($grparr[$this_group]['grp_subtitle']);
 
         $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
             "WHERE form_id = ? AND uor > 0 AND group_id = ? " .
@@ -3563,7 +3563,7 @@ function generate_layout_validation($form_id)
             case 27: // radio buttons
                 echo
                 " var i = 0;\n" .
-                " for (; i < f.$fldname.length; ++i) if (f.$fldname[i].checked) break;\n" .
+                " for (; i < f.$fldname.length; ++i) if (f.{$fldname}[i].checked) break;\n" .
                 " if (i >= f.$fldname.length) {\n" .
                 "   alert(" . xlj('Please choose a value for') . " + " .
                 "\":\\n\" + " . js_escape(xl_layout_label($fldtitle)) . ");\n" .

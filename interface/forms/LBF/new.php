@@ -6,7 +6,7 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2009-2017 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2009-2019 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -960,7 +960,8 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     }
                     $group_levels .= $this_levels[$i++];
                     $gname = $grparr[substr($group_levels, 0, $i)]['grp_title'];
-                    $subtitle = $grparr[substr($group_levels, 0, $i)]['grp_subtitle'];
+                    $subtitle = xl_layout_label($grparr[substr($group_levels, 0, $i)]['grp_subtitle']);
+
                     // Compute a short unique identifier for this group.
                     $group_seq = 'lbf' . $group_levels;
                     $group_name = $gname;

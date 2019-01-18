@@ -8,7 +8,7 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2014-2017 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2014-2019 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -91,6 +91,16 @@ function checkSkipConditions() {
     if (srcelem == null) srcelem = document.getElementById('radio_' + tofind);
     if (srcelem == null) srcelem = document.getElementById('form_' + tofind) ;
     if (srcelem == null) srcelem = document.getElementById('text_' + tofind);
+
+    if (srcelem == null) {
+      // This caters to radio buttons which we treat like droplists.
+      var tmp = document.getElementById('form_' + tofind + '[' + value + ']');
+      if (tmp != null) {
+        srcelem = tmp;
+        if (operator == 'eq') operator = 'se';
+        if (operator == 'ne') operator = 'ns';
+      }
+    }
 
     if (srcelem == null) {
       if (!cskerror) alert(<?php echo xlj('Cannot find a skip source field for'); ?> + ' "' + tofind + '"');
