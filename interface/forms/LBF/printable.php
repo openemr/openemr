@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2009-2017 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2009-2019 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -391,7 +391,7 @@ while ($frow = sqlFetchArray($fres)) {
 
         $group_levels .= $this_levels[$i++];
         $gname = $grparr[substr($group_levels, 0, $i)]['grp_title'];
-        $subtitle = $grparr[substr($group_levels, 0, $i)]['grp_subtitle'];
+        $subtitle = xl_layout_label($grparr[substr($group_levels, 0, $i)]['grp_subtitle']);
 
         // This is also for html2pdf. Telling it that the following stuff should
         // start on a new page if there is not otherwise room for it on this page.
