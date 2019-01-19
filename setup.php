@@ -1323,7 +1323,7 @@ STP6BOT;
                                 <input name='port' type='hidden' value='{$installer->port}'>
                                 <input name='loginhost' type='hidden' value='{$installer->loginhost}'>
                                 <input name='dbname' type='hidden' value='{$installer->dbname}'>
-                                <input type='hidden' name='new_theme' id = 'new_theme' value=''>
+                                <input type='hidden' name='new_theme' id = 'new_theme' value='{$installer->getCurrentTheme()}'>
                                 <input name='clone_database' type='hidden' value='{$installer->clone_database}'>
                             <h4>Select One:</h4>
                                 <div class="checkbox">
