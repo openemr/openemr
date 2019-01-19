@@ -194,7 +194,7 @@ while ($row = sqlFetchArray($res)) {
         <div class="row">
             <div class="col-sm-12">
                 <!-- form used to open a new top level window when a patient row is clicked -->
-                <form name='fnew' method='post' target='_blank' action='../main_screen.php?auth=login&site=<?php echo attr(urlencode($_SESSION['site_id'])); ?>'>
+                <form name='fnew' method='post' target='_blank' action='../main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                     <input type='hidden' name='patientID' value='0'/>
                 </form>

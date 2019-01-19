@@ -378,7 +378,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         // Display the Messages page layout.
                         echo "<form name='form_patient' id='new_note'
                                 class='form-horizontal' 
-                                action=\"messages.php?showall=" . attr(urlencode($showall)) . "&sortby=" . attr(urlencode($sortby)) . "&sortorder=" . attr(urlencode($sortorder)) . "&begin=" . attr(urlencode($begin)) . "&$activity_string_html\" 
+                                action=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&$activity_string_html\" 
                                 method='post'>
                                 <input type=hidden name=noteid id=noteid value='" . attr($noteid) . "'>
                                 <input type=hidden name=task id=task value=add>";
@@ -544,7 +544,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             while ($gprow = sqlFetchArray($tmp)) {
                                                 echo "   <a href='";
                                                 echo $GLOBALS['webroot'] . "/interface/orders/single_order_results.php?orderid=";
-                                                echo attr(urlencode($gprow['id1']));
+                                                echo attr_url($gprow['id1']);
                                                 echo "' target='_blank' onclick='top.restoreSession()'>";
                                                 echo text($gprow['id1']);
                                                 echo "</a>\n";
@@ -697,8 +697,8 @@ if (!empty($_REQUEST['go'])) { ?>
                                         text($name) . "</td><td width=5></td></tr>
                                         </table></td>
                                     <td style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\">
-                                        <table cellspacing=0 cellpadding=0 width=100%><tr><td width=5></td><td class=\"text\"><a href=\"messages.php?showall=" . attr(urlencode($showall)) . "&sortby=" . attr(urlencode($sortby)) . "&sortorder=" . attr(urlencode($sortorder)) . "&begin=" . attr(urlencode($begin)) . "&task=edit&noteid=" .
-                                        attr(urlencode($myrow['id'])) . "&$activity_string_html\" onclick=\"top.restoreSession()\">" .
+                                        <table cellspacing=0 cellpadding=0 width=100%><tr><td width=5></td><td class=\"text\"><a href=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&task=edit&noteid=" .
+                                        attr_url($myrow['id']) . "&$activity_string_html\" onclick=\"top.restoreSession()\">" .
                                         text($patient) . "</a></td><td width=5></td></tr>
                                         </table></td>
                                     <td style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\">
@@ -723,7 +723,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                         </form>
                                         <div class='row oe-margin-t-10'>
                                             
-                                            <div class=\"col-xs-12 col-md-12 col-lg-12\"><a href=\"messages.php?showall=" . attr(urlencode($showall)) . "&sortby=" . attr(urlencode($sortby)) . "&sortorder=" . attr(urlencode($sortorder)) . "&begin=" . attr(urlencode($begin)) . "&task=addnew&$activity_string_html\" class=\"btn btn-default btn-add\" onclick=\"top.restoreSession()\">" .
+                                            <div class=\"col-xs-12 col-md-12 col-lg-12\"><a href=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&task=addnew&$activity_string_html\" class=\"btn btn-default btn-add\" onclick=\"top.restoreSession()\">" .
                                             xlt('Add New') . "</a> &nbsp; <a href=\"javascript:confirmDeleteSelected()\" class=\"btn btn-default btn-delete\" onclick=\"top.restoreSession()\">" .
                                             xlt('Delete') . "</a>
                                             <div  class=\"text-right\">$prevlink &nbsp; " . text($end) . " " . xlt('of') . " " . text($total) . " &nbsp; $nextlink</div>
@@ -992,7 +992,7 @@ if (!empty($_REQUEST['go'])) { ?>
         };
         var PrintNote = function () {
             top.restoreSession();
-            window.open('../../patient_file/summary/pnotes_print.php?noteid=<?php echo attr(urlencode($noteid)); ?>', '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
+            window.open('../../patient_file/summary/pnotes_print.php?noteid=' + <?php echo js_url($noteid); ?>, '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
         };
 
         var SaveNote = function () {
@@ -1096,7 +1096,7 @@ if (!empty($_REQUEST['go'])) { ?>
             var url = '../../main/finder/multi_patients_finder.php'
             // for edit selected list
             if ($('#reply_to').val() !== '') {
-                url = url + '?patients=' + $('#reply_to').val() + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>';
+                url = url + '?patients=' + $('#reply_to').val() + '&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>';
             }
             dlgopen(url, '_blank', 625, 400);
         }

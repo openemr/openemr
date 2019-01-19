@@ -330,7 +330,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
 
     echo " if (opener.refreshme) opener.refreshme();\n";
     if ($new_drug) {
-        echo " window.location.href='add_edit_lot.php?drug=" . attr(urlencode($drug_id)) . "&lot=0'\n";
+        echo " window.location.href='add_edit_lot.php?drug=" . attr_url($drug_id) . "&lot=0'\n";
     } else {
         echo " window.close();\n";
     }
@@ -363,7 +363,7 @@ if ($drug_id) {
 }
 ?>
 
-<form class="form" method='post' name='theform' action='add_edit_drug.php?drug=<?php echo attr(urlencode($drug_id)); ?>'>
+<form class="form" method='post' name='theform' action='add_edit_drug.php?drug=<?php echo attr_url($drug_id); ?>'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <center>
 

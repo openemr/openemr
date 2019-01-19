@@ -34,10 +34,10 @@ require_once("language.inc.php");
 <table>
  <tr>
   <td class="small" colspan='4'>
-   <a href="?m=definition&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>" onclick="top.restoreSession()"><?php echo xlt('Edit Definitions'); ?></a> |
-   <a href="?m=language&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>" onclick="top.restoreSession()"><?php echo xlt('Add Language'); ?></a> |
-   <a href="?m=constant&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>" onclick="top.restoreSession()"><?php echo xlt('Add Constant'); ?></a> |
-   <a href="?m=manage&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>" onclick="top.restoreSession()"><?php echo xlt('Manage Translations'); ?></a>
+   <a href="?m=definition&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" onclick="top.restoreSession()"><?php echo xlt('Edit Definitions'); ?></a> |
+   <a href="?m=language&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" onclick="top.restoreSession()"><?php echo xlt('Add Language'); ?></a> |
+   <a href="?m=constant&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" onclick="top.restoreSession()"><?php echo xlt('Add Constant'); ?></a> |
+   <a href="?m=manage&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" onclick="top.restoreSession()"><?php echo xlt('Manage Translations'); ?></a>
   </td>
  </tr>
 </table>

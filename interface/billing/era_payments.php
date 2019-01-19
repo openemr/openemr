@@ -124,7 +124,7 @@ if ($_FILES['form_erafile']['size']) {
          var paydate = f.check_date.value;
          var post_to_date = f.post_to_date.value;
          var deposit_date = f.deposit_date.value;
-         window.open('sl_eob_process.php?eraname=<?php echo attr(urlencode($eraname)); ?>&debug=' + debug + '&paydate=' + paydate + '&post_to_date=' + post_to_date + '&deposit_date=' + deposit_date + '&original=original' + '&InsId=<?php echo attr(urlencode($hidden_type_code)); ?>' + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>' , '_blank');
+         window.open('sl_eob_process.php?eraname=' + <?php echo js_url($eraname); ?> + '&debug=' + encodeURIComponent(debug) + '&paydate=' + encodeURIComponent(paydate) + '&post_to_date=' + encodeURIComponent(post_to_date) + '&deposit_date=' + encodeURIComponent(deposit_date) + '&original=original' + '&InsId=' + <?php echo js_url($hidden_type_code); ?> + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank');
          return false;
         <?php
         }

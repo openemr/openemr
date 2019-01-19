@@ -1161,7 +1161,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     }
 
                                     if ($crow['process_time']) {
-                                        $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['process_time'], 0, 10))) . text(substr($crow['process_time'], 10, 6)) . " " . xlt("Claim was generated to file") . " " . "<a href='get_claim_file.php?key=" . attr($crow['process_file']) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' onclick='top.restoreSession()'>" . text($crow['process_file']) . "</a>";
+                                        $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['process_time'], 0, 10))) . text(substr($crow['process_time'], 10, 6)) . " " . xlt("Claim was generated to file") . " " . "<a href='get_claim_file.php?key=" . attr_url($crow['process_file']) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($crow['process_file']) . "</a>";
                                         ++$lcount;
                                     }
 

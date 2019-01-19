@@ -146,33 +146,33 @@ function refreshme() {
 
 // Process click on filename to view.
 function dodclick(ffname) {
- cascwin('fax_view.php?file=' + encodeURIComponent(ffname) + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>', '_blank', 600, 475,
+ cascwin('fax_view.php?file=' + encodeURIComponent(ffname) + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank', 600, 475,
   "resizable=1,scrollbars=1");
  return false;
 }
 
 // Process click on Job ID to view.
 function dojclick(jobid) {
- cascwin('fax_view.php?jid=' + encodeURIComponent(jobid) + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>', '_blank', 600, 475,
+ cascwin('fax_view.php?jid=' + encodeURIComponent(jobid) + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank', 600, 475,
   "resizable=1,scrollbars=1");
  return false;
 }
 
 // Process scanned document filename to view.
 function dosvclick(sfname) {
- cascwin('fax_view.php?scan=' + encodeURIComponent(sfname) + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>', '_blank', 600, 475,
+ cascwin('fax_view.php?scan=' + encodeURIComponent(sfname) + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank', 600, 475,
   "resizable=1,scrollbars=1");
  return false;
 }
 
 // Process click to pop up the fax dispatch window.
 function domclick(ffname) {
-    dlgopen('fax_dispatch.php?file=' + encodeURIComponent(ffname) + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>', '_blank', 850, 550, '', 'Fax Dispatch');
+    dlgopen('fax_dispatch.php?file=' + encodeURIComponent(ffname) + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank', 850, 550, '', 'Fax Dispatch');
 }
 
 // Process click to pop up the scanned document dispatch window.
 function dosdclick(sfname) {
-    dlgopen('fax_dispatch.php?scan=' + encodeURIComponent(sfname) + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>', '_blank', 850, 550, '', 'Scanned Dispatch');
+    dlgopen('fax_dispatch.php?scan=' + encodeURIComponent(sfname) + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank', 850, 550, '', 'Scanned Dispatch');
 }
 
 </script>
@@ -230,9 +230,9 @@ foreach ($mlines as $matches) {
     $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
     echo "    <tr class='detail' bgcolor='" . attr($bgcolor) . "'>\n";
     echo "     <td onclick='dodclick(\"" . attr(addslashes($ffname)) . "\")'>";
-    echo "<a href='fax_view.php?file=" . attr(urlencode($ffname)) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' onclick='return false'>" . text($ffbase) . "</a></td>\n";
+    echo "<a href='fax_view.php?file=" . attr_url($ffname) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' onclick='return false'>" . text($ffbase) . "</a></td>\n";
     echo "     <td onclick='domclick(\"" . attr(addslashes($ffname)) . "\")'>";
-    echo "<a href='fax_dispatch.php?file=" . attr(urlencode($ffname)) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' onclick='return false'>" . xlt('Dispatch') . "</a></td>\n";
+    echo "<a href='fax_dispatch.php?file=" . attr_url($ffname) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' onclick='return false'>" . xlt('Dispatch') . "</a></td>\n";
     echo "     <td>" . text($matches[3]) . "</td>\n";
     echo "     <td>" . text($matches[2]) . "</td>\n";
     echo "     <td align='right'>" . text($matches[1]) . "</td>\n";
@@ -271,7 +271,7 @@ foreach ($dlines as $matches) {
     $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
     echo "    <tr class='detail' bgcolor='" . attr($bgcolor) . "'>\n";
     echo "     <td onclick='dojclick(\"" . attr(addslashes($jobid)) . "\")'>" .
-     "<a href='fax_view.php?jid=" . attr(urlencode($jobid)) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' onclick='return false'>" .
+     "<a href='fax_view.php?jid=" . attr_url($jobid) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' onclick='return false'>" .
      "$jobid</a></td>\n";
     echo "     <td>" . text($matches[5]) . "</td>\n";
     echo "     <td>" . text($matches[6]) . "</td>\n";
@@ -301,10 +301,10 @@ foreach ($slines as $sline) {
     $sfdate = date('Y-m-d H:i', $sline[9]);
     echo "    <tr class='detail' bgcolor='" . attr($bgcolor) . "'>\n";
     echo "     <td onclick='dosvclick(\"" . attr(addslashes($sfname)) . "\")'>" .
-     "<a href='fax_view.php?scan=" . attr(urlencode($sfname)) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' onclick='return false'>" .
+     "<a href='fax_view.php?scan=" . attr_url($sfname) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' onclick='return false'>" .
      "$sfname</a></td>\n";
     echo "     <td onclick='dosdclick(\"" . attr(addslashes($sfname)) . "\")'>";
-    echo "<a href='fax_dispatch.php?scan=" . attr(urlencode($sfname)) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' onclick='return false'>" . xlt('Dispatch') . "</a></td>\n";
+    echo "<a href='fax_dispatch.php?scan=" . attr_url($sfname) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' onclick='return false'>" . xlt('Dispatch') . "</a></td>\n";
     echo "     <td>". text($sfdate) . "</td>\n";
     echo "     <td align='right'>" . text($sline[7]) . "</td>\n";
     echo "    </tr>\n";
