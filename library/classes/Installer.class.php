@@ -772,6 +772,7 @@ if ($it_died != 0) {
 
         $backup_file = $this->get_backup_filename();
         $cmd = "mysqldump -u " . escapeshellarg($login) .
+        " -h " . $host .
         " -p" . escapeshellarg($pass) .
         " --opt --skip-extended-insert --quote-names -r $backup_file " .
         escapeshellarg($dbase);
@@ -810,7 +811,7 @@ if ($it_died != 0) {
         $this->getCurrentTheme();//why is this needed ?
         return $this->execute_sql("UPDATE globals SET gl_value='". $this->escapeSql($this->new_theme) ."' WHERE gl_name LIKE '%css_header%'");
     }
-    
+
     public function listThemes()
     {
         $themes_img_dir = "public/images/stylesheets/";
@@ -819,7 +820,7 @@ if ($it_died != 0) {
         }));
         return $arr_themes_img;
     }
-    
+
     private function extractFileName($theme_file_name = '')
     {
         $this->theme_file_name = $theme_file_name;
@@ -829,7 +830,7 @@ if ($it_died != 0) {
         $theme_title = ucwords(str_replace("_", " ", $theme_value));
         return array('theme_value' => $theme_value, 'theme_title' => $theme_title);
     }
-    
+
     public function displayThemesDivs()
     {
         $themes_number = count($this->listThemes());
@@ -856,20 +857,20 @@ FDIV;
                     echo $div_start . "\r\n";
                     echo $img_div . "\r\n";
                     break;
-                
+
                 case 1:
                 case 2:
                 case 3:
                 case 4:
                     echo $img_div . "\r\n";
                     break;
-                
+
                 case 5://end row
                     echo $img_div . "\r\n";
                     echo $div_end . "\r\n";
                     echo "<br>" . "\r\n";
                     break;
-                
+
                 default:
                     echo $div_start . "\r\n";
                     echo "<h5>Sorry no stylesheet images in directory</h5>";
@@ -879,7 +880,7 @@ FDIV;
         }
         return;
     }
-    
+
     public function displaySelectedThemeDiv()
     {
         $theme_file_name = $this->getCurrentTheme();
@@ -904,7 +905,7 @@ DSTD;
         echo $display_selected_theme_div . "\r\n";
         return;
     }
-    
+
     public function displayNewThemeDiv()
     {
         $theme_file_name = $this->new_theme;

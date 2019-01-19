@@ -202,7 +202,7 @@ if (file_exists($OE_SITE_DIR)) {
     .table.no-border tr td, .table.no-border tr th {
         border-width: 0;
     }
-    td { 
+    td {
         font-size:10pt;
     }
     .inputtext {
@@ -215,12 +215,12 @@ if (file_exists($OE_SITE_DIR)) {
          font-size:9pt;
          font-weight:bold;
     }
-       
+
     .label-div > a {
         display:none;
     }
     .label-div:hover > a {
-       display:inline-block; 
+       display:inline-block;
     }
     div[id$="_info"] {
         background: #F7FAB3;
@@ -315,7 +315,7 @@ function cloneClicked() {
                 echo "$error: PHP mb_string extension missing. To continue, install and enable mb_string extension, then restart web server.";
                 exit(1);
             }
-            
+
             if (!(extension_loaded("openssl") )) {
                 echo "$error: PHP openssl extension missing. To continue, install PHP openssl extension, then restart web server.";
                 exit(1);
@@ -348,6 +348,7 @@ function cloneClicked() {
                 echo "<p><b>The initial OpenEMR user is <span class='text-primary'>'".$installer->iuser."'</span> and the password is <span class='text-primary'>'".$installer->iuserpass."'</span></b></p>";
                 echo "<p> The selected theme is :</p>";
                 $installer->displayNewThemeDiv();
+                $installer->setCurrentTheme();
                 echo "<p>If you edited the PHP or Apache configuration files during this installation process, then we recommend you restart your Apache server before following below OpenEMR link.</p>";
                 echo "<p>In Linux use the following command:</p>";
                 echo "<p><code>sudo apachectl -k restart</code></p>";
@@ -357,8 +358,6 @@ function cloneClicked() {
             </p>
             </fieldset>
             <?php
-            $installer->setCurrentTheme();
-           
             $end_div = <<<ENDDIV
             </div>
         </div> 
@@ -418,8 +417,8 @@ STP1;
                             <input name='inst' type='hidden' value='$inst'>
 STP2TOP;
                         echo $step2top ."\r\n";
-       
-                        
+
+
                         $step2tabletop1 = <<<STP2TBLTOP1
                             <fieldset>
                         <legend name="form_legend" id="form_legend" class='oe-setup-legend'>MySQL Server Details<i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip" aria-hidden="true"></i></legend>
@@ -875,7 +874,7 @@ STP2TBLBOT;
                             $pass_step2_validation = false;
                             $error_step2_message .= "A database login password is required <br>\n";
                         }
-                                    
+
                         if (!$pass_step2_validation) {
                             $error_step2_message .= $error_page_end . "\r\n";
                             die($error_step2_message);
@@ -1063,11 +1062,11 @@ STP2TBLBOT;
 
                         if ($allow_cloning_setup && !empty($installer->clone_database)) {
                             // Database was cloned, skip ACL setup.
-                            $btn_text = 'Proceed to Select a Theme';
+                            $btn_text = 'Proceed to Final Step';
                             echo "<br>";
-                            echo "<p>The database was cloned, access control list exists therefore skipping ACL setup</p>";
+                            echo "<p>The database was cloned, access control list exists therefore skipping ACL setup and skipping theme setup</p>";
                             echo "<p class='bg-warning'>Click <b>$btn_text</b> for further instructions.</p>";
-                            $next_state = 7;
+                            $next_state = 8;
                         } else {
                             $btn_text = 'Proceed to Step 4';
                             echo "<br>";
@@ -1075,7 +1074,7 @@ STP2TBLBOT;
                             echo "<p class='bg-success oe-spinner' style = 'visibility:hidden;'>Upon successful completion will automatically take you to the next step.<i class='fa fa-spinner fa-pulse fa-fw'></i></p>";
                             $next_state = 4;
                         }
-                                    
+
                                     $form_top = <<<FRMTOP
                                     <form method='post'>
                                         <input name='state' type='hidden' value='$next_state'>
@@ -1224,7 +1223,7 @@ STP5TOP;
                             </li>
 STP5TAB;
                         echo $step5_table . "\r\n";
-                        
+
                         if (!$gotFileFlag) {
                             echo "<li>If you are having difficulty finding your php.ini file, then refer to the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual for suggestions.</li>\n";
                         }
@@ -1303,7 +1302,7 @@ STP5BOT;
 STP6BOT;
                         echo $step6_bottom . "\r\n";
                         break;
-                        
+
                     case 7:
                         echo "<fieldset>";
                         echo "<legend>Step $state - Select a Theme</legend>";
@@ -1444,7 +1443,7 @@ BOT;
                         echo $bot ."\r\n";
                         ?>
 
-                        
+
     </div><!--end of container div -->
     <?php $installer->setupHelpModal();?>
     <script>
@@ -1457,10 +1456,10 @@ BOT;
                 }
             });
             $('.enter-details-tooltip').prop( "title", "Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section").tooltip();
-            
+
         });
     </script>
-    <script type = "text/javascript" > 
+    <script type = "text/javascript" >
         $(document).ready(function() {
             $("input[type='radio']").click(function() {
                 var radioValue = $("input[name='stylesheet']:checked").val();
@@ -1494,7 +1493,7 @@ BOT;
                     } else if($('.check:checked').val() == 'keep_current'){
                         $(".hideaway").hide();
                     }
-                    
+
                     if($('.check').filter(':checked').length > 0) {
                         $(".hide_button").show();
                     } else {
@@ -1503,27 +1502,27 @@ BOT;
                     }
             });
             $('.wait').removeClass('button-wait');
-            
+
             $( "#create_db_button" ).hover(
                 function() {
                     if ($('#pass' ).val().length > 11 && $('#iuserpass' ).val().length > 11 && $('#iuser' ).val().length > 11 ){
-                        
+
                         $("button").click(function(){
                            $(".oe-spinner").css("visibility", "visible");
                         });
-                        
+
                         $('.wait').click(function(){
                              $('.wait').addClass('button-wait');
                         });
                     }
                 }
             );
-            
+
             $("#step-4-btn").click(function(){
                $(".oe-spinner").css("visibility", "visible");
                $(this).addClass('button-wait');
             });
-        }); 
+        });
     </script>
 </body>
 </html>
