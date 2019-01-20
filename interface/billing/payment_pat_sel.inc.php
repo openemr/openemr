@@ -1,14 +1,17 @@
 <?php
 /**
+ * payment_pat_sel.inc.php
  *
- * @package OpenEMR
- * @author Eldho Chacko <eldho@zhservices.com>
- * @author Paul Simon K <paul@zhservices.com>
- * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Eldho Chacko <eldho@zhservices.com>
+ * @author    Paul Simon K <paul@zhservices.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
- * @link http://www.open-emr.org
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Billing\SLEOB;
@@ -200,7 +203,7 @@ if (isset($_POST["mode"])) {
                             $bgcolor='#AAFFFF';
                         }
                     ?>
-                  <tr class="text"  bgcolor='<?php echo $bgcolor; ?>' id="trCharges<?php echo attr($CountIndex); ?>">
+                  <tr class="text"  bgcolor='<?php echo attr($bgcolor); ?>' id="trCharges<?php echo attr($CountIndex); ?>">
                     <td align="left" class="<?php echo attr($StringClass); ?>" ><input name="HiddenIns<?php echo attr($CountIndex); ?>" style="width:70px;text-align:right; font-size:12px" id="HiddenIns<?php echo attr($CountIndex); ?>"
                      value="<?php echo attr($Ins); ?>" type="hidden"/><?php echo generate_select_list("payment_ins$CountIndex", "payment_ins", "$Ins", "Insurance/Patient", '', 'oe-payment-select class3', 'ActionOnInsPat("'.$CountIndex.'")');?></td>
                     <td class="<?php echo attr($StringClass); ?>" ><?php echo text($ServiceDate); ?></td>
@@ -218,26 +221,26 @@ if (isset($_POST["mode"])) {
                      value="<?php echo attr(round($Remainder, 2)); ?>" type="hidden"/>
                     <td class="<?php echo attr($StringClass); ?>" ><input  name="Allowed<?php echo attr($CountIndex); ?>" id="Allowed<?php echo attr($CountIndex); ?>"
                      onKeyDown="PreventIt(event)"  autocomplete="off"
-                     onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr(addslashes($CountIndex)); ?>);UpdateTotalValues(<?php echo attr(addslashes($CountIndexAbove*1+1)); ?>,<?php echo attr(addslashes($TotalRows)); ?>,'Allowed','initialallowtotal');UpdateTotalValues(<?php echo attr(addslashes($CountIndexAbove*1+1)); ?>,<?php echo attr(addslashes($TotalRows)); ?>,'Payment','initialpaymenttotal');UpdateTotalValues(<?php echo attr(addslashes($CountIndexAbove*1+1)); ?>,<?php echo attr(addslashes($TotalRows)); ?>,'AdjAmount','initialAdjAmounttotal');RestoreValues(<?php echo attr(addslashes($CountIndex)); ?>)"
+                     onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js($CountIndexAbove*1+1); ?>,<?php echo attr_js($TotalRows); ?>,'Allowed','initialallowtotal');UpdateTotalValues(<?php echo attr_js($CountIndexAbove*1+1); ?>,<?php echo attr_js($TotalRows); ?>,'Payment','initialpaymenttotal');UpdateTotalValues(<?php echo attr_js($CountIndexAbove*1+1); ?>,<?php echo attr_js($TotalRows); ?>,'AdjAmount','initialAdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)"
                        type="text"   style="width:60px;text-align:right; font-size:12px"  /></td>
                     <td class="<?php echo attr($StringClass); ?>" ><input   type="text"  name="Payment<?php echo attr($CountIndex); ?>"
                      onKeyDown="PreventIt(event)"   autocomplete="off"  id="Payment<?php echo attr($CountIndex); ?>"
-                      onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr(addslashes($CountIndex)); ?>);UpdateTotalValues(<?php echo attr(addslashes($CountIndexAbove*1+1)); ?>,<?php echo attr(addslashes($TotalRows)); ?>,'Payment','initialpaymenttotal');RestoreValues(<?php echo attr(addslashes($CountIndex)); ?>)"
+                      onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js($CountIndexAbove*1+1); ?>,<?php echo attr_js($TotalRows); ?>,'Payment','initialpaymenttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)"
                        style="width:60px;text-align:right; font-size:12px" /></td>
                     <td class="<?php echo attr($StringClass); ?>" ><input  name="AdjAmount<?php echo attr($CountIndex); ?>"  onKeyDown="PreventIt(event)"
                       autocomplete="off"  id="AdjAmount<?php echo attr($CountIndex); ?>"
-                      onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr(addslashes($CountIndex)); ?>);UpdateTotalValues(<?php echo attr(addslashes($CountIndexAbove*1+1)); ?>,<?php echo attr(addslashes($TotalRows)); ?>,'AdjAmount','initialAdjAmounttotal');RestoreValues(<?php echo attr(addslashes($CountIndex)); ?>)"
+                      onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js($CountIndexAbove*1+1); ?>,<?php echo attr_js($TotalRows); ?>,'AdjAmount','initialAdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)"
                       type="text"   style="width:70px;text-align:right; font-size:12px" /></td>
                     <td class="<?php echo attr($StringClass); ?>" ><input  name="Deductible<?php echo attr($CountIndex); ?>"  id="Deductible<?php echo attr($CountIndex); ?>"
-                     onKeyDown="PreventIt(event)"  onChange="ValidateNumeric(this);UpdateTotalValues(<?php echo attr(addslashes($CountIndexAbove*1+1)); ?>,<?php echo attr(addslashes($TotalRows)); ?>,'Deductible','initialdeductibletotal');"   autocomplete="off"   type="text"
+                     onKeyDown="PreventIt(event)"  onChange="ValidateNumeric(this);UpdateTotalValues(<?php echo attr_js($CountIndexAbove*1+1); ?>,<?php echo attr_js($TotalRows); ?>,'Deductible','initialdeductibletotal');"   autocomplete="off"   type="text"
                      style="width:60px;text-align:right; font-size:12px" /></td>
                     <td class="<?php echo attr($StringClass); ?>" ><input  name="Takeback<?php echo attr($CountIndex); ?>"  onKeyDown="PreventIt(event)"   autocomplete="off"
                      id="Takeback<?php echo attr($CountIndex); ?>"
-                     onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr(addslashes($CountIndex)); ?>);UpdateTotalValues(<?php echo attr(addslashes($CountIndexAbove*1+1)); ?>,<?php echo attr(addslashes($TotalRows)); ?>,'Takeback','initialtakebacktotal');RestoreValues(<?php echo attr(addslashes($CountIndex)); ?>)"
+                     onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(<?php echo attr_js($CountIndexAbove*1+1); ?>,<?php echo attr_js($TotalRows); ?>,'Takeback','initialtakebacktotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)"
                       type="text"   style="width:70px;text-align:right; font-size:12px" /></td>
                     <td align="left" class="<?php echo attr($StringClass); ?>" ><input name="HiddenReasonCode<?php echo attr($CountIndex); ?>" id="HiddenReasonCode<?php echo attr($CountIndex); ?>"  value="<?php echo attr($ReasonCodeDB); ?>" type="hidden"/><?php echo generate_select_list("ReasonCode$CountIndex", "msp_remit_codes", "", "MSP Code", "--", "oe-payment-select class3"); ?></td>
                     <td align="center" class="<?php echo attr($StringClass); ?>" ><input type="checkbox" id="FollowUp<?php echo attr($CountIndex); ?>"
-                     name="FollowUp<?php echo attr($CountIndex); ?>" value="y" onClick="ActionFollowUp(<?php echo attr(addslashes($CountIndex)); ?>)"  /></td>
+                     name="FollowUp<?php echo attr($CountIndex); ?>" value="y" onClick="ActionFollowUp(<?php echo attr_js($CountIndex); ?>)"  /></td>
                     <td  class="<?php echo attr($StringClass); ?> right"> <textarea  name="FollowUpReason<?php echo attr($CountIndex); ?>" onKeyDown="PreventIt(event)" id="FollowUpReason<?php echo attr($CountIndex); ?>" class="form-control class4" cols="5" rows="2" readonly ></textarea></td>
                   </tr>
                 <?php

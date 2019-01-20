@@ -8,7 +8,7 @@
 * @author    Brady Miller <brady.g.miller@gmail.com>
 * @author    Jerry Padgett <sjpadgett@gmail.com>
 * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
-* @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+* @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
 * @copyright Copyright (c) 2018-2019 Jerry Padgett <sjpadgett@gmail.com>
 * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
@@ -174,8 +174,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
     // Process a click to go to an encounter.
     function toencounter(pid, pubpid, pname, enc, datestr, dobstr) {
         top.restoreSession();
-        encurl = 'patient_file/encounter/encounter_top.php?set_encounter=' + enc +
-            '&pid=' + pid;
+        encurl = 'patient_file/encounter/encounter_top.php?set_encounter=' + encodeURIComponent(enc) +
+            '&pid=' + encodeURIComponent(pid);
         parent.left_nav.setPatient(pname, pid, pubpid, '', dobstr);
         <?php if ($GLOBALS['new_tabs_layout']) { ?>
         parent.left_nav.setEncounter(datestr, enc, 'enc');
@@ -190,11 +190,11 @@ $partners = $x->_utility_array($x->x12_partner_factory());
     // Process a click to go to an patient.
     function topatient(pid, pubpid, pname, enc, datestr, dobstr) {
         top.restoreSession();
-        paturl = 'patient_file/summary/demographics_full.php?pid=' + pid;
+        paturl = 'patient_file/summary/demographics_full.php?pid=' + encodeURIComponent(pid);
         parent.left_nav.setPatient(pname, pid, pubpid, '', dobstr);
         <?php if ($GLOBALS['new_tabs_layout']) { ?>
         parent.left_nav.loadFrame('ens1', 'enc',
-            'patient_file/history/encounters.php?pid=' + pid);
+            'patient_file/history/encounters.php?pid=' + encodeURIComponent(pid));
         parent.left_nav.loadFrame('dem1', 'pat', paturl);
         <?php } else { ?>
         var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
@@ -206,7 +206,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         if (!window.focus) return true;
         if (!ProcessBeforeSubmitting()) return false;
         top.restoreSession();
-        let qstring = "&pid=" + pid + "&enc=" + enc + "&id=" + mboid;
+        let qstring = "&pid=" + encodeURIComponent(pid) + "&enc=" + encodeURIComponent(enc) + "&id=" + encodeURIComponent(mboid);
         let href = "<?php echo $GLOBALS['web_root']?>/interface/patient_file/encounter/view_form.php?formname=misc_billing_options&isBilling=1" + qstring;
         dlgopen(href, 'mbopop', 'modal-lg', 750, false, '', {
             sizeHeight: 'full' // override min height auto size.
@@ -218,7 +218,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         if (!window.focus) return true;
         if (!ProcessBeforeSubmitting()) return false;
         top.restoreSession();
-        let href = "<?php echo $GLOBALS['web_root']?>/interface/billing/ub04_form.php?pid=" + pid + "&enc=" + enc;
+        let href = "<?php echo $GLOBALS['web_root']?>/interface/billing/ub04_form.php?pid=" + encodeURIComponent(pid) + "&enc=" + encodeURIComponent(enc);
         dlgopen(href, 'ub04pop', 1175, 750, false, '', {
             sizeHeight: 'full' // override min height auto size.
         });
@@ -316,7 +316,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 if (ele) {
                     ele.style.display = "none";
                     text.innerHTML =
-                        "<?php echo xla('Expand'); ?>";
+                        <?php echo xlj('Expand'); ?>;
                 }
             }
         }
@@ -329,11 +329,11 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             if (ele.style.display == "inline") {
                 ele.style.display = "none";
                 text.innerHTML =
-                    "<?php echo xla('Expand'); ?>";
+                    <?php echo xlj('Expand'); ?>;
             } else {
                 ele.style.display = "inline";
                 text.innerHTML =
-                    "<?php echo xla('Collapse'); ?>";
+                    <?php echo xlj('Collapse'); ?>;
             }
         }
     }
@@ -349,19 +349,19 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             }
         }
         if (Type == 1) {
-            Message = '<?php echo xla('After saving your batch, click[View Log] to check for errors.'); ?>';
+            Message = <?php echo xlj('After saving your batch, click[View Log] to check for errors.'); ?>;
         }
         if (Type == 2) {
-            Message = '<?php echo xla('After saving the PDF, click[View Log] to check for errors.'); ?>';
+            Message = <?php echo xlj('After saving the PDF, click[View Log] to check for errors.'); ?>;
         }
         if (Type == 3) {
-            Message = '<?php echo xla('After saving the TEXT file(s), click[View Log] to check for errors.'); ?>';
+            Message = <?php echo xlj('After saving the TEXT file(s), click[View Log] to check for errors.'); ?>;
         }
-        if (confirm(Message + "\n\n\n<?php echo xls('Total'); ?>" + ' ' +
+        if (confirm(Message + "\n\n\n" + <?php echo xlj('Total'); ?> + ' ' +
                 CheckBoxBillingCount + ' ' +
-                "<?php echo xls('Selected'); ?>\n" +
-                "<?php echo xls('Would You Like them to be Marked as Cleared.'); ?>\n" +
-                "<?php echo xls('Click OK to Clear or Cancel to continue processing.'); ?>"
+                <?php echo xlj('Selected'); ?> + "\n" +
+                <?php echo xlj('Would You Like them to be Marked as Cleared.'); ?> + "\n" +
+                <?php echo xlj('Click OK to Clear or Cancel to continue processing.'); ?>
             )) {
             document.getElementById('HiddenMarkAsCleared').value = 'yes';
         } else {
@@ -438,7 +438,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
 <body class="body_top" onLoad="TestExpandCollapse()">
-<div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
+<div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
 <div class="row">
     <div class="col-sm-12">
         <div class="page-header">
@@ -447,7 +447,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i> <i id="show_hide" class="fa fa-eye-slash fa-2x small"
                 title="<?php echo xla('Click to Hide'); ?>"></i>
             </h2>-->
-            <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
+            <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
         </div>
     </div>
 </div>
@@ -647,31 +647,31 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <button type="submit" data-open-popup="true" class="btn btn-default btn-download"
                                             name="bn_external"
                                             title="<?php echo xla('Export to external billing system') ?>"
-                                            value="<?php echo xla("Export Billing") ?>"><?php echo xla("Export Billing") ?></button>
+                                            value="<?php echo xla("Export Billing") ?>"><?php echo xlt("Export Billing") ?></button>
                                 </li>
                                 <li>
                                     <button type="submit" data-open-popup="true" class="btn btn-default btn-download"
                                             name="bn_mark"
-                                            title="<?php echo xla('Mark as billed but skip billing') ?>"><?php echo xla("Mark as Cleared") ?></button>
+                                            title="<?php echo xla('Mark as billed but skip billing') ?>"><?php echo xlt("Mark as Cleared") ?></button>
                                 </li>
                             <?php } else { ?>
                                 <li>
                                     <button type="submit" class="btn btn-default btn-download" name="bn_x12"
                                             onclick="MarkAsCleared(1)"
-                                            title="<?php echo xla('Generate and download X12 batch') ?>"><?php echo xla('Generate X12') ?></button>
+                                            title="<?php echo xla('Generate and download X12 batch') ?>"><?php echo xlt('Generate X12') ?></button>
                                 </li>
                             <?php } ?>
                             <?php if ($GLOBALS['ub04_support']) { ?>
                                 <li>
                                     <button type="submit" class="btn btn-default btn-download" name="bn_ub04_x12"
-                                            title="<?php echo xla('Generate Institutional X12 837I') ?>"><?php echo xla('Generate X12 837I') ?></button>
+                                            title="<?php echo xla('Generate Institutional X12 837I') ?>"><?php echo xlt('Generate X12 837I') ?></button>
                                 </li>
                             <?php } ?>
                             <?php if ($GLOBALS['support_encounter_claims']) { ?>
                                 <li>
                                     <button type="submit" class="btn btn-default btn-download" name="bn_x12_encounter"
                                             onclick="MarkAsCleared(1)"
-                                            title="<?php echo xla('Generate and download X12 encounter claim batch') ?>"><?php echo xla('Generate X12 Encounter') ?></button>
+                                            title="<?php echo xla('Generate and download X12 encounter claim batch') ?>"><?php echo xlt('Generate X12 Encounter') ?></button>
                                 </li>
                             <?php } ?>
                         </ul>
@@ -679,25 +679,25 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <div class="btn-group">
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                                 name="bn_process_hcfa_support"
-                                title="<?php echo xla('A claim must be selected to enable this menu.') ?>"><?php echo xla('HCFA FORM') ?>
+                                title="<?php echo xla('A claim must be selected to enable this menu.') ?>"><?php echo xlt('HCFA FORM') ?>
                             <span class="caret"></span></button>
                         <ul class="dropdown-menu" role="menu">
                             <li>
                                 <button type="submit" class="btn btn-default btn-download" name="bn_process_hcfa"
                                         onclick="MarkAsCleared(2)"
-                                        title="<?php echo xla('Generate and download CMS 1500 paper claims') ?>"><?php echo xla('CMS 1500 PDF') ?></button>
+                                        title="<?php echo xla('Generate and download CMS 1500 paper claims') ?>"><?php echo xlt('CMS 1500 PDF') ?></button>
                             </li>
                             <?php if ($GLOBALS['preprinted_cms_1500']) { ?>
                                 <li>
                                     <button type="submit" class="btn btn-default btn-download"
                                             name="bn_process_hcfa_form" onclick="MarkAsCleared(2)"
-                                            title="<?php echo xla('Generate and download CMS 1500 paper claims on Preprinted form') ?>"><?php echo xla('CMS 1500 incl FORM') ?></button>
+                                            title="<?php echo xla('Generate and download CMS 1500 paper claims on Preprinted form') ?>"><?php echo xlt('CMS 1500 incl FORM') ?></button>
                                 </li>
                             <?php } ?>
                             <li>
                                 <button type="submit" class="btn btn-default btn-download" name="bn_hcfa_txt_file"
                                         onclick="MarkAsCleared(3)"
-                                        title="<?php echo xla('Making batch text files for uploading to Clearing House and will mark as billed') ?>"><?php echo xla('CMS 1500 TEXT') ?></button>
+                                        title="<?php echo xla('Making batch text files for uploading to Clearing House and will mark as billed') ?>"><?php echo xlt('CMS 1500 TEXT') ?></button>
                             </li>
                         </ul>
                     </div>
@@ -705,17 +705,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <div class="btn-group">
                             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                                     name="bn_process_ub04_support"
-                                    title="<?php echo xla('A claim must be selected to enable this menu.') ?>"><?php echo xla('UB04 FORM') ?>
+                                    title="<?php echo xla('A claim must be selected to enable this menu.') ?>"><?php echo xlt('UB04 FORM') ?>
                                 <span class="caret"></span></button>
                             <ul class="dropdown-menu" role="menu">
                                 <li>
                                     <button type="submit" class="btn btn-default btn-download"
                                             name="bn_process_ub04_form"
-                                            title="<?php echo xla('Generate and download UB-04 CMS1450 with form') ?>"><?php echo xla('UB04 FORM PDF') ?></button>
+                                            title="<?php echo xla('Generate and download UB-04 CMS1450 with form') ?>"><?php echo xlt('UB04 FORM PDF') ?></button>
                                 </li>
                                 <li>
                                     <button type="submit" class="btn btn-default btn-download" name="bn_process_ub04"
-                                            title="<?php echo xla('Generate and download UB-04 CMS1450') ?>"><?php echo xla('UB04 TEXT PDF') ?></button>
+                                            title="<?php echo xla('Generate and download UB-04 CMS1450') ?>"><?php echo xlt('UB04 TEXT PDF') ?></button>
                                 </li>
                             </ul>
                         </div>
@@ -725,7 +725,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             type="submit"><?php echo xla('Mark as Cleared') ?></button>
                     <button class="btn btn-default btn-undo" data-open-popup="true" name="bn_reopen"
                             title="<?php echo xla('Mark as not billed') ?>"
-                            type="submit"><?php echo xla('Re-Open') ?></button>
+                            type="submit"><?php echo xlt('Re-Open') ?></button>
                 </div>
                 <div class="input-group">
                     <label for="left_margin"><?php echo xlt('CMS 1500 Margins Left'); ?>:</label>
@@ -835,11 +835,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <tr>
                                         <td width="100" id='ExpandAll'><a
                                                 onclick="expandcollapse('expand');" class='small'
-                                                href="JavaScript:void(0);"><?php echo '(' . xla('Expand All') . ')' ?></a>
+                                                href="JavaScript:void(0);"><?php echo '(' . xlt('Expand All') . ')' ?></a>
                                         </td>
                                         <td width="100" id='CollapseAll'><a
                                                 onclick="expandcollapse('collapse');" class='small'
-                                                href="JavaScript:void(0);"><?php echo '(' . xla('Collapse All') . ')' ?></a>
+                                                href="JavaScript:void(0);"><?php echo '(' . xlt('Collapse All') . ')' ?></a>
                                         </td>
                                         <td width="50">&nbsp;</td>
                                     </tr>
@@ -888,7 +888,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             //
                                 if ($lhtml) {
                                     while ($rcount < $lcount) {
-                                        $rhtml .= "<tr bgcolor='$bgcolor'><td colspan='9'></td></tr>";
+                                        $rhtml .= "<tr bgcolor='" . attr($bgcolor) . "'><td colspan='9'></td></tr>";
                                         ++$rcount;
                                     }
                                     // This test handles the case where we are only listing encounters
@@ -898,8 +898,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             $lhtml .= '</div>';
                                             $DivPut = 'no';
                                         }
-                                        echo "<tr bgcolor='$bgcolor'>\n<td rowspan='" . attr($rcount) . "' valign='top'>\n$lhtml</td>$rhtml\n";
-                                        echo "<tr bgcolor='$bgcolor'><td colspan='9' height='5'></td></tr>\n\n";
+                                        echo "<tr bgcolor='" . attr($bgcolor) . "'>\n<td rowspan='" . attr($rcount) . "' valign='top'>\n$lhtml</td>$rhtml\n";
+                                        echo "<tr bgcolor='" . attr($bgcolor) . "'><td colspan='9' height='5'></td></tr>\n\n";
                                         ++$encount;
                                     }
                                 }
@@ -955,7 +955,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $namecolor = ($res['count'] > 0) ? "black" : "#ff7777";
 
                                 $bgcolor = "#" . (($encount & 1) ? "FFFAEF" : "F8F8FF");
-                                echo "<tr bgcolor='$bgcolor'><td colspan='9' height='5'></td></tr>\n";
+                                echo "<tr bgcolor='" . attr($bgcolor) . "'><td colspan='9' height='5'></td></tr>\n";
                                 $lcount = 1;
                                 $rcount = 0;
                                 $oldcode = "";
@@ -964,7 +964,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $raw_encounter_date = date("Y-m-d", strtotime($iter['enc_date']));
                                 $billing_note = $name['billing_note'];
                             // Add Encounter Date to display with "To Encounter" button 2/17/09 JCH
-                                $lhtml .= "<span class=bold><font color='$namecolor'>" . text($ptname) . "</font></span><span class=small>&nbsp;(" . text($iter['enc_pid']) . "-" . text($iter['enc_encounter']) . ")</span>";
+                                $lhtml .= "<span class=bold><font color='" . attr($namecolor) . "'>" . text($ptname) . "</font></span><span class=small>&nbsp;(" . text($iter['enc_pid']) . "-" . text($iter['enc_encounter']) . ")</span>";
 
                             // Encounter details are stored to javacript as array.
                                 $result4 = sqlStatement(
@@ -986,10 +986,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <?php
                             while ($rowresult4 = sqlFetchArray($result4)) {
                             ?>
-                            EncounterIdArray[<?php echo attr($iter['enc_pid']); ?>][Count] = '<?php echo attr($rowresult4['encounter']); ?>';
-                            EncounterDateArray[<?php echo attr($iter['enc_pid']); ?>][Count] = '<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>';
-                            CalendarCategoryArray[<?php echo attr($iter['enc_pid']); ?>][Count] = '<?php echo attr(xl_appt_category($rowresult4['pc_catname'])); ?>';
-                            EncounterNoteArray[<?php echo attr($iter['enc_pid']); ?>][Count] = '<?php echo attr($rowresult4['billing_note']); ?>';
+                            EncounterIdArray[<?php echo attr($iter['enc_pid']); ?>][Count] = <?php echo js_escape($rowresult4['encounter']); ?>;
+                            EncounterDateArray[<?php echo attr($iter['enc_pid']); ?>][Count] = <?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>;
+                            CalendarCategoryArray[<?php echo attr($iter['enc_pid']); ?>][Count] = <?php echo js_escape(xl_appt_category($rowresult4['pc_catname'])); ?>;
+                            EncounterNoteArray[<?php echo attr($iter['enc_pid']); ?>][Count] = <?php echo js_escape($rowresult4['billing_note']); ?>;
                             Count++;
                             <?php
                             $enc_billing_note = $rowresult4['billing_note'];
@@ -999,15 +999,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <?php
                             $lhtml .= "<div class='button-group'>";
                             // Not sure why the next section seems to do nothing except post "To Encounter" button 2/17/09 JCH
-                            $lhtml .= "<a class=\"btn btn-xs btn-default\" role=\"button\" " . "href=\"javascript:window.toencounter(" . attr(addslashes($iter['enc_pid'])) . ",'" . attr(addslashes($name['pubpid'])) . "','" . attr(addslashes($ptname)) . "'," . attr(addslashes($iter['enc_encounter'])) . ",'" . attr(addslashes(oeFormatShortDate($raw_encounter_date))) . "',' " . attr(xls('DOB')) . ": " . attr(addslashes(oeFormatShortDate($name['DOB_YMD']))) . " " . attr(xls('Age')) . ": " . attr(addslashes(getPatientAge($name['DOB_YMD']))) . "');
-                         top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr(addslashes($iter['enc_pid'])) . "],EncounterDateArray[" . attr(addslashes($iter['enc_pid'])) . "], CalendarCategoryArray[" . attr(addslashes($iter['enc_pid'])) . "])\">" . xlt('Encounter') . " " . text(oeFormatShortDate($raw_encounter_date)) . "</a>";
+                            $lhtml .= "<a class=\"btn btn-xs btn-default\" role=\"button\" " . "href=\"javascript:window.toencounter(" . attr_js($iter['enc_pid']) . "," . attr_js($name['pubpid']) . "," . attr_js($ptname) . "," . attr_js($iter['enc_encounter']) . "," . attr_js(oeFormatShortDate($raw_encounter_date)) . "," . attr_js(" ".xl('DOB').": ".oeFormatShortDate($name['DOB_YMD'])." ".xl('Age').": ".getPatientAge($name['DOB_YMD'])) . ");
+                         top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['enc_pid']) . "],EncounterDateArray[" . attr($iter['enc_pid']) . "], CalendarCategoryArray[" . attr($iter['enc_pid']) . "])\">" . xlt('Encounter') . " " . text(oeFormatShortDate($raw_encounter_date)) . "</a>";
 
                             // Changed "To xxx" buttons to allow room for encounter date display 2/17/09 JCH
-                            $lhtml .= "<a class=\"btn btn-xs btn-default\" role=\"button\" " . "href=\"javascript:window.topatient(" . attr(addslashes($iter['enc_pid'])) . ",'" . attr(addslashes($name['pubpid'])) . "','" . attr(addslashes($ptname)) . "'," . attr(addslashes($iter['enc_encounter'])) . ",'" . attr(addslashes(oeFormatShortDate($raw_encounter_date))) . "',' " . attr(xls('DOB')) . ": " . attr(addslashes(oeFormatShortDate($name['DOB_YMD']))) . " " . attr(xls('Age')) . ": " . attr(addslashes(getPatientAge($name['DOB_YMD']))) . "');
-                        top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr(addslashes($iter['enc_pid'])) . "],EncounterDateArray[" . attr(addslashes($iter['enc_pid'])) . "], CalendarCategoryArray[" . attr(addslashes($iter['enc_pid'])) . "])\">" . xlt('Patient') . "</a>";
+                            $lhtml .= "<a class=\"btn btn-xs btn-default\" role=\"button\" " . "href=\"javascript:window.topatient(" . attr_js($iter['enc_pid']) . "," . attr_js($name['pubpid']) . "," . attr_js($ptname) . "," . attr_js($iter['enc_encounter']) . "," . attr_js(oeFormatShortDate($raw_encounter_date)) . "," . attr_js(" ".xl('DOB').": ".oeFormatShortDate($name['DOB_YMD'])." ".xl('Age').": ".getPatientAge($name['DOB_YMD'])) . ");
+                        top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['enc_pid']) . "],EncounterDateArray[" . attr($iter['enc_pid']) . "], CalendarCategoryArray[" . attr($iter['enc_pid']) . "])\">" . xlt('Patient') . "</a>";
                             $is_edited = $iter['mboid'] ? 'btn-success' : 'btn-default';
                             $title = $iter['mboid'] ? xlt("This claim has HCFA 1500 miscellaneous billing options") : xlt("Click to add HCFA 1500 miscellaneous billing options");
-                            $lhtml .= "<a class='btn btn-xs $is_edited' role='button' title='" . attr($title) . "' onclick='popMBO(" . attr(addslashes($iter['enc_pid'])) . "," . attr(addslashes($iter['enc_encounter'])) . "," . attr(addslashes($iter['mboid'])) . "); return false;'>" . xlt('MBO ') . "</a>";
+                            $lhtml .= "<a class='btn btn-xs $is_edited' role='button' title='" . attr($title) . "' onclick='popMBO(" . attr_js($iter['enc_pid']) . "," . attr_js($iter['enc_encounter']) . "," . attr_js($iter['mboid']) . "); return false;'>" . xlt('MBO ') . "</a>";
                             if ($ub04_support && isset($iter['billed'])) {
                                 $c = sqlQuery(
                                     "SELECT submitted_claim AS status FROM claims WHERE " .
@@ -1021,11 +1021,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 );
                                 $is_edited = $c['status'] ? 'btn-success' : 'btn-warning';
                                 $bname = $c['status'] ? xl('Reviewed') : xl('Review UB04');
-                                $lhtml .= "<a class='btn btn-xs $is_edited' role='button' onclick='popUB04(" . attr(addslashes($iter['enc_pid'])) . "," . attr(addslashes($iter['enc_encounter'])) . "); return false;'>" . text($bname) . "</a>";
+                                $lhtml .= "<a class='btn btn-xs $is_edited' role='button' onclick='popUB04(" . attr_js($iter['enc_pid']) . "," . attr_js($iter['enc_encounter']) . "); return false;'>" . text($bname) . "</a>";
                             }
                             $lhtml .= "</div>";
                             $divnos = $divnos + 1;
-                            $lhtml .= "&nbsp;&nbsp;&nbsp;<a onclick='divtoggle(\"spanid_" . attr(addslashes($divnos)) . "\",\"divid_" . attr(addslashes($divnos)) . "\");' class='small' id='aid_" . attr($divnos) . "' href=\"JavaScript:void(0);" . "\">(<span id=spanid_" . attr($divnos) . " class=\"indicator\">" . xlt('Expand') . '</span>)<br></a>';
+                            $lhtml .= "&nbsp;&nbsp;&nbsp;<a onclick='divtoggle(" . attr_js("spanid_".$divnos) . "," . attr_js("divid_".$divnos) . ");' class='small' id='aid_" . attr($divnos) . "' href=\"JavaScript:void(0);" . "\">(<span id=spanid_" . attr($divnos) . " class=\"indicator\">" . xlt('Expand') . '</span>)<br></a>';
                             if ($GLOBALS['notes_to_display_in_Billing'] == 2 || $GLOBALS['notes_to_display_in_Billing'] == 3) {
                                 $lhtml .= '<span style="margin-left: 20px; font-weight: bold; color: red">' . text($billing_note) . '</span>';
                             }
@@ -1034,7 +1034,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $lcount += 2;
                                 $lhtml .= "<br />\n";
                                 $lhtml .= "&nbsp;<span class='form-group'>" . xlt('Bill') . ": ";
-                                $lhtml .= "<select name='claims[" . attr($this_encounter_id) . "][payer]' onchange='onNewPayer(event)' style='background-color:$bgcolor'>";
+                                $lhtml .= "<select name='claims[" . attr($this_encounter_id) . "][payer]' onchange='onNewPayer(event)' style='background-color:" . attr($bgcolor) . "'>";
 
                                 $query = "SELECT id.provider AS id, id.type, id.date, " .
                                 "ic.x12_default_partner_id AS ic_x12id, ic.name AS provider " .
@@ -1078,7 +1078,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $lhtml .= "<option value='-1'>" . xlt("Unassigned") . "</option>\n";
                                 $lhtml .= "</select>&nbsp;&nbsp;\n";
                                 $lhtml .= "&nbsp;<span class='form-group'>X12: ";
-                                $lhtml .= "<select id='partners' name='claims[" . attr($this_encounter_id) . "][partner]' style='margin-top:5px; background-color:$bgcolor'>";
+                                $lhtml .= "<select id='partners' name='claims[" . attr($this_encounter_id) . "][partner]' style='margin-top:5px; background-color:" . attr($bgcolor) . "'>";
                                 $lhtml .= "<option value='-1' label='Unassigned'>" . xlt("Partner not configured") . "</option>\n";
                                 foreach ($partners as $xid => $xname) {
                                     if (empty(trim($xname))) {
@@ -1096,7 +1096,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 if ($GLOBALS['notes_to_display_in_Billing'] == 1 || $GLOBALS['notes_to_display_in_Billing'] == 3) {
                                     $lhtml .= "<br><span style='margin-left: 20px; font-weight: bold; color: green'>" . text($enc_billing_note) . "</span>";
                                 }
-                                $lhtml .= "<br>\n&nbsp;<div id='divid_$divnos' style='display:none'>" . text(oeFormatShortDate(substr($iter['date'], 0, 10))) . text(substr($iter['date'], 10, 6)) . " " . xlt("Encounter was coded");
+                                $lhtml .= "<br>\n&nbsp;<div id='divid_" . attr($divnos) . "' style='display:none'>" . text(oeFormatShortDate(substr($iter['date'], 0, 10))) . text(substr($iter['date'], 10, 6)) . " " . xlt("Encounter was coded");
 
                                 $query = "SELECT * FROM claims WHERE patient_id = ? AND encounter_id = ? ORDER BY version";
                                 $cres = sqlStatement(
@@ -1325,7 +1325,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         if ($lhtml) {
                             while ($rcount < $lcount) {
-                                $rhtml .= "<tr bgcolor='$bgcolor'><td colspan='9'></td></tr>";
+                                $rhtml .= "<tr bgcolor='" . attr($bgcolor) . "'><td colspan='9'></td></tr>";
                                 ++$rcount;
                             }
                             if (!$missing_mods_only || ($mmo_empty_mod && $mmo_num_charges > 1)) {
@@ -1333,8 +1333,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     $lhtml .= '</div>';
                                     $DivPut = 'no';
                                 }
-                                echo "<tr bgcolor='$bgcolor'>\n<td rowspan='" . attr($rcount) . "' valign='top' width='25%'>\n$lhtml</td>$rhtml\n";
-                                echo "<tr bgcolor='$bgcolor'><td colspan='9' height='5'></td></tr>\n";
+                                echo "<tr bgcolor='" . attr($bgcolor) . "'>\n<td rowspan='" . attr($rcount) . "' valign='top' width='25%'>\n$lhtml</td>$rhtml\n";
+                                echo "<tr bgcolor='" . attr($bgcolor) . "'><td colspan='9' height='5'></td></tr>\n";
                             }
                         }
                     }
@@ -1351,7 +1351,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 set_button_states();
 <?php
 if ($alertmsg) {
-    echo "alert('" . addslashes($alertmsg) . "');\n";
+    echo "alert(" . js_escape($alertmsg) . ");\n";
 }
 ?>
 $(document).ready(function () {
@@ -1383,7 +1383,7 @@ $(document).ready(function () {
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
     // jquery-ui tooltip converted to bootstrap tooltip
-    $('#update-tooltip').attr("title", "<?php echo xla('Click Update List to display billing information filtered by the selected Current Criteria'); ?>").tooltip();
+    $('#update-tooltip').attr("title", <?php echo xlj('Click Update List to display billing information filtered by the selected Current Criteria'); ?>).tooltip();
 
 });
 </script>

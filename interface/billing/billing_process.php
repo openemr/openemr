@@ -9,14 +9,14 @@
  * @author Terry Hill <terry@lilysystems.com>
  * @author Jerry Padgett <sjpadgett@gmail.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2014 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2014-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (C) 2017 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
- 
+
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/billrep.inc");
@@ -82,7 +82,7 @@ function append_claim(&$segs)
             }
             continue;
         } elseif (! $bat_content) {
-            die("Error:<br>\nInput must begin with 'ISA'; " . "found '" . htmlentities($elems[0]) . "' instead");
+            die("Error:<br>\nInput must begin with 'ISA'; " . "found '" . text($elems[0]) . "' instead");
         }
         if ($elems[0] == 'GS') {
             if ($bat_gscount == 0) {
@@ -166,8 +166,6 @@ function process_form($ar)
         $be = new BillingExport();
     }
 
-    $db = $GLOBALS['adodb']['db'];
-
     if (empty($ar['claims'])) {
         $ar['claims'] = array();
     }
@@ -185,11 +183,11 @@ function process_form($ar)
                 // Write external claim.
                 $be->addClaim($patient_id, $encounter);
             } else {
-                $sql = "SELECT x.processing_format from x12_partners as x where x.id =" . $db->qstr($claim_array['partner']);
-                $result = $db->Execute($sql);
+                $sql = "SELECT x.processing_format from x12_partners as x where x.id =?";
+                $result = sqlQuery($sql, [$claim_array['partner']]);
                 $target = "x12";
-                if ($result && ! $result->EOF) {
-                    $target = $result->fields['processing_format'];
+                if (!empty($result['processing_format'])) {
+                    $target = $result['processing_format'];
                 }
             }
 

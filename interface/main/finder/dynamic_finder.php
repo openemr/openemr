@@ -71,7 +71,7 @@ while ($row = sqlFetchArray($res)) {
                 "serverSide": true,
                 // NOTE kept the legacy command 'sAjaxSource' here for now since was unable to get
                 // the new 'ajax' command to work.
-                "sAjaxSource": "dynamic_finder_ajax.php?csrf_token_form=" + <?php echo js_escape(urlencode(collectCsrfToken())); ?>,
+                "sAjaxSource": "dynamic_finder_ajax.php?csrf_token_form=" + <?php echo js_url(collectCsrfToken()); ?>,
                 "fnServerParams": function (aoData) {
                     var searchType = $("#setting_search_type:checked").length > 0;
                     aoData.push({"name": "searchType", "value": searchType});
