@@ -1029,7 +1029,7 @@ fieldset {
                                 <td align="left" class="<?php echo attr($StringClass); ?>">
                                     <a href="#" onclick="javascript:return DeletePaymentDistribution(<?php echo attr_js($payment_id.'_'.$PId.'_'.$Encounter.'_'.$Code.'_'.$Modifier.'_'.$Codetype); ?>);"><img border="0" src="../pic/Delete.gif"></a>
                                 </td>
-                                <td align="left" class="<?php echo attr($StringClass); ?>"><?php echo text($NameDB); ?><input name="HiddenPId<?php echo attr($CountIndex; ?>" type="hidden" value="<?php echo attr($PId); ?>"></td>
+                                <td align="left" class="<?php echo attr($StringClass); ?>"><?php echo text($NameDB); ?><input name="HiddenPId<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr($PId); ?>"></td>
                                 <td align="left" class="<?php echo attr($StringClass); ?>"><input id="HiddenIns<?php echo attr($CountIndex); ?>" name="HiddenIns<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr($Ins); ?>"><?php echo generate_select_list("payment_ins$CountIndex", "payment_ins", "$Ins", "Insurance/Patient", '', '', 'ActionOnInsPat("'.$CountIndex.'")'); ?></td>
                                 <td class="<?php echo attr($StringClass); ?>"><?php echo text($ServiceDate); ?></td>
                                 <td align="right" class="<?php echo attr($StringClass); ?>"><input name="HiddenEncounter<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr($Encounter); ?>"><?php echo text($Encounter); ?></td>
