@@ -701,7 +701,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                                            onclick="this.select()">
                                 </td>
                                 <td class="last_detail" align="center"><a href=""
-                                                                          onclick="return writeoff(<?php echo attr_js($code)); ?>)">WO</a>
+                                                                          onclick="return writeoff(<?php echo attr_js($code); ?>)">WO</a>
                                 </td>
                                 <td class="last_detail">
                                     <select class="form-control" name="form_line[<?php echo attr($code); ?>][reason]">
