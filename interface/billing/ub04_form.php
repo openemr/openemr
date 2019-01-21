@@ -396,7 +396,7 @@ function myZoom()
 }
 
 function resetClaim(){
-    var msg = <?php echo xlj('This action will reset your claim!'); ?> + '\n' + <?php xlj('Click OK if you are sure.')?>;
+    var msg = <?php echo xlj('This action will reset your claim!'); ?> + '\n' + <?php echo xlj('Click OK if you are sure.'); ?>;
     var yn = confirm(msg);
     if (yn != true) {
         return false;
