@@ -108,5 +108,8 @@
     "pure": "https://github.com/pure-css/pure/releases/download/v0.5.0/pure-0.5.0.tar.gz",
     "react-15-1-0": "https://github.com/facebook/react/releases/download/v15.1.0/react-15.1.0.zip",
     "summernote-nugget": "https://github.com/pHAlkaline/summernote-plugins"
+  },
+  "napa-config": {
+    "cache": false
   }
 }
