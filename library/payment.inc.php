@@ -235,7 +235,7 @@ function DistributionInsert($CountRow, $created_time, $user_id)
   //
 function row_delete($table, $where)
 {
-    $tres = sqlStatement("SELECT * FROM $table WHERE $where");
+    $tres = sqlStatement("SELECT * FROM " . escape_table_name($table) . " WHERE $where");
     $count = 0;
     while ($trow = sqlFetchArray($tres)) {
         $logstring = "";
@@ -256,7 +256,7 @@ function row_delete($table, $where)
     }
 
     if ($count) {
-        $query = "DELETE FROM $table WHERE $where";
+        $query = "DELETE FROM " . escape_table_name($table) . " WHERE $where";
         sqlStatement($query);
     }
 }

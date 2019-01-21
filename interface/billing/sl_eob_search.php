@@ -12,7 +12,7 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2005-2010 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -608,13 +608,13 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 {
                     target: target,
                     setting: val,
-                    csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+                    csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
                 }
             );
         }
 
         function npopup(pid) {
-            window.open('sl_eob_patient_note.php?patient_id=' + pid, '_blank', 'width=500,height=250,resizable=1');
+            window.open('sl_eob_patient_note.php?patient_id=' + encodeURIComponent(pid), '_blank', 'width=500,height=250,resizable=1');
             return false;
         }
 
@@ -622,7 +622,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
             // Tabs only
             top.restoreSession();
             let encurl = 'patient_file/history/encounters.php?billing=1&issue=0&pagesize=20&pagestart=0';
-            let paturl = "patient_file/summary/demographics.php?set_pid=" + pid;
+            let paturl = "patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(pid);
             parent.left_nav.loadFrame('pat2', 'pat', paturl);
             // need a little time so can force a billing view
             setTimeout(function(){parent.left_nav.loadFrame('enc2', 'enc', encurl);}, 3000);
@@ -693,11 +693,11 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 </head>
 
 <body>
-<div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
+<div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
     <div class="row">
             <div class="col-sm-12">
                 <div class="page-header">
-                    <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
+                    <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>
     </div>
@@ -1097,11 +1097,11 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 <tr>
                                     <td class="detail">
                                         <a href=""
-                                           onclick="return npopup(<?php echo attr(addslashes($row['pid'])) ?>)"><?php echo text($row['pid']); ?></a>
+                                           onclick="return npopup(<?php echo attr_js($row['pid']); ?>)"><?php echo text($row['pid']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;
                                         <a href=""
-                                           onclick="return npopup(<?php echo attr(addslashes($row['pid'])) ?>)"><?php echo text($row['lname']) . ', ' . text($row['fname']); ?></a>
+                                           onclick="return npopup(<?php echo attr_js($row['pid']); ?>)"><?php echo text($row['lname']) . ', ' . text($row['fname']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;
                                         <a href="sl_eob_invoice.php?isPosting=1&id=<?php echo attr_url($row['id']); ?>"
@@ -1282,7 +1282,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
     ?>
     $(document).ready(function () {
 //using jquery-ui-1-12-1 tooltip instead of bootstrap tooltip
-        $('#select-method-tooltip').attr("title", "<?php echo xla('Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>").tooltip();
+        $('#select-method-tooltip').attr("title", <?php echo xlj('Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>).tooltip();
     });
 </script>
 <?php

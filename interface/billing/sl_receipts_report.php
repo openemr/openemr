@@ -14,7 +14,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2006-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -143,12 +143,12 @@ $form_facility   = $_POST['form_facility'];
 
         // This invokes the find-code (procedure/service codes) popup.
         function sel_procedure() {
-            dlgopen('../patient_file/encounter/find_code_popup.php?target_element=form_proc_codefull&codetype=<?php echo attr(collect_codetypes("procedure", "csv")) ?>', '_blank', 500, 400);
+            dlgopen('../patient_file/encounter/find_code_popup.php?target_element=form_proc_codefull&codetype=' + <?php echo js_url(collect_codetypes("procedure", "csv")); ?>, '_blank', 500, 400);
         }
 
         // This invokes the find-code (diagnosis codes) popup.
         function sel_diagnosis() {
-            dlgopen('../patient_file/encounter/find_code_popup.php?target_element=form_dx_codefull&codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")) ?>', '_blank', 500, 400);
+            dlgopen('../patient_file/encounter/find_code_popup.php?target_element=form_dx_codefull&codetype=' + <?php echo js_url(collect_codetypes("diagnosis", "csv")); ?>, '_blank', 500, 400);
         }
 
     </script>

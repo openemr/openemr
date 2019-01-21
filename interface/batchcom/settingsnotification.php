@@ -14,6 +14,7 @@ require_once("../globals.php");
 require_once("$srcdir/registry.inc");
 require_once("../../library/acl.inc");
 require_once("batchcom.inc.php");
+
 use OpenEMR\Core\Header;
 
 // gacl control

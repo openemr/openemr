@@ -25,11 +25,11 @@ require_once("../interface/globals.php");
     function doSelectorButton() {
         var selector = document.getElementById('selectorButton');
         var value;
-        if ( selector.value == "<?php echo xla('Select All'); ?>" ) {
-            selector.value = "<?php echo xla('Unselect All'); ?>";
+        if ( selector.value == <?php echo xlj('Select All'); ?> ) {
+            selector.value = <?php echo xlj('Unselect All'); ?>;
             value = true;
         } else {
-            selector.value = "<?php echo xla('Select All'); ?>";
+            selector.value = <?php echo xlj('Select All'); ?>;
             value = false;
         }
         var checkBoxes = document.getElementsByName( "searchFields" );
@@ -57,7 +57,7 @@ require_once("../interface/globals.php");
         }
         if ( opener != null ) {
             if (fieldString == undefined || (fieldString == '' && ssc.length == '')) {
-                alert("<?php echo xls('You must select some fields to continue.'); ?>");
+                alert(<?php echo xlj('You must select some fields to continue.'); ?>);
                 return false;
             }
             opener.processFilter(fieldString, ssc);

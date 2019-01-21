@@ -2,15 +2,18 @@
 /*
  * The functions of this class support the billing process like the script billing_process.php.
  *
- * @package OpenEMR
- * @author Eldho Chacko <eldho@zhservices.com>
- * @author Paul Simon K <paul@zhservices.com>
- * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Eldho Chacko <eldho@zhservices.com>
+ * @author    Paul Simon K <paul@zhservices.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @copyright Copyright (C) 2018 Stephen Waite <stephen.waite@cmsvt.com>
- * @link http://www.open-emr.org
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -91,18 +94,18 @@ if ($_FILES['form_erafile']['size']) {
     {
      if(document.getElementById('uploadedfile').value=='')
       {
-       alert("<?php echo xls('Please Choose a file');?>");
+       alert(<?php echo xlj('Please Choose a file');?>);
        return false;
       }
      if(document.getElementById('hidden_type_code').value=='')
       {
-       alert("<?php echo xls('Select Insurance, by typing'); ?>");
+       alert(<?php echo xlj('Select Insurance, by typing'); ?>);
        document.getElementById('type_code').focus();
        return false;
       }
      if(document.getElementById('hidden_type_code').value!=document.getElementById('div_insurance_or_patient').innerHTML)
       {
-       alert("<?php echo xls('Take Insurance, from Drop Down'); ?>");
+       alert(<?php echo xlj('Take Insurance, from Drop Down'); ?>);
        document.getElementById('type_code').focus();
        return false;
       }
@@ -120,7 +123,7 @@ if ($_FILES['form_erafile']['size']) {
         if ($_FILES['form_erafile']['size']) {
             ?>
             var f = document.forms[0];
-            var debug = <?php echo attr($_REQUEST['form_without']*1); ?> ;
+            var debug = <?php echo js_escape($_REQUEST['form_without']*1); ?> ;
          var paydate = f.check_date.value;
          var post_to_date = f.post_to_date.value;
          var deposit_date = f.deposit_date.value;
@@ -244,11 +247,11 @@ if ($_FILES['form_erafile']['size']) {
     ?>
 </head>
 <body class="body_top" onload="OnloadAction()">
-    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
+    <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer());?>">
         <div class="row">
             <div class="col-sm-12">
                 <div class="page-header">
-                    <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
+                    <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>
         </div>

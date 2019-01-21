@@ -733,7 +733,7 @@ if ($_GET['original']=='original') {
         }
 
         if ($StringPrint=='Yes') {
-            echo "<script>alert('" . addslashes($StringIssue) . "')</script>";
+            echo "<script>alert(" . js_escape($StringIssue) . ")</script>";
         }
     }
 
@@ -747,7 +747,7 @@ if ($_GET['original']=='original') {
 <script language="JavaScript">
 <?php
 if ($alertmsg) {
-    echo " alert('" . addslashes($alertmsg) . "');\n";
+    echo " alert(" . js_escape($alertmsg) . ");\n";
 }
 ?>
 </script>
