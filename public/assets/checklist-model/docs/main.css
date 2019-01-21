@@ -1,0 +1,27 @@
+body {
+  padding-top: 20px; 
+}
+
+.title {
+  padding-left: 40px;
+  background: url('img/checkbox.png') center left no-repeat;
+  margin-bottom: 0;
+}
+
+label {
+  display: block;
+}
+
+pre.prettyprint {
+  border: 1px solid #CCCCCC !important;
+  padding: 10px !important;
+}
+
+footer {
+  text-align: center;
+}
+
+.topbtn {
+  margin: 5px 0;
+  width: 140px;
+}

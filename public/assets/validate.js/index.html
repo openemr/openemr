@@ -1,0 +1,2984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>validate.js</title>
+  <link rel="shortcut icon" type="image/png" href="favicon.png">
+  <meta name="viewport" content="width=device-width, user-scalable=0, initial-scale=1, maximum-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/styles/default.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/2.10.2/bluebird.min.js" async></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js" async></script>
+  <script src="validate.js" async></script>
+  <style>
+    html, body {
+      min-height: 100%;
+      height: 100%;
+    }
+
+    body {
+      font-weight: 200;
+      font-family: Helvetica, Arial, sans-serif;
+    }
+
+    h1, h2, h3 {
+      font-weight: 200;
+    }
+
+    #fork-me {
+      position: absolute;
+      right: 0;
+      top: 0;
+      -webkit-transform: translateZ(0);
+    }
+
+    header {
+      z-index: 10;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+    }
+
+    header .title {
+      font-size: 25px;
+      line-height: 50px;
+      border-bottom: none;
+      display: inline-block;
+      margin: 0;
+      padding: 0;
+      display: none;
+    }
+
+    #menu-button {
+      display: none;
+      width: 30px;
+      border: none;
+      background: none;
+      padding: 0;
+      margin: 15px 10px;
+      -webkit-transform: translateZ(0);
+    }
+
+    #menu-button .bar {
+      width: 100%;
+      height: 4px;
+      background-color: black;
+      border-radius: 1px;
+      margin-top: 4px;
+    }
+
+    #menu-button .bar:first-child {
+      margin-top: 0;
+    }
+
+    #sidebar {
+      background-color: #F7F5FA;
+      box-sizing: border-box;
+      padding-top: 10px;
+      padding-left: 10px;
+      overflow-y: scroll;
+      -webkit-overflow-scrolling: touch;
+      width: 299px;
+      border-right: 1px solid #eee;
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 100%;
+      min-height: 100%;
+      max-height: 100%;
+    }
+
+    #sidebar a {
+      color: #333;
+      text-shadow: 0 1px 0 #FFF;
+    }
+
+    #sidebar ul {
+      list-style: none;
+      margin: 0;
+      padding-left: 10px;
+    }
+
+    #sidebar > ul > li {
+      margin-bottom: 10px;
+    }
+
+    #sidebar > ul > li > a {
+      font-size: 16px;
+      font-weight: 400;
+    }
+
+    #sidebar ul ul li {
+      padding-left: 10px;
+      position: relative;
+    }
+
+    #sidebar ul ul li:after {
+      display: block;
+      content: '-';
+      position: absolute;
+      left: 0px;
+      top: 0;
+    }
+
+    #sidebar ul ul li.external:after {
+      content: "»";
+    }
+
+    #content {
+      margin-left: 299px;
+      -webkit-transform: translateZ(0);
+    }
+
+    #scroller {
+      position: relative;
+    }
+
+    #scroll-content {
+      max-width: 820px;
+      min-width: 640px;
+      padding: 0 30px 30px;
+    }
+
+    #scroll-content > div {
+      padding: 10px 0;
+    }
+
+    #scroll-content > div:first-child {
+      padding-top: 0;
+    }
+
+    #validate-js h2 {
+      margin-top: 20px;
+    }
+
+    .banner h1 {
+      font-size: 50px;
+      text-transform: uppercase;
+      border-bottom: 5px solid #333;
+      display: inline-block;
+    }
+
+    .download {
+      margin-top: 20px;
+    }
+
+    .download .btn {
+      width: 250px;
+      display: inline-block;
+      vertical-align: top;
+    }
+
+    .download .info {
+      display: inline-block;
+      font-size: 12px;
+      margin-left: 5px;
+    }
+
+    .download .badges a:hover {
+      text-decoration: none;
+    }
+
+    .dependencies {
+      margin-top: 20px;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    .signature {
+      margin-bottom: 10px;
+    }
+
+    .signature b {
+      margin-right: 5px;
+      font-size: 18px;
+    }
+
+    pre > code {
+      padding: 0;
+      background-color: transparent;
+    }
+
+    .notes {
+      font-style: italic;
+    }
+
+    ul > li > code {
+      display: inline-block;
+      margin-bottom: 3px;
+    }
+
+    #validators > div, #utilities > div {
+      padding: 10px 0px;
+    }
+
+    #changelog h3 {
+      font-size: 14px;
+    }
+
+    #changelog h3 .version {
+      font-size: 18px;
+    }
+
+    @media (max-width: 945px) {
+      body {
+        padding-left: 0;
+      }
+
+      #fork-me {
+        display: none;
+      }
+
+      header {
+        background-color: white;
+        height: 50px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        -webkit-box-shadow: 0px 2px black;
+        -moz-box-shadow: 0px 2px black;
+        box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      header #menu-button, header .title {
+        display: inline-block;
+      }
+
+      .banner {
+        text-align: center;
+      }
+
+      .download {
+        text-align: center;
+      }
+
+      .download .btn {
+        width: 100%;
+        margin-bottom: 3px;
+      }
+
+      .banner h1 {
+        font-size: 40px;
+        margin-top: 0;
+      }
+
+      #sidebar {
+        left: -299px;
+        top: 50px;
+        padding-top: 10px;
+        z-index: 10;
+        -webkit-transition: left 250ms ease-in;
+      }
+
+      .sidebar-shown #sidebar {
+        left: 0;
+        -webkit-transition-timing-function: ease-out;
+      }
+
+      #content {
+        margin-top: 50px;
+        padding-top: 20px;
+        margin-left: 0;
+        overflow: hidden;
+      }
+
+      #scroll-content {
+        min-width: 0;
+        padding: 10px;
+      }
+
+      code {
+        white-space: normal;
+      }
+
+      pre {
+        overflow: scroll;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      pre code {
+        min-width: 600px;
+      }
+    }
+  </style>
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-45797376-1', 'validatejs.org');
+    ga('require', 'displayfeatures');
+    ga('send', 'pageview');
+  </script>
+</head>
+<body>
+  <nav id="sidebar">
+    <ul>
+      <li>
+        <a href="#validate-js">Validate.js</a>
+        <ul>
+          <li class="external">
+            <a href="https://github.com/ansman/validate.js">GitHub Repository</a>
+          </li>
+          <li class="external">
+            <a href="docs/validate.html">Annotated source</a>
+          </li>
+        </ul>
+      </li>
+      <li><a href="#downloads">Downloads</a></li>
+      <li><a href="#installing">Installing</a></li>
+      <li><a href="#dependencies">Dependencies</a></li>
+      <li>
+        <a href="#overview">Overview</a>
+        <ul>
+          <li><a href="#supported-runtimes">Supported runtimes</a></li>
+          <li><a href="#examples">Examples</a></li>
+          <li><a href="#acknowledgements">Acknowledgements</a></li>
+        </ul>
+      </li>
+      <li><a href="#constraints">Constraints</a></li>
+      <li>
+        <a href="#validate">Validate function</a>
+        <ul>
+          <li><a href="#validate-async">Async validation</a></li>
+          <li><a href="#validate-single">Single value validation</a></li>
+          <li><a href="#validate-nested">Nested validation</a></li>
+          <li><a href="#validate-default-options">Default options</a></li>
+          <li><a href="#validate-error-formatting">Error formatting</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="#custom-validator">Writing your own validator</a>
+        <ul>
+          <li><a href="#custom-validator-async">Writing an async validator</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="#validators">Validators</a>
+        <ul>
+          <li><a href="#validators-date">Date</a></li>
+          <li><a href="#validators-datetime">Datetime</a></li>
+          <li><a href="#validators-email">Email</a></li>
+          <li><a href="#validators-equality">Equality</a></li>
+          <li><a href="#validators-exclusion">Exclusion</a></li>
+          <li><a href="#validators-format">Format</a></li>
+          <li><a href="#validators-inclusion">Inclusion</a></li>
+          <li><a href="#validators-length">Length</a></li>
+          <li><a href="#validators-numericality">Numericality</a></li>
+          <li><a href="#validators-presence">Presence</a></li>
+          <li><a href="#validators-url">URL</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="#utilities">Utilities</a>
+        <ul>
+          <li><a href="#utilities-capitalize">capitalize</a></li>
+          <li><a href="#utilities-clean-attributes">cleanAttributes</a></li>
+          <li><a href="#utilities-collect-form-values">collectFormValues</a></li>
+          <li><a href="#utilities-contains">contains</a></li>
+          <li><a href="#utilities-extend">extend</a></li>
+          <li><a href="#utilities-format">format</a></li>
+          <li><a href="#utilities-get-deep-object-value">getDeepObjectValue</a></li>
+          <li><a href="#utilities-is-array">isArray</a></li>
+          <li><a href="#utilities-is-boolean">isBoolean</a></li>
+          <li><a href="#utilities-is-date">isDate</a></li>
+          <li><a href="#utilities-is-defined">isDefined</a></li>
+          <li><a href="#utilities-is-dom-element">isDomElement</a></li>
+          <li><a href="#utilities-is-empty">isEmpty</a></li>
+          <li><a href="#utilities-is-function">isFunction</a></li>
+          <li><a href="#utilities-is-hash">isHash</a></li>
+          <li><a href="#utilities-is-integer">isInteger</a></li>
+          <li><a href="#utilities-is-number">isNumber</a></li>
+          <li><a href="#utilities-is-object">isObject</a></li>
+          <li><a href="#utilities-is-promise">isPromise</a></li>
+          <li><a href="#utilities-is-string">isString</a></li>
+          <li><a href="#utilities-prettify">prettify</a></li>
+          <li><a href="#utilities-result">result</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="#changelog">Changelog</a>
+        <ul>
+          <li><a href="#changelog-0-12-0">0.12.0</a></li>
+          <li><a href="#changelog-0-11-1">0.11.1</a></li>
+          <li><a href="#changelog-0-11-0">0.11.0</a></li>
+          <li><a href="#changelog-0-10-0">0.10.0</a></li>
+          <li><a href="#changelog-0-9-0">0.9.0</a></li>
+          <li><a href="#changelog-0-8-0">0.8.0</a></li>
+          <li><a href="#changelog-0-7-1">0.7.1</a></li>
+          <li><a href="#changelog-0-7-0">0.7.0</a></li>
+          <li><a href="#changelog-0-6-1">0.6.1</a></li>
+          <li><a href="#changelog-0-6-0">0.6.0</a></li>
+          <li><a href="#changelog-0-5-0">0.5.0</a></li>
+          <li><a href="#changelog-0-4-0">0.4.0</a></li>
+          <li><a href="#changelog-0-3-2">0.3.2</a></li>
+          <li><a href="#changelog-0-3-1">0.3.1</a></li>
+          <li><a href="#changelog-0-3-0">0.3.0</a></li>
+          <li><a href="#changelog-0-2-0">0.2.0</a></li>
+          <li><a href="#changelog-0-1-3">0.1.3</a></li>
+          <li><a href="#changelog-0-1-2">0.1.2</a></li>
+          <li><a href="#changelog-0-1-1">0.1.1</a></li>
+          <li><a href="#changelog-0-1-0">0.1.0</a></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+  <header>
+    <button id="menu-button">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </button>
+    <div class="title">Validate.js</div>
+  </header>
+  <div id="content">
+    <div id="scroller">
+      <a id="fork-me" href="https://github.com/ansman/validate.js"><img src="https://raw.githubusercontent.com/aral/fork-me-on-github-retina-ribbons/master/images-after-imageoptim/fork-me-right-grey@2x.png" alt="Fork me" width="149" height="149"></a>
+      <div id="scroll-content">
+        <div id="validate-js">
+          <div class="banner"><h1>Validate.js</h1></div>
+          <p>
+            Validate.js provides a declarative way of validating javascript objects.
+          </p>
+          <p>
+            It is unit tested with 100% code coverage and can be considered fit
+            for production.
+          </p>
+          <p>
+            The project can be found on <a href="https://github.com/ansman/validate.js">GitHub</a>
+            where you can also find our <a href="https://github.com/ansman/validate.js/issues">issue tracker</a>.
+            There is also a <a href="https://travis-ci.org/ansman/validate.js" target="_blank">Travis project</a>
+            used for testing,
+            a <a href="https://coveralls.io/r/ansman/validate.js" target="_blank">Coveralls project</a>
+            used to code coverage
+            as well as the <a href="docs/validate.html">annotated source</a>.
+          </p>
+          <p class="notes">
+            Validate.js is an open source component of <a href="https://www.wrapp.com">Wrapp</a>
+            and is licensed under <a href="LICENSE.txt">the MIT license</a>.
+          </p>
+          <h2 id="downloads">Downloads</h2>
+          <div class="download">
+            <a class="btn btn-default" download href="validate.js">Development version (0.12.0)</a>
+            <div class="info">
+              <span class="details">33KB, uncompressed and plenty of comments</span>
+            </div>
+          </div>
+          <div class="download">
+            <a class="btn btn-primary" download href="validate.min.js">Production version (0.12.0)</a>
+            <div class="info">
+              <span class="details">4.66KB, minified and gzipped</span><br>
+              <a download href="validate.min.map">(Source map)</a>
+            </div>
+          </div>
+          <div class="download">
+            <a class="btn btn-danger" download href="https://raw.github.com/ansman/validate.js/master/validate.js">Bleeding edge</a>
+            <div class="info badges">
+              <span class="details">Might not be 100% stable</span><br>
+              <a href="https://travis-ci.org/ansman/validate.js" target="_blank">
+                <img src="https://travis-ci.org/ansman/validate.js.svg?branch=master" alt="Build Status" width="90" height="20">
+              </a>
+              <a href="https://coveralls.io/r/ansman/validate.js" target="_blank">
+                <img src="https://coveralls.io/repos/ansman/validate.js/badge.svg?branch=master" alt="Coverage Status" width="106" height="20"/>
+              </a>
+            </div>
+          </div>
+          <div id="installing">
+            <h2>Installing</h2>
+            <b>Browser/CDN</b>
+            <pre><code class="html">&lt;script src="//cdnjs.cloudflare.com/ajax/libs/validate.js/0.12.0/validate.min.js"&gt;&lt;/script&gt;</code></pre>
+            <b>Require.js/AMD</b>
+            <pre><code class="javascript">require(["validate.js"], function(validate) {
+  // ...
+});</code></pre>
+            <b>npm/node.js</b>
+            <pre><code class="bash">$ npm install --save validate.js</code></pre>
+            <pre><code class="javascript">var validate = require("validate.js");</code></pre>
+            <b>Bower</b>
+            <pre><code class="bash">$ bower install --save validate.js</code></pre>
+            <b>Component</b>
+            <pre><code class="bash">$ component install ansman/validate.js</code></pre>
+          </div>
+          <h2 id="dependencies">Dependencies</h2>
+          <p class="dependencies">
+            There are no required external dependencies at all! Though for the
+            datetime and date validator to you need to specify a parse and format
+            function and for that you most likely will want to use a library,
+            moment.js is highly recommended.
+          </p>
+          <p class="dependencies">
+            If you want to use async validation you need to use a runtime that
+            supports <a href="http://www.html5rocks.com/en/tutorials/es6/promises/" target="_blank">Promises</a>.<br>
+            You can tell validate.js to use any A+ compatible promise implemention
+            like this:
+          </p>
+          <pre><code class="javascript">// Simply set validate.Promise to be the promise constructor
+// RSVP works
+validate.Promise = RSVP.Promise;
+// and Q.js too
+validate.Promise = Q.Promise;</code></pre>
+        </div>
+        <div id="overview">
+          <h2>Overview</h2>
+          <p>
+            There are already many validation libraries out there today but most of them
+            are very tightly coupled to a language or framework.
+          </p>
+          <p>
+            The goal of validate.js is to provide a cross framework and cross language
+            way of validating data. The validation constraints can be declared in JSON
+            and shared between clients and the server.
+          </p>
+          <p>
+            <b>Important!</b>
+            One thing that is a bit unorthodox is that most validators will
+            consider undefined values (<code>null</code> and <code
+            >undefined</code>,) valid values. So for example adding a constraint of
+            at least 6 characters will be like saying <i>If the attribute is given
+            it must be at least 6 characters</i>.<br>
+            This differs from example Ruby on Rails where validators instead have
+            the <code>allow_nil</code> option. I find it quite common that you
+            want to have constraints on an optional attribute.<br>
+          </p>
+          <p>
+            One core value of this library is that nothing should be private or
+            inaccessable. If you want to modify which values are considered
+            empty for example you can simply overwrite
+            <code>validate.isEmpty</code>, this way you don't have to wait for
+            a pull request to be accepted or create a fork.
+          </p>
+          <div id="supported-runtimes">
+            <h3>Supported runtimes</h3>
+            <p>
+              Validate.js works with any ECMAScript 5.1 runtime which means it works in
+              both the browser and in node.js
+            </p>
+            <p>All modern browsers are supported (IE9+, Firefox 3+, Opera 10.5+, Safari 4+, Chrome).</p>
+          </div>
+          <div id="examples">
+            <h3>Examples</h3>
+            <p>
+              You can find some basic examples <a href="examples.html">included in the project</a>.
+            </p>
+            <p>
+              They are meant to give a feeling for how to use the library and
+              should not be considered production ready code.
+            </p>
+            <p>
+              The native HTML form validate has been disabled in a demo purpose
+              so that you may see how validate.js works in action.
+            </p>
+          </div>
+          <div id="acknowledgements">
+            <h3>Acknowledgements</h3>
+            <ul>
+              <li>The design of these docs pages have been heavily inspired by <a href="http://backbonejs.org/">backbonejs.org</a>.</li>
+              <li>All the validators have been inspired by <a href="http://edgeguides.rubyonrails.org/active_record_validations.html">Rails' validators</a>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="constraints">
+          <h2>Constraints</h2>
+          <p class="description">The constraints have the following format</p>
+          <pre><code class="json">{
+  &lt;attribute&gt;: {
+    &lt;validator name&gt;: &lt;validator options&gt;
+  }
+}</code></pre>
+          <p class="description">
+            Unless otherwise specified you can always specify the <b>message</b>
+            option to customize the message returned if the validator doesn't pass.
+            Just remember to not include the attribute name since it's automatically
+            prepended to the error message.
+          </p>
+          <p class="description">
+            The message can also be a function which will be called to retrieve
+            the message, besides this it is treated like a normal message (the
+            attribute name is prepended etc).<br>
+            If the message is not a function and not a string it is simply
+            returned as is.
+          </p>
+          <p class="description">
+            Sometimes it's nice to be able validate field differently depending
+            on the input itself.
+            validate.js allows the validators object and validator options to be
+            a function that should return the constraints/options:
+          </p>
+          <pre><code class="javascript">var constraints = {
+  creditCardNumber: {
+    presence: true,
+    format: {
+      pattern: /^(34|37|4|5[1-5]).*$/,
+      message: function(value, attribute, validatorOptions, attributes, globalOptions) {
+        return validate.format("^%{num} is not a valid credit card number", {
+          num: value
+        });
+      }
+    },
+    length: function(value, attributes, attributeName, options, constraints) {
+      if (value) {
+        // Amex
+        if ((/^(34|37).*$/).test(value)) return {is: 15};
+        // Visa, Mastercard
+        if ((/^(4|5[1-5]).*$/).test(value)) return {is: 16};
+      }
+      // Unknown card, don't validate length
+      return false;
+    }
+  },
+  creditCardZip: function(value, attributes, attributeName, options, constraints) {
+    if (!(/^(34|37).*$/).test(attributes.creditCardNumber)) return null;
+    return {
+      presence: {message: "is required when using AMEX"},
+      length: {is: 5}
+    };
+  }
+};
+
+validate({creditCardNumber: "4"}, constraints);
+// =&gt; {"creditCardNumber": ["Credit card number is the wrong length (should be 16 characters)"]}
+
+validate({creditCardNumber: "9999999999999999"}, constraints);
+// =&gt; {"creditCardNumber": ["9999999999999999 is not a valid credit card number"]}
+
+validate({creditCardNumber: "4242424242424242"}, constraints);
+// =&gt; undefined
+
+validate({creditCardNumber: "340000000000000"}, constraints);
+// =&gt; {"creditCardZip": ["Credit card zip is required when using AMEX"]}</code></pre>
+
+          <p class="description">
+            If you don't want to give any options to a validator you may pass
+            <code>true</code> instead of an empty object. The validator will not
+            be run if the options are falsy.
+          </p>
+          <p class="notes">
+            <b>Important!</b> Most validators consider undefined values
+            (<code>null</code> and <code>undefined</code>) valid values so make
+            sure you use the <code>presence</code> validator on attributes that
+            are required.
+          </p>
+        </div>
+
+        <div id="validate">
+          <h2>Validate function</h2>
+          <div class="signature">
+            <b>validate</b>
+            <code>validate(attributes, constraints, [options])</code>
+          </div>
+          <p class="description">
+            Validates the <b>attributes</b> object against the <b>constraints</b>.<br>
+            The <b>attributes</b> must be a plain object or a form element,
+            things like backbone models etc are not supported.<br>
+            For the format of the <b>constraints</b> see the <a href="#constraints">constraints section</a>.
+          </p>
+          <p class="description">
+            If the <b>attributes</b> objects is an HTML/DOM/jQuery element
+            <a href="#utilities-collect-form-values"><code>collectFormValues</code></a>
+            is called before validating.
+          </p>
+          <p class="description">
+            If there are no errors nothing is returned. Otherwise an object in this
+            format is returned: <code>{&lt;attribute&gt;: [&lt;error&gt;, &lt;error&gt;, ...]}</code>
+          </p>
+          <p class="description">
+            Since validators don't include the argument name in the error message
+            the validate function prepends it for them. This behaviour can be
+            disabled by setting the <b>fullMessages</b> option to <code>false</code>.
+          </p>
+          <p class="description">
+            If you need an error not to be prefixed by the attribute add a leading
+            <code>^</code> to the error and it won't be prepended. If you need to
+            have a leading <code>^</code> but want the prefixing just write <code>\^</code>.
+          </p>
+          <p class="description">
+            If you include <code>%{value}</code> in the error message it will be
+            replaced with the actual value. The value is transformed using
+            <code>validate.stringifyValue</code> (which per default just calls
+            <code>validate.prettify</code>) but it can be overidden to customize
+            the formatting.
+          </p>
+          <p class="description">
+            If you want to customize how the attribute names are prettified you
+            can either override the <code>validate.prettify</code> function
+            or you can give a function as the <b>prettify</b> option.
+          </p>
+          <p class="description">
+            There is also a <b>format</b> option. To see more details about this
+            option see
+            <a href="#validate-error-formatting">the section about it</a>.
+          </p>
+          <pre><code class="javascript">var constraints = {
+  username: {
+    presence: true,
+    exclusion: {
+      within: ["nicklas"],
+      message: "'%{value}' is not allowed"
+    }
+  },
+  password: {
+    presence: true,
+    length: {
+      minimum: 6,
+      message: "must be at least 6 characters"
+    }
+  }
+};
+
+validate({password: "bad"}, constraints);
+// =&gt; {
+//   "username": ["Username can't be blank"],
+//   "password": ["Password must be at least 6 characters"]
+// }
+
+validate({username: "nick", password: "better"}, constraints);
+// =&gt; undefined
+
+validate({username: "nicklas", password: "better"}, constraints);
+// =&gt; {"username": ["Username 'nicklas' is not allowed"]}
+
+validate({password: "better"}, constraints, {fullMessages: false});
+// =&gt; {"username": ["can't be blank"]}
+
+validate({}, constraints, {format: "flat"});
+// =&gt; ["Username can't be blank", "Password can't be blank"]
+
+validate({username: "nicklas", password: "bad"}, constraints, {format: "detailed"});
+// =&gt; [
+//   {
+//     "attribute": "username",
+//     "value": "nicklas",
+//     "validator": "exclusion",
+//     "globalOptions": {
+//       "format": "detailed"
+//     },
+//     "attributes": {
+//       "username": "nicklas",
+//       "password": "bad"
+//     },
+//     "options": {
+//       "within": [
+//         "nicklas"
+//       ],
+//       "message": "'%{value}' is not allowed"
+//     },
+//     "error": "Username 'nicklas' is not allowed"
+//   },
+//   {
+//     "attribute": "password",
+//     "value": "bad",
+//     "validator": "length",
+//     "globalOptions": {
+//       "format": "detailed"
+//     },
+//     "attributes": {
+//       "username": "nicklas",
+//       "password": "bad"
+//     },
+//     "options": {
+//       "minimum": 6,
+//       "message": "must be at least 6 characters"
+//     },
+//     "error": "Password must be at least 6 characters"
+//   }
+// ]
+
+validate({}, {username: {presence: {message: "^You must pick a username"}}});
+// =&gt; {"username": ["You must pick a username"]}</code></pre>
+          <div id="validate-async">
+            <h3>Async validation</h3>
+            <div class="signature">
+              <b>validate.async</b>
+              <code>validate.async(attributes, constraints, [options])</code>
+            </div>
+            <p class="description">
+              Even though none of the built in validators are async it is sometimes
+              useful to have async validations. One example would be to check if
+              a username is already used by asking the server.
+            </p>
+            <p class="description">
+              Validate.js supports async validations through the <code>validate.async</code>
+              function. It has the same signature as the regular validation function.
+            </p>
+            <p class="description">
+              <code>validate.async</code> returns a
+              <a href="http://www.html5rocks.com/en/tutorials/es6/promises/" target="_blank">Promise</a>
+              that is resolved if the validation passes and is rejected if the
+              validation failed, passing the errors as the first argument.<br>
+              The errors has the same format as the errors from the regular validation function.
+            </p>
+            <p class="description">
+              Besides accepting all options as the non async validation function
+              it also accepts two additional options; <b>cleanAttributes</b> which,
+              unless <code>false</code>, makes <code>validate.async</code>
+              call <a href="#utilities-clean-attributes"><code>validate.cleanAttributes</code></a>
+              before resolving the promise and <b>wrapErrors</b> which can be
+              a function or constructor that will be called with the errors,
+              options, attributes and constraints if an error occurs. This allows
+              you to define a better way of catching validation errors.
+            </p>
+            <p class="description">
+              If an <code>Error</code> is thrown from an async validator the
+              argument passed to the rejection handler will be that error. This
+              allows you to differentiate from coding errors and validation errors.
+            </p>
+            <p class="description">
+               You can use the async validate function even if no validations
+               are async, it still returns a promise. You can not, however, use
+               the regular function with async validations.
+            </p>
+            <p class="description">
+              Any A+ type promise can be used, just override <code>validate.Promise</code>
+              with the constructor of the new Promise implementation.
+            </p>
+            <p class="description">
+              Validate.js will try to use the global Promise function if it exists
+              otherwise it will throw an exception when using <code>validate.async</code>
+            </p>
+            <p class="notes">
+              Please note that jQuery's promise implementation is not A+
+              compatible and will not work.
+            </p>
+            <p class="description">Example:</p>
+            <pre><code class="javascript">function success(attributes) {
+  console.log("Success!", attributes);
+}
+
+function error(errors) {
+  if (errors instanceof Error) {
+    // This means an exception was thrown from a validator
+    console.err("An error ocurred", errors);
+  } else {
+    console.log("Validation errors", errors);
+  }
+}
+
+var constraints = {
+  name: {
+    presence: true
+  },
+  // This is so the country doesn't get removed when cleaning the attributes
+  country: {}
+};
+
+var attributes = {
+  name: "Nicklas",
+  country: "Sweden",
+  someMaliciousAttribute: "scary value"
+};
+
+// Will call the success function and log {
+//   name: "Nicklas",
+//   country: "Sweden"
+// }
+validate.async(attributes, constraints).then(success, error);
+
+// Will call the error function
+validate.async({}, constraints).then(success, error);
+
+function ValidationErrors(errors, options, attributes, constraints) {
+  Error.captureStackTrace(this, this.constructor);
+  this.errors = errors;
+  this.options = options;
+  this.attributes = attributes;
+  this.constraints = constraints;
+}
+ValidationErrors.prototype = new Error();
+
+// This isn't supported by the ES6 promises
+validate.async({}, constraints, {wrapErrors: ValidationErrors})
+  .then(success)
+  .catch(ValidationErrors, function(error) {
+    // Handle the validation errors
+    console.log("ValidationErrors", error);
+  })
+  .catch(function(error) {
+    // Handle other errors;
+    console.log("SystemError", error);
+  });
+
+// Supporting another promise implementation (RSVP in this case)
+validate.Promise = RSVP.Promise;</code></pre>
+          </div>
+          <div id="validate-single">
+            <h3>Single value validation</h3>
+            <div class="signature">
+              <b>validate.single</b>
+              <code>validate.single(value, constraints, [options])</code>
+            </div>
+            <p class="description">
+              Sometimes you only want to validate a single value against some
+              constraints and using the normal validate function is quite
+              verbose so there is a shorthand for this.
+            </p>
+            <p class="description">
+              It does little more than proxying the call do the main validation
+              function but with the value wrapped in an object and the options
+              <b>fullMessages</b> and <b>format</b> set to <code>"flat"</code>.
+              This is because there is no name which means it can't produce
+              full messages.
+            </p>
+            <p class="description">
+              You can use the provided <a href="#utilities-format">format</a>,
+              <a href="#utilities-capitalize">capitalize</a> and
+              <a href="#utilities-prettify">prettify</a>
+              utility functions to append your own name.
+            </p>
+            <pre><code class="javascript">validate.single(null, {presence: true, email: true});
+// =&gt; ["can't be blank"]
+
+validate.single("foo", {presence: true, email: true});
+// =&gt; ["is not a valid email"]
+
+validate.single("foo@bar.com", {presence: true, email: true});
+// =&gt; undefined</code></pre>
+          </div>
+          <div id="validate-nested">
+            <h3>Nested validation</h3>
+            <p class="description">
+              Validate.js also has limited support for nested objects (objects
+              within objects) using the dot notation.
+            </p>
+            <p class="description">
+              The implementation is fairly basic and doesn't do anything clever
+              with the messages. It doesn't support things like only validating a
+              sub key if the parent key is present so for more advanced validations
+              multiple validation schemas are recommended.
+            </p>
+            <pre><code class="javascript">var constraints = {
+  "addresses.shipping": {
+    presence: true
+  },
+  "addresses.shipping.street": {
+    format: {
+      // Must be numbers followed by a name
+      pattern: "^[0-9]+ .+$",
+      message: "^The street for the shipping address must be a valid street name"
+    }
+  }
+};
+
+validate({}, constraints);
+// =&gt; {"addresses.shipping": ["Addresses shipping can't be blank"]}
+
+validate({addresses: {shipping: {street: "Foobar"}}}, constraints);
+// =&gt; {"addresses.shipping.street": ["The street for the shipping address must be a valid street name"]}
+
+validate({"foo.bar": 3}, {"foo\\.bar": {numericality: {even: true}}});
+// =&gt; {"foo\.bar": ["Foo bar must be even"]}</code></pre>
+          </div>
+          <div id="validate-default-options">
+            <h3>Default options</h3>
+            <p class="description">
+              Both the <code>validate</code>, <code>validate.async</code> as well
+              as all validators support specifying default options by setting
+              the <code>options</code> property on the respective function or
+              validator.
+            </p>
+            <p class="description">
+              Most validators allow you to specify default messages in addition
+              to default options, refer to the documentation for the individual
+              validators for information on how to do this.
+            </p>
+            <pre><code class="javascript">var constraints = {
+  name: {
+    presence: true
+  }
+};
+
+validate.options = {format: "flat"};
+validate.async.options = {format: "flat", cleanAttributes: false};
+validate.validators.presence.options = {message: "can't be empty"};
+
+// The default options will be used for both the
+// validator and the validate function
+validate({}, constraints);
+// =&gt; ["Name can't be empty"]
+
+// The default options are not used if the constraints options are falsy
+validate({format: "grouped"}, {});
+// =&gt; undefined</code></pre>
+          </div>
+          <div id="validate-error-formatting">
+            <h3>Error formatting</h3>
+            <p class="description">
+              validate.js allows the result from the validate function to be
+              formatted in different ways.
+            </p>
+            <ul>
+              <li><code>"grouped"</code> (default) - Returns error messages grouped by attribute.</li>
+              <li><code>"flat"</code> - Returns a flat list of error messages.</li>
+              <li><code>"detailed"</code> - Returns a list of error objects containing more info on the error (see example). Each object will only contain a single message.</li>
+            </ul>
+            <p class="description">
+              You can also create custom formatters by adding them to the
+              <code>validate.formatters</code> object. The formatter should be
+              a function that accepts a list of errors that have the same format
+              as the detailed format.
+            </p>
+            <pre><code class="javascript">var constraints = {
+  username: {
+    presence: true,
+    exclusion: {
+      within: ["nicklas"],
+      message: "'%{value}' is not allowed"
+    }
+  },
+  password: {
+    presence: true,
+    length: {
+      minimum: 6,
+      message: "must be at least 6 characters"
+    }
+  }
+};
+
+validate({}, constraints, {format: "flat"});
+// =&gt; ["Username can't be blank", "Password can't be blank"]
+
+validate({username: "nicklas", password: "bad"}, constraints, {format: "detailed"});
+// =&gt; [
+//   {
+//     "attribute": "username",
+//     "value": "nicklas",
+//     "validator": "exclusion",
+//     "globalOptions": {
+//       "format": "detailed"
+//     },
+//     "attributes": {
+//       "username": "nicklas",
+//       "password": "bad"
+//     },
+//     "options": {
+//       "within": [
+//         "nicklas"
+//       ],
+//       "message": "'%{value}' is not allowed"
+//     },
+//     "error": "Username 'nicklas' is not allowed"
+//   },
+//   {
+//     "attribute": "password",
+//     "value": "bad",
+//     "validator": "length",
+//     "globalOptions": {
+//       "format": "detailed"
+//     },
+//     "attributes": {
+//       "username": "nicklas",
+//       "password": "bad"
+//     },
+//     "options": {
+//       "minimum": 6,
+//       "message": "must be at least 6 characters"
+//     },
+//     "error": "Password must be at least 6 characters"
+//   }
+// ]
+
+validate.formatters.custom = function(errors) {
+  return errors.map(function(error) {
+    return error.validator;
+  });
+};
+
+validate({username: "nicklas", password: "bad"}, constraints, {format: "custom"});
+// =&gt; ["exclusion", "length"];</code></pre>
+          </div>
+        </div>
+        <div id="custom-validator">
+          <h2>Writing your own validator</h2>
+          <p class="description">
+            Writing your own validator is super simple! Just add it to the
+            <code>validate.validators</code> object and it will be automatically
+            picked up.
+          </p>
+          <p class="description">
+            The validator receives the following arguments:
+          </p>
+          <ol>
+            <li><b>value</b> - The value exactly how it looks in the attribute object.</li>
+            <li>
+              <b>options</b> - The options for the validator. Guaranteed to not
+              be <code>null</code> or <code>undefined</code>.
+            </li>
+            <li>
+              <b>key</b> - The attribute name.
+            </li>
+            <li>
+              <b>attributes</b> - The entire attributes object.
+            </li>
+            <li>
+              <b>globalOptions</b> - The options passed when calling
+              <code>validate</code> (will always be an object, non null).
+            </li>
+          </ol>
+          <p class="description">
+            If the validator passes simply return <code>null</code> or <code>undefined</code>.
+            Otherwise return a string or an array of strings containing the
+            error message(s).<br>
+            Make sure not to append the key name, this will be done automatically.
+          </p>
+          <pre><code class="javascript">validate.validators.custom = function(value, options, key, attributes) {
+  console.log(value);
+  console.log(options);
+  console.log(key);
+  console.log(attributes);
+  return "is totally wrong";
+};
+
+// Will log:
+//   - "some value"
+//   - "some options"
+//   - "foo"
+//   - {"foo": "some value"}
+validate({foo: "some value"}, {foo: {custom: "some options"}});
+// =&gt; {foo: ["Foo is totally wrong"]}</code></pre>
+          <div id="custom-validator-async">
+            <h3>Writing an async validator</h3>
+            <p class="description">
+              Async validators are equal to a regular one in every way except
+              in what they return. An async validator should return a promise
+              (usually a <code>validate.Promise</code> instance).
+            </p>
+            <p class="description">
+              The promise should be resolved with the error (if any) as its only
+              argument when it's complete.
+            </p>
+            <p>
+              If the validation could not be completed or if an error occurs
+              you can call the reject handler with an <code>Error</code>
+              which will make the whole validation fail and be rejected.
+            </p>
+            <pre><code class="javascript">validate.validators.myAsyncValidator = function(value) {
+  return new validate.Promise(function(resolve, reject) {
+    setTimeout(function() {
+      if (value === "foo") resolve();
+      else resolve("is not foo");
+    }, 100);
+  });
+};
+
+var constraints = {name: {myAsyncValidator: true}}
+  , success = alert.bind(this, "The validations passed")
+  , error = function(errors) {
+      alert(JSON.stringify(errors, null, 2));
+    };
+
+// Will call the success callback
+validate.async({name: "foo"}, constraints).then(success, error);
+
+// Will call the error callback with {name: ["Name is not foo"]} as the first argument
+validate.async({name: "bar"}, constraints).then(success, error);</code></pre>
+          </div>
+        </div>
+        <div id="validators">
+          <h2>Validators</h2>
+          <div id="validators-date">
+            <div class="signature"><b>date</b></div>
+            <p class="description">
+              The date validator is just a shorthand for the
+              <a href="#validators-datetime">datetime validator</a>
+              with the <code>dateOnly</code> option set to <code>true</code>.
+            </p>
+          </div>
+          <div id="validators-datetime">
+            <div class="signature"><b>datetime</b></div>
+            <p class="description">
+              This datetime validator can be used to validate dates and times.
+              Since date parsing in javascript is very poor some additional work
+              is required to make this work.
+            </p>
+            <p class="description">
+              Before this validator can be used the parse and format functions
+              needs to be set. The parse function should take the value to parse
+              (non null but otherwise untouched) and return the unix timestamp
+              (in milliseconds) for that date or <code>NaN</code> if it's invalid.<br>
+              It's important to mention that the constraints (earliest, latest)
+              will also be parsed using this method.
+            </p>
+            <p class="description">
+              The format function should take a unix timestamp (in milliseconds)
+              and format it in a user friendly way.
+            </p>
+            <p class="description">
+              You can specify the follow constraints:
+            </p>
+            <dl class="dl-horizontal">
+              <dt>earliest</dt>
+              <dd>
+                The date cannot be before this time. This argument will be parsed
+                using the <code>parse</code> function, just like the value.
+                The default error <i>must be no earlier than %{date}</i>
+              </dd>
+              <dt>latest</dt>
+              <dd>
+                The date cannot be after this time. This argument will be parsed
+                using the <code>parse</code> function, just like the value.
+                The default error <i>must be no later than %{date}</i>
+              </dd>
+              <dt>dateOnly</dt>
+              <dd>
+                If true, only dates (not datetimes) will be allowed.
+                The default error is <i>must be a valid date</i>
+              </dd>
+            </dl>
+            <p class="description">
+              You can change the messages by setting any of these settings
+              on the <code>validate.validators.datetime</code> object or on the
+              options for the validator:
+            </p>
+            <ul>
+              <li><code>notValid</code></li>
+              <li><code>tooEarly</code></li>
+              <li><code>tooLate</code></li>
+            </ul>
+            <p class="description">
+              You can use the placeholders <code>%{value}</code> and
+              <code>%{date}</code> in the messages.
+            </p>
+            <pre><code class="javascript">// Before using it we must add the parse and format functions
+// Here is a sample implementation using moment.js
+validate.extend(validate.validators.datetime, {
+  // The value is guaranteed not to be null or undefined but otherwise it
+  // could be anything.
+  parse: function(value, options) {
+    return +moment.utc(value);
+  },
+  // Input is a unix timestamp
+  format: function(value, options) {
+    var format = options.dateOnly ? "YYYY-MM-DD" : "YYYY-MM-DD hh:mm:ss";
+    return moment.utc(value).format(format);
+  }
+});
+
+validate({}, {departure: {datetime: true}});
+// =&gt; undefined
+
+validate({departure: "foobar"}, {departure: {datetime: true}});
+// =&gt; {"departure": ["Departure must be a valid date"]}
+
+validate({departure: "2013-12-11 10:09:08"}, {departure: {datetime: true}});
+// =&gt; undefined
+
+validate({departure: "2013-12-11 10:09:08"}, {departure: {datetime: {dateOnly: true}}});
+// =&gt; {"departure": ["Departure must be valid date"]}
+
+var constraints = {
+  birthday: {
+    datetime: {
+      dateOnly: true,
+      latest: moment.utc().subtract(18, 'years'),
+      message: "^You need to be atleast 18 years old"
+    }
+  }
+};
+
+validate({birthday: "3013-11-14"}, constraints);
+// =&gt; {"birthday": ["You need to be atleast 18 years old"]}</code></pre>
+          </div>
+          <div id="validators-email">
+            <div class="signature"><b>email</b></div>
+            <p class="description">
+              The email validator attempts to make sure the input is a valid email.<br>
+              Validating emails is tricky business due to the complex rules of
+              email address formatting.
+            </p>
+            <p class="description">
+              For example <code>john.doe@gmail</code> is a perfectly valid email
+              but it's most likely just the case that John has forgotten to write
+              <code>.com</code> at the end.
+            </p>
+            <p class="description">
+              Validate.js tries to be pragmatic and allows most valid emails but
+              tries to catch common typos such as forgetting the <a href="https://en.wikipedia.org/wiki/TLD" target="_blank">TLD</a>.<br>
+              If you want to know more about email validation the
+              <a href="https://en.wikipedia.org/wiki/Email_address" target="_blank">Wikipedia article</a>
+              and the <a href="http://www.regular-expressions.info/email.html" target="_blank">email page on regular-expressions.info</a>
+              are good places to start.
+            </p>
+            <p class="description">
+              You can customize the regexp used by setting <code>validate.validators.email.PATTERN</code>
+              to a regexp of your chosing, just remember that javascript regexp
+              does substring matching.
+            </p>
+            <p class="description">
+              The default message is <i>is not a valid email</i> and as usual you
+              can override it using the <b>message</b> option or by setting
+              <code>validate.validators.email.message</code>
+            </p>
+            <pre><code class="javascript">var constraints = {
+  from: {
+    email: true
+  }
+};
+
+validate({from: null}, constraints);
+// =&gt; undefined
+
+validate({from: ""}, constraints);
+// =&gt; {"email": ["From is not a valid email"]}
+
+validate({from: "nicklas@ansman"}, constraints);
+// =&gt; {"email": ["From is not a valid email"]}
+
+// Any TLD is allowed
+validate({from: "nicklas@foo.faketld"}, constraints);
+// =&gt; undefined
+
+// Upper cased emails are allowed
+validate({from: "NICKLAS@ANSMAN.SE"}, constraints);
+// =&gt; undefined
+
+constraints = {
+  from: {
+    email: {
+      message: "doesn't look like a valid email"
+    }
+  }
+};
+
+validate({from: "foobar"}, constraints);
+// =&gt; {"email": ["From doesn't look like a valid email"]}
+
+// It allows unicode
+validate({from: "first.läst@example.com"}, constraints);
+// =&gt; undefined</code></pre>
+          </div>
+          <div id="validators-equality">
+            <div class="signature"><b>equality</b></div>
+            <p class="description">
+              The equality validator can be used to verify that one attribute
+              is always equal to another. <br>
+              This is useful when having a "confirm password" input for
+              example.
+            </p>
+            <p class="description">
+              You specify which attribute by simply using the name of it
+              as the options for the validator or by giving the option
+              <b>attribute</b>.
+            </p>
+            <p class="description">
+              By default <code>===</code> is used to check the quality, it you
+              need to validate more complex objects you can give a function
+              using the <b>comparator</b> option which should be a function
+              that accepts two arguments and returns <code>true</code> if they
+              objects are equal and <code>false</code> if they are not.
+            </p>
+            <p class="description">
+              The default message is <i>is not equal to %{attribute}</i>
+              <code>validate.validators.equality.message</code>
+            </p>
+            <pre><code class="javascript">var constraints = {
+  confirmPassword: {
+    equality: "password"
+  }
+};
+
+validate({password: "foo", confirmPassword: "foo"}, constraints);
+// =&gt; undefined
+
+validate({password: "foo", confirmPassword: "bar"}, constraints);
+// =&gt; {confirmPassword: ["Confirm password is not equal to password"]}
+
+constraints = {
+  complexAttribute: {
+    equality: {
+      attribute: "otherComplexAttribute",
+      message: "is not complex enough",
+      comparator: function(v1, v2) {
+        return JSON.stringify(v1) === JSON.stringify(v2);
+      }
+    }
+  }
+};
+
+validate({complexAttribute: [1,2,3], otherComplexAttribute: [1,2,3]}, constraints);
+// =&gt; undefined
+
+validate({complexAttribute: [1,2,3], otherComplexAttribute: [3,2,1]}, constraints);
+// =&gt; {complexAttribute: ["Complex attribute is not complex enough"]}</code></pre>
+          </div>
+          <div id="validators-exclusion">
+            <div class="signature"><b>exclusion</b></div>
+            <p class="description">
+              The exclusion validator is useful for restriction certain values.<br>
+              It checks that the given value is not in the list given by the
+              <b>within</b> option.
+            </p>
+            <p class="description">
+              You can specify <b>within</b> as a list or as an object (in which
+              case the keys of the object are used).<br>
+              The default message is <i>^%{value} is restricted</i>
+              and can be changed by setting
+              <code>validate.validators.exclusion.message</code>
+            </p>
+            <pre><code class="javascript">var restrictedDomains = ["jp", "ch"];
+
+validate({}, {subdomain: {exclusion: restrictedDomains}});
+// =&gt; undefined
+
+validate({subdomain: "jp"}, {subdomain: {exclusion: restrictedDomains}});
+// =&gt; {"size": ["jp is restricted"]}
+
+var constraints = {
+  subdomain: {
+    exclusion: {
+      within: {jp: "Japan", "ch": "China"},
+      message: "^We don't support %{value} right now, sorry"
+    }
+  }
+};
+
+validate({subdomain: "jp"}, constraints);
+// =&gt; {"subdomain": ["We don't support jp right now, sorry"]}
+
+validate({subdomain: "com"}, constraints);
+// =&gt; undefined</code></pre>
+          </div>
+          <div id="validators-format">
+            <div class="signature"><b>format</b></div>
+            <p class="description">
+              The format validator will validate a value against a regular expression
+              of your chosing.
+              The default message if the value doesn't match is <i>is invalid</i>
+              so you'll likely want to customize it by settings <b>message</b>
+              to something in the options or by setting a new global default
+              message using <code>validate.validators.format.message</code>
+            </p>
+            <p class="description">
+              The <b>pattern</b> option can either be a javascript regexp or
+              string that will be passed to the
+              <a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp">RegExp</a>
+              constructor. If the pattern is a string and you want to specify flags
+              you may use the <b>flags</b> option.
+            </p>
+            <p class="notes">
+              Please note that the whole string must match the regexp, not just a
+              part of the value.
+            </p>
+
+            <pre><code class="javascript">var pattern = /\d{5}(-\d{4})?/;
+
+validate({}, {zipCode: {format: pattern}});
+// =&gt; undefined
+
+validate({zipCode: "foobar"}, {zipCode: {format: pattern}});
+// =&gt; {"zipCode": ["Zip code is invalid"]};
+
+validate({zipCode: "12345"}, {zipCode: {format: pattern}});
+// =&gt; undefined
+
+var constraints = {
+  username: {
+    format: {
+      pattern: "[a-z0-9]+",
+      flags: "i",
+      message: "can only contain a-z and 0-9"
+    }
+  }
+};
+
+validate({username: "Nicklas!"}, constraints);
+// =&gt; {"username": ["Username can only contain a-z and 0-9"]}
+
+validate({username: "Nicklas"}, constraints);
+// =&gt; undefined</code></pre>
+          </div>
+          <div id="validators-inclusion">
+            <div class="signature"><b>inclusion</b></div>
+            <p class="description">
+              The inclusion validator is useful for validating input from a dropdown
+              for example.<br>
+              It checks that the given value exists in the list given by the <b>within</b> option.
+            </p>
+            <p class="description">
+              You can specify <b>within</b> as a list or as an object (in which
+              case the keys of the object are used).<br>
+              The default message is <i>^%{value} is not included in the list</i>
+              and can be changed by setting
+              <code>validate.validators.inclusion.message</code>
+            </p>
+            <pre><code class="javascript">var sizes = ["small", "medium", "large"];
+
+validate({}, {size: {inclusion: sizes}});
+// =&gt; undefined
+
+validate({size: "xlarge"}, {size: {inclusion: sizes}});
+// =&gt; {"size": ["xlarge is not included in the list"]}
+
+var constraints = {
+  size: {
+    inclusion: {
+      within: {"Small": "s", "Medium": "m", "Large": "l"},
+      message: "^We're currently out of %{value}"
+    }
+  }
+};
+
+validate({size: "Extra large"}, constraints);
+// =&gt; {"size": ["We're currently out of Extra large"]}
+
+validate({size: "Medium"}, constraints);
+// =&gt; undefined</code></pre>
+          </div>
+          <div id="validators-length">
+            <div class="signature"><b>length</b></div>
+            <p class="description">
+              The length validator will check the length of a string.<br>
+              Any object with the <code>length</code> property can be validated
+              but all the default error messages refers to strings so make sure
+              you override them if you plan on validating arrays using this.
+            </p>
+            <p class="description">
+              You may specify the following length constraints:
+            </p>
+            <dl class="dl-horizontal">
+              <dt>is</dt>
+              <dd>
+                The value has to have exactly this length. The default error is
+                <i>is the wrong length (should be %{count} characters)</i>
+              </dd>
+              <dt>minimum</dt>
+              <dd>
+                The value cannot be shorter than this value. The default error is
+                <i>is too short (minimum is %{count} characters)</i>
+              </dd>
+              <dt>maximum</dt>
+              <dd>
+                The value cannot be longer than this value. The default error is
+                <i>is too long (maximum is %{count} characters)</i>
+              </dd>
+            </dl>
+            <p class="description">
+              You can specify the error message using the <b>wrongLength</b>,
+              <b>tooShort</b> and <b>tooLong</b> options. The default values are
+              <i>is the wrong length (should be %{count} characters)</i>,
+              <i>is too short (minimum is %{count} characters)</i> and
+              <i>is too long (maximum is %{count} characters)</i> respectively.<br>
+              <br>
+              As you may have noticed you can use <code>%{count}</code> as a placeholder
+              for the actual constraint and it will be replaced for you.
+            </p>
+            <p class="description">
+              The default messages can also be changed by setting the following
+              attributes on <code>validate.validators.length</code>:
+            </p>
+            <ul>
+              <li><code>notValid</code></li>
+              <li><code>tooLong</code></li>
+              <li><code>tooShort</code></li>
+              <li><code>wrongLength</code></li>
+            </ul>
+            <p class="description">
+              You can also use the <b>message</b> as the message for all errors
+              (this overrides any other custom errors).
+            </p>
+            <p class="description">
+              Per default the number of characters are counted (using the <code>length</code>
+              property), if you want to count something else you can specify the
+              <b>tokenizer</b> option which should be a function that takes a single
+              argument (the value) and the returns a value that should be used when
+              counting.<br>
+              <br>
+              The tokenizer will never be called with <code>nil</code> or <code>undefined</code>
+              as an argument.
+            </p>
+            <p class="description">
+              Once important thing to note is that the value needs to have a numeric
+              value for the <code>length</code> property or the message <i>has an incorrect length</i>
+              is returned.<br>
+              An error is also logged to the console since this is considered a
+              coding error.
+            </p>
+            <pre><code class="javascript">var constraints = {
+  key1: {length: {is: 3}},
+  key2: {length: {minimum: 20}},
+  key3: {length: {maximum: 3}},
+  key4: {
+    length: {
+      minimum: 3,
+      tooShort: "needs to have %{count} words or more",
+      tokenizer: function(value) {
+        return value.split(/\s+/g);
+      }
+    }
+  }
+};
+
+validate({}, constraints);
+// =&gt; undefined
+// This is because nil and undefined are valid values.
+// Use the presence validator if you don't want to allow undefined values.
+
+var values = {
+  key1: "wrong length",
+  key2: "too short",
+  key3: "too long",
+  key4: "too short"
+};
+validate(values, constraints);
+// =&gt; {
+//   "key1": ["Key1 is the wrong length (should be 3 characters)"],
+//   "key2": ["Key2 is too short (minimum is 20 characters)"],
+//   "key3": ["Key3 is too long (maximum is 3 characters)"],
+//   "key4": ["Key4 needs to have 3 words or more"]
+// }</code></pre>
+          </div>
+          <div id="validators-numericality">
+            <div class="signature"><b>numericality</b></div>
+            <p class="description">
+              The numericality validator will only allow numbers.
+              Per default strings are coerced to numbers using the <code>+</code>
+              operator. If this is not desirable you can set the <b>noStrings</b>
+              option to <code>true</code> to disable this behaviour.
+            </p>
+            <p class="description">
+              The following constraints can be applied:
+            </p>
+            <dl class="dl-horizontal">
+              <dt>onlyInteger</dt>
+              <dd>Real numbers won't be allowed. The error message is <i>must be an integer</i></dd>
+              <dt>strict</dt>
+              <dd>Enables more strict validation of strings. Leading zeroes won't be allowed and the number cannot be malformed.</dd>
+              <dt>greaterThan</dt>
+              <dd>The input has to be greater than this value. The error message is <i>must be greater than %{count}</i></dd>
+              <dt>greaterThanOrEqualTo</dt>
+              <dd>The input has to be at least this value. The error message is <i>must be greater than or equal to %{count}</i></dd>
+              <dt>equalTo</dt>
+              <dd>The input has to be exactly this value. The error message is <i>must be equal to %{count}</i></dd>
+              <dt>lessThanOrEqualTo</dt>
+              <dd>The input can be this value at the most. The error message is <i>must be less than or equal to %{count}</i></dd>
+              <dt>lessThan</dt>
+              <dd>The input has to be less than this value. The error message is <i>must be less than %{count}</i></dd>
+              <dt>divisibleBy</dt>
+              <dd>The input has to be divisible by this value. The error message is <i>must be divisible by %{count}</i></dd>
+              <dt>odd</dt>
+              <dd>The input has to be odd. The error message is <i>must be odd</i></dd>
+              <dt>even</dt>
+              <dd>The input has to be even. The error message is <i>must be even</i></dd>
+            </dl>
+            <p class="description">
+              If you want a custom error message you may specify it using the
+              <b>message</b> option or by settings specifying of the following
+              messages:
+            </p>
+            <ul>
+              <li><code>notValid</code></li>
+              <li><code>notInteger</code></li>
+              <li><code>notGreaterThan</code></li>
+              <li><code>notGreaterThanOrEqualTo</code></li>
+              <li><code>notEqualTo</code></li>
+              <li><code>notLessThan</code></li>
+              <li><code>notLessThanOrEqualTo</code></li>
+              <li><code>notDivisibleBy</code></li>
+              <li><code>notOdd</code></li>
+              <li><code>notEven</code></li>
+            </ul>
+            <pre><code class="javascript">// null and undefined are valid values regardless of the options
+validate({}, {duration: {numericality: true}});
+//= &gt; undefined
+
+validate({duration: "foobar"}, {duration: {numericality: true}});
+// =&gt; {"duration": ["Duration is not a number"]}
+
+validate({duration: "3"}, {duration: {numericality: true}});
+// =&gt; undefined
+
+validate({duration: "03"}, {duration: {numericality: true}});
+// =&gt; undefined
+
+validate({duration: "03"}, {duration: {numericality: {strict: true}}});
+// =&gt; {"duration": ["Duration must be a valid number"]}
+
+validate({duration: "3"}, {duration: {numericality: {noStrings: true}}});
+// =&gt; {"duration": ["Duration is not a number"]}
+
+validate({duration: "7"}, {duration: {numericality: {divisibleBy: 3}}});
+// =&gt; {"duration": ["Duration must be divisible by 3"]}
+
+var constraints = {
+  duration: {
+    numericality: {
+      onlyInteger: true,
+      greaterThan: 0,
+      lessThanOrEqualTo: 30,
+      even: true,
+      notEven: "must be evenly divisible by two"
+    }
+  }
+};
+
+validate({duration: 3.14}, constraints);
+// =&gt; {"duration": ["Duration must be an integer"]}
+
+validate({duration: 4711}, constraints);
+// =&gt; {
+//   "duration": [
+//     "Duration must be less than or equal to 30",
+//     "Duration must be evenly divisible by two"
+//   ]
+// }</code></pre>
+          </div>
+          <div id="validators-presence">
+            <div class="signature"><b>presence</b></div>
+            <p class="description">
+              The presence validator validates that the value isn't defined.
+              This validator will probably the most used one, it corresponds to
+              HTML5's required attribute.<br>
+              You can use the <b>message</b> option to customize the message. The
+              default message is <i>can't be blank</i> and can be changed by
+              setting <code>validate.validators.presence.message</code>.
+            </p>
+            <p class="description">
+              These are the values that are considered empty:
+            </p>
+            <ul>
+              <li><code>null</code></li>
+              <li><code>undefined</code></li>
+            </ul>
+            <p class="description">
+              Additionally you can set the <code>allowEmpty</code> to
+              <code>false</code> to disallow the following values:
+            </p>
+              <li><code>{}</code> (empty objects)</li>
+              <li><code>[]</code> (empty arrays)</li>
+              <li><code>""</code> (empty string)</li>
+              <li><code>"  "</code> (whitespace only string)</li>
+            </ul>
+            <p class="notes">
+              <b>Important!</b> All other values are considered valid (including functions)!
+            </p>
+
+            <pre><code class="javascript">validate({}, {username: {presence: true}});
+// =&gt; {"username": ["Username can't be blank"]}
+
+validate({username: "ansman"}, {username: {presence: true}});
+// =&gt; undefined
+
+validate({input: ""}, {input: {presence: true}});
+// =&gt; undefined
+
+validate({input: ""}, {input: {presence: {allowEmpty: false}}});
+// =&gt; {"input:" ["Input can't be blank"]}
+
+validate({}, {username: {presence: {message: "is required"}}});
+// =&gt; {"username": ["Username is required"]}
+
+validate.validators.presence.message = "is required";
+validate({}, {username: {presence: true}});
+// =&gt; {"username": ["Username is required"]}
+</code></pre>
+          </div>
+          <div id="validators-url">
+            <div class="signature"><b>url</b></div>
+            <p class="description">
+            The URL validator ensures that the input is a valid URL. Validating
+            URLs are pretty tricky but this validator follows a gist that can
+            be found
+            <a href="https://gist.github.com/dperini/729294" target="_blank">here</a>.
+            </p>
+            <p class="description">
+              The following options are supported:
+            </p>
+            <ul>
+              <li>
+                <b>message</b> - The message if the validator fails. Defaults to
+                <i>is not a valid url</i>
+              </li>
+              <li>
+                <b>schemes</b> - A list of schemes to allow. If you want to
+                support any scheme you can use a regexp here (for example
+                <code>[".+"]</code>). The default value is
+                <code>["http", "https"]</code>.
+              </li>
+              <li>
+                <b>allowLocal</b> - A boolean that if <code>true</code> allows
+                local hostnames such as <code>10.0.1.1</code> or
+                <code>localhost</code>. The default is <code>false</code>.
+              </li>
+            </ul>
+            <pre><code class="javascript">validate({website: "http://google.com"}, {website: {url: true}});
+// =&gt; undefined
+
+validate({website: "google.com"}, {website: {url: true}});
+// =&gt; {"website": ["Website is not a valid url"]}
+
+validate({website: "ftp://google.com"}, {website: {url: true}});
+// =&gt; {"website": ["Website is not a valid url"]}
+
+validate({website: "ftp://google.com"}, {
+  website: {
+    url: {
+      schemes: ["ftp"]
+    }
+  }
+});
+// =&gt; undefined
+
+validate({website: "http://localhost"}, {website: {url: true}});
+// =&gt; {"website": ["Website is not a valid url"]}
+
+validate({website: "http://localhost"}, {
+  website: {
+    url: {
+      allowLocal: true
+    }
+  }
+});
+// =&gt; undefined</code></pre>
+          </div>
+        </div>
+        <div id="utilities">
+          <h2>Utilities</h2>
+          <div id="utilities-capitalize">
+            <div class="signature">
+              <b>capitalize</b>
+              <code>validate.capitalize(string)</code>
+            </div>
+            <p class="description">
+              Simply makes the first character in the string upper case.
+            </p>
+            <pre><code class="javascript">validate.capitalize("foobar");
+// =&gt; "Foobar"</code></pre>
+          </div>
+          <div id="utilities-clean-attributes">
+            <div class="signature">
+              <b>cleanAttributes</b>
+              <code>validate.cleanAttributes(attributes, whitelist)</code>
+            </div>
+            <p class="description">
+              Returns an object that only contains the whitelisted attributes.
+              It will remove all attributes that have a falsy value in the whitelist.
+            </p>
+            <p class="description">
+              It also accepts a constraints object used for the validation but
+              to make it keep attributes that doesn't have any constraints
+              you can simply set the constraints for that attribute to <code>{}</code>.
+            </p>
+            <pre><code class="javascript">var whitelist = {
+  name: true,
+  "address.street": true,
+  "address.postal": true,
+  "something\\.with\\.periods": true
+};
+
+var attributes = {
+  name: "Nicklas",
+  address: {
+    street: "Drottninggatan 98",
+    postal: "111 60"
+  },
+  "something.with.periods": "some value",
+  id: 4711,
+  createdAt: "1970-01-01 00:00"
+};
+
+validate.cleanAttributes(attributes, whitelist);
+// =&gt; {
+//   name: "Nicklas",
+//   address: {
+//     street: "Drottninggatan 98",
+//     postal: "111 60"
+//   },
+//   "something.with.periods": "some value"
+// }
+
+var constraints = {
+  name: {
+    presence: true
+  },
+  "address.street": {},
+  "address.postal": {},
+  "something\\.with\\.periods": {}
+};
+
+validate.cleanAttributes(attributes, constraints);
+// =&gt; {
+//   name: "Nicklas",
+//   address: {
+//     street: "Drottninggatan 98",
+//     postal: "111 60"
+//   },
+//   "something.with.periods": "some value"
+// }</code></pre>
+          </div>
+          <div id="utilities-collect-form-values">
+            <div class="signature">
+              <b>collectFormValues</b>
+              <code>validate.collectFormValues(rootElement, [options])</code>
+            </div>
+            <p class="description">
+              One of the most common tasks is collecting the values and it was
+              only recently this was possible in a native way
+              (<a href="https://developer.mozilla.org/en-US/docs/Web/API/FormData" target="_blank">FormData</a>)
+              so as a convenience a function for doing this has been added to
+              validate.js
+            </p>
+            <p>
+              This function will find all named inputs (inputs that specify the
+              name attribute) and collect their values.
+            </p>
+            <p>
+              The given element can be a regular DOM or jQuery element and can
+              be doesn't have to be a form element.
+            </p>
+            <p>
+              The following options exists:
+            </p>
+            <dl class="dl-horizontal">
+              <dt>nullify</dt>
+              <dd>Converts empty strings to <code>null</code> (default is true)</dd>
+              <dt>trim</dt>
+              <dd>Trims whitespace from the start and end of the value</dd>
+            </dl>
+            <p>
+              You can ignore inputs by adding the <code>data-ignored</code>
+              attribute.
+            </p>
+            <form id="login" action="/" style="display: none;">
+              <input type="text" name="username" value="ansman">
+              <input type="password" name="password" value="correcthorsebatterystaple">
+              <input type="checkbox" name="remember-me" checked>
+              <input type="hidden" name="some-hidden-value" data-ignored>
+            </form>
+            <pre><code class="html">&lt;form id=&quot;login&quot;&gt;
+  &lt;input type=&quot;text&quot; name=&quot;username&quot; value=&quot;ansman&quot;&gt;
+  &lt;input type=&quot;password&quot; name=&quot;password&quot; value=&quot;correcthorsebatterystaple&quot;&gt;
+  &lt;input type=&quot;checkbox&quot; name=&quot;remember-me&quot; checked&gt;
+  &lt;input type=&quot;hidden&quot; name=&quot;some-hidden-value&quot; data-ignored&gt;
+&lt;/form&gt;
+&lt;script&gt;
+var form = document.querySelector(&quot;form#login&quot;);
+validate.collectFormValues(form);
+// =&gt; {username: &quot;ansman&quot;, password: &quot;correcthorsebatterystaple&quot;, remember-me: false}
+&lt;/script&gt;</code></pre>
+          </div>
+          <div id="utilities-contains">
+            <div class="signature">
+              <b>contains</b>
+              <code>validate.contains(collection, value)</code>
+            </div>
+            <p class="description">
+              Check if the given value exists in the given collection.
+              Both arrays and objects are supported.
+            </p>
+            <pre><code class="javascript">validate.contains({}, "foo");
+// =&gt; false
+
+validate.contains({foo: "bar"}, "foo");
+// =&gt; true
+
+validate.contains([1, 2, 3], 4);
+// =&gt; false
+
+validate.contains([1, 2, 3], 3);
+// =&gt; true</code></pre>
+          </div>
+          <div id="utilities-extend">
+            <div class="signature">
+              <b>extend</b>
+              <code>validate.extend(object, otherObjects...)</code>
+            </div>
+            <p class="description">
+              A clone from underscore's extend. It will copy all attributes
+              from the given objects to the first argument and return the
+              first argument.
+            </p>
+            <p class="description">
+              This can be used to do a shallow copy of objects by calling
+              it with <code>{}</code> as the first argument.
+            </p>
+            <pre><code class="javascript">var o1 = {foo: "bar"}
+  , o2 = {baz: "quux"};
+
+validate.extend(o1, o2) === o1;
+// =&gt; true
+
+o1;
+// =&gt; {foo: "bar", baz: "quux"};
+
+o2;
+// =&gt; {bar: "quux"};
+
+// Makes a copy of o1, doesn't modify o1
+validate.extend({}, o1);
+// =&gt; {foo: "bar", baz: "quux"};
+
+// o1 is not touched
+validate.extend({}, o1) === o1;
+// =&gt; false</code></pre>
+          </div>
+          <div id="utilities-format">
+            <div class="signature">
+              <b>format</b>
+              <code>validate.format(formatString, values)</code>
+            </div>
+            <p class="description">
+              This function allows you do perform basic string substitution.<br>
+              It simply finds all <code>%{...}</code> and replaces them with
+              the value in the values object.
+            </p>
+            <p class="description">
+              The values are converted to strings using the string constructor.
+            </p>
+            <p class="description">
+              If you want to have the <code>%{...}</code> literal simply prefix
+              it with a single <code>%</code>.
+            </p>
+            <pre><code class="javascript">validate.format("Hi, my name is %{name}", {name: "Nicklas"});
+// =&gt; "Hi, my name is Nicklas"
+
+validate.format("%%{this} will not be replaced", {this: "that"});
+// =&gt; "%{this} will not be replaced"</code></pre>
+          </div>
+          <div id="utilities-get-deep-object-value">
+            <div class="signature">
+              <b>getDeepObjectValue</b>
+              <code>validate.getDeepObjectValue(object, keypath)</code>
+            </div>
+            <p class="description">
+              A function that returns attributes from object. If the key
+              contains a period (<code>.</code>) it looks for the attribute
+              in a nested object. Attributes containing a period can be accessed
+              by escaping the period with a <code>\</code>.
+            </p>
+            <pre><code class="javascript">validate.getDeepObjectValue({foo: "bar"}, "foo");
+// =&gt; "bar"
+
+validate.getDeepObjectValue({foo: {bar: {baz: "quux"}}}, "foo.bar.baz");
+// =&gt; "quux"
+
+validate.getDeepObjectValue({"foo.bar": "baz"}, "foo\\.bar");
+// =&gt; "baz"</code></pre>
+          </div>
+          <div id="utilities-is-array">
+            <div class="signature">
+              <b>isArray</b>
+              <code>validate.isArray(value)</code>
+            </div>
+            <p class="description">
+              Check if the given value is an array.
+            </p>
+            <pre><code class="javascript">validate.isArray({});
+// =&gt; false
+
+validate.isArray([]);
+// =&gt; true</code></pre>
+          </div>
+          <div id="utilities-is-boolean">
+            <div class="signature">
+              <b>isBoolean</b>
+              <code>validate.isBoolean(value)</code>
+            </div>
+            <p class="description">
+              Check if the given value is a boolean.
+            </p>
+            <pre><code class="javascript">validate.isBoolean("true");
+// =&gt; false
+
+validate.isBoolean(true);
+// =&gt; true</code></pre>
+          </div>
+          <div id="utilities-is-date">
+            <div class="signature">
+              <b>isDate</b>
+              <code>validate.isDate(value)</code>
+            </div>
+            <p class="description">
+              Check if the given value is a <code>Date</code> instance.
+            </p>
+            <pre><code class="javascript">validate.isDate(new Date());
+// =&gt; true
+
+validate.isDate(null);
+// =&gt; false
+
+validate.isDate({});
+// =&gt; false</code></pre>
+          </div>
+          <div id="utilities-is-defined">
+            <div class="signature">
+              <b>isDefined</b>
+              <code>validate.isDefined(value)</code>
+            </div>
+            <p class="description">
+              Check if the given value is not <code>null</code> or
+              <code>undefined</code>.
+            </p>
+            <pre><code class="javascript">validate.isDefined("foobar");
+// =&gt; true
+
+validate.isDefined(null);
+// =&gt; false
+
+validate.isDefined(undefined);
+// =&gt; false</code></pre>
+          </div>
+          <div id="utilities-is-dom-element">
+            <div class="signature">
+              <b>isDomElement</b>
+              <code>validate.isDomElement(value)</code>
+            </div>
+            <p class="description">
+              Check if the given value is a DOM element.
+              This function does slightly more than to just check if it's a DOM
+              element. It also checks that the object supports
+              <code>querySelector</code> and <code>querySelectorAll</code> which
+              is used in the project.
+            </p>
+            <p>
+              Things like jQuery elements are not considered DOM elements.
+            </p>
+            <pre><code class="javascript">validate.isDomElement({});
+// =&gt; false
+
+validate.isDomElement(document.createElement("div"));
+// =&gt; true</code></pre>
+          </div>
+          <div id="utilities-is-empty">
+            <div class="signature">
+              <b>isEmpty</b>
+              <code>validate.isEmpty(value)</code>
+            </div>
+            <p class="description">
+              Check if the given value is non empty. The following value are
+              considered empty:
+            </p>
+            <ul>
+              <li><code>null</code></li>
+              <li><code>undefined</code></li>
+              <li>Empty strings</li>
+              <li>Whitespace only strings</li>
+              <li>Empty arrays</li>
+              <li>Empty objects</li>
+            </ul>
+            <pre><code class="javascript">validate.isEmpty({});
+// =&gt; true
+
+validate.isEmpty(null);
+// =&gt; true
+
+validate.isEmpty("");
+// =&gt; true
+
+validate.isEmpty("   ");
+// =&gt; true
+
+validate.isEmpty("foo");
+// =&gt; false
+
+validate.isEmpty({foo: "bar"});
+// =&gt; false</code></pre>
+          </div>
+          <div id="utilities-is-function">
+            <div class="signature">
+              <b>isFunction</b>
+              <code>validate.isFunction(value)</code>
+            </div>
+            <p class="description">
+              Check if the given value is a function. If this returns
+              <code>true</code> the value will be callable.
+            </p>
+            <pre><code class="javascript">validate.isFunction("foobar");
+// =&gt; false
+
+validate.isFunction(function() {});
+// =&gt; true</code></pre>
+          </div>
+          <div id="utilities-is-hash">
+            <div class="signature">
+              <b>isHash</b>
+              <code>validate.isHash(value)</code>
+            </div>
+            <p class="description">
+              Check if the given value is a hash (a plain object, not an array
+              or function).
+            </p>
+            <pre><code class="javascript">validate.isHash([]);
+// =&gt; false
+
+validate.isHash({foo: "bar"});
+// =&gt; true</code></pre>
+          </div>
+          <div id="utilities-is-integer">
+            <div class="signature">
+              <b>isInteger</b>
+              <code>validate.isInteger(value)</code>
+            </div>
+            <p class="description">
+              Check if the given value is an integer. If this returns true
+              <a href="#utilities-is-number"><code>isNumber</code></a>
+              will also return true.
+            </p>
+            <pre><code class="javascript">validate.isInteger("foobar");
+// =&gt; false
+
+validate.isInteger(3.14);
+// =&gt; false
+
+validate.isInteger(3);
+// =&gt; true</code></pre>
+          </div>
+          <div id="utilities-is-number">
+            <div class="signature">
+              <b>isNumber</b>
+              <code>validate.isNumber(value)</code>
+            </div>
+            <p class="description">
+              Check if the given value is a number. Unlike most
+              <code>isNumber</code> checks this function does not consider
+              <code>NaN</code> to be a number.
+            </p>
+            <pre><code class="javascript">validate.isNumber("foobar");
+// =&gt; false
+
+validate.isNumber(3.14);
+// =&gt; true</code></pre>
+          </div>
+          <div id="utilities-is-object">
+            <div class="signature">
+              <b>isObject</b>
+              <code>validate.isObject(value)</code>
+            </div>
+            <p class="description">
+              Check if the given value is an object. This function considers
+              arrays objects so be careful if this matters to you.
+            </p>
+            <pre><code class="javascript">validate.isObject("foobar");
+// =&gt; false
+
+validate.isObject({});
+// =&gt; true
+
+validate.isObject([]);
+// =&gt; true</code></pre>
+          </div>
+          <div id="utilities-is-promise">
+            <div class="signature">
+              <b>isPromise</b>
+              <code>validate.isPromise(value)</code>
+            </div>
+            <p class="description">
+              Check if the given value is a promise. This used the same
+              semantics as the ECMAScript spec which means that any non empty
+              object that has a <code>.then</code> function is a promise.
+            </p>
+            <pre><code class="javascript">validate.isPromise({});
+// =&gt; false
+
+validate.isPromise(new Promise(function() {}));
+// =&gt; true
+
+validate.isPromise({then: function() {}});
+// =&gt; true</code></pre>
+          </div>
+          <div id="utilities-is-string">
+            <div class="signature">
+              <b>isString</b>
+              <code>validate.isString(value)</code>
+            </div>
+            <p class="description">
+              Check if the given value is a string.
+            </p>
+            <pre><code class="javascript">validate.isString("");
+// =&gt; true
+
+validate.isString({});
+// =&gt; false</code></pre>
+          </div>
+          <div id="utilities-prettify">
+            <div class="signature">
+              <b>prettify</b>
+              <code>validate.prettify(string)</code>
+            </div>
+            <p class="description">
+              Provides a way to clean up strings so that they become human
+              readable.
+            </p>
+            <p class="description">
+              It is meant to prettify things like attribute names and other
+              programming related entities. It will do the following things:
+            </p>
+            <ul>
+              <li>Split words divided by <code>.</code></li>
+              <li>Remove backslashes</li>
+              <li>Replace <code>_</code> and <code>-</code> with spaces</li>
+              <li>Split cameled cased words</li>
+              <li>Make the whole string lower case</li>
+              <li>Converts number to strings with no more than 2 decimals</li>
+              <li>Calls <code>toString</code> on objects</li>
+              <li>Joins arrays with <code>, </code> and calls prettify on all items</li>
+            </ul>
+            <p class="notes">
+              <b>Important!</b> It does not removing leading or trailing period
+              since these are not considered separators.
+            </p>
+            <pre><code class="javascript">validate.prettify("This.is_a-weirdString\\.");
+// =&gt; "this is a weird string."</code></pre>
+          </div>
+          <div id="utilities-result">
+            <div class="signature">
+              <b>result</b>
+              <code>validate.result(value, [arguments...])</code>
+            </div>
+            <p class="description">
+              Calls the value with the specified arguments and returns the
+              result if it's a function otherwise it simply returns the value.
+            </p>
+            <p class="description">
+              This is used in validate.js in places where for example options
+              can be either an object or a function returning the options.
+            </p>
+            <p class="notes">
+              <b>Important!</b> Since the function is detached it is not
+              called with a specific context, therefor this only works when the
+              value is a pure function.
+            </p>
+            <pre><code class="javascript">// Not a function, returns the first argument
+validate.result("foobar", 1, 2);
+// =&gt; "foobar"
+
+// Returns the result of Math.max(1, 2)
+validate.result(Math.max, 1, 2);
+// =&gt; 2
+
+// Doesn't work since String#toUpperCase is not a pure function
+validate.result("foo".toUpperCase);
+// =&gt; Uncaught TypeError: String.prototype.toUpperCase called on null or undefined</code></pre>
+          </div>
+        </div>
+        <div id="changelog">
+          <h2>Changelog</h2>
+          <div id="changelog-0-12-0">
+            <h3>
+              <b class="version">0.12.0</b>
+              -
+              <span class="date">Oct 17, 2017</span>
+              -
+              <a href="http://htmlpreview.github.com/?https://raw.github.com/ansman/validate.js/0.12.0/index.html">Docs</a>
+              -
+              <a href="https://github.com/ansman/validate.js/compare/0.11.1...0.12.0">Diff</a>
+            </h3>
+            <ul>
+              <li>
+                Fixed a bug that caused the <code>data-ignored</code> attribute
+                to have no effect for select tags.
+                Thanks <a href="https://github.com/ansman/validate.js/issues/171" target="_blank">Jonathan Lister</a>
+                for reporting this.
+              </li>
+              <li>
+                <b>Breaking!</b> The presence validator no longer rejects empty
+                values (empty strings, arrays, objects etc) per default.
+                The option <code>allowEmpty</code> can be set to false to
+                start passing them through.
+              </li>
+              <li>
+                The numericality validator now allows negative numbers in strict
+                mode.
+                Thanks <a href=https://github.com/ansman/validate.js/issues/191"" target="_blank">bibobibo</a>
+                for reporting this.
+              </li>
+              <li>
+                Fixed a bug that caused the validations to fail if the value
+                was a promise.
+                Thanks <a href="https://github.com/ansman/validate.js/pull/221" target="_blank">bbusschots-mu</a>
+                for reporting this.
+              </li>
+              <li>
+                Fixed a bug that caused form input names not to be properly
+                escaped.
+                Thanks <a href="https://github.com/ansman/validate.js/pull/188" target="_blank">James Tudsbury</a>
+                for reporting this.
+              </li>
+              <li>
+                Fix a bug in IE11.
+                Thanks <a href="https://github.com/ansman/validate.js/pull/183" target="_blank">Shawn Doucet</a>
+                for fixing this.
+              </li>
+              <li>
+                The typescript definitions have been updated.
+                Thanks <a href="https://github.com/ansman/validate.js/pull/185" target="_blank">jKey Lu</a>
+                for fixing this.
+              </li>
+              <li>
+                Handle select inputs without a selection when collecting form values.
+                Thanks <a href="https://github.com/ansman/validate.js/pull/202" target="_blank">johnturingan</a>
+                for fixing this.
+              </li>
+              <li>
+                You can now specify custom prettify function in the global settings.
+                Thanks <a href="https://github.com/ansman/validate.js/pull/164" target="_blank">Tim van der Horst</a>
+                for fixing this.
+              </li>
+            </ul>
+          </div>
+          <div id="changelog-0-11-1">
+            <h3>
+              <b class="version">0.11.1</b>
+              -
+              <span class="date">Nov 6, 2016</span>
+              -
+              <a href="http://htmlpreview.github.com/?https://raw.github.com/ansman/validate.js/0.11.1/index.html">Docs</a>
+              -
+              <a href="https://github.com/ansman/validate.js/compare/0.11.0...0.11.1">Diff</a>
+            </h3>
+            <ul>
+              <li>
+                Fix an error with the typscript bindings.
+                Thank <a href="https://github.com/ansman/validate.js/issues/168" target="_blank">Jeff Barnes</a> for reporting and fixing this.
+              </li>
+            </ul>
+          </div>
+          <div id="changelog-0-11-0">
+            <h3>
+              <b class="version">0.11.0</b>
+              -
+              <span class="date">Nov 5, 2016</span>
+              -
+              <a href="http://htmlpreview.github.com/?https://raw.github.com/ansman/validate.js/0.11.0/index.html">Docs</a>
+              -
+              <a href="https://github.com/ansman/validate.js/compare/0.10.0...0.11.0">Diff</a>
+            </h3>
+            <ul>
+              <li>
+                <b>Breaking:</b> The ability to reject async validations with
+                a result is not removed.
+              </li>
+              <li>
+                Custom error formatters can now be created. See
+                <a href="#validate-error-formatting">here</a> for more info.
+                Thanks <a href="https://github.com/ansman/validate.js/pull/138" target="_blank">Freak in a Box</a>
+                for suggesting an implementing this.
+              </li>
+              <li>
+                <code>collectFormValues</code> now supports <code>&lt;select&gt;</code>
+                tags with the <code>multiple</code> attribute. Thanks
+                <a href="https://github.com/ansman/validate.js/issues/142" target="_blank">Oleg Sverdlov</a>
+                for reporting this issue.
+              </li>
+              <li>
+                Typescript bindings have now been added. Thanks
+                <a href="https://github.com/ansman/validate.js/pull/140" target="_blank">Rob Eisenberg</a> for fixing this.
+              </li>
+              <li>
+                Allow setting a default message on the numericality validator
+                by setting <code>validate.validators.numericality.message</code>.
+                Thanks <a href="https://github.com/ansman/validate.js/pull/145" target="_blank">Nicolas Brassard</a> for suggesting this.
+              </li>
+              <li>
+                Errors are now deduplicated when using the flat or grouped format.
+              </li>
+              <li>
+                Fixed an issue where some URLs would be detected as invalid when
+                they weren't. Thanks <a href="https://github.com/ansman/validate.js/issues/153" target="_blank">huan086</a>
+                for reporting this.
+              </li>
+              <li>
+                <b>Breaking:</b> The <code>presence</code> validator no longer
+                allows empty and whitespace only strings per default. This
+                behaviour can be modified by using the
+                <code>allowEmpty</code> option.
+                Thanks <a href="https://github.com/ansman/validate.js/issues/99" target="_blank">mondwan</a> for reporting this.
+              </li>
+            </ul>
+          </div>
+          <div id="changelog-0-10-0">
+            <h3>
+              <b class="version">0.10.0</b>
+              -
+              <span class="date">May 20, 2016</span>
+              -
+              <a href="http://htmlpreview.github.com/?https://raw.github.com/ansman/validate.js/0.10.0/index.html">Docs</a>
+              -
+              <a href="https://github.com/ansman/validate.js/compare/0.9.0...0.10.0">Diff</a>
+            </h3>
+            <ul>
+              <li>
+                The date and datetime validators now allows <code>tooLate</code>,
+                <code>tooEarly</code> and <code>notValid</code> in its options.
+              </li>
+              <li>
+                The messages for date and datetime now supports replacing
+                <code>%{value}</code> with the user inputted value.
+              </li>
+              <li>
+                The URL validator now allows all domains without a TLD when
+                using the <code>allowLocal</code> option.
+                Thanks <a href="https://github.com/ansman/validate.js/issues/95" target="_blank">Ste Cowley</a> for suggesting this.
+              </li>
+              <li>
+                There is now an <a href="#utilities-is-boolean"><code>isBoolean</code></a>
+                utility method. Thanks <a href="https://github.com/ansman/validate.js/pull/113" target="_blank">jpbufe3</a>
+                for suggesting an implementing this.
+              </li>
+              <li>
+                There is now an <a href="#utilities-is-hash"><code>isHash</code></a>
+                utility method. Thanks <a href="https://github.com/ansman/validate.js/pull/111" target="_blank">jpbufe3</a>
+                for suggesting an implementing this.
+              </li>
+              <li>
+                Added a strict option to the<a href="#validators-numericality"><code>numericality</code></a>
+                validator. Thanks <a href="https://github.com/ansman/validate.js/pull/106" target="_blank">mondwan</a>
+                for suggesting and implementing this.
+              </li>
+              <li>
+                Minor bugfix for IE8 support (polyfills are still needed). Thanks
+                <a href="https://github.com/ansman/validate.js/pull/128" target="_blank">Andy Mantell</a> for fixing this.
+              </li>
+              <li>
+                The numericality validator now has a <a href="#validators-numericality"><code>divisibleBy</code></a>
+                option. Thanks <a href="https://github.com/ansman/validate.js/pull/127" target="_blank">chetankothari</a>
+                for suggesting and implementing this.
+              </li>
+            </ul>
+          </div>
+          <div id="changelog-0-9-0">
+            <h3>
+              <b class="version">0.9.0</b>
+              -
+              <span class="date">Oct 10, 2015</span>
+              -
+              <a href="http://htmlpreview.github.com/?https://raw.github.com/ansman/validate.js/0.9.0/index.html">Docs</a>
+              -
+              <a href="https://github.com/ansman/validate.js/compare/0.8.0...0.9.0">Diff</a>
+            </h3>
+            <ul>
+              <li>
+                <b>Breaking:</b> No parse or format function is included
+                with validate.js any more and will throw and error if used
+                without first creating them. See the
+                <a href="#validators-datetime">datetime validator example</a>
+                for an implementation.
+              </li>
+              <li>
+                The global validation options are now passed to custom
+                validators.
+              </li>
+              <li>
+                Fix a bug where <code>collectFormValues</code> would return
+                <code>0</code> for number inputs that had empty or invalid
+                values.
+              </li>
+              <li>
+                A validator for validating URLs has now been added. Thanks to
+                <a href="https://github.com/ansman/validate.js/pull/64" target="_blank">andban</a>
+                for implementing this.
+              </li>
+              <li>
+                Validation messages can now be functions or objects. Thanks to
+                <a href="https://github.com/ansman/validate.js/issues/76" target="_blank">Christian Petersen</a>
+                for suggesting this.
+              </li>
+              <li>
+                The numericality validator now supports specific messages
+                (notEven etc) on a per attribute basis rather than just custom
+                default messages.
+                Thanks <a href="https://github.com/ansman/validate.js/pull/35" target="_blank">Chris Oliver</a>
+                for implementing this.
+              </li>
+            </ul>
+          </div>
+          <div id="changelog-0-8-0">
+            <h3>
+              <b class="version">0.8.0</b>
+              -
+              <span class="date">Jul 3, 2015</span>
+              -
+              <a href="http://htmlpreview.github.com/?https://raw.github.com/ansman/validate.js/0.8.0/index.html">Docs</a>
+              -
+              <a href="https://github.com/ansman/validate.js/compare/0.7.1...0.8.0">Diff</a>
+            </h3>
+            <ul>
+              <li>
+                <code>collectFormValues</code> now accepts jQuery elements.
+              </li>
+              <li>
+                <code>collectFormValues</code> now collects values from
+                textareas too.
+                Thanks to <a href="https://github.com/ansman/validate.js/pull/60" target="_blank">helt</a>
+                for suggesting and implementing this.
+              </li>
+              <li>
+                Added <code>validate.cleanAttributes</code> as a way of removing
+                unknown attributes. Thanks to
+                <a href="https://github.com/ansman/validate.js/issues/43" target="_blank">Johannes Edelstam</a>
+                for suggesting this.
+              </li>
+              <li>
+                <b>Breaking:</b> <code>validate.async</code> now cleans attributes
+                before resolving the promise. This can be disabled by
+                setting the <code>cleanAttributes</code> option to <code>false</code>
+                like this:
+                <pre class="javascript"><code>validate.async.options = {cleanAttributes: false};</code></pre>
+              </li>
+              <li>
+                Fix a bug where the <code>validate.XDate</code> would be ignored
+                and the global XDate would be used instead.
+                Thanks <a href="https://github.com/ansman/validate.js/pull/52" target="_blank">Andrew Luetgers</a>
+                for fixing this.
+              </li>
+              <li>
+                Add an options to the async validation to wrap the errors before
+                passing them to the reject handler. Thanks
+                <a href="https://github.com/ansman/validate.js/pull/57" target="_blank">Kristijan Sedlak</a>
+                for suggesting and implementing this.
+              </li>
+              <li>
+                <b>Breaking:</b> Async validators should now pass errors using
+                the resolve callback. Rejecting with an error still works but
+                will cause a warning. Thanks
+                <a href="https://github.com/ansman/validate.js/pull/61" target="_blank">Timothy Moran</a>
+                for suggesting and implementing this.
+              </li>
+            </ul>
+          </div>
+          <div id="changelog-0-7-1">
+            <h3>
+              <b class="version">0.7.1</b>
+              -
+              <span class="date">Apr 16, 2015</span>
+              -
+              <a href="http://htmlpreview.github.com/?https://raw.github.com/ansman/validate.js/0.7.1/index.html">Docs</a>
+              -
+              <a href="https://github.com/ansman/validate.js/compare/0.7.0...0.7.1">Diff</a>
+            </h3>
+            <ul>
+              <li>
+                Fixed an issue where dates would not be accepted by the presence
+                validator due to an issue in <code>validate.isEmpty</code>.
+                Thanks <a href="https://github.com/ansman/validate.js/issues/48" target="_blank">Yun Jia</a>
+                for reporting this.
+              </li>
+            </ul>
+          </div>
+          <div id="changelog-0-7-0">
+            <h3>
+              <b class="version">0.7.0</b>
+              -
+              <span class="date">Mar 30, 2015</span>
+              -
+              <a href="http://htmlpreview.github.com/?https://raw.github.com/ansman/validate.js/0.7.0/index.html">Docs</a>
+              -
+              <a href="https://github.com/ansman/validate.js/compare/0.6.1...0.7.0">Diff</a>
+            </h3>
+            <ul>
+              <li>Added <code>validate.version</code> as a way of gettings the version of the library.</li>
+              <li>Added a <code>component.json</code> file for installation via componentjs.</li>
+              <li>
+                <b>Breaking:</b> Don't supply a name when calling <code>define</code>.
+                Thanks <a href="https://github.com/ansman/validate.js/issues/20" target="_blank">Norman Xu</a> for reporting this.
+              </li>
+              <li>
+                <b>Breaking:</b> If an async validator throws an error (or rejects
+                the promise with an <code>Error</code>) the validation promise
+                is rejected with the same error. Thanks
+                <a href="https://github.com/ansman/validate.js/issues/10" target="_blank">Sebastian Seilund, Dmitry Kirilyuk and Dave Kushner</a>
+                for helping out with the details of this.
+              </li>
+              <li>
+                <b>Breaking:</b> The <b>flatten</b> option has been replaced with
+                a new <b>format</b> option. Simply replace
+                <code>flatten: true</code> with <code>format: "flat"</code> to
+                migrate.
+              </li>
+              <li>
+                Implement a way to get detailed errors that contains the
+                validator, message, value etc.
+                Thanks <a href="https://github.com/ansman/validate.js/issues/14" target="_blank">mattruby</a> for suggesting this.
+              </li>
+              <li>
+                <code>%{value}</code> in messages is now replaced with the actual
+                value. Thanks <a href="https://github.com/ansman/validate.js/issues/32" target="_blank">nyrsimon</a>
+                for suggesting this.
+              </li>
+            </ul>
+          </div>
+          <div id="changelog-0-6-1">
+            <h3>
+              <b class="version">0.6.1</b>
+              -
+              <span class="date">Mar 30, 2015</span>
+              -
+              <a href="http://htmlpreview.github.com/?https://raw.github.com/ansman/validate.js/0.6.1/index.html">Docs</a>
+              -
+              <a href="https://github.com/ansman/validate.js/compare/0.6.0...0.6.1">Diff</a>
+            </h3>
+            <ul>
+              <li>
+                Fixed <code>validate.collectFormValues</code> for IE9 and IE10.<br>
+                Thanks <a href="https://github.com/ansman/validate.js/pull/40" target="_blank">Kevin Burke</a> for reporting and fixing this.
+              </li>
+            </ul>
+          </div>
+          <div id="changelog-0-6-0">
+            <h3>
+              <b class="version">0.6.0</b>
+              -
+              <span class="date">Mar 15, 2015</span>
+              -
+              <a href="http://htmlpreview.github.com/?https://raw.github.com/ansman/validate.js/0.6.0/index.html">Docs</a>
+              -
+              <a href="https://github.com/ansman/validate.js/compare/0.5.0...0.6.0">Diff</a>
+            </h3>
+            <ul>
+              <li>
+                Async validation errors are no longer wrapped in the
+                <code>validate.ValidationErrors</code> object.
+              </li>
+              <li>Document the utility functions used by this library.</li>
+              <li>
+                Add support for validating a single value. Thanks
+                <a href="https://github.com/ansman/validate.js/issues/7" target="_blank">Aristides Lourenco</a>
+                for suggesting and implementing this.
+              </li>
+              <li>All calls to <code>Promise</code> is now made with the <code>new</code> operator.</li>
+              <li>
+                <b>Breaking:</b> <code>require</code> is no longer used for
+                dependency management. Validate.js will still look for moment,
+                XDate and Promise in the global scope but not using require
+                any more. They can be added by settings <code>validate.moment</code>,
+                <code>validate.XDate</code> and <code>validate.Promise</code>
+                respectively. The idea behind this is to stop using the
+                <code>require</code> function improperly.
+              </li>
+            </ul>
+          </div>
+          <div id="changelog-0-5-0">
+            <h3>
+              <b class="version">0.5.0</b>
+              -
+              <span class="date">Mar 7, 2015</span>
+              -
+              <a href="http://htmlpreview.github.com/?https://raw.github.com/ansman/validate.js/0.5.0/index.html">Docs</a>
+              -
+              <a href="https://github.com/ansman/validate.js/compare/0.4.0...0.5.0">Diff</a>
+            </h3>
+            <ul>
+              <li>
+                <b>Breaking:</b> All validators besides <code>presence</code> now allow
+                values that are rejected by the <code>presence</code> validator.
+                Mostly this means that empty and whitespace only strings are
+                now allowed by all validators except <code>presence</code>.
+                Thanks <a href="https://github.com/ansman/validate.js/issues/31" target="_blank">droganov</a> for reporting this!
+              </li>
+              <li>
+                Examples have now been added and can be found <a href="examples.html">here</a>.
+                Thanks <a href="https://github.com/ansman/validate.js/issues/11" target="_blank">Alexander Sergéev</a> for suggesting this.
+              </li>
+              <li>
+                Added a function to collect form values from a HTML form.
+              </li>
+              <li>
+                Added an equality validator. Thanks
+                <a href="https://github.com/ansman/validate.js/issues/29" target="_blank">Gutsulyak Dmitry</a> for suggesting this.
+              </li>
+              <li>
+                Added support for validating HTML forms element by simply passing
+                them instead of an attributes object.
+              </li>
+            </ul>
+          </div>
+          <div id="changelog-0-4-0">
+            <h3>
+              <b class="version">0.4.0</b>
+              -
+              <span class="date">Feb 6, 2015</span>
+              -
+              <a href="http://htmlpreview.github.com/?https://raw.github.com/ansman/validate.js/0.4.0/index.html">Docs</a>
+              -
+              <a href="https://github.com/ansman/validate.js/compare/0.3.2...0.4.0">Diff</a>
+            </h3>
+            <ul>
+              <li><b>Breaking:</b> Empty and whitespace only strings are now valid emails.</li>
+              <li>
+                Fixed a bug where <code>fullMessages</code> didn't work in <code>validate.async</code>.
+                Thanks <a href="https://github.com/ansman/validate.js/pull/9" target="_blank">sebastianseilund</a> for fixing this!
+              </li>
+              <li>
+                Fixed an issue where values without the <code>length</code>
+                attribute passed the <code>length</code> validator.
+                Thanks <a href="https://github.com/ansman/validate.js/pull/13" target="_blank">Cellule</a> for fixing this!
+              </li>
+              <li>
+                Make async errors an instance of <code>validate.ValidationErrors</code>.
+                Thanks <a href="https://github.com/ansman/validate.js/issues/10" target="_blank">sebastianseilund, Jokero and dkushner</a>
+                for helping with the details.
+              </li>
+              <li>
+                Fix an error when nested objects are null.
+                Thanks <a href="https://github.com/ansman/validate.js/issues/17" target="_blank">javve</a> for reporting this.
+              </li>
+              <li>
+                Support fetching moment from the global scope and not just using <code>require</code>.
+                Thanks <a href="https://github.com/ansman/validate.js/issues/18" target="_blank">alvipeo</a> for suggesting this.
+              </li>
+              <li>
+                Support for default options and messages. Thanks <a href="https://github.com/ansman/validate.js/issues/16" target="_blank">tamtakoe</a>
+                for suggesting this.
+              </li>
+              <li>
+                Fix a bug in the date validator. Thanks
+                <a href="https://github.com/ansman/validate.js/pull/27" target="_blank">Jokero</a>
+                for fixing this.
+              </li>
+            </ul>
+          </div>
+          <div id="changelog-0-3-2">
+            <h3>
+              <b class="version">0.3.2</b>
+              -
+              <span class="date">Oct 5, 2014</span>
+              -
+              <a href="http://htmlpreview.github.com/?https://raw.github.com/ansman/validate.js/0.3.2/index.html">Docs</a>
+              -
+              <a href="https://github.com/ansman/validate.js/compare/0.3.1...0.3.2">Diff</a>
+            </h3>
+            <ul>
+              <li>
+                Pass the attributes as argument when resolving an async validation.
+                Thanks <a href="https://github.com/pstoica" target="_blank">pstoica</a> for
+                <a href="https://github.com/wrapp/validate.js/issues/25" target="_blank">suggesting</a> this.
+              </li>
+              <li>Move the repository from wrapp to ansman</li>
+            </ul>
+          </div>
+          <div id="changelog-0-3-1">
+            <h3>
+              <b class="version">0.3.1</b>
+              -
+              <span class="date">Sep 22, 2014</span>
+              -
+              <a href="http://htmlpreview.github.com/?https://raw.github.com/ansman/validate.js/0.3.1/index.html">Docs</a>
+              -
+              <a href="https://github.com/ansman/validate.js/compare/0.3.0...0.3.1">Diff</a>
+            </h3>
+            <ul>
+              <li>
+                Fix <a href="https://github.com/wrapp/validate.js/issues/26" target="_blank">an issue</a> with the date validator that made it unusable.
+                Thanks <a href="https://github.com/mrdanimal" target="_blank">mrdanimal</a> for reporting this.
+              </li>
+            </ul>
+          </div>
+          <div id="changelog-0-3-0">
+            <h3>
+              <b class="version">0.3.0</b>
+              -
+              <span class="date">Sep 5, 2014</span>
+              -
+              <a href="http://htmlpreview.github.com/?https://raw.github.com/ansman/validate.js/0.3.0/index.html">Docs</a>
+              -
+              <a href="https://github.com/ansman/validate.js/compare/0.2.0...0.3.0">Diff</a>
+            </h3>
+            <ul>
+              <li>
+                Allow upper case letters in email addresses
+              </li>
+              <li>
+                <b>Breaking:</b> Nested validation - periods can now be used for validated nested objects. Thanks
+                <a href="https://github.com/wrapp/validate.js/pull/20">colinskow</a> for implementing this.
+              </li>
+              <li>Support moment.js for datetime parsing and formatting</li>
+            </ul>
+          </div>
+          <div id="changelog-0-2-0">
+            <h3>
+              <b class="version">0.2.0</b>
+              -
+              <span class="date">Jan 22, 2014</span>
+              -
+              <a href="http://htmlpreview.github.com/?https://raw.github.com/ansman/validate.js/0.2.0/index.html">Docs</a>
+              -
+              <a href="https://github.com/ansman/validate.js/compare/0.1.3...0.2.0">Diff</a>
+            </h3>
+            <ul>
+              <li>
+                Fix a bug where functions were considered blank. Thanks
+                <a href="https://github.com/wrapp/validate.js/pull/9">MarFarMa</a> for discovering and fixing this.
+              </li>
+              <li>
+                Added support for AMD (require.js, commonjs etc). Thanks to
+                <a href="https://github.com/wrapp/validate.js/pull/8">zubulonj</a>
+                for this.
+              </li>
+              <li><b>Breaking:</b> Dropped support for IE8</li>
+              <li>Support for async validations</li>
+            </ul>
+          </div>
+          <div id="changelog-0-1-3">
+            <h3>
+              <b class="version">0.1.3</b>
+              -
+              <span class="date">Nov 26, 2013</span>
+              -
+              <a href="http://htmlpreview.github.com/?https://raw.github.com/ansman/validate.js/0.1.3/index.html">Docs</a>
+              -
+              <a href="https://github.com/ansman/validate.js/compare/0.1.2...0.1.3">Diff</a>
+            </h3>
+            <ul>
+              <li>Fix a bug where only upper cased 2 letter TLDs were allowed in the email validator</li>
+              <li>More lax validation of the TLDs in the email validator</li>
+            </ul>
+          </div>
+          <div id="changelog-0-1-2">
+            <h3>
+              <b class="version">0.1.2</b>
+              -
+              <span class="date">Nov 25, 2013</span>
+              -
+              <a href="http://htmlpreview.github.com/?https://raw.github.com/ansman/validate.js/0.1.2/index.html">Docs</a>
+              -
+              <a href="https://github.com/ansman/validate.js/compare/0.1.1...0.1.2">Diff</a>
+            </h3>
+            <ul>
+              <li>Add bower.json</li>
+              <li>Add an easy way of validating emails using the <a href="#validators-email">email validator</a></li>
+            </ul>
+          </div>
+          <div id="changelog-0-1-1">
+            <h3>
+              <b class="version">0.1.1</b>
+              -
+              <span class="date">Nov 16, 2013</span>
+              -
+              <a href="http://htmlpreview.github.com/?https://raw.github.com/ansman/validate.js/0.1.1/index.html">Docs</a>
+              -
+              <a href="https://github.com/ansman/validate.js/compare/0.1.0...0.1.1">Diff</a>
+            </h3>
+            <ul>
+              <li>Fix a bug when fullMessages was false and errors were prefixed by ^</li>
+            </ul>
+          </div>
+          <div id="changelog-0-1-0">
+            <h3>
+              <b class="version">0.1.0</b>
+              -
+              <span class="date">Nov 15, 2013</span>
+              -
+              <a href="http://htmlpreview.github.com/?https://raw.github.com/ansman/validate.js/0.1.0/index.html">Docs</a>
+            </h3>
+            <ul>
+              <li>Initial release</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    $("#menu-button").on("click", function() {
+      $("body").toggleClass("sidebar-shown");
+    });
+
+    $("#sidebar a").on("click", function() {
+      $("body").removeClass("sidebar-shown");
+    });
+  </script>
+</body>
+</html>

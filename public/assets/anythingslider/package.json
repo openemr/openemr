@@ -1,0 +1,92 @@
+{
+  "_args": [
+    [
+      "anythingslider@https://github.com/CSS-Tricks/AnythingSlider/archive/v1.9.4.tar.gz",
+      "/Users/ray/openemr"
+    ]
+  ],
+  "_from": "https://github.com/CSS-Tricks/AnythingSlider/archive/v1.9.4.tar.gz",
+  "_id": "anythingslider@1.9.4",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/anythingslider",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "anythingslider",
+    "raw": "anythingslider@https://github.com/CSS-Tricks/AnythingSlider/archive/v1.9.4.tar.gz",
+    "rawSpec": "https://github.com/CSS-Tricks/AnythingSlider/archive/v1.9.4.tar.gz",
+    "scope": null,
+    "spec": "https://github.com/CSS-Tricks/AnythingSlider/archive/v1.9.4.tar.gz",
+    "type": "remote"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://github.com/CSS-Tricks/AnythingSlider/archive/v1.9.4.tar.gz",
+  "_shasum": "72223a46d108e08e2d3e569810a8bf194d98fe09",
+  "_shrinkwrap": null,
+  "_spec": "anythingslider@https://github.com/CSS-Tricks/AnythingSlider/archive/v1.9.4.tar.gz",
+  "_where": "/Users/ray/openemr",
+  "author": {
+    "name": "Chris Coyier",
+    "url": "https://github.com/chriscoyier"
+  },
+  "bugs": {
+    "url": "https://github.com/CSS-Tricks/AnythingSlider/issues"
+  },
+  "demo": "http://css-tricks.github.com/AnythingSlider/",
+  "dependencies": {
+    "jquery": ">=1.4.2"
+  },
+  "description": "Just what the world needs, another jQuery slider. YAWN. I know, check this one out though, it's got lots of cool features.\n\nHere on CSS-Tricks, I've created a number of different sliders. Three, in fact. A \"featured content\" slider, a \"start/stop slider\", and \"moving boxes\". Each of them had some cool interesting feature that I needed to build at the time. All were well-received, but as is the case with these things, people want them to do X, Y, and Z in addition to what they already did.\n\nThis new AnythingSlider is an attempt at bringing together the functionality of all of those previous sliders and adding new features. In other words, to create a really \"full featured\" slider that could be widely useful. This is the first time (on CSS-Tricks) that one of these sliders is an actual plugin as well, which should make implementing it and customizing it much easier.",
+  "devDependencies": {},
+  "docs": "https://github.com/CSS-Tricks/AnythingSlider/wiki",
+  "files": [
+    "css/anythingslider.css",
+    "js/jquery.anythingslider.js",
+    "js/jquery.anythingslider.min.js",
+    "js/jquery.anythingslider.fx.js",
+    "js/jquery.anythingslider.video.js"
+  ],
+  "homepage": "http://css-tricks.com/3412-anythingslider-jquery-plugin/",
+  "jam": {
+    "dependencies": {
+      "jquery": ">=1.4.2"
+    },
+    "main": "js/jquery.anythingslider.js",
+    "shim": {
+      "deps": [
+        "jquery"
+      ]
+    }
+  },
+  "keywords": [
+    "customizable",
+    "effects",
+    "slider",
+    "video"
+  ],
+  "licenses": [
+    {
+      "type": "GPL3",
+      "url": "https://github.com/CSS-Tricks/AnythingSlider/blob/master/license.txt"
+    }
+  ],
+  "maintainers": [
+    {
+      "email": "wowmotty@gmail.com",
+      "name": "Rob Garrison",
+      "url": "https://github.com/Mottie"
+    },
+    {
+      "name": "Dean Sofer",
+      "url": "https://github.com/ProLoser"
+    }
+  ],
+  "name": "anythingslider",
+  "optionalDependencies": {},
+  "readme": "﻿# AnythingSlider jQuery Plugin\n\nA very robust jQuery-based slider plugin. Need to link to a specific slide? No problem. Like a choice of themes? Got it. Need callbacks for when specific slider actions happen? Sure. Need custom tab names? You got it. Need more than one slider per page? Easy. \n\n* Having problems with installing or getting the plugin to work? Ask your question in the [CSS-Tricks forums](http://css-tricks.com/forums/) or on [StackOverflow](http://stackoverflow.com/questions/tagged/anythingslider).\n* Find a bug or have an enhancement request? Submit it [here](https://github.com/CSS-Tricks/AnythingSlider/issues)\n\n## [Main Demo](http://css-tricks.github.com/AnythingSlider/)\n\n* [Documentation](https://github.com/CSS-Tricks/AnythingSlider/wiki) ([FAQ](https://github.com/CSS-Tricks/AnythingSlider/wiki/FAQ)).\n* [Original CSS-Tricks demo](http://css-tricks.com/examples/AnythingSlider/).\n* [Latest demos!](http://css-tricks.github.com/AnythingSlider/).\n* [Download](https://github.com/CSS-Tricks/AnythingSlider/zipball/master).\n\n## Related Projects\n\nDownload the full repo for a full set of all the cool stuff AnythingSlider can do.\n\n* More themes - [AnythingSlider-Themes](https://github.com/CSS-Tricks/AnythingSlider-Themes)\n* Fx bookmarklet - [AnythingSlider-FX-Builder](https://github.com/CSS-Tricks/AnythingSlider-Fx-Builder)\n\nCMS plugins/mods\n\n* Wordpress plugin - [AnythingSlider-for-WordPress](https://github.com/jacobdubail/AnythingSlider-for-WordPress)\n* Movable Type plugin - [mt-plugin-anythingslider](https://github.com/meancode/mt-plugin-anythingslider)\n* Joomla 2.5 mod - [mod_anythingslider](https://github.com/CSS-Tricks/mod_anythingslider)\n\n## Change Log\n\n# Version 1.9.4\n\n* Added aspectRatio so that the slider scales according to this ratio when the expand option is given. Thanks [npn66nicke](https://github.com/npn66nicke)!\n\n# Version 1.9.3\n\n* Updated all css themes (added `s` to css3 transition duration) so it will pass css3 validation. Fixes [issue #556](https://github.com/CSS-Tricks/AnythingSlider/issues/556).\n* Fade mode with `resumeOnVisible` set to `true` will now set the panel visibility to hidden when it is not the current panel. Fixes [issue #559](https://github.com/CSS-Tricks/AnythingSlider/issues/559).\n* Added a method to customize the `toggleControls` to only hide/show the arrows while the slide show is playing.\n  * To toggle both the navigation arrows and controls, set the `toggleControls` option is `true`.\n  * To toggle only the navigation arrows, but not the controls, set the `toggleControls` option to anything other than false - use `\"true\"` (or any string within the quotes).\n  * This fulfills the enhancement request from [issue #560](https://github.com/CSS-Tricks/AnythingSlider/issues/560).\n* Added a `component.json` file to allow registering this plugin with bower. Fulfills [issue #566](https://github.com/CSS-Tricks/AnythingSlider/issues/566).\n\n# Version 1.9.2\n\n* Fixed video extension to now properly work with multiple sliders. See [issue #548](https://github.com/CSS-Tricks/AnythingSlider/issues/548).\n\n# Version 1.9.1\n\n* Added `onVideoInitialized` callback to the video extension.\n  * This callback function is called after the video extension has initialized.\n\n      ```js\n      onVideoInitialized: function(slider){ }\n      ```\n\n  * The function is passed a `base` (aka `slider`) parameter which can also be obtained using `$('#slider').data('AnythingSlider')`.\n  * All video functions are contained in `slider.video` and video options are contained within `slider.video.options`.\n* Added `onSliderResize` callback & `slideshow_resize` event.\n  * This callback function is called whenever the slider resizes, but only when the `expand` option is `true`.\n  * The function/event is passed an `event` object and `base` parameter.\n\n      ```js\n      onSliderResize: function(event, slider){ }\n      ```\n\n  * Thanks to [wearetelescopic](https://github.com/wearetelescopic) for sharing.\n\n# Version 1.9.0\n\n* Core updates:\n  * Support for jQuery's `addBack` and/or `andSelf` applied; see [issue #508](https://github.com/CSS-Tricks/AnythingSlider/pull/508).\n  * The `playRtl` option no longer swaps direction of the arrows; see [issue #526](https://github.com/CSS-Tricks/AnythingSlider/issues/526).\n  * The combination of `stopAtEnd:true`, `infiniteSlides:false` and `showMultiple` > `1`, no longer shows empty panels. Fixes [issue #515](https://github.com/CSS-Tricks/AnythingSlider/issues/515).\n  * Deprecated the `addWmodeToObject` option. Replaced by video extension's `wmode` option; see below for more details.\n\n* AnythingSlider Video Extension updates:\n  * Sadly, I didn't have time to completely rewrite this extension, but I think I got everything working properly again.\n  * Also, I didn't get a chance to do extensive video testing in IE, Safari or Opera... and since the newest Safari will no longer be available for Windows, I'll need some feedback on how it's working in that browser.\n  * The video extension no longer \"automatically loads\" itself\n      * You will now need to initialize this extension along with AnythingSlider (defaults shown below):\n\n          ```javascript\n          $('#slider')\n            .anythingSlider()\n            .anythingSliderVideo({\n              // video id prefix; suffix from $.fn.anythingSliderVideo.videoIndex\n              videoId         : 'asvideo',\n              // auto load YouTube api script\n              youtubeAutoLoad : true,\n              // YouTube iframe parameters, for a full list see:\n              // https://developers.google.com/youtube/player_parameters#Parameters\n              youtubeParams   : {\n                modestbranding : 1,\n                iv_load_policy : 3,\n                fs : 1,\n                wmode: 'opaque' // this is set by the wmode option above, so no need to include it here\n              }\n            });\n          ```\n\n      * This fixes [issue #167](https://github.com/CSS-Tricks/AnythingSlider/issues/167).\n\n  * YouTube:\n      * YouTube video should now properly pause and resume as it now dynamically loads the YouTube iframe api (set `youtubeAutoLoad` option to `false` to disable). Fixes issues [#191](https://github.com/CSS-Tricks/AnythingSlider/issues/191), [#263](https://github.com/CSS-Tricks/AnythingSlider/issues/263) &amp; [#333](https://github.com/CSS-Tricks/AnythingSlider/issues/333).\n      * Add any YouTube iframe parameters within the video extension options, as seen above.\n          * Also, [go here for a full list of iframe parameters](https://developers.google.com/youtube/player_parameters#Parameters).\n          * This will allow you to hide video controls (`controls: 0`) - see [issue #501](https://github.com/CSS-Tricks/AnythingSlider/issues/501).\n          * Autoplaying videos (`autoplay: 1`) will still be problematic, for these reasons:\n              * If multiple videos exists in the slider, they will all start autoplaying at once.\n              * If there is a single video and it isn't in the starting panel, it will start playing in the background.\n              * Autoplaying won't work in some mobile browsers like Chrome or Safari ([ref](https://developers.google.com/youtube/iframe_api_reference#Autoplay_and_scripted_playback)) - see [issue #454](https://github.com/CSS-Tricks/AnythingSlider/issues/454).\n      * The YouTube iframe wmode parameter is automatically set by the AnythingSlider `addWmodeToObject` option.\n      * YouTube embedded video still requires swfobject, but does not use the above `youtubeParams` option.\n  * HTML5 video now recognizes the `resumeOnVisible` option properly. See [issue #525](https://github.com/CSS-Tricks/AnythingSlider/issues/525).\n  * The `videoId` option automatically adds an ID to each video; this option contains the id prefix. The suffix is now properly added so having multiple video initialization blocks will no longer repeat the same Id.\n  * Changed the video extension to only use a GPL license, to match the main plugin.\n\n# Version 1.8.18\n\n* Modified vertical `mode` to now work with `showMultiple` and show multiple slides.\n  * When showing more panels vertically, the plugin keeps the set panel size and just adds it to the bottom. So, if you set the slider to 300x200 and show two panels vertically, it will end up being 400 pixels in height, plus a bit more for the navigation. The plugin did the same with width, so it's just following this pattern.\n  * When using vertical `mode` and `expand` is `true`, the panels will be forced to fit within the height contraints, so the above pattern is not followed.\n  * If `resizeContents` is `false` the panels will be left aligned, and the slider will resize it's width and height to match the biggest panel.\n  * This feature request fulfills [issue #378](https://github.com/CSS-Tricks/AnythingSlider/issues/378).\n  * This feature has not been rigourously tested with all different combinations, so if you find any problems please report them by opening up an [issue](https://github.com/CSS-Tricks/AnythingSlider/issues).\n\n# Version 1.8.17\n\n* Minified version updated, as it was still an older version.\n\n# Version 1.8.16\n\n* Merged in video extension update to prevent errors in iOS devices that don't support Flash. See [pull #485](https://github.com/CSS-Tricks/AnythingSlider/pull/485). Thanks [mlms13](https://github.com/mlms13)!\n",
+  "readmeFilename": "README.md",
+  "title": "AnythingSlider",
+  "version": "1.9.4"
+}

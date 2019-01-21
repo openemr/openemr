@@ -1,0 +1,88 @@
+{
+  "_args": [
+    [
+      "ckeditor@4.11.1",
+      "/Users/ray/openemr"
+    ]
+  ],
+  "_from": "ckeditor@4.11.1",
+  "_hasShrinkwrap": false,
+  "_id": "ckeditor@4.11.1",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/ckeditor",
+  "_nodeVersion": "10.9.0",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/ckeditor_4.11.1_1541701313153_0.8823476261586276"
+  },
+  "_npmUser": {
+    "email": "npm@cksource.com",
+    "name": "cksource"
+  },
+  "_npmVersion": "6.2.0",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "ckeditor",
+    "raw": "ckeditor@4.11.1",
+    "rawSpec": "4.11.1",
+    "scope": null,
+    "spec": "4.11.1",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/ckeditor/-/ckeditor-4.11.1.tgz",
+  "_shasum": "ace84b209573abf2b8430c214500e68ab06e7a14",
+  "_shrinkwrap": null,
+  "_spec": "ckeditor@4.11.1",
+  "_where": "/Users/ray/openemr",
+  "author": {
+    "name": "CKSource",
+    "url": "http://cksource.com/"
+  },
+  "bugs": {
+    "url": "http://dev.ckeditor.com"
+  },
+  "dependencies": {},
+  "description": "JavaScript WYSIWYG web text editor.",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "fileCount": 2722,
+    "integrity": "sha512-UhHe02cc/wWJquDQZysEgh0ohLMEMU56zDx+s8prDdjylY/aBDY2xdIiIpbgCBTXdjhrEPIAPyiDS9g3RxYXig==",
+    "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJb5H7CCRA9TVsSAnZWagAAQlcP/0VcD/oqbAAaMqPmiW0X\nJiD1Fb8WLl1oztaCqu/578WYZtypeRDL+3Hx6Nnq4bIrk9QWSedJ8p1XlrEB\ncte4GMbWA1hHqF6ELYF4lDJ1b6YQplZPKC/NoenXek3JQs86DUHAVJXqSwzQ\nk+MLmtUgis9h/8eW7CoiBSa3i729XK5cDXGVQ/uoqyeN9nCnqgWi6pl7UlHN\nlLhMRYzDYgR2A0GcdfX3gGJPxQM8TSUg3utaQXs68/YO0mMwJFuQIeokzkWn\nxJtQrZikpfkxZePFlxoPTslPB6/y//WFAYs6yzcgK20+PMlIJHSUd9Jbvgon\n6wCxVoit0/OwemMTEw5rocRZWJQ2uSgvGzoqq1TMAwre8m7jiwjuzHu+a0/W\nuYRBhC6/TjRk8gcBISIFfXhNMdnP/rh/ZRH7Jo9CJWwu+uIs7OEc/9W7T7j6\nD2EeKGf5BK9e4Wg3YjVCJQnJfso2RWLsN5Ks2QGsVWbFZJyumpeQb7TnUO6w\nLQ9IFEQe53sr+8MjnLhx825pIBODuA1DUPjLmNOkUjTOKLVnSVUS26DPGJF4\nKO53c5icyKSA8C4LNLFAe9pzBNYLMk4wex5yrNL00hsNjq3u1h0ATFpZI/9N\n2VITyZM4XkTQusJ355jEJFvfyqDPxN3VxioS0BSQBerTpTYph3y3QRKDzzui\nw5bs\r\n=D05/\r\n-----END PGP SIGNATURE-----\r\n",
+    "shasum": "ace84b209573abf2b8430c214500e68ab06e7a14",
+    "tarball": "https://registry.npmjs.org/ckeditor/-/ckeditor-4.11.1.tgz",
+    "unpackedSize": 6868462
+  },
+  "gitHead": "70e6f8f01c3d7d8f713291984017a6005c4e737a",
+  "homepage": "http://ckeditor.com",
+  "keywords": [
+    "ckeditor",
+    "fckeditor",
+    "editor",
+    "wysiwyg",
+    "html",
+    "richtext",
+    "text",
+    "javascript"
+  ],
+  "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)",
+  "main": "ckeditor.js",
+  "maintainers": [
+    {
+      "email": "npm@cksource.com",
+      "name": "cksource"
+    }
+  ],
+  "name": "ckeditor",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ckeditor/ckeditor-releases.git"
+  },
+  "version": "4.11.1"
+}

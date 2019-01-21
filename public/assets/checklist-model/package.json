@@ -1,0 +1,111 @@
+{
+  "_args": [
+    [
+      "checklist-model@0.10.0",
+      "/Users/ray/openemr"
+    ]
+  ],
+  "_from": "checklist-model@0.10.0",
+  "_id": "checklist-model@0.10.0",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/checklist-model",
+  "_nodeVersion": "4.4.4",
+  "_npmOperationalInternal": {
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/checklist-model-0.10.0.tgz_1467693661389_0.6128288914915174"
+  },
+  "_npmUser": {
+    "email": "beradrian@yahoo.com",
+    "name": "beradrian"
+  },
+  "_npmVersion": "2.14.2",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "checklist-model",
+    "raw": "checklist-model@0.10.0",
+    "rawSpec": "0.10.0",
+    "scope": null,
+    "spec": "0.10.0",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/checklist-model/-/checklist-model-0.10.0.tgz",
+  "_shasum": "00cebbdb726670244533c8a4f14a440dc44631a1",
+  "_shrinkwrap": null,
+  "_spec": "checklist-model@0.10.0",
+  "_where": "/Users/ray/openemr",
+  "author": {
+    "email": "noginsk@rambler.ru",
+    "name": "Vitaliy Potapov"
+  },
+  "bugs": {
+    "url": "https://github.com/vitalets/checklist-model/issues"
+  },
+  "contributors": [
+    {
+      "email": "beradrian@yahoo.com",
+      "name": "Adrian Ber"
+    }
+  ],
+  "dependencies": {
+    "angular": ">=1.0.8"
+  },
+  "description": "AngularJS directive for list of checkboxes",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-bump": "0.0.13",
+    "grunt-cli": "~0.1.9",
+    "grunt-contrib-clean": "~0.4.1",
+    "grunt-contrib-compress": "~0.5.0",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-connect": "~0.4.0",
+    "grunt-contrib-copy": "~0.4.1",
+    "grunt-contrib-cssmin": "~0.6.1",
+    "grunt-contrib-jade": "~0.8.0",
+    "grunt-contrib-jshint": "~0.5.3",
+    "grunt-contrib-uglify": "~0.2.0",
+    "grunt-contrib-watch": "~0.4.3",
+    "grunt-jsdoc": "~0.4.1",
+    "grunt-replace": "~0.4.4",
+    "grunt-shell": "~0.5.0",
+    "marked": "~0.2.9"
+  },
+  "directories": {},
+  "dist": {
+    "shasum": "00cebbdb726670244533c8a4f14a440dc44631a1",
+    "tarball": "https://registry.npmjs.org/checklist-model/-/checklist-model-0.10.0.tgz"
+  },
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "gitHead": "d494dd4a15a493c06d7969425546976ac8dc5e1c",
+  "homepage": "http://vitalets.github.io/checklist-model",
+  "license": "MIT",
+  "main": "checklist-model.js",
+  "maintainers": [
+    {
+      "email": "aaronaroberson@gmail.com",
+      "name": "aaronroberson"
+    },
+    {
+      "email": "beradrian@yahoo.com",
+      "name": "beradrian"
+    },
+    {
+      "email": "noginsk@rambler.ru",
+      "name": "vitalets"
+    }
+  ],
+  "name": "checklist-model",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/vitalets/checklist-model.git"
+  },
+  "scripts": {},
+  "version": "0.10.0"
+}

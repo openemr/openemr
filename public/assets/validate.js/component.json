@@ -1,0 +1,11 @@
+{
+  "name"          : "validate.js",
+  "description"   : "Declarative validations for JavaScript",
+  "keywords"      : ["validation", "validate", "server", "client"],
+  "repo"          : "ansman/validate.js",
+  "main"          : "validate.js",
+  "scripts"       : ["validate.js"],
+  "version"       : "0.12.0",
+  "license"       : "MIT"
+}
+

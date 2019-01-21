@@ -1,0 +1,87 @@
+{
+  "_args": [
+    [
+      "angular@1.5.8",
+      "/Users/ray/openemr"
+    ]
+  ],
+  "_from": "angular@1.5.8",
+  "_id": "angular@1.5.8",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/angular",
+  "_nodeVersion": "4.4.7",
+  "_npmOperationalInternal": {
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/angular-1.5.8.tgz_1469201394611_0.9924397475551814"
+  },
+  "_npmUser": {
+    "email": "angular-core+npm@google.com",
+    "name": "angularcore"
+  },
+  "_npmVersion": "2.15.8",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "angular",
+    "raw": "angular@1.5.8",
+    "rawSpec": "1.5.8",
+    "scope": null,
+    "spec": "1.5.8",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "/",
+    "/checklist-model"
+  ],
+  "_resolved": "https://registry.npmjs.org/angular/-/angular-1.5.8.tgz",
+  "_shasum": "925a5392b8c212d09572dc446db7e01264e094cb",
+  "_shrinkwrap": null,
+  "_spec": "angular@1.5.8",
+  "_where": "/Users/ray/openemr",
+  "author": {
+    "email": "angular-core+npm@google.com",
+    "name": "Angular Core Team"
+  },
+  "bugs": {
+    "url": "https://github.com/angular/angular.js/issues"
+  },
+  "dependencies": {},
+  "description": "HTML enhanced for web apps",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "925a5392b8c212d09572dc446db7e01264e094cb",
+    "tarball": "http://registry.npmjs.org/angular/-/angular-1.5.8.tgz"
+  },
+  "gitHead": "7e0e546eb6caedbb298c91a9f6bf7de7eeaa4ad2",
+  "homepage": "http://angularjs.org",
+  "keywords": [
+    "angular",
+    "framework",
+    "browser",
+    "client-side"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "maintainers": [
+    {
+      "email": "angular-core+npm@google.com",
+      "name": "angularcore"
+    },
+    {
+      "email": "pete@bacondarwin.com",
+      "name": "petebd"
+    }
+  ],
+  "name": "angular",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/angular/angular.js.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.5.8"
+}

@@ -1,0 +1,101 @@
+{
+  "_args": [
+    [
+      "knockout@3.4.0",
+      "/Users/ray/openemr"
+    ]
+  ],
+  "_from": "knockout@3.4.0",
+  "_id": "knockout@3.4.0",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/knockout",
+  "_npmUser": {
+    "email": "mbest@dasya.com",
+    "name": "mbest"
+  },
+  "_npmVersion": "1.4.3",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "knockout",
+    "raw": "knockout@3.4.0",
+    "rawSpec": "3.4.0",
+    "scope": null,
+    "spec": "3.4.0",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/knockout/-/knockout-3.4.0.tgz",
+  "_shasum": "59d7261815a11eb7c1a3f3c7077ca898a44caadb",
+  "_shrinkwrap": null,
+  "_spec": "knockout@3.4.0",
+  "_where": "/Users/ray/openemr",
+  "author": {
+    "name": "The Knockout.js team"
+  },
+  "bugs": {
+    "url": "https://github.com/knockout/knockout/issues"
+  },
+  "dependencies": {},
+  "description": "Knockout makes it easier to create rich, responsive UIs with JavaScript",
+  "devDependencies": {
+    "closure-compiler": "~0.2.1",
+    "grunt": "~0.4.1",
+    "grunt-cli": "~0.1.0"
+  },
+  "directories": {},
+  "dist": {
+    "shasum": "59d7261815a11eb7c1a3f3c7077ca898a44caadb",
+    "tarball": "http://registry.npmjs.org/knockout/-/knockout-3.4.0.tgz"
+  },
+  "homepage": "http://knockoutjs.com/",
+  "license": "MIT",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://www.opensource.org/licenses/mit-license.php"
+    }
+  ],
+  "main": "build/output/knockout-latest.debug.js",
+  "maintainers": [
+    {
+      "email": "mtscout6@gmail.com",
+      "name": "mtscout6"
+    },
+    {
+      "email": "steve@codeville.net",
+      "name": "stevesanderson"
+    },
+    {
+      "email": "mbest@dasya.com",
+      "name": "mbest"
+    }
+  ],
+  "name": "knockout",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/knockout/knockout.git"
+  },
+  "scripts": {
+    "prepublish": "grunt",
+    "test": "node spec/runner.node.js"
+  },
+  "testling": {
+    "browsers": [
+      "ie/6..latest",
+      "chrome/20..latest",
+      "firefox/3..latest",
+      "safari/5.0.5..latest",
+      "opera/11.0..latest",
+      "iphone/6..latest",
+      "ipad/6..latest"
+    ],
+    "html": "spec/runner.html?src=build/output/knockout-latest.js&testling=true",
+    "preprocess": "build/build.sh"
+  },
+  "version": "3.4.0"
+}

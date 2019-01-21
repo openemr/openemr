@@ -1,0 +1,85 @@
+{
+  "_args": [
+    [
+      "datatables.net-colreorder@1.3.2",
+      "/Users/ray/openemr"
+    ]
+  ],
+  "_from": "datatables.net-colreorder@1.3.2",
+  "_id": "datatables.net-colreorder@1.3.2",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/datatables.net-colreorder",
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/datatables.net-colreorder-1.3.2.tgz_1463679325181_0.9576376448385417"
+  },
+  "_npmUser": {
+    "email": "allan@datatables.net",
+    "name": "datatables"
+  },
+  "_npmVersion": "1.3.6",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "datatables.net-colreorder",
+    "raw": "datatables.net-colreorder@1.3.2",
+    "rawSpec": "1.3.2",
+    "scope": null,
+    "spec": "1.3.2",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "/",
+    "/datatables.net-colreorder-dt"
+  ],
+  "_resolved": "https://registry.npmjs.org/datatables.net-colreorder/-/datatables.net-colreorder-1.3.2.tgz",
+  "_shasum": "f66a0c27ab1c862e6ba8faad33a92dd002bf798c",
+  "_shrinkwrap": null,
+  "_spec": "datatables.net-colreorder@1.3.2",
+  "_where": "/Users/ray/openemr",
+  "author": {
+    "name": "SpryMedia Ltd",
+    "url": "http://datatables.net"
+  },
+  "bugs": {
+    "url": "https://datatables.net/forums"
+  },
+  "dependencies": {
+    "datatables.net": ">=1.10.9",
+    "jquery": ">=1.7"
+  },
+  "description": "ColReorder for DataTables ",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "f66a0c27ab1c862e6ba8faad33a92dd002bf798c",
+    "tarball": "https://registry.npmjs.org/datatables.net-colreorder/-/datatables.net-colreorder-1.3.2.tgz"
+  },
+  "files": [
+    "js/dataTables.colReorder.js"
+  ],
+  "homepage": "https://datatables.net",
+  "keywords": [
+    "reorder",
+    "DataTables",
+    "jQuery",
+    "table",
+    "DataTables"
+  ],
+  "license": "MIT",
+  "main": "./js/dataTables.colReorder.js",
+  "maintainers": [
+    {
+      "email": "npm@datatables.net",
+      "name": "datatables"
+    }
+  ],
+  "name": "datatables.net-colreorder",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DataTables/Dist-DataTables-ColReorder.git"
+  },
+  "version": "1.3.2"
+}

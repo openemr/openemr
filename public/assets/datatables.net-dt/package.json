@@ -1,0 +1,90 @@
+{
+  "_args": [
+    [
+      "datatables.net-dt@1.10.13",
+      "/Users/ray/openemr"
+    ]
+  ],
+  "_from": "datatables.net-dt@1.10.13",
+  "_id": "datatables.net-dt@1.10.13",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/datatables.net-dt",
+  "_npmOperationalInternal": {
+    "host": "packages-18-east.internal.npmjs.com",
+    "tmp": "tmp/datatables.net-dt-1.10.13.tgz_1481036596775_0.09638875257223845"
+  },
+  "_npmUser": {
+    "email": "allan@datatables.net",
+    "name": "datatables"
+  },
+  "_npmVersion": "1.3.6",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "datatables.net-dt",
+    "raw": "datatables.net-dt@1.10.13",
+    "rawSpec": "1.10.13",
+    "scope": null,
+    "spec": "1.10.13",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/datatables.net-dt/-/datatables.net-dt-1.10.13.tgz",
+  "_shasum": "56836af12d980a162c7152422cb07cd535980d73",
+  "_shrinkwrap": null,
+  "_spec": "datatables.net-dt@1.10.13",
+  "_where": "/Users/ray/openemr",
+  "author": {
+    "name": "SpryMedia Ltd",
+    "url": "http://datatables.net"
+  },
+  "bugs": {
+    "url": "https://datatables.net/forums"
+  },
+  "dependencies": {
+    "datatables.net": ">=1.10.9",
+    "jquery": ">=1.7"
+  },
+  "description": "DataTables for jQuery ",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "56836af12d980a162c7152422cb07cd535980d73",
+    "tarball": "https://registry.npmjs.org/datatables.net-dt/-/datatables.net-dt-1.10.13.tgz"
+  },
+  "files": [
+    "css/jquery.dataTables.css",
+    "images/sort_asc.png",
+    "images/sort_asc_disabled.png",
+    "images/sort_both.png",
+    "images/sort_desc.png",
+    "images/sort_desc_disabled.png"
+  ],
+  "homepage": "https://datatables.net",
+  "keywords": [
+    "filter",
+    "sort",
+    "DataTables",
+    "jQuery",
+    "table",
+    "DataTables"
+  ],
+  "license": "MIT",
+  "maintainers": [
+    {
+      "email": "npm@datatables.net",
+      "name": "datatables"
+    }
+  ],
+  "name": "datatables.net-dt",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DataTables/Dist-DataTables-DataTables.git"
+  },
+  "style": "css/jquery.dataTables.css",
+  "version": "1.10.13"
+}

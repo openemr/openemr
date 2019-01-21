@@ -1,0 +1,94 @@
+{
+  "_args": [
+    [
+      "numeral@1.5.3",
+      "/Users/ray/openemr"
+    ]
+  ],
+  "_from": "numeral@1.5.3",
+  "_id": "numeral@1.5.3",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/numeral",
+  "_npmUser": {
+    "email": "adamwdraper@gmail.com",
+    "name": "adamwdraper"
+  },
+  "_npmVersion": "1.3.11",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "numeral",
+    "raw": "numeral@1.5.3",
+    "rawSpec": "1.5.3",
+    "scope": null,
+    "spec": "1.5.3",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/numeral/-/numeral-1.5.3.tgz",
+  "_shasum": "a4c3eba68239580509f818267c77243bce43ff62",
+  "_shrinkwrap": null,
+  "_spec": "numeral@1.5.3",
+  "_where": "/Users/ray/openemr",
+  "author": {
+    "email": "adamwdraper@gmail.com",
+    "name": "Adam Draper",
+    "url": "http://github.com/adamwdraper"
+  },
+  "bugs": {
+    "url": "https://github.com/adamwdraper/Numeral-js/issues"
+  },
+  "dependencies": {},
+  "description": "Format and manipulate numbers.",
+  "devDependencies": {
+    "grunt": "latest",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-jshint": "latest",
+    "grunt-contrib-nodeunit": "~0.1.2",
+    "grunt-contrib-uglify": "latest",
+    "uglify-js": "latest"
+  },
+  "directories": {},
+  "dist": {
+    "shasum": "a4c3eba68239580509f818267c77243bce43ff62",
+    "tarball": "http://registry.npmjs.org/numeral/-/numeral-1.5.3.tgz"
+  },
+  "ender": "./ender.js",
+  "engines": {
+    "node": "*"
+  },
+  "homepage": "http://numeraljs.com",
+  "keywords": [
+    "numeral",
+    "number",
+    "format",
+    "time",
+    "money",
+    "percentage"
+  ],
+  "licenses": [
+    {
+      "type": "MIT"
+    }
+  ],
+  "main": "./numeral.js",
+  "maintainers": [
+    {
+      "email": "adamwdraper@gmail.com",
+      "name": "adamwdraper"
+    }
+  ],
+  "name": "numeral",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adamwdraper/Numeral-js.git"
+  },
+  "scripts": {
+    "test": "grunt"
+  },
+  "version": "1.5.3"
+}

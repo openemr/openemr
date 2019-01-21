@@ -1,0 +1,85 @@
+{
+  "_args": [
+    [
+      "datatables.net-scroller-jqui@1.4.2",
+      "/Users/ray/openemr"
+    ]
+  ],
+  "_from": "datatables.net-scroller-jqui@1.4.2",
+  "_id": "datatables.net-scroller-jqui@1.4.2",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/datatables.net-scroller-jqui",
+  "_npmOperationalInternal": {
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/datatables.net-scroller-jqui-1.4.2.tgz_1463665913467_0.3352309404872358"
+  },
+  "_npmUser": {
+    "email": "allan@datatables.net",
+    "name": "datatables"
+  },
+  "_npmVersion": "1.3.6",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "datatables.net-scroller-jqui",
+    "raw": "datatables.net-scroller-jqui@1.4.2",
+    "rawSpec": "1.4.2",
+    "scope": null,
+    "spec": "1.4.2",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/datatables.net-scroller-jqui/-/datatables.net-scroller-jqui-1.4.2.tgz",
+  "_shasum": "975a6f09572a95fb8e372bb3e3f9b862ceb24271",
+  "_shrinkwrap": null,
+  "_spec": "datatables.net-scroller-jqui@1.4.2",
+  "_where": "/Users/ray/openemr",
+  "author": {
+    "name": "SpryMedia Ltd",
+    "url": "http://datatables.net"
+  },
+  "bugs": {
+    "url": "https://datatables.net/forums"
+  },
+  "dependencies": {
+    "datatables.net-jqui": ">=1.10.9",
+    "datatables.net-scroller": ">=1.3.0",
+    "jquery": ">=1.7"
+  },
+  "description": "Scroller for DataTables with styling for [jQuery UI](http://jqueryui.com/)",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "975a6f09572a95fb8e372bb3e3f9b862ceb24271",
+    "tarball": "https://registry.npmjs.org/datatables.net-scroller-jqui/-/datatables.net-scroller-jqui-1.4.2.tgz"
+  },
+  "files": [
+    "css/scroller.jqueryui.css"
+  ],
+  "homepage": "https://datatables.net",
+  "keywords": [
+    "virtual scrolling",
+    "DataTables",
+    "jQuery",
+    "table",
+    "jQuery UI"
+  ],
+  "license": "MIT",
+  "maintainers": [
+    {
+      "email": "npm@datatables.net",
+      "name": "datatables"
+    }
+  ],
+  "name": "datatables.net-scroller-jqui",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DataTables/Dist-DataTables-Scroller-jQueryUI.git"
+  },
+  "style": "css/scroller.jqueryui.css",
+  "version": "1.4.2"
+}

@@ -1,0 +1,115 @@
+{
+  "_args": [
+    [
+      "konva@1.6.8",
+      "/Users/ray/openemr"
+    ]
+  ],
+  "_from": "konva@1.6.8",
+  "_id": "konva@1.6.8",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/konva",
+  "_nodeVersion": "8.1.0",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/konva-1.6.8.tgz_1503492355759_0.4277362695429474"
+  },
+  "_npmUser": {
+    "email": "lavrton@gmail.com",
+    "name": "lavrton"
+  },
+  "_npmVersion": "5.3.0",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "konva",
+    "raw": "konva@1.6.8",
+    "rawSpec": "1.6.8",
+    "scope": null,
+    "spec": "1.6.8",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "/",
+    "/dwv"
+  ],
+  "_resolved": "https://registry.npmjs.org/konva/-/konva-1.6.8.tgz",
+  "_shasum": "4fda5670211ff25f07f261b8736069934f32e084",
+  "_shrinkwrap": null,
+  "_spec": "konva@1.6.8",
+  "_where": "/Users/ray/openemr",
+  "author": {
+    "name": "Anton Lavrenov"
+  },
+  "browser": {
+    "canvas": false,
+    "jsdom": false
+  },
+  "bugs": {
+    "url": "https://github.com/konvajs/konva/issues"
+  },
+  "dependencies": {},
+  "description": "![Konva logo](https://raw.githubusercontent.com/konvajs/konvajs.github.io/master/apple-touch-icon-180x180.png)",
+  "devDependencies": {
+    "chai": "3.5.0",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-connect": "^5.0.0",
+    "gulp-eslint": "^3.0.1",
+    "gulp-jscpd": "0.0.7",
+    "gulp-jsdoc": "^0.1.5",
+    "gulp-mocha-phantomjs": "^0.12.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-replace": "^0.5.4",
+    "gulp-uglify": "^2.1.2",
+    "gulp-util": "^3.0.8",
+    "mocha": "3.3.0",
+    "prettier": "^1.2.2"
+  },
+  "directories": {},
+  "dist": {
+    "integrity": "sha512-7AhbRe+cQLB4iYopOrcER4gbTXU6aAeHzAmuRE3891HY1v7mjdhlmyX60AVFoOmkrx8JXPwqxGRJRRfq1oY5oA==",
+    "shasum": "4fda5670211ff25f07f261b8736069934f32e084",
+    "tarball": "https://registry.npmjs.org/konva/-/konva-1.6.8.tgz"
+  },
+  "files": [
+    "README.md",
+    "konva.js",
+    "konva.min.js",
+    "src",
+    "konva.d.ts"
+  ],
+  "gitHead": "2fd798649b5707c2b5651f588bfa450b1c1450dd",
+  "homepage": "http://konvajs.github.io/",
+  "keywords": [
+    "canvas",
+    "animations",
+    "graphic",
+    "html5"
+  ],
+  "license": "MIT",
+  "main": "konva.js",
+  "maintainers": [
+    {
+      "email": "lavrton@gmail.com",
+      "name": "lavrton"
+    }
+  ],
+  "name": "konva",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/konvajs/konva.git"
+  },
+  "scripts": {
+    "build": "gulp build",
+    "full-build": "gulp lint test build",
+    "lint": "gulp lint",
+    "prettier": "prettier --write \"src/**/*.js\" \"test/**/*.js\" --single-quote",
+    "start": "gulp",
+    "test": "gulp test"
+  },
+  "typings": "./konva.d.ts",
+  "version": "1.6.8"
+}

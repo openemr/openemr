@@ -1,0 +1,120 @@
+{
+  "_args": [
+    [
+      "react@16.3.2",
+      "/Users/ray/openemr"
+    ]
+  ],
+  "_from": "react@16.3.2",
+  "_hasShrinkwrap": false,
+  "_id": "react@16.3.2",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/react",
+  "_nodeVersion": "8.6.0",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/react_16.3.2_1523892745420_0.899138128554843"
+  },
+  "_npmUser": {
+    "email": "dan.abramov@gmail.com",
+    "name": "gaearon"
+  },
+  "_npmVersion": "5.6.0",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "react",
+    "raw": "react@16.3.2",
+    "rawSpec": "16.3.2",
+    "scope": null,
+    "spec": "16.3.2",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/react/-/react-16.3.2.tgz",
+  "_shasum": "fdc8420398533a1e58872f59091b272ce2f91ea9",
+  "_shrinkwrap": null,
+  "_spec": "react@16.3.2",
+  "_where": "/Users/ray/openemr",
+  "browserify": {
+    "transform": [
+      "loose-envify"
+    ]
+  },
+  "bugs": {
+    "url": "https://github.com/facebook/react/issues"
+  },
+  "dependencies": {
+    "fbjs": "^0.8.16",
+    "loose-envify": "^1.1.0",
+    "object-assign": "^4.1.1",
+    "prop-types": "^15.6.0"
+  },
+  "description": "React is a JavaScript library for building user interfaces.",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "fileCount": 8,
+    "integrity": "sha512-o5GPdkhciQ3cEph6qgvYB7LTOHw/GB0qRI6ZFNugj49qJCFfgHwVNjZ5u+b7nif4vOeMIOuYj3CeYe2IBD74lg==",
+    "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJa1MIKCRA9TVsSAnZWagAABTIQAIbgTB7pp+TW9WmHDbKK\n8qbqcLdzF9I1wMc98V1XyXbCCoByzdeXn8J/aspwf5kmmec0RYv/pPO/MbER\ncDFLLmyI5lB+W9f1hvHCTv1X/6uBhSJi110UcaItD5HOQIzO6uR+F+INS2P0\n+lI0ydXu1duMHKFLQpA8uvXkTbLrDJDj2NdNQESPezuUTyCVyDWxYtozGnRm\nhyAk+mWTFJqUDvET83bg7+FRtASIU+vjiBe/AwP+ygx/m72ym9rHt/AB8RgP\n/G3Y5W9rO5RJfT13y/5RGVdyWP7FP6nV/KpX+ow0xOWFGtqsSDEX3is3a6QK\nnPGqK2XZEFqww1hsJa7v4iHUGjeUvQPCRAMKIgxPUdelNTc0Mr3VWwdHhZyu\nbbtrO4cGGxvgQhZFNTPqAHsLUAmfvzhDlAQI1M52nL+dwLFIek//oASTZ2Ap\n5lBV002R9GQaZqH+dQteS8sJOWb+MNxmgwB092dyNGMQ9qC3RVe4xwVUyiY7\nH2I7THtakHZrkFog9i/+iN3vaapr0yEoDonxJxyyQjABFpxryZ9v/qIBh7oD\niou6lxtMhrhfZLMLebLdkA2A3/XyK7vdvRA5yU9PDjBmkj9Z8z+G3BGPXB4N\naP9WLFwiWGlgJMC3uvIUBzRau4wEdTLaHM5wrpRwkOftEZG6CxZI8Bp2nIcM\n/Sdz\r\n=sYeA\r\n-----END PGP SIGNATURE-----\r\n",
+    "shasum": "fdc8420398533a1e58872f59091b272ce2f91ea9",
+    "tarball": "https://registry.npmjs.org/react/-/react-16.3.2.tgz",
+    "unpackedSize": 119109
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "index.js",
+    "cjs/",
+    "umd/"
+  ],
+  "homepage": "https://reactjs.org/",
+  "keywords": [
+    "react"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "maintainers": [
+    {
+      "email": "acdlite@me.com",
+      "name": "acdlite"
+    },
+    {
+      "email": "briandavidvaughn@gmail.com",
+      "name": "brianvaughn"
+    },
+    {
+      "email": "opensource+npm@fb.com",
+      "name": "fb"
+    },
+    {
+      "email": "flarnie.npm@gmail.com",
+      "name": "flarnie"
+    },
+    {
+      "email": "dan.abramov@gmail.com",
+      "name": "gaearon"
+    },
+    {
+      "email": "npm@sophiebits.com",
+      "name": "sophiebits"
+    },
+    {
+      "email": "dg@domgan.com",
+      "name": "trueadm"
+    }
+  ],
+  "name": "react",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/facebook/react.git"
+  },
+  "version": "16.3.2"
+}

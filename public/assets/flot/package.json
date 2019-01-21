@@ -1,0 +1,59 @@
+{
+  "_args": [
+    [
+      "flot@0.8.0-alpha",
+      "/Users/ray/openemr"
+    ]
+  ],
+  "_from": "flot@0.8.0-alpha",
+  "_id": "flot@0.8.0-alpha",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/flot",
+  "_npmUser": {
+    "email": "shtylman@gmail.com",
+    "name": "shtylman"
+  },
+  "_npmVersion": "1.2.11",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "flot",
+    "raw": "flot@0.8.0-alpha",
+    "rawSpec": "0.8.0-alpha",
+    "scope": null,
+    "spec": "0.8.0-alpha",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/flot/-/flot-0.8.0-alpha.tgz",
+  "_shasum": "9cbbc7147c10a47d2549db90bd2987ec1ba784ba",
+  "_shrinkwrap": null,
+  "_spec": "flot@0.8.0-alpha",
+  "_where": "/Users/ray/openemr",
+  "dependencies": {},
+  "description": "## About ##",
+  "devDependencies": {
+    "jshint": "0.9.1"
+  },
+  "directories": {},
+  "dist": {
+    "shasum": "9cbbc7147c10a47d2549db90bd2987ec1ba784ba",
+    "tarball": "https://registry.npmjs.org/flot/-/flot-0.8.0-alpha.tgz"
+  },
+  "main": "jquery.flot.js",
+  "maintainers": [
+    {
+      "email": "shtylman@gmail.com",
+      "name": "shtylman"
+    }
+  ],
+  "name": "flot",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "scripts": {
+    "test": "make test"
+  },
+  "version": "0.8.0-alpha"
+}

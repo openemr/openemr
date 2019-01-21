@@ -1,0 +1,13 @@
+1. Bump the version in package.json
+2. Bump the version bower.json
+3. Bump the version component.json
+4. Bump the version validate.js (header and validate.version, set metadata to null)
+5. Bump the version index.html (sidebar link and all links with the old version, search for the old version)
+6. Compile with `grunt build`
+7. Update the library size in index.html
+8. Commit with message "Release version X.X.X"
+9. Tag using `git tag -a X.X.X` with message "X.X.X"
+10. Push using `git push origin master --tags`
+11. Publish with npm using `npm publish`
+12. Update validatejs.org using `git checkout gh-pages && git merge master`
+13. Set validate.version.metadata to "development"

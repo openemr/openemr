@@ -1,0 +1,75 @@
+{
+  "_args": [
+    [
+      "magic-wand-js@1.0.0",
+      "/Users/ray/openemr"
+    ]
+  ],
+  "_from": "magic-wand-js@1.0.0",
+  "_id": "magic-wand-js@1.0.0",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/magic-wand-js",
+  "_nodeVersion": "4.4.2",
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/magic-wand-js-1.0.0.tgz_1460043426899_0.8555762066971511"
+  },
+  "_npmUser": {
+    "email": "bholyoak@gmail.com",
+    "name": "bholyoak"
+  },
+  "_npmVersion": "2.15.0",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "magic-wand-js",
+    "raw": "magic-wand-js@1.0.0",
+    "rawSpec": "1.0.0",
+    "scope": null,
+    "spec": "1.0.0",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/magic-wand-js/-/magic-wand-js-1.0.0.tgz",
+  "_shasum": "fe3bb6f7392ab1dd3aab231dfc1e010ad65a0061",
+  "_shrinkwrap": null,
+  "_spec": "magic-wand-js@1.0.0",
+  "_where": "/Users/ray/openemr",
+  "author": {
+    "name": "Tamersoul"
+  },
+  "bugs": {
+    "url": "https://github.com/Tamersoul/magic-wand-js/issues"
+  },
+  "dependencies": {},
+  "description": "magic-wand-js\r =============",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "fe3bb6f7392ab1dd3aab231dfc1e010ad65a0061",
+    "tarball": "https://registry.npmjs.org/magic-wand-js/-/magic-wand-js-1.0.0.tgz"
+  },
+  "gitHead": "93121325c518ce2eddd451bdcae7141836c5e1cb",
+  "homepage": "https://github.com/Tamersoul/magic-wand-js#readme",
+  "license": "MIT",
+  "main": "index.js",
+  "maintainers": [
+    {
+      "email": "bholyoak@gmail.com",
+      "name": "bholyoak"
+    }
+  ],
+  "name": "magic-wand-js",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tamersoul/magic-wand-js.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.0.0"
+}

@@ -1,0 +1,102 @@
+{
+  "_args": [
+    [
+      "gritter@1.7.4",
+      "/Users/ray/openemr"
+    ]
+  ],
+  "_from": "gritter@1.7.4",
+  "_id": "gritter@1.7.4",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/gritter",
+  "_nodeVersion": "0.10.32",
+  "_npmUser": {
+    "email": "yleviel@gmail.com",
+    "name": "yleviel"
+  },
+  "_npmVersion": "2.1.6",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "gritter",
+    "raw": "gritter@1.7.4",
+    "rawSpec": "1.7.4",
+    "scope": null,
+    "spec": "1.7.4",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/gritter/-/gritter-1.7.4.tgz",
+  "_shasum": "cdb83982bd19e2ce93be73971e1320a3261133e1",
+  "_shrinkwrap": null,
+  "_spec": "gritter@1.7.4",
+  "_where": "/Users/ray/openemr",
+  "bugs": {
+    "url": "https://github.com/jboesch/Gritter/issues"
+  },
+  "categories": [
+    "UI"
+  ],
+  "contributors": [
+    {
+      "name": "Jordan Boesch",
+      "url": "http://boedesign.com"
+    }
+  ],
+  "dependencies": {},
+  "description": "A small growl-like notification plugin for jQuery",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "cdb83982bd19e2ce93be73971e1320a3261133e1",
+    "tarball": "https://registry.npmjs.org/gritter/-/gritter-1.7.4.tgz"
+  },
+  "gitHead": "7f0c27823f8862ad22860420d26eca933e60169d",
+  "github": "https://github.com/jboesch/Gritter",
+  "homepage": "http://boedesign.com/blog/2009/07/11/growl-for-jquery-gritter/",
+  "jam": {
+    "dependencies": {
+      "jquery": ">1.4.2"
+    },
+    "main": "js/jquery.gritter.js",
+    "shim": {
+      "deps": [
+        "jquery"
+      ],
+      "exports": "Gritter"
+    }
+  },
+  "keywords": [
+    "package",
+    "gritter"
+  ],
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://www.opensource.org/licenses/mit-license.php"
+    }
+  ],
+  "maintainers": [
+    {
+      "email": "yleviel@gmail.com",
+      "name": "yleviel"
+    }
+  ],
+  "name": "gritter",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repositories": [
+    {
+      "type": "git",
+      "url": "git+https://github.com/jboesch/Gritter.git"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jboesch/Gritter.git"
+  },
+  "scripts": {},
+  "version": "1.7.4"
+}

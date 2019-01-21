@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Input In Container Fixed To Bottom Of Viewport | datetimepicker Tests</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link rel="stylesheet" type="text/css" href="../jquery.datetimepicker.css"/>
+
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            main {
+                width: 960px;
+                margin: 0 auto;
+            }
+
+            #search {
+                position: fixed;
+                bottom: 0;
+                z-index: 3;
+                width: 100%;
+                color: #f0f0f0;
+                background-color: #333;
+                opacity: 0.9;
+                -webkit-opacity: 0.9;
+                -moz-opacity: 0.9;
+            }
+
+            #search form {
+                width: 960px;
+                margin: 0 auto;
+                padding: 0.5em;
+            }
+
+            #search form > div,
+            #filters form > div {
+                display: inline;
+            }
+        </style>
+    </head>
+
+    <body>
+        <main>
+            <h1>Input In Container Fixed To Bottom Of Viewport</h1>
+
+            <div id="filters">
+                <form method="post" action="?">
+                    <div>
+                        <label for="filter-date">Date</label>
+                        <input type="text" name="filter-date" id="filter-date"/>
+                    </div>
+
+                    <div>
+                        <input type="submit" value="Filter"/>
+                    </div>
+                </form>
+            </div>
+
+            <ul>
+                <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ornare ante at risus varius molestie. Nulla bibendum mauris tellus, vitae fringilla dolor consectetur et. Praesent in ligula condimentum lacus semper mattis. Sed lobortis iaculis ipsum, a posuere dui dictum nec. Cras condimentum tristique tincidunt. Integer nisi mauris, mollis eget gravida eu, fringilla id eros. Nam posuere aliquet velit, in fermentum augue. Phasellus sit amet enim sit amet neque sollicitudin pellentesque. Vestibulum euismod, libero at rutrum malesuada, libero elit euismod velit, ut facilisis odio libero quis quam. Cras aliquet orci quis ultrices bibendum. In at erat et purus molestie varius aliquam et neque. Duis eleifend sagittis lectus consectetur rhoncus. Suspendisse porttitor nibh a tincidunt ultricies. Morbi hendrerit consectetur felis, eu ultricies diam. Fusce eget nulla ac magna tincidunt feugiat quis vestibulum nibh.</li>
+                <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ornare ante at risus varius molestie. Nulla bibendum mauris tellus, vitae fringilla dolor consectetur et. Praesent in ligula condimentum lacus semper mattis. Sed lobortis iaculis ipsum, a posuere dui dictum nec. Cras condimentum tristique tincidunt. Integer nisi mauris, mollis eget gravida eu, fringilla id eros. Nam posuere aliquet velit, in fermentum augue. Phasellus sit amet enim sit amet neque sollicitudin pellentesque. Vestibulum euismod, libero at rutrum malesuada, libero elit euismod velit, ut facilisis odio libero quis quam. Cras aliquet orci quis ultrices bibendum. In at erat et purus molestie varius aliquam et neque. Duis eleifend sagittis lectus consectetur rhoncus. Suspendisse porttitor nibh a tincidunt ultricies. Morbi hendrerit consectetur felis, eu ultricies diam. Fusce eget nulla ac magna tincidunt feugiat quis vestibulum nibh.</li>
+                <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ornare ante at risus varius molestie. Nulla bibendum mauris tellus, vitae fringilla dolor consectetur et. Praesent in ligula condimentum lacus semper mattis. Sed lobortis iaculis ipsum, a posuere dui dictum nec. Cras condimentum tristique tincidunt. Integer nisi mauris, mollis eget gravida eu, fringilla id eros. Nam posuere aliquet velit, in fermentum augue. Phasellus sit amet enim sit amet neque sollicitudin pellentesque. Vestibulum euismod, libero at rutrum malesuada, libero elit euismod velit, ut facilisis odio libero quis quam. Cras aliquet orci quis ultrices bibendum. In at erat et purus molestie varius aliquam et neque. Duis eleifend sagittis lectus consectetur rhoncus. Suspendisse porttitor nibh a tincidunt ultricies. Morbi hendrerit consectetur felis, eu ultricies diam. Fusce eget nulla ac magna tincidunt feugiat quis vestibulum nibh.</li>
+                <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ornare ante at risus varius molestie. Nulla bibendum mauris tellus, vitae fringilla dolor consectetur et. Praesent in ligula condimentum lacus semper mattis. Sed lobortis iaculis ipsum, a posuere dui dictum nec. Cras condimentum tristique tincidunt. Integer nisi mauris, mollis eget gravida eu, fringilla id eros. Nam posuere aliquet velit, in fermentum augue. Phasellus sit amet enim sit amet neque sollicitudin pellentesque. Vestibulum euismod, libero at rutrum malesuada, libero elit euismod velit, ut facilisis odio libero quis quam. Cras aliquet orci quis ultrices bibendum. In at erat et purus molestie varius aliquam et neque. Duis eleifend sagittis lectus consectetur rhoncus. Suspendisse porttitor nibh a tincidunt ultricies. Morbi hendrerit consectetur felis, eu ultricies diam. Fusce eget nulla ac magna tincidunt feugiat quis vestibulum nibh.</li>
+                <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ornare ante at risus varius molestie. Nulla bibendum mauris tellus, vitae fringilla dolor consectetur et. Praesent in ligula condimentum lacus semper mattis. Sed lobortis iaculis ipsum, a posuere dui dictum nec. Cras condimentum tristique tincidunt. Integer nisi mauris, mollis eget gravida eu, fringilla id eros. Nam posuere aliquet velit, in fermentum augue. Phasellus sit amet enim sit amet neque sollicitudin pellentesque. Vestibulum euismod, libero at rutrum malesuada, libero elit euismod velit, ut facilisis odio libero quis quam. Cras aliquet orci quis ultrices bibendum. In at erat et purus molestie varius aliquam et neque. Duis eleifend sagittis lectus consectetur rhoncus. Suspendisse porttitor nibh a tincidunt ultricies. Morbi hendrerit consectetur felis, eu ultricies diam. Fusce eget nulla ac magna tincidunt feugiat quis vestibulum nibh.</li>
+                <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ornare ante at risus varius molestie. Nulla bibendum mauris tellus, vitae fringilla dolor consectetur et. Praesent in ligula condimentum lacus semper mattis. Sed lobortis iaculis ipsum, a posuere dui dictum nec. Cras condimentum tristique tincidunt. Integer nisi mauris, mollis eget gravida eu, fringilla id eros. Nam posuere aliquet velit, in fermentum augue. Phasellus sit amet enim sit amet neque sollicitudin pellentesque. Vestibulum euismod, libero at rutrum malesuada, libero elit euismod velit, ut facilisis odio libero quis quam. Cras aliquet orci quis ultrices bibendum. In at erat et purus molestie varius aliquam et neque. Duis eleifend sagittis lectus consectetur rhoncus. Suspendisse porttitor nibh a tincidunt ultricies. Morbi hendrerit consectetur felis, eu ultricies diam. Fusce eget nulla ac magna tincidunt feugiat quis vestibulum nibh.</li>
+                <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ornare ante at risus varius molestie. Nulla bibendum mauris tellus, vitae fringilla dolor consectetur et. Praesent in ligula condimentum lacus semper mattis. Sed lobortis iaculis ipsum, a posuere dui dictum nec. Cras condimentum tristique tincidunt. Integer nisi mauris, mollis eget gravida eu, fringilla id eros. Nam posuere aliquet velit, in fermentum augue. Phasellus sit amet enim sit amet neque sollicitudin pellentesque. Vestibulum euismod, libero at rutrum malesuada, libero elit euismod velit, ut facilisis odio libero quis quam. Cras aliquet orci quis ultrices bibendum. In at erat et purus molestie varius aliquam et neque. Duis eleifend sagittis lectus consectetur rhoncus. Suspendisse porttitor nibh a tincidunt ultricies. Morbi hendrerit consectetur felis, eu ultricies diam. Fusce eget nulla ac magna tincidunt feugiat quis vestibulum nibh.</li>
+                <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ornare ante at risus varius molestie. Nulla bibendum mauris tellus, vitae fringilla dolor consectetur et. Praesent in ligula condimentum lacus semper mattis. Sed lobortis iaculis ipsum, a posuere dui dictum nec. Cras condimentum tristique tincidunt. Integer nisi mauris, mollis eget gravida eu, fringilla id eros. Nam posuere aliquet velit, in fermentum augue. Phasellus sit amet enim sit amet neque sollicitudin pellentesque. Vestibulum euismod, libero at rutrum malesuada, libero elit euismod velit, ut facilisis odio libero quis quam. Cras aliquet orci quis ultrices bibendum. In at erat et purus molestie varius aliquam et neque. Duis eleifend sagittis lectus consectetur rhoncus. Suspendisse porttitor nibh a tincidunt ultricies. Morbi hendrerit consectetur felis, eu ultricies diam. Fusce eget nulla ac magna tincidunt feugiat quis vestibulum nibh.</li>
+                <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ornare ante at risus varius molestie. Nulla bibendum mauris tellus, vitae fringilla dolor consectetur et. Praesent in ligula condimentum lacus semper mattis. Sed lobortis iaculis ipsum, a posuere dui dictum nec. Cras condimentum tristique tincidunt. Integer nisi mauris, mollis eget gravida eu, fringilla id eros. Nam posuere aliquet velit, in fermentum augue. Phasellus sit amet enim sit amet neque sollicitudin pellentesque. Vestibulum euismod, libero at rutrum malesuada, libero elit euismod velit, ut facilisis odio libero quis quam. Cras aliquet orci quis ultrices bibendum. In at erat et purus molestie varius aliquam et neque. Duis eleifend sagittis lectus consectetur rhoncus. Suspendisse porttitor nibh a tincidunt ultricies. Morbi hendrerit consectetur felis, eu ultricies diam. Fusce eget nulla ac magna tincidunt feugiat quis vestibulum nibh.</li>
+                <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ornare ante at risus varius molestie. Nulla bibendum mauris tellus, vitae fringilla dolor consectetur et. Praesent in ligula condimentum lacus semper mattis. Sed lobortis iaculis ipsum, a posuere dui dictum nec. Cras condimentum tristique tincidunt. Integer nisi mauris, mollis eget gravida eu, fringilla id eros. Nam posuere aliquet velit, in fermentum augue. Phasellus sit amet enim sit amet neque sollicitudin pellentesque. Vestibulum euismod, libero at rutrum malesuada, libero elit euismod velit, ut facilisis odio libero quis quam. Cras aliquet orci quis ultrices bibendum. In at erat et purus molestie varius aliquam et neque. Duis eleifend sagittis lectus consectetur rhoncus. Suspendisse porttitor nibh a tincidunt ultricies. Morbi hendrerit consectetur felis, eu ultricies diam. Fusce eget nulla ac magna tincidunt feugiat quis vestibulum nibh.</li>
+                <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ornare ante at risus varius molestie. Nulla bibendum mauris tellus, vitae fringilla dolor consectetur et. Praesent in ligula condimentum lacus semper mattis. Sed lobortis iaculis ipsum, a posuere dui dictum nec. Cras condimentum tristique tincidunt. Integer nisi mauris, mollis eget gravida eu, fringilla id eros. Nam posuere aliquet velit, in fermentum augue. Phasellus sit amet enim sit amet neque sollicitudin pellentesque. Vestibulum euismod, libero at rutrum malesuada, libero elit euismod velit, ut facilisis odio libero quis quam. Cras aliquet orci quis ultrices bibendum. In at erat et purus molestie varius aliquam et neque. Duis eleifend sagittis lectus consectetur rhoncus. Suspendisse porttitor nibh a tincidunt ultricies. Morbi hendrerit consectetur felis, eu ultricies diam. Fusce eget nulla ac magna tincidunt feugiat quis vestibulum nibh.</li>
+                <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ornare ante at risus varius molestie. Nulla bibendum mauris tellus, vitae fringilla dolor consectetur et. Praesent in ligula condimentum lacus semper mattis. Sed lobortis iaculis ipsum, a posuere dui dictum nec. Cras condimentum tristique tincidunt. Integer nisi mauris, mollis eget gravida eu, fringilla id eros. Nam posuere aliquet velit, in fermentum augue. Phasellus sit amet enim sit amet neque sollicitudin pellentesque. Vestibulum euismod, libero at rutrum malesuada, libero elit euismod velit, ut facilisis odio libero quis quam. Cras aliquet orci quis ultrices bibendum. In at erat et purus molestie varius aliquam et neque. Duis eleifend sagittis lectus consectetur rhoncus. Suspendisse porttitor nibh a tincidunt ultricies. Morbi hendrerit consectetur felis, eu ultricies diam. Fusce eget nulla ac magna tincidunt feugiat quis vestibulum nibh.</li>
+                <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ornare ante at risus varius molestie. Nulla bibendum mauris tellus, vitae fringilla dolor consectetur et. Praesent in ligula condimentum lacus semper mattis. Sed lobortis iaculis ipsum, a posuere dui dictum nec. Cras condimentum tristique tincidunt. Integer nisi mauris, mollis eget gravida eu, fringilla id eros. Nam posuere aliquet velit, in fermentum augue. Phasellus sit amet enim sit amet neque sollicitudin pellentesque. Vestibulum euismod, libero at rutrum malesuada, libero elit euismod velit, ut facilisis odio libero quis quam. Cras aliquet orci quis ultrices bibendum. In at erat et purus molestie varius aliquam et neque. Duis eleifend sagittis lectus consectetur rhoncus. Suspendisse porttitor nibh a tincidunt ultricies. Morbi hendrerit consectetur felis, eu ultricies diam. Fusce eget nulla ac magna tincidunt feugiat quis vestibulum nibh.</li>
+                <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ornare ante at risus varius molestie. Nulla bibendum mauris tellus, vitae fringilla dolor consectetur et. Praesent in ligula condimentum lacus semper mattis. Sed lobortis iaculis ipsum, a posuere dui dictum nec. Cras condimentum tristique tincidunt. Integer nisi mauris, mollis eget gravida eu, fringilla id eros. Nam posuere aliquet velit, in fermentum augue. Phasellus sit amet enim sit amet neque sollicitudin pellentesque. Vestibulum euismod, libero at rutrum malesuada, libero elit euismod velit, ut facilisis odio libero quis quam. Cras aliquet orci quis ultrices bibendum. In at erat et purus molestie varius aliquam et neque. Duis eleifend sagittis lectus consectetur rhoncus. Suspendisse porttitor nibh a tincidunt ultricies. Morbi hendrerit consectetur felis, eu ultricies diam. Fusce eget nulla ac magna tincidunt feugiat quis vestibulum nibh.</li>
+            </ul>
+        </main>
+
+        <footer>
+            <div id="search">
+                <form method="post" action="?">
+                    <div>
+                        <label for="search-from-date">Date from</label>
+                        <input type="text" name="search-from-date" id="search-from-date"/>
+                    </div>
+
+                    <div>
+                        <label for="search-to-date">Date to</label>
+                        <input type="text" name="search-to-date" id="search-to-date"/>
+                    </div>
+
+                    <div>
+                        <input type="submit" value="Search"/>
+                    </div>
+                </form>
+            </div>
+        </footer>
+
+        <script src="../jquery.js"></script>
+        <script src="../build/jquery.datetimepicker.full.js"></script>
+
+        <script>
+            /*jslint browser:true*/
+            /*global jQuery, document*/
+
+            jQuery(document).ready(function () {
+                'use strict';
+
+                jQuery('#filter-date, #search-from-date, #search-to-date').datetimepicker();
+            });
+        </script>
+    </body>
+</html>

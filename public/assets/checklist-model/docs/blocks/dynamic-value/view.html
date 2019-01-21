@@ -1,0 +1,12 @@
+<div ng-repeat="role in roles">
+  <label style="display:inline-block;">
+    <input type="checkbox" checklist-model="user.roles" checklist-value="role.text"> {{role.text}}
+  </label>
+</div>
+<label>
+	Set value as:
+	<select ng-model="dynValue" ng-change="setChecklistValue();">
+		<option value="role.text">role.text</option>
+		<option value="role.Text">role.Text</option>
+	</select>
+</label>

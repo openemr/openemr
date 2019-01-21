@@ -1,0 +1,11 @@
+{
+  "name": "jquery-1-7-2",
+  "version": "0.0.0",
+  "description": "-",
+  "repository": {
+    "type": "git",
+    "url": "-"
+  },
+  "readme": "-",
+  "_napaResolved": "https://github.com/jquery/jquery/archive/1.7.2.tar.gz"
+}

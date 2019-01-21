@@ -1,0 +1,196 @@
+{
+  "_args": [
+    [
+      "moment@2.23.0",
+      "/Users/ray/openemr"
+    ]
+  ],
+  "_from": "moment@2.23.0",
+  "_hasShrinkwrap": false,
+  "_id": "moment@2.23.0",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/moment",
+  "_nodeVersion": "8.11.2",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/moment_2.23.0_1544683757392_0.14032929938701177"
+  },
+  "_npmUser": {
+    "email": "marwahaha@berkeley.edu",
+    "name": "marwahaha"
+  },
+  "_npmVersion": "6.4.1",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "moment",
+    "raw": "moment@2.23.0",
+    "rawSpec": "2.23.0",
+    "scope": null,
+    "spec": "2.23.0",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "/",
+    "/chart.js"
+  ],
+  "_resolved": "https://registry.npmjs.org/moment/-/moment-2.23.0.tgz",
+  "_shasum": "759ea491ac97d54bac5ad776996e2a58cc1bc225",
+  "_shrinkwrap": null,
+  "_spec": "moment@2.23.0",
+  "_where": "/Users/ray/openemr",
+  "author": {
+    "email": "iskren.chernev@gmail.com",
+    "name": "Iskren Ivov Chernev",
+    "url": "https://github.com/ichernev"
+  },
+  "bugs": {
+    "url": "https://github.com/moment/moment/issues"
+  },
+  "contributors": [
+    {
+      "email": "washwithcare@gmail.com",
+      "name": "Tim Wood",
+      "url": "http://timwoodcreates.com/"
+    },
+    {
+      "name": "Rocky Meza",
+      "url": "http://rockymeza.com"
+    },
+    {
+      "email": "mj1856@hotmail.com",
+      "name": "Matt Johnson",
+      "url": "http://codeofmatt.com"
+    },
+    {
+      "email": "isaac@isaaccambron.com",
+      "name": "Isaac Cambron",
+      "url": "http://isaaccambron.com"
+    },
+    {
+      "email": "andre@oire.org",
+      "name": "Andre Polykanine",
+      "url": "https://github.com/oire"
+    }
+  ],
+  "dependencies": {},
+  "description": "Parse, validate, manipulate, and display dates",
+  "devDependencies": {
+    "benchmark": "latest",
+    "coveralls": "^3.0.2",
+    "es6-promise": "latest",
+    "grunt": "~0.4",
+    "grunt-benchmark": "latest",
+    "grunt-cli": "latest",
+    "grunt-contrib-clean": "latest",
+    "grunt-contrib-concat": "latest",
+    "grunt-contrib-copy": "latest",
+    "grunt-contrib-jshint": "latest",
+    "grunt-contrib-uglify": "latest",
+    "grunt-contrib-watch": "^1.1.0",
+    "grunt-env": "latest",
+    "grunt-exec": "latest",
+    "grunt-jscs": "latest",
+    "grunt-karma": "latest",
+    "grunt-nuget": "latest",
+    "grunt-string-replace": "latest",
+    "karma": "latest",
+    "karma-chrome-launcher": "latest",
+    "karma-firefox-launcher": "latest",
+    "karma-qunit": "latest",
+    "karma-sauce-launcher": "latest",
+    "load-grunt-tasks": "~3.5.2",
+    "node-qunit": "^1.0.0",
+    "nyc": "~11.9.0",
+    "qunit": "^2.7.1",
+    "rollup": "latest",
+    "spacejam": "latest",
+    "typescript": "^1.8.10",
+    "uglify-js": "latest"
+  },
+  "directories": {},
+  "dist": {
+    "fileCount": 366,
+    "integrity": "sha512-3IE39bHVqFbWWaPOMHZF98Q9c3LDKGTmypMiTM2QygGXXElkFWIH7GxfmlwmY2vwa+wmNsoYZmG2iusf1ZjJoA==",
+    "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJcEgDuCRA9TVsSAnZWagAAzTMP/1DCGdDCZUmTeqKVon5p\nhnNk904lY39zQ1J4XjPBLSedz37WBcq7BAmD6ljreiI9LB4ELk87X29tEBSX\nVtKTO8TEbjnGHYXPOSA1hH4RUi6oPQav+kIY4RoahsaEUqHS5U/aMFHmeTe/\nIM0hCI8KHZOdVEKlgSLL2xiLgPPNPfRd1tCc4r60YHOcFYS/IOUiXA+UKd7M\nPNc6vuPJVWd2rh29i0gG6So4evMM1CXuKKSJEu6IR4I75tgiOpYmIJlaaE+f\nPyCy1+RSX07BkktOdAhh0Hq06s6QN4uECyehXg28HU07H4NgO6mzwP4wjJ3z\n1QrtGC8RVwDYYiRUjwJv/yncBft+cYlI+iK23MZ7gJEt4+shulONtxEeylYj\nA8gHR0e8kxnLWM4Ivvb20vEFge9p6HQ0gUWjMlPDyQkWwOLobUITaukHACvs\ndTpGsqicb/9DKatJ76Z7kgRvxao5kIvGqjtmQhahT5jrnCBmI6hCIu25b1xo\n0L6U0Wac3vIWsrh8cmCqN2lOrmC+uQMyo6xz21N2KVdbWS7iv5lNdnP2VqyU\n+e8Y2XASGOSboOHHdQE8AiX91PUdy1UYSN1K6STQ3gI32TbQGLlh50xWJYRR\nzlPIz2MBQkjHqbVE6BhQRZx/qb9Y1Sl/CnLGopf3W39yYKhw1MzN8aPWNAnc\nl8ae\r\n=ffKP\r\n-----END PGP SIGNATURE-----\r\n",
+    "shasum": "759ea491ac97d54bac5ad776996e2a58cc1bc225",
+    "tarball": "https://registry.npmjs.org/moment/-/moment-2.23.0.tgz",
+    "unpackedSize": 2737053
+  },
+  "dojoBuild": "package.js",
+  "ender": "./ender.js",
+  "engines": {
+    "node": "*"
+  },
+  "homepage": "http://momentjs.com",
+  "jsnext:main": "./src/moment.js",
+  "jspm": {
+    "buildConfig": {
+      "uglify": true
+    },
+    "files": [
+      "moment.js",
+      "moment.d.ts",
+      "locale"
+    ],
+    "map": {
+      "moment": "./moment"
+    }
+  },
+  "keywords": [
+    "moment",
+    "date",
+    "time",
+    "parse",
+    "format",
+    "validate",
+    "i18n",
+    "l10n",
+    "ender"
+  ],
+  "license": "MIT",
+  "main": "./moment.js",
+  "maintainers": [
+    {
+      "email": "iskren.chernev@gmail.com",
+      "name": "ichernev"
+    },
+    {
+      "email": "maggiepint@gmail.com",
+      "name": "maggiepint"
+    },
+    {
+      "email": "marwahaha@berkeley.edu",
+      "name": "marwahaha"
+    },
+    {
+      "email": "mj1856@hotmail.com",
+      "name": "mj1856"
+    },
+    {
+      "email": "washwithcare@gmail.com",
+      "name": "timrwood"
+    }
+  ],
+  "name": "moment",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moment/moment.git"
+  },
+  "scripts": {
+    "coverage": "nyc npm test && nyc report",
+    "coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
+    "test": "grunt test",
+    "typescript-test": "tsc --project typing-tests"
+  },
+  "spm": {
+    "main": "moment.js",
+    "output": [
+      "locale/*.js"
+    ]
+  },
+  "typings": "./moment.d.ts",
+  "version": "2.23.0"
+}

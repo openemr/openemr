@@ -1,0 +1,11 @@
+{
+  "name": "pure",
+  "version": "0.0.0",
+  "description": "-",
+  "repository": {
+    "type": "git",
+    "url": "-"
+  },
+  "readme": "-",
+  "_napaResolved": "https://github.com/pure-css/pure/releases/download/v0.5.0/pure-0.5.0.tar.gz"
+}

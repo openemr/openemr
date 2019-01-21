@@ -1,0 +1,97 @@
+{
+  "_args": [
+    [
+      "validate.js@0.12.0",
+      "/Users/ray/openemr"
+    ]
+  ],
+  "_from": "validate.js@0.12.0",
+  "_id": "validate.js@0.12.0",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/validate.js",
+  "_nodeVersion": "6.5.0",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/validate.js-0.12.0.tgz_1508261149281_0.2864944401662797"
+  },
+  "_npmUser": {
+    "email": "nicklas@ansman.se",
+    "name": "ansman"
+  },
+  "_npmVersion": "5.5.1",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "validate.js",
+    "raw": "validate.js@0.12.0",
+    "rawSpec": "0.12.0",
+    "scope": null,
+    "spec": "0.12.0",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/validate.js/-/validate.js-0.12.0.tgz",
+  "_shasum": "17f989e37c192ea2f826bbf19bf4e97e6e4be68f",
+  "_shrinkwrap": null,
+  "_spec": "validate.js@0.12.0",
+  "_where": "/Users/ray/openemr",
+  "author": {
+    "email": "nicklas@ansman.se",
+    "name": "Nicklas Ansman"
+  },
+  "bugs": {
+    "url": "https://github.com/ansman/validate.js/issues"
+  },
+  "dependencies": {},
+  "description": "Declarative validations for JavaScript",
+  "devDependencies": {
+    "coveralls": "2.11.9",
+    "grunt": "1.0.1",
+    "grunt-contrib-jasmine": "1.0.3",
+    "grunt-contrib-jshint": "1.0.0",
+    "grunt-contrib-uglify": "1.0.1",
+    "grunt-contrib-watch": "1.0.0",
+    "grunt-docco": "0.4.0",
+    "grunt-notify": "0.4.5",
+    "grunt-template-jasmine-istanbul": "0.4.0"
+  },
+  "directories": {},
+  "dist": {
+    "integrity": "sha512-/x2RJSvbqEyxKj0RPN4xaRquK+EggjeVXiDDEyrJzsJogjtiZ9ov7lj/svVb4DM5Q5braQF4cooAryQbUwOxlA==",
+    "shasum": "17f989e37c192ea2f826bbf19bf4e97e6e4be68f",
+    "tarball": "https://registry.npmjs.org/validate.js/-/validate.js-0.12.0.tgz"
+  },
+  "gitHead": "f907eb86807a112e8b2bdaa35f0bcc2e9acaa855",
+  "homepage": "http://validatejs.org",
+  "keywords": [
+    "validation",
+    "validate",
+    "server",
+    "client"
+  ],
+  "license": "MIT",
+  "main": "validate.js",
+  "maintainers": [
+    {
+      "email": "nicklas@ansman.se",
+      "name": "ansman"
+    }
+  ],
+  "name": "validate.js",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ansman/validate.js.git"
+  },
+  "scripts": {
+    "build": "grunt build",
+    "docs": "grunt docco",
+    "test": "grunt test",
+    "watch": "grunt watch"
+  },
+  "typings": "validate.d.ts",
+  "version": "0.12.0"
+}

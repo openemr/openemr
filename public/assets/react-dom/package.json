@@ -1,0 +1,140 @@
+{
+  "_args": [
+    [
+      "react-dom@16.3.2",
+      "/Users/ray/openemr"
+    ]
+  ],
+  "_from": "react-dom@16.3.2",
+  "_hasShrinkwrap": false,
+  "_id": "react-dom@16.3.2",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/react-dom",
+  "_nodeVersion": "8.6.0",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/react-dom_16.3.2_1523892762824_0.9372514927019884"
+  },
+  "_npmUser": {
+    "email": "dan.abramov@gmail.com",
+    "name": "gaearon"
+  },
+  "_npmVersion": "5.6.0",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "react-dom",
+    "raw": "react-dom@16.3.2",
+    "rawSpec": "16.3.2",
+    "scope": null,
+    "spec": "16.3.2",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/react-dom/-/react-dom-16.3.2.tgz",
+  "_shasum": "cb90f107e09536d683d84ed5d4888e9640e0e4df",
+  "_shrinkwrap": null,
+  "_spec": "react-dom@16.3.2",
+  "_where": "/Users/ray/openemr",
+  "browser": {
+    "./server.js": "./server.browser.js"
+  },
+  "browserify": {
+    "transform": [
+      "loose-envify"
+    ]
+  },
+  "bugs": {
+    "url": "https://github.com/facebook/react/issues"
+  },
+  "dependencies": {
+    "fbjs": "^0.8.16",
+    "loose-envify": "^1.1.0",
+    "object-assign": "^4.1.1",
+    "prop-types": "^15.6.0"
+  },
+  "deprecated": "This version of react-dom/server contains a minor vulnerability. Please update react-dom to 16.3.3 or 16.4.2+. Learn more: https://fb.me/cve-2018-6341",
+  "description": "React package for working with the DOM.",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "fileCount": 27,
+    "integrity": "sha512-MMPko3zYncNrz/7gG17wJWUREZDvskZHXOwbttzl0F0L3wDmToyuETuo/r8Y5yvDejwYcRyWI1lvVBjLJWFwKA==",
+    "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJa1MIbCRA9TVsSAnZWagAACkAP/1M/2+5bhCsGK4PDgnYd\nSMopg4hj5UvMGr4P/3YzAHbGo1p91/czstYkVFTCFxi2hTnXTarzuRh9vnox\nXFSrNC+jhzMgwdasghVvyoGxP+NMFicvfekfi6S3OC/8PYiC99gHJOfqH7lO\nO+G0wFkdXY7UYsx1dwiqaTVm//VFS9AvtP+lC9vwp58GbbdiQAAtCHNWVcQp\n6m2QuWMgjMRWKaZonG8WboE6UCOckr50Gfc/0a5zDJaBU+gpj7yLgIiIAT/w\nA39X3KSRWfa35vIEeH6v+mNqF8n9hVPo4l1SqQe6UajCGzWhd8EmcFKWFNYf\nsZM+dolrdI3RnKH/Z+Lr630jiWk8gm3JsLnFAL4JWSpUlVlUXu4D7GBLkANd\n8l/dTvayxksK/MYo97B8ewabtQDWkeBJPigccc6VtivD6VztBoF4LQiMSVzP\nbZmIDOy/cb4q00OFALvL+ZELYKX80cO1x/HmF5ULlDcy95IeV2kcJJq+SI6a\nXi3zTLbWNcgQoUvHJwR/xg75Yz8BpN614SDLhCy3YsrXfv5LdCDLf6LB2nAA\n4SAbCTuvL0FqB6AADfN8kKrrTpnVICSBATBWeuXZTDB5xu8kY0i7BkTiolaG\nhCoDR5dzqlCr4FUj4/OGcWwpxQRhgi8gFu4KeNV4a1WGB/6Az3J0Noqb/uXV\n9ORw\r\n=UEJp\r\n-----END PGP SIGNATURE-----\r\n",
+    "shasum": "cb90f107e09536d683d84ed5d4888e9640e0e4df",
+    "tarball": "https://registry.npmjs.org/react-dom/-/react-dom-16.3.2.tgz",
+    "unpackedSize": 2020779
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "index.js",
+    "server.js",
+    "server.browser.js",
+    "server.node.js",
+    "test-utils.js",
+    "unstable-native-dependencies.js",
+    "cjs/",
+    "umd/"
+  ],
+  "homepage": "https://reactjs.org/",
+  "keywords": [
+    "react"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "maintainers": [
+    {
+      "email": "acdlite@me.com",
+      "name": "acdlite"
+    },
+    {
+      "email": "briandavidvaughn@gmail.com",
+      "name": "brianvaughn"
+    },
+    {
+      "email": "clement.hoang24@gmail.com",
+      "name": "clemmy"
+    },
+    {
+      "email": "opensource+npm@fb.com",
+      "name": "fb"
+    },
+    {
+      "email": "flarnie.npm@gmail.com",
+      "name": "flarnie"
+    },
+    {
+      "email": "dan.abramov@gmail.com",
+      "name": "gaearon"
+    },
+    {
+      "email": "npm@sophiebits.com",
+      "name": "sophiebits"
+    },
+    {
+      "email": "dg@domgan.com",
+      "name": "trueadm"
+    },
+    {
+      "email": "paul@oshannessy.com",
+      "name": "zpao"
+    }
+  ],
+  "name": "react-dom",
+  "optionalDependencies": {},
+  "peerDependencies": {
+    "react": "^16.0.0"
+  },
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/facebook/react.git"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "version": "16.3.2"
+}

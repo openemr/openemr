@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>jQuery Credit Card Validator Example</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="../jquery.creditCardValidator.js"></script>
+</head>
+<body>
+    <label>CC number <input></label>
+
+    <p class="log"></p>
+</body>
+
+<script>
+    $(function() {
+        $('input').validateCreditCard(function(result) {
+            $('.log').html('Card type: ' + (result.card_type == null ? '-' : result.card_type.name)
+                     + '<br>Valid: ' + result.valid
+                     + '<br>Length valid: ' + result.length_valid
+                     + '<br>Luhn valid: ' + result.luhn_valid);
+        });
+    });
+</script>
+</html>
