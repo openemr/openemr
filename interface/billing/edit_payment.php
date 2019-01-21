@@ -313,7 +313,7 @@ if (isset($_POST["mode"])) {
                                 "', pay_amount = '" . trim(formData("Takeback$CountRow"))*-1  .
                                 "', account_code = '" . "Takeback"  .
                                 "', payer_type = '"   . trim(formData("HiddenIns$CountRow")) .
-                                "' where  session_id ='" . add_escape_custom($payment_id . "' and pid ='" . trim(formData("HiddenPId$CountRow"))  .
+                                "' where  session_id ='" . add_escape_custom($payment_id) . "' and pid ='" . trim(formData("HiddenPId$CountRow"))  .
                                 "' and  encounter  ='" . trim(formData("HiddenEncounter$CountRow"))  .
                                   "' and  code_type  ='" . trim(formData("HiddenCodetype$CountRow"))  .
                                 "' and  code  ='" . trim(formData("HiddenCode$CountRow"))  .
