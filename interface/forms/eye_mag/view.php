@@ -180,7 +180,7 @@ if ($refresh and $refresh != 'fullscreen') {
       <meta name="author" content="OpenEMR: Ophthalmology">
       <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor', 'qtip2' ]); ?>
+      <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor' ]); ?>
 
       <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
     
@@ -1497,7 +1497,9 @@ if ($refresh and $refresh != 'fullscreen') {
 
                     <?php ($CTL==1) ? ($display_CTL = "") : ($display_CTL = "nodisplay"); ?>
                   <div id="LayerVision_CTL" class="refraction CTL borderShadow <?php echo $display_CTL; ?>">
-                    <i title="<?php echo xla('Dispense this RX'); ?>" class="closeButton_2 fa fa-print" onclick="top.restoreSession();doscript('CTL',<?php echo attr($pid); ?>,<?php echo attr($encounter); ?>);return false;"></i>
+                      <i onclick="top.restoreSession();  dispensed('<?php echo attr($pid); ?>');return false;"
+                         title="<?php echo xla("List of previously dispensed Spectacle and Contact Lens Rxs"); ?>" class="closeButton_3 fa fa-list-ul"></i>
+                      <i title="<?php echo xla('Dispense this RX'); ?>" class="closeButton_2 fa fa-print" onclick="top.restoreSession();doscript('CTL',<?php echo attr($pid); ?>,<?php echo attr($encounter); ?>);return false;"></i>
                     <span title="<?php echo xla('Close this panel and make this a Preference to stay closed'); ?>" class="closeButton fa  fa-close" id="Close_CTL" name="Close_CTL"></span>
                     <table id="CTL">
                       <th colspan="9"><?php echo xlt('Contact Lens Refraction'); ?></th>
@@ -1714,7 +1716,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         <td title="<?php echo xla('Lens Thickness'); ?>"><?php echo xlt('LT{{lens thickness}}'); ?></td>
                         <td title="<?php echo xla('White-to-white'); ?>"><?php echo xlt('W2W{{white-to-white}}'); ?></td>
                         <td title="<?php echo xla('Equivalent contact lens power at the corneal level'); ?>"><?php echo xlt('ECL{{equivalent contact lens power at the corneal level}}'); ?></td>
-                        <!-- <td><?php echo xlt('pend'); ?></td> -->
+                        <td><?php echo xlt('VABiNoc{{Binocular Visual Acuity}}'); ?></td>
                       </tr>
                       <tr><td><b><?php echo xlt('OD{{right eye}}'); ?>:</b></td>
                         <td><input type="text" id="ODAXIALLENGTH" name="ODAXIALLENGTH"  value="<?php echo attr($ODAXIALLENGTH); ?>"  tabindex="10265"></td>
@@ -1723,7 +1725,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         <td><input type="text" id="ODLT" name="ODLT"  value="<?php echo attr($ODLT); ?>" tabindex="10271"></td>
                         <td><input type="text" id="ODW2W" name="ODW2W"  value="<?php echo attr($ODW2W); ?>" tabindex="10273"></td>
                         <td><input type="text" id="ODECL" name="ODECL"  value="<?php echo attr($ODECL); ?>" tabindex="10275"></td>
-                        <!-- <td><input type="text" id="pend" name="pend"  value="<?php echo attr($pend); ?>"></td> -->
+                        <td rowspan="2"><input type="text" id="BINOCVA" name="BINOCVA"  value="<?php echo attr($BINOCVA); ?>"></td>
                       </tr>
                       <tr>
                         <td><b><?php echo xlt('OS{{left eye}}'); ?>:</b></td>
@@ -3247,7 +3249,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                   echo '<span class"bold" style="margin-left:-5px;">'.xlt('or utilize the Impression/Plan Builder').'</span>';
                                   echo '<li>'.xlt('Drag a DX over by its handle').':&nbsp;<i class="fa fa-arrows"></i></li>';
                                   echo '<li>'.xlt('Double click on a DX\'s handle').':&nbsp;<i class="fa fa-arrows"></i></li>';
-                                  echo '<li>'.xlt('Multi-select desired DX(s) and click the').' <i class="fa fa-reply flip-left"></i> '.xlt('icon').'</li>';
+                                  echo '<li>'.xlt('Multi-select desired DX(s) and click the').' <i class="fa fa-reply"></i> '.xlt('icon').'</li>';
                                   echo '</ol>';
                                 ?>
                           </div>
@@ -3347,17 +3349,19 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 $insert_code = text($insert_code);
                                                 echo "<li class='ui-widget-content'> <span id='DX_POS_".$k."' name='DX_POS_".$k."'>".$v['title']."</span> ".$insert_code."</li>";
                                             }
-                                    
-                                            foreach ($PMSFH[0]['medical_problem'] as $k => $v) {
-                                                $insert_code='';
-                                                if ($v['diagnosis'] >'') {
-                                                    $insert_code = "<code class='pull-right diagnosis'>".$v['diagnosis']."</code>";
+                                            
+                                            if (!empty($PMSFH[0]['medical_problem'])) {
+                                                foreach ($PMSFH[0]['medical_problem'] as $k => $v) {
+                                                    $insert_code = '';
+                                                    if ($v['diagnosis'] > '') {
+                                                        $insert_code = "<code class='pull-right diagnosis'>" . $v['diagnosis'] . "</code>";
+                                                    }
+        
+                                                    $k = xla($k);
+                                                    $v['title'] = xlt($v['title']);
+                                                    $insert_code = text($insert_code);
+                                                    echo "<li class='ui-widget-content'> <span id='DX_PMH_" . $k . "' name='DX_PMH_" . $k . "'>" . $v['title'] . "</span> " . $insert_code . "</li>";
                                                 }
-                                        
-                                                $k = xla($k);
-                                                $v['title'] = xlt($v['title']);
-                                                $insert_code = text($insert_code);
-                                                echo "<li class='ui-widget-content'> <span id='DX_PMH_".$k."' name='DX_PMH_".$k."'>".$v['title']."</span> ".$insert_code."</li>";
                                             }
                                         } else {
                                             echo "<br /><span class='bold'>";
@@ -3899,11 +3903,6 @@ if ($refresh and $refresh != 'fullscreen') {
     ?>
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-panelslider/jquery.panelslider.js"></script>
     <!-- Undo code -->
-<<<<<<< HEAD
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/undone.js-0-0-1/undone.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/undone.js-0-0-1/jquery.undone.js"></script>
-    <script>
-=======
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/undone.js-0-0-1/undone.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/undone.js-0-0-1/jquery.undone.js"></script>
     <script language="JavaScript">
@@ -4001,7 +4000,6 @@ if ($refresh and $refresh != 'fullscreen') {
         <?php
         } ?>
 
->>>>>>> master
         $.undone();
 
         $("#undo, #redo, #clear").click(function(){

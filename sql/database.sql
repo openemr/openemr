@@ -10657,6 +10657,7 @@ CREATE TABLE `form_eye_vitals` (
   `OSVF2`       tinyint(1)  DEFAULT NULL,
   `OSVF3`       tinyint(1)  DEFAULT NULL,
   `OSVF4`       tinyint(1)  DEFAULT NULL,
+  `BINOCVF`     varchar(25) DEFAULT NULL,
   PRIMARY KEY `vitals_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
   )
@@ -10695,8 +10696,9 @@ CREATE TABLE `form_eye_acuity` (
   `CTLOSVA1`      varchar(25)  DEFAULT NULL,
   `PAMODVA`       varchar(25)  DEFAULT NULL,
   `PAMOSVA`       varchar(25)  DEFAULT NULL,
-  `LIODVA`        varchar(25) NOT NULL,
-  `LIOSVA`        varchar(25) NOT NULL,
+  `LIODVA`        varchar(25)  DEFAULT NULL,
+  `LIOSVA`        varchar(25)  DEFAULT NULL,
+  `BINOCVA`       varchar(25)  DEFAULT NULL,
   PRIMARY KEY `acuity_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
   )

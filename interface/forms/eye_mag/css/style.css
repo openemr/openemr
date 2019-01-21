@@ -239,7 +239,7 @@ input[type=text] {
     float: left;
     padding: 0.1in;
     background: #ffffff;
-    box-shadow: 10px 10px 50px #888888;
+    box-shadow: 5px 5px 5px #d4cece;
     border-radius: 8px;
     margin-right: 4px;
     border:1pt solid #000;
@@ -256,7 +256,7 @@ input[type=text] {
     min-height:2.3in;
     border: 1.00pt solid #000000;
     box-sizing: content-box !important;
-    box-shadow: 10px 10px 5px #888888;
+    box-shadow: 5px 5px 5px #d4cece;
     border-radius: 8px;
     width:4.3in;
 }
@@ -1524,7 +1524,7 @@ a:hover, a:focus {
 
  #EXAM_KB {
     text-align:center;
-    z-index:14100;
+    z-index:1100;
     position: fixed;
     top: 35px;
     left: 0;

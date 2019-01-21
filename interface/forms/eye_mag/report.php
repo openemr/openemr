@@ -649,11 +649,16 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
               <td><?php echo text($GLAREOSVA); ?></td>
             </tr>
             <?php } if ($CONTRASTODVA||$CONTRASTOSVA) { ?>
-            <tr>
-              <td><?php echo xlt('Contrast{{Constrast Visual Acuity}}'); ?></td>
-              <td><?php echo text($CONTRASTODVA); ?></td>
-              <td><?php echo text($CONTRASTOSVA); ?></td>
-            </tr>
+                <tr>
+                    <td><?php echo xlt('Contrast{{Constrast Visual Acuity}}'); ?></td>
+                    <td><?php echo text($CONTRASTODVA); ?></td>
+                    <td><?php echo text($CONTRASTOSVA); ?></td>
+                </tr>
+            <?php } if (!empty($BINOCVA)) { ?>
+                <tr>
+                  <td><?php echo xlt('VABiNoc{{|Binocular Visual Acuity}}'); ?></td>
+                  <td rowspan="2"><?php echo text($BINOCVA); ?></td>
+                </tr>
             <?php } ?>
           </table>
         </td>
@@ -2024,7 +2029,7 @@ if ($ODCMT||$OSCMT) { ?>
                 $PLAN_results = sqlStatement($query, array($form_id, $pid ));
                 
     
-                if ($PLAN_results) { ?>
+                    if (!empty($PLAN_results)) { ?>
                     <b><?php echo xlt('Orders')."/".xlt('Next Visit'); ?>:</b>
                     <br />
                     <div style="padding-left:15px;padding-bottom:10px;width:400px;">

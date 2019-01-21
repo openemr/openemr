@@ -2433,6 +2433,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         $i=0;
         foreach ($PMSFH[0]['Medication'] as $item) {
             if ($item['status'] == "Inactive") {
+                $i++;
                 continue; }
             echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
             onclick=\"alter_issue2('".attr(addslashes($item['rowid']))."','Medication','$i');\">".text($item['title'])."</span><br />";
@@ -2817,10 +2818,12 @@ function display_QP($zone, $provider_id)
         $query = "SELECT * FROM list_options where list_id =? ORDER BY seq";
         $result = sqlStatement($query, array("Eye_QP_".$zone."_defaults"));
         $SQL_INSERT = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `mapping`, `notes`, `codes`, `activity`, `subtype`) VALUES (?,?,?,?,?,?,?,?,?)";
+    } else {
+        $SQL_INSERT ='';
     }
 
-    while ($QP= sqlFetchArray($result)) {
-        if ($SQL_INSERT) {
+    while ($QP = sqlFetchArray($result)) {
+        if (!empty($SQL_INSERT)) {
             sqlStatement($SQL_INSERT, array("Eye_QP_".$zone."_".$provider_id,$QP['option_id'],$QP['title'],$QP['seq'],$QP['mapping'],$QP['notes'],$QP['codes'],$QP['activity'],$QP['subtype']));
         }
 
@@ -3619,9 +3622,11 @@ function display($pid, $encounter, $category_value)
     if (!$documents) {
         list($documents) = document_engine($pid);
     }
-
-    for ($j=0; $j < count($documents['zones'][$category_value]); $j++) {
-        $count_here = count($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]);
+    if (empty($documents['zones'][$category_value])) {
+        $documents['zones'][$category_value] ='';
+    }
+    for ($j=0; $j < count((array)$documents['zones'][$category_value]); $j++) {
+        $count_here = count((array)$documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]);
         
         $id_to_show = $documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here-1]['document_id'];
     
@@ -4589,19 +4594,20 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
     global $ODIOPTARGET;
     global $OSIOPTARGET;
     global $dated;
+    global $visit_date;
 
     if (!$documents) {
         list($documents) = document_engine($pid);
     }
 
-    $count_OCT = count($documents['docs_in_name']['OCT']);
+    $count_OCT = count((array)$documents['docs_in_name']['OCT']);
     if ($count_OCT > 0) {
         foreach ($documents['docs_in_name']['OCT'] as $OCT) {
             $OCT_date[] = $OCT['docdate'];
         }
     }
 
-    $count_VF = count($documents['docs_in_name']['VF']);
+    $count_VF = count((array)$documents['docs_in_name']['VF']);
     if ($count_VF > 0) {
         foreach ($documents['docs_in_name']['VF'] as $VF) {
             $VF_date[] = $VF['docdate'];
@@ -4610,7 +4616,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
     $i=0;
         //if there are no priors, this is the first visit, display a generic splash screen.
-    if ($priors) {
+    if ((array)$priors) {
         foreach ($priors as $visit) {
             //we need to build the lists - dates_OU,times_OU,gonio_OU,OCT_OU,VF_OU,ODIOP,OSIOP,IOPTARGETS
             if ($visit['date']=='') {
@@ -4753,8 +4759,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
     $times_OU=$time_OU;
     usort($times_OU, "cmp");
 
-    for ($a=0; $a < count($date_OU); $a++) {
-        foreach ($GONIO_date as $GONIO) {
+    for ($a=0; $a < count((array)$date_OU); $a++) {
+        foreach ((array)$GONIO_date as $GONIO) {
             if ($date_OU[$a] == $GONIO) {
                 $GONIO_values[$a] = "1";
                 break;
@@ -4878,13 +4884,13 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     $count_Meds = count($PMSFH[0]['Medication']);
                 if ($count_Meds > '0') {
                     foreach ($PMSFH[0]['Medication'] as $drug) {
-                        if (($drug['row_subtype'] =="eye") && ($drug['enddate'] !== "")) {
+                        if ( ($drug['row_subtype'] =="eye") && (strtotime($drug['enddate']) < strtotime($visit_date) ) && ($drug['status'] != "Inactive") ) {
                             $current_drugs .= "<tr><td colspan='2' class='GFS_td_1'><span name='QP_PMH_".attr($drug['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($drug['rowid'])."'
                                       onclick=\"alter_issue2('".attr(addslashes($drug['rowid']))."','Medication','$i');\">".text($drug['title'])."</span></td>
                                       <td class='GFS_td'>".text(oeFormatShortDate($drug['begdate']))."</td></tr>";
-                        } else if (($drug['row_subtype'] =="eye")&&($drug['enddate'] > "")&&(strtotime($drug['enddate']) < strtotime($visit_date))) {//what meds have a subtype eye that are discontinued?
+                        } else if (($drug['row_subtype'] =="eye")&& (!empty($drug['enddate']))) {//what meds have a subtype eye that are discontinued?
                             $hideme = "hideme_drugs nodisplay";
-                            $FAILED_drugs .= "<tr class='".$hideme."'><td colspan='1' class='GFS_td_1'><span name='QP_PMH_".attr($drug['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($drug['rowid'])."'
+                            $FAILED_drugs .=  "<tr class='".$hideme."'><td colspan='1' class='GFS_td_1'><span name='QP_PMH_".attr($drug['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($drug['rowid'])."'
                                       onclick=\"alter_issue2('".attr(addslashes($drug['rowid']))."','Medication','$i');\">".text($drug['title'])."</span></td>
                                       <td class='GFS_td'>".text(oeFormatShortDate($drug['begdate']))."</td><td class='GFS_td'>".text(oeFormatShortDate($drug['enddate']))."</td></tr>";
                         }
@@ -4898,7 +4904,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     }
 
                     foreach ($PMSFH[0]['Medication'] as $drug) {
-                        if (($drug['row_subtype'] =="eye")&&($drug['enddate'] > "")) {
+                        if ( ($drug['row_subtype'] =="eye") && (!empty($drug['enddate'])) ) {
                             $FAILED_drug .= "<li>".text($drug['title'])."</li>";
                         }
                     }
@@ -5910,6 +5916,7 @@ function display_refractive_data($encounter_data)
                        <td ><?php echo (text($MROSADD)?:"-");  ?></td>
                        <td ><?php echo (text($MRNEAROSVA)?:"-"); ?></td>
                    </tr>
+                <tr><td colspan="10">--------------------------------------------------------</td></tr>
                     <?php
             }
             
@@ -5938,6 +5945,7 @@ function display_refractive_data($encounter_data)
                        <td ><?php echo (text($CROSADD)?:"-");  ?></td>
                        <td ><?php echo (text($CRNEAROSVA)?:"-"); ?></td>
                    </tr>
+                <tr><td colspan="10">--------------------------------------------------------</td></tr>
                     <?php
             }
             
@@ -5950,6 +5958,7 @@ function display_refractive_data($encounter_data)
                        <td><?php echo xlt('Axis{{Axis of a glasses prescription}}'); ?></td>
                        <td><?php echo xlt('BC{{Base Curve}}'); ?></td>
                        <td><?php echo xlt('Diam{{Diameter}}'); ?></td>
+                       <td></td>
                        <td><?php echo xlt('ADD'); ?></td>
                        <td><?php echo xlt('Acuity'); ?></td>
                    </tr>
@@ -5961,37 +5970,53 @@ function display_refractive_data($encounter_data)
                        <td ><?php echo (text($CTLODAXIS)?:"-");  ?></td>
                        <td ><?php echo (text($CTLODBC)?:"-");  ?></td>
                        <td ><?php echo (text($CTLODDIAM)?:"-");  ?></td>
+                       <td></td>
                        <td ><?php echo (text($CTLODADD)?:"-");  ?></td>
                        <td ><?php echo (text($CTLODVA)?:"-"); ?></td>
                    </tr>
+                   <?php if (!empty($CTLODQUANTITY)) { ?>
+                       <tr>
+                           <td></td>
+                           <td colspan="8" class="text-left" style="font-size:10px;"><?php echo text($CTLODQUANTITY); ?></td>
+                       </tr>
+                    <?php } ?>
                    <tr style="font-size:0.6em;">
                        <td></td>
-                       <td></td>
                        <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('Brand'); ?>:<?php echo (text($CTLBRANDOD)?:"-");  ?></td>
-                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROD)?:"-");  ?></td>
+                       <td colspan="2" class="bold text-left" style="font-size:10px;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROD)?:"-");  ?></td>
                        <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROD)?:"-");  ?></td>
 
                    </tr>
                    <tr>
                        <td></td>
-                       <td text-left><?php echo xlt('OS{{left eye}}'); ?></td>
+                       <td class="bold"><?php echo xlt('OS{{left eye}}'); ?></td>
                        <td ><?php echo (text($CTLOSSPH)?:"-");  ?></td>
                        <td ><?php echo (text($CTLOSCYL)?:"-");  ?></td>
                        <td ><?php echo (text($CTLOSAXIS)?:"-");  ?></td>
                        <td ><?php echo (text($CTLOSBC)?:"-");  ?></td>
                        <td ><?php echo (text($CTLOSDIAM)?:"-");  ?></td>
+                       <td></td>
                        <td ><?php echo (text($CTLOSADD)?:"-");  ?></td>
-                       <td ><?php echo ($CTLOSVA?:"-"); ?></td>
+                       <td ><?php echo (text($CTLOSVA)?:"-"); ?></td>
                    </tr>
                    <tr style="font-size:9px;">
                        <td></td>
-                       <td></td>
                        <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('Brand'); ?>: <?php echo (text($CTLBRANDOS)?:"-");  ?></td>
-                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROS)?:"-");  ?></td>
-                       <td colspan="3" class="bold text-left" style="font-size:10px;""><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROS)?:"-");  ?></td>
+                       <td colspan="2" class="bold text-left" style="font-size:10px;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROS)?:"-");  ?></td>
+                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROS)?:"-");  ?></td>
                    </tr>
-                
-                    <?php
+                   <?php if (!empty($CTLOSQUANTITY)) { ?>
+                        <tr>
+                           <td></td>
+                           <td colspan="8" class="text-left" style="font-size:10px;"><?php echo text($CTLOSQUANTITY); ?></td>
+                       </tr>
+                   <?php }
+                        if (!empty($COMMENTS)) { ?>
+                            <tr>
+                                <td></td>
+                                <td colspan="8" class="text-left" style="font-size:10px;"><?php echo text($COMMENTS); ?></td>
+                            </tr>
+                    <?php }
             }
             ?>
             <tr><td colspan="10">--------------------------------------------------------</td></tr>
@@ -6044,7 +6069,7 @@ function display_refractive_data($encounter_data)
               <td><?php echo xlt('LT{{lens thickness}}'); ?></td>
               <td><?php echo xlt('W2W{{white-to-white}}'); ?></td>
               <td><?php echo xlt('ECL{{equivalent contact lens power at the corneal level}}'); ?></td>
-              <!-- <td><?php echo xlt('pend'); ?></td> -->
+              <td><?php echo xlt('VABiNoc{{Binocular visul acuity}}'); ?></td>
             </tr>
             <tr><td class="bold"><?php echo xlt('OD{{right eye}}'); ?>:</td>
               <td><?php echo text($ODAXIALLENGTH); ?></td>
@@ -6053,7 +6078,7 @@ function display_refractive_data($encounter_data)
               <td><?php echo text($ODLT); ?></td>
               <td><?php echo text($ODW2W); ?></td>
               <td><?php echo text($ODECL); ?></td>
-              <!-- <td><input type=text id="pend" name="pend"  value="<?php echo text($pend); ?>"></td> -->
+              <td><?php echo text($VABINOC); ?></td>
             </tr>
             <tr>
               <td class="bold"><?php echo xlt('OS{{left eye}}'); ?>:</td>
@@ -6084,6 +6109,9 @@ function display_refractive_data($encounter_data)
  */
 function in_array_r($needle, $haystack, $strict = false)
 {
+    if (empty($haystack)) {
+        return false;
+    }
     foreach ($haystack as $item) {
         if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && in_array_r($needle, $item, $strict))) {
             return true;

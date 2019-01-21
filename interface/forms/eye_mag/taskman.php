@@ -66,8 +66,9 @@ require_once("$srcdir/html2pdf/html2pdf.class.php");
 require_once("php/taskman_functions.php");
 require_once("report.php");
 
-
-
+//for 5.0.1
+require_once("/var/www/openemr/vendor/phpmailer/phpmailer/PHPMailerAutoload.php");
+    
 /**
  *
  *  Script to fax something to someone somewhere.

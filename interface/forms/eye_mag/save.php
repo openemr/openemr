@@ -828,8 +828,9 @@ if ($_REQUEST["mode"] == "new") {
             $sql = "INSERT INTO `patient_tracker_element` " .
                 "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `room`, `seq`) " .
                 "VALUES (?,NOW(),?,?,?,?)";
-            sqlInsert($sql, array($tracker['id'], $userauthorized, $_POST['new_status'], ' ', ($tracker['lastseq'] + 1)));
-            sqlStatement("UPDATE `openemr_postcalendar_events` SET `pc_apptstatus` = ? WHERE `pc_eid` = ?", array($_POST['new_status'], $tracker['eid']));
+            sqlInsert($sql, array($tracker['id'], $userauthorized, $_POST['new_status'], '', ($tracker['lastseq'] + 1)));
+            sqlStatement("UPDATE `openemr_postcalendar_events` SET `pc_apptstatus` = ?, pc_room='' WHERE `pc_eid` = ?", array($_POST['new_status'], $tracker['eid']));
+            echo "saved";
             exit;
         }
         echo "Failed to update Patient Tracker.";
@@ -873,7 +874,9 @@ if ($_REQUEST["mode"] == "new") {
         $_POST['PLAN'] = mb_substr($fields['PLAN'], 0, -1); //get rid of trailing "|"
     }
     
-    $M = count($_POST['TEST']);
+    if (!empty($_POST['TEST'])) {
+        $M = count($_POST['TEST']);
+    }
     if ($M > '0') {
         for ($i = 0; $i < $M; $i++) {
             $_POST['Resource'] .= $_POST['TEST'][$i] . "|"; //this makes an entry for form_eyemag: Resource
@@ -1034,7 +1037,8 @@ if ($_REQUEST["mode"] == "new") {
             `LENS_TREATMENTS`
             ) VALUES 
             (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-            $LENS_TREATMENTS_1 = implode("|", $_POST['LENS_TREATMENTS_1']);
+            
+            $LENS_TREATMENTS_1 = implode("|", (array)$_POST['LENS_TREATMENTS_1']);
             sqlQuery($query, array($encounter, $form_id, $pid, $rx_number, $_POST['ODSPH_1'], $_POST['ODCYL_1'], $_POST['ODAXIS_1'],
                 $_POST['ODVA_1'], $_POST['ODADD_1'], $_POST['ODNEARVA_1'], $_POST['OSSPH_1'], $_POST['OSCYL_1'], $_POST['OSAXIS_1'],
                 $_POST['OSVA_1'], $_POST['OSADD_1'], $_POST['OSNEARVA_1'], $_POST['ODMIDADD_1'], $_POST['OSMIDADD_1'],

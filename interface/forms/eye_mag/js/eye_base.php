@@ -1297,21 +1297,24 @@ function build_IMPPLAN(items,nodisplay) {
               value.code="<i class='fa fa-search-plus'></i>&nbsp;Code";
             } else {
               count_dx++;
+
               if (value.code.match(/\,/g)) {
                 // If there is a comma in there, there is more than one code present for this item. Split them out.
                 // If code is manually changed or copied from a prior visit - item will not have a PMSFH_link
                 // PMSFH_link is only present when the Builder was used to make the entry.
-                if ((typeof value.PMSFH_link !== "undefined") || (value.PMSFH_link !== null)) {
-                  //The Title should have the description.
-                  var CodeArr =  value.code.split(",");
-                  var TitleArr = value.codedesc.split("\r");
+                
+                // So if there is no PMSFH_link and it is not generated from a clinical field:
+                if ( ((typeof value.PMSFH_link !== "undefined") || (value.PMSFH_link !== null)) && (!value.PMSFH_link.match(/Clinical_(.*)/)) ) {
+                    //The Title should have the description.
+                    var CodeArr =  value.code.split(",");
+                    var TitleArr = value.codedesc.split("\r");//I don't see a second codedesc being adding in for this yet...
                     for (i=0;i < CodeArr.length;i++) {
-                      if (CodeArr.length == (TitleArr.length-1)) { //there is a trailing \r
+                      if (CodeArr.length == (TitleArr.length-1)) { //there is a trailing \r but second codedesc should have "\r" also
                         $('#Coding_DX_Codes').append(count_dx +'. '+CodeArr[i]+': '+TitleArr[i]+'<br />');
 
                         justify_btn = '<span class="modifier status_on" name="visit_justifier" id="visit_just_'+count_dx+'" value="" data-justcode="'+value.codetype+'|'+value.code+'" title="'+value.codedesc+'">'+count_dx+'</span>';
                         $('#visit_justification').append(justify_btn);
-                        visit_justifier.push(value.codetype+'|'+value.code);
+                        visit_justifier.push(value.codetype+'|'+value.code[i]);
                       } else {
                         //just look it up via ajax or tell them to code it manually on the feesheet ;).
                         $('#Coding_DX_Codes').append(CodeArr[i]+': <?php echo xlt('Manually retrieve description on Fee Sheet'); ?> <br />');
@@ -1321,25 +1324,24 @@ function build_IMPPLAN(items,nodisplay) {
                         $('#visit_justification').append(justify_btn);
                         visit_justifier.push(value.codetype+'|'+value.code);
                       }
+                      count_dx++;
                     }
-                } else  {
-                 //this works for Clinical-derived terms with more than one Dx Code (found in more than one location/field)
+                } else {
+                    // So there IS a PMSFH_link or it was generated from a clinical field:
+
+                    //this works for Clinical-derived terms with more than one Dx Code (found in more than one location/field)
                   if (value.PMSFH_link.match(/Clinical_(.*)/)) {
                     if (typeof obj.Clinical !== "undefined") {
                       var location = value.PMSFH_link.match(/Clinical_(.*)/)[1];
                       if (obj.Clinical[location]!=null ) {
-                        for (i=0; i< obj.Clinical[location].length; i++) {
-                          $('#Coding_DX_Codes').append(count_dx +'. '+obj.Clinical[location][i].code+': '+obj.Clinical[location][i].codedesc+'<br />');
+                        for (i=0; i < obj.Clinical[location].length; i++) {
+                            $('#Coding_DX_Codes').append(count_dx +'. '+obj.Clinical[location][i].code+': '+obj.Clinical[location][i].codedesc+'<br />');
+                            justify_btn = '<span class="modifier status_on" id="visit_just_'+count_dx+'" name="visit_justifier" value="" data-justcode="'+obj.Clinical[location][i].codetype+'|'+obj.Clinical[location][i].code+'" title="'+obj.Clinical[location][i].codedesc+'">'+count_dx+'</span>';
+                            count_dx++;
+                            $('#visit_justification').append(justify_btn);
 
-                          justify_btn = '<span class="modifier status_on" id="visit_just_'+count_dx+'" name="visit_justifier" value="" data-justcode="'+obj.Clinical[location][i].codetype+'|'+obj.Clinical[location][i].code+'" title="'+vobj.Clinical[location][i].codedesc+'">'+count_dx+'</span>';
-
-                        $('#visit_justification').append(justify_btn);
-                           visit_justifier.push(vbj.Clinical[location][i].code+'|'+obj.Clinical[location][i].codedes);
-
+                            visit_justifier.push(obj.Clinical[location][i].codetype+'|'+obj.Clinical[location][i].code);
                         }
-                      } else {
-                        //item has a PMSFH_link but it is not from a Clinical field
-                        alert("Houston, we have a problem!");
                       }
                     }
                   }
@@ -1351,16 +1353,6 @@ function build_IMPPLAN(items,nodisplay) {
                 $('#visit_justification').append(justify_btn);
                 //we assume the visit code will use this as a justification in billing so activate that link now.
                 visit_justifier.push(value.codetype+'|'+value.code);
-                //if there are TESTS performed they must be linked to a code too.  Often this means we will need a 25 modifier to the visit code
-                //and the visit code will need a second/different Dx code to be paid.
-                //So if a TEST is performed, select modifier 25 = status_on
-                //$('#visit_mod_25').addClass('status_on');
-                //Let's start with the addition of this code to each of the TESTS.
-                //Since the Dx codes are loaded on start-up and after the initial run as the Imp/Plan is being built,
-                //we need to build these each time the IMP/PLAN changes...
-                //And here we are so...
-                //$('.TESTS_justify').each
-
               }
             }
 
@@ -1393,21 +1385,18 @@ function build_IMPPLAN(items,nodisplay) {
             $( this ).html('');
             var herenow = $("#TEST_"+index+"_justify");
 
-for (var i = 0, length = visit_justifier.length; i < length; i++) {
-item2 = visit_justifier[i];
-status ='';
-for (var j=0;j< CODING_items.length; j++) {
-console.log(CODING_items[j].justify);
-if (CODING_items[j].justify == item2) {
-status="status_on";
-}
-}
-//if item2 is in CODING_items, it will have class=status_on and we need modifier 25, maybe 59 if there are two or more?
-
+            for (var i = 0, length = visit_justifier.length; i < length; i++) {
+                item2 = visit_justifier[i];
+                status ='';
+                for (var j=0;j< CODING_items.length; j++) {
+                    if (CODING_items[j].justify == item2) {
+                        status="status_on";
+                    }
+                }
+                //if item2 is in CODING_items, it will have class=status_on and we need modifier 25, maybe 59 if there are two or more?
                 justify_btn = '&nbsp;<span class="modifier '+status+'" id="TEST_'+index+'_just_'+i+'" name="TEST_'+index+'_justifiers" value="" data-justcode="'+item2+'" title="'+item2+'">'+(i+1)+'</span>';
                 herenow.append(justify_btn);
-}
-
+            }
         });
 
             // The IMPRESSION DXs are "contenteditable" spans.
@@ -1416,6 +1405,15 @@ status="status_on";
                                     e.preventDefault();
                                     var item = this.id.match(/IMPRESSION_(.*)/)[1];
                                     var content = this.innerText || this.innerHTML;
+
+                                    if (pmsfh_here = obj.IMPPLAN_items[item].PMSFH_link.match(/(.*)\_(.*)/)) {
+                                        //we are going to change how this appears in PMH too.
+                                        var pmsfh_zone = pmsfh_here[1];
+                                        var pmsfh_item = pmsfh_here[2];
+                                        obj.PMSFH[pmsfh_zone][pmsfh_item].title = content;
+                                        alter_issue2(obj.PMSFH[pmsfh_zone][pmsfh_item].issue,pmsfh_zone,pmsfh_item);
+                                    }
+
                                     obj.IMPPLAN_items[item].title = content;
                                     store_IMPPLAN(obj.IMPPLAN_items,'1');
                                     //$(this).css('background-color','#F0F8FF');
@@ -1970,7 +1968,6 @@ function update_DOCS() {
  *  Initial use:  update data returned from an ajax call.
  */
 function build_DOCS(DOCS) {
-    console.log(DOCS);
     if (DOCS['pcp']) {
         $("#pcp_name").html(DOCS['pcp']['name']);
         $("#pcp_address").html(DOCS['pcp']['address']);
@@ -2104,7 +2101,7 @@ function color_IOP(IOP){
 function showpnotes(docid) {
     if (top.tab_mode) {
         let btnClose = 'Done';
-        let url = '../../interface/patient_file/summary/pnotes.php?docid=' + docid;
+        let url = base+'/interface/patient_file/summary/pnotes.php?docid=' + docid;
         dlgopen(url, 'pno1', 'modal-xl', 500, '', '', {
             buttons: [
                     {text: btnClose, close: true, style: 'default btn-xs'}
@@ -2151,31 +2148,24 @@ var allPanels = $('.building_blocks > dd').hide();
                   });
 
 
-                  $('[title]').qtip({
-                                    position: {
-                                    my: 'top Right',  // Position my top left...
-                                    at: 'bottom Left', // at the bottom right of...
-                                    target: 'mouse' // my target
-                                    }
-                                    }
-                                    );
+                  $('[title]').tooltip({ html: true, placement: "auto bottom"});
                   $('#form_PCP,#form_rDOC').change(function() {
                                                    update_DOCS();
                                                    });
 
                   $('#tooltips_status').html($('#PREFS_TOOLTIPS').val());
                   if ($("#PREFS_TOOLTIPS").val() == "<?php echo xla('Off'); ?>") {
-                  $('[title]').qtip('disable');
+                  $('[title]').tooltip('disable');
                   }
                   $('#tooltips_toggle,#tooltips_status').click(function() {
                                                                if ($("#PREFS_TOOLTIPS").val() == "<?php echo xla('On'); ?>") {
                                                                $('#PREFS_TOOLTIPS').val('<?php echo xla('Off'); ?>');
                                                                $("#tooltips_status").html('<?php echo xla('are off'); ?>');
-                                                               $('[title]').qtip('disable');
+                                                               $('[title]').tooltip('disable');
                                                                } else {
                                                                $('#PREFS_TOOLTIPS').val('<?php echo xla('On'); ?>');
                                                                $('#tooltips_status').html('<?php echo xla('are on'); ?>');
-                                                               $('[title]').qtip('enable');
+                                                               $('[title]').tooltip('enable');
                                                                }
                                                                update_PREFS();
                                                                });
@@ -2619,9 +2609,13 @@ var allPanels = $('.building_blocks > dd').hide();
                                                                      // more than 3 digits is a mistake...
                                                                      // (although this may change with topography)
                                                                      var axis = $(this).val();
-                                                                     var group = this.name.replace("AXIS", "CYL");;
+                                                                     if (this.name.match(/K2AXIS/)) {
+                                                                         var group = this.name.replace("AXIS", "");
+                                                                     } else {
+                                                                         var group = this.name.replace("AXIS", "CYL");
+                                                                     }
                                                                      var cyl = $("#"+group).val();
-                                                                     if ((cyl > '') && (cyl != 'SPH')) {
+                                                                     if ( (cyl > '') && (cyl != 'SPH') ) {
                                                                      if (!axis.match(/\d\d\d/)) {
                                                                      if (!axis.match(/\d\d/)) {
                                                                      if (!axis.match(/\d/)) {
@@ -3248,14 +3242,13 @@ var allPanels = $('.building_blocks > dd').hide();
                                                 $maxseq = sqlFetchArray($pres);
 
                                                 $seq=$maxseq['maxseq'];
-                                                $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES
-                                            ('lists', ?, ?, ?, '1', '0', '', '', '')";
+                                                $query = "INSERT INTO `list_options`
+                                                    (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES
+                                                    ('lists', ?, ?, ?, '1', '0', '', '', '')";
                                                 $providerNAME = getProviderName($providerID);
-                                                echo "/**".$all_fields."*/";
-                                                echo "//**************PROVIDER NAME+".$providerNAME;
+                                               
                                                 sqlStatement($query, array("Eye_defaults_$providerID","Eye Exam Defaults $providerNAME ",$seq));
                                                 $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`,`notes`,`activity`,`seq`) VALUES ".$add_fields;
-                                                echo $query;
                                                 sqlStatement($query);
                                             }
 

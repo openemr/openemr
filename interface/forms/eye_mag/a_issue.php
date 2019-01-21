@@ -140,13 +140,36 @@ foreach (explode(',', $given) as $item) {
                     $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", array("allergy_issue_list"));
                 }
             } elseif ($key == "POH") { // POH medical group
-                $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'medical_problem' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
+                $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq
+                            FROM `lists`
+                            WHERE
+                              `type` LIKE 'medical_problem' and
+                              subtype = 'eye' and
+                              pid in (
+                                select pid from form_encounter
+                                  where
+                                    provider_id =? and
+                                    date BETWEEN NOW() - INTERVAL 30 DAY AND NOW())
+                            GROUP BY title
+                            order by freq desc
+                            limit 10";
                 $qry = sqlStatement($query, array($_SESSION['providerID']));
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
                     $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'medical_problem_issue_list' and subtype = 'eye'");
                 }
             } elseif ($key == "POS") { // POS surgery group
-                $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'surgery' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
+                $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq
+                          FROM `lists`
+                          WHERE
+                            `type` LIKE 'surgery' and
+                            subtype = 'eye' and
+                            pid in (
+                              select pid from form_encounter
+                              where provider_id =? and
+                              date BETWEEN NOW() - INTERVAL 30 DAY AND NOW())
+                          GROUP BY title
+                          order by freq desc
+                          limit 10";
                 $qry = sqlStatement($query, array($_SESSION['providerID']));
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
                     $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'surgery_issue_list' and subtype = 'eye'");
@@ -375,7 +398,7 @@ foreach (explode(',', $given) as $item) {
     }
      // Called when the Active checkbox is clicked.  For consistency we
      // use the existence of an end date to indicate inactivity, even
-     // though the simple verion of the form does not show an end date.
+     // though the simple version of the form does not show an end date.
     function resolvedClicked(cb) {
       var f = document.forms[0];
       if (!cb.checked) {
@@ -587,7 +610,7 @@ foreach (explode(',', $given) as $item) {
           .issues {
             font-size:0.8em;
             text-align: center;
-              width:500px;
+            width:100%;
           }
          select {
             text-align: left;
@@ -1215,11 +1238,6 @@ foreach (explode(',', $given) as $item) {
           </tr>
         </table>
         <table id="row_ROS" name="row_ROS" class="ROS_class">
-          <tr>
-            <td>
-             &nbsp;
-            </td>
-          </tr>
           <tr>
             <td></td>
             <td>
