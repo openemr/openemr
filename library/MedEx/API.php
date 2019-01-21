@@ -143,8 +143,8 @@ class Practice extends Base
         while ($urow = sqlFetchArray($ures)) {
             if (in_array($urow['id'], $facilities)) {
                 $urow['messages_active'] = '1';
+                $fields2['facilities'][] = $urow;
             }
-            $fields2['facilities'][] = $urow;
         }
         //get the categories list:
         $runQuery = "SELECT pc_catid, pc_catname, pc_catdesc, pc_catcolor, pc_seq
