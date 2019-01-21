@@ -46,7 +46,7 @@ if (isset($_POST["mode"])) {
         $Codetype=$DeletePaymentDistributionIdArray[5];
         //delete and log that action
         row_delete("ar_activity", "session_id ='" . add_escape_custom($payment_id) . "' and  pid ='" . add_escape_custom($PId) . "' AND " .
-        "encounter='" . add_escape_custom($Encounter . "' and code_type='" . add_escape_custom($Codetype) . "' and code='" . add_escape_custom($Code) . "' and modifier='" . add_escape_custom($Modifier) . "'");
+        "encounter='" . add_escape_custom($Encounter) . "' and code_type='" . add_escape_custom($Codetype) . "' and code='" . add_escape_custom($Code) . "' and modifier='" . add_escape_custom($Modifier) . "'");
         $Message='Delete';
         //------------------
         $_POST["mode"] = "searchdatabase";
