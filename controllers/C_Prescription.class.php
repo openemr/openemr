@@ -930,7 +930,7 @@ class C_Prescription extends Controller
             $this->assign("drug_options", $list);
             $this->assign("drug_values", array_keys($list));
         } else {
-            $this->assign("NO_RESULTS", "No results found for: " .$_POST['drug'] . "<br />");
+            $this->assign("NO_RESULTS", xlt("No results found for") . " :" .$_POST['drug'] . "<br />");
         }
 
         //print_r($_POST);
