@@ -3012,7 +3012,7 @@ function display_layout_rows($formtype, $result1, $result2 = '')
             if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
                 disp_end_row();
                 if ($prepend_blank_row) {
-                  echo "<tr><td class='label' colspan='" . ($CPR + 1) . "'>&nbsp;</td></tr>\n";
+                    echo "<tr><td class='label' colspan='" . ($CPR + 1) . "'>&nbsp;</td></tr>\n";
                 }
                 echo "<tr>";
                 if ($group_name) {
@@ -3197,7 +3197,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                         $subtitle = '';
                     }
                     if ($prepend_blank_row) {
-                      echo "<tr><td class='label' colspan='$CPR'>&nbsp;</td></tr>\n";
+                        echo "<tr><td class='label' colspan='$CPR'>&nbsp;</td></tr>\n";
                     }
                     echo "<tr>";
                 }
@@ -3362,7 +3362,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                         $subtitle = '';
                     }
                     if ($prepend_blank_row) {
-                      echo "<tr><td class='label' colspan='$CPR'>&nbsp;</td></tr>\n";
+                        echo "<tr><td class='label' colspan='$CPR'>&nbsp;</td></tr>\n";
                     }
                     echo "<tr>";
                 }

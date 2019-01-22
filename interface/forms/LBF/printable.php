@@ -416,7 +416,6 @@ while ($frow = sqlFetchArray($fres)) {
     }
 
     // Handle starting of a new row.
-    if (($cell_count + $titlecols + $datacols) > $CPR || $cell_count == 0) {
     if (($cell_count + $titlecols + $datacols) > $CPR || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
         end_row();
         if ($prepend_blank_row) {
