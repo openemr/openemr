@@ -861,6 +861,8 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 $list_id = $frow['list_id'];
                 $edit_options = $frow['edit_options'];
                 $source = $frow['source'];
+                $jump_new_row = isOption($edit_options, 'J');
+                $prepend_blank_row = isOption($edit_options, 'K');
 
                 $graphable = isOption($edit_options, 'G') !== false;
                 if ($graphable) {
@@ -1029,9 +1031,12 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     }
                 }
 
-// Handle starting of a new row.
-                if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
+                // Handle starting of a new row.
+                if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
                     end_row();
+                    if ($prepend_blank_row) {
+                        echo "<tr><td class='text' colspan='$CPR'>&nbsp;</td></tr>\n";
+                    }
                     if (isOption($edit_options, 'RS')) {
                         echo " <tr class='RS'>";
                     } else if (isOption($edit_options, 'RO')) {

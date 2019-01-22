@@ -1138,7 +1138,7 @@ function extAddCondition(lino, btnelem) {
 
   // Replace contents of the tdplus cell.
   tdplus.innerHTML =
-    "<select name='fld[" + lino + "][condition_andor][" + i + "]'>" +
+    "<select name='fld[" + lino + "][condition_andor][" + (i-1) + "]'>" +
     "<option value='and'>" + <?php echo xlj('And') ?> + "</option>" +
     "<option value='or' >" + <?php echo xlj('Or') ?> + "</option>" +
     "</select>";
@@ -1665,7 +1665,11 @@ foreach ($datatypes as $key => $value) {
 	{id: 'W',text:" . xlj('Dup Check on only New') . "},
 	{id: 'G',text:" . xlj('Graphable') . "},
 	{id: 'I',text:" . xlj('Initially Open Group') . "},
+	{id: 'J',text:" . xlj('Jump to Next Row') . "},
+	{id: 'K',text:" . xlj('Prepend Blank Row') . "},
 	{id: 'L',text:" . xlj('Lab Order') . "},
+	{id: 'M',text:" . xlj('Radio Group Master') . "},
+	{id: 'm',text:" . xlj('Radio Group Member') . "},
 	{id: 'N',text:" . xlj('New Patient Form') . "},
 	{id: 'O',text:" . xlj('Order Processor') . "},
 	{id: 'P',text:" . xlj('Default to previous value') . "},
