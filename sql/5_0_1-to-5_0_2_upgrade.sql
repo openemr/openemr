@@ -698,3 +698,4 @@ ALTER TABLE `pnotes` ADD `update_date` DATETIME DEFAULT NULL;
 
 #IfNotColumnType onsite_documents full_document MEDIUMBLOB
 ALTER TABLE `onsite_documents` CHANGE `full_document` `full_document` MEDIUMBLOB;
+#EndIf
