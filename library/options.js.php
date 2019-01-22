@@ -290,4 +290,26 @@ function lbfCanvasGetData(canid) {
   return lbfCanvases[canid].getImage().toDataURL();
 }
 
+// This is invoked when a field with edit option M is changed.
+// Its purpose is to make the corresponding change to the member fields (edit option m).
+//
+function checkGroupMembers(elem, groupnumber) {
+  var i = elem.id.indexOf('[');
+  if (i < 0) {
+    alert(<?php echo xlj('Field not suitable for edit option M') ?> + ': ' + elem.name);
+    return;
+  }
+  var suffix = elem.id.substring(i);
+  var members = document.getElementsByClassName('lbf_memgroup_' + groupnumber);
+  if (members.length == 0) {
+    alert(<?php echo xlj('No member fields found for') ?> + ': ' + elem.name);
+    return;
+  }
+  for (var i = 0; i < members.length; ++i) {
+    if (members[i].id.indexOf(suffix) > 1) {
+      members[i].checked = true;
+    }
+  }
+}
+
 </script>
