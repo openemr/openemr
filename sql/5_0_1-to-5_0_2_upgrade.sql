@@ -681,21 +681,3 @@ ALTER TABLE `pnotes` ADD `update_date` DATETIME DEFAULT NULL;
 ALTER TABLE `onsite_documents` CHANGE `full_document` `full_document` MEDIUMBLOB;
 #EndIf
 
-#IfMissingColumn mail_street facility
-ALTER TABLE `facility` ADD `mail_street` VARCHAR(30) NOT NULL;
-#EndIf
-#IfMissingColumn mail_city facility
-ALTER TABLE `facility` ADD `mail_city` VARCHAR(35) NOT NULL;
-#EndIf
-#IfMissingColumn mail_state facility
-ALTER TABLE `facility` ADD `mail_state` VARCHAR(2) NOT NULL;
-#EndIf
-#IfMissingColumn mail_state facility
-ALTER TABLE `facility` ADD `mail_state2` VARCHAR(2) NOT NULL;
-#EndIf
-#IfMissingColumn mail_zip facility
-ALTER TABLE `facility` ADD `mail_zip` VARCHAR(10) NOT NULL;
-#EndIf
-#IfMissingColumn oid facility
-ALTER TABLE `facility` ADD `oid` VARCHAR(31) NOT NULL DEFAULT '0' COMMENT 'HIEs CCDA and FHIR an OID is required/wanted' NOT NULL DEFAULT '0';
-#EndIf
