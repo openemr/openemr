@@ -461,7 +461,7 @@ function remove_user_aros($username, $group)
             }
         }
     }
-    $user_data = sqlFetchArray(sqlStatement("SELECT * FROM users WHERE username = ?", array ($username)));
+    $user_data = sqlFetchArray(sqlStatement("SELECT * FROM users WHERE username = ?", array($username)));
     set_user_aro(
         $new_user_groups,
         $username,

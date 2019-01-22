@@ -60,7 +60,7 @@ class ORDataObject
 
     function populate()
     {
-        $sql = "SELECT * from " . $this->_prefix  . $this->_table . " WHERE id = '" . add_escape_custom(strval($this->id))  . "'";
+        $sql = "SELECT * from " . escape_table_name($this->_prefix.$this->_table) . " WHERE id = '" . add_escape_custom(strval($this->id))  . "'";
         $results = sqlQuery($sql);
         if (is_array($results)) {
             foreach ($results as $field_name => $field) {

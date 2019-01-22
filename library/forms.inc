@@ -17,7 +17,7 @@ function getFormInfoById($id, $cols = "*")
         $result['formdir'] = "encounter";
     }
 
-    $sql = "SELECT * FROM form_" . $result['formdir'] . " WHERE id = ?";
+    $sql = "SELECT * FROM form_" . escape_table_name("form_".$result['formdir']) . " WHERE id = ?";
     //echo $sql . "<br />";
     $result =  sqlQuery($sql, array($result['form_id']));
     //print_r($result);
@@ -110,7 +110,7 @@ function addForm(
 
 function authorizeForm($id, $authorized = "1")
 {
-    sqlQuery("UPDATE forms SET authorized = '$authorized' WHERE id = ? AND deleted = 0", array($id));
+    sqlQuery("UPDATE forms SET authorized = ? WHERE id = ? AND deleted = 0", array($authorized, $id));
 }
 
 function getEncounters($pid, $dateStart = '', $dateEnd = '', $encounterRuleType = '')
@@ -142,7 +142,7 @@ function getEncounters($pid, $dateStart = '', $dateEnd = '', $encounterRuleType 
         array_push($arraySqlBind, $pid);
     }
 
-        $res = sqlStatement("SELECT distinct encounter FROM $from WHERE $where ORDER by date desc;", $arraySqlBind);
+        $res = sqlStatement("SELECT distinct encounter FROM " . escape_table_name($from) . " WHERE $where ORDER by date desc;", $arraySqlBind);
 
     for ($iter=0; $row=sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
@@ -156,7 +156,7 @@ function getEncounterDateByEncounter($encounter)
     global $attendant_type;
     $table = $attendant_type == 'pid' ? 'form_encounter' : 'form_groups_encounter';
     // $sql = "select date from forms where encounter='$encounter' order by date";
-    $sql = "SELECT DATE FROM $table WHERE encounter = ? ORDER BY DATE";
+    $sql = "SELECT DATE FROM " . escape_table_name($table) . " WHERE encounter = ? ORDER BY DATE";
     return sqlQuery($sql, array($encounter));
 }
 
@@ -164,7 +164,7 @@ function getProviderIdOfEncounter($encounter)
 {
         global $attendant_type;
         $table = $attendant_type == 'pid' ? 'form_encounter' : 'form_groups_encounter';
-        $sql = "select provider_id from $table where encounter=? order by date";
+        $sql = "SELECT provider_id FROM " . escape_table_name($table) . " WHERE encounter=? ORDER BY DATE";
         $res = sqlQuery($sql, array($encounter));
         return $res['provider_id'];
 }

@@ -344,7 +344,7 @@ function icd_import($type)
                 if (stripos($filename, $this_key) !== false) {
                     // now substitute the tablename
                         $run_sql = str_replace("#TABLENAME#", $incoming[$this_key]['#TABLENAME#'], $run_sql);
-    
+
                     // the range defines the maximum number of fields contained
                     // in any of the incoming files
                     foreach (range(1, 8) as $field) {
@@ -369,7 +369,7 @@ function icd_import($type)
                     sqlStatement($run_sql);
 
                     // now update the revision for this load
-                    $res = sqlStatement("SELECT max(revision) rev FROM " . $incoming[$this_key]['#TABLENAME#']);
+                    $res = sqlStatement("SELECT max(revision) rev FROM " . escape_table_name($incoming[$this_key]['#TABLENAME#']));
                     $row = sqlFetchArray($res);
                     $next_rev = $row['rev'] + 1;
                     $run_sql = "UPDATE " . $incoming[$this_key]['#TABLENAME#'] . " SET active = 0";
@@ -428,7 +428,7 @@ function valueset_import($type)
                         }
                     }
                 }
-                    
+
                     sqlStatementNoLog("UPDATE valueset set code_type='SNOMED CT' where code_type='SNOMEDCT'");
                     sqlStatementNoLog("UPDATE valueset set code_type='ICD9' where code_type='ICD9CM'");
                     sqlStatementNoLog("UPDATE valueset set code_type='ICD10' where code_type='ICD10CM'");

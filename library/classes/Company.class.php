@@ -54,7 +54,7 @@ class Company extends ORDataObject
         }
 
         $a = new Address();
-        $sql = "SELECT id FROM  " . $a->_table . " WHERE foreign_id = ?";
+        $sql = "SELECT id FROM  " . escape_table_name($a->_table) . " WHERE foreign_id = ?";
         //echo $sql . "<bR />";
         $results = sqlQ($sql, array($foreign_id));
         //echo "sql: $sql";

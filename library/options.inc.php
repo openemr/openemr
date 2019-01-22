@@ -3866,12 +3866,12 @@ function lbf_current_value($frow, $formid, $encounter)
         }
 
         // It is an error if the field does not exist, but don't crash.
-        $tmp = sqlQuery("SHOW COLUMNS FROM $table WHERE Field = ?", array($field_id));
+        $tmp = sqlQuery("SHOW COLUMNS FROM " . escape_table_name($table) . " WHERE Field = ?", array($field_id));
         if (empty($tmp)) {
             return '*?*';
         }
 
-        $pdrow = sqlQuery("SELECT `$field_id` AS field_value FROM $table WHERE pid = ? $orderby", array($pid));
+        $pdrow = sqlQuery("SELECT `$field_id` AS field_value FROM " . escape_table_name($table) . " WHERE pid = ? $orderby", array($pid));
         if (isset($pdrow)) {
             $currvalue = $pdrow['field_value'];
         }

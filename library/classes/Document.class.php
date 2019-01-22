@@ -164,7 +164,7 @@ class Document extends ORDataObject
         }
 
         $d = new Document();
-        $sql = "SELECT id FROM " . $d->_table . " WHERE foreign_id = ?";
+        $sql = "SELECT id FROM " . escape_table_name($d->_table) . " WHERE foreign_id = ?";
         $result = $d->_db->Execute($sql, array($foreign_id));
 
         while ($result && !$result->EOF) {
@@ -192,14 +192,14 @@ class Document extends ORDataObject
             die("An invalid URL was specified to crete a new document, this would only be caused if files are being deleted as you are working through the queue. '$filename'\n");
         }
 
-        $sql = "SELECT id FROM  " . $d->_table . " WHERE url= '" . add_escape_custom($url) ."'" ;
+        $sql = "SELECT id FROM " . escape_table_name($d->_table) . " WHERE url= '" . add_escape_custom($url) ."'" ;
         $result = $d->_db->Execute($sql);
 
         if ($result && !$result->EOF) {
             if (file_exists($filename)) {
                 $d = new Document($result->fields['id']);
             } else {
-                $sql = "DELETE FROM  " . $d->_table . " WHERE id= ?";
+                $sql = "DELETE FROM " . escape_table_name($d->_table) . " WHERE id= ?";
                 $result = $d->_db->Execute($sql, array($result->fields['id']));
                 echo("There is a database for the file but it no longer exists on the file system. Its document entry has been deleted. '$filename'\n");
             }
