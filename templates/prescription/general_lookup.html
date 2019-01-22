@@ -42,7 +42,7 @@
             <a href="{$CONTROLLER_THIS}" onclick="top.restoreSession()">{xl t='New Search'|escape:'html'}</a>
         </div>
 	{else}
-		{$NO_RESULTS}
+		{$NO_RESULTS|text}
 
 		<input TYPE="HIDDEN" NAME="varname" VALUE=""/>
 		<input TYPE="HIDDEN" NAME="formname" VALUE=""/>
