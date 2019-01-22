@@ -84,9 +84,9 @@ class Note extends ORDataObject
         }
 
         $d = new note();
-        $sql = "SELECT id FROM  " . $d->_table . " WHERE foreign_id " .$foreign_id  . " ORDER BY DATE DESC";
+        $sql = "SELECT id FROM  " . $d->_table . " WHERE foreign_id = ? ORDER BY DATE DESC";
         //echo $sql;
-        $result = $d->_db->Execute($sql);
+        $result = $d->_db->Execute($sql, array($foreign_id));
 
         while ($result && !$result->EOF) {
             $notes[] = new Note($result->fields['id']);

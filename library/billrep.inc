@@ -171,9 +171,9 @@ function billCodesList($list, $skip = "()")
     }
 
     if ($skip == "()") {
-        sqlStatement("update billing set billed=1 where id in $list");
+        sqlStatement("UPDATE billing SET billed=1 WHERE id IN ?", array($list));
     } else {
-        sqlStatement("update billing set billed=1 where id in $list and id not in $skip");
+        sqlStatement("UPDATE billing SET billed=1 WHERE id IN ? AND id NOT IN ?", array($list, $skip));
     }
 
     return;

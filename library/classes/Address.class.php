@@ -52,11 +52,12 @@ class Address extends ORDataObject
         }
 
         $a = new Address();
-        $sql = "SELECT id FROM  " . $a->_table . " WHERE foreign_id " .$foreign_id ;
+        $sql = "SELECT id FROM  " . $a->_table . " WHERE foreign_id = ?";
         //echo $sql . "<bR />";
-        $results = sqlQ($sql);
+        $results = sqlQ($sql, array($foreign_id));
         //echo "sql: $sql";
         $row = sqlFetchArray($results);
+
         if (!empty($row)) {
             $a = new Address($row['id']);
         }

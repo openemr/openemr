@@ -164,8 +164,8 @@ class Document extends ORDataObject
         }
 
         $d = new Document();
-        $sql = "SELECT id FROM  " . $d->_table . " WHERE foreign_id " .$foreign_id ;
-        $result = $d->_db->Execute($sql);
+        $sql = "SELECT id FROM " . $d->_table . " WHERE foreign_id = ?";
+        $result = $d->_db->Execute($sql, array($foreign_id));
 
         while ($result && !$result->EOF) {
             $documents[] = new Document($result->fields['id']);
@@ -199,8 +199,8 @@ class Document extends ORDataObject
             if (file_exists($filename)) {
                 $d = new Document($result->fields['id']);
             } else {
-                $sql = "DELETE FROM  " . $d->_table . " WHERE id= '" . $result->fields['id'] . "'";
-                $result = $d->_db->Execute($sql);
+                $sql = "DELETE FROM  " . $d->_table . " WHERE id= ?";
+                $result = $d->_db->Execute($sql, array($result->fields['id']));
                 echo("There is a database for the file but it no longer exists on the file system. Its document entry has been deleted. '$filename'\n");
             }
         } else {
@@ -724,10 +724,8 @@ class Document extends ORDataObject
         $this->persist();
         $this->populate();
         if (is_numeric($this->get_id()) && is_numeric($category_id)) {
-            $sql = "REPLACE INTO categories_to_documents set " .
-            "category_id = '$category_id', " .
-            "document_id = '" . $this->get_id() . "'";
-            $this->_db->Execute($sql);
+            $sql = "REPLACE INTO categories_to_documents SET category_id = ?, document_id = ?";
+            $this->_db->Execute($sql, array($category_id, $this->get_id()));
         }
 
         return '';

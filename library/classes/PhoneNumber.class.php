@@ -56,9 +56,9 @@ class PhoneNumber extends ORDataObject
 
         $phone_numbers = array();
         $p = new PhoneNumber();
-        $sql = "SELECT id FROM  " . $p->_table . " WHERE foreign_id " .$foreign_id . " ORDER BY type";
+        $sql = "SELECT id FROM  " . $p->_table . " WHERE foreign_id = ? ORDER BY type";
         //echo $sql . "<bR />";
-        $results = sqlQ($sql);
+        $results = sqlQ($sql, array($foreign_id));
         //echo "sql: $sql";
         while ($row = sqlFetchArray($results)) {
             $phone_numbers[] = new PhoneNumber($row['id']);
