@@ -669,6 +669,18 @@ CREATE TABLE `api_token` (
 ) ENGINE = InnoDB;
 #EndIf
 
+#IfMissingColumn pnotes update_by
+ALTER TABLE `pnotes` ADD `update_by` bigint(20) default NULL;
+#EndIf
+
+#IfMissingColumn pnotes update_date
+ALTER TABLE `pnotes` ADD `update_date` DATETIME DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType onsite_documents full_document MEDIUMBLOB
+ALTER TABLE `onsite_documents` CHANGE `full_document` `full_document` MEDIUMBLOB;
+#EndIf
+
 #IfMissingColumn mail_street facility
 ALTER TABLE `facility` ADD `mail_street` VARCHAR(30) NOT NULL;
 #EndIf
@@ -686,16 +698,4 @@ ALTER TABLE `facility` ADD `mail_zip` VARCHAR(10) NOT NULL;
 #EndIf
 #IfMissingColumn oid facility
 ALTER TABLE `facility` ADD `oid` VARCHAR(31) NOT NULL DEFAULT '0' COMMENT 'HIEs CCDA and FHIR an OID is required/wanted' NOT NULL DEFAULT '0';
-#EndIf
-
-#IfMissingColumn pnotes update_by
-ALTER TABLE `pnotes` ADD `update_by` bigint(20) default NULL;
-#EndIf
-
-#IfMissingColumn pnotes update_date
-ALTER TABLE `pnotes` ADD `update_date` DATETIME DEFAULT NULL;
-#EndIf
-
-#IfNotColumnType onsite_documents full_document MEDIUMBLOB
-ALTER TABLE `onsite_documents` CHANGE `full_document` `full_document` MEDIUMBLOB;
 #EndIf
