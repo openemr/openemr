@@ -106,7 +106,7 @@ if ($_POST['form_save']) {
   "AND inventory_id = ?", array($drug_id,$lot_id));
 ?>
 
-<form method='post' name='theform' action='destroy_lot.php?drug=<?php echo attr(urlencode($drug_id)); ?>&lot=<?php echo attr(urlencode($lot_id)); ?>'>
+<form method='post' name='theform' action='destroy_lot.php?drug=<?php echo attr_url($drug_id); ?>&lot=<?php echo attr_url($lot_id); ?>'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <center>

@@ -118,11 +118,11 @@ if (isset($_GET['docUpdateId'])) {
         if ($has_note < 1) { ?>
             <span class='text'>
             <?php
-                echo xlt("There are no notes on file for this patient.");
+                echo xlt("There are no messages on file for this patient.");
             if (acl_check('patients', 'notes', '', array('write', 'addonly'))) {
                 echo " ";
                 echo "<a href='pnotes_full.php' onclick='top.restoreSession()'>";
-                echo xlt("To add notes, please click here");
+                echo xlt("To add messages, please click here");
                 echo "</a>.";
             }
             ?>
@@ -130,7 +130,7 @@ if (isset($_GET['docUpdateId'])) {
         } else { ?>
             <br/>
             <span class='text'>
-            <?php echo xlt('Displaying the following number of most recent notes:'); ?>
+            <?php echo xlt('Displaying the following number of most recent messages:'); ?>
             <b><?php echo text($N);?></b><br>
             <a href='pnotes_full.php?s=0' onclick='top.restoreSession()'>
             <?php echo xlt('Click here to view them all.'); ?></a>

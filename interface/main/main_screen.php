@@ -68,7 +68,7 @@ function doAuth() {
 <center>
 <h2><?php echo text($title); ?></h2>
 <form method="post"
- action="main_screen.php?auth=login&site=<?php echo attr(urlencode($_GET['site'])); ?>"
+ action="main_screen.php?auth=login&site=<?php echo attr_url($_GET['site']); ?>"
  target="_top" name="challenge_form">
     <?php
     posted_to_hidden('new_login_session_management');
@@ -236,24 +236,24 @@ if ($GLOBALS['password_expiration_days'] != 0) {
 
 if ($is_expired) {
   //display the php file containing the password expiration message.
-    $frame1url = "pwd_expires_alert.php?csrf_token_form=" . attr(urlencode(collectCsrfToken()));
+    $frame1url = "pwd_expires_alert.php?csrf_token_form=" . attr_url(collectCsrfToken());
     $frame1target = "adm";
 } else if (!empty($_POST['patientID'])) {
     $patientID = 0 + $_POST['patientID'];
     if (empty($_POST['encounterID'])) {
         // Open patient summary screen (without a specific encounter)
-        $frame1url = "../patient_file/summary/demographics.php?set_pid=" . attr(urlencode($patientID));
+        $frame1url = "../patient_file/summary/demographics.php?set_pid=" . attr_url($patientID);
         $frame1target = "pat";
     } else {
         // Open patient summary screen with a specific encounter
         $encounterID = 0 + $_POST['encounterID'];
-        $frame1url = "../patient_file/summary/demographics.php?set_pid=" . attr(urlencode($patientID)) . "&set_encounterid=" . attr(urlencode($encounterID));
+        $frame1url = "../patient_file/summary/demographics.php?set_pid=" . attr_url($patientID) . "&set_encounterid=" . attr_url($encounterID);
         $frame1target = "pat";
     }
 } else if (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
-    $frame1url = "calendar/index.php?pid=" . attr(urlencode($_GET['pid']));
+    $frame1url = "calendar/index.php?pid=" . attr_url($_GET['pid']);
     if (isset($_GET['date'])) {
-        $frame1url .= "&date=" . attr(urlencode($_GET['date']));
+        $frame1url .= "&date=" . attr_url($_GET['date']);
     }
 
     $frame1target = "cal";

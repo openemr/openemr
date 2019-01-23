@@ -1516,7 +1516,7 @@ fclose($fileQRDAOPen);
 <center>
 <form>
 <p class="text">
-    <a href="qrda_download.php?qrda_fname=<?php echo attr(urlencode($qrda_fname)); ?>&csrf_token_form=<?php echo attr(urlencode($_SESSION['csrf_token'])); ?>"><?php echo xlt("Download QRDA Category III File");?></a>
+    <a href="qrda_download.php?qrda_fname=<?php echo attr_url($qrda_fname); ?>&csrf_token_form=<?php echo attr_url($_SESSION['csrf_token']); ?>"><?php echo xlt("Download QRDA Category III File");?></a>
 </p>
 <textarea rows='50' cols='500' style='width:95%' readonly>
 <?php echo trim($xml->getXml()); ?>

@@ -84,7 +84,7 @@ foreach ($fill as $data) {
                 "facilityzip"     => $proData[0]['postal_code'],
                 "qualifier"       => $GLOBALS['weno_provider_id'] . ':' . $proData[0]['weno_prov_id'],
                 "wenoAccountId"   => $GLOBALS['weno_account_id'],
-                "wenoAccountPass" => $GLOBALS['weno_account_pass'],
+                "wenoAccountPass" => decryptStandard($GLOBALS['weno_account_pass']),
                 "wenoClinicId"    => $GLOBALS['weno_provider_id'] . ':' . $proData[0]['weno_prov_id']
             )
         ),

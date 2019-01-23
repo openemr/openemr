@@ -371,7 +371,7 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
 }
 ?>
 
-<form method='post' name='theform' action='add_edit_lot.php?drug=<?php echo attr(urlencode($drug_id)); ?>&lot=<?php echo attr(urlencode($lot_id)); ?>'
+<form method='post' name='theform' action='add_edit_lot.php?drug=<?php echo attr_url($drug_id); ?>&lot=<?php echo attr_url($lot_id); ?>'
  onsubmit='return validate()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <center>
@@ -544,7 +544,7 @@ while ($lrow = sqlFetchArray($lres)) {
 <?php if ($lot_id) { ?>
 &nbsp;
 <input type='button' value='<?php echo xla('Destroy...'); ?>'
- onclick="window.location.href='destroy_lot.php?drug=<?php echo attr(urlencode($drug_id)); ?>&lot=<?php echo attr(urlencode($lot_id)); ?>'" />
+ onclick="window.location.href='destroy_lot.php?drug=<?php echo attr_url($drug_id); ?>&lot=<?php echo attr_url($lot_id); ?>'" />
 <?php } ?>
 
 &nbsp;

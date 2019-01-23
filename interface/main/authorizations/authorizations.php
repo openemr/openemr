@@ -189,12 +189,12 @@ if ($authorize) {
         // Clicking the patient name will load both frames for that patient,
         // as demographics.php takes care of loading the bottom frame.
         echo "<a href='$rootdir/patient_file/summary/demographics.php?set_pid=" .
-            attr(urlencode($ppid)) . "' target='RTop' onclick='top.restoreSession()'>";
+            attr_url($ppid) . "' target='RTop' onclick='top.restoreSession()'>";
 
         echo "<span class='bold'>" . text($name{"fname"}) . " " .
         text($name{"lname"}) . "</span></a><br>" .
         "<a class=link_submit href='authorizations.php?mode=authorize" .
-        "&pid=" . attr(urlencode($ppid)) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' onclick='top.restoreSession()'>" .
+        "&pid=" . attr_url($ppid) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' onclick='top.restoreSession()'>" .
         xlt('Authorize') . "</a></td>\n";
 
         /****

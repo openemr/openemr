@@ -10,9 +10,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2006-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2015 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -1217,11 +1219,11 @@ if ($form_cb_err) {
         } // end not export and not insurance summary
 
         else if ($_POST['form_csvexport']) {
-          # The CSV detail line is written here added conditions for checked items (TLH).
+          // The CSV detail line is written here added conditions for checked items (TLH).
+          // Added zero balances for a complete spreadsheet view
             $balance = $row['charges'] + $row['adjustments'] - $row['paid'];
-            if ($balance >0) {
-                // echo '"' . $insname                             . '",';
-                echo '"' . $row['ins1']                         . '",';
+            if ($balance > 0 || $_POST['form_zero_balances']) {
+                echo '"' . $row['ins1']                         . '",'; // insname
                 echo '"' . $ptname                              . '",';
                 if ($form_cb_ssn) {
                     echo '"' . $row['ss']                          . '",';
@@ -1346,6 +1348,10 @@ if (!$_POST['form_csvexport']) {
     <a href='javascript:;' class='btn btn-default btn-transmit' onclick='$("#form_export").attr("value","true"); $("#form_csvexport").val(""); $("#theform").submit();'>
         <?php echo xlt('Export Selected to Collections'); ?>
     </a>
+  </div>
+
+  <div style='float:left'>
+    <label><input type='checkbox' name='form_zero_balances' value='1' /> <?php echo xlt('Export Zero Balances') ?>&nbsp;&nbsp;</label>
   </div>
 
   <div style='float:left'>

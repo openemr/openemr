@@ -603,7 +603,7 @@ class Userforms extends UserAudit
                 }
 
                     $phimail_username = $GLOBALS['phimail_username'];
-                    $phimail_password = $GLOBALS['phimail_password'];
+                    $phimail_password = decryptStandard($GLOBALS['phimail_password']);
                     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
                 if ($ret!==true) {
                     return("$config_err 4");

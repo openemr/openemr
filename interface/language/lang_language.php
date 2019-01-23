@@ -64,7 +64,7 @@ if ($_POST['add']) {
 ?>
 
 <TABLE>
-<FORM name="lang_form" METHOD=POST ACTION="?m=language&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>" onsubmit="return top.restoreSession()">
+<FORM name="lang_form" METHOD=POST ACTION="?m=language&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <TR>
     <TD><?php  echo xlt('Language Code'); ?>:</TD>

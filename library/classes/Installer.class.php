@@ -29,6 +29,7 @@ class Installer
         $this->clone_database           = isset($cgi_variables['clone_database']) ? ($cgi_variables['clone_database']) : '';
         $this->no_root_db_access        = isset($cgi_variables['no_root_db_access']) ? ($cgi_variables['no_root_db_access']) : ''; // no root access to database. user/privileges pre-configured
         $this->development_translations = isset($cgi_variables['development_translations']) ? ($cgi_variables['development_translations']) : '';
+        $this->new_theme                = isset($cgi_variables['new_theme']) ? ($cgi_variables['new_theme']) : '';
         // Make this true for IPPF.
         $this->ippf_specific = false;
 
@@ -205,7 +206,7 @@ class Installer
         if ($checkUser === false) {
             // there was an error in the check database user query, so return false
             return false;
-        } else if ($checkUser->num_rows > 0) {
+        } elseif ($checkUser->num_rows > 0) {
             // the mysql user already exists, so do not need to create the user, but need to set the password
             // Note need to try two different methods, first is for newer mysql versions and second is for older mysql versions (if the first method fails)
             $returnSql = $this->execute_sql("ALTER USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'", false);
@@ -771,6 +772,7 @@ if ($it_died != 0) {
 
         $backup_file = $this->get_backup_filename();
         $cmd = "mysqldump -u " . escapeshellarg($login) .
+        " -h " . $host .
         " -p" . escapeshellarg($pass) .
         " --opt --skip-extended-insert --quote-names -r $backup_file " .
         escapeshellarg($dbase);
@@ -796,8 +798,187 @@ if ($it_died != 0) {
 
         return $backup_file;
     }
-}
+    //RP_ADDED
+    public function getCurrentTheme()
+    {
+        $current_theme =  $this->execute_sql("SELECT gl_value FROM globals WHERE gl_name LIKE '%css_header%'");
+        $current_theme = mysqli_fetch_array($current_theme);
+        return $current_theme [0];
+    }
 
+    public function setCurrentTheme()
+    {
+        $this->getCurrentTheme();//why is this needed ?
+        return $this->execute_sql("UPDATE globals SET gl_value='". $this->escapeSql($this->new_theme) ."' WHERE gl_name LIKE '%css_header%'");
+    }
+
+    public function listThemes()
+    {
+        $themes_img_dir = "public/images/stylesheets/";
+        $arr_themes_img = array_values(array_filter(scandir($themes_img_dir), function ($item) {
+            return $item[0] !== '.';
+        }));
+        return $arr_themes_img;
+    }
+
+    private function extractFileName($theme_file_name = '')
+    {
+        $this->theme_file_name = $theme_file_name;
+        $under_score = strpos($theme_file_name, '_') + 1;
+        $dot = strpos($theme_file_name, '.');
+        $theme_value = substr($theme_file_name, $under_score, ($dot - $under_score));
+        $theme_title = ucwords(str_replace("_", " ", $theme_value));
+        return array('theme_value' => $theme_value, 'theme_title' => $theme_title);
+    }
+
+    public function displayThemesDivs()
+    {
+        $themes_number = count($this->listThemes());
+        for ($i=0; $i < $themes_number; $i++) {
+            $id = $i + 1;
+            $arr_theme_name = $this->listThemes();
+            $theme_file_name = $arr_theme_name[$i];
+            $arr_extracted_file_name = $this->extractFileName($theme_file_name);
+            $theme_value = $arr_extracted_file_name['theme_value'];
+            $theme_title = $arr_extracted_file_name['theme_title'];
+            $img_path = "public/images/stylesheets/";
+            $theme_file_path = $img_path . $theme_file_name;
+            $div_start = "                      <div class='row'>";
+            $div_end = "                      </div>";
+            $img_div = <<<FDIV
+                                        <div class="col-sm-2 checkboxgroup">
+                                            <label for="my_radio_button_id{$id}"><img height="160px" src="{$theme_file_path}" width="100%"></label>
+                                            <p style="margin:0">{$theme_title}</p><input id="my_radio_button_id{$id}" name="stylesheet" type="radio" value="{$theme_value}">
+                                        </div>
+FDIV;
+            $theme_img_number = $i % 6; //to ensure that last file in array will always generate 5 and will end the row
+            switch ($theme_img_number) {
+                case 0: //start row
+                    echo $div_start . "\r\n";
+                    echo $img_div . "\r\n";
+                    break;
+
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                    echo $img_div . "\r\n";
+                    break;
+
+                case 5://end row
+                    echo $img_div . "\r\n";
+                    echo $div_end . "\r\n";
+                    echo "<br>" . "\r\n";
+                    break;
+
+                default:
+                    echo $div_start . "\r\n";
+                    echo "<h5>Sorry no stylesheet images in directory</h5>";
+                    echo $div_end . "\r\n";
+                    break;
+            }
+        }
+        return;
+    }
+
+    public function displaySelectedThemeDiv()
+    {
+        $theme_file_name = $this->getCurrentTheme();
+        $arr_extracted_file_name = $this->extractFileName($theme_file_name);
+        $theme_value = $arr_extracted_file_name['theme_value'];
+        $theme_title = $arr_extracted_file_name['theme_title'];
+        $img_path = "public/images/stylesheets/";
+        $theme_file_path = $img_path . "style_". $theme_value .".png";
+
+        $display_selected_theme_div = <<<DSTD
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h4>Current Theme:</h4>
+                                <div class="col-sm-4 col-sm-offset-4 checkboxgroup">
+                                    <label for="nothing"><img  id="current_theme" src="{$theme_file_path}" width="100%"></label>
+                                    <p id="current_theme_title"style="margin:0">{$theme_title}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+DSTD;
+        echo $display_selected_theme_div . "\r\n";
+        return;
+    }
+
+    public function displayNewThemeDiv()
+    {
+        $theme_file_name = $this->new_theme;
+        $arr_extracted_file_name = $this->extractFileName($theme_file_name);
+        $theme_value = $arr_extracted_file_name['theme_value'];
+        $theme_title = $arr_extracted_file_name['theme_title'];
+        $img_path = "public/images/stylesheets/";
+        $theme_file_path = $img_path . "style_". $theme_value .".png";
+
+        $display_selected_theme_div = <<<DSTD
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="col-sm-4 col-sm-offset-4 checkboxgroup">
+                                    <label for="nothing"><img  id="current_theme" src="{$theme_file_path}" width="75%"></label>
+                                    <p id="current_theme_title"style="margin:0">{$theme_title}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+DSTD;
+        echo $display_selected_theme_div . "\r\n";
+        return;
+    }
+
+    public function setupHelpModal()
+    {
+        $setup_help_modal = <<<SETHLP
+    <div class="row">
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content  oe-modal-content" style="height:700px">
+                        <div class="modal-header clearfix">
+                            <button type="button" class="close" data-dismiss="modal" aria-label=Close>
+                            <span aria-hidden="true" style="color:#000000; font-size:1.5em;">×</span></button>
+                        </div>
+                        <div class="modal-body" style="height:80%;">
+                            <iframe src="" id="targetiframe" style="height:100%; width:100%; overflow-x: hidden; border:none"
+                            allowtransparency="true"></iframe>  
+                        </div>
+                        <div class="modal-footer" style="margin-top:0px;">
+                           <button class="btn btn-link btn-cancel oe-pull-away" data-dismiss="modal" type="button">Close</button>
+                           <!--<button class="btn btn-default btn-print oe-pull-away" data-dismiss="modal" id="print-help-href" type="button">Print</button>-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            $(document).ready(function() {
+                $('#help-href').click (function(){
+                    document.getElementById('targetiframe').src = "Documentation/help_files/openemr_installation_help.php";
+                })
+            });
+            $(document).ready(function() {
+                $('#print-help-href').click (function(){
+                    $("#targetiframe").get(0).contentWindow.print();
+                })
+            });
+            // Jquery draggable
+            $('.modal-dialog').draggable({
+                    handle: ".modal-header, .modal-footer"
+            });
+           $( ".modal-content" ).resizable({
+                aspectRatio: true,
+                minHeight: 300,
+                minWidth: 300
+            });
+        </script>
+SETHLP;
+        echo $setup_help_modal  ."\r\n";
+        return;
+    }
+}
 /*
 This file is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as publish by the Free Software

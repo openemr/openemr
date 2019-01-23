@@ -37,23 +37,23 @@
         {html_options name="drug" class="form-control" values=$drug_values options=$drug_options}<br/>
         </div>
         <div>
-            <a href="javascript:;" onClick="my_process(); return true;">{xl t='Select'|escape:'html'}</a> |
-            <a href="javascript:;" class="button" onClick="parent.cancelParlookup();">{xl t='Cancel'|escape:'html'}</a> |
-            <a href="{$CONTROLLER_THIS}" onclick="top.restoreSession()">{xl t='New Search'|escape:'html'}</a>
+            <a href="javascript:;" onClick="my_process(); return true;">{xl t='Select'|text}</a> |
+            <a href="javascript:;" class="button" onClick="parent.cancelParlookup();">{xl t='Cancel'|text}</a> |
+            <a href="{$CONTROLLER_THIS}" onclick="top.restoreSession()">{xl t='New Search'|text}</a>
         </div>
 	{else}
-		{$NO_RESULTS}
+		{$NO_RESULTS|text}
 
 		<input TYPE="HIDDEN" NAME="varname" VALUE=""/>
 		<input TYPE="HIDDEN" NAME="formname" VALUE=""/>
 		<input TYPE="HIDDEN" NAME="submitname" VALUE=""/>
-		<input TYPE="HIDDEN" NAME="action" VALUE="{xl t='Search'|escape:'html'}">
+		<input TYPE="HIDDEN" NAME="action" VALUE="{xl t='Search'|attr}">
 		<div ALIGN="CENTER" CLASS="infobox">
-			<input class="form-control" TYPE="TEXT" NAME="drug" VALUE="{$drug|escape:'html'}"/>
-			<input TYPE="SUBMIT" NAME="action" VALUE="{xl t='Search'|escape:'html'}" class="button"/>
-			<input TYPE="BUTTON" VALUE="{xl t='Cancel'|escape:'html'}" class="button" onClick="parent.cancelParlookup();"/>
+			<input class="form-control" TYPE="TEXT" NAME="drug" VALUE="{$drug|attr}"/>
+			<input TYPE="SUBMIT" NAME="action" VALUE="{xl t='Search'|attr}" class="button"/>
+			<input TYPE="BUTTON" VALUE="{xl t='Cancel'|attr}" class="button" onClick="parent.cancelParlookup();"/>
 		</div>
-		<input type="hidden" name="process" value="{$PROCESS|escape:'html'}" />
+		<input type="hidden" name="process" value="{$PROCESS|attr}" />
 
 	{/if}</form>
 	</div>

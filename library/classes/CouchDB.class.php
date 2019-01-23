@@ -31,7 +31,7 @@ class CouchDB
     {
         $this->host = $GLOBALS['couchdb_host'];
         $this->user = ($GLOBALS['couchdb_user'] != '') ? $GLOBALS['couchdb_user'] : null;
-        $this->pass = ($GLOBALS['couchdb_pass'] != '') ? $GLOBALS['couchdb_pass'] : null;
+        $this->pass = (decryptStandard($GLOBALS['couchdb_pass']) != '') ? decryptStandard($GLOBALS['couchdb_pass']) : null;
         $this->port = $GLOBALS['couchdb_port'];
         $this->dbase = $GLOBALS['couchdb_dbase'];
     }

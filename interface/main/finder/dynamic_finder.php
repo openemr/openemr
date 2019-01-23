@@ -71,7 +71,7 @@ while ($row = sqlFetchArray($res)) {
                 "serverSide": true,
                 // NOTE kept the legacy command 'sAjaxSource' here for now since was unable to get
                 // the new 'ajax' command to work.
-                "sAjaxSource": "dynamic_finder_ajax.php?csrf_token_form=" + <?php echo js_escape(urlencode(collectCsrfToken())); ?>,
+                "sAjaxSource": "dynamic_finder_ajax.php?csrf_token_form=" + <?php echo js_url(collectCsrfToken()); ?>,
                 "fnServerParams": function (aoData) {
                     var searchType = $("#setting_search_type:checked").length > 0;
                     aoData.push({"name": "searchType", "value": searchType});
@@ -194,7 +194,7 @@ while ($row = sqlFetchArray($res)) {
         <div class="row">
             <div class="col-sm-12">
                 <!-- form used to open a new top level window when a patient row is clicked -->
-                <form name='fnew' method='post' target='_blank' action='../main_screen.php?auth=login&site=<?php echo attr(urlencode($_SESSION['site_id'])); ?>'>
+                <form name='fnew' method='post' target='_blank' action='../main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                     <input type='hidden' name='patientID' value='0'/>
                 </form>

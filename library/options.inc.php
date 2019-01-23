@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007-2017 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2019 Rod Roark <rod@sunsetsystems.com>
 // Copyright © 2010 by Andrew Moore <amoore@cpan.org>
 // Copyright © 2010 by "Boyd Stephen Smith Jr." <bss@iguanasuicide.net>
 //
@@ -24,7 +24,11 @@
 // D = Check for duplicates in New Patient form
 // G = Graphable (for numeric fields in forms supporting historical data)
 // H = Read-only field copied from static history (this is obsolete)
+// J = Jump to Next Row
+// K = Prepend Blank Row
 // L = Lab Order ("ord_lab") types only (address book)
+// M = Radio Group Master (currently for radio buttons only)
+// m = Radio Group Member (currently for radio buttons only)
 // N = Show in New Patient form
 // O = Procedure Order ("ord_*") types only (address book)
 // P = Default to previous value when current value is not yet set
@@ -46,6 +50,7 @@ use OpenEMR\Services\FacilityService;
 $facilityService = new FacilityService();
 
 $date_init = "";
+$membership_group_number = 0;
 
 function get_pharmacies()
 {
@@ -311,7 +316,7 @@ function parse_static_text($frow)
 //
 function generate_form_field($frow, $currvalue)
 {
-    global $rootdir, $date_init, $ISSUE_TYPES, $code_types;
+    global $rootdir, $date_init, $ISSUE_TYPES, $code_types, $membership_group_number;
 
     $currescaped = htmlspecialchars($currvalue, ENT_QUOTES);
 
@@ -1050,6 +1055,11 @@ function generate_form_field($frow, $currvalue)
     elseif ($data_type == 27) {
         // In this special case, fld_length is the number of columns generated.
         $cols = max(1, $frow['fld_length']);
+        // Support for edit option M.
+        if (isOption($frow['edit_options'], 'M')) {
+            ++$membership_group_number;
+        }
+        //
         $lres = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
         echo "<table cellpadding='0' cellspacing='0' width='100%'>";
@@ -1062,19 +1072,26 @@ function generate_form_field($frow, $currvalue)
                 if ($count) {
                     echo "</tr>";
                 }
-
                 echo "<tr>";
             }
-
             echo "<td width='" . attr($tdpct) . "%'>";
-            echo "<input type='radio' name='form_{$field_id_esc}' class='form-control' id='form_{$field_id_esc}[$option_id_esc]'" .
+            echo "<input type='radio' name='form_{$field_id_esc}' id='form_{$field_id_esc}[$option_id_esc]'" .
             " value='$option_id_esc' $lbfonchange";
+            // Support for edit options M and m.
+            if (isOption($frow['edit_options'], 'M')) {
+                echo " class='form-control'";
+                echo " onclick='checkGroupMembers(this, $membership_group_number);'";
+            } else if (isOption($frow['edit_options'], 'm')) {
+                echo " class='form-control lbf_memgroup_$membership_group_number'";
+            } else {
+                echo " class='form-control'";
+            }
+            //
             if ((strlen($currvalue) == 0 && $lrow['is_default']) ||
               (strlen($currvalue)  > 0 && $option_id == $currvalue)) {
                 echo " checked";
                 $got_selected = true;
             }
-
             echo " $disabled />" . htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);
             echo "</td>";
         }
@@ -1641,7 +1658,7 @@ function generate_print_field($frow, $currvalue)
 
                     echo "<tr>";
                 }
-                echo "<td width='" . attr($tdpct) . "%'>";
+                echo "<td width='" . attr($tdpct) . "%' nowrap>";
                 echo "<input type='checkbox'";
                 if (in_array($option_id, $avalue)) {
                     echo " checked";
@@ -1804,7 +1821,7 @@ function generate_print_field($frow, $currvalue)
 
                 echo "<tr>";
             }
-            echo "<td width='" . attr($tdpct) . "%'>";
+            echo "<td width='" . attr($tdpct) . "%' nowrap>";
             echo "<input type='radio'";
             if (strlen($currvalue)  > 0 && $option_id == $currvalue) {
                 // Do not use defaults for these printable forms.
@@ -2304,7 +2321,7 @@ function generate_display_field($frow, $currvalue)
                 }
                 $s .= "<tr>";
             }
-            $s .= "<td>";
+            $s .= "<td nowrap>";
             $checked = ((strlen($currvalue) == 0 && $lrow['is_default']) ||
                 (strlen($currvalue)  > 0 && $option_id == $currvalue));
             $s .= $checked ? '[ x ]' : '[ &nbsp;&nbsp; ]';
@@ -2950,6 +2967,8 @@ function display_layout_rows($formtype, $result1, $result2 = '')
         $field_id   = $frow['field_id'];
         $list_id    = $frow['list_id'];
         $currvalue  = '';
+        $jump_new_row = isOption($frow['edit_options'], 'J');
+        $prepend_blank_row = isOption($frow['edit_options'], 'K');
 
         $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
 
@@ -2990,8 +3009,11 @@ function display_layout_rows($formtype, $result1, $result2 = '')
         // filter out all the empty field data from the patient report.
         if (!empty($currvalue) && !($currvalue == '0000-00-00 00:00:00')) {
           // Handle starting of a new row.
-            if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
+            if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
                 disp_end_row();
+                if ($prepend_blank_row) {
+                    echo "<tr><td class='label' colspan='" . ($CPR + 1) . "'>&nbsp;</td></tr>\n";
+                }
                 echo "<tr>";
                 if ($group_name) {
                     echo "<td class='groupname'>";
@@ -3102,7 +3124,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
             continue;
         }
         $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
-        $subtitle = empty($grparr[$this_group]['grp_subtitle']) ? '' : $grparr[$this_group]['grp_subtitle'];
+        $subtitle = empty($grparr[$this_group]['grp_subtitle']) ? '' : xl_layout_label($grparr[$this_group]['grp_subtitle']);
 
         $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
           "WHERE form_id = ? AND uor > 0 AND group_id = ? " .
@@ -3121,6 +3143,8 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                 $list_id       = $group_fields['list_id'];
                 $currvalue     = '';
                 $edit_options  = $group_fields['edit_options'];
+                $jump_new_row = isOption($edit_options, 'J');
+                $prepend_blank_row = isOption($edit_options, 'K');
 
                 if ($formtype == 'DEM') {
                     if (strpos($field_id, 'em_') === 0) {
@@ -3164,13 +3188,16 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                 }
 
                 // Handle starting of a new row.
-                if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
+                if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
                     disp_end_row();
                     if ($subtitle) {
                         // Group subtitle exists and is not displayed yet.
                         echo "<tr><td class='label' style='background-color:#dddddd;padding:3pt' colspan='$CPR'>" . text($subtitle) . "</td></tr>\n";
                         echo "<tr><td class='label' style='height:4pt' colspan='$CPR'></td></tr>\n";
                         $subtitle = '';
+                    }
+                    if ($prepend_blank_row) {
+                        echo "<tr><td class='label' colspan='$CPR'>&nbsp;</td></tr>\n";
                     }
                     echo "<tr>";
                 }
@@ -3267,7 +3294,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
             continue;
         }
         $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
-        $subtitle = empty($grparr[$this_group]['grp_subtitle']) ? '' : $grparr[$this_group]['grp_subtitle'];
+        $subtitle = empty($grparr[$this_group]['grp_subtitle']) ? '' : xl_layout_label($grparr[$this_group]['grp_subtitle']);
 
         $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
             "WHERE form_id = ? AND uor > 0 AND group_id = ? " .
@@ -3287,6 +3314,8 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                 $backup_list = $group_fields['list_backup_id'];
                 $currvalue  = '';
                 $action     = 'skip';
+                $jump_new_row = isOption($group_fields['edit_options'], 'J');
+                $prepend_blank_row = isOption($group_fields['edit_options'], 'K');
 
                 // Accumulate action conditions into a JSON expression for the browser side.
                 accumActionConditions($field_id, $condition_str, $group_fields['conditions']);
@@ -3324,13 +3353,16 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                 }
 
                 // Handle starting of a new row.
-                if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
+                if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
                     disp_end_row();
                     if ($subtitle) {
                         // Group subtitle exists and is not displayed yet.
                         echo "<tr><td class='label' style='background-color:#dddddd;padding:3pt' colspan='$CPR'>" . text($subtitle) . "</td></tr>\n";
                         echo "<tr><td class='label' style='height:4pt' colspan='$CPR'></td></tr>\n";
                         $subtitle = '';
+                    }
+                    if ($prepend_blank_row) {
+                        echo "<tr><td class='label' colspan='$CPR'>&nbsp;</td></tr>\n";
                     }
                     echo "<tr>";
                 }
@@ -3563,7 +3595,7 @@ function generate_layout_validation($form_id)
             case 27: // radio buttons
                 echo
                 " var i = 0;\n" .
-                " for (; i < f.$fldname.length; ++i) if (f.$fldname[i].checked) break;\n" .
+                " for (; i < f.$fldname.length; ++i) if (f.{$fldname}[i].checked) break;\n" .
                 " if (i >= f.$fldname.length) {\n" .
                 "   alert(" . xlj('Please choose a value for') . " + " .
                 "\":\\n\" + " . js_escape(xl_layout_label($fldtitle)) . ");\n" .

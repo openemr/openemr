@@ -194,7 +194,7 @@ function echoServiceLines()
             if ($institutional) {
                 if ($codetype != 'COPAY' && $codetype != 'ICD10') {
                     echo "  <td class='billcell'><input type='text' class='revcode' name='bill[" . attr($lino) . "][revenue_code]' " .
-                        "title='" . xla("Revenue Code for this item. Type for hints/search") . "' " .
+                        "title='" . xla("Revenue Code for this item. Type to search or double click for list") . "' " .
                         "value='" . attr($revenue_code) . "' size='4'></td>\n";
                 } else {
                     echo "  <td class='billcell'>&nbsp;</td>\n";
@@ -1017,10 +1017,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         }
                                     }
                                     if (! $numrows) {
-                                        echo "   <select name='Search Results' class='form-control'style='width:98%' " .
+                                        echo "   <select name='search_results' class='form-control'style='color:red;width:98%' " .
                                         "onchange='codeselect(this)' disabled >\n";
                                     } else {
-                                        echo "   <select name='Search Results' style='width:98%; background:yellow' " .
+                                        echo "   <select name='search_results' style='width:98%; background:yellow' " .
                                         "onchange='codeselect(this)' >\n";
                                     }
 
@@ -1492,8 +1492,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
         ?>
     </script>
-    
-        
 </body>
 </html>
 <?php if (!empty($_POST['running_as_ajax'])) {
@@ -1504,28 +1502,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 <?php if ($GLOBALS['ippf_specific']) {
     require_once("contraception_products/initialize_contraception_products.php");
 } ?>
-    <script>
-        var translated_price_header="<?php echo xlt("Price");?>";
+<script>
+    var translated_price_header = "<?php echo xlt("Price");?>";
 
-        $( "[name='search_term']" ).keydown(function(event){
-            if(event.keyCode==13){
-                $("[name=bn_search]").trigger('click');
-                return false;
-             }
-         });
-
-        $("[name=search_term]").focus();
-    </script>
-
-    <?php
-    $search_term = $_POST['search_term'];
-    if ($numrows && $_POST['bn_search']) {
-        echo "<script>";
-            echo "alert( $numrows + ' " . xls('results returned for search term') . " \"" . attr($search_term) . "\"')";
-        echo "</script>";
-    } elseif (!$nnumrows && $_POST['bn_search']) {
-        echo "<script>";
-            echo "alert('" . xls('No results returned for search term') . " \"". attr($search_term) ."\". " . xls('Please try a different search') . "')";
-        echo "</script>";
-    }
-    ?>
+    $("[name='search_term']").keydown(function (event) {
+        if (event.keyCode == 13) {
+            $("[name=bn_search]").trigger('click');
+            return false;
+        }
+    });
+    $("[name=search_term]").focus();
+    <?php if ($_POST['bn_search']) { ?>
+        document.querySelector("[name='search_term']") . scrollIntoView();
+    <?php } ?>
+</script>

@@ -52,7 +52,7 @@ class Documents extends AbstractPlugin
         $host       = $GLOBALS['couchdb_host'];
         $port       = $GLOBALS['couchdb_port'];
         $usename    = $GLOBALS['couchdb_user'];
-        $password   = $GLOBALS['couchdb_pass'];
+        $password   = decryptStandard($GLOBALS['couchdb_pass']);
         $database   = $GLOBALS['couchdb_dbase'];
         $enable_log = ($GLOBALS['couchdb_log'] == 1) ? true : false;
 
