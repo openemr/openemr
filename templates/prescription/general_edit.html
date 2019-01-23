@@ -342,7 +342,7 @@ function CheckRequired(objID) {
     // for text boxes
     if ($('#'+objID).is('input')) {
         if ($('#'+objID).val() == "") {
-            alert({/literal}{xl t='Missing a required field and will be highlighted'|js_escape}{literal});
+            alert({/literal}{'Missing a required field and will be highlighted'|xlt|js_escape}{literal});
             $('#'+objID).css("backgroundColor", "pink");
             return false;
         }
@@ -351,7 +351,7 @@ function CheckRequired(objID) {
     // for select boxes
     if ($('#'+objID).is('select')) {
         if ($('#'+objID).val() == "0") {
-            alert({/literal}{xl t='Missing a required field'|js_escape}{literal});
+            alert({/literal}{'Missing a required field'|xlt|js_escape}{literal});
             $('#'+objID).css("backgroundColor", "pink");
             return false;
         }
