@@ -35,7 +35,7 @@
  function showpnotes(docid) {literal}{{/literal}
  {literal}
  if (top.tab_mode) {
-     let btnClose = {/literal}{xl t="Done"|js_escape}{literal};
+     let btnClose = {/literal}{xlj t="Done"}{literal};
      let url = top.webroot_url + '/interface/patient_file/summary/pnotes.php?docid=' + encodeURIComponent(docid);
      dlgopen(url, 'pno1', 'modal-xl', 500, '', '', {
          buttons: [
@@ -58,7 +58,7 @@
 
  function submitNonEmpty( e ) {literal}{{/literal}
 	if ( e.elements['passphrase'].value.length == 0 ) {literal}{{/literal}
-		alert( {xl t='You must enter a pass phrase to encrypt the document'|js_escape} );
+		alert( {xlj t='You must enter a pass phrase to encrypt the document'} );
 	{literal}}{/literal} else {literal}{{/literal}
 		e.submit();
 	{literal}}{/literal}
@@ -69,11 +69,11 @@ function tagUpdate() {literal}{{/literal}
 	var f = document.forms['document_tag'];
 	if (f.encounter_check.checked) {literal}{{/literal}
 		if(f.visit_category_id.value==0) {literal}{{/literal}
-			alert({xl t='Please select visit category'|js_escape} );
+			alert({xlj t='Please select visit category'} );
 			return false;
 		{literal}}{/literal}
 	{literal}}{/literal} else if (f.encounter_id.value == 0 ) {literal}{{/literal}
-		alert({xl t='Please select encounter'|js_escape});
+		alert({xlj t='Please select encounter'});
 		return false;
 	{literal}}{/literal}
 	//top.restoreSession();
@@ -99,7 +99,7 @@ function set_checkbox() {literal}{{/literal}
 function ImgProcedure() {literal}{{/literal}
 	var f = document.forms['img_procedure_tag'];
 	if(f.image_procedure_id.value == 0 ) {literal}{{/literal}
-		alert({xl t='Please select image procedure'|js_escape});
+		alert({xlj t='Please select image procedure'});
 		return false;
 	{literal}}{/literal}
 	f.procedure_code.value = f.image_procedure_id.options[f.image_procedure_id.selectedIndex].getAttribute('data-code');

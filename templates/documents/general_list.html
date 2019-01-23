@@ -42,7 +42,7 @@ overflow: auto;
 
 <script type="text/javascript">
     // dropzone javascript asset translation(s)
-    Dropzone.prototype.defaultOptions.dictDefaultMessage = {xl t='Drop files here to upload'|js_escape};
+    Dropzone.prototype.defaultOptions.dictDefaultMessage = {xlj t='Drop files here to upload'};
 </script>
 <title>{xl t='Documents'|text}</title>
 </head>
@@ -118,7 +118,7 @@ $(function() {
         },
         select: function(event, sel) {
             event.preventDefault();
-            if (sel.item.value == '00' && ! sel.item.label.match({/literal}{xl t="Reset"|js_escape}{literal})){
+            if (sel.item.value == '00' && ! sel.item.label.match({/literal}{xlj t="Reset"}{literal})){
             	alert(inUseMsg);
             	return false;
             }
@@ -142,7 +142,7 @@ $("#list_collapse").detach().appendTo("#objTreeMenu_1_node_1 nobr");
 $(function () {
     $("img[id^='icon_objTreeMenu_']").tooltip({
         items: $("img[src*='file3.png']"),
-        content: {/literal}{xl t="Double Click on this icon to pop up document in a new viewer."|js_escape}{literal}
+        content: {/literal}{xlj t="Double Click on this icon to pop up document in a new viewer."}{literal}
     });
 
     $("img[id^='icon_objTreeMenu_']").on('dblclick', function (e) {
@@ -162,8 +162,8 @@ $(function () {
             window.open(popsrc, wname, opt);
         };
 
-        let btnText = {/literal}{xl t="Full Screen"|js_escape}{literal};
-        let btnClose = {/literal}{xl t="Close"|js_escape}{literal};
+        let btnText = {/literal}{xlj t="Full Screen"}{literal};
+        let btnClose = {/literal}{xlj t="Close"}{literal};
         let size = 'modal-xl';
         let sizeHeight = 'full';
         if (dflg) {

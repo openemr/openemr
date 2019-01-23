@@ -20,27 +20,27 @@ function vitalsFormSubmitted() {
 
     elementsToValidate[0] = new Array();
     elementsToValidate[0][0] = 'weight_input';
-    elementsToValidate[0][1] = {/literal}{xl t="Weight"|js_escape}{literal} + ' (' + {/literal}{xl t="lbs"|js_escape}{literal} + ')';
+    elementsToValidate[0][1] = {/literal}{xlj t="Weight"}{literal} + ' (' + {/literal}{xlj t="lbs"}{literal} + ')';
 
     elementsToValidate[1] = new Array();
     elementsToValidate[1][0] = 'weight_input_metric';
-    elementsToValidate[1][1] = {/literal}{xl t="Weight"|js_escape}{literal} + ' (' + {/literal}{xl t="kg"|js_escape}{literal} + ')';
+    elementsToValidate[1][1] = {/literal}{xlj t="Weight"}{literal} + ' (' + {/literal}{xlj t="kg"}{literal} + ')';
 
     elementsToValidate[2] = new Array();
     elementsToValidate[2][0] = 'height_input';
-    elementsToValidate[2][1] = {/literal}{xl t="Height/Length"|js_escape}{literal} + ' (' + {/literal}{xl t="in"|js_escape}{literal} + ')';
+    elementsToValidate[2][1] = {/literal}{xlj t="Height/Length"}{literal} + ' (' + {/literal}{xlj t="in"}{literal} + ')';
 
     elementsToValidate[3] = new Array();
     elementsToValidate[3][0] = 'height_input_metric';
-    elementsToValidate[3][1] = {/literal}{xl t="Height/Length"|js_escape}{literal} + ' (' + {/literal}{xl t="cm"|js_escape}{literal} + ')';
+    elementsToValidate[3][1] = {/literal}{xlj t="Height/Length"}{literal} + ' (' + {/literal}{xlj t="cm"}{literal} + ')';
 
     elementsToValidate[4] = new Array();
     elementsToValidate[4][0] = 'bps_input';
-    elementsToValidate[4][1] = {/literal}{xl t="BP Systolic"|js_escape}{literal};
+    elementsToValidate[4][1] = {/literal}{xlj t="BP Systolic"}{literal};
 
     elementsToValidate[5] = new Array();
     elementsToValidate[5][0] = 'bpd_input';
-    elementsToValidate[5][1] = {/literal}{xl t="BP Diastolic"|js_escape}{literal};
+    elementsToValidate[5][1] = {/literal}{xlj t="BP Diastolic"}{literal};
 
     for (var i = 0; i < elementsToValidate.length; i++) {
         var current_elem_id = elementsToValidate[i][0];
@@ -49,14 +49,14 @@ function vitalsFormSubmitted() {
         document.getElementById(current_elem_id).classList.remove('error');
 
         if (isNaN(document.getElementById(current_elem_id).value)) {
-            invalid += {/literal}{xl t="The following field has an invalid value"|js_escape}{literal} + ": " + tag_name + "\n";
+            invalid += {/literal}{xlj t="The following field has an invalid value"}{literal} + ": " + tag_name + "\n";
             document.getElementById(current_elem_id).className = document.getElementById(current_elem_id).className + " error";
             document.getElementById(current_elem_id).focus();
         }
     }
 
     if (invalid.length > 0) {
-        invalid += "\n" + {/literal}{xl t="Please correct the value(s) before proceeding!"|js_escape}{literal};
+        invalid += "\n" + {/literal}{xlj t="Please correct the value(s) before proceeding!"}{literal};
         alert(invalid);
 
         return false;
@@ -382,8 +382,8 @@ var patient_dob= {$patient_dob|js_escape};
 var webroot = {$FORM_ACTION|js_escape};
 var pid = {$vitals->get_pid()|js_escape};
 var cancellink = {$DONT_SAVE_LINK|js_escape};
-var birth_xl= {xl t="Birth-24 months"|js_escape};
-var older_xl= {xl t="2-20 years"|js_escape};
+var birth_xl= {xlj t="Birth-24 months"};
+var older_xl= {xlj t="2-20 years"};
 {literal}
 function addGCSelector()
 {
