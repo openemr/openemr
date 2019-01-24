@@ -349,28 +349,28 @@ function sql_checksum_of_modified_row($statement)
 
    /* Framing sql statements for calculating checksum */
     if ($table == "form_physical_exam") {
-        $sql = "select * from $table where forms_id = $rid";
+        $sql = "SELECT * FROM $table WHERE forms_id = ?";
     } else if ($table == "claims") {
-        $sql = "select * from $table where patient_id = $rid";
+        $sql = "SELECT * FROM $table WHERE patient_id = ?";
     } else if ($table == "openemr_postcalendar_events") {
-        $sql = "select * from $table where pc_eid = $rid";
+        $sql = "SELECT * FROM $table WHERE pc_eid = ?";
     } else if ($table == "lang_languages") {
-        $sql = "select * from $table where lang_id = $rid";
+        $sql = "SELECT * FROM $table WHERE lang_id = ?";
     } else if ($table == "openemr_postcalendar_categories" || $table == "openemr_postcalendar_topics") {
-        $sql = "select * from $table where pc_catid = $rid";
+        $sql = "SELECT * FROM $table WHERE pc_catid = ?";
     } else if ($table == "openemr_postcalendar_limits") {
-        $sql = "select * from $table where pc_limitid = $rid";
+        $sql = "SELECT * FROM $table WHERE pc_limitid = ?";
     } else if ($table ==  "gacl_aco_map" || $table == "gacl_aro_groups_map" || $table == "gacl_aro_map" || $table == "gacl_axo_groups_map" || $table == "gacl_axo_map") {
-        $sql = "select * from $table where acl_id = $rid";
+        $sql = "SELECT * FROM $table WHERE acl_id = ?";
     } else if ($table == "gacl_groups_aro_map" || $table == "gacl_groups_axo_map") {
-        $sql = "select * from $table where group_id = $rid";
+        $sql = "SELECT * FROM $table WHERE group_id = ?";
     } else {
-        $sql = "select * from $table where id = $rid";
+        $sql = "SELECT * FROM $table WHERE id = ?";
     }
 
     // When this function is working perfectly, can then shift to the
     // sqlQueryNoLog() function.
-        $results = sqlQueryNoLogIgnoreError($sql);
+        $results = sqlQueryNoLogIgnoreError($sql, array($rid));
         $column_values = "";
    /* Concatenating the column values for the row inserted/updated */
     if (is_array($results)) {
