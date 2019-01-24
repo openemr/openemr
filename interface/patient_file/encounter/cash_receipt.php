@@ -12,11 +12,12 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
-require_once("$srcdir/billing.inc");
 require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/report.inc");
 require_once("$srcdir/options.inc.php");
+
+use OpenEMR\Billing\BillingUtilities;
 
 if (!verifyCsrfToken($_GET["csrf_token_form"])) {
     csrfNotVerified();
@@ -88,7 +89,7 @@ while ($result = sqlFetchArray($inclookupres)) {
 ?>
 <table border="1" cellpadding=5>
 <?php
-if ($result = getBillingByEncounter($pid, $encounter, "*")) {
+if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
     $billing_html = array();
         $total = 0.0;
     $copay = 0.0;

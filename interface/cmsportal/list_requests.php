@@ -152,7 +152,7 @@ function openRequest(postid, type) {
  //
  // To open results in the same frame:
  if (type.indexOf('Demographics') == 0) {
-  document.location.href = 'patient_select.php?postid=' + postid + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>';
+  document.location.href = 'patient_select.php?postid=' + postid + '&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>';
  } else
  if (type.indexOf('Insurance') == 0) {
   document.location.href = 'insurance_form.php?postid=' + postid;

@@ -12,7 +12,7 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2005-2010 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -25,8 +25,6 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once("$srcdir/appointments.inc.php");
 require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
-require_once("$srcdir/parse_era.inc.php");
-require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/../controllers/C_Document.class.php");
@@ -35,7 +33,10 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 require_once "$srcdir/user.inc";
 
+use OpenEMR\Billing\ParseERA;
+use OpenEMR\Billing\SLEOB;
 use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 $DEBUG = 0; // set to 0 for production, 1 to test
 
@@ -134,7 +135,7 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
     }
 }
 
-// This is called back by parse_era() if we are processing X12 835's.
+// This is called back by ParseERA::parse_era() if we are processing X12 835's.
 function era_callback(&$out)
 {
     global $where, $eracount, $eraname;
@@ -143,7 +144,7 @@ function era_callback(&$out)
 // $eraname = $out['isa_control_number'];
     $eraname = $out['gs_date'] . '_' . ltrim($out['isa_control_number'], '0') .
         '_' . ltrim($out['payer_id'], '0');
-    list($pid, $encounter, $invnumber) = slInvoiceNumber($out);
+    list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
 
     if ($pid && $encounter) {
         if ($where) {
@@ -607,13 +608,13 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 {
                     target: target,
                     setting: val,
-                    csrf_token_form: "<?php echo attr(collectCsrfToken()); ?>"
+                    csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
                 }
             );
         }
 
         function npopup(pid) {
-            window.open('sl_eob_patient_note.php?patient_id=' + pid, '_blank', 'width=500,height=250,resizable=1');
+            window.open('sl_eob_patient_note.php?patient_id=' + encodeURIComponent(pid), '_blank', 'width=500,height=250,resizable=1');
             return false;
         }
 
@@ -621,7 +622,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
             // Tabs only
             top.restoreSession();
             let encurl = 'patient_file/history/encounters.php?billing=1&issue=0&pagesize=20&pagestart=0';
-            let paturl = "patient_file/summary/demographics.php?set_pid=" + pid;
+            let paturl = "patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(pid);
             parent.left_nav.loadFrame('pat2', 'pat', paturl);
             // need a little time so can force a billing view
             setTimeout(function(){parent.left_nav.loadFrame('enc2', 'enc', encurl);}, 3000);
@@ -675,42 +676,30 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         }
     </style>
     <?php
-    if ($GLOBALS['enable_help'] == 1) {
-        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
-    } elseif ($GLOBALS['enable_help'] == 2) {
-        $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("Enable help in Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
-    } elseif ($GLOBALS['enable_help'] == 0) {
-        $help_icon = '';
-    }
-    ?>
-    <?php
-    //to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will
-    //become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an
-    //argument, containing one or more elements, the name of the current file is the first element, if there are linked
-    // files they should be listed thereafter, please add _xpd suffix to the file name
-    $arr_files_php = array("sl_eob_search_xpd");
-    $current_state = collectAndOrganizeExpandSetting($arr_files_php);
-    require_once("$srcdir/expand_contract_inc.php");
+    $arrOeUiSettings = array(
+    'heading_title' => xl('EOB Posting - Search'),
+    'include_patient_name' => false,
+    'expandable' => true,
+    'expandable_files' => array('sl_eob_search_xpd'),//all file names need suffix _xpd
+    'action' => "reset",
+    'action_title' => "",
+    'action_href' => "sl_eob_search.php",//only for actions - reset, link or back
+    'show_help_icon' => true,
+    'help_file_name' => "sl_eob_help.php"
+    );
+    $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 
 </head>
 
 <body>
-<div class="<?php echo $container; ?> expandable">
+<div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
     <div class="row">
-        <div class="col-sm-12">
-            <div class="page-header">
-                <h2 class="clearfix"><span id='header_text'><?php echo xlt('EOB Posting - Search'); ?></span> <i
-                        id="exp_cont_icon"
-                        class="fa <?php echo attr($expand_icon_class); ?> oe-superscript-small expand_contract"
-                        title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i> <a href='sl_eob_search.php'
-                          onclick='top.restoreSession()'
-                          title="<?php echo xla('Reset'); ?>">
-                        <i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i>
-                    </a><?php echo $help_icon; ?>
-                </h2>
+            <div class="col-sm-12">
+                <div class="page-header">
+                    <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
+                </div>
             </div>
-        </div>
     </div>
     <div class="row">
         <div class="col-sm-12">
@@ -768,10 +757,10 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                    title='<?php echo xla("Paid amount that you will allocate"); ?>'>
                         </div>
                         <div class="col-xs-1">
-                            <label class="control-label oe-large" for="only_with_debt"><?php echo xlt('Pt Debt'); ?>
-                                :</label>
-                            <label class="control-label oe-small" for="only_with_debt"><?php echo xlt('Debt'); ?>
-                                :</label>
+                            <label class="control-label oe-large" for="only_with_debt"><?php echo xlt('Pt Debt'); ?>:</label>
+
+                            <label class="control-label oe-small" for="only_with_debt"><?php echo xlt('Debt'); ?>:</label>
+
                             <div class="text-center">
                                 <input <?php echo $_REQUEST['only_with_debt'] ? 'checked=checked' : ''; ?>
                                     type="checkbox" name="only_with_debt" id="only_with_debt"/>
@@ -918,7 +907,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 }
 
                                 echo "<!-- Notes from ERA upload processing:\n";
-                                $alertmsg .= parse_era($tmp_name, 'era_callback');
+                                $alertmsg .= ParseERA::parse_era($tmp_name, 'era_callback');
                                 echo "-->\n";
                                 $erafullname = $GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi";
 
@@ -934,7 +923,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                             } // End 835 upload
 
                             if ($eracount) {
-                                // Note that parse_era() modified $eracount and $where.
+                                // Note that ParseERA::parse_era() modified $eracount and $where.
                                 if (!$where) {
                                     $where = '1 = 2';
                                 }
@@ -1070,7 +1059,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 // yet closed out insurance.
                                 //
                                 if (!$duncount) {
-                                    for ($i = 1; $i <= 3 && arGetPayerID($row['pid'], $row['date'], $i);
+                                    for ($i = 1; $i <= 3 && SLEOB::arGetPayerID($row['pid'], $row['date'], $i);
                                          ++$i) {
                                     }
                                     $duncount = $row['last_level_closed'] + 1 - $i;
@@ -1108,14 +1097,14 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 <tr>
                                     <td class="detail">
                                         <a href=""
-                                           onclick="return npopup(<?php echo attr(addslashes($row['pid'])) ?>)"><?php echo text($row['pid']); ?></a>
+                                           onclick="return npopup(<?php echo attr_js($row['pid']); ?>)"><?php echo text($row['pid']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;
                                         <a href=""
-                                           onclick="return npopup(<?php echo attr(addslashes($row['pid'])) ?>)"><?php echo text($row['lname']) . ', ' . text($row['fname']); ?></a>
+                                           onclick="return npopup(<?php echo attr_js($row['pid']); ?>)"><?php echo text($row['lname']) . ', ' . text($row['fname']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;
-                                        <a href="sl_eob_invoice.php?isPosting=1&id=<?php echo attr(urlencode($row['id'])); ?>"
+                                        <a href="sl_eob_invoice.php?isPosting=1&id=<?php echo attr_url($row['id']); ?>"
                                            target="_blank"><?php echo text($row['pid']) . '.' . text($row['encounter']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;<?php echo text(oeFormatShortDate($svcdate)); ?></td>
@@ -1214,22 +1203,14 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         </div>
     </div>
 </div> <!--End of Container div-->
-<br>
-<?php
-//home of the help modal ;)
-//$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
-if ($GLOBALS['enable_help'] == 1) {
-    echo "<script>var helpFile = 'sl_eob_help.php'</script>";
-//help_modal.php lives in interface, set path accordingly
-    require_once "../help_modal.php";
-}
-?>
+<?php $oemr_ui->oeBelowContainerDiv();?>
+
 <script language="JavaScript">
     function processERA() {
         var f = document.forms[0];
         var debug = f.form_without.checked ? '1' : '0';
         var paydate = f.form_paydate.value;
-        window.open('sl_eob_process.php?eraname=<?php echo attr(urlencode($eraname)); ?>&debug=' + debug + '&paydate=' + paydate + '&original=original' + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>', '_blank');
+        window.open('sl_eob_process.php?eraname=' + <?php echo js_url($eraname); ?> + '&debug=' + encodeURIComponent(debug) + '&paydate=' + encodeURIComponent(paydate) + '&original=original' + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank');
         return false;
     }
 
@@ -1301,7 +1282,7 @@ if ($GLOBALS['enable_help'] == 1) {
     ?>
     $(document).ready(function () {
 //using jquery-ui-1-12-1 tooltip instead of bootstrap tooltip
-        $('#select-method-tooltip').attr("title", "<?php echo xla('Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>").tooltip();
+        $('#select-method-tooltip').attr("title", <?php echo xlj('Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>).tooltip();
     });
 </script>
 <?php
@@ -1327,12 +1308,7 @@ if ($_REQUEST['form_search'] == "$tr_str") { ?>
     <?php
 }
 ?>
-<script>
-    <?php
-    // jQuery script to change expanded/centered state dynamically
-    require_once("../expand_contract_js.php")
-    ?>
-</script>
+
 
 </body>
 </html>

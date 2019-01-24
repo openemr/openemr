@@ -3,7 +3,7 @@
  *
  * application logic specific to the OnsiteActivityView listing page
  *
- * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * Copyright (C) 2016-2018 Jerry Padgett <sjpadgett@gmail.com>
  *
  * LICENSE: This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as
@@ -97,10 +97,26 @@ var actpage = {
 		        return eModal.ajax(params)
 		            .then(function () { });
 		 };
+		// @todo below for emodal refactor
+        /*function showProfileModal(cpid) {
+            var title = 'Demographics Legend Red: Charted Values. Blue: Patient Edits Provider Audit.';
 
-		 $(document.body).on('hidden.bs.modal', function (){
-			 	window.location.href = './onsiteactivityviews';
-			});
+            var params = {
+                buttons: [
+                    { text: 'Help', close: false, style: 'info btn-sm',id: 'formHelp'},
+                    { text: 'Cancel', close: true, style: 'default btn-sm'},
+                    { text: 'Revert Edits', close: false, style: 'success btn-sm',id:'replaceAllButton'},
+                    { text: 'Commit to Chart', style: 'danger btn-sm', close: false,id:'savePatientButton'}],
+                //onClosed: 'reload',
+                type: 'GET',
+                url: './patientdata?pid='+cpid+'&user='+cuser
+            };
+            dlgopen('','','modal-xl', 500, '', title, params);
+        }*/
+
+        $(document.body).on('hidden.bs.modal', function () {
+            window.location.href = './onsiteactivityviews';
+        });
 
 		// initialize the collection view
 		this.collectionView = new view.CollectionView({
@@ -124,13 +140,17 @@ var actpage = {
 				var m = actpage.onsiteActivityViews.get(this.id);
 				var cpid = m.get('patientId');
 				var activity = m.get('activity');
-				var recid = m.get('tableArgs');
-				if(activity == 'document')
-					showDocumentModal(cpid,recid);
-				else if(activity == 'profile')
-					showProfileModal(cpid);
-				else if(activity == 'payment')
-					showPaymentModal(cpid);
+				if(activity == 'document') {
+                    let recid = m.get('tableArgs');
+                    showDocumentModal(cpid, recid);
+                }
+				else if(activity == 'profile') {
+                    showProfileModal(cpid);
+                }
+				else if(activity == 'payment') {
+                    let recid = m.get('id');
+                    showPaymentModal(cpid, recid);
+                }
 			});
 
 			// make the headers clickable for sorting

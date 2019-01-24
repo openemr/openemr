@@ -109,7 +109,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 
             if ((!empty($tooltip)) || (!empty($web_reference))) {
                 if (!empty($web_reference)) {
-                    $tooltip = "<a href='".attr($web_reference)."' target='_blank' style='white-space: pre-line;' title='".$tooltip."'>?</a>";
+                    $tooltip = "<a href='".attr($web_reference)."' rel='noopener' target='_blank' style='white-space: pre-line;' title='".$tooltip."'>?</a>";
                 } else {
                     $tooltip = "<span style='white-space: pre-line;' title='".$tooltip."'>?</span>";
                 }

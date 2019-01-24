@@ -44,7 +44,7 @@ function phimail_connect(&$phimail_error)
 
     $phimail_server = @parse_url($GLOBALS['phimail_server_address']);
     $phimail_username = $GLOBALS['phimail_username'];
-    $phimail_password = $GLOBALS['phimail_password'];
+    $phimail_password = decryptStandard($GLOBALS['phimail_password']);
     $phimail_cafile = dirname(__FILE__) . '/../sites/' . $_SESSION['site_id']
       . '/documents/phimail_server_pem/phimail_server.pem';
     if (!file_exists($phimail_cafile)) {
@@ -127,7 +127,7 @@ function phimail_check()
     }
 
     $phimail_username = $GLOBALS['phimail_username'];
-    $phimail_password = $GLOBALS['phimail_password'];
+    $phimail_password = decryptStandard($GLOBALS['phimail_password']);
 
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
     if ($ret!==true) {

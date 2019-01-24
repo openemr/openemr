@@ -10,20 +10,27 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2006-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2015 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
 require_once("../../library/invoice_summary.inc.php");
-require_once("../../library/sl_eob.inc.php");
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Billing\SLEOB;
 use OpenEMR\Core\Header;
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 $alertmsg = '';
 $bgcolor = "#aaaaaa";
@@ -202,13 +209,13 @@ function endPatient($ptrow)
         $export_dollars += $pt_balance;
     } else {
         if ($ptrow['count'] > 1) {
-            echo " <tr bgcolor='$bgcolor'>\n";
+            echo " <tr bgcolor='" . attr($bgcolor) . "'>\n";
             /***************************************************************
           echo "  <td class='detail' colspan='$initial_colspan'>";
           echo "&nbsp;</td>\n";
           echo "  <td class='detotal' colspan='$final_colspan'>&nbsp;Total Patient Balance:</td>\n";
             ***************************************************************/
-            echo "  <td class='detotal' colspan='" . ($initial_colspan + $final_colspan) .
+            echo "  <td class='detotal' colspan='" . attr(($initial_colspan + $final_colspan)) .
             "'>&nbsp;" . xlt('Total Patient Balance') . ":</td>\n";
             /**************************************************************/
             if ($form_age_cols) {
@@ -258,7 +265,7 @@ function endInsurance($insrow)
         $export_patient_count += 1;
         $export_dollars += $ins_balance;
     } else {
-        echo " <tr bgcolor='$bgcolor'>\n";
+        echo " <tr bgcolor='" . attr($bgcolor) . "'>\n";
         echo "  <td class='detail'>" . text($insrow['insname']) . "</td>\n";
         echo "  <td class='detotal' align='right'>&nbsp;" .
         text(oeFormatMoney($insrow['charges'])) . "&nbsp;</td>\n";
@@ -366,6 +373,7 @@ if ($_POST['form_csvexport']) {
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Collections'); ?></span>
 
 <form method='post' action='collections_report.php' enctype='multipart/form-data' id='theform' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 
@@ -739,7 +747,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
         $insname = '';
         if (! $duncount) {
             for ($i = 1; $i <= 3; ++$i) {
-                $tmp = arGetPayerID($patient_id, $svcdate, $i);
+                $tmp = SLEOB::arGetPayerID($patient_id, $svcdate, $i);
 
                 if (empty($tmp)) {
                     break;
@@ -801,7 +809,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
             $row['ins1'] = $insname;
         } else {
             if (empty($payerids)) {
-                $tmp = arGetPayerID($patient_id, $svcdate, 1);
+                $tmp = SLEOB::arGetPayerID($patient_id, $svcdate, 1);
                 if (!empty($tmp)) {
                     $payerids[] = $tmp;
                 }
@@ -1009,7 +1017,7 @@ if ($form_age_cols) {
           echo "  <th class='dehead' align='right'>";
               echo $form_age_inc * $c;
         if (++$c < $form_age_cols) {
-            echo "-" . ($form_age_inc * $c - 1);
+            echo "-" . text(($form_age_inc * $c - 1));
         } else {
             echo "+";
         }
@@ -1146,7 +1154,7 @@ if ($ptrow['count'] == 1) {
 }
 ?>
   <td class="detail">
-     &nbsp;<a href="../billing/sl_eob_invoice.php?id=<?php echo attr($row['id']) ?>"
+     &nbsp;<a href="../billing/sl_eob_invoice.php?id=<?php echo attr_url($row['id']) ?>"
     target="_blank"><?php echo empty($row['irnumber']) ? text($row['invnumber']) : text($row['irnumber']); ?></a>
   </td>
   <td class="detail">
@@ -1211,11 +1219,11 @@ if ($form_cb_err) {
         } // end not export and not insurance summary
 
         else if ($_POST['form_csvexport']) {
-          # The CSV detail line is written here added conditions for checked items (TLH).
+          // The CSV detail line is written here added conditions for checked items (TLH).
+          // Added zero balances for a complete spreadsheet view
             $balance = $row['charges'] + $row['adjustments'] - $row['paid'];
-            if ($balance >0) {
-                // echo '"' . $insname                             . '",';
-                echo '"' . $row['ins1']                         . '",';
+            if ($balance > 0 || $_POST['form_zero_balances']) {
+                echo '"' . $row['ins1']                         . '",'; // insname
                 echo '"' . $ptname                              . '",';
                 if ($form_cb_ssn) {
                     echo '"' . $row['ss']                          . '",';
@@ -1343,6 +1351,10 @@ if (!$_POST['form_csvexport']) {
   </div>
 
   <div style='float:left'>
+    <label><input type='checkbox' name='form_zero_balances' value='1' /> <?php echo xlt('Export Zero Balances') ?>&nbsp;&nbsp;</label>
+  </div>
+
+  <div style='float:left'>
     <label><input type='checkbox' name='form_individual' value='1' /> <?php echo xlt('Export Individual Invoices') ?>&nbsp;&nbsp;</label>
   </div>
 
@@ -1359,7 +1371,7 @@ if (!$_POST['form_csvexport']) {
 <script language="JavaScript">
 <?php
 if ($alertmsg) {
-    echo "alert('" . addslashes($alertmsg) . "');\n";
+    echo "alert(" . js_escape($alertmsg) . ");\n";
 }
 ?>
 </script>

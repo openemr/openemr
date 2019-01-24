@@ -1,8 +1,8 @@
 /*
- * 
+ *
  */
 var rule_edit = function( args ) {
- 
+
     var fn_work = function() {
         // setup required
         $(".req").each( function() {
@@ -35,7 +35,7 @@ var rule_edit = function( args ) {
             if ( fld.length > 0 ) {
                 if ( fld.length == 1 ) {
                     // likely dealing with some kind of textbox
-                    var val = fld.attr("value");
+                    var val = fld.prop("value");
                     if ( !val || val.trim() == "" ) {
                         fld.addClass("field_err_marker");
                         label.addClass("field_err_lbl_marker");
@@ -49,8 +49,8 @@ var rule_edit = function( args ) {
                         success = false;
                     }
                 }
-            } 
-            
+            }
+
             // test group
             var dataGroup = label.attr("data-grp");
             var grp = $("[data-grp-tgt='" + dataGroup + "']");
@@ -74,15 +74,15 @@ var rule_edit = function( args ) {
                 success = false;
             }
         });
-        
+
         return success;
     }
 
     var fn_wire_events = function() {
-        $('#btn_save').click( function() {
+        $('#btn_save').on("click", function() {
            if ( fn_validate() ) {
                top.restoreSession();
-               $('#frm_submit').submit();
+               $('#frm_submit').trigger("submit");
            }
         });
     }

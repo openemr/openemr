@@ -12,7 +12,6 @@
 
 require_once("../globals.php");
 require_once("$srcdir/log.inc");
-require_once("$srcdir/crypto.php");
 require_once("$srcdir/acl.inc");
 
 if (!acl_check('admin', 'users')) {
@@ -370,10 +369,34 @@ if ($ret = getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' =
 
         //July 1, 2014: Ensoftek: Decrypt comment data if encrypted
         if ($commentEncrStatus == "Yes") {
-            if ($encryptVersion == 1) {
+            if ($encryptVersion == 3) {
                 // Use new openssl method
                 if (extension_loaded('openssl')) {
-                    $trans_comments = preg_replace($patterns, $replace, aes256Decrypt($iter["comments"]));
+                    $trans_comments = decryptStandard($iter["comments"]);
+                    if ($trans_comments !== false) {
+                        $trans_comments = preg_replace($patterns, $replace, $trans_comments);
+                    } else {
+                        $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
+                    }
+                } else {
+                    $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
+                }
+            } else if ($encryptVersion == 2) {
+                // Use new openssl method
+                if (extension_loaded('openssl')) {
+                    $trans_comments = aes256DecryptTwo($iter["comments"]);
+                    if ($trans_comments !== false) {
+                        $trans_comments = preg_replace($patterns, $replace, $trans_comments);
+                    } else {
+                        $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
+                    }
+                } else {
+                    $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
+                }
+            } else if ($encryptVersion == 1) {
+                // Use new openssl method
+                if (extension_loaded('openssl')) {
+                    $trans_comments = preg_replace($patterns, $replace, aes256DecryptOne($iter["comments"]));
                 } else {
                     $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
                 }

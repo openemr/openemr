@@ -54,7 +54,6 @@ class Userforms extends UserAudit
             $type = $data[3];
             global $ISSUE_TYPES;
             require_once("../../library/forms.inc");
-            require_once("../../library/billing.inc");
             require_once("../../library/pnotes.inc");
             require_once("../../library/patient.inc");
             require_once("../../library/options.inc.php");
@@ -604,7 +603,7 @@ class Userforms extends UserAudit
                 }
 
                     $phimail_username = $GLOBALS['phimail_username'];
-                    $phimail_password = $GLOBALS['phimail_password'];
+                    $phimail_password = decryptStandard($GLOBALS['phimail_password']);
                     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
                 if ($ret!==true) {
                     return("$config_err 4");

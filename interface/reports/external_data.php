@@ -1,30 +1,16 @@
 <?php
-// +-----------------------------------------------------------------------------+
-// Copyright (C) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-//
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-//
-// A copy of the GNU General Public License is included along with this program:
-// openemr/interface/login/GnuGPL.html
-// For more information write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
-// Author:   Jacob T Paul <jacob@zhservices.com>
-//           Vinish K <vinish@zhservices.com>
-//
-// +------------------------------------------------------------------------------+
-
+/**
+ * external_data.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jacob T Paul <jacob@zhservices.com>
+ * @author    Vinish K <vinish@zhservices.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once("../globals.php");
@@ -34,9 +20,8 @@ require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
+use OpenEMR\OeUI\OemrUI;
 
-$from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
-$to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $records1 = array();
 $records2 = array();
 ?>
@@ -121,30 +106,27 @@ $records2 = array();
                 border-bottom: 2px solid #003366;
             }
         </style>
+        <script> <?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?></script>
         <?php
-        //to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will
-        //become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an
-        //argument, containing one or more elements, the name of the current file is the first element, if there are linked
-        // files they should be listed thereafter, please add _xpd suffix to the file name
-        $arr_files_php = array("external_data_patient_xpd", "stats_full_patient_xpd", "patient_ledger_patient_xpd");
-        $current_state = collectAndOrganizeExpandSetting($arr_files_php);
-        require_once("$srcdir/expand_contract_inc.php");
-        $GLOBALS['enable_help'] = 0; // temporary till help file is written
+        $arrOeUiSettings = array(
+            'heading_title' => xl('External Data'),
+            'include_patient_name' => true,
+            'expandable' => true,
+            'expandable_files' => array("external_data_patient_xpd", "stats_full_patient_xpd", "patient_ledger_patient_xpd"),//all file names need suffix _xpd
+            'action' => "",//conceal, reveal, search, reset, link or back
+            'action_title' => "",
+            'action_href' => "",//only for actions - reset, link or back
+            'show_help_icon' => false,
+            'help_file_name' => "external_data_dashboard_help.php"
+        );
+        $oemr_ui = new OemrUI($arrOeUiSettings);
         ?>
-        <script>
-        <?php
-        require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal
-        require_once("$include_root/expand_contract_js.php");//jQuery to provide expand/contract icon toggle if form is expandable
-        ?>
-        </script>
     </head>
     <body class="body_top">
-        <div class="<?php echo $container;?> expandable">
-            <?php $header_title = xl('External Data of');?>
+        <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
             <div class="row">
                 <div class="col-sm-12">
                     <?php
-                    $expandable = 1; // to include expandable icon in title
                     require_once("$include_root/patient_file/summary/dashboard_header.php")
                     ?>
                 </div>
@@ -195,9 +177,9 @@ $records2 = array();
                                 ?>
                                 <tr>
                                     <td><span class="dm-ed-in-7"><?php echo text(oeFormatShortDate($value1['ee_date'])); ?></span></td>
-                                    <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['ee_encounter_diagnosis'], ENT_NOQUOTES); ?></span></td>
-                                    <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['provider'], ENT_NOQUOTES); ?></span></td>
-                                    <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['facility'], ENT_NOQUOTES); ?></span></td>
+                                    <td><span class="dm-ed-in-7"><?php echo text($value1['ee_encounter_diagnosis']); ?></span></td>
+                                    <td><span class="dm-ed-in-7"><?php echo text($value1['provider']); ?></span></td>
+                                    <td><span class="dm-ed-in-7"><?php echo text($value1['facility']); ?></span></td>
                                 </tr>
                             <?php
                             } ?>
@@ -229,9 +211,9 @@ $records2 = array();
                             foreach ($records2 as $value2) { ?>
                                 <tr>
                                     <td><span class="dm-ed-in-7"><?php echo text(oeFormatShortDate($value2['ep_date'])); ?></span></td>
-                                    <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['ep_code_type'] . ':' . $value2['ep_code'], ENT_NOQUOTES); ?></span></td>
-                                    <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['ep_code_text'], ENT_NOQUOTES); ?></span></td>
-                                    <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['facility'], ENT_NOQUOTES); ?></span></td>
+                                    <td><span class="dm-ed-in-7"><?php echo text($value2['ep_code_type'] . ':' . $value2['ep_code']); ?></span></td>
+                                    <td><span class="dm-ed-in-7"><?php echo text($value2['ep_code_text']); ?></span></td>
+                                    <td><span class="dm-ed-in-7"><?php echo text($value2['facility']); ?></span></td>
                                 </tr>
                             <?php
                             } ?>
@@ -245,17 +227,9 @@ $records2 = array();
                 </div>
             </div>
         </div><!--end of container div-->
-        <?php
-        //home of the help modal ;)
-        //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page, temporary status till help file is written
-        if ($GLOBALS['enable_help'] == 1) {
-            echo "<script>var helpFile = 'external_data_dashboard_help.php'</script>";
-            require "$include_root/help_modal.php";
-            ;
-        }
-        ?>
+        <?php $oemr_ui->oeBelowContainerDiv();?>
     <script>
-        var listId = '#' + '<?php echo attr($list_id); ?>';
+        var listId = '#' + <?php echo js_escape($list_id); ?>;
         $(document).ready(function(){
             $(listId).addClass("active");
         });

@@ -7,15 +7,21 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-include_once("../globals.php");
-include_once("../../library/patient.inc");
-include_once("../../library/acl.inc");
+require_once("../globals.php");
+require_once("../../library/patient.inc");
+require_once("../../library/acl.inc");
 
 use OpenEMR\Core\Header;
+
+if (!empty($_POST)) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+}
 
 // Might want something different here.
 //
@@ -103,6 +109,7 @@ if ($_POST['form_csvexport']) {
 </div>
 
 <form name='theform' method='post' action='insurance_allocation_report.php' id='theform' onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <div id="report_parameters">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
@@ -225,7 +232,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             <?php echo text($key); ?>
   </td>
   <td align='right'>
-        <?php echo oeFormatMoney($val['charges']); ?>
+        <?php echo text(oeFormatMoney($val['charges'])); ?>
   </td>
   <td align='right'>
         <?php echo text($val['visits']); ?>

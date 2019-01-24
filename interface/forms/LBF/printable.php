@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2009-2017 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2009-2019 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -33,7 +33,7 @@ if ($visitid < 0) {
 $formid = empty($_REQUEST['formid']) ? 0 : (0 + $_REQUEST['formid']);
 
 // True if to display as a form to complete, false to display as information.
-$isform = empty($_REQUEST['isform']) ? 0 : 1;
+$isblankform = empty($_REQUEST['isform']) ? 0 : 1;
 
 $CPR = 4; // cells per row
 
@@ -69,7 +69,7 @@ if (!acl_check('admin', 'super') && !empty($LBF_ACO)) {
 
 // Html2pdf fails to generate checked checkboxes properly, so write plain HTML
 // if we are doing a visit-specific form to be completed.
-$PDF_OUTPUT = ($formid && $isform) ? false : true;
+$PDF_OUTPUT = ($formid && $isblankform) ? false : true;
 //$PDF_OUTPUT = false; // debugging
 
 if ($PDF_OUTPUT) {
@@ -158,7 +158,7 @@ div.section {
   // html2pdf screws up the div borders when a div overflows to a second page.
   // Our temporary solution is to turn off the borders in the case where this
   // is likely to happen (i.e. where all form options are listed).
-if (!$isform) {
+if (!$isblankform) {
 ?>
 border-style: solid;
 border-width: 1px;
@@ -172,7 +172,7 @@ div.section table {
 }
 div.section td.stuff {
  vertical-align: bottom;
-<?php if ($isform) { ?>
+<?php if ($isblankform) { ?>
  height: 16pt;
 <?php } ?>
 }
@@ -263,7 +263,7 @@ if (is_file("$webserver_root/$ma_logo_path")) {
 echo genFacilityTitle($formtitle, -1, $logo);
 ?>
 
-<?php if ($isform) { ?>
+<?php if ($isblankform) { ?>
 <span class='subhead'>
     <?php echo xlt('Patient') ?>: ________________________________________ &nbsp;
     <?php echo xlt('Clinic') ?>: ____________________ &nbsp;
@@ -335,15 +335,17 @@ while ($frow = sqlFetchArray($fres)) {
     $field_id     = $frow['field_id'];
     $list_id      = $frow['list_id'];
     $edit_options = $frow['edit_options'];
+    $jump_new_row      = isOption($edit_options, 'J');
+    $prepend_blank_row = isOption($edit_options, 'K');
 
     $currvalue = '';
     if ($formid || $visitid) {
         $currvalue = lbf_current_value($frow, $formid, $visitid);
     }
 
-    // Skip this field if skip conditions call for that.
+    // Skip this field if it's a form with data and skip conditions call for that.
     // Note this also accumulates info for subsequent skip tests.
-    if (isSkipped($frow, $currvalue) == 'skip') {
+    if (!$isblankform && isSkipped($frow, $currvalue) == 'skip') {
         continue;
     }
 
@@ -391,7 +393,7 @@ while ($frow = sqlFetchArray($fres)) {
 
         $group_levels .= $this_levels[$i++];
         $gname = $grparr[substr($group_levels, 0, $i)]['grp_title'];
-        $subtitle = $grparr[substr($group_levels, 0, $i)]['grp_subtitle'];
+        $subtitle = xl_layout_label($grparr[substr($group_levels, 0, $i)]['grp_subtitle']);
 
         // This is also for html2pdf. Telling it that the following stuff should
         // start on a new page if there is not otherwise room for it on this page.
@@ -414,9 +416,11 @@ while ($frow = sqlFetchArray($fres)) {
     }
 
     // Handle starting of a new row.
-    if (($cell_count + $titlecols + $datacols) > $CPR || $cell_count == 0) {
+    if (($cell_count + $titlecols + $datacols) > $CPR || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
         end_row();
-        // echo "  <tr style='height:30pt'>";
+        if ($prepend_blank_row) {
+            echo "  <tr><td class='text' colspan='$CPR'>&nbsp;</td></tr>\n";
+        }
         if (isOption($edit_options, 'RS')) {
             echo " <tr class='RS'>";
         } else if (isOption($edit_options, 'RO')) {
@@ -482,7 +486,7 @@ while ($frow = sqlFetchArray($fres)) {
 
     ++$item_count;
 
-    if ($isform) {
+    if ($isblankform) {
         generate_print_field($frow, $currvalue);
     } else {
         $s = generate_display_field($frow, $currvalue);

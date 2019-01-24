@@ -58,6 +58,7 @@ require_once("$srcdir/report.inc");
 require_once("$srcdir/html2pdf/html2pdf.class.php");
 
 use Mpdf\Mpdf;
+use OpenEMR\Billing\BillingUtilities;
 
 $returnurl = 'encounter_top.php';
 
@@ -559,8 +560,8 @@ if ($_REQUEST["mode"] == "new") {
         $form_type = $_REQUEST['form_type'];
         $r_PMSFH = $_REQUEST['r_PMSFH'];
         if ($deletion == 1) {
-            row_delete("issue_encounter", "list_id = '$issue'");
-            row_delete("lists", "id = '$issue'");
+            row_delete("issue_encounter", "list_id = '" . add_escape_custom($issue) . "'");
+            row_delete("lists", "id = '" . add_escape_custom($issue) . "'");
             $PMSFH = build_PMSFH($pid);
             send_json_values($PMSFH);
             exit;
@@ -805,7 +806,7 @@ if ($_REQUEST["mode"] == "new") {
                 $item["fee"] = $res["pr_price"];
             }
             $item["justify"] .= ":";
-            addBilling($encounter, $item["codetype"], $item["code"], $item["codedesc"], $pid, '1', $providerID, $item["modifier"], $item["units"], $item["fee"], $ndc_info, $item["justify"], $billed, '');
+            BillingUtilities::addBilling($encounter, $item["codetype"], $item["code"], $item["codedesc"], $pid, '1', $providerID, $item["modifier"], $item["units"], $item["fee"], $ndc_info, $item["justify"], $billed, '');
         }
         echo "OK";
         exit;
@@ -856,7 +857,7 @@ if ($_REQUEST["mode"] == "new") {
     $encounter_data = sqlQuery($query, array($encounter));
     $dated = new DateTime($encounter_data['encounter_date']);
     $visit_date = $dated->format('Y-m-d');
-    
+
     $N = count($_POST['PLAN']);
     $sql_clear = "DELETE from form_eye_mag_orders where pid =? and ORDER_PLACED_BYWHOM=? and ORDER_DATE_PLACED=? and ORDER_STATUS ='pending'";
     sqlQuery($sql_clear, array($pid, $providerID, $visit_date));
@@ -872,7 +873,7 @@ if ($_REQUEST["mode"] == "new") {
 
         $_POST['PLAN'] = mb_substr($fields['PLAN'], 0, -1); //get rid of trailing "|"
     }
-    
+
     $M = count($_POST['TEST']);
     if ($M > '0') {
         for ($i = 0; $i < $M; $i++) {
@@ -1163,9 +1164,9 @@ if ($_REQUEST["mode"] == "new") {
                       id in (SELECT id from form_eye_base where pid=? ORDER BY `date` DESC)
                       ORDER by id DESC LIMIT 10;
             ";
-                        
+
             $result = sqlStatement($sql, array($pid));
-            
+
             while ($visit = sqlFetchArray($result)) {
                 echo display_PRIOR_section('REFRACTIONS', $visit['id'], $visit['id'], $pid);
             }
@@ -1248,7 +1249,7 @@ function debug($local_var)
 
 function row_delete($table, $where)
 {
-    $query = "SELECT * FROM $table WHERE $where";
+    $query = "SELECT * FROM " . escape_table_name($table) . " WHERE $where";
     $tres = sqlStatement($query);
     $count = 0;
     while ($trow = sqlFetchArray($tres)) {
@@ -1270,7 +1271,7 @@ function row_delete($table, $where)
     }
 
     if ($count) {
-        $query = "DELETE FROM $table WHERE $where";
+        $query = "DELETE FROM " . escape_table_name($table) . " WHERE $where";
         sqlStatement($query);
     }
 }

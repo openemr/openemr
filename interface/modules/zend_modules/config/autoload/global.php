@@ -56,7 +56,7 @@ if ($GLOBALS['allow_multiple_databases']) {
                 'driver_options' => $utf8,
                 'port' => $row['port'],
                 'username' => $row['username'],
-                'password' => my_decrypt($row['password']),
+                'password' => (cryptCheckStandard($row['password'])) ? decryptStandard($row['password']) : my_decrypt($row['password']),
             );
 
             // Create new factories using data from custom database
@@ -90,26 +90,13 @@ return array(
 
 
 /**
- * Encrypts the string
- * @param $value
- * @return bool|string
- */
-function my_encrypt($data)
-{
-    // Remove the base64 encoding from our key
-    $encryption_key = base64_decode($GLOBALS['safe_key_database']);
-    // Generate an initialization vector
-    $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc'));
-    // Encrypt the data using AES 256 encryption in CBC mode using our encryption key and initialization vector.
-    $encrypted = openssl_encrypt($data, 'aes-256-cbc', $encryption_key, 0, $iv);
-    // The $iv is just as important as the key for decrypting, so save it with our encrypted data using a unique separator (::)
-    return base64_encode($encrypted . '::' . $iv);
-}
-
-/**
+ * DEPRECATED; just keeping this for backward compatibility.
+ *
  * Decrypts the string
  * @param $value
  * @return bool|string
+ *
+ * DEPRECATED; just keeping this for backward compatibility.
  */
 
 function my_decrypt($data)

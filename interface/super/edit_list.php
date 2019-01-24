@@ -1166,7 +1166,7 @@ function writeITLine($it_array)
             <th><b><?php echo xlt('External'); ?></b></th>
         <?php elseif ($list_id == 'apptstat' || $list_id == 'groupstat') : ?>
             <th><b><?php echo xlt('ID'); ?></b></th>
-           <th><b><?php echo xlt('Title'); ?></b></th>
+            <th><b><?php echo xlt('Title'); ?></b></th>
             <th><b><?php echo xlt('Order'); ?></b></th>
             <th><b><?php echo xlt('Default'); ?></b></th>
             <th><b><?php echo xlt('Active'); ?></b></th>
@@ -1227,7 +1227,7 @@ function writeITLine($it_array)
                 </th>
             <?php }
 if ($GLOBALS['ippf_specific']) { ?>
-                    <th><b><?php echo xlt('Global ID'); ?></b></th>
+    <th><b><?php echo xlt('Global ID'); ?></b></th>
 <?php } ?>
             <th><b><?php
             if ($list_id == 'language') {

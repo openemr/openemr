@@ -5,9 +5,12 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
+
 
 require_once('../globals.php');
 
@@ -20,8 +23,8 @@ function writeRow($method, $name)
     echo "&nbsp;</td><td>&nbsp;";
     echo text($name);
     echo "&nbsp;</td><td>";
-    echo "<input type='button' onclick='delclick(\"" . attr(addslashes($method)) . "\", \"" .
-        attr(addslashes($name)) . "\")' value='" . xla('Delete') . "' />";
+    echo "<input type='button' onclick='delclick(" . attr_js($method) . ", " .
+        attr_js($name) . ")' value='" . xla('Delete') . "' />";
     echo "</td></tr>\n";
 }
 
@@ -61,7 +64,7 @@ function addclick(sel) {
             window.location.href = 'mfa_u2f.php?action=reg1';
         }
         else {
-            alert('<?php echo xls('Not yet implemented.'); ?>');
+            alert(<?php echo xlj('Not yet implemented.'); ?>);
         }
     }
     sel.selectedIndex = 0;

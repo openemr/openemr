@@ -191,11 +191,18 @@ function getFacility($facid = 0)
     $facility = null;
 
     if ($facid > 0) {
-        $facility = $facilityService->getById($facid);
-    } elseif ($facid == 0) {
-        $facility = $facilityService->getPrimaryBillingLocation();
+        return $facilityService->getById($facid);
+    }
+
+    if ($GLOBALS['login_into_facility']) {
+        //facility is saved in sessions
+        $facility  = $facilityService->getById($_SESSION['facilityId']);
     } else {
-        $facility = $facilityService->getFacilityForUser($_SESSION['authUserID']);
+        if ($facid == 0) {
+            $facility = $facilityService->getPrimaryBillingLocation();
+        } else {
+            $facility = $facilityService->getFacilityForUser($_SESSION['authUserID']);
+        }
     }
 
     return $facility;

@@ -30,7 +30,7 @@ function cms_portal_call($args)
 {
     $portal_url = $GLOBALS['gbl_portal_cms_address'] . "/wp-content/plugins/sunset-patient-portal/webserve.php";
     $args['login'   ] = $GLOBALS['gbl_portal_cms_username'];
-    $args['password'] = $GLOBALS['gbl_portal_cms_password'];
+    $args['password'] = decryptStandard($GLOBALS['gbl_portal_cms_password']);
 
     if (($phandle = curl_init($portal_url)) === false) {
         die(text(xl('Unable to access URL') . " '$portal_url'"));

@@ -1,25 +1,14 @@
 <?php
 /**
+ *  Patient Portal
  *
- * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
- *
- * LICENSE: This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of the
- *  License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @package OpenEMR
- * @author Jerry Padgett <sjpadgett@gmail.com>
- * @link http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 session_start();
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
@@ -29,7 +18,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     session_destroy();
     $ignoreAuth = false;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
-    if (! isset($_SESSION['authUserID'])) {
+    if (!isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
         exit();
@@ -37,12 +26,89 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 }
 
 require_once("./appsql.class.php");
-//$_SESSION['whereto'] = 'paymentpanel';
-if ($_SESSION['portal_init'] != 'true') {
+
+use OpenEMR\Billing\PaymentGateway;
+
+if ($_SESSION['portal_init'] !== true) {
     $_SESSION['whereto'] = 'paymentpanel';
 }
 
 $_SESSION['portal_init'] = false;
+
+if ($_POST['mode'] == 'AuthorizeNet') {
+    $form_pid = $_POST['form_pid'];
+    $pay = new PaymentGateway("AuthorizeNetApi_Api");
+    $transaction['amount'] = $_POST['payment'];
+    $transaction['currency'] = "USD";
+    $transaction['opaqueDataDescriptor'] = $_POST['dataDescriptor'];
+    $transaction['opaqueDataValue'] = $_POST['dataValue'];
+    try {
+        $response = $pay->submitPaymentToken($transaction);
+        if (is_string($response)) {
+            echo $response;
+            exit();
+        }
+        $r = $response->getParsedData();
+        $cc = array();
+        $cc["cardHolderName"] = $_POST["cardHolderName"];
+        $cc['status'] = $response->getMessage();
+        $cc['authCode'] = $r->transactionResponse->authCode;
+        $cc['transId'] = $r->transactionResponse->transId;
+        $cc['cardNumber'] = $r->transactionResponse->accountNumber;
+        $cc['cc_type'] = $r->transactionResponse->accountType;
+        $cc['zip'] = $_POST["zip"];
+        $ccaudit = json_encode($cc);
+        $invoice = isset($_POST['invValues']) ? $_POST['invValues'] : '';
+    } catch (\Exception $ex) {
+        return $ex->getMessage();
+    }
+
+    $_SESSION['whereto'] = 'paymentpanel';
+    if (!$response->isSuccessful()) {
+        echo $response;
+        exit();
+    }
+    $s = SaveAudit($form_pid, $invoice, $ccaudit);
+
+    echo 'ok';
+}
+
+if ($_POST['mode'] == 'Stripe') {
+    $form_pid = $_POST['form_pid'];
+    $pay = new PaymentGateway("Stripe");
+    $transaction['amount'] = $_POST['payment'];
+    $transaction['currency'] = "USD";
+    $transaction['token'] = $_POST['stripeToken'];
+    try {
+        $response = $pay->submitPaymentToken($transaction);
+        if (is_string($response)) {
+            echo $response;
+            exit();
+        }
+        $r = $response->getSource();
+        $cc = array();
+        $cc["cardHolderName"] = $_POST["cardHolderName"];
+        $cc['status'] = $response->isSuccessful() ? "Payment Successful" : "Failed";
+        $cc['authCode'] = $r['fingerprint'];
+        $cc['transId'] = $response->getTransactionReference();
+        $cc['cardNumber'] = "******** " . $r['last4'];
+        $cc['cc_type'] = $r['brand'];
+        $cc['zip'] = $r->address_zip;
+        $ccaudit = json_encode($cc);
+        $invoice = isset($_POST['invValues']) ? $_POST['invValues'] : '';
+    } catch (\Exception $ex) {
+        echo $ex->getMessage();
+    }
+
+    $_SESSION['whereto'] = 'paymentpanel';
+    if (!$response->isSuccessful()) {
+        echo $response;
+        exit();
+    }
+    $s = SaveAudit($form_pid, $invoice, $ccaudit);
+
+    echo 'ok';
+}
 
 if ($_POST['mode'] == 'portal-save') {
     $form_pid = $_POST['form_pid'];
@@ -54,6 +120,7 @@ if ($_POST['mode'] == 'portal-save') {
     $s = SaveAudit($form_pid, $amts, $cc);
     if ($s) {
         echo 'failed';
+        exit();
     }
 
     echo true;
@@ -67,6 +134,7 @@ if ($_POST['mode'] == 'portal-save') {
     $s = CloseAudit($form_pid, $amts, $cc);
     if ($s) {
         echo 'failed';
+        exit();
     }
 
     echo true;
@@ -76,7 +144,7 @@ function SaveAudit($pid, $amts, $cc)
 {
     $appsql = new ApplicationTable();
     try {
-        $audit = array ();
+        $audit = array();
         $audit['patient_id'] = $pid;
         $audit['activity'] = "payment";
         $audit['require_audit'] = "1";
@@ -85,10 +153,10 @@ function SaveAudit($pid, $amts, $cc)
         $audit['status'] = "waiting";
         $audit['narrative'] = "Authorize online payment.";
         $audit['table_action'] = '';
-        $audit['table_args'] =  $amts;
+        $audit['table_args'] = $amts;
         $audit['action_user'] = "0";
         $audit['action_taken_time'] = "";
-        $audit['checksum'] = aes256Encrypt($cc);
+        $audit['checksum'] = encryptStandard($cc);
 
         $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
         $audit['date'] = $edata['date'];
@@ -103,11 +171,12 @@ function SaveAudit($pid, $amts, $cc)
 
     return 0;
 }
+
 function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'notify patient')
 {
     $appsql = new ApplicationTable();
     try {
-        $audit = array ();
+        $audit = array();
         $audit['patient_id'] = $pid;
         $audit['activity'] = "payment";
         $audit['require_audit'] = "1";
@@ -119,7 +188,7 @@ function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'no
         $audit['table_args'] = $amts;
         $audit['action_user'] = isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : "0";
         $audit['action_taken_time'] = date("Y-m-d H:i:s");
-        $audit['checksum'] = aes256Encrypt($cc);
+        $audit['checksum'] = encryptStandard($cc);
 
         $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
         $audit['date'] = $edata['date'];
@@ -131,14 +200,4 @@ function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'no
     }
 
     return 0;
-}
-function OnlinePayPost($type, $auditrec)
-{
- // start of port for payments
-    $extra = json_decode($_POST['extra_values'], true);
-    $form_pid = $_POST['form_pid'];
-    $form_method = trim($_POST['form_method']);
-    $form_source = trim($_POST['form_source']);
-    $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
-    $NameNew=$patdata['fname'] . " " .$patdata['lname']. " " .$patdata['mname'];
 }

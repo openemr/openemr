@@ -414,9 +414,9 @@ function addPnote(
 
     return sqlInsert(
         'INSERT INTO pnotes (date, body, pid, user, groupname, ' .
-        'authorized, activity, title, assigned_to, message_status) VALUES ' .
-        '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        array($datetime, $body, $pid, $user, $_SESSION['authProvider'], $authorized, $activity, $title, $assigned_to, $message_status)
+        'authorized, activity, title, assigned_to, message_status, update_by, update_date) VALUES ' .
+        '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())',
+        array($datetime, $body, $pid, $user, $_SESSION['authProvider'], $authorized, $activity, $title, $assigned_to, $message_status, $_SESSION['authUserID'])
     );
 }
 
@@ -449,8 +449,8 @@ function addMailboxPnote(
 
     return sqlInsert(
         "INSERT INTO pnotes (date, body, pid, user, groupname, " .
-        "authorized, activity, title, assigned_to, message_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        array($datetime, $body, $pid, $pid, 'Default', $authorized, $activity, $title, $assigned_to, $message_status)
+        "authorized, activity, title, assigned_to, message_status, update_by, update_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
+        array($datetime, $body, $pid, $pid, 'Default', $authorized, $activity, $title, $assigned_to, $message_status, $_SESSION['authUserID'])
     );
 }
 
@@ -483,8 +483,8 @@ function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "", 
 
     $sql = "UPDATE pnotes SET " .
         "body = ?, activity = ?, title= ?, " .
-        "assigned_to = ?";
-    $bindingParams =  array($body, $activity, $title, $assigned_to);
+        "assigned_to = ?, update_by = ?, update_date = NOW()";
+    $bindingParams =  array($body, $activity, $title, $assigned_to, $_SESSION['authUserID']);
     if ($message_status) {
         $sql .= " ,message_status = ?";
         $bindingParams[] = $message_status;
@@ -501,9 +501,9 @@ function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "", 
 function updatePnoteMessageStatus($id, $message_status)
 {
     if ($message_status == "Done") {
-        sqlStatement("update pnotes set message_status = ?, activity = '0' where id = ?", array($message_status, $id));
+        sqlStatement("update pnotes set message_status = ?, activity = '0', update_by = ?, update_date = NOW() where id = ?", array($message_status, $_SESSION['authUserID'], $id));
     } else {
-        sqlStatement("update pnotes set message_status = ?, activity = '1' where id = ?", array($message_status, $id));
+        sqlStatement("update pnotes set message_status = ?, activity = '1', update_by = ?, update_date = NOW() where id = ?", array($message_status, $_SESSION['authUserID'], $id));
     }
 }
 
@@ -531,28 +531,28 @@ function updatePnotePatient($id, $patient_id)
     $newtext = "\n" . date('Y-m-d H:i') . " (patient set by " . $_SESSION['authUser'] .")";
     $body = $row['body'] . $newtext;
 
-    sqlStatement("UPDATE pnotes SET pid = ?, body = ? WHERE id = ?", array($pid, $body, $id));
+    sqlStatement("UPDATE pnotes SET pid = ?, body = ?, update_by = ?, update_date = NOW() WHERE id = ?", array($pid, $body, $_SESSION['authUserID'], $id));
 }
 
 function authorizePnote($id, $authorized = "1")
 {
-    sqlQuery("UPDATE pnotes SET authorized = ? WHERE id = ?", array ($authorized,$id));
+    sqlQuery("UPDATE pnotes SET authorized = ? , update_by = ?, update_date = NOW() WHERE id = ?", array ($authorized, $_SESSION['authUserID'], $id));
 }
 
 function disappearPnote($id)
 {
-    sqlStatement("UPDATE pnotes SET activity = '0', message_status = 'Done' WHERE id=?", array($id));
+    sqlStatement("UPDATE pnotes SET activity = '0', message_status = 'Done', update_by = ?, update_date = NOW()  WHERE id=?", array($_SESSION['authUserID'], $id));
     return true;
 }
 
 function reappearPnote($id)
 {
-    sqlStatement("UPDATE pnotes SET activity = '1', message_status = IF(message_status='Done','New',message_status) WHERE id=?", array($id));
+    sqlStatement("UPDATE pnotes SET activity = '1', message_status = IF(message_status='Done','New',message_status), update_by = ?, update_date = NOW() WHERE id=?", array($_SESSION['authUserID'], $id));
     return true;
 }
 
 function deletePnote($id)
 {
-    sqlStatement("UPDATE pnotes SET deleted = '1' WHERE id=?", array($id));
+    sqlStatement("UPDATE pnotes SET deleted = '1', update_by = ?, update_date = NOW() WHERE id=?", array($_SESSION['authUserID'], $id));
     return true;
 }

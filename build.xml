@@ -28,41 +28,51 @@
             <fileset dir="${dir.vendor}" includes="**/*.cvs*" defaultexcludes="false"/>
         </delete>
 
+        <delete dir="${dir.vendor}/adldap2/adldap2/docs" verbose="true"/>
         <delete dir="${dir.vendor}/adodb/adodb-php/tests" verbose="true"/>
         <delete dir="${dir.vendor}/adodb/adodb-php/docs" verbose="true"/>
-        <delete dir="${dir.vendor}/doctrine/cache/tests" verbose="true"/>
-        <delete dir="${dir.vendor}/doctrine/collections/tests" verbose="true"/>
-        <delete dir="${dir.vendor}/doctrine/common/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/container-interop/container-interop/docs" verbose="true"/>
+        <delete dir="${dir.vendor}/doctrine/cache/docs" verbose="true"/>
+        <delete dir="${dir.vendor}/doctrine/common/docs" verbose="true"/>
         <delete dir="${dir.vendor}/doctrine/couchdb/tests" verbose="true"/>
-        <delete dir="${dir.vendor}/doctrine/inflector/tests" verbose="true"/>
-        <delete dir="${dir.vendor}/doctrine/instantiator/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/doctrine/event-manager/docs" verbose="true"/>
         <delete dir="${dir.vendor}/doctrine/orm/docs" verbose="true"/>
-        <delete dir="${dir.vendor}/dompdf/dompdf/wwww" verbose="true"/>
-        <delete dir="${dir.vendor}/dompdf/dompdf/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/doctrine/reflection/docs" verbose="true"/>
         <delete dir="${dir.vendor}/ezyang/htmlpurifier/test" verbose="true"/>
         <delete dir="${dir.vendor}/ezyang/htmlpurifier/maintenance" verbose="true"/>
         <delete dir="${dir.vendor}/ezyang/htmlpurifier/plugins" verbose="true"/>
         <delete dir="${dir.vendor}/illuminate/support/Testing" verbose="true"/>
-        <delete dir="${dir.vendor}/phpmailer/phpmailer/examples" verbose="true"/>
-        <delete dir="${dir.vendor}/phpmailer/phpmailer/test" verbose="true"/>
-        <delete dir="${dir.vendor}/phpmailer/phpmailer/docs" verbose="true"/>
+        <delete dir="${dir.vendor}/knplabs/knp-snappy/doc" verbose="true"/>
+        <delete dir="${dir.vendor}/markbaker/complex/examples" verbose="true"/>
+        <delete dir="${dir.vendor}/mobiledetect/mobiledetectlib/docs" verbose="true"/>
+        <delete dir="${dir.vendor}/myclabs/deep-copy/doc" verbose="true"/>
+        <delete dir="${dir.vendor}/phenx/php-font-lib/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/phenx/php-svg-lib/tests" verbose="true"/>
         <delete dir="${dir.vendor}/phpoffice/phpspreadsheet/docs" verbose="true"/>
         <delete dir="${dir.vendor}/phpoffice/phpspreadsheet/samples" verbose="true"/>
         <delete dir="${dir.vendor}/phpunit/php-code-coverage/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/phpunit/php-timer/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/phpunit/php-token-stream/tests" verbose="true"/>
         <delete dir="${dir.vendor}/phpunit/tests" verbose="true"/>
-        <delete dir="${dir.vendor}/psr/log/Psr/Log/Test" verbose="true"/>
+        <delete dir="${dir.vendor}/phpunit/phpunit-mock-objects/tests" verbose="true"/>
         <delete dir="${dir.vendor}/rospdf/pdf-php/examples" verbose="true"/>
         <delete dir="${dir.vendor}/rospdf/pdf-php/tests" verbose="true"/>
         <delete dir="${dir.vendor}/sabberworm/php-css-parser/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/sebastian/code-unit-reverse-lookup/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/sebastian/comparator/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/sebastian/diff/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/sebastian/environment/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/sebastian/exporter/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/sebastian/global-state/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/sebastian/object-enumerator/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/sebastian/recursion-context/tests" verbose="true"/>
         <delete dir="${dir.vendor}/smarty/smarty/demo" verbose="true"/>
-        <delete dir="${dir.vendor}/stripe/stripe-php/tests" verbose="true"/>
-        <delete dir="${dir.vendor}/stripe/stripe-php/examples" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/config/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/console/Tester" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/console/Tests" verbose="true"/>
-        <delete dir="${dir.vendor}/symfony/dependency-injection/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/debug/Resources/ext/tests" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/debug/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/dependency-injection/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/event-dispatcher/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/filesystem/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/http-foundation/Tests" verbose="true"/>
@@ -71,6 +81,8 @@
         <delete dir="${dir.vendor}/symfony/yaml/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/twig/twig/doc" verbose="true"/>
         <delete dir="${dir.vendor}/twig/twig/test" verbose="true"/>
+        <delete dir="${dir.vendor}/yubico/u2flib-server/examples" verbose="true"/>
+        <delete dir="${dir.vendor}/yubico/u2flib-server/tests" verbose="true"/>
     </target>
 
 

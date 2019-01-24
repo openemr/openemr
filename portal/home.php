@@ -1,25 +1,14 @@
 <?php
 /**
+ * Patient Portal
  *
- * Copyright (C) 2016-2018 Jerry Padgett <sjpadgett@gmail.com>
- *
- * LICENSE: This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of the
- *  License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @package OpenEMR
- * @author Jerry Padgett <sjpadgett@gmail.com>
- * @link http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
  require_once("verify_session.php");
  require_once("$srcdir/patient.inc");
  require_once("$srcdir/options.inc.php");
@@ -36,10 +25,11 @@ if (!isset($_SESSION['portal_init'])) {
     $_SESSION['portal_init'] = true;
 }
 
- $whereto = 'profilepanel';
+$whereto = 'profilepanel';
 if (isset($_SESSION['whereto'])) {
     $whereto = $_SESSION['whereto'];
 }
+//$whereto = 'paymentpanel';
 
  $user = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : 'portal user';
  $result = getPatientData($pid);
@@ -48,20 +38,21 @@ if (isset($_SESSION['whereto'])) {
  $msgcnt = count($msgs);
  $newcnt = 0;
 foreach ($msgs as $i) {
-    if ($i['message_status']=='New') {
+    if ($i['message_status'] == 'New') {
         $newcnt += 1;
     }
 }
 
 require_once '_header.php';
- echo "<script>var cpid='" . attr($pid) . "';var cuser='" . attr($user) . "';var webRoot='" . $GLOBALS['web_root'] . "';var ptName='" . attr($_SESSION['ptName']) . "';</script>";
+
+echo "<script>var cpid='" . attr($pid) . "';var cuser='" . attr($user) . "';var webRoot='" . $GLOBALS['web_root'] . "';var ptName='" . attr($_SESSION['ptName']) . "';</script>";
 ?>
 <script type="text/javascript">
 var webroot_url = webRoot;
 
 $(document).ready(function () {
 
-    $("#profilereport").load("./get_profile.php", {embeddedScreen: true}, function () {
+    $("#profilereport").load("./get_profile.php", {}, function () {
         $("table").addClass("table  table-responsive");
         $(".demographics td").removeClass("label");
         $(".demographics td").addClass("bold");
@@ -70,22 +61,17 @@ $(document).ready(function () {
             showProfileModal()
         });
     });
-    $("#reports").load("./report/portal_patient_report.php?pid='<?php echo attr($pid) ?>'", {embeddedScreen: true}, function () {
-        <?php if ($GLOBALS['portal_two_payments']) { ?>
-            $("#payment").load("./portal_payment.php", {embeddedScreen: true}, function () {});
-        <?php } ?>
-    });
-    $("#medicationlist").load("./get_medications.php", {embeddedScreen: true}, function () {
-        $("#allergylist").load("./get_allergies.php", {embeddedScreen: true}, function () {
-            $("#problemslist").load("./get_problems.php", {embeddedScreen: true}, function () {
-                $("#amendmentslist").load("./get_amendments.php", {embeddedScreen: true}, function () {
-                    $("#labresults").load("./get_lab_results.php", {embeddedScreen: true}, function () {
 
-                    });
-                });
-            });
-        });
-    });
+    $("#medicationlist").load("./get_medications.php", {}, function () {});
+    $("#labresults").load("./get_lab_results.php", {}, function () {});
+    $("#amendmentslist").load("./get_amendments.php", {}, function () {});
+    $("#problemslist").load("./get_problems.php", {}, function () {});
+    $("#allergylist").load("./get_allergies.php", {}, function () {});
+    $("#reports").load("./report/portal_patient_report.php?pid='<?php echo attr($pid) ?>'", {}, function () {});
+
+    <?php if ($GLOBALS['portal_two_payments']) { ?>
+    $("#payment").load("./portal_payment.php", {}, function () {});
+    <?php } ?>
 
     $('.sigPad').signaturePad({drawOnly: true});
     $(".generateDoc_download").click(function () {
@@ -100,11 +86,8 @@ $(document).ready(function () {
                 {text: '<?php echo xla('Help'); ?>', close: false, style: 'info', id: 'formHelp'},
                 {text: '<?php echo xla('Cancel'); ?>', close: true, style: 'default'},
                 {text: '<?php echo xla('Revert Edits'); ?>', close: false, style: 'danger', id: 'replaceAllButton'},
-                {text: '<?php echo xla('Send for Review'); ?>',
-                    close: false,
-                    style: 'success',
-                    id: 'donePatientButton'
-                }],
+                {text: '<?php echo xla('Send for Review'); ?>', close: false, style: 'success', id: 'donePatientButton'}
+                ],
             onClosed: 'reload',
             type: 'GET',
             url: webRoot + '/portal/patient/patientdata?pid=' + cpid + '&user=' + cuser
@@ -168,7 +151,6 @@ function editAppointment(mode,deid){
     };
 
     dlgopen('', 'apptModal', 610, 300, '', title, params);
-
 };
 
 </script>
@@ -223,10 +205,11 @@ function editAppointment(mode,deid){
                         <header class="panel-heading"><?php echo xlt('Appointments'); ?>  </header>
                         <div id="appointmentslist" class="panel-body">
                         <?php
-                            $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " . "e.pc_startTime, e.pc_hometext, e.pc_apptstatus, u.fname, u.lname, u.mname, " .
+                            $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
+                                "e.pc_startTime, e.pc_hometext, e.pc_apptstatus, u.fname, u.lname, u.mname, " .
                                 "c.pc_catname " . "FROM openemr_postcalendar_events AS e, users AS u, " .
-                                "openemr_postcalendar_categories AS c WHERE " . "e.pc_pid = ? AND e.pc_eventDate >= CURRENT_DATE AND " . "u.id = e.pc_aid AND e.pc_catid = c.pc_catid " . "ORDER BY e.pc_eventDate, e.pc_startTime";
-
+                                "openemr_postcalendar_categories AS c WHERE " . "e.pc_pid = ? AND e.pc_eventDate >= CURRENT_DATE AND " .
+                                "u.id = e.pc_aid AND e.pc_catid = c.pc_catid " . "ORDER BY e.pc_eventDate, e.pc_startTime";
                             $res = sqlStatement($query, array(
                                 $pid
                             ));
@@ -256,7 +239,8 @@ function editAppointment(mode,deid){
                                 }
 
                                 echo "<tr><td><p>";
-                                echo "<a href='#' onclick='editAppointment(0," . htmlspecialchars($row ['pc_eid'], ENT_QUOTES) . ')' . "' title='" . htmlspecialchars($etitle, ENT_QUOTES) . "'>";
+                                echo "<a href='#' onclick='editAppointment(0," . htmlspecialchars($row ['pc_eid'], ENT_QUOTES) . ')' .
+                                    "' title='" . htmlspecialchars($etitle, ENT_QUOTES) . "'>";
                                 echo "<b>" . htmlspecialchars($dayname . ", " . $row ['pc_eventDate'], ENT_NOQUOTES) . "&nbsp;";
                                 echo htmlspecialchars("$disphour:$dispmin " . $dispampm, ENT_NOQUOTES) . "</b><br>";
                                 echo htmlspecialchars($row ['pc_catname'], ENT_NOQUOTES) . "<br><b>";
@@ -318,27 +302,26 @@ function editAppointment(mode,deid){
                         <div id="reports" class="panel-body"></div>
                         <div class="panel-footer"></div>
                     </div>
-
                 </div>
                 <!-- /.col -->
+                <?php if (!empty($GLOBALS['portal_onsite_document_download'])) { ?>
                 <div class="col-sm-6">
                     <div class="panel panel-primary collapse" id="downloadpanel">
                         <header class="panel-heading"> <?php echo xlt('Download Documents'); ?> </header>
                         <div id="docsdownload" class="panel-body">
-                        <?php if (!empty($GLOBALS['portal_onsite_document_download'])) { ?>
                             <div>
                                 <span class="text"><?php echo xlt('Download all patient documents');?></span>
                                 <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
                                 <input type="button" class="generateDoc_download" value="<?php echo xla('Download'); ?>" />
                                 </form>
                             </div>
-                        <?php } ?>
                         </div><!-- /.panel-body -->
                         <div class="panel-footer"></div>
                     </div>
                 </div><!-- /.col -->
+                <?php } ?>
             </div>
-
+            <?php if ($GLOBALS['portal_two_ledger']) { ?>
             <div class="row">
                 <div class="col-sm-12">
                     <div class="panel panel-primary collapse" id="ledgerpanel">
@@ -350,7 +333,7 @@ function editAppointment(mode,deid){
                     </div>
                 </div><!-- /.col -->
             </div>
-
+            <?php } ?>
             <div class="row">
                 <div class="col-sm-12">
                     <div class="panel panel-primary collapse" id="profilepanel">

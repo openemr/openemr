@@ -121,7 +121,7 @@ if ($authorize) {
 
         echo "<tr><td valign=top><span class=bold>". text($name{"fname"} . " " . $name{"lname"}) .
              "</span><br><a class=link_submit href='authorizations_full.php?mode=authorize&pid=" .
-             attr(urlencode($ppid)) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' onclick='top.restoreSession()'>" . xlt('Authorize') . "</a></td>\n";
+             attr_url($ppid) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' onclick='top.restoreSession()'>" . xlt('Authorize') . "</a></td>\n";
         echo "<td valign=top><span class=bold>".xlt('Billing').
              ":</span><span class=text><br>" . $patient{"billing"} . "</td>\n";
         echo "<td valign=top><span class=bold>".xlt('Transactions').

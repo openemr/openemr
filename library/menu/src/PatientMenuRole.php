@@ -55,9 +55,11 @@ class PatientMenuRole extends MenuRole
         }
         //to make the url absolute to web root and to account for external urls i.e. those beginning with http or https
         foreach ($menu_parsed as $menu_obj) {
-            $rel_url = $menu_obj -> url;
-            if ($rel_url && !strpos($rel_url, "://")) {
-                $menu_obj -> url = $GLOBALS['webroot'] ."/". $rel_url;
+            $menu_obj -> url = $this->getAbsoluteWebRoot($menu_obj -> url);
+            if (!empty($menu_obj->children)) {
+                foreach ($menu_obj->children as $menu_obj) {
+                    $menu_obj -> url = $this->getAbsoluteWebRoot($menu_obj -> url);
+                }
             }
         }
         $menu_parsed = json_decode(json_encode($menu_parsed));
@@ -178,15 +180,18 @@ EOT;
         echo $str_top. "\r\n";
         foreach ($menu_restrictions as $key => $value) {
             if (!empty($value->children)) {
-                // flatten to only show children items
+                // create dropdown if there are children (bootstrap3 horizontal nav bar with dropdown)
+                $class = isset($value->class) ? $value->class : '';
+                $list = '<li class="dropdown"><a href="#"  id="' . attr($value->menu_id) . '" class="dropdown-toggle oe-bold-black ' . attr($class) . '" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">' . text($value->label) . ' <span class="caret"></span></a>';
+                $list .='<ul class="dropdown-menu">';
                 foreach ($value->children as $children_key => $children_value) {
                     $link = ($children_value->pid != "true") ? $children_value->url : $children_value->url . attr($pid);
                     $class = isset($children_value->class) ? $children_value->class : '';
-                    $list = '<li class="oe-bold-black ' . attr($class) . '" id="' . attr($children_value->menu_id) . '">';
-                    $list .= '<a href="' . attr($link) . '" onclick="' . $children_value->on_click .'"> ' . text($children_value->label) . ' </a>';
+                    $list .= '<li class="oe-bold-black ' . attr($class) . '" id="' . attr($children_value->menu_id) . '">';
+                    $list .= '<a class="oe-bold-black"  href="' . attr($link) . '" onclick="' . $children_value->on_click .'"> ' . text($children_value->label) . ' </a>';
                     $list .= '</li>';
                 }
-                echo $list. "\r\n";
+                $list .= '</ul>';
             } else {
                 $link = ($value->pid != "true") ? $value->url : $value->url . attr($pid);
                 $class = isset($value->class) ? $value->class : '';
@@ -205,5 +210,19 @@ EOT;
 EOB;
         echo $str_bot. "\r\n";
         return;
+    }
+
+    /**
+     * make the url absolute to web root
+     * @param $rel_url
+     *
+     * @return string
+     */
+    private function getAbsoluteWebRoot($rel_url)
+    {
+        if ($rel_url && !strpos($rel_url, "://")) {
+            return $GLOBALS['webroot'] . "/" . $rel_url;
+        }
+        return $rel_url;
     }
 }

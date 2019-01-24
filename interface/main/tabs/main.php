@@ -88,8 +88,9 @@ function goRepeaterServices(){
                 let mail = data.mailCnt;
                 let chats = data.chatCnt;
                 let audits = data.auditCnt;
+                let payments = data.paymentCnt;
                 let total = data.total;
-                let enable = (1 * mail) + (1 * audits);
+                let enable = (1 * mail) + (1 * audits); // payments are among audits.
 
                 app_view_model.application_data.user().portal(enable);
                 if (enable) {
@@ -97,6 +98,7 @@ function goRepeaterServices(){
                     app_view_model.application_data.user().portalAudits(audits);
                     app_view_model.application_data.user().portalMail(mail);
                     app_view_model.application_data.user().portalChats(chats);
+                    app_view_model.application_data.user().portalPayments(payments);
                 }
             }
         );
@@ -162,7 +164,7 @@ var xl_strings_tabs_view_model = <?php echo json_encode(array(
 ));
 ?>;
 // Set the csrf_token_js token that is used in the below js/tabs_view_model.js script
-var csrf_token_js = "<?php echo attr(collectCsrfToken()); ?>";
+var csrf_token_js = <?php echo js_escape(collectCsrfToken()); ?>;
 </script>
 <script type="text/javascript" src="js/tabs_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
 
@@ -236,7 +238,7 @@ if (isset($_SESSION['app1'])) {
 <div id="mainBox" <?php echo $disp_mainBox ?>>
     <div id="dialogDiv"></div>
     <div class="body_top">
-        <a href="http://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" target="_blank"><img class="logo" alt="openEMR small logo"  border="0" src="<?php echo $GLOBALS['images_static_relative']; ?>/menu-logo.png"></a>
+        <a href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank"><img class="logo" alt="openEMR small logo"  border="0" src="<?php echo $GLOBALS['images_static_relative']; ?>/menu-logo.png"></a>
         <span id="menu logo" data-bind="template: {name: 'menu-template', data: application_data} "></span>
         <span id="userData" data-bind="template: {name: 'user-data-template', data:application_data} "></span>
     </div>

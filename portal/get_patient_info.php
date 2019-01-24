@@ -138,7 +138,7 @@ if ($userData = sqlQuery($sql, array(
         exit();
     }
 
-    if ($userData['email'] != $_POST['passaddon']) {
+    if ($userData['email'] != $_POST['passaddon'] && $GLOBALS['enforce_signin_email']) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid email'), '', '0');
         session_destroy();
         header('Location: ' . $landingpage . '&w');

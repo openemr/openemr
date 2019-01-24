@@ -1,35 +1,21 @@
 <?php
-// +-----------------------------------------------------------------------------+ 
-// Copyright (C) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-//
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-//
-// A copy of the GNU General Public License is included along with this program:
-// openemr/interface/login/GnuGPL.html
-// For more information write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
-// Author:   Eldho Chacko <eldho@zhservices.com>
-//           Paul Simon K <paul@zhservices.com> 
-//
-// +------------------------------------------------------------------------------+
-//===============================================================================
-//This section handles ajax functions for insurance,patient and for encounters.
-//===============================================================================
+/**
+ * This section handles ajax functions for insurance,patient and for encounters.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Eldho Chacko <eldho@zhservices.com>
+ * @author    Paul Simon K <paul@zhservices.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+
 ?>
 <script type="text/javascript">
-$(document).ready(function(){	
+$(document).ready(function(){
   $("#type_code").keyup(function(e){
       if (e.which == 9 || e.which == 13)
          {//tab key,enter key.Prevent ajax activity.
@@ -40,7 +26,7 @@ $(document).ready(function(){
            ajaxFunction('non','Simple',document.getElementById('type_code'));
            return;
          }
-  });   
+  });
   $("#patient_code").keyup(function(e){
       if (e.which == 9 || e.which == 13)
          {//tab key,enter key.Prevent ajax activity.
@@ -51,7 +37,7 @@ $(document).ready(function(){
            ajaxFunction('patient','Submit',document.getElementById('patient_code'));
            return;
          }
-  });   
+  });
   $("#form_pt_name").keyup(function(e){
       if (e.which == 9 || e.which == 13)
          {//tab key,enter key.Prevent ajax activity.
@@ -62,7 +48,7 @@ $(document).ready(function(){
            ajaxFunction('patient','Simple',document.getElementById('form_pt_name'));
            return;
          }
-  });   
+  });
   $("#encounter_no").keyup(function(e){
       if (e.which == 9 || e.which == 13)
          {//tab key,enter key.Prevent ajax activity.
@@ -73,7 +59,7 @@ $(document).ready(function(){
            ajaxFunction('encounter');
            return;
          }
-  });   
+  });
   function ajaxFunction(Source,SubmitOrSimple,SourceObject) {
   if(Source=='encounter')
    {
@@ -108,7 +94,8 @@ $(document).ready(function(){
      patient_code: Source=='patient' ? SourceObject.value : '',
     insurance_text_ajax: document.getElementById('type_code') ? document.getElementById('type_code').value : '',
     encounter_patient_code:Source=='encounter' ? document.getElementById('hidden_patient_code').value : '',
-    submit_or_simple_type:SubmitOrSimple
+    submit_or_simple_type:SubmitOrSimple,
+    csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
    },
    //async: false,
     success: function(thedata){
@@ -175,9 +162,9 @@ $(document).ready(function(){
         document.getElementById('tr_insurance_1').bgColor='#94D6E7'//selected color
     },
     error:function(){
-    }   
+    }
    });
-   return;      
+   return;
   }
  });
 //==============================================================================================================================================
@@ -262,7 +249,7 @@ function PlaceValuesDistribute(evt,Code,Name)
     if (charCode == 13)//enter key
      {//Vanish the list and populate the parent text box
       PutTheValuesClickDistribute(Code,Name);
-      PreventIt(evt)  //For browser chorome.It gets submitted,to prevent it the PreventIt(evt) is written  
+      PreventIt(evt)  //For browser chorome.It gets submitted,to prevent it the PreventIt(evt) is written
      }
     else if(!((charCode == 38) || (charCode == 40)))
      {//if non arrow keys, focus on the parent text box(ie he again types and wants ajax to activate)
@@ -276,7 +263,7 @@ function PlaceValuesPatient(evt,Code,Name)
     if (charCode == 13)//enter key
      {//Vanish the list and populate the parent text box
       PutTheValuesClickPatient(Code,Name);
-      PreventIt(evt)  //For browser chorome.It gets submitted,to prevent it the PreventIt(evt) is written  
+      PreventIt(evt)  //For browser chorome.It gets submitted,to prevent it the PreventIt(evt) is written
      }
     else if(!((charCode == 38) || (charCode == 40)))
      {//if non arrow keys, focus on the parent text box(ie he again types and wants ajax to activate)

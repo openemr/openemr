@@ -64,7 +64,7 @@ $(document).ready(function() {
   "bProcessing": true,
   // Next 2 lines invoke server side processing
   "bServerSide": true,
-  "sAjaxSource": "find_code_dynamic_ajax.php?csrf_token_form=" + <?php echo js_escape(urlencode(collectCsrfToken())); ?>,
+  "sAjaxSource": "find_code_dynamic_ajax.php?csrf_token_form=" + <?php echo js_url(collectCsrfToken()); ?>,
   // Vertical length options and their default
   "aLengthMenu": [ 15, 25, 50, 100 ],
   "iDisplayLength": 15,

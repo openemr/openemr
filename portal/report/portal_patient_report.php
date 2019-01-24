@@ -45,7 +45,6 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/formatting.inc.php");
 
 // get various authorization levels
 $auth_notes_a  = true; //acl_check('encounters', 'notes_a');

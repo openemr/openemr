@@ -302,7 +302,7 @@ if ($_POST['form_save']) {
   </td>
  </tr>
  <tr>
-  <td valign='top' nowrap><b><?php echo xlt('CMS ID'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php echo xlt('Payer ID'); ?>:</b></td>
   <td>
    <input type='text' size='20' name='form_cms_id' maxlength='15'
     class='search input-sm' title='Identifier assigned by CMS' />

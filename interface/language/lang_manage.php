@@ -193,7 +193,7 @@ if ($_POST['check'] || $_POST['synchronize']) {
 ?>
 
 <TABLE>
-<FORM name="manage_form" METHOD=POST ACTION="?m=manage&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>" onsubmit="return top.restoreSession()">
+<FORM name="manage_form" METHOD=POST ACTION="?m=manage&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
   <TR>
     <TD><INPUT TYPE="submit" name="check" value="<?php echo xla('Check'); ?>"></TD>

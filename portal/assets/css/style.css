@@ -57,8 +57,8 @@
 
 html,
 body {
-  overflow-x: hidden!important;
-  //font-family: 'Source Sans Pro', sans-serif;
+  overflow-x: hidden !important;
+  /*font-family: 'Source Sans Pro', sans-serif;*/
   font-family: 'Lato', sans-serif;
   -webkit-font-smoothing: antialiased;
   min-height: 100%;
@@ -102,7 +102,7 @@ body > .header {
 /* Define 2 column template */
 .right-side,
 .left-side {
-  //min-height: 100%;
+  /*min-height: 100%;*/
   display: block;
 }
 /*right side - contins main content*/
@@ -536,11 +536,11 @@ img {
   -moz-border-radius: 0 !important;
   border-radius: 0 !important;
 }
-/* Change the color of the striped tables */
+/* Change the color of the striped tables
 .table-striped > tbody > tr:nth-child(odd) > td,
 .table-striped > tbody > tr:nth-child(odd) > th {
   background-color: #f3f4f5;
-}
+} */
 .table.no-border,
 .table.no-border td,
 .table.no-border th {

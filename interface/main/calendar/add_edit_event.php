@@ -126,7 +126,7 @@ if ($_GET['group'] == true) {
 if (empty($collectthis)) {
     $collectthis = "undefined";
 } else {
-    $collectthis = $collectthis[array_keys($collectthis)[0]]["rules"];
+    $collectthis = json_sanitize($collectthis[array_keys($collectthis)[0]]["rules"]);
 }
 ?>
 <?php $group_disabled = ($_GET['group'] && !$g_edit && $have_group_global_enabled )?' disabled=true; ':'';?>
@@ -2042,7 +2042,7 @@ function are_days_checked(){
 * validation on the form with new client side validation (using validate.js).
 * this enable to add new rules for this form in the pageValidation list.
 * */
-var collectvalidation = <?php echo($collectthis); ?>;
+var collectvalidation = <?php echo $collectthis; ?>;
 function validateform(event,valu){
 
     $('#form_save').attr('disabled', true);

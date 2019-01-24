@@ -5384,7 +5384,7 @@ CREATE TABLE `onsite_documents` (
   `denial_reason` varchar(255) NOT NULL,
   `authorized_signature` text,
   `patient_signature` text,
-  `full_document` blob,
+  `full_document` mediumblob,
   `file_name` varchar(255) NOT NULL,
   `file_path` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
@@ -6057,132 +6057,6 @@ CREATE TABLE `phone_numbers` (
 -----------------------------------------------------------
 
 --
--- Table structure for table `pma_bookmark`
---
-
-DROP TABLE IF EXISTS `pma_bookmark`;
-CREATE TABLE `pma_bookmark` (
-  `id` int(11) NOT NULL auto_increment,
-  `dbase` varchar(255) default NULL,
-  `user` varchar(255) default NULL,
-  `label` varchar(255) default NULL,
-  `query` text,
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB COMMENT='Bookmarks' AUTO_INCREMENT=10 ;
-
---
--- Inserting data for table `pma_bookmark`
---
-
-INSERT INTO `pma_bookmark` VALUES (2, 'openemr', 'openemr', 'Aggregate Race Statistics', 'SELECT ethnoracial as "Race/Ethnicity", count(*) as Count FROM  `patient_data` WHERE 1 group by ethnoracial');
-INSERT INTO `pma_bookmark` VALUES (9, 'openemr', 'openemr', 'Search by Code', 'SELECT  b.code, concat(pd.fname," ", pd.lname) as "Patient Name", concat(u.fname," ", u.lname) as "Provider Name", en.reason as "Encounter Desc.", en.date\r\nFROM billing as b\r\nLEFT JOIN users AS u ON b.user = u.id\r\nLEFT JOIN patient_data as pd on b.pid = pd.pid\r\nLEFT JOIN form_encounter as en on b.encounter = en.encounter and b.pid = en.pid\r\nWHERE 1 /* and b.code like ''%[VARIABLE]%'' */ ORDER BY b.code');
-INSERT INTO `pma_bookmark` VALUES (8, 'openemr', 'openemr', 'Count No Shows By Provider since Interval ago', 'SELECT concat( u.fname,  " ", u.lname )  AS  "Provider Name", u.id AS  "Provider ID", count(  DISTINCT ev.pc_eid )  AS  "Number of No Shows"/* , concat(DATE_FORMAT(NOW(),''%Y-%m-%d''), '' and '',DATE_FORMAT(DATE_ADD(now(), INTERVAL [VARIABLE]),''%Y-%m-%d'') ) as "Between Dates" */ FROM  `openemr_postcalendar_events`  AS ev LEFT  JOIN users AS u ON ev.pc_aid = u.id WHERE ev.pc_catid =1/* and ( ev.pc_eventDate >= DATE_SUB(now(), INTERVAL [VARIABLE]) )  */\r\nGROUP  BY u.id;');
-INSERT INTO `pma_bookmark` VALUES (6, 'openemr', 'openemr', 'Appointments By Race/Ethnicity from today plus interval', 'SELECT  count(pd.ethnoracial) as "Number of Appointments", pd.ethnoracial AS  "Race/Ethnicity" /* , concat(DATE_FORMAT(NOW(),''%Y-%m-%d''), '' and '',DATE_FORMAT(DATE_ADD(now(), INTERVAL [VARIABLE]),''%Y-%m-%d'') ) as "Between Dates" */ FROM openemr_postcalendar_events AS ev LEFT  JOIN   `patient_data`  AS pd ON  pd.pid = ev.pc_pid where ev.pc_eventstatus=1 and ev.pc_catid = 5 and ev.pc_eventDate >= now()  /* and ( ev.pc_eventDate <= DATE_ADD(now(), INTERVAL [VARIABLE]) )  */ group by pd.ethnoracial');
-
------------------------------------------------------------
-
---
--- Table structure for table `pma_column_info`
---
-
-DROP TABLE IF EXISTS `pma_column_info`;
-CREATE TABLE `pma_column_info` (
-  `id` int(5) unsigned NOT NULL auto_increment,
-  `db_name` varchar(64) default NULL,
-  `table_name` varchar(64) default NULL,
-  `column_name` varchar(64) default NULL,
-  `comment` varchar(255) default NULL,
-  `mimetype` varchar(255) default NULL,
-  `transformation` varchar(255) default NULL,
-  `transformation_options` varchar(255) default NULL,
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `db_name` (`db_name`,`table_name`,`column_name`)
-) ENGINE=InnoDB COMMENT='Column Information for phpMyAdmin' AUTO_INCREMENT=1 ;
-
------------------------------------------------------------
-
---
--- Table structure for table `pma_history`
---
-
-DROP TABLE IF EXISTS `pma_history`;
-CREATE TABLE `pma_history` (
-  `id` bigint(20) unsigned NOT NULL auto_increment,
-  `username` varchar(64) default NULL,
-  `db` varchar(64) default NULL,
-  `table` varchar(64) default NULL,
-  `timevalue` timestamp NOT NULL,
-  `sqlquery` text,
-  PRIMARY KEY  (`id`),
-  KEY `username` (`username`,`db`,`table`,`timevalue`)
-) ENGINE=InnoDB COMMENT='SQL history' AUTO_INCREMENT=1 ;
-
------------------------------------------------------------
-
---
--- Table structure for table `pma_pdf_pages`
---
-
-DROP TABLE IF EXISTS `pma_pdf_pages`;
-CREATE TABLE `pma_pdf_pages` (
-  `db_name` varchar(64) default NULL,
-  `page_nr` int(10) unsigned NOT NULL auto_increment,
-  `page_descr` varchar(50) default NULL,
-  PRIMARY KEY  (`page_nr`),
-  KEY `db_name` (`db_name`)
-) ENGINE=InnoDB COMMENT='PDF Relationpages for PMA' AUTO_INCREMENT=1 ;
-
------------------------------------------------------------
-
---
--- Table structure for table `pma_relation`
---
-
-DROP TABLE IF EXISTS `pma_relation`;
-CREATE TABLE `pma_relation` (
-  `master_db` varchar(64) NOT NULL default '',
-  `master_table` varchar(64) NOT NULL default '',
-  `master_field` varchar(64) NOT NULL default '',
-  `foreign_db` varchar(64) default NULL,
-  `foreign_table` varchar(64) default NULL,
-  `foreign_field` varchar(64) default NULL,
-  PRIMARY KEY  (`master_db`,`master_table`,`master_field`),
-  KEY `foreign_field` (`foreign_db`,`foreign_table`)
-) ENGINE=InnoDB COMMENT='Relation table';
-
------------------------------------------------------------
-
---
--- Table structure for table `pma_table_coords`
---
-
-DROP TABLE IF EXISTS `pma_table_coords`;
-CREATE TABLE `pma_table_coords` (
-  `db_name` varchar(64) NOT NULL default '',
-  `table_name` varchar(64) NOT NULL default '',
-  `pdf_page_number` int(11) NOT NULL default '0',
-  `x` float unsigned NOT NULL default '0',
-  `y` float unsigned NOT NULL default '0',
-  PRIMARY KEY  (`db_name`,`table_name`,`pdf_page_number`)
-) ENGINE=InnoDB COMMENT='Table coordinates for phpMyAdmin PDF output';
-
------------------------------------------------------------
-
---
--- Table structure for table `pma_table_info`
---
-
-DROP TABLE IF EXISTS `pma_table_info`;
-CREATE TABLE `pma_table_info` (
-  `db_name` varchar(64) NOT NULL default '',
-  `table_name` varchar(64) NOT NULL default '',
-  `display_field` varchar(64) default NULL,
-  PRIMARY KEY  (`db_name`,`table_name`)
-) ENGINE=InnoDB COMMENT='Table information for phpMyAdmin';
-
------------------------------------------------------------
-
---
 -- Table structure for table `pnotes`
 --
 
@@ -6202,6 +6076,8 @@ CREATE TABLE `pnotes` (
   `message_status` VARCHAR(20) NOT NULL DEFAULT 'New',
   `portal_relation` VARCHAR(100) NULL,
   `is_msg_encrypted` TINYINT(2) DEFAULT '0' COMMENT 'Whether messsage encrypted 0-Not encrypted, 1-Encrypted',
+  `update_by` bigint(20) default NULL,
+  `update_date` DATETIME DEFAULT NULL,
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
@@ -8781,21 +8657,21 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_date', 'deposit_date', 'Deposit Date', 30, 0);
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'page_validation', 'Page Validation', 298);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_issue#theform', '/interface/patient_file/summary/add_edit_issue.php', 10, '{form_title:{presence: true}}', 0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'common#new_encounter', '/interface/forms/newpatient/common.php', 50, '{pc_catid:{exclusion: ["_blank"]}}', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform', '/interface/main/calendar/add_edit_event.php', 30, '{form_patient:{presence: {message: "Patient Name Required"}}}', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'usergroup_admin_add#new_user', '/interface/usergroup/usergroup_admin_add.php', 70, '{rumple:{presence: {message:"Required field missing: Please enter the User Name"}}, stiltskin:{presence: {message:"Please enter the password"}}, fname:{presence: {message:"Required field missing: Please enter the First name"}}, lname:{presence: {message:"Required field missing: Please enter the Last name"}}}', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'user_admin#user_form', '/interface/usergroup/user_admin.php', 80, '{fname:{presence: {message:"Required field missing: Please enter the First name"}}, lname:{presence: {message:"Required field missing: Please enter the Last name"}}}', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'facility_admin#facility-form', '/interface/usergroup/facility_admin.php', 90, '{facility:{presence: true}, ncolor:{presence: true}}', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'facilities_add#facility-add', '/interface/usergroup/facilities_add.php', 100, '{facility:{presence: true}, ncolor:{presence: true}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_issue#theform', '/interface/patient_file/summary/add_edit_issue.php', 10, '{"form_title":{"presence": true}}', 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'common#new_encounter', '/interface/forms/newpatient/common.php', 50, '{"pc_catid":{"exclusion": ["_blank"]}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform', '/interface/main/calendar/add_edit_event.php', 30, '{"form_patient":{"presence": {"message": "Patient Name Required"}}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'usergroup_admin_add#new_user', '/interface/usergroup/usergroup_admin_add.php', 70, '{"rumple":{"presence": {"message":"Required field missing: Please enter the User Name"}}, "stiltskin":{"presence": {"message":"Please enter the password"}}, "fname":{"presence": {"message":"Required field missing: Please enter the First name"}}, "lname":{"presence": {"message":"Required field missing: Please enter the Last name"}}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'user_admin#user_form', '/interface/usergroup/user_admin.php', 80, '{"fname":{"presence": {"message":"Required field missing: Please enter the First name"}}, "lname":{"presence": {"message":"Required field missing: Please enter the Last name"}}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'facility_admin#facility-form', '/interface/usergroup/facility_admin.php', 90, '{"facility":{"presence": true}, "ncolor":{"presence": true}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'facilities_add#facility-add', '/interface/usergroup/facilities_add.php', 100, '{"facility":{"presence": true}, "ncolor":{"presence": true}}', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'addrbook_edit#theform', '/interface/usergroup/addrbook_edit.php', 110, '{}', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'therapy_groups_add#addGroup', '/interface/therapy_groups/index.php?method=addGroup', 120, '{group_name:{presence: true}}', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'therapy_groups_edit#editGroup', '/interface/therapy_groups/index.php?method=groupDetails', 125, '{group_name:{presence: true}}', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'tg_add#add-participant-form', '/interface/therapy_groups/index.php?method=groupParticipants', 130, '{participant_name:{presence: true}, group_patient_start:{presence: true}}', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'common#new-encounter-form', '/interface/forms/newGroupEncounter/common.php', 160, '{pc_catid:{exclusion: ["_blank"]}}', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform_groups','/interface/main/calendar/add_edit_event.php?group=true',150, '{form_group:{presence: true}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'therapy_groups_add#addGroup', '/interface/therapy_groups/index.php?method=addGroup', 120, '{"group_name":{"presence": true}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'therapy_groups_edit#editGroup', '/interface/therapy_groups/index.php?method=groupDetails', 125, '{"group_name":{"presence": true}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'tg_add#add-participant-form', '/interface/therapy_groups/index.php?method=groupParticipants', 130, '{"participant_name":{"presence": true}, "group_patient_start":{"presence": true}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'common#new-encounter-form', '/interface/forms/newGroupEncounter/common.php', 160, '{"pc_catid":{"exclusion": ["_blank"]}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform_groups','/interface/main/calendar/add_edit_event.php?group=true',150, '{"form_group":{"presence": true}}', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'add_edit_event#theform_prov', '/interface/main/calendar/add_edit_event.php?prov=true', 170, '{}',  1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'messages#new_note','/interface/main/messages/messages.php',150, '{form_datetime:{futureDate:{message: "Must be future date"}}, reply_to:{presence: {message: "Please choose a patient"}}}', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'messages#new_note','/interface/main/messages/messages.php',150, '{"form_datetime":{"futureDate":{"message": "Must be future date"}}, "reply_to":{"presence": {"message": "Please choose a patient"}}}', 1);
 
 -- list_options for `form_eye`
 
@@ -10814,7 +10690,7 @@ CREATE TABLE `form_eye_biometrics` (
   `OSLT`          varchar (20) DEFAULT NULL,
   PRIMARY KEY `biometrics_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
-) 
+)
   ENGINE = InnoDB;
 
 -- --------------------------------------------------------
@@ -10857,7 +10733,7 @@ CREATE TABLE `form_eye_external` (
   `EXT_COMMENTS` text,
   PRIMARY KEY `external_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
-) 
+)
   ENGINE = InnoDB;
 
 -- --------------------------------------------------------
@@ -10909,7 +10785,7 @@ CREATE TABLE `form_eye_antseg` (
   `ANTSEG_COMMENTS`      text,
   PRIMARY KEY `antseg_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
- ) 
+ )
   ENGINE = InnoDB;
 
 
@@ -10948,7 +10824,7 @@ CREATE TABLE `form_eye_postseg` (
   `NEO25`           varchar(25) NOT NULL,
   PRIMARY KEY `postseg_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
- ) 
+ )
   ENGINE = InnoDB;
 
 
@@ -11043,7 +10919,7 @@ CREATE TABLE `form_eye_neuro` (
   `OSREDDESAT` varchar (20) DEFAULT NULL,
   PRIMARY KEY `neuro_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
- ) 
+ )
   ENGINE = InnoDB;
 
 
@@ -11067,7 +10943,7 @@ CREATE TABLE `form_eye_locking` (
   `LOCKEDBY`   varchar(50)         DEFAULT NULL,
   PRIMARY KEY `locking_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
-  ) 
+  )
   ENGINE = InnoDB;
 
 CREATE TABLE `login_mfa_registrations` (
@@ -11079,3 +10955,19 @@ CREATE TABLE `login_mfa_registrations` (
   `var2`            varchar(256)   NOT NULL DEFAULT '' COMMENT 'Answer etc.',
   PRIMARY KEY (`user_id`, `name`)
 ) ENGINE=InnoDB;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `api_token`
+--
+
+DROP TABLE IF EXISTS `api_token`;
+CREATE TABLE `api_token` (
+    `id`           bigint(20) NOT NULL AUTO_INCREMENT,
+    `user_id`      bigint(20) NOT NULL,
+    `token`        varchar(256) DEFAULT NULL,
+    `expiry`       datetime NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB;

@@ -55,7 +55,8 @@ function ta_report_plot_graph(formid,ofc_name,the_track_name,ofc_date,ofc_value)
                                      values: thevalues,
                                      items:  theitems,
                                      track:  thetrack,
-                                     thecheckboxes: checkedBoxes
+                                     thecheckboxes: checkedBoxes,
+                                     csrf_token_form: csrf_token_js
                                    },
                          dataType: "json",
                          success: function(returnData){

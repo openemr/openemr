@@ -2,15 +2,19 @@
 /**
  * weno admin.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once('../globals.php');
 require_once("$srcdir/options.inc.php");
+
 use OpenEMR\Core\Header;
 use OpenEMR\Rx\Weno\AdminProperties;
 
@@ -46,9 +50,9 @@ if ($GLOBALS['weno_rx_enable'] != 1) {
     print xlt("Weno Service is Enabled")."<br><br>";
 }
 
-   $drugData = $tables->drugTableInfo();
+$drugData = $tables->drugTableInfo();
 if (!$drugData['ndc']) {
-    echo "<a href='drugPaidInsert.php' class='btn btn-default'>".xlt("Import Formularies")."</a> <br>".xlt("Be patient, this can take a while.");
+    echo "<a href='drugPaidInsert.php?csrf_token_form=" . attr_url(collectCsrfToken()) . "' class='btn btn-default'>".xlt("Import Formularies")."</a> <br>".xlt("Be patient, this can take a while.");
 } else {
     print xlt("Formularies inserted into table")."<br>";
 }
@@ -56,10 +60,11 @@ if (!$drugData['ndc']) {
 ?>
 
 <br><br>
-
-<?php if (!empty($finish)) {
-    echo $finish . xlt("with import");
-} ?>
+<?php
+if (file_exists('../../contrib/weno/pharmacyList.csv')) {
+    echo "<a href='import_pharmacies.php?csrf_token_form=" . attr_url(collectCsrfToken()) . "' class='btn btn-default'>" . xlt("Import Pharmacies Script") . "</a> <br>";
+}
+?>
 
 </div>
 <script>

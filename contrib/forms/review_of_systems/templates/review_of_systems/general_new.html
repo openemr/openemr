@@ -1,7 +1,7 @@
 <html>
 
 <head>
-{php}html_header_show();{/php}
+{headerShow}
 
 {literal}
 
@@ -113,13 +113,13 @@ a {
 
 	<td></td>
 
-    <td colspan="3">When was your last Pneumonia shot?:<input type=text name="date_pneumonia_shot" value="{$review_of_systems->get_date_pneumonia_shot()}" ></td> 
+    <td colspan="3">When was your last Pneumonia shot?:<input type=text name="date_pneumonia_shot" value="{$review_of_systems->get_date_pneumonia_shot()}" ></td>
 
 </tr>
 
 	<td></td>
 
-    <td colspan="3">When was your last Flu shot?:<input type=text name="date_flu_shot" value="{$review_of_systems->get_date_flu_shot()}" ></td> 
+    <td colspan="3">When was your last Flu shot?:<input type=text name="date_flu_shot" value="{$review_of_systems->get_date_flu_shot()}" ></td>
 
 </tr>
 
@@ -169,7 +169,7 @@ a {
 
 						    <td colspan="4" class="form_text">Date of last Mammogram:  <input type=text name="date_mammogram" value="{$review_of_systems->get_date_mammogram()}" ></td>
 
-						</tr>			
+						</tr>
 
 						<tr>
 
@@ -209,13 +209,13 @@ a {
 
 						<tr>
 
-							<td></td>     
+							<td></td>
 
     						<td colspan="4" class="form_text">How many packs of cigarettes do you smoke per day:  <input type=text name="packs_per_day" value="{$review_of_systems->get_packs_per_day()}" ></td>
 
 						</tr>
 
-						<tr>     
+						<tr>
 
 							<td></td>
 
@@ -223,15 +223,15 @@ a {
 
 						</tr>
 
-						<tr>     
+						<tr>
 
 							<td></td>
 
-						    <td colspan="4" class="form_text">How much alcohol do you drink a week:  <input type=text name="alcohol_per_week" value="{$review_of_systems->get_alcohol_per_week()}" ></td> 
+						    <td colspan="4" class="form_text">How much alcohol do you drink a week:  <input type=text name="alcohol_per_week" value="{$review_of_systems->get_alcohol_per_week()}" ></td>
 
 						</tr>
 
-						<tr>  
+						<tr>
 
 							<td></td>
 
@@ -257,19 +257,19 @@ a {
 
 				{/if}
 
-				
+
 
 			</tr>
 
 	  {/foreach}
 
-	  
+
 
 	</td>
 
 </tr>
 
-{/foreach} 
+{/foreach}
 
 
 

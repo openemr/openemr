@@ -2,25 +2,30 @@
 /**
  * weno rx pharmacy import.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
- * @author  Alfonzo Perez  <aperez@hitechcompliance.net>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Alfonzo Perez  <aperez@hitechcompliance.net>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
 require_once('../globals.php');
 
+if (!verifyCsrfToken($_GET["csrf_token_form"])) {
+    csrfNotVerified();
+}
 
 $state = filter_input(INPUT_POST, "form_state"); //stores the variable sent in the post
 $srchCity = filter_input(INPUT_POST, "form_city");
 $ref = $_SERVER["HTTP_REFERER"];     //stores the url the post came from to redirect back to
 
-   /*
-   *  Opens the CSV file and reads each line
-   */
+/*
+*  Opens the CSV file and reads each line
+*/
 $path = '../../contrib/weno/pharmacyList.csv';
 $entrys = new SplFileObject($path);
 $entrys->setFlags(SplFileObject::READ_CSV);
@@ -31,13 +36,13 @@ sqlStatementNoLog("START TRANSACTION"); // Just in case someone else is adding.
 $tm = 1; // Let's count how many.
 foreach ($entrys as $entry) {//This loop continues till the end of the last line is reached.
 
-   //check entry 7 to match state
-    if (strtoupper($entry[7]) == strtoupper($state) && strtoupper($entry[6]) == strtoupper($srchCity)) {                 //In the next iteration this needs to be gotten from the globals
+    //check entry 7 to match state
+    if (strtoupper($entry[7]) == strtoupper($state) && strtoupper($entry[6]) == strtoupper($srchCity)) { //In the next iteration this needs to be gotten from the globals
 
-  /*
-  *   check the name is in the table
-  *   if it is skip to the next name on the list
-  */
+        /*
+         *   check the name is in the table
+         *   if it is skip to the next name on the list
+         */
         $sql = "SELECT id FROM pharmacies WHERE name = ? And npi = ?";
         $getNameId = sqlQuery($sql, array($entry[3], $entry[2]));
 

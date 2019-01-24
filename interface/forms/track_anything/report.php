@@ -131,7 +131,7 @@ function track_anything_report($pid, $encounter, $cols, $id)
         echo "<tr><td></td>";
         echo "<td colspan='" . attr($col) . "'><div class='navigateLink'>";
         echo "<input type='button' class='graph_button' ";
-        echo " onclick='ta_report_plot_graph(\"" . attr($formid) . "\"," . json_encode($ofc_name) . ",\"" . attr($the_track_name)  . "\"," . json_encode($ofc_date) . "," . json_encode($ofc_value) . ")'";
+        echo " onclick='ta_report_plot_graph(" . attr_js($formid) . "," . attr_js($ofc_name) . "," . attr_js($the_track_name)  . "," . attr_js($ofc_date) . "," . attr_js($ofc_value) . ")'";
         echo " name='' value='" . xla('Plot selected Items') . "'>";
         echo "</div></td></tr>";
     }

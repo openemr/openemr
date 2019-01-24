@@ -16,6 +16,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
+use OpenEMR\OeUI\OemrUI;
 ?>
 <html>
 <head>
@@ -36,12 +37,24 @@ use OpenEMR\Menu\PatientMenuRole;
     }
 <?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>
 </script>
+<?php
+$arrOeUiSettings = array(
+    'heading_title' => xl('Patient Transactions'),
+    'include_patient_name' => true,
+    'expandable' => false,
+    'expandable_files' => array(),//all file names need suffix _xpd
+    'action' => "",//conceal, reveal, search, reset, link or back
+    'action_title' => "",
+    'action_href' => "",//only for actions - reset, link or back
+    'show_help_icon' => true,
+    'help_file_name' => "transactions_dashboard_help.php"
+);
+$oemr_ui = new OemrUI($arrOeUiSettings);
+?>
 </head>
 
 <body class="body_top">
-    <div class="container">
-        <!--<h1><?php echo xlt('Patient Transactions');?></h1>-->
-        <?php $header_title = xl('Patient Transactions for');?>
+    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <div class="row">
             <div class="col-sm-12">
                 <?php require_once("$include_root/patient_file/summary/dashboard_header.php");?>
@@ -151,14 +164,7 @@ use OpenEMR\Menu\PatientMenuRole;
             </div>
         </div>
     </div><!--end of container div-->
-    <?php
-    //home of the help modal ;)
-    //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
-    if ($GLOBALS['enable_help'] == 1) {
-        echo "<script>var helpFile = 'transactions_dashboard_help.php'</script>";
-        require "$include_root/help_modal.php";
-    }
-    ?>
+    <?php $oemr_ui->oeBelowContainerDiv();?>
     <script>
         var listId = '#' + <?php echo js_escape($list_id); ?>;
         $(document).ready(function(){

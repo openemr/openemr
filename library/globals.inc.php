@@ -831,6 +831,13 @@ $GLOBALS_METADATA = array(
             xl('Set a facility cookie to remember the selected facility between logins.')
         ),
 
+        'login_into_facility' => array(
+            xl('Login Into Facility'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Select your current facility in the login page')
+        ),
+
         'receipts_by_provider' => array(
             xl('Print Receipts by Provider'),
             'bool',
@@ -1409,7 +1416,7 @@ $GLOBALS_METADATA = array(
         ),
         'couchdb_pass' => array(
             xl('CouchDB Password'),
-            'text',
+            'encrypted',                     // data type
             '',
             xl('Password to connect to CouchDB'),
         ),
@@ -1988,7 +1995,7 @@ $GLOBALS_METADATA = array(
 
         'SMTP_PASS' => array(
             xl('SMTP Password for Authentication'),
-            'text',                           // data type
+            'encrypted',                           // data type
             '',                               // default
             xl('Must be empty if SMTP authentication is not used.')
         ),
@@ -2055,7 +2062,7 @@ $GLOBALS_METADATA = array(
 
         'phone_gateway_password' => array(
             xl('Phone Gateway Password'),
-            'text',                           // data type
+            'encrypted',                      // data type
             '',                               // default
             xl('Password for Phone Gateway.')
         ),
@@ -2539,6 +2546,13 @@ $GLOBALS_METADATA = array(
             xl('Use servers protocol and host in urls (portal internal only).')
         ),
 
+        'enforce_signin_email' => array(
+            xl('Enforce E-Mail in Portal Log On Dialog'),
+            'bool',                           // data type
+            '1',
+            xl('Patient is required to enter their contact e-mail if present in Demographics Contact.')
+        ),
+
         'portal_onsite_two_register' => array(
             xl('Allow Version 2 Onsite New Patient Registration Widget'),
             'bool',                           // data type
@@ -2560,6 +2574,13 @@ $GLOBALS_METADATA = array(
             xl('Allow Version 2 Onsite Patient to use Secure Chat Application.')
         ),
 
+        'portal_two_ledger' => array(
+            xl('Allow Version 2 Onsite Patient Ledger'),
+            'bool',                           // data type
+            '1',
+            xl('Allow Version 2 Onsite Patient to view their accounting ledger online.')
+        ),
+
         'portal_two_payments' => array(
             xl('Allow Version 2 Onsite Online Payments'),
             'bool',                           // data type
@@ -2574,6 +2595,13 @@ $GLOBALS_METADATA = array(
             xl('Patient may change their logon from portal login dialog.')
         ),
 
+        'portal_onsite_document_download' => array(
+            xl('Enable Onsite Patient Portal Document Download'),
+            'bool',                           // data type
+            '1',
+            xl('Enables the ability to download documents in the Onsite Patient Portal by the user.')
+        ),
+
         'portal_onsite_enable' => array(
             xl('Enable Version 1 Onsite Patient Portal'),
             'bool',                           // data type
@@ -2586,13 +2614,6 @@ $GLOBALS_METADATA = array(
             'text',                           // data type
             'https://your_web_site.com/openemr/patients',
             xl('Website link for the Version 1 Onsite Patient Portal.')
-        ),
-
-        'portal_onsite_document_download' => array(
-            xl('Enable Onsite Patient Portal Document Download'),
-            'bool',                           // data type
-            '1',
-            xl('Enables the ability to download documents in the Onsite Patient Portal by the user.')
         ),
 
         'portal_offsite_enable' => array(
@@ -2662,7 +2683,7 @@ $GLOBALS_METADATA = array(
 
         'gbl_portal_cms_password' => array(
             xl('CMS Portal Password'),
-            'text',                           // data type
+            'encrypted',                      // data type
             '',
             xl('Password for the above user')
         ),
@@ -2688,7 +2709,53 @@ $GLOBALS_METADATA = array(
             xl('FHIR Server Base Address'),
             'text',
             'https://hapi.fhir.org/baseDstu3/',
-            xl('Base URL for FHIR Server. Url should end with /')
+            xl('Base URL for FHIR Server.')
+        ),
+
+        'rest_api' => array(
+            xl('Enable OpenEMR REST API'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR RESTful API. SSL Required')
+        ),
+
+        'payment_gateway' => array(
+            xl('Select Credit Card Payment Gateway'),
+            array(
+                'InHouse' => xl('In House'),
+                'AuthorizeNet' => xl('Authorize.Net'),
+                'Stripe' => xl('Stripe')
+            ),
+            'InHouse',
+            xl('Enable a Payment Gateway Service for processing credit card transactions')
+        ),
+
+        'gateway_mode_production' => array(
+            xl('Set Gateway to Production Mode'),
+            'bool',                           // data type
+            '0',
+            xl('Check this to go live. Not checked is testing mode.')
+        ),
+
+        'gateway_public_key' => array(
+            xl('Gateway Publishable Key'),
+            'encrypted',
+            '',
+            xl('The public access key for secure tokenize of credit or debit card authorization. PCI compliance')
+        ),
+
+        'gateway_api_key' => array(
+            xl('Gateway API Login Auth Name or Secret'),
+            'encrypted',
+            '',
+            xl('The Auth Name or API key for selected account.Auth Name for Authorize.Net and API Secret for Stripe')
+        ),
+
+        'gateway_transaction_key' => array(
+            xl('Gateway Transaction Key'),
+            'encrypted',
+            '',
+            xl('Mainly Authorize.Net uses two keys')
         ),
 
         'medex_enable' => array(
@@ -2750,7 +2817,7 @@ $GLOBALS_METADATA = array(
 
         'erx_account_password' => array(
             xl('NewCrop eRx Password'),
-            'pass',
+            'encrypted',
             '',
             xl('Account Password issued for NewCrop eRx service.')
         ),
@@ -2830,7 +2897,7 @@ $GLOBALS_METADATA = array(
 
         'weno_account_pass' => array(
             xl('Weno eRx Account Pass'),
-            'text',
+            'encrypted',                      // data type
             '7C84773D5063B20BC9E41636A091C6F17E9C1E34',
             xl('Account Id issued for Weno eRx service.')
         ),
@@ -2877,7 +2944,7 @@ $GLOBALS_METADATA = array(
 
         'phimail_password' => array(
             xl('phiMail Password'),
-            'pass',                           // data type
+            'encrypted',                      // data type
             '',
             xl('Contact EMR Direct to subscribe to the phiMail Direct messaging service')
         ),
@@ -2948,7 +3015,7 @@ $GLOBALS_METADATA = array(
             '0',
             xl('Rx Show State Lic. #')
         ),
-        'rx_show_drug-drug' => array(
+        'rx_show_drug_drug' => array(
             xl('Rx NLM Drug-Drug'),
             'bool',                           // data type
             '0',

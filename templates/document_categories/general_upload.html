@@ -1,6 +1,6 @@
 <html>
 <head>
-{php}html_header_show();{/php}
+{headerShow}
 
 {literal}
  <style type="text/css" title="mystyles" media="all">
@@ -23,30 +23,30 @@ a {
 <input type="hidden" name="MAX_FILE_SIZE" value="64000000" />
 <table>
 	<tr>
-		<td>{xl t="Upload Document"}</td>
+		<td>{xlt t="Upload Document"}</td>
 	</tr>
 	<tr>
 		<td><input type="file" name="file"></td>
 	</tr>
 	<tr>
-		<td><input type="submit" value="{xl t='Upload'}"></td>
+		<td><input type="submit" value="{xla t='Upload'}"></td>
 	</tr>
 	{if !empty($file)}
 	<tr>
 		<td><br><br></td>
 	</tr>
 	<tr>
-		<td>{xl t='Upload Report'}</td>
+		<td>{xlt t='Upload Report'}</td>
 	</tr>
 	<tr>
-		<td>{$error}</td>
+		<td>{$error|text}</td>
 	</tr>
 	<tr>
-		<td><pre>{$file}</pre></td>
+		<td><pre>{$file|text}</pre></td>
 	</tr>
 	{/if}
 </table>
-<input type="hidden" name="process" value="{$PROCESS}" />
+<input type="hidden" name="process" value="{$PROCESS|attr}" />
 </form>
 </body>
 </html>

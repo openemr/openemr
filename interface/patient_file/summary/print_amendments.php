@@ -15,6 +15,8 @@
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Core\Header;
+
 $amendments = $_REQUEST["ids"];
 $amendments = rtrim($amendments, ",");
 $amendmentsList = explode(",", $amendments);
@@ -77,20 +79,9 @@ function printAmendment($amendmentID, $lastAmendment)
 }
 
 ?>
-
 <html>
 <head>
-<?php html_header_show();?>
-
-<!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/jquery-min-1-2-2/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-
-
-<!-- page styles -->
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-
+    <?php Header::setupHeader(['no_bootstrap', 'no_fontawesome']); ?>
 </head>
 
 <body class="body_top">

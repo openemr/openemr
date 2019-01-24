@@ -1,5 +1,5 @@
 <?php
- /**
+/*
  * Fee Sheet Program used to create charges, copays and add diagnosis codes to the encounter
  *
  * @package   OpenEMR
@@ -11,12 +11,16 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-use OpenEMR\Core\Header;
+
 
 require_once("../../globals.php");
 require_once("$srcdir/FeeSheetHtml.class.php");
 require_once("codes.php");
 require_once("$srcdir/options.inc.php");
+
+use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 //acl check
 if (!acl_check_form('fee_sheet')) {
@@ -190,7 +194,7 @@ function echoServiceLines()
             if ($institutional) {
                 if ($codetype != 'COPAY' && $codetype != 'ICD10') {
                     echo "  <td class='billcell'><input type='text' class='revcode' name='bill[" . attr($lino) . "][revenue_code]' " .
-                        "title='" . xla("Revenue Code for this item. Type for hints/search") . "' " .
+                        "title='" . xla("Revenue Code for this item. Type to search or double click for list") . "' " .
                         "value='" . attr($revenue_code) . "' size='4'></td>\n";
                 } else {
                     echo "  <td class='billcell'>&nbsp;</td>\n";
@@ -533,14 +537,14 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'] || $_POST['bn_sa
 // Handle reopen request.  In that case no other changes will be saved.
 // If there was a checkout this will undo it.
 if (!$alertmsg && $_POST['bn_reopen']) {
-    doVoid($fs->pid, $fs->encounter, true);
+    BillingUtilities::doVoid($fs->pid, $fs->encounter, true);
     $current_checksum = $fs->visitChecksum();
   // Remove the line items so they are refreshed from the database on redisplay.
     unset($_POST['bill']);
     unset($_POST['prod']);
 }
 
-$billresult = getBillingByEncounter($fs->pid, $fs->encounter, "*");
+$billresult = BillingUtilities::getBillingByEncounter($fs->pid, $fs->encounter, "*");
 ?>
 <html>
 <?php Header::setupHeader(['knockout', 'jquery-ui', 'jquery-ui-base']);?>
@@ -782,34 +786,31 @@ $name = $enrow['fname'] . ' ';
 $name .= (!empty($enrow['mname'])) ? $enrow['mname'] . ' ' . $enrow['lname'] : $enrow['lname'];
 $date = xl('for Encounter on') . ' ' . oeFormatShortDate(substr($enrow['date'], 0, 10));
 $title = array(xl('Fee Sheet for'), text($name), text($date));
-//echo join(" ", $title);
-
-if ($GLOBALS['enable_help'] == 1) {
-    $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xl("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
-} elseif ($GLOBALS['enable_help'] == 2) {
-    $help_icon = '<a class="pull-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xl("Enable help in Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
-} elseif ($GLOBALS['enable_help'] == 0) {
-     $help_icon = '';
-}
-
-//to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will 
-//become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single array as an 
-//argument, containing one or more elements, the name of the current file is the first element, if there are linked 
-// files they should be listed thereafter, please add _xpd suffix to the file name
-$arr_files_php = array("fee_sheet_new_xpd");
-$current_state = collectAndOrganizeExpandSetting($arr_files_php);
-require_once("$srcdir/expand_contract_inc.php");
+$heading =  join(" ", $title);
+?>
+<?php
+$arrOeUiSettings = array(
+    'heading_title' => xl($heading),
+    'include_patient_name' => false,// use only in appropriate pages
+    'expandable' => true,
+    'expandable_files' => array("fee_sheet_new_xpd"),//all file names need suffix _xpd
+    'action' => "",//conceal, reveal, search, reset, link or back
+    'action_title' => "",
+    'action_href' => "",//only for actions - reset, link or back
+    'show_help_icon' => true,
+    'help_file_name' => "fee_sheet_help.php"
+);
+$oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
 
 
 <body class="body_top">
-    <div class="<?php echo $container;?> expandable">
+    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
          <div class="row">
             <div class="col-sm-12">
                 <div class="page-header clearfix">
-                    <h2 id="header_title" class="clearfix"><span id='header_text'><?php echo join(" ", $title); ?></span> <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract" title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i><?php echo $help_icon; ?>
-                    </h2>
+                    <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>
            </div>
@@ -820,7 +821,7 @@ require_once("$srcdir/expand_contract_inc.php");
                 onsubmit="return validate(this)">
                     <input type='hidden' name='newcodes' value=''>
                     <?php
-                        $isBilled = !$add_more_items && isEncounterBilled($fs->pid, $fs->encounter);
+                        $isBilled = !$add_more_items && BillingUtilities::isEncounterBilled($fs->pid, $fs->encounter);
                     if ($isBilled) {
                         echo "<p><font color='green'>" .
                         xlt("This encounter has been billed. To make changes, re-open it or select Add More Items.") .
@@ -1016,10 +1017,10 @@ require_once("$srcdir/expand_contract_inc.php");
                                         }
                                     }
                                     if (! $numrows) {
-                                        echo "   <select name='Search Results' class='form-control'style='width:98%' " .
+                                        echo "   <select name='search_results' class='form-control'style='color:red;width:98%' " .
                                         "onchange='codeselect(this)' disabled >\n";
                                     } else {
-                                        echo "   <select name='Search Results' style='width:98%; background:yellow' " .
+                                        echo "   <select name='search_results' style='width:98%; background:yellow' " .
                                         "onchange='codeselect(this)' >\n";
                                     }
 
@@ -1476,15 +1477,7 @@ require_once("$srcdir/expand_contract_inc.php");
             </div>
         </div>
     </div><!--End of div container -->
-    <?php
-    //home of the help modal ;)
-    //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
-    if ($GLOBALS['enable_help'] == 1) {
-        echo "<script>var helpFile = 'fee_sheet_help.php'</script>";
-        //help_modal.php lives in interface, set path accordingly
-        require_once "../../help_modal.php";
-    }
-    ?>
+    <?php $oemr_ui->oeBelowContainerDiv();?>
     <script>
     $( document ).ready(function() {
         $('select').addClass("form-control");
@@ -1499,14 +1492,6 @@ require_once("$srcdir/expand_contract_inc.php");
         }
         ?>
     </script>
-    
-    <script>
-        <?php
-        // jQuery script to change expanded/centered state dynamically
-        require_once("../../expand_contract_js.php")
-        ?>
-    </script>
-    
 </body>
 </html>
 <?php if (!empty($_POST['running_as_ajax'])) {
@@ -1517,28 +1502,17 @@ require_once("$srcdir/expand_contract_inc.php");
 <?php if ($GLOBALS['ippf_specific']) {
     require_once("contraception_products/initialize_contraception_products.php");
 } ?>
-    <script>
-        var translated_price_header="<?php echo xlt("Price");?>";
+<script>
+    var translated_price_header = "<?php echo xlt("Price");?>";
 
-        $( "[name='search_term']" ).keydown(function(event){
-            if(event.keyCode==13){
-                $("[name=bn_search]").trigger('click');
-                return false;
-             }
-         });
-
-        $("[name=search_term]").focus();
-    </script>
-
-    <?php
-    $search_term = $_POST['search_term'];
-    if ($numrows && $_POST['bn_search']) {
-        echo "<script>";
-            echo "alert( $numrows + ' " . xls('results returned for search term') . " \"" . attr($search_term) . "\"')";
-        echo "</script>";
-    } elseif (!$nnumrows && $_POST['bn_search']) {
-        echo "<script>";
-            echo "alert('" . xls('No results returned for search term') . " \"". attr($search_term) ."\". " . xls('Please try a different search') . "')";
-        echo "</script>";
-    }
-    ?>
+    $("[name='search_term']").keydown(function (event) {
+        if (event.keyCode == 13) {
+            $("[name=bn_search]").trigger('click');
+            return false;
+        }
+    });
+    $("[name=search_term]").focus();
+    <?php if ($_POST['bn_search']) { ?>
+        document.querySelector("[name='search_term']") . scrollIntoView();
+    <?php } ?>
+</script>

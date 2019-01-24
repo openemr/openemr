@@ -168,7 +168,7 @@ class Header
             } else {
                 $path = self::createFullPath($basePath, $script);
             }
-            $scripts[] = self::createElement($path, 'script');
+            $scripts[] = self::createElement($path, 'script', $alreadyBuilt);
         }
 
         if ($link) {
@@ -187,7 +187,7 @@ class Header
                 } else {
                     $path = self::createFullPath($basePath, $l);
                 }
-                $links[] = self::createElement($path, 'link');
+                $links[] = self::createElement($path, 'link', $alreadyBuilt);
             }
         }
 
@@ -226,15 +226,17 @@ class Header
      * @param string $type Must be `script` or `link`
      * @return string mixed HTML element
      */
-    private static function createElement($path, $type)
+    private static function createElement($path, $type, $alreadyBuilt)
     {
 
         $script = "<script type=\"text/javascript\" src=\"%path%\"></script>\n";
         $link = "<link rel=\"stylesheet\" href=\"%path%\" type=\"text/css\">\n";
 
         $template = ($type == 'script') ? $script : $link;
-        $v = $GLOBALS['v_js_includes'];
-        $path = $path . "?v={$v}";
+        if (!$alreadyBuilt) {
+            $v = $GLOBALS['v_js_includes'];
+            $path = $path . "?v={$v}";
+        }
         return str_replace("%path%", $path, $template);
     }
 

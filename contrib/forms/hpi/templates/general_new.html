@@ -1,6 +1,6 @@
 <html>
 <head>
-{php}html_header_show();{/php}
+{headerShow}
 {literal}
 
  <style type="text/css" title="mystyles" media="all">
@@ -56,7 +56,7 @@ a {
 		</td>
 	</tr>
 
-	
+
 	<tr>
 		<td align="left">Severity</td>
 		<td width="90%">
@@ -64,7 +64,7 @@ a {
 		</td>
 	</tr>
 
-	
+
 	<tr>
 		<td align="left">Duration</td>
 		<td width="90%">
@@ -72,7 +72,7 @@ a {
 		</td>
 	</tr>
 
-	
+
 	<tr>
 		<td align="left">Timing</td>
 		<td width="90%">
@@ -80,7 +80,7 @@ a {
 		</td>
 	</tr>
 
-	
+
 	<tr>
 		<td align="left">Context</td>
 		<td width="90%">
@@ -88,7 +88,7 @@ a {
 		</td>
 	</tr>
 
-	
+
 	<tr>
 		<td align="left">Modifying Factors</td>
 		<td width="90%">
@@ -96,14 +96,14 @@ a {
 		</td>
 	</tr>
 
-	
+
 	<tr>
 		<td align="left">Associated Signs and Symptoms</td>
 		<td width="90%">
 			<textarea name="signs" cols="60" rows="6">{$data->get_signs()}</textarea>
 		</td>
 	</tr>
-	
+
 	<tr>
 		<td>
 			<input type="submit" name="Submit" value="Save Form">

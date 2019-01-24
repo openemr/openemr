@@ -667,7 +667,7 @@ UPDATE `openemr_postcalendar_categories` SET pc_constant_id = LOWER(REPLACE (pc_
 #EndIf
 
 #IfNotIndex openemr_postcalendar_categories pc_constant_id
-ALTER TABLE openemr_postcalendar_categories ADD UNIQUE (`pc_constant_id`);
+ALTER TABLE openemr_postcalendar_categories ADD UNIQUE KEY (`pc_constant_id`);
 #EndIf
 
 #IfMissingColumn facility facility_taxonomy

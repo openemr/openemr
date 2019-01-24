@@ -1302,7 +1302,7 @@ function build_IMPPLAN(items,nodisplay) {
                 // If there is a comma in there, there is more than one code present for this item. Split them out.
                 // If code is manually changed or copied from a prior visit - item will not have a PMSFH_link
                 // PMSFH_link is only present when the Builder was used to make the entry.
-                
+
                 // So if there is no PMSFH_link and it is not generated from a clinical field:
                 if ( ((typeof value.PMSFH_link !== "undefined") || (value.PMSFH_link !== null)) && (!value.PMSFH_link.match(/Clinical_(.*)/)) ) {
                     //The Title should have the description.
@@ -2146,33 +2146,35 @@ var allPanels = $('.building_blocks > dd').hide();
                     }
 
                   });
-
-
-                  $('[title]').qtip({
-                                    position: {
-                                    my: 'top Right',  // Position my top left...
-                                    at: 'bottom Left', // at the bottom right of...
-                                    target: 'mouse' // my target
-                                    }
-                                    }
-                                    );
+                  $('[title]').tooltip();
                   $('#form_PCP,#form_rDOC').change(function() {
                                                    update_DOCS();
                                                    });
 
                   $('#tooltips_status').html($('#PREFS_TOOLTIPS').val());
                   if ($("#PREFS_TOOLTIPS").val() == "<?php echo xla('Off'); ?>") {
-                  $('[title]').qtip('disable');
+                    $('[title]').each(function() {
+                        var $this = $(this);
+                        $this.data('title',$this.attr('title'));
+                        $this.attr('title', '');
+                    });
                   }
                   $('#tooltips_toggle,#tooltips_status').click(function() {
                                                                if ($("#PREFS_TOOLTIPS").val() == "<?php echo xla('On'); ?>") {
                                                                $('#PREFS_TOOLTIPS').val('<?php echo xla('Off'); ?>');
                                                                $("#tooltips_status").html('<?php echo xla('are off'); ?>');
-                                                               $('[title]').qtip('disable');
+                                                               $('[title]').each(function() {
+                                                                   var $this = $(this);
+                                                                   $this.data('title',$this.attr('title'));
+                                                                   $this.attr('title', '');
+                                                               });
                                                                } else {
                                                                $('#PREFS_TOOLTIPS').val('<?php echo xla('On'); ?>');
                                                                $('#tooltips_status').html('<?php echo xla('are on'); ?>');
-                                                               $('[title]').qtip('enable');
+                                                               $('[title]').each(function() {
+                                                                   var $this = $(this);
+                                                                   $this.attr('title', $this.data('title'));
+                                                               });
                                                                }
                                                                update_PREFS();
                                                                });

@@ -16,12 +16,6 @@ assets:
         script: jquery.min.js
         autoload: true
         allowNoLoad: true
-    jquery-1-10-2:
-        basePath: %assets_static_relative%/jquery-1-10-2/
-        script: jquery.min.js
-    jquery-1-11-3:
-        basePath: %assets_static_relative%/jquery-1-11-3/dist/
-        script: jquery.min.js
     bootstrap:
         basePath: %assets_static_relative%/bootstrap/dist/
         script: js/bootstrap.min.js
@@ -66,6 +60,9 @@ assets:
         link: jquery-ui.min.css
     jquery-ui-cupertino:
         basePath: %assets_static_relative%/jquery-ui-themes/themes/cupertino/
+        link: jquery-ui.min.css
+    jquery-ui-lightness:
+        basePath: %assets_static_relative%/jquery-ui-themes/themes/ui-lightness/
         link: jquery-ui.min.css
     jquery-ui-lightness-1-10-4:
         basePath: %assets_static_relative%/jquery-ui-themes-1-10-4/themes/ui-lightness/
@@ -113,9 +110,6 @@ assets:
     jscolor:
         basePath: %assets_static_relative%/jscolor/
         script: jscolor.js
-    jscolor-1-4-5:
-        basePath: %assets_static_relative%/jscolor-1-4-5/
-        script: jscolor.js
     emodal:
         basePath: %assets_static_relative%/emodal/dist/
         script: eModal.min.js
@@ -133,14 +127,6 @@ assets:
     pure:
         basePath: %assets_static_relative%/pure/0.5.0/
         link: pure-min.css
-    qtip2:
-        basePath: %assets_static_relative%/qtip2/dist/
-        script: jquery.qtip.min.js
-        link: jquery.qtip.min.css
-    qtip2-2-2-1:
-        basePath: %assets_static_relative%/qtip2-2-2-1/
-        script: jquery.qtip.min.js
-        link: jquery.qtip.min.css
     angular:
         basePath: %assets_static_relative%/angular/
         script: angular.min.js

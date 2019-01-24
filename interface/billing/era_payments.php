@@ -1,43 +1,30 @@
 <?php
-// +-----------------------------------------------------------------------------+
-// Copyright (C) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-//
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-//
-// A copy of the GNU General Public License is included along with this program:
-// openemr/interface/login/GnuGPL.html
-// For more information write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
-// Author:   Eldho Chacko <eldho@zhservices.com>
-//           Paul Simon K <paul@zhservices.com>
-//
-// +------------------------------------------------------------------------------+
-//===============================================================================
-//Electronic posting is handled here.
-//===============================================================================
+/*
+ * The functions of this class support the billing process like the script billing_process.php.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Eldho Chacko <eldho@zhservices.com>
+ * @author    Paul Simon K <paul@zhservices.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (C) 2018 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
-require_once("$srcdir/parse_era.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/sl_eob.inc.php");
 
+use OpenEMR\Billing\ParseERA;
+use OpenEMR\Billing\SLEOB;
 use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 $hidden_type_code = isset($_POST['hidden_type_code']) ? $_POST['hidden_type_code'] : '';
 $check_date = isset($_POST['check_date']) ? $_POST['check_date'] : '';
@@ -46,7 +33,7 @@ $deposit_date = isset($_POST['deposit_date']) ? $_POST['deposit_date'] : '';
 $type_code = isset($_POST['type_code']) ? $_POST['type_code'] : '';
 
 //===============================================================================
-// This is called back by parse_era() if we are processing X12 835's.
+// This is called back by ParseERA::parse_era() if we are processing X12 835's.
 $alertmsg = '';
 $where = '';
 $eraname = '';
@@ -58,7 +45,7 @@ function era_callback(&$out)
     ++$eracount;
     $eraname = $out['gs_date'] . '_' . ltrim($out['isa_control_number'], '0') .
     '_' . ltrim($out['payer_id'], '0');
-    list($pid, $encounter, $invnumber) = slInvoiceNumber($out);
+    list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
     if ($pid && $encounter) {
         if ($where) {
             $where .= ' OR ';
@@ -80,7 +67,7 @@ if ($_FILES['form_erafile']['size']) {
         exec("unzip -p " . escapeshellarg($tmp_name.".zip") . " > " . escapeshellarg($tmp_name));
         unlink("$tmp_name.zip");
     }
-    $alertmsg .= parse_era($tmp_name, 'era_callback');
+    $alertmsg .= ParseERA::parse_era($tmp_name, 'era_callback');
     $erafullname = $GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi";
     if (is_file($erafullname)) {
         $alertmsg .=  xl("Warning").': '. xl("Set").' '.$eraname.' '. xl("was already uploaded").' ';
@@ -107,18 +94,18 @@ if ($_FILES['form_erafile']['size']) {
     {
      if(document.getElementById('uploadedfile').value=='')
       {
-       alert("<?php echo xls('Please Choose a file');?>");
+       alert(<?php echo xlj('Please Choose a file');?>);
        return false;
       }
      if(document.getElementById('hidden_type_code').value=='')
       {
-       alert("<?php echo xls('Select Insurance, by typing'); ?>");
+       alert(<?php echo xlj('Select Insurance, by typing'); ?>);
        document.getElementById('type_code').focus();
        return false;
       }
      if(document.getElementById('hidden_type_code').value!=document.getElementById('div_insurance_or_patient').innerHTML)
       {
-       alert("<?php echo xls('Take Insurance, from Drop Down'); ?>");
+       alert(<?php echo xlj('Take Insurance, from Drop Down'); ?>);
        document.getElementById('type_code').focus();
        return false;
       }
@@ -136,11 +123,11 @@ if ($_FILES['form_erafile']['size']) {
         if ($_FILES['form_erafile']['size']) {
             ?>
             var f = document.forms[0];
-            var debug = <?php echo attr($_REQUEST['form_without']*1); ?> ;
+            var debug = <?php echo js_escape($_REQUEST['form_without']*1); ?> ;
          var paydate = f.check_date.value;
          var post_to_date = f.post_to_date.value;
          var deposit_date = f.deposit_date.value;
-         window.open('sl_eob_process.php?eraname=<?php echo attr(urlencode($eraname)); ?>&debug=' + debug + '&paydate=' + paydate + '&post_to_date=' + post_to_date + '&deposit_date=' + deposit_date + '&original=original' + '&InsId=<?php echo attr(urlencode($hidden_type_code)); ?>' + '&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>' , '_blank');
+         window.open('sl_eob_process.php?eraname=' + <?php echo js_url($eraname); ?> + '&debug=' + encodeURIComponent(debug) + '&paydate=' + encodeURIComponent(paydate) + '&post_to_date=' + encodeURIComponent(post_to_date) + '&deposit_date=' + encodeURIComponent(deposit_date) + '&original=original' + '&InsId=' + <?php echo js_url($hidden_type_code); ?> + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>, '_blank');
          return false;
         <?php
         }
@@ -244,16 +231,27 @@ if ($_FILES['form_erafile']['size']) {
     require_once("$srcdir/expand_contract_inc.php");
     ?>
     <title><?php echo xlt('ERA Posting'); ?></title>
+    <?php
+    $arrOeUiSettings = array(
+        'heading_title' => xl('Payments'),
+        'include_patient_name' => false,// use only in appropriate pages
+        'expandable' => true,
+        'expandable_files' => array("era_payments_xpd", "search_payments_xpd", "new_payment_xpd"),//all file names need suffix _xpd
+        'action' => "",//conceal, reveal, search, reset, link or back
+        'action_title' => "",
+        'action_href' => "",//only for actions - reset, link or back
+        'show_help_icon' => false,
+        'help_file_name' => ""
+    );
+    $oemr_ui = new OemrUI($arrOeUiSettings);
+    ?>
 </head>
 <body class="body_top" onload="OnloadAction()">
-    <div class="<?php echo $container;?> expandable">
+    <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer());?>">
         <div class="row">
             <div class="col-sm-12">
                 <div class="page-header">
-                    <h2>
-                        <?php echo xlt('Payments'); ?> <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract"
-                        title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i>
-                    </h2>
+                    <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>
         </div>
@@ -355,39 +353,7 @@ if ($_FILES['form_erafile']['size']) {
             </div>
         </div>
     </div><!-- End of Container Div-->
-    <script>
-        $(function() {
-            //https://www.abeautifulsite.net/whipping-file-inputs-into-shape-with-bootstrap-3
-            // We can attach the `fileselect` event to all file inputs on the page
-            $(document).on('change', ':file', function() {
-                var input = $(this),
-                numFiles = input.get(0).files ? input.get(0).files.length : 1,
-                label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-                input.trigger('fileselect', [numFiles, label]);
-            });
-
-            // We can watch for our custom `fileselect` event like this
-            $(document).ready( function() {
-                $(':file').on('fileselect', function(event, numFiles, label) {
-                    var input = $(this).parents('.input-group').find(':text'),
-                    log = numFiles > 1 ? numFiles + ' files selected' : label;
-
-                    if( input.length ) {
-                    input.val(log);
-                    }
-                    else {
-                    if( log ) alert(log);
-                    }
-                });
-            });
-
-            });
-    </script>
-    <script>
-        <?php
-        // jQuery script to change expanded/centered state dynamically
-        require_once("../expand_contract_js.php");
-        ?>
-    </script>
+    <?php $oemr_ui->oeBelowContainerDiv();?>
+    <script src = '<?php echo $webroot;?>/library/js/oeUI/oeFileUploads.js'></script>
 </body>
 </html>

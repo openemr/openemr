@@ -35,7 +35,7 @@ function rbvalue($rbname)
         $tmp = '0';
     }
 
-    return "'$tmp'";
+    return $tmp;
 }
 
 function cbvalue($cbname)
@@ -104,36 +104,39 @@ if ($_POST['bn_save']) {
  // If updating an existing form...
  //
     if ($formid) {
-        $query = "UPDATE form_soccer_injury SET "      .
-         "siinjtime = '$siinjtime', "                  .
-         "sigametime = "  . rbvalue('gameplay') . ", " .
-         "simechanism = " . rbvalue('activity') . ", " .
-         "simech_other = '$simech_other', "            .
-         "sisurface = "   . rbvalue('surface')  . ", " .
-         "siposition = "  . rbvalue('position') . ", " .
-         "sifootwear = "  . rbvalue('footwear') . ", " .
-         "siequip_1 = "   . cbvalue('equip_1')  . ", " .
-         "siequip_2 = "   . cbvalue('equip_2')  . ", " .
-         "siequip_3 = "   . cbvalue('equip_3')  . ", " .
-         "siequip_4 = "   . cbvalue('equip_4')  . ", " .
-         "siequip_5 = "   . cbvalue('equip_5')  . ", " .
-         "siequip_6 = "   . cbvalue('equip_6')  . ", " .
-         "siside = "      . rbvalue('side')     . ", " .
-         "siremoved = "   . rbvalue('removed')  . ", " .
-         "sitreat_1 = "   . cbvalue('treat_1')  . ", " .
-         "sitreat_2 = "   . cbvalue('treat_2')  . ", " .
-         "sitreat_3 = "   . cbvalue('treat_3')  . ", " .
-         "sitreat_4 = "   . cbvalue('treat_4')  . ", " .
-         "sitreat_5 = "   . cbvalue('treat_5')  . ", " .
-         "sitreat_6 = "   . cbvalue('treat_6')  . ", " .
-         "sitreat_7 = "   . cbvalue('treat_7')  . ", " .
-         "sitreat_8 = "   . cbvalue('treat_8')  . ", " .
-         "sitreat_9 = "   . cbvalue('treat_9')  . ", " .
-         "sitreat_10 = "  . cbvalue('treat_10') . ", " .
-         "sitreat_other = '$sitreat_other', "          .
-         "sinoreturn = "  . cbvalue('noreturn') . " "  .
-         "WHERE id = '$formid'";
-        sqlStatement($query);
+        $query = "UPDATE form_soccer_injury SET
+         siinjtime = ?,
+         sigametime = ?,
+         simechanism  ?,
+         simech_other= ?,
+         sisurface =  ?,
+         siposition = ?,
+         sifootwear = ?,
+         siequip_1 =  ?,
+         siequip_2 =  ?,
+         siequip_3 =  ?,
+         siequip_4 =  ?,
+         siequip_5 =  ?,
+         siequip_6 =  ?,
+         siside =    ?,
+         siremoved =  ?,
+         sitreat_1 =  ?,
+         sitreat_2 =  ?,
+         sitreat_3 =  ?,
+         sitreat_4 =  ?,
+         sitreat_5 =  ?,
+         sitreat_6 =  ?,
+         sitreat_7 =  ?,
+         sitreat_8 =  ?,
+         sitreat_9 =  ?,
+         sitreat_10 = ?,
+         sitreat_other = ?,
+         sinoreturn = ?,
+         WHERE id = ?";
+        sqlStatement($query, array( $siinjtime, rbvalue('gameplay'), rbvalue('activity'), $simech_other, rbvalue('surface'), rbvalue('position'), rbvalue('footwear'), cbvalue('equip_1'),
+        cbvalue('equip_2'), cbvalue('equip_3'), cbvalue('equip_4'), cbvalue('equip_5'), cbvalue('equip_6'), rbvalue('side'), rbvalue('removed'), cbvalue('treat_1'), cbvalue('treat_2'),
+        cbvalue('treat_3'), cbvalue('treat_4'), cbvalue('treat_5'), cbvalue('treat_6'), cbvalue('treat_7'), cbvalue('treat_8'), cbvalue('treat_9'), cbvalue('treat_10'), $sistreat_other, cbvalue('noreturn'),
+        $formid));
     } // If adding a new form...
  //
     else {
@@ -145,36 +148,14 @@ if ($_POST['bn_save']) {
          "sitreat_1, sitreat_2, sitreat_3, sitreat_4, sitreat_5, " .
          "sitreat_6, sitreat_7, sitreat_8, sitreat_9, sitreat_10, " .
          "sitreat_other, sinoreturn " .
-         ") VALUES ( " .
-         "'$siinjtime', " .
-         rbvalue('gameplay') . ", " .
-         rbvalue('activity') . ", " .
-         "'$simech_other', "        .
-         rbvalue('surface')  . ", " .
-         rbvalue('position') . ", " .
-         rbvalue('footwear') . ", " .
-         cbvalue('equip_1')  . ", " .
-         cbvalue('equip_2')  . ", " .
-         cbvalue('equip_3')  . ", " .
-         cbvalue('equip_4')  . ", " .
-         cbvalue('equip_5')  . ", " .
-         cbvalue('equip_6')  . ", " .
-         rbvalue('side')     . ", " .
-         rbvalue('removed')  . ", " .
-         cbvalue('treat_1')  . ", " .
-         cbvalue('treat_2')  . ", " .
-         cbvalue('treat_3')  . ", " .
-         cbvalue('treat_4')  . ", " .
-         cbvalue('treat_5')  . ", " .
-         cbvalue('treat_6')  . ", " .
-         cbvalue('treat_7')  . ", " .
-         cbvalue('treat_8')  . ", " .
-         cbvalue('treat_9')  . ", " .
-         cbvalue('treat_10') . ", " .
-         "'$sitreat_other', "       .
-         cbvalue('noreturn') . " "  .
-         ")";
-        $newid = sqlInsert($query);
+         ") VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,
+         ?,?,?,?,?,?,?,?,?,?,?,?,
+         ?,?,?)";
+
+        $newid = sqlInsert($query, array($siinjtime, rbvalue('gameplay'), rbvalue('activity'), $simech_other, rbvalue('surface'), rbvalue('position'), rbvalue('footwear'), cbvalue('equip_1'),
+        cbvalue('equip_2'), cbvalue('equip_3'), cbvalue('equip_4'), cbvalue('equip_5'), cbvalue('equip_6'), rbvalue('side'), rbvalue('removed'), cbvalue('treat_1'), cbvalue('treat_2'),
+        cbvalue('treat_3'), cbvalue('treat_4'), cbvalue('treat_5'), cbvalue('treat_6'), cbvalue('treat_7'), cbvalue('treat_8'), cbvalue('treat_9'), cbvalue('treat_10'), $sistreat_other, cbvalue('noreturn')));
+
         addForm($encounter, "Football Injury", $newid, "soccer_injury", $pid, $userauthorized);
     }
 
@@ -188,7 +169,7 @@ $siinjtime = '';
 $siampm = '';
 if ($formid) {
     $row = sqlQuery("SELECT * FROM form_soccer_injury WHERE " .
-    "id = '$formid' AND activity = '1'") ;
+    "id = ? AND activity = '1'", array($formid)) ;
     $siinjtime = substr($row['siinjtime'], 0, 5);
     $siampm = 'am';
     $siinjhour = substr($siinjtime, 0, 2);

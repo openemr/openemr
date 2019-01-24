@@ -1,21 +1,23 @@
 <?php
 /**
- * Generated DocBlock
+ * assessment_intake view.php.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  sunsetsystems <sunsetsystems>
- * @author  cornfeed <jdough823@gmail.com>
- * @author  fndtn357 <fndtn357@gmail.com>
- * @author  sunsetsystems <sunsetsystems>
- * @author  Robert Down <robertdown@live.com>
- * @copyright Copyright (c) 2005 sunsetsystems <sunsetsystems>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    sunsetsystems <sunsetsystems>
+ * @author    cornfeed <jdough823@gmail.com>
+ * @author    fndtn357 <fndtn357@gmail.com>
+ * @author    Robert Down <robertdown@live.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2005-2007 sunsetsystems <sunsetsystems>
  * @copyright Copyright (c) 2011 cornfeed <jdough823@gmail.com>
  * @copyright Copyright (c) 2012 fndtn357 <fndtn357@gmail.com>
- * @copyright Copyright (c) 2007 sunsetsystems <sunsetsystems>
  * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+
 ?>
 <?php
 require_once("../../globals.php");
@@ -32,6 +34,8 @@ $obj = formFetch("form_assessment_intake", $_GET["id"]);
 
 ?>
 <form method=post action="<?php echo $rootdir?>/forms/assessment_intake/save.php?mode=update&id=<?php echo attr($_GET["id"]);?>" name="my_form">
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+
 <span class="title"><center><b>Assessment and Intake</b></center></span><br><br>
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>

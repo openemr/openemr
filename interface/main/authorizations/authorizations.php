@@ -12,12 +12,13 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/log.inc");
-require_once("$srcdir/billing.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/transactions.inc");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
+
+use OpenEMR\Core\Header;
 
 // The number of authorizations to display in the quick view:
 // MAR 20041008 the full authorizations screen sucks... no links to the patient charts
@@ -45,9 +46,7 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
-<link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/jquery-min-1-2-2/index.js"></script>
+<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog']); ?>
 <style>
 /* min & max buttons are hidden in the newer concurrent layout */
 #min {
@@ -190,12 +189,12 @@ if ($authorize) {
         // Clicking the patient name will load both frames for that patient,
         // as demographics.php takes care of loading the bottom frame.
         echo "<a href='$rootdir/patient_file/summary/demographics.php?set_pid=" .
-            attr(urlencode($ppid)) . "' target='RTop' onclick='top.restoreSession()'>";
+            attr_url($ppid) . "' target='RTop' onclick='top.restoreSession()'>";
 
         echo "<span class='bold'>" . text($name{"fname"}) . " " .
         text($name{"lname"}) . "</span></a><br>" .
         "<a class=link_submit href='authorizations.php?mode=authorize" .
-        "&pid=" . attr(urlencode($ppid)) . "&csrf_token_form=" . attr(urlencode(collectCsrfToken())) . "' onclick='top.restoreSession()'>" .
+        "&pid=" . attr_url($ppid) . "&csrf_token_form=" . attr_url(collectCsrfToken()) . "' onclick='top.restoreSession()'>" .
         xlt('Authorize') . "</a></td>\n";
 
         /****
@@ -244,9 +243,9 @@ if ($authorize) {
 var origRows = null;
 $(document).ready(function(){
 
-    $(".noterow").mouseover(function() { $(this).toggleClass("highlight"); });
-    $(".noterow").mouseout(function() { $(this).toggleClass("highlight"); });
-    $(".noterow").click(function() { EditNote(this); });
+    $(".noterow").on("mouseover", function() { $(this).toggleClass("highlight"); });
+    $(".noterow").on("mouseout", function() { $(this).toggleClass("highlight"); });
+    $(".noterow").on("click", function() { EditNote(this); });
 
 });
 
@@ -254,10 +253,10 @@ var EditNote = function(note) {
     var parts = note.id.split("~");
 <?php if (true) : ?>
     top.restoreSession();
-    location.href = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/pnotes_full.php?noteid=" + parts[1] + "&set_pid=" + parts[0] + "&active=1";
+    location.href = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/pnotes_full.php?noteid=" + encodeURIComponent(parts[1]) + "&set_pid=" + encodeURIComponent(parts[0]) + "&active=1";
 <?php else : ?>
     // no-op
-    alert("<?php echo xls('You do not have access to view/edit this note'); ?>");
+    alert(<?php echo xlj('You do not have access to view/edit this note'); ?>);
 <?php endif; ?>
 }
 

@@ -1,4 +1,15 @@
 <?php
+/**
+ * assessment_intake new.php.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 formHeader("Form: assessment_intake");
@@ -9,6 +20,7 @@ formHeader("Form: assessment_intake");
 </head>
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <form method=post action="<?php echo $rootdir;?>/forms/assessment_intake/save.php?mode=new" name="my_form">
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <br>
 <span class="title"><center>Assessment and Intake</center></span><br><br>
 <center><a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>

@@ -14,6 +14,8 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Core\Header;
+
 // allow a custom 'delete' form
 $deleteform = $incdir . "/forms/" . $_REQUEST["formname"]."/delete.php";
 
@@ -61,12 +63,7 @@ if ($_POST['confirm']) {
 <html>
 
 <head>
-<?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-
-<!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/jquery-min-1-2-2/index.js"></script>
-
+<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog' ]); ?>
 </head>
 
 <body class="body_top">
@@ -96,8 +93,8 @@ foreach ($_GET as $key => $value) {
 // jQuery stuff to make the page a little easier to use
 
 $(document).ready(function(){
-    $("#confirmbtn").click(function() { return ConfirmDelete(); });
-    $("#cancel").click(function() { location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>'; });
+    $("#confirmbtn").on("click", function() { return ConfirmDelete(); });
+    $("#cancel").on("click", function() { location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>'; });
 });
 
 function ConfirmDelete() {
