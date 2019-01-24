@@ -157,15 +157,18 @@ class Document extends ORDataObject
     {
         $documents = array();
 
+        $sqlArray = array();
+
         if (empty($foreign_id)) {
-             $foreign_id= "like '%'";
+            $foreign_id_sql = " like '%'";
         } else {
-            $foreign_id= " = '" . add_escape_custom(strval($foreign_id)) . "'";
+            $foreign_id_sql = " = ?";
+            $sqlArray[] = strval($foreign_id);
         }
 
         $d = new Document();
-        $sql = "SELECT id FROM " . escape_table_name($d->_table) . " WHERE foreign_id = ?";
-        $result = $d->_db->Execute($sql, array($foreign_id));
+        $sql = "SELECT id FROM " . escape_table_name($d->_table) . " WHERE foreign_id " . $foreign_id_sql;
+        $result = $d->_db->Execute($sql, $sqlArray);
 
         while ($result && !$result->EOF) {
             $documents[] = new Document($result->fields['id']);
@@ -192,8 +195,8 @@ class Document extends ORDataObject
             die("An invalid URL was specified to crete a new document, this would only be caused if files are being deleted as you are working through the queue. '$filename'\n");
         }
 
-        $sql = "SELECT id FROM " . escape_table_name($d->_table) . " WHERE url= '" . add_escape_custom($url) ."'" ;
-        $result = $d->_db->Execute($sql);
+        $sql = "SELECT id FROM " . escape_table_name($d->_table) . " WHERE url= ?" ;
+        $result = $d->_db->Execute($sql, [$url]);
 
         if ($result && !$result->EOF) {
             if (file_exists($filename)) {

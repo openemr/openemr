@@ -231,7 +231,7 @@ class Pharmacy extends ORDataObject
         if (empty($city)) {
              $city= "";
         } else {
-            $city = " WHERE city = " . add_escape_custom($foreign_id);
+            $city = " WHERE city = '" . add_escape_custom($foreign_id) . "'";
         }
 
         $p = new Pharmacy();

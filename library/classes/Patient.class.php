@@ -45,7 +45,7 @@ class Patient extends ORDataObject
                 "DATE_FORMAT(DOB,'%m/%d/%Y') as date_of_birth, ".
                 "pubpid " .
                 "FROM " . escape_table_name($this->_table) . " " .
-                "WHERE pid = " . add_escape_custom($this->id));
+                "WHERE pid = ?", [$this->id]);
             if (is_array($res)) {
                 $this->pubpid = $res['pubpid'];
                 $this->lname = $res['lname'];

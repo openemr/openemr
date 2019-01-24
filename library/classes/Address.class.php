@@ -45,16 +45,19 @@ class Address extends ORDataObject
     }
     static function factory_address($foreign_id = "")
     {
+        $sqlArray = array();
+
         if (empty($foreign_id)) {
-             $foreign_id= "like '%'";
+            $foreign_id_sql = " like '%'";
         } else {
-            $foreign_id= " = '" . add_escape_custom(strval($foreign_id)) . "'";
+            $foreign_id_sql = " = ?";
+            $sqlArray[] = strval($foreign_id);
         }
 
         $a = new Address();
-        $sql = "SELECT id FROM  " . escape_table_name($a->_table) . " WHERE foreign_id = ?";
+        $sql = "SELECT id FROM  " . escape_table_name($a->_table) . " WHERE foreign_id " . $foreign_id_sql;
         //echo $sql . "<bR />";
-        $results = sqlQ($sql, array($foreign_id));
+        $results = sqlQ($sql, $sqlArray);
         //echo "sql: $sql";
         $row = sqlFetchArray($results);
 
