@@ -1,6 +1,6 @@
 <?php
 /**
- * Installation  Help.
+ * OpenEMR Installation Help.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -20,13 +20,16 @@
         <link rel="stylesheet" href="../../public/assets/font-awesome/css/font-awesome.min.css" type="text/css">
         <link rel="shortcut icon" href="../../public/images/favicon.ico" />
         <script type="text/javascript" src="../../public/assets/jquery-ui/jquery-ui.js"></script>
-    <title><?php echo ("Access Control List Help");?></title>
+    <title><?php echo ("OpenEMR Installation Help");?></title>
     <style>
         @media only screen and (max-width: 768px) {
            [class*="col-"] {
            width: 100%;
            text-align:left!Important;
             }
+        }
+        .oe-text-green {
+            color: green;
         }
     </style>
     </head>
@@ -39,6 +42,9 @@
                 <div class="col-sm-12">
                     <p><?php echo ("Welcome to OpenEMR");?>.
                     
+                    <p><i class="fa fa-exclamation-circle oe-text-orange"  aria-hidden="true"></i> <?php echo ("If you would like to directly proceed to the Multi Site Installation help section");?>.
+                    <a href="#section12"><?php echo ("Click here");?></a>
+                    
                     <p><?php echo ("OpenEMR is a Free and Open Source electronic health records and medical practice management application");?>.
                     
                     <p><?php echo ("It is ONC Certified and it features a fully integrated electronic health records, practice management, scheduling, electronic billing application and a whole lot more");?>.
@@ -48,6 +54,8 @@
                     <p><?php echo ("You are about to install a fully functional version of this application");?>.
                     
                     <p><?php echo ("Before you proceed with the installation you need to understand how the application is structured");?>.
+                    
+                    <p><i class="fa fa-lightbulb-o fa-lg  oe-text-green" aria-hidden="true"></i>&nbsp <?php echo ("To do so read the introduction section first and start the installation. You can click and jump to the help section of any particular step at any time");?>.
                     
                     <p><?php echo ("Being an open source application you have full access to the source code and the ability to modify it as you wish");?>.
                     
@@ -113,6 +121,11 @@
                     <ul>
                         <li><a href="#section10"><?php echo ("Life cycle of the OpenEMR application");?></a></li>
                         <li><a href="#section11"><?php echo ("Upgrading");?></a></li>
+                    </ul>
+                    
+                    <p><?php echo ("Multi Site Installation");?>:
+                    <ul>
+                        <li><a href="#section12"><?php echo ("Multi Site Installation");?></a></li>
                     </ul>
                     
                 </div>
@@ -411,7 +424,7 @@
                     
                     <p><?php echo ("The script will automatically list the 'openemrwebroot' upon reaching Step 6 Configure Apache Web Server");?>.
                     
-                    <p><?php echo ("However you need to replace the asterisk * with the proper directory name, it is usually called 'default' for a single site installation");?>.
+                    <p><?php echo ("You can cut and paste this code block into the Apache configuration file");?>.
                     
                     <p><?php echo ("Click on 'Proceed to Select a Theme' to continue");?>.
                 </div>
@@ -544,6 +557,164 @@
                     <p><?php echo ("Simply replacing the new OpenEMR script files with the old ones might not be enough as the sql_upgrade.php script would have modified the database");?>.
                     
                      <p><?php echo ("To revert to the previous state you will have to replace the upgraded database with the old database in addition to replacing the new OpenEMR script files with the old ones");?>.
+                </div>
+            </div>
+            <div class= "row" id="section12">
+                <div class="col-sm-12">
+                    <h4 class="oe-help-heading"><?php echo ("Multi Site Installation"); ?><a href="#main-list"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
+                    <p><?php echo ("Allows you to install and run multiple sites from the same webserver"); ?>.
+                    
+                    <p><?php echo ("A brief recap some pertinent facts about OpenEMR"); ?>:
+                    
+                        <ul>
+                            <li><?php echo ("It is a three-tier web database application, user tier, data tier and middle tier"); ?></li>
+                            <li><?php echo ("The middle tier contains the PHP scripts that the webserver (Apache) uses to interact with the data tier and the user tier. It has to be in the webserver's openemr document root directory"); ?></li>
+                            <li><?php echo ("The data tier stores most of the data in a database, most commonly MySQL or MariaDB"); ?></li>
+                            <li><?php echo ("Some data (images, electronic remittance advice files, transmitted electronic batches for various kinds etc.) are stored in directories in the openemr document root folder of the webserver"); ?></li>
+                            <li><?php echo ("For PHP to interact with the database a virtual user is needed and created by the setup script"); ?></li>
+                            <li><?php echo ("For Apache/PHP to be able to read and write data to the directories containing patient information in the webserver openemr document root directory, the webserver needs permission to read and write to those directories"); ?></li>
+                            <li><?php echo ("The setup script also creates an initial user with full administrative privileges to the OpenEMR application at the time of initial setup"); ?></li>
+                        </ul>
+                    
+                    <p><?php echo ("The multisite setup will share the middle tier scripts between all instances and have a unique data tier for each instance"); ?>.
+                    
+                    <p><?php echo ("This means creating a new database for each site as well as creating a place in the webserver openemr document root directory to hold the site-specific non-database data"); ?>.
+                    
+                    <p><?php echo ("The place where the non-database data for each site is stored is in a directory called 'sites' in the OpenEMR document root directory of the initial single site installation"); ?>.
+                    
+                    <p><?php echo ("To initiate the multisite process you need to first have a single site or 'default' installation setup"); ?>.
+                    
+                    <p><?php echo ("The OpenEMR scripts from this installation will be shared with all subsequent sites created using the multisite module"); ?>.
+                    
+                    <p><?php echo ("The non-database data for each individual site will reside in the 'sites' directory under a sub-directory bearing the name of the site, i.e if your first multiuser site was called 'multi1' then the setup script will create a directory by the name of 'multi1' in the 'sites' directory"); ?>.
+                    
+                    <p><?php echo ("This directory will contain several directories that will hold unique site-specific patient information, 'documents', 'era', 'edi' and 'letter_templates' as well as the site-specific files 'config.php' and 'sqlconf.php'"); ?>.
+                    
+                    <p><?php echo ("In addition it will contain other directories - 'images' and 'LBF', and files - faxtitle.eps , referral_template.html, clickoptions.txt, faxcover.txt and statement.inc.php which will not contain patient information but can be customized as per the site requirement"); ?>.
+                    
+                    <p><i class="fa fa-exclamation-circle oe-text-orange"  aria-hidden="true"></i> <?php echo ("In order to successfully copy these directories and files the 'sites' directory in the initial installation must have the user:group set to that of the webserver"); ?>.
+                    
+                    <p><strong><?php echo ("PRE INSTALLTION"); ?> :</strong>
+                    
+                    <p><?php echo ("To initiate the multisite process you need to install a single site or 'default' site"); ?>.
+                    
+                    <p><?php echo ("Edit the setup.php file of the default installation"); ?>.
+                    
+                    <p><?php echo ("Change the false in <code>\$allow_multisite_setup = false;</code> to <code>true;</code>"); ?>
+                    
+                    <p><?php echo ("Change the false in <code>\$allow_cloning_setup = false;</code> to <code>true;</code>"); ?>
+                    
+                    <p><?php echo ("Change the user and group of the 'sites' directory in the initial OpenEMR installation to that of the webserver"); ?>.
+                    
+                    <p><?php echo ("In Ubuntu/Debian <code>cd</code> into the openemr directory in webserver document root directory and execute the following command:"); ?>.
+                    
+                    <p><code>sudo chown -R www-data:www-data sites</code>
+                    
+                    <p><strong><?php echo ("INSTALLTION"); ?> :</strong>
+                    
+                    <p><?php echo ("If you are accessing the OpenEMR application from the computer/server  that it has been installed in type <code>http://localhost/openemr/admin.php</code> in the address bar of a browser. NOTE: This assumes that the OpenEMR files are in a directory called 'openemr', if not change the name to reflect the OpenEMR root directory. If you are accessing it from another computer substitute the localhost name with the IP address or domain name of the OpenEMR installation ");?>.
+                    
+                    <p><?php echo ("This will bring up the the 'OpenEMR Site Administration' page"); ?>.
+                    
+                    <p><?php echo ("This page will list in a tabular form all the sites that have been installed"); ?>.
+                    
+                    <p><?php echo ("Initially it will have only the 'default' site installed"); ?>.
+                    
+                    <p><?php echo ("The following details are displayed "); ?>:
+                        
+                        <ul>
+                            <li><?php echo ("Site ID  - unique ID of the site, should be one word, preferably lower case"); ?></li>
+                            <li><?php echo ("DB Name - the name of the database for that site"); ?></li>
+                            <li><?php echo ("Site Name - by default it will be OpenEMR, once the site is setup this can be changed for that instance by going to Administration > Appearance > Application Title"); ?></li>
+                            <li><?php echo ("Version - the version of the current installation"); ?></li>
+                            <li><?php echo ("Is Current - database, access control list version and patch status is up to date"); ?></li>
+                            <li><?php echo ("Log In - That will let you login to the particular site"); ?></li>
+                        </ul>
+                        
+                    <p><?php echo ("Click on the 'Add New Site' button to proceed"); ?>.
+                    
+                    <p><?php echo ("It will take you to the 'Optional Site ID Selection' page"); ?>.
+                    
+                    <p><?php echo ("Read the instructions and enter a new site ID and click on 'Continue'"); ?>.
+                    
+                    <p><?php echo ("It will take you to the 'Pre Install - Checking File and Directory Permissions' page"); ?>.
+                    
+                    <p><?php echo ("As with the initial single site installation it will check for proper permissions"); ?>.
+                    
+                    <p><i class="fa fa-exclamation-triangle  oe-text-red" aria-hidden="true"></i> <?php echo ("IMPORTANT: Make sure that the webserver has read/write permissions to the entire 'sites' directory"); ?>.
+                    
+                    <p><?php echo ("Clicking on 'Proceed to Step 1' will take you to the 'Step 1 - Select Database Setup' page"); ?>.
+                    
+                    <p><?php echo ("As with the single site installation you can either choose 'Have setup create the database' or 'I have already created the database' option and click on 'Proceed to Step 2'"); ?>.
+                    
+                    <p><?php echo ("In the 'Step 2 - Database and OpenEMR Initial User Setup Details' you will have to fill in the required details for the MySQL server and the OpenEMR Initial User"); ?>.
+                    
+                    <p><?php echo ("You will notice two additional fields on this page, 'Source Site' and 'Clone Source Database'"); ?>.
+                    
+                    <p><?php echo ("The 'Source Site' drop-down box will list all the sites that have been installed using the multisite module, if only the initial single site was installed it will have a single value of 'default'"); ?>.
+                    
+                    <p><?php echo ("Select this or any value in the drop-down box to select a source site"); ?>.
+                    
+                    <p><?php echo ("If you check the 'Clone Source Database' check-box then the database of the source site selected in the 'Source Site' step will be cloned to create the the database of this new site"); ?>.
+                    
+                    <p><?php echo ("Selecting the 'Clone Source Database' check-box will also hide the 'OpenEMR Initial User Details' section as the details of the initial user created when the source site already installed will be in the cloned database"); ?>.
+                    
+                    <p><?php echo ("If you do not check the 'Clone Source Database' check-box a new database with a new initial user will be created"); ?>.
+                    
+                    <p><?php echo ("The files in the 'sites' directory for the value selected in the 'Source Site' will be copied to the sub-directory in the 'sites' directory for the new site being created"); ?>.
+                    
+                    <p><?php echo ("Click on 'Create DB and User' button to continue"); ?>.
+                    
+                    <p><?php echo ("Upon successful completion it will take you to the 'Step 3 Creating Database and First User' page"); ?>.
+                    
+                    <p><?php echo ("Click on 'Proceed to Step 4' to continue to 'Step 4 Creating and Configuring Access Control List'"); ?>.
+                    
+                    <p><?php echo ("The script will start to create and configure the tables needed for php General Access Control List (phpGACL) to function"); ?>.
+                    
+                    <p><?php echo ("Click on the 'Proceed to Step 5' button to open  'Step 5 Configure PHP' page"); ?>.
+                    
+                    <p><?php echo ("If you have already configured the php.ini file during the setup of the 'default' installation you do not need to do anything further"); ?>.
+                    
+                    <p><?php echo ("Click on the 'Proceed to Step 6' button to go to 'Step 6 Configure Apache Web Server' page"); ?>.
+                    
+                    <p><?php echo ("The setup script will automatically generate a code block"); ?>.
+                    
+                    <p><?php echo ("It needs to be cut and pasted into the Apache configuration file for the webserver being used if you did not do it during the intial 'defalt' site installation"); ?>.
+                    
+                    <p><?php echo ("Click on 'Proceed to Select a Theme' to go to 'Step 7 Select a Theme' page"); ?>.
+                    
+                    <p><?php echo ("This will let you select a theme for this installation"); ?>.
+                    
+                    <p><?php echo ("Click on 'Proceed to Final Step' to complete the installation"); ?>.
+                    
+                    <p><?php echo ("To access this site you will have to append <code>?siteid=site ID</code> to the openemr url"); ?>.
+                    
+                    <p><?php echo ("Advantages of the multisite module"); ?>.
+                    
+                    <p><?php echo ("To have multiple unique sites that will not share data between sites"); ?>.
+                    
+                    <p><?php echo ("Having a common middle tier would mean that scripts need to be updated only once during patching/upgrading"); ?>.
+                    
+                    <p><?php echo ("The database of each instance will need to be updated/upgraded individually"); ?>.
+                    
+                    <p><i class="fa fa-exclamation-triangle  oe-text-red" aria-hidden="true"></i> <?php echo ("IMPORTANT: When using the multisite module to create multiple sites the non-database data located in the 'sites' directory is copied into the newly created sub-directory for that site in the 'sites' directory"); ?>.
+                    
+                    <p><?php echo ("Its relevance will be apparent in the following scenario - A 'default' site is created and two additional sites are created using the 'default' as the source site. All three sites are functional. Say after two months you want to add another site, if you choose the 'default' or any of the other two sites as the source site you will in effect be copying the non-database patient data from that instance located in the 'sites' directory to the sub-directory of the new instance"); ?>.
+                    
+                    <p><?php echo ("Similar care needs to be taken when cloning the database. It is of benefit to first do a 'default' install, log in to OpenEMR, activate features that will be common to future sites, like ICD10, CPT codes, setting up the fax services etc, and then clone the database. This will save time in having to customize everything for each installation"); ?>.
+                    
+                    <p><?php echo ("One thing you need to be aware of is that the initial user and password will be the same for all instances if you clone the database, you will need to change the initial user password for each instance to prevent cross-site data accessibility"); ?>.
+                    
+                    <p><?php echo ("If you want to retain the ability to add more sites at a later time using the multisite module it is suggested to create the 'default' site and keep it without patient data and always use it as the source site to allow you can to create multiple sites without compromising patient data"); ?>.
+                    
+                    <p><?php echo ("Great care needs to be exercised when using the multisite module to prevent inadvertent cross-site transfer of patient data"); ?>.
+                    
+                    <p><?php echo ("To prevent inadverent use of the multisite module re-edit the setup.php file of the default installation"); ?>.
+                    
+                    <p><?php echo ("Change the true in <code>\$allow_multisite_setup = true;</code> to <code>false;</code>"); ?>
+                    
+                    <p><?php echo ("Change the true in <code>\$allow_cloning_setup = true;</code> to <code>false;</code>"); ?>
+                    
                 </div>
             </div>
            
