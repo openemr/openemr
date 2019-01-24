@@ -7,100 +7,227 @@
  * @author    Ensoftek, Inc
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015 Ensoftek, Inc
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+
+/**
+ * Standard function to encrypt
+ *
+ * @param  string  $value           This is the data to encrypt.
+ * @param  string  $customPassword  Do not use this unless supporting legacy stuff(ie. the download encrypted file feature).
+ *
+ */
+function encryptStandard($value, $customPassword = null)
+{
+    # This is the current encrypt/decrypt version
+    # (this will always be a three digit number that we will
+    #  increment when update the encrypt/decrypt methodology
+    #  which allows being able to maintain backward compatibility
+    #  to decrypt values from prior versions)
+    $encryptionVersion = "003";
+
+    $encryptedValue = $encryptionVersion . aes256Encrypt($value, $customPassword);
+
+    return $encryptedValue;
+}
+
+/**
+ * Standard function to decrypt
+ *
+ * @param  string  $value           This is the data to encrypt.
+ * @param  string  $customPassword  Do not use this unless supporting legacy stuff(ie. the download encrypted file feature).
+ *
+ */
+function decryptStandard($value, $customPassword = null)
+{
+    if (empty($value)) {
+        return "";
+    }
+
+    # Collect the encrypt/decrypt version and remove it from the value
+    $encryptionVersion = intval(mb_substr($value, 0, 3, '8bit'));
+    $trimmedValue = mb_substr($value, 3, null, '8bit');
+
+    # Map the encrypt/decrypt version to the correct decryption function
+    if (($encryptionVersion == 2) || ($encryptionVersion == 3)) {
+        return aes256DecryptTwo($trimmedValue, $customPassword);
+    } else if ($encryptionVersion == 1) {
+        return aes256DecryptOne($trimmedValue, $customPassword);
+    } else {
+        error_log("OpenEMR Error : Decryption is not working because of unknown encrypt/decrypt version.");
+        return false;
+    }
+}
+
+/**
+ * Check if a crypt block is valid to use for the standard method
+ * (basically checks if first 3 values are numbers)
+ */
+function cryptCheckStandard($value)
+{
+    if (empty($value)) {
+        return false;
+    }
+
+    if (preg_match('/^\d\d\d/', $value)) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 /**
  * Function to AES256 encrypt a given string
  *
  * @param  string  $sValue          Raw data that will be encrypted.
  * @param  string  $customPassword  If null, then use standard key. If provide a password, then will derive key from this.
- * @param  string  $baseEncode      True if wish to base64_encode() encrypted data.
  * @return string                   returns the encrypted data.
  */
-function aes256Encrypt($sValue, $customPassword = null, $baseEncode = true)
+function aes256Encrypt($sValue, $customPassword = null)
 {
     if (!extension_loaded('openssl')) {
         error_log("OpenEMR Error : Encryption is not working because missing openssl extension.");
     }
 
     if (empty($customPassword)) {
-        // Use the standard key
-        if (empty($GLOBALS['key_for_encryption'])) {
-            // Collect the key. If it does not exist, then create it
-            $GLOBALS['key_for_encryption'] = aes256PrepKey();
-        }
-        $sSecretKey = $GLOBALS['key_for_encryption'];
+        // Collect the encryption keys. If they does not exist, then create them
+        // The first key is for encryption. Then second key is for the HMAC hash
+        $sSecretKey = aes256PrepKey("two", "a");
+        $sSecretKeyHmac = aes256PrepKey("two", "b");
     } else {
-        // Turn the password into a hash to use as the key
-        $sSecretKey = hash("sha256", $customPassword);
+        // Turn the password into a hash(note use binary) to use as the keys
+        $sSecretKey = hash("sha256", $customPassword, true);
+        $sSecretKeyHmac = $sSecretKey;
     }
 
-    $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('AES-256-CBC'));
+    if (empty($sSecretKey) || empty($sSecretKeyHmac)) {
+        error_log("OpenEMR Error : Encryption is not working because key(s) is blank.");
+    }
+
+    try {
+        $iv = random_bytes(openssl_cipher_iv_length('aes-256-cbc'));
+    } catch (Error $e) {
+        error_log('OpenEMR Error : Encryption is not working because of random_bytes() Error: ' . $e->getMessage());
+    } catch (Exception $e) {
+        error_log('OpenEMR Error : Encryption is not working because of random_bytes() Exception: ' . $e->getMessage());
+    }
 
     $processedValue = openssl_encrypt(
         $sValue,
-        'AES-256-CBC',
+        'aes-256-cbc',
         $sSecretKey,
         OPENSSL_RAW_DATA,
         $iv
     );
 
-    if ($sValue != "" && $processedValue == "") {
+    $hmacHash = hash_hmac('sha256', $iv.$processedValue, $sSecretKeyHmac, true);
+
+    if ($sValue != "" && ($processedValue == "" || $hmacHash == "")) {
         error_log("OpenEMR Error : Encryption is not working.");
     }
 
-    // prepend the encrypted value with the $iv
-    $completedValue = $iv . $processedValue;
+    // prepend the encrypted value with the $hmacHash and $iv
+    $completedValue = $hmacHash . $iv . $processedValue;
 
-    if ($baseEncode) {
-        return base64_encode($completedValue);
-    } else {
-        return $completedValue;
-    }
+    return base64_encode($completedValue);
 }
 
+
 /**
- * Function to AES256 decrypt a given string
+ * Function to AES256 decrypt a given string, version 2
  *
  * @param  string  $sValue          Encrypted data that will be decrypted.
  * @param  string  $customPassword  If null, then use standard key. If provide a password, then will derive key from this.
- * @param  string  $baseEncode      True if wish to base64_decode() encrypted data.
+ * @return string or false          returns the decrypted data or false if failed.
+ */
+function aes256DecryptTwo($sValue, $customPassword = null)
+{
+    if (!extension_loaded('openssl')) {
+        error_log("OpenEMR Error : Decryption is not working because missing openssl extension.");
+        return false;
+    }
+
+    if (empty($customPassword)) {
+        // Collect the encryption keys.
+        // The first key is for encryption. Then second key is for the HMAC hash
+        $sSecretKey = aes256PrepKey("two", "a");
+        $sSecretKeyHmac = aes256PrepKey("two", "b");
+    } else {
+        // Turn the password into a hash(note use binary) to use as the keys
+        $sSecretKey = hash("sha256", $customPassword, true);
+        $sSecretKeyHmac = $sSecretKey;
+    }
+
+    if (empty($sSecretKey) || empty($sSecretKeyHmac)) {
+        error_log("OpenEMR Error : Encryption is not working because key(s) is blank.");
+        return false;
+    }
+
+    $raw = base64_decode($sValue, true);
+    if ($raw === false) {
+        error_log("OpenEMR Error : Encryption did not work because illegal characters were noted in base64_encoded data.");
+        return false;
+    }
+
+
+    $ivLength = openssl_cipher_iv_length('aes-256-cbc');
+    $hmacHash = mb_substr($raw, 0, 32, '8bit');
+    $iv = mb_substr($raw, 32, $ivLength, '8bit');
+    $encrypted_data = mb_substr($raw, ($ivLength+32), null, '8bit');
+
+    $calculatedHmacHash = hash_hmac('sha256', $iv.$encrypted_data, $sSecretKeyHmac, true);
+
+    if (hash_equals($hmacHash, $calculatedHmacHash)) {
+        return openssl_decrypt(
+            $encrypted_data,
+            'aes-256-cbc',
+            $sSecretKey,
+            OPENSSL_RAW_DATA,
+            $iv
+        );
+    } else {
+        error_log("OpenEMR Error : Decryption failed authentication.");
+    }
+}
+
+
+/**
+ * Function to AES256 decrypt a given string, version 1
+ *
+ * @param  string  $sValue          Encrypted data that will be decrypted.
+ * @param  string  $customPassword  If null, then use standard key. If provide a password, then will derive key from this.
  * @return string                   returns the decrypted data.
  */
-function aes256Decrypt($sValue, $customPassword = null, $baseEncode = true)
+function aes256DecryptOne($sValue, $customPassword = null)
 {
     if (!extension_loaded('openssl')) {
         error_log("OpenEMR Error : Decryption is not working because missing openssl extension.");
     }
 
     if (empty($customPassword)) {
-        // Use the standard key
-        if (empty($GLOBALS['key_for_encryption'])) {
-            // Collect the key. If it does not exist, then create it
-            $GLOBALS['key_for_encryption'] = aes256PrepKey();
-        }
-        $sSecretKey = $GLOBALS['key_for_encryption'];
+        // Collect the key. If it does not exist, then create it
+        $sSecretKey = aes256PrepKey();
     } else {
         // Turn the password into a hash to use as the key
         $sSecretKey = hash("sha256", $customPassword);
     }
 
-    if ($baseEncode) {
-        $raw = base64_decode($sValue);
-    } else {
-        $raw = $sValue;
+    if (empty($sSecretKey)) {
+        error_log("OpenEMR Error : Encryption is not working.");
     }
 
-    $ivLength = openssl_cipher_iv_length('AES-256-CBC');
+    $raw = base64_decode($sValue);
+
+    $ivLength = openssl_cipher_iv_length('aes-256-cbc');
 
     $iv = substr($raw, 0, $ivLength);
     $encrypted_data = substr($raw, $ivLength);
 
     return openssl_decrypt(
         $encrypted_data,
-        'AES-256-CBC',
+        'aes-256-cbc',
         $sSecretKey,
         OPENSSL_RAW_DATA,
         $iv
@@ -136,21 +263,32 @@ function aes256Decrypt_mycrypt($sValue)
 //  also maintaining backward compatibility of encrypted data (for example, if upgrade
 //  to another cipher/mode, then could place the new key for this in
 //  sites/<site-dir>/documents/logs_and_misc/methods/two and then adjust pertinent code).
-function aes256PrepKey()
+function aes256PrepKey($version = "one", $sub = "")
 {
+    // Build the label
+    $label = $version.$sub;
+
     // Collect the key. If it does not exist, then create it
-    if (!file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/one")) {
+    if (!file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label)) {
         // Create a key file
-        // Below will produce a 256bit key (32 bytes equals 256 bits)
-        $newKey = base64_encode(openssl_random_pseudo_bytes(32));
-        file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/one", $newKey);
+
+        try {
+            // Produce a 256bit key (32 bytes equals 256 bits)
+            $newKey = random_bytes(32);
+        } catch (Error $e) {
+            error_log('OpenEMR Error : Encryption is not working because of random_bytes() Error: ' . $e->getMessage());
+        } catch (Exception $e) {
+            error_log('OpenEMR Error : Encryption is not working because of random_bytes() Exception: ' . $e->getMessage());
+        }
+
+        file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/". $label, base64_encode($newKey));
     }
 
     // Collect key from file
-    $key = base64_decode(rtrim(file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/one")));
+    $key = base64_decode(rtrim(file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label)));
 
     if (empty($key)) {
-        error_log("OpenEMR Error : Audit Log with encryption is not working. Unable to collect key information or key is empty.");
+        error_log("OpenEMR Error : Key creation is not working.");
     }
 
     // Return the key

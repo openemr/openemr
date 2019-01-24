@@ -6,7 +6,7 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2009-2017 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2009-2019 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -861,6 +861,8 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 $list_id = $frow['list_id'];
                 $edit_options = $frow['edit_options'];
                 $source = $frow['source'];
+                $jump_new_row = isOption($edit_options, 'J');
+                $prepend_blank_row = isOption($edit_options, 'K');
 
                 $graphable = isOption($edit_options, 'G') !== false;
                 if ($graphable) {
@@ -960,7 +962,8 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     }
                     $group_levels .= $this_levels[$i++];
                     $gname = $grparr[substr($group_levels, 0, $i)]['grp_title'];
-                    $subtitle = $grparr[substr($group_levels, 0, $i)]['grp_subtitle'];
+                    $subtitle = xl_layout_label($grparr[substr($group_levels, 0, $i)]['grp_subtitle']);
+
                     // Compute a short unique identifier for this group.
                     $group_seq = 'lbf' . $group_levels;
                     $group_name = $gname;
@@ -1028,9 +1031,12 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     }
                 }
 
-// Handle starting of a new row.
-                if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
+                // Handle starting of a new row.
+                if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
                     end_row();
+                    if ($prepend_blank_row) {
+                        echo "<tr><td class='text' colspan='$CPR'>&nbsp;</td></tr>\n";
+                    }
                     if (isOption($edit_options, 'RS')) {
                         echo " <tr class='RS'>";
                     } else if (isOption($edit_options, 'RO')) {

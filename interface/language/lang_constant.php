@@ -68,7 +68,7 @@ if ($_POST['add']) {
 ?>
 
 <TABLE>
-<FORM name="cons_form" METHOD=POST ACTION="?m=constant&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>" onsubmit="return top.restoreSession()">
+<FORM name="cons_form" METHOD=POST ACTION="?m=constant&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 <TR>
     <TD><?php echo xlt('constant name'); ?></TD>

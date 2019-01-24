@@ -2,13 +2,13 @@
 /**
  * edit per-facility user information.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Scott Wakefield <scott@npclinics.com.au>
- * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Scott Wakefield <scott@npclinics.com.au>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2012 NP Clinics <info@npclinics.com.au>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -104,6 +104,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
         </div>
         <div class="row">
             <form name='form_facility_user' id='form_facility_user' method='post' action="facility_user.php">
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                 <input type=hidden name=mode value="facility_user_id">
                 <input type=hidden name=user_id value="<?php echo attr($_GET["user_id"]);?>">
                 <input type=hidden name=fac_id value="<?php echo attr($_GET["fac_id"]);?>">

@@ -105,7 +105,7 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag')
    * linked to encounter in form_encounter
    * whose encounter is linked to id in forms.
    */
-  
+
     $query ="  select  *,form_encounter.date as encounter_date
 
                from forms,form_encounter,form_eye_base,
@@ -1001,7 +1001,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
         ?><!-- start of the refraction boxes -->
         <?php
         if ($ODVA||$OSVA||$ARODSPH||$AROSSPH||$MRODSPH||$MROSSPH||$CRODSPH||$CROSSPH||$CTLODSPH||$CTLOSSPH) { ?>
-          
+
           <br />
           <table class="refraction_tables">
                <tr>
@@ -2022,8 +2022,8 @@ if ($ODCMT||$OSCMT) { ?>
                 }
                 $query = "SELECT * FROM form_eye_mag_orders where form_id=? and pid=? ORDER BY id ASC";
                 $PLAN_results = sqlStatement($query, array($form_id, $pid ));
-                
-    
+
+
                 if ($PLAN_results) { ?>
                     <b><?php echo xlt('Orders')."/".xlt('Next Visit'); ?>:</b>
                     <br />
@@ -2048,23 +2048,23 @@ if ($ODCMT||$OSCMT) { ?>
             if ($PDF_OUTPUT) {
                 //display a stored optional electronic sig for this providerID, ie the patient's Doc not the tech
                 //Isn't there a place in sites/..default../images for a jpg signature file for Rx printing or some other openEMR task?
-                $from_file = $GLOBALS["webserver_root"] ."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
+                $from_file = $GLOBALS['fileroot'] ."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
                 if (file_exists($from_file)) {
                     echo "<img style='width:50mm;' src='$from_file'><hr style='width:40mm;' />";
                 }
             } else {
-                $signature = $GLOBALS["webserver_root"]."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
+                $signature = $GLOBALS['fileroot']."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg";
                 if (file_exists($signature)) {
                         echo "<img style='width:50mm;' src='".$GLOBALS['web_root']."/interface/forms/".$form_folder."/images/sign_".$providerID.".jpg'><hr style='width:40mm;' />";
                 }
             }
             echo "<br /><i style='font-size:9px;'>".xlt('electronically signed on')." ".oeFormatShortDate()."</i>";
-            
+
             ?>
               <br />
               <span style="padding-left:30px;"><?php echo text($providerNAME); ?></span>
                 <?php
-           
+
             ?>
 
 

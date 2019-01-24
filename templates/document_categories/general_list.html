@@ -14,13 +14,13 @@
 </style>
 {/literal}
 <script type="text/javascript">
-var deleteLabel="{xl t="Delete"|escape:'html'}";
-var editLabel="{xl t="Edit"|escape:'html'}";
+var deleteLabel={xlj t="Delete"};
+var editLabel={xlj t="Edit"};
 </script>
 <script type="text/javascript" src="{$GLOBALS.webroot}/library/js/CategoryTreeMenu.js?v={$V_JS_INCLUDES}"></script>
 <table>
 	<tr>
-		<td height="20" valign="top">{xl t="Document Categories"|escape:'html'}</td>
+		<td height="20" valign="top">{xlt t="Document Categories"}</td>
 	</tr>
 	<tr>
 		<td valign="top">{$tree_html}</td>
@@ -31,29 +31,29 @@ var editLabel="{xl t="Edit"|escape:'html'}";
 		<td width="25"></td>
 		<td valign="top">
     {if $add_node eq true}
-		{xl t="This new category will be a sub-category of "|escape:'html'} {$parent_name|escape:'html'}<br>
+		{xlt t="This new category will be a sub-category of "} {$parent_name|text}<br>
 		{/if}
 		<form method="post" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
 
     <table>
       <tr>
-        <td>{xl t="Category Name"|escape:'html'}&nbsp;</td>
-        <td><input type="text" name="name" value="{$NAME|escape:'html'}" onKeyDown="PreventIt(event)" /></td>
+        <td>{xlt t="Category Name"}&nbsp;</td>
+        <td><input type="text" name="name" value="{$NAME|attr}" onKeyDown="PreventIt(event)" /></td>
       </tr>
       <tr>
-        <td>{xl t="Value"|escape:'html'}&nbsp;</td>
-		    <td><input type="text" name="value" value="{$VALUE|escape:'html'}" onKeyDown="PreventIt(event)" ></td>
+        <td>{xlt t="Value"}&nbsp;</td>
+		    <td><input type="text" name="value" value="{$VALUE|attr}" onKeyDown="PreventIt(event)" ></td>
       </tr>
       <tr>
-        <td>{xl t="Access Control"|escape:'html'}&nbsp;</td>
+        <td>{xlt t="Access Control"}&nbsp;</td>
 		    <td><select name="aco_spec">{$ACO_OPTIONS}</select></td>
       </tr>
     </table>
     &nbsp;<br />
 
-		<button type="submit" name="Add Category" class="btn btn-default btn-save">{xl t='Save Category'|escape:'html'}</button>
-		<input type="hidden" name="parent_is" value="{$parent_is|escape:'html'}">
-		<input type="hidden" name="process" value="{$PROCESS|escape:'html'}" />
+		<button type="submit" name="Add Category" class="btn btn-default btn-save">{xlt t='Save Category'}</button>
+		<input type="hidden" name="parent_is" value="{$parent_is|attr}">
+		<input type="hidden" name="process" value="{$PROCESS|attr}" />
 		</form>
 		</td>
 		{/if}

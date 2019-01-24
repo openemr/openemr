@@ -2,11 +2,13 @@
 /**
  * Helper for UB04 form.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Jerry Padgett <sjpadgett@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
- * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
  */
 require_once("../globals.php");
 require_once("ub04_codes.inc.php");
@@ -26,7 +28,7 @@ $users = sqlStatementNoLog("SELECT id,fname,lname,npi,taxonomy FROM users WHERE 
 <script>
 function sendSelection(value)
 {
-    var parentId = <?php echo json_encode($_GET['formid']); ?>;
+    var parentId = <?php echo js_escape($_GET['formid']); ?>;
     //window.opener.updateValue(parentId, value);
     //window.close();
     updateProvider(parentId, value);

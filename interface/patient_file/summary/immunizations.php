@@ -467,7 +467,7 @@ tr.selected {
         <tr>
           <td align="right" class="text">
                 <?php echo xlt('Date of VIS Statement'); ?>
-              (<a href="http://www.cdc.gov/vaccines/pubs/vis/default.htm" title="<?php echo xla('Help'); ?>" target="_blank">?</a>)          </td>
+              (<a href="https://www.cdc.gov/vaccines/pubs/vis/default.htm" title="<?php echo xla('Help'); ?>" rel="noopener" target="_blank">?</a>)          </td>
           <td>
             <input type='text' size='10' class='datepicker' name="vis_date" id="vis_date"
                     value='<?php echo $vis_date ? attr($vis_date) : date('Y-m-d'); ?>'
@@ -1175,7 +1175,7 @@ $(function() {
 
   //autocomplete
   $(".auto").autocomplete({
-    source: "../../../library/ajax/imm_autocomplete/search.php",
+    source: "../../../library/ajax/imm_autocomplete/search.php?csrf_token_form=" + <?php echo js_url(collectCsrfToken()); ?>,
     minLength: 1
   });
 

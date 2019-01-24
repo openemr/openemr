@@ -27,9 +27,6 @@
 require_once(dirname(__file__) . "/../verify_session.php");
 
 require_once($GLOBALS['srcdir'] . '/acl.inc');
-require_once($GLOBALS['srcdir'] . '/htmlspecialchars.inc.php');
-require_once($GLOBALS['srcdir'] . '/formdata.inc.php');
-require_once($GLOBALS['srcdir'] . '/formatting.inc.php');
 require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 

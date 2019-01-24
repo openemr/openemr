@@ -89,17 +89,21 @@ class DocumentsController extends AbstractActionController
                 $tmpfile    = fopen($file['tmp_name'], "r");
                 $filetext   = fread($tmpfile, $file['size']);
 
-                // Decrypt Encryped Files
+                // Decrypt Encrypted File
                 if ($encrypted_file == '1') {
-                        $plaintext  = \Documents\Plugin\Documents::decrypt($filetext, $encryption_key);
-                        fclose($tmpfile);
-                        unlink($file['tmp_name']);
+                    $plaintext  = decryptStandard($filetext, $encryption_key);
+                    if ($plaintext === false) {
+                        error_log("OpenEMR Error: Unable to decrypt a document since decryption failed.");
+                        $plaintext = "";
+                    }
+                    fclose($tmpfile);
+                    unlink($file['tmp_name']);
 
-                        // Write new file contents
-                        $tmpfile = fopen($file['tmp_name'], "w+");
-                        fwrite($tmpfile, $plaintext);
-                        fclose($tmpfile);
-                        $file['size'] = filesize($file['tmp_name']);
+                    // Write new file contents
+                    $tmpfile = fopen($file['tmp_name'], "w+");
+                    fwrite($tmpfile, $plaintext);
+                    fclose($tmpfile);
+                    $file['size'] = filesize($file['tmp_name']);
                 }
 
                 $ob     = new \Document();

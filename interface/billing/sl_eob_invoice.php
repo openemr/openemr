@@ -4,25 +4,18 @@
  * sl_eob_search.php.  For automated (X12 835) remittance posting
  * see sl_eob_process.php.
  *
- * Copyright (C) 2005-2016 Rod Roark <rod@sunsetsystems.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Roberto Vasquez <robertogagliotta@gmail.com>
- * @author  Terry Hill <terry@lillysystems.com>
- * @author  Jerry Padgett <sjpadgett@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author    Terry Hill <terry@lillysystems.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -30,11 +23,11 @@ require_once("../globals.php");
 require_once("$srcdir/log.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/forms.inc");
-require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once "$srcdir/user.inc";
 
+use OpenEMR\Billing\SLEOB;
 use OpenEMR\Core\Header;
 
 $debug = 0; // set to 1 for debugging mode
@@ -66,7 +59,7 @@ function bucks($amount)
 //
 function row_delete($table, $where)
 {
-    $tres = sqlStatement("SELECT * FROM $table WHERE $where");
+    $tres = sqlStatement("SELECT * FROM " . escape_table_name($table) . " WHERE $where");
     $count = 0;
     while ($trow = sqlFetchArray($tres)) {
         $logstring = "";
@@ -87,7 +80,7 @@ function row_delete($table, $where)
     }
 
     if ($count) { // Lets not echo the query for stay and save
-        $query = "DELETE FROM $table WHERE $where";
+        $query = "DELETE FROM " . escape_table_name($table) . " WHERE $where";
         sqlStatement($query);
     }
 }
@@ -98,7 +91,7 @@ function row_delete($table, $where)
     <?php Header::setupHeader(['datetime-picker']); ?>
     <title><?php echo xlt('EOB Posting - Invoice') ?></title>
     <script language="JavaScript">
-    var adjDisable = '<?php echo attr($posting_adj_disable); ?>';
+    var adjDisable = <?php echo js_escape($posting_adj_disable); ?>;
     // An insurance radio button is selected.
     function setins(istr) {
         return true;
@@ -160,29 +153,29 @@ function row_delete($table, $where)
                 }
             }
             if ((cPay != 0) && isNaN(parseFloat(f[pfx + '[pay]'].value))) {
-                alert('<?php echo xls('Payment value for code ') ?>' + code + '<?php echo xls(' is not a number') ?>');
+                alert(<?php echo xlj('Payment value for code ') ?> + code + <?php echo xlj(' is not a number') ?>);
                 return false;
             }
             if ((cAdjust != 0) && isNaN(parseFloat(f[pfx + '[adj]'].value))) {
-                alert('<?php echo xls('Adjustment value for code ') ?>' + code + '<?php echo xls(' is not a number') ?>');
+                alert(<?php echo xlj('Adjustment value for code ') ?> + code + <?php echo xlj(' is not a number') ?>);
                 return false;
             }
             if ((cAdjust != 0) && !f[pfx + '[reason]'].value) {
-                alert('<?php echo xls('Please select an adjustment reason for code ') ?>' + code);
+                alert(<?php echo xlj('Please select an adjustment reason for code ') ?> + code);
                 return false;
             }
 // TBD: validate the date format
         }
 // Check if save is clicked with nothing to post.
         if (allempty && delcount === 0) {
-            alert('<?php echo xls('Nothing to Post! Please review entries or use Cancel to exit transaction')?>');
+            alert(<?php echo xlj('Nothing to Post! Please review entries or use Cancel to exit transaction')?>);
             return false;
         }
 // Demand confirmation if deleting anything.
         if (delcount > 0) {
-            if (!confirm('<?php echo xls('Really delete'); ?> ' + delcount +
-                ' <?php echo xls('transactions'); ?>?' +
-                ' <?php echo xls('This action will be logged'); ?>!')
+            if (!confirm(<?php echo xlj('Really delete'); ?> + ' ' + delcount +
+                ' ' + <?php echo xlj('transactions'); ?> + '?' +
+                ' ' + <?php echo xlj('This action will be logged'); ?> + '!')
             ) return false;
         }
 
@@ -320,7 +313,7 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
             echo "<p><b>" . xlt("This module is in test mode. The database will not be changed.") . "</b><p>\n";
         }
 
-        $session_id = arGetSession($form_payer_id, $form_reference, $form_check_date, $form_deposit_date, $form_pay_total);
+        $session_id = SLEOB::arGetSession($form_payer_id, $form_reference, $form_check_date, $form_deposit_date, $form_pay_total);
 // The sl_eob_search page needs its invoice links modified to invoke
 // javascript to load form parms for all the above and submit.
 // At the same time that page would be modified to work off the
@@ -372,7 +365,7 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
             }
 
             if (0.0 + $thispay) {
-                arPostPayment($patient_id, $encounter_id, $session_id, $thispay, $code, $payer_type, '', $debug, '', $thiscodetype);
+                SLEOB::arPostPayment($patient_id, $encounter_id, $session_id, $thispay, $code, $payer_type, '', $debug, '', $thiscodetype);
                 $paytotal += $thispay;
             }
 
@@ -403,7 +396,7 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
                         $reason .= ' ' . $_POST['form_insurance'];
                     }
                 }
-                arPostAdjustment($patient_id, $encounter_id, $session_id, $thisadj, $code, $payer_type, $reason, $debug, '', $thiscodetype);
+                SLEOB::arPostAdjustment($patient_id, $encounter_id, $session_id, $thisadj, $code, $payer_type, $reason, $debug, '', $thiscodetype);
             }
         }
 
@@ -414,7 +407,7 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
         sqlStatement("UPDATE form_encounter SET last_level_closed = ?, stmt_count = ? WHERE pid = ? AND encounter = ?", array($form_done, $form_stmt_count, $patient_id, $encounter_id));
 
         if ($_POST['form_secondary']) {
-            arSetupSecondary($patient_id, $encounter_id, $debug);
+            SLEOB::arSetupSecondary($patient_id, $encounter_id, $debug);
         }
         echo "<script language='JavaScript'>\n";
         echo " if (opener.document.forms[0] != undefined) {\n";
@@ -427,13 +420,13 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
         echo "<script language='JavaScript'>\n";
     }
     if ($info_msg) {
-        echo " alert('" . addslashes($info_msg) . "');\n";
+        echo " alert(" . js_escape($info_msg) . ");\n";
     }
     if ($from_posting) {
         echo "opener.$('#btn-inv-search').click();\n";
     }
     if (!$debug && !$save_stay) {
-        echo "doClose(" . attr($from_posting) . ");\n";
+        echo "doClose(" . js_escape($from_posting) . ");\n";
     }
     echo "</script></body></html>\n";
     if (!$save_stay) {
@@ -453,7 +446,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
         </div>
     </div>
     <div class="row">
-        <form action='sl_eob_invoice.php?id=<?php echo attr(urlencode($trans_id)); ?>' method='post' onsubmit='return validate(this)'>
+        <form action='sl_eob_invoice.php?id=<?php echo attr_url($trans_id); ?>' method='post' onsubmit='return validate(this)'>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>"/>
             <input type="hidden" name="isPosting" value="<?php echo attr($from_posting); ?>"/>
             <fieldset>
@@ -495,7 +488,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         <label class="control-label" for="insurance_name"><?php echo xlt('Insurance'); ?>:</label>
                         <?php
                         for ($i = 1; $i <= 3; ++$i) {
-                            $payerid = arGetPayerID($patient_id, $svcdate, $i);
+                            $payerid = SLEOB::arGetPayerID($patient_id, $svcdate, $i);
                             if ($payerid) {
                                 $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE id = ?", array($payerid));
                                 $insurance .= "$i: " . $tmp['name'] . "\n";
@@ -568,7 +561,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                             // we no longer expect any payments from that company for the claim.
                             $last_level_closed = 0 + $ferow['last_level_closed'];
                             foreach (array(0 => 'None', 1 => 'Ins1', 2 => 'Ins2', 3 => 'Ins3') as $key => $value) {
-                                if ($key && !arGetPayerID($patient_id, $svcdate, $key)) {
+                                if ($key && !SLEOB::arGetPayerID($patient_id, $svcdate, $key)) {
                                     continue;
                                 }
                                 $checked = ($last_level_closed == $key) ? " checked" : "";
@@ -698,7 +691,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                                 <td class="last_detail"></td>
                                 <td class="last_detail">
                                     <input name="form_line[<?php echo attr($code); ?>][pay]"
-                                           onkeyup="updateFields(document.forms[0]['form_line[<?php echo attr(addslashes($code)); ?>][pay]'], document.forms[0]['form_line[<?php echo attr(addslashes($code)); ?>][adj]'], document.forms[0]['form_line[<?php echo attr(addslashes($code)); ?>][bal]'], document.forms[0]['form_line[CO-PAY][bal]'], <?php echo ($firstProcCodeIndex == $encount) ? 1 : 0 ?>)"
+                                           onkeyup="updateFields(document.forms[0]['form_line[<?php echo attr($code); ?>][pay]'], document.forms[0]['form_line[<?php echo attr($code); ?>][adj]'], document.forms[0]['form_line[<?php echo attr($code); ?>][bal]'], document.forms[0]['form_line[CO-PAY][bal]'], <?php echo ($firstProcCodeIndex == $encount) ? 1 : 0 ?>)"
                                            onfocus="this.select()" autofocus size="10" type="text" class="form-control"
                                            value="0.00"></td>
                                 <td class="last_detail">
@@ -708,7 +701,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                                            onclick="this.select()">
                                 </td>
                                 <td class="last_detail" align="center"><a href=""
-                                                                          onclick="return writeoff('<?php echo attr(addslashes($code)); ?>')">WO</a>
+                                                                          onclick="return writeoff(<?php echo attr_js($code); ?>)">WO</a>
                                 </td>
                                 <td class="last_detail">
                                     <select class="form-control" name="form_line[<?php echo attr($code); ?>][reason]">
@@ -748,11 +741,11 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         <button type='submit' class="btn btn-default btn-save" name='form_save' id="btn-save"
                             onclick="this.value='2';"><?php echo xlt("Save & Exit"); ?></button>
                         <button type='button' class="btn btn-link btn-cancel btn-separate-left" name='form_cancel'
-                            id="btn-cancel" onclick='doClose(<?php echo attr($from_posting); ?>)'><?php echo xlt("Close"); ?></button>
+                            id="btn-cancel" onclick='doClose(<?php echo attr_js($from_posting); ?>)'><?php echo xlt("Close"); ?></button>
                     </div>
                     <?php if ($GLOBALS['new_tabs_layout'] && $from_posting) { ?>
                         <button type='button' class="btn btn-default btn-view pull-right" name='form_goto' id="btn-goto"
-                            onclick="goEncounterSummary(<?php echo attr($patient_id) ?>)"><?php echo xlt("Past Encounters"); ?></button>
+                            onclick="goEncounterSummary(<?php echo attr_js($patient_id) ?>)"><?php echo xlt("Past Encounters"); ?></button>
                     <?php } ?>
                 </div>
             </div>

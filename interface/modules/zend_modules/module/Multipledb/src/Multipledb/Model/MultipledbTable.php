@@ -74,7 +74,7 @@ class MultipledbTable
     {
 
         if ($db['password']) {
-            $db['password'] = my_encrypt($db['password']);
+            $db['password'] = encryptStandard($db['password']);
         } else {
             unset($db['password']);
         }

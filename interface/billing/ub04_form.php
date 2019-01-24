@@ -2,11 +2,13 @@
 /**
  * UB04 Claims Form
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Jerry Padgett <sjpadgett@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
- * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
  */
 /* $isAuthorized tells us if the form is for user UI or claim processing and provides another security check */
 if ($isAuthorized !== true) {
@@ -41,7 +43,7 @@ if ($isAuthorized !== true) {
  <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-themes/themes/base/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/emodal-1-2-65/dist/eModal.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/emodal/dist/eModal.min.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui/jquery-ui.min.js"></script>
 
@@ -199,11 +201,11 @@ var encounter;
 var align = true;
 var isTemplate;
 var ub04id = new Array();
-payerid = '<?php echo attr($payerid);?>';
-pid = <?php echo attr($pid);?>;
-encounter = <?php echo attr($encounter);?>;
-isTemplate = <?php echo attr(($isAuthorized === true ? $isAuthorized : 0)); ?>;
-ub04id = <?php echo $ub04id;?>;
+payerid = <?php echo js_escape($payerid);?>;
+pid = <?php echo js_escape($pid);?>;
+encounter = <?php echo js_escape($encounter);?>;
+isTemplate = <?php echo js_escape(($isAuthorized === true ? $isAuthorized : 0)); ?>;
+ub04id = <?php echo js_escape($ub04id);?>;
 
 function adjustForm()
 {
@@ -358,7 +360,7 @@ function postClaim(action)
         if (xhr.status === 200) {
             console.log(this.responseText ? this.responseText : 'no response');
             if(this.responseText == 'done')
-                alert("<?php echo xls("Save Completed")?>");
+                alert(<?php echo xlj("Save Completed")?>);
         }
     };
     if(action == 'payer_save'){
@@ -394,7 +396,7 @@ function myZoom()
 }
 
 function resetClaim(){
-    var msg = '<?php echo xlt('This action will reset your claim!') . '\n' . xlt('Click OK if you are sure.')?>';
+    var msg = <?php echo xlj('This action will reset your claim!'); ?> + '\n' + <?php echo xlj('Click OK if you are sure.'); ?>;
     var yn = confirm(msg);
     if (yn != true) {
         return false;

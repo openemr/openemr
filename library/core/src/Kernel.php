@@ -68,7 +68,7 @@ class Kernel
      */
     private function loadServiceConfig(ContainerBuilder $builder)
     {
-        $loader = new YamlFileLoader($builder, new FileLocator($GLOBALS['webserver_root']));
+        $loader = new YamlFileLoader($builder, new FileLocator($GLOBALS['fileroot']));
         $loader->load('config/services.yml');
     }
 

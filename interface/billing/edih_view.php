@@ -2,25 +2,13 @@
 /**
  * edih_view.php
  *
- * Copyright 2012 Kevin McCormick Longview, Texas
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; version 3 or later.  You should have
- * received a copy of the GNU General Public License along with this program;
- * if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *  <http://opensource.org/licenses/gpl-license.php>
- *
- * @author Kevin McCormick
- * @link: http://www.open-emr.org
- * @package OpenEMR
- * @subpackage ediHistory
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Kevin McCormick Longview, Texas
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2012 Kevin McCormick Longview, Texas
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -227,7 +215,7 @@ if (!acl_check('acct', 'eob')) {
     <div id="edinotes">
         <table>
             <tr>
-                <td colspan=2><a href="<?php echo $web_root?>/Documentation/Readme_edihistory.html" target="_blank"><?php echo xlt("View the README file"); ?></a></td>
+                <td colspan=2><a href="<?php echo $web_root?>/Documentation/Readme_edihistory.html" rel="noopener" target="_blank"><?php echo xlt("View the README file"); ?></a></td>
             </tr>
             <tr>
                 <td>
@@ -365,7 +353,7 @@ if (!acl_check('acct', 'eob')) {
             url: 'edih_main.php',
             data: {
                 srvinfo: 'yes',
-                csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>'
+                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
             },
             dataType: 'json',
             success: function(rsp){ phpserver = rsp }
@@ -378,7 +366,7 @@ if (!acl_check('acct', 'eob')) {
             url: 'edih_main.php',
             data: {
                 csvtbllist: 'yes',
-                csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>'
+                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
             },
             dataType: 'json',
             success: function(data) {
@@ -405,7 +393,7 @@ if (!acl_check('acct', 'eob')) {
             url: 'edih_main.php',
             data: {
                 loglist: 'yes',
-                csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>'
+                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
             },
             dataType: 'json',
             success: function(data) {
@@ -429,7 +417,7 @@ if (!acl_check('acct', 'eob')) {
             url: 'edih_main.php',
             data: {
                 archlist: 'yes',
-                csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>'
+                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
             },
             dataType: 'json',
             success: function(data) {
@@ -604,7 +592,7 @@ jQuery-UI dialog
                     uplForm.reset();
                     upld_ct++;
                 },
-                error: function( xhr, status ) { alert( "<?php echo xls('Sorry, there was a problem!'); ?>" ); },
+                error: function( xhr, status ) { alert( <?php echo xlj('Sorry, there was a problem!'); ?> ); },
             });
         return false;
     });
@@ -628,7 +616,7 @@ jQuery-UI dialog
                     }
                 ],
                 error: function( xhr, status ) {
-                    alert( "<?php echo xls('Sorry, there was a problem!'); ?>" ),
+                    alert( <?php echo xlj('Sorry, there was a problem!'); ?> ),
                     jQuery('#processed').html(status)
                 }
             });
@@ -744,7 +732,7 @@ jQuery-UI dialog
                     height: 'auto',
                     width: 568,
                     maxWidth: 616,
-                    title: "<?php echo xla("Encounter EDI Record"); ?>",
+                    title: <?php echo xlj("Encounter EDI Record"); ?>,
                     close: function(event, ui) {
                         jQuery(this).empty();
                         jQuery(this).dialog('close');
@@ -791,7 +779,7 @@ jQuery-UI dialog
                 rspElem.html(data);
                 jQuery('#x12filesbmt').prop('disabled', true);
             },
-            error: function( xhr, status ) { alert( "<?php echo xls('Sorry, there was a problem!'); ?>" ); }
+            error: function( xhr, status ) { alert( <?php echo xlj('Sorry, there was a problem!'); ?> ); }
         });
         // jQuery accordion requires html to be present at document ready
         // accordion does not work for added content, so no effect here
@@ -832,7 +820,7 @@ jQuery-UI dialog
             url: jQuery('#formlog').attr('action'),
             data: {
                 archivelog: 'yes',
-                csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>'
+                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
             },
             dataType: "json",
             success: function(data) {
@@ -851,7 +839,7 @@ jQuery-UI dialog
                 jQuery('#logrsp').html(str);
                 jQuery('#logrsp').show();
             },
-            error: function( xhr, status ) { alert( "<?php echo xls('Sorry, there was a problem!'); ?>" ); }
+            error: function( xhr, status ) { alert( <?php echo xlj('Sorry, there was a problem!'); ?> ); }
         });
         loglist();
 
@@ -895,7 +883,7 @@ jQuery-UI dialog
             url: jQuery('#formnotes').attr('action'),
             data: {
                 getnotes: "yes",
-                csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>'
+                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
             },
             dataType: "text",
             success: function(data){
@@ -914,7 +902,7 @@ jQuery-UI dialog
         e.preventDefault();
         var notetxt = jQuery('#notesrsp :textarea').val();
         var noteURL = jQuery('#formnotes').attr('action');
-        jQuery.post(noteURL, { putnotes: 'yes', tnotes: notetxt, csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>' },
+        jQuery.post(noteURL, { putnotes: 'yes', tnotes: notetxt, csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?> },
             function(data){ jQuery('#notesrsp').append(data); });
     });
 
@@ -949,7 +937,7 @@ jQuery-UI dialog
                 archForm.reset();
 
             },
-            error: function( xhr, status ) { alert( "<?php echo xls('Sorry, there was a problem!'); ?>" ); },
+            error: function( xhr, status ) { alert( <?php echo xlj('Sorry, there was a problem!'); ?> ); },
             // code to run regardless of success or failure
             // complete: function( xhr, status ) { alert( "The request is complete!" ); }
         });
@@ -973,7 +961,7 @@ jQuery-UI dialog
             type: 'GET',
             //cache: false,
             dataType: 'html',
-            data: { archivereport: 'yes', period: sprd, csrf_token_form: '<?php echo attr(collectCsrfToken()); ?>' },
+            data: { archivereport: 'yes', period: sprd, csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?> },
 
             success: function(data) {
                 //rspElem.html(data);
@@ -981,7 +969,7 @@ jQuery-UI dialog
                 jQuery('#archiversp').html(data);
             },
             error: function( xhr, status ) {
-                alert( "<?php echo xls('Sorry, there was a problem!'); ?>" );
+                alert( <?php echo xlj('Sorry, there was a problem!'); ?> );
                 rspElem.html(status);
                 rspElem.show();
             }
@@ -1001,7 +989,7 @@ jQuery-UI dialog
         var sel = jQuery( "#archrestoresel option:selected" ).text();
         console.log( sel );
         if (sel == "No Archives") {
-            alert("<?php echo xls('No archive files present'); ?>");
+            alert(<?php echo xlj('No archive files present'); ?>);
             return false;
         }
         var archrstForm = document.getElementById('formarchrestore');
@@ -1020,7 +1008,7 @@ jQuery-UI dialog
                 rspElem.html('');
                 rspElem.html(data);
             },
-            error: function( xhr, status ) { alert( "<?php echo xls('Sorry, there was a problem!'); ?>" ); },
+            error: function( xhr, status ) { alert( <?php echo xlj('Sorry, there was a problem!'); ?> ); },
         });
         archlist();
         csvlist();

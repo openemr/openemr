@@ -273,7 +273,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
             "*" . ($encounter_claim ? $claim->payerAltID() : $claim->payerID()) .
             "~\n";
     if (!$claim->payerID()) {
-        $log .= "*** CMS ID is missing for payer '" . $claim->payerName() . "'.\n";
+        $log .= "*** Payer ID is missing for payer '" . $claim->payerName() . "'.\n";
     }
 
         ++$edicount;
@@ -954,7 +954,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
             "~\n";
 
         if (!$claim->payerID($ins)) {
-            $log .= "*** CMS ID is missing for payer '" . $claim->payerName($ins) . "'.\n";
+            $log .= "*** Payer ID is missing for payer '" . $claim->payerName($ins) . "'.\n";
         }
 
         ++$edicount;

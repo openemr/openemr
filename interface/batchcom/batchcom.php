@@ -288,7 +288,7 @@ if ($_POST['form_action']=='process') {
         var email = document.querySelector('.email');
         var process = document.querySelector('select[name="process_type"]');
         function hideEmail() {
-            if (process.value !== '<?php echo attr($process_choices[1]); ?>') { email.style.display = 'none'; } else { email.style.display = ''; }
+            if (process.value !== <?php echo js_escape($process_choices[1]); ?>) { email.style.display = 'none'; } else { email.style.display = ''; }
         }
         process.addEventListener('change', hideEmail);
         hideEmail();

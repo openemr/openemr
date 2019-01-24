@@ -47,7 +47,7 @@
 <script type="text/javascript">
             $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-11-3/dist/jquery.js").wait()
                 .script("<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.min.js")
-                .script("<?php echo $GLOBALS['assets_static_relative']; ?>/modified/emodal-1-2-65/dist/eModal.js")
+                .script("<?php echo $GLOBALS['assets_static_relative']; ?>/emodal/dist/eModal.min.js")
                 .script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment/moment.js")
                 .script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js")
                 .script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore/underscore-min.js").wait()

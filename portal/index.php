@@ -112,7 +112,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
     ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/gritter/js/jquery.gritter.min.js"></script>
     <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['assets_static_relative']; ?>/gritter/css/jquery.gritter.css" />
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/emodal-1-2-65/dist/eModal.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/emodal/dist/eModal.min.js"></script>
     <link rel="stylesheet" type="text/css" href="assets/css/base.css?v=<?php echo $v_js_includes; ?>" />
     <link rel="stylesheet" type="text/css" href="assets/css/register.css?v=<?php echo $v_js_includes; ?>" />
 <script type="text/javascript">
@@ -203,12 +203,14 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                         <input name="pass_new_confirm" id="pass_new_confirm" type="password" />
                     </td>
                 </tr>
-                 <tr>
-                    <td class="algnRight"><?php echo xlt('Confirm Email Address');?></td>
-                    <td>
-                        <input name="passaddon" id="passaddon" placeholder="<?php echo xla('Your on file email address'); ?>" type="email" autocomplete="off" value=""  />
-                    </td>
-                </tr>
+                <?php if ($GLOBALS['enforce_signin_email']) { ?>
+                     <tr>
+                        <td class="algnRight"><?php echo xlt('Confirm Email Address');?></td>
+                        <td>
+                            <input name="passaddon" id="passaddon" placeholder="<?php echo xla('Your on file email address'); ?>" type="email" autocomplete="off" value=""  />
+                        </td>
+                    </tr>
+                <?php } ?>
                 <tr>
                     <td colspan=2><br><input class="pull-right" type="submit" value="<?php echo xla('Log In');?>" /></td>
                 </tr>
@@ -288,12 +290,14 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-sm-12 form-group">
-                                    <label class="control-label" for="passaddon"><?php echo xlt('E-Mail Address')?></label>
-                                    <div class="controls inline-inputs">
-                                        <input class="form-control" style="width: 100%" name="passaddon" id="passaddon" placeholder="<?php echo xla('on file email'); ?>" type="email" autocomplete="on" />
+                                <?php if ($GLOBALS['enforce_signin_email']) { ?>
+                                    <div class="col-sm-12 form-group">
+                                        <label class="control-label" for="passaddon"><?php echo xlt('E-Mail Address')?></label>
+                                        <div class="controls inline-inputs">
+                                            <input class="form-control" style="width: 100%" name="passaddon" id="passaddon" placeholder="<?php echo xla('on file email'); ?>" type="email" autocomplete="on" />
+                                        </div>
                                     </div>
-                                </div>
+                                <?php } ?>
                             </div>
                         <?php if ($GLOBALS['language_menu_login']) { ?>
                         <?php if (count($result3) != 1) { ?>

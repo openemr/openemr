@@ -37,7 +37,7 @@ if (!$thisauth) {
 ?>
 
   <table>
-    <form name='filterform' id='filterform' method='post' action='?m=definition&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>' onsubmit="return top.restoreSession()">
+    <form name='filterform' id='filterform' method='post' action='?m=definition&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>' onsubmit="return top.restoreSession()">
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
     <tr>
@@ -204,7 +204,7 @@ if ($_POST['edit']) {
     $res = SqlStatement($sql, $bind_sql_array);
 
         $isResults = false; //flag to record whether there are any results
-    echo ('<table><FORM METHOD=POST ACTION="?m=definition&csrf_token_form=' . attr(urlencode(collectCsrfToken())) . '" onsubmit="return top.restoreSession()">');
+    echo ('<table><FORM METHOD=POST ACTION="?m=definition&csrf_token_form=' . attr_url(collectCsrfToken()) . '" onsubmit="return top.restoreSession()">');
     echo ('<input type="hidden" name="csrf_token_form" value="' . attr(collectCsrfToken()) . '" />');
     // only english definitions
     if ($lang_id==1) {

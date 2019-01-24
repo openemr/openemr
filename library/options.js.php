@@ -8,7 +8,7 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2014-2017 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2014-2019 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -91,6 +91,16 @@ function checkSkipConditions() {
     if (srcelem == null) srcelem = document.getElementById('radio_' + tofind);
     if (srcelem == null) srcelem = document.getElementById('form_' + tofind) ;
     if (srcelem == null) srcelem = document.getElementById('text_' + tofind);
+
+    if (srcelem == null) {
+      // This caters to radio buttons which we treat like droplists.
+      var tmp = document.getElementById('form_' + tofind + '[' + value + ']');
+      if (tmp != null) {
+        srcelem = tmp;
+        if (operator == 'eq') operator = 'se';
+        if (operator == 'ne') operator = 'ns';
+      }
+    }
 
     if (srcelem == null) {
       if (!cskerror) alert(<?php echo xlj('Cannot find a skip source field for'); ?> + ' "' + tofind + '"');
@@ -278,6 +288,28 @@ function lbfCanvasSetup(canid, canWidth, canHeight) {
 //
 function lbfCanvasGetData(canid) {
   return lbfCanvases[canid].getImage().toDataURL();
+}
+
+// This is invoked when a field with edit option M is changed.
+// Its purpose is to make the corresponding change to the member fields (edit option m).
+//
+function checkGroupMembers(elem, groupnumber) {
+  var i = elem.id.indexOf('[');
+  if (i < 0) {
+    alert(<?php echo xlj('Field not suitable for edit option M') ?> + ': ' + elem.name);
+    return;
+  }
+  var suffix = elem.id.substring(i);
+  var members = document.getElementsByClassName('lbf_memgroup_' + groupnumber);
+  if (members.length == 0) {
+    alert(<?php echo xlj('No member fields found for') ?> + ': ' + elem.name);
+    return;
+  }
+  for (var i = 0; i < members.length; ++i) {
+    if (members[i].id.indexOf(suffix) > 1) {
+      members[i].checked = true;
+    }
+  }
 }
 
 </script>

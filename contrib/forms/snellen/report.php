@@ -5,8 +5,8 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 //------------Forms generated from formsWiz
-include_once("../../globals.php");
-include_once($GLOBALS["srcdir"] . "/api.inc");
+require_once("../../globals.php");
+require_once($GLOBALS["srcdir"] . "/api.inc");
 function snellen_report($pid, $encounter, $cols, $id)
 {
     $count = 0;

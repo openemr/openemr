@@ -817,7 +817,7 @@ function edih_disp_csvtable()
 /**
  * Report 835 file as processed by billing routine if the file name
  * is found in the 'era' directory.  The file name is a concatenation
- * of GS04_TRN04_ISA13.edi per parse_era_inc.php
+ * of GS04_TRN04_ISA13.edi per \OpenEMR\Billing\ParseERA
  *
  *
  * @param string
@@ -826,7 +826,7 @@ function edih_disp_csvtable()
 function edih_disp_835_processed($erasavename)
 {
     // openemr/interface/billing/era_payments.php
-    // openemr/library/parse_era.inc.php
+    // use \OpenEMR\Billing\ParseERA
     //  OpenEMR filename for era should be just the upload filename or
     //  $out['gs_date'] . '_' . $out['payer_id'] . '_' .$out['isa_control_number']
     //  with 'payer_id' taken from BPR10 or TRN03 (same value) and not from TRN04

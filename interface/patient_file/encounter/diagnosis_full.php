@@ -11,7 +11,8 @@
 
 
 require_once("../../globals.php");
-require_once("$srcdir/billing.inc");
+
+use OpenEMR\Billing\BillingUtilities;
 
 $mode = $_GET['mode'];
 $id   = $_GET['id'];
@@ -22,11 +23,11 @@ if (isset($mode)) {
     }
 
     if ($mode == "add") {
-        addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $_SESSION['authUserID']);
+        BillingUtilities::addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $_SESSION['authUserID']);
     } elseif ($mode == "delete") {
-        deleteBilling($id);
+        BillingUtilities::deleteBilling($id);
     } elseif ($mode == "clear") {
-        clearBilling($id);
+        BillingUtilities::clearBilling($id);
     }
 }
 ?>
@@ -46,7 +47,7 @@ if (isset($mode)) {
 <table border=0 cellpadding=3 cellspacing=0>
 
 <?php
-if ($result = getBillingByEncounter($pid, $encounter, "*")) {
+if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
     $billing_html = array();
     foreach ($result as $iter) {
         if ($iter["code_type"] == "ICD9") {

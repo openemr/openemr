@@ -138,13 +138,6 @@
 	GRANT ALL ON openemr.payments to 'openemr'@'localhost';
 	GRANT ALL ON openemr.pharmacies to 'openemr'@'localhost';
 	GRANT ALL ON openemr.phone_numbers to 'openemr'@'localhost';
-	GRANT ALL ON openemr.pma_bookmark to 'openemr'@'localhost';
-	GRANT ALL ON openemr.pma_column_info to 'openemr'@'localhost';
-	GRANT ALL ON openemr.pma_history to 'openemr'@'localhost';
-	GRANT ALL ON openemr.pma_pdf_pages to 'openemr'@'localhost';
-	GRANT ALL ON openemr.pma_relation to 'openemr'@'localhost';
-	GRANT ALL ON openemr.pma_table_coords to 'openemr'@'localhost';
-	GRANT ALL ON openemr.pma_table_info to 'openemr'@'localhost';
 	GRANT ALL ON openemr.pnotes to 'openemr'@'localhost';
 	GRANT ALL ON openemr.prescriptions to 'openemr'@'localhost';
 	GRANT ALL ON openemr.prices to 'openemr'@'localhost';

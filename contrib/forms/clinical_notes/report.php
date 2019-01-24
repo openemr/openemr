@@ -1,10 +1,14 @@
 <?php
-// Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * clinical_notes report.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2005 Rod Roark <rod@sunsetsystems.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 
 require_once("../../globals.php");
 require_once($GLOBALS["srcdir"] . "/api.inc");
@@ -35,23 +39,6 @@ function clinical_notes_report($pid, $encounter, $cols, $id)
                         break;
                 }
             }
-
-            /****
-         else if ($key == 'outcome') {
-          switch ($value) {
-           case '1': $value = 'Resolved'  ; break;
-           case '2': $value = 'Improved'  ; break;
-           case '3': $value = 'Status Quo'; break;
-           case '4': $value = 'Worse'     ; break;
-          }
-         }
-         else if ($key == 'destination') {
-          switch ($value) {
-           case '1': $value = 'GP'; break;
-           case '2': $value = 'Hospital Specialist'; break;
-          }
-         }
-            ****/
 
             $key=ucwords(str_replace("_", " ", $key));
             print "<td valign='top'><span class='bold'>" .text($key). ": </span><span class='text'>" .text($value). "&nbsp;</span></td>\n";

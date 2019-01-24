@@ -28,7 +28,7 @@ formHeader("Form: brief_aan_verwijzer");
 $returnurl = 'encounter_top.php';
 
 $result = getPatientData($pid, "fname,lname,pid,pubpid,phone_home,sex,pharmacy_id,DOB,DATE_FORMAT(DOB,'%Y%m%d') as DOB_YMD");
-$provider_results = sqlQuery("select * from users where username='" . $_SESSION{"authUser"} . "'");
+$provider_results = sqlQuery("select * from users where username= ?", array($_SESSION{"authUser"}));
 
 ////////////////////////////////////////////////////////////////////
 // Function:	getPatientDateOfLastEncounter
@@ -37,9 +37,9 @@ function getPatientDateOfLastEncounter($nPid)
   // get date of last encounter no codes
     $strEventDate = sqlQuery("SELECT MAX(pc_eventDate) AS max
                   FROM openemr_postcalendar_events
-                  WHERE pc_pid = $nPid
+                  WHERE pc_pid = ?
                   AND pc_apptstatus = '@'
-                  AND pc_eventDate >= '2007-01-01'");
+                  AND pc_eventDate >= '2007-01-01'", array($nPid));
 
   // now check if there was a previous encounter
     if ($strEventDate['max'] != "") {
@@ -53,30 +53,30 @@ $m_strEventDate = getPatientDateOfLastEncounter($result['pid']);
 
 // get last saved id for intakeverslag
 $vectIntakeverslagQuery = sqlQuery("SELECT id FROM form_intakeverslag
-                            WHERE pid = ".$_SESSION["pid"].
-                            " AND groupname='".$_SESSION["authProvider"].
-                            "' AND user='".$_SESSION["authUser"]."' AND
-                            authorized=$userauthorized AND activity=1
+                            WHERE pid = ?
+                            AND groupname= ?
+                            AND user=? AND
+                            authorized=? AND activity=1
                             AND autosave_flag=0
-                            ORDER by id DESC limit 1");
+                            ORDER by id DESC limit 1", array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized));
 
 // get autosave id for Psychiatrisch Onderzoek
 $vectPO = sqlQuery("SELECT id FROM form_psychiatrisch_onderzoek
-                            WHERE pid = ".$_SESSION["pid"].
-                            " AND groupname='".$_SESSION["authProvider"].
-                            "' AND user='".$_SESSION["authUser"]."' AND
-                            authorized=$userauthorized AND activity=1
+                            WHERE pid = ?
+                            AND groupname= ?
+                            AND user=? AND
+                            authorized=? AND activity=1
                             AND autosave_flag=0
-                            ORDER by id DESC limit 1");
+                            ORDER by id DESC limit 1", array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized));
 
 // get autosave id for Psychiatrisch Onderzoek
 $vectAutosaveBAV = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_brief_aan_verwijzer
-                            WHERE pid = ".$_SESSION["pid"].
-                            " AND groupname='".$_SESSION["authProvider"].
-                            "' AND user='".$_SESSION["authUser"]."' AND
-                            authorized=$userauthorized AND activity=1
-                            AND autosave_flag=1
-                            ORDER by id DESC limit 1");
+                            WHERE pid = ?
+                            AND groupname= ?
+                            AND user=? AND
+                            authorized=? AND activity=1
+                            AND autosave_flag=0
+                            ORDER by id DESC limit 1", array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized));
 
 //fetch data from INTAKE-VERSLAG
 $obj_iv = formFetch("form_intakeverslag", $vectIntakeverslagQuery['id']);

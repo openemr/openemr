@@ -25,7 +25,7 @@ function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp)
     echo $c->default_action_process($_POST);
 }
 
-//This function was copied from billing.inc and altered to support 'justify'
+//This function was copied from BillingUtilities class and altered to support 'justify'
 function addBilling2($encounter, $code_type, $code, $code_text, $modifier = "", $units = "", $fee = "0.00", $justify)
 {
     $justify_string = '';

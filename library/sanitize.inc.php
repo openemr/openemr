@@ -35,12 +35,17 @@ function collectIpAddresses()
 // Length is in bytes that the openssl_random_pseudo_bytes() function will create
 function createUniqueToken($length = 32)
 {
-    if (!extension_loaded('openssl')) {
-        error_log("OpenEMR Error : OpenEMR is not working because missing openssl extension.");
-        die("OpenEMR Error : OpenEMR is not working because missing openssl extension.");
+    try {
+        $uniqueToken = random_bytes($length);
+    } catch (Error $e) {
+        error_log('OpenEMR Error : OpenEMR is not working because of random_bytes() Error: ' . $e->getMessage());
+        die("OpenEMR Error : OpenEMR is not working because because of random_bytes() Error.");
+    } catch (Exception $e) {
+        error_log('OpenEMR Error : OpenEMR is not working because because of random_bytes() Exception: ' . $e->getMessage());
+        die("OpenEMR Error : OpenEMR is not working because because of random_bytes() Exception.");
     }
 
-    $uniqueToken = base64_encode(openssl_random_pseudo_bytes($length));
+    $uniqueToken = base64_encode($uniqueToken);
 
     if (empty($uniqueToken)) {
         error_log("OpenEMR Error : OpenEMR is not working because a random unique token is not being formed correctly.");
@@ -86,6 +91,17 @@ function csrfNotVerified($toScreen = true, $toLog = true)
         error_log("OpenEMR CSRF token authentication error");
     }
     die;
+}
+
+// Sanitize a json encoded entry.
+function json_sanitize($json)
+{
+    if (json_decode($json)) {
+        return json_encode(json_decode($json, true));
+    } else {
+        error_log("OPENEMR ERROR: " . $json . " is not a valid json ");
+        return false;
+    }
 }
 
 // If the label contains any illegal characters, then the script will die.

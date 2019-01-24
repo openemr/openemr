@@ -1,14 +1,17 @@
 <?php
-// Copyright (C) 2010 Open Support LLC
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * MyMailer class
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010 Open Support LLC
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
-// Add these two lines to Authenticate in phpmailer.php, lines 633-634
-// Customized for Web hosts that don't require SMTP authentication
-// if ($SMTP_Auth=="No") { $connection = true; }
-// Also, remove "25" in line 185 and change $Port to $this->Port on line 612 so that it can read Admin's setting
+
+use PHPMailer\PHPMailer\PHPMailer;
 
 class MyMailer extends PHPMailer
 {
@@ -39,7 +42,7 @@ class MyMailer extends PHPMailer
                 $this->SMTPAuth = $SMTP_Auth;
                 $this->Host = $GLOBALS['SMTP_HOST'];
                 $this->Username = $GLOBALS['SMTP_USER'];
-                $this->Password = $GLOBALS['SMTP_PASS'];
+                $this->Password = decryptStandard($GLOBALS['SMTP_PASS']);
                 $this->Port = $GLOBALS['SMTP_PORT'];
                 $this->SMTPSecure = $GLOBALS['SMTP_SECURE'];
                 break;

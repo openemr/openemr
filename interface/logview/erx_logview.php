@@ -10,12 +10,15 @@
  * @author     Sam Likins <sam.likins@wsi-services.com>
  * @author     Brady Miller <brady.g.miller@gmail.com>
  * @copyright  Copyright (c) 2011 ZMG LLC <sam@zhservices.com>
- * @copyright  Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright  Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+
 require_once(__DIR__.'/../globals.php');
 require_once($srcdir.'/log.inc');
+
+use OpenEMR\Core\Header;
 
 $error_log_path = $GLOBALS['OE_SITE_DIR'].'/documents/erx_error';
 
@@ -68,13 +71,7 @@ if ($filename) {
 ?>
 <html>
     <head>
-        <?php html_header_show(); ?>
-        <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
-
-        <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-7-2/jquery.min.js"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+        <?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'datetime-picker']); ?>
 
         <script language="JavaScript">
             $(document).ready(function(){
@@ -125,7 +122,7 @@ if (array_key_exists('search_logs', $_POST)) {
                 $fd = fopen($error_log_path.'/'.$file, 'r');
                 $bat_content = fread($fd, filesize($error_log_path.'/'.$file));
 ?>
-                <p><?php echo xlt('Download'); ?>: <a href="erx_logview.php?filename=<?php echo attr(urlencode($file)); ?>&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>"><?php echo text($file); ?></a></p>
+                <p><?php echo xlt('Download'); ?>: <a href="erx_logview.php?filename=<?php echo attr_url($file); ?>&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>"><?php echo text($file); ?></a></p>
                 <textarea rows="35" cols="132"><?php echo text($bat_content); ?></textarea>
 <?php
             }

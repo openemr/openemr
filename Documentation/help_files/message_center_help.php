@@ -340,10 +340,10 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("It will take you to the MedEx sign-up page"); ?>.
                 
                 <p><?php echo xlt("More information available at the openEMR MedEx wiki page"); ?>.
-                <a href="https://www.open-emr.org/wiki/index.php/MedEx" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                <a href="https://www.open-emr.org/wiki/index.php/MedEx" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                 
                 <p><?php echo xlt("The features of a MedEx enabled installation are explained in this video"); ?>.
-                <a href="https://www.youtube.com/watch?v=4lbJCpfotAo" target="_blank"><i class="fa fa-video-camera text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                <a href="https://www.youtube.com/watch?v=4lbJCpfotAo" rel="noopener" target="_blank"><i class="fa fa-video-camera text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                 
                 <p><?php echo xlt("SMS zone - This section lets use send and receive SMS texts"); ?>.
                 

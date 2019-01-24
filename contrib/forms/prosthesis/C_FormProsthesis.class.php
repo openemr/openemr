@@ -3,6 +3,8 @@
 require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormProsthesis.class.php");
 
+use OpenEMR\Billing\BillingUtilities;
+
 class C_FormProsthesis extends Controller
 {
 
@@ -56,13 +58,13 @@ class C_FormProsthesis extends Controller
         addForm($GLOBALS['encounter'], "Prosthesis & Orthotics Form", $this->prosthesis->id, "prosthesis", $GLOBALS['pid'], $_SESSION['userauthorized']);
 
         if (!empty($_POST['cpt_code'])) {
-            $sql = "select * from codes where code ='" . add_escape_custom($_POST['cpt_code']) . "' order by id";
+            $sql = "select * from codes where code = ? order by id";
 
-            $results = sqlQ($sql);
+            $results = sqlQ($sql, array(add_escape_custom($_POST['cpt_code'])));
 
             $row = sqlFetchArray($results);
             if (!empty($row)) {
-                addBilling(date("Ymd"), 'CPT4', $row['code'], $row['code_text'], $_SESSION['pid'], $_SESSION['userauthorized'], $_SESSION['authUserID'], $row['modifier'], $row['units'], $row['fee']);
+                BillingUtilities::addBilling(date("Ymd"), 'CPT4', $row['code'], $row['code_text'], $_SESSION['pid'], $_SESSION['userauthorized'], $_SESSION['authUserID'], $row['modifier'], $row['units'], $row['fee']);
             }
         }
 

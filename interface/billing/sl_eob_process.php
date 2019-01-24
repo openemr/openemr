@@ -11,18 +11,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 // Buffer all output so we can archive it to a file.
 ob_start();
 
 require_once("../globals.php");
 require_once("$srcdir/invoice_summary.inc.php");
-require_once("$srcdir/sl_eob.inc.php");
-require_once("$srcdir/parse_era.inc.php");
-require_once("claim_status_codes.php");
-require_once("adjustment_reason_codes.php");
-require_once("remark_codes.php");
-require_once("$srcdir/billing.inc");
+
+use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\ParseERA;
+use OpenEMR\Billing\SLEOB;
 
 $debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
 $paydate = parse_date($_GET['paydate']);
@@ -146,7 +143,7 @@ function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor)
     }
 }
 
-    // This is called back by parse_era() once per claim.
+    // This is called back by ParseERA::parse_era() once per claim.
     //
 function era_callback_check(&$out)
 {
@@ -193,14 +190,14 @@ function era_callback_check(&$out)
                 $check_date=$out['check_date'.$check_count]?$out['check_date'.$check_count]:$_REQUEST['paydate'];
                 $post_to_date=$_REQUEST['post_to_date']!=''?$_REQUEST['post_to_date']:date('Y-m-d');
                 $deposit_date=$_REQUEST['deposit_date']!=''?$_REQUEST['deposit_date']:date('Y-m-d');
-                $InsertionId[$out['check_number'.$check_count]]=arPostSession($_REQUEST['InsId'], $out['check_number'.$check_count], $out['check_date'.$check_count], $out['check_amount'.$check_count], $post_to_date, $deposit_date, $debug);
+                $InsertionId[$out['check_number'.$check_count]]=SLEOB::arPostSession($_REQUEST['InsId'], $out['check_number'.$check_count], $out['check_date'.$check_count], $out['check_amount'.$check_count], $post_to_date, $deposit_date, $debug);
             }
         }
     }
 }
 function era_callback(&$out)
 {
-    global $encount, $debug, $claim_status_codes, $adjustment_reasons, $remark_codes;
+    global $encount, $debug;
     global $invoice_total, $last_code, $paydate;
     global $InsertionId;//last inserted ID of
 
@@ -227,7 +224,7 @@ function era_callback(&$out)
         $last_code = '';
         $invoice_total = 0.00;
         $bgcolor = (++$encount & 1) ? "#ddddff" : "#ffdddd";
-        list($pid, $encounter, $invnumber) = slInvoiceNumber($out);
+        list($pid, $encounter, $invnumber) = SLEOB::slInvoiceNumber($out);
 
         // Get details, if we have them, for the invoice.
         $inverror = true;
@@ -267,7 +264,7 @@ function era_callback(&$out)
         writeMessageLine(
             $bgcolor,
             'infdetail',
-            "Claim status $csc: " . $claim_status_codes[$csc]
+            "Claim status $csc: " . BillingUtilities::claim_status_codes_CLP02[$csc]
         );
 
     // Show an error message if the claim is missing or already posted.
@@ -302,7 +299,7 @@ function era_callback(&$out)
                     $code_value = substr($code_value, 0, -1);
                     //We store the reason code to display it with description in the billing manager screen.
                     //process_file is used as for the denial case file name will not be there, and extra field(to store reason) can be avoided.
-                    updateClaim(true, $pid, $encounter, $_REQUEST['InsId'], substr($inslabel, 3), 7, 0, $code_value);
+                    BillingUtilities::updateClaim(true, $pid, $encounter, $_REQUEST['InsId'], substr($inslabel, 3), 7, 0, $code_value);
                 }
             }
 
@@ -329,7 +326,7 @@ function era_callback(&$out)
         $check_date      = $paydate ? $paydate : parse_date($out['check_date']);
         $production_date = $paydate ? $paydate : parse_date($out['production_date']);
 
-        $insurance_id = arGetPayerID($pid, $service_date, substr($inslabel, 3));
+        $insurance_id = SLEOB::arGetPayerID($pid, $service_date, substr($inslabel, 3));
         if (empty($ferow['lname'])) {
               $patient_name = $out['patient_fname'] . ' ' . $out['patient_lname'];
         } else {
@@ -386,7 +383,7 @@ function era_callback(&$out)
                 // was inserted, or in red if we are in error mode).
                 $description = "CPT4:$codekey Added by $inslabel $production_date";
                 if (!$error && !$debug) {
-                    arPostCharge(
+                    SLEOB::arPostCharge(
                         $pid,
                         $encounter,
                         0,
@@ -447,7 +444,8 @@ function era_callback(&$out)
             // Report miscellaneous remarks.
             if ($svc['remark']) {
                 $rmk = $svc['remark'];
-                writeMessageLine($bgcolor, 'infdetail', "$rmk: " . $remark_codes[$rmk]);
+                writeMessageLine($bgcolor, 'infdetail', "$rmk: " .
+                    BillingUtilities::remittance_advice_remark_codes[$rmk]);
             }
 
             // Post and report the payment for this service item from the ERA.
@@ -455,7 +453,7 @@ function era_callback(&$out)
             // i.e. a payment reversal.
             if ($svc['paid']) {
                 if (!$error && !$debug) {
-                    arPostPayment(
+                    SLEOB::arPostPayment(
                         $pid,
                         $encounter,
                         $InsertionId[$out['check_number']],
@@ -491,7 +489,8 @@ function era_callback(&$out)
             // Post and report adjustments from this ERA.  Posted adjustment reasons
             // must be 25 characters or less in order to fit on patient statements.
             foreach ($svc['adj'] as $adj) {
-                $description = $adj['reason_code'] . ': ' . $adjustment_reasons[$adj['reason_code']];
+                $description = $adj['reason_code'] . ': ' .
+                    BillingUtilities::claim_adjustment_reason_codes[$adj['reason_code']];
                 if ($adj['group_code'] == 'PR' || !$primary) {
                     // Group code PR is Patient Responsibility.  Enter these as zero
                     // adjustments to retain the note without crediting the claim.
@@ -523,7 +522,7 @@ function era_callback(&$out)
                     $reason .= sprintf("%.2f", $adj['amount']);
                     // Post a zero-dollar adjustment just to save it as a comment.
                     if (!$error && !$debug) {
-                        arPostAdjustment(
+                        SLEOB::arPostAdjustment(
                             $pid,
                             $encounter,
                             $InsertionId[$out['check_number']],
@@ -542,7 +541,7 @@ function era_callback(&$out)
                 } // Other group codes for primary insurance are real adjustments.
                 else {
                     if (!$error && !$debug) {
-                        arPostAdjustment(
+                        SLEOB::arPostAdjustment(
                             $pid,
                             $encounter,
                             $InsertionId[$out['check_number']],
@@ -611,8 +610,8 @@ function era_callback(&$out)
             }
 
             // Check for secondary insurance.
-            if ($primary && arGetPayerID($pid, $service_date, 2)) {
-                arSetupSecondary($pid, $encounter, $debug, $out['crossover']);
+            if ($primary && SLEOB::arGetPayerID($pid, $service_date, 2)) {
+                SLEOB::arSetupSecondary($pid, $encounter, $debug, $out['crossover']);
 
                 if ($out['crossover']<>1) {
                     writeMessageLine(
@@ -672,8 +671,6 @@ if (!$debug) {
  .infdetail { color:#0000ff; font-family:sans-serif; font-size:9pt; font-weight:normal }
 </style>
 <title><?php echo xlt('EOB Posting - Electronic Remittances')?></title>
-<script language="JavaScript">
-</script>
 </head>
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <form action="sl_eob_process.php" method="get" >
@@ -682,7 +679,7 @@ if (!$debug) {
 <center>
 <?php
 if ($_GET['original']=='original') {
-    $alertmsg = parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi", 'era_callback');
+    $alertmsg = ParseERA::parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi", 'era_callback');
     echo $StringToEcho;
 } else {
     ?>
@@ -716,8 +713,8 @@ if ($_GET['original']=='original') {
     global $InsertionId;
 
     $eraname=$_REQUEST['eraname'];
-    $alertmsg = parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi");
-    $alertmsg = parse_era($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi", 'era_callback');
+    $alertmsg = ParseERA::parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi");
+    $alertmsg = ParseERA::parse_era($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi", 'era_callback');
     if (!$debug) {
           $StringIssue=xl("Total Distribution for following check number is not full").': ';
           $StringPrint='No';
@@ -736,7 +733,7 @@ if ($_GET['original']=='original') {
         }
 
         if ($StringPrint=='Yes') {
-            echo "<script>alert('" . addslashes($StringIssue) . "')</script>";
+            echo "<script>alert(" . js_escape($StringIssue) . ")</script>";
         }
     }
 
@@ -750,7 +747,7 @@ if ($_GET['original']=='original') {
 <script language="JavaScript">
 <?php
 if ($alertmsg) {
-    echo " alert('" . addslashes($alertmsg) . "');\n";
+    echo " alert(" . js_escape($alertmsg) . ");\n";
 }
 ?>
 </script>

@@ -164,14 +164,14 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Enter the Logical Observation Identifiers Names and Codes (LOINC) code for this procedure");?>.
                     
                     <p><?php echo xlt("LOINC, rhymes with oink, is a database and universal standard for identifying medical laboratory observations");?>.
-                    <a href="https://loinc.org/" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                    <a href="https://loinc.org/" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                     
                     <p><?php echo xlt("The LOINC code for serum uric acid is 3084-1, LOINC refers to it as Urate in Serum or Plasma");?>.
                     
                     <p><?php echo xlt("Many of the LOINC codes can be used for both tests and their results");?>.
                     
                     <p><?php echo xlt("You can download the Loinc Universal LabOrders ValueSet.csv file from here");?>.
-                    <a href="https://lhncbc.nlm.nih.gov/project/top-loinc-codes-%E2%80%93-orders-and-observations" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                    <a href="https://lhncbc.nlm.nih.gov/project/top-loinc-codes-%E2%80%93-orders-and-observations" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                     
                     <p><?php echo xlt("Alternatively a CPT code can be used. It is 84550 for Serum Uric Acid");?>.
                     
@@ -536,11 +536,11 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("You can use LOINC codes for the Standard Codes");?>.
                     
                     <p><?php echo xlt("You can download the Loinc Universal LabOrders ValueSet.csv file from here");?>.
-                    <a href="https://lhncbc.nlm.nih.gov/project/top-loinc-codes-%E2%80%93-orders-and-observations" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                    <a href="https://lhncbc.nlm.nih.gov/project/top-loinc-codes-%E2%80%93-orders-and-observations" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                     
                     <p><?php echo xlt("Open a spreadsheet and type in the various groups, procedure orders and discrete results, arrange according to need");?>.
                     
-                    <p><?php echo xlt("Alternatively download a sample spreadsheet by clicking on the Download button"); ?>. &nbsp <a href="../../interface/orders/configure_orders_worksheet.ods" class= "btn btn-default btn-sm btn-download oe-no-float" download="Configure Orders Worksheet" target="_blank"> <?php echo xlt("Download"); ?></a>
+                    <p><?php echo xlt("Alternatively download a sample spreadsheet by clicking on the Download button"); ?>. &nbsp <a href="../../interface/orders/configure_orders_worksheet.ods" class= "btn btn-default btn-sm btn-download oe-no-float" download="Configure Orders Worksheet" rel="noopener" target="_blank"> <?php echo xlt("Download"); ?></a>
                     
                     <p><?php echo xlt("Ensure that Identifying Codes are unique");?>.
                     

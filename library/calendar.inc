@@ -5,9 +5,9 @@ require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
 //function returns the next most recent appointment given a pid
 function getNextAppointment($pid)
 {
-    $query = "select * from calendar where pid=$pid and time>now() order by time limit 1";
-    $rez = sqlStatement($query);
-    echo "<!-- getNextAppointment $pid -$query- -->";
+    $query = "select * from calendar where pid = ? and time>now() order by time limit 1";
+    $rez = sqlStatement($query, [$pid]);
+    echo "<!-- getNextAppointment " . text($pid) . " -" . text($query) . "- -->";
     return sqlFetchArray($rez);
 }
 
@@ -15,25 +15,25 @@ function getNextAppointment($pid)
 //this function returns calendar data given date and provider
 function getCalendarDay($datetime, $owner, $groupname)
 {
-    $query = "select * from calendar where time like '$datetime%' and owner like '$owner' and groupname like '$groupname' order by time";
-    $rez = sqlStatement($query);
+    $query = "select * from calendar where time like ? and owner like ? and groupname like ? order by time";
+    $rez = sqlStatement($query, [$datetime.'%', $owner, $groupname]);
     for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
     }
 
-    echo "<!-- getCalendarDay -$query- $datetime $owner $groupname -->";
+    echo "<!-- getCalendarDay -" . text($query) . "- " . text($datetime) . " " . text($owner) . " " . text($groupname) . " -->";
     return $returnval;
 }
 
 //toggle the status of a noshow calendar entry
 function toggleNoShow($cid)
 {
-    $rez = sqlStatement("select noshow from calendar where id=$cid");
+    $rez = sqlStatement("select noshow from calendar where id= ?", array($cid));
     $row=sqlFetchArray($rez);
     $oldnoshowval = $row{noshow};
     $newnoshowval = !($oldnoshowval);
-    $query = "update calendar set noshow='$newnoshowval' where id=$cid";
-    sqlStatement($query);
+    $query = "update calendar set noshow= ? where id= ?";
+    sqlStatement($query, [$newnoshowval, $cid]);
 }
 
 
@@ -52,8 +52,8 @@ function getProviderUsernames()
 
 function getIDfromUser($name)
 {
-    $query = "select id from users where username=\"" . add_escape_custom($name) . "\" limit 1";
-    $rez = sqlStatement($query);
+    $query = "select id from users where username=? limit 1";
+    $rez = sqlStatement($query, array($name));
     $row = sqlFetchArray($rez);
     if (!is_numeric($row['id'])) {
         return -1;
@@ -123,23 +123,23 @@ function getUserFacilities($uID)
 //retrieve the name based on the username
 function getNamefromUsername($username)
 {
-    $query = "select * from users where username like '$username' and username != ''";
-    $res = sqlQuery($query);
+    $query = "select * from users where username like ? and username != ''";
+    $res = sqlQuery($query, [$username]);
     return $res;
 }
 
 //retrieve calendar information from calendar id
 function getCalendarfromID($calid)
 {
-    
+
     //this table is deprecated and has been removed from new versions
-    //return sqlQuery("select * from calendar where id='$calid'");
+    //return sqlQuery("select * from calendar where id=?", array($calid));
 }
 
 //get calendar dates in a range of dates
 function getCalendarRanges($fromdate, $todate, $username)
 {
-    $rez = sqlStatement("select * from calendar where time>='$fromdate' and time<'$todate' and owner like '$username' order by time");
+    $rez = sqlStatement("select * from calendar where time >= ? and time< ? and owner like ? order by time", array($fromdate, $todate, $username));
     for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
     }
@@ -151,13 +151,13 @@ function getCalendarRanges($fromdate, $todate, $username)
 //get calendar dates in a range of dates
 function getCalendarbyTimeandRange($time, $fromdate, $todate, $username)
 {
-    $query = "select * from calendar where time like '% $time%' and time>='$fromdate' and time<'$todate' and owner like '$username' order by time";
-    $rez = sqlStatement($query);
+    $query = "select * from calendar where time like ? and time>= ? and time< ? and owner like ? order by time";
+    $rez = sqlStatement($query, ['% '.$time.'%', $fromdate, $todate, $username]);
     for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
     }
 
-    echo "<!-- getcalendarbytimeandrange -$query- -->";
+    echo "<!-- getcalendarbytimeandrange -" . text($query) . "- -->";
     return $returnval;
 }
 
@@ -170,7 +170,7 @@ function newCalendarItem(
     $owner,
     $groupname
 ) {
-    
+
     sqlQuery("insert into calendar set pid=?,time=?,reason=?,owner=?,groupname=?,date=now()", array($pid, $time, $reason, $owner, $groupname));
 }
 
@@ -190,7 +190,7 @@ function saveCalendarUpdate(
     $owner,
     $groupname
 ) {
-    
+
     sqlQuery("update calendar set pid=?,time=?,reason=?,owner=?,groupname=?,date=now() where id=?", array($pid, $time, $reason, $owner, $groupname, $calid));
 }
 

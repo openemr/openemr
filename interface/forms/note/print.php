@@ -5,7 +5,9 @@
 
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
-formHeader("Form: note");
+
+use OpenEMR\Core\Header;
+
 $returnurl = 'encounter_top.php';
 $provider_results = sqlQuery("select fname, lname from users where username=?", array($_SESSION{"authUser"}));
 
@@ -24,11 +26,9 @@ if ($obj['date_of_signature'] != "") {
 }
 ?>
 <html><head>
-<?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<title><?php echo "Form: note"?></title>
 
-<!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/jquery-min-1-2-2/index.js"></script>
+<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog']); ?>
 
 </head>
 <body class="body_top">

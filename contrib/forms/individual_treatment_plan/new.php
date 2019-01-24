@@ -16,7 +16,7 @@ formHeader("Form: individual_treatment_plan");
 <a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link_submit" onclick="top.restoreSession()">[Don't Save]</a></center>
 <br>
 
-<?php $res = sqlStatement("SELECT fname,mname,lname,ss,street,city,state,postal_code,phone_home,DOB FROM patient_data WHERE pid = $pid");
+<?php $res = sqlStatement("SELECT fname,mname,lname,ss,street,city,state,postal_code,phone_home,DOB FROM patient_data WHERE pid = ?", array($pid));
 $result = SqlFetchArray($res); ?>
 
 <b>Date of Referral:</b>&nbsp;<input type="text" name="date_of_referal"> 

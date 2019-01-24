@@ -1,33 +1,20 @@
 <?php
-// +-----------------------------------------------------------------------------+
-// Copyright (C) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-//
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-//
-// A copy of the GNU General Public License is included along with this program:
-// openemr/interface/login/GnuGPL.html
-// For more information write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
-// Author:   Eldho Chacko <eldho@zhservices.com>
-//           Paul Simon K <paul@zhservices.com>
-//
-// +------------------------------------------------------------------------------+
-//===============================================================================
-//Payments in database can be searched through this screen and edit popup is also its part.
-//Deletion of the payment is done with logging.
-//===============================================================================
+/**
+ * Payments in database can be searched through this screen and edit popup is also its part.
+ * Deletion of the payment is done with logging.
+ *
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Eldho Chacko <eldho@zhservices.com>
+ * @author    Paul Simon K <paul@zhservices.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+
 require_once("../globals.php");
 require_once("$srcdir/log.inc");
 require_once("../../library/acl.inc");
@@ -38,6 +25,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/payment.inc.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 //===============================================================================
 //Deletion of payment and its corresponding distributions.
@@ -45,19 +33,19 @@ use OpenEMR\Core\Header;
 set_time_limit(0);
 if (isset($_POST["mode"])) {
     if ($_POST["mode"] == "DeletePayments") {
-        $DeletePaymentId=trim(formData('DeletePaymentId'));
-        $ResultSearch = sqlStatement("SELECT distinct encounter,pid from ar_activity where  session_id ='$DeletePaymentId'");
+        $DeletePaymentId = isset($_POST['DeletePaymentId']) ? trim($_POST['DeletePaymentId']) : '';
+        $ResultSearch = sqlStatement("SELECT distinct encounter,pid from ar_activity where  session_id =?", [$DeletePaymentId]);
         if (sqlNumRows($ResultSearch)>0) {
             while ($RowSearch = sqlFetchArray($ResultSearch)) {
                 $Encounter=$RowSearch['encounter'];
                 $PId=$RowSearch['pid'];
-                sqlStatement("update form_encounter set last_level_closed=last_level_closed - 1 where pid ='$PId' and encounter='$Encounter'");
+                sqlStatement("update form_encounter set last_level_closed=last_level_closed - 1 where pid =? and encounter=?", [$PId, $Encounter]);
             }
         }
 
         //delete and log that action
-        row_delete("ar_session", "session_id ='$DeletePaymentId'");
-        row_delete("ar_activity", "session_id ='$DeletePaymentId'");
+        row_delete("ar_session", "session_id ='" . add_escape_custom($DeletePaymentId) . "'");
+        row_delete("ar_activity", "session_id ='" . add_escape_custom($DeletePaymentId) . "'");
         $Message='Delete';
         //------------------
         $_POST["mode"] = "SearchPayment";
@@ -67,19 +55,21 @@ if (isset($_POST["mode"])) {
 //Search section.
 //===============================================================================
     if ($_POST["mode"] == "SearchPayment") {
-        $FromDate=trim(formData('FromDate'));
-        $ToDate=trim(formData('ToDate'));
-        $PaymentMethod=trim(formData('payment_method'));
-        $CheckNumber=trim(formData('check_number'));
-        $PaymentAmount=trim(formData('payment_amount'));
-        $PayingEntity=trim(formData('type_name'));
-        $PaymentCategory=trim(formData('adjustment_code'));
-        $PaymentFrom=trim(formData('hidden_type_code'));
-        $PaymentStatus=trim(formData('PaymentStatus'));
-        $PaymentSortBy=trim(formData('PaymentSortBy'));
-        $PaymentDate=trim(formData('payment_date'));
-        $QueryString.="Select * from  ar_session where  ";
+        $FromDate = isset($_POST['FromDate']) ? trim($_POST['FromDate']) : '';
+        $ToDate = isset($_POST['ToDate']) ? trim($_POST['ToDate']) : '';
+        $PaymentMethod = isset($_POST['payment_method']) ? trim($_POST['payment_method']) : '';
+        $CheckNumber = isset($_POST['check_number']) ? trim($_POST['check_number']) : '';
+        $PaymentAmount = isset($_POST['payment_amount']) ? trim($_POST['payment_amount']) : '';
+        $PayingEntity = isset($_POST['type_name']) ? trim($_POST['type_name']) : '';
+        $PaymentCategory = isset($_POST['adjustment_code']) ? trim($_POST['adjustment_code']) : '';
+        $PaymentFrom = isset($_POST['hidden_type_code']) ? trim($_POST['hidden_type_code']) : '';
+        $PaymentStatus = isset($_POST['PaymentStatus']) ? trim($_POST['PaymentStatus']) : '';
+        $PaymentSortBy = isset($_POST['PaymentSortBy']) ? trim($_POST['PaymentSortBy']) : '';
+        $PaymentDate = isset($_POST['payment_date']) ? trim($_POST['payment_date']) : '';
+        $QueryString .= "Select * from  ar_session where  ";
         $And='';
+
+        $sqlBindArray = array();
 
         if ($PaymentDate=='date_val') {
             $PaymentDateString=' check_date ';
@@ -90,28 +80,33 @@ if (isset($_POST["mode"])) {
         }
 
         if ($FromDate!='') {
-             $QueryString.=" $And $PaymentDateString >='".DateToYYYYMMDD($FromDate)."'";
-             $And=' and ';
+            $QueryString.=" $And $PaymentDateString >=?";
+            $And=' and ';
+            $sqlBindArray[] = DateToYYYYMMDD($FromDate);
         }
 
         if ($ToDate!='') {
-             $QueryString.=" $And $PaymentDateString <='".DateToYYYYMMDD($ToDate)."'";
-             $And=' and ';
+            $QueryString.=" $And $PaymentDateString <=?";
+            $And=' and ';
+            $sqlBindArray[] = DateToYYYYMMDD($ToDate);
         }
 
         if ($PaymentMethod!='') {
-             $QueryString.=" $And payment_method ='".$PaymentMethod."'";
-             $And=' and ';
+            $QueryString.=" $And payment_method =?";
+            $And=' and ';
+            $sqlBindArray[] = $PaymentMethod;
         }
 
         if ($CheckNumber!='') {
-             $QueryString.=" $And reference like '%".$CheckNumber."%'";
-             $And=' and ';
+            $QueryString.=" $And reference like ?";
+            $And=' and ';
+            $sqlBindArray[] = '%' . $CheckNumber . '%';
         }
 
         if ($PaymentAmount!='') {
-             $QueryString.=" $And pay_total ='".$PaymentAmount."'";
-             $And=' and ';
+            $QueryString.=" $And pay_total =?";
+            $And=' and ';
+            $sqlBindArray[] = $PaymentAmount;
         }
 
         if ($PayingEntity!='') {
@@ -127,26 +122,28 @@ if (isset($_POST["mode"])) {
         }
 
         if ($PaymentCategory!='') {
-             $QueryString.=" $And adjustment_code ='".$PaymentCategory."'";
-             $And=' and ';
+            $QueryString.=" $And adjustment_code =?";
+            $And=' and ';
+            $sqlBindArray[] = $PaymentCategory;
         }
 
         if ($PaymentFrom!='') {
             if ($PayingEntity=='insurance' || $PayingEntity=='') {
                //-------------------
                 $res = sqlStatement("SELECT insurance_companies.name FROM insurance_companies
-					where insurance_companies.id ='$PaymentFrom'");
+					where insurance_companies.id =?", [$PaymentFrom]);
                 $row = sqlFetchArray($res);
                 $div_after_save=$row['name'];
                //-------------------
 
-                $QueryString.=" $And payer_id ='".$PaymentFrom."'";
+                $QueryString.=" $And payer_id =?";
+                $sqlBindArray[] = $PaymentFrom;
             }
 
             if ($PayingEntity=='patient') {
                //-------------------
                 $res = sqlStatement("SELECT fname,lname,mname FROM patient_data
-					where pid ='$PaymentFrom'");
+					where pid =?", [$PaymentFrom]);
                 $row = sqlFetchArray($res);
                   $fname=$row['fname'];
                   $lname=$row['lname'];
@@ -154,40 +151,41 @@ if (isset($_POST["mode"])) {
                   $div_after_save=$lname.' '.$fname.' '.$mname;
                //-------------------
 
-                $QueryString.=" $And patient_id ='".$PaymentFrom."'";
+                $QueryString.=" $And patient_id =?";
+                $sqlBindArray[] = $PaymentFrom;
             }
 
-             $And=' and ';
+            $And=' and ';
         }
 
         if ($PaymentStatus!='') {
             $QsString="select ar_session.session_id,pay_total,global_amount,sum(pay_amount) sum_pay_amount from ar_session,ar_activity
 				where ar_session.session_id=ar_activity.session_id group by ar_activity.session_id,ar_session.session_id
 				having pay_total-global_amount-sum_pay_amount=0 or pay_total=0";
-            $rs= sqlStatement("$QsString");
+            $rs= sqlStatement($QsString);
             while ($rowrs=sqlFetchArray($rs)) {
                 $StringSessionId.=$rowrs['session_id'].',';
             }
 
-            $QsString="select ar_session.session_id from ar_session	where  pay_total=0";
-            $rs= sqlStatement("$QsString");
+            $QsString="select ar_session.session_id from ar_session	where pay_total=0";
+            $rs= sqlStatement($QsString);
             while ($rowrs=sqlFetchArray($rs)) {
                 $StringSessionId.=$rowrs['session_id'].',';
             }
 
-             $StringSessionId=substr($StringSessionId, 0, -1);
+            $StringSessionId=substr($StringSessionId, 0, -1);
             if ($PaymentStatus=='fully_paid') {
-                $QueryString.=" $And session_id in($StringSessionId) ";
+                $QueryString.=" $And session_id in(" . add_escape_custom($StringSessionId) . ") ";
             } elseif ($PaymentStatus=='unapplied') {
-                $QueryString.=" $And session_id not in($StringSessionId) ";
+                $QueryString.=" $And session_id not in(" . add_escape_custom($StringSessionId) . ") ";
             }
 
-             $And=' and ';
+            $And=' and ';
         }
 
         if ($PaymentSortBy!='') {
-             $SortFieldOld=trim(formData('SortFieldOld'));
-             $Sort=trim(formData('Sort'));
+            $SortFieldOld = isset($_POST['SortFieldOld']) ? trim($_POST['SortFieldOld']) : '';
+            $Sort = isset($_POST['Sort']) ? trim($_POST['Sort']) : '';
             if ($SortFieldOld==$PaymentSortBy) {
                 if ($Sort=='DESC' || $Sort=='') {
                     $Sort='ASC';
@@ -198,10 +196,10 @@ if (isset($_POST["mode"])) {
                 $Sort='ASC';
             }
 
-            $QueryString.=" order by $PaymentSortBy $Sort";
+            $QueryString.=" order by " . escape_sql_column_name($PaymentSortBy, ['ar_session']) . " " . escape_sort_order($Sort);
         }
 
-         $ResultSearch = sqlStatement($QueryString);
+        $ResultSearch = sqlStatement($QueryString, $sqlBindArray);
     }
 }
 
@@ -224,7 +222,7 @@ $(document).ready(function() {
         e.stopPropagation();
         dlgopen('', '', 1050, 350, '', '', {
             buttons: [
-                {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+                {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
             ],
             onClosed: '',
             type: 'iframe',
@@ -250,14 +248,14 @@ $(document).ready(function() {
   {//Search  validations.
     if(document.getElementById('FromDate').value=='' && document.getElementById('ToDate').value=='' && document.getElementById('PaymentStatus').selectedIndex==0 && document.getElementById('payment_method').selectedIndex==0 && document.getElementById('type_name').selectedIndex==0 && document.getElementById('adjustment_code').selectedIndex==0 && document.getElementById('check_number').value==''  && document.getElementById('payment_amount').value==''  && document.getElementById('hidden_type_code').value=='' )
      {
-        alert("<?php echo htmlspecialchars(xl('Please select any Search Option.'), ENT_QUOTES) ?>");
+        alert(<?php echo xlj('Please select any Search Option.'); ?>);
         return false;
      }
     if(document.getElementById('FromDate').value!='' && document.getElementById('ToDate').value!='')
      {
         if(!DateCheckGreater(document.getElementById('FromDate').value,document.getElementById('ToDate').value,'<?php echo DateFormatRead();?>'))
          {
-            alert("<?php echo htmlspecialchars(xl('From Date Cannot be Greater than To Date.'), ENT_QUOTES) ?>");
+            alert(<?php echo xlj('From Date Cannot be Greater than To Date.'); ?>);
             document.getElementById('FromDate').focus();
             return false;
          }
@@ -268,7 +266,7 @@ $(document).ready(function() {
   }
 function DeletePayments(DeleteId)
  {//Confirms deletion of payment and all its distribution.
-    if(confirm("<?php echo htmlspecialchars(xl('Would you like to Delete Payments?'), ENT_QUOTES) ?>"))
+    if(confirm(<?php echo xlj('Would you like to Delete Payments?'); ?>))
      {
         document.getElementById('mode').value='DeletePayments';
         document.getElementById('DeletePaymentId').value=DeleteId;
@@ -283,7 +281,7 @@ function OnloadAction()
   after_value=document.getElementById('after_value').value;
   if(after_value=='Delete')
    {
-    alert("<?php echo htmlspecialchars(xl('Successfully Deleted'), ENT_QUOTES) ?>")
+    alert(<?php echo xlj('Successfully Deleted'); ?>)
    }
  }
 function SearchPayingEntityAction()
@@ -404,29 +402,28 @@ document.onclick=HideTheAjaxDivs;
     overflow-x: hidden !Important;
 }
 </style>
-<?php
-//to determine and set the form to open in the desired state - expanded or centered, any selection the user makes will 
-//become the user-specific default for that page. collectAndOrganizeExpandSetting() contains a single indexed array as an 
-//argument, containing one or more elements, the name of the current file is the first element, if there are linked 
-// files they should be listed thereafter, please add _xpd suffix to the file name
-$arr_files_php = array("search_payments_xpd", "new_payment_xpd", "era_payments_xpd");
-$current_state = collectAndOrganizeExpandSetting($arr_files_php);
-require_once("$srcdir/expand_contract_inc.php");
-?>
-<script>
-<?php require_once("$include_root/expand_contract_js.php");//jQuery to provide expand/contract icon toggle if form is expandable ?>
-</script>
 <title><?php echo xlt("Search Payments"); ?></title>
+<?php
+$arrOeUiSettings = array(
+    'heading_title' => xl('Payments'),
+    'include_patient_name' => false,// use only in appropriate pages
+    'expandable' => true,
+    'expandable_files' => array("search_payments_xpd", "new_payment_xpd", "era_payments_xpd"),//all file names need suffix _xpd
+    'action' => "",//conceal, reveal, search, reset, link or back
+    'action_title' => "",
+    'action_href' => "",//only for actions - reset, link or back
+    'show_help_icon' => false,
+    'help_file_name' => ""
+);
+$oemr_ui = new OemrUI($arrOeUiSettings);
+?>
 </head>
 <body class="body_top" onload="OnloadAction()">
-    <div class="<?php echo $container;?> expandable">
+    <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
         <div class="row">
             <div class="col-sm-12">
                 <div class="page-header">
-                    <h2>
-                        <?php echo xlt('Payments'); ?> <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract" 
-                        title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i>
-                    </h2>
+                    <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>
         </div>
@@ -480,13 +477,13 @@ require_once("$srcdir/expand_contract_inc.php");
                             </div>
                             <div class="forms col-xs-3">
                                 <label class="control-label" for="check_number"><?php echo xlt('Check Number'); ?>:</label>
-                                <input autocomplete="off" class="form-control" id="check_number" name="check_number" type="text" value="<?php echo htmlspecialchars(formData('check_number'));?>">
+                                <input autocomplete="off" class="form-control" id="check_number" name="check_number" type="text" value="<?php echo attr($_POST['check_number']); ?>">
                             </div>
                         </div>
                         <div class="col-xs-12 oe-custom-line">
                             <div class="forms col-xs-4">
                                 <label class="control-label" for="payment_method"><?php echo xlt('Payment Amount'); ?>:</label>
-                                <input autocomplete="off" class="form-control" id="payment_amount" name="payment_amount" onkeyup="ValidateNumeric(this);"  type="text" value="<?php echo htmlspecialchars(formData('payment_amount'));?>">
+                                <input autocomplete="off" class="form-control" id="payment_amount" name="payment_amount" onkeyup="ValidateNumeric(this);"  type="text" value="<?php echo attr($_POST['payment_amount']);?>">
                             </div>
                             <div class="forms col-xs-2">
                                 <label class="control-label" for="type_name"><?php echo xlt('Paying Entity'); ?>:</label>
@@ -504,8 +501,8 @@ require_once("$srcdir/expand_contract_inc.php");
                         <div class="col-xs-12 oe-custom-line">
                             <div class="forms col-xs-4">
                                 <label class="control-label" for="type_code"><?php echo xlt('Payment From'); ?>:</label>
-                                <input id="hidden_ajax_close_value" type="hidden" value="<?php echo htmlspecialchars($div_after_save);?>">
-                                <input autocomplete="off" class="form-control" id='type_code' name='type_code' onkeydown="PreventIt(event)" type="text" value="<?php echo htmlspecialchars($div_after_save);?>">
+                                <input id="hidden_ajax_close_value" type="hidden" value="<?php echo attr($div_after_save);?>">
+                                <input autocomplete="off" class="form-control" id='type_code' name='type_code' onkeydown="PreventIt(event)" type="text" value="<?php echo attr($div_after_save);?>">
                                 <!--onKeyUp="ajaxFunction(event,'non','search_payments.php');"-->
                                 <div id='ajax_div_insurance_section'>
                                     <div id='ajax_div_insurance_error'></div>
@@ -514,7 +511,7 @@ require_once("$srcdir/expand_contract_inc.php");
                             </div>
                             <div class="forms col-xs-2">
                                 <label class="control-label" for="div_insurance_or_patient"><?php echo xlt('Payor ID'); ?>:</label>
-                                <div class="form-control" id="div_insurance_or_patient"><?php echo htmlspecialchars(formData('hidden_type_code'));?></div>
+                                <div class="form-control" id="div_insurance_or_patient"><?php echo attr($_POST['hidden_type_code']);?></div>
                                 <input id="description" name="description" type="hidden">
                                 <input id="deposit_date" name="deposit_date" style="display:none" type="text">
                             </div>
@@ -543,16 +540,16 @@ require_once("$srcdir/expand_contract_inc.php");
                     ?>
                   <thead bgcolor="#DDDDDD" class="">
                     <td class="left top" width="25">&nbsp;</td>
-                    <td class="left top"><?php echo htmlspecialchars(xl('ID'), ENT_QUOTES) ?></td>
-                        <td class="left top" ><?php echo htmlspecialchars(xl('Date'), ENT_QUOTES) ?></td>
-                        <td class="left top" ><?php echo htmlspecialchars(xl('Paying Entity'), ENT_QUOTES) ?></td>
-                        <td class="left top" ><?php echo htmlspecialchars(xl('Payer'), ENT_QUOTES) ?></td>
-                        <td class="left top" ><?php echo htmlspecialchars(xl('Ins Code'), ENT_QUOTES) ?></td>
-                        <td class="left top" ><?php echo htmlspecialchars(xl('Payment Method'), ENT_QUOTES) ?></td>
-                        <td class="left top" ><?php echo htmlspecialchars(xl('Check Number'), ENT_QUOTES) ?></td>
-                        <td class="left top" ><?php echo htmlspecialchars(xl('Pay Status'), ENT_QUOTES) ?></td>
-                        <td class="left top" ><?php echo htmlspecialchars(xl('Payment'), ENT_QUOTES) ?></td>
-                        <td class="left top right" ><?php echo htmlspecialchars(xl('Undistributed'), ENT_QUOTES) ?></td>
+                    <td class="left top"><?php echo xlt('ID'); ?></td>
+                        <td class="left top" ><?php echo xlt('Date'); ?></td>
+                        <td class="left top" ><?php echo xlt('Paying Entity'); ?></td>
+                        <td class="left top" ><?php echo xlt('Payer'); ?></td>
+                        <td class="left top" ><?php echo xlt('Ins Code'); ?></td>
+                        <td class="left top" ><?php echo xlt('Payment Method'); ?></td>
+                        <td class="left top" ><?php echo xlt('Check Number'); ?></td>
+                        <td class="left top" ><?php echo xlt('Pay Status'); ?></td>
+                        <td class="left top" ><?php echo xlt('Payment'); ?></td>
+                        <td class="left top right" ><?php echo xlt('Undistributed'); ?></td>
                         </thead>
                         <?php
                         $CountIndex=0;
@@ -561,14 +558,14 @@ require_once("$srcdir/expand_contract_inc.php");
                             if ($RowSearch['payer_id']*1 >0) {
                                //-------------------
                                 $res = sqlStatement("SELECT insurance_companies.name FROM insurance_companies
-                                                    where insurance_companies.id ='{$RowSearch['payer_id']}'");
+                                                    where insurance_companies.id =?", [$RowSearch['payer_id']]);
                                 $row = sqlFetchArray($res);
                                 $Payer=$row['name'];
                           //-------------------
                             } elseif ($RowSearch['patient_id']*1 >0) {
                                //-------------------
                                 $res = sqlStatement("SELECT fname,lname,mname FROM patient_data
-                                                    where pid ='{$RowSearch['patient_id']}'");
+                                                    where pid =?", [$RowSearch['patient_id']]);
                                 $row = sqlFetchArray($res);
                                 $fname=$row['fname'];
                                 $lname=$row['lname'];
@@ -589,20 +586,20 @@ require_once("$srcdir/expand_contract_inc.php");
                                 $bgcolor='#ffdddd';
                             }
                             ?>
-                            <tr bgcolor='<?php echo $bgcolor; ?>' class="text">
-                            <td class="<?php echo $StringClass; ?>">
+                            <tr bgcolor='<?php echo attr($bgcolor); ?>' class="text">
+                            <td class="<?php echo attr($StringClass); ?>">
                                 <!--<a href="#" onclick="javascript:return DeletePayments(&lt;?php echo htmlspecialchars($RowSearch['session_id']); ?&gt;);"><img border="0" src="../pic/Delete.gif"></a>-->
 
-                                <a href="#" onclick="javascript:return DeletePayments(<?php echo htmlspecialchars($RowSearch['session_id']); ?>);"><img border="0" src="../pic/Delete.gif"></a>
+                                <a href="#" onclick="javascript:return DeletePayments(<?php echo attr_js($RowSearch['session_id']); ?>);"><img border="0" src="../pic/Delete.gif"></a>
                             </td>
-                            <td class="<?php echo $StringClass; ?>">
-                                <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>')"><?php echo htmlspecialchars($RowSearch['session_id']); ?></a>
+                            <td class="<?php echo attr($StringClass); ?>">
+                                <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo text($RowSearch['session_id']); ?></a>
                             </td>
-                            <td class="<?php echo $StringClass; ?>">
-                                <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>')"><?php echo $RowSearch['check_date']=='0000-00-00' ? '&nbsp;' : htmlspecialchars(oeFormatShortDate($RowSearch['check_date'])); ?></a>
+                            <td class="<?php echo attr($StringClass); ?>">
+                                <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo $RowSearch['check_date']=='0000-00-00' ? '&nbsp;' : text(oeFormatShortDate($RowSearch['check_date'])); ?></a>
                             </td>
-                            <td class="<?php echo $StringClass; ?>">
-                                <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>')">
+                            <td class="<?php echo attr($StringClass); ?>">
+                                <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')">
                                 <?php
                                 $frow['data_type']=1;
                                 $frow['list_id']='payment_type';
@@ -617,47 +614,47 @@ require_once("$srcdir/expand_contract_inc.php");
                                 generate_print_field($frow, $PaymentType);
                                 ?></a>
                                 </td>
-                                <td class="<?php echo $StringClass; ?>">
+                                <td class="<?php echo attr($StringClass); ?>">
                                 <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"><?php echo  $Payer=='' ? '&nbsp;' : htmlspecialchars($Payer) ;?></a>-->
-                                <a class="" data-target="#myModal" data-toggle="modal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>')"><?php echo  $Payer=='' ? '&nbsp;' : htmlspecialchars($Payer) ;?></a><!--link to iframe-->
+                                <a class="" data-target="#myModal" data-toggle="modal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo  $Payer=='' ? '&nbsp;' : text($Payer) ;?></a><!--link to iframe-->
                                 </td>
-                                <td class="<?php echo $StringClass; ?>">
-                                <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>')"><?php echo $RowSearch['payer_id']*1 >0 ? htmlspecialchars($RowSearch['payer_id']) : '&nbsp;'; ?></a>
+                                <td class="<?php echo attr($StringClass); ?>">
+                                <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo $RowSearch['payer_id']*1 >0 ? text($RowSearch['payer_id']) : '&nbsp;'; ?></a>
                                 </td>
-                                <td align="left" class="<?php echo $StringClass; ?>">
-                                <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"><?php
+                                <td align="left" class="<?php echo attr($StringClass); ?>">
+                                <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>"><?php
                                                             $frow['data_type']=1;
                                                             $frow['list_id']='payment_method';
                                                             generate_print_field($frow, $RowSearch['payment_method']);
                                                 ?></a>-->
-                                        <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>')">
+                                        <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')">
                                         <?php
                                         $frow['data_type']=1;
                                         $frow['list_id']='payment_method';
                                         generate_print_field($frow, $RowSearch['payment_method']);
                                         ?></a>
                                     </td>
-                                    <td align="left" class="<?php echo $StringClass; ?>">
-                                    <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"><?php echo $RowSearch['reference']=='' ? '&nbsp;' : htmlspecialchars($RowSearch['reference']); ?></a>-->
-                                    <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>')"><?php echo $RowSearch['reference']=='' ? '&nbsp;' : htmlspecialchars($RowSearch['reference']); ?></a>
+                                    <td align="left" class="<?php echo attr($StringClass); ?>">
+                                    <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>"><?php echo $RowSearch['reference']=='' ? '&nbsp;' : text($RowSearch['reference']); ?></a>-->
+                                    <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo $RowSearch['reference']=='' ? '&nbsp;' : text($RowSearch['reference']); ?></a>
                                     </td>
-                                    <td align="left" class="<?php echo $StringClass; ?>">
-                                       <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>')"><?php
-                                                            $rs= sqlStatement("select pay_total,global_amount from ar_session where session_id='".$RowSearch['session_id']."'");
+                                    <td align="left" class="<?php echo attr($StringClass); ?>">
+                                       <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php
+                                                            $rs= sqlStatement("select pay_total,global_amount from ar_session where session_id=?", [$RowSearch['session_id']]);
                                                             $row=sqlFetchArray($rs);
                                                             $pay_total=$row['pay_total'];
                                                             $global_amount=$row['global_amount'];
-                                                            $rs= sqlStatement("select sum(pay_amount) sum_pay_amount from ar_activity where session_id='".$RowSearch['session_id']."'");
+                                                            $rs= sqlStatement("select sum(pay_amount) sum_pay_amount from ar_activity where session_id=?", [$RowSearch['session_id']]);
                                                             $row=sqlFetchArray($rs);
                                                             $pay_amount=$row['sum_pay_amount'];
                                                             $UndistributedAmount=$pay_total-$pay_amount-$global_amount;
-                                                            echo $UndistributedAmount*1==0 ? htmlspecialchars(xl('Fully Paid'), ENT_QUOTES) : htmlspecialchars(xl('Unapplied'), ENT_QUOTES); ?></a>
+                                                            echo $UndistributedAmount*1==0 ? xlt('Fully Paid') : xlt('Unapplied'); ?></a>
                                     </td>
-                                    <td align="right" class="<?php echo $StringClass; ?>">
-                                        <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>')"><?php echo htmlspecialchars($RowSearch['pay_total']); ?></a>
+                                    <td align="right" class="<?php echo attr($StringClass); ?>">
+                                        <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo text($RowSearch['pay_total']); ?></a>
                                     </td>
-                                    <td align="right" class="<?php echo $StringClass; ?>right">
-                                        <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>')"><?php echo htmlspecialchars(number_format($UndistributedAmount, 2)); ?></a>
+                                    <td align="right" class="<?php echo attr($StringClass); ?>right">
+                                        <a class="" data-toggle="modal"  data-target="#myModal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo text(number_format($UndistributedAmount, 2)); ?></a>
                                     </td>
                                 </tr>
                                 <?php
@@ -666,7 +663,7 @@ require_once("$srcdir/expand_contract_inc.php");
                 else {
                         ?>
                       <tr>
-                      <td class="text" colspan="11"><?php echo htmlspecialchars(xl('No Result Found, for the above search criteria.'), ENT_QUOTES) ?></td>
+                      <td class="text" colspan="11"><?php echo xlt('No Result Found, for the above search criteria.'); ?></td>
                             </tr>
                             <?php
                 }// End of else
@@ -679,38 +676,16 @@ require_once("$srcdir/expand_contract_inc.php");
                     <div class="row">
                         <input id='mode' name='mode' type='hidden' value=''>
                         <input id='ajax_mode' name='ajax_mode' type='hidden' value=''>
-                        <input id="hidden_type_code" name="hidden_type_code" type="hidden" value="<?php echo htmlspecialchars(formData('hidden_type_code'));?>">
+                        <input id="hidden_type_code" name="hidden_type_code" type="hidden" value="<?php echo attr($_POST['hidden_type_code']);?>">
                         <input id='DeletePaymentId' name='DeletePaymentId' type='hidden' value=''>
                         <input id='SortFieldOld' name='SortFieldOld' type='hidden' value='<?php echo attr($PaymentSortBy);?>'>
                         <input id='Sort' name='Sort' type='hidden' value='<?php echo attr($Sort);?>'>
-                        <input id="after_value" name="after_value" type="hidden" value="<?php echo htmlspecialchars($Message);?>">
+                        <input id="after_value" name="after_value" type="hidden" value="<?php echo attr($Message);?>">
                     </div>
                 </form>
             </div>
         </div>
-
-    </div>
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                <div class="modal-dialog oe-modal-dialog modal-lg">
-                    <div class="modal-content oe-modal-content">
-                        <!--<div class="modal-header" style="border:hidden"></div>-->
-                        <div class="modal-body">
-                            <iframe src="" id="targetiframe" style="height:650px; width:100%; overflow-x: hidden; border:none" allowtransparency="true"></iframe>
-                        </div>
-                        <div class="modal-footer" style="margin-top:0px;">
-                           <button class="btn btn-link btn-cancel pull-right" data-dismiss="modal" type="button"><?php echo xlt('close'); ?></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
-    function loadiframe(htmlHref) { //load iframe
-         document.getElementById('targetiframe').src = htmlHref;
-    }
-    </script>
+    </div><!--end of container div-->
+    <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>
 </html>

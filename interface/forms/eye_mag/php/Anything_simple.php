@@ -33,7 +33,7 @@
 
     $form_name = "Eye Form";
     $form_folder = "eye_mag";
-    include_once($GLOBALS['webserver_root']."/interface/forms/".$form_folder."/php/".$form_folder."_functions.php");
+    include_once($GLOBALS['fileroot']."/interface/forms/".$form_folder."/php/".$form_folder."_functions.php");
 
     $pid = $_SESSION['pid'];
     $display = $_REQUEST['display'];
@@ -233,7 +233,7 @@
         <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
         <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-themes-1-11-4/themes/excite-bike/jquery-ui.css">
         <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure/0.5.0/pure-min.css">
-        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/qtip2-2-2-1/jquery.qtip.min.css" />
+        
         <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome/css/font-awesome.min.css">
         <link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
 

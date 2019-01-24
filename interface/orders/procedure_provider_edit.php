@@ -80,9 +80,6 @@ function invalue($name)
     }
 </style>
 
-<script language="JavaScript">
-</script>
-
 </head>
 
 <body class="body_top">

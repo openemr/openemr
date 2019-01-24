@@ -1,6 +1,6 @@
 <?php
 ////////////////////////////////////////////////////////////////////
-// Form:	form_brief_aan_verwijzer 
+// Form:	form_brief_aan_verwijzer
 // Package:	letter to - Dutch specific form
 // Created by:	Larry Lart
 // Version:	1.0 - 30-03-2008
@@ -31,19 +31,20 @@ if ($_GET["mode"] == "new") {
     }
 } elseif ($_GET["mode"] == "update") {
     $strSql = "UPDATE form_brief_aan_verwijzer
-                SET pid = ".$_SESSION["pid"].", groupname='".$_SESSION["authProvider"]."', user='".$_SESSION["authUser"]."', 
-                authorized=$userauthorized, activity=1, date = NOW(), 
-                introductie='".$_POST["introductie"]."',
-                reden_van_aanmelding='".$_POST["reden_van_aanmelding"]."', 
-                anamnese='".$_POST["anamnese"]."',
-                psychiatrisch_onderzoek='".$_POST["psychiatrisch_onderzoek"]."',
-                beschrijvend_conclusie='".$_POST["beschrijvend_conclusie"]."',
-                advies_beleid='".$_POST["advies_beleid"]."',
+                SET pid = ?, groupname=?, user=?, 
+                authorized=?, activity=1, date = NOW(), 
+                introductie=?,
+                reden_van_aanmelding=?, 
+                anamnese=?,
+                psychiatrisch_onderzoek=?,
+                beschrijvend_conclusie=?,
+                advies_beleid=?,
                 autosave_flag=0, 
                 autosave_datetime=NOW() 
-                  WHERE id = ".$_GET['id'].";";
+                  WHERE id = ?;";
 
-    sqlQuery($strSql);
+    sqlQuery($strSql, array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized, $_POST["introductie"], $_POST["reden_van_aanmelding"],
+    $_POST["anamnese"], $_POST["psychiatrisch_onderzoek"], $_POST["beschrijvend_conclusie"], $_POST["advies_beleid"], $newid));
 }
 
 $_SESSION["encounter"] = $encounter;

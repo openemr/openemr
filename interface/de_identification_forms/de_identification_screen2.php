@@ -115,7 +115,7 @@ if ($deIdentificationStatus == 0) {
     if ($row = sqlFetchArray($res)) {
         $no_of_items = $row['count'];
         if ($no_of_items == 0) {
-            $cmd="cp " . escapeshellarg($GLOBALS['webserver_root']."/sql/metadata_de_identification.txt") . " " . escapeshellarg($GLOBALS['temporary_files_dir']."/metadata_de_identification.txt");
+            $cmd="cp " . escapeshellarg($GLOBALS['fileroot']."/sql/metadata_de_identification.txt") . " " . escapeshellarg($GLOBALS['temporary_files_dir']."/metadata_de_identification.txt");
             $output3=shell_exec($cmd);
             $query = "LOAD DATA INFILE '" . add_escape_custom($GLOBALS['temporary_files_dir']) ."/metadata_de_identification.txt' INTO TABLE metadata_de_identification FIELDS TERMINATED BY ','  LINES TERMINATED BY '\n'";
             $res = sqlStatement($query);

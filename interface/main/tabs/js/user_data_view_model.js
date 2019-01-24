@@ -23,6 +23,7 @@ function user_data_view_model(username,fname,lname,authGrp)
     self.portalAudits=ko.observable("");
     self.portalMail=ko.observable("");
     self.portalChats=ko.observable("");
+    self.portalPayments=ko.observable("");
 
     return this;
 
@@ -67,6 +68,13 @@ function viewPortalChats()
 {
     navigateTab(webroot_url+"/portal/messaging/secure_chat.php","pop", function () {
         activateTabByName("pop",true);
+    });
+}
+
+function viewPortalPayments()
+{
+    navigateTab(webroot_url+"/portal/patient/onsiteactivityviews","msc", function () {
+        activateTabByName("msc",true);
     });
 }
 

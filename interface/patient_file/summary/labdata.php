@@ -37,6 +37,8 @@ require_once("../../globals.php");
 require_once("../../../library/options.inc.php");
 require_once($GLOBALS["srcdir"] . "/api.inc");
 
+use OpenEMR\Core\Header;
+
 // Set the path to this script
 $path_to_this_script = $rootdir . "/patient_file/summary/labdata.php";
 
@@ -70,11 +72,9 @@ echo "<html><head>";
 
 <?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog', 'dygraphs']); ?>
+
 <link rel="stylesheet" href="<?php echo $web_root; ?>/interface/themes/labdata.css" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.css" type="text/css"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-3-2/jquery.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript" language="JavaScript">
 function checkAll(bx) {
@@ -295,7 +295,8 @@ if ($value_select) {
                                 values: thevalues,
                                 track:  thetitle,
                                 items:  theitem,
-                                thecheckboxes: checkboxfake
+                                thecheckboxes: checkboxfake,
+                                csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
                             },
                         dataType: "json",
                         success: function(returnData){

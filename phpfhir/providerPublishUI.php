@@ -12,7 +12,6 @@
 
 require_once("../interface/globals.php");
 require_once("./libs/controller/ClientAppController.php");
-require 'vendor/autoload.php';
 
 use OpenEMR\Core\Header;
 
@@ -93,7 +92,7 @@ echo "<script>var pid='" . attr($pid) . "'</script>";
                         <li><a href="#"><?php echo xlt('Server Login'); ?></a></li>
                     </ul>
                 </li>
-                <li><a href="https://fhirtest.uhn.ca" target="_blank"><?php echo xlt('Visit Test Server'); ?></a></li>
+                <li><a href="https://fhirtest.uhn.ca" rel="noopener" target="_blank"><?php echo xlt('Visit Test Server'); ?></a></li>
             </ul>
         </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->

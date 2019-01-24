@@ -27,7 +27,6 @@
  *            wrapper class for moving some care coordination zend product
  */
 require_once(dirname(__FILE__) . '/../../library/sql.inc');
-require_once(dirname(__FILE__) . '/../../library/crypto.php');
 class ApplicationTable
 {
 
@@ -69,6 +68,25 @@ class ApplicationTable
 
         return $return;
     }
+
+    public function getPortalAuditRec($recid)
+    {
+        $return = false;
+        $result = false;
+        try {
+            $sql = "Select * From onsite_portal_activity Where  id = ?";
+            $return = sqlStatementNoLog($sql, $recid);
+            $result = true;
+        } catch (Exception $e) {
+            $this->errorHandler($e, $sql);
+        }
+        if ($result === true) {
+            return sqlFetchArray($return);
+        } else {
+            return false;
+        }
+    }
+
     public function getPortalAudit($patientid, $action = 'review', $activity = 'profile', $status = 'waiting', $auditflg = 1, $rtn = 'last', $oelog = true, $error = true)
     {
         $return = false;
@@ -82,12 +100,12 @@ class ApplicationTable
             );
         try {
             $sql = "Select * From onsite_portal_activity As pa Where  pa.patient_id = ? And  pa.activity = ? And  pa.require_audit = ? ".
-                                    "And pa.status = ? And  pa.pending_action = ? ORDER BY pa.date DESC LIMIT 1"; // @todo setup condional for limit
+                                    "And pa.status = ? And  pa.pending_action = ? ORDER BY pa.date ASC LIMIT 1";
             $return = sqlStatementNoLog($sql, $audit);
             $result = true;
         } catch (Exception $e) {
             if ($error) {
-                $this->errorHandler($e, $logsql, $audit);
+                $this->errorHandler($e, $sql, $audit);
             }
         }
 
@@ -362,7 +380,7 @@ class ApplicationTable
         $encrypt_comment = 'No';
         if (! empty($comments)) {
             if ($GLOBALS["enable_auditlog_encryption"]) {
-                $comments = aes256Encrypt($comments);
+                $comments = encryptStandard($comments);
                 $encrypt_comment = 'Yes';
             }
         }
@@ -375,7 +393,7 @@ class ApplicationTable
         $ret = sqlInsertClean_audit($sql);
 
         $last_log_id = $GLOBALS['adodb']['db']->Insert_ID();
-        $encryptLogQry = "INSERT INTO log_comment_encrypt (log_id, encrypt, checksum) " . " VALUES ( " . $adodb->qstr($last_log_id) . "," . $adodb->qstr($encrypt_comment) . "," . "'')";
+        $encryptLogQry = "INSERT INTO log_comment_encrypt (log_id, encrypt, checksum, version) " . " VALUES ( " . $adodb->qstr($last_log_id) . "," . $adodb->qstr($encrypt_comment) . "," . "'','3')";
         sqlInsertClean_audit($encryptLogQry);
 
         if (( $patient_id == "NULL" ) || ( $patient_id == null )) {

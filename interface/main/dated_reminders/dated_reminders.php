@@ -104,7 +104,7 @@ if (isset($_POST['drR'])) {
                dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_add.php', '_drAdd', 700, 500);
              }else{
                top.restoreSession();
-               dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_add.php?mID='+encodeURIComponent(id)+'&csrf_token_form=<?php echo attr(urlencode(collectCsrfToken())); ?>', '_drAdd', 700, 500);
+               dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_add.php?mID='+encodeURIComponent(id)+'&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>', '_drAdd', 700, 500);
              }
            }
 

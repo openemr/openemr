@@ -118,7 +118,6 @@ $primary_docs = array(
 'pwd' => array(xl('Password')  , 0, 'usergroup/user_info.php'),
 'mfa' => array(xl('MFA Management'), 0, 'usergroup/mfa_registrations.php'),
 'prf' => array(xl('Preferences')  , 0, 'super/edit_globals.php?mode=user'),
-'rep' => array(xl('Reports')   , 0, 'reports/index.php'),
 'ono' => array(xl('Ofc Notes') , 0, 'main/onotes/office_comments.php'),
 'fax' => array(xl('Fax/Scan')  , 0, 'fax/faxq.php'),
 'adb' => array(xl('Addr Bk')   , 0, 'usergroup/addrbook_list.php'),
