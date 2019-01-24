@@ -15,7 +15,7 @@
         {foreach from=$icompanies item=insurancecompany}
         <tr>
             <td>
-                <a href="{$CURRENT_ACTION}action=edit&id={$insurancecompany->id|attr}" onclick="top.restoreSession()">
+                <a href="{$CURRENT_ACTION}action=edit&id={$insurancecompany->id|attr_url}" onclick="top.restoreSession()">
                     {$insurancecompany->name|text}
                 </a>
             </td>
