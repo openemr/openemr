@@ -76,6 +76,13 @@ if(!(function_exists('DateToYYYYMMDD_Partial'))){
     }
 }
 
+//Function to prepare a string for "Search with exact method" or without it
+if (!(function_exists('prepareMatchSearch'))) {
+    function prepareMatchSearch($sSearch, $sidepercent, $isMatchSearch){
+        return $sSearch = (!$isMatchSearch && ($sidepercent == "L" || $sidepercent == "B")  ? "%" : "").$sSearch.(!$isMatchSearch && ($sidepercent == "R" || $sidepercent == "B")  ? "%" : "");
+    }
+}
+
 
 if (!verifyCsrfToken($_GET["csrf_token_form"])) {
     csrfNotVerified();
@@ -125,7 +132,7 @@ if (isset($_GET['iSortCol_0'])) {
 //
 $where = '';
 $sSearch = add_escape_custom(trim($_GET['sSearch']));
-$cnt_columns = count($aColumns) - 1;
+$cnt_columns = count($aColumns);
 $newWhere = Array();
 
 if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
@@ -133,27 +140,19 @@ if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
         $where .= $where ? ($cnt_columns != $index_col ? "OR " : "" ) : "WHERE ( ";
 
         if ($colname == 'name') {
-            if ($searchMethodInPatientList) { // exact search
-                $where .=
-                    "lname LIKE '$sSearch' OR " .
-                    "fname LIKE '$sSearch' OR " .
-                    "mname LIKE '$sSearch' ";
-            } else {
                 $where .= // like search
-                    "lname LIKE '$sSearch%' OR " .
-                    "fname LIKE '$sSearch%' OR " .
-                    "mname LIKE '$sSearch%' ";
-            }
-        } elseif ($searchMethodInPatientList) {
-            $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch' ";
-        } else { // exact search
+                    "lname LIKE '".prepareMatchSearch($sSearch, "R", $searchMethodInPatientList )."' OR " .
+                    "fname LIKE '".prepareMatchSearch($sSearch, "R", $searchMethodInPatientList )."' OR " .
+                    "mname LIKE '".prepareMatchSearch($sSearch, "R", $searchMethodInPatientList )."' ";
+        }
+        else { // exact search
+
             if( $colname == "DOB" ){
-                $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '%".DateToYYYYMMDD_Partial($sSearch)."%' ";
-            }elseif( $colname == "sex" ){
-                $where .= " OR `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".ltox($sSearch)."%' ";
-            }
-            else{
-                $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch%' ";
+                $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".prepareMatchSearch(DateToYYYYMMDD_Partial($sSearch),"B", $searchMethodInPatientList)."' ";
+            } elseif( $colname == "sex" ) {
+                $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".prepareMatchSearch(ltox($sSearch),"R", $searchMethodInPatientList)."' ";
+            } else {
+                $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".prepareMatchSearch($sSearch,"R", $searchMethodInPatientList)."' ";
             }
         }
     }
@@ -169,30 +168,20 @@ $newWhere = Array();
 for ($i = 0; $i < count($aColumns); ++$i) {
     $colname = $aColumns[$i];
     if (isset($_GET["bSearchable_$i"]) && $_GET["bSearchable_$i"] == "true" && $_GET["sSearch_$i"] != '') {
-        //$where .= $where ? ' AND' : 'WHERE';
         $sSearch = add_escape_custom($_GET["sSearch_$i"]);
         if ($colname == 'name') {
-            if ($searchMethodInPatientList) { // exact search
-                $newWhere[] = " ( " .
-                    "lname LIKE '$sSearch' OR " .
-                    "fname LIKE '$sSearch' OR " .
-                    "mname LIKE '$sSearch' )";
-            } else {  // like search
-                $newWhere[] = " ( " .
-                    "lname LIKE '$sSearch%' OR " .
-                    "fname LIKE '$sSearch%' OR " .
-                    "mname LIKE '$sSearch%' )";
-            }
-        } elseif ($searchMethodInPatientList) {
-            $newWhere[] = " `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch'"; // exact search
-        } else {
+            $newWhere[] = " ( " .
+                "lname LIKE '".prepareMatchSearch($sSearch, "R", $searchMethodInPatientList )."' OR " .
+                "fname LIKE '".prepareMatchSearch($sSearch, "R", $searchMethodInPatientList )."' OR " .
+                "mname LIKE '".prepareMatchSearch($sSearch, "R", $searchMethodInPatientList )."' )";
+        }
+        else {
             if( $colname == "DOB" ){
-                $newWhere[] = "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '%".DateToYYYYMMDD_Partial($sSearch)."%' ";
-            }elseif( $colname == "sex" ){
-                $newWhere[] = "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".ltox($sSearch)."%' ";
-            }
-            else{
-                $newWhere[] = "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch%' ";
+                $newWhere[] = "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".prepareMatchSearch(DateToYYYYMMDD_Partial($sSearch),"B", $searchMethodInPatientList)."' ";
+            } elseif( $colname == "sex" ) {
+                $newWhere[] = "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".prepareMatchSearch(ltox($sSearch),"R", $searchMethodInPatientList)."' ";
+            } else {
+                $newWhere[] = "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".prepareMatchSearch($sSearch,"R", $searchMethodInPatientList)."' ";
             }
         }
     }
