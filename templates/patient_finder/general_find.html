@@ -45,40 +45,40 @@ a {
 <form name="patientfinder" method="post" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
 <table>
 	<tr>
-		<td>{xl t='Name'|escape:'html'}</td>
+		<td>{xlt t='Name'}</td>
 		<td>
 			<input type="text" size="40" name="searchstring" value=""/>
 		</td>
 	</tr>
 	<tr>
 		<td>
-			<input type="submit" value="{xl t='Search'|escape:'html'}"/>
+			<input type="submit" value="{xla t='Search'}"/>
 		</td>
 	</tr>
 </table>
-<input type="hidden" name="process" value="{$PROCESS|escape:'html'}" />
-<input type="hidden" name="pid" value="{$hidden_ispid|escape:'html'}" />
+<input type="hidden" name="process" value="{$PROCESS|attr}" />
+<input type="hidden" name="pid" value="{$hidden_ispid|attr}" />
 </form>
 <table>
 {if count($result_set) > 0}
 	<tr>
-		<td>{xl t='Results Found For Search'|escape:'html'} '{$search_string|escape:'html'}'</td>
+		<td>{xlt t='Results Found For Search'} '{$search_string|text}'</td>
 	</tr>
 	<tr>
-		<td>{xl t='Name'|escape:'html'}</td><td>{xl t='DOB'|escape:'html'}</td><td>{xl t='Patient ID'|escape:'html'}</td>
+		<td>{xlt t='Name'}</td><td>{xlt t='DOB'}</td><td>{xlt t='Patient ID'}</td>
 {/if}
 {foreach  name="search_results" from=$result_set  item=result}
 	<tr>
 		<td>
-			<a href="javascript:{literal}{}{/literal}" onclick="window.opener.document.{$form_id|escape:'html'}.value='{if $ispub == true }{$result.pubpid|escape:'html'}{else}{$result.pid|escape:'html'}{/if}'; window.opener.document.{$form_name|escape:'html'}.value='{$result.name|escape:'html'}'; window.close();">{$result.name|escape:'html'}</a>
+			<a href="javascript:{literal}{}{/literal}" onclick="window.opener.document.{$form_id|attr}.value='{if $ispub == true }{$result.pubpid|attr}{else}{$result.pid|attr}{/if}'; window.opener.document.{$form_name|attr}.value='{$result.name|attr}'; window.close();">{$result.name|text}</a>
 		</td>
-		<td>{$result.DOB|escape:'html'}</td>
-		<td>{$result.pubpid|escape:'html'}</td>
+		<td>{$result.DOB|text}</td>
+		<td>{$result.pubpid|text}</td>
 	</tr>
 {foreachelse}
 	{if is_array($result_set)}
 	<tr>
-		<td>{xl t='No Results Found For Search'|escape:'html'} '{$search_string|escape:'html'}'</td>
+		<td>{xlt t='No Results Found For Search'} '{$search_string|text}'</td>
 	</tr>
 	{/if}
 {/foreach}

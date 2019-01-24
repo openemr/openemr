@@ -3,7 +3,7 @@
  * Smarty plugin
  * @package Smarty
  * @subpackage plugins
- * xl() version for smarty templates
+ * xlj() version for smarty templates
  *
  * Copyright (C) 2007 Christian Navalici
  * Copyright (C) 2019 Brady Miller <brady.g.miller@gmail.com>
@@ -16,29 +16,29 @@
 
 
 /**
- * Smarty {xl} function plugin
+ * Smarty {xlj} function plugin
  *
  * Type:     function<br>
- * Name:     xl<br>
- * Purpose:  translate in OpenEMR - Smarty templates<br>
+ * Name:     xlj<br>
+ * Purpose:  translate in OpenEMR and escape for js - Smarty templates<br>
  *
  * Examples:
  *
- * {xl t="some words"}
+ * {xlj t="some words"}
  *
  * @param array
  * @param Smarty
  */
 
 
-function smarty_function_xl($params, &$smarty)
+function smarty_function_xlj($params, &$smarty)
 {
     if (empty($params['t'])) {
         $smarty->trigger_error("xk: missing 't' parameter");
-            return;
+        return;
     } else {
-            $translate = $params['t'];
+        $translate = $params['t'];
     }
 
-    echo xl($translate);
+    echo xlj($translate);
 }
