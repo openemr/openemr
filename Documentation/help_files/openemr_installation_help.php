@@ -1,6 +1,6 @@
 <?php
 /**
- * Multi Site Administration Help.
+ * OpenEMR Installation Help.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -20,7 +20,7 @@
         <link rel="stylesheet" href="../../public/assets/font-awesome/css/font-awesome.min.css" type="text/css">
         <link rel="shortcut icon" href="../../public/images/favicon.ico" />
         <script type="text/javascript" src="../../public/assets/jquery-ui/jquery-ui.js"></script>
-    <title><?php echo ("Access Control List Help");?></title>
+    <title><?php echo ("OpenEMR Installation Help");?></title>
     <style>
         @media only screen and (max-width: 768px) {
            [class*="col-"] {
@@ -627,6 +627,7 @@
                             <li><?php echo ("DB Name - the name of the database for that site"); ?></li>
                             <li><?php echo ("Site Name - by default it will be OpenEMR, once the site is setup this can be changed for that instance by going to Administration > Appearance > Application Title"); ?></li>
                             <li><?php echo ("Version - the version of the current installation"); ?></li>
+                            <li><?php echo ("Is Current - database, access control list version and patch status is up to date"); ?></li>
                             <li><?php echo ("Log In - That will let you login to the particular site"); ?></li>
                         </ul>
                         

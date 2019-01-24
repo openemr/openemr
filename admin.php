@@ -51,11 +51,7 @@ function sqlQuery($statement, $link)
 <link rel="stylesheet" href="public/assets/font-awesome/css/font-awesome.min.css" type="text/css">
 <link rel="shortcut icon" href="public/images/favicon.ico" />
 <style>
-/*tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; font-weight:bold; }
-tr.detail { font-size:10pt; }*/
-a, a:visited, a:hover { color:#0000cc; text-decoration:none; }
-
-.oe-pull-away{
+    .oe-pull-away{
         float:right;
     }
     .oe-help-x {
@@ -70,6 +66,9 @@ a, a:visited, a:hover { color:#0000cc; text-decoration:none; }
     .oe-setup-legend{
         background-color:  WHITESMOKE;
         padding:0 10px;
+    }
+    .oe-text-green {
+        color: green;
     }
     button {
     font-weight:bold;
@@ -105,6 +104,7 @@ a, a:visited, a:hover { color:#0000cc; text-decoration:none; }
                   <td>DB Name</td>
                   <td>Site Name</td>
                   <td>Version</td>
+                  <td align='center'>Is Current</td>
                   <td align='center'>Log In</td>
                  </tr>
                 <?php
@@ -193,13 +193,18 @@ a, a:visited, a:hover { color:#0000cc; text-decoration:none; }
                         echo "  <td>$openemr_name</td>\n";
                         echo "  <td>$openemr_version</td>\n";
                         if ($v_database != $database_version) {
-                            echo "  <td><a href='sql_upgrade.php?site=$sfname'>Upgrade Database</a></td>\n";
+                            echo "  <td align='center'><a href='sql_upgrade.php?site=$sfname'>Upgrade Database</a></td>\n";
                         } elseif (($v_acl > $database_acl)) {
-                            echo "  <td><a href='acl_upgrade.php?site=$sfname'>Upgrade Access Controls</a></td>\n";
+                            echo "  <td align='center'><a href='acl_upgrade.php?site=$sfname'>Upgrade Access Controls</a></td>\n";
                         } elseif (($v_realpatch != $database_patch)) {
-                            echo "  <td><a href='sql_patch.php?site=$sfname'>Patch Database</a></td>\n";
+                            echo "  <td align='center'><a href='sql_patch.php?site=$sfname'>Patch Database</a></td>\n";
                         } else {
+                            echo "  <td align='center'><i class='fa fa-check fa-lg oe-text-green' aria-hidden='true' ></i></a></td>\n";
+                        }
+                        if (($v_database == $database_version) && ($v_acl <= $database_acl) && ($v_realpatch == $database_patch)) {
                             echo "  <td align='center'><a href='interface/login/login.php?site=$sfname' title =' Login to site $sfname' ><i class='fa fa-sign-in fa-lg' aria-hidden='true'></i></a></td>\n";
+                        } else {
+                            echo "  <td align='center'><i class='fa fa-ban fa-lg button-wait' aria-hidden='true'></i></td>\n";
                         }
                     }
 

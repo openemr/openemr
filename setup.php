@@ -732,7 +732,7 @@ SOURCESITETOP;
                                             <label class="control-label" for="clone_database">Clone Source Database:</label> <a href="#clone_database_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div>
-                                            <input type='checkbox' name='clone_database' onclick='cloneClicked()' />
+                                            <input type='checkbox' name='clone_database' id='clone_database' onclick='cloneClicked()' />
                                         </div>
                                     </div>                       
                                     <div id="clone_database_info" class="collapse">
@@ -1331,7 +1331,7 @@ STP6BOT;
                                 <input name='port' type='hidden' value='{$installer->port}'>
                                 <input name='loginhost' type='hidden' value='{$installer->loginhost}'>
                                 <input name='dbname' type='hidden' value='{$installer->dbname}'>
-                                <input type='hidden' name='new_theme' id = 'new_theme' value=''>
+                                <input type='hidden' name='new_theme' id = 'new_theme' value='{$installer->getCurrentTheme()}'>
                                 <input name='clone_database' type='hidden' value='{$installer->clone_database}'>
                                 <input name='source_site_id' type='hidden' value='{$installer->source_site_id}'>
                             <h4>Select One:</h4>
@@ -1514,7 +1514,7 @@ BOT;
             
             $( "#create_db_button" ).hover(
                 function() {
-                    if ($('#pass' ).val().length > 11 && $('#iuserpass' ).val().length > 11 && $('#iuser' ).val().length > 11 ){
+                    if (($('#pass' ).val().length > 11 && $('#iuserpass' ).val().length > 11 && $('#iuser' ).val().length > 11 ) || ($('#clone_database').prop('checked') && $('#pass' ).val().length > 11)){
                         
                         $("button").click(function(){
                            $(".oe-spinner").css("visibility", "visible");

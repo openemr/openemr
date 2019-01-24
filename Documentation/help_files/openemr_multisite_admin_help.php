@@ -20,7 +20,7 @@
         <link rel="stylesheet" href="../../public/assets/font-awesome/css/font-awesome.min.css" type="text/css">
         <link rel="shortcut icon" href="../../public/images/favicon.ico" />
         <script type="text/javascript" src="../../public/assets/jquery-ui/jquery-ui.js"></script>
-    <title><?php echo ("Access Control List Help");?></title>
+    <title><?php echo ("Multi Site Administration Help");?></title>
     <style>
         @media only screen and (max-width: 768px) {
            [class*="col-"] {
@@ -39,15 +39,16 @@
                 <div class="col-sm-12">
                     <p><?php echo ("This is the central location to manage multisite intallations");?>.
                     
-                    <p><?php echo ("It serves two functions");?>:
+                    <p><?php echo ("It serves three functions");?>:
                         <ul>
                             <li><?php echo ("Tabulates all sites that have been installed using the multisite module with ability to login to each site"); ?></li>
+                            <li><?php echo ("Keeps track of the version and status of the site's database, access control list tables and patch status"); ?></li>
                             <li><?php echo ("Lets the user add a new site using the multisite module"); ?></li>
                         </ul>
                     
                     <p><?php echo ("Initially it will have only the 'default' site installed");?>.
                     
-                    <p><?php echo ("The displayed table will have five columns - 'Site ID', 'DB Name', 'Site Name', 'Version' and 'Log In'");?>.
+                    <p><?php echo ("The displayed table will have six columns - 'Site ID', 'DB Name', 'Site Name', 'Version', 'Is Current', and 'Log In'");?>.
                     
                     <p><?php echo ("<strong>Site ID</strong>  - unique ID of the site, should be one word, preferably lower case");?>.
                     
@@ -62,6 +63,8 @@
                     <p><?php echo ("<strong>Version</strong> - the version of the current installation");?>.
                     
                     <p><?php echo ("As the script files are common to all sites, it would be imperative that all sites have the same version number");?>.
+                    
+                    <p><?php echo ("<strong>Is Current</strong> - Whether on not the the site's installed database, access control list version and patch status is current i.e. the OpenEMR scripts will work with the installed database, the latest access control lists are available and that the required patches have been applied and is up to date ");?>.
                     
                     <p><?php echo ("<strong>Log In</strong> - That will let you login to the particular site");?>.
                     
