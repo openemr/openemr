@@ -44,7 +44,7 @@ overflow: auto;
     // dropzone javascript asset translation(s)
     Dropzone.prototype.defaultOptions.dictDefaultMessage = {xlj t='Drop files here to upload'};
 </script>
-<title>{xl t='Documents'|text}</title>
+<title>{xlt t='Documents'}</title>
 </head>
 <!-- ViSolve - Call expandAll function on loading of the page if global value 'expand_document' is set -->
 {if $GLOBALS.expand_document_tree}
@@ -56,7 +56,7 @@ overflow: auto;
 	<div class="row">
 		<div class="col-sm-12">
 			<div class="page-header">
-					<h2>{xl t='Documents'|text}&nbsp;&nbsp;  <a href='interface/patient_file/summary/demographics.php' onclick='top.restoreSession()'  title="{xl t='Go Back'|attr}" ><i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i></a></h2>
+					<h2>{xlt t='Documents'}&nbsp;&nbsp;  <a href='interface/patient_file/summary/demographics.php' onclick='top.restoreSession()'  title="{xla t='Go Back'}" ><i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i></a></h2>
 			</div>
 		</div>
 	</div>
@@ -64,13 +64,13 @@ overflow: auto;
 		<div class="col-sm-3">
 			<div id="documents_list">
 				<fieldset>
-				<legend>{xl t='Documents List'|text}</legend>
+				<legend>{xlt t='Documents List'}</legend>
                 <div style="padding: 0 10px">
                     <div class="ui-widget"style="float:right;">
                         <button id='pid' class="pBtn" type="button" style="float:right;">0</button>
                          <input id="selectPatient" type="text" placeholder="{$place_hld|attr}">
                     </div>
-                    <a id="list_collapse" href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">&nbsp;({xl t='Collapse all'|text})</a>
+                    <a id="list_collapse" href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">&nbsp;({xlt t='Collapse all'})</a>
                     {$tree_html}
                 </div>
 			</div>
@@ -82,7 +82,7 @@ overflow: auto;
 
 				<fieldset>
 
-					<legend>{xl t='Document Uploader/Viewer'|text}</legend>
+					<legend>{xlt t='Document Uploader/Viewer'}</legend>
                     <div style="padding: 0 10px">
 						{if $message}
 							<div class='text' style="margin-bottom:-10px; margin-top:-8px; padding:10px;"><i>{$message|text}</i></div><br>
