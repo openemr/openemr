@@ -95,6 +95,8 @@ if (!$COMMAND_LINE && empty($_REQUEST['site'])) {
                     <legend>Optional Site ID Selection</legend>
                     <p>Most OpenEMR installations support only one site.  If that is
                     true for you then ignore the rest of this text and just click Continue.</p>
+                    <p class='bg-warning'>If you are using the multisite setup module for the first time please read the 
+                    'Multi Site Installation' section of the help file before proceeding.</p>
                     <p>Otherwise please enter a unique Site ID here.</p>
                     <p>A Site ID is a short identifier with no spaces or special
                     characters other than periods or dashes. It is case-sensitive and we
@@ -202,7 +204,7 @@ if (file_exists($OE_SITE_DIR)) {
     .table.no-border tr td, .table.no-border tr th {
         border-width: 0;
     }
-    td {
+    td { 
         font-size:10pt;
     }
     .inputtext {
@@ -215,12 +217,12 @@ if (file_exists($OE_SITE_DIR)) {
          font-size:9pt;
          font-weight:bold;
     }
-
+       
     .label-div > a {
         display:none;
     }
     .label-div:hover > a {
-       display:inline-block;
+       display:inline-block; 
     }
     div[id$="_info"] {
         background: #F7FAB3;
@@ -315,7 +317,7 @@ function cloneClicked() {
                 echo "$error: PHP mb_string extension missing. To continue, install and enable mb_string extension, then restart web server.";
                 exit(1);
             }
-
+            
             if (!(extension_loaded("openssl") )) {
                 echo "$error: PHP openssl extension missing. To continue, install PHP openssl extension, then restart web server.";
                 exit(1);
@@ -344,20 +346,25 @@ function cloneClicked() {
             </ul>
             <p>We recommend you print these instructions for future reference.</p>
             <?php
+            echo "<p> The selected theme is :</p>";
+                $installer->displayNewThemeDiv();
             if (empty($installer->clone_database)) {
                 echo "<p><b>The initial OpenEMR user is <span class='text-primary'>'".$installer->iuser."'</span> and the password is <span class='text-primary'>'".$installer->iuserpass."'</span></b></p>";
-                echo "<p> The selected theme is :</p>";
-                $installer->displayNewThemeDiv();
-                $installer->setCurrentTheme();
-                echo "<p>If you edited the PHP or Apache configuration files during this installation process, then we recommend you restart your Apache server before following below OpenEMR link.</p>";
-                echo "<p>In Linux use the following command:</p>";
-                echo "<p><code>sudo apachectl -k restart</code></p>";
-            } ?>
+            } else {
+                echo "<p>The initial OpenEMR user name and password is the same as that of source site <b>'". $installer->source_site_id ."'</span></b></p>";
+            }
+            echo "<p>If you edited the PHP or Apache configuration files during this installation process, then we recommend you restart your Apache server before following below OpenEMR link.</p>";
+            echo "<p>In Linux use the following command:</p>";
+            echo "<p><code>sudo apachectl -k restart</code></p>";
+            
+            ?>
             <p>
              <a href='./?site=<?php echo $site_id; ?>'>Click here to start using OpenEMR. </a>
             </p>
             </fieldset>
             <?php
+            $installer->setCurrentTheme();
+           
             $end_div = <<<ENDDIV
             </div>
         </div> 
@@ -417,8 +424,8 @@ STP1;
                             <input name='inst' type='hidden' value='$inst'>
 STP2TOP;
                         echo $step2top ."\r\n";
-
-
+       
+                        
                         $step2tabletop1 = <<<STP2TBLTOP1
                             <fieldset>
                         <legend name="form_legend" id="form_legend" class='oe-setup-legend'>MySQL Server Details<i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip" aria-hidden="true"></i></legend>
@@ -725,7 +732,7 @@ SOURCESITETOP;
                                             <label class="control-label" for="clone_database">Clone Source Database:</label> <a href="#clone_database_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div>
-                                            <input type='checkbox' name='clone_database' onclick='cloneClicked()' />
+                                            <input type='checkbox' name='clone_database' id='clone_database' onclick='cloneClicked()' />
                                         </div>
                                     </div>                       
                                     <div id="clone_database_info" class="collapse">
@@ -874,7 +881,7 @@ STP2TBLBOT;
                             $pass_step2_validation = false;
                             $error_step2_message .= "A database login password is required <br>\n";
                         }
-
+                                    
                         if (!$pass_step2_validation) {
                             $error_step2_message .= $error_page_end . "\r\n";
                             die($error_step2_message);
@@ -1062,11 +1069,11 @@ STP2TBLBOT;
 
                         if ($allow_cloning_setup && !empty($installer->clone_database)) {
                             // Database was cloned, skip ACL setup.
-                            $btn_text = 'Proceed to Final Step';
+                            $btn_text = 'Proceed to Select a Theme';
                             echo "<br>";
-                            echo "<p>The database was cloned, access control list exists therefore skipping ACL setup and skipping theme setup</p>";
+                            echo "<p>The database was cloned, access control list exists therefore skipping ACL setup</p>";
                             echo "<p class='bg-warning'>Click <b>$btn_text</b> for further instructions.</p>";
-                            $next_state = 8;
+                            $next_state = 7;
                         } else {
                             $btn_text = 'Proceed to Step 4';
                             echo "<br>";
@@ -1074,7 +1081,7 @@ STP2TBLBOT;
                             echo "<p class='bg-success oe-spinner' style = 'visibility:hidden;'>Upon successful completion will automatically take you to the next step.<i class='fa fa-spinner fa-pulse fa-fw'></i></p>";
                             $next_state = 4;
                         }
-
+                                    
                                     $form_top = <<<FRMTOP
                                     <form method='post'>
                                         <input name='state' type='hidden' value='$next_state'>
@@ -1093,6 +1100,7 @@ FRMTOP;
                                     echo $form_top . "\r\n";
                         if ($allow_cloning_setup) {
                             echo "<input type='hidden' name='clone_database' value='$installer->clone_database'>";
+                            echo "<input name='source_site_id' type='hidden' value='$installer->source_site_id'>";
                         }
                                     $form_bottom = <<<FRMBOT
                                     <button type='submit' id='step-4-btn' value='Continue' class='wait'><b>$btn_text</b></button>
@@ -1223,7 +1231,7 @@ STP5TOP;
                             </li>
 STP5TAB;
                         echo $step5_table . "\r\n";
-
+                        
                         if (!$gotFileFlag) {
                             echo "<li>If you are having difficulty finding your php.ini file, then refer to the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual for suggestions.</li>\n";
                         }
@@ -1302,7 +1310,7 @@ STP5BOT;
 STP6BOT;
                         echo $step6_bottom . "\r\n";
                         break;
-
+                        
                     case 7:
                         echo "<fieldset>";
                         echo "<legend>Step $state - Select a Theme</legend>";
@@ -1325,6 +1333,7 @@ STP6BOT;
                                 <input name='dbname' type='hidden' value='{$installer->dbname}'>
                                 <input type='hidden' name='new_theme' id = 'new_theme' value='{$installer->getCurrentTheme()}'>
                                 <input name='clone_database' type='hidden' value='{$installer->clone_database}'>
+                                <input name='source_site_id' type='hidden' value='{$installer->source_site_id}'>
                             <h4>Select One:</h4>
                                 <div class="checkbox">
                                   <label><input type="checkbox" class="check" value="show_theme">Show More Themes</label>
@@ -1443,7 +1452,7 @@ BOT;
                         echo $bot ."\r\n";
                         ?>
 
-
+                        
     </div><!--end of container div -->
     <?php $installer->setupHelpModal();?>
     <script>
@@ -1456,10 +1465,10 @@ BOT;
                 }
             });
             $('.enter-details-tooltip').prop( "title", "Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section").tooltip();
-
+            
         });
     </script>
-    <script type = "text/javascript" >
+    <script type = "text/javascript" > 
         $(document).ready(function() {
             $("input[type='radio']").click(function() {
                 var radioValue = $("input[name='stylesheet']:checked").val();
@@ -1493,7 +1502,7 @@ BOT;
                     } else if($('.check:checked').val() == 'keep_current'){
                         $(".hideaway").hide();
                     }
-
+                    
                     if($('.check').filter(':checked').length > 0) {
                         $(".hide_button").show();
                     } else {
@@ -1502,27 +1511,27 @@ BOT;
                     }
             });
             $('.wait').removeClass('button-wait');
-
+            
             $( "#create_db_button" ).hover(
                 function() {
-                    if ($('#pass' ).val().length > 11 && $('#iuserpass' ).val().length > 11 && $('#iuser' ).val().length > 11 ){
-
+                    if (($('#pass' ).val().length > 11 && $('#iuserpass' ).val().length > 11 && $('#iuser' ).val().length > 11 ) || ($('#clone_database').prop('checked') && $('#pass' ).val().length > 11)){
+                        
                         $("button").click(function(){
                            $(".oe-spinner").css("visibility", "visible");
                         });
-
+                        
                         $('.wait').click(function(){
                              $('.wait').addClass('button-wait');
                         });
                     }
                 }
             );
-
+            
             $("#step-4-btn").click(function(){
                $(".oe-spinner").css("visibility", "visible");
                $(this).addClass('button-wait');
             });
-        });
+        }); 
     </script>
 </body>
 </html>

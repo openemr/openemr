@@ -110,7 +110,7 @@ function Checking(chk) {
     if (foundone) {
         return true;
     } else {
-        alert({/literal}{xl t='Please select at least one prescription!'|js_escape}{literal});
+        alert({/literal}{xlj t='Please select at least one prescription!'}{literal});
         return false;
     }
 }
@@ -130,7 +130,7 @@ $(document).ready(function(){
 <body id="prescription_list" class="body_top">
 
 {if $prescriptions}
-<h3>{xl t='List'|text}</h3>
+<h3>{xlt t='List'}</h3>
 <div id="prescription_list">
 
 <form name="presc">
@@ -143,32 +143,32 @@ $(document).ready(function(){
                     <tr>
                         <td>
                         {if $GLOBALS.rx_zend_pdf_template}
-                            <a target="_blank" id="multiprint" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-pdf-template/{$GLOBALS.rx_zend_pdf_action}?id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Download'|text} ({xl t='PDF'|text})</span></a>
+                            <a target="_blank" id="multiprint" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-pdf-template/{$GLOBALS.rx_zend_pdf_action}?id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xlt t='Download'} ({xlt t='PDF'})</span></a>
                         {else}
                             <a id="multiprint" href="{$CONTROLLER}prescription&multiprint&id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Download'|text} ({xl t='PDF'|text})</span></a>
                         {/if}
                         </td>
                         <td>
                         {if $GLOBALS.rx_zend_html_template}
-                            <a target="_blank" id="multiprintcss" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-html-template/{$GLOBALS.rx_zend_html_action}?id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xl t='View Printable Version'|text} ({xl t='HTML'|text})</span></a>
+                            <a target="_blank" id="multiprintcss" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-html-template/{$GLOBALS.rx_zend_html_action}?id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xl t='View Printable Version'|text} ({xlt t='HTML'})</span></a>
                         {else}
                           <!-- TajEmo work by CB 2012/06/14 02:16:32 PM target="_script" opens better -->
-                            <a target="_script" id="multiprintcss" href="{$CONTROLLER}prescription&multiprintcss&id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xl t='View Printable Version'|text} ({xl t='HTML'|text})</span></a>
+                            <a target="_script" id="multiprintcss" href="{$CONTROLLER}prescription&multiprintcss&id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xlt t='View Printable Version'} ({xlt t='HTML'})</span></a>
                         {/if}
                         </td>
                         {if $GLOBALS.rx_use_fax_template}
                         <td style="border-style:none;">
-                            <a id="multiprintToFax" href="{$CONTROLLER}prescription&multiprintfax&id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Download'|text} ({xl t='Fax'|text})</span></a>
+                            <a id="multiprintToFax" href="{$CONTROLLER}prescription&multiprintfax&id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xlt t='Download'} ({xlt t='Fax'})</span></a>
                         </td>
                         {/if}
                         {if $GLOBALS.weno_rx_enable}
                             <td style="border-style:none;">
-                                <a id="multiprintToFax" href="{$GLOBALS.webroot}/interface/weno/validate.php?csrf_token_form={$CSRF_TOKEN_FORM|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Transmit'|text} {xl t='Rx'|text}</span></a>
+                                <a id="multiprintToFax" href="{$GLOBALS.webroot}/interface/weno/validate.php?csrf_token_form={$CSRF_TOKEN_FORM|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xlt t='Transmit'} {xlt t='Rx'}</span></a>
                             </td>
                         {/if}
                         {if $CAMOS_FORM == true}
                             <td>
-                                <a id="four_panel_rx" href="{$GLOBALS.webroot}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()" class="css_button"><span>{xl t='View Four Panel'|text}</span></a>
+                                <a id="four_panel_rx" href="{$GLOBALS.webroot}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()" class="css_button"><span>{xlt t='View Four Panel'}</span></a>
                             </td>
                         {/if}
                     </tr>
@@ -178,8 +178,8 @@ $(document).ready(function(){
                 <table>
                 <tr>
                     <td>
-                        <a href="#" class="small" onClick="Check(document.presc.check_list);"><span>{xl t='Check All'|text}</span></a> |
-                        <a href="#" class="small" onClick="Uncheck(document.presc.check_list);"><span>{xl t='Clear All'|text}</span></a>
+                        <a href="#" class="small" onClick="Check(document.presc.check_list);"><span>{xlt t='Check All'}</span></a> |
+                        <a href="#" class="small" onClick="Uncheck(document.presc.check_list);"><span>{xlt t='Clear All'}</span></a>
                     </td>
                 </tr>
                 </table>
@@ -195,18 +195,18 @@ $(document).ready(function(){
        <!-- TajEmo Changes 2012/06/14 02:01:43 PM by CB added Heading for checkbox column -->
         <th>&nbsp;</th>
         <th>&nbsp;</th>
-        <th>{xl t='Drug'|text}</th>
-        <th>{xl t='RxNorm'|text}</th>
-        <th>{xl t='Created'|text}<br />{xl t='Changed'|text}</th>
-        <th>{xl t='Dosage'|text}</th>
-        <th>{xl t='Qty'|text}.</th>
-        <th>{xl t='Unit'|text}</th>
-        <th>{xl t='Refills'|text}</th>
-        <th>{xl t='Provider'|text}</th>
+        <th>{xlt t='Drug'}</th>
+        <th>{xlt t='RxNorm'}</th>
+        <th>{xlt t='Created'}<br />{xlt t='Changed'}</th>
+        <th>{xlt t='Dosage'}</th>
+        <th>{xlt t='Qty'}.</th>
+        <th>{xlt t='Unit'}</th>
+        <th>{xlt t='Refills'}</th>
+        <th>{xlt t='Provider'}</th>
         {if $GLOBALS.weno_rx_enable}
-            <th>{xl t='Send NewRx'|text}</th>
-            <th>{xl t='Refill Rx'|text}</th>
-            <th>{xl t='Last Tx Date'|text}</th>
+            <th>{xlt t='Send NewRx'}</th>
+            <th>{xlt t='Refill Rx'}</th>
+            <th>{xlt t='Last Tx Date'}</th>
         {/if}
     </tr>
     </thead>
@@ -215,11 +215,11 @@ $(document).ready(function(){
   <!-- TajEmo Changes 2012/06/14 02:03:17 PM by CB added cursor:pointer for easier user understanding -->
   <tr id="{$prescription->id|attr}" class="showborder onescript {if $prescription->active <= 0} inactive{/if}">
      <td align="center">
-      <input class="check_list" id="check_list" type="checkbox" value="{$prescription->id|attr}" {if $prescription->encounter == $prescription->get_encounter() && $prescription->active > 0}checked="checked" {/if}onclick="changeLinkHref('multiprint',this.checked, this.value);changeLinkHref('multiprintcss',this.checked, this.value);changeLinkHref('multiprintToFax',this.checked, this.value)" title="{xl t='Select for printing'|attr}">
+      <input class="check_list" id="check_list" type="checkbox" value="{$prescription->id|attr}" {if $prescription->encounter == $prescription->get_encounter() && $prescription->active > 0}checked="checked" {/if}onclick="changeLinkHref('multiprint',this.checked, this.value);changeLinkHref('multiprintcss',this.checked, this.value);changeLinkHref('multiprintToFax',this.checked, this.value)" title="{xla t='Select for printing'}">
     </td>
     {if $prescription->erx_source==0}
     <td class="editscript"  id="{$prescription->id|attr}">
-        <a class='editscript css_button_small' id='{$prescription->id|attr}' href="controller.php?prescription&edit&id={$prescription->id|attr_url}"><span>{xl t='Edit'|text}</span></a>
+        <a class='editscript css_button_small' id='{$prescription->id|attr}' href="controller.php?prescription&edit&id={$prescription->id|attr_url}"><span>{xlt t='Edit'}</span></a>
       <!-- TajEmo Changes 2012/06/14 02:02:22 PM by CB commented out, to avoid duplicate display of drug name
         {if $prescription->active > 0}<b>{/if}{$prescription->drug}{if $prescription->active > 0}</b>{/if}&nbsp;
       -->
@@ -266,12 +266,12 @@ $(document).ready(function(){
     {if $GLOBALS.weno_rx_enable}
         <td align="center">
         {if $prescription->ntx == 0}
-            <input class="check_list" id="NewRx-{$smarty.foreach.rx.index|attr}" type="checkbox" {if $prescription->active < 1}disabled="disabled" {/if} value="{$prescription->id|attr}" {if $prescription->ntx > 0 && $prescription->active > 0}checked="checked" {/if} onClick="markTx(this,'NewRx-{$prescription->id|attr}'); changeLinkHrefAll(this.checked, this.value);" title="{xl t="Select to transmit"|attr}">
+            <input class="check_list" id="NewRx-{$smarty.foreach.rx.index|attr}" type="checkbox" {if $prescription->active < 1}disabled="disabled" {/if} value="{$prescription->id|attr}" {if $prescription->ntx > 0 && $prescription->active > 0}checked="checked" {/if} onClick="markTx(this,'NewRx-{$prescription->id|attr}'); changeLinkHrefAll(this.checked, this.value);" title="{xla t="Select to transmit"}">
         {/if}
         </td>
         <td align="center">
         {if $prescription->ntx == 1}
-            <input class="check_list" id="RefillRx-{$smarty.foreach.rx.index|attr}" type="checkbox" {if $prescription->active < 1}disabled="disabled" {/if} value="{$prescription->id|attr}" {if $prescription->ntx > 0 && $prescription->active > 0}checked="checked" {/if} onClick="markTx(this,'RefillRx-{$prescription->id|attr}'); changeLinkHrefAll(this.checked, this.value);" title="{xl t="Select to transmit"|attr}">
+            <input class="check_list" id="RefillRx-{$smarty.foreach.rx.index|attr}" type="checkbox" {if $prescription->active < 1}disabled="disabled" {/if} value="{$prescription->id|attr}" {if $prescription->ntx > 0 && $prescription->active > 0}checked="checked" {/if} onClick="markTx(this,'RefillRx-{$prescription->id|attr}'); changeLinkHrefAll(this.checked, this.value);" title="{xla t="Select to transmit"}">
         {/if}
         </td>
         <td id="{$prescription->id|attr}" align="center">
@@ -289,8 +289,8 @@ $(document).ready(function(){
 {if $GLOBALS.rx_show_drug_drug}
     <div id="drug-drug">
         <hr>
-        <h3>{xl t='Drug-Drug Interaction'|text}</h3>
-        <p title="{xl t='Severity information will be missing if interaction is found'|attr}"><a href="#">*{xl t='Notice'|text}</a></p>
+        <h3>{xlt t='Drug-Drug Interaction'}</h3>
+        <p title="{xla t='Severity information will be missing if interaction is found'}"><a href="#">*{xlt t='Notice'}</a></p>
         <div id="return_info">
             {$INTERACTION}
         </div>
@@ -299,7 +299,7 @@ $(document).ready(function(){
 {/if}
 
 {else}
-<div class="text" style="margin-top:10px">{xl t='There are currently no prescriptions'|text}.</div>
+<div class="text" style="margin-top:10px">{xlt t='There are currently no prescriptions'}.</div>
 {/if}
 
 </body>

@@ -1,6 +1,16 @@
 <?php
-/* Copyright © 2010 by Andrew Moore */
-/* Licensing information appears at the end of this file. */
+/**
+ *
+ * Installer class.
+ *
+ * @package OpenEMR
+ * @link    https://www.open-emr.org
+ * @author Andrew Moore <amoore@cpan.org>
+ * @author Ranganath Pathak <pathak@scrs1.org>
+ * @copyright Copyright (c) 2010 Andrew Moore <amoore@cpan.org>
+ * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 class Installer
 {
@@ -979,15 +989,3 @@ SETHLP;
         return;
     }
 }
-/*
-This file is free software: you can redistribute it and/or modify it under the
-terms of the GNU General Public License as publish by the Free Software
-Foundation.
-
-This file is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE.  See the GNU Gneral Public License for more details.
-
-You should have received a copy of the GNU General Public Licence along with
-this file.  If not see <http://www.gnu.org/licenses/>.
-*/

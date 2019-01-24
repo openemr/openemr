@@ -3,7 +3,7 @@
  * Smarty plugin
  * @package Smarty
  * @subpackage plugins
- * xl() version for smarty templates
+ * xla() version for smarty templates
  *
  * Copyright (C) 2007 Christian Navalici
  * Copyright (C) 2019 Brady Miller <brady.g.miller@gmail.com>
@@ -14,31 +14,30 @@
  * of the License, or (at your option) any later version.
  */
 
-
 /**
- * Smarty {xl} function plugin
+ * Smarty {xla} function plugin
  *
  * Type:     function<br>
- * Name:     xl<br>
- * Purpose:  translate in OpenEMR - Smarty templates<br>
+ * Name:     xla<br>
+ * Purpose:  translate in OpenEMR and escape for html attr - Smarty templates<br>
  *
  * Examples:
  *
- * {xl t="some words"}
+ * {xla t="some words"}
  *
  * @param array
  * @param Smarty
  */
 
 
-function smarty_function_xl($params, &$smarty)
+function smarty_function_xla($params, &$smarty)
 {
     if (empty($params['t'])) {
         $smarty->trigger_error("xk: missing 't' parameter");
-            return;
+        return;
     } else {
-            $translate = $params['t'];
+        $translate = $params['t'];
     }
 
-    echo xl($translate);
+    echo xla($translate);
 }
