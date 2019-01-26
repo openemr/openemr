@@ -239,8 +239,8 @@ $(document).ready(function(){
       {$prescription->rxnorm_drugcode|text}&nbsp;
     </td>
     <td id="{$prescription->id|attr}">
-      {$prescription->date_added|text}<br />
-      {$prescription->date_modified|text}&nbsp;
+      {$prescription->date_added|oeFormatShortDate|text}<br />
+      {$prescription->date_modified|oeFormatShortDate|text}&nbsp;
     </td>
     <td id="{$prescription->id|attr}">
       {$prescription->get_dosage_display()|text} &nbsp;
