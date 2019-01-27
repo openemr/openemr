@@ -295,8 +295,10 @@ function cancelParlookup () {
 }
 
 $().ready(function() {
-    $($("#oefooter").find('button')[0]).css("display", "none");
-    
+    $("#clearButton").css("display", "block");
+    $("#backButton").css("display", "block");
+    $("#addButton").css("display", "none");
+
     {/literal}
     {if $GLOBALS.weno_rx_enable}
         {literal}

@@ -251,6 +251,11 @@ function editScripts(url) {
         iam.location.href = "<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=&pid=<?php echo attr_url($pid);?>"
     };
     var ListScripts = function () {
+
+        $("#clearButton").css("display", "none");
+        $("#backButton").css("display", "none");
+        $("#addButton").css("display", "block");
+
         var iam = top.tab_mode ? top.frames.editScripts : window[0];
         iam.location.href = "<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo attr_url($pid); ?>"
     };
@@ -265,9 +270,10 @@ function editScripts(url) {
 
     dlgopen(url, 'editScripts', w, 300, '', '', {
         buttons: [
-            {text: <?php echo xlj('Add'); ?>, close: false, style: 'primary  btn-sm', click: AddScript},
-            {text: <?php echo xlj('List'); ?>, close: false, style: 'primary  btn-sm', click: ListScripts},
-            {text: <?php echo xlj('Done'); ?>, close: true, style: 'default btn-sm'}
+            {text: <?php echo xlj('Add'); ?>, close: false,  id: 'addButton', style: 'primary  btn-sm', click: AddScript},
+            {text: <?php echo xlj('Clear'); ?>, close: false,id: 'clearButton', style: 'display:none; primary  btn-sm', click: AddScript},
+            {text: <?php echo xlj('Back'); ?>, close: false, id: 'backButton',style: 'display:none;  primary  btn-sm', click: ListScripts},
+            {text: <?php echo xlj('Done'); ?>, close: true, id: 'addButton',style: 'default btn-sm'}
         ],
         onClosed: 'refreshme',
         allowResize: true,
