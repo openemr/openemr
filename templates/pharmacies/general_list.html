@@ -1,12 +1,12 @@
 <a href="controller.php?practice_settings&{$TOP_ACTION}pharmacy&action=edit" onclick="top.restoreSession()" class="btn btn-default btn-add" >
-<span>{xl t='Add a Pharmacy'|escape:'html'}</span></a><br><br>
+<span>{xlt t='Add a Pharmacy'}</span></a><br><br>
 
 <table class="table table-responsive table-striped">
 	<thead>
         <tr>
-            <th>{xl t='Name'|escape:'html'}</th>
-            <th>{xl t='Address'|escape:'html'}</th>
-            <th>{xl t='Default Method'|escape:'html'}</th>
+            <th>{xlt t='Name'}</th>
+            <th>{xlt t='Address'}</th>
+            <th>{xlt t='Default Method'}</th>
         </tr>
     </thead>
     <tbody>
@@ -14,19 +14,19 @@
 	<tr>
 		<td>
 		    <a href="{$CURRENT_ACTION}action=edit&id={$pharmacy->id|escape:'html'}" onclick="top.restoreSession()">
-		        {$pharmacy->name|escape:'html'}
+		        {$pharmacy->name|text}
 		    </a>
 		</td>
 		<td>
-		{if $pharmacy->address->line1 != ''}{$pharmacy->address->line1|escape:'html'}, {/if}
-		{if $pharmacy->address->city != ''}{$pharmacy->address->city|escape:'html'}, {/if}
-			{$pharmacy->address->state|upper|escape:'html'} {$pharmacy->address->zip|escape:'html'}&nbsp;</td>
-		<td>{$pharmacy->get_transmit_method_display()|escape:'html'}&nbsp;
+		{if $pharmacy->address->line1 != ''}{$pharmacy->address->line1|text}, {/if}
+		{if $pharmacy->address->city != ''}{$pharmacy->address->city|text}, {/if}
+			{$pharmacy->address->state|upper|text} {$pharmacy->address->zip|text}&nbsp;</td>
+		<td>{$pharmacy->get_transmit_method_display()|text}&nbsp;
 	{foreachelse}</td>
 	</tr>
 
 	<tr>
-		<td colspan="3"><b>{xl t='No Pharmacies Found'|escape:'html'}<b></td>
+		<td colspan="3"><b>{xlt t='No Pharmacies Found'}<b></td>
 	</tr>
 	{/foreach}
     </tbody>
