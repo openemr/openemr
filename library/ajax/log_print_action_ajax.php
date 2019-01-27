@@ -13,6 +13,7 @@
 
 
 require_once("../../interface/globals.php");
+
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 if (!verifyCsrfToken($_POST["csrf_token_form"])) {

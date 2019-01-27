@@ -14,8 +14,8 @@
 
 require_once("../../globals.php");
 
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\Header;
 
 // allow a custom 'delete' form
 $deleteform = $incdir . "/forms/" . $_REQUEST["formname"]."/delete.php";

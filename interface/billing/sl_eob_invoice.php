@@ -27,8 +27,8 @@ require_once("../../custom/code_types.inc.php");
 require_once "$srcdir/user.inc";
 
 use OpenEMR\Billing\SLEOB;
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\Header;
 
 $debug = 0; // set to 1 for debugging mode
 $save_stay = $_REQUEST['form_save'] == '1' ? true : false;

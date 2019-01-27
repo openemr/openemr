@@ -19,9 +19,9 @@ require_once("codes.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
-use OpenEMR\Common\Logging\EventAuditLogger;
 
 //acl check
 if (!acl_check_form('fee_sheet')) {

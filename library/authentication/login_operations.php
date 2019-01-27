@@ -14,6 +14,7 @@
 
 
 require_once(dirname(__FILE__) . "/common_operations.php");
+
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 /**

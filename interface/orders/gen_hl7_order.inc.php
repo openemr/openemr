@@ -35,6 +35,7 @@
 */
 
 require_once("$webserver_root/custom/code_types.inc.php");
+
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 function hl7Text($s)

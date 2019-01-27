@@ -19,8 +19,8 @@ require_once("$srcdir/globals.inc.php");
 require_once("$srcdir/user.inc");
 require_once(dirname(__FILE__)."/../../myportal/soap_service/portal_connectivity.php");
 
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\Header;
 
 $userMode = (array_key_exists('mode', $_GET) && $_GET['mode'] == 'user');
 

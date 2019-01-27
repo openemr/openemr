@@ -1,10 +1,4 @@
 <?php
-
-namespace OpenEMR\Common\Logging;
-
-use \DateTime;
-use Waryway\PhpTraitsLibrary\Singleton;
-
 /**
  * Class to log auditted events - must be highly performant
  *
@@ -17,6 +11,12 @@ use Waryway\PhpTraitsLibrary\Singleton;
  * @copyright Copyright (c) 2012-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+namespace OpenEMR\Common\Logging;
+
+use \DateTime;
+use Waryway\PhpTraitsLibrary\Singleton;
+
 class EventAuditLogger
 {
     use Singleton;

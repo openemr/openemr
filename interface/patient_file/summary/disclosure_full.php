@@ -15,8 +15,8 @@
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\Header;
 
 //retrieve the user name
 $res = sqlQuery("select username from users where username=?", array($_SESSION{"authUser"}));

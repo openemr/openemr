@@ -25,6 +25,7 @@
 //
 // +------------------------------------------------------------------------------+
 require_once("server_audit.php");
+
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 class Userforms extends UserAudit

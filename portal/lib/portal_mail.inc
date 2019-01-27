@@ -20,6 +20,7 @@
  * @author Jerry Padgett <sjpadgett@gmail.com>
  * @link http://www.open-emr.org
  */
+
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 function addPortalMailboxMail(

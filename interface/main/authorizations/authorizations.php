@@ -17,8 +17,8 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\Header;
 
 // The number of authorizations to display in the quick view:
 // MAR 20041008 the full authorizations screen sucks... no links to the patient charts

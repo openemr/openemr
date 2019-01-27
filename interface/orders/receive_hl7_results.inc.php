@@ -22,6 +22,7 @@
 */
 
 require_once("$srcdir/forms.inc");
+
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 $rhl7_return = array();

@@ -20,8 +20,8 @@ require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 
 use OpenEMR\Billing\BillingUtilities;
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\Header;
 
 if (!empty($_GET)) {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {

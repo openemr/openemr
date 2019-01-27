@@ -11,6 +11,7 @@
 
 
 require_once(dirname(__FILE__). "/../interface/globals.php");
+
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 // Function called to set the global session variable for patient id (pid) number.

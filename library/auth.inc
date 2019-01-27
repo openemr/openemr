@@ -27,6 +27,7 @@
 // added for the phpGACL group check -- JRM
 require_once("{$GLOBALS['srcdir']}/acl.inc");
 require_once("$srcdir/authentication/login_operations.php");
+
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 $incoming_site_id = '';
