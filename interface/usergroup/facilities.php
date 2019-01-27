@@ -204,15 +204,15 @@ $(document).ready(function(){
                                     }
 
                                     $varmstreet=$iter3["mail_street"];
-                                    if ($iter3["mail_street"] !=""){
+                                    if ($iter3["mail_street"] !="") {
                                         $varmstreet=$iter3["mail_street"].",";
                                     }
 
-                                    if ($iter3["mail_city"]!=""){
+                                    if ($iter3["mail_city"]!="") {
                                         $varmcity=$iter3["mail_city"].",";
                                     }
 
-                                    if ($iter3["mail_state"]!=""){
+                                    if ($iter3["mail_state"]!="") {
                                         $varmstate=$iter3["mail_state"].",";
                                     }
                             ?>
