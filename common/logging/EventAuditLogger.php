@@ -1,14 +1,13 @@
 <?php
 /**
- * Class to log auditted events - must be highly performant
+ * Class to log audited events - must be high performance
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @author    Roberto Vasquez <robertogagliotta@gmail.com>
- * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
- * @author    For additional authors, see git blame
- * @copyright Copyright (c) 2012-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @author    Kyle Wiering <kyle@softwareadvice.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Kyle Wiering <kyle@softwareadvice.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
