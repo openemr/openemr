@@ -50,7 +50,6 @@ require_once("$srcdir/invoice_summary.inc.php");
 require_once("../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
-require_once("$srcdir/log.inc");
 
 use OpenEMR\Billing\BillingUtilities;
 

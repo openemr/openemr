@@ -13,7 +13,6 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/log.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("portal.inc.php");
