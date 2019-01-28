@@ -231,7 +231,8 @@ class FacilityService
                 $data["mail_street2"],
                 $data["mail_city"],
                 $data["mail_state"],
-                $data["mail_zip"]
+                $data["mail_zip"],
+                $data['oid']
             )
         );
     }
@@ -266,7 +267,8 @@ class FacilityService
         $sql .= "     mail_street2=?,";
         $sql .= "     mail_city=?,";
         $sql .= "     mail_state=?,";
-        $sql .= "     mail_zip=?";
+        $sql .= "     mail_zip=?,";
+        $sql .= "     oid=?";
         return sqlInsert(
             $sql,
             array(
@@ -344,6 +346,7 @@ class FacilityService
         $sql .= "        FAC.mail_city,";
         $sql .= "        FAC.mail_state,";
         $sql .= "        FAC.mail_zip";
+        $sql .= "        FAC.oid";
         $sql .= " FROM facility FAC";
 
         return QueryUtils::selectHelper($sql, $map);

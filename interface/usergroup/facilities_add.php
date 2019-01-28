@@ -295,44 +295,52 @@ function displayAlert()
 
         <tr>
             <td>
-                <label><?php xl('Mailing Address', 'e'); ?>: </label>
+                <label><?php xlt('Mailing Address'); ?>: </label>
             </td>
             <td>
-                <input type="entry" size="20" name="mail_street" value="<?php echo htmlspecialchars($facility["mail_street"], ENT_QUOTES) ?>">
-            </td>
-        </tr>
-
-        <tr>
-            <td>
-                <label><?php xl('Dept', 'e'); ?>: </label>
-            </td>
-            <td>
-                <input type="entry" size="20" name="mail_street2" value="<?php echo htmlspecialchars($facility["mail_street2"], ENT_QUOTES) ?>">
+                <input type="entry" size="20" name="mail_street" value="<?php echo attr($facility["mail_street"]) ?>">
             </td>
         </tr>
 
         <tr>
             <td>
-                <label><?php xl('City', 'e'); ?>: </label>
+                <label><?php xlt('Dept'); ?>: </label>
             </td>
             <td>
-                <input type="entry" size="20" name="mail_city" value="<?php echo htmlspecialchars($facility["mail_city"], ENT_QUOTES) ?>">
+                <input type="entry" size="20" name="mail_street2" value="<?php echo attr($facility["mail_street2"]) ?>">
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <label><?php xlt('City'); ?>: </label>
+            </td>
+            <td>
+                <input type="entry" size="20" name="mail_city" value="<?php echo attr($facility["mail_city"]) ?>">
             </td>
         </tr>
         <tr>
             <td>
-                <label><?php xl('State', 'e'); ?>: </label>
+                <label><?php xlt('State'); ?>: </label>
             </td>
             <td>
-                <input type="entry" size="20" name="mail_state" value="<?php echo htmlspecialchars($facility["mail_state"], ENT_QUOTES) ?>">
+                <input type="entry" size="20" name="mail_state" value="<?php echo attr($facility["mail_state"]) ?>">
             </td>
         </tr>
         <tr>
             <td>
-                <label><?php xl('Zip', 'e'); ?>: </label>
+                <label><?php xlt('Zip'); ?>: </label>
             </td>
             <td>
-                <input type="entry" size="20" name="mail_zip" value="<?php echo htmlspecialchars($facility["mail_zip"], ENT_QUOTES) ?>">
+                <input type="entry" size="20" name="mail_zip" value="<?php echo attr($facility["mail_zip"]) ?>">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label><?php xlt('OID'); ?>: </label>
+            </td>
+            <td>
+                <input type="entry" size="20" name="oid" value="<?php echo attr($facility["oid"]) ?>">
             </td>
         </tr>
     </table>
