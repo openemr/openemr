@@ -247,15 +247,21 @@ function toggleIndicator(target,div) {
 //
 function editScripts(url) {
     var AddScript = function () {
+
+        var __this=$(this);
+        __this.find("#clearButton").css("display", "inline-block");
+        __this.find("#backButton").css("display", "inline-block");
+        __this.find("#addButton").css("display", "none");
+
         var iam = top.tab_mode ? top.frames.editScripts : window[0];
         iam.location.href = "<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=&pid=<?php echo attr_url($pid);?>"
     };
     var ListScripts = function () {
 
-        $("#clearButton").css("display", "none");
-        $("#backButton").css("display", "none");
-        $("#addButton").css("display", "block");
-
+        var __this=$(this);
+        __this.find("#clearButton").css("display", "none");
+        __this.find("#backButton").css("display", "none");
+        __this.find("#addButton").css("display", "inline-block");
         var iam = top.tab_mode ? top.frames.editScripts : window[0];
         iam.location.href = "<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo attr_url($pid); ?>"
     };
