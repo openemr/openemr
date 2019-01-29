@@ -299,8 +299,11 @@ $().ready(function() {
     $("#save,#back").on("click",function(){
         $("#clearButton",window.parent.document).css("display", "none");
         $("#backButton",window.parent.document).css("display", "none");
-        $("#addButton",window.parent.document).css("display", "inline-block");
+        $("#addButton",window.parent.document).css("display", "");
     });
+    $("#clearButton",window.parent.document).css("display", "");
+    $("#backButton",window.parent.document).css("display", "");
+    $("#addButton",window.parent.document).css("display", "none");
 
     {/literal}
     {if $GLOBALS.weno_rx_enable}

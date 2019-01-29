@@ -249,8 +249,8 @@ function editScripts(url) {
     var AddScript = function () {
 
         var __this=$(this);
-        __this.find("#clearButton").css("display", "inline-block");
-        __this.find("#backButton").css("display", "inline-block");
+        __this.find("#clearButton").css("display", "");
+        __this.find("#backButton").css("display", "");
         __this.find("#addButton").css("display", "none");
 
         var iam = top.tab_mode ? top.frames.editScripts : window[0];
@@ -261,7 +261,7 @@ function editScripts(url) {
         var __this=$(this);
         __this.find("#clearButton").css("display", "none");
         __this.find("#backButton").css("display", "none");
-        __this.find("#addButton").css("display", "inline-block");
+        __this.find("#addButton").css("display", "");
         var iam = top.tab_mode ? top.frames.editScripts : window[0];
         iam.location.href = "<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo attr_url($pid); ?>"
     };
