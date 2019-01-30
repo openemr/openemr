@@ -13,7 +13,6 @@
 
 
 require_once("../../globals.php");
-require_once("$srcdir/log.inc");
 require_once("$srcdir/acl.inc");
 
 $feid = $_GET['feid'] + 0; // id from form_encounter table

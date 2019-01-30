@@ -23,11 +23,11 @@
  * @link    http://www.open-emr.org
  */
 
-require_once(dirname(__FILE__) . "/log.inc");
 require_once(dirname(__FILE__) . "/pnotes.inc");
 require_once(dirname(__FILE__) . "/documents.php");
 require_once(dirname(__FILE__) . "/gprelations.inc.php");
 
+use OpenEMR\Common\Logging\EventAuditLogger;
 use PHPMailer\PHPMailer\PHPMailer;
 
 /**
@@ -422,7 +422,7 @@ function phimail_close($fp)
 
 function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check")
 {
-    newEvent($event, "phimail-service", 0, $success, $text, $pid);
+    EventAuditLogger::instance()->newEvent($event, "phimail-service", 0, $success, $text, $pid);
 }
 
 /**

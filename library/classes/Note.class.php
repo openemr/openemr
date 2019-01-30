@@ -77,16 +77,19 @@ class Note extends ORDataObject
     {
         $notes = array();
 
+        $sqlArray = array();
+
         if (empty($foreign_id)) {
-             $foreign_id= "like '%'";
+            $foreign_id_sql = " like '%'";
         } else {
-            $foreign_id= " = '" . add_escape_custom(strval($foreign_id)) . "'";
+            $foreign_id_sql = " = ?";
+            $sqlArray[] = strval($foreign_id);
         }
 
         $d = new note();
-        $sql = "SELECT id FROM  " . $d->_table . " WHERE foreign_id " .$foreign_id  . " ORDER BY DATE DESC";
+        $sql = "SELECT id FROM " . escape_table_name($d->_table) . " WHERE foreign_id " . $foreign_id_sql . " ORDER BY DATE DESC";
         //echo $sql;
-        $result = $d->_db->Execute($sql);
+        $result = $d->_db->Execute($sql, $sqlArray);
 
         while ($result && !$result->EOF) {
             $notes[] = new Note($result->fields['id']);

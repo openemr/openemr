@@ -22,7 +22,6 @@
 
 
 require_once("../interface/globals.php");
-require_once("$srcdir/log.inc");
 require_once("$srcdir/acl.inc");
 
 if (!acl_check('admin', 'users')) {

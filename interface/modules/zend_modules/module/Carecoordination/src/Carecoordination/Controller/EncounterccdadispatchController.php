@@ -22,9 +22,10 @@
 */
 namespace Carecoordination\Controller;
 
+use Application\Listener\Listener;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
-use Application\Listener\Listener;
 use Exception;
 
 class EncounterccdadispatchController extends AbstractActionController
@@ -149,7 +150,7 @@ class EncounterccdadispatchController extends AbstractActionController
                         $event = isset($parameterArray['event']) ? $parameterArray['event'] : 'patient-record';
                         $menu_item = isset($parameterArray['menu_item']) ? $parameterArray['menu_item'] : 'Dashboard';
 
-                        newEvent($event, $this->patient_username, '', 1, '', $this->patient_id, $log_from = 'patient-portal', $menu_item, $ccdaDocumentId);
+                        EventAuditLogger::instance()->newEvent($event, $this->patient_username, '', 1, '', $this->patient_id, $log_from = 'patient-portal', $menu_item, $ccdaDocumentId);
                     } catch (Exception $e) {
                     }
                 }
@@ -189,7 +190,7 @@ class EncounterccdadispatchController extends AbstractActionController
                     $event = isset($parameterArray['event']) ? $parameterArray['event'] : 'patient-record';
                     $menu_item = isset($parameterArray['menu_item']) ? $parameterArray['menu_item'] : 'Dashboard';
 
-                    newEvent($event, $this->patient_username, '', 1, '', $this->patient_id, $log_from = 'patient-portal', $menu_item, $ccdaDocumentId);
+                    EventAuditLogger::instance()->newEvent($event, $this->patient_username, '', 1, '', $this->patient_id, $log_from = 'patient-portal', $menu_item, $ccdaDocumentId);
                 } catch (Exception $e) {
                 }
 

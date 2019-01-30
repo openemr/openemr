@@ -57,9 +57,20 @@ function Check(chk) {
     if (len==undefined) {chk.checked=true;}
     else {
         //clean the checked id's before check all the list again
-        document.getElementById('multiprint').href = document.getElementById('multiprint').href.substring(0, document.getElementById('multiprint').href.indexOf('=') + 1);
-        document.getElementById('multiprintcss').href = document.getElementById('multiprintcss').href.substring(0, document.getElementById('multiprintcss').href.indexOf('=') + 1);
-        document.getElementById('multiprintToFax').href = document.getElementById('multiprintToFax').href.substring(0, document.getElementById('multiprintToFax').href.indexOf('=') +1);
+        var multiprint=document.getElementById('multiprint');
+        if(multiprint!==null) {
+            multiprint.href = document.getElementById('multiprint').href.substring(0, document.getElementById('multiprint').href.indexOf('=') + 1);
+        }
+
+        var multiprintcss=document.getElementById('multiprintcss');
+        if(multiprintcss!==null) {
+            multiprintcss.href =  document.getElementById('multiprintcss').href.substring(0, document.getElementById('multiprintcss').href.indexOf('=') + 1);
+        }
+
+        var multiprintToFax=document.getElementById('multiprintToFax');
+        if(multiprintToFax!==null) {
+            multiprintToFax.href = document.getElementById('multiprintToFax').href.substring(0, document.getElementById('multiprintToFax').href.indexOf('=') +1);
+        }
         for (pr = 0; pr < chk.length; pr++){
             if($(chk[pr]).parents("tr.inactive").length==0)
                 {
@@ -239,8 +250,8 @@ $(document).ready(function(){
       {$prescription->rxnorm_drugcode|text}&nbsp;
     </td>
     <td id="{$prescription->id|attr}">
-      {$prescription->date_added|text}<br />
-      {$prescription->date_modified|text}&nbsp;
+      {$prescription->date_added|oeFormatShortDate|text}<br />
+      {$prescription->date_modified|oeFormatShortDate|text}&nbsp;
     </td>
     <td id="{$prescription->id|attr}">
       {$prescription->get_dosage_display()|text} &nbsp;

@@ -15,6 +15,8 @@
 
 require_once(dirname(__FILE__) . "/common_operations.php");
 
+use OpenEMR\Common\Logging\EventAuditLogger;
+
 /**
  *
  * @param type $username
@@ -80,7 +82,7 @@ function validate_user_password($username, &$password, $provider)
     $userInfo = privQuery($getUserSQL, array($username));
 
     if ($userInfo['active'] != 1) {
-        newEvent('login', $username, $provider, 0, "failure: " . $ip['ip_string'] . ". user not active or not found in users table");
+        EventAuditLogger::instance()->newEvent('login', $username, $provider, 0, "failure: " . $ip['ip_string'] . ". user not active or not found in users table");
         $password='';
         return false;
     }
@@ -101,10 +103,10 @@ function validate_user_password($username, &$password, $provider)
                 $_SESSION['userauthorized'] = '1';
             }
 
-            newEvent('login', $username, $provider, 1, "success: " . $ip['ip_string']);
+            EventAuditLogger::instance()->newEvent('login', $username, $provider, 1, "success: " . $ip['ip_string']);
             $valid=true;
         } else {
-            newEvent('login', $username, $provider, 0, "failure: " . $ip['ip_string'] . ". user not in group: $provider");
+            EventAuditLogger::instance()->newEvent('login', $username, $provider, 0, "failure: " . $ip['ip_string'] . ". user not in group: $provider");
             $valid=false;
         }
     }
@@ -120,7 +122,7 @@ function verify_user_gacl_group($user, $provider)
 
     if (isset($phpgacl_location)) {
         if (acl_get_group_titles($user) == 0) {
-            newEvent('login', $user, $provider, 0, "failure: " . $ip['ip_string'] . ". user not in any phpGACL groups. (bad username?)");
+            EventAuditLogger::instance()->newEvent('login', $user, $provider, 0, "failure: " . $ip['ip_string'] . ". user not in any phpGACL groups. (bad username?)");
             return false;
         }
     }

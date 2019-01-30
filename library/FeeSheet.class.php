@@ -31,9 +31,9 @@ require_once(dirname(__FILE__) . "/options.inc.php");
 require_once(dirname(__FILE__) . "/appointment_status.inc.php");
 require_once(dirname(__FILE__) . "/classes/Prescription.class.php");
 require_once(dirname(__FILE__) . "/forms.inc");
-require_once(dirname(__FILE__) . "/log.inc");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 // For logging checksums set this to true.
 define('CHECKSUM_LOGGING', true);
@@ -205,7 +205,7 @@ class FeeSheet
   //
     public function logFSMessage($action)
     {
-        newEvent(
+        EventAuditLogger::instance()->newEvent(
             'fee-sheet',
             $_SESSION['authUser'],
             $_SESSION['authProvider'],
@@ -238,7 +238,7 @@ class FeeSheet
         if (CHECKSUM_LOGGING) {
             $comment = "Checksum = '$ret'";
             $comment .= ", Saved = " . ($saved ? "true" : "false");
-            newEvent("checksum", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $comment, $this->pid);
+            EventAuditLogger::instance()->newEvent("checksum", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $comment, $this->pid);
         }
 
         return $ret;
