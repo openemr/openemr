@@ -199,18 +199,14 @@ if ($row_currentMed['size'] > 0) {
                 $rowclass = "noreturn";
             }
 
-
-
             echo " <tr class='text $rowclass;'>\n";
 
             //turn allergies red and bold and show the reaction (if exist)
             if ($key == "allergy") {
                 $reaction = "";
                 if (!empty($row['reaction'])) {
-                    $reaction= " (" .xlt(ucfirst(str_replace("_"," ",$row['reaction']))) . ")";
+                    $reaction= " (" .getListItemTitle("reaction",$row['reaction']) . ")";
                 }
-
-                $row['title'] = xlt(ucfirst(str_replace("_"," ",$row['title'])));
 
                 echo "  <td colspan='" . attr($numcols) . "' style='color:red;font-weight:bold;'>&nbsp;&nbsp;" . text($row['title'] . $reaction) . "</td>\n";
             } else {
