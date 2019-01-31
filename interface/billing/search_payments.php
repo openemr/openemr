@@ -16,7 +16,6 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/log.inc");
 require_once("../../library/acl.inc");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/patient.inc");

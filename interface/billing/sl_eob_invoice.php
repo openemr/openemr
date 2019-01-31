@@ -20,7 +20,6 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/log.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/invoice_summary.inc.php");
@@ -28,6 +27,7 @@ require_once("../../custom/code_types.inc.php");
 require_once "$srcdir/user.inc";
 
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
 $debug = 0; // set to 1 for debugging mode
@@ -75,7 +75,7 @@ function row_delete($table, $where)
             $logstring .= $key . "='" . addslashes($value) . "'";
         }
 
-        newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
+        EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
         ++$count;
     }
 

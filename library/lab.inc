@@ -152,11 +152,9 @@ function getFacilityInfo($facilityID)
     $facility = explode("_", $facilityID);
 
     if (count($facility) > 1) {
-        $query = "select
-                title,fname,lname,street,city,state,zip,organization,phone
-                from users where id = " . $facility[1];
+        $query = "SELECT title, fname, lname, street, city, state, zip, organization, phone FROM users WHERE id = ?";
 
-        $res = sqlStatement($query);
+        $res = sqlStatement($query, array($facility[1]));
         return sqlFetchArray($res);
     }
 

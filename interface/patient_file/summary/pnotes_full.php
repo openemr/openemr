@@ -14,10 +14,10 @@ require_once('../../globals.php');
 require_once($GLOBALS['srcdir'].'/pnotes.inc');
 require_once($GLOBALS['srcdir'].'/patient.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
-require_once($GLOBALS['srcdir'].'/log.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['srcdir'].'/gprelations.inc.php');
 
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
 
@@ -153,7 +153,7 @@ if (isset($mode)) {
     } elseif ($mode == "delete") {
         if ($noteid) {
             deletePnote($noteid);
-            newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id ".$noteid);
+            EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id ".$noteid);
         }
 
         $noteid = '';

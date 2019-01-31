@@ -103,7 +103,7 @@ select{
 <form name="prescribe" id="prescribe"  method="post" action="{$FORM_ACTION}" >
 <table>
     <tr><td class="title"><font><b>{xlt t='Add'}/{xl t='Edit'}</b></font>&nbsp;</td>
-    <td><a href=# onclick="submitfun();" class="css_button_small"><span>{xlt t='Save'}</span></a>
+    <td><a id="save" href=# onclick="submitfun();" class="css_button_small"><span>{xlt t='Save'}</span></a>
     {if $DRUG_ARRAY_VALUES}
     &nbsp; &nbsp; &nbsp; &nbsp;
         {if $prescription->get_refills() >= $prescription->get_dispensation_count()}
@@ -115,7 +115,7 @@ select{
             {xlt t='prescription has reached its limit of'} {$prescription->get_refills()|text} {xlt t='refills'}.
         {/if}
     {/if}
-         <a class='css_button_small' href="controller.php?prescription&list&id={$prescription->patient->id|attr_url}"><span>{xlt t='Back'}</span></a>
+         <a id="back" class='css_button_small' href="controller.php?prescription&list&id={$prescription->patient->id|attr_url}"><span>{xlt t='Back'}</span></a>
 </td></tr>
 </table>
 
@@ -295,6 +295,15 @@ function cancelParlookup () {
 }
 
 $().ready(function() {
+
+    $("#save,#back").on("click",function(){
+        $("#clearButton",window.parent.document).css("display", "none");
+        $("#backButton",window.parent.document).css("display", "none");
+        $("#addButton",window.parent.document).css("display", "");
+    });
+    $("#clearButton",window.parent.document).css("display", "");
+    $("#backButton",window.parent.document).css("display", "");
+    $("#addButton",window.parent.document).css("display", "none");
 
     {/literal}
     {if $GLOBALS.weno_rx_enable}

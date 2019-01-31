@@ -138,7 +138,7 @@ function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $
 
     /* user id is used as serial number to sign a certificate */
     $serial = 0;
-    $res = sqlStatement("select id from users where username='".$commonName."'");
+    $res = sqlStatement("SELECT id FROM users WHERE username = ?", array($commonName));
     if ($row = sqlFetchArray($res)) {
         $serial = $row['id'];
     }
