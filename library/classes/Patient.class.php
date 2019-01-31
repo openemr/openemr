@@ -41,10 +41,11 @@ class Patient extends ORDataObject
     function populate()
     {
         if (!empty($this->id)) {
-            $res = sqlQuery("SELECT providerID,fname,lname,mname ".
-                                        ", DATE_FORMAT(DOB,'%m/%d/%Y') as date_of_birth ".
-                                        ", pubpid ".
-                                        " from " . $this->_table ." where pid =". add_escape_custom($this->id));
+            $res = sqlQuery("SELECT providerID , fname , lname , mname, " .
+                "DATE_FORMAT(DOB,'%m/%d/%Y') as date_of_birth, ".
+                "pubpid " .
+                "FROM " . escape_table_name($this->_table) . " " .
+                "WHERE pid = ?", [$this->id]);
             if (is_array($res)) {
                 $this->pubpid = $res['pubpid'];
                 $this->lname = $res['lname'];

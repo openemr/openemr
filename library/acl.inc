@@ -427,8 +427,7 @@ function add_user_aros($username, $group)
             array_push($current_user_groups, $group);
         }
     }
-    $user_data = sqlFetchArray(sqlStatement("select * from users where username='" .
-    $username . "'"));
+    $user_data = sqlFetchArray(sqlStatement("SELECT * FROM users WHERE username = ?", array($username)));
     set_user_aro(
         $current_user_groups,
         $username,
@@ -462,8 +461,7 @@ function remove_user_aros($username, $group)
             }
         }
     }
-    $user_data = sqlFetchArray(sqlStatement("select * from users where username='" .
-    $username . "'"));
+    $user_data = sqlFetchArray(sqlStatement("SELECT * FROM users WHERE username = ?", array($username)));
     set_user_aro(
         $new_user_groups,
         $username,

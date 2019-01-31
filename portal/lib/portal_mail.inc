@@ -21,6 +21,8 @@
  * @link http://www.open-emr.org
  */
 
+use OpenEMR\Common\Logging\EventAuditLogger;
+
 function addPortalMailboxMail(
     $owner,
     $newtext,
@@ -263,7 +265,7 @@ function updatePortalMailMessageStatus($id, $message_status)
             $log_from = 'patient-portal';
             $puser = $_SESSION['pid'];
         }
-        newEvent("delete", $loguser, 'Portal', 1, $evt, $puser, $log_from, '');
+        EventAuditLogger::instance()->newEvent("delete", $loguser, 'Portal', 1, $evt, $puser, $log_from, '');
     }
 }
 

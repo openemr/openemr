@@ -11,13 +11,13 @@
 
 
 require_once("../../globals.php");
-require_once("$srcdir/log.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/transactions.inc");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
 // The number of authorizations to display in the quick view:
@@ -37,7 +37,7 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
     }
 
     $retVal = getProviderId($_SESSION['authUser']);
-    newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], 1, $_GET["pid"]);
+    EventAuditLogger::instance()->newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], 1, $_GET["pid"]);
     sqlStatement("update billing set authorized=1 where pid=?", array($_GET["pid"]));
     sqlStatement("update forms set authorized=1 where pid=?", array($_GET["pid"]));
     sqlStatement("update pnotes set authorized=1 where pid=?", array($_GET["pid"]));

@@ -31,7 +31,8 @@
 set_time_limit(0);
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/log.inc");
+
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 if (!empty($_POST)) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -339,7 +340,7 @@ if ($form_step == 5) {   // create the final compressed tar containing all files
     chdir($cur_dir);
     /* To log the backup event */
     if ($GLOBALS['audit_events_backup']) {
-        newEvent("backup", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Backup is completed");
+        EventAuditLogger::instance()->newEvent("backup", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Backup is completed");
     }
 
     $auto_continue = true;

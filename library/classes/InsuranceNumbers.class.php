@@ -51,8 +51,8 @@ class InsuranceNumbers extends ORDataObject
     function insurance_numbers_factory($provider_id)
     {
         $ins = array();
-        $sql = "SELECT id FROM "  . $this->_table . " where provider_id = '" . $provider_id . "' order by insurance_company_id";
-        $results = sqlQ($sql);
+        $sql = "SELECT id FROM "  . escape_table_name($this->_table) . " WHERE provider_id = ? ORDER BY insurance_company_id";
+        $results = sqlQ($sql, array($provider_id));
 
         while ($row = sqlFetchArray($results)) {
                     $ins[] = new InsuranceNumbers($row['id']);

@@ -19,12 +19,12 @@ require_once("../../globals.php");
 require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/log.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/gprelations.inc.php");
 require_once "$srcdir/user.inc";
 require_once("$srcdir/MedEx/API.php");
 
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
 //validation library
@@ -370,7 +370,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             $delete_id = $_POST['delete_id'];
                             for ($i = 0; $i < count($delete_id); $i++) {
                                 deletePnote($delete_id[$i]);
-                                newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id " . $delete_id[$i]);
+                                EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id " . $delete_id[$i]);
                             }
                             break;
                     }
