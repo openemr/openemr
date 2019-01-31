@@ -1536,6 +1536,7 @@ $GLOBALS_METADATA = array(
             'day',                              // default
             xl('This sets the Default Calendar View, Default is Day.')
         ),
+
         'first_day_week' => array(
             xl('First day in the week'),
             array(
@@ -1546,6 +1547,7 @@ $GLOBALS_METADATA = array(
             '1',
             xl('Your first day of the week.')
         ),
+
         'calendar_appt_style' => array(
             xl('Appointment Display Style'),
             array(
@@ -1581,13 +1583,13 @@ $GLOBALS_METADATA = array(
             '10',
             xl('Number of Appointments to display in the Group Summary')
         ),
+
         'number_of_ex_appts_to_show' => array(
             xl('Excluded Appointments - Tooltip - Number to Display'),
             'num',
             '15',
             xl('Number of Excluded Appointments to display in the Tooltip')
         ),
-
 
         'patient_portal_appt_display_num' => array(
             xl('Appointments - Onsite Patient Portal - Number to Display'),
@@ -1654,9 +1656,15 @@ $GLOBALS_METADATA = array(
 
         'auto_create_new_encounters' => array(
             xl('Auto-Create New Encounters'),
-            'bool',                           // data type
-            '1',                              // default
-            xl('Automatically create a new encounter when an appointment check in status is selected.')
+            array(
+                '0' => xl('Off'),
+                '1' => xl('One Encounter Per Day'),
+                '2' => xl('Allow Encounter For Each Appointment')
+            ),
+            '1',
+            xl('Automatically create a new encounter when an appointment check in status is selected.') . " " .
+            xl('The Each Appointment option will allow a new encounter regardless of same day visit.') . " " .
+            xl('The appointment status changes and encounter creations are managed through the Patient Tracker.')
         ),
 
         'allow_early_check_in' => array(
@@ -2245,6 +2253,18 @@ $GLOBALS_METADATA = array(
     // Logging
     //
     'Logging' => array(
+
+        'user_debug' => array(
+            xl('User Debugging Options'),
+            array(
+                '0' => xl('None'),
+                '1' => xl('Display Window Errors Only'),
+                '2' => xl('Display Application Errors Only'),
+                '3' => xl('All'),
+            ),
+            '0',                               // default
+            xl('User Debugging Mode.')
+        ),
 
         'enable_auditlog' => array(
             xl('Enable Audit Logging'),

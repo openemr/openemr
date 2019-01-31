@@ -253,8 +253,8 @@ function editScripts(url) {
         __this.find("#backButton").css("display", "");
         __this.find("#addButton").css("display", "none");
 
-        var iam = top.tab_mode ? top.frames.editScripts : window[0];
-        iam.location.href = "<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=&pid=<?php echo attr_url($pid);?>"
+        var iam = top.tab_mode ? top.frames.editScripts : window[1];
+        iam.location.href = "<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=0&pid=<?php echo attr($pid);?>"
     };
     var ListScripts = function () {
 
@@ -262,24 +262,19 @@ function editScripts(url) {
         __this.find("#clearButton").css("display", "none");
         __this.find("#backButton").css("display", "none");
         __this.find("#addButton").css("display", "");
-        var iam = top.tab_mode ? top.frames.editScripts : window[0];
+        var iam = top.tab_mode ? top.frames.editScripts : window[1];
         iam.location.href = "<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo attr_url($pid); ?>"
     };
 
     let title = <?php echo xlj('Prescriptions'); ?>;
-    let w = 810;
-    <?php
-    if ($GLOBALS['weno_rx_enable']) {
-        echo 'w = 910;';
-    }?>
-
+    let w = 910; // for weno width
 
     dlgopen(url, 'editScripts', w, 300, '', '', {
         buttons: [
-            {text: <?php echo xlj('Add'); ?>, close: false,  id: 'addButton', style: 'primary  btn-sm', click: AddScript},
-            {text: <?php echo xlj('Clear'); ?>, close: false,id: 'clearButton', style: 'display:none; primary  btn-sm', click: AddScript},
-            {text: <?php echo xlj('Back'); ?>, close: false, id: 'backButton',style: 'display:none;  primary  btn-sm', click: ListScripts},
-            {text: <?php echo xlj('Done'); ?>, close: true, id: 'doneButton',style: 'default btn-sm'}
+            {text: <?php echo xlj('Add'); ?>, close: false,  id: 'addButton', class: 'btn-primary btn-sm', click: AddScript},
+            {text: <?php echo xlj('Clear'); ?>, close: false,id: 'clearButton', style: 'display:none;', class: 'btn-primary btn-sm', click: AddScript},
+            {text: <?php echo xlj('Back'); ?>, close: false, id: 'backButton', style: 'display:none;', class: 'btn-primary btn-sm', click: ListScripts},
+            {text: <?php echo xlj('Done'); ?>, close: true, id: 'doneButton', class: 'btn-default btn-sm'}
         ],
         onClosed: 'refreshme',
         allowResize: true,

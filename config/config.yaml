@@ -164,3 +164,8 @@ assets:
     underscore:
         basePath: %assets_static_relative%/underscore
         script: underscore-min.js
+    userdebug:
+        basePath: %webroot%/library/js/
+        script: userDebug.js
+        autoload: true
+        allowNoLoad: true

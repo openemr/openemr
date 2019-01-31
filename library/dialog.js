@@ -307,10 +307,12 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     });
 
     // onward
+
     var opts_defaults = {
         type: 'iframe', // POST, GET (ajax) or iframe
+        async: true,
         frameContent: "", // for iframe embedded content
-        ajaxhtml: "", // content for alerts, comfirm etc ajax
+        html: "", // content for alerts, comfirm etc ajax
         allowDrag: true,
         allowResize: true,
         sizeHeight: 'auto', // 'full' will use as much height as allowed
@@ -318,10 +320,10 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         onClosed: false,
         callBack: false // use {call: 'functionName, args: args, args} if known or use dlgclose.
     };
-
     if (!opts) var opts = {};
 
     opts = jQuery.extend({}, opts_defaults, opts);
+    opts.type = opts.type ? opts.type.toLowerCase() : '';
 
     var mHeight, mWidth, mSize, msSize, dlgContainer, fullURL, where; // a growing list...
 
@@ -459,10 +461,14 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         dlgContainer.find('.modal-content').append(buildFooter());
     }
 // Ajax setup
-    if (opts.type !== 'iframe') {
+    if (opts.type === 'alert') {
+        dlgContainer.find('.modal-body').html(opts.html);
+    }
+    if (opts.type !== 'iframe' && opts.type !== 'alert') {
         var params = {
+            async: opts.async,
             method: opts.type || '', // if empty and has data object, then post else get.
-            content: opts.data || opts.html || '', // ajax loads fetched content or supplied html. think alerts.
+            content: opts.data || opts.html, // ajax loads fetched content.
             url: opts.url || fullURL,
             dataType: opts.dataType || '' // xml/json/text etc.
         };
@@ -574,11 +580,11 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
 // Ajax call with promise
     function dialogAjax(data, $dialog) {
         var params = {
-            async: true,
+            async: data.async,
             method: data.method || '',
             data: data.content,
-            url: data.url || data,
-            dataType: data.dataType || 'text'
+            url: data.url,
+            dataType: data.dataType || 'html'
         };
 
         if (data.url) {
@@ -617,8 +623,12 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         if (opts.buttons) {
             for (var i = 0, k = opts.buttons.length; i < k; i++) {
                 var btnOp = opts.buttons[i];
-                var btn = jQuery('<button>').addClass('btn btn-' + (btnOp.style || 'primary'));
-
+                if (typeof btnOp.class !== 'undefined') {
+                    var btn = jQuery('<button>').addClass('btn ' + (btnOp.class || 'btn-primary'));
+                } else { // legacy
+                    var btn = jQuery('<button>').addClass('btn btn-' + (btnOp.style || 'primary'));
+                    btnOp.style = "";
+                }
                 for (var index in btnOp) {
                     if (btnOp.hasOwnProperty(index)) {
                         switch (index) {
@@ -636,8 +646,11 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                             case 'text':
                                 btn.html(btnOp[index]);
                                 break;
+                            case 'class':
+                                break;
                             default:
                                 //all other possible HTML attributes to button element
+                                // name, id etc
                                 btn.attr(index, btnOp[index]);
                         }
                     }
