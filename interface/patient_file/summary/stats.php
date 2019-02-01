@@ -205,7 +205,7 @@ if ($row_currentMed['size'] > 0) {
             if ($key == "allergy") {
                 $reaction = "";
                 if (!empty($row['reaction'])) {
-                    $reaction= " (" .getListItemTitle("reaction",$row['reaction']) . ")";
+                    $reaction= " (" .getListItemTitle("reaction", $row['reaction']) . ")";
                 }
 
                 echo "  <td colspan='" . attr($numcols) . "' style='color:red;font-weight:bold;'>&nbsp;&nbsp;" . text($row['title'] . $reaction) . "</td>\n";
