@@ -268,7 +268,7 @@ class FacilityService
         $sql .= "     mail_city=?,";
         $sql .= "     mail_state=?,";
         $sql .= "     mail_zip=?,";
-        $sql .= "     oid=?";
+        $sql .= "     oid=? ";
         return sqlInsert(
             $sql,
             array(
@@ -341,6 +341,7 @@ class FacilityService
         $sql .= "        FAC.color,";
         $sql .= "        FAC.primary_business_entity,";
         $sql .= "        FAC.facility_code,";
+        $sql .= "        FAC.extra_validation";
         $sql .= "        FAC.mail_street,";
         $sql .= "        FAC.mail_street2,";
         $sql .= "        FAC.mail_city,";

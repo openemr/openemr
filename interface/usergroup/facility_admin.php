@@ -174,11 +174,6 @@ if (isset($_GET["fid"])) {
             <td><input type='entry' name="fax" size='20' value='<?php echo attr($facility['fax']); ?>'></td>
         </tr>
         <tr>
-            <td><span class=text><?php echo xlt('Dept'); ?>: </span></td><td><input type=entry size=20 name="dept" value="<?php echo attr($facility["dept"]); ?>"></td>
-            <td><span class='text'></span></td>
-            <td><span class='text'></span></td>
-        </tr>
-        <tr>
 
             <td><span class=text><?php echo xlt('City'); ?>: </span></td>
             <td><input type=entry size=20 name=city value="<?php echo attr($facility["city"]); ?>"></td>
@@ -296,7 +291,7 @@ if (isset($_GET["fid"])) {
 
         <tr>
             <td>
-                <label><?php xlt('Dept'); ?>: </label>
+                <label><?php xlt('Suite'); ?>: </label>
             </td>
             <td>
                 <input type="entry" size="20" name="mail_street2" value="<?php echo attr($facility["mail_street2"]) ?>">
