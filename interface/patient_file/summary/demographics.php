@@ -254,7 +254,7 @@ function editScripts(url) {
         __this.find("#addButton").css("display", "none");
 
         var iam = top.tab_mode ? top.frames.editScripts : window[1];
-        iam.location.href = "<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=0&pid=<?php echo attr($pid);?>"
+        iam.location.href = '<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=0&pid=<?php echo attr_js($pid);?>'
     };
     var ListScripts = function () {
 
@@ -263,7 +263,7 @@ function editScripts(url) {
         __this.find("#backButton").css("display", "none");
         __this.find("#addButton").css("display", "");
         var iam = top.tab_mode ? top.frames.editScripts : window[1];
-        iam.location.href = "<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo attr_url($pid); ?>"
+        iam.location.href = '<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo attr_js($pid); ?>'
     };
 
     let title = <?php echo xlj('Prescriptions'); ?>;
