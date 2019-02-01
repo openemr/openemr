@@ -140,8 +140,10 @@ function isEncounterLocked( encounterId ) {
     return false;
     <?php } ?>
 }
-var webroot_url="<?php echo $web_root; ?>";
-var jsLanguageDirection = "<?php echo $_SESSION["language_direction"]; ?>";
+// some globals to access using top.variable
+var userDebug = <?php echo js_escape($GLOBALS['user_debug']); ?>;
+var webroot_url = <?php echo js_escape($web_root); ?>;
+var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?>;
 </script>
 
 <?php Header::setupHeader(["knockout","tabs-theme",'jquery-ui']); ?>
