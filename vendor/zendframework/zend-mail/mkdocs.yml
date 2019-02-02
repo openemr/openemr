@@ -1,0 +1,22 @@
+docs_dir: doc/book
+site_dir: doc/html
+pages:
+    - index.md
+    - Intro: intro.md
+    - Reference:
+        - Messages:
+            - "Intro and Usage": message/intro.md
+            - "Attachments": message/attachments.md
+            - "Character Sets": message/character-sets.md
+        - Transports:
+            - Usage: transport/intro.md
+            - SMTP:
+                - "SMTP Options": transport/smtp-options.md
+                - "Sending multiple messages": transport/smtp-multiple-send.md
+                - Authentication: transport/smtp-authentication.md
+            - "File Transport Options": transport/file-options.md
+        - "Reading and Storing Mail": read.md
+site_name: zend-mail
+site_description: zend-mail
+repo_url: 'https://github.com/zendframework/zend-mail'
+copyright: 'Copyright (c) 2016 <a href="http://www.zend.com/">Zend Technologies USA Inc.</a>'

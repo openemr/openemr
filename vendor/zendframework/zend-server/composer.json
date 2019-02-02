@@ -1,0 +1,59 @@
+{
+    "name": "zendframework/zend-server",
+    "description": "Create Reflection-based RPC servers",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "zf",
+        "zendframework",
+        "server"
+    ],
+    "support": {
+        "docs": "https://docs.zendframework.com/zend-server/",
+        "issues": "https://github.com/zendframework/zend-server/issues",
+        "source": "https://github.com/zendframework/zend-server",
+        "rss": "https://github.com/zendframework/zend-server/releases.atom",
+        "chat": "https://zendframework-slack.herokuapp.com",
+        "forum": "https://discourse.zendframework.com/c/questions/components"
+    },
+    "require": {
+        "php": "^5.6 || ^7.0",
+        "zendframework/zend-code": "^2.5 || ^3.0",
+        "zendframework/zend-stdlib": "^2.5 || ^3.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.7.27 || ^6.5.8 || ^7.1.4",
+        "zendframework/zend-coding-standard": "~1.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Zend\\Server\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendTest\\Server\\": "test/"
+        },
+        "files": [
+            "test/TestAsset/reflectionTestFunction.php"
+        ]
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.8.x-dev",
+            "dev-develop": "2.9.x-dev"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    }
+}

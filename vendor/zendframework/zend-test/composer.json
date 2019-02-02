@@ -1,0 +1,50 @@
+{
+    "name": "zendframework/zend-test",
+    "description": " ",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "zf2",
+        "test"
+    ],
+    "homepage": "https://github.com/zendframework/zend-test",
+    "autoload": {
+        "psr-4": {
+            "Zend\\Test\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^5.5 || ^7.0",
+        "phpunit/phpunit": "^4.0 || ^5.0",
+        "zendframework/zend-console": "^2.6",
+        "zendframework/zend-dom": "^2.6",
+        "zendframework/zend-eventmanager": "^2.6.2 || ^3.0",
+        "zendframework/zend-http": "^2.5.4",
+        "zendframework/zend-mvc": "^2.7.1",
+        "zendframework/zend-servicemanager": "^2.7.5 || ^3.0.3",
+        "zendframework/zend-stdlib": "^2.7 || ^3.0",
+        "zendframework/zend-uri": "^2.5",
+        "zendframework/zend-view": "^2.6.3",
+        "sebastian/version": "^1.0.4"
+    },
+    "require-dev": {
+        "fabpot/php-cs-fixer": "1.7.*",
+        "symfony/finder": "^2.2",
+        "mikey179/vfsStream": "~1.2",
+        "zendframework/zend-i18n": "^2.6",
+        "zendframework/zend-log": "^2.7.1",
+        "zendframework/zend-modulemanager": "^2.7.1",
+        "zendframework/zend-serializer": "^2.6.1",
+        "zendframework/zend-session": "^2.6.2"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.6-dev",
+            "dev-develop": "2.7-dev"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendTest\\Test\\": "test/"
+        }
+    }
+}

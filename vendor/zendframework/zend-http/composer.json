@@ -1,0 +1,64 @@
+{
+    "name": "zendframework/zend-http",
+    "description": "Provides an easy interface for performing Hyper-Text Transfer Protocol (HTTP) requests",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "zf",
+        "zend",
+        "zendframework",
+        "http",
+        "HTTP client"
+    ],
+    "support": {
+        "docs": "https://docs.zendframework.com/zend-http/",
+        "issues": "https://github.com/zendframework/zend-http/issues",
+        "source": "https://github.com/zendframework/zend-http",
+        "rss": "https://github.com/zendframework/zend-http/releases.atom",
+        "chat": "https://zendframework-slack.herokuapp.com",
+        "forum": "https://discourse.zendframework.com/c/questions/components"
+    },
+    "require": {
+        "php": "^5.6 || ^7.0",
+        "zendframework/zend-loader": "^2.5.1",
+        "zendframework/zend-stdlib": "^3.1 || ^2.7.7",
+        "zendframework/zend-uri": "^2.5.2",
+        "zendframework/zend-validator": "^2.10.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.7.27 || ^6.5.8 || ^7.1.3",
+        "zendframework/zend-coding-standard": "~1.0.0",
+        "zendframework/zend-config": "^3.1 || ^2.6"
+    },
+    "suggest": {
+        "paragonie/certainty": "For automated management of cacert.pem"
+    },
+    "autoload": {
+        "psr-4": {
+            "Zend\\Http\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendTest\\Http\\": "test/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.8.x-dev",
+            "dev-develop": "2.9.x-dev"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    }
+}

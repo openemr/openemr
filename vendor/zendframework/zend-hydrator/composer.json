@@ -1,0 +1,49 @@
+{
+    "name": "zendframework/zend-hydrator",
+    "description": " ",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "zf2",
+        "hydrator"
+    ],
+    "homepage": "https://github.com/zendframework/zend-hydrator",
+    "autoload": {
+        "psr-4": {
+            "Zend\\Hydrator\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^5.5 || ^7.0",
+        "zendframework/zend-stdlib": "^2.7 || ^3.0"
+    },
+    "require-dev": {
+        "zendframework/zend-eventmanager": "^2.6.2 || ^3.0",
+        "zendframework/zend-inputfilter": "^2.6",
+        "zendframework/zend-serializer": "^2.6.1",
+        "zendframework/zend-servicemanager": "^2.7.5 || ^3.0.3",
+        "zendframework/zend-filter": "^2.6",
+        "phpunit/PHPUnit": "~4.0",
+        "squizlabs/php_codesniffer": "^2.0@dev"
+    },
+    "suggest": {
+        "zendframework/zend-eventmanager": "^2.6.2 || ^3.0, to support aggregate hydrator usage",
+        "zendframework/zend-serializer": "^2.6.1, to use the SerializableStrategy",
+        "zendframework/zend-servicemanager": "^2.7.5 || ^3.0.3, to support hydrator plugin manager usage",
+        "zendframework/zend-filter": "^2.6, to support naming strategy hydrator usage"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-release-1.0": "1.0-dev",
+            "dev-release-1.1": "1.1-dev",
+            "dev-master": "2.0-dev",
+            "dev-develop": "2.1-dev"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendTest\\Hydrator\\": "test/"
+        }
+    }
+}

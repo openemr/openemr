@@ -1,0 +1,60 @@
+{
+    "name": "zendframework/zend-tag",
+    "description": "Manipulate and weight taggable items, and create tag clouds",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "zf",
+        "zendframework",
+        "tag"
+    ],
+    "support": {
+        "docs": "https://docs.zendframework.com/zend-tag/",
+        "issues": "https://github.com/zendframework/zend-tag/issues",
+        "source": "https://github.com/zendframework/zend-tag",
+        "rss": "https://github.com/zendframework/zend-tag/releases.atom",
+        "chat": "https://zendframework-slack.herokuapp.com",
+        "forum": "https://discourse.zendframework.com/c/questions/components"
+    },
+    "require": {
+        "php": "^5.6 || ^7.0",
+        "zendframework/zend-escaper": "^2.5",
+        "zendframework/zend-stdlib": "^2.7 || ^3.0"
+    },
+    "require-dev": {
+        "zendframework/zend-servicemanager": "^2.7.5 || ^3.0.3",
+        "phpunit/phpunit": "^5.7.27 || ^6.5.8 || ^7.1.4",
+        "zendframework/zend-coding-standard": "~1.0.0"
+    },
+    "suggest": {
+        "zendframework/zend-servicemanager": "Zend\\ServiceManager component"
+    },
+    "autoload": {
+        "psr-4": {
+            "Zend\\Tag\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendTest\\Tag\\": "test/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.7.x-dev",
+            "dev-develop": "2.8.x-dev"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    }
+}

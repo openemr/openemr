@@ -1,0 +1,66 @@
+{
+    "name": "zendframework/zend-xmlrpc",
+    "description": "Fully-featured XML-RPC server and client implementations",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "zf",
+        "zendframework",
+        "xmlrpc"
+    ],
+    "support": {
+        "docs": "https://docs.zendframework.com/zend-xmlrpc/",
+        "issues": "https://github.com/zendframework/zend-xmlrpc/issues",
+        "source": "https://github.com/zendframework/zend-xmlrpc",
+        "rss": "https://github.com/zendframework/zend-xmlrpc/releases.atom",
+        "chat": "https://zendframework-slack.herokuapp.com",
+        "forum": "https://discourse.zendframework.com/c/questions/components"
+    },
+    "require": {
+        "php": "^5.6 || ^7.0",
+        "zendframework/zend-http": "^2.5.4",
+        "zendframework/zend-math": "^2.7 || ^3.0",
+        "zendframework/zend-server": "^2.7",
+        "zendframework/zend-stdlib": "^2.7 || ^3.0",
+        "zendframework/zendxml": "^1.0.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.7.27 || ^6.5.8 || ^7.1.2",
+        "zendframework/zend-coding-standard": "~1.0.0"
+    },
+    "suggest": {
+        "zendframework/zend-cache": "To support Zend\\XmlRpc\\Server\\Cache usage"
+    },
+    "autoload": {
+        "psr-4": {
+            "Zend\\XmlRpc\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendTest\\XmlRpc\\": "test/"
+        },
+        "files": [
+            "test/autoload.php",
+            "test/TestAsset/functions.php"
+        ]
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.7.x-dev",
+            "dev-develop": "2.8.x-dev"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    }
+}

@@ -1,0 +1,60 @@
+{
+    "name": "zendframework/zend-mime",
+    "description": "Create and parse MIME messages and parts",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "zendframework",
+        "zf",
+        "mime"
+    ],
+    "support": {
+        "docs": "https://docs.zendframework.com/zend-mime/",
+        "issues": "https://github.com/zendframework/zend-mime/issues",
+        "source": "https://github.com/zendframework/zend-mime",
+        "rss": "https://github.com/zendframework/zend-mime/releases.atom",
+        "slack": "https://zendframework-slack.herokuapp.com",
+        "forum": "https://discourse.zendframework.com/c/questions/components"
+    },
+    "require": {
+        "php": "^5.6 || ^7.0",
+        "zendframework/zend-stdlib": "^2.7 || ^3.0"
+    },
+    "require-dev": {
+        "zendframework/zend-mail": "^2.6",
+        "phpunit/PHPUnit": "^5.7.21 || ^6.3",
+        "zendframework/zend-coding-standard": "~1.0.0"
+    },
+    "suggest": {
+        "zendframework/zend-mail": "Zend\\Mail component"
+    },
+    "autoload": {
+        "psr-4": {
+            "Zend\\Mime\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendTest\\Mime\\": "test/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.7-dev",
+            "dev-develop": "2.8-dev"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
+    "homepage": "https://github.com/zendframework/zend-mime"
+}

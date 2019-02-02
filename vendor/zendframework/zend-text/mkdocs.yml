@@ -1,0 +1,10 @@
+docs_dir: doc/book
+site_dir: doc/html
+pages:
+    - index.md
+    - Figlets: figlet.md
+    - Tables: table.md
+site_name: zend-text
+site_description: Zend\Text
+repo_url: 'https://github.com/zendframework/zend-text'
+copyright: 'Copyright (c) 2016 <a href="http://www.zend.com/">Zend Technologies USA Inc.</a>'

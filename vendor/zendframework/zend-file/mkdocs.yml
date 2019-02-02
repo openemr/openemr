@@ -1,0 +1,10 @@
+docs_dir: doc/book
+site_dir: doc/html
+pages:
+    - index.md
+    - Intro: intro.md
+    - ClassFileLocator: class-file-locator.md
+site_name: zend-file
+site_description: zend-file
+repo_url: 'https://github.com/zendframework/zend-file'
+copyright: 'Copyright (c) 2016 <a href="http://www.zend.com/">Zend Technologies USA Inc.</a>'

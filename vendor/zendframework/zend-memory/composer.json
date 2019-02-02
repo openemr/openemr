@@ -1,0 +1,58 @@
+{
+    "name": "zendframework/zend-memory",
+    "description": "Manage data in an environment with limited memory",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "zf",
+        "zendframework",
+        "memory"
+    ],
+    "support": {
+        "docs": "https://docs.zendframework.com/zend-memory/",
+        "issues": "https://github.com/zendframework/zend-memory/issues",
+        "source": "https://github.com/zendframework/zend-memory",
+        "rss": "https://github.com/zendframework/zend-memory/releases.atom",
+        "chat": "https://zendframework-slack.herokuapp.com",
+        "forum": "https://discourse.zendframework.com/c/questions/components"
+    },
+    "require": {
+        "php": "^5.6 || ^7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.7.27 || ^6.5.8 || ^7.1.4",
+        "zendframework/zend-cache": "^2.7",
+        "zendframework/zend-coding-standard": "~1.0.0"
+    },
+    "suggest": {
+        "zendframework/zend-cache": "To support swapping memory objects into and out of non-memory cache storage"
+    },
+    "autoload": {
+        "psr-4": {
+            "Zend\\Memory\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendTest\\Memory\\": "test/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.6.x-dev",
+            "dev-develop": "2.7.x-dev"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    }
+}

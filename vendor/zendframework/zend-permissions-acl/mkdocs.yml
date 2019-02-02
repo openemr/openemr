@@ -1,0 +1,11 @@
+docs_dir: doc/book
+site_dir: doc/html
+pages:
+    - index.md
+    - 'Theory and Usage': usage.md
+    - 'Refining ACLs': refining.md
+    - 'Advanced Usage': advanced.md
+site_name: zend-permissions-acl
+site_description: Zend\Permissions.acl
+repo_url: 'https://github.com/zendframework/zend-permissions-acl'
+copyright: 'Copyright (c) 2016 <a href="http://www.zend.com/">Zend Technologies USA Inc.</a>'
