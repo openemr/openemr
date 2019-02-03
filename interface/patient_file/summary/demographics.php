@@ -3,17 +3,17 @@
  *
  * Patient summary screen.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @author  Sharon Cohen <sharonco@matrix.co.il>
- * @author  Stephen Waite <stephen.waite@cmsvt.com>
- * @author Ranganath Pathak <pathak@scrs1.org>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Sharon Cohen <sharonco@matrix.co.il>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Sharon Cohen <sharonco@matrix.co.il>
  * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -207,7 +207,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 
  function newEvt() {
      let title = <?php echo xlj('Appointments'); ?>;
-     let url = '../../main/calendar/add_edit_event.php?patientid=<?php echo attr_url($pid); ?>';
+     let url = '../../main/calendar/add_edit_event.php?patientid=' + <?php echo js_url($pid); ?>;
      dlgopen(url, '_blank', 725, 500, '', title);
      return false;
  }
@@ -254,7 +254,7 @@ function editScripts(url) {
         __this.find("#addButton").css("display", "none");
 
         var iam = top.tab_mode ? top.frames.editScripts : window[1];
-        iam.location.href = '<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=0&pid=<?php echo attr_js($pid);?>'
+        iam.location.href = '<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=0&pid=' + <?php echo js_url($pid); ?>;
     };
     var ListScripts = function () {
 
@@ -263,7 +263,7 @@ function editScripts(url) {
         __this.find("#backButton").css("display", "none");
         __this.find("#addButton").css("display", "");
         var iam = top.tab_mode ? top.frames.editScripts : window[1];
-        iam.location.href = '<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo attr_js($pid); ?>'
+        iam.location.href = '<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=' + <?php echo js_url($pid); ?>;
     };
 
     let title = <?php echo xlj('Prescriptions'); ?>;
@@ -286,7 +286,7 @@ function editScripts(url) {
 
 function doPublish() {
     let title = <?php echo xlj('Publish Patient to FHIR Server'); ?>;
-    let url = top.webroot_url + '/phpfhir/providerPublishUI.php?patient_id=<?php echo attr_url($pid); ?>';
+    let url = top.webroot_url + '/phpfhir/providerPublishUI.php?patient_id=' + <?php echo js_url($pid); ?>;
 
     dlgopen(url, 'publish', 'modal-mlg', 750, '', '', {
         buttons: [
@@ -439,7 +439,7 @@ $gfres = sqlStatement("SELECT grp_form_id FROM layout_group_properties WHERE " .
   "ORDER BY grp_seq, grp_title");
 while ($gfrow = sqlFetchArray($gfres)) {
 ?>
-    $(<?php echo js_escape("#".$gfrow['grp_form_id']."_ps_expand"); ?>).load("lbf_fragment.php?formname=<?php echo attr_url($gfrow['grp_form_id']); ?>",
+    $(<?php echo js_escape("#".$gfrow['grp_form_id']."_ps_expand"); ?>).load("lbf_fragment.php?formname=" + <?php echo js_url($gfrow['grp_form_id']); ?>,
         {
             csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
         }

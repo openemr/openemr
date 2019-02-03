@@ -7,9 +7,10 @@
  * @author    ViCarePlus, Visolve <vicareplus_engg@visolve.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010 ViCarePlus, Visolve <vicareplus_engg@visolve.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once("../globals.php");
 require_once("$srcdir/lists.inc");
@@ -198,7 +199,7 @@ function form_validate()
 {
  if(document.forms[0].begin_date.value >= document.forms[0].end_date.value)
  {
-  alert("<?php echo xls('End date should be greater than Begin date');?>");
+  alert(<?php echo xlj('End date should be greater than Begin date'); ?>);
   return false;
  }
 
@@ -211,37 +212,33 @@ function form_validate()
  document.forms[0].billing_data.checked == false &&
  document.forms[0].insurance_data.checked == false)
  {
-  alert("<?php echo xls('Select Data Required for De Identification');?>");
+  alert(<?php echo xlj('Select Data Required for De Identification'); ?>);
   return false;
  }
 
  if(document.forms[0].diagnosis_text.value == "undefined" || document.forms[0].diagnosis_text.value == "")
  {
-  alert("<?php echo xls('Select Diagnosis for De Identification request');?>");
+  alert(<?php echo xlj('Select Diagnosis for De Identification request'); ?>);
   return false;
  }
  if(document.forms[0].drug_text.value == "undefined" || document.forms[0].drug_text.value == "")
  {
-  alert("<?php echo xls('Select Drugs for De Identification request');?>");
+  alert(<?php echo xlj('Select Drugs for De Identification request'); ?>);
   return false;
  }
  if(document.forms[0].immunization_text.value == "undefined" || document.forms[0].immunization_text.value == "")
  {
-  alert("<?php echo xls('Select Immunizations for De Identification request');?>");
+  alert(<?php echo xlj('Select Immunizations for De Identification request'); ?>);
   return false;
  }
- alert("<?php echo xls('De Identification process is started and running in background');
-    echo '\n';
-    echo xls('Please visit the screen after some time');?>");
+ alert(<?php echo xlj('De Identification process is started and running in background'); ?> + '\n' + <?php echo xlj('Please visit the screen after some time'); ?>);
  top.restoreSession();
  return true;
 }
 
 function download_file()
 {
- alert("<?php echo xls('De-identification files will be saved in');
-    echo ' `' . addslashes($GLOBALS['temporary_files_dir']) . '` ';
-    echo xls('location of the openemr machine and may contain sensitive data, so it is recommended to manually delete the files after its use');?>");
+ alert(<?php echo xlj('De-identification files will be saved in'); ?> + ' `' + <?php echo js_escape($GLOBALS['temporary_files_dir']); ?> + '` ' + <?php echo xlj('location of the openemr machine and may contain sensitive data, so it is recommended to manually delete the files after its use'); ?>);
  document.de_identification.submit();
 }
 
@@ -336,7 +333,7 @@ if (empty($row)) {
         $query = "SELECT count(*) as count FROM de_identified_data ";
         $res = sqlStatement($query);
         if ($row = sqlFetchArray($res)) {
-            $no_of_items = addslashes($row['count']);
+            $no_of_items = $row['count'];
         }
 
         if ($no_of_items <= 1) {
