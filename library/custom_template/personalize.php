@@ -18,13 +18,11 @@ $list_id = $_REQUEST['list_id'] ? $_REQUEST['list_id'] : $_REQUEST['filter_conte
 
 use OpenEMR\Core\Header;
 
-function Delete_Rows($id)
-{
+const Delete_Rows = $id => {
     sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($id, $_SESSION['authId']));
 }
 
-function Insert_Rows($id, $order = "")
-{
+const Insert_Rows = ($id, $order = "") => {
     sqlStatement("REPLACE INTO template_users (tu_template_id,tu_user_id,tu_template_order) VALUES (?,?,?)", array($id, $_SESSION['authId'], $order));
 }
 
@@ -73,16 +71,16 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
 
     <script type="text/javascript">
 
-        function refreshme() {
+        const refreshme = () => {
             top.restoreSession();
             document.location.reload();
         }
 
-        $(document).ready(function () {
+        $(document).ready(() => {
 
             tabbify();
 
-            $(".iframe_small").on('click', function (e) {
+            $(".iframe_small").on('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 dlgopen('', '', 400, 170, '', '', {
@@ -95,7 +93,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                 });
             });
 
-            $(".iframe_medium").on('click', function (e) {
+            $(".iframe_medium").on('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 dlgopen('', '', 450, 250, '', '', {
@@ -108,7 +106,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                 });
             });
 
-            $(".iframe_abvmedium").on('click', function (e) {
+            $(".iframe_abvmedium").on('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 dlgopen('', '', 700, 500, '', '', {
@@ -123,10 +121,10 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
 
         });
 
-        function check_user_category(form, selectFrom, selectedList) {
+        const check_user_category = (form, selectFrom, selectedList) => {
             top.restoreSession();
-            var total_selected = form.elements[selectedList].length - 1;
-            var msg = '';
+            let  total_selected = form.elements[selectedList].length - 1;
+            let msg = '';
             for (total_selected; total_selected >= 0; total_selected--) {
                 if (form.elements[selectedList].options[total_selected].selected) {
                     if (document.getElementById('filter_users').value) {
@@ -140,7 +138,8 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                                 source: "check_item"
                             },
                             async: false,
-                            success: function (thedata) {
+                            //Post Request Callback With API Data. 
+                            success: (thedata) => {
                                 if (thedata == 'OK') {
                                     total_clients = form.elements[selectFrom].length;
                                     opt = new Option(form.elements[selectedList].options[total_selected].text, form.elements[selectedList].options[total_selected].value);
@@ -151,8 +150,9 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                                     msg += form.elements[selectedList].options[total_selected].text + "\n";
                                 }
                             },
-                            error: function () {
+                            error: () => {
                                 alert("fail");
+                                //  throw new Error() with specifics ? 
                             }
                         });
                     }
@@ -173,9 +173,9 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             return;
         }
 
-        function remove_selected(form, selectedList) {
+        const remove_selected = (form, selectedList) => {
             top.restoreSession();
-            var total_selected = form.elements[selectedList].length - 1;
+            let total_selected = form.elements[selectedList].length - 1;
             for (total_selected; total_selected >= 0; total_selected--) {
                 if (form.elements[selectedList].options[total_selected].selected) {
                     form.elements[selectedList].options[total_selected] = null;
@@ -185,25 +185,27 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             return;
         }
 
-        function all_selected(selectedList) {
+        const all_selected = selectedList => {
+            //@TODO All Selected and deselected could be made into 1 function with a 2nd Argument true or false
             top.restoreSession();
-            var total_selected = document.getElementById(selectedList).length - 1;
+            let total_selected = document.getElementById(selectedList).length - 1;
             for (total_selected; total_selected >= 0; total_selected--) {
                 document.getElementById(selectedList).options[total_selected].selected = true;
             }
         }
 
-        function all_deselected(selectedList) {
+        const all_deselected = selectedList => {
+            // @TODO could be merged with code above. adding 2nd true false arg.
             top.restoreSession();
-            var total_selected = document.getElementById(selectedList).length - 1;
+            let total_selected = document.getElementById(selectedList).length - 1;
             for (total_selected; total_selected >= 0; total_selected--) {
                 document.getElementById(selectedList).options[total_selected].selected = false;
             }
         }
 
-        function jsub_selected(form, selectFrom, selectedList) {
+       const jsub_selected = (form, selectFrom, selectedList) => {
             top.restoreSession();
-            var total_selected = form.elements[selectedList].length - 1;
+            let total_selected = form.elements[selectedList].length - 1;
             for (total_selected; total_selected >= 0; total_selected--) {
                 if (form.elements[selectedList].options[total_selected].selected) {
                     total_clients = form.elements[selectFrom].length;
@@ -216,11 +218,11 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             return;
         }
 
-        function display_category_item(form, selectedList) {
+       const display_category_item = (form, selectedList) => {
             top.restoreSession();
-            var len = 0;
-            var selectedval = '';
-            var total_selected = form.elements[selectedList].length - 1;
+            let len = 0;
+            let selectedval = '';
+            let total_selected = form.elements[selectedList].length - 1;
             for (total_selected; total_selected >= 0; total_selected--) {
                 if (form.elements[selectedList].options[total_selected].selected) {
                     selectedval = form.elements[selectedList].options[total_selected].value;
@@ -241,24 +243,25 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                         source: "item_show"
                     },
                     async: false,
-                    success: function (thedata) {
-                        document.getElementById('itemdiv').innerHTML = thedata;
+                    success:(thedata) => {
+                        document.getElementById('itemdiv').textContent = thedata;
                     },
-                    error: function () {
+                    error:  () => {
                         alert("fail");
+                        //Throw new Error()? 
                     }
                 });
                 return;
             }
         }
 
-        function jsub_sortNow(obj) {
+      const jsub_sortNow = obj => {
             top.restoreSession();
-            var len = obj.length - 1;
-            var text = new Array();
-            var values = new Array();
-            var sortarr = new Array();
-            for (var i = len; i >= 0; i--) {
+            let len = obj.length - 1;
+            let text = new Array();
+            let values = new Array();
+            let sortarr = new Array();
+            for (let i = len; i >= 0; i--) {
                 text[i] = obj.options[i].text;
                 values[i] = obj.options[i].value;
                 sortarr[i] = obj.options[i].text;
@@ -266,6 +269,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             sortarr.sort();
             obj.length = 0;
             for (i = 0; i <= len; i++) {
+                //Could be rewritten as two seperate Loops to decrease time complexity o(n) instead of o(n2)?
                 for (j = 0; j <= len; j++) {
                     if (sortarr[i] == text[j]) {
                         break;
@@ -276,7 +280,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             }
         }
 
-        function personalize_save() {
+        const personalize_save = () => {
             top.restoreSession();
             document.getElementById('submitform').value = 'save';
             all_selected('topersonalized');
