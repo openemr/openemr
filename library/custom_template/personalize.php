@@ -73,16 +73,16 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
 
     <script type="text/javascript">
 
-        function refreshme() {
+        const refreshme = () => {
             top.restoreSession();
             document.location.reload();
         }
 
-        $(document).ready(function () {
+        $(document).ready(() => {
 
             tabbify();
 
-            $(".iframe_small").on('click', function (e) {
+            $(".iframe_small").on('click',  (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 dlgopen('', '', 400, 170, '', '', {
@@ -95,7 +95,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                 });
             });
 
-            $(".iframe_medium").on('click', function (e) {
+            $(".iframe_medium").on('click',  (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 dlgopen('', '', 450, 250, '', '', {
@@ -107,8 +107,8 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                     url: $(this).attr('href')
                 });
             });
-
-            $(".iframe_abvmedium").on('click', function (e) {
+                        //these two dom calls could be single function with arguments given from click
+            $(".iframe_abvmedium").on('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 dlgopen('', '', 700, 500, '', '', {
@@ -123,10 +123,10 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
 
         });
 
-        function check_user_category(form, selectFrom, selectedList) {
+        const check_user_category = (form, selectFrom, selectedList) => {
             top.restoreSession();
-            var total_selected = form.elements[selectedList].length - 1;
-            var msg = '';
+            let total_selected = form.elements[selectedList].length - 1;
+            let msg = '';
             for (total_selected; total_selected >= 0; total_selected--) {
                 if (form.elements[selectedList].options[total_selected].selected) {
                     if (document.getElementById('filter_users').value) {
@@ -140,7 +140,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                                 source: "check_item"
                             },
                             async: false,
-                            success: function (thedata) {
+                            success: thedata => {
                                 if (thedata == 'OK') {
                                     total_clients = form.elements[selectFrom].length;
                                     opt = new Option(form.elements[selectedList].options[total_selected].text, form.elements[selectedList].options[total_selected].value);
@@ -151,8 +151,9 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                                     msg += form.elements[selectedList].options[total_selected].text + "\n";
                                 }
                             },
-                            error: function () {
+                            error: () => {
                                 alert("fail");
+                                //throw new Error with reason missing something server fail? 
                             }
                         });
                     }
@@ -165,7 +166,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                 }
             }
             jsub_sortNow(form.elements[selectFrom]);
-            if (msg != '') {
+            if (msg) {
                 if (confirm("<?php echo addslashes(xl('The following categories will be removed from your category List'));?> \n" + msg + "\n <?php echo addslashes(xl('Do you want to continue?'));?>")) {
                     remove_selected(form, selectedList);
                 }
@@ -173,7 +174,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             return;
         }
 
-        function remove_selected(form, selectedList) {
+        const remove_selected = (form, selectedList) => {
             top.restoreSession();
             var total_selected = form.elements[selectedList].length - 1;
             for (total_selected; total_selected >= 0; total_selected--) {
@@ -185,25 +186,25 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             return;
         }
 
-        function all_selected(selectedList) {
+        const all_selected = selectedList => {
             top.restoreSession();
-            var total_selected = document.getElementById(selectedList).length - 1;
+            let total_selected = document.getElementById(selectedList).length - 1;
             for (total_selected; total_selected >= 0; total_selected--) {
                 document.getElementById(selectedList).options[total_selected].selected = true;
             }
         }
-
-        function all_deselected(selectedList) {
+                //all selected and all deselected could be combined and call with 2nd true or false arg* 
+        const all_deselected = selectedList => {
             top.restoreSession();
-            var total_selected = document.getElementById(selectedList).length - 1;
+            let total_selected = document.getElementById(selectedList).length - 1;
             for (total_selected; total_selected >= 0; total_selected--) {
                 document.getElementById(selectedList).options[total_selected].selected = false;
             }
         }
 
-        function jsub_selected(form, selectFrom, selectedList) {
+        const jsub_selected = (form, selectFrom, selectedList) => {
             top.restoreSession();
-            var total_selected = form.elements[selectedList].length - 1;
+            let total_selected = form.elements[selectedList].length - 1;
             for (total_selected; total_selected >= 0; total_selected--) {
                 if (form.elements[selectedList].options[total_selected].selected) {
                     total_clients = form.elements[selectFrom].length;
@@ -216,11 +217,11 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             return;
         }
 
-        function display_category_item(form, selectedList) {
+        const display_category_item = (form, selectedList) => {
             top.restoreSession();
-            var len = 0;
-            var selectedval = '';
-            var total_selected = form.elements[selectedList].length - 1;
+            let len = 0;
+            let selectedval = '';
+            let total_selected = form.elements[selectedList].length - 1;
             for (total_selected; total_selected >= 0; total_selected--) {
                 if (form.elements[selectedList].options[total_selected].selected) {
                     selectedval = form.elements[selectedList].options[total_selected].value;
@@ -241,30 +242,32 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                         source: "item_show"
                     },
                     async: false,
-                    success: function (thedata) {
-                        document.getElementById('itemdiv').innerHTML = thedata;
+                    success: thedata => {
+                        document.getElementById('itemdiv').textContent = thedata;
                     },
-                    error: function () {
+                    error:() => {
                         alert("fail");
+                        //Throw new Error() ? 
                     }
                 });
                 return;
             }
         }
-
-        function jsub_sortNow(obj) {
+    const jsub_sortNow = obj => {
             top.restoreSession();
-            var len = obj.length - 1;
-            var text = new Array();
-            var values = new Array();
-            var sortarr = new Array();
-            for (var i = len; i >= 0; i--) {
+            let len = obj.length - 1;
+            let text = new Array();
+            let values = new Array();
+            let sortarr = new Array();
+            for (let i = len; i >= 0; i--) {
                 text[i] = obj.options[i].text;
                 values[i] = obj.options[i].value;
                 sortarr[i] = obj.options[i].text;
             }
             sortarr.sort();
             obj.length = 0;
+        //Could be rewritten with hashtable or 2 seperate loops to decrease time complexity depending on length 
+        // currently o(n2), if it gets long enough could be converted to o(n)
             for (i = 0; i <= len; i++) {
                 for (j = 0; j <= len; j++) {
                     if (sortarr[i] == text[j]) {
@@ -276,7 +279,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             }
         }
 
-        function personalize_save() {
+        const personalize_save = () => {
             top.restoreSession();
             document.getElementById('submitform').value = 'save';
             all_selected('topersonalized');
