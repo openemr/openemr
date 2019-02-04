@@ -35,7 +35,7 @@ $list_id = $_REQUEST['list_id'];
         <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
         <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
         <script type="text/javascript">
-        function add_template(){
+        const add_template = () => {
                 top.restoreSession();
                 len = document.getElementById('provider').options.length;
                 sel_len=0;
@@ -57,11 +57,12 @@ $list_id = $_REQUEST['list_id'];
                      source: "save_provider"
                 },
                 async: false,
-                success: function(thedata){
-
+                success: thedata => {
+                            //not doing anything with return data* ? 
                             },
-                error:function(){
+                error:() => {
                     alert("fail");
+                    //throw error ? 
                 }
                 });
                 dlgclose();
