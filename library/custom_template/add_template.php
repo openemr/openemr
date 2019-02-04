@@ -61,20 +61,22 @@ $list_id = $_REQUEST['list_id'];
                      source: "add_template"
                 },
                 async: false,
+                    //returning Aync Promise and then calling unnamed  function with Post Req. Response.  
                 success: function(thedata){
                         if(thedata=="Fail"){
                             alert(document.getElementById('template_name').value+" <?php echo addslashes(xl('already exists'));?>");
                             return false;
                         }
                         else{
-                            mainform.getElementById('templateDD').innerHTML = thedata;
+                            //@TODO- Make Sure Post Req. is not sending HTML to be parsed ? 
+                            mainform.getElementById('templateDD').textContent = thedata;
                             alert("<?php echo addslashes(xl('Successfully added category'));?> "+document.getElementById('template_name').value);
                             //window.opener.opener.location.reload();
                             dlgclose();
                         }
                             },
                 error:function(){
-
+                        //Throw new Error ? 
                 }
                 });
                 }
