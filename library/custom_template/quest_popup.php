@@ -36,16 +36,16 @@ $content = $_REQUEST['content'];
         <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
         <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
         <script type="text/javascript">
-    function showWhereInTextarea(){
+    const showWhereInTextarea = () => {
     opener.restoreSession();
-    var textarea = document.getElementById('quest');
+    let textarea = document.getElementById('quest');
     start = textarea.value.indexOf("??");
     len =2;
     if(textarea.setSelectionRange){
         textarea.setSelectionRange(parseInt(start), (parseInt(start)+parseInt(len)));
     }
     else{
-        var range = textarea.createTextRange();
+        let range = textarea.createTextRange();
         range.collapse(true);
 
         range.moveStart('character',parseInt(start) );
@@ -55,15 +55,15 @@ $content = $_REQUEST['content'];
     }
     document.getElementById('quest').focus();
     }
-    function replace_quest(val){
+    const  replace_quest =  val => {
         opener.restoreSession();
-        var textarea = document.getElementById('quest').value;
+        let textarea = document.getElementById('quest').value;
         textarea=textarea.replace(/\?\?/i,val);
         document.getElementById('quest').value=textarea;
     }
-    function save_this(){
+    const save_this = () => {
             opener.restoreSession();
-            var textFrom = document.getElementById('quest').value;
+            let textFrom = document.getElementById('quest').value;
             window.opener.CKEDITOR.instances.textarea1.insertText(textFrom);
             window.close();
     }
