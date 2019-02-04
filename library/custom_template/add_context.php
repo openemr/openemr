@@ -54,29 +54,29 @@ if (trim($_POST['contextname'])!='' && $_POST['action']=='add') {
         <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
         <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
         <script type="text/javascript">
-            $(document).ready(function() {
+            $(document).ready(() => {
             $('#contextadd').hide();
             $('#contextupdate').hide();
-            $('#addcontextbtn').click(function() {
+            $('#addcontextbtn').click(() => {
                $('#contextadd').show(600);
                $('#contextlist').hide(600);
                $('#addcontextbtn').hide(600);
                return false;
              });
-            $('#cancel').click(function() {
+            $('#cancel').click(() => {
                $('#contextadd').hide(600);
                $('#contextlist').show(600);
                $('#addcontextbtn').show(600);
                return false;
              });
-            $('#ucancel').click(function() {
+            $('#ucancel').click(() => {
                $('#contextupdate').hide(600);
                $('#contextlist').show(600);
                $('#addcontextbtn').show(600);
                return false;
              });
             });
-            function checkSubmit(){
+            const checkSubmit = () => {
                 top.restoreSession();
                 if(document.getElementById('contextname').value){
                     document.getElementById('action').value='add';
@@ -86,7 +86,7 @@ if (trim($_POST['contextname'])!='' && $_POST['action']=='add') {
                     alert("<?php echo addslashes(xl('Context name can\'t be empty'));?>");
                 }
             }
-            function deleteme(id){
+            const deleteme = id => {
                 top.restoreSession();
                 msg = '';
                 CheckContextLive(id);
@@ -103,7 +103,7 @@ if (trim($_POST['contextname'])!='' && $_POST['action']=='add') {
                 document.designation_managment.submit();
                 }
             }
-            function editme(id,val){
+            const  editme = (id,val) => {
                 top.restoreSession();
                 $('#contextupdate').show(600);
                 $('#contextlist').hide(600);
@@ -111,7 +111,7 @@ if (trim($_POST['contextname'])!='' && $_POST['action']=='add') {
                 document.getElementById('item').value=id;
                 document.getElementById('updatecontextname').value=val;
             }
-            function checkUpdate(){
+            const checkUpdate = () => {
                 top.restoreSession();
                 if(document.getElementById('updatecontextname').value){
                 document.getElementById('action').value='update';
@@ -121,7 +121,7 @@ if (trim($_POST['contextname'])!='' && $_POST['action']=='add') {
                    alert("<?php echo addslashes(xl('Context name can\'t be empty'));?>");
                 }
             }
-            function CheckContextLive(id){
+            const CheckContextLive = id => {
                 top.restoreSession();
                 $.ajax({
                 type: "POST",
@@ -132,10 +132,10 @@ if (trim($_POST['contextname'])!='' && $_POST['action']=='add') {
                      source: "checkcontext"
                 },
                 async: false,
-                success: function(thedata){
+                success:thedata => {
                     document.getElementById('stat').value=thedata;
                 },
-                error:function(){
+                error:() => {
                     alert("fail");
                 }
                 });
