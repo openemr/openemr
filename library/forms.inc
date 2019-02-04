@@ -156,7 +156,7 @@ function getEncounterDateByEncounter($encounter)
     global $attendant_type;
     $table = $attendant_type == 'pid' ? 'form_encounter' : 'form_groups_encounter';
     // $sql = "select date from forms where encounter='$encounter' order by date";
-    $sql = "SELECT DATE FROM " . escape_table_name($table) . " WHERE encounter = ? ORDER BY DATE";
+    $sql = "SELECT date FROM " . escape_table_name($table) . " WHERE encounter = ? ORDER BY DATE";
     return sqlQuery($sql, array($encounter));
 }
 
