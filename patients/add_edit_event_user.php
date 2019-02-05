@@ -52,8 +52,7 @@ require_once("$srcdir/forms.inc");
 
  // Exit if the modify calendar for portal flag is not set
 if (!($GLOBALS['portal_onsite_appt_modify'])) {
-     echo htmlspecialchars(xl('You are not authorized to schedule appointments.'), ENT_NOQUOTES);
-   // echo xlt('You are not authorized to schedule appointments.') 
+    echo htmlspecialchars(xl('You are not authorized to schedule appointments.'), ENT_NOQUOTES);
     exit;
 }
 
