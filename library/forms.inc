@@ -3,14 +3,14 @@ $GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
 
 function getFormById($id, $cols = "*")
 {
-    $sql = "SELECT $cols FROM forms WHERE id = ? AND deleted = 0 ORDER BY DATE DESC limit 0,1";
+    $sql = "SELECT $cols FROM forms WHERE id = ? AND deleted = 0 ORDER BY date DESC limit 0,1";
     //echo $sql . "<br />";
     return sqlQuery($sql, array($id));
 }
 
 function getFormInfoById($id, $cols = "*")
 {
-    $sql = "SELECT $cols FROM forms WHERE id = ? AND deleted = 0 ORDER BY DATE DESC limit 0,1";
+    $sql = "SELECT $cols FROM forms WHERE id = ? AND deleted = 0 ORDER BY date DESC limit 0,1";
     //echo $sql . "<br />";
     $result =  sqlQuery($sql, array($id));
     if ($result['formdir'] == "newpatient") {
@@ -156,7 +156,7 @@ function getEncounterDateByEncounter($encounter)
     global $attendant_type;
     $table = $attendant_type == 'pid' ? 'form_encounter' : 'form_groups_encounter';
     // $sql = "select date from forms where encounter='$encounter' order by date";
-    $sql = "SELECT DATE FROM " . escape_table_name($table) . " WHERE encounter = ? ORDER BY DATE";
+    $sql = "SELECT date FROM " . escape_table_name($table) . " WHERE encounter = ? ORDER BY date";
     return sqlQuery($sql, array($encounter));
 }
 
@@ -164,7 +164,7 @@ function getProviderIdOfEncounter($encounter)
 {
         global $attendant_type;
         $table = $attendant_type == 'pid' ? 'form_encounter' : 'form_groups_encounter';
-        $sql = "SELECT provider_id FROM " . escape_table_name($table) . " WHERE encounter=? ORDER BY DATE";
+        $sql = "SELECT provider_id FROM " . escape_table_name($table) . " WHERE encounter=? ORDER BY date";
         $res = sqlQuery($sql, array($encounter));
         return $res['provider_id'];
 }

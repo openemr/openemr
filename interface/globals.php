@@ -624,3 +624,8 @@ $GLOBALS['temporary_files_dir'] = rtrim(sys_get_temp_dir(), '/');
 
 // turn off PHP compatibility warnings
 ini_set("session.bug_compat_warn", "off");
+// user debug mode
+if ((int) $GLOBALS['user_debug'] > 1) {
+    error_reporting(error_reporting() & ~E_WARNING & ~E_NOTICE & ~E_USER_WARNING);
+    ini_set('display_errors', 1);
+}
