@@ -144,15 +144,15 @@ function active_directory_validation($user, $pass)
         'account_suffix'        => $GLOBALS['account_suffix'],
 
         // You can use the host name or the IP address of your controllers.
-        'domain_controllers'    => [$GLOBALS['domain_controllers']],
+        'hosts'    => [$GLOBALS['domain_controllers']],
 
         // Your base DN.
         'base_dn'               => $GLOBALS['base_dn'],
 
         // The account to use for querying / modifying users. This
         // does not need to be an actual admin account.
-        'admin_username'        => $user,
-        'admin_password'        => $pass,
+        'username'        => $user,
+        'password'        => $pass,
     );
 
     // Add a connection provider to Adldap.
@@ -163,6 +163,7 @@ function active_directory_validation($user, $pass)
         $prov = $ad->connect();
         $valid = $prov->auth()->attempt($user, $pass);
     } catch (Exception $e) {
+        error_log($e->getMessage());
     }
 
     return $valid;
