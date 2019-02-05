@@ -6,8 +6,8 @@
  * @link      http://www.open-emr.org
  * @author    Visolve <vicareplus_engg@visolve.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) ViCarePlus, Visolve <vicareplus_engg@visolve.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010 ViCarePlus, Visolve <vicareplus_engg@visolve.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -55,9 +55,9 @@ td { font-size:10pt; }
    }
   }
   if(!str)
-    alert('<?php echo xls("Select Immunizations");?>');
+    alert(<?php echo xlj("Select Immunizations"); ?>);
   if (opener.closed || ! opener.set_related)
-   alert("<?php echo xls('The destination form was closed');?>");
+   alert(<?php echo xlj('The destination form was closed'); ?>);
   else
    opener.set_related(str,"immunizations");
 
@@ -101,7 +101,7 @@ function check_search_str()
  var search_str = document.getElementById('search_term').value;
  if(search_str.length < 3)
  {
-  alert('<?php echo xls("Search string should have at least three characters");?>');
+  alert(<?php echo xlj("Search string should have at least three characters"); ?>);
   return false;
  }
  top.restoreSession();
@@ -159,9 +159,7 @@ if ($row = sqlFetchArray($res)) {
     if ($no_of_items < 1) {
         ?>
      <script language='JavaScript'>
-        alert("<?php echo xls('Search string does not match with list in database');
-        echo '\n';
-        echo xls('Please enter new search string');?>");
+        alert(<?php echo xlj('Search string does not match with list in database'); ?> + '\n' + <?php echo xlj('Please enter new search string'); ?>);
      document.theform.search_term.value=" ";
      document.theform.search_term.focus();
      </script>

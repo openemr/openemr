@@ -1,21 +1,16 @@
 <?php
-/********************************************************************************\
- * Copyright (C) ViCarePlus, Visolve (vicareplus_engg@visolve.com)              *
- *                                                                              *
- * This program is free software; you can redistribute it and/or                *
- * modify it under the terms of the GNU General Public License                  *
- * as published by the Free Software Foundation; either version 2               *
- * of the License, or (at your option) any later version.                       *
- *                                                                              *
- * This program is distributed in the hope that it will be useful,              *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of               *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                *
- * GNU General Public License for more details.                                 *
- *                                                                              *
- * You should have received a copy of the GNU General Public License            *
- * along with this program; if not, write to the Free Software                  *
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
- \********************************************************************************/
+/**
+ * find_drug_popup.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Visolve <vicareplus_engg@visolve.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010 ViCarePlus, Visolve <vicareplus_engg@visolve.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -62,9 +57,9 @@ td { font-size:10pt; }
    }
   }
   if(!str)
-    alert('<?php echo xls("Select Drug");?>');
+    alert(<?php echo xlj("Select Drug");?>);
   if (opener.closed || ! opener.set_related)
-   alert("<?php echo xls('The destination form was closed')?>");
+   alert(<?php echo xlj('The destination form was closed')?>);
   else
    opener.set_related(str,"drugs");
 
@@ -108,7 +103,7 @@ function check_search_str()
  var search_str = document.getElementById('search_term').value;
  if(search_str.length < 3)
  {
-  alert('<?php echo xls("Search string should have at least three characters");?>');
+  alert(<?php echo xlj("Search string should have at least three characters");?>);
   return false;
  }
  top.restoreSession();
@@ -165,9 +160,7 @@ function check_search_str()
         if ($no_of_items < 1) {
             ?>
         <script language='JavaScript'>
-            alert("<?php echo xls('Search string does not match with list in database');
-            echo '\n';
-            echo xls('Please enter new search string');?>");
+            alert(<?php echo xlj('Search string does not match with list in database'); ?> + '\n' + <?php echo xlj('Please enter new search string'); ?>);
         document.theform.search_term.value=" ";
         document.theform.search_term.focus();
         </script>

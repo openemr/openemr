@@ -1,21 +1,17 @@
 <?php
-/********************************************************************************\
- * Copyright (C) ViCarePlus, Visolve (vicareplus_engg@visolve.com)              *
- *                                                                              *
- * This program is free software; you can redistribute it and/or                *
- * modify it under the terms of the GNU General Public License                  *
- * as published by the Free Software Foundation; either version 2               *
- * of the License, or (at your option) any later version.                       *
- *                                                                              *
- * This program is distributed in the hope that it will be useful,              *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of               *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                *
- * GNU General Public License for more details.                                 *
- *                                                                              *
- * You should have received a copy of the GNU General Public License            *
- * along with this program; if not, write to the Free Software                  *
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
- \********************************************************************************/
+/**
+ * re_identification_input_screen.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Visolve <vicareplus_engg@visolve.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010 ViCarePlus, Visolve <vicareplus_engg@visolve.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+
 require_once("../globals.php");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/patient.inc");
@@ -45,7 +41,7 @@ function form_validate()
 
  if(document.forms[0].re_id_code.value == "undefined" || document.forms[0].re_id_code.value == "")
  {
-  alert("<?php echo xls('Enter the Re Identification code');?>");
+  alert(<?php echo xlj('Enter the Re Identification code'); ?>);
   return false;
  }
  top.restoreSession();
@@ -54,9 +50,7 @@ function form_validate()
 
 function download_file()
 {
- alert("<?php echo xls('Re-identification files will be saved in');
-    echo ' `' . addslashes($GLOBALS['temporary_files_dir']) . '` ';
-    echo xls('location of the openemr machine and may contain sensitive data, so it is recommended to manually delete the files after its use');?>");
+ alert(<?php echo xlj('Re-identification files will be saved in'); ?> + ' `' + <?php echo js_escape($GLOBALS['temporary_files_dir']); ?> + '` ' + <?php echo xlj('location of the openemr machine and may contain sensitive data, so it is recommended to manually delete the files after its use'); ?>);
  document.re_identification.submit();
 }
 
