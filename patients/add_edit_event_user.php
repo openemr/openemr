@@ -52,7 +52,7 @@ require_once("$srcdir/forms.inc");
 
  // Exit if the modify calendar for portal flag is not set
 if (!($GLOBALS['portal_onsite_appt_modify'])) {
-    echo htmlspecialchars(xl('You are not authorized to schedule appointments.'), ENT_NOQUOTES);
+    echo htmlspecialchars(xlt('You are not authorized to schedule appointments.'), ENT_NOQUOTES);
     exit;
 }
 
@@ -581,17 +581,17 @@ if ($_POST['form_action'] != "") {
 
 $statuses = array(
 '-' => '',
-'*' => xl('* Reminder done'),
-'+' => xl('+ Chart pulled'),
-'x' => xl('x Cancelled'), // added Apr 2008 by JRM
-'?' => xl('? No show'),
-'@' => xl('@ Arrived'),
-'~' => xl('~ Arrived late'),
-'!' => xl('! Left w/o visit'),
-'#' => xl('# Ins/fin issue'),
-'<' => xl('< In exam room'),
-'>' => xl('> Checked out'),
-'$' => xl('$ Coding done'),
+'*' => xlt('* Reminder done'),
+'+' => xlt('+ Chart pulled'),
+'x' => xlt('x Cancelled'), // added Apr 2008 by JRM
+'?' => xlt('? No show'),
+'@' => xlt('@ Arrived'),
+'~' => xlt('~ Arrived late'),
+'!' => xlt('! Left w/o visit'),
+'#' => xlt('# Ins/fin issue'),
+'<' => xlt('< In exam room'),
+'>' => xlt('> Checked out'),
+'$' => xlt('$ Coding done'),
 );
 
 $repeats = 0; // if the event repeats
@@ -925,7 +925,7 @@ while ($crow = sqlFetchArray($cres)) {
     return false;
  }
 
-    $(document).ready(function() {
+    $(document).ready(() => {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
