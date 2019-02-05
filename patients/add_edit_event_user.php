@@ -581,17 +581,17 @@ if ($_POST['form_action'] != "") {
 
 $statuses = array(
 '-' => '',
-'*' => xlt('* Reminder done'),
-'+' => xlt('+ Chart pulled'),
-'x' => xlt('x Cancelled'), // added Apr 2008 by JRM
-'?' => xlt('? No show'),
-'@' => xlt('@ Arrived'),
-'~' => xlt('~ Arrived late'),
-'!' => xlt('! Left w/o visit'),
-'#' => xlt('# Ins/fin issue'),
-'<' => xlt('< In exam room'),
-'>' => xlt('> Checked out'),
-'$' => xlt('$ Coding done'),
+'*' => xl('* Reminder done'),
+'+' => xl('+ Chart pulled'),
+'x' => xl('x Cancelled'), // added Apr 2008 by JRM
+'?' => xl('? No show'),
+'@' => xl('@ Arrived'),
+'~' => xl('~ Arrived late'),
+'!' => xl('! Left w/o visit'),
+'#' => xl('# Ins/fin issue'),
+'<' => xl('< In exam room'),
+'>' => xl('> Checked out'),
+'$' => xl('$ Coding done'),
 );
 
 $repeats = 0; // if the event repeats
@@ -741,34 +741,34 @@ while ($crow = sqlFetchArray($cres)) {
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
  // This is for callback by the find-patient popup.
- function setpatient(pid, lname, fname, dob) {
+ const setpatient = (pid, lname, fname, dob) => {
   var f = document.forms[0];
   f.form_patient.value = lname + ', ' + fname;
   f.form_pid.value = pid;
   dobstyle = (dob == '' || dob.substr(5, 10) == '00-00') ? '' : 'none';
   document.getElementById('dob_row').style.display = dobstyle;
  }
- function change_provider(){
+ const change_provider = () => {
   var f = document.forms[0];
   f.form_date.value='';
   f.form_hour.value='';
   f.form_minute.value='';
  }
  // This is for callback by the find-patient popup.
- function unsetpatient() {
+ const unsetpatient = () => {
   var f = document.forms[0];
   f.form_patient.value = '';
   f.form_pid.value = '';
  }
 
  // This invokes the find-patient popup.
- function sel_patient() {
+ const sel_patient = () => {
   dlgopen('find_patient_popup.php', '_blank', 500, 400);
  }
 
  // Do whatever is needed when a new event category is selected.
  // For now this means changing the event title and duration.
- function set_display() {
+ const set_display = () => {
   var f = document.forms[0];
   var s = f.form_category;
   if (s.selectedIndex >= 0) {
@@ -790,7 +790,7 @@ while ($crow = sqlFetchArray($cres)) {
  }
 
  // Gray out certain fields according to selection of Category DDL
- function categoryChanged() {
+ const categoryChanged = () => {
     var value = '5';
 
     document.getElementById("form_patient").disabled=false;
@@ -801,9 +801,9 @@ while ($crow = sqlFetchArray($cres)) {
 
  // Do whatever is needed when a new event category is selected.
  // For now this means changing the event title and duration.
- function set_category() {
-  var f = document.forms[0];
-  var s = f.form_category;
+ const set_category = () => {
+  let f = document.forms[0];
+  let s = f.form_category;
   if (s.selectedIndex >= 0) {
    var catid = s.options[s.selectedIndex].value;
    f.form_title.value = s.options[s.selectedIndex].text;
@@ -814,11 +814,11 @@ while ($crow = sqlFetchArray($cres)) {
 
  // Modify some visual attributes when the all-day or timed-event
  // radio buttons are clicked.
- function set_allday() {
-  var f = document.forms[0];
-  var color1 = '#777777';
-  var color2 = '#777777';
-  var disabled2 = true;
+ const set_allday = () => {
+  let f = document.forms[0];
+  let color1 = '#777777';
+  let color2 = '#777777';
+  let disabled2 = true;
   /*if (document.getElementById('rballday1').checked) {
    color1 = '#000000';
   }
@@ -838,11 +838,11 @@ while ($crow = sqlFetchArray($cres)) {
  }
 
  // Modify some visual attributes when the Repeat checkbox is clicked.
- function set_repeat() {
-  var f = document.forms[0];
-  var isdisabled = true;
-  var mycolor = '#777777';
-  var myvisibility = 'hidden';
+ const set_repeat = () => {
+  let f = document.forms[0];
+  let isdisabled = true;
+  let mycolor = '#777777';
+  let myvisibility = 'hidden';
   /*if (f.form_repeat.checked) {
    isdisabled = false;
    mycolor = '#000000';
@@ -857,8 +857,8 @@ while ($crow = sqlFetchArray($cres)) {
  }
 
  // This is for callback by the find-available popup.
- function setappt(year,mon,mday,hours,minutes) {
-  var f = document.forms[0];
+ const setappt = (year,mon,mday,hours,minutes) => {
+  let f = document.forms[0];
   f.form_date.value = '' + year + '-' +
    ('' + (mon  + 100)).substring(1) + '-' +
    ('' + (mday + 100)).substring(1);
@@ -868,11 +868,11 @@ while ($crow = sqlFetchArray($cres)) {
  }
 
     // Invoke the find-available popup.
-    function find_available() {
+    const find_available = () => {
         //top.restoreSession();
         // (CHEMED) Conditional value selection, because there is no <select> element
         // when making an appointment for a specific provider
-        var s = document.forms[0].form_provider;
+        let s = document.forms[0].form_provider;
         <?php if ($userid != 0) { ?>
             s = document.forms[0].form_provider.value;
         <?php } else {?>
@@ -881,7 +881,7 @@ while ($crow = sqlFetchArray($cres)) {
 //        var fd2=document.forms[0].form_date2.value;
 //        document.forms[0].form_date.value=fd2.substring(6)+'-'+fd2.substring(0,2)+'-'+fd2.substring(3,5);
 
-        var formDate = document.forms[0].form_date;
+        let formDate = document.forms[0].form_date;
         window.open('find_appt_popup_user.php?bypatient&providerid=' + s +
                 '&catid=5' +
                 '&startdate=' + formDate.value, '_blank', 500, 400);
@@ -889,8 +889,8 @@ while ($crow = sqlFetchArray($cres)) {
     }
 
  // Check for errors when the form is submitted.
- function validate() {
-  var f = document.getElementById('theform');
+ const validate = () => {
+  let f = document.getElementById('theform');
   if (!f.form_date.value || !f.form_hour.value || !f.form_minute.value) {
    alert('Please click on "Openings" to select a time.');
    return false;
@@ -906,7 +906,7 @@ while ($crow = sqlFetchArray($cres)) {
   } else if (f.form_category.value=='10') {
     unsetpatient();
   }
-  var form_action = document.getElementById('form_action');
+  let form_action = document.getElementById('form_action');
   form_action.value="save";
   f.submit();
   //top.restoreSession();
@@ -914,10 +914,10 @@ while ($crow = sqlFetchArray($cres)) {
   return true;
  }
 
- function deleteEvent() {
+ const deleteEvent = () => {
     if (confirm("Deleting this event cannot be undone. It cannot be recovered once it is gone. Are you sure you wish to delete this event?")) {
-        var f = document.getElementById('theform');
-        var form_action = document.getElementById('form_action');
+        let f = document.getElementById('theform');
+        let form_action = document.getElementById('form_action');
         form_action.value="delete";
         f.submit();
         return true;
