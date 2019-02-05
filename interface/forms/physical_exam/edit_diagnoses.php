@@ -1,16 +1,22 @@
 <?php
- // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ * physical_exam edit_diagnoses.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2006 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
- include_once("../../globals.php");
- include_once("$srcdir/acl.inc");
 
- $line_id = $_REQUEST['lineid'];
- $info_msg = "";
+require_once("../../globals.php");
+require_once("$srcdir/acl.inc");
+
+$line_id = $_REQUEST['lineid'];
+$info_msg = "";
 
 if ($issue && !acl_check('patients', 'med', '', 'write')) {
     die("Edit is not authorized!");
@@ -19,9 +25,9 @@ if ($issue && !acl_check('patients', 'med', '', 'write')) {
 <html>
 <head>
 <?php html_header_show();?>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>    
-<title><?php xl('Edit Diagnoses for', 'e');?><?php echo $line_id ?></title>
-<link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+<title><?php echo xlt('Edit Diagnoses for');?><?php echo text($line_id); ?></title>
+<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 
 </head>
@@ -31,6 +37,10 @@ if ($issue && !acl_check('patients', 'med', '', 'write')) {
  // If we are saving, then save and close the window.
  //
 if ($_POST['form_save']) {
+    if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+        csrfNotVerified();
+    }
+
     $query = "DELETE FROM form_physical_exam_diagnoses WHERE line_id = ?";
     sqlStatement($query, array($line_id));
 
@@ -52,7 +62,7 @@ if ($_POST['form_save']) {
   //
     echo "<script language='JavaScript'>\n";
     if ($info_msg) {
-        echo " alert('$info_msg');\n";
+        echo " alert(" . js_escape($info_msg) . ");\n";
     }
 
     echo " window.close();\n";
@@ -68,38 +78,40 @@ if ($_POST['form_save']) {
      array($line_id)
  );
 ?>
-<form method='post' name='theform' action='edit_diagnoses.php?lineid=<?php  echo $line_id ?>'
+<form method='post' name='theform' action='edit_diagnoses.php?lineid=<?php echo attr_url($line_id); ?>'
  onsubmit='return top.restoreSession()'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+
 <center>
 
 <table border='0' width='100%'>
 
  <tr>
-  <td width='5%'><?php xl('Order', 'e'); ?></td>
-  <td width='95%'><?php xl('Diagnosis', 'e'); ?></td>
+  <td width='5%'><?php echo xlt('Order'); ?></td>
+  <td width='95%'><?php echo xlt('Diagnosis'); ?></td>
  </tr>
 
 <?php for ($i = 1; $drow = sqlFetchArray($dres); ++$i) { ?>
  <tr>
-  <td><input type='text' size='3' maxlength='5' name='form_ordering[<?php echo $i?>]' value='<?php echo $i?>' /></td>
-  <td><input type='text' size='20' maxlength='250' name='form_diagnosis[<?php echo $i?>]' value='<?php echo $drow['diagnosis'] ?>' style='width:100%' /></td>
+  <td><input type='text' size='3' maxlength='5' name='form_ordering[<?php echo attr($i); ?>]' value='<?php echo attr($i); ?>' /></td>
+  <td><input type='text' size='20' maxlength='250' name='form_diagnosis[<?php echo attr($i); ?>]' value='<?php echo attr($drow['diagnosis']); ?>' style='width:100%' /></td>
  </tr>
 <?php } ?>
 
 <?php for ($j = 0; $j < 5; ++$j, ++$i) { ?>
  <tr>
-  <td><input type='text' size='3' name='form_ordering[<?php echo $i?>]' value='<?php echo $i?>' /></td>
-  <td><input type='text' size='20' name='form_diagnosis[<?php echo $i?>]' style='width:100%' /></td>
+  <td><input type='text' size='3' name='form_ordering[<?php echo attr($i); ?>]' value='<?php echo $i?>' /></td>
+  <td><input type='text' size='20' name='form_diagnosis[<?php echo attr($i); ?>]' style='width:100%' /></td>
  </tr>
 <?php } ?>
 
 </table>
 
 <p>
-<input type='submit' name='form_save' value='<?php xl('Save', 'e'); ?>' />
+<input type='submit' name='form_save' value='<?php echo xla('Save'); ?>' />
 
 &nbsp;
-<input type='button' value='<?php xl('Cancel', 'e'); ?>' onclick='window.close()' />
+<input type='button' value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
 </p>
 
 </center>

@@ -1,3 +1,13 @@
+/**
+ * CAMOS rx.css
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Mark Leeds <drleeds@gmail.com>
+ * @copyright Copyright (C) 2006-2009 Mark Leeds <drleeds@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 #rx1 {
 	position: absolute;
 	top: 0in;
@@ -28,44 +38,44 @@
 }
 .topheader {
 	font-family: times;
-	font-weight: bold;	
-	font-size: 12px;	
+	font-weight: bold;
+	font-size: 12px;
 	text-align: center;
 }
 .bottomheader {
 	font-family: times;
-	font-weight: normal;	
-	font-size: 12px;	
+	font-weight: normal;
+	font-size: 12px;
 	text-align: left;
 }
 .content {
 	font-family: courier;
-	font-weight: normal;	
-	font-size: 14px;	
+	font-weight: normal;
+	font-size: 14px;
 	text-align: left;
 }
 .signature {
 	position: absolute;
 	top: 3.5in;
-	font-weight: normal;	
-	font-size: 12px;	
+	font-weight: normal;
+	font-size: 12px;
 }
 .sig {
 	position: absolute;
 	top: 2.7in;
 }
 .mytagname {
-	font-weight: bold;	
-	font-size: 12px;	
+	font-weight: bold;
+	font-size: 12px;
 }
 .mydata {
-	font-weight: normal;	
-	font-size: 12px;	
+	font-weight: normal;
+	font-size: 12px;
         text-decoration: underline;
 }
 .symbol {
-	font-weight: bold;	
-	font-size: 24px;	
+	font-weight: bold;
+	font-size: 24px;
 }
 #vline {
 	position: absolute;

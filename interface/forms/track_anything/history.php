@@ -1,31 +1,19 @@
 <?php
 /**
-* Encounter form to track any clinical parameter.
-*
-* Copyright (C) 2014 Joe Slam <joe@produnis.de>
-*
-* LICENSE: This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>.
-*
-* @package OpenEMR
-* @author Joe Slam <joe@produnis.de>
-* @link http://www.open-emr.org
-*/
-
-// initial stuff
-//---------------
+ * Encounter form to track any clinical parameter.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Joe Slam <trackanything@produnis.de>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2014 Joe Slam <trackanything@produnis.de>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once("../../globals.php");
-include_once($GLOBALS["srcdir"] . "/api.inc");
+require_once($GLOBALS["srcdir"] . "/api.inc");
 
 use OpenEMR\Core\Header;
 
@@ -242,7 +230,7 @@ while ($myrow = sqlFetchArray($query)) {
     // get every single tracks
     echo "<div id='graph" . attr($track_count) . "' class='chart-dygraphs'> </div><br>"; // here goes the graph
     echo "<small>[" . xlt('Data from') . " ";
-    echo "<a href='../../patient_file/encounter/encounter_top.php?set_encounter=" . attr($the_encounter) . "' target='RBot'>" . xlt('encounter') . " #" . text($the_encounter) . "</a>]";
+    echo "<a href='../../patient_file/encounter/encounter_top.php?set_encounter=" . attr_url($the_encounter) . "' target='RBot'>" . xlt('encounter') . " #" . text($the_encounter) . "</a>]";
     echo "</small>";
     echo "<table border='1'>";
     $spell2  = "SELECT DISTINCT track_timestamp ";
@@ -259,9 +247,9 @@ while ($myrow = sqlFetchArray($query)) {
         $spell3 .= "FROM form_track_anything_results ";
         $spell3 .= "INNER JOIN form_track_anything_type ON form_track_anything_results.itemid = form_track_anything_type.track_anything_type_id ";
         $spell3 .= "WHERE track_anything_id = ? AND track_timestamp = ? AND form_track_anything_type.active = 1 ";
-        $spell3 .= "ORDER BY form_track_anything_results.track_timestamp ?. ";
+        $spell3 .= "ORDER BY form_track_anything_results.track_timestamp " . escape_sort_order($ASC_DESC) . ", ";
         $spell3 .= " form_track_anything_type.position ASC, the_name ASC ";
-        $query3  = sqlStatement($spell3, array($the_track, $thistime, escape_sort_order($ASC_DESC)));
+        $query3  = sqlStatement($spell3, array($the_track, $thistime));
 
         // print local <table>-heads
         // ----------------------------
@@ -426,7 +414,7 @@ if ($fromencounter == 1) {
 if ($fromencounter == 0) {
     echo "<td>&nbsp;&nbsp;&nbsp;<a href='../../patient_file/summary/demographics.php' ";
     echo " class='css_button' onclick='top.restoreSession()'>";
-    echo "<span>" . htmlspecialchars(xl('Back to Patient'), ENT_NOQUOTES) . "</span></a></td>";
+    echo "<span>" . xlt('Back to Patient') . "</span></a></td>";
 }
 
 //---------------------------------------------

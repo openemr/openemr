@@ -39,6 +39,7 @@ $returnurl = 'encounter_top.php';
         <div class="row">
             <div class="col-xs-12">
                 <form name="my_form" method=post action="<?php echo $rootdir;?>/forms/dictation/save.php?mode=new" onsubmit="return top.restoreSession()">
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                     <fieldset>
                         <legend><?php echo xlt('Dictation')?></legend>
                         <div class="form-group">

@@ -1,6 +1,6 @@
 <?php
 /**
- * Care plan form.
+ * Care plan form new.php
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -8,7 +8,7 @@
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -131,7 +131,8 @@ endforeach;
                 </div>
             </div>
             <div class="row">
-            <?php echo "<form method='post' name='my_form' " . "action='$rootdir/forms/care_plan/save.php?id=" . attr($formid) . "'>\n"; ?>
+            <?php echo "<form method='post' name='my_form' " . "action='$rootdir/forms/care_plan/save.php?id=" . attr_url($formid) . "'>\n"; ?>
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                 <fieldset>
                     <legend><?php echo xlt('Enter Details'); ?></legend>
                     <?php
