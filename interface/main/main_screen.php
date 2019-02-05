@@ -327,9 +327,10 @@ if ($GLOBALS['new_tabs_layout']) {
 
 // Flag that tab mode is off
 var tab_mode=false;
-
-var webroot_url = '<?php echo $GLOBALS['web_root']; ?>';
-var jsLanguageDirection = "<?php echo $_SESSION["language_direction"]; ?>";
+// some globals to access using top.variable
+var userDebug = <?php echo js_escape($GLOBALS['user_debug']); ?>;
+var webroot_url = <?php echo js_escape($web_root); ?>;
+var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?>;
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
