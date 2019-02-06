@@ -16,6 +16,7 @@ require_once("../../globals.php");
 
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
+
 require_once(dirname(__FILE__) . "/../../../library/forms.inc");
 
 
@@ -87,12 +88,12 @@ foreach ($_GET as $key => $value) {
 
     <?php
     $result = getFormByEncounter(
-    $pid,
-    $_REQUEST['encounter'],
-    "id, date, form_id, form_name, formdir, user, deleted",
-    "",
-    "FIND_IN_SET(formdir,'newpatient') DESC, form_name, date DESC",
-    $_REQUEST['id']
+        $pid,
+        $_REQUEST['encounter'],
+        "id, date, form_id, form_name, formdir, user, deleted",
+        "",
+        "FIND_IN_SET(formdir,'newpatient') DESC, form_name, date DESC",
+        $_REQUEST['id']
     );
     echo xlt('You are about to delete the following form from this encounter') . ': ' . text(xl_form_title($result[0]['form_name'])); ?>
 </p>

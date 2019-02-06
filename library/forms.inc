@@ -35,7 +35,7 @@ function getFormByEncounter(
     $cols = "form_id, form_name",
     $name = "",
     $orderby = "FIND_IN_SET(formdir,'vitals') DESC, date DESC",
-    $form_id=""
+    $form_id = ""
 ) {
 
     global $attendant_type;
@@ -55,9 +55,8 @@ function getFormByEncounter(
 
     if ($form_id != '') {
         $sql .= " and id=?";
-        array_push($arraySqlBind, $attendant_id,$form_id);
-    }
-    else {
+        array_push($arraySqlBind, $attendant_id, $form_id);
+    } else {
         array_push($arraySqlBind, $attendant_id);
     }
 
