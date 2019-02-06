@@ -693,9 +693,6 @@ ALTER TABLE `facility` ADD `mail_city` VARCHAR(35) NOT NULL;
 #IfMissingColumn facility mail_state
 ALTER TABLE `facility` ADD `mail_state` VARCHAR(2) NOT NULL;
 #EndIf
-#IfMissingColumn facility mail_state
-ALTER TABLE `facility` ADD `mail_state2` VARCHAR(2) NOT NULL; 
-#EndIf
 #IfMissingColumn facility mail_zip
 ALTER TABLE `facility` ADD `mail_zip` VARCHAR(10) NOT NULL;
 #EndIf
