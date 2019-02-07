@@ -1645,6 +1645,7 @@ CREATE TABLE `facility` (
   `color` VARCHAR(7) NOT NULL DEFAULT '',
   `primary_business_entity` INT(10) NOT NULL DEFAULT '0' COMMENT '0-Not Set as business entity 1-Set as business entity',
   `facility_code` VARCHAR(31) default NULL,
+  `extra_validation` tinyint(1) NOT NULL DEFAULT '1',
   `mail_street` varchar(30)  NULL,
   `mail_street2` varchar(30)  NULL,
   `mail_city` varchar(50)  NULL,

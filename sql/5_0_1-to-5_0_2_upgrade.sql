@@ -697,6 +697,6 @@ ALTER TABLE `facility` ADD `mail_state` VARCHAR(2) NOT NULL;
 ALTER TABLE `facility` ADD `mail_zip` VARCHAR(10) NOT NULL;
 #EndIf
 #IfMissingColumn facility oid
-ALTER TABLE `facility` ADD `oid` VARCHAR(31) NOT NULL DEFAULT '0' COMMENT 'HIEs CCDA and FHIR an OID is required/wanted';
+ALTER TABLE `facility` ADD `oid` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT 'HIEs CCDA and FHIR an OID is required/wanted';
 #EndIf
 
