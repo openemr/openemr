@@ -169,36 +169,11 @@ class FacilityService
 
     public function update($data)
     {
-        $sql  = " UPDATE facility SET";
-        $sql .= "     name=?,";
-        $sql .= "     phone=?,";
-        $sql .= "     fax=?,";
-        $sql .= "     street=?,";
-        $sql .= "     city=?,";
-        $sql .= "     state=?,";
-        $sql .= "     postal_code=?,";
-        $sql .= "     country_code=?,";
-        $sql .= "     federal_ein=?,";
-        $sql .= "     website=?,";
-        $sql .= "     email=?,";
-        $sql .= "     color=?,";
-        $sql .= "     service_location=?,";
-        $sql .= "     billing_location=?,";
-        $sql .= "     accepts_assignment=?,";
-        $sql .= "     pos_code=?,";
-        $sql .= "     domain_identifier=?,";
-        $sql .= "     attn=?,";
-        $sql .= "     tax_id_type=?,";
-        $sql .= "     primary_business_entity=?,";
-        $sql .= "     facility_npi=?,";
-        $sql .= "     facility_code=?,";
-        $sql .= "     facility_taxonomy=?,";
-        $sql .= "     mail_street=?,";
-        $sql .= "     mail_street2=?,";
-        $sql .= "     mail_city=?,";
-        $sql .= "     mail_state=?,";
-        $sql .= "     mail_zip=?";
-        $sql .= " WHERE id=?";
+        $sql  = " UPDATE facility SET name=?, phone=?, fax=?, street=?, city=?, state=?, postal_code=?, country_code=?,
+                 federal_ein=?, website=?, email=?, color=?, service_location=?, billing_location=?, accepts_assignment=?,
+                 pos_code=?, pos_code=?, domain_identifier=?, attn=?, tax_id_type=?, primary_business_entity=?, facility_npi=?,
+                 facility_code=?, facility_taxonomy=?, mail_street=?, mail_street2=?, mail_city=?, mail_state=?,mail_zip=?,
+                 oid=? WHERE id=?";
 
         return sqlStatement(
             $sql,
@@ -239,36 +214,36 @@ class FacilityService
 
     public function insert($data)
     {
-        $sql  = " INSERT INTO facility SET";
-        $sql .= "     name=?,";
-        $sql .= "     phone=?,";
-        $sql .= "     fax=?,";
-        $sql .= "     street=?,";
-        $sql .= "     city=?,";
-        $sql .= "     state=?,";
-        $sql .= "     postal_code=?,";
-        $sql .= "     country_code=?,";
-        $sql .= "     federal_ein=?,";
-        $sql .= "     website=?,";
-        $sql .= "     email=?,";
-        $sql .= "     color=?,";
-        $sql .= "     service_location=?,";
-        $sql .= "     billing_location=?,";
-        $sql .= "     accepts_assignment=?,";
-        $sql .= "     pos_code=?,";
-        $sql .= "     domain_identifier=?,";
-        $sql .= "     attn=?,";
-        $sql .= "     tax_id_type=?,";
-        $sql .= "     primary_business_entity=?,";
-        $sql .= "     facility_npi=?,";
-        $sql .= "     facility_code=?,";
-        $sql .= "     facility_taxonomy=?,";
-        $sql .= "     mail_street=?,";
-        $sql .= "     mail_street2=?,";
-        $sql .= "     mail_city=?,";
-        $sql .= "     mail_state=?,";
-        $sql .= "     mail_zip=?,";
-        $sql .= "     oid=? ";
+        $sql  = " INSERT INTO facility SET
+             name=?,
+             phone=?,
+             fax=?,
+             street=?,
+             city=?,
+             state=?,
+             postal_code=?,
+             country_code=?,
+             federal_ein=?,
+             website=?,
+             email=?,
+             color=?,
+             service_location=?,
+             billing_location=?,
+             accepts_assignment=?,
+             pos_code=?,
+             domain_identifier=?,
+             attn=?,
+             tax_id_type=?,
+             primary_business_entity=?,
+             facility_npi=?,
+             facility_code=?,
+             facility_taxonomy=?,
+             mail_street=?,
+             mail_street2=?,
+             mail_city=?,
+             mail_state=?,
+             mail_zip=?,
+             oid=? ";
         return sqlInsert(
             $sql,
             array(
@@ -294,7 +269,13 @@ class FacilityService
                 $data["primary_business_entity"],
                 $data["facility_npi"],
                 $data["facility_code"],
-                $data["facility_taxonomy"]
+                $data["facility_taxonomy"],
+                $data["mail_street"],
+                $data["mail_street2"],
+                $data["mail_city"],
+                $data["mail_state"],
+                $data["mail_zip"],
+                $data["oid"]
             )
         );
     }
