@@ -13,10 +13,10 @@
 
 
 require_once("../../globals.php");
+require_once(dirname(__FILE__) . "/../../../library/forms.inc");
 
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
-require_once(dirname(__FILE__) . "/../../../library/forms.inc");
 
 
 // allow a custom 'delete' form
@@ -84,17 +84,7 @@ foreach ($_GET as $key => $value) {
 ?>
 <input type="hidden" id="confirm" name="confirm" value="1"/>
 <p>
-
-    <?php
-    $result = getFormByEncounter(
-    $pid,
-    $_REQUEST['encounter'],
-    "id, date, form_id, form_name, formdir, user, deleted",
-    "",
-    "FIND_IN_SET(formdir,'newpatient') DESC, form_name, date DESC",
-    $_REQUEST['id']
-    );
-    echo xlt('You are about to delete the following form from this encounter') . ': ' . text(xl_form_title($result[0]['form_name'])); ?>
+<?php echo xlt('You are about to delete the following form from this encounter') . ': ' . text(getFormNameByFormdir($_REQUEST["formname"])["form_name"]); ?>
 </p>
 <input type="button" id="confirmbtn" name="confirmbtn" value='<?php echo xla('Yes, Delete this form'); ?>'>
 <input type="button" id="cancel" name="cancel" value='<?php echo xla('Cancel'); ?>'>

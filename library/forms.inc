@@ -34,8 +34,7 @@ function getFormByEncounter(
     $encounter,
     $cols = "form_id, form_name",
     $name = "",
-    $orderby = "FIND_IN_SET(formdir,'vitals') DESC, date DESC",
-    $form_id=""
+    $orderby = "FIND_IN_SET(formdir,'vitals') DESC, date DESC"
 ) {
 
     global $attendant_type;
@@ -53,13 +52,7 @@ function getFormByEncounter(
         $sql .= " and therapy_group_id = ? and pid IS NULL ";
     }
 
-    if ($form_id != '') {
-        $sql .= " and id=?";
-        array_push($arraySqlBind, $attendant_id,$form_id);
-    }
-    else {
-        array_push($arraySqlBind, $attendant_id);
-    }
+    array_push($arraySqlBind, $attendant_id);
 
     // Default $orderby puts vitals first in the list, and newpatient last:
     $sql .= "ORDER BY $orderby";
