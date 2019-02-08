@@ -1646,6 +1646,12 @@ CREATE TABLE `facility` (
   `primary_business_entity` INT(10) NOT NULL DEFAULT '0' COMMENT '0-Not Set as business entity 1-Set as business entity',
   `facility_code` VARCHAR(31) default NULL,
   `extra_validation` tinyint(1) NOT NULL DEFAULT '1',
+  `mail_street` varchar(30)  NULL,
+  `mail_street2` varchar(30)  NULL,
+  `mail_city` varchar(50)  NULL,
+  `mail_state` varchar(3) NULL,
+  `mail_zip` varchar(10) NULL,
+  `oid` VARCHAR(31) NOT NULL DEFAULT '0' COMMENT 'HIEs CCDA and FHIR an OID is required/wanted',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 ;
 

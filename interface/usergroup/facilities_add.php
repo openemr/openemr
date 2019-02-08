@@ -287,6 +287,62 @@ function displayAlert()
         <td><font class="mandatory">*</font><span class="text"> <?php echo xlt('Required'); ?></span></td><td>&nbsp;</td><td>&nbsp;</td>
         <td>&nbsp;</td><td>&nbsp;</td>
         </tr>
+        <tr>
+            <td>
+                <hr>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <label><?php xlt('Mailing Address'); ?>: </label>
+            </td>
+            <td>
+                <input type="entry" size="20" name="mail_street" value="<?php echo attr($facility["mail_street"]) ?>">
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <label><?php xlt('Dept'); ?>: </label>
+            </td>
+            <td>
+                <input type="entry" size="20" name="mail_street2" value="<?php echo attr($facility["mail_street2"]) ?>">
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <label><?php xlt('City'); ?>: </label>
+            </td>
+            <td>
+                <input type="entry" size="20" name="mail_city" value="<?php echo attr($facility["mail_city"]) ?>">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label><?php xlt('State'); ?>: </label>
+            </td>
+            <td>
+                <input type="entry" size="20" name="mail_state" value="<?php echo attr($facility["mail_state"]) ?>">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label><?php xlt('Zip'); ?>: </label>
+            </td>
+            <td>
+                <input type="entry" size="20" name="mail_zip" value="<?php echo attr($facility["mail_zip"]) ?>">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label><?php xlt('OID'); ?>: </label>
+            </td>
+            <td>
+                <input type="entry" size="20" name="oid" value="<?php echo attr($facility["oid"]) ?>">
+            </td>
+        </tr>
     </table>
 </form>
 
