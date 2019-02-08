@@ -317,7 +317,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
         $dailySummaryReport = array_merge_recursive($totalAppointment, $totalNewPatient, $totalVisit, $totalPayment, $totalPaid);
         ?>
 
-        <div id="report_results" style="font-size: 12px">
+        <div id="report_results" >
             <?php echo '<b>' . xlt('From') . '</b> ' . text(oeFormatShortDate($from_date)) . ' <b>' . xlt('To') . '</b> ' . text(oeFormatShortDate($to_date)); ?>
 
             <table class="flowboard" cellpadding='5' cellspacing='2' id="ds_report">

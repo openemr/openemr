@@ -3421,7 +3421,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                               </td>
                                               <td class="text-center">
                                                   <span id="Coding_Visit_Codes" style="text-decoration:underline;"><?php echo xlt('Justify'); ?></span>
-                                                  <span style="font-size:1.2em;">&#x21b4;</span>
+                                                  <span >&#x21b4;</span>
                                               </td>
                                           </tr>
                                           <tr class="ui-widget-content">

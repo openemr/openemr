@@ -431,7 +431,7 @@ if (!$_REQUEST['flb_table']) {
             <div class=" text-center row divTable" style="width: 85%;padding: 10px 10px 0;margin: 10px auto;">
                 <div class="col-sm-12" id="loader">
                     <div class="text-center">
-                        <i class="fa fa-spinner fa-pulse fa-fw" style="font-size: 140px; color: #0000cc; padding: 20px"></i>
+                        <i class="fa fa-spinner fa-pulse fa-fw" style="color: #0000cc; padding: 20px"></i>
                         <h2 ><?php echo xlt('Loading data'); ?>...</h2>
                     </div>
                 </div>

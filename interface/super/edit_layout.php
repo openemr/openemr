@@ -1323,11 +1323,11 @@ if ($lastgroup) {
 <?php if ($layout_id) { ?>
 <input type='button' value='<?php echo xla('Layout Properties'); ?>' onclick='edit_layout_props("")' />&nbsp;
 <input type='button' class='addgroup'  id='addgroup'  value='<?php echo xla('Add Group'); ?>' />
-<span style="font-size:90%"> &nbsp;
+<span> &nbsp;
 <input type='button' class="btn btn-danger" name='save' id='save' value='<?php echo xla('Save Changes'); ?>' /></span> &nbsp;&nbsp;
 <?php echo xlt('With selected:');?>
-<input type='button' name='deletefields' id='deletefields' value='<?php echo xla('Delete'); ?>' style="font-size:90%" disabled="disabled" />
-<input type='button' name='movefields' id='movefields' value='<?php echo xla('Move to...'); ?>' style="font-size:90%" disabled="disabled" />
+<input type='button' name='deletefields' id='deletefields' value='<?php echo xla('Delete'); ?>' disabled="disabled" />
+<input type='button' name='movefields' id='movefields' value='<?php echo xla('Move to...'); ?>' disabled="disabled" />
 <input type='button' value='<?php echo xla('Tips'); ?>' onclick='$("#tips").toggle();' />&nbsp;
 <input type='button' value='<?php echo xla('Encounter Preview'); ?>' onclick='layoutLook();' />
 

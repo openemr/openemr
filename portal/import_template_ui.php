@@ -192,7 +192,7 @@ function getDocument(docname, mode, content) {
 <button class="btn btn-primary" type="button" onclick="location.href='./patient/provider'"><?php echo xlt('Home'); ?></button>
 <input type='hidden' name="up_dir" value='<?php global $getdir;
 echo $getdir;?>' />
-<button class="btn btn-success" type="submit" name="upload_submit" id="upload_submit"><?php echo xlt('Upload Template for'); ?> <span style="font-size: 14px;" class="label label-default" id='ptstatus'></span></button>
+<button class="btn btn-success" type="submit" name="upload_submit" id="upload_submit"><?php echo xlt('Upload Template for'); ?> <span class="label label-default" id='ptstatus'></span></button>
 </form>
 <div class='row'>
 <h3><?php echo xlt('Active Templates'); ?></h3>

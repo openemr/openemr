@@ -306,7 +306,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
 
         <?php
     } ?><br /><br />
-    <table style="font-size:1.2em;">
+    <table>
       <tr>
         <td style="text-align:left;padding:1px;vertical-align:top;max-width:720px;">
           <table style="padding:5px;width:700px;">
@@ -924,7 +924,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
         <tr>
           <td>
             <b class="underline"><?php echo xlt('Pupils') ?>: <?php echo xlt('Dim'); ?></b>
-            <table style="report_vitals" style="font-size: 8px;text-align:middle;">
+            <table style="report_vitals" style="text-align:middle;">
               <tr >
                 <th></th>
                 <th style="padding: 2px;text-align:center;" ><?php echo xlt('size'); ?> (<?php echo xlt('mm{{millimeters}}'); ?>)
@@ -969,7 +969,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                 $AMSLEROS= "0";
             }
             ?>
-            <table style="font-size:10px;">
+            <table>
               <tr style="font-weight:bold;">
                 <td style="text-align:center;text-decoration:underline;"><?php echo xlt('OD'); ?></td>
                 <td></td>
@@ -1193,7 +1193,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLODADD)?:"-");  ?></td>
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLODVA)?:"-"); ?></td>
                   </tr>
-                  <tr style="font-size:0.6em;">
+                  <tr>
                     <td></td>
                     <td></td>
                         <td colspan="3" style="font-weight:400;font-size:10px;text-align:left;"><?php echo xlt('Brand'); ?>:<?php echo (text($CTLBRANDOD)?:"-");  ?></td>
@@ -1212,7 +1212,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLOSADD)?:"-");  ?></td>
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo ($CTLOSVA?:"-"); ?></td>
                   </tr>
-                  <tr style="font-size:9px;">
+                  <tr >
                     <td></td>
                     <td></td>
                         <td colspan="3" style="font-weight:400;font-size:10px;text-align:left;"><?php echo xlt('Brand'); ?>: <?php echo (text($CTLBRANDOS)?:"-");  ?></td>

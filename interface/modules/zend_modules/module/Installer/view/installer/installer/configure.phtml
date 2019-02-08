@@ -63,7 +63,7 @@ if($TabSettings[3]['cnt'] > 0){
     <div title="<?php echo $listener->z_xla('Hooks');?>" id="tab_hooks<?php echo $this->escapeHtml($mod_id); ?>" iconCls="icon-plug" > 
       <table width="100%">
             <tr>
-              <td colspan="2" align="center" style="font-size:14px;font-weight:bold">
+              <td colspan="2" align="center" style="font-weight:bold">
                  <?php echo $listener->z_xlt("Manage Hooks");?>
               </td>
             </tr>
@@ -112,7 +112,7 @@ if($TabSettings[3]['cnt'] > 0){
                         }  
                                 else{ ?>
                             <tr>                            
-                            <td  colspan="<?php echo $this->escapeHtml($hanger_count)+1; ?>" align="center" style="font-size:14px">
+                            <td  colspan="<?php echo $this->escapeHtml($hanger_count)+1; ?>" align="center">
                                 <?php echo $listener->z_xlt('No Hooks Available in this Module'); ?>
                             </td>
                         </tr>

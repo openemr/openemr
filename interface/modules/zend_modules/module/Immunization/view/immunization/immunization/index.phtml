@@ -99,7 +99,7 @@ $form->prepare();
                 </div>
                 <div class="header_wrap_right" style="<?php if(count($res) == 0){ ?>display: none;<?php } ?>">
                     <div class="se_in_4">
-                        <label style="font-size:12px;"><?php echo $listener->z_xlt('Show');?>&nbsp;</label>&nbsp;<input maxlength="3" type="text" onkeypress="return isNumber(event)" id="form_results" name="form_results" value="<?php echo $this->escapeHtml($this->form_data['results']);?>" />&nbsp;<label style="font-size:12px;">&nbsp;<?php echo $listener->z_xlt('Immunizations'); ?></label>
+                        <label><?php echo $listener->z_xlt('Show');?>&nbsp;</label>&nbsp;<input maxlength="3" type="text" onkeypress="return isNumber(event)" id="form_results" name="form_results" value="<?php echo $this->escapeHtml($this->form_data['results']);?>" />&nbsp;<label style="font-size:12px;">&nbsp;<?php echo $listener->z_xlt('Immunizations'); ?></label>
                     </div>
                     <div class="se_in_6">
                         <div class="se_in_5">
