@@ -14,6 +14,7 @@
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
+require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Core\Header;
 
@@ -115,6 +116,48 @@ function bucks($amt)
     <table class='text'>
         <tr>
             <td class='control-label'>
+                <?php echo xlt('Facility'); ?>:
+            </td>
+            <td>
+                <?php
+                $form_facility=$_REQUEST['form_facility']; 
+                dropdown_facility($form_facility, 'form_facility', false); 
+                ?>
+            </td>
+            <td class='control-label'>
+                <?php echo xlt('Provider') ?>:
+            </td>
+            <td>
+            <?php  # Build a drop-down list of providers.
+                    # Added (TLH)
+
+                    $query = "SELECT id, lname, fname FROM users WHERE ".
+                    "authorized = 1  ORDER BY lname, fname"; #(CHEMED) facility filter
+
+                    $ures = sqlStatement($query);
+
+                    echo "   <select name='form_provider' class='form-control'>\n";
+                    echo "    <option value=''>-- " . xlt('All') . " --\n";
+
+            while ($urow = sqlFetchArray($ures)) {
+                $provid = $urow['id'];
+                echo "    <option value='" . attr($provid) . "'";
+                if ($provid == $_POST['form_provider']) {
+                    echo " selected";
+                }
+
+                echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
+                if ($provid == $_POST['form_provider']) {
+                    $provider_name = $urow['lname'] . ", " . $urow['fname'];
+                }
+            }
+
+                    echo "   </select>\n";
+            ?>
+            </td>
+            </tr>
+            <tr>
+            <td class='control-label'>
                 <?php echo xlt('From'); ?>:
             </td>
             <td>
@@ -185,15 +228,25 @@ if (true || $_POST['form_refresh']) {
     "MAX(r.user) AS user, " .
     "p.fname, p.mname, p.lname, p.pubpid " .
     "FROM payments AS r " .
+    "JOIN form_encounter AS fe ON fe.encounter=r.encounter " .
     "LEFT OUTER JOIN patient_data AS p ON " .
     "p.pid = r.pid " .
     "WHERE " .
     "r.dtime >= ? AND " .
-    "r.dtime <= ? " .
-    "GROUP BY r.dtime, r.pid ORDER BY r.dtime, r.pid";
+    "r.dtime <= ? AND ";
+    if($_REQUEST['form_facility']!="")
+    $query.="fe.facility_id = ? AND ";
+    if($_REQUEST['form_provider']!="")
+    $query.="fe.provider_id = ? AND ";
+    $query.="1 GROUP BY r.dtime, r.pid ORDER BY r.dtime, r.pid";
 
-    // echo "<!-- $query -->\n"; // debugging
-    $res = sqlStatement($query, array($from_date.' 00:00:00', $to_date.' 23:59:59'));
+    // echo " $query \n"; // debugging
+    $inputArray=array($from_date.' 00:00:00', $to_date.' 23:59:59');
+    if($_REQUEST['form_facility']!="")
+    $inputArray[]=$_REQUEST['form_facility'];
+    if($_REQUEST['form_provider']!="")
+    $inputArray[]=$_REQUEST['form_provider'];
+    $res = sqlStatement($query, $inputArray);
 
     while ($row = sqlFetchArray($res)) {
         // Make the timestamp URL-friendly.
