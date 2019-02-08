@@ -169,11 +169,35 @@ class FacilityService
 
     public function update($data)
     {
-        $sql  = " UPDATE facility SET name=?, phone=?, fax=?, street=?, city=?, state=?, postal_code=?, country_code=?,
-                 federal_ein=?, website=?, email=?, color=?, service_location=?, billing_location=?, accepts_assignment=?,
-                 pos_code=?, pos_code=?, domain_identifier=?, attn=?, tax_id_type=?, primary_business_entity=?, facility_npi=?,
-                 facility_code=?, facility_taxonomy=?, mail_street=?, mail_street2=?, mail_city=?, mail_state=?,mail_zip=?,
-                 oid=? WHERE id=?";
+        $sql  = " UPDATE facility SET name=?,
+            phone=?,
+            fax=?,
+            street=?,
+            city=?,
+            state=?,
+            postal_code=?,
+            country_code=?,
+            federal_ein=?,
+            website=?,
+            email=?,
+            color=?,
+            service_location=?,
+            billing_location=?,
+            accepts_assignment=?,
+            pos_code=?,
+            domain_identifier=?,
+            attn=?,
+            tax_id_type=?,
+            primary_business_entity=?,
+            facility_npi=?,
+            facility_code=?,
+            facility_taxonomy=?,
+            mail_street=?,
+            mail_street2=?,
+            mail_city=?,
+            mail_state=?,
+            mail_zip=?,
+            oid=? WHERE id=?";
 
         return sqlStatement(
             $sql,
@@ -201,13 +225,13 @@ class FacilityService
                 $data["facility_npi"],
                 $data["facility_code"],
                 $data["facility_taxonomy"],
-                $data["fid"],
                 $data["mail_street"],
                 $data["mail_street2"],
                 $data["mail_city"],
                 $data["mail_state"],
                 $data["mail_zip"],
-                $data['oid']
+                $data['oid'],
+                $data["fid"]
             )
         );
     }
