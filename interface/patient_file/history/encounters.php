@@ -166,13 +166,21 @@ function generatePageElement($start, $pagesize, $billing, $issue, $text)
 <head>
 <!-- Main style sheet comes after the page-specific stylesheet to facilitate overrides. -->
 <link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/css/encounters.css" type="text/css">
-
-<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog']); ?>
+<!-- Not sure why we don't want this ui to be B.S responsive. -->
+<?php Header::setupHeader(['no_textformat']); ?>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajtooltip.js"></script>
 
 <script language="JavaScript">
+// open dialog to edit an invoice w/o opening encounter.
+function editInvoice(e, id) {
+    e.stopPropagation();
+    let url = './../../billing/sl_eob_invoice.php?id=' + id;
+    dlgopen(url, '', 'modal-lg', 750, false, '', {
+        onClosed: 'reload'
+    });
 
+}
 //function toencounter(enc, datestr) {
 function toencounter(rawdata) {
     var parts = rawdata.split("~");
@@ -633,9 +641,7 @@ while ($result4 = sqlFetchArray($res4)) {
                     $arinvoice = ar_get_invoice_summary($pid, $result4['encounter'], true);
                 }
                 if ($arid) {
-                    $arlinkbeg = "<a href='../../billing/sl_eob_invoice.php?id=" .
-                        attr_url($arid) . "'" .
-                            " target='_blank' class='text' style='color:#00cc00'>";
+                    $arlinkbeg = "<a onclick='editInvoice(event, " . attr_url($arid) . ")" . "'" . " class='text' style='color:#00cc00'>";
                     $arlinkend = "</a>";
                 }
             }

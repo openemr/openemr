@@ -342,6 +342,20 @@ if ($_POST['form_csvexport']) {
     </style>
 
     <script language="JavaScript">
+        function reSubmit() {
+            $("#form_refresh").attr("value","true");
+            $("#form_csvexport").val("");
+            $("#theform").submit();
+        }
+        // open dialog to edit an invoice w/o opening encounter.
+        function editInvoice(e, id) {
+            e.stopPropagation();
+            let url = './../billing/sl_eob_invoice.php?id=' + id;
+            dlgopen(url,'','modal-lg',750,false,'', {
+                onClosed: 'reSubmit'
+            });
+        }
+
         $(document).ready(function() {
             oeFixedHeaderSetup(document.getElementById('mymaintable'));
             var win = top.printLogSetup ? top : opener.top;
@@ -1154,8 +1168,8 @@ if ($ptrow['count'] == 1) {
 }
 ?>
   <td class="detail">
-     &nbsp;<a href="../billing/sl_eob_invoice.php?id=<?php echo attr_url($row['id']) ?>"
-    target="_blank"><?php echo empty($row['irnumber']) ? text($row['invnumber']) : text($row['irnumber']); ?></a>
+     &nbsp;<a href="#" onclick="editInvoice(event,<?php echo attr_url($row['id']) ?>)">
+        <?php echo empty($row['irnumber']) ? text($row['invnumber']) : text($row['irnumber']); ?></a>
   </td>
   <td class="detail">
    &nbsp;<?php echo text(oeFormatShortDate($row['dos'])); ?>
