@@ -93,7 +93,7 @@ function formJump($address = '')
 function formFetch($tableName, $id, $cols = "*", $activity = "1")
 {
         // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
-    return sqlQuery("select $cols from `" . escape_table_name($tableName) . "` where id=? and pid = ? and activity like ? order by date DESC LIMIT 0,1", array($id,$GLOBALS['pid'],$activity)) ;
+    return sqlQuery("select" . escape_sql_column_name($cols, array($tableName)) . "from `" . escape_table_name($tableName) . "` where id=? and pid = ? and activity like ? order by date DESC LIMIT 0,1", array($id,$GLOBALS['pid'],$activity)) ;
 }
 
 function formGetIds($tableName, $cols = "*", $limit = 'all', $start = 0, $activity = "1")
@@ -101,7 +101,7 @@ function formGetIds($tableName, $cols = "*", $limit = 'all', $start = 0, $activi
     $sqlBindingArray = array();
     if ($limit == "all") {
         // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
-        $sql = "select $cols from `" . escape_table_name($tableName) . "` where pid like ? ";
+        $sql = "select" . escape_sql_column_name($cols, array($table_name)) . "from `" . escape_table_name($tableName) . "` where pid like ? ";
         $sqlBindingArray[] = $pid;
         if ($activity != "all") {
             $sql .= "and activity like ? ";
@@ -110,7 +110,7 @@ function formGetIds($tableName, $cols = "*", $limit = 'all', $start = 0, $activi
 
             $sql .= "order by date DESC";
     } else {
-        $sql = "select $cols from pnotes where pid like ? ";
+        $sql = "select" . escape_sql_column_name($cols, array('pnotes')) . "from pnotes where pid like ? ";
         $sqlBindingArray[] = $pid;
         $sql .= " AND deleted != 1 "; // exclude ALL deleted notes
         if ($activity != "all") {

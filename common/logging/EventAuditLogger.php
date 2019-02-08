@@ -315,7 +315,7 @@ MSG;
         } else {
             // do the query
             $sqlBindArray = array();
-            $sql = "SELECT $cols FROM log WHERE date >= ? AND date <= ?";
+            $sql = "SELECT" . escape_sql_column_name($cols, array('log')) . "FROM log WHERE date >= ? AND date <= ?";
             array_push($sqlBindArray, $date1, $date2);
 
             if ($user != "") {

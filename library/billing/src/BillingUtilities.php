@@ -1279,17 +1279,17 @@ class BillingUtilities
 
     public static function getBillingById($id, $cols = "*")
     {
-        return sqlQuery("select $cols from billing where id=? and activity=1 order by date DESC limit 0,1", array($id));
+        return sqlQuery("select" . escape_sql_column_name($cols, array('billing')) . "from billing where id=? and activity=1 order by date DESC limit 0,1", array($id));
     }
 
     public static function getBillingByPid($pid, $cols = "*")
     {
-        return sqlQuery("select $cols from billing where pid =? and activity=1 order by date DESC limit 0,1", array($pid));
+        return sqlQuery("select" . escape_sql_column_name($cols, array('billing')) . "from billing where pid =? and activity=1 order by date DESC limit 0,1", array($pid));
     }
 
     public static function getBillingByEncounter($pid, $encounter, $cols = "code_type, code, code_text")
     {
-        $res = sqlStatement("select $cols from billing where encounter = ? and pid=? and activity=1 order by code_type, date ASC", array($encounter, $pid));
+        $res = sqlStatement("select" . escape_sql_column_name($cols, array('billing')) . "from billing where encounter = ? and pid=? and activity=1 order by code_type, date ASC", array($encounter, $pid));
 
         $all = array();
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
