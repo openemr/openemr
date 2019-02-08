@@ -306,7 +306,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
 
         <?php
     } ?><br /><br />
-    <table style="font-size:1.2em;">
+    <table>
       <tr>
         <td style="text-align:left;padding:1px;vertical-align:top;max-width:720px;">
           <table style="padding:5px;width:700px;">
@@ -924,7 +924,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
         <tr>
           <td>
             <b class="underline"><?php echo xlt('Pupils') ?>: <?php echo xlt('Dim'); ?></b>
-            <table style="report_vitals" style="font-size: 8px;text-align:middle;">
+            <table style="report_vitals" style="text-align:middle;">
               <tr >
                 <th></th>
                 <th style="padding: 2px;text-align:center;" ><?php echo xlt('size'); ?> (<?php echo xlt('mm{{millimeters}}'); ?>)
@@ -969,7 +969,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                 $AMSLEROS= "0";
             }
             ?>
-            <table style="font-size:10px;">
+            <table>
               <tr style="font-weight:bold;">
                 <td style="text-align:center;text-decoration:underline;"><?php echo xlt('OD'); ?></td>
                 <td></td>
@@ -1041,7 +1041,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                       */
                         ?>
                   <tr>
-                        <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo xlt('Current RX')." #".$i.": "; ?></td>
+                        <td style="font-weight:600;text-align:right;"><?php echo xlt('Current RX')." #".$i.": "; ?></td>
                       <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
                       <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text(${"ODSPH_$i"})?:"-"); ?></td>
                       <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text(${"ODCYL_$i"})?:"-"); ?></td>
@@ -1144,16 +1144,16 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
 
                     if ($CRODSPH||$CROSSPH) { ?>
                   <tr>
-                        <td style="font-weight:600;font-size:0.8em;text-align:right;"><?php echo xlt('Cycloplegic (Wet) Refraction'); ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CRODSPH)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CRODCYL)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CRODAXIS)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CRODPRISM)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CRODVA)?:"-");  ?></td>
-                    <td style="font-weight:400;font-size:10px;text-align:center;">-</td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CRODADD)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CRNEARODVA)?:"-"); ?></td>
+                        <td style="font-weight:600;text-align:right;"><?php echo xlt('Cycloplegic (Wet) Refraction'); ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo (text($CRODSPH)?:"-");  ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo (text($CRODCYL)?:"-");  ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo (text($CRODAXIS)?:"-");  ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo (text($CRODPRISM)?:"-");  ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo (text($CRODVA)?:"-");  ?></td>
+                    <td style="font-weight:400;text-align:center;">-</td>
+                        <td style="font-weight:400;text-align:center;"><?php echo (text($CRODADD)?:"-");  ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo (text($CRNEARODVA)?:"-"); ?></td>
                   </tr>
                   <tr>
                     <td></td>
@@ -1183,41 +1183,41 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                         <td><?php echo xlt('Acuity'); ?></td>
                   </tr>
                   <tr>
-                        <td style="font-weight:600;font-size:0.8em;text-align:right;"><?php echo xlt('Contact Lens'); ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLODSPH)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLODCYL)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLODAXIS)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLODBC)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLODDIAM)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLODADD)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLODVA)?:"-"); ?></td>
+                        <td style="font-weight:600;text-align:right;"><?php echo xlt('Contact Lens'); ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo (text($CTLODSPH)?:"-");  ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo (text($CTLODCYL)?:"-");  ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo (text($CTLODAXIS)?:"-");  ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo (text($CTLODBC)?:"-");  ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo (text($CTLODDIAM)?:"-");  ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo (text($CTLODADD)?:"-");  ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo (text($CTLODVA)?:"-"); ?></td>
                   </tr>
-                  <tr style="font-size:0.6em;">
+                  <tr>
                     <td></td>
                     <td></td>
-                        <td colspan="3" style="font-weight:400;font-size:10px;text-align:left;"><?php echo xlt('Brand'); ?>:<?php echo (text($CTLBRANDOD)?:"-");  ?></td>
-                        <td colspan="3" style="font-weight:400;font-size:10px;text-align:left;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROD)?:"-");  ?></td>
-                        <td colspan="3" style="font-weight:400;font-size:10px;text-align:left;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROD)?:"-");  ?></td>
+                        <td colspan="3" style="font-weight:400;text-align:left;"><?php echo xlt('Brand'); ?>:<?php echo (text($CTLBRANDOD)?:"-");  ?></td>
+                        <td colspan="3" style="font-weight:400;text-align:left;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROD)?:"-");  ?></td>
+                        <td colspan="3" style="font-weight:400;text-align:left;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROD)?:"-");  ?></td>
 
                   </tr>
                   <tr>
                     <td></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OS{{left eye}}'); ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLOSSPH)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLOSCYL)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLOSAXIS)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLOSBC)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLOSDIAM)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo (text($CTLOSADD)?:"-");  ?></td>
-                        <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo ($CTLOSVA?:"-"); ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo xlt('OS{{left eye}}'); ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo (text($CTLOSSPH)?:"-");  ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo (text($CTLOSCYL)?:"-");  ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo (text($CTLOSAXIS)?:"-");  ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo (text($CTLOSBC)?:"-");  ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo (text($CTLOSDIAM)?:"-");  ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo (text($CTLOSADD)?:"-");  ?></td>
+                        <td style="font-weight:400;text-align:center;"><?php echo ($CTLOSVA?:"-"); ?></td>
                   </tr>
-                  <tr style="font-size:9px;">
+                  <tr>
                     <td></td>
                     <td></td>
-                        <td colspan="3" style="font-weight:400;font-size:10px;text-align:left;"><?php echo xlt('Brand'); ?>: <?php echo (text($CTLBRANDOS)?:"-");  ?></td>
-                        <td colspan="3" style="font-weight:400;font-size:10px;text-align:left;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROS)?:"-");  ?></td>
-                        <td colspan="3" style="font-weight:400;font-size:10px;text-align:left;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROS)?:"-");  ?></td>
+                        <td colspan="3" style="font-weight:400;text-align:left;"><?php echo xlt('Brand'); ?>: <?php echo (text($CTLBRANDOS)?:"-");  ?></td>
+                        <td colspan="3" style="font-weight:400;text-align:left;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROS)?:"-");  ?></td>
+                        <td colspan="3" style="font-weight:400;text-align:left;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROS)?:"-");  ?></td>
                   </tr>
 
                         <?php

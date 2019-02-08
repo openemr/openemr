@@ -170,7 +170,7 @@ if ($showit=='ext') {
             }
     </style>
     </head>
-    <body style="font-size:1.2em;padding:25;">
+    <body style="padding:25;">
         <div style="position:absolute;
         top:0in;
         left:0in;

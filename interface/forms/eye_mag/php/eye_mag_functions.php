@@ -649,7 +649,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         <b><?php echo xlt('Prior Exam'); ?>:</b><br />
         <div style="float:left;margin-top:0.8em;font-size:0.8em;">
             <div id="PRIOR_NEURO_text_list" class="borderShadow PRIORS" style="border:1pt solid black;float:left;width:195px;padding:10px;text-align:center;margin:2 2;font-weight:bold;">
-                <table style="font-size:1.0em;font-weight:600;">
+                <table style="font-weight:600;">
                     <tr>
                         <td></td><td style="text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td><td style="text-align:center;"><?php echo xlt('OS{{left eye}}'); ?></td></tr>
                     <tr>
@@ -1100,7 +1100,7 @@ margin: 2px 0 2px 2px;">
                     <table style="width:100%;margin:0 0 1 0;">
                         <tr>
                             <td style="width:40%;font-size:0.9em;margin:0 auto;font-weight:bold;"><?php echo xlt('Motility'); ?>:</td>
-                            <td style="font-size:0.9em;vertical-align:middle;text-align:right;top:0.0in;right:0.1in;height:30px;">
+                            <td style="vertical-align:middle;text-align:right;top:0.0in;right:0.1in;height:30px;">
                                 <label for="PRIOR_MOTILITYNORMAL" class="input-helper input-helper--checkbox"><?php echo xlt('Normal'); ?></label>
                                 <input disabled id="PRIOR_MOTILITYNORMAL" name="PRIOR_MOTILITYNORMAL" type="checkbox" value="1" <?php
                                 if ($MOTILITYNORMAL >'0') {
@@ -3864,7 +3864,7 @@ function menu_overhaul_left($pid, $encounter)
                 </table>
             </div>
         </div>
-        <div id="left_menu3" name="left_menu3" class="col-md-3" style="font-size:1.0em;">
+        <div id="left_menu3" name="left_menu3" class="col-md-3" >
             <?php             //if the patient has a photograph, use it else use generic avitar thing.
             if ($documents['docs_in_name']['Patient Photograph'][0]['id']) {
                 ?>
@@ -3880,7 +3880,7 @@ function menu_overhaul_left($pid, $encounter)
             ?>
         </div>
 
-        <div id="left_menu2" name="left_menu2" class="col-md-4" style="font-size:1.0em;">
+        <div id="left_menu2" name="left_menu2" class="col-md-4" >
             <?php
             $query = "Select * from users where id =?";
             $prov = sqlQuery($query, array($pat_data['ref_providerID']));
@@ -3899,7 +3899,7 @@ function menu_overhaul_left($pid, $encounter)
             <div style="position:relative;float:left;padding-left:18px;top:0px;">
             <table style="border:1pt;font-size:1.0em;">
                 <tr>
-                    <td class="right"><b><?php echo xlt("PCP"); ?>:</b>&nbsp;</td><td style="font-size:0.8em;">&nbsp;
+                    <td class="right"><b><?php echo xlt("PCP"); ?>:</b>&nbsp;</td><td>&nbsp;
                         <?php
                             $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
                               "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
@@ -3931,7 +3931,7 @@ function menu_overhaul_left($pid, $encounter)
                     </td>
                 </tr>
                 
-                <tr><td class="right" nowrap><b><?php echo xlt("Referred By"); ?>:</b>&nbsp;</td><td style="font-size:0.8em;">&nbsp;
+                <tr><td class="right" nowrap><b><?php echo xlt("Referred By"); ?>:</b>&nbsp;</td><td>&nbsp;
                     <?php
                             $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
                               "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
@@ -5971,14 +5971,14 @@ function display_refractive_data($encounter_data)
                     <?php if (!empty($CTLODQUANTITY)) { ?>
                        <tr>
                            <td></td>
-                           <td colspan="8" class="text-left" style="font-size:10px;"><?php echo text($CTLODQUANTITY); ?></td>
+                           <td colspan="8" class="text-left"><?php echo text($CTLODQUANTITY); ?></td>
                        </tr>
                     <?php } ?>
-                   <tr style="font-size:0.6em;">
+                   <tr>
                        <td></td>
-                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('Brand'); ?>:<?php echo (text($CTLBRANDOD)?:"-");  ?></td>
-                       <td colspan="2" class="bold text-left" style="font-size:10px;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROD)?:"-");  ?></td>
-                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROD)?:"-");  ?></td>
+                       <td colspan="3" class="bold text-left"><?php echo xlt('Brand'); ?>:<?php echo (text($CTLBRANDOD)?:"-");  ?></td>
+                       <td colspan="2" class="bold text-left"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROD)?:"-");  ?></td>
+                       <td colspan="3" class="bold text-left"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROD)?:"-");  ?></td>
 
                    </tr>
                    <tr>
@@ -5993,22 +5993,22 @@ function display_refractive_data($encounter_data)
                        <td ><?php echo (text($CTLOSADD)?:"-");  ?></td>
                        <td ><?php echo (text($CTLOSVA)?:"-"); ?></td>
                    </tr>
-                   <tr style="font-size:9px;">
+                   <tr>
                        <td></td>
-                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('Brand'); ?>: <?php echo (text($CTLBRANDOS)?:"-");  ?></td>
-                       <td colspan="2" class="bold text-left" style="font-size:10px;"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROS)?:"-");  ?></td>
-                       <td colspan="3" class="bold text-left" style="font-size:10px;"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROS)?:"-");  ?></td>
+                       <td colspan="3" class="bold text-left"><?php echo xlt('Brand'); ?>: <?php echo (text($CTLBRANDOS)?:"-");  ?></td>
+                       <td colspan="2" class="bold text-left"><?php echo xlt('by{{made by/manufacturer}}'); ?> <?php echo (text($CTLMANUFACTUREROS)?:"-");  ?></td>
+                       <td colspan="3" class="bold text-left"><?php echo xlt('via{{shipped by/supplier}}'); ?> <?php echo (text($CTLSUPPLIEROS)?:"-");  ?></td>
                    </tr>
                     <?php if (!empty($CTLOSQUANTITY)) { ?>
                         <tr>
                            <td></td>
-                           <td colspan="8" class="text-left" style="font-size:10px;"><?php echo text($CTLOSQUANTITY); ?></td>
+                           <td colspan="8" class="text-left"><?php echo text($CTLOSQUANTITY); ?></td>
                        </tr>
                     <?php }
 if (!empty($COMMENTS)) { ?>
                             <tr>
                                 <td></td>
-                                <td colspan="8" class="text-left" style="font-size:10px;"><?php echo text($COMMENTS); ?></td>
+                                <td colspan="8" class="text-left"><?php echo text($COMMENTS); ?></td>
                             </tr>
                     <?php }
             }

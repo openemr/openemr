@@ -560,7 +560,7 @@ $communication = trim($_POST["communication"]);
 
                     <?php
                     if ($srch_option == "Medications" || $srch_option == "Allergies" || $srch_option == "Problems") { ?>
-                        <tr style="font-size:15px;">
+                        <tr>
                             <td width="15%"><b><?php echo xlt('Diagnosis Date'); ?><?php echo $sortlink[0]; ?></b></td>
                             <td width="15%"><b><?php echo xlt('Diagnosis'); ?><?php echo $sortlink[1]; ?></b></td>
                             <td width="15%"><b><?php echo xlt('Diagnosis Name');?><?php echo $sortlink[2]; ?></b></td>
@@ -571,7 +571,7 @@ $communication = trim($_POST["communication"]);
                             <td colspan=4><b><?php echo xlt('Provider');?></b></td>
                         </tr>
                         <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
-                                <tr bgcolor = "#CCCCCC" style="font-size:15px;">
+                                <tr bgcolor = "#CCCCCC" >
                                     <td ><?php echo text(oeFormatDateTime($patDetailVal['lists_date'], "global", true)); ?></td>
                                     <td ><?php echo text($patDetailVal['lists_diagnosis']); ?></td>
                                     <td ><?php echo text($patDetailVal['lists_title']); ?></td>
@@ -610,7 +610,7 @@ $communication = trim($_POST["communication"]);
                                         <?php
                         }
                     } elseif ($srch_option == "Communication") { ?>
-                        <tr style="font-size:15px;">
+                        <tr>
                             <td width="15%"><b><?php echo xlt('Date'); ?></b><?php echo $sortlink[0]; ?></td>
                             <td width="20%"><b><?php echo xlt('Patient Name'); ?></b><?php echo $sortlink[1]; ?></td>
                             <td width="5%"><b><?php echo xlt('PID');?></b><?php echo $sortlink[2]; ?></td>
@@ -631,7 +631,7 @@ $communication = trim($_POST["communication"]);
                                </tr>
                         <?php }
                     } elseif ($srch_option == "Demographics") { ?>
-                        <tr style="font-size:15px;">
+                        <tr >
                             <td width="15%"><b><?php echo xlt('Date'); ?></b><?php echo $sortlink[0]; ?></td>
                             <td width="20%"><b><?php echo xlt('Patient Name'); ?></b><?php echo $sortlink[1]; ?></td>
                             <td width="15%"><b><?php echo xlt('PID');?></b><?php echo $sortlink[2]; ?></td>
@@ -641,7 +641,7 @@ $communication = trim($_POST["communication"]);
                             <td colspan=5><b><?php echo xlt('Provider');?></b><?php echo $sortlink[7]; ?></td>
                         </tr>
                             <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
-                                <tr bgcolor = "#CCCCCC" style="font-size:15px;">
+                                <tr bgcolor = "#CCCCCC">
                                     <td ><?php echo ($patDetailVal['patient_date'] != '') ? text(oeFormatDateTime($patDetailVal['patient_date'], "global", true)) : ""; ?></td>
                                     <td ><?php echo text($patDetailVal['patient_name']); ?></td>
                                     <td ><?php echo text($patDetailVal['patient_id']); ?></td>

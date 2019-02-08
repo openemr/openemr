@@ -158,7 +158,7 @@ function editAppointment(mode,deid){
     <aside class="right-side">
         <!-- Main content -->
         <section class="container-fluid content panel-group" id="panelgroup">
-        <div id="popwait" class="alert alert-warning" style="font-size:18px"><strong><?php echo xlt('Working!'); ?></strong> <?php echo xlt('Please wait...'); ?></div>
+        <div id="popwait" class="alert alert-warning"><strong><?php echo xlt('Working!'); ?></strong> <?php echo xlt('Please wait...'); ?></div>
             <div class="row collapse" id="lists">
                 <div class="col-sm-6">
                     <div class="panel panel-primary">

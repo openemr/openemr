@@ -1228,24 +1228,24 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
                             $rhtml .= "</span><span style='font-size:8pt;'>$justify</span></td>\n";
 
-                            $rhtml .= '<td align="right"><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
+                            $rhtml .= '<td align="right"><span>&nbsp;&nbsp;&nbsp;';
                             if ($iter['id'] && $iter['fee'] > 0) {
                                 $rhtml .= text(oeFormatMoney($iter['fee']));
                             }
                             $rhtml .= "</span></td>\n";
-                            $rhtml .= '<td><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
+                            $rhtml .= '<td><span>&nbsp;&nbsp;&nbsp;';
                             if ($iter['id']) {
                                 $rhtml .= getProviderName(empty($iter['provider_id']) ? text($iter['enc_provider_id']) : text($iter['provider_id']));
                             }
                             $rhtml .= "</span></td>\n";
-                            $rhtml .= '<td><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
+                            $rhtml .= '<td><span>&nbsp;&nbsp;&nbsp;';
                             if ($GLOBALS['display_units_in_billing'] != 0) {
                                 if ($iter['id']) {
                                     $rhtml .= xlt("Units") . ":" . text($iter{"units"});
                                 }
                             }
                             $rhtml .= "</span></td>\n";
-                            $rhtml .= '<td width=100>&nbsp;&nbsp;&nbsp;<span style="font-size:8pt;">';
+                            $rhtml .= '<td width=100>&nbsp;&nbsp;&nbsp;<span>';
                             if ($iter['id']) {
                                 $rhtml .= text(oeFormatSDFT(strtotime($iter{"date"})));
                             }
@@ -1295,13 +1295,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         $rhtml2 .= "<span class='text'>" . xlt('COPAY') . ": </span>";
                                         $rhtml2 .= "</td>\n";
                                         $rhtml2 .= "<td><span class='text'>" . text(oeFormatMoney($PatientPay)) . "</span><span style='font-size:8pt;'>&nbsp;</span></td>\n";
-                                        $rhtml2 .= '<td align="right"><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
+                                        $rhtml2 .= '<td align="right"><span >&nbsp;&nbsp;&nbsp;';
                                         $rhtml2 .= "</span></td>\n";
-                                        $rhtml2 .= '<td><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
+                                        $rhtml2 .= '<td><span ">&nbsp;&nbsp;&nbsp;';
                                         $rhtml2 .= "</span></td>\n";
-                                        $rhtml2 .= '<td><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
+                                        $rhtml2 .= '<td><span >&nbsp;&nbsp;&nbsp;';
                                         $rhtml2 .= "</span></td>\n";
-                                        $rhtml2 .= '<td width=100>&nbsp;&nbsp;&nbsp;<span style="font-size:8pt;">';
+                                        $rhtml2 .= '<td width=100>&nbsp;&nbsp;&nbsp;<span>';
                                         $rhtml2 .= text(oeFormatSDFT(strtotime($date)));
                                         $rhtml2 .= "</span></td>\n";
                                         if ($iter['id'] && $iter['authorized'] != 1) {

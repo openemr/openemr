@@ -724,7 +724,7 @@ if ($_POST['form_refresh']) {
         <?php $pidarr = array();
         while ($row = sqlFetchArray($result)) { ?>
     <table width=90% align="center" cellpadding="5" cellspacing="0" style="font-family:tahoma;color:black;" border="0">
-        <tr bgcolor = "#CCCCCC" style="font-size:15px;">
+        <tr bgcolor = "#CCCCCC">
             <td><b><?php echo xlt('Summary of');
             echo " "; ?> <?php echo text($row['patient_name']); ?></b></td>
             <td>&nbsp;</td>
