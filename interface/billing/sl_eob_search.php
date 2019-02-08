@@ -594,7 +594,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
             opener.$('#btn-inv-search').click();
         }
         function editInvoice(e, id) {
-            let url = './sl_eob_invoice.php?isPosting=1&id=' + id;
+            let url = './sl_eob_invoice.php?isPosting=1&id=' + encodeURIComponent(id);
             dlgopen(url,'','modal-lg',750,false,'', {
                 onClosed: 'reSubmit'
             });
@@ -1113,7 +1113,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                            onclick="return npopup(<?php echo attr_js($row['pid']); ?>)"><?php echo text($row['lname']) . ', ' . text($row['fname']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;
-                                        <a onclick="editInvoice(event,<?php echo attr_url($row['id']); ?>)"><?php echo text($row['pid']) . '.' . text($row['encounter']); ?></a>
+                                        <a onclick="editInvoice(event,<?php echo attr_js($row['id']); ?>)"><?php echo text($row['pid']) . '.' . text($row['encounter']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;<?php echo text(oeFormatShortDate($svcdate)); ?></td>
                                     <td class="detail">

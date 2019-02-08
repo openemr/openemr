@@ -350,7 +350,7 @@ if ($_POST['form_csvexport']) {
         // open dialog to edit an invoice w/o opening encounter.
         function editInvoice(e, id) {
             e.stopPropagation();
-            let url = './../billing/sl_eob_invoice.php?id=' + id;
+            let url = './../billing/sl_eob_invoice.php?id=' + encodeURIComponent(id);
             dlgopen(url,'','modal-lg',750,false,'', {
                 onClosed: 'reSubmit'
             });
@@ -1168,7 +1168,7 @@ if ($ptrow['count'] == 1) {
 }
 ?>
   <td class="detail">
-     &nbsp;<a href="#" onclick="editInvoice(event,<?php echo attr_url($row['id']) ?>)">
+     &nbsp;<a href="#" onclick="editInvoice(event,<?php echo attr_js($row['id']) ?>)">
         <?php echo empty($row['irnumber']) ? text($row['invnumber']) : text($row['irnumber']); ?></a>
   </td>
   <td class="detail">

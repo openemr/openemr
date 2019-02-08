@@ -175,7 +175,7 @@ function generatePageElement($start, $pagesize, $billing, $issue, $text)
 // open dialog to edit an invoice w/o opening encounter.
 function editInvoice(e, id) {
     e.stopPropagation();
-    let url = './../../billing/sl_eob_invoice.php?id=' + id;
+    let url = './../../billing/sl_eob_invoice.php?id=' + encodeURIComponent(id);
     dlgopen(url, '', 'modal-lg', 750, false, '', {
         onClosed: 'reload'
     });
@@ -641,7 +641,7 @@ while ($result4 = sqlFetchArray($res4)) {
                     $arinvoice = ar_get_invoice_summary($pid, $result4['encounter'], true);
                 }
                 if ($arid) {
-                    $arlinkbeg = "<a onclick='editInvoice(event, " . attr_url($arid) . ")" . "'" . " class='text' style='color:#00cc00'>";
+                    $arlinkbeg = "<a onclick='editInvoice(event, " . attr_js($arid) . ")" . "'" . " class='text' style='color:#00cc00'>";
                     $arlinkend = "</a>";
                 }
             }
