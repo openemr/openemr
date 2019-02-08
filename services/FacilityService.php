@@ -346,12 +346,12 @@ class FacilityService
         $sql .= "        FAC.color,";
         $sql .= "        FAC.primary_business_entity,";
         $sql .= "        FAC.facility_code,";
-        $sql .= "        FAC.extra_validation";
+        $sql .= "        FAC.extra_validation,";
         $sql .= "        FAC.mail_street,";
         $sql .= "        FAC.mail_street2,";
         $sql .= "        FAC.mail_city,";
         $sql .= "        FAC.mail_state,";
-        $sql .= "        FAC.mail_zip";
+        $sql .= "        FAC.mail_zip,";
         $sql .= "        FAC.oid";
         $sql .= " FROM facility FAC";
 

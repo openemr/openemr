@@ -273,29 +273,32 @@ function displayAlert()
         </tr>
         <tr>
             <td><span class="text"><?php echo xlt('Billing Attn'); ?>:</span></td>
-            <td colspan="4"><input type="text" name="attn" size="45"></td>
+            <td colspan="4"><input type="entry" name="attn" size="45"></td>
         </tr>
         <tr>
             <td><span class="text"><?php echo xlt('CLIA Number'); ?>:</span></td>
-            <td colspan="4"><input type="text" name="domain_identifier" size="45"></td>
+            <td colspan="4"><input type="entry" name="domain_identifier" size="45"></td>
         </tr>
         <tr>
             <td><span class="text"><?php echo xlt('Facility ID'); ?>:</span></td>
-            <td colspan="4"><input type="text" name="facility_id" size="20"></td>
+            <td colspan="4"><input type="entry" name="facility_id" size="20"></td>
         </tr>
-        <tr height="25" style="valign:bottom;">
-        <td><font class="mandatory">*</font><span class="text"> <?php echo xlt('Required'); ?></span></td><td>&nbsp;</td><td>&nbsp;</td>
-        <td>&nbsp;</td><td>&nbsp;</td>
+        <tr>
+            <td>
+                <span class="text"><?php echo xlt('OID'); ?>: </span>
+            </td>
+            <td>
+                <input type="entry" size="20" name="oid" value="<?php echo attr($facility["oid"]) ?>">
+            </td>
         </tr>
         <tr>
             <td>
                 <hr>
             </td>
         </tr>
-
         <tr>
             <td>
-                <label><?php xlt('Mailing Address'); ?>: </label>
+                <label><?php echo xlt('Mailing Address'); ?>: </label>
             </td>
             <td>
                 <input type="entry" size="20" name="mail_street" value="<?php echo attr($facility["mail_street"]) ?>">
@@ -304,7 +307,7 @@ function displayAlert()
 
         <tr>
             <td>
-                <label><?php xlt('Dept'); ?>: </label>
+                <label><?php echo xlt('Dept'); ?>: </label>
             </td>
             <td>
                 <input type="entry" size="20" name="mail_street2" value="<?php echo attr($facility["mail_street2"]) ?>">
@@ -313,7 +316,7 @@ function displayAlert()
 
         <tr>
             <td>
-                <label><?php xlt('City'); ?>: </label>
+                <label><?php echo xlt('City'); ?>: </label>
             </td>
             <td>
                 <input type="entry" size="20" name="mail_city" value="<?php echo attr($facility["mail_city"]) ?>">
@@ -321,7 +324,7 @@ function displayAlert()
         </tr>
         <tr>
             <td>
-                <label><?php xlt('State'); ?>: </label>
+                <label><?php echo xlt('State'); ?>: </label>
             </td>
             <td>
                 <input type="entry" size="20" name="mail_state" value="<?php echo attr($facility["mail_state"]) ?>">
@@ -329,19 +332,15 @@ function displayAlert()
         </tr>
         <tr>
             <td>
-                <label><?php xlt('Zip'); ?>: </label>
+                <label><?php echo xlt('Zip'); ?>: </label>
             </td>
             <td>
                 <input type="entry" size="20" name="mail_zip" value="<?php echo attr($facility["mail_zip"]) ?>">
             </td>
         </tr>
-        <tr>
-            <td>
-                <label><?php xlt('OID'); ?>: </label>
-            </td>
-            <td>
-                <input type="entry" size="20" name="oid" value="<?php echo attr($facility["oid"]) ?>">
-            </td>
+        <tr height="25" style="valign:bottom;">
+            <td><font class="mandatory">*</font><span class="text"> <?php echo xlt('Required'); ?></span></td><td>&nbsp;</td><td>&nbsp;</td>
+            <td>&nbsp;</td><td>&nbsp;</td>
         </tr>
     </table>
 </form>

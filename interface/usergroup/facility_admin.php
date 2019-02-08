@@ -261,28 +261,32 @@ if (isset($_GET["fid"])) {
         </tr>
         <tr>
             <td><span class="text"><?php echo xlt('Billing Attn'); ?>:</span></td>
-            <td colspan="4"><input type="text" name="attn" size="45" value="<?php echo attr($facility['attn']); ?>"></td>
+            <td colspan="4"><input type="entry" name="attn" size="45" value="<?php echo attr($facility['attn']); ?>"></td>
         </tr>
         <tr>
             <td><span class="text"><?php echo xlt('CLIA Number'); ?>:</span></td>
-            <td colspan="4"><input type="text" name="domain_identifier" size="45" value="<?php echo attr($facility['domain_identifier']); ?>"></td>
+            <td colspan="4"><input type="entry" name="domain_identifier" size="45" value="<?php echo attr($facility['domain_identifier']); ?>"></td>
         </tr>
         <tr>
             <td><span class="text"><?php echo xlt('Facility ID'); ?>:</span></td>
-            <td colspan="4"><input type="text" name="facility_id" size="45" value="<?php echo attr($facility['facility_code']); ?>"></td>
+            <td colspan="4"><input type="entry" name="facility_id" size="45" value="<?php echo attr($facility['facility_code']); ?>"></td>
         </tr>
-        <tr height="20" valign="bottom">
-            <td colspan=2><span class="text"><font class="mandatory">*</font> <?php echo xlt('Required'); ?></span></td>
+        <tr>
+            <td>
+                <span class="text"><?php echo xlt('OID'); ?>: </span>
+            </td>
+            <td>
+                <input type="entry" size="20" name="oid" value="<?php echo attr($facility["oid"]) ?>">
+            </td>
         </tr>
         <tr>
             <td>
                 <hr>
             </td>
         </tr>
-
         <tr>
             <td>
-                <label><?php xlt('Mailing Address'); ?>: </label>
+                <label><?php echo xlt('Mailing Address'); ?>: </label>
             </td>
             <td>
                 <input type="entry" size="20" name="mail_street" value="<?php echo attr($facility["mail_street"]) ?>">
@@ -291,7 +295,7 @@ if (isset($_GET["fid"])) {
 
         <tr>
             <td>
-                <label><?php xlt('Suite'); ?>: </label>
+                <label><?php echo xlt('Suite'); ?>: </label>
             </td>
             <td>
                 <input type="entry" size="20" name="mail_street2" value="<?php echo attr($facility["mail_street2"]) ?>">
@@ -300,7 +304,7 @@ if (isset($_GET["fid"])) {
 
         <tr>
             <td>
-                <label><?php xlt('City'); ?>: </label>
+                <label><?php echo xlt('City'); ?>: </label>
             </td>
             <td>
                 <input type="entry" size="20" name="mail_city" value="<?php echo attr($facility["mail_city"]) ?>">
@@ -308,7 +312,7 @@ if (isset($_GET["fid"])) {
         </tr>
         <tr>
             <td>
-                <label><?php xlt('State'); ?>: </label>
+                <label><?php echo xlt('State'); ?>: </label>
             </td>
             <td>
                 <input type="entry" size="20" name="mail_state" value="<?php echo attr($facility["mail_state"]) ?>">
@@ -316,19 +320,14 @@ if (isset($_GET["fid"])) {
         </tr>
         <tr>
             <td>
-                <label><?php xl('Zip'); ?>: </label>
+                <label><?php echo xlt('Zip'); ?>: </label>
             </td>
             <td>
                 <input type="entry" size="20" name="mail_zip" value="<?php echo attr($facility["mail_zip"]) ?>">
             </td>
         </tr>
-        <tr>
-            <td>
-                <label><?php xlt('OID'); ?>: </label>
-            </td>
-            <td>
-                <input type="entry" size="20" name="oid" value="<?php echo attr($facility["oid"]) ?>">
-            </td>
+        <tr height="20" valign="bottom">
+            <td colspan=2><span class="text"><font class="mandatory">*</font> <?php echo xlt('Required'); ?></span></td>
         </tr>
     </table>
 </form>
