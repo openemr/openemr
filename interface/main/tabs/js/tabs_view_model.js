@@ -89,8 +89,12 @@ function tabRefresh(data,evt)
 {
     top.restoreSession();
     // To do: Consider modification if part of frame.
-    data.window.location=data.window.location;
-    activateTab(data);
+    try {
+        data.window.location = data.window.location;
+        activateTab(data);
+    } catch(e) {
+        // Do nothing, but avoid exceptions caused by iFrames from different domain (ie NewCrop)
+    }
 }
 
 function tabClose(data,evt)

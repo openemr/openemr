@@ -462,7 +462,7 @@ class eRxXMLBuilder
 
         $element = $this->getDocument()->createElement('LicensedPrescriber');
         $element->setAttribute('ID', $userDetails['npi']);
-        $element->appendChild($this->getLicensedPrescriberName($userDetails));
+        $element->appendChild($this->getLicensedPrescriberName($userDetails, xl('Licensed Prescriber')));
         $element->appendChild($this->createElementTextFieldEmpty('dea', $userDetails['federaldrugid'], 'Licensed Prescriber DEA'));
         if ($userDetails['upin']) {
             $element->appendChild($this->createElementText('upin', $userDetails['upin']));
