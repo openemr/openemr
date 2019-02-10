@@ -3034,6 +3034,21 @@ INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbrev
 -----------------------------------------------------------
 
 --
+-- Table structure for table `keys`
+--
+
+DROP TABLE IF EXISTS `keys`;
+CREATE TABLE `keys` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `name` varchar(20) NOT NULL DEFAULT '',
+  `value` text,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`name`)
+) ENGINE=InnoDB;
+
+-----------------------------------------------------------
+
+--
 -- Table structure for table `lang_constants`
 --
 
