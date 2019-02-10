@@ -86,7 +86,7 @@ foreach ($_GET as $key => $value) {
 <p>
 <?php
 
-$formdir=$_REQUEST["formname"];
+$formdir=$_GET["formname"];
 $formName=getFormNameByFormdir($formdir);
 echo xlt('You are about to delete the following form from this encounter') . ': ' . text(xl_form_title($formName["form_name"]));
 
