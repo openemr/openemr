@@ -120,7 +120,7 @@ function bucks($amt)
             </td>
             <td>
                 <?php
-                $form_facility=$_REQUEST['form_facility']; 
+                $form_facility=$_POST['form_facility']; 
                 dropdown_facility($form_facility, 'form_facility', false); 
                 ?>
             </td>
@@ -234,18 +234,18 @@ if (true || $_POST['form_refresh']) {
     "WHERE " .
     "r.dtime >= ? AND " .
     "r.dtime <= ? AND ";
-    if($_REQUEST['form_facility']!="")
+    if($_POST['form_facility']!="")
     $query.="fe.facility_id = ? AND ";
-    if($_REQUEST['form_provider']!="")
+    if($_POST['form_provider']!="")
     $query.="fe.provider_id = ? AND ";
     $query.="1 GROUP BY r.dtime, r.pid ORDER BY r.dtime, r.pid";
 
     // echo " $query \n"; // debugging
     $inputArray=array($from_date.' 00:00:00', $to_date.' 23:59:59');
-    if($_REQUEST['form_facility']!="")
-    $inputArray[]=$_REQUEST['form_facility'];
-    if($_REQUEST['form_provider']!="")
-    $inputArray[]=$_REQUEST['form_provider'];
+    if($_POST['form_facility']!="")
+    $inputArray[]=$_POST['form_facility'];
+    if($_POST['form_provider']!="")
+    $inputArray[]=$_POST['form_provider'];
     $res = sqlStatement($query, $inputArray);
 
     while ($row = sqlFetchArray($res)) {
