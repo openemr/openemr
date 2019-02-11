@@ -32,14 +32,14 @@ use OpenEMR\Core\Header;
 
 $debug = 0; // set to 1 for debugging mode
 $save_stay = $_REQUEST['form_save'] == '1' ? true : false;
-$g_posting_adj_disable = $GLOBALS['posting_adj_disable'] ? 'checked' : '';
-$posting_adj_disable = prevSetting('sl_eob_search.', 'posting_adj_disable', 'posting_adj_disable', $g_posting_adj_disable);
 $from_posting = (0 + $_REQUEST['isPosting']) ? 1 : 0;
-if (!$from_posting) {
-    // this means from past encounters so go with the global
-    // otherwise posting search user setting is followed.
+$g_posting_adj_disable = $GLOBALS['posting_adj_disable'] ? 'checked' : '';
+if ($from_posting) {
+    $posting_adj_disable = prevSetting('sl_eob_search.', 'posting_adj_disable', 'posting_adj_disable', $g_posting_adj_disable);
+} else {
     $posting_adj_disable = $g_posting_adj_disable;
 }
+
 // If we permit deletion of transactions.  Might change this later.
 $ALLOW_DELETE = true;
 
@@ -88,7 +88,7 @@ function row_delete($table, $where)
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['datetime-picker']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'opener', 'no_dialog']); ?>
     <title><?php echo xlt('EOB Posting - Invoice') ?></title>
     <script language="JavaScript">
     var adjDisable = <?php echo js_escape($posting_adj_disable); ?>;
@@ -105,11 +105,7 @@ function row_delete($table, $where)
         }
         window.close();
     }
-    function doClose(isPosting) {
-        let encurl = 'patient_file/history/encounters.php?billing=1';
-
-        if(!isPosting)
-            opener.top.left_nav.loadFrame('enc2', 'enc', encurl);
+    function doClose() {
         window.close();
     }
     // Compute an adjustment that writes off the balance:
@@ -422,11 +418,8 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
     if ($info_msg) {
         echo " alert(" . js_escape($info_msg) . ");\n";
     }
-    if ($from_posting) {
-        echo "opener.$('#btn-inv-search').click();\n";
-    }
     if (!$debug && !$save_stay) {
-        echo "doClose(" . js_escape($from_posting) . ");\n";
+        echo "doClose();\n";
     }
     echo "</script></body></html>\n";
     if (!$save_stay) {
@@ -741,7 +734,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         <button type='submit' class="btn btn-default btn-save" name='form_save' id="btn-save"
                             onclick="this.value='2';"><?php echo xlt("Save & Exit"); ?></button>
                         <button type='button' class="btn btn-link btn-cancel btn-separate-left" name='form_cancel'
-                            id="btn-cancel" onclick='doClose(<?php echo attr_js($from_posting); ?>)'><?php echo xlt("Close"); ?></button>
+                            id="btn-cancel" onclick='doClose()'><?php echo xlt("Close"); ?></button>
                     </div>
                     <?php if ($GLOBALS['new_tabs_layout'] && $from_posting) { ?>
                         <button type='button' class="btn btn-default btn-view pull-right" name='form_goto' id="btn-goto"
