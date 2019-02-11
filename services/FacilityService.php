@@ -6,6 +6,7 @@
  * @link      http://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -168,31 +169,35 @@ class FacilityService
 
     public function update($data)
     {
-        $sql  = " UPDATE facility SET";
-        $sql .= "     name=?,";
-        $sql .= "     phone=?,";
-        $sql .= "     fax=?,";
-        $sql .= "     street=?,";
-        $sql .= "     city=?,";
-        $sql .= "     state=?,";
-        $sql .= "     postal_code=?,";
-        $sql .= "     country_code=?,";
-        $sql .= "     federal_ein=?,";
-        $sql .= "     website=?,";
-        $sql .= "     email=?,";
-        $sql .= "     color=?,";
-        $sql .= "     service_location=?,";
-        $sql .= "     billing_location=?,";
-        $sql .= "     accepts_assignment=?,";
-        $sql .= "     pos_code=?,";
-        $sql .= "     domain_identifier=?,";
-        $sql .= "     attn=?,";
-        $sql .= "     tax_id_type=?,";
-        $sql .= "     primary_business_entity=?,";
-        $sql .= "     facility_npi=?,";
-        $sql .= "     facility_code=?,";
-        $sql .= "     facility_taxonomy=?";
-        $sql .= " WHERE id=?";
+        $sql  = " UPDATE facility SET name=?,
+            phone=?,
+            fax=?,
+            street=?,
+            city=?,
+            state=?,
+            postal_code=?,
+            country_code=?,
+            federal_ein=?,
+            website=?,
+            email=?,
+            color=?,
+            service_location=?,
+            billing_location=?,
+            accepts_assignment=?,
+            pos_code=?,
+            domain_identifier=?,
+            attn=?,
+            tax_id_type=?,
+            primary_business_entity=?,
+            facility_npi=?,
+            facility_code=?,
+            facility_taxonomy=?,
+            mail_street=?,
+            mail_street2=?,
+            mail_city=?,
+            mail_state=?,
+            mail_zip=?,
+            oid=? WHERE id=?";
 
         return sqlStatement(
             $sql,
@@ -220,6 +225,12 @@ class FacilityService
                 $data["facility_npi"],
                 $data["facility_code"],
                 $data["facility_taxonomy"],
+                $data["mail_street"],
+                $data["mail_street2"],
+                $data["mail_city"],
+                $data["mail_state"],
+                $data["mail_zip"],
+                $data['oid'],
                 $data["fid"]
             )
         );
@@ -227,31 +238,36 @@ class FacilityService
 
     public function insert($data)
     {
-        $sql  = " INSERT INTO facility SET";
-        $sql .= "     name=?,";
-        $sql .= "     phone=?,";
-        $sql .= "     fax=?,";
-        $sql .= "     street=?,";
-        $sql .= "     city=?,";
-        $sql .= "     state=?,";
-        $sql .= "     postal_code=?,";
-        $sql .= "     country_code=?,";
-        $sql .= "     federal_ein=?,";
-        $sql .= "     website=?,";
-        $sql .= "     email=?,";
-        $sql .= "     color=?,";
-        $sql .= "     service_location=?,";
-        $sql .= "     billing_location=?,";
-        $sql .= "     accepts_assignment=?,";
-        $sql .= "     pos_code=?,";
-        $sql .= "     domain_identifier=?,";
-        $sql .= "     attn=?,";
-        $sql .= "     tax_id_type=?,";
-        $sql .= "     primary_business_entity=?,";
-        $sql .= "     facility_npi=?,";
-        $sql .= "     facility_code=?,";
-        $sql .= "     facility_taxonomy=?";
-
+        $sql  = " INSERT INTO facility SET
+             name=?,
+             phone=?,
+             fax=?,
+             street=?,
+             city=?,
+             state=?,
+             postal_code=?,
+             country_code=?,
+             federal_ein=?,
+             website=?,
+             email=?,
+             color=?,
+             service_location=?,
+             billing_location=?,
+             accepts_assignment=?,
+             pos_code=?,
+             domain_identifier=?,
+             attn=?,
+             tax_id_type=?,
+             primary_business_entity=?,
+             facility_npi=?,
+             facility_code=?,
+             facility_taxonomy=?,
+             mail_street=?,
+             mail_street2=?,
+             mail_city=?,
+             mail_state=?,
+             mail_zip=?,
+             oid=? ";
         return sqlInsert(
             $sql,
             array(
@@ -277,7 +293,13 @@ class FacilityService
                 $data["primary_business_entity"],
                 $data["facility_npi"],
                 $data["facility_code"],
-                $data["facility_taxonomy"]
+                $data["facility_taxonomy"],
+                $data["mail_street"],
+                $data["mail_street2"],
+                $data["mail_city"],
+                $data["mail_state"],
+                $data["mail_zip"],
+                $data["oid"]
             )
         );
     }
@@ -324,7 +346,13 @@ class FacilityService
         $sql .= "        FAC.color,";
         $sql .= "        FAC.primary_business_entity,";
         $sql .= "        FAC.facility_code,";
-        $sql .= "        FAC.extra_validation";
+        $sql .= "        FAC.extra_validation,";
+        $sql .= "        FAC.mail_street,";
+        $sql .= "        FAC.mail_street2,";
+        $sql .= "        FAC.mail_city,";
+        $sql .= "        FAC.mail_state,";
+        $sql .= "        FAC.mail_zip,";
+        $sql .= "        FAC.oid";
         $sql .= " FROM facility FAC";
 
         return QueryUtils::selectHelper($sql, $map);
