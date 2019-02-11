@@ -18,7 +18,6 @@ require_once(dirname(__FILE__) . "/../../../library/forms.inc");
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
-
 // allow a custom 'delete' form
 $deleteform = $incdir . "/forms/" . $_REQUEST["formname"]."/delete.php";
 
