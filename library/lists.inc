@@ -98,7 +98,7 @@ $ISSUE_CLASSIFICATIONS = array(
 
 function getListById($id, $cols = "*")
 {
-    return sqlQuery("select " . escape_sql_column_name($cols, array('log')) . " from lists where id=? order by date DESC limit 0,1", array($id));
+    return sqlQuery("select " . escape_sql_column_name($cols, array('lists')) . " from lists where id=? order by date DESC limit 0,1", array($id));
 }
 
 function getListByType($pid, $type, $cols = "*", $active = "all", $limit = "all", $offset = "0")

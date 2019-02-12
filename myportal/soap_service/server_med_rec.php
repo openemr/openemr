@@ -514,8 +514,8 @@ class Userforms extends UserAudit
             $keyword = $data['keyword'];
             $arrBinds = array();
             $cols = "DISTINCT log.date, event, user, groupname, patient_id, success, comments,checksum,crt_user";
-            $sql = "SELECT $cols, CONCAT(fname, ' ', lname) as patient_ful_name, patient_portal_menu.`menu_name`,
-            patient_portal_menu_group.`menu_group_name`, ccda_doc_id FROM log
+            $sql = "SELECT " . escape_sql_column_name($cols, array('log','patient_data','patient_access_offsite','patient_portal_menu', 'patient_portal_menu_group' )) . " , CONCAT(fname, ' ', lname) as patient_ful_name, patient_portal_menu.`menu_name`,
+            patient_portal_menu_group.`menu_group_name`, ccda_doc_id FROM log''
 			JOIN patient_data ON log.patient_id = patient_data.pid
 			JOIN patient_access_offsite ON log.patient_id = patient_access_offsite.pid
 			JOIN patient_portal_menu ON patient_portal_menu.`patient_portal_menu_id` = log.menu_item_id
