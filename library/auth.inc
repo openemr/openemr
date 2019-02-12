@@ -209,9 +209,9 @@ function authCheckExpired($user)
 function getUserList($cols = '*', $limit = 'all', $start = '0')
 {
     if ($limit = "all") {
-        $rez = sqlStatement("select" . escape_sql_column_name($cols, array('users')) . "from users where username != '' order by date DESC");
+        $rez = sqlStatement("select " . escape_sql_column_name($cols, array('users')) . " from users where username != '' order by date DESC");
     } else {
-        $rez = sqlStatement("select" . escape_sql_column_name($cols, array('users')) . "from users where username != '' order by date DESC limit $limit, $start");
+        $rez = sqlStatement("select " . escape_sql_column_name($cols, array('users')) . " from users where username != '' order by date DESC limit $limit, $start");
     }
 
     for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
@@ -224,9 +224,9 @@ function getUserList($cols = '*', $limit = 'all', $start = '0')
 function getProviderList($cols = '*', $limit = 'all', $start = '0')
 {
     if ($limit = "all") {
-        $rez = sqlStatement("select" . escape_sql_column_name($cols, array('groups')) . "from `groups` order by date DESC");
+        $rez = sqlStatement("select " . escape_sql_column_name($cols, array('groups')) . " from `groups` order by date DESC");
     } else {
-        $rez = sqlStatement("select" . escape_sql_column_name($cols, array('groups')) . "from `groups` order by date DESC limit $limit, $start");
+        $rez = sqlStatement("select " . escape_sql_column_name($cols, array('groups')) . " from `groups` order by date DESC limit $limit, $start");
     }
 
     for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {

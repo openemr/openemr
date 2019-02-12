@@ -3,14 +3,14 @@ $GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
 
 function getFormById($id, $cols = "*")
 {
-    $sql = "SELECT $cols FROM forms WHERE id = ? AND deleted = 0 ORDER BY date DESC limit 0,1";
+    $sql = "SELECT "  . escape_sql_column_name($cols, array('forms')) . " FROM forms WHERE id = ? AND deleted = 0 ORDER BY date DESC limit 0,1";
     //echo $sql . "<br />";
     return sqlQuery($sql, array($id));
 }
 
 function getFormInfoById($id, $cols = "*")
 {
-    $sql = "SELECT $cols FROM forms WHERE id = ? AND deleted = 0 ORDER BY date DESC limit 0,1";
+    $sql = "SELECT " . escape_sql_column_name($cols, array('forms')) . " FROM forms WHERE id = ? AND deleted = 0 ORDER BY date DESC limit 0,1";
     //echo $sql . "<br />";
     $result =  sqlQuery($sql, array($id));
     if ($result['formdir'] == "newpatient") {
@@ -26,7 +26,7 @@ function getFormInfoById($id, $cols = "*")
 
 function getFormsByPid($pid, $cols = "*")
 {
-    return sqlQuery("SELECT $cols FROM forms WHERE pid = ? AND deleted = 0", array($pid));
+    return sqlQuery("SELECT " . escape_sql_column_name($cols, array('forms')) . " FROM forms WHERE pid = ? AND deleted = 0", array($pid));
 }
 
 function getFormByEncounter(
@@ -39,7 +39,7 @@ function getFormByEncounter(
 
     global $attendant_type;
     $arraySqlBind = array();
-    $sql = "select $cols from forms where encounter = ? and deleted = 0 ";
+    $sql = "select " . escape_sql_column_name($cols, array('forms')) . " from forms where encounter = ? and deleted = 0 ";
     array_push($arraySqlBind, $encounter);
     if (!empty($name)) {
         $sql .= "and form_name=? ";
