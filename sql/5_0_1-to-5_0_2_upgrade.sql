@@ -704,3 +704,13 @@ ALTER TABLE `facility` ADD `mail_zip` VARCHAR(10) default NULL;
 #IfMissingColumn facility oid
 ALTER TABLE `facility` ADD `oid` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'HIEs CCDA and FHIR an OID is required/wanted';
 #EndIf
+
+#IfNotTable keys
+CREATE TABLE `keys` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `name` varchar(20) NOT NULL DEFAULT '',
+  `value` text,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`name`)
+) ENGINE=InnoDB;
+#EndIf

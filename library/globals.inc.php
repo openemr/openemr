@@ -901,10 +901,17 @@ $GLOBALS_METADATA = array(
             xl('This will activate the CCR(Continuity of Care Record) and CCD(Continuity of Care Document) reporting.')
         ),
 
+        'drive_encryption' => array(
+            xl('Enable Encryption of Items Stored on Drive'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('This will enable enable encryption of items that are stored on the drive.')
+        ),
+
         'hide_document_encryption' => array(
             xl('Hide Encryption/Decryption Options In Document Management'),
             'bool',                           // data type
-            '1',                              // default = true
+            '0',                              // default = true
             xl('This will deactivate document the encryption and decryption features, and hide them in the UI.')
         ),
 
@@ -2364,7 +2371,6 @@ $GLOBALS_METADATA = array(
             xl('CA Certificate for verifying the RFC 5425 TLS syslog server.')
         ),
 
-        //July 1, 2014: Ensoftek: Flag to enable/disable audit log encryption
         'enable_auditlog_encryption' => array(
             xl('Enable Audit Log Encryption'),
             'bool',                           // data type

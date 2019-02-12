@@ -235,7 +235,7 @@ class Claim
               $this->billing_facility = $this->facilityService->getById($this->encounter['billing_facility']);
         }
 
-        $sql = "SELECT * FROM insurance_numbers WHERE " .
+        $sql = "SELECT * FROM insurance_numbers " .
         "WHERE (insurance_company_id = ? OR insurance_company_id is NULL) AND provider_id = ? " .
         "ORDER BY insurance_company_id DESC LIMIT 1";
         $this->insurance_numbers = sqlQuery($sql, array($this->procs[0]['payer_id'], $provider_id));
