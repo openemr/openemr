@@ -1372,14 +1372,14 @@ foreach (explode(',', $given) as $item) {
           </p>
       </form>
     </div>
-    <script language='JavaScript'>
-       newtype('<?php if (!$form_index) {
-            echo "POH";
-} else {
-    echo $type_index;
-} ?>');
-
-        $(document).ready(function() {
+  </body>
+  <script language='JavaScript'>
+      newtype('<?php if (!$form_index) {
+          echo "POH";
+      } else {
+          echo $type_index;
+      } ?>');
+    newtype('Eye Meds');
             $('[title]').qtip({
                 position: {
                     my: 'top Right',  // Position my top left...
@@ -1387,6 +1387,7 @@ foreach (explode(',', $given) as $item) {
                     target: 'mouse' // my target
                 }
             });
+      $(document).ready(function() {
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
@@ -1396,6 +1397,14 @@ foreach (explode(',', $given) as $item) {
             });
         });
     </script>
-  </body>
+          $('.datepicker').datetimepicker({
+                                              <?php $datetimepicker_timepicker = false; ?>
+                                              <?php $datetimepicker_showseconds = false; ?>
+                                              <?php $datetimepicker_formatInput = true; ?>
+                                              <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                                              <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+                                          });
+      });
+  </script>
 </html>
 

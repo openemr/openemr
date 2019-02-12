@@ -2053,9 +2053,9 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     // Let's put half in each of the 2 rows... or try to at least.
     // Find out the number of items present now and put half in each column.
     foreach ($PMSFH[0] as $key => $value) {
-        $total_PMSFH += count($PMSFH[0][$key]);
+        $total_PMSFH += count($PMSFH[0][$key]);//total number of entries
         $total_PMSFH += 2; //add two for the title and a space
-        $count[$key] = count($PMSFH[0][$key]) + 1;
+        $count[$key] = count($PMSFH[0][$key]) + 1;//total number in each section
     }
 
     //SOCH, FH and ROS are listed in $PMSFH even if negative, only count positives
@@ -2081,13 +2081,13 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     }
 
     $counter = "0";
-    $column_max = round($total_PMSFH/$rows);
-    if ($column_max < "18") {
-        $column_max ='18';
+    $column_max = round($total_PMSFH/$rows)+1;
+    if ($column_max < "25") {
+        $column_max ='20';
     }
 
-    $open_table = "<table class='PMSFH_table'><tr><td>";
-    $close_table = "</td></tr></table>";
+    $open_table = "<div style='float:left' class='table PMSFH_table'>";
+    $close_table = "</div>";
     // $div is used when $counter reaches $column_max and a new row is needed.
     // It is used only if $row_count <= $rows, ie. $rows -1 times.
     $div = '</div>
@@ -2106,7 +2106,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
 
         $table='';
         $header='';
-        $header .='    <table class="PMSFH_header">
+        $header ='    <table class="PMSFH_header">
                 <tr>
                     <td width="90%">
                         <span class="left" style="font-weight:800;font-size:0.9em;">'.xlt($key).'</span>
@@ -2117,12 +2117,36 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                 </tr>
                 </table>
         ';
-
         if (count($PMSFH[0][$key]) > '0') {
             $index=0;
             foreach ($PMSFH[0][$key] as $item) {
-                if (($key == "Medication") && ($item['status'] == "Inactive")) {
-                    continue; }
+                if (
+                        ( ($key == "Medication") || ($key == "Eye Meds") )
+                    &&
+                        ($item['status'] == "Inactive")
+                ) {
+                    continue;
+                }
+                if ( ($key == "Medication") && ( $item['row_subtype'] =='jhg' ) ) {
+                    $subtype_Meds[$item['row_subtype']]['name'] = $item['row_subtype'];
+                    $subtype_Meds[$item['row_subtype']]['header'] = '
+                        <table class="PMSFH_header">
+                            <tr>
+                                <td width="90%">
+                                    <span class="left" style="font-weight:800;font-size:0.9em;">'.xlt(ucwords($item['row_subtype'])).' Meds</span>
+                                </td>
+                                <td>
+                                    <span class="right btn-sm" href="#PMH_anchor" onclick="alter_issue2(\'0\',\''.attr($key).'\',\'0\');" style="text-align:right;font-size:8px;">'. xlt("New") .'</span>
+                                </td>
+                            </tr>
+                        </table>
+                        ';
+                    $subtype_Meds[$item['row_subtype']]['table'] .= "<span $red name='QP_PMH_".$item['rowid']."' href='#PMH_anchor' id='QP_PMH_".$item['rowid']."'
+                onclick=\"alter_issue2('".attr($item['rowid'])."','".attr($key)."','".attr($index)."');\">".text($item['title']).$reaction."</span><br />";
+                    $index++;
+                    continue;
+                }
+                
                 if ($key == "Allergy") {
                     if ($item['reaction']) {
                         $reaction = " (".text($item['reaction']).")";
@@ -2134,7 +2158,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                 } else {
                     $red ='';
                 }
-
+                //$key_here = ($key=="Eye Meds"?$key_here="Medication":$key_here=$key);
                 $table .= "<span $red name='QP_PMH_".$item['rowid']."' href='#PMH_anchor' id='QP_PMH_".$item['rowid']."'
                 onclick=\"alter_issue2('".attr($item['rowid'])."','".attr($key)."','".attr($index)."');\">".text($item['title']).$reaction."</span><br />";
                 $index++;
@@ -2157,13 +2181,21 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     if ($count >= $column_max) {
         echo $div.$header1;
     }
-
+    
     echo $display_PMSFH['POS'];
     $count = $count + $count['POS'] + 4;
     if ($count >= $column_max) {
         echo $div.$header1;
     }
-
+    
+    echo $display_PMSFH['Eye Meds'];
+    $count = $count + $count['Surgery'] +  4;
+    if (($count >= $column_max) && ($row_count < $rows)) {
+        echo $div;
+        $count=0;
+        $row_count =2;
+    }
+    
     echo $display_PMSFH['PMH'];
     $count = $count + $count['Surgery'] +  4;
     if (($count >= $column_max) && ($row_count < $rows)) {
@@ -2382,7 +2414,30 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         onclick="alter_issue2('0','POS','');" class="disabled_button"><?php echo xlt("None"); ?><br /></span>
         <?php
     }
-
+    
+//<!-- Eye Meds -->
+    echo "<br /><span class='panel_title' title='".xlt("Eye Meds")."'>".xlt("Eye Meds").":</span>";
+    ?><span class="top-right btn-sm" href="#PMH_anchor"
+            onclick="alter_issue2('0','Medication','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
+    <br />
+    <?php
+    if ($PMSFH[0]['Eye Meds']) {
+         $i=0;
+        foreach ($PMSFH[0]['Eye Meds'] as $item) {
+             if ( ($item['status'] == "Inactive") || ($item['row_subtype'] != "eye") ){
+                $i++;
+                continue;
+            }
+            echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
+            onclick=\"alter_issue2('".attr(addslashes($item['rowid']))."','Medication','$i');\">".text($item['title'])."</span><br />";
+            $i++;
+        }
+    } else { ?>
+        <span href="#PMH_anchor"
+        onclick="alter_issue2('0','Medication','');" class="disabled_button"><?php echo xlt("None"); ?><br /></span>
+        <?php
+    }
+    
     //<!-- PMH -->
     echo "<br /> <span class='panel_title' title='".xla('Past Medical History')."'>".xlt("PMH{{Past Medical History}}").":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
@@ -2432,9 +2487,11 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     if ($PMSFH[0]['Medication']) {
         $i=0;
         foreach ($PMSFH[0]['Medication'] as $item) {
-            if ($item['status'] == "Inactive") {
+           // var_dump($item);
+            if ( ($item['row_subtype'] == "eye") || ($item['status'] == "Inactive") ) {
                 $i++;
-                continue; }
+                continue;
+            }
             echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
             onclick=\"alter_issue2('".attr(addslashes($item['rowid']))."','Medication','$i');\">".text($item['title'])."</span><br />";
             $i++;
@@ -2444,8 +2501,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         onclick="alter_issue2('0','Medication','');" class="disabled_button"><?php echo xlt("None"); ?><br /></span>
         <?php
     }
-
-
+    
     //<!-- Allergies -->
     echo "<br /><span class='panel_title' title='".xlt("Allergies")."'>".xlt("Allergy").":</span>";
     ?><span class="top-right btn-sm" href="#PMH_anchor"
@@ -5014,8 +5070,10 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                 $GONIO_chart .= ',';
                             }
                         }
-
-                        $GONIO = chop($GONIO, ",");
+                    /*    if (!empty($GONIO)) {
+                            $GONIO = chop($GONIO, ",");
+                        }
+                    */
                         if ($count ==0) {
                             $gonios = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>".xlt('Not documented')."</td></tr>";
                         }
@@ -5075,7 +5133,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
             </table>
         </div>
-        <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/chart.js/dist/Chart.bundle.min.js"></script>
+        <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/Chart.js-2-1-3/dist/Chart.bundle.min.js"></script>
         <div style="position:relative;float:right; margin: 0px 5px;text-align:center;width:60%;">
             <?php
             if ($priors) {
