@@ -220,6 +220,7 @@ if (true || $_POST['form_refresh']) {
     $total1 = 0.00;
     $total2 = 0.00;
 
+    $inputArray=array($from_date.' 00:00:00', $to_date.' 23:59:59');
     $query = "SELECT r.pid, r.dtime, " .
     "SUM(r.amount1) AS amount1, " .
     "SUM(r.amount2) AS amount2, " .
@@ -234,18 +235,17 @@ if (true || $_POST['form_refresh']) {
     "WHERE " .
     "r.dtime >= ? AND " .
     "r.dtime <= ? AND ";
-    if($_POST['form_facility']!="")
-    $query.="fe.facility_id = ? AND ";
-    if($_POST['form_provider']!="")
-    $query.="fe.provider_id = ? AND ";
+    if($_POST['form_facility']!=""){
+        $inputArray[]=$_POST['form_facility'];
+        $query.="fe.facility_id = ? AND ";
+    }
+    if($_POST['form_provider']!=""){
+        $inputArray[]=$_POST['form_provider'];
+        $query.="fe.provider_id = ? AND ";
+    }
     $query.="1 GROUP BY r.dtime, r.pid ORDER BY r.dtime, r.pid";
 
     // echo " $query \n"; // debugging
-    $inputArray=array($from_date.' 00:00:00', $to_date.' 23:59:59');
-    if($_POST['form_facility']!="")
-    $inputArray[]=$_POST['form_facility'];
-    if($_POST['form_provider']!="")
-    $inputArray[]=$_POST['form_provider'];
     $res = sqlStatement($query, $inputArray);
 
     while ($row = sqlFetchArray($res)) {
