@@ -120,8 +120,8 @@ function bucks($amt)
             </td>
             <td>
                 <?php
-                $form_facility=$_POST['form_facility']; 
-                dropdown_facility($form_facility, 'form_facility', false); 
+                $form_facility=$_POST['form_facility'];
+                dropdown_facility($form_facility, 'form_facility', false);
                 ?>
             </td>
             <td class='control-label'>
@@ -235,11 +235,11 @@ if (true || $_POST['form_refresh']) {
     "WHERE " .
     "r.dtime >= ? AND " .
     "r.dtime <= ? AND ";
-    if($_POST['form_facility']!=""){
+    if ($_POST['form_facility']!="") {
         $inputArray[]=$_POST['form_facility'];
         $query.="fe.facility_id = ? AND ";
     }
-    if($_POST['form_provider']!=""){
+    if ($_POST['form_provider']!="") {
         $inputArray[]=$_POST['form_provider'];
         $query.="fe.provider_id = ? AND ";
     }
