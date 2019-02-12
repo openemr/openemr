@@ -301,7 +301,7 @@ if ($refresh and $refresh != 'fullscreen') {
                               <div id="tab1_CC_text" class="tab_content">
                                 <table border="0" width="100%" cellspacing="0" cellpadding="0">
                                   <tr>
-                                    <td class="pad10"colspan="2">
+                                    <td class="pad10" colspan="2">
                                       <div class="kb kb_left">CC</div><b><span title="<?php echo xla('In the patient\'s words'); ?>"><?php echo xlt('Chief Complaint'); ?> 1:
                                       </span>  </b>
                                       <br />
@@ -3697,8 +3697,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                       </tr>
                                       <tr>
                                           <td colspan="3" style="padding-left:20px;padding-top:4px;">
-                                <textarea id="Plan<?php echo $counter; ?>" name="PLAN[]" style="width: 440px;height: 44px;"><?php if ($found < count($PLAN_arr)) {
-                                    echo $PLAN_arr[count($PLAN_arr)-1]['ORDER_DETAILS']; } ?></textarea>
+                                <textarea id="Plan<?php echo $counter; ?>" name="PLAN[]" style="width: 440px;height: 44px;"><?php if ($found < count((array)$PLAN_arr)) { echo $PLAN_arr[count((array)$PLAN_arr)-1]['ORDER_DETAILS']; } ?></textarea>
                                           </td>
                                       </tr>
                                   </table>

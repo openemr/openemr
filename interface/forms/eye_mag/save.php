@@ -276,8 +276,12 @@ if ($_REQUEST['unlock'] == '1') {
     exit;
 } elseif ($_REQUEST['acquire_lock'] == "1") {
     //we are taking over the form's active state, others will go read-only
-    $query = "UPDATE form_eye_locking set LOCKED='1',LOCKEDBY=?,LOCKEDDATE=NOW() where id=?";//" and LOCKEDBY=?";
+    $query = "UPDATE form_eye_locking set LOCKED='1',LOCKEDBY=? where id=?";//" and LOCKEDBY=?";
     $result = sqlQuery($query, array($_REQUEST['uniqueID'], $form_id ));
+    $query = "SELECT LOCKEDDATE from form_eye_locking WHERE ID=?";
+    $lock = sqlQuery($query, array($form_id));
+    echo $lock['LOCKEDDATE'];
+    
     exit;
 } else {
     $query = "SELECT LOCKED,LOCKEDBY,LOCKEDDATE from form_eye_locking WHERE ID=?";

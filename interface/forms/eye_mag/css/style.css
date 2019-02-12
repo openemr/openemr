@@ -1890,6 +1890,7 @@ div[name=prior_selector] { position:absolute;top:0.083in;right:0.241in;}
     border:1pt solid black;
     border-radius:3px;
     width:180px;
+    padding:4px 10px;
 }
 .oldies_prefix {
     position:relative;

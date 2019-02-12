@@ -1624,7 +1624,7 @@ function build_PMSFH($pid)
     $PMSFH = [];
     $PMSFH['CHRONIC']=[];
     //Define the PMSFH array elements as you need them:
-    $PMSFH_labels = array("POH", "POS", "PMH", "Surgery", "Medication", "Allergy", "SOCH", "FH", "ROS");
+    $PMSFH_labels = array("POH", "POS", "Eye Meds", "PMH", "Surgery", "Medication", "Allergy", "SOCH", "FH", "ROS");
     foreach ($PMSFH_labels as $panel_type) {
         $PMSFH[$panel_type] = [];
         $subtype = " and (subtype is NULL or subtype ='' )";

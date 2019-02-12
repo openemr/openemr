@@ -315,6 +315,7 @@ function update_PREFS() {
             'PREFS_CTL'             : $('#PREFS_CTL').val(),
             'PREFS_ADDITIONAL'      : $('#PREFS_ADDITIONAL').val(),
             'PREFS_VAX'             : $('#PREFS_VAX').val(),
+            'PREFS_RXHX'            : $('#PREFS_RXHX').val(),
             'PREFS_IOP'             : $('#PREFS_IOP').val(),
             'PREFS_CLINICAL'        : $('#PREFS_CLINICAL').val(),
             'PREFS_EXAM'            : $('#PREFS_EXAM').val(),
@@ -603,24 +604,6 @@ function refresh_GFS() {
      change in GONIO fields
      additional tests (VF/OCT) would not affect this in its live format
 
-     submit_form();
-     var url = '../../forms/eye_mag/view.php?display=GFS';
-     var formData = {
-     'action'           : "refresh_GFS",
-     'id'               : $('#form_id').val(),
-     'encounter'        : $('#encounter').val(),
-     'pid'              : $('#pid').val(),
-     'refresh'          : 'GFS'
-     };
-     top.restoreSession();
-     $.ajax({
-     type     : 'POST',
-     url          : url,
-     data     : formData,
-     success:(function(result) {
-     populate_GFS(result);
-     })
-     });
      */
 }
 
@@ -711,7 +694,7 @@ function store_PDF() {
     $.ajax({
            type         : 'POST',
            url          : url,
-           data     : formData
+           data         : formData
            });
 }
 
@@ -806,7 +789,7 @@ function hide_left() {
 }
 /*
  * Function to display only the DRAW panels of every section.
- * The technical section, between HPI and Clinical section is still viible.
+ * The technical section, between HPI and Clinical section is still visible.
  */
 function show_DRAW() {
     hide_QP();
@@ -1280,7 +1263,7 @@ function build_IMPPLAN(items,nodisplay) {
       $('#Coding_DX_Codes').html("");
       $('#visit_justification').html("");
 
-    if ((items == null) || ((typeof items == "undefined")|| (items.length =='0'))) {
+    if ((items == null) || ( (typeof items == "undefined") || (items.length =='0') ) ) {
         items = [];
         $('#IMPPLAN_text').removeClass('nodisplay'); //Display Builder instructions for starting out
         $('#IMPPLAN_zone').addClass('nodisplay');
@@ -3962,7 +3945,8 @@ update_PREFS();
 
                   $( "button" ).button().click(function( event ) {
                          event.preventDefault();
-                         });
+                    });
+
                   $('#visit_codes').change(function() {
                                            var data_all = $(this).val();
                                            var data = data_all.match(/^(.*)\|(.*)\|/);
