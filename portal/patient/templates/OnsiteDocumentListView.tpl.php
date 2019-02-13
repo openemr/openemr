@@ -21,26 +21,26 @@
  * @link http://www.open-emr.org
  */
 
-    $this->assign('title', xlt("Patient Portal") . " | " . xlt("Patient Documents"));
-    $this->assign('nav', 'onsitedocuments');
+$this->assign('title', xlt("Patient Portal") . " | " . xlt("Patient Documents"));
+$this->assign('nav', 'onsitedocuments');
 
-    $pid = $this->cpid;
-    $recid = $this->recid;
-    $docid = $this->docid;
-    $encounter= '';
+$pid = $this->cpid;
+$recid = $this->recid;
+$docid = $this->docid;
+$encounter = '';
 
 if (!$docid) {
-     $docid = 'Hipaa_Document';
+    $docid = 'Hipaa_Document';
 }
 
-    $isnew = false;
-    $ptName = isset($_SESSION['ptName']) ? $_SESSION['ptName'] : $pid;
-    $cuser = isset($_SESSION ['sessionUser']) ? $_SESSION ['sessionUser'] : $_SESSION ['authUserID'];
-    echo "<script>var cpid='" . attr($pid) . "';var cuser='" . attr($cuser) . "';var ptName='" . attr($ptName) . "';</script>";
-    echo "<script>var recid='" . attr($recid) . "';var docid='" . attr($docid) . "';var webRoot='" . $GLOBALS['web_root'] . "';var isNewDoc='" . attr($isnew) . "';</script>";
-    echo "<script>var alertMsg1='" . xlt("Saved to Documents->Onsite Portal->Reviewed - Open there to move or rename.") . "';</script>";
-    echo "<script>var msgSuccess='" . xlt("Save Successful") . "';</script>";
-    echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
+$isnew = false;
+$ptName = isset($_SESSION['ptName']) ? $_SESSION['ptName'] : $pid;
+$cuser = isset($_SESSION ['sessionUser']) ? $_SESSION ['sessionUser'] : $_SESSION ['authUserID'];
+echo "<script>var cpid='" . attr($pid) . "';var cuser='" . attr($cuser) . "';var ptName='" . attr($ptName) . "';</script>";
+echo "<script>var recid='" . attr($recid) . "';var docid='" . attr($docid) . "';var webRoot='" . $GLOBALS['web_root'] . "';var isNewDoc='" . attr($isnew) . "';</script>";
+echo "<script>var alertMsg1='" . xlt("Saved to Documents->Onsite Portal->Reviewed - Open there to move or rename.") . "';</script>";
+echo "<script>var msgSuccess='" . xlt("Save Successful") . "';</script>";
+echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
 ?>
 <!DOCTYPE html>
 <html>
@@ -51,32 +51,32 @@ if (!$docid) {
 <meta name="description" content="Developed By sjpadgett@gmail.com">
 
         <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-        <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
+<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
             <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
-        <?php } ?>
+<?php } ?>
 
-        <link href="<?php echo $GLOBALS['web_root']; ?>/portal/assets/css/style.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" />
+<link href="<?php echo $GLOBALS['web_root']; ?>/portal/assets/css/style.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" />
         <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome-4-6-3/css/font-awesome.min.css" rel="stylesheet" />
-        <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" type="text/css" />
-        <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signpad.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
+<link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" type="text/css" />
+<link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signpad.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
 
-        <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
-        <script type="text/javascript">
-            $LAB.setGlobalDefaults({BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"});
+<script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
+<script type="text/javascript">
+    $LAB.setGlobalDefaults({BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"});
             $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-11-3/index.js")
-                .script("<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signpad.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
-                .script("<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
+        .script("<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signpad.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
+        .script("<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
                 .script("<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js")
                 .script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore-1-8-3/underscore-min.js")
                 .script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment-2-13-0/moment.js")
                 .script("<?php echo $GLOBALS['assets_static_relative']; ?>/backbone-1-3-3/backbone-min.js")
                 .script("<?php echo $GLOBALS['assets_static_relative']; ?>/emodal-1-2-65/dist/eModal.js")
-                .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")
-                .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
-                .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
+        .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")
+        .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
+        .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
 
-        </script>
-    </head>
+</script>
+</head>
 
 <script type="text/javascript">
     $LAB.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsitedocuments.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
@@ -203,7 +203,7 @@ hr {
 .h4, .h5, .h6, h4, h5, h6 {
     margin-top: 0px;
     margin-bottom: 0px;
-} /* */
+}
 body {
     margin-top: 70px;
 }
@@ -228,71 +228,73 @@ body {
 }
 </style>
 <script type="text/template" id="onsiteDocumentModelTemplate">
-            <aside class="col-sm-2 col-xs-3" id="sidebar-pills">
-                <ul class="nav nav-pills  nav-stacked" id="sidebar">
-                    <li data-toggle="pill" class="bg-info"><a id="signTemplate"  href="#openSignModal"
-                        data-toggle="modal" data-backdrop="true" data-target="#openSignModal"><span><?php echo xlt('Signature');?></span></a></li>
-                    <li data-toggle="pill" class="bg-info"><a id="saveTemplate" href="#"><span"><?php echo xlt('Save');?></span></a></li>
-                    <li data-toggle="pill" class="bg-info"><a id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><span"><?php echo xlt('Print');?></span></a></li>
-                    <li data-toggle="pill" class="bg-info"><a id="submitTemplate"  href="#"><span"><?php echo xlt('Download');?></span></a></li>
-                    <li data-toggle="pill" class="bg-info"><a id="sendTemplate"  href="#"><span"><?php echo xlt('Send for Review');?></span></a></li>
-                    <li data-toggle="pill" class="bg-info"><a id="chartTemplate"  href="#"><span"><?php echo xlt('Save to Chart');?></span></a></li>
-                    <li data-toggle="pill" class="bg-info"><a id="downloadTemplate"  href="#"><span"><?php echo xlt('Download');?></span></a></li>
-                    <li data-toggle="pill" class="bg-danger"><a id="homeTemplate" href="#"  onclick='window.location.replace("./../home.php")'><?php echo xlt('Return Home');?></a></li>
-                </ul>
-            </aside>
-            <div class="col-md-8  col-sm-8 col-xs-8 nopadding">
-                <span id="modelLoader" class="loader progress progress-striped active"><span class="bar"></span></span>
-                <div class="panel panel-primary" id="docpanel">
-                    <header class="panel-heading" id='docPanelHeader'><?php echo xlt('Patient Document');?></header>
-                    <div id="loader" style="display:none;"></div>
-                    <form id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST" >
-                        <div id="loader" style="display:none;"></div>
-                        <div id="templatediv" class="container panel-body" style="margin:0 auto; background:white">
-                            <div id="templatecontent" class="template-body" style="margin:0 auto; background:white;padding:0 20px 0 20px"></div>
-                        </div>
-                        <input type="hidden" name="content" id="content" value="">
-                        <input type="hidden" name="docid" id="docid" value="">
-                        <input type="hidden" name="handler" id="handler" value="download">
-                        <input type="hidden" name="status" id="status" value="Open">
-                     </form>
-                    <!-- <button type="button" id="submitTemplatepdf" class="btn btn-primary ">Pdf<i class="fa fa-arrow-circle-right fa-lg"></i></button>  -->
-                    <div class="panel-footer">
-        <!-- delete button is is a separate form to prevent enter key from triggering a delete-->
-        <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
-            <fieldset>
-                <div class="form-group">
-                    <label class="control-label"></label>
-                    <div class="controls">
-                        <button id="deleteOnsiteDocumentButton" class="btn btn-mini btn-danger"><i class="icon-trash icon-white"></i><?php echo xlt('Delete Document');?></button>
-                        <span id="confirmDeleteOnsiteDocumentContainer">
-                            <button id="cancelDeleteOnsiteDocumentButton" class="btn btn-mini"><?php echo xlt('Cancel');?></button>
-                            <button id="confirmDeleteOnsiteDocumentButton" class="btn btn-mini btn-danger"><?php echo xlt('Confirm');?></button>
-                        </span>
-                    </div>
+    <aside class="col-sm-2 col-xs-3" id="sidebar-pills">
+        <ul class="nav nav-pills  nav-stacked" id="sidebar">
+            <li data-toggle="pill" class="bg-info"><a id="signTemplate"  href="#openSignModal"
+                data-toggle="modal" data-backdrop="true" data-target="#openSignModal"><span><?php echo xlt('Signature');?></span></a></li>
+            <li data-toggle="pill" class="bg-info"><a id="saveTemplate" href="#"><span"><?php echo xlt('Save');?></span></a></li>
+            <li data-toggle="pill" class="bg-info"><a id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><span"><?php echo xlt('Print');?></span></a></li>
+            <li data-toggle="pill" class="bg-info"><a id="submitTemplate"  href="#"><span"><?php echo xlt('Download');?></span></a></li>
+            <li data-toggle="pill" class="bg-info"><a id="sendTemplate"  href="#"><span"><?php echo xlt('Send for Review');?></span></a></li>
+            <li data-toggle="pill" class="bg-info"><a id="chartTemplate"  href="#"><span"><?php echo xlt('Save to Chart');?></span></a></li>
+            <li data-toggle="pill" class="bg-info"><a id="downloadTemplate"  href="#"><span"><?php echo xlt('Download');?></span></a></li>
+            <li data-toggle="pill" class="bg-danger"><a id="homeTemplate" href="#"  onclick='window.location.replace("./../home.php")'><?php echo xlt('Return Home');?></a></li>
+        </ul>
+    </aside>
+    <div class="col-md-8 col-sm-8 col-xs-8 nopadding">
+        <span id="modelLoader" class="loader progress progress-striped active"><span class="bar"></span></span>
+        <div class="panel panel-primary" id="docpanel">
+            <header class="panel-heading" id='docPanelHeader'><?php echo xlt('Patient Document');?></header>
+            <div id="loader" style="display:none;"></div>
+            <form id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST" >
+                <div id="loader" style="display:none;"></div>
+                <div id="templatediv" class="panel-body" style="margin:0 auto; background:white">
+                    <div id="templatecontent" class="template-body" style="margin:0 auto; background:white;padding:0 20px 0 20px"></div>
                 </div>
-            </fieldset>
-        </form>
+                <input type="hidden" name="content" id="content" value="">
+                <input type="hidden" name="cpid" id="cpid" value="">
+                <input type="hidden" name="docid" id="docid" value="">
+                <input type="hidden" name="handler" id="handler" value="download">
+                <input type="hidden" name="status" id="status" value="Open">
+             </form>
+            <!-- <button type="button" id="submitTemplatepdf" class="btn btn-primary ">Pdf<i class="fa fa-arrow-circle-right fa-lg"></i></button>  -->
+            <div class="panel-footer">
+<!-- delete button is is a separate form to prevent enter key from triggering a delete-->
+<form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
+    <fieldset>
+        <div class="form-group">
+            <label class="control-label"></label>
+            <div class="controls">
+                <button id="deleteOnsiteDocumentButton" class="btn btn-mini btn-danger"><i class="icon-trash icon-white"></i><?php echo xlt('Delete Document');?></button>
+                <span id="confirmDeleteOnsiteDocumentContainer">
+                    <button id="cancelDeleteOnsiteDocumentButton" class="btn btn-mini"><?php echo xlt('Cancel');?></button>
+                    <button id="confirmDeleteOnsiteDocumentButton" class="btn btn-mini btn-danger"><?php echo xlt('Confirm');?></button>
+                </span>
+            </div>
+        </div>
+    </fieldset>
+</form>
 </div>
 </div>
 </div>
 </div>
-    </div>
+</div>
 </script>
 <!-- 	</div> -->
 <script type="text/template" id="onsiteDocumentCollectionTemplate">
 <body class="skin-blue">
-    <div class="container">
-        <div class="row">
+    <div class="container-fluid">
         <div class="nav navbar-fixed-top" id="topnav">
-            <!--<img class='pull-left' style='width:14%;height:auto;margin-right:10px;' class='logo' src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png'/>-->
-            <ul class="nav nav-pills"  style='margin-top:5px'>
-                <li class="page-header" style='margin-left:10px;'><h4><a href="javascript:location.reload(true);"><?php echo xla('Attention: Pending Documents') . '>'?></a></h4></li>
+            <div class="navbar-header">
+                <a class="navbar-brand" href="javascript:location.reload(true);"><i class="fa fa-file-text-o">&nbsp;</i><?php echo xla('Pending Documents')?></a>
+            </div>
+            <ul class="nav navbar-nav"  style='margin-top:5px'>
                 <?php require_once(dirname(__FILE__) . '/../../lib/template_menu.php');?>
-                <li class="bg-danger"><a href="#"    onclick='window.location.replace("./../home.php")'><?php echo xlt('Return Home');?></a></li>
+                <li class="bg-danger"><a href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Return Home');?></a></li>
             </ul>
             <div id="collectionAlert"></div>
         </div>
+        <div class="container">
         <table class="collection table table-hover">
         <thead>
             <tr class='bg-primary' style='cursor:pointer'>
@@ -385,9 +387,9 @@ body {
     <div id="onsiteDocumentModelContainer" class="modelContainer"></div>
     <div id="onsiteDocumentCollectionContainer" class="collectionContainer"></div>
 
-</body>
-</div> <!-- /container -->
 
+</div> <!-- /container -->
+</body>
 <?php
     $this->display('_Footer.tpl.php');
 ?>

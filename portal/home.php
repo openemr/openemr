@@ -61,7 +61,7 @@ var webroot_url = webRoot;
 
 $(document).ready(function () {
 
-    $("#profilereport").load("./get_profile.php", {'embeddedScreen': true}, function () {
+    $("#profilereport").load("./get_profile.php", {embeddedScreen: true}, function () {
         $("table").addClass("table  table-responsive");
         $(".demographics td").removeClass("label");
         $(".demographics td").addClass("bold");
@@ -70,16 +70,16 @@ $(document).ready(function () {
             showProfileModal()
         });
     });
-    $("#reports").load("./report/portal_patient_report.php?pid='<?php echo attr($pid) ?>'", {'embeddedScreen': true}, function () {
+    $("#reports").load("./report/portal_patient_report.php?pid='<?php echo attr($pid) ?>'", {embeddedScreen: true}, function () {
         <?php if ($GLOBALS['portal_two_payments']) { ?>
-            $("#payment").load("./portal_payment.php", {'embeddedScreen': true}, function () {});
+            $("#payment").load("./portal_payment.php", {embeddedScreen: true}, function () {});
         <?php } ?>
     });
-    $("#medicationlist").load("./get_medications.php", {'embeddedScreen': true}, function () {
-        $("#allergylist").load("./get_allergies.php", {'embeddedScreen': true}, function () {
-            $("#problemslist").load("./get_problems.php", {'embeddedScreen': true}, function () {
-                $("#amendmentslist").load("./get_amendments.php", {'embeddedScreen': true}, function () {
-                    $("#labresults").load("./get_lab_results.php", {'embeddedScreen': true}, function () {
+    $("#medicationlist").load("./get_medications.php", {embeddedScreen: true}, function () {
+        $("#allergylist").load("./get_allergies.php", {embeddedScreen: true}, function () {
+            $("#problemslist").load("./get_problems.php", {embeddedScreen: true}, function () {
+                $("#amendmentslist").load("./get_amendments.php", {embeddedScreen: true}, function () {
+                    $("#labresults").load("./get_lab_results.php", {embeddedScreen: true}, function () {
 
                     });
                 });
@@ -216,7 +216,7 @@ function editAppointment(mode,deid){
                     </div><!-- /.col -->
 
             </div><!-- /.lists -->
-
+            <?php if ($GLOBALS['allow_portal_appointments']) { ?>
             <div class="row">
                 <div class="col-sm-6">
                     <div class="panel panel-primary collapse" id="appointmentpanel">
@@ -231,48 +231,48 @@ function editAppointment(mode,deid){
                                 $pid
                             ));
 
-                            if (sqlNumRows($res) > 0) {
-                                $count = 0;
-                                echo '<table id="appttable" style="width:100%;background:#eee;" class="table table-striped fixedtable"><thead>
+                        if (sqlNumRows($res) > 0) {
+                            $count = 0;
+                            echo '<table id="appttable" style="width:100%;background:#eee;" class="table table-striped fixedtable"><thead>
                                 </thead><tbody>';
-                                while ($row = sqlFetchArray($res)) {
-                                    $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
-                                    $count++;
-                                    $dayname = xl(date("l", strtotime($row ['pc_eventDate'])));
-                                    $dispampm = "am";
-                                    $disphour = substr($row ['pc_startTime'], 0, 2) + 0;
-                                    $dispmin = substr($row ['pc_startTime'], 3, 2);
-                                    if ($disphour >= 12) {
-                                        $dispampm = "pm";
-                                        if ($disphour > 12) {
-                                            $disphour -= 12;
-                                        }
-                                    }
-
-                                    if ($row ['pc_hometext'] != "") {
-                                        $etitle = 'Comments' . ": " . $row ['pc_hometext'] . "\r\n";
-                                    } else {
-                                        $etitle = "";
-                                    }
-
-                                    echo "<tr><td><p>";
-                                    echo "<a href='#' onclick='editAppointment(0," . htmlspecialchars($row ['pc_eid'], ENT_QUOTES) . ')' . "' title='" . htmlspecialchars($etitle, ENT_QUOTES) . "'>";
-                                    echo "<b>" . htmlspecialchars($dayname . ", " . $row ['pc_eventDate'], ENT_NOQUOTES) . "&nbsp;";
-                                    echo htmlspecialchars("$disphour:$dispmin " . $dispampm, ENT_NOQUOTES) . "</b><br>";
-                                    echo htmlspecialchars($row ['pc_catname'], ENT_NOQUOTES) . "<br><b>";
-                                    echo xlt("Provider") . ":</b> " . htmlspecialchars($row ['fname'] . " " . $row ['lname'], ENT_NOQUOTES) . "<br><b>";
-                                    echo xlt("Status") . ":</b> " . htmlspecialchars($status_title, ENT_NOQUOTES);
-                                    echo "</a></p></td></tr>";
-                                }
-
-                                if (isset($res) && $res != null) {
-                                    if ($count < 1) {
-                                        echo "&nbsp;&nbsp;" . xlt('None');
+                            while ($row = sqlFetchArray($res)) {
+                                $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
+                                $count++;
+                                $dayname = xl(date("l", strtotime($row ['pc_eventDate'])));
+                                $dispampm = "am";
+                                $disphour = substr($row ['pc_startTime'], 0, 2) + 0;
+                                $dispmin = substr($row ['pc_startTime'], 3, 2);
+                                if ($disphour >= 12) {
+                                    $dispampm = "pm";
+                                    if ($disphour > 12) {
+                                        $disphour -= 12;
                                     }
                                 }
-                            } else { // if no appts
-                                echo xlt('No Appointments');
+
+                                if ($row ['pc_hometext'] != "") {
+                                    $etitle = 'Comments' . ": " . $row ['pc_hometext'] . "\r\n";
+                                } else {
+                                    $etitle = "";
+                                }
+
+                                echo "<tr><td><p>";
+                                echo "<a href='#' onclick='editAppointment(0," . htmlspecialchars($row ['pc_eid'], ENT_QUOTES) . ')' . "' title='" . htmlspecialchars($etitle, ENT_QUOTES) . "'>";
+                                echo "<b>" . htmlspecialchars($dayname . ", " . $row ['pc_eventDate'], ENT_NOQUOTES) . "&nbsp;";
+                                echo htmlspecialchars("$disphour:$dispmin " . $dispampm, ENT_NOQUOTES) . "</b><br>";
+                                echo htmlspecialchars($row ['pc_catname'], ENT_NOQUOTES) . "<br><b>";
+                                echo xlt("Provider") . ":</b> " . htmlspecialchars($row ['fname'] . " " . $row ['lname'], ENT_NOQUOTES) . "<br><b>";
+                                echo xlt("Status") . ":</b> " . htmlspecialchars($status_title, ENT_NOQUOTES);
+                                echo "</a></p></td></tr>";
                             }
+
+                            if (isset($res) && $res != null) {
+                                if ($count < 1) {
+                                    echo "&nbsp;&nbsp;" . xlt('None');
+                                }
+                            }
+                        } else { // if no appts
+                            echo xlt('No Appointments');
+                        }
 
                             echo '</tbody></table>';
                         ?>
@@ -286,6 +286,7 @@ function editAppointment(mode,deid){
                     </div><!-- /.panel -->
                 </div><!-- /.col -->
             </div><!-- /.row -->
+            <?php } ?>
             <?php if ($GLOBALS['portal_two_payments']) { ?>
             <div class="row">
                <div class="col-sm-12">
@@ -298,6 +299,7 @@ function editAppointment(mode,deid){
                 </div> <!--/.col  -->
             </div>
             <?php } ?>
+            <?php if ($GLOBALS['allow_portal_chat']) { ?>
             <div class="row">
                 <div class="col-sm-12">
                     <div class="panel panel-primary collapse" style="padding-top:0;padding-bottom:0;" id="messagespanel">
@@ -308,7 +310,7 @@ function editAppointment(mode,deid){
                     </div>
                 </div><!-- /.col -->
             </div>
-
+            <?php } ?>
             <div class="row">
                 <div class="col-sm-8">
                     <div class="panel panel-primary collapse" id="reportpanel">
@@ -316,27 +318,26 @@ function editAppointment(mode,deid){
                         <div id="reports" class="panel-body"></div>
                         <div class="panel-footer"></div>
                     </div>
-
                 </div>
                 <!-- /.col -->
+                <?php if (!empty($GLOBALS['portal_onsite_document_download'])) { ?>
                 <div class="col-sm-6">
                     <div class="panel panel-primary collapse" id="downloadpanel">
                         <header class="panel-heading"> <?php echo xlt('Download Documents'); ?> </header>
                         <div id="docsdownload" class="panel-body">
-                        <?php if ($GLOBALS['portal_onsite_document_download']) { ?>
                             <div>
                                 <span class="text"><?php echo xlt('Download all patient documents');?></span>
                                 <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
                                 <input type="button" class="generateDoc_download" value="<?php echo xla('Download'); ?>" />
                                 </form>
                             </div>
-                        <?php } ?>
                         </div><!-- /.panel-body -->
                         <div class="panel-footer"></div>
                     </div>
                 </div><!-- /.col -->
+                <?php } ?>
             </div>
-
+            <?php if ($GLOBALS['portal_two_ledger']) { ?>
             <div class="row">
                 <div class="col-sm-12">
                     <div class="panel panel-primary collapse" id="ledgerpanel">
@@ -348,7 +349,7 @@ function editAppointment(mode,deid){
                     </div>
                 </div><!-- /.col -->
             </div>
-
+            <?php } ?>
             <div class="row">
                 <div class="col-sm-12">
                     <div class="panel panel-primary collapse" id="profilepanel">

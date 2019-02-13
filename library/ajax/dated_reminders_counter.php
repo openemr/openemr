@@ -27,6 +27,12 @@ require_once("../../interface/globals.php");
 require_once("$srcdir/dated_reminder_functions.php");
 require_once("$srcdir/pnotes.inc");
 
+// if portal is enable get various alerts
+if (isset($_POST['isPortal'])) {
+    echo GetPortalAlertCounts();
+    exit();
+}
+
 //Collect number of due reminders
 $dueReminders = GetDueReminderCount(5, strtotime(date('Y/m/d')));
 

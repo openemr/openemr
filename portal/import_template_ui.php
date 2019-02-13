@@ -150,9 +150,7 @@ function getDocument(docname, mode, content) {
                     ],
                     nugget: {
                         list: [
-                            '{ParseAsHTML}{TextInput}', '{smTextInput}', '{CheckMark}', '{ynRadioGroup}', '{DOS}', '{ReferringDOC}', '{PatientID}',
-                            '{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{PatientSignature}', '{Address}', '{City}', '{State}', '{Zip}',
-                            '{AdminSignature}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}'
+                            '{ParseAsHTML}', '{TextInput}', '{smTextInput}', '{CheckMark}', '{ynRadioGroup}', '{DOS}', '{ReferringDOC}', '{PatientID}','{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{PatientSignature}', '{Address}', '{City}', '{State}', '{Zip}', '{AdminSignature}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}'
                         ],
                         label: 'Tags / Directives',
                         tooltip: 'Insert at current cursor location.'

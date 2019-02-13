@@ -2500,6 +2500,27 @@ $GLOBALS_METADATA = array(
             xl('Enable Version 2 Onsite Patient Portal new patient to self register.')
         ),
 
+        'allow_portal_appointments' => array(
+            xl('Allow Version 2 Onsite Online Appointments'),
+            'bool',                           // data type
+            '1',
+            xl('Allow Version 2 Onsite Patient to make and view appointments online.')
+        ),
+
+        'allow_portal_chat' => array(
+            xl('Allow Version 2 Onsite Online Secure Chat'),
+            'bool',                           // data type
+            '1',
+            xl('Allow Version 2 Onsite Patient to use Secure Chat Application.')
+        ),
+
+        'portal_two_ledger' => array(
+            xl('Allow Version 2 Onsite Patient Ledger'),
+            'bool',                           // data type
+            '1',
+            xl('Allow Version 2 Onsite Patient to view their accounting ledger online.')
+        ),
+
         'portal_two_payments' => array(
             xl('Allow Version 2 Onsite Online Payments'),
             'bool',                           // data type
@@ -2514,6 +2535,13 @@ $GLOBALS_METADATA = array(
             xl('Patient may change their logon from portal login dialog.')
         ),
 
+        'portal_onsite_document_download' => array(
+            xl('Enable Onsite Patient Portal Document Download'),
+            'bool',                           // data type
+            '1',
+            xl('Enables the ability to download documents in the Onsite Patient Portal by the user.')
+        ),
+
         'portal_onsite_enable' => array(
             xl('Enable Version 1 Onsite Patient Portal'),
             'bool',                           // data type
@@ -2526,13 +2554,6 @@ $GLOBALS_METADATA = array(
             'text',                           // data type
             'https://your_web_site.com/openemr/patients',
             xl('Website link for the Version 1 Onsite Patient Portal.')
-        ),
-
-        'portal_onsite_document_download' => array(
-            xl('Enable Onsite Patient Portal Document Download'),
-            'bool',                           // data type
-            '1',
-            xl('Enables the ability to download documents in the Onsite Patient Portal by the user.')
         ),
 
         'portal_offsite_enable' => array(

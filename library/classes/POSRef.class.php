@@ -34,7 +34,7 @@ class POSRef
     {
         $pos = array();
         $pos[] = array ("code" => "01","title" => xl("Pharmacy") . " **", "description" => "A facility or location where drugs and other medically related items and services are sold, dispensed, or otherwise provided directly to patients.");
-        $pos[] = array ("code" => "02","title" => xl("Unassigned"), "description" => "N/A");
+        $pos[] = array ("code" => "02","title" => xl("Telehealth"), "description" => "A facility location where health services and health related services are provided or received, through a telecommunication system ");
         $pos[] = array ("code" => "03","title" => xl("School"), "description" => "A facility whose primary purpose is education.");
         $pos[] = array ("code" => "04","title" => xl("Homeless Shelter"), "description" => "A facility or location whose primary purpose is to provide temporary housing to homeless individuals (e.g., emergency shelters, individual or family shelters).");
         $pos[] = array ("code" => "05","title" => xl("Indian Health Service Free-standing Facility"), "description" => "A facility or location, owned and operated by the Indian Health Service, which provides diagnostic, therapeutic (surgical and non-surgical), and rehabilitation services to American Indians and Alaska Natives who do not require hospitalization.");

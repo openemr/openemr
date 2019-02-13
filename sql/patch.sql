@@ -47,3 +47,11 @@
 
 --  #EndIf
 --    all blocks are terminated with and #EndIf statement.
+
+#IfNotColumnType onsite_messages sender_id VARCHAR(64)
+ALTER TABLE `onsite_messages` CHANGE `sender_id` `sender_id` VARCHAR(64) NULL COMMENT 'who sent id';
+#EndIf
+
+#IfNotColumnType onsite_documents full_document MEDIUMBLOB
+ALTER TABLE `onsite_documents` CHANGE `full_document` `full_document` MEDIUMBLOB;
+#EndIf

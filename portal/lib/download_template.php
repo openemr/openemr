@@ -35,7 +35,7 @@ require_once($GLOBALS['srcdir'] . '/options.inc.php');
 
 $form_filename = $_POST['docid'];
 $pid = $_POST['pid'];
-// $user = strip_escape_custom($_POST['user']);
+// $user = $_POST['user'];
 
 $nextLocation = 0; // offset to resume scanning
 $keyLocation = false; // offset of a potential {string} to replace

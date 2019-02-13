@@ -40,6 +40,8 @@ $esignApi = new Api();
 <script type="text/javascript">
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
+var isPortalEnabled = "<?php echo $GLOBALS['portal_onsite_two_enable'] == 1; ?>";
+
 // Since this should be the parent window, this is to prevent calls to the
 // window that opened this window. For example when a new window is opened
 // from the Patient Flow Board or the Patient Finder.
@@ -72,6 +74,32 @@ function goRepeaterServices(){
             app_view_model.application_data.user().messages(data);
         }
     );
+    // Notify App for various portal alerts
+    if (isPortalEnabled) {
+        top.restoreSession();
+        $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/dated_reminders_counter.php",
+            {
+                skip_timeout_reset: "1",
+                isPortal: "1"
+            },
+            function (counts) {
+                data = JSON.parse(counts);
+                let mail = data.mailCnt;
+                let chats = data.chatCnt;
+                let audits = data.auditCnt;
+                let total = data.total;
+                let enable = (1 * mail) + (1 * audits);
+
+                app_view_model.application_data.user().portal(enable);
+                if (enable) {
+                    app_view_model.application_data.user().portalAlerts(total);
+                    app_view_model.application_data.user().portalAudits(audits);
+                    app_view_model.application_data.user().portalMail(mail);
+                    app_view_model.application_data.user().portalChats(chats);
+                }
+            }
+        );
+    }
 
     top.restoreSession();
     // run background-services
@@ -124,7 +152,8 @@ var jsLanguageDirection = "<?php echo $_SESSION["language_direction"]; ?>";
 var xl_strings_tabs_view_model = <?php echo json_encode(array(
     'encounter_locked' => xla('This encounter is locked. No new forms can be added.'),
     'must_select_patient'  => $GLOBALS['enable_group_therapy'] ? xla('You must first select or add a patient or therapy group.') : xla('You must first select or add a patient.'),
-    'must_select_encounter'    => xla('You must first select or create an encounter.')
+    'must_select_encounter'    => xla('You must first select or create an encounter.'),
+    'new' => xla('New')
 ));
 ?>;
 </script>
