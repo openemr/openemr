@@ -44,6 +44,7 @@ if (!$thisauth) {
 }
 
 //Limit variables for filter
+$records_per_page = 40;
 $list_from = ( isset($_REQUEST["list_from"]) ? intval($_REQUEST["list_from"]) : 1 );
 $list_to   = ( isset($_REQUEST["list_to"])   ? intval($_REQUEST["list_to"]) : 0);
 
@@ -1045,7 +1046,7 @@ function writeITLine($it_array)
                          * Keep proper list name (otherwise list name changes according to
                          * the options shown on the screen).
                          */
-                        $list_id_container = trim(strip_tags($_GET["list_id_container"]));
+                        $list_id_container = attr($_GET["list_id_container"]);
                         if (isset($_GET["list_id_container"]) && strlen($list_id_container) > 0) {
                             $list_id = $list_id_container;
                         }
@@ -1107,7 +1108,7 @@ function writeITLine($it_array)
                             urlFull.searchParams.set("list_from",list_from);
                         }
 
-                        if( list_from >= 0 ){
+                        if( list_to >= 0 ){
                             urlFull.searchParams.delete("list_to");
                             urlFull.searchParams.set("list_to",list_to);
                         }
@@ -1122,14 +1123,14 @@ function writeITLine($it_array)
                 $urlFrom   = ($list_from > 0 ? $list_from : 1);
                 $urlTo     = ($list_to > 0 ? $list_to : '');
                 ?>
-                <div class="blck-filter" style="float: left; margin-top: 5px; margin-left: 10px; border:0px solid red; width: auto; ">
+                <div class="blck-filter" style="display: none; float: left; margin-top: 5px; margin-left: 10px; border:0px solid red; width: auto; ">
                     <div id="input-type-from" style="float: left; "><?php echo xlt("From"); ?>&nbsp;<input autocomplete="off" id="list-from" value="<?php echo attr($urlFrom);?>" style = "margin-right: 10px; width: 40px;">
                         <?php echo xlt("To"); ?>&nbsp;<input autocomplete="off" id="list-to" value="<?php echo attr($urlTo); ?>" style=" margin-right: 10px; width: 40px;">
                     </div>
                     <div style="float:left" ><input type="button" value="<?php echo xla('Show records'); ?>" onclick="lister()"></div>
                 </div>
                 <!--Happy end-->
-
+                <div class="" id="total-record" style="float:left; margin-top: 8px; margin-left: 10px; margin-right: 10px;"></div>
         </div><!-- /.navbar-collapse -->
     </div>
 </nav>
@@ -1275,9 +1276,31 @@ if ($GLOBALS['ippf_specific']) { ?>
     <?php
     // Get the selected list's elements.
     if ($list_id) {
+        /*
+         *  Add edit options to show or hide in list management
+         *   If the edit_options setting of the main list entry is set to 0,
+         *    then none of the list items will show.
+         *   If the edit_options setting of the main list entry is set to 1,
+         *    then the list items with edit_options set to 1 will show.
+         */
+
+        /**
+         * In case when we are have a get parametr "list_id_container", we are set manually variable list_id
+         * and range from...to if these is set
+         * adding 1 to from and to limits
+         * And set default order ASC for sort, because we can't use a empty string (sql_limits) for query builder
+         */
+        $sql_limits = 'ASC LIMIT 0, '.$records_per_page;
+        if ( $list_from > 0 ){
+            $list_from--;
+        }
+        if ( $list_to > 0 ) {
+            $sql_limits = " ASC LIMIT " . escape_limit($list_from) . (intval($list_to) > 0 ? ", " . escape_limit($list_to - $list_from) : "");
+        }
+
         if ($list_id == 'feesheet') {
             $res = sqlStatement("SELECT * FROM fee_sheet_options " .
-                "ORDER BY fs_category, fs_option");
+                "ORDER BY fs_category, fs_option ".$sql_limits);
             while ($row = sqlFetchArray($res)) {
                 writeFSLine($row['fs_category'], $row['fs_option'], $row['fs_codes']);
             }
@@ -1286,7 +1309,7 @@ if ($GLOBALS['ippf_specific']) { ?>
             }
         } elseif ($list_id == 'code_types') {
             $res = sqlStatement("SELECT * FROM code_types " .
-                "ORDER BY ct_seq, ct_key");
+                "ORDER BY ct_seq, ct_key ".$sql_limits);
             while ($row = sqlFetchArray($res)) {
                 writeCTLine($row);
             }
@@ -1295,7 +1318,7 @@ if ($GLOBALS['ippf_specific']) { ?>
             }
         } elseif ($list_id == 'issue_types') {
             $res = sqlStatement("SELECT * FROM issue_types " .
-                "ORDER BY category, ordering ASC");
+                "ORDER BY category, ordering ".$sql_limits);
             while ($row = sqlFetchArray($res)) {
                 writeITLine($row);
             }
@@ -1303,28 +1326,6 @@ if ($GLOBALS['ippf_specific']) { ?>
                 writeITLine(array());
             }
         } else {
-            /*
-             *  Add edit options to show or hide in list management
-             *   If the edit_options setting of the main list entry is set to 0,
-             *    then none of the list items will show.
-             *   If the edit_options setting of the main list entry is set to 1,
-             *    then the list items with edit_options set to 1 will show.
-             */
-
-            /**
-             * In case when we are have a get parametr "list_id_container", we are set manually variable list_id
-             * and range from...to if these is set
-             * adding 1 to from and to limits
-             * And set default order ASC for sort, because we can't use a empty string (sql_limits) for query builder
-             */
-            $sql_limits = '';
-            if ( $list_from > 0 ){
-                $list_from--;
-            }
-            if ( $list_to > 0 ) {
-                $sql_limits = " ASC LIMIT " . escape_limit($list_from) . (intval($list_to) > 0 ? ", " . escape_limit($list_to - $list_from) : "");
-            }
-
             $res = sqlStatement("SELECT lo.*
                          FROM list_options AS lo
                          RIGHT JOIN list_options AS lo2 ON lo2.option_id = lo.list_id AND lo2.edit_options = 1
@@ -1422,6 +1423,20 @@ if ($GLOBALS['ippf_specific']) { ?>
         $(".deletelist").click(function () {
             DeleteList(this);
         });
+
+        var totalRecords = '<?php echo $res->_numOfRows;?>';
+        var totalRecordDiv = $('#total-record');
+        if( totalRecordDiv ){
+            totalRecordDiv.text("<?php echo xlt("Total records"); ?>: <?php echo $res->_numOfRows;?> <?php echo xlt("items"); ?>");
+        }
+
+        var urlFull    = new URL($(location).attr('href'));
+        var listIdCont = urlFull.searchParams.get('list_id_container');
+
+        console.log("list_from: " + listIdCont  );
+        if( totalRecords >= <?php echo $records_per_page;?> || listIdCont != null ) {
+            $(".blck-filter").show();
+        }
 
         //prevent Enter button press on filter
         $('.blck-filter').on('keyup keypress', function(e)
