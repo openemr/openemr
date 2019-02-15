@@ -63,21 +63,20 @@ function escape_sort_order($s)
  * If parameter string contains comma(,) delimeter
  * Splits parameter string into an array, using comma(,) as delimeter
  * else it returns original string
- * 
+ *
  * @param   string       $s  string to be processed
- * @return  array        $columns   an array formed by spliting $s with comma(,) delimeter         
+ * @return  array        $columns   an array formed by spliting $s with comma(,) delimeter
  */
 
 function process_cols_escape($s)
-{   
+{
     //returns an array of columns
     $columns = explode(",", $s);
-    if(count($columns) > 1) {
+    if (count($columns) > 1) {
         return $columns;
     }
 
     return $s;
-    
 }
 
 /**
@@ -102,13 +101,13 @@ function escape_sql_column_name($s, $tables, $long = false)
     }
 
      // If $s is an array process then use recursion to check each column
-     if (is_array($s)) {
+    if (is_array($s)) {
         $multiple_columns = [];
         foreach ($s as $column) {
             $multiple_columns[] = escape_sql_column_name(trim($column), $tables);
-          }
-         return implode(", ", $multiple_columns);
-     }
+        }
+        return implode(", ", $multiple_columns);
+    }
 
     // If the $tables is empty, then process them all
     if (empty($tables)) {
