@@ -17,6 +17,9 @@
  */
 
 
+// Updated by Growlingflea Software.  now generates correct service and billing facility on statement.
+// any questions contact Daniel Pflieger at daniel@growlingflea.com
+
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/invoice_summary.inc.php");
@@ -363,7 +366,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
 
     $res = sqlStatement("SELECT " .
     "f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, f.last_level_closed, f.last_level_billed, f.billing_note as enc_billing_note, " .
-    "p.fname, p.mname, p.lname, p.street, p.city, p.state, p.postal_code, p.billing_note as pat_billing_note " .
+    "p.fname, p.mname, p.lname, p.street, p.city, p.state, p.postal_code, p.billing_note as pat_billing_note, f.provider_id " .
     "FROM form_encounter AS f, patient_data AS p " .
     "WHERE $where " .
     "p.pid = f.pid " .
@@ -443,7 +446,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
             if (!empty($stmt)) {
                 ++$stmt_count;
             }
-
+            $stmt['fid'] = $row['id'];
             $stmt['cid'] = $row['pid'];
             $stmt['pid'] = $row['pid'];
             $stmt['dun_count'] = $row['stmt_count'];
@@ -453,6 +456,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
             $stmt['level_closed'] = $row['last_level_closed'];
             $stmt['patient'] = $row['fname'] . ' ' . $row['lname'];
             $stmt['encounter'] = $row['encounter'];
+            $stmt['provider_id'] = $row['provider_id'];
             #If you use the field in demographics layout called
             #guardiansname this will allow you to send statements to the parent
             #of a child or a guardian etc
