@@ -1,34 +1,6 @@
 <?php
 $GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
 
-function getFormById($id, $cols = "*")
-{
-    $sql = "SELECT $cols FROM forms WHERE id = ? AND deleted = 0 ORDER BY date DESC limit 0,1";
-    //echo $sql . "<br />";
-    return sqlQuery($sql, array($id));
-}
-
-function getFormInfoById($id, $cols = "*")
-{
-    $sql = "SELECT $cols FROM forms WHERE id = ? AND deleted = 0 ORDER BY date DESC limit 0,1";
-    //echo $sql . "<br />";
-    $result =  sqlQuery($sql, array($id));
-    if ($result['formdir'] == "newpatient") {
-        $result['formdir'] = "encounter";
-    }
-
-    $sql = "SELECT * FROM form_" . escape_table_name("form_".$result['formdir']) . " WHERE id = ?";
-    //echo $sql . "<br />";
-    $result =  sqlQuery($sql, array($result['form_id']));
-    //print_r($result);
-    return $result;
-}
-
-function getFormsByPid($pid, $cols = "*")
-{
-    return sqlQuery("SELECT $cols FROM forms WHERE pid = ? AND deleted = 0", array($pid));
-}
-
 function getFormByEncounter(
     $attendant_id,
     $encounter,
@@ -39,7 +11,7 @@ function getFormByEncounter(
 
     global $attendant_type;
     $arraySqlBind = array();
-    $sql = "select $cols from forms where encounter = ? and deleted = 0 ";
+    $sql = "select " . escape_sql_column_name(process_cols_escape($cols), array('forms')) . " from forms where encounter = ? and deleted = 0 ";
     array_push($arraySqlBind, $encounter);
     if (!empty($name)) {
         $sql .= "and form_name=? ";
