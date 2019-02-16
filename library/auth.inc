@@ -206,35 +206,8 @@ function authCheckExpired($user)
     return false;
 }
 
-function getUserList($cols = '*', $limit = 'all', $start = '0')
-{
-    if ($limit = "all") {
-        $rez = sqlStatement("select $cols from users where username != '' order by date DESC");
-    } else {
-        $rez = sqlStatement("select $cols from users where username != '' order by date DESC limit $limit, $start");
-    }
 
-    for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
-        $tbl[$iter] = $row;
-    }
 
-    return $tbl;
-}
-
-function getProviderList($cols = '*', $limit = 'all', $start = '0')
-{
-    if ($limit = "all") {
-        $rez = sqlStatement("select $cols from `groups` order by date DESC");
-    } else {
-        $rez = sqlStatement("select $cols from `groups` order by date DESC limit $limit, $start");
-    }
-
-    for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
-        $tbl[$iter] = $row;
-    }
-
-    return $tbl;
-}
 
 function addGroup($groupname)
 {
