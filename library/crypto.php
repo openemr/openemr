@@ -27,9 +27,9 @@ function encryptStandard($value, $customPassword = null, $keySource = 'drive')
     #  increment when update the encrypt/decrypt methodology
     #  which allows being able to maintain backward compatibility
     #  to decrypt values from prior versions)
-    $encryptionVersion = "004";
+    $encryptionVersion = "005";
 
-    $encryptedValue = $encryptionVersion . aes256Encrypt($value, $customPassword, $keySource, "four");
+    $encryptedValue = $encryptionVersion . aes256Encrypt($value, $customPassword, $keySource, "five");
 
     return $encryptedValue;
 }
@@ -53,7 +53,9 @@ function decryptStandard($value, $customPassword = null, $keySource = 'drive')
     $trimmedValue = mb_substr($value, 3, null, '8bit');
 
     # Map the encrypt/decrypt version to the correct decryption function
-    if ($encryptionVersion == 4) {
+    if ($encryptionVersion == 5) {
+        return aes256DecryptFour($trimmedValue, $customPassword, $keySource, "five");
+    } else if ($encryptionVersion == 4) {
         return aes256DecryptFour($trimmedValue, $customPassword, $keySource, "four");
     } else if (($encryptionVersion == 2) || ($encryptionVersion == 3)) {
         return aes256DecryptTwo($trimmedValue, $customPassword);
@@ -91,7 +93,7 @@ function cryptCheckStandard($value)
  * @param  string  $keyNumber       This is the key number.
  * @return string                   returns the encrypted data.
  */
-function aes256Encrypt($sValue, $customPassword = null, $keySource = 'drive', $keyNumber = "four")
+function aes256Encrypt($sValue, $customPassword = null, $keySource = 'drive', $keyNumber = "five")
 {
     if (!extension_loaded('openssl')) {
         error_log("OpenEMR Error : Encryption is not working because missing openssl extension.");
@@ -151,7 +153,7 @@ function aes256Encrypt($sValue, $customPassword = null, $keySource = 'drive', $k
  * @param  string  $keyNumber       This is the key number.
  * @return string or false          returns the decrypted data or false if failed.
  */
-function aes256DecryptFour($sValue, $customPassword = null, $keySource = 'drive', $keyNumber = "four")
+function aes256DecryptFour($sValue, $customPassword = null, $keySource = 'drive', $keyNumber = "five")
 {
     if (!extension_loaded('openssl')) {
         error_log("OpenEMR Error : Decryption is not working because missing openssl extension.");
@@ -354,7 +356,12 @@ function aes256PrepKey($version = "one", $sub = "", $keySource = 'drive')
             // Create a key and place in drive
             // Produce a 256bit key (32 bytes equals 256 bits)
             $newKey = produceRandomBytes(32);
-            file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label, base64_encode($newKey));
+            if (($version == "one") || ($version == "two") || ($version == "three") || ($version == "four")) {
+                // older key versions that did not encrypt the key on the drive
+                file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label, base64_encode($newKey));
+            } else {
+                file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label, encryptStandard($newKey, null, 'database'));
+            }
         }
     }
 
@@ -363,7 +370,12 @@ function aes256PrepKey($version = "one", $sub = "", $keySource = 'drive')
         $sqlKey = sqlQuery("SELECT `value` FROM `keys` WHERE `name` = ?", [$label]);
         $key = base64_decode($sqlKey['value']);
     } else { //$keySource == 'drive'
-        $key = base64_decode(rtrim(file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label)));
+        if (($version == "one") || ($version == "two") || ($version == "three") || ($version == "four")) {
+            // older key versions that did not encrypt the key on the drive
+            $key = base64_decode(rtrim(file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label)));
+        } else {
+            $key = decryptStandard(file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label), null, 'database');
+        }
     }
 
     if (empty($key)) {
