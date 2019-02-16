@@ -29,7 +29,7 @@ function encryptStandard($value, $customPassword = null, $keySource = 'drive')
     #  to decrypt values from prior versions)
     $encryptionVersion = "004";
 
-    $encryptedValue = $encryptionVersion . aes256Encrypt($value, $customPassword, $keySource);
+    $encryptedValue = $encryptionVersion . aes256Encrypt($value, $customPassword, $keySource, "four");
 
     return $encryptedValue;
 }
@@ -54,7 +54,7 @@ function decryptStandard($value, $customPassword = null, $keySource = 'drive')
 
     # Map the encrypt/decrypt version to the correct decryption function
     if ($encryptionVersion == 4) {
-        return aes256DecryptFour($trimmedValue, $customPassword, $keySource);
+        return aes256DecryptFour($trimmedValue, $customPassword, $keySource, "four");
     } else if (($encryptionVersion == 2) || ($encryptionVersion == 3)) {
         return aes256DecryptTwo($trimmedValue, $customPassword);
     } else if ($encryptionVersion == 1) {
@@ -88,9 +88,10 @@ function cryptCheckStandard($value)
  * @param  string  $sValue          Raw data that will be encrypted.
  * @param  string  $customPassword  If null, then use standard key. If provide a password, then will derive key from this.
  * @param  string  $keySource       This is the source of the keys. Options are 'drive' and 'database'
+ * @param  string  $keyNumber       This is the key number.
  * @return string                   returns the encrypted data.
  */
-function aes256Encrypt($sValue, $customPassword = null, $keySource = 'drive')
+function aes256Encrypt($sValue, $customPassword = null, $keySource = 'drive', $keyNumber = "four")
 {
     if (!extension_loaded('openssl')) {
         error_log("OpenEMR Error : Encryption is not working because missing openssl extension.");
@@ -99,8 +100,8 @@ function aes256Encrypt($sValue, $customPassword = null, $keySource = 'drive')
     if (empty($customPassword)) {
         // Collect the encryption keys. If they do not exist, then create them
         // The first key is for encryption. Then second key is for the HMAC hash
-        $sSecretKey = aes256PrepKey("four", "a", $keySource);
-        $sSecretKeyHmac = aes256PrepKey("four", "b", $keySource);
+        $sSecretKey = aes256PrepKey($keyNumber, "a", $keySource);
+        $sSecretKeyHmac = aes256PrepKey($keyNumber, "b", $keySource);
     } else {
         // customPassword mode, so turn the password into keys
         $sSalt = produceRandomBytes(32);
@@ -147,9 +148,10 @@ function aes256Encrypt($sValue, $customPassword = null, $keySource = 'drive')
  * @param  string  $sValue          Encrypted data that will be decrypted.
  * @param  string  $customPassword  If null, then use standard key. If provide a password, then will derive key from this.
  * @param  string  $keySource       This is the source of the keys. Options are 'drive' and 'database'
+ * @param  string  $keyNumber       This is the key number.
  * @return string or false          returns the decrypted data or false if failed.
  */
-function aes256DecryptFour($sValue, $customPassword = null, $keySource = 'drive')
+function aes256DecryptFour($sValue, $customPassword = null, $keySource = 'drive', $keyNumber = "four")
 {
     if (!extension_loaded('openssl')) {
         error_log("OpenEMR Error : Decryption is not working because missing openssl extension.");
@@ -165,8 +167,8 @@ function aes256DecryptFour($sValue, $customPassword = null, $keySource = 'drive'
     if (empty($customPassword)) {
         // Collect the encryption keys.
         // The first key is for encryption. Then second key is for the HMAC hash
-        $sSecretKey = aes256PrepKey("four", "a", $keySource);
-        $sSecretKeyHmac = aes256PrepKey("four", "b", $keySource);
+        $sSecretKey = aes256PrepKey($keyNumber, "a", $keySource);
+        $sSecretKeyHmac = aes256PrepKey($keyNumber, "b", $keySource);
     } else {
         // customPassword mode, so turn the password keys
         // The first key is for encryption. Then second key is for the HMAC hash
