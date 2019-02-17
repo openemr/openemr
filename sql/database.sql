@@ -53,7 +53,7 @@ CREATE TABLE `amendments` (
   `amendment_date` date NOT NULL COMMENT 'Amendement request date',
   `amendment_by` varchar(50) NOT NULL COMMENT 'Amendment requested from',
   `amendment_status` varchar(50) NULL COMMENT 'Amendment status accepted/rejected/null',
-  `pid` int(11) NOT NULL COMMENT 'Patient ID from patient_data',
+  `pid` bigint(20) NOT NULL COMMENT 'Patient ID from patient_data',
   `amendment_desc` text COMMENT 'Amendment Details',
   `created_by` int(11) NOT NULL COMMENT 'references users.id for session owner',
   `modified_by` int(11) NULL COMMENT 'references users.id for session owner',
@@ -189,7 +189,7 @@ CREATE TABLE `billing` (
   `date` datetime default NULL,
   `code_type` varchar(15) default NULL,
   `code` varchar(20) default NULL,
-  `pid` int(11) default NULL,
+  `pid` bigint(20) default NULL,
   `provider_id` int(11) default NULL,
   `user` int(11) default NULL,
   `groupname` varchar(255) default NULL,
@@ -1141,7 +1141,7 @@ CREATE TABLE `dated_reminders` (
   `dr_message_text` varchar(160) NOT NULL,
   `dr_message_sent_date` datetime NOT NULL,
   `dr_message_due_date` date NOT NULL,
-  `pid` int(11) NOT NULL,
+  `pid` bigint(20) NOT NULL,
   `message_priority` tinyint(1) NOT NULL,
   `message_processed` tinyint(1) NOT NULL DEFAULT '0',
   `processed_date` timestamp NULL DEFAULT NULL,
@@ -1208,7 +1208,7 @@ CREATE TABLE `documents` (
   `pages` int(11) default NULL,
   `owner` int(11) default NULL,
   `revision` timestamp NOT NULL,
-  `foreign_id` int(11) default NULL,
+  `foreign_id` bigint(20) default NULL,
   `docdate` date default NULL,
   `hash` varchar(40) DEFAULT NULL COMMENT '40-character SHA-1 hash of document',
   `list_id` bigint(20) NOT NULL default '0',
@@ -1342,7 +1342,7 @@ CREATE TABLE `drug_sales` (
   `drug_id` int(11) NOT NULL,
   `inventory_id` int(11) NOT NULL,
   `prescription_id` int(11) NOT NULL default '0',
-  `pid` int(11) NOT NULL default '0',
+  `pid` bigint(20) NOT NULL default '0',
   `encounter` int(11) NOT NULL default '0',
   `user` varchar(255) default NULL,
   `sale_date` date NOT NULL,
@@ -1940,7 +1940,7 @@ CREATE TABLE `form_reviewofs` (
 DROP TABLE IF EXISTS `form_ros`;
 CREATE TABLE `form_ros` (
   `id` int(11) NOT NULL auto_increment,
-  `pid` int(11) NOT NULL,
+  `pid` bigint(20) NOT NULL,
   `activity` int(11) NOT NULL default '1',
   `date` datetime default NULL,
   `weight_change` varchar(3) default NULL,
@@ -2987,7 +2987,7 @@ CREATE TABLE `insurance_numbers` (
 
 DROP TABLE IF EXISTS `issue_encounter`;
 CREATE TABLE `issue_encounter` (
-  `pid` int(11) NOT NULL,
+  `pid` bigint(20) NOT NULL,
   `list_id` int(11) NOT NULL,
   `encounter` int(11) NOT NULL,
   `resolved` tinyint(1) NOT NULL,
@@ -5390,7 +5390,7 @@ CREATE TABLE `onotes` (
 DROP TABLE IF EXISTS `onsite_documents`;
 CREATE TABLE `onsite_documents` (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `pid` int(10) UNSIGNED DEFAULT NULL,
+  `pid` bigint(20) UNSIGNED DEFAULT NULL,
   `facility` int(10) UNSIGNED DEFAULT NULL,
   `provider` int(10) UNSIGNED DEFAULT NULL,
   `encounter` int(10) UNSIGNED DEFAULT NULL,
@@ -5764,7 +5764,7 @@ CREATE TABLE `openemr_session_info` (
 DROP TABLE IF EXISTS `patient_access_onsite`;
 CREATE TABLE `patient_access_onsite`(
   `id` INT NOT NULL AUTO_INCREMENT ,
-  `pid` INT(11),
+  `pid` bigint(20),
   `portal_username` VARCHAR(100) ,
   `portal_pwd` VARCHAR(100) ,
   `portal_pwd_status` TINYINT DEFAULT '1' COMMENT '0=>Password Created Through Demographics by The provider or staff. Patient Should Change it at first time it.1=>Pwd updated or created by patient itself',
@@ -5955,7 +5955,7 @@ CREATE TABLE `patient_reminders` (
 DROP TABLE IF EXISTS `patient_access_offsite`;
 CREATE TABLE  `patient_access_offsite` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `pid` int(11) NOT NULL,
+  `pid` bigint(20) NOT NULL,
   `portal_username` varchar(100) NOT NULL,
   `portal_pwd` varchar(100) NOT NULL,
   `portal_pwd_status` tinyint(4) DEFAULT '1' COMMENT '0=>Password Created Through Demographics by The provider or staff. Patient Should Change it at first time it.1=>Pwd updated or created by patient itself',
@@ -7295,7 +7295,7 @@ INSERT INTO `automatic_notification` (`notification_id`, `sms_gateway_type`, `ne
 DROP TABLE IF EXISTS `notification_log`;
 CREATE TABLE `notification_log` (
   `iLogId` int(11) NOT NULL auto_increment,
-  `pid` int(7) NOT NULL,
+  `pid` bigint(20) NOT NULL,
   `pc_eid` int(11) unsigned NULL,
   `sms_gateway_type` varchar(50) NOT NULL,
   `smsgateway_info` varchar(255) NOT NULL,
@@ -10035,7 +10035,7 @@ CREATE TABLE `form_eye_mag_wearing` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `ENCOUNTER` int(11) NOT NULL,
   `FORM_ID` smallint(6) NOT NULL,
-  `PID` int(11) NOT NULL,
+  `PID` bigint(20) NOT NULL,
   `RX_NUMBER` int(11) NOT NULL,
   `ODSPH` varchar(10) DEFAULT NULL,
   `ODCYL` varchar(10) DEFAULT NULL,
@@ -10199,7 +10199,7 @@ CREATE TABLE `therapy_groups` (
 DROP TABLE IF EXISTS `therapy_groups_participants`;
 CREATE TABLE `therapy_groups_participants` (
   `group_id` int(11) NOT NULL,
-  `pid` int(11) NOT NULL ,
+  `pid` bigint(20) NOT NULL,
   `group_patient_status` int(11) NOT NULL,
   `group_patient_start` date NOT NULL ,
   `group_patient_end` date,
@@ -10216,7 +10216,7 @@ CREATE TABLE `therapy_groups_participants` (
 DROP TABLE IF EXISTS `therapy_groups_participant_attendance`;
 CREATE TABLE `therapy_groups_participant_attendance` (
   `form_id` int(11) NOT NULL ,
-  `pid` int(11) NOT NULL ,
+  `pid` bigint(20) NOT NULL,
   `meeting_patient_comment` text ,
   `meeting_patient_status` varchar(15),
   PRIMARY KEY (`form_id`,`pid`)
