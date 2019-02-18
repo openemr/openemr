@@ -19,7 +19,7 @@
  */
 function getPnoteById($id, $cols = "*")
 {
-    return sqlQuery("SELECT $cols FROM pnotes WHERE id=? " .
+    return sqlQuery("SELECT "  . escape_sql_column_name(process_cols_escape($cols), array('pnotes')) . " FROM pnotes WHERE id=? " .
     ' AND deleted != 1 '. // exclude ALL deleted notes
     'order by date DESC limit 0,1', array($id));
 }
@@ -107,17 +107,17 @@ function getPnotesByDate(
 
     $sqlParameterArray = array();
     if ($docid) {
-        $sql = "SELECT $cols FROM pnotes AS p, gprelations AS r " .
+        $sql = "SELECT " . escape_sql_column_name(process_cols_escape($cols), array('pnotes', 'gprelations')) . " FROM pnotes AS p, gprelations AS r " .
         "WHERE p.date LIKE ? AND r.type1 = 1 AND " .
         "r.id1 = ? AND r.type2 = 6 AND p.id = r.id2 AND p.pid != p.user";
         array_push($sqlParameterArray, '%'.$date.'%', $docid);
     } else if ($orderid) {
-        $sql = "SELECT $cols FROM pnotes AS p, gprelations AS r " .
+        $sql = "SELECT " . escape_sql_column_name(process_cols_escape($cols), array('pnotes', 'gprelations')) . " FROM pnotes AS p, gprelations AS r " .
         "WHERE p.date LIKE ? AND r.type1 = 2 AND " .
         "r.id1 = ? AND r.type2 = 6 AND p.id = r.id2 AND p.pid != p.user";
         array_push($sqlParameterArray, '%'.$date.'%', $orderid);
     } else {
-        $sql = "SELECT $cols FROM pnotes AS p " .
+        $sql = "SELECT "  . escape_sql_column_name(process_cols_escape($cols), array('pnotes')) . " FROM pnotes AS p " .
         "WHERE date LIKE ? AND pid LIKE ? AND p.pid != p.user";
         array_push($sqlParameterArray, '%'.$date.'%', $pid);
     }

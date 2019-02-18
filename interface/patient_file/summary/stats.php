@@ -47,7 +47,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
         continue;
     }
 
-  // $result = getListByType($pid, $key, "id,title,begdate,enddate,returndate,extrainfo", "all", "all", 0);
+  
     $query = "SELECT * FROM lists WHERE pid = ? AND type = ? AND ";
     $query .= "(enddate is null or enddate = '' or enddate = '0000-00-00') ";
     if ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $key=='medication') {
