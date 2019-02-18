@@ -16,8 +16,8 @@
  * Standard function to encrypt
  *
  * @param  string  $value           This is the data to encrypt.
- * @param  string  $customPassword  Do not use this unless supporting legacy stuff(ie. the download encrypted file feature).
- * @param  string  $keySource       This is the source of the keys. Options are 'drive' and 'database'
+ * @param  string  $customPassword  If provide a password, then will derive keys from this.(and will not use the standard keys)
+ * @param  string  $keySource       This is the source of the standard keys. Options are 'drive' and 'database'
  *
  */
 function encryptStandard($value, $customPassword = null, $keySource = 'drive')
@@ -29,7 +29,7 @@ function encryptStandard($value, $customPassword = null, $keySource = 'drive')
     #  to decrypt values from prior versions)
     $encryptionVersion = "005";
 
-    $encryptedValue = $encryptionVersion . aes256Encrypt($value, $customPassword, $keySource, "five");
+    $encryptedValue = $encryptionVersion . coreEncrypt($value, $customPassword, $keySource, "five");
 
     return $encryptedValue;
 }
@@ -38,8 +38,8 @@ function encryptStandard($value, $customPassword = null, $keySource = 'drive')
  * Standard function to decrypt
  *
  * @param  string  $value           This is the data to encrypt.
- * @param  string  $customPassword  Do not use this unless supporting legacy stuff(ie. the download encrypted file feature).
- * @param  string  $keySource       This is the source of the keys. Options are 'drive' and 'database'
+ * @param  string  $customPassword  If provide a password, then will derive keys from this.(and will not use the standard keys)
+ * @param  string  $keySource       This is the source of the standard keys. Options are 'drive' and 'database'
  *
  */
 function decryptStandard($value, $customPassword = null, $keySource = 'drive')
@@ -54,9 +54,9 @@ function decryptStandard($value, $customPassword = null, $keySource = 'drive')
 
     # Map the encrypt/decrypt version to the correct decryption function
     if ($encryptionVersion == 5) {
-        return aes256DecryptFour($trimmedValue, $customPassword, $keySource, "five");
+        return coreDecrypt($trimmedValue, $customPassword, $keySource, "five");
     } else if ($encryptionVersion == 4) {
-        return aes256DecryptFour($trimmedValue, $customPassword, $keySource, "four");
+        return coreDecrypt($trimmedValue, $customPassword, $keySource, "four");
     } else if (($encryptionVersion == 2) || ($encryptionVersion == 3)) {
         return aes256DecryptTwo($trimmedValue, $customPassword);
     } else if ($encryptionVersion == 1) {
@@ -85,15 +85,16 @@ function cryptCheckStandard($value)
 }
 
 /**
- * Function to AES256 encrypt a given string
+ * Function to encrypt data
+ * Should not be called directly (only called by encryptStandard() function)
  *
  * @param  string  $sValue          Raw data that will be encrypted.
- * @param  string  $customPassword  If null, then use standard key. If provide a password, then will derive key from this.
+ * @param  string  $customPassword  If null, then use standard keys. If provide a password, then will derive key from this.
  * @param  string  $keySource       This is the source of the keys. Options are 'drive' and 'database'
- * @param  string  $keyNumber       This is the key number.
+ * @param  string  $keyNumber       This is the key number/version.
  * @return string                   returns the encrypted data.
  */
-function aes256Encrypt($sValue, $customPassword = null, $keySource = 'drive', $keyNumber = "five")
+function coreEncrypt($sValue, $customPassword = null, $keySource = 'drive', $keyNumber = "five")
 {
     if (!extension_loaded('openssl')) {
         error_log("OpenEMR Error : Encryption is not working because missing openssl extension.");
@@ -102,8 +103,8 @@ function aes256Encrypt($sValue, $customPassword = null, $keySource = 'drive', $k
     if (empty($customPassword)) {
         // Collect the encryption keys. If they do not exist, then create them
         // The first key is for encryption. Then second key is for the HMAC hash
-        $sSecretKey = aes256PrepKey($keyNumber, "a", $keySource);
-        $sSecretKeyHmac = aes256PrepKey($keyNumber, "b", $keySource);
+        $sSecretKey = collectCryptoKey($keyNumber, "a", $keySource);
+        $sSecretKeyHmac = collectCryptoKey($keyNumber, "b", $keySource);
     } else {
         // customPassword mode, so turn the password into keys
         $sSalt = produceRandomBytes(32);
@@ -145,15 +146,16 @@ function aes256Encrypt($sValue, $customPassword = null, $keySource = 'drive', $k
 
 
 /**
- * Function to AES256 decrypt a given string, version 4
+ * Function to decrypt data
+ * Should not be called directly (only called by decryptStandard() function)
  *
  * @param  string  $sValue          Encrypted data that will be decrypted.
- * @param  string  $customPassword  If null, then use standard key. If provide a password, then will derive key from this.
+ * @param  string  $customPassword  If null, then use standard keys. If provide a password, then will derive key from this.
  * @param  string  $keySource       This is the source of the keys. Options are 'drive' and 'database'
- * @param  string  $keyNumber       This is the key number.
+ * @param  string  $keyNumber       This is the key number/version.
  * @return string or false          returns the decrypted data or false if failed.
  */
-function aes256DecryptFour($sValue, $customPassword = null, $keySource = 'drive', $keyNumber = "five")
+function coreDecrypt($sValue, $customPassword = null, $keySource = 'drive', $keyNumber = "five")
 {
     if (!extension_loaded('openssl')) {
         error_log("OpenEMR Error : Decryption is not working because missing openssl extension.");
@@ -169,8 +171,8 @@ function aes256DecryptFour($sValue, $customPassword = null, $keySource = 'drive'
     if (empty($customPassword)) {
         // Collect the encryption keys.
         // The first key is for encryption. Then second key is for the HMAC hash
-        $sSecretKey = aes256PrepKey($keyNumber, "a", $keySource);
-        $sSecretKeyHmac = aes256PrepKey($keyNumber, "b", $keySource);
+        $sSecretKey = collectCryptoKey($keyNumber, "a", $keySource);
+        $sSecretKeyHmac = collectCryptoKey($keyNumber, "b", $keySource);
     } else {
         // customPassword mode, so turn the password keys
         // The first key is for encryption. Then second key is for the HMAC hash
@@ -226,8 +228,8 @@ function aes256DecryptTwo($sValue, $customPassword = null)
     if (empty($customPassword)) {
         // Collect the encryption keys.
         // The first key is for encryption. Then second key is for the HMAC hash
-        $sSecretKey = aes256PrepKey("two", "a");
-        $sSecretKeyHmac = aes256PrepKey("two", "b");
+        $sSecretKey = collectCryptoKey("two", "a");
+        $sSecretKeyHmac = collectCryptoKey("two", "b");
     } else {
         // Turn the password into a hash(note use binary) to use as the keys
         $sSecretKey = hash("sha256", $customPassword, true);
@@ -282,7 +284,7 @@ function aes256DecryptOne($sValue, $customPassword = null)
 
     if (empty($customPassword)) {
         // Collect the key. If it does not exist, then create it
-        $sSecretKey = aes256PrepKey();
+        $sSecretKey = collectCryptoKey();
     } else {
         // Turn the password into a hash to use as the key
         $sSecretKey = hash("sha256", $customPassword);
@@ -331,13 +333,19 @@ function aes256Decrypt_mycrypt($sValue)
     );
 }
 
-// Function to collect (and create, if needed) the standard keys
-// keySource can be in either 'drive' or 'database'
-// The 'drive' keys are stored at sites/<site-dir>/documents/logs_and_misc/methods/one
-// The 'database' keys are stored in the keys sql table
-//  This mechanism will allow easy migration to new keys/ciphers in the future while
-//  also maintaining backward compatibility of encrypted data.
-function aes256PrepKey($version = "one", $sub = "", $keySource = 'drive')
+/**
+ * Function to collect (and create, if needed) the standard keys
+ *  This mechanism will allow easy migration to new keys/ciphers in the future while
+ *  also maintaining backward compatibility of encrypted data.
+ *
+ * @param  string  $version   This is the data to encrypt.
+ * @param  string  $sub       If provide a password, then will derive keys from this.(and will not use the standard keys)
+ * @param  string  $keySource This is the source of the standard keys. Options are 'drive' and 'database'
+ *                            The 'drive' keys are stored at sites/<site-dir>/documents/logs_and_misc/methods
+ *                            The 'database' keys are stored in the 'keys' sql table
+ * @return string             Returns the key in raw form.
+ */
+function collectCryptoKey($version = "one", $sub = "", $keySource = 'drive')
 {
     // Build the label
     $label = $version.$sub;
