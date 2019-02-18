@@ -338,8 +338,8 @@ function aes256Decrypt_mycrypt($sValue)
  *  This mechanism will allow easy migration to new keys/ciphers in the future while
  *  also maintaining backward compatibility of encrypted data.
  *
- * @param  string  $version   This is the data to encrypt.
- * @param  string  $sub       If provide a password, then will derive keys from this.(and will not use the standard keys)
+ * @param  string  $version   This is the number/version of they key.
+ * @param  string  $sub       This is the sublabel of the key
  * @param  string  $keySource This is the source of the standard keys. Options are 'drive' and 'database'
  *                            The 'drive' keys are stored at sites/<site-dir>/documents/logs_and_misc/methods
  *                            The 'database' keys are stored in the 'keys' sql table
