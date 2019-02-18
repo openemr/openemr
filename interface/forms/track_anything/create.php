@@ -1,39 +1,27 @@
 <?php
 /**
-* Encounter form to track any clinical parameter.
-*
-* Copyright (C) 2014 Joe Slam <trackanything@produnis.de>
-*
-* LICENSE: This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>.
-*
-* @package OpenEMR
-* @author Joe Slam <trackanything@produnis.de>
-* @link http://www.open-emr.org
-*/
-
-// Some initial api-inputs
+ * Encounter form to track any clinical parameter.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Joe Slam <trackanything@produnis.de>
+ * @copyright Copyright (c) 2014 Joe Slam <trackanything@produnis.de>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/acl.inc");
+
 formHeader("Form: Track anything");
 
 
 ?>
 <head>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $web_root; ?>/interface/forms/track_anything/style.css" type="text/css">  
+<link rel="stylesheet" href="<?php echo $web_root; ?>/interface/forms/track_anything/style.css" type="text/css">
 <?php
 echo "<div id='ta_type'>";
 
@@ -49,7 +37,7 @@ if ($dbaction == 'add') {
         $the_pos    = $_POST['position'];
         $the_parent = $_POST['parentid'];
         $the_type   = $_POST['the_type'];
-        
+
     if ($the_name != null) {
         $insertspell  = "INSERT INTO form_track_anything_type ";
         $insertspell .= "(name, description, position, parent, active) VALUES (?,?,?,?,?)";
@@ -81,7 +69,7 @@ if ($dbaction == 'edit') {
         $the_descr  = $_POST['description'];
         $the_pos    = $_POST['position'];
         $the_item = $_POST['itemid'];
-        
+
     if ($the_name != null) {
         $updatespell  = "UPDATE form_track_anything_type ";
         $updatespell .= "SET name = ?, description = ?, position = ? ";
@@ -183,7 +171,7 @@ if ($the_item) {
         echo "</td></tr></table>\n";
     }// end add item------------------
 
-    
+
     if ($edit) {
         echo "<table class='edit'><tr><td>";
         $spell  = "SELECT name, description, position FROM form_track_anything_type ";
@@ -216,7 +204,7 @@ if ($the_item) {
         echo "</form>\n";
         echo "</td></tr></table>\n";
     }
-    
+
     if ($delete) {
         echo "<table class='del'><tr><td>\n";
         $spell  = "SELECT name FROM form_track_anything_type ";
@@ -236,8 +224,8 @@ if ($the_item) {
         echo "</form><br><br>\n";
         echo "</td></tr></table>\n";
     }
-        
-    
+
+
     if ($deactivate) {
     // deactive the item/track
         $updatespell  = "UPDATE form_track_anything_type ";
@@ -245,7 +233,7 @@ if ($the_item) {
         $updatespell .= "WHERE track_anything_type_id = ? ";
         sqlStatement($updatespell, array($the_item));
     }
-    
+
     if ($activate) {
     // activate the item/track
         $updatespell  = "UPDATE form_track_anything_type ";
@@ -282,7 +270,7 @@ while ($myrow = sqlFetchArray($result)) {
     $type_descr     = $myrow['description'];
     $type_active    = $myrow['active'];
     echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n";
-    
+
     echo "<tr>\n";
     if ($type_active == '1') {
         echo "<td class='parent'>&nbsp;&nbsp;" . text($type_name) . "</td>\n";

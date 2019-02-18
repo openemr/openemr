@@ -9,7 +9,7 @@
 * @author    Brady Miller <brady.g.miller@gmail.com>
 * @copyright Copyright (c) 2009 sunsetsystems <sunsetsystems>
 * @copyright Copyright (c) 2008 cfapress <cfapress>
-* @copyright Copyright (c) 2016-2017 Brady Miller <brady.g.miller@gmail.com>
+* @copyright Copyright (c) 2016-2019 Brady Miller <brady.g.miller@gmail.com>
 * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
@@ -38,6 +38,7 @@ $returnurl = 'encounter_top.php';
     </div>
     <div class="row">
         <form method=post action="<?php echo $rootdir;?>/forms/reviewofs/save.php?mode=new" name="my_form" onsubmit="return top.restoreSession()">
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
             <fieldset>
                 <legend><?php echo xlt('General')?></legend>
                 <div class="row">

@@ -7,7 +7,7 @@
  * @author    Jacob T Paul <jacob@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -37,7 +37,8 @@ $check_res = $formid ? formFetch("form_clinical_instructions", $formid) : array(
                 </div>
             </div>
             <div class="row">
-                <form method="post" name="my_form" action="<?php echo $rootdir; ?>/forms/clinical_instructions/save.php?id=<?php echo attr($formid); ?>">
+                <form method="post" name="my_form" action="<?php echo $rootdir; ?>/forms/clinical_instructions/save.php?id=<?php echo attr_url($formid); ?>">
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                     <fieldset>
                         <legend class=""><?php echo xlt('Instructions'); ?></legend>
                             <div class="form-group">

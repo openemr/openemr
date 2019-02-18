@@ -29,11 +29,14 @@ function formFooter()
 
 function formSubmit($tableName, $values, $id, $authorized = "0")
 {
-        global $attendant_type;
+    global $attendant_type;
 
     $sqlBindingArray = [$_SESSION['pid'], $_SESSION['authProvider'], $_SESSION['authUser'], $authorized];
     $sql = "insert into " . escape_table_name($tableName) . " set " .  escape_sql_column_name($attendant_type, array($tableName)) . "=?, groupname=?, user=?, authorized=?, activity=1, date = NOW(),";
     foreach ($values as $key => $value) {
+        if ($key == "csrf_token_form") {
+            continue;
+        }
         if (strpos($key, "openemr_net_cpt") === 0) {
             //code to auto add cpt code
             if (!empty($value)) {
@@ -65,6 +68,9 @@ function formUpdate($tableName, $values, $id, $authorized = "0")
     $sqlBindingArray = [$_SESSION['pid'], $_SESSION['authProvider'], $_SESSION['authUser'], $authorized];
     $sql = "update " . escape_table_name($tableName) . " set pid =?, groupname=?, user=? ,authorized=?, activity=1, date = NOW(),";
     foreach ($values as $key => $value) {
+        if ($key == "csrf_token_form") {
+            continue;
+        }
         $sql .= " " . escape_sql_column_name($key, array($tableName)) . " = ?,";
         $sqlBindingArray[] = $value;
     }

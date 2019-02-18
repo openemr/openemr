@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>{xl t='SOAP'|escape:'html'}</title>
+<title>{xlt t='SOAP'}</title>
 {headerTemplate}
 </head>
 <body class="body_top">
@@ -8,54 +8,55 @@
         <div class="row">
             <div class="col-xs-12">
                 <div class="page-header">
-                    <h2>{xl t='SOAP'|escape:'html'}</h2>
+                    <h2>{xlt t='SOAP'}</h2>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col-xs-12">
                 <form name="soap" method="post" action="{$FORM_ACTION}/interface/forms/soap/save.php" onsubmit="return top.restoreSession()">
+                    <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}">
                     <fieldset>
-                            <legend>{xl t='Subjective'|escape:'html'}</legend>
+                            <legend>{xlt t='Subjective'}</legend>
                                 <div class="form-group" >
                                     <div class="col-sm-10 col-sm-offset-1">
-                                        <textarea name="subjective" class="form-control" cols="60" rows="6">{$data->get_subjective()|escape:'html'}</textarea>
+                                        <textarea name="subjective" class="form-control" cols="60" rows="6">{$data->get_subjective()|text}</textarea>
                                     </div>
                                 </div>
                     </fieldset>
                     <fieldset>
-                            <legend>{xl t='Objective'|escape:'html'}</legend>
+                            <legend>{xlt t='Objective'}</legend>
                                 <div class="form-group">
                                     <div class="col-sm-10 col-sm-offset-1">
-                                        <textarea name="objective" class="form-control" cols="60" rows="6">{$data->get_objective()|escape:'html'}</textarea>
+                                        <textarea name="objective" class="form-control" cols="60" rows="6">{$data->get_objective()|text}</textarea>
                                     </div>
                                 </div>
                     </fieldset>
                     <fieldset>
-                            <legend>{xl t='Assessment'|escape:'html'}</legend>
+                            <legend>{xlt t='Assessment'}</legend>
                                 <div class="form-group">
                                     <div class="col-sm-10 col-sm-offset-1">
-                                        <textarea name="assessment" class="form-control" cols="60" rows="6">{$data->get_assessment()|escape:'html'}</textarea>
+                                        <textarea name="assessment" class="form-control" cols="60" rows="6">{$data->get_assessment()|text}</textarea>
                                     </div>
                                 </div>
                     </fieldset>
                     <fieldset>
-                            <legend>{xl t='Plan'|escape:'html'}</legend>
+                            <legend>{xlt t='Plan'}</legend>
                                 <div class="form-group">
                                     <div class="col-sm-10 col-sm-offset-1">
-                                        <textarea name="plan" class="form-control" cols="60" rows="6">{$data->get_plan()|escape:'html'}</textarea>
+                                        <textarea name="plan" class="form-control" cols="60" rows="6">{$data->get_plan()|text}</textarea>
                                     </div>
                                 </div>
                     </fieldset>
                     <div class="form-group clearfix">
                         <div class="col-sm-10 col-sm-offset-1 position-override">
                             <div class="btn-group oe-opt-btn-group-pinch" role="group">
-                                <button type="submit" class="btn btn-default btn-save" name="Submit">{xl t='Save'|escape:'html'}</button>
-                                <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); location.href='{$DONT_SAVE_LINK}';">{xl t='Cancel'|escape:'html'}</button>
+                                <button type="submit" class="btn btn-default btn-save" name="Submit">{xlt t='Save'}</button>
+                                <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); location.href='{$DONT_SAVE_LINK}';">{xlt t='Cancel'}</button>
                             </div>
-                            <input type="hidden" name="id" value="{$data->get_id()|escape:'html'}" />
-                            <input type="hidden" name="activity" value="{$data->get_activity()|escape:'html'}">
-                            <input type="hidden" name="pid" value="{$data->get_pid()|escape:'html'}">
+                            <input type="hidden" name="id" value="{$data->get_id()|attr}" />
+                            <input type="hidden" name="activity" value="{$data->get_activity()|attr}">
+                            <input type="hidden" name="pid" value="{$data->get_pid()|attr}">
                             <input type="hidden" name="process" value="true">
                         </div>
                     </div>

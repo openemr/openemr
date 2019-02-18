@@ -1,4 +1,17 @@
 <?php
+/**
+ * CAMOS admin.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Mark Leeds <drleeds@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (C) 2006-2009 Mark Leeds <drleeds@gmail.com>
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+
 require_once('../../globals.php');
 require_once("$srcdir/acl.inc");
 ?>

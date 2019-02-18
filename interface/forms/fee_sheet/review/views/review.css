@@ -1,9 +1,13 @@
-/* 
-    Document   : review
-    Created on : Jan 4, 2013, 2:50:48 PM
-    Author     : Kevin Yeh <kevin.y@integralemr.com>
-    Description: Manage the style of the review and justify interface of the fee sheet.
-*/
+/**
+ * Manage the style of the review and justify interface of the fee sheet.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 div.review
 {
     position: absolute;
@@ -12,7 +16,7 @@ div.review
 }
 div.review > div
 {
-    border: 1px black solid;    
+    border: 1px black solid;
     padding: 1px;
 }
 div.review table td
@@ -36,7 +40,7 @@ div.review table input.units
 }
 a.justify_label
 {
-    cursor: pointer;   
+    cursor: pointer;
 }
 div.justify_template
 {
@@ -46,7 +50,7 @@ div.justify_template
 }
 div.justify_template > div
 {
-    border: 1px black solid;    
+    border: 1px black solid;
 }
 
 div.justify_template span.search_results
@@ -108,7 +112,7 @@ div.justify_template span.search_results tr:hover
     position:absolute;
     background-color: white;
     width:100%
-    
+
 }
 td>input.description{
     width:100%;

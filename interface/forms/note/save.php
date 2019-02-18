@@ -1,28 +1,26 @@
 <?php
-/**  Work/School Note Form created by Nikolai Vitsyn: 2004/02/13 and update 2005/03/30
- *   Copyright (C) Open Source Medical Software
+/*
+ * Work/School Note Form save.php
  *
- *   This program is free software; you can redistribute it and/or
- *   modify it under the terms of the GNU General Public License
- *   as published by the Free Software Foundation; either version 2
- *   of the License, or (at your option) any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with this program; if not, write to the Free Software
- *   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Nikolai Vitsyn
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2004-2005 Nikolai Vitsyn
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
-include_once("$srcdir/forms.inc");
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
+require_once("$srcdir/forms.inc");
 
-/* 
+if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+    csrfNotVerified();
+}
+
+/*
  * name of the database table associated with this form
  */
 $table_name = "form_note";

@@ -2,19 +2,21 @@
 /*
  * This program creates the misc_billing_form
  *
- * @package OpenEMR
- * @author Terry Hill <terry@lilysystems.com>
- * @author Brady Miller <brady.g.miller@gmail.com>
- * @author Stephen Waite <stephen.waite@cmsvt.com>
- * @author Jerry Padgett <sjpadgett@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Terry Hill <terry@lilysystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (C) 2007 Bo Huynh
  * @copyright Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
- * @copyright Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (C) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (C) 2017 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (C) 2018 Jerry Padgett <sjpadgett@gmail.com>
- * @link http://www.open-emr.org
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/api.inc");
@@ -23,8 +25,8 @@ require_once("date_qualifier_options.php");
 use OpenEMR\Core\Header;
 
 if (isset($_REQUEST['isBilling'])) {
-    $pid = $_SESSION['billpid'] = attr($_REQUEST['pid']);
-    $encounter = $_SESSION['billencounter'] = attr($_REQUEST['enc']);
+    $pid = $_SESSION['billpid'] = $_REQUEST['pid'];
+    $encounter = $_SESSION['billencounter'] = $_REQUEST['enc'];
 } elseif (isset($_SESSION['billencounter'])) {
     unset($_SESSION['billpid']);
     unset($_SESSION['billencounter']);
@@ -80,8 +82,8 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
 
     </div>
     <div class="row">
-        <form
-            method=post <?php echo "name='my_form' " . "action='$rootdir/forms/misc_billing_options/save.php?id=" . attr($formid) . "'\n"; ?>>
+        <form method=post <?php echo "name='my_form' " . "action='$rootdir/forms/misc_billing_options/save.php?id=" . attr_url($formid) . "'\n"; ?>>
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
             <fieldset>
                 <legend><?php echo xlt('Select Options for Current Encounter') ?></legend>
                 <div class='col-sm-11 col-offset-sm-1'>
