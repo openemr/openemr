@@ -173,17 +173,17 @@ function getSentPnotesByDate(
 
     $sqlParameterArray = array();
     if ($docid) {
-        $sql = "SELECT $cols FROM pnotes AS p, gprelations AS r " .
+        $sql = "SELECT " . escape_sql_column_name(process_cols_escape($cols), array('pnotes', 'gprelations')) . " FROM pnotes AS p, gprelations AS r " .
         "WHERE p.date LIKE ? AND r.type1 = 1 AND " .
         "r.id1 = ? AND r.type2 = 6 AND p.id = r.id2 AND p.pid = p.user";
         array_push($sqlParameterArray, '%'.$date.'%', $docid);
     } else if ($orderid) {
-        $sql = "SELECT $cols FROM pnotes AS p, gprelations AS r " .
+        $sql = "SELECT " . escape_sql_column_name(process_cols_escape($cols), array('pnotes','gprelations')) . " FROM pnotes AS p, gprelations AS r " .
         "WHERE p.date LIKE ? AND r.type1 = 2 AND " .
         "r.id1 = ? AND r.type2 = 6 AND p.id = r.id2 AND p.pid = p.user";
         array_push($sqlParameterArray, '%'.$date.'%', $orderid);
     } else {
-        $sql = "SELECT $cols FROM pnotes AS p " .
+        $sql = "SELECT " . escape_sql_column_name(process_cols_escape($cols), array('pnotes')) . " FROM pnotes AS p " .
         "WHERE date LIKE ? AND pid LIKE ? AND p.pid = p.user";
         array_push($sqlParameterArray, '%'.$date.'%', $pid);
     }
@@ -340,36 +340,7 @@ function getPatientSentNotes($pid = '', $limit = '', $offset = 0, $search = '')
     return $all;
 }
 
-// activity can be 0, 1, or 'all'
-function getPnotesByPid($pid, $activity = "1", $cols = "*", $limit = 10, $start = 0)
-{
-    if ($activity == '1') {
-        // return only active
-        $res = sqlStatement("SELECT $cols FROM pnotes WHERE pid LIKE ? " .
-          "AND activity = '1' ".
-          " AND message_status != 'Done' ".
-          " AND deleted != 1 ".
-          " ORDER BY date DESC LIMIT ".escape_limit($start).",".escape_limit($limit), array($pid));
-    } else if ($activity == '0') {
-        // return only inactive
-        $res = sqlStatement("SELECT $cols FROM pnotes WHERE pid LIKE ? " .
-          "AND (activity = '0' ".
-          " OR message_status = 'Done') ".
-          " AND deleted != 1 ".
-          " ORDER BY date DESC LIMIT ".escape_limit($start).",".escape_limit($limit), array($pid));
-    } else { // $activity == "all"
-        // return both active and inactive
-        $res = sqlStatement("SELECT $cols FROM pnotes WHERE pid LIKE ? " .
-          " AND deleted != 1 ".
-          " ORDER BY date DESC LIMIT ".escape_limit($start).",".escape_limit($limit), array($pid));
-    }
 
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-        $all[$iter] = $row;
-    }
-
-    return $all;
-}
 
 /** Add a note to a patient's medical record.
  *
