@@ -168,7 +168,7 @@ INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_r
 DROP TABLE IF EXISTS `batchcom`;
 CREATE TABLE `batchcom` (
   `id` bigint(20) NOT NULL auto_increment,
-  `patient_id` int(11) NOT NULL default '0',
+  `patient_id` bigint(20) NOT NULL default '0',
   `sent_by` bigint(20) NOT NULL default '0',
   `msg_type` varchar(60) default NULL,
   `msg_subject` varchar(255) default NULL,
@@ -311,7 +311,7 @@ CREATE TABLE `categories_to_documents` (
 
 DROP TABLE IF EXISTS `claims`;
 CREATE TABLE `claims` (
-  `patient_id` int(11) NOT NULL,
+  `patient_id` bigint(20) NOT NULL,
   `encounter_id` int(11) NOT NULL,
   `version` int(10) unsigned NOT NULL COMMENT 'Claim version, incremented in code',
   `payer_id` int(11) NOT NULL default '0',
@@ -2868,7 +2868,7 @@ CREATE TABLE `icd10_reimbr_pcs_9_10` (
 DROP TABLE IF EXISTS `immunizations`;
 CREATE TABLE `immunizations` (
   `id` bigint(20) NOT NULL auto_increment,
-  `patient_id` int(11) default NULL,
+  `patient_id` bigint(20) default NULL,
   `administered_date` datetime default NULL,
   `immunization_id` int(11) default NULL,
   `cvx_code` varchar(10) default NULL,
@@ -6112,7 +6112,7 @@ CREATE TABLE `pnotes` (
 DROP TABLE IF EXISTS `prescriptions`;
 CREATE TABLE `prescriptions` (
   `id` int(11) NOT NULL auto_increment,
-  `patient_id` int(11) default NULL,
+  `patient_id` bigint(20) default NULL,
   `filled_by_id` int(11) default NULL,
   `pharmacy_id` int(11) default NULL,
   `date_added` date default NULL,
@@ -7374,7 +7374,7 @@ CREATE TABLE ar_session (
   description text,
   adjustment_code varchar( 50 ) NOT NULL ,
   post_to_date date NOT NULL ,
-  patient_id int( 11 ) NOT NULL ,
+  patient_id bigint(20) NOT NULL,
   payment_method varchar( 25 ) NOT NULL,
   PRIMARY KEY (session_id),
   KEY user_closed (user_id, closed),
