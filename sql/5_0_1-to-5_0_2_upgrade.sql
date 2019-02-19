@@ -714,3 +714,73 @@ CREATE TABLE `keys` (
   UNIQUE KEY (`name`)
 ) ENGINE=InnoDB;
 #EndIf
+
+#IfNotColumnType amendments pid bigint(20)
+ALTER TABLE `amendments`
+    MODIFY `pid` bigint(20) NOT NULL COMMENT 'Patient ID from patient_data';
+#EndIf
+
+#IfNotColumnType billing pid bigint(20)
+ALTER TABLE `billing`
+    MODIFY `pid` bigint(20) default NULL;
+#EndIf
+
+#IfNotColumnType dated_reminders pid bigint(20)
+ALTER TABLE `dated_reminders`
+    MODIFY `pid` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType drug_sales pid bigint(20)
+ALTER TABLE `drug_sales`
+    MODIFY `pid` bigint(20) NOT NULL default '0';
+#EndIf
+
+#IfNotColumnType form_ros pid bigint(20)
+ALTER TABLE `form_ros`
+    MODIFY `pid` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType issue_encounter pid bigint(20)
+ALTER TABLE `issue_encounter`
+    MODIFY `pid` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType onsite_documents pid bigint(20)
+ALTER TABLE `onsite_documents`
+    MODIFY `pid` bigint(20) UNSIGNED DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType patient_access_onsite pid bigint(20)
+ALTER TABLE `patient_access_onsite`
+    MODIFY `pid` bigint(20);
+#EndIf
+
+#IfNotColumnType patient_access_offsite pid bigint(20)
+ALTER TABLE `patient_access_offsite`
+    MODIFY `pid` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType form_eye_mag_wearing PID bigint(20)
+ALTER TABLE `form_eye_mag_wearing`
+    MODIFY `PID` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType therapy_groups_participants pid bigint(20)
+ALTER TABLE `therapy_groups_participants`
+    MODIFY `pid` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType therapy_groups_participant_attendance pid bigint(20)
+ALTER TABLE `therapy_groups_participant_attendance`
+    MODIFY `pid` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType notification_log pid bigint(20)
+ALTER TABLE `notification_log`
+    MODIFY `pid` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType documents foreign_id bigint(20)
+ALTER TABLE `documents`
+    MODIFY `foreign_id` bigint(20) default NULL;
+#EndIf
