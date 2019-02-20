@@ -110,11 +110,17 @@ class Document extends ORDataObject
     var $encounter_id;
     var $encounter_check;
 
-  /*
+    /*
 	*	Whether the file is already imported
 	*	@var int
 	*/
     var $imported;
+
+    /*
+	*	Whether the file is encrypted
+	*	@var int
+	*/
+    var $encrypted;
 
     /**
      * Constructor sets all Document attributes to their default value
@@ -142,6 +148,7 @@ class Document extends ORDataObject
         $this->list_id = 0;
         $this->encounter_id = 0;
         $this->encounter_check = "";
+        $this->encrypted = 0;
 
         if ($id != "") {
             $this->populate();
@@ -446,6 +453,14 @@ class Document extends ORDataObject
     {
         sqlQuery("UPDATE documents SET imported = 1 WHERE id = ?", array($doc_id));
     }
+    function set_encrypted($encrypted)
+    {
+        $this->encrypted = $encrypted;
+    }
+    function get_encrypted()
+    {
+        return $this->encrypted;
+    }
     /*
 	*	Overridden function to stor current object state in the db.
 	*	current overide is to allow for a just in time foreign id, often this is needed
@@ -705,20 +720,35 @@ class Document extends ORDataObject
                 $this->path_depth = $path_depth;
             }
 
-            // Store the file into its proper directory.
-            if (file_put_contents($filepath . $filename, $data) === false) {
+            // Store the file.
+            if ($GLOBALS['drive_encryption']) {
+                $storedData = encryptStandard($data, null, 'database');
+            } else {
+                $storedData = $data;
+            }
+            if (file_put_contents($filepath . $filename, $storedData) === false) {
                 return xl('Failed to create') . " $filepath$filename";
             }
 
             if ($has_thumbnail) {
-                 $this->thumb_url = "file://" . $filepath . $this->get_thumb_name($filename);
-                 // Store the file into its proper directory.
-                if (file_put_contents($filepath . $this->get_thumb_name($filename), $thumbnail_data) === false) {
+                // Store the thumbnail.
+                $this->thumb_url = "file://" . $filepath . $this->get_thumb_name($filename);
+                if ($GLOBALS['drive_encryption']) {
+                    $storedThumbnailData = encryptStandard($thumbnail_data, null, 'database');
+                } else {
+                    $storedThumbnailData = $thumbnail_data;
+                }
+                if (file_put_contents($filepath . $this->get_thumb_name($filename), $storedThumbnailData) === false) {
                     return xl('Failed to create') .  $filepath . $this->get_thumb_name($filename);
                 }
             }
         }
 
+        if ($GLOBALS['drive_encryption'] && ($this->storagemethod != 1)) {
+            $this->set_encrypted(1);
+        } else {
+            $this->set_encrypted(0);
+        }
         $this->size  = strlen($data);
         $this->hash  = sha1($data);
         $this->type  = $this->type_array['file_url'];

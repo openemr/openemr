@@ -27,6 +27,7 @@ function encryptStandard($value, $customPassword = null, $keySource = 'drive')
     #  increment when update the encrypt/decrypt methodology
     #  which allows being able to maintain backward compatibility
     #  to decrypt values from prior versions)
+    # Remember to update cryptCheckStandard() when increment this.
     $encryptionVersion = "005";
 
     $encryptedValue = $encryptionVersion . coreEncrypt($value, $customPassword, $keySource, "five");
@@ -69,7 +70,7 @@ function decryptStandard($value, $customPassword = null, $keySource = 'drive')
 
 /**
  * Check if a crypt block is valid to use for the standard method
- * (basically checks if first 3 values are numbers)
+ * (basically checks if correct values are used)
  */
 function cryptCheckStandard($value)
 {
@@ -77,7 +78,7 @@ function cryptCheckStandard($value)
         return false;
     }
 
-    if (preg_match('/^\d\d\d/', $value)) {
+    if (preg_match('/^00[1-5]/', $value)) {
         return true;
     } else {
         return false;
