@@ -784,3 +784,28 @@ ALTER TABLE `notification_log`
 ALTER TABLE `documents`
     MODIFY `foreign_id` bigint(20) default NULL;
 #EndIf
+
+#IfNotColumnType batchcom patient_id bigint(20)
+ALTER TABLE `batchcom`
+    MODIFY `patient_id` bigint(20) NOT NULL default '0';
+#EndIf
+
+#IfNotColumnType claims patient_id bigint(20)
+ALTER TABLE `claims`
+    MODIFY `patient_id` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType immunizations patient_id bigint(20)
+ALTER TABLE `immunizations`
+    MODIFY `patient_id` bigint(20) default NULL;
+#EndIf
+
+#IfNotColumnType prescriptions patient_id bigint(20)
+ALTER TABLE `prescriptions`
+    MODIFY `patient_id` bigint(20) default NULL;
+#EndIf
+
+#IfNotColumnType ar_session patient_id bigint(20)
+ALTER TABLE `ar_session`
+    MODIFY `patient_id` bigint(20) NOT NULL;
+#EndIf
