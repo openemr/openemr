@@ -620,7 +620,7 @@ div.section {
 <center><h2><?php echo xlt('Dispatch Received Document'); ?></h2></center>
 
 <form method='post' name='theform'
- action='fax_dispatch.php?<?php echo ($mode == 'fax') ? 'file' : 'scan'; ?>=<?php echo attr_url($filename); ?>' onsubmit='return validate()'>
+ action='fax_dispatch.php?<?php echo ($mode == 'fax') ? 'file' : 'scan'; ?>=<?php echo attr_url($filename); ?>&csrf_token_form=<?php echo attr_url(collectCsrfToken()); ?>' onsubmit='return validate()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 <p><input type='checkbox' name='form_cb_copy' value='1'
