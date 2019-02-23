@@ -49,7 +49,7 @@ $eRxPage->setAuthUserId(array_key_exists_default('authUserID', $_SESSION))
 ?>
 <html>
     <head>
-        <title><?php echo xl('New Crop'); ?></title>
+        <title><?php echo xlt('New Crop'); ?></title>
     </head>
     <body>
 <?php
