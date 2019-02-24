@@ -25,9 +25,12 @@ if (!(function_exists('ltox'))) {
      * @param bool $oneWord
      * @return bool or English text of var
      */
-    function ltox($wordInLang, $oneWord = true) {
+    function ltox($wordInLang, $oneWord = true)
+    {
         //$oneWord this variable for future using in case if we are need search by full string
-        if(strlen($wordInLang) <=0) return false;
+        if (strlen($wordInLang) <=0) {
+            return false;
+        }
 
         // set language id
         if (!empty($_SESSION['language_choice'])) {
@@ -36,10 +39,10 @@ if (!(function_exists('ltox'))) {
             $lang_id = 1;
         }
 
-        if($lang_id != 1) {
+        if ($lang_id != 1) {
             $sql = "SELECT constant_name FROM lang_constants WHERE cons_id = (SELECT cons_id FROM lang_definitions WHERE lower(definition) REGEXP '^".mb_strtolower($wordInLang)."[^][[:space:]]*$'  LIMIT 1)";
             $res = sqlStatement($sql);
-            if($row = sqlFetchArray($res)) {
+            if ($row = sqlFetchArray($res)) {
                 $wordInLang = $row["constant_name"];
             }
         }
@@ -48,11 +51,12 @@ if (!(function_exists('ltox'))) {
     }
 }
 //Function partiality translate date to need format
-if(!(function_exists('DateToYYYYMMDD_Partial'))){
-    function DateToYYYYMMDD_Partial($DateValue) {
+if (!(function_exists('DateToYYYYMMDD_Partial'))) {
+    function DateToYYYYMMDD_Partial($DateValue)
+    {
         // Get current display date format
         $date_display_format = $GLOBALS['date_display_format'];
-        if($date_display_format > 0) {
+        if ($date_display_format > 0) {
             $date_inp    = explode("/", $DateValue);
 
             $day_input   = attr(trim($date_display_format == 1 ? $date_inp[1] : $date_inp[0]));
@@ -71,7 +75,8 @@ if(!(function_exists('DateToYYYYMMDD_Partial'))){
 
 //Function to prepare a string for "Search with exact method" or without it
 if (!(function_exists('prepareMatchSearch'))) {
-    function prepareMatchSearch($sSearch, $sidepercent, $isMatchSearch){
+    function prepareMatchSearch($sSearch, $sidepercent, $isMatchSearch)
+    {
         return $sSearch = (!$isMatchSearch && ($sidepercent == "L" || $sidepercent == "B")  ? "%" : "").$sSearch.(!$isMatchSearch && ($sidepercent == "R" || $sidepercent == "B")  ? "%" : "");
     }
 }
@@ -128,29 +133,27 @@ $sSearch = add_escape_custom(trim($_GET['sSearch']));
 $cnt_columns = count($aColumns);
 $newWhere = array();
 
-if(isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
-    foreach($aColumns as $index_col => $colname) {
+if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
+    foreach ($aColumns as $index_col => $colname) {
         $where .= $where ? ($cnt_columns != $index_col ? "OR " : "" ) : "WHERE ( ";
 
         if ($colname == 'name') {
                 $where .= // like search
-                    "lname LIKE '".prepareMatchSearch($sSearch, "R", $searchMethodInPatientList )."' OR " .
-                    "fname LIKE '".prepareMatchSearch($sSearch, "R", $searchMethodInPatientList )."' OR " .
-                    "mname LIKE '".prepareMatchSearch($sSearch, "R", $searchMethodInPatientList )."' ";
-        }
-        else { // exact search
-
-            if($colname == "DOB") {
-                $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".prepareMatchSearch(DateToYYYYMMDD_Partial($sSearch),"B", $searchMethodInPatientList)."' ";
-            } elseif($colname == "sex") {
-                $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".prepareMatchSearch(ltox($sSearch),"R", $searchMethodInPatientList)."' ";
+                    "lname LIKE '".prepareMatchSearch($sSearch, "R", $searchMethodInPatientList)."' OR " .
+                    "fname LIKE '".prepareMatchSearch($sSearch, "R", $searchMethodInPatientList)."' OR " .
+                    "mname LIKE '".prepareMatchSearch($sSearch, "R", $searchMethodInPatientList)."' ";
+        } else { // exact search
+            if ($colname == "DOB") {
+                $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".prepareMatchSearch(DateToYYYYMMDD_Partial($sSearch), "B", $searchMethodInPatientList)."' ";
+            } elseif ($colname == "sex") {
+                $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".prepareMatchSearch(ltox($sSearch), "R", $searchMethodInPatientList)."' ";
             } else {
-                $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".prepareMatchSearch($sSearch,"R", $searchMethodInPatientList)."' ";
+                $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".prepareMatchSearch($sSearch, "R", $searchMethodInPatientList)."' ";
             }
         }
     }
 
-    if($where) {
+    if ($where) {
         $where .= ")";
     }
 }
@@ -160,21 +163,20 @@ if(isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
 $newWhere = array();
 for ($i = 0; $i < count($aColumns); ++$i) {
     $colname = $aColumns[$i];
-    if(isset($_GET["bSearchable_$i"]) && $_GET["bSearchable_$i"] == "true" && $_GET["sSearch_$i"] != '') {
+    if (isset($_GET["bSearchable_$i"]) && $_GET["bSearchable_$i"] == "true" && $_GET["sSearch_$i"] != '') {
         $sSearch = add_escape_custom($_GET["sSearch_$i"]);
-        if($colname == 'name') {
+        if ($colname == 'name') {
             $newWhere[] = " ( " .
-                "lname LIKE '".prepareMatchSearch($sSearch, "R", $searchMethodInPatientList )."' OR " .
-                "fname LIKE '".prepareMatchSearch($sSearch, "R", $searchMethodInPatientList )."' OR " .
-                "mname LIKE '".prepareMatchSearch($sSearch, "R", $searchMethodInPatientList )."' )";
-        }
-        else {
-            if($colname == "DOB"){
-                $newWhere[] = "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".prepareMatchSearch(DateToYYYYMMDD_Partial($sSearch),"B", $searchMethodInPatientList)."' ";
-            } elseif( $colname == "sex" ) {
-                $newWhere[] = "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".prepareMatchSearch(ltox($sSearch),"R", $searchMethodInPatientList)."' ";
+                "lname LIKE '".prepareMatchSearch($sSearch, "R", $searchMethodInPatientList)."' OR " .
+                "fname LIKE '".prepareMatchSearch($sSearch, "R", $searchMethodInPatientList)."' OR " .
+                "mname LIKE '".prepareMatchSearch($sSearch, "R", $searchMethodInPatientList)."' )";
+        } else {
+            if ($colname == "DOB") {
+                $newWhere[] = "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".prepareMatchSearch(DateToYYYYMMDD_Partial($sSearch), "B", $searchMethodInPatientList)."' ";
+            } elseif ($colname == "sex") {
+                $newWhere[] = "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".prepareMatchSearch(ltox($sSearch), "R", $searchMethodInPatientList)."' ";
             } else {
-                $newWhere[] = "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".prepareMatchSearch($sSearch,"R", $searchMethodInPatientList)."' ";
+                $newWhere[] = "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '".prepareMatchSearch($sSearch, "R", $searchMethodInPatientList)."' ";
             }
         }
     }
