@@ -199,7 +199,7 @@ if ($_POST['formaction'] == 'save' && $list_id) {
 
                 // Delete the list item
                 sqlStatement("DELETE FROM list_options WHERE list_id = ? AND option_id = ?", array($list_id, $real_id));
-                if(strlen($id) <= 0 && strlen(trim($iter['title'])) <=0 && empty($id) && empty($iter['title'])){
+                if (strlen($id) <= 0 && strlen(trim($iter['title'])) <=0 && empty($id) && empty($iter['title'])) {
                     continue;
                 }
                 // Insert the list item
@@ -951,7 +951,7 @@ function writeITLine($it_array)
             if (current_sel_clin_term) {
                 return f[current_sel_clin_term].value.split(';');
             }
-            return new Array();
+            return [];
         }
 
         // Called when a "default" checkbox is clicked.  Clears all the others.
@@ -1277,10 +1277,10 @@ if ($GLOBALS['ippf_specific']) { ?>
     // Get the selected list's elements.
     if ($list_id) {
         $sql_limits = 'ASC LIMIT 0, '.escape_limit($records_per_page);
-        if ( $list_from > 0 ){
+        if ($list_from > 0) {
             $list_from--;
         }
-        if ( $list_to > 0 ) {
+        if ($list_to > 0) {
             $sql_limits = " ASC LIMIT " . escape_limit($list_from) . (intval($list_to) > 0 ? ", " . escape_limit($list_to - $list_from) : "");
         }
 
@@ -1316,7 +1316,7 @@ if ($GLOBALS['ippf_specific']) { ?>
                          FROM list_options AS lo
                          RIGHT JOIN list_options AS lo2 ON lo2.option_id = lo.list_id AND lo2.edit_options = 1
                          WHERE lo.list_id = ? AND lo.edit_options = 1
-                         ORDER BY seq,title ".$sql_limits , array($list_id));
+                         ORDER BY seq,title ".$sql_limits,array($list_id));
             while ($row = sqlFetchArray($res)) {
                 writeOptionLine(
                     $row['option_id'],
