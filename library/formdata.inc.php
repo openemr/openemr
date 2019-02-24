@@ -60,6 +60,26 @@ function escape_sort_order($s)
 }
 
 /**
+ * If parameter string contains comma(,) delimeter
+ * Splits parameter string into an array, using comma(,) as delimeter
+ * else it returns original string
+ *
+ * @param   string       $s  string to be processed
+ * @return  array        $columns   an array formed by spliting $s with comma(,) delimeter
+ */
+
+function process_cols_escape($s)
+{
+    //returns an array of columns
+    $columns = explode(",", $s);
+    if (count($columns) > 1) {
+        return $columns;
+    }
+
+    return $s;
+}
+
+/**
  * Escape/sanitize a table sql column name for a sql query..
  *
  * This will escape/sanitize the sql column name for a sql query. It is done by whitelisting
@@ -68,13 +88,26 @@ function escape_sort_order($s)
  * the error log. This function should not be used for escaping tables outside the openemr
  * database (should use escape_identifier() function below for that scenario)
  *
- * @param   string        $s       sql column name variable to be escaped/sanitized.
+ * @param   string|array        $s       sql column name(s) variable to be escaped/sanitized.
  * @param   array         $tables  The table(s) that the sql columns is from (in an array).
  * @param   boolean       $long    Use long form (ie. table.colname) vs short form (ie. colname).
  * @return  string                 Escaped table name variable.
  */
 function escape_sql_column_name($s, $tables, $long = false)
 {
+    // If $s is asterisk return asterisk to select all columns
+    if ($s === "*") {
+        return "*";
+    }
+
+     // If $s is an array process then use recursion to check each column
+    if (is_array($s)) {
+        $multiple_columns = [];
+        foreach ($s as $column) {
+            $multiple_columns[] = escape_sql_column_name(trim($column), $tables);
+        }
+        return implode(", ", $multiple_columns);
+    }
 
     // If the $tables is empty, then process them all
     if (empty($tables)) {
