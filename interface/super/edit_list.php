@@ -1314,9 +1314,9 @@ if ($GLOBALS['ippf_specific']) { ?>
         } else {
             $res = sqlStatement("SELECT lo.*
                          FROM list_options AS lo
-                         RIGHT JOIN list_options AS lo2 ON lo2.option_id = lo.list_id AND lo2.edit_options = 1
+                         RIGHT JOIN list_options as lo2 on lo2.option_id = lo.list_id AND lo2.list_id = 'lists' AND lo2.edit_options = 1
                          WHERE lo.list_id = ? AND lo.edit_options = 1
-                         ORDER BY seq,title ".$sql_limits,array($list_id));
+                         ORDER BY seq,title ".$sql_limits, array($list_id));
             while ($row = sqlFetchArray($res)) {
                 writeOptionLine(
                     $row['option_id'],
