@@ -562,11 +562,13 @@ class C_Document extends Controller
         if ($couch_docid && $couch_revid) {
             //special case when retrieving a document from couchdb that has been converted to a jpg and not directly referenced in openemr documents table
             //try to convert it if it has not yet been converted
+            //first, see if the converted jpg already exists
             $couch = new CouchDB();
             $data = array($GLOBALS['couchdb_dbase'], "converted_".$couch_docid);
             $resp = $couch->retrieve_doc($data);
             $content = $resp->data;
             if ($content == '') {
+                //create the converted jpg
                 $couchM = new CouchDB();
                 $dataM = array($GLOBALS['couchdb_dbase'], $couch_docid);
                 $respM = $couchM->retrieve_doc($dataM);
@@ -581,26 +583,35 @@ class C_Document extends Controller
                     $this->document_upload_download_log($d->get_foreign_id(), $log_content);
                     die(xlt("File retrieval from CouchDB failed"));
                 }
+                // place the from-file into a temporary file
                 $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
                 file_put_contents($from_file_tmp_name, base64_decode($contentM));
-                $to_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer") . ".jpg";
+                // prepare a temporary file for the to-file
+                $to_file_tmp = tempnam($GLOBALS['temporary_files_dir'], "oer");
+                $to_file_tmp_name = $to_file_tmp . ".jpg";
+                // convert file to jpg
                 exec("convert -density 200 " . escapeshellarg($from_file_tmp_name) . " -append -resize 850 " . escapeshellarg($to_file_tmp_name));
+                // remove from tmp file
                 unlink($from_file_tmp_name);
+                // save the to-file if a to-file was created in above convert call
                 if (is_file($to_file_tmp_name)) {
                     $couchI = new CouchDB();
                     $json = json_encode(base64_encode(file_get_contents($to_file_tmp_name)));
                     $couchdata = array($GLOBALS['couchdb_dbase'], "converted_" . $couch_docid, $d->get_foreign_id(), "", "image/jpeg", $json);
                     $couchI->check_saveDOC($couchdata);
+                    // remove to tmp files
+                    unlink($to_file_tmp);
                     unlink($to_file_tmp_name);
                 } else {
-                    echo "<b>NOTE</b>: " . xlt('Document') . "'" . text($fname) . "' " . xlt('cannot be converted to JPEG. Perhaps ImageMagick is not installed?') . "<br><br>";
+                    error_log("ERROR: Document '" . basename_international($url) . "' cannot be converted to JPEG. Perhaps ImageMagick is not installed?");
                 }
+                // now collect the newly created converted jpg
+                $couchF = new CouchDB();
+                $dataF = array($GLOBALS['couchdb_dbase'], "converted_".$couch_docid);
+                $respF = $couchF->retrieve_doc($dataF);
+                $content = $respF->data;
             }
-            $couchF = new CouchDB();
-            $dataF = array($GLOBALS['couchdb_dbase'], "converted_".$couch_docid);
-            $respF = $couchF->retrieve_doc($dataF);
-            $contentF = $respF->data;
-            $filetext = base64_decode($contentF);
+            $filetext = base64_decode($content);
             if ($disable_exit == true) {
                 return $filetext;
             }
@@ -694,7 +705,8 @@ class C_Document extends Controller
                         $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
                         file_put_contents($from_file_tmp_name, $from_file_unencrypted);
                         // prepare a temporary file for the unencrypted to-file
-                        $to_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer") . ".jpg";
+                        $to_file_tmp = tempnam($GLOBALS['temporary_files_dir'], "oer");
+                        $to_file_tmp_name = $to_file_tmp . ".jpg";
                         // convert file to jpg
                         exec("convert -density 200 " . escapeshellarg($from_file_tmp_name) . " -append -resize 850 " . escapeshellarg($to_file_tmp_name));
                         // remove unencrypted tmp file
@@ -703,7 +715,8 @@ class C_Document extends Controller
                         if (is_file($to_file_tmp_name)) {
                             $to_file_encrypted = encryptStandard(file_get_contents($to_file_tmp_name), null, 'database');
                             file_put_contents($url, $to_file_encrypted);
-                            // remove unencrypted tmp file
+                            // remove unencrypted tmp files
+                            unlink($to_file_tmp);
                             unlink($to_file_tmp_name);
                         }
                     } else {
@@ -719,7 +732,7 @@ class C_Document extends Controller
                     }
                 } else {
                     $filetext = '';
-                    echo "<b>NOTE</b>: " . xlt('Document') . "'" . text($fname) . "' " . xlt('cannot be converted to JPEG. Perhaps ImageMagick is not installed?') . "<br><br>";
+                    error_log("ERROR: Document '" . basename_international($url) . "' cannot be converted to JPEG. Perhaps ImageMagick is not installed?");
                 }
                 if ($disable_exit == true) {
                     return $filetext;

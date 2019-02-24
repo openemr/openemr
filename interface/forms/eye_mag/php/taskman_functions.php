@@ -478,6 +478,7 @@ function make_document($task)
         //	We could just add another attachment, stopping here at the coversheet, and adding the doc_name that we sent...
         //	No.  We actually need a physical copy of what we sent, since the report itself can be overwritten.  Keep it legal.
         //	Unless the Report.pdf can be merged with the cover sheet.  Until then, just redo it all.
+        $tmp_files_remove = array();
         echo narrative($pid, $encounter, $task['DOC_TYPE'], $form_id);
         ?>
     </body>
@@ -509,19 +510,23 @@ function make_document($task)
 
     $pdf->writeHTML($content, 0); // false or zero works for both mPDF and HTML2PDF
 
-    $tmpdir = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/'; // Best to get a known system temp directory to ensure a writable directory.
-    $temp_filename = $tmpdir . $filename;
-    $content_pdf = $pdf->Output($temp_filename, 'F');
+    // tmp file in temporary_files_dir
+    $temp_filename = tempnam($GLOBALS['temporary_files_dir'], "oer");
+    $pdf->Output($temp_filename, 'F');
+    foreach ($tmp_files_remove as $tmp_file) {
+        // Remove the tmp files that were created
+        unlink($tmp_file);
+    }
+
     $type = "application/pdf";
     $size = filesize($temp_filename);
-
     $return = addNewDocument($filename, $type, $temp_filename, 0, $size, $task['FROM_ID'], $task['PATIENT_ID'], $category_id);
+    unlink($temp_filename);
+
     $task['DOC_ID'] = $return['doc_id'];
     $task['DOC_url'] = $filepath.'/'.$filename;
     $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter
     sqlQuery($sql, array($encounter,$task['DOC_ID']));
-
-    unlink($temp_filename);
 
     return $task;
 }

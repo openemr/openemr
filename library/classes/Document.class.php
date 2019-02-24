@@ -508,26 +508,10 @@ class Document extends ORDataObject
         return $this->couch_revid;
     }
 
-    function get_couch_url($pid, $encounter)
-    {
-        $couch_docid = $this->get_couch_docid();
-        $couch_url = $this->get_url();
-        $couch = new CouchDB();
-        $data = array($GLOBALS['couchdb_dbase'],$couch_docid,$pid,$encounter);
-        $resp = $couch->retrieve_doc($data);
-        $content = $resp->data;
-        $temp_url=$couch_url;
-        $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $pid . '_' . $couch_url;
-        $f_CDB = fopen($temp_url, 'w');
-        fwrite($f_CDB, base64_decode($content));
-        fclose($f_CDB);
-        return $temp_url;
-    }
-
-  // Function added by Rod to change the patient associated with a document.
-  // This just moves some code that used to be in C_Document.class.php,
-  // changing it as little as possible since I'm not set up to test it.
-  //
+    // Function added by Rod to change the patient associated with a document.
+    // This just moves some code that used to be in C_Document.class.php,
+    // changing it as little as possible since I'm not set up to test it.
+    //
     function change_patient($new_patient_id)
     {
         $couch_docid = $this->get_couch_docid();
