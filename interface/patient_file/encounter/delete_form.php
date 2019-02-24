@@ -13,6 +13,7 @@
 
 
 require_once("../../globals.php");
+require_once(dirname(__FILE__) . "/../../../library/forms.inc");
 
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
@@ -82,7 +83,13 @@ foreach ($_GET as $key => $value) {
 ?>
 <input type="hidden" id="confirm" name="confirm" value="1"/>
 <p>
-<?php echo xlt('You are about to delete the following form from this encounter') . ': ' . text(xl_form_title($_GET['formname'])); ?>
+<?php
+
+$formdir=$_GET["formname"];
+$formName=getFormNameByFormdir($formdir);
+echo xlt('You are about to delete the following form from this encounter') . ': ' . text(xl_form_title($formName["form_name"]));
+
+?>
 </p>
 <input type="button" id="confirmbtn" name="confirmbtn" value='<?php echo xla('Yes, Delete this form'); ?>'>
 <input type="button" id="cancel" name="cancel" value='<?php echo xla('Cancel'); ?>'>

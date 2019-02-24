@@ -1355,6 +1355,11 @@ if ($alertmsg) {
 }
 ?>
 $(document).ready(function () {
+    $("#view-log-link").click( function() {
+        top.restoreSession();
+        dlgopen('customize_log.php', '_blank', 500, 400);
+    });
+
     $('button[type="submit"]').click(function () {
         top.restoreSession();
         $(this).attr('data-clicked', true);
