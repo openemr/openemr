@@ -804,13 +804,8 @@ foreach ($ar as $key => $val) {
 
                 $d = new Document($document_id);
                 $fname = basename($d->get_url());
-                //  Extract the extension by the mime/type and not the file name extension
-                // -There is an exception. Need to manually see if it a pdf since
-                //  the image_type_to_extension() is not working to identify pdf.
-                $extension = strtolower(substr($fname, strrpos($fname, ".")));
-                if ($extension != '.pdf') { // Will print pdf header within pdf import
-                    echo "<h3>" . xlt('Document') . " '" . text($fname) ."'</h3>";
-                }
+                $extension = substr($fname, strrpos($fname, "."));
+                echo "<h1>" . xlt('Document') . " '" . $fname ."'</h1>";
 
                 $notes = $d->get_notes();
                 if (!empty($notes)) {
@@ -833,22 +828,10 @@ foreach ($ar as $key => $val) {
                     echo "</table>";
                 }
 
-                // adding support for .txt MDM-TXA interface/orders/receive_hl7_results.inc.php
-                if ($extension != (".pdf" || ".txt")) {
-                    $tempCDoc = new C_Document;
-                    $tempFile = $tempCDoc->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
-                    // tmp file in temporary_files_dir
-                    $tempFileName = tempnam($GLOBALS['temporary_files_dir'], "oer");
-                    file_put_contents($tempFileName, $tempFile);
-                    $image_data = getimagesize($tempFileName);
-                    $extension = image_type_to_extension($image_data[2]);
-                    unlink($tempFileName);
-                }
-
                 if ($extension == ".png" || $extension == ".jpg" || $extension == ".jpeg" || $extension == ".gif") {
                     if ($PDF_OUTPUT) {
                         // OK to link to the image file because it will be accessed by the
-                        // mPDF parser and not the browser.
+                        // HTML2PDF parser and not the browser.
                         $tempDocC = new C_Document;
                         $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                         // tmp file in ../documents/temp since need to be available via webroot
@@ -865,7 +848,7 @@ foreach ($ar as $key => $val) {
                     } else {
                         echo "<img src='" . $GLOBALS['webroot'] .
                             "/controller.php?document&retrieve&patient_id=&document_id=" .
-                            attr_url($document_id) . "&as_file=false&original_file=true&disable_exit=false&show_original=true'><br><br>";
+                            attr_url($document_id) . "&as_file=false'><br><br>";
                     }
                 } else {
                     // Most clinic documents are expected to be PDFs, and in that happy case
@@ -873,21 +856,20 @@ foreach ($ar as $key => $val) {
                     if ($PDF_OUTPUT && $extension == ".pdf") {
                         echo "</div></div>\n"; // HTML to PDF conversion will fail if there are open tags.
                         $content = getContent();
+                        // $pdf->setDefaultFont('Arial');
                         $pdf->writeHTML($content, false); // catch up with buffer.
-                        $pdf->SetImportUse();
-                        $pg_header = "<span>" . xlt('Document') . " " . text($fname) ."</span>";
-                        //$pdf->SetHTMLHeader ($pg_header,'left',false); // A header for imported doc, don't think we need but will keep.
                         $tempDocC = new C_Document;
                         $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                         // tmp file in temporary_files_dir
                         $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
                         file_put_contents($from_file_tmp_name, $pdfTemp);
-                        $pagecount = $pdf->setSourceFile($from_file_tmp_name);
+                        $pagecount = $pdf->pdf->setSourceFile($from_file_tmp_name);
                         for ($i = 0; $i < $pagecount; ++$i) {
-                            $pdf->AddPage();
-                            $itpl = $pdf->importPage($i+1);
-                            $pdf->useTemplate($itpl);
+                            $pdf->pdf->AddPage();
+                            $itpl = $pdf->pdf->importPage($i + 1, '/MediaBox');
+                            $pdf->pdf->useTemplate($itpl);
                         }
+                        $pdf->pdf->AddPage();
                         unlink($from_file_tmp_name);
 
                         // Make sure whatever follows is on a new page.
@@ -897,15 +879,9 @@ foreach ($ar as $key => $val) {
                         ob_start();
 
                         echo "<div><div class='text documents'>\n";
-                    } elseif ($extension == ".txt") {
-                        echo "<pre>";
-                        $tempDocC = new C_Document;
-                        $textTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
-                        echo text($textTemp);
-                        echo "</pre>";
                     } else {
                         if ($PDF_OUTPUT) {
-                            // OK to link to the image file because it will be accessed by the mPDF parser and not the browser.
+                            // OK to link to the image file because it will be accessed by the HTML2PDF parser and not the browser.
                             $tempDocC = new C_Document;
                             $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, false, true, true);
                             // tmp file in ../documents/temp since need to be available via webroot

@@ -470,17 +470,19 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
         <td style="width:220px;padding:1px;vertical-align:top;">
             <?php
             //get patient photo
-            if ($PDF_OUTPUT) {
-                $tempDocC = new C_Document;
-                $fileTemp = $tempDocC->retrieve_action($patientid, -1, false, true, true, true, 'patient_picture');
-                // tmp file in ../documents/temp since need to be available via webroot
-                $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'].'/documents/temp', "oer");
-                file_put_contents($from_file_tmp_web_name, $fileTemp);
-                echo "<img src='". $from_file_tmp_web_name."' style='width:220px;'>";
-                $tmp_files_remove[] = $from_file_tmp_web_name;
-            } else {
-                $filetoshow = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($patientid) . "&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture";
-                echo "<img src='".$filetoshow."' style='width:220px;'>";
+            $tempDocC = new C_Document;
+            $fileTemp = $tempDocC->retrieve_action($pid, -1, false, true, true, true, 'patient_picture');
+            if (!empty($fileTemp)) {
+                if ($PDF_OUTPUT) {
+                    // tmp file in ../documents/temp since need to be available via webroot
+                    $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
+                    file_put_contents($from_file_tmp_web_name, $fileTemp);
+                    echo "<img src='" . $from_file_tmp_web_name . "' style='width:220px;'>";
+                    $tmp_files_remove[] = $from_file_tmp_web_name;
+                } else {
+                    $filetoshow = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture";
+                    echo "<img src='" . $filetoshow . "' style='width:220px;'>";
+                }
             }
             ?>
         </td>
