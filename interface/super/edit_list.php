@@ -1046,7 +1046,7 @@ function writeITLine($it_array)
                          * Keep proper list name (otherwise list name changes according to
                          * the options shown on the screen).
                          */
-                        $list_id_container = attr($_GET["list_id_container"]);
+                        $list_id_container = $_GET["list_id_container"];
                         if (isset($_GET["list_id_container"]) && strlen($list_id_container) > 0) {
                             $list_id = $list_id_container;
                         }
@@ -1276,21 +1276,7 @@ if ($GLOBALS['ippf_specific']) { ?>
     <?php
     // Get the selected list's elements.
     if ($list_id) {
-        /*
-         *  Add edit options to show or hide in list management
-         *   If the edit_options setting of the main list entry is set to 0,
-         *    then none of the list items will show.
-         *   If the edit_options setting of the main list entry is set to 1,
-         *    then the list items with edit_options set to 1 will show.
-         */
-
-        /**
-         * In case when we are have a get parametr "list_id_container", we are set manually variable list_id
-         * and range from...to if these is set
-         * adding 1 to from and to limits
-         * And set default order ASC for sort, because we can't use a empty string (sql_limits) for query builder
-         */
-        $sql_limits = 'ASC LIMIT 0, '.$records_per_page;
+        $sql_limits = 'ASC LIMIT 0, '.escape_limit($records_per_page);
         if ( $list_from > 0 ){
             $list_from--;
         }
@@ -1424,17 +1410,17 @@ if ($GLOBALS['ippf_specific']) { ?>
             DeleteList(this);
         });
 
-        var totalRecords = '<?php echo $res->_numOfRows;?>';
+        var totalRecords = '<?php echo attr($res->_numOfRows);?>';
         var totalRecordDiv = $('#total-record');
         if( totalRecordDiv ){
-            totalRecordDiv.text("<?php echo xlt("Total records"); ?>: <?php echo $res->_numOfRows;?> <?php echo xlt("items"); ?>");
+            totalRecordDiv.text("<?php echo xlt("Total records"); ?>: <?php echo attr($res->_numOfRows);?> <?php echo xlt("items"); ?>");
         }
 
         var urlFull    = new URL($(location).attr('href'));
         var listIdCont = urlFull.searchParams.get('list_id_container');
 
         console.log("list_from: " + listIdCont  );
-        if( totalRecords >= <?php echo $records_per_page;?> || listIdCont != null ) {
+        if( totalRecords >= <?php echo attr($records_per_page);?> || listIdCont != null ) {
             $(".blck-filter").show();
         }
 
