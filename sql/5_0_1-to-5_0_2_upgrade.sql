@@ -809,3 +809,7 @@ ALTER TABLE `prescriptions`
 ALTER TABLE `ar_session`
     MODIFY `patient_id` bigint(20) NOT NULL;
 #EndIf
+
+#IfMissingColumn documents encrypted
+ALTER TABLE `documents` ADD `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes'
+#EndIf
