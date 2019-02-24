@@ -470,7 +470,7 @@ function print_elig($res, $X12info, $segTer, $compEleSep)
             $PATEDI  .= create_NM1($row, 'FA', $X12info, $segTer, $compEleSep);
 
             $nHlCounter = $nHlCounter + 2;
-            $segmentcount = 7; // segement counts - start from ST
+            $segmentcount = 6; // segement counts - start from ST
         }
 
         // For Subscriber Segment
@@ -482,7 +482,7 @@ function print_elig($res, $X12info, $segTer, $compEleSep)
         $PATEDI  .= create_DTP($row, '291', $X12info, $segTer, $compEleSep);
         $PATEDI  .= create_EQ($row, $X12info, $segTer, $compEleSep);
 
-        $segmentcount   = $segmentcount + 7;
+        $segmentcount   = $segmentcount + 5;
         $nHlCounter     = $nHlCounter + 1;
         $rowCount   = $rowCount + 1;
         $trcNo      = $trcNo + 1;
