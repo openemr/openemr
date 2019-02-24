@@ -805,7 +805,7 @@ foreach ($ar as $key => $val) {
                 $d = new Document($document_id);
                 $fname = basename($d->get_url());
                 $extension = substr($fname, strrpos($fname, "."));
-                echo "<h1>" . xlt('Document') . " '" . $fname ."'</h1>";
+                echo "<h1>" . xlt('Document') . " '" . text($fname) ."'</h1>";
 
                 $notes = $d->get_notes();
                 if (!empty($notes)) {
@@ -869,11 +869,9 @@ foreach ($ar as $key => $val) {
                             $itpl = $pdf->pdf->importPage($i + 1, '/MediaBox');
                             $pdf->pdf->useTemplate($itpl);
                         }
+                        // Make sure whatever follows is on a new page.
                         $pdf->pdf->AddPage();
                         unlink($from_file_tmp_name);
-
-                        // Make sure whatever follows is on a new page.
-                        // $pdf->AddPage(); // Only needed for signature line. Patched out 04/20/2017 sjpadgett.
 
                         // Resume output buffering and the above-closed tags.
                         ob_start();
