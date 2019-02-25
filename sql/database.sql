@@ -5132,6 +5132,10 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 -- Files type white list
 
 INSERT INTO list_options (`list_id`, `option_id`, `title`) VALUES ('lists', 'files_white_list', 'Files type white list');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'image/*', 'image/*', 1);
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'text/*', 'text/*', 1);
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'audio/*', 'audio/*', 1);
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'video/*', 'video/*', 1);
 
 -- Sample Apps (Disabled)
 
