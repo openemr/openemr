@@ -301,5 +301,4 @@ class Header
         //remove web root and query string
         return str_replace($GLOBALS['webroot'].'/', '', strtok($_SERVER["REQUEST_URI"], '?'));
     }
-
 }
