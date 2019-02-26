@@ -5132,10 +5132,14 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 -- Files type white list
 
 INSERT INTO list_options (`list_id`, `option_id`, `title`) VALUES ('lists', 'files_white_list', 'Files type white list');
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'image/*', 'image/*', 1);
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'text/*', 'text/*', 1);
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'audio/*', 'audio/*', 1);
-INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'video/*', 'video/*', 1);
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'application/dicom+zip', 'application/dicom+zip', 1);
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'application/dicom', 'application/dicom', 1);
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'application/pdf', 'application/pdf', 1);
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'application/zip', 'application/zip', 1);
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'image/gif', 'image/gif', 1);
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'image/jpeg', 'image/jpeg', 1);
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'image/png', 'image/png', 1);
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'text/plain', 'text/plain', 1);
 
 -- Sample Apps (Disabled)
 
