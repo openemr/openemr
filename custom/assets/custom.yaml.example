@@ -1,0 +1,31 @@
+---
+# In the case that custom.yaml file found It's parse by \OpenEMR\Core\Header::includeAsset
+# after config/config.yaml. the structure of custom.yaml is equal to config.yaml.
+#
+# Use %KEY-NAME% in this file and it will be replaced with the value of
+# $GLOBALS['KEY-NAME'] if it exists. If the key name does not exist, this script
+# won't work (Need to build in proper error handling @TODO RD 2017-05-16
+#
+# Basic example usage (from config.yaml):
+# assets: Top-level key name (Required)
+#     asset-short-name: Short name
+#         basePath: %assets_static_relative%/full/path/to/deepest/common/file
+#         script: null filename or null
+#         link: jquery-ui.min.css filename or null
+#         autoload: true (defaults to false)
+#         loadInFile: relative path to file
+#
+# Inject custom assets example
+# assets:
+#     always-load:
+#         basePath: %webroot%/custom/assets/
+#         script: js/add_custom_link.js
+#         link: css/add_custom_link.css
+#         autoload: true
+#     fix-only-messages:
+#         basePath: %webroot%/custom/assets/
+#         script: js/fix_messages.js
+#         loadInFile: interface/main/messages/messages.php
+#
+
+

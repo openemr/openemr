@@ -109,8 +109,8 @@ class Header
         self::parseConfigFile($map, $assets);
 
         /* adding custom assets in addition */
-        if (is_file("{$GLOBALS['fileroot']}/config/custom.yaml")) {
-            $customMap = self::readConfigFile("{$GLOBALS['fileroot']}/config/custom.yaml");
+        if (is_file("{$GLOBALS['fileroot']}/custom/assets/custom.yaml")) {
+            $customMap = self::readConfigFile("{$GLOBALS['fileroot']}/custom/assets/custom.yaml");
             self::parseConfigFile($customMap);
         }
 
@@ -299,7 +299,7 @@ class Header
     private static function getCurrentFile()
     {
         //remove web root and query string
-        return str_replace($GLOBALS['webroot'].'/', '', strtok($_SERVER["REQUEST_URI"],'?'));
+        return str_replace($GLOBALS['webroot'].'/', '', strtok($_SERVER["REQUEST_URI"], '?'));
     }
 
 }
