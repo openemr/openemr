@@ -211,5 +211,11 @@ function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$err
             privStatement("update users set pwd_expiration_date=? where id=?", array($exp_date,$targetUser));
     }
 
+    // Delete the indicated MFA TOTP Registration
+    sqlStatement(
+        "DELETE FROM login_mfa_registrations WHERE user_id = ? AND method = ? AND name = ?",
+        array($targetUser, 'TOTP', 'App Based 2FA')
+    );
+
     return true;
 }

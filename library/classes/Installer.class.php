@@ -25,6 +25,8 @@ class Installer
         $this->iuname                   = isset($cgi_variables['iuname']) ? ($cgi_variables['iuname']) : '';
         $this->iufname                  = isset($cgi_variables['iufname']) ? ($cgi_variables['iufname']) : '';
         $this->igroup                   = isset($cgi_variables['igroup']) ? ($cgi_variables['igroup']) : '';
+        $this->i2faEnable               = isset($cgi_variables['i2faenable']) ? ($cgi_variables['i2faenable']) : '';
+        $this->i2faSecret               = isset($cgi_variables['i2fasecret']) ? ($cgi_variables['i2fasecret']) : '';
         $this->server                   = isset($cgi_variables['server']) ? ($cgi_variables['server']) : ''; // mysql server (usually localhost)
         $this->loginhost                = isset($cgi_variables['loginhost']) ? ($cgi_variables['loginhost']) : ''; // php/apache server (usually localhost)
         $this->port                     = isset($cgi_variables['port']) ? ($cgi_variables['port']): '';
@@ -60,6 +62,9 @@ class Installer
         // Record name of php-gacl installation files
         $this->gaclSetupScript1 = dirname(__FILE__) . "/../../gacl/setup.php";
         $this->gaclSetupScript2 = dirname(__FILE__) . "/../../acl_setup.php";
+
+        // Record name file of totp class
+        $this->totpClassFile = dirname(__FILE__) . "/../../library/classes/Totp.class.php";
 
         // Prepare the dumpfile list
         $this->initialize_dumpfile_list();
@@ -370,12 +375,57 @@ class Installer
             return false;
         }
 
+        // Create new 2fa if enabled
+        if ($this->i2faEnable) {
+
+            // Encrypt the new secret with the hashed password
+            $secret = $this->encrypt_2fa($this->i2faSecret, $hash);
+
+            if ($this->execute_sql("INSERT INTO login_mfa_registrations (user_id, name, method, var1, var2) VALUES (1, 'App Based 2FA', 'TOTP', '".$this->escapeSql($secret)."', '')") == false) {
+                $this->error_message = "ERROR. Unable to add initial user's 2FA credentials\n".
+                    "<p>".mysqli_error($this->dbh)." (#".mysqli_errno($this->dbh).")\n";
+                return false;
+            }
+        }
+
         // Add the official openemr users (services)
         if ($this->load_file($this->additional_users, "Additional Official Users") == false) {
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * Generates the initial user's 2FA QR Code
+     * @return bool|string|void
+     */
+    public function get_initial_user_2fa_qr() {
+        if ($this->i2faEnable) {
+
+            require_once("./vendor/autoload.php");
+            require_once($this->totpClassFile);
+            $hash = $this->hashedPassword;
+            $secret = $this->encrypt_2fa($this->i2faSecret, $hash);
+            $adminTotp = new Totp($hash, $secret, $this->iuser);
+            $qr = $adminTotp->generateQrCode();
+            return $qr;
+
+        }
+        return false;
+    }
+
+    /**
+     * Encrypt 2fa message with key
+     * @param $message
+     * @param $key
+     * @return string
+     * @throws RangeException
+     */
+    private function encrypt_2fa($message, $key) {
+
+        $cipher = openssl_encrypt($message, "AES-128-ECB", $key);
+        return $cipher;
     }
 
   /**
