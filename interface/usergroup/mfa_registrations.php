@@ -62,6 +62,8 @@ function addclick(sel) {
     if (sel.value) {
         if (sel.value == 'U2F') {
             window.location.href = 'mfa_u2f.php?action=reg1';
+        } else if (sel.value == 'TOTP') {
+            window.location.href = 'mfa_totp.php?action=reg1';
         }
         else {
             alert(<?php echo xlj('Not yet implemented.'); ?>);
@@ -113,7 +115,7 @@ while ($row = sqlFetchArray($res)) {
       <select name='form_add' onchange='addclick(this)'>
         <option value=''><?php echo xlt('Add New...'); ?></option>
         <option value='U2F' ><?php echo xlt('U2F USB Device'); ?></option>
-        <option value='TOTP' disabled><?php echo xlt('TOTP Key'); ?></option>
+        <option value='TOTP'><?php echo xlt('TOTP Key'); ?></option>
       </select>
       <input type='hidden' name='form_delete_method' value='' />
       <input type='hidden' name='form_delete_name' value='' />
