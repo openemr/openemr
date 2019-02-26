@@ -160,8 +160,8 @@ function active_directory_validation($user, $pass)
 
     // If a successful connection is made, the provider will be returned.
     try {
-        $prov = $ad->connect();
-        $valid = $prov->auth()->attempt($user, $pass);
+        $prov = $ad->connect('',$user.$GLOBALS['account_suffix'],$pass);
+        $valid = $prov->auth()->attempt($user, $pass,true);
     } catch (Exception $e) {
         error_log($e->getMessage());
     }
