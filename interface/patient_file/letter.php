@@ -106,8 +106,13 @@ if ($_POST['formaction']=="generate") {
     $fh = fopen("$template_dir/autosaved", 'w');
     // translate from definition to the constant
     $temp_bodytext = $cpstring;
+
     foreach ($FIELD_TAG as $key => $value) {
         $temp_bodytext = str_replace("{".$value."}", "{".$key."}", $temp_bodytext);
+    }
+
+    if ($GLOBALS['drive_encryption']) {
+        $temp_bodytext = encryptStandard($temp_bodytext, null, 'database');
     }
 
     if (! fwrite($fh, $temp_bodytext)) {
@@ -228,6 +233,11 @@ if ($_POST['formaction']=="generate") {
     }
 
     fclose($fh);
+
+    if (cryptCheckStandard($bodytext)) {
+        $bodytext = decryptStandard($bodytext, null, 'database');
+    }
+
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
         $bodytext = str_replace("{".$key."}", "{".$value."}", $bodytext);
@@ -245,6 +255,11 @@ if ($_POST['formaction']=="generate") {
     }
 
     fclose($fh);
+
+    if (cryptCheckStandard($bodytext)) {
+        $bodytext = decryptStandard($bodytext, null, 'database');
+    }
+
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
         $bodytext = str_replace("{".$key."}", "{".$value."}", $bodytext);
@@ -256,6 +271,10 @@ if ($_POST['formaction']=="generate") {
     $temp_bodytext = $_POST['form_body'];
     foreach ($FIELD_TAG as $key => $value) {
         $temp_bodytext = str_replace("{".$value."}", "{".$key."}", $temp_bodytext);
+    }
+
+    if ($GLOBALS['drive_encryption']) {
+        $temp_bodytext = encryptStandard($temp_bodytext, null, 'database');
     }
 
     if (! fwrite($fh, $temp_bodytext)) {
@@ -278,6 +297,11 @@ if ($_POST['formaction']=="generate") {
     }
 
     fclose($fh);
+
+    if (cryptCheckStandard($bodytext)) {
+        $bodytext = decryptStandard($bodytext, null, 'database');
+    }
+
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
         $bodytext = str_replace("{".$key."}", "{".$value."}", $bodytext);
@@ -289,6 +313,10 @@ if ($_POST['formaction']=="generate") {
     $temp_bodytext = $_POST['form_body'];
     foreach ($FIELD_TAG as $key => $value) {
         $temp_bodytext = str_replace("{".$value."}", "{".$key."}", $temp_bodytext);
+    }
+
+    if ($GLOBALS['drive_encryption']) {
+        $temp_bodytext = encryptStandard($temp_bodytext, null, 'database');
     }
 
     if (! fwrite($fh, $temp_bodytext)) {
@@ -310,6 +338,11 @@ if ($_POST['formaction']=="generate") {
     }
 
     fclose($fh);
+
+    if (cryptCheckStandard($bodytext)) {
+        $bodytext = decryptStandard($bodytext, null, 'database');
+    }
+
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
         $bodytext = str_replace("{".$key."}", "{".$value."}", $bodytext);
