@@ -1829,7 +1829,7 @@ $GLOBALS_METADATA = array(
         'secure_upload' => array(
             xl('Secure Upload Files with White List'),
             'bool',                           // data type
-            '0',                              // default
+            '1',                              // default
             xl('Block all files types that are not found in the White List. Can find interface to edit the White List at Administration->Files.')
         ),
         'secure_password' => array(

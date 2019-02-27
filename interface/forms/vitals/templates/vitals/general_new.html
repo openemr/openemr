@@ -127,7 +127,7 @@ margin:1px !Important;
 </style>
 {/literal}
 
-<title>{xl t='Vitals'|text}</title>
+<title>{xlt t='Vitals'}</title>
 </head>
 <body bgcolor="{$STYLE.BGCOLOR2}">
 
@@ -337,7 +337,7 @@ margin:1px !Important;
                                     <td colspan='5' align="center" style='text-align:center'>
                                         {if $patient_age <= 20 || (preg_match('/month/', $patient_age))}
                                         <!-- only show growth-chart button for patients < 20 years old -->
-                                        <!-- <input type="button" id="growthchart" value="{xl t="Growth-Chart"}" style='margin-left: 20px;'> -->
+                                        <!-- <input type="button" id="growthchart" value="{xla t="Growth-Chart"}" style='margin-left: 20px;'> -->
                                         <input type="button" id="pdfchart" value='{xla t="Growth-Chart"} ({xla t="PDF"})' style=''>
                                         <input type="button" id="htmlchart" value='{xla t="Growth-Chart"} ({xla t="HTML"})' style=''>
                                         {/if}
