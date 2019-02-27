@@ -2,11 +2,13 @@
 /**
  *  Lab Requisition Form
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -24,7 +26,6 @@ $returnurl = 'encounter_top.php';
 
 $formid = 0 + (isset($_GET['id']) ? $_GET['id'] : '');
 $obj = $formid ? formFetch("form_requisition", $formid) : array();
-
 
 global $pid ;
 
@@ -163,7 +164,7 @@ table, th, td {
             }
 
             ?>
-            <img  src="../../forms/requisition/barcode.php?text=<?php echo attr($bar); ?>" alt="barcode" /></br>
+            <img  src="../../forms/requisition/barcode.php?text=<?php echo attr_url($bar); ?>" alt="barcode" /></br>
         &#160;&#160;&#160;&#160;&#160;  <?php echo text($bar); ?>
         </div>
         <div class="reqHeader" id="printableArea">

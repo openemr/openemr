@@ -51,6 +51,7 @@ require_once(dirname(__FILE__) ."/../../../library/api.inc");
 require_once(dirname(__FILE__) ."/../../../library/lists.inc");
 require_once(dirname(__FILE__) ."/../../../library/forms.inc");
 require_once(dirname(__FILE__) ."/../../../library/patient.inc");
+require_once(dirname(__FILE__) ."/../../../controllers/C_Document.class.php");
 
 use OpenEMR\Services\FacilityService;
 
@@ -229,6 +230,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
 {
     global $form_folder;
     global $PDF_OUTPUT;
+    global $tmp_files_remove;
     global $facilityService;
   //if $cols == 'Fax', we are here from taskman, making a fax and this a one page short form - leave out PMSFH, prescriptions
   //and any clinical area that is blank.
@@ -468,49 +470,21 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
         <td style="width:220px;padding:1px;vertical-align:top;">
             <?php
             //get patient photo
-            //no idea if this works for couchDB people
-            $sql = "SELECT * FROM documents,categories,categories_to_documents WHERE
-                  documents.id=categories_to_documents.document_id and
-                  categories.id=categories_to_documents.category_id and
-                  categories.name='Patient Photograph' and
-                  documents.foreign_id=?";
-            $doc = sqlQuery($sql, array($pid));
-            $document_id =$doc['document_id'];
-            if (is_numeric($document_id)) {
-                $d = new Document($document_id);
-                $fname = basename($d->get_url());
-                $couch_docid = $d->get_couch_docid();
-                $couch_revid = $d->get_couch_revid();
-                $url_file = $d->get_url_filepath();
-                if ($couch_docid && $couch_revid) {
-                    $url_file = $d->get_couch_url($pid, $encounter);
-                }
-
-                // Collect filename and path
-                $from_all = explode("/", $url_file);
-                $from_filename = array_pop($from_all);
-                $from_pathname_array = array();
-                for ($i=0; $i<$d->get_path_depth(); $i++) {
-                    $from_pathname_array[] = array_pop($from_all);
-                }
-
-                $from_pathname_array = array_reverse($from_pathname_array);
-                $from_pathname = implode("/", $from_pathname_array);
-                if ($couch_docid && $couch_revid) {
-                    $from_file = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $from_filename;
-                } else {
-                    $from_file = $GLOBALS["fileroot"] . "/sites/" . $_SESSION['site_id'] .
-                    '/documents/' . $from_pathname . '/' . $from_filename;
-                }
-
+            $tempDocC = new C_Document;
+            $fileTemp = $tempDocC->retrieve_action($pid, -1, false, true, true, true, 'patient_picture');
+            if (!empty($fileTemp)) {
                 if ($PDF_OUTPUT) {
-                    echo "<img src='". $from_file."' style='width:220px;'>";
+                    // tmp file in ../documents/temp since need to be available via webroot
+                    $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
+                    file_put_contents($from_file_tmp_web_name, $fileTemp);
+                    echo "<img src='" . $from_file_tmp_web_name . "' style='width:220px;'>";
+                    $tmp_files_remove[] = $from_file_tmp_web_name;
                 } else {
-                    $filetoshow = $GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=$pid&document_id=".$doc['document_id']."&as_file=false&blahblah=".rand();
-                    echo "<img src='".$filetoshow."' style='width:220px;'>";
+                    $filetoshow = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture";
+                    echo "<img src='" . $filetoshow . "' style='width:220px;'>";
                 }
             }
-                ?>
+            ?>
         </td>
       </tr>
     </table>
@@ -2081,6 +2055,7 @@ function display_draw_image($zone, $encounter, $pid)
     global $form_folder;
     global $web_root;
     global $PDF_OUTPUT;
+    global $tmp_files_remove;
     $side = "OU";
     $base_name = $pid."_".$encounter."_".$side."_".$zone."_VIEW";
     $filename = $base_name.".jpg";
@@ -2092,8 +2067,6 @@ function display_draw_image($zone, $encounter, $pid)
         $d = new Document($document_id);
         $fname = basename($d->get_url());
 
-        $couch_docid = $d->get_couch_docid();
-        $couch_revid = $d->get_couch_revid();
         $extension = substr($fname, strrpos($fname, "."));
         $notes = $d->get_notes();
         if (!empty($notes)) {
@@ -2116,36 +2089,17 @@ function display_draw_image($zone, $encounter, $pid)
             echo "</table>";
         }
 
-        $url_file = $d->get_url_filepath();
-        if ($couch_docid && $couch_revid) {
-            $url_file = $d->get_couch_url($pid, $encounter);
-        }
-
-        // Collect filename and path
-        $from_all = explode("/", $url_file);
-        $from_filename = array_pop($from_all);
-        $from_pathname_array = array();
-        for ($i=0; $i<$d->get_path_depth(); $i++) {
-            $from_pathname_array[] = array_pop($from_all);
-        }
-
-        $from_pathname_array = array_reverse($from_pathname_array);
-        $from_pathname = implode("/", $from_pathname_array);
-
-        if ($couch_docid && $couch_revid) {
-            $from_file = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $from_filename;
-            $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
-        } else {
-            $from_file = $GLOBALS["fileroot"] . "/sites/" . $_SESSION['site_id'] .
-            '/documents/' . $from_pathname . '/' . $from_filename;
-            $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
-        }
-
         //               if ($extension == ".png" || $extension == ".jpg" || $extension == ".jpeg" || $extension == ".gif") {
         if ($PDF_OUTPUT) {
-            echo "<img src='". $from_file."' style='width:220px;height:120px;'>";
+            $tempDocC = new C_Document;
+            $fileTemp = $tempDocC->retrieve_action($pid, $doc['id'], false, true, true);
+            // tmp file in ../documents/temp since need to be available via webroot
+            $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'].'/documents/temp', "oer");
+            file_put_contents($from_file_tmp_web_name, $fileTemp);
+            echo "<img src='".$from_file_tmp_web_name."' style='width:220px;height:120px;'>";
+            $tmp_files_remove[] = $from_file_tmp_web_name;
         } else {
-            $filetoshow = $GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=$pid&document_id=".$doc['id']."&as_file=false&blahblah=".rand();
+            $filetoshow = $GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=".attr_url($pid)."&document_id=".attr_url($doc['id'])."&as_file=false&blahblah=".attr_url(rand());
             echo "<img src='".$filetoshow."' style='width:220px;height:120px;'>";
         }
     } //else show base_image

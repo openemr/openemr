@@ -39,15 +39,16 @@ a {
 <body bgcolor="{$STYLE.BGCOLOR2}">
 <p><span class="title">Prior Authorization Form</span></p>
 <form name="prior_auth" method="post" action="{$FORM_ACTION}/interface/forms/prior_auth/save.php">
+<input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}">
 <table>
 <tr>
-	<td>Prior Authorization Number</td><td><input type="text" size="35" name="prior_auth_number" value="{$prior_auth->get_prior_auth_number()}"></td>
+	<td>Prior Authorization Number</td><td><input type="text" size="35" name="prior_auth_number" value="{$prior_auth->get_prior_auth_number()|attr}"></td>
 </tr>
 <tr>
 	<td><br><br>Comments</td>
 </tr>
 <tr>
-	<td colspan="2"><textarea name="comments" value="{$prior_auth->get_comments()}" wrap="virtual" cols="75" rows="8">{$prior_auth->get_comments()}</textarea></td>
+	<td colspan="2"><textarea name="comments" value="{$prior_auth->get_comments()|attr}" wrap="virtual" cols="75" rows="8">{$prior_auth->get_comments()|text}</textarea></td>
 </tr>
 {if $VIEW != true}
 <tr>
@@ -55,9 +56,9 @@ a {
 </tr>
 {/if}
 </table>
-<input type="hidden" name="id" value="{$prior_auth->get_id()}" />
-<input type="hidden" name="activity" value="{$prior_auth->get_activity()}">
-<input type="hidden" name="pid" value="{$prior_auth->get_pid()}">
+<input type="hidden" name="id" value="{$prior_auth->get_id()|attr}" />
+<input type="hidden" name="activity" value="{$prior_auth->get_activity()|attr}">
+<input type="hidden" name="pid" value="{$prior_auth->get_pid()|attr}">
 <input type="hidden" name="process" value="true">
 </form>
 </body>

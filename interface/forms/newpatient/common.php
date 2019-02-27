@@ -2,21 +2,13 @@
 /**
  * Common script for the encounter form (new and view) scripts.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
@@ -77,13 +69,13 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 <script language="JavaScript">
 
 
-    var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+    var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
     // Process click on issue title.
     function newissue() {
         dlgopen('../../patient_file/summary/add_edit_issue.php', '_blank', 700, 535, '', '', {
             buttons: [
-            {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+            {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
             ]
         });
         return false;
@@ -119,7 +111,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
            e.preventDefault();e.stopPropagation();
            dlgopen('', '', 700, 650, '', '', {
 
-               buttons: [{text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}],
+               buttons: [{text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}],
 
                allowResize: true,
                allowDrag: true,
@@ -238,6 +230,7 @@ if ($GLOBALS['enable_help'] == 1) {
                 <?php } else { ?>
                     <input type='hidden' name='mode' value='new'>
                 <?php } ?>
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                     <fieldset>
                         <legend><?php echo xlt('Visit Details')?></legend>
                         <div id = "visit-details">
@@ -343,7 +336,7 @@ if ($GLOBALS['enable_help'] == 1) {
                                     <label for='form_date' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Date of Service:'); ?></label>
                                     <div class="col-sm-3">
                                         <input type='text' class='form-control datepicker col-sm-12' name='form_date' id='form_date' <?php echo $disabled ?>
-                                        value='<?php echo $viewmode ? attr(oeFormatShortDate(substr($result['date'], 0, 10))) : oeFormatShortDate(date('Y-m-d')); ?>'
+                                        value='<?php echo $viewmode ? attr(oeFormatShortDate(substr($result['date'], 0, 10))) : attr(oeFormatShortDate(date('Y-m-d'))); ?>'
                                         title='<?php echo xla('Date of service'); ?>'/>
                                     </div>
 
@@ -555,11 +548,11 @@ if ($GLOBALS['enable_help'] == 1) {
 <?php
 if (!$viewmode) { ?>
  function duplicateVisit(enc, datestr) {
-    if (!confirm('<?php echo xls("A visit already exists for this patient today. Click Cancel to open it, or OK to proceed with creating a new one.") ?>')) {
+    if (!confirm(<?php echo xlj("A visit already exists for this patient today. Click Cancel to open it, or OK to proceed with creating a new one.") ?>)) {
             // User pressed the cancel button, so re-direct to today's encounter
             top.restoreSession();
             parent.left_nav.setEncounter(datestr, enc, window.name);
-            parent.left_nav.loadFrame('enc2', window.name, 'patient_file/encounter/encounter_top.php?set_encounter=' + enc);
+            parent.left_nav.loadFrame('enc2', window.name, 'patient_file/encounter/encounter_top.php?set_encounter=' + encodeURIComponent(enc));
             return;
         }
         // otherwise just continue normally
@@ -578,8 +571,8 @@ if (!$viewmode) { ?>
 
 if (!empty($erow['encounter'])) {
     // If there is an encounter from today then present the duplicate visit dialog
-    echo "duplicateVisit('" . $erow['encounter'] . "', '" .
-    attr(oeFormatShortDate(substr($erow['date'], 0, 10))) . "');\n";
+    echo "duplicateVisit(" . js_escape($erow['encounter']) . ", " .
+        js_escape(oeFormatShortDate(substr($erow['date'], 0, 10))) . ");\n";
 }
 }
 ?>
@@ -601,7 +594,7 @@ if ($GLOBALS['enable_group_therapy']) { ?>
       var url = '<?php echo $GLOBALS['webroot']?>/interface/main/calendar/find_group_popup.php';
       dlgopen(url, '_blank', 500, 400, '', '', {
           buttons: [
-              {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+              {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
           ]
       });
     }
@@ -624,9 +617,9 @@ $(document).ready(function(){
     $('#billing_facility').addClass('col-sm-9');
     //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
     // the relevant css file needs to be called i.e. jquery-ui-darkness - to get a black tooltip
-    $('#sensitivity-tooltip').attr( "title", "<?php echo xla('If set as high will restrict visibility of encounter to users belonging to certain groups (AROs). By default - Physicians and Administrators'); ?>" );
+    $('#sensitivity-tooltip').attr( "title", <?php echo xlj('If set as high will restrict visibility of encounter to users belonging to certain groups (AROs). By default - Physicians and Administrators'); ?> );
     $('#sensitivity-tooltip').tooltip();
-    $('#onset-tooltip').attr( "title", "<?php echo xla('Hospital date needed for successful billing of hospital encounters'); ?>" );
+    $('#onset-tooltip').attr( "title", <?php echo xlj('Hospital date needed for successful billing of hospital encounters'); ?> );
     $('#onset-tooltip').tooltip();
 });
 </script>

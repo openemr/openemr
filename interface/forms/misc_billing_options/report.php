@@ -2,19 +2,21 @@
 /*
  * report.php displays the misc_billing_form in the encounter view
  *
- * @package OpenEMR
- * @author Terry Hill <terry@lilysystems.com>
- * @author Brady Miller <brady.g.miller@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Terry Hill <terry@lilysystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (C) 2007 Bo Huynh
  * @copyright Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
- * @copyright Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- * @link http://www.open-emr.org
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (C) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-include_once(dirname(__FILE__).'/../../globals.php');
-include_once($GLOBALS["srcdir"]."/api.inc");
+
+require_once(dirname(__FILE__).'/../../globals.php');
+require_once($GLOBALS["srcdir"]."/api.inc");
 require_once("date_qualifier_options.php");
+
 function misc_billing_options_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
@@ -33,7 +35,7 @@ function misc_billing_options_report($pid, $encounter, $cols, $id)
             if (($key === 'box_14_date_qual') || $key === 'box_15_date_qual') {
                 $value = qual_id_to_description($key, $value);
             }
-            
+
             if ($key === 'provider_qualifier_code') {
                 $pqe = $data['provider_qualifier_code'];
                 if (!empty($pqe)) {
@@ -59,13 +61,13 @@ function misc_billing_options_report($pid, $encounter, $cols, $id)
                 $value = $trow['fname'] . ' ' . $trow['lname'];
                 $key = 'Box 17 Provider';
             }
-            
+
             if ($value == "1") {
                 $value = "Yes";
             }
 
             $key=ucwords(str_replace("_", " ", $key));
-            print "<td><span class=bold>$key: </span><span class=text>" . text($value) . "</span></td>";
+            print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . text($value) . "</span></td>";
             $count++;
 
             if ($count == $cols) {

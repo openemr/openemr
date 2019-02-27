@@ -1,4 +1,14 @@
 <?php
+/**
+ * prior auth form
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 
 require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormPriorAuth.class.php");
@@ -17,6 +27,7 @@ class C_FormPriorAuth extends Controller
         $this->assign("FORM_ACTION", $GLOBALS['web_root']);
         $this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
         $this->assign("STYLE", $GLOBALS['style']);
+        $this->assign("CSRF_TOKEN_FORM", collectCsrfToken());
     }
 
     function default_action()

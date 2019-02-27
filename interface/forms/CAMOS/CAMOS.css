@@ -1,3 +1,13 @@
+/**
+ * CAMOS CAMOS.css
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Mark Leeds <drleeds@gmail.com>
+ * @copyright Copyright (C) 2006-2009 Mark Leeds <drleeds@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 body {
   font: 1em, Verdana, Geneva, Arial, Helvetica, sans-serif;
   background-color: #FFFFFF;
@@ -10,7 +20,7 @@ h1 {
   border: 1px solid #00ff00;
   width: 75%;
 }
-  
+
 .code {
   margin-left: 20px;
   margin-right: 20px;

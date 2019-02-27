@@ -1,7 +1,19 @@
 <?php
-//------------Forms generated from formsWiz
-include_once(dirname(__FILE__).'/../../globals.php');
-include_once($GLOBALS["srcdir"]."/api.inc");
+/**
+ * soap form
+ * Forms generated from formsWiz
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+
+require_once(dirname(__FILE__).'/../../globals.php');
+require_once($GLOBALS["srcdir"]."/api.inc");
+
 function soap_report($pid, $encounter, $cols, $id)
 {
     $cols = 1; // force always 1 column

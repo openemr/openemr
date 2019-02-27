@@ -1,22 +1,11 @@
 /**
  * knockout.js view model for fee sheet justification
- * 
- * Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Kevin Yeh <kevin.y@integralemr.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 function start_edit(data,event)
 {
@@ -121,10 +110,10 @@ function search_change(data,model)
                                     {
                                         var cur_code=result.codes[idx];
                                         model.search_results.push(cur_code);
-                                    }                                
+                                    }
                             }
                     },
-                    "json");                
+                    "json");
         }
         else
         {
@@ -168,7 +157,7 @@ function update_justify(data,event)
             refresh_codes();
         }
 
-    ); 
+    );
     data.show(false);
 }
 
@@ -192,7 +181,7 @@ function priority_order(left,right)
     if(left.priority()<right.priority())
     {
         return -1;
-    }   
+    }
     else
     {
         if(left.source==right.source)
@@ -259,7 +248,7 @@ function update_diagnosis_options(diagnosis_options,data)
 }
 function check_justify(data,event,model)
 {
-    
+
     update_diagnosis_options(model.diagnosis_options,data);
     return true;
 }
@@ -292,14 +281,14 @@ function setup_justify(model,current,patient,common)
             new_justify.source_idx=idx;
             new_justify.allowed_to_create_problem_from_diagnosis(cur_entry.allowed_to_create_problem_from_diagnosis);
             model.diagnosis_options.push(new_justify);
-            
+
         }
     }
     for(idx=0;idx<patient.length;idx++)
     {
         cur_entry=patient[idx];
         if((cur_entry.code!=null) || cur_entry.code_type!="")
-        {         
+        {
             new_justify=new justify_entry(cur_entry);
             if(typeof model.added_keys[new_justify.key()]=='undefined')
             {
@@ -314,7 +303,7 @@ function setup_justify(model,current,patient,common)
                 new_justify.source_idx=idx;
                 new_justify.prob_id(cur_entry.db_id);
                 new_justify.allowed_to_create_problem_from_diagnosis(cur_entry.allowed_to_create_problem_from_diagnosis);
-                model.diagnosis_options.push(new_justify);        
+                model.diagnosis_options.push(new_justify);
             }
             else
             {
@@ -354,11 +343,11 @@ function setup_justify(model,current,patient,common)
             new_justify.source='common';
             new_justify.source_idx=idx;
             new_justify.allowed_to_create_problem_from_diagnosis(cur_entry.allowed_to_create_problem_from_diagnosis);
-            model.diagnosis_options.push(new_justify);        
+            model.diagnosis_options.push(new_justify);
         }
     }
     model.diagnosis_options.sort(priority_order);
-    
+
 }
 function toggle_warning_details(data,event)
 {
@@ -388,7 +377,7 @@ function fee_sheet_justify_view_model(billing_id,enc_id,pat_id,current_justify)
                   };
     var vm=this.justify;
     vm.search_query_throttled=ko.computed(vm.search_query).extend({throttle:300}).subscribe(function(data){search_change(data,vm)});
-    var mode='common';   
+    var mode='common';
     $.post(justify_ajax,{
             pid: pat_id,
             encounter: enc_id,
@@ -396,7 +385,7 @@ function fee_sheet_justify_view_model(billing_id,enc_id,pat_id,current_justify)
                 task: "retrieve"
             },function(data){
                 setup_justify(vm,data.current,data.patient,data.common);
-                
+
                 vm.show(true);
                 vm.search_has_focus(true);
             },
