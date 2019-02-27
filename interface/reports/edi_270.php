@@ -24,6 +24,7 @@ require_once("$srcdir/calendar.inc");
 require_once("$srcdir/edi.inc");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Http\oeHttp;
 
 if (!empty($_POST)) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -47,7 +48,8 @@ $to_date        = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_
 $form_facility  = $_POST['form_facility'] ? $_POST['form_facility'] : '';
 $form_provider  = $_POST['form_users'] ? $_POST['form_users'] : '';
 $exclude_policy = $_POST['removedrows'] ? $_POST['removedrows'] : '';
-$X12info        = $_POST['form_x12'] ? explode("|", $_POST['form_x12']) : '';
+$x12_partner    = $_POST['form_x12'] ? $_POST['form_x12'] : '';
+$X12info        = getX12Partner($x12_partner);
 
 //Set up the sql variable binding array (this prevents sql-injection attacks)
 $sqlBindArray = array();
@@ -126,7 +128,7 @@ if ($exclude_policy != "") {
 							WHERE %s ", $where);
 
     // Run the query
-    $res            = sqlStatement($query, $sqlBindArray);
+    $res = sqlStatement($query, $sqlBindArray);
 
     // Get the facilities information
     $facilities     = getUserFacilities($_SESSION['authId']);
@@ -137,7 +139,9 @@ if ($exclude_policy != "") {
     //Get the x12 partners information
     $clearinghouses = getX12Partner();
 
-
+    if (isset($_POST['form_xmit']) && !empty($_POST['form_xmit']) && $res) {
+        $sent_cnt = requestRealTimeEligibily($res, $X12info, $segTer, $compEleSep, true);
+    }
     if (isset($_POST['form_savefile']) && !empty($_POST['form_savefile']) && $res) {
         header('Content-Type: text/plain');
         header(sprintf(
@@ -145,7 +149,7 @@ if ($exclude_policy != "") {
             $from_date,
             $to_date
         ));
-        print_elig($res, $X12info, $segTer, $compEleSep);
+        print_elig($res, $X12info, $segTer, $compEleSep, false);
         exit;
     }
 ?>
@@ -212,21 +216,20 @@ if ($exclude_policy != "") {
             }
 
             //  To validate the batch file generation - for the required field [clearing house/x12 partner]
-            function validate_batch()
-            {
-                if(document.getElementById('form_x12').value=='')
-                {
+            function validate_batch(eFlag) {
+                if (document.getElementById('form_x12').value == '') {
                     alert(stringBatch);
                     return false;
                 }
-                else
-                {
-                    document.getElementById('form_savefile').value = "true";
+                else {
+                    if (eFlag === true) {
+                        document.getElementById('form_xmit').value = "true";
+                    } else {
+                        document.getElementById('form_savefile').value = "true";
+                    }
+
                     document.theform.submit();
-
                 }
-
-
             }
 
             // To Clear the hidden input field
@@ -235,13 +238,14 @@ if ($exclude_policy != "") {
             {
                 document.getElementById('removedrows').value = "";
                 document.getElementById('form_savefile').value = "";
+                document.getElementById('form_xmit').value = "";
                 return true;
             }
 
             // To toggle the clearing house empty validation message
             function toggleMessage(id,x12){
 
-                var spanstyle = new String();
+                var spanstyle = String();
 
                 spanstyle       = document.getElementById(id).style.visibility;
                 selectoption    = document.getElementById(x12).value;
@@ -337,20 +341,19 @@ if ($exclude_policy != "") {
                                             <?php echo xlt('X12 Partner'); ?>:
                                         </td>
                                         <td colspan='5'>
-                                            <select name='form_x12' id='form_x12' class='form-control' onchange='return toggleMessage("emptyVald","form_x12");' >
-                                                        <option value=''>--<?php echo xlt('select'); ?>--</option>
-                                                        <?php
-                                                        if (isset($clearinghouses) && !empty($clearinghouses)) {
-                                                            foreach ($clearinghouses as $clearinghouse) { ?>
-                                                                    <option value='<?php echo attr($clearinghouse['id']."|".$clearinghouse['id_number']."|".$clearinghouse['x12_sender_id']."|".$clearinghouse['x12_receiver_id']."|".$clearinghouse['x12_version']."|".$clearinghouse['processing_format']); ?>'
-                                                                        <?php echo $clearinghouse['id'] == $X12info[0] ? " selected " : null; ?>
-                                                                    ><?php echo text($clearinghouse['name']); ?></option>
-                                                            <?php
-                                                            }
-                                                        }
-                                                        ?>
-                                                </select>
-                                                <span id='emptyVald' style='color:red;font-size:12px;'> * <?php echo xlt('Clearing house info required for EDI 270 batch creation.'); ?></span>
+                                            <select name='form_x12' id='form_x12' class='form-control' onchange='return toggleMessage("emptyVald","form_x12");'>
+                                                <option value=''>--<?php echo xlt('select'); ?>--</option>
+                                                <?php
+                                                if (isset($clearinghouses) && !empty($clearinghouses)) {
+                                                    foreach ($clearinghouses as $clearinghouse) {
+                                                        echo "<option value='" . attr($clearinghouse['id']) . "'" .
+                                                            ($clearinghouse['id'] == $X12info['id'] ? " selected " : '') . ">" . text($clearinghouse['name']) . "</option>";
+                                                    }
+                                                }
+                                                ?>
+                                            </select>
+                                                <span id='emptyVald' style='color:red;font-size:12px;visibility: <?php echo $X12info['id'] ? "hidden" : ""; ?>'> *
+                                                    <?php echo xlt('Clearing house info required for EDI 270 batch creation.'); ?></span>
                                         </td>
                                     </tr>
                                 </table>
@@ -365,9 +368,13 @@ if ($exclude_policy != "") {
                                                 <a href='#' class='btn btn-default btn-refresh' onclick='validate_policy(); $("#theform").submit();'>
                                                     <?php echo xlt('Refresh'); ?>
                                                 </a>
-                                                <a href='#' class='btn btn-default btn-transmit' onclick='return validate_batch();'>
+                                                <a href='#' class='btn btn-default btn-transmit' onclick='return validate_batch(false);'>
                                                     <?php echo xlt('Create batch'); ?>
                                                     <input type='hidden' name='form_savefile' id='form_savefile' value=''></input>
+                                                </a>
+                                                <a href='#' class='btn btn-default btn-transmit' onclick='return validate_batch(true);'>
+                                                    <?php echo xlt('Request Eligibility'); ?>
+                                                    <input type='hidden' name='form_xmit' id='form_xmit' value=''></input>
                                                 </a>
                                             </div>
                                         </div>
@@ -378,7 +385,6 @@ if ($exclude_policy != "") {
                     </tr>
                 </table>
             </div>
-
             <div class='text'>
                 <?php echo xlt('Please choose date range criteria above, and click Refresh to view results.'); ?>
             </div>

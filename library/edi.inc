@@ -24,6 +24,12 @@
  * @link http://www.open-emr.org
  */
 
+use OpenEMR\Common\Http\oeHttp;
+
+// @TODO global to become private var when this goes to a class.
+//
+global $X12info;
+
 // SEGMENT FUNCTION START
 
 // ISA Segment  - EDI-270 format
@@ -37,7 +43,7 @@ function create_ISA($row, $X12info, $segTer, $compEleSep)
 
     $ISA[1] = "00";                                 // Author Info Qualifier
 
-    $ISA[2] = str_pad("0000000", 10, " ");        // Author Information
+    $ISA[2] = str_pad("1234567", 10, " ");        // Author Information
 
     $ISA[3] = "00";                                 //   Security Information Qualifier
                                                 //   MEDI-CAL NOTE: For Leased-Line & Dial-Up use '01',
@@ -45,15 +51,15 @@ function create_ISA($row, $X12info, $segTer, $compEleSep)
                                                 //   '00' No Security Information Present
                                                 //   (No Meaningful Information in I04)
 
-    $ISA[4] = str_pad("0000000000", 10, " ");         // Security Information
+    $ISA[4] = str_pad(" ", 10, " ");         // Security Information
 
-    $ISA[5] = str_pad("ZZ", 2, " ");              // Interchange ID Qualifier
+    $ISA[5] = str_pad($X12info['x12_isa05'], 2, " ");              // Interchange ID Qualifier
 
-    $ISA[6] = str_pad($X12info[2], 15, " ");      // INTERCHANGE SENDER ID
+    $ISA[6] = str_pad($X12info['x12_sender_id'], 15, " ");      // INTERCHANGE SENDER ID
 
-    $ISA[7] = str_pad("ZZ", 2, " ");              // Interchange ID Qualifier
+    $ISA[7] = str_pad($X12info['x12_isa07'], 2, " ");              // Interchange ID Qualifier
 
-    $ISA[8] = str_pad($X12info[3], 15, " ");      // INTERCHANGE RECEIVER ID
+    $ISA[8] = str_pad($X12info['x12_receiver_id'], 15, " ");      // INTERCHANGE RECEIVER ID
 
     $ISA[9] = str_pad(date('ymd'), 6, " ");       // Interchange Date (YYMMDD)
 
@@ -65,9 +71,9 @@ function create_ISA($row, $X12info, $segTer, $compEleSep)
 
     $ISA[13] = str_pad("000000001", 9, " ");      // INTERCHANGE CONTROL NUMBER
 
-    $ISA[14] = str_pad("1", 1, " ");              // Acknowledgment Request [0= not requested, 1= requested]
+    $ISA[14] = str_pad($X12info['x12_isa14'], 1, " ");              // Acknowledgment Request [0= not requested, 1= requested]
 
-    $ISA[15] =  str_pad("P", 1, " ");                 // Usage Indicator [ P = Production Data, T = Test Data ]
+    $ISA[15] =  str_pad($X12info['x12_isa15'], 1, " ");                 // Usage Indicator [ P = Production Data, T = Test Data ]
 
     $ISA['Created'] = implode('*', $ISA);       // Data Element Separator
 
@@ -89,9 +95,9 @@ function create_GS($row, $X12info, $segTer, $compEleSep)
 
     $GS[1] = "HS";                      // Functional ID Code [ HS = Eligibility, Coverage or Benefit Inquiry (270) ]
 
-    $GS[2] =  $X12info[2];              // Application Sender's ID
+    $GS[2] =  $X12info['x12_sender_id'];              // Application Sender's ID
 
-    $GS[3] =  $X12info[3];              // Application Receiver's ID
+    $GS[3] =  $X12info['x12_receiver_id'];              // Application Receiver's ID
 
     $GS[4] = date('Ymd');               // Date [CCYYMMDD]
 
@@ -143,7 +149,7 @@ function create_BHT($row, $X12info, $segTer, $compEleSep)
 
     $BHT[1] = "0022";                       // Subscriber Structure Code
 
-    $BHT[2] = "13";                             // Purpose Code - This is a Request
+    $BHT[2] = "13";                         // Purpose Code - This is a Request
 
     $BHT[3] = "PROVTest600";                //  Submitter Transaction Identifier
                                             //This information is required by the information Receiver
@@ -211,10 +217,10 @@ function create_NM1($row, $nm1Cast, $X12info, $segTer, $compEleSep)
         $NM1[5] = "";                       // Data Element not required.
         $NM1[6] = "";                       // Data Element not required.
         $NM1[7] = "";                       // Data Element not required.
-        $NM1[8] = "46";                         // 46 - Electronic Transmitter Identification Number (ETIN)
-        $NM1[9] = $X12info[3];              // Application Sender's ID
+        $NM1[8] = "46";                     // 46 - Electronic Transmitter Identification Number (ETIN)
+        $NM1[9] = $X12info['x12_receiver_id'];              // Application Sender's ID
     } else if ($nm1Cast == 'FA') {
-        $NM1[1] = "FA";                         // Entity ID Code - Facility [FA Facility]
+        $NM1[1] = "FA";                     // Entity ID Code - Facility [FA Facility]
         $NM1[2] = "2";                      // Entity Type - Non-Person
         $NM1[3] = $row['facility_name'];            // Organizational Name
         $NM1[4] = "";           // Data Element not required.
@@ -302,6 +308,8 @@ function create_DMG($row, $X12info, $segTer, $compEleSep)
     $DMG[1] = "D8";                                 // Date Format Qualifier - (D8 means CCYYMMDD)
 
     $DMG[2] = $row['dob'];                      // Subscriber's Birth date
+
+    $DMG[3] = strtoupper($row['sex'][0]);
 
     $DMG['Created'] = implode('*', $DMG);       // Data Element Separator
 
@@ -431,7 +439,7 @@ function translate_relationship($relationship)
 
 // EDI-270 Batch file Generation
 
-function print_elig($res, $X12info, $segTer, $compEleSep)
+function print_elig($res, $X12info, $segTer, $compEleSep, $eFlag = false)
 {
 
     $i=1;
@@ -488,7 +496,6 @@ function print_elig($res, $X12info, $segTer, $compEleSep)
         $trcNo      = $trcNo + 1;
         $refiden    = $refiden + 1;
 
-
         if ($rowCount == sqlNumRows($res)) {
             $segmentcount = $segmentcount + 1;
             $PATEDI   .= create_SE($row, $segmentcount, $X12info, $segTer, $compEleSep);
@@ -496,10 +503,74 @@ function print_elig($res, $X12info, $segTer, $compEleSep)
             $PATEDI   .= create_IEA($row, $X12info, $segTer, $compEleSep);
         }
     }
-
-    echo $PATEDI;
+    if (!$eFlag) {
+        echo $PATEDI;
+    } else {
+        return $PATEDI;
+    }
 }
+// EDI-270 Batch file Generation
 
+function requestRealTimeEligibily($res, $X12info, $segTer, $compEleSep, $eFlag = false)
+{
+    $rowCount = 0;
+    $totalCount = sqlNumRows($res);
+    $down_accum = $log = '';
+    while ($row = sqlFetchArray($res)) {
+        $nHlCounter = 1;
+
+        // create ISA
+        $PATEDI = create_ISA($row, $X12info, $segTer, $compEleSep);
+        // create GS
+        $PATEDI .= create_GS($row, $X12info, $segTer, $compEleSep);
+        // create ST
+        $PATEDI .= create_ST($row, $X12info, $segTer, $compEleSep);
+        // create BHT
+        $PATEDI .= create_BHT($row, $X12info, $segTer, $compEleSep);
+        // For Payer Segment
+        $PATEDI .= create_HL($row, 1, $X12info, $segTer, $compEleSep);
+        $PATEDI .= create_NM1($row, 'PR', $X12info, $segTer, $compEleSep);
+        // For Provider Segment
+        $PATEDI .= create_HL($row, 2, $X12info, $segTer, $compEleSep);
+        $PATEDI .= create_NM1($row, 'FA', $X12info, $segTer, $compEleSep);
+
+        $nHlCounter = $nHlCounter + 2;
+        $segmentcount = 6; // segement counts - start from ST
+        // For Subscriber Segment
+        $PATEDI .= create_HL($row, $nHlCounter, $X12info, $segTer, $compEleSep);
+        $PATEDI .= create_NM1($row, 'IL', $X12info, $segTer, $compEleSep);
+        $PATEDI .= create_DMG($row, $X12info, $segTer, $compEleSep);
+        $PATEDI .= create_DTP($row, '291', $X12info, $segTer, $compEleSep);
+        $PATEDI .= create_EQ($row, $X12info, $segTer, $compEleSep);
+
+        $segmentcount = $segmentcount + 5;
+        //$nHlCounter = $nHlCounter + 1;
+        $rowCount = $rowCount + 1;
+        $segmentcount = $segmentcount + 1;
+
+        $PATEDI .= create_SE($row, $segmentcount, $X12info, $segTer, $compEleSep);
+        $PATEDI .= create_GE($row, $X12info, $segTer, $compEleSep);
+        $PATEDI .= create_IEA($row, $X12info, $segTer, $compEleSep);
+
+        $result = requestEligibility($X12info['id'], $PATEDI);
+        $down_accum .= $result . "\n"; // delimit next new request
+        $log .= $PATEDI . "\n";
+    }
+
+    $process = parseEdi271($down_accum);
+    $log = "270 Requests Sent:\n" . $log . "\n" . $process;
+    if ($eFlag) {
+        $fn = sprintf(
+            'elig-271_%s_%s.txt',
+            strtolower(str_replace(' ', '', $X12info['name'])),
+            date("Y-m-d:H:i:s")
+        );
+        $log = str_replace('~', "~\r", $log);
+        @x12Download($fn, $log);
+    }
+
+    return $rowCount;
+}
 // Report Generation
 
 function show_elig($res, $X12info, $segTer, $compEleSep)
@@ -565,7 +636,7 @@ function show_elig($res, $X12info, $segTer, $compEleSep)
 				<td class ='detail' style='width:6%;'>".  htmlspecialchars($row['subscriber_sex'], ENT_NOQUOTES) ."</td>
 				<td class ='detail' style='width:9%;'>".  htmlspecialchars($row['subscriber_ss'], ENT_NOQUOTES) ."</td>
 				<td class ='detail' style='width:2%;'>
-					<img src='../../images/deleteBtn.png' title=' .htmlspecialchars( xl('Delete Row'), ENT_QUOTES) . ' style='cursor:pointer;cursor:hand;' onclick='deletetherow(\"" . $i."_". htmlspecialchars($row['policy_number'], ENT_QUOTES) . "\")'>
+				<img src='../../images/deleteBtn.png' title=' .htmlspecialchars( xl('Delete Row'), ENT_QUOTES) . ' style='cursor:pointer;cursor:hand;' onclick='deletetherow(\"" . $i."_". htmlspecialchars($row['policy_number'], ENT_QUOTES) . "\")'>
 				</td>
 			</tr>
 		";
@@ -591,25 +662,25 @@ function show_elig($res, $X12info, $segTer, $compEleSep)
 function show_eligibility_information($pid)
 {
 
-    $query = "	SELECT 		eligr.response_description as ResponseMessage,
-					DATE_FORMAT(eligv.eligibility_check_date, '%d %M %Y') as VerificationDate,
-					eligv.copay, eligv.deductible, eligv.deductiblemet,
-					if(eligr.response_status = 'A','Active','Inactive') as Status,
-					insd.pid, insc.name
-			FROM 		eligibility_verification eligv
-			INNER JOIN	eligibility_response eligr on eligr.response_id = eligv.response_id
-			INNER JOIN	insurance_data insd on insd.id = eligv.insurance_id
-			INNER JOIN 	insurance_companies insc on insc.id = insd.provider
-			WHERE 		insd.pid = ?
-			AND			eligr.response_status = 'A'
-			AND	 		eligv.eligibility_check_date = (SELECT max(eligibility_check_date)
-										FROM eligibility_verification
-										WHERE	insurance_id = eligv.insurance_id)";
+    $query = "SELECT eligr.response_description as ResponseMessage,
+        DATE_FORMAT(eligv.eligibility_check_date, '%d %M %Y') as VerificationDate,
+        eligv.copay, eligv.deductible, eligv.deductiblemet,
+        if(eligr.response_status = 'A','Active','Inactive') as Status,
+        insd.pid, insc.name
+        FROM 		eligibility_verification eligv
+        INNER JOIN	eligibility_response eligr on eligr.response_id = eligv.response_id
+        INNER JOIN	insurance_data insd on insd.id = eligv.insurance_id
+        INNER JOIN 	insurance_companies insc on insc.id = insd.provider
+        WHERE 		insd.pid = ?
+        AND			eligr.response_status = 'A'
+        AND	 		eligv.eligibility_check_date = (SELECT max(eligibility_check_date)
+        FROM eligibility_verification
+        WHERE	insurance_id = eligv.insurance_id)";
     $result         = sqlStatement($query, array($pid));
 
     $row = sqlFetchArray($result);
 
-        $showString="";
+    $showString="";
     $showString .=  "<br><div class='text'>" .
         "<b>" .
         xlt('Insurance Provider') . ":</b> " .
@@ -644,25 +715,19 @@ function eligibility_response_save($segmentVal, $vendorID)
 
     $resCount = 0;
 
-    $query = "  SELECT   count(*) as RecordsCount
-				FROM	 eligibility_response
-				WHERE	 response_description = ? and
-					 response_vendor_id	  = ?";
-
+    $query = "SELECT count(*) as RecordsCount FROM eligibility_response WHERE response_description = ? and response_vendor_id = ?";
     $resCount = sqlStatement($query, array($segmentVal, $vendorID));
 
-
     if (isset($resCount)) {
-        $row        = sqlFetchArray($resCount);
-
-        $resCount   = $row['RecordsCount'];
+        $row = sqlFetchArray($resCount);
+        $resCount = $row['RecordsCount'];
     }
 
     if ($resCount == 0) {
         $query = "INSERT into eligibility_response SET	response_description =?,
-								response_vendor_id	 = ?,
-								response_create_date = now(),
-								response_modify_date = now()";
+            response_vendor_id	 = ?,
+            response_create_date = now(),
+            response_modify_date = now()";
         $res    = sqlStatement($query, array($segmentVal, $vendorID));
     }
 }
@@ -709,18 +774,16 @@ function eligibility_verification_save($segmentVal, $x12PartnerId, $patientId)
         if (isset($insuranceId) && !empty($insuranceId)) {
             //Set up the sql variable binding array (this prevents sql-injection attacks)
             $sqlBindArray = array();
-            $query = "INSERT into eligibility_verification SET	response_id	= ? ,
-										insurance_id	= ?,";
+            $query = "INSERT into eligibility_verification SET response_id	= ?, insurance_id	= ?";
             array_push($sqlBindArray, $responseId, $insuranceId);
 
             if (!empty($copay)) {
-                $query .= "copay = ?,";
+                $query .= ",copay = ?";
                 array_push($sqlBindArray, $copay);
             }
 
-            $query .= "eligibility_check_date	= now(),
-				   create_date			= now()";
-            $res    = sqlStatement($query, $sqlBindArray);
+            $query .= ",eligibility_check_date = now(), create_date = now()";
+            $res = sqlStatement($query, $sqlBindArray);
         }
     }
 }
@@ -731,21 +794,30 @@ function eligibility_information($insuranceId)
 {
     $insuranceId = 1;
 
-    $query = "	SELECT		*
-			FROM		eligibility_verification
-			WHERE	    insuranceid = ?";
+    $query = " SELECT * FROM eligibility_verification WHERE insuranceid = ?";
 
-    $result         = sqlStatement($query, array($insuranceId));
-    $row        = sqlFetchArray($result);
+    $result = sqlStatement($query, array($insuranceId));
+    $row = sqlFetchArray($result);
     return $row;
 }
-// return array of X12 partners
 
-function getX12Partner()
+// return array of X12 partners
+// if id return just that id
+function getX12Partner($id = 0)
 {
-    $rez = sqlStatement("select * from x12_partners");
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
-        $returnval[$iter]=$row;
+    // @TODO move to class
+    global $X12info;
+    $id = (int)$id;
+    $returnval = [];
+
+    if ((int)$id > 0) {
+        $returnval = sqlQuery("select * from x12_partners WHERE id = ?", array($id));
+        $X12info = $returnval;
+    } else {
+        $rez = sqlStatement("select * from x12_partners");
+        for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
+            $returnval[$iter] = $row;
+        }
     }
 
     return $returnval;
@@ -756,8 +828,8 @@ function getUsernames()
 {
     $rez = sqlStatement("select distinct username, lname, fname,id from users " .
         "where authorized = 1 and username != ''");
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
-        $returnval[$iter]=$row;
+    for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
+        $returnval[$iter] = $row;
     }
 
     return $returnval;
@@ -768,6 +840,326 @@ function getUsernames()
 function arrFormated(&$item, $key)
 {
     $item = strstr($item, '_');
-    $item = substr($item, 1, strlen($item)-1);
-    $item = "'".$item;
+    $item = substr($item, 1, strlen($item) - 1);
+    $item = "'" . $item;
+}
+
+function requestEligibility($partner = '', $x12_270 = '')
+{
+    global $X12info;
+    if (((int)$X12info['id'] !== (int)$partner) && (int)$partner > 0) {
+        $X12info = getX12Partner($partner);
+    }
+
+    $payloadId = "3b8c13f5-11e2-43bf-bc47-737cca04f3fe"; // a default fallback
+    if (function_exists('openssl_random_pseudo_bytes') === true) {
+        $data = openssl_random_pseudo_bytes(16);
+        $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
+        $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
+        $payloadId = vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+    }
+
+    $boundary = createUniqueToken(8);
+    $rt_passwrd = $X12info['x12_isa04'];
+    $rt_user = $X12info['x12_isa02'];
+    $nowDate = date("Y-m-d\TH:i:s\Z");
+    $headers = array(
+        'Content-Type' => "multipart/form-data; boundary=$boundary",
+        'Host' => ' wsd.officeally.com'
+    );
+
+// IMPORTANT: Do not change the format of $mime_body below.
+// HTTP MIME Multipart is non-normative. LF/Return's matter...
+//
+    $mime_body = <<<STRING
+--$boundary
+Content-Disposition: form-data; name="ProcessingMode"
+
+RealTime
+--$boundary
+Content-Disposition: form-data; name="TimeStamp"
+
+$nowDate
+--$boundary
+Content-Disposition: form-data; name="PayloadID"
+
+$payloadId
+--$boundary
+Content-Disposition: form-data; name="CORERuleVersion"
+
+2.2.0
+--$boundary
+Content-Disposition: form-data; name="ReceiverID"
+
+OffAlly
+--$boundary
+Content-Disposition: form-data; name="SenderID"
+
+155214
+--$boundary
+Content-Disposition: form-data; name="PayloadType"
+
+X12_270_Request_005010X279A1
+--$boundary
+Content-Disposition: form-data; name="UserName"
+
+$rt_user
+--$boundary
+Content-Disposition: form-data; name="Password"
+
+$rt_passwrd
+--$boundary
+Content-Disposition: form-data; name="Payload"
+
+$x12_270
+--$boundary--
+STRING;
+    // send the request
+    $response = oeHttp::bodyFormat('body')
+        //->setDebug('5000')/* @todo uncomment and set proxy port to debug eg Fiddler */
+        ->usingHeaders($headers)
+        ->post('https://wsd.officeally.com/TransactionSite/rtx.aspx', $mime_body); // @TODO put urls in partner's for versatility ie Availability coming
+
+    $formBody = $response->body();
+    $contentType = $response->header('Content-Type')[0];
+    $hContentLength = (int)$response->header('Content-Length')[0];
+    $cksum = ($hContentLength - strlen($formBody)) === 0 ? true : false; // validate content size
+    $formData = mimeParse($formBody, $contentType);
+    $x12_271 = '';
+    if ($formData['ErrorCode'] != "Success") {
+        $x12_271 = $formData['ErrorCode'] . "\n" . $formData['ErrorMessage'];
+    }
+    $x12_271 .= $formData['Payload'];
+
+    return $x12_271;
+}
+
+function mimeParse($formBody = '', $contentType)
+{
+    $mimeBody = preg_replace('~\r\n?~', "\r", $formBody);
+    list($contentType, $bound, $cs) = explode(";", trim($contentType));
+    $bound = explode("=", trim($bound, ' '))[1];
+    $mimeFields = preg_split("/-+$bound/", $mimeBody);
+    array_pop($mimeFields);
+    $hold = $isMatches = [];
+    foreach ($mimeFields as $id => $field) {
+        if (empty($field)) {
+            continue;
+        }
+        preg_match('/name=\"([^\"]*)\"[\n|\r]+([^\n\r].*)?\r$/s', $field, $isMatches);
+        if (preg_match('/^(.*)\[\]$/i', $isMatches[1], $hold)) {
+            $mimeData[$hold[1]][] = $isMatches[2];
+        } else {
+            $mimeData[$isMatches[1]] = $isMatches[2];
+        }
+    }
+    return $mimeData;
+}
+
+function x12Download($filename = '', $content = '')
+{
+    while (@ob_end_flush()) {
+    }
+    header('Content-Type: text/plain');
+    header("Content-Length: " . strlen($content));
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    ob_start();
+    echo $content;
+    @ob_end_flush();
+}
+
+function getPatientMatch($fn, $ln, $sex, $dob)
+{
+    $fn = "%" . text($fn) . "%";
+    $ln = "%" . text($ln) . "%";
+    $sex = "%" . text($sex) . "%";
+    $dob = date("Y-m-d", strtotime($dob));
+    $sql = "SELECT pid FROM patient_data WHERE fname LIKE ? && lname LIKE ? && sex LIKE ? && DOB LIKE ?";
+    $rtn = sqlQuery($sql, array($fn, $ln, $sex, $dob));
+
+    return $rtn['pid'] ? $rtn['pid'] : 0;
+}
+
+function parseEdi271(&$content)
+{
+    $aaaSegErrors = [
+        "42" => "Unable to Respond at Current Time",
+        "43" => "Invalid Provider Status",
+        "57" => "Invalid/Missing Date(s) of Service",
+        "58" => "Invalid/Missing Date-of-Birth",
+        "60" => "Date of Birth Follows Date Of Service",
+        "63" => "Date of Service in Future",
+        "64" => "Invalid/Missing Patient ID",
+        "65" => "Invalid/Missing Patient Name",
+        "67" => "Patient Not Found",
+        "68" => "Duplicate Patient Id Number",
+        "71" => "Patient Birth Date Does Not Match That for the Patient on the Database",
+        "79" => "270 2100A NM103 or NM109 Source Invalid"];
+
+    $target = $GLOBALS['edi_271_file_path'];
+    $message = '';
+
+    $target = $target . time() . basename($_FILES['uploaded']['name']);
+
+    if (empty($content)) {
+        $message .= xlt('Sorry, there was a problem uploading your file') . "<br><br>";
+    }
+
+    //$parsed = preg_replace('~\r\n?~', "", $content);
+    $response = explode("\n", $content);
+    $message = xlt('The following EDI file has been uploaded');
+
+// @todo get delim's from ISA
+    $patientId = "";
+    $log = "";
+
+// Loop through each 271. '\n' delims records in batch.
+    foreach ($response as $new) {
+        if (empty($new)) {
+            continue;
+        }
+        $in = array();
+        $AAA = array();
+        $loop = array();
+        $loop['id'] = 0;
+        $loop['parent'] = 0;
+        $loop['error'] = 1; // if 0 expect an AAA error
+        $benefits = array();
+
+        $segments = explode("~", $new);
+
+        if (count($segments) < 6) {
+            if (file_exists($target)) {
+                unlink($target);
+            }
+            continue;
+        }
+
+        foreach ($segments as $segment) {
+            $elements = explode("*", $segment);
+            // Switch Case for Segment
+            switch ($elements[0]) {
+                case 'ISA':
+                    $loop[1] = trim($elements[2]);
+                    $in['isa_receiver_id'] = trim($elements[8]);
+                    $in['isa_control_number'] = trim($elements[13]);
+                    break;
+
+                case 'HL':
+                    $loop['id'] = (int)trim($elements[1]);
+                    $loop['parent'] = (int)trim($elements[2]);
+                    $loop['error'] = (int)trim($elements[4]);
+                    break;
+
+                case 'NM1':
+                    if ($loop['id'] === 1) {//"PR" payer
+                        $in['payer_lname'] = trim($elements[3]);
+                        $in['payer_fname'] = trim($elements[4]);
+                        $in['payer_mname'] = trim($elements[5]);
+                        $in['payer_member_id'] = trim($elements[9]);
+                    } elseif ($loop['id'] === 2) { //"1P"
+                        $in['provider_lname'] = trim($elements[3]);
+                        $in['provider_fname'] = trim($elements[4]);
+                        $in['provider_mname'] = trim($elements[5]);
+                        $in['provider_member_id'] = trim($elements[9]);
+                    } elseif ($loop['id'] === 3) { //"IL"
+                        $in['subscriber_lname'] = trim($elements[3]);
+                        $in['subscriber_fname'] = trim($elements[4]);
+                        $in['subscriber_mname'] = trim($elements[5]);
+                        $in['subscriber_member_id'] = trim($elements[9]);
+                    }
+                    $loop['context'] = $elements[0];
+                    break;
+
+                case 'DMG':
+                    if ($elements[1] == "D8") {
+                        $in['subscriber_dob'] = trim($elements[2]);
+                    }
+                    $in['subscriber_sex'] = trim($elements[3]);
+                    $loop['context'] = $elements[0];
+                    break;
+
+                case 'DTP':
+                    if ($elements[1] == "291" || $elements[1] == "346") {
+                        if ($elements[2] == "D8") {
+                            $loop['plan_begin'] = trim($elements[3]);
+                            $loop['plan_end'] = '';
+                        } elseif ($elements[2] == "RD8") {
+                            $tmp = explode('-', trim($elements[3]));
+                            $loop['plan_begin'] = trim($tmp[0]);
+                            $loop['plan_end'] = trim($tmp[1]) ? trim($tmp[1]) : '';
+                        }
+                        $loop['id'] = $loop['id'] + 1;
+                        $loop['parent'] = $loop['id'];
+                        $loop['error'] = 1;
+                        $loop['context'] = $elements[0];
+                    }
+
+                    break;
+
+                case 'EB': // lets log all eligibility for later
+                    if (trim($elements[1]) != "1" && trim($elements[1]) != "C") {
+                        // for now lets concern ourselves with current active plans
+                        break;
+                    }
+                    if (trim($elements[3]) != "30") { // @todo config 270 for other plan types.
+                        break;
+                    }
+                    $eb = array(
+                        'active' => trim($elements[1]),
+                        'plan_begin' => $loop['plan_begin'], // from last DTP
+                        'plan_end' => $loop['plan_end'],
+                        'coverage_level' => trim($elements[2]),
+                        'service_type' => trim($elements[3]),
+                        'ins_type' => trim($elements[4]),
+                        'plan_desc' => trim($elements[5]),
+                        'time_qualifier' => trim($elements[6]),
+                        'amount' => trim($elements[7]),
+                        'percent' => trim($elements[8]),
+                        'network_ind' => trim($elements[12]),
+                        'message' => ''
+                    );
+                    $loop['context'] = $elements[0];
+                    array_push($benefits, $eb);
+                    break;
+
+                case 'AAA': // @todo may need 999/T1A seg. unclear if get 999's you get AAA's too.
+                    $error = array(
+                        'request_ind' => trim($elements[1]),
+                        'reason_code' => trim($elements[3]),
+                        'follow_up' => trim($elements[4]),
+                        'reason_text' => trim($elements[3]) . " : " . $aaaSegErrors[$elements[3]]
+                    );
+                    array_push($AAA, $error);
+                    break;
+
+                case 'MSG':
+                    $bcnt = count($benefits) - 1;
+                    if ($bcnt > -1) {
+                        $benefits[$bcnt]['message'] = $benefits[$bcnt]['message'] ? $benefits[$bcnt]['message'] . " : " : '';
+                        $benefits[$bcnt]['message'] .= trim($elements[1]);
+                    }
+
+                    break;
+
+                case 'SE':
+                    if ($segment == '') {
+                        //response_save($segmentVal, $x12PartnerId);
+                        //eligibility_verification_save($segmentVal, $x12PartnerId, $patientId);
+                    }
+                    break;
+
+                case 'IEA':
+                    if ($elements[1] == "") {
+                    }
+                    break;
+            }
+        }
+        // save here
+        $patientid = getPatientMatch($in['subscriber_fname'], $in['subscriber_lname'], '', $in['subscriber_dob']);
+        // some debug logging
+        $log .= "Patient : $patientid\n" . "271 Response:\n" . $new . "\n";
+        $log .= print_r($in, true) . "\nEligibility EB Segs:\n" . print_r($benefits, true) . "\nAAA Segment Errors:\n" . print_r($AAA, true);
+    }
+    return $log;
 }
