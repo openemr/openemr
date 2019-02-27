@@ -1,6 +1,20 @@
 <?php
+/**
+ * CAMOS new.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Mark Leeds <drleeds@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2006-2009 Mark Leeds <drleeds@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+
 require_once("../../globals.php");
 require_once("../../../library/api.inc");
+
 $out_of_encounter = false;
 if ((($_SESSION['encounter'] == '') || ($_SESSION['pid'] == '')) || ($_GET['mode'] == 'external')) {
     $out_of_encounter = true;
@@ -147,7 +161,7 @@ if (substr($_POST['hidden_mode'], 0, 3) == 'add') {
             $query = "DELETE FROM ".escape_table_name($to_delete_from_table)." WHERE id like ?";
             sqlInsert($query, array($to_delete_id));
         } else {
-            $query = "SELECT count(id) FROM ".escape_table_name($to_delete_from_subtable)." WHERE " . add_escape_custom($tablename) . "_id like ?";
+            $query = "SELECT count(id) FROM ".escape_table_name($to_delete_from_subtable)." WHERE " . escape_sql_column_name($tablename.'_id', [$to_delete_from_subtable]) . " like ?";
             $statement = sqlStatement($query, array($to_delete_id));
             if ($result = sqlFetchArray($statement)) {
                 if ($result['count(id)'] == 0) {
@@ -175,7 +189,7 @@ if (substr($_POST['hidden_mode'], 0, 3) == 'add') {
         $to_alter_column = 'item';
     }
 
-    sqlInsert("UPDATE ".escape_table_name($to_alter_table)." set " . add_escape_custom($to_alter_column) . " = ? where id =  ?", array($newval, $to_alter_id));
+    sqlInsert("UPDATE ".escape_table_name($to_alter_table)." set " . escape_sql_column_name($to_alter_column, [$to_alter_table]) . " = ? where id =  ?", array($newval, $to_alter_id));
 }
 
   //preselect column items
@@ -309,12 +323,12 @@ function hide_columns() {
 function resize_content() {
   f2 = document.CAMOS;
   f4 = f2.textarea_content
-  if (f4.cols == <?php echo $textarea_cols ?>) {
-    f4.cols = <?php echo $textarea_cols ?>*2;
-    f4.rows = <?php echo $textarea_rows?>;
+  if (f4.cols == <?php echo js_escape($textarea_cols); ?>) {
+    f4.cols = <?php echo js_escape($textarea_cols); ?>*2;
+    f4.rows = <?php echo js_escape($textarea_rows); ?>;
   } else {
-    f4.cols = <?php echo $textarea_cols ?>;
-    f4.rows = <?php echo $textarea_rows?>;
+    f4.cols = <?php echo js_escape($textarea_cols); ?>;
+    f4.rows = <?php echo js_escape($textarea_rows); ?>;
   }
 }
 //function hs_button() {
@@ -406,7 +420,7 @@ $query = "SELECT id, category FROM ".mitigateSqlTableUpperCase("form_CAMOS_categ
 $statement = sqlStatement($query);
 $i = 0;
 while ($result = sqlFetchArray($statement)) {
-    echo "array1[" . attr(addslashes($i)) . "] = new Array(\"".fixquotes($result['category'])."\",\"".attr(addslashes($result['id']))."\", new Array());\n";
+    echo "array1[" . attr(addslashes($i)) . "] = new Array(\"".fixquotes($result['category'])."\",".js_escape($result['id']).", new Array());\n";
     $i++;
 }
 
@@ -414,7 +428,7 @@ $i=0;
 $query = "SELECT id, subcategory, category_id FROM ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." ORDER BY subcategory";
 $statement = sqlStatement($query);
 while ($result = sqlFetchArray($statement)) {
-    echo "array2[".attr(addslashes($i))."] = new Array(\"".fixquotes($result['subcategory'])."\", \"".attr(addslashes($result['category_id']))."\", \"".attr(addslashes($result['id']))."\", new Array());\n";
+    echo "array2[".attr(addslashes($i))."] = new Array(\"".fixquotes($result['subcategory'])."\", ".js_escape($result['category_id']).", ".js_escape($result['id']).", new Array());\n";
     $i++;
 }
 
@@ -422,8 +436,8 @@ $i=0;
 $query = "SELECT id, item, content, subcategory_id FROM ".mitigateSqlTableUpperCase("form_CAMOS_item")." ORDER BY item";
 $statement = sqlStatement($query);
 while ($result = sqlFetchArray($statement)) {
-    echo "array3[".attr(addslashes($i))."] = new Array(\"".fixquotes($result['item'])."\", \"".fixquotes(str_replace($quote_search_content, $quote_replace_content, strip_tags($result['content'], "<b>,<i>")))."\", \"".attr(addslashes($result['subcategory_id'])).
-    "\",\"".attr(addslashes($result['id']))."\");\n";
+    echo "array3[".attr(addslashes($i))."] = new Array(\"".fixquotes($result['item'])."\", \"".fixquotes(str_replace($quote_search_content, $quote_replace_content, strip_tags($result['content'], "<b>,<i>")))."\", ".js_escape($result['subcategory_id']).
+    ",".js_escape($result['id']).");\n";
     $i++;
 }
 ?>
@@ -912,7 +926,7 @@ function js_button(mode,selection) {
   var f2 = document.CAMOS;
 //check lock next
 if ( (mode == 'add') && (selection == 'change_content') && (isLocked()) ) {
-  alert("<?php echo xls("You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, '/*lock::*/'"); ?>");
+  alert(<?php echo xlj("You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, '/*lock::*/'"); ?>);
   return;
 }
 //end check lock
@@ -921,31 +935,31 @@ if ( (mode == 'add') && (selection == 'change_content') && (isLocked()) ) {
 if ( (mode == 'add') || (mode == 'alter') ) {
   if (selection == 'change_category') {
     if (trimString(f2.change_category.value) == "") {
-      alert("<?php echo xls("You cannot add a blank value for a category!"); ?>");
+      alert(<?php echo xlj("You cannot add a blank value for a category!"); ?>);
       return;
     }
     if (selectContains(f2.select_category, trimString(f2.change_category.value))) {
-      alert("<?php echo xls("There is already a category named"); ?>"+" "+f2.change_category.value+".");
+      alert(<?php echo xlj("There is already a category named"); ?> + " " + f2.change_category.value + ".");
       return;
     }
   }
   if (selection == 'change_subcategory') {
     if (trimString(f2.change_subcategory.value) == "") {
-      alert("<?php echo xls("You cannot add a blank value for a subcategory!"); ?>");
+      alert(<?php echo xlj("You cannot add a blank value for a subcategory!"); ?>);
       return;
     }
     if (selectContains(f2.select_subcategory, trimString(f2.change_subcategory.value))) {
-      alert("<?php echo xls("There is already a subcategory named"); ?>"+" "+f2.change_subcategory.value+".");
+      alert(<?php echo xlj("There is already a subcategory named"); ?> + " " + f2.change_subcategory.value + ".");
       return;
     }
   }
   if (selection == 'change_item') {
     if (trimString(f2.change_item.value) == "") {
-      alert("<?php echo xls("You cannot add a blank value for an item!"); ?>");
+      alert(<?php echo xlj("You cannot add a blank value for an item!"); ?>);
       return;
     }
     if (selectContains(f2["select_item[]"], trimString(f2.change_item.value))) {
-      alert("<?php echo xls("There is already an item named"); ?>"+" "+f2.change_item.value+".");
+      alert(<?php echo xlj("There is already an item named"); ?> + " " + f2.change_item.value + ".");
       return;
     }
   }
@@ -953,7 +967,7 @@ if ( (mode == 'add') || (mode == 'alter') ) {
 //end of check for blank or duplicate submissions
 
   if (mode == 'delete') {
-    if (!confirm("<?php echo xls("Are you sure you want to delete this item from the database?"); ?>")) {
+    if (!confirm(<?php echo xlj("Are you sure you want to delete this item from the database?"); ?>)) {
       return;
     }
   }
@@ -1044,7 +1058,7 @@ if (!$out_of_encounter) {
       myarray['content'] = (f2.textarea_content.value).substring(f2.textarea_content.selectionStart, f2.textarea_content.selectionEnd);
     }
     else {myarray['content'] = f2.textarea_content.value;}
-    myarray['csrf_token_form'] = "<?php echo attr(collectCsrfToken()); ?>";
+    myarray['csrf_token_form'] = <?php echo js_escape(collectCsrfToken()); ?>;
     var str = setformvalues(myarray);
 //    alert(str);
     processajax ('<?php print $GLOBALS['webroot'] ?>/interface/forms/CAMOS/ajax_save.php', myobj, "post", str);

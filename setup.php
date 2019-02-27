@@ -15,6 +15,7 @@
  */
 // Set the maximum excution time and time limit to unlimited.
 ini_set('max_execution_time', 0);
+ini_set('display_errors', 0);
 set_time_limit(0);
 
 // Warning. If you set $allow_multisite_setup to true, this is a potential security vulnerability.
@@ -95,7 +96,7 @@ if (!$COMMAND_LINE && empty($_REQUEST['site'])) {
                     <legend>Optional Site ID Selection</legend>
                     <p>Most OpenEMR installations support only one site.  If that is
                     true for you then ignore the rest of this text and just click Continue.</p>
-                    <p class='bg-warning'>If you are using the multisite setup module for the first time please read the 
+                    <p class='bg-warning'>If you are using the multisite setup module for the first time please read the
                     'Multi Site Installation' section of the help file before proceeding.</p>
                     <p>Otherwise please enter a unique Site ID here.</p>
                     <p>A Site ID is a short identifier with no spaces or special
@@ -367,7 +368,7 @@ function cloneClicked() {
 
             $end_div = <<<ENDDIV
             </div>
-        </div> 
+        </div>
     </div><!--end of container div-->
 ENDDIV;
             echo $end_div . "\r\n";
@@ -438,16 +439,16 @@ STP2TOP;
                                         </div>
                                         <div>
                                             <input name='server' id='server' type='text' class='form-control' value='localhost'>
-                                        
+
                                         </div>
                                     </div>
                                     <div id="server_info" class="collapse">
                                         <a href="#server_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p>If you run MySQL and Apache/PHP on the same computer, then leave this as 'localhost'.
                                         <p>If they are on separate computers, then enter the IP address of the computer running MySQL.
-                                        
+
                                     </div>
-                                </div>                  
+                                </div>
                                 <div class="col-sm-4">
                                     <div class="clearfix form-group">
                                         <div class="label-div">
@@ -456,7 +457,7 @@ STP2TOP;
                                         <div>
                                             <input name='port' id='port' type='text' class='form-control' value='3306'>
                                         </div>
-                                    </div>                       
+                                    </div>
                                     <div id="port_info" class="collapse">
                                         <a href="#port_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p>This is the MySQL port.
@@ -490,7 +491,7 @@ STP2TOP;
                                         </div>
                                         <div>
                                             <input name='login' ID='login' type='text' class='form-control' value='openemr'>
-                                        
+
                                         </div>
                                     </div>
                                     <div id="login_info" class="collapse">
@@ -498,7 +499,7 @@ STP2TOP;
                                         <p>This is the name that OpenEMR will use to login to the MySQL database.
                                         <p>'openemr' is the recommended name.
                                     </div>
-                                </div>                  
+                                </div>
                                 <div class="col-sm-4">
                                     <div class="clearfix form-group">
                                         <div class="label-div">
@@ -507,7 +508,7 @@ STP2TOP;
                                         <div>
                                             <input name='pass' id='pass' class='form-control' type='password' value='' minlength='12' required>
                                         </div>
-                                    </div>                       
+                                    </div>
                                     <div id="pass_info" class="collapse">
                                         <a href="#pass_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p>This is the Login Password that OpemEMR will use to accesses the MySQL database.
@@ -544,7 +545,7 @@ STP2TBLTOP1;
                                         </div>
                                         <div>
                                             <input name='rootpass' id='rootpass' type='password' class='form-control' value=''>
-                                        
+
                                         </div>
                                     </div>
                                     <div id="rootpass_info" class="collapse">
@@ -552,7 +553,7 @@ STP2TBLTOP1;
                                         <p>This is your MySQL server root password.
                                         <p>For localhost, it is usually ok to leave it blank.
                                         </div>
-                                </div>                  
+                                </div>
                                 <div class="col-sm-4">
                                     <div class="clearfix form-group">
                                         <div class="label-div">
@@ -561,7 +562,7 @@ STP2TBLTOP1;
                                         <div>
                                             <input name='loginhost' id='loginhost' type='text' class='form-control' value='localhost'>
                                         </div>
-                                    </div>                       
+                                    </div>
                                     <div id="loginhost_info" class="collapse">
                                         <a href="#loginhost_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p>If you run Apache/PHP and MySQL on the same computer, then leave this as 'localhost'.
@@ -718,7 +719,7 @@ SOURCESITETOP;
                             }
                                             $source_site_bot = <<<SOURCESITEBOT
                                             </select>
-                                        
+
                                         </div>
                                     </div>
                                     <div id="source_site_id_info" class="collapse">
@@ -734,7 +735,7 @@ SOURCESITETOP;
                                         <div>
                                             <input type='checkbox' name='clone_database' id='clone_database' onclick='cloneClicked()' />
                                         </div>
-                                    </div>                       
+                                    </div>
                                     <div id="clone_database_info" class="collapse">
                                         <a href="#clone_database_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p>Clone the source site's database instead of creating a fresh one.
@@ -760,16 +761,16 @@ SOURCESITEBOT;
                                         </div>
                                         <div>
                                             <input name='iuser' id='iuser' type='text' class='form-control' value='$randomusername' minlength='12'>
-                                        
+
                                         </div>
                                     </div>
                                     <div id="iuser_info" class="collapse">
                                         <a href="#iuser_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p>This is the login name of the first user that will be created for you.
                                         <p>Limit this to one word with at least 12 characters and composed of both numbers and letters.
-                                        
+
                                     </div>
-                                </div>                  
+                                </div>
                                 <div class="col-sm-4">
                                     <div class="clearfix form-group">
                                         <div class="label-div">
@@ -778,7 +779,7 @@ SOURCESITEBOT;
                                         <div>
                                             <input name='iuserpass' id='iuserpass' type='password' class='form-control' value='' minlength='12'>
                                         </div>
-                                    </div>                       
+                                    </div>
                                     <div id="iuserpass_info" class="collapse">
                                         <a href="#iuserpass_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p>This is the password for the initial user.
@@ -809,14 +810,14 @@ SOURCESITEBOT;
                                         </div>
                                         <div>
                                             <input name='iuname' id='iuname' type='text' class='form-control' value='Administrator'>
-                                        
+
                                         </div>
                                     </div>
                                     <div id="iuname_info" class="collapse">
                                         <a href="#iuname_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p>This is the Last name of the 'initial user'.
                                     </div>
-                                </div>                  
+                                </div>
                                 <div class="col-sm-4">
                                     <div class="clearfix form-group">
                                         <div class="label-div">
@@ -825,7 +826,7 @@ SOURCESITEBOT;
                                         <div>
                                             <input name='igroup' id='igroup' class='form-control' type='text' value='Default'>
                                         </div>
-                                    </div>                       
+                                    </div>
                                     <div id="igroup_info" class="collapse">
                                         <a href="#igroup_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p>This is the group that will be created for your users.
@@ -1159,13 +1160,12 @@ STP4BOT;
                         <ul>
 STP5TOP;
                         echo $step5_top . "\r\n";
+
                         $gotFileFlag = 0;
-                        if (version_compare(PHP_VERSION, '5.2.4', '>=')) {
-                            $phpINIfile = php_ini_loaded_file();
-                            if ($phpINIfile) {
-                                echo "<li><font color='green'>Your php.ini file can be found at ".$phpINIfile."</font></li>\n";
-                                $gotFileFlag = 1;
-                            }
+                        $phpINIfile  = php_ini_loaded_file();
+                        if ($phpINIfile) {
+                            echo "<li><font color='green'>Your php.ini file can be found at ".$phpINIfile."</font></li>\n";
+                            $gotFileFlag = 1;
                         }
 
                         $short_tag = ini_get('short_open_tag')?'On':'Off';
@@ -1317,7 +1317,7 @@ STP6BOT;
                         $installer->displaySelectedThemeDiv();
                         $theme_form = <<<TMF
                         <div class='row'>
-                        <div class="col-sm-4 col-sm-offset-4"> 
+                        <div class="col-sm-4 col-sm-offset-4">
                             <form method='post'>
                                 <input type='hidden' name='state' value='8'>
                                 <input type='hidden' name='site' value='$site_id'>

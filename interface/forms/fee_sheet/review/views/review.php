@@ -2,22 +2,13 @@
 /**
  * knockoutjs template for rendering review of old fee sheets.
  *
- * Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Kevin Yeh <kevin.y@integralemr.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Kevin Yeh <kevin.y@integralemr.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
+ * @copyright Copyright (c) 2019 bradymiller <bradymiller@users.sourceforge.net>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 ?>
 <script type="text/html" id="review-display">
@@ -45,7 +36,7 @@
                 <td><input class="units" type="text" data-bind="value:units"/></td>
                 <td data-bind="foreach: justify"><input type="checkbox" data-bind="checked: selected"/><span data-bind="text:code"></span></td>
             </tr>
-            
+
         </tbody>
     </table>
     <div data-bind="visible: issues().length==0"><?php echo xlt("No issues in this encounter."); ?></div>
@@ -63,7 +54,7 @@
     </table>
     <div>
         <input type="button" data-bind="click: add_review" value="<?php echo xla("Add");?>" />
-        <input class="cancel_dialog" type="button" data-bind="click: cancel_review" value="<?php echo xlt("Cancel");?>" />
+        <input class="cancel_dialog" type="button" data-bind="click: cancel_review" value="<?php echo xla("Cancel");?>" />
     </div>
     </div>
 </script>

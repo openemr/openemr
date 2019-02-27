@@ -1,8 +1,21 @@
 <?php
-//------------report.php
+/**
+ * CAMOS report.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Mark Leeds <drleeds@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2006-2009 Mark Leeds <drleeds@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+
 require_once(dirname(__FILE__).'/../../globals.php');
 require_once("../../../library/api.inc");
 require_once("content_parser.php");
+
 function CAMOS_report($pid, $encounter, $cols, $id)
 {
     $data = formFetch("form_CAMOS", $id);
@@ -20,7 +33,7 @@ function CAMOS_report($pid, $encounter, $cols, $id)
         "/interface/forms/CAMOS/rx_print.php?letterhead=true&signer=doctor' target=_new>" . xlt('Letterhead that doctor signs') . "</a>\n";
         echo "<br>";
         echo "<a href='" . $GLOBALS['webroot'] .
-        "/interface/forms/CAMOS/notegen.php?pid=".$pid."&encounter=".$encounter."' target=_new>" . xlt('Print This Encounter') . "</a>\n";
+        "/interface/forms/CAMOS/notegen.php?pid=" . attr_url($pid) . "&encounter=" . attr_url($encounter) . "' target=_new>" . xlt('Print This Encounter') . "</a>\n";
         echo " | ";
         echo "<a href='" . $GLOBALS['webroot'] .
         "/interface/forms/CAMOS/notegen.php' target=_new>" . xlt('Print Any Encounter') . "</a></div>\n";

@@ -1,33 +1,25 @@
 <?php
-// +-----------------------------------------------------------------------------+ 
-// Copyright (C) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-//
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-//
-// A copy of the GNU General Public License is included along with this program:
-// openemr/interface/login/GnuGPL.html
-// For more information write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
-// Author:   Jacob T Paul <jacob@zhservices.com>
-//           Vinish K <vinish@zhservices.com>
-//
-// +------------------------------------------------------------------------------+
+/**
+ * Functional cognitive status form.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jacob T Paul <jacob@zhservices.com>
+ * @author    Vinish K <vinish@zhservices.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
-include_once("$srcdir/forms.inc");
+
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
+require_once("$srcdir/forms.inc");
+
+if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+    csrfNotVerified();
+}
 
 if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
@@ -82,22 +74,40 @@ if (!empty($code_desc)) {
             }
         }
 
-        $sets = "id     = ". add_escape_custom($newid) .",
-            pid         = ". add_escape_custom($_SESSION["pid"]) .",
-            groupname   = '" . add_escape_custom($_SESSION["authProvider"]) . "',
-            user        = '" . add_escape_custom($_SESSION["authUser"]) . "',
-            encounter   = '" . add_escape_custom($_SESSION["encounter"]) . "',
-            authorized  = ". add_escape_custom($userauthorized) .", 
+        $sets = "id     = ?,
+            pid         = ?,
+            groupname   = ?,
+            user        = ?,
+            encounter   = ?,
+            authorized  = ?, 
             activity    = 1,
-            observation = '" . add_escape_custom($code_obs[$key]) . "',
-            code        = '" . add_escape_custom($code[$key]) . "',
-            code_type   = '" . add_escape_custom($code_type[$key]) . "',
-            description = '" . add_escape_custom($code_desc[$key]) . "',
-            table_code  = '" . add_escape_custom($table_code[$key]) . "',
-            ob_value    = '" . add_escape_custom($ob_value[$key]) . "',
-            ob_unit     = '" . add_escape_custom($ob_unit_value) . "',
-            date        = '" . add_escape_custom($code_date[$key]) . "'";
-        sqlInsert("INSERT INTO form_observation SET $sets");
+            observation = ?,
+            code        = ?,
+            code_type   = ?,
+            description = ?,
+            table_code  = ?,
+            ob_value    = ?,
+            ob_unit     = ?,
+            date        = ?";
+        sqlInsert(
+            "INSERT INTO form_observation SET $sets",
+            [
+                $newid,
+                $_SESSION["pid"],
+                $_SESSION["authProvider"],
+                $_SESSION["authUser"],
+                $_SESSION["encounter"],
+                $userauthorized,
+                $code_obs[$key],
+                $code[$key],
+                $code_type[$key],
+                $code_desc[$key],
+                $table_code[$key],
+                $ob_value[$key],
+                $ob_unit_value,
+                $code_date[$key]
+            ]
+        );
     endforeach;
 }
 

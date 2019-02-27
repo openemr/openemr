@@ -1,14 +1,11 @@
 <?php
 /**
- * Copyright Medical Information Integration,LLC info@mi-squared.com
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * C_FormPainMap.class.php, used to control a clickmap based form.
  *
- * @file C_FormPainMap.class.php
- *
- * @brief This file contains the C_FormPainMap class, used to control a clickmap bassed form.
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @copyright Copyright Medical Information Integration,LLC <info@mi-squared.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 /* Include the class we're extending. */

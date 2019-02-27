@@ -714,3 +714,106 @@ CREATE TABLE `keys` (
   UNIQUE KEY (`name`)
 ) ENGINE=InnoDB;
 #EndIf
+
+#IfNotColumnType amendments pid bigint(20)
+ALTER TABLE `amendments`
+    MODIFY `pid` bigint(20) NOT NULL COMMENT 'Patient ID from patient_data';
+#EndIf
+
+#IfNotColumnType billing pid bigint(20)
+ALTER TABLE `billing`
+    MODIFY `pid` bigint(20) default NULL;
+#EndIf
+
+#IfNotColumnType dated_reminders pid bigint(20)
+ALTER TABLE `dated_reminders`
+    MODIFY `pid` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType drug_sales pid bigint(20)
+ALTER TABLE `drug_sales`
+    MODIFY `pid` bigint(20) NOT NULL default '0';
+#EndIf
+
+#IfNotColumnType form_ros pid bigint(20)
+ALTER TABLE `form_ros`
+    MODIFY `pid` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType issue_encounter pid bigint(20)
+ALTER TABLE `issue_encounter`
+    MODIFY `pid` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType onsite_documents pid bigint(20)
+ALTER TABLE `onsite_documents`
+    MODIFY `pid` bigint(20) UNSIGNED DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType patient_access_onsite pid bigint(20)
+ALTER TABLE `patient_access_onsite`
+    MODIFY `pid` bigint(20);
+#EndIf
+
+#IfNotColumnType patient_access_offsite pid bigint(20)
+ALTER TABLE `patient_access_offsite`
+    MODIFY `pid` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType form_eye_mag_wearing PID bigint(20)
+ALTER TABLE `form_eye_mag_wearing`
+    MODIFY `PID` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType therapy_groups_participants pid bigint(20)
+ALTER TABLE `therapy_groups_participants`
+    MODIFY `pid` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType therapy_groups_participant_attendance pid bigint(20)
+ALTER TABLE `therapy_groups_participant_attendance`
+    MODIFY `pid` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType notification_log pid bigint(20)
+ALTER TABLE `notification_log`
+    MODIFY `pid` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType documents foreign_id bigint(20)
+ALTER TABLE `documents`
+    MODIFY `foreign_id` bigint(20) default NULL;
+#EndIf
+
+#IfNotColumnType batchcom patient_id bigint(20)
+ALTER TABLE `batchcom`
+    MODIFY `patient_id` bigint(20) NOT NULL default '0';
+#EndIf
+
+#IfNotColumnType claims patient_id bigint(20)
+ALTER TABLE `claims`
+    MODIFY `patient_id` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType immunizations patient_id bigint(20)
+ALTER TABLE `immunizations`
+    MODIFY `patient_id` bigint(20) default NULL;
+#EndIf
+
+#IfNotColumnType prescriptions patient_id bigint(20)
+ALTER TABLE `prescriptions`
+    MODIFY `patient_id` bigint(20) default NULL;
+#EndIf
+
+#IfNotColumnType ar_session patient_id bigint(20)
+ALTER TABLE `ar_session`
+    MODIFY `patient_id` bigint(20) NOT NULL;
+#EndIf
+
+#IfMissingColumn documents encrypted
+ALTER TABLE `documents` ADD `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes';
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type CQM_VALUESET load_source NIH_VASC load_release_date 2017-09-29 load_filename ep_ec_only_cms_20170929.xml.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('CQM_VALUESET', 'NIH_VSAC', '2017-09-29','ep_ec_only_cms_20170929.xml.zip','38d2e1a27646f2f09fcc389fd2335c50');
+#EndIf

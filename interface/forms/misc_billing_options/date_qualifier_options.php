@@ -3,16 +3,16 @@
  * Reusable data entries for new Box 14 and Box 15 date qualifiers that are part of
  * HCFA 1500 02/12 format
  *
- * For details on format refer to:
+ * For details on format refer to:n
  * <http://www.nucc.org/index.php?option=com_content&view=article&id=186&Itemid=138>
  *
- * @package OpenEMR
- * @author  Kevin Yeh <kevin.y@integralemr.com>
- * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Kevin Yeh <kevin.y@integralemr.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
  * @copyright Copyright (C) 2017 Stephen Waite <stephen.waite@cmsvt.com>
- * @link    http://www.open-emr.org
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 function generateDateQualifierSelect($name, $options, $obj)

@@ -1,10 +1,16 @@
 <?php
-// Copyright (C) 2009-2019 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * LBF form.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2009-2019 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 
 require_once("../../globals.php");
 require_once("$srcdir/acl.inc");
@@ -256,7 +262,7 @@ $logo = '';
 $ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
 if (is_file("$webserver_root/$ma_logo_path")) {
   // Would use max-height here but html2pdf does not support it.
-    $logo = "<img src='$web_root/$ma_logo_path' style='height:" . round($FONTSIZE * 5.14) . "pt' />";
+    $logo = "<img src='$web_root/$ma_logo_path' style='height:" . attr(round($FONTSIZE * 5.14)) . "pt' />";
 } else {
     $logo = "<!-- '$ma_logo_path' does not exist. -->";
 }
@@ -404,7 +410,7 @@ while ($frow = sqlFetchArray($fres)) {
         echo "  <tr>";
         for ($i = 1; $i <= $CPR; ++$i) {
             $tmp = $i % 2 ? 'lcols1' : 'dcols1';
-            echo "<td class='$tmp'></td>";
+            echo "<td class='" . attr($tmp) . "'></td>";
         }
         echo "</tr>\n";
         if ($subtitle) {
@@ -419,7 +425,7 @@ while ($frow = sqlFetchArray($fres)) {
     if (($cell_count + $titlecols + $datacols) > $CPR || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
         end_row();
         if ($prepend_blank_row) {
-            echo "  <tr><td class='text' colspan='$CPR'>&nbsp;</td></tr>\n";
+            echo "  <tr><td class='text' colspan='" . attr($CPR) . "'>&nbsp;</td></tr>\n";
         }
         if (isOption($edit_options, 'RS')) {
             echo " <tr class='RS'>";
@@ -442,7 +448,7 @@ while ($frow = sqlFetchArray($fres)) {
             $titlecols = $CPR;
         }
         echo "<td colspan='" . attr($titlecols) . "' ";
-        echo "class='lcols$titlecols stuff " . (($frow['uor'] == 2) ? "required'" : "bold'");
+        echo "class='lcols" . attr($titlecols) . " stuff " . (($frow['uor'] == 2) ? "required'" : "bold'");
         if ($cell_count == 2) {
             echo " style='padding-left:10pt'";
         }
@@ -466,11 +472,11 @@ while ($frow = sqlFetchArray($fres)) {
     if ($datacols > 0) {
         end_cell();
         if (isOption($edit_options, 'DS')) {
-            echo "<td colspan='" . attr($datacols) . "' class='dcols$datacols stuff under RS' style='";
+            echo "<td colspan='" . attr($datacols) . "' class='dcols" . attr($datacols) . " stuff under RS' style='";
         } else if (isOption($edit_options, 'DO')) {
-            echo "<td colspan='" . attr($datacols) . "' class='dcols$datacols stuff under RO' style='";
+            echo "<td colspan='" . attr($datacols) . "' class='dcols" . attr($datacols) . " stuff under RO' style='";
         } else {
-            echo "<td colspan='" . attr($datacols) . "' class='dcols$datacols stuff under' style='";
+            echo "<td colspan='" . attr($datacols) . "' class='dcols" . attr($datacols) . " stuff under' style='";
         }
 
         if ($cell_count > 0) {
