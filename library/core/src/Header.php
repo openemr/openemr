@@ -25,6 +25,8 @@ use Symfony\Component\Yaml\Exception\ParseException;
  */
 class Header
 {
+    private static $scripts;
+    private static $links;
 
     /**
      * Setup various <head> elements.
@@ -101,17 +103,41 @@ class Header
 
         // @TODO Hard coded the path to the config file, not good RD 2017-05-27
         $map = self::readConfigFile("{$GLOBALS['fileroot']}/config/config.yaml");
-        $scripts = [];
-        $links = [];
+        self::$scripts = [];
+        self::$links = [];
 
+        self::parseConfigFile($map, $assets);
+
+        /* adding custom assets in addition */
+        if (is_file("{$GLOBALS['fileroot']}/custom/assets/custom.yaml")) {
+            $customMap = self::readConfigFile("{$GLOBALS['fileroot']}/custom/assets/custom.yaml");
+            self::parseConfigFile($customMap);
+        }
+
+        $linksStr = implode("", self::$links);
+        $scriptsStr = implode("", self::$scripts);
+        return "\n{$linksStr}\n{$scriptsStr}\n";
+    }
+
+    /**
+     * Parse assets from config file
+     *
+     * @param array $map Assets to parse into self::$scripts and self::$links
+     * @param array $selectedAssets
+     * @return void
+     */
+    private static function parseConfigFile($map, $selectedAssets = array())
+    {
         foreach ($map as $k => $opts) {
             $autoload = (isset($opts['autoload'])) ? $opts['autoload'] : false;
             $allowNoLoad= (isset($opts['allowNoLoad'])) ? $opts['allowNoLoad'] : false;
             $alreadyBuilt = (isset($opts['alreadyBuilt'])) ? $opts['alreadyBuilt'] : false;
+            $loadInFile = (isset($opts['loadInFile'])) ? $opts['loadInFile'] : false;
             $rtl = (isset($opts['rtl'])) ? $opts['rtl'] : false;
-            if ($autoload === true || in_array($k, $assets)) {
+
+            if ($autoload === true || in_array($k, $selectedAssets) || ($loadInFile && $loadInFile === self::getCurrentFile())) {
                 if ($allowNoLoad === true) {
-                    if (in_array("no_" . $k, $assets)) {
+                    if (in_array("no_" . $k, $selectedAssets)) {
                         continue;
                     }
                 }
@@ -119,29 +145,25 @@ class Header
                 $tmp = self::buildAsset($opts, $alreadyBuilt);
 
                 foreach ($tmp['scripts'] as $s) {
-                    $scripts[] = $s;
+                    self::$scripts[] = $s;
                 }
 
                 foreach ($tmp['links'] as $l) {
-                    $links[] = $l;
+                    self::$links[] = $l;
                 }
 
                 if ($rtl && $_SESSION['language_direction'] == 'rtl') {
                     $tmpRtl = self::buildAsset($rtl, $alreadyBuilt);
                     foreach ($tmpRtl['scripts'] as $s) {
-                        $scripts[] = $s;
+                        self::$scripts[] = $s;
                     }
 
                     foreach ($tmpRtl['links'] as $l) {
-                        $links[] = $l;
+                        self::$links[] = $l;
                     }
                 }
             }
         }
-
-        $linksStr = implode("", $links);
-        $scriptsStr = implode("", $scripts);
-        return "\n{$linksStr}\n{$scriptsStr}\n";
     }
 
     /**
@@ -267,5 +289,16 @@ class Header
             error_log($e->getMessage());
             // @TODO need to handle this better. RD 2017-05-24
         }
+    }
+
+    /**
+     * Return relative path to current file
+     *
+     * @return string The  current file
+     */
+    private static function getCurrentFile()
+    {
+        //remove web root and query string
+        return str_replace($GLOBALS['webroot'].'/', '', strtok($_SERVER["REQUEST_URI"], '?'));
     }
 }
