@@ -83,11 +83,8 @@ openemr/sites/default/sqlconf.php and
 openemr/interface/modules/zend_modules/config/application.config.php.
 In linux, these can be set by "chmod a+w filename"
 command to grant global write permissions to the file. The directories include
-openemr/gacl/admin/templates_c, openemr/sites/default/edi,
-openemr/sites/default/era, openemr/sites/default/documents,
-openemr/sites/default/letter_templates,
-openemr/interface/main/calendar/modules/PostCalendar/pntemplates/compiled, and
-openemr/interface/main/calendar/modules/PostCalendar/pntemplates/cache.  In
+openemr/sites/default/edi, openemr/sites/default/era, openemr/sites/default/documents,
+openemr/sites/default/letter_templates. In
 linux, if the webserver user name is "apache", then the command
 "chown -R apache:apache directory_name" will grant global write permissions
 to the directories, and we recommend making these changes permanent.

@@ -164,9 +164,6 @@
                             <li><strong>/var/www/html/openemr/sites/default/edi</strong> - <?php echo ("saves transmitted electronic batches for various kinds"); ?></li>
                             <li><strong>/var/www/html/openemr/sites/default/era</strong> - <?php echo ("saves output from automated remittance (X12 835) processing. This includes archived remittance files, and copies of the generated HTML reports"); ?></li>
                             <li><strong>/var/www/html/openemr/sites/default/letter_templates</strong> - <?php echo ("sample empty letter template"); ?></li>
-                            <li><strong>/var/www/html/openemr/gacl/admin/templates_c</strong> - <?php echo ("Smarty templates directory for gacl (Generic Access Control Lists)"); ?></li>
-                            <li><strong>/var/www/html/openemr/interface/main/calendar/modules/PostCalendar/pntemplates/compiled</strong> - <?php echo ("Smarty templates directory for the calendar"); ?></li>
-                            <li><strong>/var/www/html/openemr/interface/main/calendar/modules/PostCalendar/pntemplates/cache</strong> - <?php echo ("Smarty templates directory for the calendar"); ?></li>
                         </ul>
 
                     <p><?php echo ("These files need to have owner and user set to the Apache user. In Linux the Apache user and owner are 'www-data' in Ubuntu and Debian, 'apache' in Redhat, Fedora and CentOS , 'nobody' is a generic user and group name that is used by other applications as well");?>.

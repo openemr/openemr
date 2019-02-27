@@ -50,10 +50,14 @@ class pcSmarty extends Smarty
         array_push($this->plugins_dir, "modules/$pcDir/pnincludes/Smarty/plugins");
         array_push($this->plugins_dir, "modules/$pcDir/plugins");
         array_push($this->plugins_dir, "../../../../library/smarty/plugins");
-        $this->compile_dir      =   "modules/$pcDir/pntemplates/compiled";
-        $this->cache_dir        =   "modules/$pcDir/pntemplates/cache";
-        $this->caching          =   _SETTING_USE_CACHE;
-        $this->cache_lifetime   =   _SETTING_CACHE_LIFETIME;
+        $this->compile_dir      =   $GLOBALS['OE_SITE_DIR'] . '/documents/smarty/compiled/main';
+        if ($GLOBALS['smarty_cache_on']) {
+            $this->cache_dir    =   $GLOBALS['OE_SITE_DIR'] . '/documents/smarty/cache/main';
+            $this->caching      =   _SETTING_USE_CACHE;
+            $this->cache_lifetime =   _SETTING_CACHE_LIFETIME;
+        } else {
+            $this->caching      =   0;
+        }
         $this->left_delimiter   =   '[-';
         $this->right_delimiter  =   '-]';
 

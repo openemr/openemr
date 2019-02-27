@@ -215,6 +215,19 @@ $GLOBALS['login_screen'] = $GLOBALS['rootdir'] . "/login_screen.php";
 // Variable set for Eligibility Verification [EDI-271] path
 $GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/edi/";
 
+//  Check necessary writable paths (add them if do not exist)
+if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/compiled/gacl')) {
+    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/compiled/gacl', 0755, true);
+}
+if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/compiled/main')) {
+    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/compiled/main', 0755, true);
+}
+if ($GLOBALS['smarty_cache_on']) {
+    if (!is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/cache/main')) {
+        mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/cache/main', 0755, true);
+    }
+}
+
 //  Set and check that necessary writeable path exist for mPDF tool
 $GLOBALS['MPDF_WRITE_DIR'] = $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp';
 if (! is_dir($GLOBALS['MPDF_WRITE_DIR'])) {

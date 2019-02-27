@@ -30,9 +30,6 @@ services:
     volumes:
     - .:/var/www/localhost/htdocs/openemr:rw
     - assetsvolume01:/var/www/localhost/htdocs/openemr/public:rw
-    - cachevolume01:/var/www/localhost/htdocs/openemr/gacl/admin/templates_c:rw
-    - cachevolume02:/var/www/localhost/htdocs/openemr/interface/main/calendar/modules/PostCalendar/pntemplates/compiled:rw
-    - cachevolume03:/var/www/localhost/htdocs/openemr/interface/main/calendar/modules/PostCalendar/pntemplates/cache:rw
     - configvolume01:/var/www/localhost/htdocs/openemr/sites/default:rw
     - configvolume02:/var/www/localhost/htdocs/openemr/interface/modules/zend_modules/config:rw
     - logvolume01:/var/log
@@ -61,9 +58,6 @@ services:
 volumes:
   databasevolume: {}
   assetsvolume01: {}
-  cachevolume01: {}
-  cachevolume02: {}
-  cachevolume03: {}
   configvolume01: {}
   configvolume02: {}
   logvolume01: {}

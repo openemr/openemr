@@ -2545,6 +2545,13 @@ $GLOBALS_METADATA = array(
             '/mnt/scan_docs',                 // default
             xl('Location where scans are stored.')
         ),
+
+        'smarty_cache_on' => array(
+            xl('Enable Smarty Cache'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Enable Smarty Cache')
+        ),
     ),
 
     // Portal Tab

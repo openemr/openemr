@@ -281,11 +281,6 @@ previous_version=$OLD_VERSION\n"
       #backup web directory to tmp
       cp -fr $OPENEMR/* $TMPDIR/openemr_web_$OLD_VERSION/
 
-      #clear the temporary openemr cache directories (no need to keep these during upgrade)
-      rm -fr $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled/*
-      rm -fr $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache/*
-      rm -fr $OPENEMR/gacl/admin/templates_c/*
-
       log_only "Upgrading OpenEMR from $OLD_VERSION..."
 
       #Create the config file, which will pass info to postinst script
