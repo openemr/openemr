@@ -44,7 +44,7 @@ if (!$thisauth) {
 }
 
 //Limit variables for filter
-$records_per_page = 40;
+$records_per_page = 10;
 $list_from = ( isset($_REQUEST["list_from"]) ? intval($_REQUEST["list_from"]) : 1 );
 $list_to   = ( isset($_REQUEST["list_to"])   ? intval($_REQUEST["list_to"]) : 0);
 
@@ -1009,8 +1009,8 @@ function writeITLine($it_array)
 <body class="body_top">
 <form method='post' name='theform' id='theform' action='edit_list.php'>
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
-    <input type="hidden" name="list_from" value="<?php echo attr($list_from);?>"/>
-    <input type="hidden" name="list_to" value="<?php echo attr($list_to);?>"/>
+    <input type="hidden" id="list_from" name="list_from" value="<?php echo attr($list_from);?>"/>
+    <input type="hidden" id="list_to" name="list_to" value="<?php echo attr($list_to);?>"/>
     <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container-fluid">
             <div class="navbar-header">
@@ -1277,6 +1277,7 @@ if ($GLOBALS['ippf_specific']) { ?>
     // Get the selected list's elements.
     if ($list_id) {
         $sql_limits = 'ASC LIMIT 0, '.escape_limit($records_per_page);
+        $total_rows = 0;
         if ($list_from > 0) {
             $list_from--;
         }
@@ -1285,6 +1286,9 @@ if ($GLOBALS['ippf_specific']) { ?>
         }
 
         if ($list_id == 'feesheet') {
+            $res = sqlStatement("SELECT count(*) as total_rows FROM fee_sheet_options ORDER BY fs_category, fs_option");
+            $total_rows = sqlFetchArray($res)["total_rows"];
+
             $res = sqlStatement("SELECT * FROM fee_sheet_options " .
                 "ORDER BY fs_category, fs_option ".$sql_limits);
             while ($row = sqlFetchArray($res)) {
@@ -1294,6 +1298,9 @@ if ($GLOBALS['ippf_specific']) { ?>
                 writeFSLine('', '', '');
             }
         } elseif ($list_id == 'code_types') {
+            $res = sqlStatement("SELECT count(*) as total_rows FROM code_types ORDER BY ct_seq, ct_key");
+            $total_rows = sqlFetchArray($res)["total_rows"];
+
             $res = sqlStatement("SELECT * FROM code_types " .
                 "ORDER BY ct_seq, ct_key ".$sql_limits);
             while ($row = sqlFetchArray($res)) {
@@ -1303,6 +1310,9 @@ if ($GLOBALS['ippf_specific']) { ?>
                 writeCTLine(array());
             }
         } elseif ($list_id == 'issue_types') {
+            $res = sqlStatement("SELECT count(*) as total_rows FROM code_types ORDER BY category, ordering");
+            $total_rows = sqlFetchArray($res)["total_rows"];
+
             $res = sqlStatement("SELECT * FROM issue_types " .
                 "ORDER BY category, ordering ".$sql_limits);
             while ($row = sqlFetchArray($res)) {
@@ -1312,11 +1322,19 @@ if ($GLOBALS['ippf_specific']) { ?>
                 writeITLine(array());
             }
         } else {
+            $res = sqlStatement("SELECT count(*) as total_rows
+                         FROM list_options AS lo
+                         RIGHT JOIN list_options as lo2 on lo2.option_id = lo.list_id AND lo2.list_id = 'lists' AND lo2.edit_options = 1
+                         WHERE lo.list_id = ? AND lo.edit_options = 1", array($list_id));
+            $total_rows = sqlFetchArray($res)["total_rows"];
+
+
             $res = sqlStatement("SELECT lo.*
                          FROM list_options AS lo
                          RIGHT JOIN list_options as lo2 on lo2.option_id = lo.list_id AND lo2.list_id = 'lists' AND lo2.edit_options = 1
                          WHERE lo.list_id = ? AND lo.edit_options = 1
                          ORDER BY seq,title ".$sql_limits, array($list_id));
+
             while ($row = sqlFetchArray($res)) {
                 writeOptionLine(
                     $row['option_id'],
@@ -1397,6 +1415,9 @@ if ($GLOBALS['ippf_specific']) { ?>
             SaveChanges();
         });
         $("#list_id").change(function () {
+            $("#list_from").val(1);
+            $("#list_to").val('');
+
             $('#theform').submit();
         });
 
@@ -1413,14 +1434,13 @@ if ($GLOBALS['ippf_specific']) { ?>
         var totalRecords = '<?php echo attr($res->_numOfRows);?>';
         var totalRecordDiv = $('#total-record');
         if( totalRecordDiv ){
-            totalRecordDiv.text("<?php echo xlt("Total records"); ?>: <?php echo attr($res->_numOfRows);?> <?php echo xlt("items"); ?>");
+            totalRecordDiv.text("<?php echo xlt("Showing items"); ?>: <?php echo ( $list_to > 0 ? attr($list_from+1). " - ".attr($list_to) : attr($res->_numOfRows) );?> of <?php echo attr($total_rows);?>");
         }
 
         var urlFull    = new URL($(location).attr('href'));
         var listIdCont = urlFull.searchParams.get('list_id_container');
 
-        console.log("list_from: " + listIdCont  );
-        if( totalRecords >= <?php echo attr($records_per_page);?> || listIdCont != null ) {
+        if( totalRecords >= <?php echo attr($records_per_page);?> || listIdCont != null || $("#list_to").val() > 0) {
             $(".blck-filter").show();
         }
 
