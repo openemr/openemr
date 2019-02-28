@@ -20,7 +20,7 @@
 
  * @package OpenEMR
  * @author  Dror Golan <drorgo@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * +------------------------------------------------------------------------------+
  *
  */

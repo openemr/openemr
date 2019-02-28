@@ -37,7 +37,7 @@
  * Returns a count of due messages for current user.
  *
  * @package   OpenEMR
- * @link      s://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    EMR Direct <https://www.emrdirect.com/>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2013 EMR Direct <https://www.emrdirect.com/>

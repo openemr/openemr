@@ -1,6 +1,6 @@
 <?php
 /**
- * OpenEMR <http://open-emr.org>.
+ * OpenEMR <https://open-emr.org>.
  *
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
