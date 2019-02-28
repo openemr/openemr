@@ -217,7 +217,7 @@ function create_NM1($row, $nm1Cast, $X12info, $segTer, $compEleSep)
         $NM1[5] = "";                       // Data Element not required.
         $NM1[6] = "";                       // Data Element not required.
         $NM1[7] = "";                       // Data Element not required.
-        $NM1[8] = "46";                     // 46 - Electronic Transmitter Identification Number (ETIN)
+        $NM1[8] = $X12info['id_number'] ? $X12info['id_number'] : "46";  // 46 - Electronic Transmitter Identification Number (ETIN)
         $NM1[9] = $X12info['x12_receiver_id'];              // Application Sender's ID
     } else if ($nm1Cast == 'FA') {
         $NM1[1] = "FA";                     // Entity ID Code - Facility [FA Facility]
@@ -559,7 +559,7 @@ function requestRealTimeEligibily($res, $X12info, $segTer, $compEleSep, $eFlag =
 
     $process = parseEdi271($down_accum);
     $log = "270 Requests Sent:\n" . $log . "\n" . $process;
-    if ($eFlag) {
+    /*if ($eFlag) {
         $fn = sprintf(
             'elig-271_%s_%s.txt',
             strtolower(str_replace(' ', '', $X12info['name'])),
@@ -567,9 +567,9 @@ function requestRealTimeEligibily($res, $X12info, $segTer, $compEleSep, $eFlag =
         );
         $log = str_replace('~', "~\r", $log);
         @x12Download($fn, $log);
-    }
+    }*/
 
-    return $rowCount;
+    return $log;
 }
 // Report Generation
 
@@ -930,6 +930,9 @@ STRING;
         $x12_271 = $formData['ErrorCode'] . "\n" . $formData['ErrorMessage'];
     }
     $x12_271 .= $formData['Payload'];
+/*$x12_271 = <<<test
+ISA*00* *00* *ZZ*571132733 *ZZ*571132733 *130312*1140*^*00501*499997000*0*T*>~GS*HB*7GWZZL2SCS*7GWZZL2SCS*20130312*114005*6354*X*005010X279A1~ST*271*000000010*005010X279A1~BHT*0022*11*292001*20130312*11395812~HL*1**20*1~NM1*PR*2*TRICARE*****PI*571132733~HL*2*1*21*1~NM1*1P*2*MEMORIAL HOSPITAL*****XX*1044010401~HL*3*2*22*0~TRN*1*201211270000000038U*0571132733~NM1*IL*1*JONES*RAYMOND*S***MI*796347724~DMG*D8*19800925*M~DTP*346*D8*20100422~EB*1**47**PLAN 122 CHCBP~EB*C*IND*30***22*50~MSG*$50 MINIMUM COPAY~EB*C*IND*30***29*50~EB*C*FAM*30***22*100~MSG*$100 MINIMUM COPAY~EB*C*FAM*30***29*100~EB*G*IND*30***22*1000~EB*G*FAM*30***22*1000~EB*B**47***7*17.35*****W~MSG*$25 MINIMUM COPAY~EB*A**47*****0****W~SE*22*000000010~GE*1*6354~IEA*1*499997000~
+test;*/
 
     return $x12_271;
 }
@@ -955,7 +958,7 @@ function mimeParse($formBody = '', $contentType)
     }
     return $mimeData;
 }
-
+// @todo may be issue on linux???
 function x12Download($filename = '', $content = '')
 {
     while (@ob_end_flush()) {
@@ -1019,6 +1022,7 @@ function parseEdi271(&$content)
             continue;
         }
         $in = array();
+        $in['pid'] = 0;
         $AAA = array();
         $loop = array();
         $loop['id'] = 0;
@@ -1037,57 +1041,71 @@ function parseEdi271(&$content)
 
         foreach ($segments as $segment) {
             $elements = explode("*", $segment);
+            $ecnt = count($elements);
+            for ($i = 0; $i < $ecnt; $i++) {
+                $elements[$i] = text(trim($elements[$i]));
+            }
             // Switch Case for Segment
             switch ($elements[0]) {
                 case 'ISA':
-                    $loop[1] = trim($elements[2]);
-                    $in['isa_receiver_id'] = trim($elements[8]);
-                    $in['isa_control_number'] = trim($elements[13]);
+                    $loop[1] = $elements[2];
+                    $in['isa_sender_id'] = $elements[6];
+                    $in['isa_receiver_id'] = $elements[8];
+                    $in['isa_control_number'] = $elements[13];
                     break;
 
                 case 'HL':
-                    $loop['id'] = (int)trim($elements[1]);
-                    $loop['parent'] = (int)trim($elements[2]);
-                    $loop['error'] = (int)trim($elements[4]);
+                    $loop['id'] = (int)$elements[1];
+                    $loop['parent'] = (int)$elements[2];
+                    $loop['error'] = (int)$elements[4];
                     break;
 
                 case 'NM1':
                     if ($loop['id'] === 1) {//"PR" payer
-                        $in['payer_lname'] = trim($elements[3]);
-                        $in['payer_fname'] = trim($elements[4]);
-                        $in['payer_mname'] = trim($elements[5]);
-                        $in['payer_member_id'] = trim($elements[9]);
-                    } elseif ($loop['id'] === 2) { //"1P"
-                        $in['provider_lname'] = trim($elements[3]);
-                        $in['provider_fname'] = trim($elements[4]);
-                        $in['provider_mname'] = trim($elements[5]);
-                        $in['provider_member_id'] = trim($elements[9]);
+                        $in['payer_lname'] = $elements[3];
+                        $in['payer_fname'] = $elements[4];
+                        $in['payer_mname'] = $elements[5];
+                        $in['payer_member_id'] = $elements[9];
+                    } elseif ($loop['id'] === 2) { //"1P" or "FA"
+                        $in['provider_lname'] = $elements[3];
+                        $in['provider_fname'] = $elements[4];
+                        $in['provider_mname'] = $elements[5];
+                        $in['provider_member_id'] = $elements[9];
                     } elseif ($loop['id'] === 3) { //"IL"
-                        $in['subscriber_lname'] = trim($elements[3]);
-                        $in['subscriber_fname'] = trim($elements[4]);
-                        $in['subscriber_mname'] = trim($elements[5]);
-                        $in['subscriber_member_id'] = trim($elements[9]);
+                        $in['subscriber_lname'] = $elements[3];
+                        $in['subscriber_fname'] = $elements[4];
+                        $in['subscriber_mname'] = $elements[5];
+                        $in['subscriber_member_id'] = $elements[9];
                     }
                     $loop['context'] = $elements[0];
                     break;
 
                 case 'DMG':
                     if ($elements[1] == "D8") {
-                        $in['subscriber_dob'] = trim($elements[2]);
+                        $in['subscriber_dob'] = $elements[2];
                     }
-                    $in['subscriber_sex'] = trim($elements[3]);
+                    $in['subscriber_sex'] = $elements[3];
                     $loop['context'] = $elements[0];
+                    // 2100A-C should be done so get our patient id.
+                    $in['pid'] = (int)getPatientMatch(
+                        $in['subscriber_fname'],
+                        $in['subscriber_lname'],
+                        $in['subscriber_sex'],
+                        $in['subscriber_dob']
+                    );
+                    
                     break;
 
                 case 'DTP':
+                    // part of 2110C loop ?
                     if ($elements[1] == "291" || $elements[1] == "346") {
                         if ($elements[2] == "D8") {
-                            $loop['plan_begin'] = trim($elements[3]);
+                            $loop['plan_begin'] = $elements[3];
                             $loop['plan_end'] = '';
                         } elseif ($elements[2] == "RD8") {
-                            $tmp = explode('-', trim($elements[3]));
-                            $loop['plan_begin'] = trim($tmp[0]);
-                            $loop['plan_end'] = trim($tmp[1]) ? trim($tmp[1]) : '';
+                            $tmp = explode('-', $elements[3]);
+                            $loop['plan_begin'] = $tmp[0];
+                            $loop['plan_end'] = $tmp[1] ? $tmp[1] : '';
                         }
                         $loop['id'] = $loop['id'] + 1;
                         $loop['parent'] = $loop['id'];
@@ -1097,27 +1115,32 @@ function parseEdi271(&$content)
 
                     break;
 
-                case 'EB': // lets log all eligibility for later
-                    if (trim($elements[1]) != "1" && trim($elements[1]) != "C") {
-                        // for now lets concern ourselves with current active plans
+                case 'EB': // lets log important eligibility benefits for later
+                    // A = co-ins B = Co-Pay C = Deductibles G = ? 1 = Active F = Limitations
+                    $bcode = $elements[1];
+                    if ($bcode != "1" && $bcode != "C" && $bcode != "A" &&
+                        $bcode != "G" && $bcode != "B") {
                         break;
                     }
-                    if (trim($elements[3]) != "30") { // @todo config 270 for other plan types.
+                    if ($elements[3] != "30" && $elements[3] != "47") {
+                        // @todo config 270 for other service types.
+                        // 47 Hospital 30 General health
+                        // currently we select 30 service type in 270.
                         break;
                     }
                     $eb = array(
-                        'active' => trim($elements[1]),
+                        'active' => $elements[1],
                         'plan_begin' => $loop['plan_begin'], // from last DTP
                         'plan_end' => $loop['plan_end'],
-                        'coverage_level' => trim($elements[2]),
-                        'service_type' => trim($elements[3]),
-                        'ins_type' => trim($elements[4]),
-                        'plan_desc' => trim($elements[5]),
-                        'time_qualifier' => trim($elements[6]),
-                        'amount' => trim($elements[7]),
-                        'percent' => trim($elements[8]),
-                        'network_ind' => trim($elements[12]),
-                        'message' => ''
+                        'coverage_level' => $elements[2],
+                        'service_type' => $elements[3],
+                        'ins_type' => $elements[4],
+                        'plan_desc' => $elements[5],
+                        'time_qualifier' => $elements[6],
+                        'amount' => $elements[7],
+                        'percent' => $elements[8],
+                        'network_ind' => $elements[12],
+                        'message' => '' // any MSG segments that may be assoc with this EB.
                     );
                     $loop['context'] = $elements[0];
                     array_push($benefits, $eb);
@@ -1125,10 +1148,10 @@ function parseEdi271(&$content)
 
                 case 'AAA': // @todo may need 999/T1A seg. unclear if get 999's you get AAA's too.
                     $error = array(
-                        'request_ind' => trim($elements[1]),
-                        'reason_code' => trim($elements[3]),
-                        'follow_up' => trim($elements[4]),
-                        'reason_text' => trim($elements[3]) . " : " . $aaaSegErrors[$elements[3]]
+                        'request_ind' => $elements[1],
+                        'reason_code' => $elements[3],
+                        'follow_up' => $elements[4],
+                        'reason_text' => $elements[3] . " : " . $aaaSegErrors[$elements[3]]
                     );
                     array_push($AAA, $error);
                     break;
@@ -1137,29 +1160,24 @@ function parseEdi271(&$content)
                     $bcnt = count($benefits) - 1;
                     if ($bcnt > -1) {
                         $benefits[$bcnt]['message'] = $benefits[$bcnt]['message'] ? $benefits[$bcnt]['message'] . " : " : '';
-                        $benefits[$bcnt]['message'] .= trim($elements[1]);
+                        $benefits[$bcnt]['message'] .= $elements[1];
                     }
 
                     break;
 
                 case 'SE':
-                    if ($segment == '') {
                         //response_save($segmentVal, $x12PartnerId);
                         //eligibility_verification_save($segmentVal, $x12PartnerId, $patientId);
-                    }
                     break;
 
                 case 'IEA':
-                    if ($elements[1] == "") {
-                    }
+                    // done
                     break;
             }
         }
-        // save here
-        $patientid = getPatientMatch($in['subscriber_fname'], $in['subscriber_lname'], '', $in['subscriber_dob']);
         // some debug logging
-        $log .= "Patient : $patientid\n" . "271 Response:\n" . $new . "\n";
-        $log .= print_r($in, true) . "\nEligibility EB Segs:\n" . print_r($benefits, true) . "\nAAA Segment Errors:\n" . print_r($AAA, true);
+        $log .= "Patient : " . $in['pid'] . "\n" . "271 X12:\n" . $new . "\n";
+        $log .= "2100 Loops" . print_r($in, true) . "\nEB Segments:\n" . print_r($benefits, true) . "\nAAA Segments:\n" . print_r($AAA, true);
     }
     return $log;
 }

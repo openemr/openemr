@@ -140,7 +140,23 @@ if ($exclude_policy != "") {
     $clearinghouses = getX12Partner();
 
     if (isset($_POST['form_xmit']) && !empty($_POST['form_xmit']) && $res) {
-        $sent_cnt = requestRealTimeEligibily($res, $X12info, $segTer, $compEleSep, true);
+        $eFlag = true;
+        $log = requestRealTimeEligibily($res, $X12info, $segTer, $compEleSep, true);
+        if ($eFlag) {
+            $fn = sprintf(
+                'elig-271_%s_%s.txt',
+                strtolower(str_replace(' ', '', $X12info['name'])),
+                date("Y-m-d:H:i:s")
+            );
+            $log = str_replace('~', "~\r", $log);
+            while (@ob_end_flush()) {}
+            header('Content-Type: text/plain');
+            header("Content-Length: " . strlen($log));
+            header('Content-Disposition: attachment; filename="' . $fn . '"');
+            ob_start();
+            echo $log;
+            exit();
+        }
     }
     if (isset($_POST['form_savefile']) && !empty($_POST['form_savefile']) && $res) {
         header('Content-Type: text/plain');
