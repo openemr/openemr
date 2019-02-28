@@ -15,7 +15,7 @@ class Controller extends Smarty
          $this->template_mod = "general";
          $this->_current_action = "";
          $this->_state = true;
-         $this->compile_dir = $GLOBALS['OE_SITE_DIR'] . '/documents/smarty/compiled/main';
+         $this->compile_dir = $GLOBALS['OE_SITE_DIR'] . '/documents/smarty/main';
          $this->compile_check = true;
          $this->plugins_dir = array(dirname(__FILE__) . "/../smarty/plugins", $GLOBALS['vendor_dir'] . "/smarty/smarty/libs/plugins");
          $this->assign("PROCESS", "true");

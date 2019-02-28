@@ -216,16 +216,11 @@ $GLOBALS['login_screen'] = $GLOBALS['rootdir'] . "/login_screen.php";
 $GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/edi/";
 
 //  Check necessary writable paths (add them if do not exist)
-if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/compiled/gacl')) {
-    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/compiled/gacl', 0755, true);
+if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/gacl')) {
+    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/gacl', 0755, true);
 }
-if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/compiled/main')) {
-    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/compiled/main', 0755, true);
-}
-if ($GLOBALS['smarty_cache_on']) {
-    if (!is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/cache/main')) {
-        mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/cache/main', 0755, true);
-    }
+if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/main')) {
+    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/main', 0755, true);
 }
 
 //  Set and check that necessary writeable path exist for mPDF tool
