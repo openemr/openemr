@@ -10,9 +10,9 @@
  * Author  : DEMONTE Jean-Baptiste <jbdemonte@gmail.com>
  *           HOUREZ Jonathan
  *
- * Web site: http://barcode-coder.com/
- * dual licence :  http://www.cecill.info/licences/Licence_CeCILL_V2-fr.html
- *                 http://www.gnu.org/licenses/gpl.html
+ * Web site: https://barcode-coder.com/
+ * dual licence :  https://www.cecill.info/licences/Licence_CeCILL_V2-fr.html
+ *                 https://www.gnu.org/licenses/gpl.html
  * BarCode Coder Library
  * @package BCC Library
  * @author DEMONTE Jean-Baptiste <jbdemonte@gmail.com>

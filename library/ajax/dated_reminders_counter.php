@@ -3,10 +3,10 @@
  * Returns a count of due messages for current user.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @author    Craig Bezuidenhout <http://www.tajemo.co.za/>
+ * @link      https://www.open-emr.org
+ * @author    Craig Bezuidenhout <https://www.tajemo.co.za/>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2012 tajemo.co.za <http://www.tajemo.co.za/>
+ * @copyright Copyright (c) 2012 tajemo.co.za <https://www.tajemo.co.za/>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */

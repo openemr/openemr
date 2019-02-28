@@ -5,7 +5,7 @@
  *
  * @author Cristian Năvălici {@link http://www.lemonsoftware.eu} lemonsoftware [at] gmail [.] com
  * @version 1.31 17 March 2008
- * @license http://opensource.org/licenses/gpl-license.php GNU Public License
+ * @license https://opensource.org/licenses/gpl-license.php GNU Public License
  * @package Filtreatment
  *
  */
