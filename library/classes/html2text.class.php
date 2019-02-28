@@ -34,7 +34,7 @@
 /**
  *  Takes HTML and converts it to formatted, plain text.
  *
- *  Thanks to Alexander Krug (https://www.krugar.de/) to pointing out and
+ *  Thanks to Alexander Krug (http://www.krugar.de/) to pointing out and
  *  correcting an error in the regexp search array. Fixed 7/30/03.
  *
  *  Updated set_html() function's file reading mechanism, 9/25/03.
@@ -51,7 +51,7 @@
  *  <TH> tag was missing, and suggesting an appropriate fix.
  *  Updated 8/25/04.
  *
- *  Thanks to Mathieu Collas (https://www.myefarm.com/) for finding a
+ *  Thanks to Mathieu Collas (http://www.myefarm.com/) for finding a
  *  display/formatting bug in the _build_link_list() function: email
  *  readers would show the left bracket and number ("[1") as part of the
  *  rendered email address.
@@ -80,7 +80,7 @@
  *  blank lines fix.
  *
  *  Special thanks to Marcus Bointon (https://www.synchromedia.co.uk/),
- *  Christian Basedau, Norbert Laposa (https://ln5.co.uk/),
+ *  Christian Basedau, Norbert Laposa (http://ln5.co.uk/),
  *  Bas van de Weijer, and Marijn van Butselaar
  *  for pointing out my glaring error in the <th> handling. Marcus also
  *  supplied a host of fixes.
