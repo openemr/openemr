@@ -325,7 +325,7 @@ if (!$GLOBALS['disable_calendar'] && acl_check('patients', 'appt')) { ?>
         <?php if ($GLOBALS['inhouse_pharmacy'] && acl_check('acct', 'bill', '', 'write')) { ?>
      <option value='../patient_file/pos_checkout.php'><?php echo xlt('Checkout'); ?></option>
     <?php } ?>
-        <?php if (is_dir($GLOBALS['OE_SITE_DIR'] . "/letter_templates") && acl_check('patients', 'med')) { ?>
+        <?php if (is_dir($GLOBALS['OE_SITE_DIR'] . "/documents/letter_templates") && acl_check('patients', 'med')) { ?>
      <option value='../patient_file/letter.php'><?php echo xlt('Letter'); ?></option>
     <?php } ?>
         <?php if ($GLOBALS['chart_label_type'] != '0' && acl_check('patients', 'demo')) { ?>

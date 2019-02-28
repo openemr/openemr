@@ -17,7 +17,7 @@ require_once($GLOBALS['srcdir'] . "/patient.inc");
 
 use OpenEMR\Core\Header;
 
-$template_dir = $GLOBALS['OE_SITE_DIR'] . "/letter_templates";
+$template_dir = $GLOBALS['OE_SITE_DIR'] . "/documents/letter_templates";
 
 if (!empty($_POST)) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -165,8 +165,8 @@ if ($_POST['formaction']=="generate") {
     if ($form_format == "pdf") {
         $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
         $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
-        if (file_exists("$template_dir/custom_pdf.php")) {
-            include("$template_dir/custom_pdf.php");
+        if (file_exists($GLOBALS['OE_SITE_DIR'] . "/custom_pdf.php")) {
+            include($GLOBALS['OE_SITE_DIR'] . "/custom_pdf.php");
         } else {
             $pdf->selectFont('Helvetica');
             $pdf->ezText($cpstring, 12);
@@ -534,7 +534,7 @@ function insertAtCursor(myField, myValue) {
    <select name="form_template" id="form_template" class='form-control'>
    <option value="">(<?php echo xlt('none'); ?>)</option>
 <?php
-$tpldir = $GLOBALS['OE_SITE_DIR'] . "/letter_templates";
+$tpldir = $GLOBALS['OE_SITE_DIR'] . "/documents/letter_templates";
 $dh = opendir($tpldir);
 if (! $dh) {
     die(xlt('Cannot read') . ' ' . text($tpldir));

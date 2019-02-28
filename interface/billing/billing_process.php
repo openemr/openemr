@@ -130,7 +130,7 @@ function send_batch()
     global $bat_content, $bat_filename, $webserver_root;
     // If a writable edi directory exists, log the batch to it.
     // I guarantee you'll be glad we did this. :-)
-    $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/edi/$bat_filename", 'a');
+    $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/documents/edi/$bat_filename", 'a');
     if ($fh) {
         fwrite($fh, $bat_content);
         fclose($fh);
@@ -155,7 +155,7 @@ function process_form($ar)
     if (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter']) || isset($ar['bn_process_hcfa']) || isset($ar['bn_hcfa_txt_file']) || isset($ar['bn_process_hcfa_form'])
         || isset($ar['bn_process_ub04_form']) || isset($ar['bn_process_ub04']) || isset($ar['bn_ub04_x12'])) {
         if ($GLOBALS['billing_log_option'] == 1) {
-            $hlog = file_get_contents($GLOBALS['OE_SITE_DIR'] . "/edi/process_bills.log");
+            $hlog = file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log");
             if (cryptCheckStandard($hlog)) {
                 $hlog = decryptStandard($hlog, null, 'database');
             }
@@ -311,7 +311,7 @@ function process_form($ar)
         if ($GLOBALS['drive_encryption']) {
             $hlog = encryptStandard($hlog, null, 'database');
         }
-        file_put_contents($GLOBALS['OE_SITE_DIR'] . "/edi/process_bills.log", $hlog);
+        file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log", $hlog);
     }
 
     if (isset($ar['bn_process_ub04_form']) || isset($ar['bn_process_ub04'])) {
@@ -331,7 +331,7 @@ function process_form($ar)
 
     if (isset($ar['bn_process_hcfa'])) {
         // If a writable edi directory exists (and it should), write the pdf to it.
-        $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/edi/$bat_filename", 'a');
+        $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/documents/edi/$bat_filename", 'a');
         if ($fh) {
             fwrite($fh, $pdf->ezOutput());
             fclose($fh);
@@ -344,7 +344,7 @@ function process_form($ar)
     }
     if (isset($ar['bn_process_hcfa_form'])) {
         // If a writable edi directory exists (and it should), write the pdf to it.
-        $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/edi/$bat_filename", 'a');
+        $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/documents/edi/$bat_filename", 'a');
         if ($fh) {
             fwrite($fh, $pdf->ezOutput());
             fclose($fh);
@@ -363,7 +363,7 @@ function process_form($ar)
     }
 
     if (isset($ar['bn_hcfa_txt_file'])) {
-        $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/edi/$bat_filename", 'a');
+        $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/documents/edi/$bat_filename", 'a');
         if ($fh) {
             fwrite($fh, $bat_content);
             fclose($fh);
