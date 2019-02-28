@@ -155,9 +155,6 @@ $docsDirectory = "$OE_SITE_DIR/documents";
 $billingDirectory = "$OE_SITE_DIR/edi";
 $billingDirectory2 = "$OE_SITE_DIR/era";
 $lettersDirectory = "$OE_SITE_DIR/letter_templates";
-$gaclWritableDirectory = dirname(__FILE__)."/gacl/admin/templates_c";
-$requiredDirectory1 = dirname(__FILE__)."/interface/main/calendar/modules/PostCalendar/pntemplates/compiled";
-$requiredDirectory2 = dirname(__FILE__)."/interface/main/calendar/modules/PostCalendar/pntemplates/cache";
 
 $zendModuleConfigFile = dirname(__FILE__)."/interface/modules/zend_modules/config/application.config.php";
 
@@ -165,10 +162,10 @@ $zendModuleConfigFile = dirname(__FILE__)."/interface/modules/zend_modules/confi
 // correct permissions.
 if (is_dir($OE_SITE_DIR)) {
     $writableFileList = array($installer->conffile,$zendModuleConfigFile);
-    $writableDirList = array($docsDirectory, $billingDirectory, $billingDirectory2, $lettersDirectory, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
+    $writableDirList = array($docsDirectory, $billingDirectory, $billingDirectory2, $lettersDirectory);
 } else {
     $writableFileList = array();
-    $writableDirList = array($OE_SITES_BASE, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
+    $writableDirList = array($OE_SITES_BASE);
 }
 
 // Include the sqlconf file if it exists yet.

@@ -5,7 +5,7 @@
 #the Free Software Foundation; either version 2 of the License, or
 #(at your option) any later version.
 #
-# Copyright 2011-2018
+# Copyright 2011-2019
 # authors: Amalu Obinna <amaluobinna@aol.com>
 #          Brady Miller <brady.g.miller@gmail.com>
 #
@@ -247,9 +247,6 @@ case "$1" in
 
          #set writable files and directories (that are not within sites directory)
          chown $WEB_GROUP.$WEB_USER $OPENEMR/interface/modules/zend_modules/config/application.config.php
-         chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache
-         chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled
-         chown -R $WEB_GROUP.$WEB_USER $OPENEMR/gacl/admin/templates_c
 
          #set writable directories (that are within sites directory)
          # (go through each site)
@@ -513,9 +510,6 @@ case "$1" in
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/default/edi
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/default/era
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/default/letter_templates
-      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache
-      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled
-      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/gacl/admin/templates_c
 
       if $configure_flag; then
          # Create a random password for the openemr mysql user
