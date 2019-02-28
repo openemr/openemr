@@ -44,7 +44,7 @@ if (!$thisauth) {
 }
 
 //Limit variables for filter
-$records_per_page = 10;
+$records_per_page = 40;
 $list_from = ( isset($_REQUEST["list_from"]) ? intval($_REQUEST["list_from"]) : 1 );
 $list_to   = ( isset($_REQUEST["list_to"])   ? intval($_REQUEST["list_to"]) : 0);
 
