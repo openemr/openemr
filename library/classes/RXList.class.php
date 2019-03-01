@@ -4,6 +4,9 @@
  //
  // $Log$
 
+ // Revision 1.6  2019/02/18  avanss llc
+ // replaced rxlist API with rxnav.nlm.nih.gov
+
  // Revision 1.5  2016/02/016   sherwin gaddis
  // fix broken url
 
@@ -40,9 +43,8 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
 
         function getPage($query)
         {
-            $url = "http://www.rxlist.com/script/main/srchcont_rxlist.asp?src=".
-            //$url = "http://www.rxlist.com/cgi/rxlist.cgi?drug=".
-            // $url = "http://129.250.146.18/cgi/rxlist.cgi?drug=".
+            $url = "https://rxnav.nlm.nih.gov/REST/Prescribe/drugs?name=".$query;
+
             urlencode($query);
 
             if (!($fp = fopen($url, "r"))) {
@@ -71,8 +73,19 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
                     $my_data[$k] = $v;
                 }
 
-                $list[trim($my_data[brand_name])." (".trim($my_data[generic_name]).")"] =
-                trim($my_data[brand_name]);
+                $rxcui = '';
+
+                if (trim($my_data[rxcui]) !== '') {
+                    $rxcui = " / ".trim($my_data[rxcui]);
+                }
+
+                $synonym = '';
+                if (trim($my_data[synonym]) !== '') {
+                    $synonym = " == (".trim($my_data[synonym]).$rxcui.")";
+                }
+
+                $list[trim($my_data[name]).$synonym] =
+                    trim($my_data[name]);
             }
 
             return $list;
@@ -115,45 +128,37 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
             return $tokens;
         } // end function RxList::parse2tokens
 
-
-        /* WTF does this crap do? */
         function tokens2hash($tokens)
         {
             $record = false;
             $current = 0;
             unset($hash);
+            $hash = [];
             unset($all);
             for ($pos=0; $pos<count($tokens); $pos++) {
-                if (!(strpos($tokens[$pos], "Brand Name") === false)) {
-                            // found a brand line 'token'
-                    $type = "brand_name";
+                if (!(strpos($tokens[$pos], "<name>") === false) && $pos !== 3) {
+                    // found a brand line 'token'
+                    $type = "name";
                     $record = $pos;
-                    $ending = "</a>";
+                    $ending = "</name>";
                 }
 
-                if (!(strpos($tokens[$pos], "Generic Name") === false)) {
-                            // found a generic line 'token'
-                    $type = "generic_name";
+                if (!(strpos($tokens[$pos], "<synonym>") === false)) {
+                    // found a generic line 'token'
+                    $type = "synonym";
                     //print "generic_name record start at $pos<BR>\n";
-                    $ending = "</a>";
+                    $ending = "</synonym>";
                     $record = $pos;
                 }
 
-                if (!(strpos($tokens[$pos], "Drug Class") === false)) {
-                            // found a drug-class 'token'
-                    $type = "drug_class";
-                    //print "drug_class record start at $pos<BR>\n";
-                    $ending = "</font>";
+                if (!(strpos($tokens[$pos], "<rxcui>") === false)) {
+                    // found a drug-class 'token'
+                    $type = "rxcui";
+                    $ending = "</rxcui>";
                     $record = $pos;
                 }
 
-                // Handle the ending (assume when all fields are set
-                // that we're done)
-                        //
-                        // May 2008 - RXList doesn't always return all three types of 'tokens'
-                        // for a drug, so I replaced the 'and's with 'or's -- JRM
-                //if (isset($hash["drug_class"]) and isset($hash["brand_name"]) and isset($hash["generic_name"])) {
-                if (isset($hash["drug_class"]) or isset($hash["brand_name"]) or isset($hash["generic_name"])) {
+                if (isset($hash["synonym"])) {
                     // Reset record
                     $record = false;
                     // Add hash to all
@@ -164,22 +169,13 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
                     $ending = "";
                 }
 
-                if ((($pos == ($record + 1)) or
-                            ($pos == ($record + 2)) or
-                            ($pos == ($record + 3)))
-                            and ($ending != "")) {
-                            //print "tokens[$pos] = ".htmlentities($tokens[$pos])."<BR>\n";
-                    if ((!(strpos(strtoupper($tokens[$pos]), "</A>") === false)) or
-                                (!(strpos(strtoupper($tokens[$pos]), "</FONT>") === false)) or
-                                (!(strpos(strtoupper($tokens[$pos]), "</TD>") === false))) {
-                        // Find where anchor is
-                        $my_pos = strpos(strtoupper($tokens[$pos]), "<");
-                        $hash[$type] = substr($tokens[$pos], 0, $my_pos);
-                        $hash[$type] = str_replace("&amp;", "&", $hash[$type]);
-                        //print "hash[$type] = ".htmlentities($hash[$type])."<BR>\n";
-                        $type = "";
-                        $ending = "";
-                    }
+                if ($pos === ($record + 1) and ($ending != "")) {
+                    $my_pos = strpos(strtoupper($tokens[$pos]), "<");
+                    $hash[$type] = substr($tokens[$pos], 0, $my_pos);
+                    $hash[$type] = str_replace("&amp;", "&", $hash[$type]);
+                    //print "hash[$type] = ".htmlentities($hash[$type])."<BR>\n";
+                    $type = "";
+                    $ending = "";
                 }
             } // end looping
             return $all;
@@ -187,21 +183,3 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
     } // end class RxList
 
 } // end if not defined
-/*
-// TEST CRAP HERE
-//$page = RxList::getPage("http://129.250.146.18/cgi/rxlist.cgi?drug=lipitor");
-$page = RxList::getPage("http://www.rxlist.com/cgi/rxlist.cgi?drug=lipitor");
-$tokens = RxList::parse2tokens($page);
-$hash = RxList::tokens2hash($tokens);
-foreach ($hash AS $k => $v) {
-	print "<UL>k = ".htmlentities($k)." \n";
-	foreach ($v AS $key => $value) {
-		print "<LI>$key = $value\n";
-	}
-	print "</UL>\n";
-}
-
-print "<FORM>\n";
-print html_form::select_widget("test", RxList::get_list($drug));
-print "</FORM>\n";
-*/
