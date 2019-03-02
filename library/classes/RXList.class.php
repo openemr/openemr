@@ -43,9 +43,7 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
 
         function getPage($query)
         {
-            $url = "https://rxnav.nlm.nih.gov/REST/Prescribe/drugs?name=".$query;
-
-            urlencode($query);
+            $url = "https://rxnav.nlm.nih.gov/REST/Prescribe/drugs?name=".urlencode($query);
 
             if (!($fp = fopen($url, "r"))) {
                 // If we fail to get the page, return false
@@ -75,17 +73,17 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
 
                 $rxcui = '';
 
-                if (trim($my_data[rxcui]) !== '') {
-                    $rxcui = " / ".trim($my_data[rxcui]);
+                if (trim($my_data['rxcui']) !== '') {
+                    $rxcui = " / ".trim($my_data['rxcui']);
                 }
 
                 $synonym = '';
-                if (trim($my_data[synonym]) !== '') {
-                    $synonym = " == (".trim($my_data[synonym]).$rxcui.")";
+                if (trim($my_data['synonym']) !== '') {
+                    $synonym = " == (".trim($my_data['synonym']).$rxcui.")";
                 }
 
-                $list[trim($my_data[name]).$synonym] =
-                    trim($my_data[name]);
+                $list[trim($my_data['name']).$synonym] =
+                    trim($my_data['name']);
             }
 
             return $list;
