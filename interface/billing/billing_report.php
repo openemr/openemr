@@ -770,7 +770,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             }
             $list = getBillsListBetween("%");
             ?>
-            <input name='bill_list' type='hidden' value="<?php echo attr($list); ?>"> <!-- new form for uploading -->
+            <input name='bill_list' type='hidden' value="<?php echo attr(implode(", ", $list)); ?>"> <!-- new form for uploading -->
             <?php
             if (!isset($_POST["mode"])) {
                 if (!isset($_POST["from_date"])) {

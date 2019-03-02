@@ -154,26 +154,27 @@ function getBillsListBetween(
     "order by billing.pid, billing.date ASC";
 
     $res = sqlStatement($sql, array($code_type));
-    $string = "( ";
+    $array = array();
     for ($iter=0; $row=sqlFetchArray($res); $iter++) {
-        $string .= $row{"id"}.",";
+        array_push($array, $row{"id"});
     }
 
-    $string = substr($string, 0, strlen($string)-1);
-    $string .= ")";
-    return $string;
+    return $array;
 }
 
-function billCodesList($list, $skip = "()")
+function billCodesList($list, $skip = [])
 {
-    if ($list == "()") {
+    if (empty($list)) {
         return;
     }
 
-    if ($skip == "()") {
-        sqlStatement("update billing set billed=1 where id in $list");
+    $sqlBindArray = array_merge($list, $skip);
+    $in = str_repeat('?,', count($list) - 1) . '?';
+    if (empty($skip)) {
+        sqlStatement("update billing set billed=1 where id in ($in)", $sqlBindArray);
     } else {
-        sqlStatement("update billing set billed=1 where id in $list and id not in $skip");
+        $not_in = str_repeat('?,', count($skip) - 1) . '?';
+        sqlStatement("update billing set billed=1 where id in ($in) and id not in ($not_in)", $sqlBindArray);
     }
 
     return;
