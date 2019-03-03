@@ -1,6 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 /**
  * App Based TOTP Support
  *
@@ -82,21 +80,34 @@ $action = $_REQUEST['action'];
                             Invalid password
                         </div>
                     <?php } ?>
-                    <p>In order to register your device, please provide your password</p>
+                    <p><?php echo xlt('In order to register your device, please provide your password'); ?></p>
                     <table cellspacing="5">
                         <tr>
                             <td>
                                 <label for="clearPass"><?php echo xlt('Password:'); ?>
                             </td>
                             <td>
-                                <input type="password" class="form-control" id="clearPass" name="clearPass" placeholder="<?php echo xla('Password:'); ?>" >
-                            </td>
+                                <input type="password" class="form-control" id="clearPass" name="clearPass" placeholder="<?php echo xlt('Password:'); ?>" >
+
+                                <?php
+                                // collect groups
+                                $res = sqlStatement("select distinct name from `groups`");
+                                for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+                                    $result[$iter] = $row;
+                                }
+
+                                if (count($result) == 1) {
+                                    $resvalue = $result[0]{"name"};
+                                    echo "<input type='hidden' name='authProvider' value='" . attr($resvalue) . "' />\n";
+                                } ?>
+
+                                </td>
                         </tr>
                         <tr>
                             <td></td>
                             <td>
-                                <input type="button" value="Submit" onclick="doregister('reg2')" />
-                                <input type="button" value="Cancel" onclick="docancel()" />
+                                <input type="button" value="<?php echo xla('Submit'); ?>" onclick="doregister('reg2')" />
+                                <input type="button" value="<?php echo xla('Cancel'); ?>" onclick="docancel()" />
                             </td>
                         </tr>
                     </table>
@@ -107,15 +118,8 @@ $action = $_REQUEST['action'];
     // step 2 is to validate password and display qr code
     } elseif ($action == 'reg2') {
 
-        // Validate user password
-        $postedPassword = (isset($_POST['clearPass'])) ? $_POST['clearPass'] : "";
-        $userSQL = "SELECT ".COL_PWD.", ".COL_SALT." FROM ".TBL_USERS_SECURE." WHERE username = ? ";
-        $userInfo = privQuery($userSQL, array($_SESSION["pc_username"]));
-        $hash_current = oemr_password_hash($postedPassword, $userInfo[COL_SALT]);
-        $password = $userInfo[COL_PWD];
-
         // Redirect back to step 1 if user password is incorrect
-        if (($hash_current != $password)) {
+        if (!validate_user_password($_SESSION["pc_username"], $_POST['clearPass'], $_POST['authProvider'])) {
             header("Location: mfa_totp.php?action=reg1&error=auth");
             exit();
         }
@@ -135,7 +139,7 @@ $action = $_REQUEST['action'];
         }
 
         // Generate a new QR code or existing QR code
-        $googleAuth = new Totp($password, $secret, $_SESSION["pc_username"]);
+        $googleAuth = new Totp($secret, $_SESSION["pc_username"]);
         $qr = $googleAuth->generateQrCode();
 
 
@@ -150,14 +154,19 @@ $action = $_REQUEST['action'];
                         <?php echo xlt('This will register a new App Based TOTP key.'); ?>
                         <?php echo xlt('Scan the following QR code with your preferred authenticator app.'); ?>
                     </p>
-                    <img src="<?php echo $qr; ?>" height="150" />
+                    <img src="<?php echo attr($qr); ?>" height="150" />
                     <p>
                         <?php echo xlt('Example authenticator apps include:'); ?>
                         <ul>
-                            <li>Google Auth
-                                (<a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8">ios</a>, <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en">android</a>)</li>
-                            <li>Authy
-                                (<a href="https://itunes.apple.com/us/app/authy/id494168017?mt=8">ios</a>, <a href="https://play.google.com/store/apps/details?id=com.authy.authy&hl=en">android</a>)</li>
+                            <li><?php echo xla('Google Auth'); ?>
+                                (<a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8">
+                                    <?php echo xla('ios'); ?>
+                                </a>,
+                                <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en">
+                                    <?php echo xla('android'); ?>
+                                </a>)</li>
+                            <li><?php echo xla('Authy'); ?>
+                                (<a href="https://itunes.apple.com/us/app/authy/id494168017?mt=8"><?php echo xla('ios'); ?></a>, <a href="https://play.google.com/store/apps/details?id=com.authy.authy&hl=en"><?php echo xla('android'); ?></a>)</li>
                         </ul>
                     </p>
                     <p>

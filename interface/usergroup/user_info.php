@@ -63,11 +63,6 @@ function update_password()
 $res = sqlStatement("select fname,lname,username from users where id=?", array($_SESSION["authId"]));
 $row = sqlFetchArray($res);
       $iter=$row;
-
-$existingTotp = sqlStatement("SELECT count(1) as count FROM login_mfa_registrations WHERE `user_id` = ? AND `method` = 'TOTP'", array($_SESSION["authId"]));
-$existingTotpRow = sqlFetchArray($existingTotp);
-    $totp=$existingTotpRow;
-
 ?>
 <div class="container">
    <div class="row">
@@ -80,7 +75,6 @@ $existingTotpRow = sqlFetchArray($existingTotp);
    <div class="row">
       <div class="col-xs-12">
         <div id="display_msg"></div>
-        <?php if ($totp['count']) { echo '<div id="totp-alert"><font color="red">Reseting password will remove 2-Factor TOTP Authentication from account</font></div>'; } ?>        
       </div>
    </div>
 

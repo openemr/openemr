@@ -380,6 +380,7 @@ class Installer
 
             // Encrypt the new secret with the hashed password
             $secret = $this->encrypt_2fa($this->i2faSecret, $hash);
+            $this->hashedPassword = $hash;
 
             if ($this->execute_sql("INSERT INTO login_mfa_registrations (user_id, name, method, var1, var2) VALUES (1, 'App Based 2FA', 'TOTP', '".$this->escapeSql($secret)."', '')") == false) {
                 $this->error_message = "ERROR. Unable to add initial user's 2FA credentials\n".
@@ -407,7 +408,7 @@ class Installer
             require_once($this->totpClassFile);
             $hash = $this->hashedPassword;
             $secret = $this->encrypt_2fa($this->i2faSecret, $hash);
-            $adminTotp = new Totp($hash, $secret, $this->iuser);
+            $adminTotp = new Totp($secret, $this->iuser, $hash);
             $qr = $adminTotp->generateQrCode();
             return $qr;
 

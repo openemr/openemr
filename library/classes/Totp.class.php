@@ -37,7 +37,7 @@ class Totp {
      * @param bool $secret - user secret or false to generate
      * @param string $username - username to store in QR App
      */
-    public function __construct($hashedPass, $secret = false, $username = '') {
+    public function __construct($secret = false, $username = '', $hashedPass = false) {
 
         $this->_hashedPass = substr($hashedPass, 0, 32);
         $this->_username = $username;
@@ -108,7 +108,11 @@ class Totp {
      */
     private function _safeEncrypt($message, $key) {
 
-        $cipher = openssl_encrypt($message, "AES-128-ECB", $key);
+        if ($key != false) {
+            $cipher = openssl_encrypt($message, "AES-128-ECB", $key);
+        } else {
+            $cipher = encryptStandard($message);
+        }
         return $cipher;
     }
 
@@ -119,8 +123,12 @@ class Totp {
      * @param string $key - encryption key
      * @return string
      */
-    private function _safeDecrypt($encrypted, $key) {
-        $plain = openssl_decrypt($encrypted, "AES-128-ECB" , $key);
+    public function _safeDecrypt($encrypted, $key) {
+        if ($key) {
+            $plain = openssl_decrypt($encrypted, "AES-128-ECB" , $key);
+        } else {
+            $plain = decryptStandard($encrypted);
+        }
         return $plain;
     }
 

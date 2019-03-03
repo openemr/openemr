@@ -12,7 +12,6 @@
 
 /* Include our required headers */
 require_once('../globals.php');
-
 use OpenEMR\Core\Header;
 use u2flib_server\U2F;
 use OpenEMR\Services\FacilityService;
@@ -92,6 +91,34 @@ $errormsg = '';
 ///////////////////////////////////////////////////////////////////////
 // Begin code to support U2F and APP Based TOTP logic.
 ///////////////////////////////////////////////////////////////////////
+function generate_auth_form($requests, $errortype, $errormsg) {
+
+    generate_html_start(xl('U2F Key Verification'));
+    echo "<p>\n";
+    echo xlt('Insert your key into a USB port and click the Authenticate button below.');
+    echo " " . xlt('Then press the flashing button on your key within 1 minute.') . "</p>\n";
+    echo "<table><tr><td>\n";
+    echo "<input type='button' value='" . xlt('Authenticate UTF') . "' onclick='doAuth()' />\n";
+    echo "<input type='hidden' name='form_requests' value='" . attr($requests) . "' />\n";
+    echo "</td></tr></table>\n";
+    if ($errormsg && $errortype == "UTF") {
+        echo "<p style='color:red;font-weight:bold'>" . text($errormsg) . "</p>\n";
+    }
+
+    echo '<br /><h3>'.xl('or use').'</h3><br />';
+    echo '<h2>'.xl('App Based TOTP Verification').'</h2>';
+    echo "<p>\n";
+    echo xlt('Enter the code from your authentication application on your device.');
+    echo "<table><tr>";
+    echo "<td><input type='text' name='totp' /></td><td>";
+    echo "<button type='submit'>".xla('Authenticate TOTP')."</button>\n";
+    echo "<input type='hidden' name='form_response' value='true' />\n";
+    echo "</td></tr></table>\n";
+    if ($errormsg && $errortype == "TOTP") {
+        echo "<span style='color:red;font-weight:bold'>" . text($errormsg) . "</span>\n";
+    }
+}
+
 
 $regs = array();          // for mapping device handles to their names
 $registrations = array(); // the array of stored registration objects
@@ -104,22 +131,65 @@ while ($row1 = sqlFetchArray($res1)) {
     $regobj = json_decode($row1['var1']);
     $regs[json_encode($regobj->keyHandle)] = $row1['name'];
     $registrations[] = $regobj;
-    $registrations["method"] = $row1['method'];
-    if ($row1['method'] == 'TOTP') {
-        $registrations['secret'] = $row1['var1'];
-    }
+    $registrations['secret'] = $row1['var1'];
 }
+
 if (!empty($registrations)) {
 
+    $requests = '';
+    $errortype = '';
+    // There is at least one U2F key registered so we have to request or verify key data.
+    // https is required, and with a proxy the server might not see it.
+    $scheme = "https://"; // isset($_SERVER['HTTPS']) ? "https://" : "http://";
+    $appId = $scheme . $_SERVER['HTTP_HOST'];
+    $u2f = new u2flib_server\U2F($appId);
+    $userid = $_SESSION['authId'];
     $form_response = empty($_POST['form_response']) ? '' : $_POST['form_response'];
-    if ($registrations["method"] == "U2F") {
-        // There is at least one U2F key registered so we have to request or verify key data.
-        // https is required, and with a proxy the server might not see it.
-        $scheme = "https://"; // isset($_SERVER['HTTPS']) ? "https://" : "http://";
-        $appId = $scheme . $_SERVER['HTTP_HOST'];
-        $u2f = new u2flib_server\U2F($appId);
-        $userid = $_SESSION['authId'];
-        if ($form_response) {
+
+    if ($form_response) {
+
+        // TOTP METHOD enabled if TOTP is visible in post request
+        if (isset($_POST['totp']) && trim($_POST['totp']) != "") {
+
+            $errormsg = false;
+            if ($form_response) {
+
+                $googleAuth = new Totp($registrations['secret']);
+                $form_response = $googleAuth->validateCode($_POST['totp']);
+
+                if (!$form_response) {
+                    $passwordResults = privQuery(
+                        "SELECT password FROM users_secure WHERE username = ?",
+                        array($_POST["authUser"])
+                    );
+
+                    $googleAuth = new TOTP($registrations['secret'], "", $passwordResults["password"]);
+                    $form_response = $googleAuth->validateCode($_POST['totp']);
+
+                    // Used hashed password in the beginning, switching over to other encryption
+                    if ($form_response) {
+                        $newGoogleAuth = new TOTP(encryptStandard($googleAuth->_safeDecrypt($registrations['secret'], $passwordResults["password"])));
+                        privStatement("UPDATE login_mfa_registrations SET var1 = ? where user_id = ?",
+                            array($newGoogleAuth->getSecret(), $_SESSION['authId'])
+                        );
+                    }
+                }
+
+                if ($form_response) {
+                    // Keep track of when challenges were last answered correctly.
+                    privStatement(
+                        "UPDATE users_secure SET last_challenge_response = NOW() WHERE id = ?",
+                        array($_SESSION['authId'])
+                    );
+                } else {
+                    $errormsg = "The code you entered was not valid";
+                    $errortype = "TOTP";
+                }
+            }
+
+        // Otherwise use UTF METHOD
+        } else {
+
             // We have key data, check if it matches what was registered.
             $tmprow = sqlQuery("SELECT login_work_area FROM users_secure WHERE id = ?", array($userid));
             try {
@@ -149,73 +219,17 @@ if (!empty($registrations)) {
                 // Authentication failed so we will build the U2F form again.
                 $form_response = '';
                 $errormsg = xl('Authentication error') . ": " . $e->getMessage();
+                $errortype = "UTF";
             }
-        }
-        if (!$form_response) {
-            // There is no key data yet or authentication failed, so we need to solicit it.
-            $requests = json_encode($u2f->getAuthenticateData($registrations));
-            // Persist the challenge also in the database because the browser is untrusted.
-            sqlStatement(
-                "UPDATE users_secure SET login_work_area = ? WHERE id = ?",
-                array($requests, $userid)
-            );
-            generate_html_start(xl('U2F Key Verification'));
-            echo "<p>\n";
-            echo xlt('Insert your key into a USB port and click the Authenticate button below.');
-            echo " " . xlt('Then press the flashing button on your key within 1 minute.') . "</p>\n";
-            echo "<table><tr><td>\n";
-            echo "<input type='button' value='" . xla('Authenticate') . "' onclick='doAuth()' />\n";
-            echo "<input type='hidden' name='form_requests' value='" . attr($requests) . "' />\n";
-            echo "<input type='hidden' name='form_response' value='' />\n";
-            echo "</td></tr></table>\n";
-            if ($errormsg) {
-                echo "<p style='color:red;font-weight:bold'>" . text($errormsg) . "</p>\n";
-            }
-            exit(generate_html_end());
-        }
-    } elseif ($registrations["method"] == "TOTP") {
-        if ($row1['method'] == 'TOTP') {
-            $registrations['secret'] = $row1['var1'];
-        }
-        $errormsg = false;
-        if ($form_response) {
 
-            require_once("../../library/classes/Totp.class.php");
-            $passwordResults = privQuery(
-                "SELECT password FROM users_secure WHERE username = ?",
-                array($_POST["authUser"])
-            );
-            $password = $passwordResults["password"];
-
-            $googleAuth = new Totp($password, $registrations['secret']);
-            $form_response = $googleAuth->validateCode($_POST['totp']);
-
-            if ($form_response) {
-                // Keep track of when challenges were last answered correctly.
-                privStatement(
-                    "UPDATE users_secure SET last_challenge_response = NOW() WHERE id = ?",
-                    array($_SESSION['authId'])
-                );
-            } else {
-                $errormsg = "The code you entered was not valid";
-            }
-        }
-        if (!$form_response) {
-            generate_html_start(xl('TOTP Verification'));
-            echo "<p>\n";
-            echo xlt('Enter the code from your authentication application on your device.');
-            echo "<table><tr>";
-            echo "<td><input type='text' name='totp' /></td><td>";
-            echo "<button type='submit'>".xla('Authenticate')."</button>\n";
-            echo "<input type='hidden' name='form_requests' value='" . attr($requests) . "' />\n";
-            echo "<input type='hidden' name='form_response' value='true' />\n";
-            echo "</td></tr></table>\n";
-            if ($errormsg) {
-                echo "<span style='color:red;font-weight:bold'>" . text($errormsg) . "</span>\n";
-            }
-            exit(generate_html_end());
         }
     }
+
+    if (!$form_response) {
+        generate_auth_form($requests, $errortype, $errormsg);
+        exit(generate_html_end());
+    }
+
 }
 
 ///////////////////////////////////////////////////////////////////////
