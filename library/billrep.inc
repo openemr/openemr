@@ -169,6 +169,10 @@ function billCodesList($list, $skip = [])
     }
 
     $sqlBindArray = array_diff($list, $skip);
+    if (empty($sqlBindArray)) {
+        return;
+    }
+
     $in = str_repeat('?,', count($sqlBindArray) - 1) . '?';
     sqlStatement("update billing set billed=1 where id in ($in)", $sqlBindArray);
 
