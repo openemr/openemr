@@ -168,14 +168,9 @@ function billCodesList($list, $skip = [])
         return;
     }
 
-    $sqlBindArray = array_merge($list, $skip);
-    $in = str_repeat('?,', count($list) - 1) . '?';
-    if (empty($skip)) {
-        sqlStatement("update billing set billed=1 where id in ($in)", $sqlBindArray);
-    } else {
-        $not_in = str_repeat('?,', count($skip) - 1) . '?';
-        sqlStatement("update billing set billed=1 where id in ($in) and id not in ($not_in)", $sqlBindArray);
-    }
+    $sqlBindArray = array_diff($list, $skip);
+    $in = str_repeat('?,', count($sqlBindArray) - 1) . '?';
+    sqlStatement("update billing set billed=1 where id in ($in)", $sqlBindArray);
 
     return;
 }
