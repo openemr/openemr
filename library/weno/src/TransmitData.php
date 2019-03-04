@@ -86,4 +86,12 @@ class TransmitData
          $patientRes = sqlQuery($patientInfo, $val);
          return $patientRes;
     }
+
+    public function validateNPI($npi)
+    {
+        $url = "https://npiregistry.cms.hhs.gov/api/?number=$npi&enumeration_type=&taxonomy_description=&first_name=&last_name=&organization_name=&address_purpose=&city=&state=&postal_code=&country_code=&limit=&skip=&version=2.0";
+        $json = file_get_contents($url);
+        $response = json_decode($json);
+        return $response->result_count;
+    }
 }

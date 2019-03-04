@@ -67,8 +67,17 @@ if (empty($pharmacy['name'])) {
 }
 if (empty($pharmacy['ncpdp'])) {
     print xlt("Pharmacy missing NCPDP ID"). "<br>";
+    exit;
 }
 if (empty($pharmacy['npi'])) {
     print xlt("Pharmacy missing NPI"). "<br>";
+    exit;
+}
+//validate NPI exist
+//Test if the NPI is a valid number on file
+$seekvalidation = validateNPI($pharmacy['npi']);
+if($seekvalidation == 0) {
+    print xlt("Please use valid NPI");
+    exit;
 }
 header('Location: confirm.php');
