@@ -301,7 +301,7 @@ if ($refresh and $refresh != 'fullscreen') {
                               <div id="tab1_CC_text" class="tab_content">
                                 <table border="0" width="100%" cellspacing="0" cellpadding="0">
                                   <tr>
-                                    <td class="pad10"colspan="2">
+                                    <td class="pad10" colspan="2">
                                       <div class="kb kb_left">CC</div><b><span title="<?php echo xla('In the patient\'s words'); ?>"><?php echo xlt('Chief Complaint'); ?> 1:
                                       </span>  </b>
                                       <br />
@@ -3958,17 +3958,17 @@ if ($refresh and $refresh != 'fullscreen') {
         ?>
         function dopclick(id) {
             <?php if ($thisauth != 'write') : ?>
-            dlgopen('../../patient_file/summary/a_issue.php?issue=0&thistype=' + id, '_blank', 550, 400);
+            dlgopen('../../patient_file/summary/a_issue.php?issue=0&thistype=' + id, '_blank', 550, 400, '', ' ' );
             <?php else : ?>
             alert("<?php echo xls('You are not authorized to add/edit issues'); ?>");
             <?php endif; ?>
         }
         function doscript(type,id,encounter,rx_number) {
-            dlgopen('../../forms/eye_mag/SpectacleRx.php?REFTYPE=' + type + '&id='+id+'&encounter='+ encounter+'&form_id=<?php echo attr(addslashes($form_id)); ?>&rx_number='+rx_number, '_blank', 660, 590);
+            dlgopen('../../forms/eye_mag/SpectacleRx.php?REFTYPE=' + type + '&id='+id+'&encounter='+ encounter+'&form_id=<?php echo attr(addslashes($form_id)); ?>&rx_number='+rx_number, '_blank', 660, 590,'','Dispense Rx');
         }
 
         function dispensed(pid) {
-            dlgopen('../../forms/eye_mag/SpectacleRx.php?dispensed=1&pid='+pid, '_blank', 560, 590);
+            dlgopen('../../forms/eye_mag/SpectacleRx.php?dispensed=1&pid='+pid, '_blank', 560, 590, '', 'Rx History');
         }
         // This invokes the find-code popup.
         function sel_diagnosis(target,term) {
