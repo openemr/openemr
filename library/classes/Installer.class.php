@@ -63,9 +63,6 @@ class Installer
         $this->gaclSetupScript1 = dirname(__FILE__) . "/../../gacl/setup.php";
         $this->gaclSetupScript2 = dirname(__FILE__) . "/../../acl_setup.php";
 
-        // Record name file of totp class
-        $this->totpClassFile = dirname(__FILE__) . "/../../library/classes/Totp.class.php";
-
         // Prepare the dumpfile list
         $this->initialize_dumpfile_list();
 
@@ -376,12 +373,9 @@ class Installer
         }
 
         // Create new 2fa if enabled
-        if ($this->i2faEnable) {
-
+        if (($this->i2faEnable) && (class_exists('Totp'))) {
             // Encrypt the new secret with the hashed password
-            $secret = $this->encrypt_2fa($this->i2faSecret, $hash);
-            $this->hashedPassword = $hash;
-
+            $secret = encryptStandard($this->i2faSecret, $hash);
             if ($this->execute_sql("INSERT INTO login_mfa_registrations (user_id, name, method, var1, var2) VALUES (1, 'App Based 2FA', 'TOTP', '".$this->escapeSql($secret)."', '')") == false) {
                 $this->error_message = "ERROR. Unable to add initial user's 2FA credentials\n".
                     "<p>".mysqli_error($this->dbh)." (#".mysqli_errno($this->dbh).")\n";
@@ -402,31 +396,13 @@ class Installer
      * @return bool|string|void
      */
     public function get_initial_user_2fa_qr() {
-        if ($this->i2faEnable) {
-
-            require_once("./vendor/autoload.php");
-            require_once($this->totpClassFile);
-            $hash = $this->hashedPassword;
-            $secret = $this->encrypt_2fa($this->i2faSecret, $hash);
-            $adminTotp = new Totp($secret, $this->iuser, $hash);
+        if (($this->i2faEnable) && (class_exists('Totp'))) {
+            $adminTotp = new Totp($this->i2faSecret, $this->iuser);
             $qr = $adminTotp->generateQrCode();
             return $qr;
 
         }
         return false;
-    }
-
-    /**
-     * Encrypt 2fa message with key
-     * @param $message
-     * @param $key
-     * @return string
-     * @throws RangeException
-     */
-    private function encrypt_2fa($message, $key) {
-
-        $cipher = openssl_encrypt($message, "AES-128-ECB", $key);
-        return $cipher;
     }
 
   /**
@@ -510,9 +486,13 @@ if ($it_died != 0) {
 
     public function insert_globals()
     {
-        function xl($s)
-        {
-            return $s;
+        if (!(function_exists('xl'))) {
+            function xl($s)
+            {
+                return $s;
+            }
+        } else {
+            $GLOBALS['temp_skip_translations'] = true;
         }
         require(dirname(__FILE__) . '/../globals.inc.php');
         foreach ($GLOBALS_METADATA as $grpname => $grparr) {

@@ -153,26 +153,33 @@ if (!empty($registrations)) {
 
             $errormsg = false;
             if ($form_response) {
+                $form_response = '';
 
-                $googleAuth = new Totp($registrations['secret']);
-                $form_response = $googleAuth->validateCode($_POST['totp']);
-
-                if (!$form_response) {
+                // Decrypt the secret
+                // First, try standard method that uses standard key
+                $secret = decryptStandard($registrations['secret']);
+                if (empty($secret)) {
+                    // Second, try the password hash, which was setup during install and is temporary
                     $passwordResults = privQuery(
                         "SELECT password FROM users_secure WHERE username = ?",
                         array($_POST["authUser"])
                     );
-
-                    $googleAuth = new TOTP($registrations['secret'], "", $passwordResults["password"]);
-                    $form_response = $googleAuth->validateCode($_POST['totp']);
-
-                    // Used hashed password in the beginning, switching over to other encryption
-                    if ($form_response) {
-                        $newGoogleAuth = new TOTP(encryptStandard($googleAuth->_safeDecrypt($registrations['secret'], $passwordResults["password"])));
-                        privStatement("UPDATE login_mfa_registrations SET var1 = ? where user_id = ?",
-                            array($newGoogleAuth->getSecret(), $_SESSION['authId'])
-                        );
+                    if (!empty($passwordResults["password"])) {
+                        $secret = decryptStandard($registrations['secret'], $passwordResults["password"]);
+                        if (!empty($secret)) {
+                            // Re-encrypt with the more secure standard key
+                            $secretEncrypt = encryptStandard($secret);
+                            privStatement(
+                                "UPDATE login_mfa_registrations SET var1 = ? where user_id = ?",
+                                array($secretEncrypt, $_SESSION['authId'])
+                            );
+                        }
                     }
+                }
+
+                if (!empty($secret)) {
+                    $googleAuth = new Totp($secret);
+                    $form_response = $googleAuth->validateCode($_POST['totp']);
                 }
 
                 if ($form_response) {

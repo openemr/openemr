@@ -134,7 +134,7 @@ $action = $_REQUEST['action'];
             $secret = false;
             $doesExist = false;
         } else {
-            $secret = $existingSecret['var1'];
+            $secret = decryptStandard($existingSecret['var1']);
             $doesExist = true;
         }
 
@@ -207,7 +207,7 @@ $action = $_REQUEST['action'];
                 "INSERT INTO login_mfa_registrations " .
                 "(`user_id`, `method`, `name`, `var1`, `var2`) VALUES " .
                 "(?, 'TOTP', 'App Based 2FA', ?, '')",
-                array($userid, $_SESSION['totpSecret'])
+                array($userid, encryptStandard($_SESSION['totpSecret']))
             );
             unset($_SESSION['totpSecret']);
 

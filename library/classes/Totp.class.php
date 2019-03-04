@@ -7,7 +7,7 @@
  * @author    Anthony Zullo <anthonykzullo@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Anthony Zullo <anthonykzullo@gmail.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
 use ParagonIE\MultiFactor\Vendor\GoogleAuth;
@@ -33,19 +33,16 @@ class Totp {
     private $_username;
 
     /**
-     * @param $hashedPass - user password
      * @param bool $secret - user secret or false to generate
      * @param string $username - username to store in QR App
      */
-    public function __construct($secret = false, $username = '', $hashedPass = false) {
-
-        $this->_hashedPass = substr($hashedPass, 0, 32);
+    public function __construct($secret = false, $username = '') {
         $this->_username = $username;
 
         if ($secret) {
             $this->_secret = $secret;
         } else {
-            $this->_secret = $this->_safeEncrypt($this->_createRandString(16), $this->_hashedPass);
+            $this->_secret = $this->_createRandString(16);
         }
     }
 
@@ -84,8 +81,7 @@ class Totp {
 
         if (class_exists('ParagonIE\MultiFactor\Vendor\GoogleAuth')) {
 
-            $encryptedTotp = $this->_safeEncrypt($totp, $this->_hashedPass);
-            return $this->_getGoogleAuth()->validateCode($this->_safeDecrypt($encryptedTotp, $this->_hashedPass), strtotime("now"));
+            return $this->_getGoogleAuth()->validateCode($totp, strtotime("now"));
 
         }
         return false;
@@ -97,39 +93,6 @@ class Totp {
      */
     public function getSecret() {
         return $this->_secret;
-    }
-
-    /**
-     * Encrypts a given totp
-     *
-     * @param $message
-     * @param $key
-     * @return string
-     */
-    private function _safeEncrypt($message, $key) {
-
-        if ($key != false) {
-            $cipher = openssl_encrypt($message, "AES-128-ECB", $key);
-        } else {
-            $cipher = encryptStandard($message);
-        }
-        return $cipher;
-    }
-
-    /**
-     * Decrypt a message
-     *
-     * @param string $encrypted - message encrypted with safeEncrypt()
-     * @param string $key - encryption key
-     * @return string
-     */
-    public function _safeDecrypt($encrypted, $key) {
-        if ($key) {
-            $plain = openssl_decrypt($encrypted, "AES-128-ECB" , $key);
-        } else {
-            $plain = decryptStandard($encrypted);
-        }
-        return $plain;
     }
 
     /**
@@ -149,7 +112,7 @@ class Totp {
      */
     private function _getGoogleAuth() {
         if (!$this->_googleAuth) {
-            $this->_googleAuth = new GoogleAuth($this->_safeDecrypt($this->getSecret(), $this->_hashedPass));
+            $this->_googleAuth = new GoogleAuth($this->getSecret());
         }
         return $this->_googleAuth;
     }

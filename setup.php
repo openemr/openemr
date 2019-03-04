@@ -31,8 +31,8 @@ if (!$allow_cloning_setup && !empty($_REQUEST['clone_database'])) {
     die("To turn on support for cloning setup, need to edit this script and change \$allow_cloning_setup to true. After you are done setting up the cloning, ensure you change \$allow_cloning_setup back to false or remove this script altogether");
 }
 
-// Checks if the server's PHP version is compatible with OpenEMR:
-require_once(dirname(__FILE__) . "/common/compatibility/Checker.php");
+// Bring in standard libraries/classes
+require_once dirname(__FILE__) ."/vendor/autoload.php";
 
 use OpenEMR\Common\Checker;
 
