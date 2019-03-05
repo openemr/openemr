@@ -181,11 +181,11 @@ function create_client_cert()
         $error_msg .= xl('Error, User Certificate Authentication is not enabled in OpenEMR');
         return;
     }
-    if(!file_exists($GLOBALS['certificate_authority_crt'])) {
+    if (!file_exists($GLOBALS['certificate_authority_crt'])) {
         $error_msg .= xl('Error, the CA Certificate File doesn\'t exist');
         return;
     }
-    if(!file_exists($GLOBALS['certificate_authority_key'])) {
+    if (!file_exists($GLOBALS['certificate_authority_key'])) {
         $error_msg .= xl('Error, the CA Key File doesn\'t exist');
         return;
     }
@@ -305,7 +305,8 @@ function create_and_download_certificates()
 
 
     /* Create the Certficate Authority (CA) */
-    $arr = create_csr("OpenEMR CA for " . $commonName,
+    $arr = create_csr(
+        "OpenEMR CA for " . $commonName,
         $emailAddress,
         $countryName,
         $stateOrProvinceName,

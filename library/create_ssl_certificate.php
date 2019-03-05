@@ -106,7 +106,7 @@ function create_crt($csr, $cacert, $cakey)
     $config = array('config' => $opensslConf);
 
     // Fix server certificate is a CA certificate (BasicConstraints: CA == TRUE !?)
-    if($cacert) {
+    if ($cacert) {
         $config["x509_extensions"] = "v3_req";
     }
     $cert = openssl_csr_sign($csr, $cacert, $cakey, 3650, $config, rand(1000, 9999));
