@@ -12,6 +12,9 @@
 
 namespace OpenEMR\Rx\Weno;
 
+use OpenEMR\Common\Http\oeHttp;
+
+
 class TransmitData
 {
 
@@ -66,7 +69,7 @@ class TransmitData
 
     public function patientPharmacyInfo($pid)
     {
-        $sql = "SELECT a.pharmacy_id, b.name FROM patient_data AS a, pharmacies AS b WHERE a.pid = ? AND a.pharmacy_id = b.id";
+        $sql = "SELECT a.pharmacy_id, b.name, b.npi, b.ncpdp FROM patient_data AS a, pharmacies AS b WHERE a.pid = ? AND a.pharmacy_id = b.id";
         $res = sqlQuery($sql, $pid);
         return $res;
     }
@@ -89,9 +92,32 @@ class TransmitData
 
     public function validateNPI($npi)
     {
-        $url = "https://npiregistry.cms.hhs.gov/api/?number=$npi&enumeration_type=&taxonomy_description=&first_name=&last_name=&organization_name=&address_purpose=&city=&state=&postal_code=&country_code=&limit=&skip=&version=2.0";
-        $json = file_get_contents($url);
-        $response = json_decode($json);
-        return $response->result_count;
+
+        $headers = array(
+            'Content-Type' => "application/json"
+        );
+        $query = [
+            'number' => $npi,
+            'enumeration_type' => '',
+            'taxonomy_description' => '',
+            'first_name' => '',
+            'last_name' => '',
+            'organization_name'  => '',
+            'address_purpose' => '',
+            'city' => '',
+            'state' => '',
+            'postal_code' => '',
+            'country_code' => '',
+            'limit' => '',
+            'skip' => '',
+            'version' => '2.0',
+        ];
+        $response = oeHttp::bodyFormat('body')->get('https://npiregistry.cms.hhs.gov/api/', $query);
+
+        $body = $response->body(); // already should be json.
+
+        $validated = json_decode($body);
+
+        return $validated->result_count;
     }
 }
