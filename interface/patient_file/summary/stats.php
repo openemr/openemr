@@ -47,6 +47,8 @@ function widget_titles($pid, $ISSUE_TYPES, $subtype='') {
             }
             $query .= "and subtype like ? ";
             $escArr[] = $subtype['option_id'];
+        } else {
+            $query .= "and subtype = '' ";
         }
         $pres = sqlStatement($query, $escArr);
         $escArr = array();
