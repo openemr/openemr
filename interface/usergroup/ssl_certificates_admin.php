@@ -355,7 +355,7 @@ function create_and_download_certificates()
     $config     = $arr[2];
     $server_crt = create_crt($server_csr, $ca_crt, $ca_key);
 
-    if (server_crt === false) {
+    if ($server_crt === false) {
         $error_msg .= xl('Error, unable to create the Server certificate.');
         delete_certificates();
         return;
