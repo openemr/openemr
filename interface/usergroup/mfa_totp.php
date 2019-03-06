@@ -62,7 +62,7 @@ $action = $_REQUEST['action'];
             <div class="row">
                 <div class="col-xs-12">
                     <div class="page-header">
-                        <h3><?php echo xlt('Register App Based TOTP'); ?></h3>
+                        <h3><?php echo xlt('Register TOTP'); ?></h3>
                     </div>
                 </div>
             </div>
@@ -117,7 +117,6 @@ $action = $_REQUEST['action'];
 <?php
     // step 2 is to validate password and display qr code
     } elseif ($action == 'reg2') {
-
         // Redirect back to step 1 if user password is incorrect
         if (!validate_user_password($_SESSION["pc_username"], $_POST['clearPass'], $_POST['authProvider'])) {
             header("Location: mfa_totp.php?action=reg1&error=auth");
@@ -151,7 +150,7 @@ $action = $_REQUEST['action'];
             <div class="row">
                 <div class="col-xs-12">
                     <p>
-                        <?php echo xlt('This will register a new App Based TOTP key.'); ?>
+                        <?php echo xlt('This will register a new TOTP key.'); ?>
                         <?php echo xlt('Scan the following QR code with your preferred authenticator app.'); ?>
                     </p>
                     <img src="<?php echo attr($qr); ?>" height="150" />
@@ -186,7 +185,6 @@ $action = $_REQUEST['action'];
 <?php
     // step 3 is to save the qr code
     } else if ($action == 'reg3') {
-
         if (!verifyCsrfToken($_POST["csrf_token_form"])) {
             csrfNotVerified();
         }
@@ -202,7 +200,6 @@ $action = $_REQUEST['action'];
 
 
         if (empty($row['count']) && isset($_SESSION['totpSecret'])) {
-
             privStatement(
                 "INSERT INTO login_mfa_registrations " .
                 "(`user_id`, `method`, `name`, `var1`, `var2`) VALUES " .
@@ -210,7 +207,6 @@ $action = $_REQUEST['action'];
                 array($userid, encryptStandard($_SESSION['totpSecret']))
             );
             unset($_SESSION['totpSecret']);
-
         } else {
             echo " alert(" . xlj('TOTP Method already exists and is enabled. Try again.') . ");\n";
         }

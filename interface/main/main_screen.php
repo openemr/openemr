@@ -91,7 +91,8 @@ $errormsg = '';
 ///////////////////////////////////////////////////////////////////////
 // Begin code to support U2F and APP Based TOTP logic.
 ///////////////////////////////////////////////////////////////////////
-function generate_auth_form($requests, $errortype, $errormsg) {
+function generate_auth_form($requests, $errortype, $errormsg)
+{
 
     generate_html_start(xl('U2F Key Verification'));
     echo "<p>\n";
@@ -106,7 +107,7 @@ function generate_auth_form($requests, $errortype, $errormsg) {
     }
 
     echo '<br /><h3>'.xl('or use').'</h3><br />';
-    echo '<h2>'.xl('App Based TOTP Verification').'</h2>';
+    echo '<h2>'.xl('TOTP Verification').'</h2>';
     echo "<p>\n";
     echo xlt('Enter the code from your authentication application on your device.');
     echo "<table><tr>";
@@ -131,11 +132,9 @@ while ($row1 = sqlFetchArray($res1)) {
     $regobj = json_decode($row1['var1']);
     $regs[json_encode($regobj->keyHandle)] = $row1['name'];
     $registrations[] = $regobj;
-    $registrations['secret'] = $row1['var1'];
 }
 
 if (!empty($registrations)) {
-
     $requests = '';
     $errortype = '';
     // There is at least one U2F key registered so we have to request or verify key data.
@@ -147,17 +146,24 @@ if (!empty($registrations)) {
     $form_response = empty($_POST['form_response']) ? '' : $_POST['form_response'];
 
     if ($form_response) {
+        $res1 = sqlStatement(
+            "SELECT a.var1 FROM login_mfa_registrations AS a WHERE a.user_id = ? AND a.method = 'TOTP'",
+            array($_SESSION['authId'])
+        );
+        $registrationSecret = false;
+        while ($row1 = sqlFetchArray($res1)) {
+            $registrationSecret = $row1['var1'];
+        }
 
         // TOTP METHOD enabled if TOTP is visible in post request
         if (isset($_POST['totp']) && trim($_POST['totp']) != "") {
-
             $errormsg = false;
             if ($form_response) {
                 $form_response = '';
 
                 // Decrypt the secret
                 // First, try standard method that uses standard key
-                $secret = decryptStandard($registrations['secret']);
+                $secret = decryptStandard($registrationSecret);
                 if (empty($secret)) {
                     // Second, try the password hash, which was setup during install and is temporary
                     $passwordResults = privQuery(
@@ -165,12 +171,12 @@ if (!empty($registrations)) {
                         array($_POST["authUser"])
                     );
                     if (!empty($passwordResults["password"])) {
-                        $secret = decryptStandard($registrations['secret'], $passwordResults["password"]);
+                        $secret = decryptStandard($registrationSecret, $passwordResults["password"]);
                         if (!empty($secret)) {
                             // Re-encrypt with the more secure standard key
                             $secretEncrypt = encryptStandard($secret);
                             privStatement(
-                                "UPDATE login_mfa_registrations SET var1 = ? where user_id = ?",
+                                "UPDATE login_mfa_registrations SET var1 = ? where user_id = ? AND method = 'TOTP'",
                                 array($secretEncrypt, $_SESSION['authId'])
                             );
                         }
@@ -196,7 +202,6 @@ if (!empty($registrations)) {
 
         // Otherwise use UTF METHOD
         } else {
-
             // We have key data, check if it matches what was registered.
             $tmprow = sqlQuery("SELECT login_work_area FROM users_secure WHERE id = ?", array($userid));
             try {
@@ -228,7 +233,6 @@ if (!empty($registrations)) {
                 $errormsg = xl('Authentication error') . ": " . $e->getMessage();
                 $errortype = "UTF";
             }
-
         }
     }
 

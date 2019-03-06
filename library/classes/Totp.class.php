@@ -17,7 +17,8 @@ use Defuse\Crypto\Crypto;
 /**
  * Class Totp
  */
-class Totp {
+class Totp
+{
 
     /** @var bool|GoogleAuth  */
     private $_googleAuth = false;
@@ -36,7 +37,8 @@ class Totp {
      * @param bool $secret - user secret or false to generate
      * @param string $username - username to store in QR App
      */
-    public function __construct($secret = false, $username = '') {
+    public function __construct($secret = false, $username = '')
+    {
         $this->_username = $username;
 
         if ($secret) {
@@ -50,8 +52,8 @@ class Totp {
      * Generates a QR code code
      * @return bool|string|void
      */
-    public function generateQrCode() {
-
+    public function generateQrCode()
+    {
         if (class_exists('ParagonIE\MultiFactor\Vendor\GoogleAuth')) {
 
             // Generates a file with a PNG of the qr code
@@ -77,8 +79,8 @@ class Totp {
      * @param $totp : unencrypted
      * @return bool
      */
-    public function validateCode($totp) {
-
+    public function validateCode($totp)
+    {
         if (class_exists('ParagonIE\MultiFactor\Vendor\GoogleAuth')) {
 
             return $this->_getGoogleAuth()->validateCode($totp, strtotime("now"));
@@ -91,7 +93,8 @@ class Totp {
      * Gets the encrypted value of the secret
      * @return string
      */
-    public function getSecret() {
+    public function getSecret()
+    {
         return $this->_secret;
     }
 
@@ -99,7 +102,8 @@ class Totp {
      * Gets the file name of the string as a png
      * @return string
      */
-    private function _getQrFilePath() {
+    private function _getQrFilePath()
+    {
         if (!$this->_qrFileName) {
             $this->_qrFileName = md5($this->getSecret());
         }
@@ -110,7 +114,8 @@ class Totp {
      * Gets the GoogleAuth object related this Totp
      * @return bool|GoogleAuth
      */
-    private function _getGoogleAuth() {
+    private function _getGoogleAuth()
+    {
         if (!$this->_googleAuth) {
             $this->_googleAuth = new GoogleAuth($this->getSecret());
         }
@@ -122,7 +127,8 @@ class Totp {
      * @param $len - length of string
      * @return string
      */
-    private function _createRandString($len) {
+    private function _createRandString($len)
+    {
         return substr(str_shuffle(str_repeat("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", $len)), 0, $len);
     }
 

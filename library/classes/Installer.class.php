@@ -395,7 +395,8 @@ class Installer
      * Generates the initial user's 2FA QR Code
      * @return bool|string|void
      */
-    public function get_initial_user_2fa_qr() {
+    public function get_initial_user_2fa_qr()
+    {
         if (($this->i2faEnable) && (class_exists('Totp'))) {
             $adminTotp = new Totp($this->i2faSecret, $this->iuser);
             $qr = $adminTotp->generateQrCode();

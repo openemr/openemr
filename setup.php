@@ -31,6 +31,8 @@ if (!$allow_cloning_setup && !empty($_REQUEST['clone_database'])) {
     die("To turn on support for cloning setup, need to edit this script and change \$allow_cloning_setup to true. After you are done setting up the cloning, ensure you change \$allow_cloning_setup back to false or remove this script altogether");
 }
 
+// Checks if the server's PHP version is compatible with OpenEMR:
+require_once(dirname(__FILE__) . "/common/compatibility/Checker.php");
 // Bring in standard libraries/classes
 require_once dirname(__FILE__) ."/vendor/autoload.php";
 
@@ -838,12 +840,12 @@ SOURCESITEBOT;
                                 <div class="col-sm-4">
                                     <div class="clearfix form-group">
                                         <div class="label-div">
-                                            <label class="control-label" for="i2fa">Configure App Based 2FA:</label> <a href="#i2fa_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            <label class="control-label" for="i2fa">Configure 2FA:</label> <a href="#i2fa_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div>
                                             <table>
                                                 <tr>
-                                                    <td><p><input name='i2faenable' id='i2faenable' type='checkbox' /> Enable App Based 2FA</p></td>
+                                                    <td><p><input name='i2faenable' id='i2faenable' type='checkbox' /> Enable 2FA</p></td>
                                                 </tr>
                                                 <tr>
                                                     <td>
