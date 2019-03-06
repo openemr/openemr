@@ -14,7 +14,6 @@ namespace OpenEMR\Rx\Weno;
 
 use OpenEMR\Common\Http\oeHttp;
 
-
 class TransmitData
 {
 

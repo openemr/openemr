@@ -78,7 +78,7 @@ if (empty($pharmacy['npi'])) {
 //validate NPI exist
 //Test if the NPI is a valid number on file
 $seekvalidation = $validation->validateNPI($pharmacy['npi']);
-if($seekvalidation == 0) {
+if ($seekvalidation == 0) {
     print xlt("Please use valid NPI");
     exit;
 }
