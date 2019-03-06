@@ -359,7 +359,7 @@ div.menuLabel:hover {
 
 .menuDisabled
 {
-    color: #d7d7d7;
+    color: #d7d7d7 !important;
 }
 .menuDisabled:hover {
     color: #d7d7d7 !important;
