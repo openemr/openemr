@@ -91,10 +91,6 @@ class TransmitData
 
     public function validateNPI($npi)
     {
-
-        $headers = array(
-            'Content-Type' => "application/json"
-        );
         $query = [
             'number' => $npi,
             'enumeration_type' => '',
