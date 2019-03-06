@@ -373,7 +373,7 @@ class Installer
         }
 
         // Create new 2fa if enabled
-        if (($this->i2faEnable) && (class_exists('Totp'))) {
+        if (($this->i2faEnable) && (!empty($this->i2faSecret)) && (class_exists('Totp'))) {
             // Encrypt the new secret with the hashed password
             $secret = encryptStandard($this->i2faSecret, $hash);
             if ($this->execute_sql("INSERT INTO login_mfa_registrations (user_id, name, method, var1, var2) VALUES (1, 'App Based 2FA', 'TOTP', '".$this->escapeSql($secret)."', '')") == false) {
@@ -397,11 +397,10 @@ class Installer
      */
     public function get_initial_user_2fa_qr()
     {
-        if (($this->i2faEnable) && (class_exists('Totp'))) {
+        if (($this->i2faEnable) && (!empty($this->i2faSecret)) && (class_exists('Totp'))) {
             $adminTotp = new Totp($this->i2faSecret, $this->iuser);
             $qr = $adminTotp->generateQrCode();
             return $qr;
-
         }
         return false;
     }

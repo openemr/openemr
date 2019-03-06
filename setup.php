@@ -31,8 +31,6 @@ if (!$allow_cloning_setup && !empty($_REQUEST['clone_database'])) {
     die("To turn on support for cloning setup, need to edit this script and change \$allow_cloning_setup to true. After you are done setting up the cloning, ensure you change \$allow_cloning_setup back to false or remove this script altogether");
 }
 
-// Checks if the server's PHP version is compatible with OpenEMR:
-require_once(dirname(__FILE__) . "/common/compatibility/Checker.php");
 // Bring in standard libraries/classes
 require_once dirname(__FILE__) ."/vendor/autoload.php";
 
@@ -745,8 +743,20 @@ SOURCESITETOP;
 SOURCESITEBOT;
                             echo $source_site_bot ."\r\n";
                         }
-                        $randomusername = chr(rand(65, 90)) . chr(rand(65, 90)) . chr(rand(65, 90)) . "-admin-" . rand(0, 9) . rand(0, 9);                                                // App Based TOTP secret
-                        $randomsecret = chr(rand(0, 90)) . chr(rand(0, 90)) . chr(rand(0, 90)) . chr(rand(0, 90)) . chr(rand(0, 90)) . chr(rand(0, 90));
+
+                        $randomusername = chr(rand(65, 90)) . chr(rand(65, 90)) . chr(rand(65, 90)) . "-admin-" . rand(0, 9) . rand(0, 9);
+
+                        // App Based TOTP secret
+                        // Shared key (per rfc6238 and rfc4226) should be 20 bytes (160 bits) and encoded in base32, which should
+                        //   be 32 characters in base32
+                        // Would be nice to use the produceRandomBytes() function and then encode to base32, but does not appear
+                        //   to be a standard way to encode binary to base32 in php.
+                        $randomsecret = produceRandomString(32, "234567ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+                        $disableCheckbox = "";
+                        if (empty($randomsecret)) {
+                            $randomsecret = "";
+                            $disableCheckbox = "disabled";
+                        }
 
                         $step2tablebot = <<<STP2TBLBOT
                     </fieldset>
@@ -842,7 +852,7 @@ SOURCESITEBOT;
                                         <div>
                                             <table>
                                                 <tr>
-                                                    <td><p><input name='i2faenable' id='i2faenable' type='checkbox' /> Enable 2FA</p></td>
+                                                    <td><p><input name='i2faenable' id='i2faenable' type='checkbox' $disableCheckbox/> Enable 2FA</p></td>
                                                 </tr>
                                                 <tr>
                                                     <td>

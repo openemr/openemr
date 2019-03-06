@@ -12,6 +12,8 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
+
+
 require_once('../globals.php');
 require_once("$srcdir/classes/Totp.class.php");
 
@@ -43,11 +45,6 @@ $action = $_REQUEST['action'];
             window.location.href = 'mfa_registrations.php';
         }
 
-        function dodelete() {
-            var f = document.forms[0];
-            f.action = 'mfa_registrations.php';
-            doregister('delete');
-        }
     </script>
 </head>
 <body class="body_top">
@@ -77,31 +74,18 @@ $action = $_REQUEST['action'];
                 <div class="col-xs-12">
                     <?php if ($error == "auth") { ?>
                         <div class="alert alert-danger login-failure m-1">
-                            Invalid password
+                            <?php echo xlt('Invalid password'); ?>
                         </div>
                     <?php } ?>
                     <p><?php echo xlt('In order to register your device, please provide your password'); ?></p>
                     <table cellspacing="5">
                         <tr>
                             <td>
-                                <label for="clearPass"><?php echo xlt('Password:'); ?>
+                                <label for="clearPass"><?php echo xlt('Password'); ?>:
                             </td>
                             <td>
-                                <input type="password" class="form-control" id="clearPass" name="clearPass" placeholder="<?php echo xlt('Password:'); ?>" >
-
-                                <?php
-                                // collect groups
-                                $res = sqlStatement("select distinct name from `groups`");
-                                for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-                                    $result[$iter] = $row;
-                                }
-
-                                if (count($result) == 1) {
-                                    $resvalue = $result[0]{"name"};
-                                    echo "<input type='hidden' name='authProvider' value='" . attr($resvalue) . "' />\n";
-                                } ?>
-
-                                </td>
+                                <input type="password" class="form-control" id="clearPass" name="clearPass" placeholder="<?php echo xla('Password'); ?>:" >
+                            </td>
                         </tr>
                         <tr>
                             <td></td>
@@ -117,8 +101,12 @@ $action = $_REQUEST['action'];
 <?php
     // step 2 is to validate password and display qr code
     } elseif ($action == 'reg2') {
+        if (!verifyCsrfToken($_POST["csrf_token_form"])) {
+            csrfNotVerified();
+        }
+
         // Redirect back to step 1 if user password is incorrect
-        if (!validate_user_password($_SESSION["pc_username"], $_POST['clearPass'], $_POST['authProvider'])) {
+        if (!validate_user_password($_SESSION['authUser'], $_POST['clearPass'], $_SESSION['authProvider'])) {
             header("Location: mfa_totp.php?action=reg1&error=auth");
             exit();
         }
@@ -138,7 +126,7 @@ $action = $_REQUEST['action'];
         }
 
         // Generate a new QR code or existing QR code
-        $googleAuth = new Totp($secret, $_SESSION["pc_username"]);
+        $googleAuth = new Totp($secret, $_SESSION['authUser']);
         $qr = $googleAuth->generateQrCode();
 
 
@@ -149,36 +137,41 @@ $action = $_REQUEST['action'];
         ?>
             <div class="row">
                 <div class="col-xs-12">
-                    <p>
-                        <?php echo xlt('This will register a new TOTP key.'); ?>
-                        <?php echo xlt('Scan the following QR code with your preferred authenticator app.'); ?>
-                    </p>
-                    <img src="<?php echo attr($qr); ?>" height="150" />
-                    <p>
-                        <?php echo xlt('Example authenticator apps include:'); ?>
+                    <?php if (!$doesExist) { ?>
+                        <p>
+                            <?php echo xlt('This will register a new TOTP key.'); ?>
+                            <?php echo xlt('Scan the following QR code with your preferred authenticator app.'); ?>
+                        </p>
+                    <?php } else { // $doesExist ?>
+                        <p>
+                            <?php echo xlt('Your current TOTP key QR code is displayed below.'); ?>
+                        </p>
+                    <?php } ?>
+                        <img src="<?php echo attr($qr); ?>" height="150" />
+                        <p>
+                            <?php echo xlt('Example authenticator apps include:'); ?>
                         <ul>
-                            <li><?php echo xla('Google Auth'); ?>
+                            <li><?php echo xlt('Google Auth'); ?>
                                 (<a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8">
-                                    <?php echo xla('ios'); ?>
+                                    <?php echo xlt('ios'); ?>
                                 </a>,
                                 <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en">
-                                    <?php echo xla('android'); ?>
+                                    <?php echo xlt('android'); ?>
                                 </a>)</li>
-                            <li><?php echo xla('Authy'); ?>
-                                (<a href="https://itunes.apple.com/us/app/authy/id494168017?mt=8"><?php echo xla('ios'); ?></a>, <a href="https://play.google.com/store/apps/details?id=com.authy.authy&hl=en"><?php echo xla('android'); ?></a>)</li>
+                            <li><?php echo xlt('Authy'); ?>
+                                (<a href="https://itunes.apple.com/us/app/authy/id494168017?mt=8"><?php echo xlt('ios'); ?></a>, <a href="https://play.google.com/store/apps/details?id=com.authy.authy&hl=en"><?php echo xlt('android'); ?></a>)</li>
                         </ul>
-                    </p>
-                    <p>
-                        <?php if ($doesExist) { ?>
-                            <input type='hidden' name='form_delete_method' value='TOTP' />
-                            <input type='hidden' name='form_delete_name' value='App Based 2FA' />
-                            <input type='button' value='<?php echo xla('Disable'); ?>' onclick='dodelete();' />
-                        <?php } else { ?>
+                        </p>
+                    <?php if (!$doesExist) { ?>
+                        <p>
                             <input type='button' value='<?php echo xla('Register'); ?>' onclick='doregister("reg3")'   />
-                        <?php } ?>
-
-                        <input type='button' value='<?php echo xla('Cancel'); ?>' onclick='docancel()'   />
-                    </p>
+                            <input type='button' value='<?php echo xla('Cancel'); ?>' onclick='docancel()'   />
+                        </p>
+                    <?php } else { // $doesExist ?>
+                        <p>
+                            <input type='button' value='<?php echo xla('Back'); ?>' onclick='docancel()'   />
+                        </p>
+                    <?php } ?>
                 </div>
             </div>
         </div>

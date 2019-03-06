@@ -7,7 +7,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
 
@@ -16,15 +16,18 @@ require_once('../globals.php');
 
 use OpenEMR\Core\Header;
 
-function writeRow($method, $name)
+function writeRow($method, $name, $allowEdit = false)
 {
     echo "        <tr><td>&nbsp;";
     echo text($method);
     echo "&nbsp;</td><td>&nbsp;";
     echo text($name);
     echo "&nbsp;</td><td>";
-    echo "<input type='button' onclick='delclick(" . attr_js($method) . ", " .
-        attr_js($name) . ")' value='" . xla('Delete') . "' />";
+    if ($allowEdit) {
+        echo "<button type='button' class='btn btn-default btn-search' onclick='editclick(" . attr_js($method) . ")'>" . xlt('View') . "</button>";
+    }
+    echo "<button type='button' class='btn btn-default btn-delete' onclick='delclick(" . attr_js($method) . ", " .
+        attr_js($name) . ")'>" . xlt('Delete') . "</button>";
     echo "</td></tr>\n";
 }
 
@@ -55,6 +58,16 @@ function delclick(mfamethod, mfaname) {
     f.form_delete_name.value = mfaname;
     top.restoreSession();
     f.submit();
+}
+
+function editclick(method) {
+    top.restoreSession();
+    if (method == 'TOTP') {
+        window.location.href = 'mfa_totp.php?action=reg1';
+    }
+    else {
+        alert(<?php echo xlj('Not yet implemented.'); ?>);
+    }
 }
 
 function addclick(sel) {
@@ -102,8 +115,14 @@ function addclick(sel) {
 <?php
 $res = sqlStatement("SELECT name, method FROM login_mfa_registrations WHERE " .
     "user_id = ? ORDER BY method, name", array($userid));
+$disableNewTotp = false;
 while ($row = sqlFetchArray($res)) {
-    writeRow($row['method'], $row['name']);
+    if ($row['method'] == "TOTP") {
+        $disableNewTotp = true;
+        writeRow($row['method'], $row['name'], true);
+    } else {
+        writeRow($row['method'], $row['name']);
+    }
 }
 ?>
       </table>
@@ -114,8 +133,12 @@ while ($row = sqlFetchArray($res)) {
       &nbsp;<br />
       <select name='form_add' onchange='addclick(this)'>
         <option value=''><?php echo xlt('Add New...'); ?></option>
-        <option value='U2F' ><?php echo xlt('U2F USB Device'); ?></option>
-        <option value='TOTP'><?php echo xlt('TOTP Key'); ?></option>
+        <option value='U2F'><?php echo xlt('U2F USB Device'); ?></option>
+        <option value='TOTP'
+            <?php echo ($disableNewTotp) ? 'title="' . xla('Only one TOTP Key can be set up per user') . '"' : ''; ?>
+            <?php echo ($disableNewTotp) ? 'disabled' : ''; ?>>
+            <?php echo xlt('TOTP Key'); ?>
+        </option>
       </select>
       <input type='hidden' name='form_delete_method' value='' />
       <input type='hidden' name='form_delete_name' value='' />

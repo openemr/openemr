@@ -10,9 +10,8 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
+
 use ParagonIE\MultiFactor\Vendor\GoogleAuth;
-use ParagonIE\Halite\Symmetric\Crypto as SymmetricCrypto;
-use Defuse\Crypto\Crypto;
 
 /**
  * Class Totp
@@ -22,10 +21,6 @@ class Totp
 
     /** @var bool|GoogleAuth  */
     private $_googleAuth = false;
-    /** @var bool|string  */
-    private $_qrFileName = false;
-    /** @var bool|string - user's hashed password */
-    private $_hashedPass = false;
     /** @var bool|string - totp hashed secret */
     private $_secret = false;
     /** @var string - issuer mentioned in the QR App  */
@@ -44,7 +39,11 @@ class Totp
         if ($secret) {
             $this->_secret = $secret;
         } else {
-            $this->_secret = $this->_createRandString(16);
+            // Shared key (per rfc6238 and rfc4226) should be 20 bytes (160 bits) and encoded in base32, which should
+            //   be 32 characters in base32
+            // Would be nice to use the produceRandomBytes() function and then encode to base32, but does not appear
+            //   to be a standard way to encode binary to base32 in php.
+            $this->_secret = produceRandomString(32, "234567ABCDEFGHIJKLMNOPQRSTUVWXYZ");
         }
     }
 
@@ -55,21 +54,22 @@ class Totp
     public function generateQrCode()
     {
         if (class_exists('ParagonIE\MultiFactor\Vendor\GoogleAuth')) {
-
             // Generates a file with a PNG of the qr code
-            $tempFilePath = $this->_getQrFilePath();
+            if (!empty($GLOBALS['temporary_files_dir'])) {
+                $tempFilePath = tempnam($GLOBALS['temporary_files_dir'], "oer");
+            } else {
+                $tempFilePath = tempnam(sys_get_temp_dir(), 'oer');
+            }
             $this->_getGoogleAuth()->makeQRCode(null, $tempFilePath, $this->_username, $this->_issuer);
 
             // Gets the image file data to return
-            $imageInfo = getimagesize($tempFilePath);
             $data = base64_encode(file_get_contents($tempFilePath));
-            $image = sprintf('data:%s;base64,%s', $imageInfo['mime'], $data);
+            $image = sprintf('data:%s;base64,%s', 'image/png', $data);
 
             // Delete image file before returning
             unlink($tempFilePath);
 
             return $image;
-
         }
         return false;
     }
@@ -81,10 +81,8 @@ class Totp
      */
     public function validateCode($totp)
     {
-        if (class_exists('ParagonIE\MultiFactor\Vendor\GoogleAuth')) {
-
+        if (class_exists('ParagonIE\MultiFactor\Vendor\GoogleAuth') && (!empty($this->_secret))) {
             return $this->_getGoogleAuth()->validateCode($totp, strtotime("now"));
-
         }
         return false;
     }
@@ -99,18 +97,6 @@ class Totp
     }
 
     /**
-     * Gets the file name of the string as a png
-     * @return string
-     */
-    private function _getQrFilePath()
-    {
-        if (!$this->_qrFileName) {
-            $this->_qrFileName = md5($this->getSecret());
-        }
-        return $this->_qrFileName.".png";
-    }
-
-    /**
      * Gets the GoogleAuth object related this Totp
      * @return bool|GoogleAuth
      */
@@ -121,16 +107,4 @@ class Totp
         }
         return $this->_googleAuth;
     }
-
-    /**
-     * Creates a random string of given length
-     * @param $len - length of string
-     * @return string
-     */
-    private function _createRandString($len)
-    {
-        return substr(str_shuffle(str_repeat("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", $len)), 0, $len);
-    }
-
 }
-?>
