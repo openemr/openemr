@@ -187,4 +187,3 @@ class RxList
         return $all;
     } // end function RxList::tokens2hash
 } // end class RxList
-
