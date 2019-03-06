@@ -330,7 +330,7 @@ body
 }
 .menuDisabled
 {
-    color:gray;
+    color:gray !important;
 }
 
 #username
