@@ -1121,7 +1121,7 @@ function writeITLine($it_array)
                 </script>
                 <?php
                 $urlFrom   = ($list_from > 0 ? $list_from : 1);
-                $urlTo     = ($list_to > 0 ? $list_to : '');
+                $urlTo     = ($list_to > 0 ? $list_to : $records_per_page);
                 ?>
                 <div class="blck-filter" style="display: none; float: left; margin-top: 5px; margin-left: 10px; border:0px solid red; width: auto; ">
                     <div id="input-type-from" style="float: left; "><?php echo xlt("From"); ?>&nbsp;<input autocomplete="off" id="list-from" value="<?php echo attr($urlFrom);?>" style = "margin-right: 10px; width: 40px;">
