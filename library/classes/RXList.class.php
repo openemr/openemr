@@ -55,139 +55,136 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Http\oeHttp;
 
-if (!defined('__CLASS_RXLIST_PHP__')) {
-    define('__CLASS_RXLIST_PHP__', true);
+class RxList
+{
 
-    class RxList
+    function getPage($query)
     {
+        $url = "https://rxnav.nlm.nih.gov/REST/Prescribe/drugs";
+        $response = oeHttp::get($url, ['name'=>$query]);
+        $buffer = $response->body();
+        return $buffer ? $buffer : false;
+    } // end function RxList::getPage
 
-        function getPage($query)
-        {
-            $url = "https://rxnav.nlm.nih.gov/REST/Prescribe/drugs";
-            $response = oeHttp::get($url, ['name'=>$query]);
-            $buffer = $response->body();
-            return $buffer ? $buffer : false;
-        } // end function RxList::getPage
-
-        function get_list($query)
-        {
-            $page = RxList::getPage($query);
-            $tokens = RxList::parse2tokens($page);
-            $hash = RxList::tokens2hash($tokens);
-            foreach ($hash as $index => $data) {
-                unset($my_data);
-                foreach ($data as $k => $v) {
-                    $my_data[$k] = $v;
-                }
-
-                $rxcui = '';
-
-                if (trim($my_data['rxcui']) !== '') {
-                    $rxcui = " / ".trim($my_data['rxcui']);
-                }
-
-                $synonym = '';
-                if (trim($my_data['synonym']) !== '') {
-                    $synonym = " == (".trim($my_data['synonym']).$rxcui.")";
-                }
-
-                $list[trim($my_data['name']).$synonym] =
-                    trim($my_data['name']);
+    function get_list($query)
+    {
+        $page = RxList::getPage($query);
+        $tokens = RxList::parse2tokens($page);
+        $hash = RxList::tokens2hash($tokens);
+        foreach ($hash as $index => $data) {
+            unset($my_data);
+            foreach ($data as $k => $v) {
+                $my_data[$k] = $v;
             }
 
-            return $list;
-        } // end function RxList::get_list
+            $rxcui = '';
 
-        /* break the web page into a collection of TAGS
-         * such as <input ..> or <img ... >
-         */
-        function parse2tokens($page)
-        {
-            $pos = 0;
-            $token = 0;
-            unset($tokens);
-            $in_token = false;
-            while ($pos < strlen($page)) {
-                switch (substr($page, $pos, 1)) {
-                    case "<":
-                        if ($in_token) {
-                            $token++;
-                            $in_token = false;
-                        }
+            if (trim($my_data['rxcui']) !== '') {
+                $rxcui = " / ".trim($my_data['rxcui']);
+            }
 
-                        $tokens[$token] .= substr($page, $pos, 1);
-                        $in_token = true;
-                        break;
+            $synonym = '';
+            if (trim($my_data['synonym']) !== '') {
+                $synonym = " == (".trim($my_data['synonym']).$rxcui.")";
+            }
 
-                    case ">":
-                        $tokens[$token] .= substr($page, $pos, 1);
-                        $in_token = false;
+            $list[trim($my_data['name']).$synonym] =
+                trim($my_data['name']);
+        }
+
+        return $list;
+    } // end function RxList::get_list
+
+    /* break the web page into a collection of TAGS
+     * such as <input ..> or <img ... >
+     */
+    function parse2tokens($page)
+    {
+        $pos = 0;
+        $token = 0;
+        unset($tokens);
+        $in_token = false;
+        while ($pos < strlen($page)) {
+            switch (substr($page, $pos, 1)) {
+                case "<":
+                    if ($in_token) {
                         $token++;
-                        break;
-
-                    default:
-                        $tokens[$token] .= substr($page, $pos, 1);
                         $in_token = false;
-                        break;
-                } // end decide what to do
-                $pos++;
-            } // end looping through string
-            return $tokens;
-        } // end function RxList::parse2tokens
+                    }
 
-        function tokens2hash($tokens)
-        {
-            $record = false;
-            $current = 0;
-            unset($hash);
-            $hash = [];
-            unset($all);
-            for ($pos=0; $pos<count($tokens); $pos++) {
-                if (!(strpos($tokens[$pos], "<name>") === false) && $pos !== 3) {
-                    // found a brand line 'token'
-                    $type = "name";
-                    $record = $pos;
-                    $ending = "</name>";
-                }
+                    $tokens[$token] .= substr($page, $pos, 1);
+                    $in_token = true;
+                    break;
 
-                if (!(strpos($tokens[$pos], "<synonym>") === false)) {
-                    // found a generic line 'token'
-                    $type = "synonym";
-                    //print "generic_name record start at $pos<BR>\n";
-                    $ending = "</synonym>";
-                    $record = $pos;
-                }
+                case ">":
+                    $tokens[$token] .= substr($page, $pos, 1);
+                    $in_token = false;
+                    $token++;
+                    break;
 
-                if (!(strpos($tokens[$pos], "<rxcui>") === false)) {
-                    // found a drug-class 'token'
-                    $type = "rxcui";
-                    $ending = "</rxcui>";
-                    $record = $pos;
-                }
+                default:
+                    $tokens[$token] .= substr($page, $pos, 1);
+                    $in_token = false;
+                    break;
+            } // end decide what to do
+            $pos++;
+        } // end looping through string
+        return $tokens;
+    } // end function RxList::parse2tokens
 
-                if (isset($hash["synonym"])) {
-                    // Reset record
-                    $record = false;
-                    // Add hash to all
-                    $all[] = $hash;
-                    // Unset hash and type
-                    unset($hash);
-                    $type = "";
-                    $ending = "";
-                }
+    function tokens2hash($tokens)
+    {
+        $record = false;
+        $current = 0;
+        unset($hash);
+        $hash = [];
+        unset($all);
+        for ($pos=0; $pos<count($tokens); $pos++) {
+            if (!(strpos($tokens[$pos], "<name>") === false) && $pos !== 3) {
+                // found a brand line 'token'
+                $type = "name";
+                $record = $pos;
+                $ending = "</name>";
+            }
 
-                if ($pos === ($record + 1) and ($ending != "")) {
-                    $my_pos = strpos(strtoupper($tokens[$pos]), "<");
-                    $hash[$type] = substr($tokens[$pos], 0, $my_pos);
-                    $hash[$type] = str_replace("&amp;", "&", $hash[$type]);
-                    //print "hash[$type] = ".htmlentities($hash[$type])."<BR>\n";
-                    $type = "";
-                    $ending = "";
-                }
-            } // end looping
-            return $all;
-        } // end function RxList::tokens2hash
-    } // end class RxList
+            if (!(strpos($tokens[$pos], "<synonym>") === false)) {
+                // found a generic line 'token'
+                $type = "synonym";
+                //print "generic_name record start at $pos<BR>\n";
+                $ending = "</synonym>";
+                $record = $pos;
+            }
 
-} // end if not defined
+            if (!(strpos($tokens[$pos], "<rxcui>") === false)) {
+                // found a drug-class 'token'
+                $type = "rxcui";
+                $ending = "</rxcui>";
+                $record = $pos;
+            }
+
+            if (isset($hash["synonym"])) {
+                // Reset record
+                $record = false;
+                // Add hash to all
+                $all[] = $hash;
+                // Unset hash and type
+                unset($hash);
+                $type = "";
+                $ending = "";
+            }
+
+            if ($pos === ($record + 1) and ($ending != "")) {
+                $my_pos = strpos(strtoupper($tokens[$pos]), "<");
+                $hash[$type] = substr($tokens[$pos], 0, $my_pos);
+                $hash[$type] = str_replace("&amp;", "&", $hash[$type]);
+                //print "hash[$type] = ".htmlentities($hash[$type])."<BR>\n";
+                $type = "";
+                $ending = "";
+            }
+        } // end looping
+        return $all;
+    } // end function RxList::tokens2hash
+} // end class RxList
+
