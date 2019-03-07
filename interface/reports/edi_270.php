@@ -9,9 +9,11 @@
  * @link      http://www.open-emr.org
  * @author    Terry Hill <terry@lilysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2010 MMF Systems, Inc
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -111,6 +113,7 @@ if ($exclude_policy != "") {
 								   f.federal_ein as federal_ein,
 								   f.facility_npi as facility_npi,
 								   f.name as facility_name,
+								   c.cms_id as cms_id,
 								   c.name as payer_name
 							FROM openemr_postcalendar_events AS e
 							LEFT JOIN users AS d on (e.pc_aid is not null and e.pc_aid = d.id)
@@ -140,16 +143,17 @@ if ($exclude_policy != "") {
     $clearinghouses = getX12Partner();
 
     if (isset($_POST['form_xmit']) && !empty($_POST['form_xmit']) && $res) {
-        $eFlag = true;
-        $log = requestRealTimeEligibily($res, $X12info, $segTer, $compEleSep, true);
+        $eFlag = !$GLOBALS['disable_eligibility_log'];
+        $log = requestRealTimeEligible($res, $X12info, $segTer, $compEleSep, $eFlag);
         if ($eFlag) {
             $fn = sprintf(
-                'elig-271_%s_%s.txt',
+                'elig-log_%s_%s.txt',
                 strtolower(str_replace(' ', '', $X12info['name'])),
                 date("Y-m-d:H:i:s")
             );
             $log = str_replace('~', "~\r", $log);
-            while (@ob_end_flush()) {}
+            while (@ob_end_flush()) {
+            }
             header('Content-Type: text/plain');
             header("Content-Length: " . strlen($log));
             header('Content-Disposition: attachment; filename="' . $fn . '"');
@@ -158,6 +162,7 @@ if ($exclude_policy != "") {
             exit();
         }
     }
+
     if (isset($_POST['form_savefile']) && !empty($_POST['form_savefile']) && $res) {
         header('Content-Type: text/plain');
         header(sprintf(
@@ -165,7 +170,7 @@ if ($exclude_policy != "") {
             $from_date,
             $to_date
         ));
-        print_elig($res, $X12info, $segTer, $compEleSep, false);
+        print_elig($res, $X12info, $segTer, $compEleSep);
         exit;
     }
 ?>

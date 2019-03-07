@@ -1435,7 +1435,7 @@ CREATE TABLE `eligibility_response` (
 DROP TABLE IF EXISTS `eligibility_verification`;
 CREATE TABLE `eligibility_verification` (
   `verification_id` bigint(20) NOT NULL auto_increment,
-  `response_id` bigint(20) default NULL,
+  `response_id` varchar(32) default NULL,
   `insurance_id` bigint(20) default NULL,
   `eligibility_check_date` datetime default NULL,
   `copay` int(11) default NULL,
@@ -11001,3 +11001,25 @@ CREATE TABLE `api_token` (
     `expiry`       datetime NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
+
+DROP TABLE IF EXISTS `benefit_eligibility`;
+CREATE TABLE `benefit_eligibility` (
+    `response_id` bigint(20) NOT NULL,
+    `verification_id` bigint(20) NOT NULL,
+    `type` varchar(4) DEFAULT NULL,
+    `benefit_type` varchar(255) DEFAULT NULL,
+    `start_date` date DEFAULT NULL,
+    `end_date` date DEFAULT NULL,
+    `coverage_level` varchar(255) DEFAULT NULL,
+    `coverage_type` varchar(512) DEFAULT NULL,
+    `plan_type` varchar(255) DEFAULT NULL,
+    `plan_description` varchar(255) DEFAULT NULL,
+    `coverage_period` varchar(255) DEFAULT NULL,
+    `amount` decimal(5,2) DEFAULT NULL,
+    `percent` decimal(3,2) DEFAULT NULL,
+    `network_ind` varchar(2) DEFAULT NULL,
+    `message` varchar(512) DEFAULT NULL,
+    `response_status` enum('A','D') DEFAULT 'A',
+    `response_create_date` date DEFAULT NULL,
+    `response_modify_date` date DEFAULT NULL
+) ENGINE=InnoDB;
