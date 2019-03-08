@@ -1412,23 +1412,6 @@ CREATE TABLE `drugs` (
 -----------------------------------------------------------
 
 --
--- Table structure for table `eligibility_response`
---
-
-DROP TABLE IF EXISTS `eligibility_response`;
-CREATE TABLE `eligibility_response` (
-  `response_id` bigint(20) NOT NULL auto_increment,
-  `response_description` varchar(255) default NULL,
-  `response_status` enum('A','D') NOT NULL default 'A',
-  `response_vendor_id` bigint(20) default NULL,
-  `response_create_date` date default NULL,
-  `response_modify_date` date default NULL,
-  PRIMARY KEY  (`response_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
-
------------------------------------------------------------
-
---
 -- Table structure for table `eligibility_verification`
 --
 

@@ -498,29 +498,29 @@ function show_eligibility_information($pid)
             $title = 0;
             $showString .= "<div class='col col-sm-12'>\n";
             $showString .= "<b>" . xlt('Insurance Provider') . ":</b> " . (!empty($benefit['name']) ? text($benefit['name']) : xlt('n/a')) . "<br/>\n";
-            $showString .= "<b>" . xlt('Verified On') . ":</b> " . $benefit['verificationDate'] . "<br/><br/>\n";
+            $showString .= "<b>" . xlt('Verified On') . ":</b> " . text($benefit['verificationDate']) . "<br/><br/>\n";
             $showString .= "</div><br/>\n";
         }
         $benefit['start_date'] = strpos($benefit['start_date'], "0000") === false ? $benefit['start_date'] : '';
         $benefit['end_date'] = strpos($benefit['end_date'], "0000") === false ? $benefit['end_date'] : '';
 
         $showString .= "\n<div class='col col-sm-6'>\n";
-        $showString .= !empty($benefit['benefit_type']) ? "<b>" . xlt('Benefit Type') . ":</b> " .  $benefit['benefit_type'] . "<br />\n" : '';
-        $showString .= !empty($benefit['start_date']) ? "<b>" . xlt('Start Date') . ":</b> " . date("d/m/Y", strtotime($benefit['start_date'])) . "<br />\n" : '';
-        $showString .= !empty($benefit['end_date']) ? "<b>" . xlt('End Date') . ":</b> " . date("d/m/Y", strtotime($benefit['end_date'])) . "<br />\n" : '';
-        $showString .= !empty($benefit['coverage_level']) ? "<b>" . xlt('Coverage Level') . ":</b> " .$benefit['coverage_level'] . "<br />\n" : '';
-        $showString .= !empty($benefit['coverage_type']) ? "<b>" . xlt('Coverage Type') . ":</b> " . $benefit['coverage_type'] . "<br />\n" : '';
-        $showString .= !empty($benefit['plan_type']) ? "<b>" . xlt('Plan Type') . ":</b> " .  $benefit['plan_type'] . "<br />\n" : '';
-        $showString .= !empty($benefit['plan_desc']) ? "<b>" . xlt('Plan Description') . ":</b> " .  $benefit['plan_desc'] . "<br />\n" : '';
-        $showString .= !empty($benefit['coverage_period']) ? "<b>" . xlt('Coverage Period') . ":</b> " .$benefit['coverage_period'] . "<br />\n" : '';
-        $showString .= !empty($benefit['amount']) ? "<b>" . xlt('Amount') . ":</b> " . $benefit['amount'] . "<br />\n" : '';
-        $showString .= !empty($benefit['percent']) ? "<b>" . xlt('Percentage') . ":</b> " . $benefit['percent'] . "<br />\n" : '';
-        $showString .= !empty($benefit['network_ind']) ? "<b>" . xlt('Network Indicator') . ":</b> " . $benefit['network_ind'] . "<br />\n" : '';
-        $showString .= !empty($benefit['message']) ? "<b>" . xlt('Message') . ":</b> " . $benefit['message'] . "<br />\n" : '';
+        $showString .= !empty($benefit['benefit_type']) ? "<b>" . xlt('Benefit Type') . ":</b> " .  text($benefit['benefit_type']) . "<br />\n" : '';
+        $showString .= !empty($benefit['start_date']) ? "<b>" . xlt('Start Date') . ":</b> " . text(date("d/m/Y", strtotime($benefit['start_date']))) . "<br />\n" : '';
+        $showString .= !empty($benefit['end_date']) ? "<b>" . xlt('End Date') . ":</b> " . text(date("d/m/Y", strtotime($benefit['end_date']))) . "<br />\n" : '';
+        $showString .= !empty($benefit['coverage_level']) ? "<b>" . xlt('Coverage Level') . ":</b> " .text($benefit['coverage_level']) . "<br />\n" : '';
+        $showString .= !empty($benefit['coverage_type']) ? "<b>" . xlt('Coverage Type') . ":</b> " . text($benefit['coverage_type']) . "<br />\n" : '';
+        $showString .= !empty($benefit['plan_type']) ? "<b>" . xlt('Plan Type') . ":</b> " .  text($benefit['plan_type']) . "<br />\n" : '';
+        $showString .= !empty($benefit['plan_desc']) ? "<b>" . xlt('Plan Description') . ":</b> " .  text(text($benefit['plan_desc'])) . "<br />\n" : '';
+        $showString .= !empty($benefit['coverage_period']) ? "<b>" . xlt('Coverage Period') . ":</b> " . text($benefit['coverage_period']) . "<br />\n" : '';
+        $showString .= !empty($benefit['amount']) ? "<b>" . xlt('Amount') . ":</b> " . text($benefit['amount']) . "<br />\n" : '';
+        $showString .= !empty($benefit['percent']) ? "<b>" . xlt('Percentage') . ":</b> " . text($benefit['percent']) . "<br />\n" : '';
+        $showString .= !empty($benefit['network_ind']) ? "<b>" . xlt('Network Indicator') . ":</b> " . text($benefit['network_ind']) . "<br />\n" : '';
+        $showString .= !empty($benefit['message']) ? "<b>" . xlt('Message') . ":</b> " . text($benefit['message']) . "<br />\n" : '';
         $showString .= "</div>";
 
         if ($col === 2) {
-            $showString .= "</div><br/><div class='row'>";
+            $showString .= "</div>\n<br/><div class='row'>\n";
             $col = 0;
         }
         $col++;
@@ -528,7 +528,7 @@ function show_eligibility_information($pid)
     if ($col === 2) {
         $showString .= "</div>";
     }
-    $showString .= "</div></div>";
+    $showString .= "</div></div>\n";
 
     echo $showString;
 }
@@ -748,13 +748,10 @@ MIMEBODY;
         $errors .= $formData['ErrorCode'] . "\n" . $formData['ErrorMessage'];
     }
     if ($errors) {
-        die($errors);
+        die(text($errors));
     }
 
     $x12_271 = $formData['Payload'];
-/*$x12_271 = <<<test
-
-test;*/
 
     return $x12_271;
 }
@@ -783,9 +780,9 @@ function mimeParse($formBody = '', $contentType)
 
 function getPatientMatch($fn, $ln, $sex, $dob)
 {
-    $fn = "%" . text($fn) . "%";
-    $ln = "%" . text($ln) . "%";
-    $sex = "%" . text($sex) . "%";
+    $fn = "%" . $fn . "%";
+    $ln = "%" . $ln . "%";
+    $sex = "%" . $sex . "%";
     $dob = date("Y-m-d", strtotime($dob));
     $sql = "SELECT pid FROM patient_data WHERE fname LIKE ? && lname LIKE ? && sex LIKE ? && DOB LIKE ?";
     $rtn = sqlQuery($sql, array($fn, $ln, $sex, $dob));

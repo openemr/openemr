@@ -78,57 +78,51 @@ if ($form_provider != "") {
 
 if ($exclude_policy != "") {
     $arrayExplode   =   explode(",", $exclude_policy);
-                        array_walk($arrayExplode, 'arrFormated');
-                        $exclude_policy = implode(",", $arrayExplode);
-                        $where .= " AND i.policy_number not in (".add_escape_custom($exclude_policy).")";
+    array_walk($arrayExplode, 'arrFormated');
+    $exclude_policy = implode(",", $arrayExplode);
+    $exclude_policy = add_escape_custom($exclude_policy);
+    $where .= " AND i.policy_number NOT IN ('$exclude_policy')";
 }
 
-    $where .= " AND (i.policy_number is not null and i.policy_number != '')";
-
-    $query = sprintf("		SELECT DATE_FORMAT(e.pc_eventDate, '%%Y%%m%%d') as pc_eventDate,
-								   e.pc_facility,
-								   p.lname,
-								   p.fname,
-								   p.mname,
-								   DATE_FORMAT(p.dob, '%%Y%%m%%d') as dob,
-								   p.ss,
-								   p.sex,
-								   p.pid,
-								   p.pubpid,
-								   i.subscriber_ss,
-								   i.policy_number,
-								   i.provider as payer_id,
-								   i.subscriber_relationship,
-								   i.subscriber_lname,
-								   i.subscriber_fname,
-								   i.subscriber_mname,
-								   DATE_FORMAT(i.subscriber_dob, '%%m/%%d/%%Y') as subscriber_dob,
-								   i.policy_number,
-								   i.subscriber_sex,
-								   DATE_FORMAT(i.date,'%%Y%%m%%d') as date,
-								   d.lname as provider_lname,
-								   d.fname as provider_fname,
-								   d.npi as provider_npi,
-								   d.upin as provider_pin,
-								   f.federal_ein as federal_ein,
-								   f.facility_npi as facility_npi,
-								   f.name as facility_name,
-								   c.cms_id as cms_id,
-								   c.name as payer_name
-							FROM openemr_postcalendar_events AS e
-							LEFT JOIN users AS d on (e.pc_aid is not null and e.pc_aid = d.id)
-							LEFT JOIN facility AS f on (f.id = e.pc_facility)
-							LEFT JOIN patient_data AS p ON p.pid = e.pc_pid
-							LEFT JOIN insurance_data AS i ON (i.id =(
-																	SELECT id
-																	FROM insurance_data AS i
-																	WHERE pid = p.pid AND type = 'primary'
-																	ORDER BY date DESC
-																	LIMIT 1
-																	)
-																)
-							LEFT JOIN insurance_companies as c ON (c.id = i.provider)
-							WHERE %s ", $where);
+    $where .= " AND (i.policy_number is NOT NULL AND i.policy_number != '')";
+    $where .= " GROUP BY p.pid ORDER BY c.name";
+    $query = sprintf("SELECT DATE_FORMAT(e.pc_eventDate, '%%Y%%m%%d') as pc_eventDate,
+            e.pc_facility,
+            p.lname,
+            p.fname,
+            p.mname,
+            DATE_FORMAT(p.dob, '%%Y%%m%%d') as dob,
+            p.ss,
+            p.sex,
+            p.pid,
+            p.pubpid,
+            i.subscriber_ss,
+            i.policy_number,
+            i.provider as payer_id,
+            i.subscriber_relationship,
+            i.subscriber_lname,
+            i.subscriber_fname,
+            i.subscriber_mname,
+            DATE_FORMAT(i.subscriber_dob, '%%m/%%d/%%Y') as subscriber_dob,
+            i.policy_number,
+            i.subscriber_sex,
+            DATE_FORMAT(i.date,'%%Y%%m%%d') as date,
+            d.lname as provider_lname,
+            d.fname as provider_fname,
+            d.npi as provider_npi,
+            d.upin as provider_pin,
+            f.federal_ein as federal_ein,
+            f.facility_npi as facility_npi,
+            f.name as facility_name,
+            c.cms_id as cms_id,
+            c.name as payer_name 
+        FROM openemr_postcalendar_events AS e
+        LEFT JOIN users AS d on (e.pc_aid is not null and e.pc_aid = d.id)
+        LEFT JOIN facility AS f on (f.id = e.pc_facility)
+        LEFT JOIN patient_data AS p ON p.pid = e.pc_pid
+        LEFT JOIN insurance_data AS i ON (i.id =(SELECT id FROM insurance_data AS i WHERE pid = p.pid AND type = 'primary' ORDER BY date DESC LIMIT 1))
+        LEFT JOIN insurance_companies as c ON (c.id = i.provider)
+        WHERE %s ", $where);
 
     // Run the query
     $res = sqlStatement($query, $sqlBindArray);
