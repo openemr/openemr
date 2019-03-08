@@ -1507,7 +1507,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         <td class="center">
                           <div id="CTL_box">
                             <table>
-                              <tr >
+                              <tr>
                                 <td></td>
                                 <td><a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=CTLManufacturer" target="RTop"
                                   title="<?php echo xla('Click here to Edit the Manufacter List'); ?>"
@@ -3958,32 +3958,32 @@ if ($refresh and $refresh != 'fullscreen') {
         ?>
         function dopclick(id) {
             <?php if ($thisauth != 'write') : ?>
-            dlgopen('../../patient_file/summary/a_issue.php?issue=0&thistype=' + id, '_blank', 550, 400, '', ' ' );
+            dlgopen('../../patient_file/summary/a_issue.php?issue=0&thistype=' + encodeURIComponent(id), '_blank', 550, 400,  '', <?php echo xlj('Issues'); ?> );
             <?php else : ?>
             alert("<?php echo xls('You are not authorized to add/edit issues'); ?>");
             <?php endif; ?>
         }
         function doscript(type,id,encounter,rx_number) {
-            dlgopen('../../forms/eye_mag/SpectacleRx.php?REFTYPE=' + type + '&id='+id+'&encounter='+ encounter+'&form_id=<?php echo attr(addslashes($form_id)); ?>&rx_number='+rx_number, '_blank', 660, 590,'','Dispense Rx');
+             dlgopen('../../forms/eye_mag/SpectacleRx.php?REFTYPE=' + encodeURIComponent(type) + '&id=' + encodeURIComponent(id) + '&encounter=' + encodeURIComponent(encounter) + '&form_id=' + <?php echo js_url($form_id); ?> + '&rx_number=' + encodeURIComponent(rx_number), '_blank', 660, 590,'', <?php echo xlj('Dispense Rx'); ?>);
         }
 
         function dispensed(pid) {
-            dlgopen('../../forms/eye_mag/SpectacleRx.php?dispensed=1&pid='+pid, '_blank', 560, 590, '', 'Rx History');
-        }
-        // This invokes the find-code popup.
-        function sel_diagnosis(target,term) {
-            if (target =='') {
-                target = "0";
-            }
-            IMP_target = target;
-            <?php
-            if ($irow['type'] == 'PMH') { //or POH
-            ?>
-            dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("medical_problem", "csv")) ?>&search_term='+encodeURI(term), '_blank', 600, 400);
+            dlgopen('../../forms/eye_mag/SpectacleRx.php?dispensed=1&pid='+encodeURIComponent(pid), '_blank', 560, 590, '', <?php echo xlj('Rx History'); ?>);
+                    }
+                    // This invokes the find-code popup.
+                    function sel_diagnosis(target,term) {
+                        if (target =='') {
+                            target = "0";
+                        }
+                        IMP_target = target;
+                        <?php
+                        if ($irow['type'] == 'PMH') { //or POH
+                        ?>
+            dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("medical_problem", "csv")) ?>&search_term='+encodeURI(term), '_blank', 600, 400,'', <?php echo xlj('Code Search'); ?>);
             <?php
             } else {
             ?>
-            dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")) ?>&search_term='+encodeURI(term), '_blank', 600, 400);
+            dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")) ?>&search_term='+encodeURI(term), '_blank', 600, 400, '', <?php echo xlj('Code Search'); ?>);
             <?php
             }
             ?>
