@@ -386,9 +386,11 @@ if ($exclude_policy != "") {
                                                 <a href='#' class='btn btn-default btn-transmit' onclick='return validate_batch(false);'>
                                                     <?php echo xlt('Create batch'); ?>
                                                     <input type='hidden' name='form_savefile' id='form_savefile' value=''></input>
-                                                </a>
-                                                <a href='#' class='btn btn-default btn-transmit' onclick='return validate_batch(true);'>
-                                                    <?php echo xlt('Request Eligibility'); ?>
+
+                                                    <?php if ($GLOBALS['enable_oa']) {
+                                                        echo "<a href='#' class='btn btn-default btn-transmit' onclick='return validate_batch(true);'>" . xlt('Request Eligibility') . "</a>\n";
+}
+                                                ?>
                                                     <input type='hidden' name='form_xmit' id='form_xmit' value=''></input>
                                                 </a>
                                             </div>

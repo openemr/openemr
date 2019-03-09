@@ -2752,6 +2752,13 @@ $GLOBALS_METADATA = array(
             xl('Enable OpenEMR RESTful API. SSL Required')
         ),
 
+        'enable_oa' => array(
+            xl('Enable Office Ally Insurance Eligibility'),
+            'bool',
+            '0',
+            xl('Allow insurance eligibility checks using Office Ally')
+        ),
+
         'payment_gateway' => array(
             xl('Select Credit Card Payment Gateway'),
             array(
