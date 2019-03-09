@@ -3981,11 +3981,11 @@ if ($refresh and $refresh != 'fullscreen') {
                         ?>
             dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("medical_problem", "csv")) ?>&search_term='+encodeURI(term), '_blank', 600, 400,'', <?php echo xlj('Code Search'); ?>);
             <?php
-            } else {
-            ?>
-            dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")) ?>&search_term='+encodeURI(term), '_blank', 600, 400, '', <?php echo xlj('Code Search'); ?>);
+                        } else {
+                        ?>
+                        dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")) ?>&search_term='+encodeURI(term), '_blank', 600, 400, '', <?php echo xlj('Code Search'); ?>);
             <?php
-            }
+                        }
             ?>
         }
 
