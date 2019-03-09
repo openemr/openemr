@@ -31,8 +31,8 @@ if (!$allow_cloning_setup && !empty($_REQUEST['clone_database'])) {
     die("To turn on support for cloning setup, need to edit this script and change \$allow_cloning_setup to true. After you are done setting up the cloning, ensure you change \$allow_cloning_setup back to false or remove this script altogether");
 }
 
-// Checks if the server's PHP version is compatible with OpenEMR:
-require_once(dirname(__FILE__) . "/common/compatibility/Checker.php");
+// Bring in standard libraries/classes
+require_once dirname(__FILE__) ."/vendor/autoload.php";
 
 use OpenEMR\Common\Checker;
 
@@ -743,7 +743,21 @@ SOURCESITETOP;
 SOURCESITEBOT;
                             echo $source_site_bot ."\r\n";
                         }
+
                         $randomusername = chr(rand(65, 90)) . chr(rand(65, 90)) . chr(rand(65, 90)) . "-admin-" . rand(0, 9) . rand(0, 9);
+
+                        // App Based TOTP secret
+                        // Shared key (per rfc6238 and rfc4226) should be 20 bytes (160 bits) and encoded in base32, which should
+                        //   be 32 characters in base32
+                        // Would be nice to use the produceRandomBytes() function and then encode to base32, but does not appear
+                        //   to be a standard way to encode binary to base32 in php.
+                        $randomsecret = produceRandomString(32, "234567ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+                        $disableCheckbox = "";
+                        if (empty($randomsecret)) {
+                            $randomsecret = "";
+                            $disableCheckbox = "disabled";
+                        }
+
                         $step2tablebot = <<<STP2TBLBOT
                     </fieldset>
                     <br>
@@ -830,6 +844,42 @@ SOURCESITEBOT;
                                         <p>This should be the name of your practice.
                                     </div>
                                 </div>
+                                <div class="col-sm-4">
+                                    <div class="clearfix form-group">
+                                        <div class="label-div">
+                                            <label class="control-label" for="i2fa">Configure 2FA:</label> <a href="#i2fa_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        </div>
+                                        <div>
+                                            <table>
+                                                <tr>
+                                                    <td><p><input name='i2faenable' id='i2faenable' type='checkbox' $disableCheckbox/> Enable 2FA</p></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <strong><font color='RED'>IMPORTANT IF ENABLED</font></strong>
+                                                        <p><strong>If enabled, you must have an authenticator app on your phone ready to scan the QR code displayed next.</strong></p>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        Example authenticator apps include:
+                                                        <ul>
+                                                            <li>Google Auth
+                                                                (<a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8">ios</a>, <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en">android</a>)</li>
+                                                            <li>Authy
+                                                                (<a href="https://itunes.apple.com/us/app/authy/id494168017?mt=8">ios</a>, <a href="https://play.google.com/store/apps/details?id=com.authy.authy&hl=en">android</a>)</li>
+                                                        </ul>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <input type='hidden' name='i2fasecret' id='i2fasecret' value='$randomsecret' />
+                                        </div>
+                                    </div>
+                                    <div id="i2fa_info" class="collapse">
+                                        <a href="#i2fa_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                        <p>This is 2-Factored Authentication that will make your version of OpenEMR more secure.</p>
+                                    </div>
+                                </div>                                
 							</div>
                         </div>
                     </fieldset>
@@ -1063,6 +1113,36 @@ STP2TBLBOT;
 
                             echo "$ok<br>\n";
                             flush();
+                        }
+
+
+                        // If user has selected to set MFA App Based 2FA, display QR code to scan
+                        $qr = $installer->get_initial_user_2fa_qr();
+                        if ($qr) {
+                            $qrDisplay = <<<TOTP
+                                        <br>
+                                        <table>
+                                            <tr>
+                                                <td>
+                                                    <strong><font color='RED'>IMPORTANT!!</font></strong>
+                                                    <p><strong>You must scan the following QR code with your preferred authenticator app.</strong></p>
+                                                    <img src='$qr' width="150" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    Example authenticator apps include:
+                                                    <ul>
+                                                        <li>Google Auth
+                                                            (<a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8">ios</a>, <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en">android</a>)</li>
+                                                        <li>Authy
+                                                            (<a href="https://itunes.apple.com/us/app/authy/id494168017?mt=8">ios</a>, <a href="https://play.google.com/store/apps/details?id=com.authy.authy&hl=en">android</a>)</li>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        </table>
+TOTP;
+                            echo $qrDisplay;
                         }
 
                         if ($allow_cloning_setup && !empty($installer->clone_database)) {

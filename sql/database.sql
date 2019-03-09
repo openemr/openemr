@@ -10959,6 +10959,7 @@ CREATE TABLE `form_eye_locking` (
   )
   ENGINE = InnoDB;
 
+DROP TABLE IF EXISTS `login_mfa_registrations`;
 CREATE TABLE `login_mfa_registrations` (
   `user_id`         bigint(20)     NOT NULL,
   `name`            varchar(30)    NOT NULL,

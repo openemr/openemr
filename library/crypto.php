@@ -408,3 +408,22 @@ function produceRandomBytes($length)
 
     return $randomBytes;
 }
+
+// Produce random string (uses random_int with error checking)
+function produceRandomString($length = 26, $alphabet = 'abcdefghijklmnopqrstuvwxyz234567')
+{
+    $str = '';
+    $alphamax = strlen($alphabet) - 1;
+    for ($i = 0; $i < $length; ++$i) {
+        try {
+            $str .= $alphabet[random_int(0, $alphamax)];
+        } catch (Error $e) {
+            error_log('OpenEMR Error : Encryption is not working because of random_int() Error: ' . $e->getMessage());
+            return false;
+        } catch (Exception $e) {
+            error_log('OpenEMR Error : Encryption is not working because of random_int() Exception: ' . $e->getMessage());
+            return false;
+        }
+    }
+    return $str;
+}
