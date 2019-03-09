@@ -817,3 +817,34 @@ ALTER TABLE `documents` ADD `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT 
 #IfNotRow4D supported_external_dataloads load_type CQM_VALUESET load_source NIH_VASC load_release_date 2017-09-29 load_filename ep_ec_only_cms_20170929.xml.zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('CQM_VALUESET', 'NIH_VSAC', '2017-09-29','ep_ec_only_cms_20170929.xml.zip','38d2e1a27646f2f09fcc389fd2335c50');
 #EndIf
+
+#IfNotColumnType eligibility_verification response_id varchar(32)
+ALTER TABLE `eligibility_verification` CHANGE `response_id` `response_id` VARCHAR(32) DEFAULT NULL;
+#EndIf
+
+#IfNotTable benefit_eligibility
+CREATE TABLE `benefit_eligibility` (
+    `response_id` bigint(20) NOT NULL,
+    `verification_id` bigint(20) NOT NULL,
+    `type` varchar(4) DEFAULT NULL,
+    `benefit_type` varchar(255) DEFAULT NULL,
+    `start_date` date DEFAULT NULL,
+    `end_date` date DEFAULT NULL,
+    `coverage_level` varchar(255) DEFAULT NULL,
+    `coverage_type` varchar(512) DEFAULT NULL,
+    `plan_type` varchar(255) DEFAULT NULL,
+    `plan_description` varchar(255) DEFAULT NULL,
+    `coverage_period` varchar(255) DEFAULT NULL,
+    `amount` decimal(5,2) DEFAULT NULL,
+    `percent` decimal(3,2) DEFAULT NULL,
+    `network_ind` varchar(2) DEFAULT NULL,
+    `message` varchar(512) DEFAULT NULL,
+    `response_status` enum('A','D') DEFAULT 'A',
+    `response_create_date` date DEFAULT NULL,
+    `response_modify_date` date DEFAULT NULL
+) ENGINE=InnoDB;
+#Endif
+
+#IfTable eligibility_response
+DROP TABLE `eligibility_response`;
+#Endif
