@@ -31,6 +31,58 @@ if (!$allow_cloning_setup && !empty($_REQUEST['clone_database'])) {
     die("To turn on support for cloning setup, need to edit this script and change \$allow_cloning_setup to true. After you are done setting up the cloning, ensure you change \$allow_cloning_setup back to false or remove this script altogether");
 }
 
+function recursive_writable_directory_test($dir)
+{
+    // first, collect the directory and subdirectories
+    $ri = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
+    $dirNames = array();
+    foreach ($ri as $file) {
+        if ($file->isDir()) {
+            if (!preg_match("/\.\.$/", $file->getPathname())) {
+                $dirName = realpath($file->getPathname());
+                if (!in_array($dirName, $dirNames)) {
+                    $dirNames[] = $dirName;
+                }
+            }
+        }
+    }
+
+    // second, flag the directories that are not writable
+    $resultsNegative = array();
+    foreach ($dirNames as $value) {
+        if (!is_writable($value)) {
+            $resultsNegative[] = $value;
+        }
+    }
+
+    // third, send the output and return if didn't pass the test
+    if (!empty($resultsNegative)) {
+        echo "<p>";
+        $mainDirTest = "";
+        $outputs = array();
+        foreach ($resultsNegative as $failedDir) {
+            if (basename($failedDir) ==  basename($dir)) {
+                // need to reorder output so the main directory is at the top of the list
+                $mainDirTest = "<FONT COLOR='red'>UNABLE</FONT> to open directory '" . realpath($failedDir) . "' for writing by web server.<br>\r\n";
+            } else {
+                $outputs[] = "<FONT COLOR='red'>UNABLE</FONT> to open subdirectory '" . realpath($failedDir) . "' for writing by web server.<br>\r\n";
+            }
+        }
+        if ($mainDirTest) {
+            // need to reorder output so the main directory is at the top of the list
+            array_unshift($outputs, $mainDirTest);
+        }
+        foreach ($outputs as $output) {
+            echo $output;
+        }
+        echo "(configure directory permissions; see below for further instructions)</p>\r\n";
+        return 1;
+    } else {
+        echo "'" . realpath($dir) . "' directory and its subdirectories are <FONT COLOR='green'><b>ready</b></FONT>.<br>\r\n";
+        return 0;
+    }
+}
+
 // Bring in standard libraries/classes
 require_once dirname(__FILE__) ."/vendor/autoload.php";
 
@@ -1470,21 +1522,15 @@ CHKFILE;
                                 break;
                             }
 
-                            echo "<br><FONT COLOR='green'>Ensuring following directory has proper permissions...</FONT><br>\n";
                             $errorWritable = 0;
                             foreach ($writableDirList as $tempDir) {
-                                if (is_writable($tempDir)) {
-                                        echo "'".realpath($tempDir)."' directory is <FONT COLOR='green'><b>ready</b></FONT>.<br>\r\n";
-                                } else {
-                                        echo "<p><FONT COLOR='red'>UNABLE</FONT> to open directory '".realpath($tempDir)."' for writing by web server.<br>\r\n";
-                                        echo "(configure directory permissions; see below for further instructions)</p>\r\n";
-                                    $errorWritable = 1;
-                                }
+                                echo "<br><FONT COLOR='green'>Ensuring the following directory and its subdirectories have proper permissions...</FONT><br>\n";
+                                $errorWritable = recursive_writable_directory_test($tempDir);
                             }
 
                             if ($errorWritable) {
                                 $check_directory = <<<CHKDIR
-                                            <p style="font-color:red;">You can't proceed until all directories are ready.</p>
+                                            <p style="font-color:red;">You can't proceed until all directories and subdirectories are ready.</p>
                                             <p>In linux, recommend changing owners of these directories to the web server. For example, in many linux OS's the web server user is 'apache', 'nobody', or 'www-data'. So if 'apache' were the web server user name, could use the command <strong>'chown -R apache:apache directory_name'</strong> command.</p>
                                             <p class='bg-warning'>Fix above directory permissions and then click the <strong>'Check Again'</strong> button to re-check directories.</p>
                                             <br>
