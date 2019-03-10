@@ -749,6 +749,10 @@ SOURCESITEBOT;
                         // Would be nice to use the produceRandomBytes() function and then encode to base32, but does not appear
                         //   to be a standard way to encode binary to base32 in php.
                         $randomsecret = produceRandomString(32, "234567ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+                        if (empty($randomsecret)) {
+                            error_log('OpenEMR Error : Random String error - exiting');
+                            die();
+                        }
                         $disableCheckbox = "";
                         if (empty($randomsecret)) {
                             $randomsecret = "";
