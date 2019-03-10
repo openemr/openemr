@@ -1495,6 +1495,7 @@ CHKDIR;
 
                             //RP_CHECK_LOGIC
                             $form = <<<FRM
+                                        <br>   
                                         <p>All required files and directories have been verified.</p>
                                         <p class='bg-warning'>Click <b>Proceed to Step 1</b> to continue with a new installation.</p>
                                         <p class='bg-danger'>$caution: If you are upgrading from a previous version, <strong>DO NOT</strong> use this script. Please read the <strong>'Upgrading'</strong> section found in the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><span style='text-decoration: underline;'>'INSTALL'</span></a> manual file.</p>
