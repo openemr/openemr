@@ -1524,7 +1524,7 @@ CHKFILE;
 
                             $errorWritable = 0;
                             foreach ($writableDirList as $tempDir) {
-                                echo "<br><FONT COLOR='green'>Ensuring the following directory and its subdirectories have proper permissions...</FONT><br>\n";
+                                echo "<br><FONT COLOR='green'>Ensuring the '" . realpath($tempDir) . "' directory and its subdirectories have proper permissions...</FONT><br>\n";
                                 $errorWritable = recursive_writable_directory_test($tempDir);
                             }
 
