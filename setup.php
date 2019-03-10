@@ -152,9 +152,6 @@ $checkPermissions = true;
 global $OE_SITE_DIR; // The Installer sets this
 
 $docsDirectory = "$OE_SITE_DIR/documents";
-$billingDirectory = "$OE_SITE_DIR/edi";
-$billingDirectory2 = "$OE_SITE_DIR/era";
-$lettersDirectory = "$OE_SITE_DIR/letter_templates";
 
 $zendModuleConfigFile = dirname(__FILE__)."/interface/modules/zend_modules/config/application.config.php";
 
@@ -162,7 +159,7 @@ $zendModuleConfigFile = dirname(__FILE__)."/interface/modules/zend_modules/confi
 // correct permissions.
 if (is_dir($OE_SITE_DIR)) {
     $writableFileList = array($installer->conffile,$zendModuleConfigFile);
-    $writableDirList = array($docsDirectory, $billingDirectory, $billingDirectory2, $lettersDirectory);
+    $writableDirList = array($docsDirectory);
 } else {
     $writableFileList = array();
     $writableDirList = array($OE_SITES_BASE);
@@ -1343,7 +1340,7 @@ STP5BOT;
                         echo "<fieldset>";
                         echo "<legend>Step $state - Configure Apache Web Server</legend>";
                         echo "<p>Configuration of Apache web server...</p><br>\n";
-                        echo "The <strong>\"".preg_replace("/${site_id}/", "*", realpath($docsDirectory))."\", \"".preg_replace("/${site_id}/", "*", realpath($billingDirectory))."\"</strong> and <strong>\"".preg_replace("/${site_id}/", "*", realpath($billingDirectory2))."\"</strong> directories contain patient information, and
+                        echo "The <strong>\"".preg_replace("/${site_id}/", "*", realpath($docsDirectory))."\"</strong> directory contain patient information, and
                         it is important to secure these directories. Additionally, some settings are required for the Zend Framework to work in OpenEMR. This can be done by pasting the below to end of your apache configuration file:<br><br>
                         &nbsp;&nbsp;&lt;Directory \"".realpath(dirname(__FILE__))."\"&gt;<br>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride FileInfo<br>
@@ -1353,12 +1350,6 @@ STP5BOT;
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride None<br>
                         &nbsp;&nbsp;&lt;/Directory&gt;<br>
                         &nbsp;&nbsp;&lt;Directory \"".preg_replace("/${site_id}/", "*", realpath($docsDirectory))."\"&gt;<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all denied<br>
-                        &nbsp;&nbsp;&lt;/Directory&gt;<br>
-                        &nbsp;&nbsp;&lt;Directory \"".preg_replace("/${site_id}/", "*", realpath($billingDirectory))."\"&gt;<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all denied<br>
-                        &nbsp;&nbsp;&lt;/Directory&gt;<br>
-                        &nbsp;&nbsp;&lt;Directory \"".preg_replace("/${site_id}/", "*", realpath($billingDirectory2))."\"&gt;<br>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all denied<br>
                         &nbsp;&nbsp;&lt;/Directory&gt;<br><br>";
 
@@ -1475,7 +1466,7 @@ CHKFILE;
                                 break;
                             }
 
-                            echo "<br><FONT COLOR='green'>Ensuring following directories have proper permissions...</FONT><br>\n";
+                            echo "<br><FONT COLOR='green'>Ensuring following directory has proper permissions...</FONT><br>\n";
                             $errorWritable = 0;
                             foreach ($writableDirList as $tempDir) {
                                 if (is_writable($tempDir)) {
@@ -1504,6 +1495,7 @@ CHKDIR;
 
                             //RP_CHECK_LOGIC
                             $form = <<<FRM
+                                        <br>
                                         <p>All required files and directories have been verified.</p>
                                         <p class='bg-warning'>Click <b>Proceed to Step 1</b> to continue with a new installation.</p>
                                         <p class='bg-danger'>$caution: If you are upgrading from a previous version, <strong>DO NOT</strong> use this script. Please read the <strong>'Upgrading'</strong> section found in the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><span style='text-decoration: underline;'>'INSTALL'</span></a> manual file.</p>

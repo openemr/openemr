@@ -213,7 +213,7 @@ $GLOBALS['incdir'] = $include_root;
 $GLOBALS['login_screen'] = $GLOBALS['rootdir'] . "/login_screen.php";
 
 // Variable set for Eligibility Verification [EDI-271] path
-$GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/edi/";
+$GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/";
 
 //  Check necessary writable paths (add them if do not exist)
 if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/gacl')) {

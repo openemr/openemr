@@ -18,7 +18,7 @@ if (!verifyCsrfToken($_GET["csrf_token_form"])) {
 }
 
 $content_type = "text/plain";
-$claim_file_dir = $GLOBALS['OE_SITE_DIR'] . "/edi/";
+$claim_file_dir = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/";
 
 $fname = $_GET['key'];
 $fname = preg_replace("[/]", "", $fname);
