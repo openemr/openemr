@@ -1,3 +1,7 @@
+/* openemr/library/js/canvas.js
+ * Custom file (DRH) for graphic sketchpad functionality
+ */
+
 function Sketch(canvasID, linesize=3, linecolor="#FF0000") {
 
     var canvas
@@ -49,10 +53,14 @@ function Sketch(canvasID, linesize=3, linecolor="#FF0000") {
             point_x = path[p];
             point_y = path[p + 1];
             command = commands[Math.floor(p / 2)];
+            nextcommand = commands[Math.floor((p / 2) + 1)];
 
             if (command === MOVE_TO) {
                 ctx.moveTo(point_x, point_y);
-                //drawTouchDot(point_x, point_y);
+                // look at next command to determine whether to print a dot or start a line
+                if (nextcommand != 1) {
+                    drawDot(point_x, point_y);
+                }
             } else if (command === LINE_TO) {
                 ctx.lineTo(point_x, point_y);
             } else {
@@ -60,6 +68,12 @@ function Sketch(canvasID, linesize=3, linecolor="#FF0000") {
             }
             ctx.stroke();
         }
+    }
+
+    function drawDot(x,y) { // this function probably not necessary - can utilize drawTouchDot instead
+		ctx.arc(x, y, Math.floor(linesize / 2), 0, 2 * Math.PI);
+		ctx.stroke();
+	    ctx.beginPath();
     }
 
     function drawLine(x, y) {
@@ -138,10 +152,13 @@ function Sketch(canvasID, linesize=3, linecolor="#FF0000") {
 			      point_x = path[p];
 			      point_y = path[p + 1];
 			      command = commands[Math.floor(p / 2)];
+			      nextcommand = commands[Math.floor((p / 2) + 1)];
 
 			      if (command === MOVE_TO) {
 				        ctx.moveTo(point_x, point_y);
-				        drawTouchDot(point_x, point_y);
+				        if (nextcommand != 1) {
+    				        drawTouchDot(point_x, point_y);
+				        }
 			      } else if (command === LINE_TO) {
 				        ctx.lineTo(point_x, point_y);
 			      } else {
@@ -153,7 +170,6 @@ function Sketch(canvasID, linesize=3, linecolor="#FF0000") {
 	  }
 
 	  function drawTouchDot(x,y) { // primarily for periods when used as a notepad
-		    //ctx.lineTo(x,y+1);
 		    ctx.arc(x, y, Math.floor(linesize / 2), 0, 2 * Math.PI);
 		    ctx.stroke();
 		    ctx.beginPath();
@@ -254,7 +270,8 @@ function Sketch(canvasID, linesize=3, linecolor="#FF0000") {
             path = pathData[0];
         }
         commands = pathData[1];
-        drawPath();
+        //drawPath();
+        drawTouchPath();
     }
 
     function loadJSON(json, normalized) {
@@ -313,4 +330,3 @@ function Sketch(canvasID, linesize=3, linecolor="#FF0000") {
     this.loadJSON = loadJSON;
 
 }
-
