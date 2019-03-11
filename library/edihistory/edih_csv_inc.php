@@ -18,7 +18,7 @@
  *  <http://opensource.org/licenses/gpl-license.php>
  *
  * @author Kevin McCormick
- * @link: http://www.open-emr.org
+ * @link: https://www.open-emr.org
  * @package OpenEMR
  * @subpackage ediHistory
  */
@@ -85,10 +85,10 @@
 
 /* *********** GLOBALS used for testing only **********
  */
-// //$GLOBALS['OE_SITE_DIR'].'/edi/history';
+// //$GLOBALS['OE_SITE_DIR'].'/documents/edi/history';
 //$OE_SITES_BASE = $GLOBALS['OE_SITE_DIR'];
 //$OE_SITE_DIR = $OE_SITES_BASE.'/testing';
-//$OE_EDIH_DIR = $OE_SITE_DIR.'/edi/history';
+//$OE_EDIH_DIR = $OE_SITE_DIR.'/documents/edi/history';
 
 /* ***********
  */
@@ -360,7 +360,7 @@ function csv_edih_basedir()
     if (isset($GLOBALS['OE_SITE_DIR'])) {
         // debug
         //echo 'csv_edih_basedir OE_SITE_DIR '.$GLOBALS['OE_SITE_DIR'].'<br>'.PHP_EOL;
-        return $GLOBALS['OE_SITE_DIR'].DS.'edi'.DS.'history';
+        return $GLOBALS['OE_SITE_DIR'].DS.'documents'.DS.'edi'.DS.'history';
     } else {
         csv_edihist_log('csv_edih_basedir: failed to obtain OpenEMR Site directory');
         return false;
@@ -417,7 +417,7 @@ function csv_setup()
     //$sitedir = csv_edih_basedir();
     //
     if (is_readable($sitedir)) {
-        $basedir = $sitedir.DS.'edi';
+        $basedir = $sitedir.DS.'documents'.DS.'edi';
         $edihist_dir = $basedir.DS.'history';
         $csv_dir = $edihist_dir.DS.'csv';
         $archive_dir = $edihist_dir.DS.'archive';
@@ -552,7 +552,7 @@ function csv_setup()
 
 
 /**
- * Empty all contents of tmp dir /edi/history/tmp
+ * Empty all contents of tmp dir /documents/edi/history/tmp
  *
  * @uses csv_edih_tmpdir()
  * @param  none
@@ -563,7 +563,7 @@ function csv_clear_tmpdir()
     //
     $tmpdir = csv_edih_tmpdir();
     if (basename($tmpdir) != 'tmp') {
-        csv_edihist_log('tmp dir not /edi/history/tmp');
+        csv_edihist_log('tmp dir not /documents/edi/history/tmp');
         return false;
     }
 
@@ -592,7 +592,7 @@ function csv_clear_tmpdir()
 
     $tmp_files = scandir($tmpdir);
     if (count($tmp_files) > 2) {
-        csv_edihist_log('tmp dir contents remain in ... /edi/history/tmp');
+        csv_edihist_log('tmp dir contents remain in ... /documents/edi/history/tmp');
         return false;
     } else {
         return true;
@@ -770,14 +770,14 @@ function csv_parameters($type = 'ALL')
         return $p_ar;
     }
 
-    //$edihist_dir = $GLOBALS['OE_SITE_DIR'].'/edi/history';
+    //$edihist_dir = $GLOBALS['OE_SITE_DIR'].'/documents/edi/history';
     $edihist_dir = csv_edih_basedir();
     //
     // the batch file directory is a special case - decide whether to use OpenEMR batch files or make our own copies
-    // OpenEMR copies each batch file to sites/default/edi and this project never writes to that directory
+    // OpenEMR copies each batch file to sites/default/documents/edi and this project never writes to that directory
     // batch reg ex -- '/20[01][0-9]-[01][0-9]-[0-3][0-9]-[0-9]{4}-batch*\.txt/' '/\d{4}-\d{2}-\d{2}-batch*\.txt$/'
     //
-    $p_ar['f837'] = array('type'=>'f837', 'directory'=>$GLOBALS['OE_SITE_DIR'].DS.'edi', 'claims_csv'=>$edihist_dir.DS.'csv'.DS.'claims_f837.csv',
+    $p_ar['f837'] = array('type'=>'f837', 'directory'=>$GLOBALS['OE_SITE_DIR'].DS.'documents'.DS.'edi', 'claims_csv'=>$edihist_dir.DS.'csv'.DS.'claims_f837.csv',
                         'files_csv'=>$edihist_dir.DS.'csv'.DS.'files_f837.csv', 'filedate'=>'Date', 'claimdate'=>'SvcDate', 'regex'=>'/\-batch(.*)\.txt$/');
     //
     //$p_ar['csv'] = array("type"=>'csv', "directory"=>$edihist_dir.'/csv', "claims_csv"=>'ibr_parameters.csv',
@@ -817,7 +817,7 @@ function csv_table_select_list($outtp = 'json')
     $labels = array('f835'=>'Payments', 'f837'=>'Claims', 'batch'=>'Claims', 'f277'=>'Status', 'f276'=>'Status Req',
                     'f997'=>'Ack','f271'=>'Benefit', 'f270'=>'Benefit Req', 'f278'=>'Auth');
 
-    $edihist_dir = csv_edih_basedir();  // $GLOBALS['OE_SITE_DIR'].'/edi/history'
+    $edihist_dir = csv_edih_basedir();  // $GLOBALS['OE_SITE_DIR'].'/documents/edi/history'
     $csvdir = $edihist_dir.DS.'csv';
     $tbllist = scandir($csvdir);
     $idx = 0;

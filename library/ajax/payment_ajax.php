@@ -3,7 +3,7 @@
  * This section handles ajax for insurance,patient and for encounters.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Eldho Chacko <eldho@zhservices.com>
  * @author    Paul Simon K <paul@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>

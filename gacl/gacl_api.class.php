@@ -945,7 +945,7 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		if ((empty($aco_array) || count($aro_array) == 0) AND (empty($aro_group_ids) || count($aro_group_ids) == 0)) {
+		if ((empty($aro_array) || count($aro_array) == 0) AND (empty($aro_group_ids) || count($aro_group_ids) == 0)) {
 			$this->debug_text("Must select at least one Access Request Object or Group");
 			return false;
 		}

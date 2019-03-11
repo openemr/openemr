@@ -19,7 +19,7 @@
  *
  *
  * @author Kevin McCormick
- * @link: http://www.open-emr.org
+ * @link: https://www.open-emr.org
  * @package OpenEMR
  * @subpackage ediHistory
  */

@@ -20,7 +20,7 @@
  * @package OpenEMR
  * @author  Eldho Chacko <eldho@zhservices.com>
  * @author  Ajil P M <ajilpm@zhservices.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 

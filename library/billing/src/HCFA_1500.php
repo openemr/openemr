@@ -8,7 +8,7 @@
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2011 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (C) 2018 Stephen Waite <stephen.waite@cmsvt.com>
- * @link http://www.open-emr.org
+ * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -185,7 +185,7 @@ class HCFA_1500
         $this->hcfa_curr_col = 1;
 
         // According to:
-        // http://www.ngsmedicare.com/NGSMedicare/PartB/EducationandSupport/ToolsandMaterials/CMS_ClaimFormInst.aspx
+        // https://www.ngsmedicare.com/NGSMedicare/PartB/EducationandSupport/ToolsandMaterials/CMS_ClaimFormInst.aspx
         // Medicare interprets sections 9 and 11 of the claim form in its own
         // special way.  This flag tells us to do that.  However I'm not 100%
         // sure that it applies nationwide, and if you find that it is not right

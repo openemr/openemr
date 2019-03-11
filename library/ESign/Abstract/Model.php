@@ -21,7 +21,7 @@ namespace ESign;
  * @package OpenEMR
  * @author  Ken Chapple <ken@mi-squared.com>
  * @author  Medical Information Integration, LLC
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  **/
 
 abstract class Abstract_Model

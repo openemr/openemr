@@ -17,7 +17,7 @@
  *
  * @package OpenEMR
  * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 require_once($GLOBALS['fileroot']."/controllers/C_Document.class.php");

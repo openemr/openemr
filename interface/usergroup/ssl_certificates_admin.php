@@ -181,6 +181,14 @@ function create_client_cert()
         $error_msg .= xl('Error, User Certificate Authentication is not enabled in OpenEMR');
         return;
     }
+    if (!file_exists($GLOBALS['certificate_authority_crt'])) {
+        $error_msg .= xl('Error, the CA Certificate File doesn\'t exist');
+        return;
+    }
+    if (!file_exists($GLOBALS['certificate_authority_key'])) {
+        $error_msg .= xl('Error, the CA Key File doesn\'t exist');
+        return;
+    }
 
     if ($_POST["client_cert_user"]) {
         $user = trim($_POST['client_cert_user']);
@@ -206,7 +214,7 @@ function create_client_cert()
     }
 
     $filename = $GLOBALS['temporary_files_dir'] . "/openemr_client_cert.p12";
-    $handle = fopen($filename, 'wt');
+    $handle = fopen($filename, 'w');
     fwrite($handle, $data);
     fclose($handle);
 
@@ -253,6 +261,15 @@ function create_and_download_certificates()
         unlink($zipName);
     }
 
+    $commonName             = false;
+    $emailAddress           = false;
+    $countryName            = false;
+    $stateOrProvinceName    = false;
+    $localityName           = false;
+    $organizationName       = false;
+    $organizationalUnitName = false;
+    $clientCertValidity     = false;
+
     /* Retrieve the certificate name settings from the form input */
     if ($_POST["commonName"]) {
         $commonName = trim($_POST['commonName']);
@@ -288,7 +305,15 @@ function create_and_download_certificates()
 
 
     /* Create the Certficate Authority (CA) */
-    $arr = create_csr("OpenEMR CA for " . $commonName, $emailAddress, $countryName, $stateOrProvinceName, $localityName, $organizationName, $organizationalUnitName);
+    $arr = create_csr(
+        "OpenEMR CA for " . $commonName,
+        $emailAddress,
+        $countryName,
+        $stateOrProvinceName,
+        $localityName,
+        $organizationName,
+        $organizationalUnitName
+    );
 
     if ($arr === false) {
         $error_msg .= xl('Error, unable to create the Certificate Authority certificate.');
@@ -298,14 +323,15 @@ function create_and_download_certificates()
 
     $ca_csr = $arr[0];
     $ca_key = $arr[1];
-    $ca_crt = create_crt($ca_key, $ca_csr, null, $ca_key);
+    $config = $arr[2];
+    $ca_crt = create_crt($ca_csr, null, $ca_key);
     if ($ca_crt === false) {
         $error_msg .= xl('Error, unable to create the Certificate Authority certificate.');
         delete_certificates();
         return;
     }
 
-    openssl_pkey_export_to_file($ca_key, $tempDir . "/CertificateAuthority.key");
+    openssl_pkey_export_to_file($ca_key, $tempDir . "/CertificateAuthority.key", null, $config);
     openssl_x509_export_to_file($ca_crt, $tempDir . "/CertificateAuthority.crt");
 
     /* Create the Server certificate */
@@ -326,15 +352,16 @@ function create_and_download_certificates()
 
     $server_csr = $arr[0];
     $server_key = $arr[1];
-    $server_crt = create_crt($server_key, $server_csr, $ca_crt, $ca_key);
+    $config     = $arr[2];
+    $server_crt = create_crt($server_csr, $ca_crt, $ca_key);
 
-    if (server_crt === false) {
+    if ($server_crt === false) {
         $error_msg .= xl('Error, unable to create the Server certificate.');
         delete_certificates();
         return;
     }
 
-    openssl_pkey_export_to_file($server_key, $tempDir . "/Server.key");
+    openssl_pkey_export_to_file($server_key, $tempDir . "/Server.key", null, $config);
     openssl_x509_export_to_file($server_crt, $tempDir . "/Server.crt");
 
     /* Create the client certificate for the 'admin' user */
