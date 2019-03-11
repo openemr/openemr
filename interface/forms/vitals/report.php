@@ -78,7 +78,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                 }
             } elseif ($key == "Weight") {
                 $convValue = number_format($value*0.45359237, 2);
-                $vitals.="<td><div class='bold'>" . xlt($key) . ": </div><div class='text'>";
+                $vitals.="<td><div class='bold' style='display:inline-block'>" . xlt($key) . ": </div><div class='text' style='display:inline-block'>";
                 // show appropriate units
                 $mode=$GLOBALS['us_weight_format'];
                 if ($GLOBALS['units_of_measurement'] == 2) {

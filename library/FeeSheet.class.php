@@ -18,7 +18,7 @@
  * http://www.gnu.org/licenses/licenses.html#GPL .
  *
  * @package OpenEMR
- * @license http://www.gnu.org/licenses/licenses.html#GPL GNU GPL V3+
+ * @license https://www.gnu.org/licenses/licenses.html#GPL GNU GPL V3+
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @link    http://www.open-emr.org
  */

@@ -3,7 +3,7 @@
  * Drag and Drop file uploader.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Sherwin Gaddis <sherwingaddis@gmail.com>

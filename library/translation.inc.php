@@ -12,6 +12,10 @@
 if (!(function_exists('xl'))) {
     function xl($constant, $mode = 'r', $prepend = '', $append = '')
     {
+        if ($GLOBALS['temp_skip_translations']) {
+            return $constant;
+        }
+
         // set language id
         if (!empty($_SESSION['language_choice'])) {
              $lang_id = $_SESSION['language_choice'];

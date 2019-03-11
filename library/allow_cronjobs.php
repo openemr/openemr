@@ -3,7 +3,7 @@
  * cronjob mapping to allow seamless use of scripts in background.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    MD Support <mdsupport@users.sf.net>
  * @copyright Copyright (c) 2017 MD Support <mdsupport@users.sf.net>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

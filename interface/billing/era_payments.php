@@ -68,10 +68,10 @@ if ($_FILES['form_erafile']['size']) {
         unlink("$tmp_name.zip");
     }
     $alertmsg .= ParseERA::parse_era($tmp_name, 'era_callback');
-    $erafullname = $GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi";
+    $erafullname = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi";
     if (is_file($erafullname)) {
         $alertmsg .=  xl("Warning").': '. xl("Set").' '.$eraname.' '. xl("was already uploaded").' ';
-        if (is_file($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.html")) {
+        if (is_file($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.html")) {
             $Processed=1;
             $alertmsg .=  xl("and processed.").' ';
         } else {

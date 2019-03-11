@@ -3,7 +3,7 @@
  * Crypto library.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ensoftek, Inc
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015 Ensoftek, Inc
@@ -109,6 +109,10 @@ function coreEncrypt($sValue, $customPassword = null, $keySource = 'drive', $key
     } else {
         // customPassword mode, so turn the password into keys
         $sSalt = produceRandomBytes(32);
+        if (empty($sSalt)) {
+            error_log('OpenEMR Error : Random Bytes error - exiting');
+            die();
+        }
         $sPreKey = hash_pbkdf2('sha384', $customPassword, $sSalt, 100000, 32, true);
         $sSecretKey = hash_hkdf('sha384', $sPreKey, 32, 'aes-256-encryption', $sSalt);
         $sSecretKeyHmac = hash_hkdf('sha384', $sPreKey, 32, 'sha-384-authentication', $sSalt);
@@ -119,6 +123,10 @@ function coreEncrypt($sValue, $customPassword = null, $keySource = 'drive', $key
     }
 
     $iv = produceRandomBytes(openssl_cipher_iv_length('aes-256-cbc'));
+    if (empty($iv)) {
+        error_log('OpenEMR Error : Random Bytes error - exiting');
+        die();
+    }
 
     $processedValue = openssl_encrypt(
         $sValue,
@@ -358,6 +366,10 @@ function collectCryptoKey($version = "one", $sub = "", $keySource = 'drive')
             // Create a new key and place in database
             // Produce a 256bit key (32 bytes equals 256 bits)
             $newKey = produceRandomBytes(32);
+            if (empty($newKey)) {
+                error_log('OpenEMR Error : Random Bytes error - exiting');
+                die();
+            }
             sqlInsert("INSERT INTO `keys` (`name`, `value`) VALUES (?, ?)", [$label, base64_encode($newKey)]);
         }
     } else { //$keySource == 'drive'
@@ -365,6 +377,10 @@ function collectCryptoKey($version = "one", $sub = "", $keySource = 'drive')
             // Create a key and place in drive
             // Produce a 256bit key (32 bytes equals 256 bits)
             $newKey = produceRandomBytes(32);
+            if (empty($newKey)) {
+                error_log('OpenEMR Error : Random Bytes error - exiting');
+                die();
+            }
             if (($version == "one") || ($version == "two") || ($version == "three") || ($version == "four")) {
                 // older key versions that did not encrypt the key on the drive
                 file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label, base64_encode($newKey));
@@ -402,9 +418,30 @@ function produceRandomBytes($length)
         $randomBytes = random_bytes($length);
     } catch (Error $e) {
         error_log('OpenEMR Error : Encryption is not working because of random_bytes() Error: ' . $e->getMessage());
+        return '';
     } catch (Exception $e) {
         error_log('OpenEMR Error : Encryption is not working because of random_bytes() Exception: ' . $e->getMessage());
+        return '';
     }
 
     return $randomBytes;
+}
+
+// Produce random string (uses random_int with error checking)
+function produceRandomString($length = 26, $alphabet = 'abcdefghijklmnopqrstuvwxyz234567')
+{
+    $str = '';
+    $alphamax = strlen($alphabet) - 1;
+    for ($i = 0; $i < $length; ++$i) {
+        try {
+            $str .= $alphabet[random_int(0, $alphamax)];
+        } catch (Error $e) {
+            error_log('OpenEMR Error : Encryption is not working because of random_int() Error: ' . $e->getMessage());
+            return '';
+        } catch (Exception $e) {
+            error_log('OpenEMR Error : Encryption is not working because of random_int() Exception: ' . $e->getMessage());
+            return '';
+        }
+    }
+    return $str;
 }

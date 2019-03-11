@@ -5,7 +5,7 @@
 #the Free Software Foundation; either version 2 of the License, or
 #(at your option) any later version.
 #
-# Copyright 2011-2018
+# Copyright 2011-2019
 # authors: Amalu Obinna <amaluobinna@aol.com>
 #          Brady Miller <brady.g.miller@gmail.com>
 #
@@ -210,7 +210,7 @@ case "$1" in
 
          done
 
-         # if site-specific directories are in the old locations, move them.
+         # if site-specific directories are in the really old locations, move them.
          if [ -d $OPENEMR/documents ]; then
            if [ "$(ls $OPENEMR/documents)" ]; then
              mv -f  $OPENEMR/documents/* $SITEDIR/default/documents/
@@ -236,6 +236,35 @@ case "$1" in
            rm -rf $OPENEMR/custom/letter_templates
          fi
 
+         # if site-specific directories are in the old locations, move them.
+         if [ -d $SITEDIR/$SITENAME/era ]; then
+           if [ "$(ls $SITEDIR/$SITENAME/era)" ]; then
+             mv -f  $SITEDIR/$SITENAME/era/* $SITEDIR/$SITENAME/documents/era/
+           fi
+           rm -rf $SITEDIR/$SITENAME/era
+         fi
+         if [ -d $SITEDIR/$SITENAME/edi ]; then
+           if [ "$(ls $SITEDIR/$SITENAME/edi)" ]; then
+             mv -f  $SITEDIR/$SITENAME/edi/* $SITEDIR/$SITENAME/documents/edi/
+           fi
+           rm -rf $SITEDIR/$SITENAME/edi
+         fi
+         if [ -d $SITEDIR/$SITENAME/letter_templates ]; then
+           if [ "$(ls $SITEDIR/$SITENAME/letter_templates)" ]; then
+             if [ -f $SITEDIR/$SITENAME/letter_templates/custom_pdf.php ]; then
+               mv -f $SITEDIR/$SITENAME/letter_templates/custom_pdf.php $SITEDIR/$SITENAME/
+             fi
+             mv -f  $SITEDIR/$SITENAME/letter_templates/* $SITEDIR/$SITENAME/documents/letter_templates/
+           fi
+           rm -rf $SITEDIR/$SITENAME/letter_templates
+         fi
+         if [ -d $SITEDIR/$SITENAME/procedure_results ]; then
+           if [ "$(ls $SITEDIR/$SITENAME/procedure_results)" ]; then
+             mv -f  $SITEDIR/$SITENAME/procedure_results/* $SITEDIR/$SITENAME/documents/procedure_results/
+           fi
+           rm -rf $SITEDIR/$SITENAME/procedure_results
+         fi
+
          #secure openemr
          chown -Rf root:root $OPENEMR
          chmod 600 $OPENEMR/acl_setup.php
@@ -247,20 +276,14 @@ case "$1" in
 
          #set writable files and directories (that are not within sites directory)
          chown $WEB_GROUP.$WEB_USER $OPENEMR/interface/modules/zend_modules/config/application.config.php
-         chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache
-         chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled
-         chown -R $WEB_GROUP.$WEB_USER $OPENEMR/gacl/admin/templates_c
 
          #set writable directories (that are within sites directory)
          # (go through each site)
          for dir in $(find $SITEDIR/* -maxdepth 0 -type d ); do
             #collect sitename
             SITENAME=$(basename "$dir")
-            #set the writable directories
+            #set the writable directory
             chown -R $WEB_GROUP.$WEB_USER $SITEDIR/$SITENAME/documents
-            chown -R $WEB_GROUP.$WEB_USER $SITEDIR/$SITENAME/edi
-            chown -R $WEB_GROUP.$WEB_USER $SITEDIR/$SITENAME/era
-            chown -R $WEB_GROUP.$WEB_USER $SITEDIR/$SITENAME/letter_templates
          done
 
          #update config file, change process to complete and remove others
@@ -510,12 +533,6 @@ case "$1" in
       chmod 666 $SITEDIR/default/sqlconf.php
       chown $WEB_GROUP.$WEB_USER $OPENEMR/interface/modules/zend_modules/config/application.config.php
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/default/documents
-      chown -R $WEB_GROUP.$WEB_USER $SITEDIR/default/edi
-      chown -R $WEB_GROUP.$WEB_USER $SITEDIR/default/era
-      chown -R $WEB_GROUP.$WEB_USER $SITEDIR/default/letter_templates
-      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache
-      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled
-      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/gacl/admin/templates_c
 
       if $configure_flag; then
          # Create a random password for the openemr mysql user

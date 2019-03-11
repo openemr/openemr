@@ -322,7 +322,7 @@ $fname = tempnam($GLOBALS['temporary_files_dir'], 'OED');
 $mimetype = 'application/octet-stream';
 $ext = strtolower(array_pop(explode('.', $filename)));
 if ('dotx' == $ext) {
-  // PHP does not seem to recognize this type.
+    // PHP does not seem to recognize this type.
     $mimetype = 'application/msword';
 } else if (function_exists('finfo_open')) {
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -360,9 +360,21 @@ if ('dotx' == $ext) {
     }
 }
 
+// Place file in variable.
+$fileData = file_get_contents($templatepath);
+
+// Decrypt file, if applicable.
+if (cryptCheckStandard($fileData)) {
+    $fileData = decryptStandard($fileData, null, 'database');
+}
+
+// Create a temporary file to hold the template.
+$dname = tempnam($GLOBALS['temporary_files_dir'], 'OED');
+file_put_contents($dname, $fileData);
+
 $zipin = new ZipArchive;
-if ($zipin->open($templatepath) === true) {
-  // Must be a zip archive.
+if ($zipin->open($dname) === true) {
+    // Must be a zip archive.
     $zipout = new ZipArchive;
     $zipout->open($fname, ZipArchive::OVERWRITE);
     for ($i = 0; $i < $zipin->numFiles; ++$i) {
@@ -375,11 +387,14 @@ if ($zipin->open($templatepath) === true) {
     $zipout->close();
     $zipin->close();
 } else {
-  // Not a zip archive.
-    $edata = file_get_contents($templatepath);
+    // Not a zip archive.
+    $edata = file_get_contents($dname);
     $edata = doSubs($edata);
     file_put_contents($fname, $edata);
 }
+
+// Remove the temporary template file.
+unlink($dname);
 
 // Compute a download name like "filename_lastname_pid.odt".
 $pi = pathinfo($form_filename);

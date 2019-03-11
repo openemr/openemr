@@ -31,8 +31,60 @@ if (!$allow_cloning_setup && !empty($_REQUEST['clone_database'])) {
     die("To turn on support for cloning setup, need to edit this script and change \$allow_cloning_setup to true. After you are done setting up the cloning, ensure you change \$allow_cloning_setup back to false or remove this script altogether");
 }
 
-// Checks if the server's PHP version is compatible with OpenEMR:
-require_once(dirname(__FILE__) . "/common/compatibility/Checker.php");
+function recursive_writable_directory_test($dir)
+{
+    // first, collect the directory and subdirectories
+    $ri = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
+    $dirNames = array();
+    foreach ($ri as $file) {
+        if ($file->isDir()) {
+            if (!preg_match("/\.\.$/", $file->getPathname())) {
+                $dirName = realpath($file->getPathname());
+                if (!in_array($dirName, $dirNames)) {
+                    $dirNames[] = $dirName;
+                }
+            }
+        }
+    }
+
+    // second, flag the directories that are not writable
+    $resultsNegative = array();
+    foreach ($dirNames as $value) {
+        if (!is_writable($value)) {
+            $resultsNegative[] = $value;
+        }
+    }
+
+    // third, send the output and return if didn't pass the test
+    if (!empty($resultsNegative)) {
+        echo "<p>";
+        $mainDirTest = "";
+        $outputs = array();
+        foreach ($resultsNegative as $failedDir) {
+            if (basename($failedDir) ==  basename($dir)) {
+                // need to reorder output so the main directory is at the top of the list
+                $mainDirTest = "<FONT COLOR='red'>UNABLE</FONT> to open directory '" . realpath($failedDir) . "' for writing by web server.<br>\r\n";
+            } else {
+                $outputs[] = "<FONT COLOR='red'>UNABLE</FONT> to open subdirectory '" . realpath($failedDir) . "' for writing by web server.<br>\r\n";
+            }
+        }
+        if ($mainDirTest) {
+            // need to reorder output so the main directory is at the top of the list
+            array_unshift($outputs, $mainDirTest);
+        }
+        foreach ($outputs as $output) {
+            echo $output;
+        }
+        echo "(configure directory permissions; see below for further instructions)</p>\r\n";
+        return 1;
+    } else {
+        echo "'" . realpath($dir) . "' directory and its subdirectories are <FONT COLOR='green'><b>ready</b></FONT>.<br>\r\n";
+        return 0;
+    }
+}
+
+// Bring in standard libraries/classes
+require_once dirname(__FILE__) ."/vendor/autoload.php";
 
 use OpenEMR\Common\Checker;
 
@@ -152,12 +204,6 @@ $checkPermissions = true;
 global $OE_SITE_DIR; // The Installer sets this
 
 $docsDirectory = "$OE_SITE_DIR/documents";
-$billingDirectory = "$OE_SITE_DIR/edi";
-$billingDirectory2 = "$OE_SITE_DIR/era";
-$lettersDirectory = "$OE_SITE_DIR/letter_templates";
-$gaclWritableDirectory = dirname(__FILE__)."/gacl/admin/templates_c";
-$requiredDirectory1 = dirname(__FILE__)."/interface/main/calendar/modules/PostCalendar/pntemplates/compiled";
-$requiredDirectory2 = dirname(__FILE__)."/interface/main/calendar/modules/PostCalendar/pntemplates/cache";
 
 $zendModuleConfigFile = dirname(__FILE__)."/interface/modules/zend_modules/config/application.config.php";
 
@@ -165,10 +211,10 @@ $zendModuleConfigFile = dirname(__FILE__)."/interface/modules/zend_modules/confi
 // correct permissions.
 if (is_dir($OE_SITE_DIR)) {
     $writableFileList = array($installer->conffile,$zendModuleConfigFile);
-    $writableDirList = array($docsDirectory, $billingDirectory, $billingDirectory2, $lettersDirectory, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
+    $writableDirList = array($docsDirectory);
 } else {
     $writableFileList = array();
-    $writableDirList = array($OE_SITES_BASE, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
+    $writableDirList = array($OE_SITES_BASE);
 }
 
 // Include the sqlconf file if it exists yet.
@@ -746,7 +792,25 @@ SOURCESITETOP;
 SOURCESITEBOT;
                             echo $source_site_bot ."\r\n";
                         }
+
                         $randomusername = chr(rand(65, 90)) . chr(rand(65, 90)) . chr(rand(65, 90)) . "-admin-" . rand(0, 9) . rand(0, 9);
+
+                        // App Based TOTP secret
+                        // Shared key (per rfc6238 and rfc4226) should be 20 bytes (160 bits) and encoded in base32, which should
+                        //   be 32 characters in base32
+                        // Would be nice to use the produceRandomBytes() function and then encode to base32, but does not appear
+                        //   to be a standard way to encode binary to base32 in php.
+                        $randomsecret = produceRandomString(32, "234567ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+                        if (empty($randomsecret)) {
+                            error_log('OpenEMR Error : Random String error - exiting');
+                            die();
+                        }
+                        $disableCheckbox = "";
+                        if (empty($randomsecret)) {
+                            $randomsecret = "";
+                            $disableCheckbox = "disabled";
+                        }
+
                         $step2tablebot = <<<STP2TBLBOT
                     </fieldset>
                     <br>
@@ -833,6 +897,42 @@ SOURCESITEBOT;
                                         <p>This should be the name of your practice.
                                     </div>
                                 </div>
+                                <div class="col-sm-4">
+                                    <div class="clearfix form-group">
+                                        <div class="label-div">
+                                            <label class="control-label" for="i2fa">Configure 2FA:</label> <a href="#i2fa_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        </div>
+                                        <div>
+                                            <table>
+                                                <tr>
+                                                    <td><p><input name='i2faenable' id='i2faenable' type='checkbox' $disableCheckbox/> Enable 2FA</p></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <strong><font color='RED'>IMPORTANT IF ENABLED</font></strong>
+                                                        <p><strong>If enabled, you must have an authenticator app on your phone ready to scan the QR code displayed next.</strong></p>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        Example authenticator apps include:
+                                                        <ul>
+                                                            <li>Google Auth
+                                                                (<a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8">ios</a>, <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en">android</a>)</li>
+                                                            <li>Authy
+                                                                (<a href="https://itunes.apple.com/us/app/authy/id494168017?mt=8">ios</a>, <a href="https://play.google.com/store/apps/details?id=com.authy.authy&hl=en">android</a>)</li>
+                                                        </ul>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <input type='hidden' name='i2fasecret' id='i2fasecret' value='$randomsecret' />
+                                        </div>
+                                    </div>
+                                    <div id="i2fa_info" class="collapse">
+                                        <a href="#i2fa_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                        <p>This is 2-Factored Authentication that will make your version of OpenEMR more secure.</p>
+                                    </div>
+                                </div>                                
 							</div>
                         </div>
                     </fieldset>
@@ -1068,6 +1168,36 @@ STP2TBLBOT;
                             flush();
                         }
 
+
+                        // If user has selected to set MFA App Based 2FA, display QR code to scan
+                        $qr = $installer->get_initial_user_2fa_qr();
+                        if ($qr) {
+                            $qrDisplay = <<<TOTP
+                                        <br>
+                                        <table>
+                                            <tr>
+                                                <td>
+                                                    <strong><font color='RED'>IMPORTANT!!</font></strong>
+                                                    <p><strong>You must scan the following QR code with your preferred authenticator app.</strong></p>
+                                                    <img src='$qr' width="150" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    Example authenticator apps include:
+                                                    <ul>
+                                                        <li>Google Auth
+                                                            (<a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8">ios</a>, <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en">android</a>)</li>
+                                                        <li>Authy
+                                                            (<a href="https://itunes.apple.com/us/app/authy/id494168017?mt=8">ios</a>, <a href="https://play.google.com/store/apps/details?id=com.authy.authy&hl=en">android</a>)</li>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        </table>
+TOTP;
+                            echo $qrDisplay;
+                        }
+
                         if ($allow_cloning_setup && !empty($installer->clone_database)) {
                             // Database was cloned, skip ACL setup.
                             $btn_text = 'Proceed to Select a Theme';
@@ -1266,7 +1396,7 @@ STP5BOT;
                         echo "<fieldset>";
                         echo "<legend>Step $state - Configure Apache Web Server</legend>";
                         echo "<p>Configuration of Apache web server...</p><br>\n";
-                        echo "The <strong>\"".preg_replace("/${site_id}/", "*", realpath($docsDirectory))."\", \"".preg_replace("/${site_id}/", "*", realpath($billingDirectory))."\"</strong> and <strong>\"".preg_replace("/${site_id}/", "*", realpath($billingDirectory2))."\"</strong> directories contain patient information, and
+                        echo "The <strong>\"".preg_replace("/${site_id}/", "*", realpath($docsDirectory))."\"</strong> directory contain patient information, and
                         it is important to secure these directories. Additionally, some settings are required for the Zend Framework to work in OpenEMR. This can be done by pasting the below to end of your apache configuration file:<br><br>
                         &nbsp;&nbsp;&lt;Directory \"".realpath(dirname(__FILE__))."\"&gt;<br>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride FileInfo<br>
@@ -1276,12 +1406,6 @@ STP5BOT;
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride None<br>
                         &nbsp;&nbsp;&lt;/Directory&gt;<br>
                         &nbsp;&nbsp;&lt;Directory \"".preg_replace("/${site_id}/", "*", realpath($docsDirectory))."\"&gt;<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all denied<br>
-                        &nbsp;&nbsp;&lt;/Directory&gt;<br>
-                        &nbsp;&nbsp;&lt;Directory \"".preg_replace("/${site_id}/", "*", realpath($billingDirectory))."\"&gt;<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all denied<br>
-                        &nbsp;&nbsp;&lt;/Directory&gt;<br>
-                        &nbsp;&nbsp;&lt;Directory \"".preg_replace("/${site_id}/", "*", realpath($billingDirectory2))."\"&gt;<br>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all denied<br>
                         &nbsp;&nbsp;&lt;/Directory&gt;<br><br>";
 
@@ -1398,21 +1522,15 @@ CHKFILE;
                                 break;
                             }
 
-                            echo "<br><FONT COLOR='green'>Ensuring following directories have proper permissions...</FONT><br>\n";
                             $errorWritable = 0;
                             foreach ($writableDirList as $tempDir) {
-                                if (is_writable($tempDir)) {
-                                        echo "'".realpath($tempDir)."' directory is <FONT COLOR='green'><b>ready</b></FONT>.<br>\r\n";
-                                } else {
-                                        echo "<p><FONT COLOR='red'>UNABLE</FONT> to open directory '".realpath($tempDir)."' for writing by web server.<br>\r\n";
-                                        echo "(configure directory permissions; see below for further instructions)</p>\r\n";
-                                    $errorWritable = 1;
-                                }
+                                echo "<br><FONT COLOR='green'>Ensuring the '" . realpath($tempDir) . "' directory and its subdirectories have proper permissions...</FONT><br>\n";
+                                $errorWritable = recursive_writable_directory_test($tempDir);
                             }
 
                             if ($errorWritable) {
                                 $check_directory = <<<CHKDIR
-                                            <p style="font-color:red;">You can't proceed until all directories are ready.</p>
+                                            <p style="font-color:red;">You can't proceed until all directories and subdirectories are ready.</p>
                                             <p>In linux, recommend changing owners of these directories to the web server. For example, in many linux OS's the web server user is 'apache', 'nobody', or 'www-data'. So if 'apache' were the web server user name, could use the command <strong>'chown -R apache:apache directory_name'</strong> command.</p>
                                             <p class='bg-warning'>Fix above directory permissions and then click the <strong>'Check Again'</strong> button to re-check directories.</p>
                                             <br>
@@ -1427,6 +1545,7 @@ CHKDIR;
 
                             //RP_CHECK_LOGIC
                             $form = <<<FRM
+                                        <br>
                                         <p>All required files and directories have been verified.</p>
                                         <p class='bg-warning'>Click <b>Proceed to Step 1</b> to continue with a new installation.</p>
                                         <p class='bg-danger'>$caution: If you are upgrading from a previous version, <strong>DO NOT</strong> use this script. Please read the <strong>'Upgrading'</strong> section found in the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><span style='text-decoration: underline;'>'INSTALL'</span></a> manual file.</p>

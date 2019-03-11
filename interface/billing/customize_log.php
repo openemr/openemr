@@ -14,7 +14,7 @@
 
 require_once("../globals.php");
 
-$filename = $GLOBALS['OE_SITE_DIR'] . '/edi/process_bills.log';
+$filename = $GLOBALS['OE_SITE_DIR'] . '/documents/edi/process_bills.log';
 
 $fh = file_get_contents($filename);
 

@@ -3,7 +3,7 @@
  * Escaping Functions
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Boyd Stephen Smith Jr.
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2011 Boyd Stephen Smith Jr.

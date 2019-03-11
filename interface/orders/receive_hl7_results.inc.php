@@ -1243,7 +1243,7 @@ function poll_hl7_results(&$info)
                 }
 
                 // Ensure that archive directory exists.
-                $prpath = $GLOBALS['OE_SITE_DIR'] . "/procedure_results";
+                $prpath = $GLOBALS['OE_SITE_DIR'] . "/documents/procedure_results";
                 if (!file_exists($prpath)) {
                     mkdir($prpath);
                 }
@@ -1329,7 +1329,7 @@ function poll_hl7_results(&$info)
                 }
 
                 // Ensure that archive directory exists.
-                $prpath = $GLOBALS['OE_SITE_DIR'] . "/procedure_results";
+                $prpath = $GLOBALS['OE_SITE_DIR'] . "/documents/procedure_results";
                 if (!file_exists($prpath)) {
                     mkdir($prpath);
                 }
