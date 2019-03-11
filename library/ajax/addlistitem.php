@@ -7,7 +7,7 @@
  *   on succcess = JSON data, array of "value":"title" for new list of options
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jason Morrill <jason@italktech.net>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Daniel Ehrlich <daniel.ehrlich1@gmail.com>

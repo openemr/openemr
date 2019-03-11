@@ -3,7 +3,7 @@
  * Dicom viewer wrapper script for documents
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Jerry Padgett <sjpadgett@gmail.com> 'Viewer wrapper'
  * @author  Victor Kofia <https://kofiav.com> 'Viewer'
  * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>

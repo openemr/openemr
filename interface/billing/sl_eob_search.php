@@ -918,11 +918,11 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 echo "<!-- Notes from ERA upload processing:\n";
                                 $alertmsg .= ParseERA::parse_era($tmp_name, 'era_callback');
                                 echo "-->\n";
-                                $erafullname = $GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi";
+                                $erafullname = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi";
 
                                 if (is_file($erafullname)) {
                                     $alertmsg .= "Warning: Set $eraname was already uploaded ";
-                                    if (is_file($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.html")) {
+                                    if (is_file($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.html")) {
                                         $alertmsg .= "and processed. ";
                                     } else {
                                         $alertmsg .= "but not yet processed. ";

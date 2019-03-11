@@ -158,15 +158,9 @@
 
                     <p><?php echo ("In the day to day working of the application certain files are created by the application and stored in the web server document root directory. Files like faxes, images etc. are constantly being uploaded to the application");?>.
 
-                    <p><?php echo ("To facilitate this process the following directories should be writable by the web server (Apache)"); ?>:
+                    <p><?php echo ("To facilitate this process the following directory should be writable by the web server (Apache)"); ?>:
                         <ul>
-                            <li><strong>/var/www/html/openemr/sites/default/documents</strong> - <?php echo ("where all scanned documents etc are stored"); ?></li>
-                            <li><strong>/var/www/html/openemr/sites/default/edi</strong> - <?php echo ("saves transmitted electronic batches for various kinds"); ?></li>
-                            <li><strong>/var/www/html/openemr/sites/default/era</strong> - <?php echo ("saves output from automated remittance (X12 835) processing. This includes archived remittance files, and copies of the generated HTML reports"); ?></li>
-                            <li><strong>/var/www/html/openemr/sites/default/letter_templates</strong> - <?php echo ("sample empty letter template"); ?></li>
-                            <li><strong>/var/www/html/openemr/gacl/admin/templates_c</strong> - <?php echo ("Smarty templates directory for gacl (Generic Access Control Lists)"); ?></li>
-                            <li><strong>/var/www/html/openemr/interface/main/calendar/modules/PostCalendar/pntemplates/compiled</strong> - <?php echo ("Smarty templates directory for the calendar"); ?></li>
-                            <li><strong>/var/www/html/openemr/interface/main/calendar/modules/PostCalendar/pntemplates/cache</strong> - <?php echo ("Smarty templates directory for the calendar"); ?></li>
+                            <li><strong>/var/www/html/openemr/sites/default/documents</strong> - <?php echo ("where all files etc are stored"); ?></li>
                         </ul>
 
                     <p><?php echo ("These files need to have owner and user set to the Apache user. In Linux the Apache user and owner are 'www-data' in Ubuntu and Debian, 'apache' in Redhat, Fedora and CentOS , 'nobody' is a generic user and group name that is used by other applications as well");?>.
@@ -369,9 +363,7 @@
 
                     <p><?php echo ("They are"); ?>:
                         <ul>
-                            <li><strong>/var/www/html/openemr/sites/default/documents</strong> - <?php echo ("where all scanned documents etc are stored"); ?></li>
-                            <li><strong>/var/www/html/openemr/sites/default/edi</strong> - <?php echo ("saves transmitted electronic batches for various kinds"); ?></li>
-                            <li><strong>/var/www/html/openemr/sites/default/era</strong> - <?php echo ("saves output from automated remittance (X12 835) processing. This includes archived remittance files, and copies of the generated HTML reports"); ?></li>
+                            <li><strong>/var/www/html/openemr/sites/default/documents</strong> - <?php echo ("where all files etc are stored"); ?></li>
                         </ul>
                     <p><?php echo ("It will also ask you to add some data to the Apache configuration file to make the Zend Framework work better");?>.
 
@@ -397,7 +389,7 @@
 
                     <p><?php echo ("macOS Server 5 websites -	/Library/Server/Web/Config/apache2/server-httpd.conf");?>.
 
-                    <p><?php echo ("To configure Zend and to secure the /documents, /edi and /era directories you can paste following to the end of the apache configuration file");?>:
+                    <p><?php echo ("To configure Zend and to secure the /documents directory you can paste following to the end of the apache configuration file");?>:
 
                     <pre>
                     &lt;Directory &quot;openemrwebroot&quot;&gt;
@@ -408,12 +400,6 @@
                     &nbsp;&nbsp;AllowOverride None
                     &lt;/Directory&gt;
                     &lt;Directory &quot;openemrwebroot/sites/*/documents&quot;&gt;
-                    &nbsp;&nbsp;Require all denied
-                    &lt;/Directory&gt;
-                    &lt;Directory &quot;openemrwebroot/sites/*/edi&quot;&gt;
-                    &nbsp;&nbsp;Require all denied
-                    &lt;/Directory&gt;
-                    &lt;Directory &quot;openemrwebroot/sites/*/era&quot;&gt;
                     &nbsp;&nbsp;Require all denied
                     &lt;/Directory&gt;
                     </pre>
@@ -530,12 +516,9 @@
 
                     <p><i class="fa fa-exclamation-triangle  oe-text-red" aria-hidden="true"></i> <?php echo ("IMPORTANT:  If you do not do this the setup script for a fresh install will be executed when you log in to OpenEMR with the potential for massive data loss");?>.
 
-                    <p><strong><?php echo ("Step 4");?></strong> - <?php echo ("The following directories containing patient information should however be copied from the old version to the new version"); ?>:
+                    <p><strong><?php echo ("Step 4");?></strong> - <?php echo ("The following directory contains patient information should however be copied from the old version to the new version"); ?>:
                         <ul>
-                            <li><?php echo ("openemr/sites/default/documents - scanned documents, images etc"); ?></li>
-                            <li><?php echo ("openemr/sites/default/era - electronic remittance advice files"); ?></li>
-                            <li><?php echo ("openemr/sites/default/edi - transmitted electronic batches for various kinds"); ?></li>
-                            <li><?php echo ("openemr/sites/default/letter_templates - customized letters"); ?></li>
+                            <li><?php echo ("openemr/sites/default/documents - files, documents, images etc"); ?></li>
                         </ul>
 
                     <p><?php echo ("If there are other files that you have customized, then you will also need to customize those files in the current version");?>.
@@ -586,7 +569,7 @@
 
                     <p><?php echo ("The non-database data for each individual site will reside in the 'sites' directory under a sub-directory bearing the name of the site, i.e if your first multiuser site was called 'multi1' then the setup script will create a directory by the name of 'multi1' in the 'sites' directory"); ?>.
 
-                    <p><?php echo ("This directory will contain several directories that will hold unique site-specific patient information, 'documents', 'era', 'edi' and 'letter_templates' as well as the site-specific files 'config.php' and 'sqlconf.php'"); ?>.
+                    <p><?php echo ("This directory will contain a directory that will hold unique site-specific patient information, 'documents', as well as the site-specific files 'config.php' and 'sqlconf.php'"); ?>.
 
                     <p><?php echo ("In addition it will contain other directories - 'images' and 'LBF', and files - faxtitle.eps , referral_template.html, clickoptions.txt, faxcover.txt and statement.inc.php which will not contain patient information but can be customized as per the site requirement"); ?>.
 

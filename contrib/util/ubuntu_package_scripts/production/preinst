@@ -272,6 +272,14 @@ previous_version=$OLD_VERSION\n"
             #Prepare uprade of database and collect settings that will placed in the config file string
             DATABASE_CONFIG=$(upgrade_prepare_database $SITEDIR/$SITENAME $SITENAME)
             SETTING=$SETTING$DATABASE_CONFIG
+
+            #clear the temporary smarty directories (no need to keep these during upgrade)
+            if [ -d $SITEDIR/$SITENAME/documents/smarty/gacl ]; then
+              rm -fr $SITEDIR/$SITENAME/documents/smarty/gacl/*
+            fi
+            if [ -d $SITEDIR/$SITENAME/documents/smarty/main ]; then
+              rm -fr $SITEDIR/$SITENAME/documents/smarty/main/*
+            fi
          done
       fi
 
@@ -281,10 +289,16 @@ previous_version=$OLD_VERSION\n"
       #backup web directory to tmp
       cp -fr $OPENEMR/* $TMPDIR/openemr_web_$OLD_VERSION/
 
-      #clear the temporary openemr cache directories (no need to keep these during upgrade)
-      rm -fr $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled/*
-      rm -fr $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache/*
-      rm -fr $OPENEMR/gacl/admin/templates_c/*
+      #clear the old temporary openemr cache directories if they still exist (no need to keep these during upgrade)
+      if [ -d $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled ]; then
+        rm -fr $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled/*
+      fi
+      if [ -d $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache ]; then
+        rm -fr $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache/*
+      fi
+      if [ -d $OPENEMR/gacl/admin/templates_c ]; then
+        rm -fr $OPENEMR/gacl/admin/templates_c/*
+      fi
 
       log_only "Upgrading OpenEMR from $OLD_VERSION..."
 

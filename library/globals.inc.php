@@ -747,6 +747,13 @@ $GLOBALS_METADATA = array(
             xl('Define a default visit category'),
         ),
 
+        'disable_eligibility_log' => array(
+            xl('Disable Insurance Eligibility Reports Download'),
+            'bool',
+            '0',
+            xl('Do not allow insurance eligibility report log download')
+        ),
+
         'disable_chart_tracker' => array(
             xl('Disable Chart Tracker'),
             'bool',                           // data type
@@ -2743,6 +2750,13 @@ $GLOBALS_METADATA = array(
             'bool',
             '0',
             xl('Enable OpenEMR RESTful API. SSL Required')
+        ),
+
+        'enable_oa' => array(
+            xl('Enable Office Ally Insurance Eligibility'),
+            'bool',
+            '0',
+            xl('Allow insurance eligibility checks using Office Ally')
         ),
 
         'payment_gateway' => array(

@@ -17,7 +17,7 @@ require_once($GLOBALS['srcdir'] . "/patient.inc");
 
 use OpenEMR\Core\Header;
 
-$template_dir = $GLOBALS['OE_SITE_DIR'] . "/letter_templates";
+$template_dir = $GLOBALS['OE_SITE_DIR'] . "/documents/letter_templates";
 
 if (!empty($_POST)) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -106,8 +106,13 @@ if ($_POST['formaction']=="generate") {
     $fh = fopen("$template_dir/autosaved", 'w');
     // translate from definition to the constant
     $temp_bodytext = $cpstring;
+
     foreach ($FIELD_TAG as $key => $value) {
         $temp_bodytext = str_replace("{".$value."}", "{".$key."}", $temp_bodytext);
+    }
+
+    if ($GLOBALS['drive_encryption']) {
+        $temp_bodytext = encryptStandard($temp_bodytext, null, 'database');
     }
 
     if (! fwrite($fh, $temp_bodytext)) {
@@ -160,8 +165,8 @@ if ($_POST['formaction']=="generate") {
     if ($form_format == "pdf") {
         $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
         $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
-        if (file_exists("$template_dir/custom_pdf.php")) {
-            include("$template_dir/custom_pdf.php");
+        if (file_exists($GLOBALS['OE_SITE_DIR'] . "/custom_pdf.php")) {
+            include($GLOBALS['OE_SITE_DIR'] . "/custom_pdf.php");
         } else {
             $pdf->selectFont('Helvetica');
             $pdf->ezText($cpstring, 12);
@@ -228,6 +233,11 @@ if ($_POST['formaction']=="generate") {
     }
 
     fclose($fh);
+
+    if (cryptCheckStandard($bodytext)) {
+        $bodytext = decryptStandard($bodytext, null, 'database');
+    }
+
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
         $bodytext = str_replace("{".$key."}", "{".$value."}", $bodytext);
@@ -245,6 +255,11 @@ if ($_POST['formaction']=="generate") {
     }
 
     fclose($fh);
+
+    if (cryptCheckStandard($bodytext)) {
+        $bodytext = decryptStandard($bodytext, null, 'database');
+    }
+
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
         $bodytext = str_replace("{".$key."}", "{".$value."}", $bodytext);
@@ -256,6 +271,10 @@ if ($_POST['formaction']=="generate") {
     $temp_bodytext = $_POST['form_body'];
     foreach ($FIELD_TAG as $key => $value) {
         $temp_bodytext = str_replace("{".$value."}", "{".$key."}", $temp_bodytext);
+    }
+
+    if ($GLOBALS['drive_encryption']) {
+        $temp_bodytext = encryptStandard($temp_bodytext, null, 'database');
     }
 
     if (! fwrite($fh, $temp_bodytext)) {
@@ -278,6 +297,11 @@ if ($_POST['formaction']=="generate") {
     }
 
     fclose($fh);
+
+    if (cryptCheckStandard($bodytext)) {
+        $bodytext = decryptStandard($bodytext, null, 'database');
+    }
+
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
         $bodytext = str_replace("{".$key."}", "{".$value."}", $bodytext);
@@ -289,6 +313,10 @@ if ($_POST['formaction']=="generate") {
     $temp_bodytext = $_POST['form_body'];
     foreach ($FIELD_TAG as $key => $value) {
         $temp_bodytext = str_replace("{".$value."}", "{".$key."}", $temp_bodytext);
+    }
+
+    if ($GLOBALS['drive_encryption']) {
+        $temp_bodytext = encryptStandard($temp_bodytext, null, 'database');
     }
 
     if (! fwrite($fh, $temp_bodytext)) {
@@ -310,6 +338,11 @@ if ($_POST['formaction']=="generate") {
     }
 
     fclose($fh);
+
+    if (cryptCheckStandard($bodytext)) {
+        $bodytext = decryptStandard($bodytext, null, 'database');
+    }
+
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
         $bodytext = str_replace("{".$key."}", "{".$value."}", $bodytext);
@@ -501,7 +534,7 @@ function insertAtCursor(myField, myValue) {
    <select name="form_template" id="form_template" class='form-control'>
    <option value="">(<?php echo xlt('none'); ?>)</option>
 <?php
-$tpldir = $GLOBALS['OE_SITE_DIR'] . "/letter_templates";
+$tpldir = $GLOBALS['OE_SITE_DIR'] . "/documents/letter_templates";
 $dh = opendir($tpldir);
 if (! $dh) {
     die(xlt('Cannot read') . ' ' . text($tpldir));

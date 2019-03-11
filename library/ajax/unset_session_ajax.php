@@ -3,7 +3,7 @@
  * library/ajax/unset_session_ajax.php Clear active patient on the server side.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Visolve <services@visolve.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2012 Visolve <services@visolve.com>
