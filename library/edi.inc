@@ -16,6 +16,7 @@
  * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+require_once("$srcdir/edihistory/codes/edih_271_code_class.php");
 
 use OpenEMR\Common\Http\oeHttp;
 
@@ -476,7 +477,7 @@ function show_elig($res, $X12info, $segTer, $compEleSep)
 }
 
 // To Show Eligibility Verification data
-function show_eligibility_information($pid)
+function show_eligibility_information($pid, $flag = false)
 {
     $query =
         "SELECT eligr.*, eligv.insurance_id, eligv.copay, insd.pid, insc.name, " .
@@ -503,9 +504,23 @@ function show_eligibility_information($pid)
         }
         $benefit['start_date'] = strpos($benefit['start_date'], "0000") === false ? $benefit['start_date'] : '';
         $benefit['end_date'] = strpos($benefit['end_date'], "0000") === false ? $benefit['end_date'] : '';
-
-        $showString .= "\n<div class='col col-sm-6'>\n";
-        $showString .= !empty($benefit['benefit_type']) ? "<b>" . xlt('Benefit Type') . ":</b> " .  text($benefit['benefit_type']) . "<br />\n" : '';
+        $color = "";
+        switch ($benefit['type']) {
+            case '1':
+                $color = "darkred";
+                break;
+            case 'A':
+                $color = "blue";
+                break;
+            case 'B':
+                $color = "red";
+                break;
+            case 'C':
+                $color = "green";
+                break;
+        }
+        $showString .= "\n<div class='col col-sm-6' >\n";
+        $showString .= !empty($benefit['benefit_type']) ? "<b style='color: $color'>" . xlt('Benefit Type') . ": " .  text($benefit['benefit_type']) . "</b><br />\n" : '';
         $showString .= !empty($benefit['start_date']) ? "<b>" . xlt('Start Date') . ":</b> " . text(date("d/m/Y", strtotime($benefit['start_date']))) . "<br />\n" : '';
         $showString .= !empty($benefit['end_date']) ? "<b>" . xlt('End Date') . ":</b> " . text(date("d/m/Y", strtotime($benefit['end_date']))) . "<br />\n" : '';
         $showString .= !empty($benefit['coverage_level']) ? "<b>" . xlt('Coverage Level') . ":</b> " .text($benefit['coverage_level']) . "<br />\n" : '';
@@ -529,7 +544,9 @@ function show_eligibility_information($pid)
         $showString .= "</div>";
     }
     $showString .= "</div></div>\n";
-
+    if ($title === 1) {
+        $showString = "<br /><span><b>" . xlt("Nothing To Report") . "</b></span><br />";
+    }
     echo $showString;
 }
 
@@ -792,93 +809,8 @@ function getPatientMatch($fn, $ln, $sex, $dob)
 
 function parseEdi271($content)
 {
-    // EB03
-    $coverage_type = [
-        '' => "",
-        '1' => xlt('Medical Care'),
-        '30' => xlt('Health Plan Benefit Coverage'),
-        '33' => xlt('Chiropractic'),
-        '35' => xlt('Dental'),
-        '42' => xlt('Home Health Care'),
-        '47' => xlt('Hospital'),
-        '48' => xlt('Hospital Inpatient'),
-        '50' => xlt('Hospital Outpatient'),
-        '51' => xlt('Hospital Emergency Accident'),
-        '52' => xlt('Emergency Room'),
-        '86' => xlt('Emergency Services'),
-        '88' => xlt('Pharmacy'),
-        '98' => xlt('Physician Office visit'),
-        'AE' => xlt('Physical and Speech Therapy'),
-        'AL' => xlt('Vision'),
-        'MH' => xlt('Mental Health'),
-        'UC' => xlt('Urgent Care'),
-        'BY' => xlt('Physician Visit Sick'),
-        'BZ' => xlt('Physician Visit Well')
-    ];
-    // EB04
-    $plan_type = [
-        '' => "",
-        'C1' => xlt('Commercial'),
-        'HM' => xlt('HMO'),
-        'HN' => xlt('HMO Medicare Risk'),
-        'OT' => xlt('Other'),
-        'PR' => xlt('PPO'),
-        'PS' => xlt('POS'),
-        'MA' => xlt('Medicare Part A'),
-        'MB' => xlt('Medicare Part B'),
-        'MC' => xlt('Medicare Part C'),
-        'IN' => xlt('Indemnity'),
-        'SP' => xlt('Supplemental Policy')
-    ];
-    // EB06
-    $coverage_period = [
-        '' => "",
-        '7' => xlt('Co-Insurance Days Co-Payment Amount'),
-        '22' => xlt('Service Year'),
-        '23' => xlt(''),
-        '26' => xlt('Full Days Co-Payment Amount'),
-        '27' => xlt('Visit'),
-        '29' => xlt(''),
-        '32' => xlt('Lifetime'),
-        '33' => xlt('Lifetime Rendering'),
-        '36' => xlt('Admission')
-    ];
-    //EB01 Time Period Qualifier
-    $benefit_type = [
-        '' => "",
-        '1' => xlt('Active Coverage'),
-        '6' => xlt('Inactive'),
-        'A' => xlt('Co-insurance'),
-        'B' => xlt('Co-payment'),
-        'C' => xlt('Deductible'),
-        'F' => xlt('Limitation'),
-        'G' => xlt('Out of pocket'),
-        'I' => xlt('Non-covered'),
-        'L' => xlt('Primary Care Provider'),
-        'P' => xlt('Benefit disclaimer'),
-        'R' => xlt('Other payer information'),
-        'X' => xlt('Beneficiary is Medicare entitled')
-    ];
-    $aaa_rejected = [
-        '' => xlt('Unknown rejection code'),
-        '41' => xlt('Authorization or Access Restrictions'),
-        '42' => xlt('Unable to Respond at Current Time'),
-        '43' => xlt('Invalid Provider Status'),
-        '57' => xlt('Invalid or Missing Date(s) of Service'),
-        '58' => xlt('Invalid or Missing Date of Birth'),
-        '60' => xlt('Date of Birth Follows Date Of Service'),
-        '63' => xlt('Date of Service in Future'),
-        '64' => xlt('Invalid or Missing Patient ID'),
-        '65' => xlt('Invalid or Missing Patient Name'),
-        '67' => xlt('Patient Not Found'),
-        '68' => xlt('Duplicate Patient Id Number'),
-        '71' => xlt('Patient Birth Date Does Not Match That for the Patient on the Database'),
-        '72' => xlt('72 Invalid or Missing Subscriber or Insured ID'),
-        '73' => xlt('Invalid or Missing Subscriber or Insured Name'),
-        '75' => xlt('Subscriber or Insured Not Found'),
-        '79' => xlt('270 2100A NM103 or NM109 Source Invalid')
-    ];
 
+    $codes = new edih_271_codes('*', '^');
     $target = $GLOBALS['edi_271_file_path'];
     $log = "";
     // not sure if want to save yet
@@ -972,20 +904,23 @@ function parseEdi271($content)
                     break;
 
                 case 'TRN':
-                    $trace = ++$trace + ((int)$elements[2] - (int)$elements[2]);
-                    if ($trace === 0) {
+                    if ($trace === -1) {
+                        $trace++;
                         break; // subscriber not set yet
                     }
-                    $in['benefits'] = $benefits ? $benefits : [];
-                    array_push($subscribers, $in);
-                    $loop['context'] = $elements[0];
-                    $benefits = [];
+                    $trace++;
+                    if ($in['pid']) {
+                        $in['benefits'] = $benefits ? $benefits : [];
+                        array_push($subscribers, $in);
+                        $loop['context'] = $elements[0];
+                        $benefits = [];
+                    }
                     break;
 
-                case 'REQ':
+                case 'REF':
                     if ($elements[1] == "EJ") {
-                        $in['pid'] = $elements[2];
-                        if (!(int)$in['pid']) {
+                        $in['pid'] = (int)$elements[2];
+                        if (!$in['pid']) {
                             $in['pid'] = (int)getPatientMatch(
                                 $in['subscriber_fname'],
                                 $in['subscriber_lname'],
@@ -1015,17 +950,17 @@ function parseEdi271($content)
                 case 'EB':
                     $eb = array(
                         'type' => $elements[1],
-                        'benefit_type' => $benefit_type[$elements[1]] ? $benefit_type[$elements[1]] : $elements[1],
+                        'benefit_type' =>  $codes->get_271_code("EB01", $elements[1]) ?  $codes->get_271_code("EB01", $elements[1]) : $elements[1],
                         'start_date' => '',
                         'end_date' => '',
-                        'coverage_level' => $elements[2],
-                        'coverage_type' => $coverage_type[$elements[3]] ? $coverage_type[$elements[3]] :$elements[3],
-                        'plan_type' => $plan_type[$elements[4]] ? $plan_type[$elements[4]] : $elements[4],
+                        'coverage_level' => $elements[2] ?  $codes->get_271_code("EB02", $elements[2]) :$elements[2],
+                        'coverage_type' => $elements[3] ?  $codes->get_271_code("EB03", $elements[3]) :$elements[3],
+                        'plan_type' =>  $elements[4] ?  $codes->get_271_code("EB04", $elements[4]) : $elements[4],
                         'plan_description' => $elements[5],
-                        'coverage_period' => $coverage_period[$elements[6]] ? $coverage_period[$elements[6]] : $elements[6],
+                        'coverage_period' =>  $elements[6] ?  $codes->get_271_code("EB06", $elements[6]) : $elements[6],
                         'amount' => $elements[7] ? number_format($elements[7], 2, '.', '') : '',
                         'percent' => $elements[8],
-                        'network_ind' => $elements[12],
+                        'network_ind' => $elements[12] ?  $codes->get_271_code("EB12", $elements[12]) : $elements[12],
                         'message' => '' // any MSG segments that may be assoc with this EB.
                     );
                     $loop['context'] = "EB";
@@ -1036,8 +971,8 @@ function parseEdi271($content)
                     $error = array(
                         'request_ind' => $elements[1],
                         'reason_code' => $elements[3],
-                        'follow_up' => $elements[4],
-                        'reason_text' => $elements[3] . " : " . $aaa_rejected[$elements[3]]
+                        'follow_up' => $elements[4] . " : " .  $codes->get_271_code("AAA03", $elements[4]),
+                        'reason_text' => $elements[3] . " : " .  $codes->get_271_code("AAA03", $elements[3])
                     );
                     array_push($AAA, $error);
                     break;
@@ -1052,13 +987,18 @@ function parseEdi271($content)
 
                 case 'SE':
                     $in['benefits'] = $benefits ? $benefits : [];
-                    array_push($subscribers, $in);
+                    if ($in['pid']) {
+                        array_push($subscribers, $in);
+                    }
                     $loop['context'] = $elements[0];
                     $benefits = [];
                     break;
 
                 case 'IEA':
-                    // done
+                    // save
+                    foreach ($subscribers as $subscriber) {
+                        eligibility_verification_save($subscriber);
+                    }
                     break;
             }
         }
@@ -1068,10 +1008,7 @@ function parseEdi271($content)
             $log .= makeEligibilityReport($subscribers);
         }
     }
-    // save
-    foreach ($subscribers as $subscriber) {
-        eligibility_verification_save($subscriber);
-    }
+
 
     return $log;
 }
