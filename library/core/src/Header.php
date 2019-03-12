@@ -10,6 +10,190 @@ namespace OpenEMR\Core;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Yaml\Exception\ParseException;
 
+class clsCfgAssets
+{
+    private $assets = [];
+    private $autoIncl = [];
+    private $reviewed = FALSE;
+    // Inject localizations
+    private $zSrc = '';
+    private $zFn = '';
+    // Dev Mode
+    private $devAssist = TRUE;
+
+    function __construct($vCfg = '')
+    {
+        if (empty($vCfg)) {
+            $vCfg = "{$GLOBALS['fileroot']}/config/config.yaml";
+        }
+        if (is_array($vCfg)) {
+            foreach ($vCfg as $strCfg) {
+                $this->addConfig($strCfg);
+            }
+        } else {
+            $this->addConfig($vCfg);
+        }
+        // mdsupport - inject Localization for individual scripts
+        $trace = debug_backtrace();
+        $calledBy = pathinfo(end($trace)['file']);
+        $calledBy = sprintf('%s_%s',
+            substr($calledBy['dirname'], strlen($GLOBALS['webserver_root'])+1),
+            str_replace('.', '_', $calledBy['filename'])
+            );
+        $this->zSrc = '/custom/zhdr.'.preg_replace('/[\\/\\\\]/', '.', $calledBy);
+        $this->zFn = 'auto_'.preg_replace('/[\\/\\\\]/', '_', $calledBy);
+    }
+
+    public function addConfig($strCfg)
+    {
+        $this->assets = array_merge($this->assets, $this->getConfig($strCfg));
+        $this->reviewed = FALSE;
+    }
+
+    private function getConfig($strCfg)
+    {
+        try {
+            // Find unique globals
+            $config = file_get_contents($strCfg);
+            $pattern = '/%(.*)%/';
+            $matches = [];
+            preg_match_all($pattern, $config, $matches);
+            $matches = array_unique($matches[1]);
+
+            // Replace by actual settings
+            foreach ($matches as $match) {
+                if (array_key_exists($match, $GLOBALS)) {
+                    $config = str_replace("%$match%", $GLOBALS[$match], $config);
+                }
+            }
+            $config = Yaml::parse($config);
+
+            // Validate, Transform each asset
+            foreach ($config['assets'] as $pkg => $assetConfigEntry) {
+                $config['assets'][$pkg] = $this->mapConfigEntry($assetConfigEntry);
+            }
+            return $config['assets'];
+        } catch (ParseException $e) {
+            error_log($e->getMessage());
+        }
+    }
+
+    private function mapConfigEntry($assetConfigEntry)
+    {
+        // Allow rtl sessions to override or add settings
+        if ((!empty($_SESSION['language_direction'])) && ($_SESSION['language_direction'] == 'rtl') && (!empty($assetConfigEntry['rtl']))) {
+            $rtl = $assetConfigEntry['rtl'];
+            unset($assetConfigEntry['rtl']);
+            $assetConfigEntry = array_merge($assetConfigEntry, $rtl);
+        }
+
+        $cache_sfx = '?v='.$GLOBALS['v_js_includes'];
+        foreach (['script', 'link'] as $tag) {
+            if (!empty($assetConfigEntry[$tag])) {
+                if (is_string($assetConfigEntry[$tag])) {
+                    $assetConfigEntry[$tag] = [$assetConfigEntry[$tag]];
+                }
+                foreach ($assetConfigEntry[$tag] as $ix => $basename) {
+                    if ((empty($assetConfigEntry['alreadyBuilt'])) || (!$assetConfigEntry['alreadyBuilt'])) {
+                        $assetConfigEntry[$tag][$ix] = $assetConfigEntry['basePath'].$basename;
+                        $assetConfigEntry['cache_sfx'] = $cache_sfx;
+                    } else {
+                        $assetConfigEntry['cache_sfx'] = '';
+                    }
+                }
+            }
+        }
+        return $assetConfigEntry;
+    }
+
+    // Since scripts are permitted to add entries, must call this method before any output
+    // For now, limited to creating list of autoload packages
+    private function reviewAssetEntries() {
+        // mdsupport - Append zSrc entries
+        foreach (['link' => '.css', 'script' => '.js'] as $tag => $ext) {
+            if (file_exists($GLOBALS['webserver_root'].$this->zSrc.$ext)) {
+                $this->assets['zsrc']['autoload'] = TRUE;
+                $this->assets['zsrc'][$tag] = $GLOBALS['webroot'].$this->zSrc.$ext;
+            }
+        }
+        $assets = $this->assets;
+        foreach ($assets as $pkg => $assetConfigEntry) {
+            if (!empty($assetConfigEntry['autoload']) && $assetConfigEntry['autoload']) {
+                $this->autoIncl[$pkg] = TRUE;
+            }
+        }
+        $this->reviewed = TRUE;
+    }
+
+    // TBD : Implement asset dependencies here
+    private function selectAssets($reqAssets, $exclAssets, $inclAuto) {
+        if (!$this->reviewed) $this->reviewAssetEntries();
+        $assets = $this->assets;
+        if (!is_array($reqAssets)) {
+            $reqAssets = [$reqAssets];
+        }
+        if ($inclAuto) {
+            $reqAssets = array_keys(array_merge($this->autoIncl, array_flip($reqAssets)));
+        }
+        $assets = array_intersect_key($assets, array_flip($reqAssets));
+        $assets = array_diff_key($assets, array_flip($exclAssets));
+        return $assets;
+    }
+
+    public function getLinkTags($reqAssets = [], $exclAssets = [], $inclAuto = TRUE)
+    {
+        $strHtm = '';
+        if ($this->devAssist) {
+            $strHtm .= sprintf('<!-- %s : %s.css -->%s', xlt('Local'), $this->zSrc, PHP_EOL);
+        }
+        $assets = $this->selectAssets($reqAssets, $exclAssets, $inclAuto);
+        foreach($assets as $asset) {
+            if (!empty($asset['link'])) {
+                foreach ($asset['link'] as $cssfile) {
+                    $strHtm .= sprintf('<link rel="stylesheet" href="%s%s">%s',
+                        $cssfile, $asset['cache_sfx'], PHP_EOL
+                        );
+                }
+            }
+        }
+        return $strHtm;
+    }
+
+    public function getScriptTags($reqAssets = [], $exclAssets = [], $inclAuto = TRUE)
+    {
+        $strHtm = '';
+        if ($this->devAssist) {
+            $strHtm .= sprintf('<!-- %s : %s.js / %s -->%s', xlt('Local'), $this->zSrc, $this->zFn, PHP_EOL);
+        }
+        $assets = $this->selectAssets($reqAssets, $exclAssets, $inclAuto);
+        foreach($assets as $asset) {
+            if (!empty($asset['script'])) {
+                foreach ($asset['script'] as $jsfile) {
+                    $strHtm .= sprintf('<script type="text/javascript" src="%s?v=%s"></script>%s',
+                        $jsfile, $asset['cache_sfx'], PHP_EOL
+                        );
+                }
+            }
+        }
+
+        // mdsupport - Inject local coode after the standard
+        $autofn = $this->zFn;
+        $strHtm .= sprintf('
+<script>
+    $(document).ready(function() {
+        if (typeof top.%s === "function") {
+            top.%s($);
+        } else if (typeof window.parent.%s === "function") {
+            window.parent.%s($);
+        }
+    });
+</script>',
+            $autofn, $autofn, $autofn, $autofn);
+
+        return $strHtm;
+    }
+}
+
 /**
  * Class Header.
  *
@@ -99,173 +283,26 @@ class Header
             $assets = [$assets];
         }
 
+        // Map old 'no_' style to  exclude
+        $exclAssets = [];
+        foreach ($assets as $ix => $strAsset) {
+            if (substr($strAsset, 0, 3) == 'no_') {
+                $exclAssets[] = substr($strAsset, 3);
+                unset($assets[$ix]);
+            }
+        }
+
         // @TODO Hard coded the path to the config file, not good RD 2017-05-27
-        $map = self::readConfigFile("{$GLOBALS['fileroot']}/config/config.yaml");
-        $scripts = [];
-        $links = [];
-
-        foreach ($map as $k => $opts) {
-            $autoload = (isset($opts['autoload'])) ? $opts['autoload'] : false;
-            $allowNoLoad= (isset($opts['allowNoLoad'])) ? $opts['allowNoLoad'] : false;
-            $alreadyBuilt = (isset($opts['alreadyBuilt'])) ? $opts['alreadyBuilt'] : false;
-            $rtl = (isset($opts['rtl'])) ? $opts['rtl'] : false;
-            if ($autoload === true || in_array($k, $assets)) {
-                if ($allowNoLoad === true) {
-                    if (in_array("no_" . $k, $assets)) {
-                        continue;
-                    }
-                }
-
-                $tmp = self::buildAsset($opts, $alreadyBuilt);
-
-                foreach ($tmp['scripts'] as $s) {
-                    $scripts[] = $s;
-                }
-
-                foreach ($tmp['links'] as $l) {
-                    $links[] = $l;
-                }
-
-                if ($rtl && $_SESSION['language_direction'] == 'rtl') {
-                    $tmpRtl = self::buildAsset($rtl, $alreadyBuilt);
-                    foreach ($tmpRtl['scripts'] as $s) {
-                        $scripts[] = $s;
-                    }
-
-                    foreach ($tmpRtl['links'] as $l) {
-                        $links[] = $l;
-                    }
-                }
-            }
+        // New asset config file processing
+        $objCfgAssets = new clsCfgAssets();
+        if (file_exists($GLOBALS['fileroot'].'/custom/assets/custom.yaml')) {
+            $objCfgAssets->addConfig($GLOBALS['fileroot'].'/custom/assets/custom.yaml');
         }
 
-        $linksStr = implode("", $links);
-        $scriptsStr = implode("", $scripts);
-        return "\n{$linksStr}\n{$scriptsStr}\n";
-    }
+        // Maintaining old style output
+        $strHtm = $objCfgAssets->getLinkTags($assets, $exclAssets)."\n";
+        $strHtm .= $objCfgAssets->getScriptTags($assets, $exclAssets)."\n";
 
-    /**
-     * Build an html element from config options.
-     *
-     * @var array $opts Options
-     * @var boolean $alreadyBuilt - This means the path with cache busting segment has already been built
-     * @return array Array with `scripts` and `links` keys which contain arrays of elements
-     */
-    private static function buildAsset($opts = array(), $alreadyBuilt = false)
-    {
-        $script = (isset($opts['script'])) ? $opts['script'] : false;
-        $link = (isset($opts['link'])) ? $opts['link'] : false;
-        $path = (isset($opts['basePath'])) ? $opts['basePath'] : '';
-        $basePath = self::parsePlaceholders($path);
-
-        $scripts = [];
-        $links = [];
-
-        if ($script) {
-            $script = self::parsePlaceholders($script);
-            if ($alreadyBuilt) {
-                $path = $script;
-            } else {
-                $path = self::createFullPath($basePath, $script);
-            }
-            $scripts[] = self::createElement($path, 'script', $alreadyBuilt);
-        }
-
-        if ($link) {
-            if (!is_string($link) && !is_array($link)) {
-                throw new \InvalidArgumentException("Link must be of type string or array");
-            }
-
-            if (is_string($link)) {
-                $link = [$link];
-            }
-
-            foreach ($link as $l) {
-                $l = self::parsePlaceholders($l);
-                if ($alreadyBuilt) {
-                    $path = $l;
-                } else {
-                    $path = self::createFullPath($basePath, $l);
-                }
-                $links[] = self::createElement($path, 'link', $alreadyBuilt);
-            }
-        }
-
-        return ['scripts' => $scripts, 'links' => $links];
-    }
-
-    /**
-     * Parse a string for $GLOBAL key placeholders %key-name%.
-     *
-     * Perform a regex match all in the given subject for anything wrapped in
-     * percent signs `%some-key%` and if that string exists in the $GLOBALS
-     * array, will replace the occurence with the value of that key.
-     *
-     * @param string $subject String containing placeholders (%key-name%)
-     * @return string The new string with properly replaced keys
-     */
-    public static function parsePlaceholders($subject)
-    {
-        $re = '/%(.*)%/';
-        $matches = [];
-        preg_match_all($re, $subject, $matches, PREG_SET_ORDER, 0);
-
-        foreach ($matches as $match) {
-            if (array_key_exists($match[1], $GLOBALS)) {
-                $subject = str_replace($match[0], $GLOBALS["{$match[1]}"], $subject);
-            }
-        }
-
-        return $subject;
-    }
-
-    /**
-     * Create the actual HTML element.
-     *
-     * @param string $path File path to load
-     * @param string $type Must be `script` or `link`
-     * @return string mixed HTML element
-     */
-    private static function createElement($path, $type, $alreadyBuilt)
-    {
-
-        $script = "<script type=\"text/javascript\" src=\"%path%\"></script>\n";
-        $link = "<link rel=\"stylesheet\" href=\"%path%\" type=\"text/css\">\n";
-
-        $template = ($type == 'script') ? $script : $link;
-        if (!$alreadyBuilt) {
-            $v = $GLOBALS['v_js_includes'];
-            $path = $path . "?v={$v}";
-        }
-        return str_replace("%path%", $path, $template);
-    }
-
-    /**
-     * Create a full path from given parts.
-     *
-     * @param string $base Base path
-     * @param string $path specific path / filename
-     * @return string The full path
-     */
-    private static function createFullPath($base, $path)
-    {
-        return $base . $path;
-    }
-
-    /**
-     * Read a config file and turn it into an array.
-     *
-     * @param string $file Full path to filename
-     * @return array Array of assets
-     */
-    private static function readConfigFile($file)
-    {
-        try {
-            $config = Yaml::parse(file_get_contents($file));
-            return $config['assets'];
-        } catch (ParseException $e) {
-            error_log($e->getMessage());
-            // @TODO need to handle this better. RD 2017-05-24
-        }
+        return $strHtm;
     }
 }
