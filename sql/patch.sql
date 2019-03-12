@@ -55,3 +55,35 @@ ALTER TABLE `onsite_messages` CHANGE `sender_id` `sender_id` VARCHAR(64) NULL CO
 #IfNotColumnType onsite_documents full_document MEDIUMBLOB
 ALTER TABLE `onsite_documents` CHANGE `full_document` `full_document` MEDIUMBLOB;
 #EndIf
+
+#IfNotColumnType eligibility_verification response_id varchar(32)
+ALTER TABLE `eligibility_verification` CHANGE `response_id` `response_id` VARCHAR(32) DEFAULT NULL;
+#EndIf
+
+#IfNotTable benefit_eligibility
+CREATE TABLE `benefit_eligibility` (
+    `response_id` bigint(20) NOT NULL,
+    `verification_id` bigint(20) NOT NULL,
+    `type` varchar(4) DEFAULT NULL,
+    `benefit_type` varchar(255) DEFAULT NULL,
+    `start_date` date DEFAULT NULL,
+    `end_date` date DEFAULT NULL,
+    `coverage_level` varchar(255) DEFAULT NULL,
+    `coverage_type` varchar(512) DEFAULT NULL,
+    `plan_type` varchar(255) DEFAULT NULL,
+    `plan_description` varchar(255) DEFAULT NULL,
+    `coverage_period` varchar(255) DEFAULT NULL,
+    `amount` decimal(5,2) DEFAULT NULL,
+    `percent` decimal(3,2) DEFAULT NULL,
+    `network_ind` varchar(2) DEFAULT NULL,
+    `message` varchar(512) DEFAULT NULL,
+    `response_status` enum('A','D') DEFAULT 'A',
+    `response_create_date` date DEFAULT NULL,
+    `response_modify_date` date DEFAULT NULL
+) ENGINE=InnoDB;
+#Endif
+
+#IfTable eligibility_response
+DROP TABLE `eligibility_response`;
+#Endif
+
