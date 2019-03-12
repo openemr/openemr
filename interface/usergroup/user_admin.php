@@ -240,7 +240,7 @@ function authorized_clicked() {
             $bg_name=$acl_name[$i];
         }
         //check if user member on group with superuser rule
-        if (!$user_is_superuser && is_group_include_superuser($acl_name[$i])){
+        if (!$user_is_superuser && is_group_include_superuser($acl_name[$i])) {
             $selected_user_is_superuser = true;
         }
     }
@@ -248,7 +248,7 @@ function authorized_clicked() {
 <table><tr><td>
 <span class="title"><?php echo xlt('Edit User'); ?></span>&nbsp;
 </td><td>
-    <a class="btn btn-default btn-save" name='form_save' id='form_save' href='#' onclick='return submitform()' <?php if(!$is_super_user && $selected_user_is_superuser){ echo 'disabled'; } ?>> <span><?php echo xlt('Save');?></span> </a>
+    <a class="btn btn-default btn-save" name='form_save' id='form_save' href='#' onclick='return submitform()' <?php if (!$is_super_user && $selected_user_is_superuser) echo 'disabled'; ?>> <span><?php echo xlt('Save');?></span> </a>
     <a class="btn btn-link btn-cancel" id='cancel' href='#'><span><?php echo xlt('Cancel');?></span></a>
 </td></tr>
 </table>
@@ -496,11 +496,11 @@ foreach ($list_acl_groups as $value) {
   <tr height="20" valign="bottom">
   <td colspan="4" class="text">
       <p>*<?php echo xlt('You must enter your own password to change user passwords. Leave blank to keep password unchanged.'); ?></p>
-  <?php
-  if (!$is_super_user && $selected_user_is_superuser) {
-    echo '<p class="redtext">*' . xlt('View mode - only administrator can edit another administrator user') . '.</p>';
-  }
-  ?>
+    <?php
+    if (!$is_super_user && $selected_user_is_superuser) {
+        echo '<p class="redtext">*' . xlt('View mode - only administrator can edit another administrator user') . '.</p>';
+    }
+    ?>
 <!--
 Display red alert if entered password matched one of last three passwords/Display red alert if user password was expired and the user was inactivated previously
 -->
