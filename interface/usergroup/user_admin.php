@@ -244,11 +244,12 @@ function authorized_clicked() {
             $selected_user_is_superuser = true;
         }
     }
+    $disabled_save = !$is_super_user && $selected_user_is_superuser ? 'disabled' : '';
     ?>
 <table><tr><td>
 <span class="title"><?php echo xlt('Edit User'); ?></span>&nbsp;
 </td><td>
-    <a class="btn btn-default btn-save" name='form_save' id='form_save' href='#' onclick='return submitform()' <?php if (!$is_super_user && $selected_user_is_superuser) echo 'disabled'; ?>> <span><?php echo xlt('Save');?></span> </a>
+    <a class="btn btn-default btn-save" name='form_save' id='form_save' href='#' onclick='return submitform()' <?php echo $disabled_save; ?>> <span><?php echo xlt('Save');?></span> </a>
     <a class="btn btn-link btn-cancel" id='cancel' href='#'><span><?php echo xlt('Cancel');?></span></a>
 </td></tr>
 </table>
