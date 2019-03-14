@@ -1189,7 +1189,7 @@ $GLOBALS_METADATA = array(
             xl('Set POS code in encounter'),
             'bool',                           // data type
             '0',                              // default = false
-            xl('This feature will allow the default POS facility code to be overriden from the encounter.')
+            xl('This feature will allow the default POS facility code to be overridden from the encounter.')
         ),
 
         'statement_logo' => array(
@@ -1203,7 +1203,7 @@ $GLOBALS_METADATA = array(
             xl('Use Custom Statement'),
             'bool',                           // data type
             '0',                              // default = false
-            xl('This will use the custom Statment showing the description instead of the codes.')
+            xl('This will use the custom Statement showing the description instead of the codes.')
         ),
 
         'statement_appearance' => array(

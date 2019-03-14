@@ -1,3 +1,5 @@
+-- noinspection SpellCheckingInspectionForFile
+
 --
 --  Comment Meta Language Constructs:
 --

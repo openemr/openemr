@@ -29,7 +29,7 @@ switch ($_GET['action']) {
 										$_GET['root_axo_group_id'],
 										TRUE);
 
-		//Grab all relavent columns
+		//Grab all relevant columns
 		$result['query'] = str_replace(	'a.id,a.allow,a.return_value',
 										'	a.id,
 											a.allow,

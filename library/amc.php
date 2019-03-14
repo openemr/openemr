@@ -12,7 +12,7 @@
 //   --support the AMC Tracking report
 
 // Main function to process items in the amc_misc_data sql table
-// Paramteter:
+// Parameter:
 //   $amc_id     - amc rule id
 //   $complete   - boolean for whether to complete the date_completed row 
 //   $mode       - 'add' or 'remove'
@@ -294,7 +294,7 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
 function businessDaysDifference($startDate, $endDate, $holidays = array())
 {
   //The total number of days between the two dates. We compute the no. of seconds and divide it to 60*60*24
-  //We add one to inlude both dates in the interval.
+  //We add one to include both dates in the interval.
     $days = (strtotime($endDate) - strtotime($startDate)) / 86400 + 1;
 
     $no_full_weeks = floor($days / 7);
