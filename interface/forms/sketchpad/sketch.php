@@ -56,7 +56,7 @@ $bg = $GLOBALS['webroot'] . '/interface/forms/' . $folder_name . '/images/' . ba
   </style>
   <link rel="stylesheet" href="../../forms/<?php echo $folder_name; ?>/style.css" type="text/css"/>
   <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-  <script src="../../../public/assets/jquery-min-3-1-1/index.js" type="text/javascript" charset="utf-8"></script>
+  <script src="../../../public/assets/jquery/dist/jquery.min.js" type="text/javascript" charset="utf-8"></script>
   <script src="./js/canvas.js" type="text/javascript" charset="utf-8"></script>
 </head>
 
