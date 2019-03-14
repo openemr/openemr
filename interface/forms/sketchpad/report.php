@@ -53,7 +53,7 @@ function sketchpad_report($pid, $encounter, $cols=2, $id) {
         echo    'width:' . $w . 'px;';
         echo '}';
         echo '</style>';
-        echo '<script src="../../../public/assets/jquery-min-3-1-1/index.js" type="text/javascript" charset="utf-8"></script>';
+        echo '<script src="../../../public/assets/jquery/dist/jquery.min.js" type="text/javascript" charset="utf-8"></script>';
         echo '<script src="./js/canvas.js" type="text/javascript" charset="utf-8"></script>';
         echo '</head>';
 
