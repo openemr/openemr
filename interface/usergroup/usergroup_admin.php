@@ -7,9 +7,10 @@
  * @author  Roberto Vasquez <robertogagliotta@gmail.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
- * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once("../globals.php");
 require_once("../../library/acl.inc");
@@ -39,23 +40,25 @@ $set_active_msg=0;
 $show_message=0;
 
 /* Sending a mail to the admin when the breakglass user is activated only if $GLOBALS['Emergency_Login_email'] is set to 1 */
-$bg_count=count($_POST['access_group']);
-$mail_id = explode(".", $SMTP_HOST);
-for ($i=0; $i<$bg_count; $i++) {
-    if (($_POST['access_group'][$i] == "Emergency Login") && ($_POST['active'] == 'on') && ($_POST['pre_active'] == 0)) {
-        if (($_POST['get_admin_id'] == 1) && ($_POST['admin_id'] != "")) {
-            $res = sqlStatement("select username from users where id= ? ", array($_POST["id"]));
-            $row = sqlFetchArray($res);
-            $uname=$row['username'];
-            $mail = new MyMailer();
-            $mail->From = $GLOBALS["practice_return_email_path"];
-            $mail->FromName = "Administrator OpenEMR";
-            $text_body  = "Hello Security Admin,\n\n The Emergency Login user ".$uname.
-                                              " was activated at ".date('l jS \of F Y h:i:s A')." \n\nThanks,\nAdmin OpenEMR.";
-            $mail->Body = $text_body;
-            $mail->Subject = "Emergency Login User Activated";
-            $mail->AddAddress($_POST['admin_id']);
-            $mail->Send();
+if (is_array($_POST['access_group'])) {
+    $bg_count = count($_POST['access_group']);
+    $mail_id = explode(".", $SMTP_HOST);
+    for ($i = 0; $i < $bg_count; $i++) {
+        if (($_POST['access_group'][$i] == "Emergency Login") && ($_POST['active'] == 'on') && ($_POST['pre_active'] == 0)) {
+            if (($_POST['get_admin_id'] == 1) && ($_POST['admin_id'] != "")) {
+                $res = sqlStatement("select username from users where id= ? ", array($_POST["id"]));
+                $row = sqlFetchArray($res);
+                $uname = $row['username'];
+                $mail = new MyMailer();
+                $mail->From = $GLOBALS["practice_return_email_path"];
+                $mail->FromName = "Administrator OpenEMR";
+                $text_body = "Hello Security Admin,\n\n The Emergency Login user " . $uname .
+                    " was activated at " . date('l jS \of F Y h:i:s A') . " \n\nThanks,\nAdmin OpenEMR.";
+                $mail->Body = $text_body;
+                $mail->Subject = "Emergency Login User Activated";
+                $mail->AddAddress($_POST['admin_id']);
+                $mail->Send();
+            }
         }
     }
 }
