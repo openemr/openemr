@@ -1526,22 +1526,40 @@ CREATE  TABLE `erx_ttl_touch` (
 -----------------------------------------------------------
 
 --
--- Table structure for table `erx_drug_paid`
+-- Table structure for table `erx_weno_drugs`
 --
 
-DROP TABLE IF EXISTS `erx_drug_paid`;
-CREATE TABLE `erx_drug_paid` (
-  `drugid` int(11) NOT NULL AUTO_INCREMENT,
-  `drug_label_name` varchar(45) NOT NULL,
-  `ahfs_descr` varchar(45) NOT NULL,
-  `ndc` bigint(12) NOT NULL,
-  `price_per_unit` decimal(5,2) NOT NULL,
-  `avg_price` decimal(6,2) NOT NULL,
-  `avg_price_paid` int(6) NOT NULL,
-  `avg_savings` decimal(6,2) NOT NULL,
-  `avg_percent` decimal(6,2) NOT NULL,
-   PRIMARY KEY (`drugid`)
-   ) ENGINE=InnoDB;
+DROP TABLE IF EXISTS `erx_weno_drugs`;
+CREATE TABLE IF NOT EXISTS `erx_weno_drugs` (
+  `drug_id` int(11) NOT NULL AUTO_INCREMENT,
+  `rxcui_drug_coded` int(11) DEFAULT NULL,
+  `generic_rxcui` int(11) DEFAULT NULL,
+  `drug_db_code_qualifier` text,
+  `full_name` varchar(250) NOT NULL,
+  `rxn_dose_form` text,
+  `full_generic_name` varchar(250) NOT NULL,
+  `brand_name` varchar(250) NOT NULL,
+  `display_name` varchar(250) NOT NULL,
+  `route` text,
+  `new_dose_form` varchar(100) DEFAULT NULL,
+  `strength` varchar(15) DEFAULT NULL,
+  `supress_for` text,
+  `display_name_synonym` text,
+  `is_retired` text,
+  `sxdg_rxcui` varchar(10) DEFAULT NULL,
+  `sxdg_tty` text,
+  `sxdg_name` varchar(100) DEFAULT NULL,
+  `psn-drugdescription` varchar(100) DEFAULT NULL,
+  `ncpdp-quantity-term` text,
+  `potency-unit-code` varchar(10) DEFAULT NULL,
+  `dea-schedule-no` int(2) DEFAULT NULL,
+  `dea-schedule` varchar(7) DEFAULT NULL,
+  `ingredients` varchar(100) DEFAULT NULL,
+  `drug-interaction` varchar(100) DEFAULT NULL,
+  `unit-source-code` varchar(3) DEFAULT NULL,
+  `code-list-qualifier` int(3) DEFAULT NULL,
+  PRIMARY KEY (`drug_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=22017;
 
 -----------------------------------------------------------
 
