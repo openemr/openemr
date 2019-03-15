@@ -849,6 +849,10 @@ CREATE TABLE `benefit_eligibility` (
 DROP TABLE `eligibility_response`;
 #Endif
 
+#IfTable erx_drug_paid
+DROP TABLE `erx_drug_paid`;
+#Endif
+
 #IfTable erx_weno_drugs
 CREATE TABLE IF NOT EXISTS `erx_weno_drugs` (
   `drug_id` int(11) NOT NULL AUTO_INCREMENT,

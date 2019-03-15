@@ -1559,7 +1559,7 @@ CREATE TABLE IF NOT EXISTS `erx_weno_drugs` (
   `unit-source-code` varchar(3) DEFAULT NULL,
   `code-list-qualifier` int(3) DEFAULT NULL,
   PRIMARY KEY (`drug_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22017;
+) ENGINE=InnoDB ;
 
 -----------------------------------------------------------
 
