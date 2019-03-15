@@ -2,7 +2,7 @@
 /* interface/forms/<folder_name>/sketch.php
  * This page shown when user requests a new sketchpad form and selects the desired background.
  * To adapt for other uses edit $form_name and $folder_name.
- * !!! Requires appropriately referenced custom canvas.js file !!!
+ * !!! Requires custom canvas.js file placed in openemr/library/js folder !!!
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,6 +27,8 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 
 $form_name = xlt('Sketchpad');
 $folder_name = 'sketchpad';
+//$bg = basename($_GET['background']);
+//$dim = getimagesize($GLOBALS['fileroot'] . '/interface/forms/' . $folder_name . '/images/' . $bg);
 $bg = $GLOBALS['fileroot'] . '/interface/forms/' . $folder_name . '/images/' . basename($_GET['background']);
 $dim = getimagesize($bg);
 $w = $dim['0'];
@@ -57,7 +59,7 @@ $bg = $GLOBALS['webroot'] . '/interface/forms/' . $folder_name . '/images/' . ba
   <link rel="stylesheet" href="../../forms/<?php echo $folder_name; ?>/style.css" type="text/css"/>
   <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
   <script src="../../../public/assets/jquery/dist/jquery.min.js" type="text/javascript" charset="utf-8"></script>
-  <script src="./js/canvas.js" type="text/javascript" charset="utf-8"></script>
+  <script src="../../../library/js/canvas.js" type="text/javascript" charset="utf-8"></script>
 </head>
 
 <body class="body_top">

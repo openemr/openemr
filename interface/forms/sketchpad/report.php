@@ -2,7 +2,7 @@
 /* interface/forms/<folder_name>/report.php
  * This page shown when printing patient reports and on encounter summary page.
  * To adapt for other uses edit function name, $form_name and $folder_name.
- * !!! Requires appropriately referenced custom canvas.js file !!!
+ * !!! Requires custom canvas.js file placed in openemr/library/js folder !!!
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -54,7 +54,7 @@ function sketchpad_report($pid, $encounter, $cols=2, $id) {
         echo '}';
         echo '</style>';
         echo '<script src="../../../public/assets/jquery/dist/jquery.min.js" type="text/javascript" charset="utf-8"></script>';
-        echo '<script src="./js/canvas.js" type="text/javascript" charset="utf-8"></script>';
+        echo '<script src="../../../library/js/canvas.js" type="text/javascript" charset="utf-8"></script>';
         echo '</head>';
 
         echo '<body>';

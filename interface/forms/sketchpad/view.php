@@ -2,7 +2,7 @@
 /* interface/forms/<folder_name>/view.php
  * Displays editable sketch accessed from encounter view.
  * To adapt for other uses edit $form_name and $folder_name.
- * !!! Requires appropriately referenced custom canvas.js file !!!
+ * !!! Requires custom canvas.js file placed in openemr/library/js folder !!!
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -61,7 +61,7 @@ $bg = $GLOBALS['webroot'] . '/interface/forms/' . $folder_name . '/images/' . ba
   <link rel="stylesheet" href="../../forms/<?php echo $folder_name; ?>/style.css" type="text/css"/>
   <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
   <script src="../../../public/assets/jquery/dist/jquery.min.js" type="text/javascript" charset="utf-8"></script>
-  <script src="./js/canvas.js" type="text/javascript" charset="utf-8"></script>
+  <script src="../../../library/js/canvas.js" type="text/javascript" charset="utf-8"></script>
 </head>
 <body>
   <div id="title">
