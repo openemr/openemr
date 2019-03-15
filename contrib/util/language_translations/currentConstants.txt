@@ -8608,7 +8608,7 @@ This EOB item does not meet minimum print requirements setup in Globals or there
 This fax has already been sent.
 This feature is not yet available
 This feature is very experimental and not fully tested. Use at your own risk!
-This feature will allow the default POS facility code to be overridden from the encounter.
+This feature will allow the default POS facility code to be overriden from the encounter.
 This invoice number has been changed to 
 This is a child of result
 This is done in Administration > Users.
