@@ -2485,7 +2485,7 @@ INSERT INTO `geo_zone_reference` VALUES (52, 223, 'PR', 'Puerto Rico');
 INSERT INTO `geo_zone_reference` VALUES (53, 223, 'RI', 'Rhode Island');
 INSERT INTO `geo_zone_reference` VALUES (54, 223, 'SC', 'South Carolina');
 INSERT INTO `geo_zone_reference` VALUES (55, 223, 'SD', 'South Dakota');
-INSERT INTO `geo_zone_reference` VALUES (56, 223, 'TN', 'Tenessee');
+INSERT INTO `geo_zone_reference` VALUES (56, 223, 'TN', 'Tennessee');
 INSERT INTO `geo_zone_reference` VALUES (57, 223, 'TX', 'Texas');
 INSERT INTO `geo_zone_reference` VALUES (58, 223, 'UT', 'Utah');
 INSERT INTO `geo_zone_reference` VALUES (59, 223, 'VT', 'Vermont');
@@ -7503,7 +7503,7 @@ CREATE TABLE `procedure_type` (
   `lab_id`              bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references procedure_providers.ppid, 0 means default to parent',
   `procedure_code`      varchar(31)  NOT NULL DEFAULT '' COMMENT 'code identifying this procedure',
   `procedure_type`      varchar(31)  NOT NULL DEFAULT '' COMMENT 'see list proc_type',
-  `body_site`           varchar(31)  NOT NULL DEFAULT '' COMMENT 'where to do injection, e.g. arm, buttok',
+  `body_site`           varchar(31)  NOT NULL DEFAULT '' COMMENT 'where to do injection, e.g. arm, buttock',
   `specimen`            varchar(31)  NOT NULL DEFAULT '' COMMENT 'blood, urine, saliva, etc.',
   `route_admin`         varchar(31)  NOT NULL DEFAULT '' COMMENT 'oral, injection',
   `laterality`          varchar(31)  NOT NULL DEFAULT '' COMMENT 'left, right, ...',
@@ -7653,7 +7653,7 @@ CREATE TABLE `procedure_result` (
   `abnormal`            varchar(31)  NOT NULL DEFAULT '' COMMENT 'no,yes,high,low',
   `comments`            text                             COMMENT 'comments from the lab',
   `document_id`         bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references documents.id if this result is a document',
-  `result_status`       varchar(31)  NOT NULL DEFAULT '' COMMENT 'preliminary, cannot be done, final, corrected, incompete...etc.',
+  `result_status`       varchar(31)  NOT NULL DEFAULT '' COMMENT 'preliminary, cannot be done, final, corrected, incomplete...etc.',
   PRIMARY KEY (`procedure_result_id`),
   KEY procedure_report_id (procedure_report_id)
 ) ENGINE=InnoDB;

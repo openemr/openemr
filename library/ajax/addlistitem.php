@@ -4,7 +4,7 @@
  *
  * OUTPUT
  *   on error = NULL
- *   on succcess = JSON data, array of "value":"title" for new list of options
+ *   on success = JSON data, array of "value":"title" for new list of options
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

@@ -57,7 +57,7 @@ class Criteria
      * Init is called directly after construction and can be overridden.
      * If the
      * name of the Criteria class is not ObjectClassCriteria, then this method
-     * must be overriden and _map_object_class should be set to the correct
+     * must be overridden and _map_object_class should be set to the correct
      * name of the DAO Map class
      */
     protected function Init()

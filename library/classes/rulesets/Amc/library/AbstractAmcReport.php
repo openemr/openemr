@@ -80,9 +80,9 @@ abstract class AbstractAmcReport implements RsReportIF
 
         // If itemization is turned on, then iterate the rule id iterator
         //
-        // Note that when AMC rules suports different patient populations and
-        // numerator caclulation, then it will need to change placement of
-        // this and mimick the CQM rules mechanism
+        // Note that when AMC rules supports different patient populations and
+        // numerator calculation, then it will need to change placement of
+        // this and mimic the CQM rules mechanism
         if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
             $GLOBALS['report_itemized_test_id_iterator']++;
         }
