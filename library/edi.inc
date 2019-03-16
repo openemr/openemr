@@ -140,7 +140,12 @@ function create_NM1($row, $nm1Cast, $X12info, $segTer, $compEleSep)
         $NM1[6] = "";                       // Data Element not required.
         $NM1[7] = "";                       // Data Element not required.
         $NM1[8] = $X12info['id_number'] ? $X12info['id_number'] : "46";  // 46 - Electronic Transmitter Identification Number (ETIN)
-        $NM1[9] = $row['cms_id']; // Application Sender's ID
+        if ($GLOBALS['enable_oa']) {
+            $payerId = $row['alt_cms_id'];
+        } else {
+            $payerId = $row['cms_id'];
+        }
+        $NM1[9] = $payerId; // Application Sender's ID
     } else if ($nm1Cast == 'FA') {
         $NM1[1] = "FA";                     // Entity ID Code - Facility [FA Facility]
         $NM1[2] = "2";                      // Entity Type - Non-Person
@@ -227,7 +232,7 @@ function create_DTP($row, $qual, $X12info, $segTer, $compEleSep)
     if ($qual == '102') {
         $DTP[3] = $row['date'];                 // Date
     } else {
-        $DTP[3] = $row['pc_eventDate'];         // Date of Service
+        $DTP[3] = $DTP[3] ? $row['pc_eventDate'] : $row['date'];         // Date of Service
     }
     $DTP['Created'] = implode('*', $DTP);   // Data Element Separator
     $DTP['Created'] = $DTP['Created'] .  $segTer;
@@ -344,6 +349,60 @@ function print_elig($res, $X12info, $segTer, $compEleSep)
     echo $PATEDI;
 }
 
+function requestEligibleTransaction($pid = 0, $eFlag = false)
+{
+    $query = "SELECT 
+            d.facility_id,
+            p.lname,
+            p.fname,
+            p.mname,
+            DATE_FORMAT(p.dob, '%Y%m%d') as dob,
+            p.ss,
+            p.sex,
+            p.pid,
+            p.pubpid,
+            p.providerID,
+            i.subscriber_ss,
+            i.policy_number,
+            i.provider as payer_id,
+            i.subscriber_relationship,
+            i.subscriber_lname,
+            i.subscriber_fname,
+            i.subscriber_mname,
+            DATE_FORMAT(i.subscriber_DOB, '%Y%m%d') as subscriber_dob,
+            i.policy_number,
+            i.subscriber_sex,
+            DATE_FORMAT(i.date, '%Y%m%d') as date,
+            d.lname as provider_lname,
+            d.fname as provider_fname,
+            d.npi as provider_npi,
+            d.upin as provider_pin,
+            f.federal_ein as federal_ein,
+            f.facility_npi as facility_npi,
+            f.name as facility_name,
+            c.cms_id as cms_id,
+            c.alt_cms_id as alt_cms_id,
+            c.x12_default_partner_id as partner,
+            c.name as payer_name 
+        FROM patient_data AS p 
+        LEFT JOIN users AS d on (p.providerID = d.id)
+        LEFT JOIN facility AS f on (f.id = d.facility_id)
+        LEFT JOIN insurance_data AS i ON (i.id =(SELECT id FROM insurance_data AS i WHERE pid = p.pid AND type = 'primary' ORDER BY date DESC LIMIT 1))
+        LEFT JOIN insurance_companies as c ON (c.id = i.provider)
+        WHERE p.pid = ?";
+    $res = sqlStatement($query, array($pid));
+
+    $details = requestRealTimeEligible($res, '', "~", ':', true);
+    $isError = strpos($details, "Error:");
+    $isError = $isError !== false ? $isError : strpos($details, "AAA");
+    if ($isError !== false) {
+        $details = substr($details, $isError);
+        return "<div>" . nl2br(text($details)) . "</div>";
+    }
+
+    return true;
+}
+
 // EDI-270 RealTime Request & Response
 // RealTime requires one transaction per request.
 //
@@ -351,8 +410,23 @@ function requestRealTimeEligible($res, $X12info, $segTer, $compEleSep, $eFlag = 
 {
     $rowCount = 0;
     $totalCount = sqlNumRows($res);
-    $down_accum = $log = '';
+    $down_accum = $log = $error_accum = '';
     while ($row = sqlFetchArray($res)) {
+        if (!$X12info) {
+            $X12info = getX12Partner($row['partner']);
+        }
+        if ($row['providerID'] === 0 || !$row['provider_npi']) {
+            $error_accum .= xlt("Error") . ": " . xlt("Provider Missing Add one in Choices") . "\n";
+        }
+        if (!$row['alt_cms_id']) {
+            $error_accum .= xlt("Error") . ": " . xlt("Missing Insurance Payer Id") . "\n";
+        }
+        if (!$row['policy_number'] || !$row['subscriber_dob']) {
+            $error_accum .= xlt("Error") . ": " . xlt("Missing Subscriber Policy Number or DOB") . "\n";
+        }
+        if (!empty($error_accum)) {
+            return $error_accum;
+        }
         // create ISA
         $PATEDI = create_ISA($row, $X12info, $segTer, $compEleSep);
         // create GS
@@ -384,8 +458,15 @@ function requestRealTimeEligible($res, $X12info, $segTer, $compEleSep, $eFlag = 
         // make request
         $result = requestEligibility($X12info['id'], $PATEDI);
         $rowCount++;
-        $down_accum .= $result . "\n"; // delimit for next new request
-        $log .= "*** 270 " . xlt("Request Message") . " $rowCount of $totalCount\n" . $PATEDI . "\n"; // keep a log.
+        $e = strpos($result, "Error:");
+        if ($e !== false) {
+            $error_accum = $result;
+        } else {
+            $down_accum .= $result . "\n"; // delimit for next new request
+        }
+
+        $log .= "*** 270 " . xlt("Request Message") . " $rowCount of $totalCount\n" . $PATEDI . "\n" . $error_accum . "\n"; // keep a log.
+        $error_accum = '';
     }
     // parse the 271 responses from 270 requests sent.
     $process = parseEdi271($down_accum);
@@ -481,7 +562,7 @@ function show_eligibility_information($pid, $flag = false)
 {
     $query =
         "SELECT eligr.*, eligv.insurance_id, eligv.copay, insd.pid, insc.name, " .
-        "Date_Format(eligv.eligibility_check_date, '%d %M %Y') AS verificationDate " .
+        "Date_Format(eligv.eligibility_check_date, '%W %M %e, %Y %h:%i %p') AS verificationDate " .
         "FROM eligibility_verification eligv " .
         "INNER JOIN benefit_eligibility eligr ON eligr.verification_id = eligv.verification_id " .
         "INNER JOIN insurance_data insd ON insd.id = eligv.insurance_id " .
@@ -491,7 +572,7 @@ function show_eligibility_information($pid, $flag = false)
         "WHERE eligibility_verification.insurance_id = eligv.insurance_id)";
     $result = sqlStatement($query, array($pid));
 
-    $showString = "<div class='tab-content pre-scrollable' style='width:695px;overflow-x: hidden;'><div class='row'>";
+    $showString = "<div class='row'>";
     $col = 1;
     $title = 1;
     while ($benefit = sqlFetchArray($result)) {
@@ -518,6 +599,9 @@ function show_eligibility_information($pid, $flag = false)
             case 'C':
                 $color = "green";
                 break;
+            case 'F':
+                $color = "darkgreen";
+                break;
         }
         $showString .= "\n<div class='col col-sm-6' >\n";
         $showString .= !empty($benefit['benefit_type']) ? "<b style='color: $color'>" . xlt('Benefit Type') . ": " .  text($benefit['benefit_type']) . "</b><br />\n" : '';
@@ -543,10 +627,11 @@ function show_eligibility_information($pid, $flag = false)
     if ($col === 2) {
         $showString .= "</div>";
     }
-    $showString .= "</div></div>\n";
     if ($title === 1) {
-        $showString = "<br /><span><b>" . xlt("Nothing To Report") . "</b></span><br />";
+        $showString = "<br><span><b>" . xlt("Nothing To Report") . "</b></span><br>";
     }
+
+    $showString .= "</div>\n";
     echo $showString;
 }
 
@@ -613,18 +698,6 @@ function eligibility_verification_save($subscriber = [])
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $res = sqlStatement($query, $bind);
     }
-}
-
-// Function to fetch the Patient information - eligibility
-function eligibility_information($insuranceId)
-{
-    $insuranceId = 1;
-
-    $query = " SELECT * FROM eligibility_verification WHERE insuranceid = ?";
-
-    $result = sqlStatement($query, array($insuranceId));
-    $row = sqlFetchArray($result);
-    return $row;
 }
 
 // return array of X12 partners
@@ -756,16 +829,17 @@ MIMEBODY;
 
     $errors = '';
     if (!$cksum) {
-        $errors .= xlt("Request Content Fails Integrity Test");
+        $errors .= "Error:" . xlt("Request Content Fails Integrity Test");
     }
     if ($response->status() !== 200) {
-        $errors .= xlt("Http Error") . ": " . $response->getReasonPhrase() .  " : " . $response->status();
+        $errors .= "\nError:" . xlt("Http Error") . ": " . $response->getReasonPhrase() .  " : " . $response->status();
     }
     if ($formData['ErrorCode'] != "Success") {
-        $errors .= $formData['ErrorCode'] . "\n" . $formData['ErrorMessage'];
+        $errors .= "\nError:" . $formData['ErrorCode'] . "\n" . $formData['ErrorMessage'];
     }
     if ($errors) {
-        die(text($errors));
+        $errors .= $formData['Payload'] ? "\nError:" . $formData['Payload'] : '';
+        return $errors;
     }
 
     $x12_271 = $formData['Payload'];
@@ -970,9 +1044,8 @@ function parseEdi271($content)
                 case 'AAA':
                     $error = array(
                         'request_ind' => $elements[1],
-                        'reason_code' => $elements[3],
-                        'follow_up' => $elements[4] . " : " .  $codes->get_271_code("AAA03", $elements[4]),
-                        'reason_text' => $elements[3] . " : " .  $codes->get_271_code("AAA03", $elements[3])
+                        'reason_code' => $elements[3] . " : " .  $codes->get_271_code("AAA03", $elements[3]),
+                        'follow_up' => $elements[4] . " : " .  $codes->get_271_code("AAA04", $elements[4])
                     );
                     array_push($AAA, $error);
                     break;
@@ -996,6 +1069,10 @@ function parseEdi271($content)
 
                 case 'IEA':
                     // save
+                    $elog = '';
+                    if (count($subscribers) < 1) {
+                        $elog = xlt("Error") . ": " . xlt("Unknown Transaction Error Maybe Subscriber Effective or DOB Dates");
+                    }
                     foreach ($subscribers as $subscriber) {
                         eligibility_verification_save($subscriber);
                     }
@@ -1004,7 +1081,7 @@ function parseEdi271($content)
         }
         // some debug logging
         if (!$GLOBALS['disable_eligibility_log']) {
-            $log .= "*------------------- " . xlt("271 Returned") . " --------------------*\n" . $new . "\n" . (isset($AAA[0]) ? (xlt("AAA Segments") . ":\n" . print_r($AAA, true)) : "\n");
+            $log .= "*------------------- " . xlt("271 Returned") . " --------------------*\n" . $new . "\n" . (isset($AAA[0]) ? (xlt("AAA Segments") . ":\n" . print_r($AAA, true)) : "\n") . $elog;
             $log .= makeEligibilityReport($subscribers);
         }
     }

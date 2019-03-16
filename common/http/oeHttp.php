@@ -137,7 +137,7 @@ class oeHttp extends oeOAuth
 
     public static function __callStatic($method, $args)
     {
-        return oeHttpRequest::new(static::client())->{$method}(...$args);
+        return oeHttpRequest::newArgs(static::client())->{$method}(...$args);
     }
 
     public static function client()
