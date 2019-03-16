@@ -38,7 +38,7 @@ class oeHttpRequest extends oeOAuth
         }
     }
 
-    public static function new(...$args)
+    public static function newArgs(...$args)
     {
         return new self(...$args);
     }
