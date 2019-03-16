@@ -23,6 +23,8 @@
 require_once("../../globals.php");
 require_once($GLOBALS['srcdir'].'/api.inc');
 
+use OpenEMR\Core\Header;
+
 function sketchpad_report($pid, $encounter, $cols=2, $id) {
 	$form_name = xlt('Sketchpad');
 	$folder_name = 'sketchpad';
@@ -39,47 +41,48 @@ function sketchpad_report($pid, $encounter, $cols=2, $id) {
         $dim = getimagesize($GLOBALS['fileroot'] . '/interface/forms/' . $folder_name . '/images/' . $data['background']);
 	    $w = $dim['0'];
 	    $h = $dim['1'];
+?>
+        <!DOCTYPE html>
+        <html>
+        <head>
+        <?php Header::setupHeader(); ?>
+		<link rel="stylesheet" href="../../forms/<?php echo $folder_name; ?>/style.css" type="text/css"/>
+        <style>
+            #canvas_<?php echo $ts; ?> {
+                background: url("<?php echo $bg; ?>");
+                border: 1px solid black;
+            }
+            #comments {
+                width:<?php echo $w; ?>px;
+            }
+        </style>
+        <script src="../../../library/js/canvas.js" type="text/javascript" charset="utf-8"></script>
+        </head>
 
-        echo '<!DOCTYPE html>';
-        echo '<html>';
-        echo '<head>';
-		echo '<link rel="stylesheet" href="../../forms/' . $folder_name . '/style.css" type="text/css"/>';
-        echo '<style>'; // variables seemingly aren't carried over into external css files, so define the styles here
-        echo '#canvas_' . $ts . ' {';
-        echo    'background: url("' . $bg . '");';
-        echo    'border: 1px solid black;';
-        echo '}';
-        echo '#comments {';
-        echo    'width:' . $w . 'px;';
-        echo '}';
-        echo '</style>';
-        echo '<script src="../../../public/assets/jquery/dist/jquery.min.js" type="text/javascript" charset="utf-8"></script>';
-        echo '<script src="../../../library/js/canvas.js" type="text/javascript" charset="utf-8"></script>';
-        echo '</head>';
+        <body>
 
-        echo '<body>';
+        <?php if ($output) { ?>
+            <canvas id="canvas_<?php echo $ts; ?>" width="<?php echo $w; ?>" height="<?php echo $h; ?>"></canvas><br/>
+        <?php }
 
-        if ($output) {
-            echo '<canvas id="canvas_' . $ts . '" width="' . $w . '" height="' . $h . '"></canvas><br/>';
-        }
+        if ($comments) { ?>
+            <table width=<?php echo $w; ?>>
+            <td><span class="bold"><?php echo xlt("Comments"); ?>:&nbsp</span><span class="text"><?php echo $comments; ?></span></td>
+            </table>
+        <?php } ?>
+        <input type="hidden" id="output">
 
-        if ($comments) {
-            echo '<table width=' . $w . '>';
-            echo '<td><span class="bold">' . xlt("Comments"). ':&nbsp</span><span class="text">' . $comments . '</span></td>';
-            echo '</table>';
-        }
-        echo '<input type="hidden" id="output">';
+        <script>
+            $(document).ready(function() {
+                var sketch = new Sketch("canvas_<?php echo $ts; ?>");
+                var output = "<?php echo $output; ?>";
+                sketch.loadJSON(output);
+            });
+        </script>
 
-        echo '<script>';
-            echo '$(document).ready(function() {';
-                echo 'var sketch = new Sketch("canvas_' . $ts . '");';
-                echo 'var output = "' . $output . '";';
-                echo 'sketch.loadJSON(output);';
-            echo '});';
-        echo '</script>';
-
-        echo '</body>';
-        echo '</html>';
+        </body>
+        </html>
+<?php
     }
 }
 ?>
