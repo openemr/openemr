@@ -1,24 +1,47 @@
 <?php
 /**
- * library/htmlspecialchars.inc.php Escaping Functions
+ * Escaping Functions
  *
- * Copyright © 2011 Boyd Stephen Smith Jr.
- * This file is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This file is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @package OpenEMR
- * @author Boyd Stephen Smith Jr.
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Boyd Stephen Smith Jr.
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2011 Boyd Stephen Smith Jr.
+ * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+/**
+ * Escape a javascript literal.
+ */
+function js_escape($text)
+{
+    return json_encode($text);
+}
+
+/**
+ * Escape a javascript literal within html onclick attribute.
+ */
+function attr_js($text)
+{
+    return attr(json_encode($text));
+}
+
+/**
+ * Escape html and url encode a url item.
+ */
+function attr_url($text)
+{
+    return attr(urlencode($text));
+}
+
+/**
+ * Escape js and url encode a url item.
+ */
+function js_url($text)
+{
+    return js_escape(urlencode($text));
+}
 
 /**
  * Escape a PHP string for use as (part of) an HTML / XML text node.
@@ -129,10 +152,18 @@ function xla($key)
 }
 
 /*
-Translate via xl() and then escape via addslashes for use with javascript literals
-*/
+ * Translate via xl() and then escape via js_escape for use with javascript literals
+ */
+function xlj($key)
+{
+    return js_escape(hsc_private_xl_or_warn($key));
+}
+
+/*
+ * Deprecated
+ *Translate via xl() and then escape via addslashes for use with javascript literals
+ */
 function xls($key)
 {
     return addslashes(hsc_private_xl_or_warn($key));
 }
-return; // Stop include / require from going any further (non-PHP)

@@ -5,7 +5,7 @@
  * Also including csrf token management functions.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
@@ -13,36 +13,93 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// Function to collect ip address(es)
+function collectIpAddresses()
+{
+    $mainIp = $_SERVER['REMOTE_ADDR'];
+    $stringIp = $mainIp;
+
+    if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $forwardIp = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        $stringIp .= " (" . $forwardIp . ")";
+    }
+
+    return array(
+        'ip_string' => $stringIp,
+        'ip' => $mainIp,
+        'forward_ip' => $forwardIp
+    );
+}
+
+// Function to create a random unique token
+// Length is in bytes that the openssl_random_pseudo_bytes() function will create
+function createUniqueToken($length = 32)
+{
+    try {
+        $uniqueToken = random_bytes($length);
+    } catch (Error $e) {
+        error_log('OpenEMR Error : OpenEMR is not working because of random_bytes() Error: ' . $e->getMessage());
+        die("OpenEMR Error : OpenEMR is not working because because of random_bytes() Error.");
+    } catch (Exception $e) {
+        error_log('OpenEMR Error : OpenEMR is not working because because of random_bytes() Exception: ' . $e->getMessage());
+        die("OpenEMR Error : OpenEMR is not working because because of random_bytes() Exception.");
+    }
+
+    $uniqueToken = base64_encode($uniqueToken);
+
+    if (empty($uniqueToken)) {
+        error_log("OpenEMR Error : OpenEMR is not working because a random unique token is not being formed correctly.");
+        die("OpenEMR Error : OpenEMR is not working because a random unique token is not being formed correctly.");
+    }
+
+    return $uniqueToken;
+}
 
 // Function to create a csrf_token
 function createCsrfToken()
 {
-    if (!extension_loaded('openssl')) {
-        error_log("OpenEMR Error : OpenEMR is not working because missing openssl extension.");
-        die("OpenEMR Error : OpenEMR is not working because missing openssl extension.");
-    }
+    return createUniqueToken(32);
+}
 
-    $csrfToken = base64_encode(openssl_random_pseudo_bytes(32));
-
-    if (empty($csrfToken)) {
-        error_log("OpenEMR Error : OpenEMR is not working because CSRF token is not being formed correctly.");
-        die("OpenEMR Error : OpenEMR is not working because CSRF token is not being formed correctly.");
-    }
-
-    return $csrfToken;
+// Function to collect the csrf token
+function collectCsrfToken()
+{
+    return $_SESSION['csrf_token'];
 }
 
 // Function to verify a csrf_token
 function verifyCsrfToken($token)
 {
-    if (empty($_SESSION['csrf_token'])) {
+    if (empty(collectCsrfToken())) {
         error_log("OpenEMR Error : OpenEMR is potentially not secure because CSRF token was not formed correctly.");
         return false;
     } elseif (empty($token)) {
         return false;
-    } elseif ($_SESSION['csrf_token'] == $token) {
+    } elseif (collectCsrfToken() == $token) {
         return true;
     } else {
+        return false;
+    }
+}
+
+function csrfNotVerified($toScreen = true, $toLog = true)
+{
+    if ($toScreen) {
+        echo xlt('Authentication Error');
+    }
+    if ($toLog) {
+        error_log("OpenEMR CSRF token authentication error");
+    }
+    die;
+}
+
+// Sanitize a json encoded entry.
+function json_sanitize($json)
+{
+    if (json_decode($json)) {
+        return json_encode(json_decode($json, true));
+    } else {
+        error_log("OPENEMR ERROR: " . $json . " is not a valid json ");
         return false;
     }
 }
@@ -53,6 +110,8 @@ function check_file_dir_name($label)
     if (empty($label) || preg_match('/[^A-Za-z0-9_.-]/', $label)) {
         error_log("ERROR: The following variable contains invalid characters:" . $label);
         die(xlt("ERROR: The following variable contains invalid characters").": ". attr($label));
+    } else {
+        return $label;
     }
 }
 

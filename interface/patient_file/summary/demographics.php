@@ -988,7 +988,7 @@ if ($insurance_count > 0) {
         }
 
                     // Display the eligibility tab
-                    echo "<li><a href='#'>" .
+                    echo "<li><a id='eligibility' href='#'>" .
                         htmlspecialchars(xl('Eligibility'), ENT_NOQUOTES) . "</a></li>";
 
                     ?></ul><?php
@@ -1153,9 +1153,32 @@ if ($insurance_count > 0) {
                     } // end foreach
 
                     // Display the eligibility information
-                    echo "<div class='tab'>";
-                    show_eligibility_information($pid, true);
-                    echo "</div>";
+                    // Display the eligibility information
+                    echo "<div class='tab'>\n" .
+                        "<div class='tab-content pre-scrollable' style='width:695px;overflow-x: hidden;'>\n";
+                    if ($GLOBALS['enable_oa']) {
+                        echo "<form method='post' action='./demographics.php'>\n";
+                        echo "<div class='col col-sm-12'>";
+                        echo "<button class='btn btn-success btn-xs btn-transmit pull-right' name='status_update' value='true'>" .
+                            xlt("Update Status") . "</button>";
+                        echo "</div><br>\n";
+                        if ($_POST['status_update'] === 'true') {
+                            unset($_POST['status_update']);
+                            $showEligibility = true;
+                            $ok = requestEligibleTransaction($pid);
+                            if ($ok === true) {
+                                show_eligibility_information($pid, false);
+                            } else {
+                                echo $ok;
+                            }
+                        } else {
+                            show_eligibility_information($pid, true);
+                        }
+                        echo "</form>";
+                    } else {
+                        show_eligibility_information($pid, true);
+                    }
+                    echo "</div></div>";
 
             ///////////////////////////////// END INSURANCE SECTION
             ?>
@@ -1950,6 +1973,14 @@ var skipArray = [
 <?php echo $condition_str; ?>
 ];
 checkSkipConditions();
+
+var isPost = <?php echo js_escape($showEligibility); ?>;
+$(document).ready(function(){
+    if(isPost === true) {
+        $("#eligibility").click();
+        $("#eligibility").get(0).scrollIntoView();
+    }
+});
 </script>
 
 </body>
