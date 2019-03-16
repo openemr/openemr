@@ -23,12 +23,12 @@
 require_once('../../globals.php');
 require_once($GLOBALS['srcdir'].'/api.inc');
 
+use OpenEMR\Core\Header;
+
 $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
 
 $form_name = xlt('Sketchpad');
 $folder_name = 'sketchpad';
-//$bg = basename($_GET['background']);
-//$dim = getimagesize($GLOBALS['fileroot'] . '/interface/forms/' . $folder_name . '/images/' . $bg);
 $bg = $GLOBALS['fileroot'] . '/interface/forms/' . $folder_name . '/images/' . basename($_GET['background']);
 $dim = getimagesize($bg);
 $w = $dim['0'];
@@ -41,6 +41,7 @@ $bg = $GLOBALS['webroot'] . '/interface/forms/' . $folder_name . '/images/' . ba
 
 <head>
   <title><?php echo $form_name; ?></title>
+  <?php Header::setupHeader(); ?>
   <style>
     #canvas {
       background: url("<?php echo $bg; ?>");
@@ -58,7 +59,6 @@ $bg = $GLOBALS['webroot'] . '/interface/forms/' . $folder_name . '/images/' . ba
   </style>
   <link rel="stylesheet" href="../../forms/<?php echo $folder_name; ?>/style.css" type="text/css"/>
   <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-  <script src="../../../public/assets/jquery/dist/jquery.min.js" type="text/javascript" charset="utf-8"></script>
   <script src="../../../library/js/canvas.js" type="text/javascript" charset="utf-8"></script>
 </head>
 
