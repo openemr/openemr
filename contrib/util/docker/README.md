@@ -207,7 +207,8 @@ GUI directly via http://localhost:5984/_utils/ with username `admin` and passwor
 You can configure OpenEMR to use this CouchDB docker for patient document storage in OpenEMR
 at Administration->Globals->Documents:
 - Document Storage Method->CouchDB
-- CouchDB HostName->admin
+- CouchDB HostName->couchdb
+- CouchDB UserName->admin
 - CouchDB Password->password
 - CouchDB Database can be set to any name you want
 
