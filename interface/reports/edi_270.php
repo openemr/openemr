@@ -35,11 +35,9 @@ if (!empty($_POST)) {
 }
 
 // Element data seperator
-$eleDataSep     = "*";
-
+$eleDataSep = "*";
 // Segment Terminator
-$segTer         = "~";
-
+$segTer = "~";
 // Component Element seperator
 $compEleSep     = ":";
 
@@ -103,7 +101,7 @@ if ($exclude_policy != "") {
             i.subscriber_lname,
             i.subscriber_fname,
             i.subscriber_mname,
-            DATE_FORMAT(i.subscriber_dob, '%%m/%%d/%%Y') as subscriber_dob,
+            DATE_FORMAT(i.subscriber_dob, '%%Y%%m%%d') as subscriber_dob,
             i.policy_number,
             i.subscriber_sex,
             DATE_FORMAT(i.date,'%%Y%%m%%d') as date,
@@ -115,6 +113,7 @@ if ($exclude_policy != "") {
             f.facility_npi as facility_npi,
             f.name as facility_name,
             c.cms_id as cms_id,
+            c.alt_cms_id as alt_cms_id,
             c.name as payer_name 
         FROM openemr_postcalendar_events AS e
         LEFT JOIN users AS d on (e.pc_aid is not null and e.pc_aid = d.id)
@@ -138,7 +137,13 @@ if ($exclude_policy != "") {
 
     if (isset($_POST['form_xmit']) && !empty($_POST['form_xmit']) && $res) {
         $eFlag = !$GLOBALS['disable_eligibility_log'];
+        // make the batch request
         $log = requestRealTimeEligible($res, $X12info, $segTer, $compEleSep, $eFlag);
+        $e = strpos($log, "Error:");
+        if ($e !== false) {
+            $log =  text(xlt("One or more transactions failed") .
+                "\n" . $log . "\n");
+        }
         if ($eFlag) {
             $fn = sprintf(
                 'elig-log_%s_%s.txt',
