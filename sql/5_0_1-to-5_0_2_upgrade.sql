@@ -858,5 +858,5 @@ ALTER TABLE `insurance_companies` ADD `eligibility_id` VARCHAR(32) DEFAULT NULL;
 #Endif
 
 #IfMissingColumn x12_default_eligibility_id insurance_companies
-ALTER TABLE `insurance_companies` ADD `x12_default_eligibility_id` INT(11) NULL AFTER `eligibility_id`;
+ALTER TABLE `insurance_companies` ADD `x12_default_eligibility_id` INT(11)  DEFAULT NULL;
 #Endif
