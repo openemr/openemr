@@ -140,8 +140,8 @@ function create_NM1($row, $nm1Cast, $X12info, $segTer, $compEleSep)
         $NM1[6] = "";                       // Data Element not required.
         $NM1[7] = "";                       // Data Element not required.
         $NM1[8] = $X12info['id_number'] ? $X12info['id_number'] : "46";  // 46 - Electronic Transmitter Identification Number (ETIN)
-        if ($GLOBALS['enable_oa']) {
-            $payerId = $row['alt_cms_id'];
+        if($GLOBALS['enable_oa']) {
+            $payerId = $row['eligibility_id'];
         } else {
             $payerId = $row['cms_id'];
         }
@@ -381,9 +381,9 @@ function requestEligibleTransaction($pid = 0, $eFlag = false)
             f.facility_npi as facility_npi,
             f.name as facility_name,
             c.cms_id as cms_id,
-            c.alt_cms_id as alt_cms_id,
-            c.x12_default_partner_id as partner,
-            c.name as payer_name 
+            c.eligibility_id as eligibility_id,
+            c.x12_default_eligibility_id as partner,
+            c.name as payer_name
         FROM patient_data AS p 
         LEFT JOIN users AS d on (p.providerID = d.id)
         LEFT JOIN facility AS f on (f.id = d.facility_id)
@@ -412,19 +412,19 @@ function requestRealTimeEligible($res, $X12info, $segTer, $compEleSep, $eFlag = 
     $totalCount = sqlNumRows($res);
     $down_accum = $log = $error_accum = '';
     while ($row = sqlFetchArray($res)) {
-        if (!$X12info) {
+        if(!$X12info) {
             $X12info = getX12Partner($row['partner']);
         }
-        if ($row['providerID'] === 0 || !$row['provider_npi']) {
+        if($row['providerID'] === 0 || !$row['provider_npi']) {
             $error_accum .= xlt("Error") . ": " . xlt("Provider Missing Add one in Choices") . "\n";
         }
-        if (!$row['alt_cms_id']) {
+        if(!$row['eligibility_id']) {
             $error_accum .= xlt("Error") . ": " . xlt("Missing Insurance Payer Id") . "\n";
         }
-        if (!$row['policy_number'] || !$row['subscriber_dob']) {
+        if(!$row['policy_number'] || !$row['subscriber_dob']) {
             $error_accum .= xlt("Error") . ": " . xlt("Missing Subscriber Policy Number or DOB") . "\n";
         }
-        if (!empty($error_accum)) {
+        if(!empty($error_accum)) {
             return $error_accum;
         }
         // create ISA
@@ -459,7 +459,7 @@ function requestRealTimeEligible($res, $X12info, $segTer, $compEleSep, $eFlag = 
         $result = requestEligibility($X12info['id'], $PATEDI);
         $rowCount++;
         $e = strpos($result, "Error:");
-        if ($e !== false) {
+        if($e !== false) {
             $error_accum = $result;
         } else {
             $down_accum .= $result . "\n"; // delimit for next new request
@@ -1070,7 +1070,7 @@ function parseEdi271($content)
                 case 'IEA':
                     // save
                     $elog = '';
-                    if (count($subscribers) < 1) {
+                    if(count($subscribers) < 1) {
                         $elog = xlt("Error") . ": " . xlt("Unknown Transaction Error Maybe Subscriber Effective or DOB Dates");
                     }
                     foreach ($subscribers as $subscriber) {

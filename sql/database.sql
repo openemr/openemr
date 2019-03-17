@@ -2892,6 +2892,8 @@ CREATE TABLE `insurance_companies` (
   `x12_default_partner_id` int(11) default NULL,
   `alt_cms_id` varchar(15) NOT NULL DEFAULT '',
   `inactive` int(1) NOT NULL DEFAULT '0',
+  `eligibility_id` VARCHAR(32) default NULL,
+  `x12_default_eligibility_id` INT(11) default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB;
 
@@ -7322,7 +7324,7 @@ CREATE TABLE `x12_partners` (
   `id_number` varchar(255) default NULL,
   `x12_sender_id` varchar(255) default NULL,
   `x12_receiver_id` varchar(255) default NULL,
-  `processing_format` enum('standard','medi-cal','cms','proxymed') default NULL,
+  `processing_format` enum('standard','medi-cal','cms','proxymed','oa_eligibility','availity_eligibility') default NULL,
   `x12_isa01` VARCHAR( 2 ) NOT NULL DEFAULT '00' COMMENT 'User logon Required Indicator',
   `x12_isa02` VARCHAR( 10 ) NOT NULL DEFAULT '          ' COMMENT 'User Logon',
   `x12_isa03` VARCHAR( 2 ) NOT NULL DEFAULT '00' COMMENT 'User password required Indicator',
