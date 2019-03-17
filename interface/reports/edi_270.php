@@ -113,7 +113,7 @@ if ($exclude_policy != "") {
             f.facility_npi as facility_npi,
             f.name as facility_name,
             c.cms_id as cms_id,
-            c.alt_cms_id as alt_cms_id,
+            c.eligibility_id as eligibility_id,
             c.name as payer_name 
         FROM openemr_postcalendar_events AS e
         LEFT JOIN users AS d on (e.pc_aid is not null and e.pc_aid = d.id)

@@ -90,6 +90,14 @@
             </div>
         </div>
     {/if}
+    {if $SUPPORT_ELIGIBILITY_REQUESTS}
+    <div class="form-group">
+        <label for="eligibility_id" class="control-label col-sm-2">{xl t='Payer Id For Eligibility'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="eligibility_id" name="eligibility_id" class="form-control" value="{$insurancecompany->get_eligibility_id()|escape:attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    {/if}
     <div class="form-group">
         <label for="ins_type_code" class="control-label col-sm-2">{xlt t='Payer Type'}</label>
         <div class="col-sm-8">
@@ -106,6 +114,16 @@
             </select>
         </div>
     </div>
+    {if $SUPPORT_ELIGIBILITY_REQUESTS}
+    <div class="form-group">
+        <label for="x12_default_eligibility_id" class="control-label col-sm-2">{xl t='Default Eligibility X12 Partner'|escape:'html'}</label>
+        <div class="col-sm-8">
+            <select id="x12_default_eligibility_id" name="x12_default_eligibility_id" class="form-control">
+                {html_options options=$x12_partners selected=$insurancecompany->get_x12_default_eligibility_id()}
+            </select>
+        </div>
+    </div>
+    {/if}
     <div class="btn-group col-sm-offset-2">
         <a href="javascript:submit_insurancecompany();" class="btn btn-default btn-save" onclick="top.restoreSession()">
             {xlt t='Save'}

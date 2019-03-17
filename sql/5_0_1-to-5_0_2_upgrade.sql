@@ -747,7 +747,7 @@ ALTER TABLE `issue_encounter`
 
 #IfNotColumnType onsite_documents pid bigint(20)
 ALTER TABLE `onsite_documents`
-    MODIFY `pid` bigint(20) UNSIGNED DEFAULT NULL;
+    MODIFY `pid` bigint(20) UNSIGNED default NULL;
 #EndIf
 
 #IfNotColumnType patient_access_onsite pid bigint(20)
@@ -847,4 +847,16 @@ CREATE TABLE `benefit_eligibility` (
 
 #IfTable eligibility_response
 DROP TABLE `eligibility_response`;
+#Endif
+
+#IfTable x12_partners
+ALTER TABLE `x12_partners` CHANGE `processing_format` `processing_format` ENUM('standard','medi-cal','cms','proxymed','oa-eligibility','avality-eligibility') DEFAULT NULL;
+#Endif
+
+#IfMissingColumn eligibility_id insurance_companies
+ALTER TABLE `insurance_companies` ADD `eligibility_id` VARCHAR(32) DEFAULT NULL;
+#Endif
+
+#IfMissingColumn x12_default_eligibility_id insurance_companies
+ALTER TABLE `insurance_companies` ADD `x12_default_eligibility_id` INT(11) NULL AFTER `eligibility_id`;
 #Endif
