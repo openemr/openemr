@@ -58,26 +58,28 @@ if (!verifyCsrfToken($_GET["csrf_token_form"])) {
 <?php
 try {
     $drugs = file_get_contents('../../contrib/weno/erx_weno_drugs.sql');
+} catch (Exception $e) {
+    echo $e->getMessage();
+}
+try {
     $drugsArray = explode(";\n", $drugs);
-
+} catch (Exception $e) {
+    echo $e->getMessage();
+}
 // Settings to drastically speed up import with InnoDB
-    sqlStatementNoLog("SET autocommit=0");
-    sqlStatementNoLog("START TRANSACTION");
+sqlStatementNoLog("SET autocommit=0");
+sqlStatementNoLog("START TRANSACTION");
 
-    foreach ($drugsArray as $drug) {
-        if (empty($drug)) {
-            continue;
-        }
-        sqlStatementNoLog($drug);
+foreach ($drugsArray as $drug) {
+    if (empty($drug)) {
+        continue;
     }
+    sqlStatementNoLog($drug);
+}
 
 // Settings to drastically speed up import with InnoDB
     sqlStatementNoLog("COMMIT");
     sqlStatementNoLog("SET autocommit=1");
-
-} catch (Exception $e) {
-    echo $e->getMessage();
-}
 
 
 header('Location: ' . $_SERVER['HTTP_REFERER']);
