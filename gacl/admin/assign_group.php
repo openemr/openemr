@@ -47,13 +47,13 @@ switch ($_POST['action']) {
 
 		//Parse the form values
 		//foreach ($_POST['delete_assigned_aro'] as $aro_value) {
-		while (list(,$object_value) = @each($_POST['delete_assigned_object'])) {
+		foreach ($_POST['delete_assigned_object'] as $object_value) {
 			$split_object_value = explode('^', $object_value);
 			$selected_object_array[$split_object_value[0]][] = $split_object_value[1];
 		}
 
 		//Insert Object -> GROUP mappings
-		while (list($object_section_value,$object_array) = @each($selected_object_array)) {
+		foreach ($selected_object_array as $object_section_value => $object_array) {
 			$gacl_api->debug_text('Assign: Object ID: '. $object_section_value .' to Group: '. $_POST['group_id']);
 
 			foreach ($object_array as $object_value) {
@@ -71,13 +71,13 @@ switch ($_POST['action']) {
 		//showarray($_POST['selected_'.$_POST['group_type']]);
 		//Parse the form values
 		//foreach ($_POST['selected_aro'] as $aro_value) {
-		while (list(,$object_value) = @each($_POST['selected_'.$_POST['group_type']])) {
+		foreach ($_POST['selected_'.$_POST['group_type']] as $object_value) {
 			$split_object_value = explode('^', $object_value);
 			$selected_object_array[$split_object_value[0]][] = $split_object_value[1];
 		}
 
 		//Insert ARO -> GROUP mappings
-		while (list($object_section_value,$object_array) = @each($selected_object_array)) {
+		foreach ($selected_object_array as $object_section_value => $object_array) {
 			$gacl_api->debug_text('Assign: Object ID: '. $object_section_value .' to Group: '. $_POST['group_id']);
 
 			foreach ($object_array as $object_value) {
