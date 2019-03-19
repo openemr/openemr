@@ -1288,7 +1288,7 @@ class C_Document extends Controller
 
         $LOG = file_get_contents($log_path.$log_file);
 
-        if (!empty($LOG) && cryptCheckStandard($LOG)) {
+        if (cryptCheckStandard($LOG)) {
             $LOG = decryptStandard($LOG, null, 'database');
         }
 
