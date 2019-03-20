@@ -141,7 +141,7 @@ function create_NM1($row, $nm1Cast, $X12info, $segTer, $compEleSep)
         $NM1[7] = "";                       // Data Element not required.
         $NM1[8] = $X12info['id_number'] ? $X12info['id_number'] : "46";  // 46 - Electronic Transmitter Identification Number (ETIN)
         if ($GLOBALS['enable_oa']) {
-            $payerId = $row['alt_cms_id'];
+            $payerId = $row['eligibility_id'];
         } else {
             $payerId = $row['cms_id'];
         }
@@ -232,7 +232,7 @@ function create_DTP($row, $qual, $X12info, $segTer, $compEleSep)
     if ($qual == '102') {
         $DTP[3] = $row['date'];                 // Date
     } else {
-        $DTP[3] = $DTP[3] ? $row['pc_eventDate'] : $row['date'];         // Date of Service
+        $DTP[3] = !empty($row['pc_eventDate']) && $row['pc_eventDate'] > '20010101' ? $row['pc_eventDate'] : $row['date'];         // Date of Service
     }
     $DTP['Created'] = implode('*', $DTP);   // Data Element Separator
     $DTP['Created'] = $DTP['Created'] .  $segTer;
@@ -381,9 +381,9 @@ function requestEligibleTransaction($pid = 0, $eFlag = false)
             f.facility_npi as facility_npi,
             f.name as facility_name,
             c.cms_id as cms_id,
-            c.alt_cms_id as alt_cms_id,
-            c.x12_default_partner_id as partner,
-            c.name as payer_name 
+            c.eligibility_id as eligibility_id,
+            c.x12_default_eligibility_id as partner,
+            c.name as payer_name
         FROM patient_data AS p 
         LEFT JOIN users AS d on (p.providerID = d.id)
         LEFT JOIN facility AS f on (f.id = d.facility_id)
@@ -418,7 +418,7 @@ function requestRealTimeEligible($res, $X12info, $segTer, $compEleSep, $eFlag = 
         if ($row['providerID'] === 0 || !$row['provider_npi']) {
             $error_accum .= xlt("Error") . ": " . xlt("Provider Missing Add one in Choices") . "\n";
         }
-        if (!$row['alt_cms_id']) {
+        if (!$row['eligibility_id']) {
             $error_accum .= xlt("Error") . ": " . xlt("Missing Insurance Payer Id") . "\n";
         }
         if (!$row['policy_number'] || !$row['subscriber_dob']) {
@@ -630,7 +630,6 @@ function show_eligibility_information($pid, $flag = false)
     if ($title === 1) {
         $showString = "<br><span><b>" . xlt("Nothing To Report") . "</b></span><br>";
     }
-    //$showString .= "<br><button class='btn btn-primary btn-transmit' name='status_update' value='true'>" . xlt("Update Status") . "</button><br>\n";
     $showString .= "</div>\n";
     echo $showString;
 }
