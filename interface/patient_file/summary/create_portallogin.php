@@ -61,11 +61,6 @@ function messageCreate($uname, $pass, $site)
 {
     $message = xlt("Patient Portal Web Address") . ":<br>";
     if ($site == "on") {
-        if ($GLOBALS['portal_onsite_enable']) {
-            $message .= "<a href='" . attr($GLOBALS['portal_onsite_address']) . "'>" .
-                text($GLOBALS['portal_onsite_address']) . "</a><br>";
-        }
-
         if ($GLOBALS['portal_onsite_two_enable']) {
             $message .= "<a href='" . attr($GLOBALS['portal_onsite_two_address']) . "'>" .
                 text($GLOBALS['portal_onsite_two_address']) . "</a><br>";
