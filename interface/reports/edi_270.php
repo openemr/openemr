@@ -28,8 +28,7 @@ require_once("$srcdir/edi.inc");
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Http\oeHttp;
 
-/* // patched out for 501
-if (!empty($_POST)) {
+/*if (!empty($_POST)) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
         csrfNotVerified();
     }
@@ -141,7 +140,7 @@ if ($exclude_policy != "") {
         // make the batch request
         $log = requestRealTimeEligible($res, $X12info, $segTer, $compEleSep, $eFlag);
         $e = strpos($log, "Error:");
-        if($e !== false) {
+        if ($e !== false) {
             $log =  text(xlt("One or more transactions failed") .
                 "\n" . $log . "\n");
         }
