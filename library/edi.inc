@@ -232,7 +232,7 @@ function create_DTP($row, $qual, $X12info, $segTer, $compEleSep)
     if ($qual == '102') {
         $DTP[3] = $row['date'];                 // Date
     } else {
-        $DTP[3] = $DTP[3] ? $row['pc_eventDate'] : $row['date'];         // Date of Service
+        $DTP[3] = !empty($row['pc_eventDate']) && $row['pc_eventDate'] > '20010101' ? $row['pc_eventDate'] : $row['date'];         // Date of Service
     }
     $DTP['Created'] = implode('*', $DTP);   // Data Element Separator
     $DTP['Created'] = $DTP['Created'] .  $segTer;
