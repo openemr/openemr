@@ -8,7 +8,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2008 cfapress <cfapress>
- * @copyright Copyright (c) 2013-2017 bradymiller <bradymiller@users.sourceforge.net>
+ * @copyright Copyright (c) 2013-2019 bradymiller <bradymiller@users.sourceforge.net>
  * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  **/
@@ -41,7 +41,8 @@ $obj = formFetch("form_dictation", $_GET["id"]);
     </div>
     <div class="row">
         <div class="col-xs-12">
-            <form method=post action="<?php echo $rootdir?>/forms/dictation/save.php?mode=update&id=<?php echo attr($_GET["id"]);?>" name="my_form">
+            <form method=post action="<?php echo $rootdir?>/forms/dictation/save.php?mode=update&id=<?php echo attr_url($_GET["id"]);?>" name="my_form">
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                 <fieldset>
                     <legend class=""><?php echo xlt('Dictation')?></legend>
                     <div class="form-group">

@@ -40,7 +40,9 @@
         "kamermans/guzzle-oauth2-subscriber": "1.0.5",
         "league/omnipay": "3.0.1",
         "academe/omnipay-authorizenetapi": "3.0.4",
-        "omnipay/stripe": "3.0.1"
+        "omnipay/stripe": "3.0.1",
+        "waryway/php-traits-library": "^1.0",
+        "paragonie/multi-factor": "0.2.2"
     },
     "config": {
         "platform": {

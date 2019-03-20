@@ -17,12 +17,11 @@
  *
  * @package OpenEMR
  * @author  Visolve <services@visolve.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 
 require_once("../interface/globals.php");
-require_once("$srcdir/log.inc");
 require_once("$srcdir/acl.inc");
 
 if (!acl_check('admin', 'users')) {

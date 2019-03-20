@@ -23,6 +23,8 @@
 
 require_once("$srcdir/forms.inc");
 
+use OpenEMR\Common\Logging\EventAuditLogger;
+
 $rhl7_return = array();
 
 function rhl7LogMsg($msg, $fatal = true)
@@ -31,7 +33,7 @@ function rhl7LogMsg($msg, $fatal = true)
     if ($fatal) {
         $rhl7_return['mssgs'][] = '*' . $msg;
         $rhl7_return['fatal'] = true;
-        newEvent("lab-results-error", $_SESSION['authUser'], $_SESSION['authProvider'], 0, $msg);
+        EventAuditLogger::instance()->newEvent("lab-results-error", $_SESSION['authUser'], $_SESSION['authProvider'], 0, $msg);
     } else {
         $rhl7_return['mssgs'][] = '>' . $msg;
     }
@@ -1241,7 +1243,7 @@ function poll_hl7_results(&$info)
                 }
 
                 // Ensure that archive directory exists.
-                $prpath = $GLOBALS['OE_SITE_DIR'] . "/procedure_results";
+                $prpath = $GLOBALS['OE_SITE_DIR'] . "/documents/procedure_results";
                 if (!file_exists($prpath)) {
                     mkdir($prpath);
                 }
@@ -1327,7 +1329,7 @@ function poll_hl7_results(&$info)
                 }
 
                 // Ensure that archive directory exists.
-                $prpath = $GLOBALS['OE_SITE_DIR'] . "/procedure_results";
+                $prpath = $GLOBALS['OE_SITE_DIR'] . "/documents/procedure_results";
                 if (!file_exists($prpath)) {
                     mkdir($prpath);
                 }

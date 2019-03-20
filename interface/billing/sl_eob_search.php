@@ -39,13 +39,13 @@ use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
 $DEBUG = 0; // set to 0 for production, 1 to test
-
-$posting_adj_disable = prevSetting('sl_eob_search.', 'posting_adj_disable', 'posting_adj_disable', '');
-
 $alertmsg = '';
 $where = '';
 $eraname = '';
 $eracount = 0;
+$g_posting_adj_disable = $GLOBALS['posting_adj_disable'] ? 'checked' : '';
+$posting_adj_disable = prevSetting('sl_eob_search.', 'posting_adj_disable', 'posting_adj_disable', $g_posting_adj_disable);
+
 /* Load dependencies only if we need them */
 if (!empty($GLOBALS['portal_onsite_two_enable'])) {
     /* Addition of onsite portal patient notify of invoice and reformated invoice - sjpadgett 01/2017 */
@@ -54,7 +54,7 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
 
     function is_auth_portal($pid = 0)
     {
-        if ($pData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid` = ?", array($pid))) {
+        if ($pData = sqlQuery("SELECT id, allow_patient_portal, fname, lname FROM `patient_data` WHERE `pid` = ?", array($pid))) {
             if ($pData['allow_patient_portal'] != "YES") {
                 return false;
             } else {
@@ -590,6 +590,15 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
     <title><?php echo xlt('EOB Posting - Search'); ?></title>
     <script language="JavaScript">
         var mypcc = '1';
+        function reSubmit() {
+            opener.$('#btn-inv-search').click();
+        }
+        function editInvoice(e, id) {
+            let url = './sl_eob_invoice.php?isPosting=1&id=' + encodeURIComponent(id);
+            dlgopen(url,'','modal-lg',750,false,'', {
+                onClosed: 'reSubmit'
+            });
+        }
 
         function checkAll(checked) {
             var f = document.forms[0];
@@ -909,11 +918,11 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 echo "<!-- Notes from ERA upload processing:\n";
                                 $alertmsg .= ParseERA::parse_era($tmp_name, 'era_callback');
                                 echo "-->\n";
-                                $erafullname = $GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi";
+                                $erafullname = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi";
 
                                 if (is_file($erafullname)) {
                                     $alertmsg .= "Warning: Set $eraname was already uploaded ";
-                                    if (is_file($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.html")) {
+                                    if (is_file($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.html")) {
                                         $alertmsg .= "and processed. ";
                                     } else {
                                         $alertmsg .= "but not yet processed. ";
@@ -1104,8 +1113,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                            onclick="return npopup(<?php echo attr_js($row['pid']); ?>)"><?php echo text($row['lname']) . ', ' . text($row['fname']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;
-                                        <a href="sl_eob_invoice.php?isPosting=1&id=<?php echo attr_url($row['id']); ?>"
-                                           target="_blank"><?php echo text($row['pid']) . '.' . text($row['encounter']); ?></a>
+                                        <a onclick="editInvoice(event,<?php echo attr_js($row['id']); ?>)"><?php echo text($row['pid']) . '.' . text($row['encounter']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;<?php echo text(oeFormatShortDate($svcdate)); ?></td>
                                     <td class="detail">
@@ -1206,6 +1214,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 <?php $oemr_ui->oeBelowContainerDiv();?>
 
 <script language="JavaScript">
+
     function processERA() {
         var f = document.forms[0];
         var debug = f.form_without.checked ? '1' : '0';

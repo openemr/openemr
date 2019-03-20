@@ -615,6 +615,10 @@ while ($result = sqlFetchArray($inclookupres)) {
     }
 }
 
+if ($PDF_OUTPUT) {
+    $tmp_files_remove = array();
+}
+
 // For each form field from patient_report.php...
 //
 foreach ($ar as $key => $val) {
@@ -800,10 +804,9 @@ foreach ($ar as $key => $val) {
 
                 $d = new Document($document_id);
                 $fname = basename($d->get_url());
-                $couch_docid = $d->get_couch_docid();
-                $couch_revid = $d->get_couch_revid();
                 $extension = substr($fname, strrpos($fname, "."));
-                echo "<h1>" . xl('Document') . " '" . $fname ."'</h1>";
+                echo "<h1>" . xlt('Document') . " '" . text($fname) ."'</h1>";
+
                 $notes = $d->get_notes();
                 if (!empty($notes)) {
                     echo "<table>";
@@ -811,13 +814,13 @@ foreach ($ar as $key => $val) {
 
                 foreach ($notes as $note) {
                     echo '<tr>';
-                    echo '<td>' . xl('Note') . ' #' . $note->get_id() . '</td>';
+                    echo '<td>' . xlt('Note') . ' #' . text($note->get_id()) . '</td>';
                     echo '</tr>';
                     echo '<tr>';
-                    echo '<td>' . xl('Date') . ': ' . text(oeFormatShortDate($note->get_date())) . '</td>';
+                    echo '<td>' . xlt('Date') . ': ' . text(oeFormatShortDate($note->get_date())) . '</td>';
                     echo '</tr>';
                     echo '<tr>';
-                    echo '<td>'.$note->get_note().'<br><br></td>';
+                    echo '<td>' . text($note->get_note()) . '<br><br></td>';
                     echo '</tr>';
                 }
 
@@ -825,91 +828,67 @@ foreach ($ar as $key => $val) {
                     echo "</table>";
                 }
 
-                $url_file = $d->get_url_filepath();
-                if ($couch_docid && $couch_revid) {
-                    $url_file = $d->get_couch_url($pid, $encounter);
-                }
-
-                // Collect filename and path
-                $from_all = explode("/", $url_file);
-                $from_filename = array_pop($from_all);
-                $from_pathname_array = array();
-                for ($i=0; $i<$d->get_path_depth(); $i++) {
-                    $from_pathname_array[] = array_pop($from_all);
-                }
-
-                $from_pathname_array = array_reverse($from_pathname_array);
-                $from_pathname = implode("/", $from_pathname_array);
-
-                if ($couch_docid && $couch_revid) {
-                    $from_file = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $from_filename;
-                    $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
-                } else {
-                    $from_file = $GLOBALS["fileroot"] . "/sites/" . $_SESSION['site_id'] .
-                    '/documents/' . $from_pathname . '/' . $from_filename;
-                    $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
-                }
-
                 if ($extension == ".png" || $extension == ".jpg" || $extension == ".jpeg" || $extension == ".gif") {
                     if ($PDF_OUTPUT) {
                         // OK to link to the image file because it will be accessed by the
                         // HTML2PDF parser and not the browser.
-                        $from_rel = $web_root . substr($from_file, strlen($webserver_root));
-                        echo "<img src='$from_rel'";
+                        $tempDocC = new C_Document;
+                        $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
+                        // tmp file in ../documents/temp since need to be available via webroot
+                        $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'].'/documents/temp', "oer");
+                        file_put_contents($from_file_tmp_web_name, $fileTemp);
+                        echo "<img src='$from_file_tmp_web_name'";
                         // Flag images with excessive width for possible stylesheet action.
-                        $asize = getimagesize($from_file);
+                        $asize = getimagesize($from_file_tmp_web_name);
                         if ($asize[0] > 750) {
                             echo " class='bigimage'";
                         }
-
+                        $tmp_files_remove[] = $from_file_tmp_web_name;
                         echo " /><br><br>";
                     } else {
                         echo "<img src='" . $GLOBALS['webroot'] .
-                        "/controller.php?document&retrieve&patient_id=&document_id=" .
-                        $document_id . "&as_file=false'><br><br>";
+                            "/controller.php?document&retrieve&patient_id=&document_id=" .
+                            attr_url($document_id) . "&as_file=false'><br><br>";
                     }
                 } else {
-          // Most clinic documents are expected to be PDFs, and in that happy case
-          // we can avoid the lengthy image conversion process.
+                    // Most clinic documents are expected to be PDFs, and in that happy case
+                    // we can avoid the lengthy image conversion process.
                     if ($PDF_OUTPUT && $extension == ".pdf") {
-                                // HTML to PDF conversion will fail if there are open tags.
-                                echo "</div></div>\n";
-                                $content = getContent();
-                                // $pdf->setDefaultFont('Arial');
-                                $pdf->writeHTML($content, false);
-                                $pagecount = $pdf->pdf->setSourceFile($from_file);
+                        echo "</div></div>\n"; // HTML to PDF conversion will fail if there are open tags.
+                        $content = getContent();
+                        // $pdf->setDefaultFont('Arial');
+                        $pdf->writeHTML($content, false); // catch up with buffer.
+                        $tempDocC = new C_Document;
+                        $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
+                        // tmp file in temporary_files_dir
+                        $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
+                        file_put_contents($from_file_tmp_name, $pdfTemp);
+                        $pagecount = $pdf->pdf->setSourceFile($from_file_tmp_name);
                         for ($i = 0; $i < $pagecount; ++$i) {
                             $pdf->pdf->AddPage();
                             $itpl = $pdf->pdf->importPage($i + 1, '/MediaBox');
                             $pdf->pdf->useTemplate($itpl);
                         }
+                        // Make sure whatever follows is on a new page.
+                        $pdf->pdf->AddPage();
+                        unlink($from_file_tmp_name);
 
-                                // Make sure whatever follows is on a new page.
-                                $pdf->pdf->AddPage();
-                                // Resume output buffering and the above-closed tags.
-                                ob_start();
-                                echo "<div><div class='text documents'>\n";
+                        // Resume output buffering and the above-closed tags.
+                        ob_start();
+
+                        echo "<div><div class='text documents'>\n";
                     } else {
-                        if (! is_file($to_file)) {
-                            exec("convert -density 200 \"$from_file\" -append -resize 850 \"$to_file\"");
-                        }
-
-                        if (is_file($to_file)) {
-                            if ($PDF_OUTPUT) {
-                                // OK to link to the image file because it will be accessed by the
-                                // HTML2PDF parser and not the browser.
-                                echo "<img src='$to_file'><br><br>";
-                            } else {
-                                echo "<img src='" . $GLOBALS['webroot'] .
-                                  "/controller.php?document&retrieve&patient_id=&document_id=" .
-                                  $document_id . "&as_file=false&original_file=false'><br><br>";
-                            }
+                        if ($PDF_OUTPUT) {
+                            // OK to link to the image file because it will be accessed by the HTML2PDF parser and not the browser.
+                            $tempDocC = new C_Document;
+                            $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, false, true, true);
+                            // tmp file in ../documents/temp since need to be available via webroot
+                            $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'].'/documents/temp', "oer");
+                            file_put_contents($from_file_tmp_web_name, $fileTemp);
+                            echo "<img src='$from_file_tmp_web_name'><br><br>";
+                            $tmp_files_remove[] = $from_file_tmp_web_name;
                         } else {
-                            echo "<b>NOTE</b>: " . xl('Document') . "'" . $fname . "' " .
-                              xl('cannot be converted to JPEG. Perhaps ImageMagick is not installed?') . "<br><br>";
-                            if ($couch_docid && $couch_revid) {
-                                unlink($from_file);
-                            }
+                            echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br><br>";
                         }
                     }
                 } // end if-else
@@ -1095,6 +1074,10 @@ if ($PDF_OUTPUT) {
 
         echo "<p>" . xlt('Report has been sent to the patient.') . "</p>\n";
         echo "</body></html>\n";
+    }
+    foreach ($tmp_files_remove as $tmp_file) {
+        // Remove the tmp files that were created
+        unlink($tmp_file);
     }
 } else {
 ?>

@@ -15,8 +15,8 @@
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/log.inc");
 
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
 function collectLayoutNames($condition, $mapping = '')
@@ -246,7 +246,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true)
 
     if ($add && !$column_exists) {
         sqlStatement("ALTER TABLE `$tablename` ADD `" . add_escape_custom($field_id) . "` TEXT");
-        newEvent(
+        EventAuditLogger::instance()->newEvent(
             "alter_table",
             $_SESSION['authUser'],
             $_SESSION['authProvider'],
@@ -259,7 +259,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true)
         "`" . add_escape_custom($field_id) . "` IS NOT NULL AND `" . add_escape_custom($field_id) . "` != '' LIMIT 1");
         if (!isset($tmp['field_id'])) {
             sqlStatement("ALTER TABLE `$tablename` DROP `" . add_escape_custom($field_id) . "`");
-            newEvent(
+            EventAuditLogger::instance()->newEvent(
                 "alter_table",
                 $_SESSION['authUser'],
                 $_SESSION['authProvider'],
@@ -308,7 +308,7 @@ function renameColumn($layout_id, $old_field_id, $new_field_id)
     }
     $query = "ALTER TABLE `$tablename` CHANGE `" . add_escape_custom($old_field_id) . "` `" . add_escape_custom($new_field_id) . "` $colstr";
     sqlStatement($query);
-    newEvent(
+    EventAuditLogger::instance()->newEvent(
         "alter_table",
         $_SESSION['authUser'],
         $_SESSION['authProvider'],
@@ -1138,7 +1138,7 @@ function extAddCondition(lino, btnelem) {
 
   // Replace contents of the tdplus cell.
   tdplus.innerHTML =
-    "<select name='fld[" + lino + "][condition_andor][" + i + "]'>" +
+    "<select name='fld[" + lino + "][condition_andor][" + (i-1) + "]'>" +
     "<option value='and'>" + <?php echo xlj('And') ?> + "</option>" +
     "<option value='or' >" + <?php echo xlj('Or') ?> + "</option>" +
     "</select>";
@@ -1665,7 +1665,11 @@ foreach ($datatypes as $key => $value) {
 	{id: 'W',text:" . xlj('Dup Check on only New') . "},
 	{id: 'G',text:" . xlj('Graphable') . "},
 	{id: 'I',text:" . xlj('Initially Open Group') . "},
+	{id: 'J',text:" . xlj('Jump to Next Row') . "},
+	{id: 'K',text:" . xlj('Prepend Blank Row') . "},
 	{id: 'L',text:" . xlj('Lab Order') . "},
+	{id: 'M',text:" . xlj('Radio Group Master') . "},
+	{id: 'm',text:" . xlj('Radio Group Member') . "},
 	{id: 'N',text:" . xlj('New Patient Form') . "},
 	{id: 'O',text:" . xlj('Order Processor') . "},
 	{id: 'P',text:" . xlj('Default to previous value') . "},

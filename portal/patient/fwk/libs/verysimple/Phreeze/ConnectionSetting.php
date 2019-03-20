@@ -2,7 +2,7 @@
 /** @package    verysimple::Phreeze */
 
 /**
- * ConnectionSetting object contains information about the data store used for object persistance.
+ * ConnectionSetting object contains information about the data store used for object persistence.
  *
  * @package verysimple::Phreeze
  * @author VerySimple Inc.

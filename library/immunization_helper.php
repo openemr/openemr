@@ -17,7 +17,7 @@
  *
  * @package OpenEMR
  * @author  Jan Jajalla <jansta23@gmail.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 /**

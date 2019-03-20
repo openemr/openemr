@@ -110,11 +110,17 @@ class Document extends ORDataObject
     var $encounter_id;
     var $encounter_check;
 
-  /*
+    /*
 	*	Whether the file is already imported
 	*	@var int
 	*/
     var $imported;
+
+    /*
+	*	Whether the file is encrypted
+	*	@var int
+	*/
+    var $encrypted;
 
     /**
      * Constructor sets all Document attributes to their default value
@@ -142,6 +148,7 @@ class Document extends ORDataObject
         $this->list_id = 0;
         $this->encounter_id = 0;
         $this->encounter_check = "";
+        $this->encrypted = 0;
 
         if ($id != "") {
             $this->populate();
@@ -157,15 +164,18 @@ class Document extends ORDataObject
     {
         $documents = array();
 
+        $sqlArray = array();
+
         if (empty($foreign_id)) {
-             $foreign_id= "like '%'";
+            $foreign_id_sql = " like '%'";
         } else {
-            $foreign_id= " = '" . add_escape_custom(strval($foreign_id)) . "'";
+            $foreign_id_sql = " = ?";
+            $sqlArray[] = strval($foreign_id);
         }
 
         $d = new Document();
-        $sql = "SELECT id FROM  " . $d->_table . " WHERE foreign_id " .$foreign_id ;
-        $result = $d->_db->Execute($sql);
+        $sql = "SELECT id FROM " . escape_table_name($d->_table) . " WHERE foreign_id " . $foreign_id_sql;
+        $result = $d->_db->Execute($sql, $sqlArray);
 
         while ($result && !$result->EOF) {
             $documents[] = new Document($result->fields['id']);
@@ -192,15 +202,15 @@ class Document extends ORDataObject
             die("An invalid URL was specified to crete a new document, this would only be caused if files are being deleted as you are working through the queue. '$filename'\n");
         }
 
-        $sql = "SELECT id FROM  " . $d->_table . " WHERE url= '" . add_escape_custom($url) ."'" ;
-        $result = $d->_db->Execute($sql);
+        $sql = "SELECT id FROM " . escape_table_name($d->_table) . " WHERE url= ?" ;
+        $result = $d->_db->Execute($sql, [$url]);
 
         if ($result && !$result->EOF) {
             if (file_exists($filename)) {
                 $d = new Document($result->fields['id']);
             } else {
-                $sql = "DELETE FROM  " . $d->_table . " WHERE id= '" . $result->fields['id'] . "'";
-                $result = $d->_db->Execute($sql);
+                $sql = "DELETE FROM " . escape_table_name($d->_table) . " WHERE id= ?";
+                $result = $d->_db->Execute($sql, array($result->fields['id']));
                 echo("There is a database for the file but it no longer exists on the file system. Its document entry has been deleted. '$filename'\n");
             }
         } else {
@@ -443,6 +453,14 @@ class Document extends ORDataObject
     {
         sqlQuery("UPDATE documents SET imported = 1 WHERE id = ?", array($doc_id));
     }
+    function set_encrypted($encrypted)
+    {
+        $this->encrypted = $encrypted;
+    }
+    function get_encrypted()
+    {
+        return $this->encrypted;
+    }
     /*
 	*	Overridden function to stor current object state in the db.
 	*	current overide is to allow for a just in time foreign id, often this is needed
@@ -490,26 +508,10 @@ class Document extends ORDataObject
         return $this->couch_revid;
     }
 
-    function get_couch_url($pid, $encounter)
-    {
-        $couch_docid = $this->get_couch_docid();
-        $couch_url = $this->get_url();
-        $couch = new CouchDB();
-        $data = array($GLOBALS['couchdb_dbase'],$couch_docid,$pid,$encounter);
-        $resp = $couch->retrieve_doc($data);
-        $content = $resp->data;
-        $temp_url=$couch_url;
-        $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $pid . '_' . $couch_url;
-        $f_CDB = fopen($temp_url, 'w');
-        fwrite($f_CDB, base64_decode($content));
-        fclose($f_CDB);
-        return $temp_url;
-    }
-
-  // Function added by Rod to change the patient associated with a document.
-  // This just moves some code that used to be in C_Document.class.php,
-  // changing it as little as possible since I'm not set up to test it.
-  //
+    // Function added by Rod to change the patient associated with a document.
+    // This just moves some code that used to be in C_Document.class.php,
+    // changing it as little as possible since I'm not set up to test it.
+    //
     function change_patient($new_patient_id)
     {
         $couch_docid = $this->get_couch_docid();
@@ -702,20 +704,35 @@ class Document extends ORDataObject
                 $this->path_depth = $path_depth;
             }
 
-            // Store the file into its proper directory.
-            if (file_put_contents($filepath . $filename, $data) === false) {
+            // Store the file.
+            if ($GLOBALS['drive_encryption']) {
+                $storedData = encryptStandard($data, null, 'database');
+            } else {
+                $storedData = $data;
+            }
+            if (file_put_contents($filepath . $filename, $storedData) === false) {
                 return xl('Failed to create') . " $filepath$filename";
             }
 
             if ($has_thumbnail) {
-                 $this->thumb_url = "file://" . $filepath . $this->get_thumb_name($filename);
-                 // Store the file into its proper directory.
-                if (file_put_contents($filepath . $this->get_thumb_name($filename), $thumbnail_data) === false) {
+                // Store the thumbnail.
+                $this->thumb_url = "file://" . $filepath . $this->get_thumb_name($filename);
+                if ($GLOBALS['drive_encryption']) {
+                    $storedThumbnailData = encryptStandard($thumbnail_data, null, 'database');
+                } else {
+                    $storedThumbnailData = $thumbnail_data;
+                }
+                if (file_put_contents($filepath . $this->get_thumb_name($filename), $storedThumbnailData) === false) {
                     return xl('Failed to create') .  $filepath . $this->get_thumb_name($filename);
                 }
             }
         }
 
+        if ($GLOBALS['drive_encryption'] && ($this->storagemethod != 1)) {
+            $this->set_encrypted(1);
+        } else {
+            $this->set_encrypted(0);
+        }
         $this->size  = strlen($data);
         $this->hash  = sha1($data);
         $this->type  = $this->type_array['file_url'];
@@ -724,10 +741,8 @@ class Document extends ORDataObject
         $this->persist();
         $this->populate();
         if (is_numeric($this->get_id()) && is_numeric($category_id)) {
-            $sql = "REPLACE INTO categories_to_documents set " .
-            "category_id = '$category_id', " .
-            "document_id = '" . $this->get_id() . "'";
-            $this->_db->Execute($sql);
+            $sql = "REPLACE INTO categories_to_documents SET category_id = ?, document_id = ?";
+            $this->_db->Execute($sql, array($category_id, $this->get_id()));
         }
 
         return '';

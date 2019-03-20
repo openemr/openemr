@@ -8,7 +8,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @copyright Copyright (c) 2016 Amiel Elboim <amielel@matrix.co.il>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -113,7 +113,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
  });
 
 function bill_loc(){
-var pid=<?php echo attr($pid);?>;
+var pid=<?php echo js_escape($pid);?>;
 var dte=document.getElementById('form_date').value;
 var facility=document.forms[0].facility_id.value;
 ajax_bill_loc(pid,dte,facility);
@@ -192,6 +192,7 @@ $help_icon = '';
                     <input type='hidden' name='mode' value='new'>
                 <?php } ?>
                 <fieldset>
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
                     <legend><?php echo xlt('Visit Details')?></legend>
                     <div id = "visit-details">
                         <div class="form-group ">
@@ -267,7 +268,7 @@ $help_icon = '';
                             <label for='form_date' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Date of Service'); ?>:</label>
                             <div class="col-sm-3">
                                 <input type='text' class='form-control datepicker col-sm-12' name='form_date' id='form_date' <?php echo $disabled ?>
-                                       value='<?php echo $viewmode ? attr(oeFormatShortDate(substr($result['date'], 0, 10))) : oeFormatShortDate(date('Y-m-d')); ?>'
+                                       value='<?php echo $viewmode ? attr(oeFormatShortDate(substr($result['date'], 0, 10))) : attr(oeFormatShortDate(date('Y-m-d'))); ?>'
                                        title='<?php echo xla('Date of service'); ?>'/>
                             </div>
 
@@ -394,11 +395,11 @@ $help_icon = '';
 <?php
 if (!$viewmode) { ?>
  function duplicateVisit(enc, datestr) {
-    if (!confirm('<?php echo xls("A visit already exists for this group today. Click Cancel to open it, or OK to proceed with creating a new one.") ?>')) {
+    if (!confirm(<?php echo xlj("A visit already exists for this group today. Click Cancel to open it, or OK to proceed with creating a new one.") ?>)) {
             // User pressed the cancel button, so re-direct to today's encounter
             top.restoreSession();
             parent.left_nav.setEncounter(datestr, enc, window.name);
-            parent.left_nav.loadFrame('enc2', window.name, 'patient_file/encounter/encounter_top.php?set_encounter=' + enc);
+            parent.left_nav.loadFrame('enc2', window.name, 'patient_file/encounter/encounter_top.php?set_encounter=' + encodeURIComponent(enc));
             return;
         }
         // otherwise just continue normally
@@ -417,8 +418,8 @@ if (!$viewmode) { ?>
 
 if (!empty($erow['encounter'])) {
     // If there is an encounter from today then present the duplicate visit dialog
-    echo "duplicateVisit('" . $erow['encounter'] . "', '" .
-        text(oeFormatShortDate(substr($erow['date'], 0, 10))) . "');\n";
+    echo "duplicateVisit(" . js_escape($erow['encounter']) . ", " .
+        js_escape(oeFormatShortDate(substr($erow['date'], 0, 10))) . ");\n";
 }
 }
 ?>

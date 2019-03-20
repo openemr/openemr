@@ -747,6 +747,13 @@ $GLOBALS_METADATA = array(
             xl('Define a default visit category'),
         ),
 
+        'disable_eligibility_log' => array(
+            xl('Disable Insurance Eligibility Reports Download'),
+            'bool',
+            '0',
+            xl('Do not allow insurance eligibility report log download')
+        ),
+
         'disable_chart_tracker' => array(
             xl('Disable Chart Tracker'),
             'bool',                           // data type
@@ -901,10 +908,17 @@ $GLOBALS_METADATA = array(
             xl('This will activate the CCR(Continuity of Care Record) and CCD(Continuity of Care Document) reporting.')
         ),
 
+        'drive_encryption' => array(
+            xl('Enable Encryption of Items Stored on Drive'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('This will enable enable encryption of items that are stored on the drive.')
+        ),
+
         'hide_document_encryption' => array(
             xl('Hide Encryption/Decryption Options In Document Management'),
             'bool',                           // data type
-            '1',                              // default = true
+            '0',                              // default = true
             xl('This will deactivate document the encryption and decryption features, and hide them in the UI.')
         ),
 
@@ -1175,7 +1189,7 @@ $GLOBALS_METADATA = array(
             xl('Set POS code in encounter'),
             'bool',                           // data type
             '0',                              // default = false
-            xl('This feature will allow the default POS facility code to be overriden from the encounter.')
+            xl('This feature will allow the default POS facility code to be overridden from the encounter.')
         ),
 
         'statement_logo' => array(
@@ -1189,7 +1203,7 @@ $GLOBALS_METADATA = array(
             xl('Use Custom Statement'),
             'bool',                           // data type
             '0',                              // default = false
-            xl('This will use the custom Statment showing the description instead of the codes.')
+            xl('This will use the custom Statement showing the description instead of the codes.')
         ),
 
         'statement_appearance' => array(
@@ -1536,6 +1550,7 @@ $GLOBALS_METADATA = array(
             'day',                              // default
             xl('This sets the Default Calendar View, Default is Day.')
         ),
+
         'first_day_week' => array(
             xl('First day in the week'),
             array(
@@ -1546,6 +1561,7 @@ $GLOBALS_METADATA = array(
             '1',
             xl('Your first day of the week.')
         ),
+
         'calendar_appt_style' => array(
             xl('Appointment Display Style'),
             array(
@@ -1581,13 +1597,13 @@ $GLOBALS_METADATA = array(
             '10',
             xl('Number of Appointments to display in the Group Summary')
         ),
+
         'number_of_ex_appts_to_show' => array(
             xl('Excluded Appointments - Tooltip - Number to Display'),
             'num',
             '15',
             xl('Number of Excluded Appointments to display in the Tooltip')
         ),
-
 
         'patient_portal_appt_display_num' => array(
             xl('Appointments - Onsite Patient Portal - Number to Display'),
@@ -1654,9 +1670,15 @@ $GLOBALS_METADATA = array(
 
         'auto_create_new_encounters' => array(
             xl('Auto-Create New Encounters'),
-            'bool',                           // data type
-            '1',                              // default
-            xl('Automatically create a new encounter when an appointment check in status is selected.')
+            array(
+                '0' => xl('Off'),
+                '1' => xl('One Encounter Per Day'),
+                '2' => xl('Allow Encounter For Each Appointment')
+            ),
+            '1',
+            xl('Automatically create a new encounter when an appointment check in status is selected.') . " " .
+            xl('The Each Appointment option will allow a new encounter regardless of same day visit.') . " " .
+            xl('The appointment status changes and encounter creations are managed through the Patient Tracker.')
         ),
 
         'allow_early_check_in' => array(
@@ -1814,7 +1836,7 @@ $GLOBALS_METADATA = array(
         'secure_upload' => array(
             xl('Secure Upload Files with White List'),
             'bool',                           // data type
-            '0',                              // default
+            '1',                              // default
             xl('Block all files types that are not found in the White List. Can find interface to edit the White List at Administration->Files.')
         ),
         'secure_password' => array(
@@ -2246,6 +2268,18 @@ $GLOBALS_METADATA = array(
     //
     'Logging' => array(
 
+        'user_debug' => array(
+            xl('User Debugging Options'),
+            array(
+                '0' => xl('None'),
+                '1' => xl('Display Window Errors Only'),
+                '2' => xl('Display Application Errors Only'),
+                '3' => xl('All'),
+            ),
+            '0',                               // default
+            xl('User Debugging Mode.')
+        ),
+
         'enable_auditlog' => array(
             xl('Enable Audit Logging'),
             'bool',                           // data type
@@ -2344,7 +2378,6 @@ $GLOBALS_METADATA = array(
             xl('CA Certificate for verifying the RFC 5425 TLS syslog server.')
         ),
 
-        //July 1, 2014: Ensoftek: Flag to enable/disable audit log encryption
         'enable_auditlog_encryption' => array(
             xl('Enable Audit Log Encryption'),
             'bool',                           // data type
@@ -2717,6 +2750,13 @@ $GLOBALS_METADATA = array(
             'bool',
             '0',
             xl('Enable OpenEMR RESTful API. SSL Required')
+        ),
+
+        'enable_oa' => array(
+            xl('Enable Office Ally Insurance Eligibility'),
+            'bool',
+            '0',
+            xl('Allow insurance eligibility checks using Office Ally')
         ),
 
         'payment_gateway' => array(

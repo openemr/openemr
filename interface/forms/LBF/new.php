@@ -7,9 +7,10 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2009-2019 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
@@ -302,10 +303,10 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             echo "<script language='Javascript'>\n" .
                 "top.restoreSession();\n" .
                 "window.open('$rootdir/forms/LBF/printable.php?" .
-                "formname=" . urlencode($formname) .
-                "&formid=" . urlencode($formid) .
-                "&visitid=" . urlencode($visitid) .
-                "&patientid=" . urlencode($pid) .
+                "formname=" . attr_url($formname) .
+                "&formid=" . attr_url($formid) .
+                "&visitid=" . attr_url($visitid) .
+                "&patientid=" . attr_url($pid) .
                 "', '_blank');\n" .
                 "</script>\n";
         }
@@ -371,7 +372,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 
         function verifyCancel() {
             if (somethingChanged) {
-                if (!confirm('<?php echo xl('You have unsaved changes. Do you really want to close this form?'); ?>')) {
+                if (!confirm(<?php echo xlj('You have unsaved changes. Do you really want to close this form?'); ?>)) {
                     return false;
                 }
             }
@@ -395,7 +396,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 url = encodeURI(url);
                 dlgopen('', '', 950, 550, '', '', {
                     buttons: [
-                        {text: '<?php echo xla('Close'); ?>', close: true, style: 'default btn-sm'}
+                        {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
                     ],
                     type: 'iframe',
                     url: url
@@ -408,7 +409,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             });
             window.addEventListener("beforeunload", function (e) {
                 if (somethingChanged && !top.timed_out) {
-                    var msg = "<?php echo xls('You have unsaved changes.'); ?>";
+                    var msg = <?php echo xlj('You have unsaved changes.'); ?>;
                     e.returnValue = msg;     // Gecko, Trident, Chrome 34+
                     return msg;              // Gecko, WebKit, Chrome <34
                 }
@@ -430,7 +431,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             });
         });
 
-        var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+        var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
         // Supports customizable forms.
         function divclick(cb, divid) {
@@ -459,7 +460,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         '&code=' + encodeURIComponent(code) +
                         '&selector=' + encodeURIComponent(selector) +
                         '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
-                        '&csrf_token_form=' + encodeURIComponent('<?php echo attr(collectCsrfToken()); ?>'));
+                        '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>);
                 }
                 return '';
             }
@@ -496,8 +497,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
         function sel_related(elem, codetype) {
             current_sel_name = elem ? elem.name : '';
             var url = '<?php echo $rootdir ?>/patient_file/encounter/find_code_dynamic.php';
-            if (codetype) url += '?codetype=' + codetype;
-            url = encodeURI(url);
+            if (codetype) url += '?codetype=' + encodeURIComponent(codetype);
             dlgopen(url, '_blank', 800, 500);
         }
 
@@ -569,7 +569,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
         function fs_append_product(code_type, code, desc, price, warehouses) {
             var telem = document.getElementById('fs_products_table');
             if (!telem) {
-                alert('<?php echo xla('A product was selected but there is no product section in this form.'); ?>');
+                alert(<?php echo xlj('A product was selected but there is no product section in this form.'); ?>);
                 return;
             }
             var lino = telem.rows.length - 1;
@@ -631,7 +631,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 '?codetype=' + encodeURIComponent(a[0]) +
                 '&code=' + encodeURIComponent(a[1]) +
                 '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel.value) +
-                '&csrf_token_form=' + encodeURIComponent('<?php echo attr(collectCsrfToken()); ?>'));
+                '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>);
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific product.
@@ -658,7 +658,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 '&code=' + encodeURIComponent(a[1]) +
                 '&selector=' + encodeURIComponent(a[2]) +
                 '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel.value) +
-                '&csrf_token_form=' + encodeURIComponent('<?php echo attr(collectCsrfToken()); ?>'));
+                '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>);
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific diagnosis.
@@ -684,7 +684,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 '?codetype=' + encodeURIComponent(a[0]) +
                 '&code=' + encodeURIComponent(a[1]) +
                 '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
-                '&csrf_token_form=' + encodeURIComponent('<?php echo attr(collectCsrfToken()); ?>'));
+                '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>));
         }
 
         // Respond to selecting a package of codes.
@@ -695,7 +695,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php' +
                     '?list=' + encodeURIComponent(sel.value) +
                     '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
-                    '&csrf_token_form=' + encodeURIComponent('<?php echo attr(collectCsrfToken()); ?>'));
+                    '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>);
             }
             sel.selectedIndex = 0;
         }
@@ -714,7 +714,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
         }
 
         function warehouse_changed(sel) {
-            if (!confirm('<?php echo xls('Do you really want to change Warehouse?'); ?>')) {
+            if (!confirm(<?php echo xlj('Do you really want to change Warehouse?'); ?>)) {
                 // They clicked Cancel so reset selection to its default state.
                 for (var i = 0; i < sel.options.length; ++i) {
                     sel.options[i].selected = sel.options[i].defaultSelected;
@@ -738,7 +738,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 <div class='container'>
     <?php
     echo "<form method='post' " .
-        "action='$rootdir/forms/LBF/new.php?formname=" . attr($formname) . "&id=$formid&portalid=$portalid' " .
+        "action='$rootdir/forms/LBF/new.php?formname=" . attr_url($formname) . "&id=" . attr_url($formid) . "&portalid=" . attr_url($portalid) . "' " .
         "onsubmit='return validate(this)'>\n";
 
     $cmsportal_login = '';
@@ -861,6 +861,8 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 $list_id = $frow['list_id'];
                 $edit_options = $frow['edit_options'];
                 $source = $frow['source'];
+                $jump_new_row = isOption($edit_options, 'J');
+                $prepend_blank_row = isOption($edit_options, 'K');
 
                 $graphable = isOption($edit_options, 'G') !== false;
                 if ($graphable) {
@@ -974,7 +976,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     // If group name is blank, no checkbox or div.
                     if (strlen($gname)) {
                         echo "<br /><span class='bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " .
-                            "onclick='return divclick(this,\"div_" . attr(addslashes($group_seq)) . "\");'";
+                            "onclick='return divclick(this," . attr_js('div_'.$group_seq) . ");'";
                         if ($display_style == 'block') {
                             echo " checked";
                         }
@@ -1002,7 +1004,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         if (empty($is_lbf)) {
                             // Including actual date per IPPF request 2012-08-23.
                             echo text(oeFormatShortDate(substr($enrow['date'], 0, 10)));
-                            echo ' (' . htmlspecialchars(xl('Current')) . ')';
+                            echo ' (' . xlt('Current') . ')';
                         }
 
                         echo "&nbsp;</td>\n";
@@ -1029,9 +1031,12 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     }
                 }
 
-// Handle starting of a new row.
-                if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
+                // Handle starting of a new row.
+                if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
                     end_row();
+                    if ($prepend_blank_row) {
+                        echo "<tr><td class='text' colspan='" . attr($CPR) . "'>&nbsp;</td></tr>\n";
+                    }
                     if (isOption($edit_options, 'RS')) {
                         echo " <tr class='RS'>";
                     } else if (isOption($edit_options, 'RO')) {
@@ -1190,7 +1195,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         if ($codestring === '') {
                             continue;
                         }
-                        $codes_esc = htmlspecialchars($codestring, ENT_QUOTES);
+                        $codes_esc = attr($codestring);
                         $cbval = $fs->genCodeSelectorValue($codestring);
                         if ($count % $cols == 0) {
                             if ($count) {
@@ -1207,7 +1212,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         list($codetype, $code) = explode(':', $codestring);
                         $title = lookup_code_descriptions($codestring);
                         $title = empty($title) ? $code : xl_list_label($title);
-                        echo " />" . htmlspecialchars($title, ENT_NOQUOTES);
+                        echo " />" . text($title);
                         echo "</td>\n";
                         ++$count;
                     }
@@ -1220,7 +1225,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 // A row for Search, Add Package, Main Provider.
                 $ctype = $GLOBALS['ippf_specific'] ? 'MA' : '';
                 echo "<p class='bold'>";
-                echo "<input type='button' value='" . xla('Search Services') . "' onclick='sel_related(null,\"$ctype\")' />&nbsp;&nbsp;\n";
+                echo "<input type='button' value='" . xla('Search Services') . "' onclick='sel_related(null," . attr_js($ctype) . ")' />&nbsp;&nbsp;\n";
                 $fscres = sqlStatement("SELECT * FROM fee_sheet_options ORDER BY fs_category, fs_option");
                 if (sqlNumRows($fscres)) {
                     $last_category = '';
@@ -1268,12 +1273,12 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     echo "  <td class='text'>" .
                         $fs->genProviderSelect("form_fs_bill[$lino][provid]", '-- ' . xl("Default") . ' --', $li['provid']) .
                         "  &nbsp;</td>\n";
-                    echo "  <td class='text' align='right'>" . oeFormatMoney($li['price']) . "&nbsp;</td>\n";
+                    echo "  <td class='text' align='right'>" . text(oeFormatMoney($li['price'])) . "&nbsp;</td>\n";
                     echo "  <td class='text' align='right'>\n" .
-                        "   <input type='checkbox' name='form_fs_bill[$lino][del]' " .
+                        "   <input type='checkbox' name='form_fs_bill[" . attr($lino) . "][del]' " .
                         "value='1'" . ($li['del'] ? " checked" : "") . " />\n";
                     foreach ($li['hidden'] as $hname => $hvalue) {
-                        echo "   <input type='hidden' name='form_fs_bill[$lino][" . attr($hname) . "]' value='" . attr($hvalue) . "' />\n";
+                        echo "   <input type='hidden' name='form_fs_bill[" . attr($lino) . "][" . attr($hname) . "]' value='" . attr($hvalue) . "' />\n";
                     }
                     echo "  </td>\n";
                     echo " </tr>\n";
@@ -1306,7 +1311,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         if ($codestring === '') {
                             continue;
                         }
-                        $codes_esc = htmlspecialchars($codestring, ENT_QUOTES);
+                        $codes_esc = attr($codestring);
                         $cbval = $fs->genCodeSelectorValue($codestring);
                         if ($count % $cols == 0) {
                             if ($count) {
@@ -1327,7 +1332,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                             array($code)
                         );
                         $title = empty($crow['name']) ? $code : xl_list_label($crow['name']);
-                        echo " />" . htmlspecialchars($title, ENT_NOQUOTES);
+                        echo " />" . text($title);
                         echo "</td>\n";
                         ++$count;
                     }
@@ -1360,14 +1365,14 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         $fs->genWarehouseSelect("form_fs_prod[$lino][warehouse]", '', $li['warehouse'], false, $li['hidden']['drug_id'], true) .
                         "  &nbsp;</td>\n";
                     echo "  <td class='text' align='right'>" .
-                        "<input type='text' name='form_fs_prod[$lino][units]' size='3' value='" . $li['units'] . "' />" .
+                        "<input type='text' name='form_fs_prod[" . attr($lino) . "][units]' size='3' value='" . attr($li['units']) . "' />" .
                         "&nbsp;</td>\n";
-                    echo "  <td class='text' align='right'>" . oeFormatMoney($li['price']) . "&nbsp;</td>\n";
+                    echo "  <td class='text' align='right'>" . text(oeFormatMoney($li['price'])) . "&nbsp;</td>\n";
                     echo "  <td class='text' align='right'>\n" .
-                        "   <input type='checkbox' name='form_fs_prod[$lino][del]' " .
+                        "   <input type='checkbox' name='form_fs_prod[" . attr($lino) . "][del]' " .
                         "value='1'" . ($li['del'] ? " checked" : "") . " />\n";
                     foreach ($li['hidden'] as $hname => $hvalue) {
-                        echo "   <input type='hidden' name='form_fs_prod[$lino][" . attr($hname) . "]' value='" . attr($hvalue) . "' />\n";
+                        echo "   <input type='hidden' name='form_fs_prod[" . attr($lino) . "][" . attr($hname) . "]' value='" . attr($hvalue) . "' />\n";
                     }
                     echo "  </td>\n";
                     echo " </tr>\n";
@@ -1400,7 +1405,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         if ($codestring === '') {
                             continue;
                         }
-                        $codes_esc = htmlspecialchars($codestring, ENT_QUOTES);
+                        $codes_esc = attr($codestring);
                         $cbval = $fs->genCodeSelectorValue($codestring);
                         if ($count % $cols == 0) {
                             if ($count) {
@@ -1417,7 +1422,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         list($codetype, $code) = explode(':', $codestring);
                         $title = lookup_code_descriptions($codestring);
                         $title = empty($title) ? $code : xl_list_label($title);
-                        echo " />" . htmlspecialchars($title, ENT_NOQUOTES);
+                        echo " />" . text($title);
                         echo "</td>\n";
                         ++$count;
                     }
@@ -1430,7 +1435,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 // A row for Search.
                 $ctype = collect_codetypes('diagnosis', 'csv');
                 echo "<p class='bold'>";
-                echo "<input type='button' value='" . xla('Search Diagnoses') . "' onclick='sel_related(null,\"$ctype\")' />";
+                echo "<input type='button' value='" . xla('Search Diagnoses') . "' onclick='sel_related(null," . attr_js($ctype) . ")' />";
                 echo "</p>\n";
 
                 // Generate a line for each diagnosis already in this FS.
@@ -1449,10 +1454,10 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     echo "  <td class='text'>" . text($li['code_text']) . "&nbsp;</td>\n";
                     // The Diagnoses section shares the form_fs_bill array with the Services section.
                     echo "  <td class='text' align='right'>\n" .
-                        "   <input type='checkbox' name='form_fs_bill[$lino][del]' " .
+                        "   <input type='checkbox' name='form_fs_bill[" . attr($lino) . "][del]' " .
                         "value='1'" . ($li['del'] ? " checked" : "") . " />\n";
                     foreach ($li['hidden'] as $hname => $hvalue) {
-                        echo "   <input type='hidden' name='form_fs_bill[$lino][" . attr($hname) . "]' value='" . attr($hvalue) . "' />\n";
+                        echo "   <input type='hidden' name='form_fs_bill[" . attr($lino) . "][" . attr($hname) . "]' value='" . attr($hvalue) . "' />\n";
                     }
                     echo "  </td>\n";
                     echo " </tr>\n";
@@ -1504,7 +1509,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                             if ($form_is_graphable) {
                                 ?>
                                 <button type='button' class="btn btn-default btn-graph"
-                                        onclick="top.restoreSession();location='../../patient_file/encounter/trend_form.php?formname=<?php echo attr($formname); ?>'">
+                                        onclick="top.restoreSession();location='../../patient_file/encounter/trend_form.php?formname=<?php echo attr_url($formname); ?>'">
                                     <?php echo xlt('Show Graph') ?>
                                 </button>
                                 &nbsp;
@@ -1534,7 +1539,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
     </div>
 <?php } ?>
 
-    <input type='hidden' name='from_issue_form' value='<?php echo text($from_issue_form); ?>'/>
+    <input type='hidden' name='from_issue_form' value='<?php echo attr($from_issue_form); ?>'/>
 
     </form>
 
@@ -1564,15 +1569,15 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 
             $portalid = $portalres['postid'];
             if ($portalid) {
-                echo "if (confirm('" . xls('The portal has data for this patient and form. Load it now?') . "')) {\n";
+                echo "if (confirm(" . xlj('The portal has data for this patient and form. Load it now?') . ")) {\n";
                 echo " top.restoreSession();\n";
-                echo " document.location.href = 'load_form.php?formname=" . attr($formname) . "&portalid=$portalid';\n";
+                echo " document.location.href = 'load_form.php?formname=" . attr_url($formname) . "&portalid=" . attr_url($portalid) . "';\n";
                 echo "}\n";
             }
         }
 
         if ($alertmsg) {
-            echo "alert('" . addslashes($alertmsg) . "');\n";
+            echo "alert(" . js_escape($alertmsg) . ");\n";
         }
         ?>
     </script>

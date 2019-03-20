@@ -159,7 +159,7 @@ foreach my $var (@filenames) {
   $traditionalXL = 1;
  }
 
- if ($fileString =~ /\{\s*xl\s*t\s*=\s*/i) {
+ if ($fileString =~ /\{\s*xl[atj]?\s*t\s*=\s*/i) {
   # line contains a smarty xl function
   $smartyXL = 1;
  }
@@ -172,7 +172,7 @@ foreach my $var (@filenames) {
  # break apart each xl function statement if exist
  my @xlInstances;
  if ($smartyXL) {
-  @xlInstances = split(/\{\s*xl\s*t\s*=\s*/i, $fileString);
+  @xlInstances = split(/\{\s*xl[atj]?\s*t\s*=\s*/i, $fileString);
  }
  elsif ($traditionalXL) {
   @xlInstances = split(/xl[astj]?\s*\(+/i, $fileString);

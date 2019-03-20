@@ -5,7 +5,7 @@
  * Functions related to patient CCR/CCD/CCDA parsing and insert/update to corresponding tables.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Eldho Chacko <eldho@zhservices.com>
  * @author    Ajil P M <ajilpm@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>

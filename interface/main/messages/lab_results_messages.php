@@ -35,7 +35,7 @@ function lab_results_messages($set_pid, $rid, $provider_id = "")
     if (!empty($result)) {
         foreach ($result as $user_detail) {
             unset($thisauth); // Make sure it is empty.
-            // Check user authorization. Only send the panding review message to authorised user.
+            // Check user authorization. Only send the pending review message to authorised user.
             // $thisauth = acl_check('patients', 'sign', $user_detail['username']);
 
             // Route message to administrators if there is no provider match.

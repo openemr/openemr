@@ -2,22 +2,21 @@
 /**
  * Encounter form to track any clinical parameter.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Joe Slam <trackanything@produnis.de>
- * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Joe Slam <trackanything@produnis.de>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2014 Joe Slam <trackanything@produnis.de>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-// Some initial api-inputs
 
 
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/acl.inc");
+
 formHeader("Form: Track anything");
 
 // check if we are inside an encounter

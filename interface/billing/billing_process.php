@@ -4,17 +4,17 @@
  *
  * This program processes data for claims generation
  *
- * @package OpenEMR
- * @author Brady Miller <brady.g.miller@gmail.com>
- * @author Terry Hill <terry@lilysystems.com>
- * @author Jerry Padgett <sjpadgett@gmail.com>
- * @author Stephen Waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2014-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Terry Hill <terry@lilysystems.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2014-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (C) 2017 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
- * @link https://github.com/openemr/openemr/tree/master
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../globals.php");
@@ -130,7 +130,7 @@ function send_batch()
     global $bat_content, $bat_filename, $webserver_root;
     // If a writable edi directory exists, log the batch to it.
     // I guarantee you'll be glad we did this. :-)
-    $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/edi/$bat_filename", 'a');
+    $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/documents/edi/$bat_filename", 'a');
     if ($fh) {
         fwrite($fh, $bat_content);
         fclose($fh);
@@ -155,9 +155,12 @@ function process_form($ar)
     if (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter']) || isset($ar['bn_process_hcfa']) || isset($ar['bn_hcfa_txt_file']) || isset($ar['bn_process_hcfa_form'])
         || isset($ar['bn_process_ub04_form']) || isset($ar['bn_process_ub04']) || isset($ar['bn_ub04_x12'])) {
         if ($GLOBALS['billing_log_option'] == 1) {
-            $hlog = fopen($GLOBALS['OE_SITE_DIR'] . "/edi/process_bills.log", 'a');
+            $hlog = file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log");
+            if (cryptCheckStandard($hlog)) {
+                $hlog = decryptStandard($hlog, null, 'database');
+            }
         } else { // ($GLOBALS['billing_log_option'] == 2)
-            $hlog = fopen($GLOBALS['OE_SITE_DIR'] . "/edi/process_bills.log", 'w');
+            $hlog = '';
         }
     }
 
@@ -227,7 +230,7 @@ function process_form($ar)
                 } elseif (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter'])) {
                     $log = '';
                     $segs = explode("~\n", X12_5010_837P::gen_x12_837($patient_id, $encounter, $log, isset($ar['bn_x12_encounter'])));
-                    fwrite($hlog, $log);
+                    $hlog .= $log;
                     append_claim($segs);
                     if (! BillingUtilities::updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename)) {
                         $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
@@ -235,7 +238,7 @@ function process_form($ar)
                 } elseif (isset($ar['bn_ub04_x12'])) {
                     $log = '';
                     $segs = explode("~\n", generate_x12_837I($patient_id, $encounter, $log, $ub04id));
-                    fwrite($hlog, $log);
+                    $hlog .= $log;
                     append_claim($segs);
                     if (! BillingUtilities::updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename, 'X12-837I', - 1, 0, json_encode($ub04id))) {
                         $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
@@ -244,7 +247,7 @@ function process_form($ar)
                     $log = '';
                     $hcfa = new HCFA_1500();
                     $lines = $hcfa->gen_hcfa_1500($patient_id, $encounter, $log);
-                    fwrite($hlog, $log);
+                    $hlog .= $log;
                     $alines = explode("\014", $lines); // form feeds may separate pages
                     foreach ($alines as $tmplines) {
                         if ($claim_count ++) {
@@ -264,7 +267,7 @@ function process_form($ar)
                     $hcfa = new HCFA_1500();
                     $lines = $hcfa->gen_hcfa_1500($patient_id, $encounter, $log);
                     $hcfa_image = $GLOBALS['images_static_absolute'] . "/cms1500.png";
-                    fwrite($hlog, $log);
+                    $hlog .= $log;
                     $alines = explode("\014", $lines); // form feeds may separate pages
                     foreach ($alines as $tmplines) {
                         if ($claim_count ++) {
@@ -284,7 +287,7 @@ function process_form($ar)
                     $claim_count ++;
                     $log = "";
                     $template[] = buildTemplate($patient_id, $encounter, "", "", $log);
-                    fwrite($hlog, $log);
+                    $hlog .= $log;
                     if (! BillingUtilities::updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename, 'ub04', - 1, 0, json_encode($ub04id))) {
                         $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
                     }
@@ -292,7 +295,7 @@ function process_form($ar)
                     $log = '';
                     $hcfa = new HCFA_1500();
                     $lines = $hcfa->gen_hcfa_1500($patient_id, $encounter, $log);
-                    fwrite($hlog, $log);
+                    $hlog .= $log;
                     $bat_content .= $lines;
                     if (! BillingUtilities::updateClaim(false, $patient_id, $encounter, - 1, - 1, 2, 2, $bat_filename)) {
                         $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
@@ -303,6 +306,13 @@ function process_form($ar)
             }
         } // end if this claim has billing
     } // end foreach
+
+    if (!empty($hlog)) {
+        if ($GLOBALS['drive_encryption']) {
+            $hlog = encryptStandard($hlog, null, 'database');
+        }
+        file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log", $hlog);
+    }
 
     if (isset($ar['bn_process_ub04_form']) || isset($ar['bn_process_ub04'])) {
         if (isset($ar['bn_process_ub04'])) {
@@ -315,15 +325,13 @@ function process_form($ar)
     }
     if (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter']) || isset($ar['bn_ub04_x12'])) {
         append_claim_close();
-        fclose($hlog);
         send_batch();
         exit();
     }
 
     if (isset($ar['bn_process_hcfa'])) {
-        fclose($hlog);
         // If a writable edi directory exists (and it should), write the pdf to it.
-        $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/edi/$bat_filename", 'a');
+        $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/documents/edi/$bat_filename", 'a');
         if ($fh) {
             fwrite($fh, $pdf->ezOutput());
             fclose($fh);
@@ -335,9 +343,8 @@ function process_form($ar)
         exit();
     }
     if (isset($ar['bn_process_hcfa_form'])) {
-        fclose($hlog);
         // If a writable edi directory exists (and it should), write the pdf to it.
-        $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/edi/$bat_filename", 'a');
+        $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/documents/edi/$bat_filename", 'a');
         if ($fh) {
             fwrite($fh, $pdf->ezOutput());
             fclose($fh);
@@ -356,8 +363,7 @@ function process_form($ar)
     }
 
     if (isset($ar['bn_hcfa_txt_file'])) {
-        fclose($hlog);
-        $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/edi/$bat_filename", 'a');
+        $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/documents/edi/$bat_filename", 'a');
         if ($fh) {
             fwrite($fh, $bat_content);
             fclose($fh);

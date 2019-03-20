@@ -1,10 +1,16 @@
 <?php
-// Copyright (C) 2009-2019 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * LBF form.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2009-2019 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 
 require_once("../../globals.php");
 require_once("$srcdir/acl.inc");
@@ -33,7 +39,7 @@ if ($visitid < 0) {
 $formid = empty($_REQUEST['formid']) ? 0 : (0 + $_REQUEST['formid']);
 
 // True if to display as a form to complete, false to display as information.
-$isform = empty($_REQUEST['isform']) ? 0 : 1;
+$isblankform = empty($_REQUEST['isform']) ? 0 : 1;
 
 $CPR = 4; // cells per row
 
@@ -69,7 +75,7 @@ if (!acl_check('admin', 'super') && !empty($LBF_ACO)) {
 
 // Html2pdf fails to generate checked checkboxes properly, so write plain HTML
 // if we are doing a visit-specific form to be completed.
-$PDF_OUTPUT = ($formid && $isform) ? false : true;
+$PDF_OUTPUT = ($formid && $isblankform) ? false : true;
 //$PDF_OUTPUT = false; // debugging
 
 if ($PDF_OUTPUT) {
@@ -158,7 +164,7 @@ div.section {
   // html2pdf screws up the div borders when a div overflows to a second page.
   // Our temporary solution is to turn off the borders in the case where this
   // is likely to happen (i.e. where all form options are listed).
-if (!$isform) {
+if (!$isblankform) {
 ?>
 border-style: solid;
 border-width: 1px;
@@ -172,7 +178,7 @@ div.section table {
 }
 div.section td.stuff {
  vertical-align: bottom;
-<?php if ($isform) { ?>
+<?php if ($isblankform) { ?>
  height: 16pt;
 <?php } ?>
 }
@@ -256,14 +262,14 @@ $logo = '';
 $ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
 if (is_file("$webserver_root/$ma_logo_path")) {
   // Would use max-height here but html2pdf does not support it.
-    $logo = "<img src='$web_root/$ma_logo_path' style='height:" . round($FONTSIZE * 5.14) . "pt' />";
+    $logo = "<img src='$web_root/$ma_logo_path' style='height:" . attr(round($FONTSIZE * 5.14)) . "pt' />";
 } else {
     $logo = "<!-- '$ma_logo_path' does not exist. -->";
 }
 echo genFacilityTitle($formtitle, -1, $logo);
 ?>
 
-<?php if ($isform) { ?>
+<?php if ($isblankform) { ?>
 <span class='subhead'>
     <?php echo xlt('Patient') ?>: ________________________________________ &nbsp;
     <?php echo xlt('Clinic') ?>: ____________________ &nbsp;
@@ -335,15 +341,17 @@ while ($frow = sqlFetchArray($fres)) {
     $field_id     = $frow['field_id'];
     $list_id      = $frow['list_id'];
     $edit_options = $frow['edit_options'];
+    $jump_new_row      = isOption($edit_options, 'J');
+    $prepend_blank_row = isOption($edit_options, 'K');
 
     $currvalue = '';
     if ($formid || $visitid) {
         $currvalue = lbf_current_value($frow, $formid, $visitid);
     }
 
-    // Skip this field if skip conditions call for that.
+    // Skip this field if it's a form with data and skip conditions call for that.
     // Note this also accumulates info for subsequent skip tests.
-    if (isSkipped($frow, $currvalue) == 'skip') {
+    if (!$isblankform && isSkipped($frow, $currvalue) == 'skip') {
         continue;
     }
 
@@ -402,7 +410,7 @@ while ($frow = sqlFetchArray($fres)) {
         echo "  <tr>";
         for ($i = 1; $i <= $CPR; ++$i) {
             $tmp = $i % 2 ? 'lcols1' : 'dcols1';
-            echo "<td class='$tmp'></td>";
+            echo "<td class='" . attr($tmp) . "'></td>";
         }
         echo "</tr>\n";
         if ($subtitle) {
@@ -414,9 +422,11 @@ while ($frow = sqlFetchArray($fres)) {
     }
 
     // Handle starting of a new row.
-    if (($cell_count + $titlecols + $datacols) > $CPR || $cell_count == 0) {
+    if (($cell_count + $titlecols + $datacols) > $CPR || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
         end_row();
-        // echo "  <tr style='height:30pt'>";
+        if ($prepend_blank_row) {
+            echo "  <tr><td class='text' colspan='" . attr($CPR) . "'>&nbsp;</td></tr>\n";
+        }
         if (isOption($edit_options, 'RS')) {
             echo " <tr class='RS'>";
         } else if (isOption($edit_options, 'RO')) {
@@ -438,7 +448,7 @@ while ($frow = sqlFetchArray($fres)) {
             $titlecols = $CPR;
         }
         echo "<td colspan='" . attr($titlecols) . "' ";
-        echo "class='lcols$titlecols stuff " . (($frow['uor'] == 2) ? "required'" : "bold'");
+        echo "class='lcols" . attr($titlecols) . " stuff " . (($frow['uor'] == 2) ? "required'" : "bold'");
         if ($cell_count == 2) {
             echo " style='padding-left:10pt'";
         }
@@ -462,11 +472,11 @@ while ($frow = sqlFetchArray($fres)) {
     if ($datacols > 0) {
         end_cell();
         if (isOption($edit_options, 'DS')) {
-            echo "<td colspan='" . attr($datacols) . "' class='dcols$datacols stuff under RS' style='";
+            echo "<td colspan='" . attr($datacols) . "' class='dcols" . attr($datacols) . " stuff under RS' style='";
         } else if (isOption($edit_options, 'DO')) {
-            echo "<td colspan='" . attr($datacols) . "' class='dcols$datacols stuff under RO' style='";
+            echo "<td colspan='" . attr($datacols) . "' class='dcols" . attr($datacols) . " stuff under RO' style='";
         } else {
-            echo "<td colspan='" . attr($datacols) . "' class='dcols$datacols stuff under' style='";
+            echo "<td colspan='" . attr($datacols) . "' class='dcols" . attr($datacols) . " stuff under' style='";
         }
 
         if ($cell_count > 0) {
@@ -482,7 +492,7 @@ while ($frow = sqlFetchArray($fres)) {
 
     ++$item_count;
 
-    if ($isform) {
+    if ($isblankform) {
         generate_print_field($frow, $currvalue);
     } else {
         $s = generate_display_field($frow, $currvalue);

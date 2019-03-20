@@ -614,7 +614,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     </span>
                                 <?php if (!file_exists($EXPORT_INC)) { ?>
                                     <li><a href='#' id="view-log-link"  data-toggle="modal"  data-target="#myModal" class='link_submit'
-                                           title='<?php xla('See messages from the last set of generated claims'); ?>'><strong><?php echo xlt('View Log'); ?></strong></a>
+                                           title='<?php echo xla('See messages from the last set of generated claims'); ?>'><strong><?php echo xlt('View Log'); ?></strong></a>
                                     </li>
                                 <?php } ?>
                                 <li><a class="link_submit"
@@ -770,7 +770,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             }
             $list = getBillsListBetween("%");
             ?>
-            <input name='bill_list' type='hidden' value="<?php echo attr($list); ?>"> <!-- new form for uploading -->
             <?php
             if (!isset($_POST["mode"])) {
                 if (!isset($_POST["from_date"])) {
@@ -1355,6 +1354,11 @@ if ($alertmsg) {
 }
 ?>
 $(document).ready(function () {
+    $("#view-log-link").click( function() {
+        top.restoreSession();
+        dlgopen('customize_log.php', '_blank', 500, 400);
+    });
+
     $('button[type="submit"]').click(function () {
         top.restoreSession();
         $(this).attr('data-clicked', true);

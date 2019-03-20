@@ -176,8 +176,8 @@ abstract class Phreezable implements Serializable
      * Return an object with a limited number of properties from this Phreezable object.
      * This can be used if not all properties are necessary, for example rendering as JSON
      *
-     * This can be overriden per class for custom JSON output. the overridden method may accept
-     * additional option parameters that are not supported by the base Phreezable calss
+     * This can be overridden per class for custom JSON output. The overridden method may accept
+     * additional option parameters that are not supported by the base Phreezable class
      *
      * @param
      *          array assoc array of options. This is passed through from Controller->RenderJSON

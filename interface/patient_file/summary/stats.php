@@ -47,7 +47,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
         continue;
     }
 
-  // $result = getListByType($pid, $key, "id,title,begdate,enddate,returndate,extrainfo", "all", "all", 0);
+  
     $query = "SELECT * FROM lists WHERE pid = ? AND type = ? AND ";
     $query .= "(enddate is null or enddate = '' or enddate = '0000-00-00') ";
     if ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $key=='medication') {
@@ -205,7 +205,7 @@ if ($row_currentMed['size'] > 0) {
             if ($key == "allergy") {
                 $reaction = "";
                 if (!empty($row['reaction'])) {
-                    $reaction = " (" . $row['reaction'] . ")";
+                    $reaction= " (" .getListItemTitle("reaction", $row['reaction']) . ")";
                 }
 
                 echo "  <td colspan='" . attr($numcols) . "' style='color:red;font-weight:bold;'>&nbsp;&nbsp;" . text($row['title'] . $reaction) . "</td>\n";

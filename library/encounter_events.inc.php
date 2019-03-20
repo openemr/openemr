@@ -75,7 +75,7 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
 {
     global $today;
     $encounter = todaysEncounterIf($patient_id);
-    if ($encounter) {
+    if ($encounter && (int)$GLOBALS['auto_create_new_encounters'] !== 2) {
         if ($return_existing) {
             return $encounter;
         } else {

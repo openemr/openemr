@@ -23,6 +23,7 @@ namespace Application\Model;
 
 use Zend\Db\TableGateway\AbstractTableGateway;
 use Zend\Db\ResultSet\ResultSet;
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 class ApplicationTable extends AbstractTableGateway
 {
@@ -83,11 +84,11 @@ class ApplicationTable extends AbstractTableGateway
        * Logging Mechanism
        *
        * using OpenEMR log function (auditSQLEvent)
-       * Path /library/log.inc
+       * @see EventAuditLogger::auditSQLEvent
        * Logging, if the $log is true
        */
         if ($log) {
-            auditSQLEvent($sql, $result, $params);
+            EventAuditLogger::instance()->auditSQLEvent($sql, $result, $params);
         }
 
         return $return;

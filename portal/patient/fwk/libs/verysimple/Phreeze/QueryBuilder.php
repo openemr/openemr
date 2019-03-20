@@ -22,7 +22,7 @@ class QueryBuilder
      * Constructor
      *
      * @param Phreezer $phreezer
-     *          persistance engine
+     *          persistence engine
      */
     public function __construct($phreezer)
     {

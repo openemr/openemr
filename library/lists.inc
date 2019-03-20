@@ -98,31 +98,9 @@ $ISSUE_CLASSIFICATIONS = array(
 
 function getListById($id, $cols = "*")
 {
-    return sqlQuery("select $cols from lists where id=? order by date DESC limit 0,1", array($id));
+    return sqlQuery("select " . escape_sql_column_name(process_cols_escape($cols), array('lists')) . " from lists where id=? order by date DESC limit 0,1", array($id));
 }
 
-function getListByType($pid, $type, $cols = "*", $active = "all", $limit = "all", $offset = "0")
-{
-    $sqlBindArray = array();
-    if ($active == "all") {
-        $sql = "select $cols from lists where pid=? and type=? order by date DESC";
-        array_push($sqlBindArray, $pid, $type);
-    } else {
-        $sql = "select $cols from lists where pid=? and type=? and activity=? order by date DESC";
-        array_push($sqlBindArray, $pid, $type, $active);
-    }
-
-    if ($limit != "all") {
-        $sql .= " limit " . escape_limit($offset) . "," . escape_limit($limit);
-    }
-
-    $res = sqlStatement($sql, $sqlBindArray);
-    for ($iter =0; $row = sqlFetchArray($res); $iter++) {
-        $all[$iter] = $row;
-    }
-
-    return $all;
-}
 
 function addList($pid, $type, $title, $comments, $activity = "1")
 {

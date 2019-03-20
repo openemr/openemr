@@ -680,3 +680,171 @@ ALTER TABLE `pnotes` ADD `update_date` DATETIME DEFAULT NULL;
 #IfNotColumnType onsite_documents full_document MEDIUMBLOB
 ALTER TABLE `onsite_documents` CHANGE `full_document` `full_document` MEDIUMBLOB;
 #EndIf
+
+#IfMissingColumn facility mail_street
+ALTER TABLE `facility` ADD `mail_street` VARCHAR(30) default NULL;
+#EndIf
+
+#IfMissingColumn facility mail_street2
+ALTER TABLE `facility` ADD `mail_street2` VARCHAR(30) default NULL;
+#EndIf
+
+#IfMissingColumn facility mail_city
+ALTER TABLE `facility` ADD `mail_city` VARCHAR(50) default NULL;
+#EndIf
+
+#IfMissingColumn facility mail_state
+ALTER TABLE `facility` ADD `mail_state` VARCHAR(3) default NULL;
+#EndIf
+
+#IfMissingColumn facility mail_zip
+ALTER TABLE `facility` ADD `mail_zip` VARCHAR(10) default NULL;
+#EndIf
+
+#IfMissingColumn facility oid
+ALTER TABLE `facility` ADD `oid` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'HIEs CCDA and FHIR an OID is required/wanted';
+#EndIf
+
+#IfNotTable keys
+CREATE TABLE `keys` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `name` varchar(20) NOT NULL DEFAULT '',
+  `value` text,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`name`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotColumnType amendments pid bigint(20)
+ALTER TABLE `amendments`
+    MODIFY `pid` bigint(20) NOT NULL COMMENT 'Patient ID from patient_data';
+#EndIf
+
+#IfNotColumnType billing pid bigint(20)
+ALTER TABLE `billing`
+    MODIFY `pid` bigint(20) default NULL;
+#EndIf
+
+#IfNotColumnType dated_reminders pid bigint(20)
+ALTER TABLE `dated_reminders`
+    MODIFY `pid` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType drug_sales pid bigint(20)
+ALTER TABLE `drug_sales`
+    MODIFY `pid` bigint(20) NOT NULL default '0';
+#EndIf
+
+#IfNotColumnType form_ros pid bigint(20)
+ALTER TABLE `form_ros`
+    MODIFY `pid` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType issue_encounter pid bigint(20)
+ALTER TABLE `issue_encounter`
+    MODIFY `pid` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType onsite_documents pid bigint(20)
+ALTER TABLE `onsite_documents`
+    MODIFY `pid` bigint(20) UNSIGNED DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType patient_access_onsite pid bigint(20)
+ALTER TABLE `patient_access_onsite`
+    MODIFY `pid` bigint(20);
+#EndIf
+
+#IfNotColumnType patient_access_offsite pid bigint(20)
+ALTER TABLE `patient_access_offsite`
+    MODIFY `pid` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType form_eye_mag_wearing PID bigint(20)
+ALTER TABLE `form_eye_mag_wearing`
+    MODIFY `PID` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType therapy_groups_participants pid bigint(20)
+ALTER TABLE `therapy_groups_participants`
+    MODIFY `pid` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType therapy_groups_participant_attendance pid bigint(20)
+ALTER TABLE `therapy_groups_participant_attendance`
+    MODIFY `pid` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType notification_log pid bigint(20)
+ALTER TABLE `notification_log`
+    MODIFY `pid` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType documents foreign_id bigint(20)
+ALTER TABLE `documents`
+    MODIFY `foreign_id` bigint(20) default NULL;
+#EndIf
+
+#IfNotColumnType batchcom patient_id bigint(20)
+ALTER TABLE `batchcom`
+    MODIFY `patient_id` bigint(20) NOT NULL default '0';
+#EndIf
+
+#IfNotColumnType claims patient_id bigint(20)
+ALTER TABLE `claims`
+    MODIFY `patient_id` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotColumnType immunizations patient_id bigint(20)
+ALTER TABLE `immunizations`
+    MODIFY `patient_id` bigint(20) default NULL;
+#EndIf
+
+#IfNotColumnType prescriptions patient_id bigint(20)
+ALTER TABLE `prescriptions`
+    MODIFY `patient_id` bigint(20) default NULL;
+#EndIf
+
+#IfNotColumnType ar_session patient_id bigint(20)
+ALTER TABLE `ar_session`
+    MODIFY `patient_id` bigint(20) NOT NULL;
+#EndIf
+
+#IfMissingColumn documents encrypted
+ALTER TABLE `documents` ADD `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes';
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type CQM_VALUESET load_source NIH_VASC load_release_date 2017-09-29 load_filename ep_ec_only_cms_20170929.xml.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('CQM_VALUESET', 'NIH_VSAC', '2017-09-29','ep_ec_only_cms_20170929.xml.zip','38d2e1a27646f2f09fcc389fd2335c50');
+#EndIf
+
+#IfNotColumnType eligibility_verification response_id varchar(32)
+ALTER TABLE `eligibility_verification` CHANGE `response_id` `response_id` VARCHAR(32) DEFAULT NULL;
+#EndIf
+
+#IfNotTable benefit_eligibility
+CREATE TABLE `benefit_eligibility` (
+    `response_id` bigint(20) NOT NULL,
+    `verification_id` bigint(20) NOT NULL,
+    `type` varchar(4) DEFAULT NULL,
+    `benefit_type` varchar(255) DEFAULT NULL,
+    `start_date` date DEFAULT NULL,
+    `end_date` date DEFAULT NULL,
+    `coverage_level` varchar(255) DEFAULT NULL,
+    `coverage_type` varchar(512) DEFAULT NULL,
+    `plan_type` varchar(255) DEFAULT NULL,
+    `plan_description` varchar(255) DEFAULT NULL,
+    `coverage_period` varchar(255) DEFAULT NULL,
+    `amount` decimal(5,2) DEFAULT NULL,
+    `percent` decimal(3,2) DEFAULT NULL,
+    `network_ind` varchar(2) DEFAULT NULL,
+    `message` varchar(512) DEFAULT NULL,
+    `response_status` enum('A','D') DEFAULT 'A',
+    `response_create_date` date DEFAULT NULL,
+    `response_modify_date` date DEFAULT NULL
+) ENGINE=InnoDB;
+#Endif
+
+#IfTable eligibility_response
+DROP TABLE `eligibility_response`;
+#Endif

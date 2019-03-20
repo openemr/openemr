@@ -516,6 +516,7 @@ class C_Document extends Controller
         $couch_revid = $d->get_couch_revid();
 
         if ($couch_docid && $couch_revid && $original_file) {
+            // standard case for collecting a document from couchdb
             $couch = new CouchDB();
             $data = array($GLOBALS['couchdb_dbase'],$couch_docid);
             $resp = $couch->retrieve_doc($data);
@@ -533,47 +534,95 @@ class C_Document extends Controller
                 $log_content .= date('Y-m-d H:i:s')." ==> Failed to fetch document content from CouchDB.\r\n";
                 $log_content .= date('Y-m-d H:i:s')." ==> Will try to download file from HardDisk if exists.\r\n\r\n";
                 $this->document_upload_download_log($d->get_foreign_id(), $log_content);
-                die(xl("File retrieval from CouchDB failed"));
+                die(xlt("File retrieval from CouchDB failed"));
             }
+            $filetext = base64_decode($content);
             if ($disable_exit == true) {
-                return base64_decode($content);
+                return $filetext;
             }
             header('Content-Description: File Transfer');
             header('Content-Transfer-Encoding: binary');
             header('Expires: 0');
             header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
             header('Pragma: public');
-            $tmpcouchpath = $GLOBALS['OE_SITE_DIR'].'/documents/temp/couch_'.date("YmdHis").$d->get_url_file();
-            $fh = fopen($tmpcouchpath, "w");
-            fwrite($fh, base64_decode($content));
-            fclose($fh);
-            $f = fopen($tmpcouchpath, "r");
             if ($doEncryption) {
-                $filetext = fread($f, filesize($tmpcouchpath));
-                    $ciphertext = encryptStandard($filetext, $passphrase);
-                    $tmpfilepath = $GLOBALS['temporary_files_dir'];
-                    $tmpfilename = "/encrypted_aes_".$d->get_url_file();
-                    $tmpfile = fopen($tmpfilepath.$tmpfilename, "w+");
-                fwrite($tmpfile, $ciphertext);
-                fclose($tmpfile);
-                header('Content-Disposition: attachment; filename='.$tmpfilename);
-                    header("Content-Type: application/octet-stream");
-                    header("Content-Length: " . filesize($tmpfilepath.$tmpfilename));
-                    ob_clean();
-                flush();
-                readfile($tmpfilepath.$tmpfilename);
-                unlink($tmpfilepath.$tmpfilename);
+                $ciphertext = encryptStandard($filetext, $passphrase);
+                header('Content-Disposition: attachment; filename="' . basename_international("/encrypted_aes_".$d->get_url_file()) . '"');
+                header("Content-Type: application/octet-stream");
+                header("Content-Length: " . strlen($ciphertext));
+                echo $ciphertext;
             } else {
                 header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename_international($d->get_url()) . "\"");
-                    header("Content-Type: " . $d->get_mimetype());
-                    header("Content-Length: " . filesize($tmpcouchpath));
-                    fpassthru($f);
-            }
-            fclose($f);
-            if ($content!='') {
-                unlink($tmpcouchpath);
+                header("Content-Type: " . $d->get_mimetype());
+                header("Content-Length: " . strlen($filetext));
+                echo $filetext;
             }
             exit;//exits only if file download from CouchDB is successfull.
+        }
+        if ($couch_docid && $couch_revid) {
+            //special case when retrieving a document from couchdb that has been converted to a jpg and not directly referenced in openemr documents table
+            //try to convert it if it has not yet been converted
+            //first, see if the converted jpg already exists
+            $couch = new CouchDB();
+            $data = array($GLOBALS['couchdb_dbase'], "converted_".$couch_docid);
+            $resp = $couch->retrieve_doc($data);
+            $content = $resp->data;
+            if ($content == '') {
+                //create the converted jpg
+                $couchM = new CouchDB();
+                $dataM = array($GLOBALS['couchdb_dbase'], $couch_docid);
+                $respM = $couchM->retrieve_doc($dataM);
+                $contentM = $respM->data;
+                if ($contentM=='' && $GLOBALS['couchdb_log']==1) {
+                    $log_content = date('Y-m-d H:i:s')." ==> Retrieving document\r\n";
+                    $log_content = date('Y-m-d H:i:s')." ==> URL: ".$url."\r\n";
+                    $log_content .= date('Y-m-d H:i:s')." ==> CouchDB Document Id: ".$couch_docid."\r\n";
+                    $log_content .= date('Y-m-d H:i:s')." ==> CouchDB Revision Id: ".$couch_revid."\r\n";
+                    $log_content .= date('Y-m-d H:i:s')." ==> Failed to fetch document content from CouchDB.\r\n";
+                    $log_content .= date('Y-m-d H:i:s')." ==> Will try to download file from HardDisk if exists.\r\n\r\n";
+                    $this->document_upload_download_log($d->get_foreign_id(), $log_content);
+                    die(xlt("File retrieval from CouchDB failed"));
+                }
+                // place the from-file into a temporary file
+                $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
+                file_put_contents($from_file_tmp_name, base64_decode($contentM));
+                // prepare a temporary file for the to-file
+                $to_file_tmp = tempnam($GLOBALS['temporary_files_dir'], "oer");
+                $to_file_tmp_name = $to_file_tmp . ".jpg";
+                // convert file to jpg
+                exec("convert -density 200 " . escapeshellarg($from_file_tmp_name) . " -append -resize 850 " . escapeshellarg($to_file_tmp_name));
+                // remove from tmp file
+                unlink($from_file_tmp_name);
+                // save the to-file if a to-file was created in above convert call
+                if (is_file($to_file_tmp_name)) {
+                    $couchI = new CouchDB();
+                    $json = json_encode(base64_encode(file_get_contents($to_file_tmp_name)));
+                    $couchdata = array($GLOBALS['couchdb_dbase'], "converted_" . $couch_docid, $d->get_foreign_id(), "", "image/jpeg", $json);
+                    $couchI->check_saveDOC($couchdata);
+                    // remove to tmp files
+                    unlink($to_file_tmp);
+                    unlink($to_file_tmp_name);
+                } else {
+                    error_log("ERROR: Document '" . basename_international($url) . "' cannot be converted to JPEG. Perhaps ImageMagick is not installed?");
+                }
+                // now collect the newly created converted jpg
+                $couchF = new CouchDB();
+                $dataF = array($GLOBALS['couchdb_dbase'], "converted_".$couch_docid);
+                $respF = $couchF->retrieve_doc($dataF);
+                $content = $respF->data;
+            }
+            $filetext = base64_decode($content);
+            if ($disable_exit == true) {
+                return $filetext;
+            }
+            header("Pragma: public");
+            header("Expires: 0");
+            header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+            header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename_international($url) . "\"");
+            header("Content-Type: image/jpeg");
+            header("Content-Length: " . strlen($filetext));
+            echo $filetext;
+            exit;
         }
 
         //Take thumbnail file when is not null and file is presented online
@@ -594,13 +643,13 @@ class C_Document extends Controller
                 // etc.
         // NOTE that $from_filename and basename($url) are the same thing
         $from_all = explode("/", $url);
-            $from_filename = array_pop($from_all);
-            $from_pathname_array = array();
+        $from_filename = array_pop($from_all);
+        $from_pathname_array = array();
         for ($i=0; $i<$d->get_path_depth(); $i++) {
             $from_pathname_array[] = array_pop($from_all);
         }
-                $from_pathname_array = array_reverse($from_pathname_array);
-                $from_pathname = implode("/", $from_pathname_array);
+        $from_pathname_array = array_reverse($from_pathname_array);
+        $from_pathname = implode("/", $from_pathname_array);
         if ($couch_docid && $couch_revid) {
             //for couchDB no URL is available in the table, hence using the foreign_id which is patientID
             $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $d->get_foreign_id() . '_' . $from_filename;
@@ -612,75 +661,90 @@ class C_Document extends Controller
             $url = $temp_url;
         }
 
-
         if (!file_exists($url)) {
             echo xl('The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.', '', '', ' ') . $url;
         } else {
             if ($original_file) {
                 //normal case when serving the file referenced in database
+                if ($d->get_encrypted() == 1) {
+                    $filetext = decryptStandard(file_get_contents($url), null, 'database');
+                } else {
+                    $filetext = file_get_contents($url);
+                }
                 if ($disable_exit == true) {
-                    $f = fopen($url, "r");
-                    $filetext = fread($f, filesize($url));
                     return $filetext;
                 }
-                    header('Content-Description: File Transfer');
-                    header('Content-Transfer-Encoding: binary');
-                    header('Expires: 0');
-                    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-                    header('Pragma: public');
-                if (is_file($url)) {
-                    $f = fopen($url, "r");
-                }
+                header('Content-Description: File Transfer');
+                header('Content-Transfer-Encoding: binary');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+                header('Pragma: public');
                 if ($doEncryption) {
-                    $filetext = fread($f, filesize($url));
                     $ciphertext = encryptStandard($filetext, $passphrase);
-                    $tmpfilepath = $GLOBALS['temporary_files_dir'];
-                    $tmpfilename = "/encrypted_aes_".$d->get_url_file();
-                    $tmpfile = fopen($tmpfilepath.$tmpfilename, "w+");
-                        fwrite($tmpfile, $ciphertext);
-                        fclose($tmpfile);
-                        header('Content-Disposition: attachment; filename='.$tmpfilename);
-                        header("Content-Type: application/octet-stream");
-                        header("Content-Length: " . filesize($tmpfilepath.$tmpfilename));
-                        ob_clean();
-                        flush();
-                        readfile($tmpfilepath.$tmpfilename);
-                        unlink($tmpfilepath.$tmpfilename);
+                    header('Content-Disposition: attachment; filename="' . basename_international("/encrypted_aes_".$d->get_url_file()) . '"');
+                    header("Content-Type: application/octet-stream");
+                    header("Content-Length: " . strlen($ciphertext));
+                    echo $ciphertext;
                 } else {
-                    if ($f) {
-                        header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename_international($d->get_url()) . "\"");
-                        header("Content-Type: " . $d->get_mimetype());
-                        header("Content-Length: " . filesize($url));
-                        fpassthru($f);
-                    }
+                    header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename_international($d->get_url()) . "\"");
+                    header("Content-Type: " . $d->get_mimetype());
+                    header("Content-Length: " . strlen($filetext));
+                    echo $filetext;
                 }
                 exit;
             } else {
                 //special case when retrieving a document that has been converted to a jpg and not directly referenced in database
+                //try to convert it if it has not yet been converted
+                $originalUrl = $url;
                 $convertedFile = substr(basename_international($url), 0, strrpos(basename_international($url), '.')) . '_converted.jpg';
-                if ($couch_docid && $couch_revid) {
-                    $url = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $convertedFile;
+                $url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $convertedFile;
+                if (!is_file($url)) {
+                    if ($d->get_encrypted() == 1) {
+                        // decrypt the from-file into a temporary file
+                        $from_file_unencrypted = decryptStandard(file_get_contents($originalUrl), null, 'database');
+                        $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
+                        file_put_contents($from_file_tmp_name, $from_file_unencrypted);
+                        // prepare a temporary file for the unencrypted to-file
+                        $to_file_tmp = tempnam($GLOBALS['temporary_files_dir'], "oer");
+                        $to_file_tmp_name = $to_file_tmp . ".jpg";
+                        // convert file to jpg
+                        exec("convert -density 200 " . escapeshellarg($from_file_tmp_name) . " -append -resize 850 " . escapeshellarg($to_file_tmp_name));
+                        // remove unencrypted tmp file
+                        unlink($from_file_tmp_name);
+                        // make the encrypted to-file if a to-file was created in above convert call
+                        if (is_file($to_file_tmp_name)) {
+                            $to_file_encrypted = encryptStandard(file_get_contents($to_file_tmp_name), null, 'database');
+                            file_put_contents($url, $to_file_encrypted);
+                            // remove unencrypted tmp files
+                            unlink($to_file_tmp);
+                            unlink($to_file_tmp_name);
+                        }
+                    } else {
+                        // convert file to jpg
+                        exec("convert -density 200 " . escapeshellarg($originalUrl) . " -append -resize 850 " . escapeshellarg($url));
+                    }
+                }
+                if (is_file($url)) {
+                    if ($d->get_encrypted() == 1) {
+                        $filetext = decryptStandard(file_get_contents($url), null, 'database');
+                    } else {
+                        $filetext = file_get_contents($url);
+                    }
                 } else {
-                    $url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $convertedFile;
+                    $filetext = '';
+                    error_log("ERROR: Document '" . basename_international($url) . "' cannot be converted to JPEG. Perhaps ImageMagick is not installed?");
                 }
                 if ($disable_exit == true) {
-                    return ;
+                    return $filetext;
                 }
                 header("Pragma: public");
                 header("Expires: 0");
                 header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
                 header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename_international($url) . "\"");
                 header("Content-Type: image/jpeg");
-                header("Content-Length: " . filesize($url));
-                $f = fopen($url, "r");
-                fpassthru($f);
-                if ($couch_docid && $couch_revid) {
-                    fclose($f);
-                    unlink($url);
-                    $url=str_replace("_converted.jpg", '.pdf', $url);
-                    unlink($url);
-                }
-                        exit;
+                header("Content-Length: " . strlen($filetext));
+                echo $filetext;
+                exit;
             }
         }
     }
@@ -911,19 +975,14 @@ class C_Document extends Controller
     function validate_action_process($patient_id = "", $document_id)
     {
 
-                $d = new Document($document_id);
+        $d = new Document($document_id);
         if ($d->couch_docid && $d->couch_revid) {
             $file_path = $GLOBALS['OE_SITE_DIR'].'/documents/temp/';
             $url = $file_path.$d->get_url();
             $couch = new CouchDB();
             $data = array($GLOBALS['couchdb_dbase'],$d->couch_docid);
             $resp = $couch->retrieve_doc($data);
-            $content = $resp->data;
-            //--------Temporarily writing the file for calculating the hash--------//
-            //-----------Will be removed after calculating the hash value----------//
-            $temp_file = fopen($url, "w");
-            fwrite($temp_file, base64_decode($content));
-            fclose($temp_file);
+            $content = base64_decode($resp->data);
         } else {
                 $url =  $d->get_url();
 
@@ -953,12 +1012,18 @@ class C_Document extends Controller
             }
 
             if ($_POST['process'] != "true") {
-                die("process is '" . $_POST['process'] . "', expected 'true'");
+                die("process is '" . text($_POST['process']) . "', expected 'true'");
                 return;
             }
+
+            if ($d->get_encrypted() == 1) {
+                $content = decryptStandard(file_get_contents($url), null, 'database');
+            } else {
+                $content = file_get_contents($url);
+            }
         }
-        $d = new Document($document_id);
-        $current_hash = sha1_file($url);
+
+        $current_hash = sha1($content);
         $messages = xl('Current Hash').": ".$current_hash."<br>";
         $messages .= xl('Stored Hash').": ".$d->get_hash()."<br>";
         if ($d->get_hash() == '') {
@@ -973,10 +1038,6 @@ class C_Document extends Controller
         }
         $this->_state = false;
         $this->assign("messages", $messages);
-        if ($d->couch_docid && $d->couch_revid) {
-            //Removing the temporary file which is used to create the hash
-            unlink($GLOBALS['OE_SITE_DIR'].'/documents/temp/'.$d->get_url());
-        }
         return $this->view_action($patient_id, $document_id);
     }
 
@@ -1224,9 +1285,21 @@ class C_Document extends Controller
         if (!is_dir($log_path)) {
             mkdir($log_path, 0777, true);
         }
-        $LOG = fopen($log_path.$log_file, 'a');
-        fwrite($LOG, $content);
-        fclose($LOG);
+
+        $LOG = file_get_contents($log_path.$log_file);
+
+        if (cryptCheckStandard($LOG)) {
+            $LOG = decryptStandard($LOG, null, 'database');
+        }
+
+        $LOG .= $content;
+
+        if (!empty($LOG)) {
+            if ($GLOBALS['drive_encryption']) {
+                $LOG = encryptStandard($LOG, null, 'database');
+            }
+            file_put_contents($log_path.$log_file, $LOG);
+        }
     }
 
     function document_send($email, $body, $attfile, $pname)

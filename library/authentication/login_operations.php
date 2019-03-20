@@ -3,7 +3,7 @@
  * This is a library of commonly used functions for managing data for authentication
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
@@ -14,6 +14,8 @@
 
 
 require_once(dirname(__FILE__) . "/common_operations.php");
+
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 /**
  *
@@ -80,7 +82,7 @@ function validate_user_password($username, &$password, $provider)
     $userInfo = privQuery($getUserSQL, array($username));
 
     if ($userInfo['active'] != 1) {
-        newEvent('login', $username, $provider, 0, "failure: " . $ip['ip_string'] . ". user not active or not found in users table");
+        EventAuditLogger::instance()->newEvent('login', $username, $provider, 0, "failure: " . $ip['ip_string'] . ". user not active or not found in users table");
         $password='';
         return false;
     }
@@ -101,10 +103,10 @@ function validate_user_password($username, &$password, $provider)
                 $_SESSION['userauthorized'] = '1';
             }
 
-            newEvent('login', $username, $provider, 1, "success: " . $ip['ip_string']);
+            EventAuditLogger::instance()->newEvent('login', $username, $provider, 1, "success: " . $ip['ip_string']);
             $valid=true;
         } else {
-            newEvent('login', $username, $provider, 0, "failure: " . $ip['ip_string'] . ". user not in group: $provider");
+            EventAuditLogger::instance()->newEvent('login', $username, $provider, 0, "failure: " . $ip['ip_string'] . ". user not in group: $provider");
             $valid=false;
         }
     }
@@ -120,7 +122,7 @@ function verify_user_gacl_group($user, $provider)
 
     if (isset($phpgacl_location)) {
         if (acl_get_group_titles($user) == 0) {
-            newEvent('login', $user, $provider, 0, "failure: " . $ip['ip_string'] . ". user not in any phpGACL groups. (bad username?)");
+            EventAuditLogger::instance()->newEvent('login', $user, $provider, 0, "failure: " . $ip['ip_string'] . ". user not in any phpGACL groups. (bad username?)");
             return false;
         }
     }
@@ -142,15 +144,15 @@ function active_directory_validation($user, $pass)
         'account_suffix'        => $GLOBALS['account_suffix'],
 
         // You can use the host name or the IP address of your controllers.
-        'domain_controllers'    => [$GLOBALS['domain_controllers']],
+        'hosts'    => [$GLOBALS['domain_controllers']],
 
         // Your base DN.
         'base_dn'               => $GLOBALS['base_dn'],
 
         // The account to use for querying / modifying users. This
         // does not need to be an actual admin account.
-        'admin_username'        => $user,
-        'admin_password'        => $pass,
+        'username'        => $user,
+        'password'        => $pass,
     );
 
     // Add a connection provider to Adldap.
@@ -158,9 +160,10 @@ function active_directory_validation($user, $pass)
 
     // If a successful connection is made, the provider will be returned.
     try {
-        $prov = $ad->connect();
-        $valid = $prov->auth()->attempt($user, $pass);
+        $prov = $ad->connect('', $user.$GLOBALS['account_suffix'], $pass);
+        $valid = $prov->auth()->attempt($user, $pass, true);
     } catch (Exception $e) {
+        error_log($e->getMessage());
     }
 
     return $valid;

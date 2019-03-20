@@ -53,7 +53,7 @@ CREATE TABLE `amendments` (
   `amendment_date` date NOT NULL COMMENT 'Amendement request date',
   `amendment_by` varchar(50) NOT NULL COMMENT 'Amendment requested from',
   `amendment_status` varchar(50) NULL COMMENT 'Amendment status accepted/rejected/null',
-  `pid` int(11) NOT NULL COMMENT 'Patient ID from patient_data',
+  `pid` bigint(20) NOT NULL COMMENT 'Patient ID from patient_data',
   `amendment_desc` text COMMENT 'Amendment Details',
   `created_by` int(11) NOT NULL COMMENT 'references users.id for session owner',
   `modified_by` int(11) NULL COMMENT 'references users.id for session owner',
@@ -168,7 +168,7 @@ INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_r
 DROP TABLE IF EXISTS `batchcom`;
 CREATE TABLE `batchcom` (
   `id` bigint(20) NOT NULL auto_increment,
-  `patient_id` int(11) NOT NULL default '0',
+  `patient_id` bigint(20) NOT NULL default '0',
   `sent_by` bigint(20) NOT NULL default '0',
   `msg_type` varchar(60) default NULL,
   `msg_subject` varchar(255) default NULL,
@@ -189,7 +189,7 @@ CREATE TABLE `billing` (
   `date` datetime default NULL,
   `code_type` varchar(15) default NULL,
   `code` varchar(20) default NULL,
-  `pid` int(11) default NULL,
+  `pid` bigint(20) default NULL,
   `provider_id` int(11) default NULL,
   `user` int(11) default NULL,
   `groupname` varchar(255) default NULL,
@@ -311,7 +311,7 @@ CREATE TABLE `categories_to_documents` (
 
 DROP TABLE IF EXISTS `claims`;
 CREATE TABLE `claims` (
-  `patient_id` int(11) NOT NULL,
+  `patient_id` bigint(20) NOT NULL,
   `encounter_id` int(11) NOT NULL,
   `version` int(10) unsigned NOT NULL COMMENT 'Claim version, incremented in code',
   `payer_id` int(11) NOT NULL default '0',
@@ -1141,7 +1141,7 @@ CREATE TABLE `dated_reminders` (
   `dr_message_text` varchar(160) NOT NULL,
   `dr_message_sent_date` datetime NOT NULL,
   `dr_message_due_date` date NOT NULL,
-  `pid` int(11) NOT NULL,
+  `pid` bigint(20) NOT NULL,
   `message_priority` tinyint(1) NOT NULL,
   `message_processed` tinyint(1) NOT NULL DEFAULT '0',
   `processed_date` timestamp NULL DEFAULT NULL,
@@ -1208,7 +1208,7 @@ CREATE TABLE `documents` (
   `pages` int(11) default NULL,
   `owner` int(11) default NULL,
   `revision` timestamp NOT NULL,
-  `foreign_id` int(11) default NULL,
+  `foreign_id` bigint(20) default NULL,
   `docdate` date default NULL,
   `hash` varchar(40) DEFAULT NULL COMMENT '40-character SHA-1 hash of document',
   `list_id` bigint(20) NOT NULL default '0',
@@ -1222,6 +1222,7 @@ CREATE TABLE `documents` (
   `audit_master_approval_status` TINYINT NOT NULL DEFAULT 1 COMMENT 'approval_status from audit_master table',
   `audit_master_id` int(11) default NULL,
   `documentationOf` varchar(255) DEFAULT NULL,
+  `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes',
   PRIMARY KEY  (`id`),
   KEY `revision` (`revision`),
   KEY `foreign_id` (`foreign_id`),
@@ -1342,7 +1343,7 @@ CREATE TABLE `drug_sales` (
   `drug_id` int(11) NOT NULL,
   `inventory_id` int(11) NOT NULL,
   `prescription_id` int(11) NOT NULL default '0',
-  `pid` int(11) NOT NULL default '0',
+  `pid` bigint(20) NOT NULL default '0',
   `encounter` int(11) NOT NULL default '0',
   `user` varchar(255) default NULL,
   `sale_date` date NOT NULL,
@@ -1411,30 +1412,13 @@ CREATE TABLE `drugs` (
 -----------------------------------------------------------
 
 --
--- Table structure for table `eligibility_response`
---
-
-DROP TABLE IF EXISTS `eligibility_response`;
-CREATE TABLE `eligibility_response` (
-  `response_id` bigint(20) NOT NULL auto_increment,
-  `response_description` varchar(255) default NULL,
-  `response_status` enum('A','D') NOT NULL default 'A',
-  `response_vendor_id` bigint(20) default NULL,
-  `response_create_date` date default NULL,
-  `response_modify_date` date default NULL,
-  PRIMARY KEY  (`response_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1;
-
------------------------------------------------------------
-
---
 -- Table structure for table `eligibility_verification`
 --
 
 DROP TABLE IF EXISTS `eligibility_verification`;
 CREATE TABLE `eligibility_verification` (
   `verification_id` bigint(20) NOT NULL auto_increment,
-  `response_id` bigint(20) default NULL,
+  `response_id` varchar(32) default NULL,
   `insurance_id` bigint(20) default NULL,
   `eligibility_check_date` datetime default NULL,
   `copay` int(11) default NULL,
@@ -1646,6 +1630,12 @@ CREATE TABLE `facility` (
   `primary_business_entity` INT(10) NOT NULL DEFAULT '0' COMMENT '0-Not Set as business entity 1-Set as business entity',
   `facility_code` VARCHAR(31) default NULL,
   `extra_validation` tinyint(1) NOT NULL DEFAULT '1',
+  `mail_street` varchar(30) default NULL,
+  `mail_street2` varchar(30) default NULL,
+  `mail_city` varchar(50) default NULL,
+  `mail_state` varchar(3) default NULL,
+  `mail_zip` varchar(10) default NULL,
+  `oid` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'HIEs CCDA and FHIR an OID is required/wanted',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 ;
 
@@ -1653,7 +1643,7 @@ CREATE TABLE `facility` (
 -- Inserting data for table `facility`
 --
 
-INSERT INTO `facility` VALUES (3, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 0, NULL, '', '', '', '', '', '','#99FFFF','0', '', '1');
+INSERT INTO `facility` VALUES (3, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 0, NULL, '', '', '', '', '', '','#99FFFF','0', '', '1', '', '', '', '', '', '');
 
 -----------------------------------------------------------
 
@@ -1934,7 +1924,7 @@ CREATE TABLE `form_reviewofs` (
 DROP TABLE IF EXISTS `form_ros`;
 CREATE TABLE `form_ros` (
   `id` int(11) NOT NULL auto_increment,
-  `pid` int(11) NOT NULL,
+  `pid` bigint(20) NOT NULL,
   `activity` int(11) NOT NULL default '1',
   `date` datetime default NULL,
   `weight_change` varchar(3) default NULL,
@@ -2495,7 +2485,7 @@ INSERT INTO `geo_zone_reference` VALUES (52, 223, 'PR', 'Puerto Rico');
 INSERT INTO `geo_zone_reference` VALUES (53, 223, 'RI', 'Rhode Island');
 INSERT INTO `geo_zone_reference` VALUES (54, 223, 'SC', 'South Carolina');
 INSERT INTO `geo_zone_reference` VALUES (55, 223, 'SD', 'South Dakota');
-INSERT INTO `geo_zone_reference` VALUES (56, 223, 'TN', 'Tenessee');
+INSERT INTO `geo_zone_reference` VALUES (56, 223, 'TN', 'Tennessee');
 INSERT INTO `geo_zone_reference` VALUES (57, 223, 'TX', 'Texas');
 INSERT INTO `geo_zone_reference` VALUES (58, 223, 'UT', 'Utah');
 INSERT INTO `geo_zone_reference` VALUES (59, 223, 'VT', 'Vermont');
@@ -2862,7 +2852,7 @@ CREATE TABLE `icd10_reimbr_pcs_9_10` (
 DROP TABLE IF EXISTS `immunizations`;
 CREATE TABLE `immunizations` (
   `id` bigint(20) NOT NULL auto_increment,
-  `patient_id` int(11) default NULL,
+  `patient_id` bigint(20) default NULL,
   `administered_date` datetime default NULL,
   `immunization_id` int(11) default NULL,
   `cvx_code` varchar(10) default NULL,
@@ -2981,7 +2971,7 @@ CREATE TABLE `insurance_numbers` (
 
 DROP TABLE IF EXISTS `issue_encounter`;
 CREATE TABLE `issue_encounter` (
-  `pid` int(11) NOT NULL,
+  `pid` bigint(20) NOT NULL,
   `list_id` int(11) NOT NULL,
   `encounter` int(11) NOT NULL,
   `resolved` tinyint(1) NOT NULL,
@@ -3024,6 +3014,21 @@ INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbrev
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('40','ippf_specific','surgery','Surgeries','Surgery','S','0','0');
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('50','ippf_specific','ippf_gcac','Abortions','Abortion','A','3','0');
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('60','ippf_specific','contraceptive','Contraception','Contraception','C','4','0');
+
+-----------------------------------------------------------
+
+--
+-- Table structure for table `keys`
+--
+
+DROP TABLE IF EXISTS `keys`;
+CREATE TABLE `keys` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `name` varchar(20) NOT NULL DEFAULT '',
+  `value` text,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`name`)
+) ENGINE=InnoDB;
 
 -----------------------------------------------------------
 
@@ -5111,6 +5116,14 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 -- Files type white list
 
 INSERT INTO list_options (`list_id`, `option_id`, `title`) VALUES ('lists', 'files_white_list', 'Files type white list');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'application/dicom+zip', 'application/dicom+zip', 1);
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'application/dicom', 'application/dicom', 1);
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'application/pdf', 'application/pdf', 1);
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'application/zip', 'application/zip', 1);
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'image/gif', 'image/gif', 1);
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'image/jpeg', 'image/jpeg', 1);
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'image/png', 'image/png', 1);
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', 'text/plain', 'text/plain', 1);
 
 -- Sample Apps (Disabled)
 
@@ -5369,7 +5382,7 @@ CREATE TABLE `onotes` (
 DROP TABLE IF EXISTS `onsite_documents`;
 CREATE TABLE `onsite_documents` (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `pid` int(10) UNSIGNED DEFAULT NULL,
+  `pid` bigint(20) UNSIGNED DEFAULT NULL,
   `facility` int(10) UNSIGNED DEFAULT NULL,
   `provider` int(10) UNSIGNED DEFAULT NULL,
   `encounter` int(10) UNSIGNED DEFAULT NULL,
@@ -5743,7 +5756,7 @@ CREATE TABLE `openemr_session_info` (
 DROP TABLE IF EXISTS `patient_access_onsite`;
 CREATE TABLE `patient_access_onsite`(
   `id` INT NOT NULL AUTO_INCREMENT ,
-  `pid` INT(11),
+  `pid` bigint(20),
   `portal_username` VARCHAR(100) ,
   `portal_pwd` VARCHAR(100) ,
   `portal_pwd_status` TINYINT DEFAULT '1' COMMENT '0=>Password Created Through Demographics by The provider or staff. Patient Should Change it at first time it.1=>Pwd updated or created by patient itself',
@@ -5934,7 +5947,7 @@ CREATE TABLE `patient_reminders` (
 DROP TABLE IF EXISTS `patient_access_offsite`;
 CREATE TABLE  `patient_access_offsite` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `pid` int(11) NOT NULL,
+  `pid` bigint(20) NOT NULL,
   `portal_username` varchar(100) NOT NULL,
   `portal_pwd` varchar(100) NOT NULL,
   `portal_pwd_status` tinyint(4) DEFAULT '1' COMMENT '0=>Password Created Through Demographics by The provider or staff. Patient Should Change it at first time it.1=>Pwd updated or created by patient itself',
@@ -6091,7 +6104,7 @@ CREATE TABLE `pnotes` (
 DROP TABLE IF EXISTS `prescriptions`;
 CREATE TABLE `prescriptions` (
   `id` int(11) NOT NULL auto_increment,
-  `patient_id` int(11) default NULL,
+  `patient_id` bigint(20) default NULL,
   `filled_by_id` int(11) default NULL,
   `pharmacy_id` int(11) default NULL,
   `date_added` date default NULL,
@@ -7028,7 +7041,7 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 ('ICD10', 'CMS', '2017-10-01', '2018-ICD-10-PCS-General-Equivalence-Mappings.zip', 'bb73c80e272da28712887d7979b1cebf');
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2018-10-01', '2019-ICD-10-CM-Code-Descriptions.zip', 'b23e0128eb2dce0cb007c31638a8dc00');
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2018-10-01', '2019-ICD-10-PCS-Order-File.zip', 'eb545fe61ada9efad0ad97a669f8671f');
-
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('CQM_VALUESET', 'NIH_VSAC', '2017-09-29', 'ep_ec_only_cms_20170929.xml.zip','38d2e1a27646f2f09fcc389fd2335c50');
 -----------------------------------------------------------
 
 --
@@ -7274,7 +7287,7 @@ INSERT INTO `automatic_notification` (`notification_id`, `sms_gateway_type`, `ne
 DROP TABLE IF EXISTS `notification_log`;
 CREATE TABLE `notification_log` (
   `iLogId` int(11) NOT NULL auto_increment,
-  `pid` int(7) NOT NULL,
+  `pid` bigint(20) NOT NULL,
   `pc_eid` int(11) unsigned NULL,
   `sms_gateway_type` varchar(50) NOT NULL,
   `smsgateway_info` varchar(255) NOT NULL,
@@ -7353,7 +7366,7 @@ CREATE TABLE ar_session (
   description text,
   adjustment_code varchar( 50 ) NOT NULL ,
   post_to_date date NOT NULL ,
-  patient_id int( 11 ) NOT NULL ,
+  patient_id bigint(20) NOT NULL,
   payment_method varchar( 25 ) NOT NULL,
   PRIMARY KEY (session_id),
   KEY user_closed (user_id, closed),
@@ -7490,7 +7503,7 @@ CREATE TABLE `procedure_type` (
   `lab_id`              bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references procedure_providers.ppid, 0 means default to parent',
   `procedure_code`      varchar(31)  NOT NULL DEFAULT '' COMMENT 'code identifying this procedure',
   `procedure_type`      varchar(31)  NOT NULL DEFAULT '' COMMENT 'see list proc_type',
-  `body_site`           varchar(31)  NOT NULL DEFAULT '' COMMENT 'where to do injection, e.g. arm, buttok',
+  `body_site`           varchar(31)  NOT NULL DEFAULT '' COMMENT 'where to do injection, e.g. arm, buttock',
   `specimen`            varchar(31)  NOT NULL DEFAULT '' COMMENT 'blood, urine, saliva, etc.',
   `route_admin`         varchar(31)  NOT NULL DEFAULT '' COMMENT 'oral, injection',
   `laterality`          varchar(31)  NOT NULL DEFAULT '' COMMENT 'left, right, ...',
@@ -7640,7 +7653,7 @@ CREATE TABLE `procedure_result` (
   `abnormal`            varchar(31)  NOT NULL DEFAULT '' COMMENT 'no,yes,high,low',
   `comments`            text                             COMMENT 'comments from the lab',
   `document_id`         bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references documents.id if this result is a document',
-  `result_status`       varchar(31)  NOT NULL DEFAULT '' COMMENT 'preliminary, cannot be done, final, corrected, incompete...etc.',
+  `result_status`       varchar(31)  NOT NULL DEFAULT '' COMMENT 'preliminary, cannot be done, final, corrected, incomplete...etc.',
   PRIMARY KEY (`procedure_result_id`),
   KEY procedure_report_id (procedure_report_id)
 ) ENGINE=InnoDB;
@@ -10014,7 +10027,7 @@ CREATE TABLE `form_eye_mag_wearing` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `ENCOUNTER` int(11) NOT NULL,
   `FORM_ID` smallint(6) NOT NULL,
-  `PID` int(11) NOT NULL,
+  `PID` bigint(20) NOT NULL,
   `RX_NUMBER` int(11) NOT NULL,
   `ODSPH` varchar(10) DEFAULT NULL,
   `ODCYL` varchar(10) DEFAULT NULL,
@@ -10178,7 +10191,7 @@ CREATE TABLE `therapy_groups` (
 DROP TABLE IF EXISTS `therapy_groups_participants`;
 CREATE TABLE `therapy_groups_participants` (
   `group_id` int(11) NOT NULL,
-  `pid` int(11) NOT NULL ,
+  `pid` bigint(20) NOT NULL,
   `group_patient_status` int(11) NOT NULL,
   `group_patient_start` date NOT NULL ,
   `group_patient_end` date,
@@ -10195,7 +10208,7 @@ CREATE TABLE `therapy_groups_participants` (
 DROP TABLE IF EXISTS `therapy_groups_participant_attendance`;
 CREATE TABLE `therapy_groups_participant_attendance` (
   `form_id` int(11) NOT NULL ,
-  `pid` int(11) NOT NULL ,
+  `pid` bigint(20) NOT NULL,
   `meeting_patient_comment` text ,
   `meeting_patient_status` varchar(15),
   PRIMARY KEY (`form_id`,`pid`)
@@ -10946,6 +10959,7 @@ CREATE TABLE `form_eye_locking` (
   )
   ENGINE = InnoDB;
 
+DROP TABLE IF EXISTS `login_mfa_registrations`;
 CREATE TABLE `login_mfa_registrations` (
   `user_id`         bigint(20)     NOT NULL,
   `name`            varchar(30)    NOT NULL,
@@ -10971,3 +10985,25 @@ CREATE TABLE `api_token` (
     `expiry`       datetime NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
+
+DROP TABLE IF EXISTS `benefit_eligibility`;
+CREATE TABLE `benefit_eligibility` (
+    `response_id` bigint(20) NOT NULL,
+    `verification_id` bigint(20) NOT NULL,
+    `type` varchar(4) DEFAULT NULL,
+    `benefit_type` varchar(255) DEFAULT NULL,
+    `start_date` date DEFAULT NULL,
+    `end_date` date DEFAULT NULL,
+    `coverage_level` varchar(255) DEFAULT NULL,
+    `coverage_type` varchar(512) DEFAULT NULL,
+    `plan_type` varchar(255) DEFAULT NULL,
+    `plan_description` varchar(255) DEFAULT NULL,
+    `coverage_period` varchar(255) DEFAULT NULL,
+    `amount` decimal(5,2) DEFAULT NULL,
+    `percent` decimal(3,2) DEFAULT NULL,
+    `network_ind` varchar(2) DEFAULT NULL,
+    `message` varchar(512) DEFAULT NULL,
+    `response_status` enum('A','D') DEFAULT 'A',
+    `response_create_date` date DEFAULT NULL,
+    `response_modify_date` date DEFAULT NULL
+) ENGINE=InnoDB;

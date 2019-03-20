@@ -3,17 +3,17 @@
  *
  * Patient summary screen.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @author  Sharon Cohen <sharonco@matrix.co.il>
- * @author  Stephen Waite <stephen.waite@cmsvt.com>
- * @author Ranganath Pathak <pathak@scrs1.org>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Sharon Cohen <sharonco@matrix.co.il>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Sharon Cohen <sharonco@matrix.co.il>
  * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -207,7 +207,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 
  function newEvt() {
      let title = <?php echo xlj('Appointments'); ?>;
-     let url = '../../main/calendar/add_edit_event.php?patientid=<?php echo attr_url($pid); ?>';
+     let url = '../../main/calendar/add_edit_event.php?patientid=' + <?php echo js_url($pid); ?>;
      dlgopen(url, '_blank', 725, 500, '', title);
      return false;
  }
@@ -247,27 +247,34 @@ function toggleIndicator(target,div) {
 //
 function editScripts(url) {
     var AddScript = function () {
-        var iam = top.tab_mode ? top.frames.editScripts : window[0];
-        iam.location.href = "<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=&pid=<?php echo attr_url($pid);?>"
+
+        var __this=$(this);
+        __this.find("#clearButton").css("display", "");
+        __this.find("#backButton").css("display", "");
+        __this.find("#addButton").css("display", "none");
+
+        var iam = top.tab_mode ? top.frames.editScripts : window[1];
+        iam.location.href = '<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=0&pid=' + <?php echo js_url($pid); ?>;
     };
     var ListScripts = function () {
-        var iam = top.tab_mode ? top.frames.editScripts : window[0];
-        iam.location.href = "<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo attr_url($pid); ?>"
+
+        var __this=$(this);
+        __this.find("#clearButton").css("display", "none");
+        __this.find("#backButton").css("display", "none");
+        __this.find("#addButton").css("display", "");
+        var iam = top.tab_mode ? top.frames.editScripts : window[1];
+        iam.location.href = '<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=' + <?php echo js_url($pid); ?>;
     };
 
     let title = <?php echo xlj('Prescriptions'); ?>;
-    let w = 810;
-    <?php
-    if ($GLOBALS['weno_rx_enable']) {
-        echo 'w = 910;';
-    }?>
-
+    let w = 910; // for weno width
 
     dlgopen(url, 'editScripts', w, 300, '', '', {
         buttons: [
-            {text: <?php echo xlj('Add'); ?>, close: false, style: 'primary  btn-sm', click: AddScript},
-            {text: <?php echo xlj('List'); ?>, close: false, style: 'primary  btn-sm', click: ListScripts},
-            {text: <?php echo xlj('Done'); ?>, close: true, style: 'default btn-sm'}
+            {text: <?php echo xlj('Add'); ?>, close: false,  id: 'addButton', class: 'btn-primary btn-sm', click: AddScript},
+            {text: <?php echo xlj('Clear'); ?>, close: false,id: 'clearButton', style: 'display:none;', class: 'btn-primary btn-sm', click: AddScript},
+            {text: <?php echo xlj('Back'); ?>, close: false, id: 'backButton', style: 'display:none;', class: 'btn-primary btn-sm', click: ListScripts},
+            {text: <?php echo xlj('Done'); ?>, close: true, id: 'doneButton', class: 'btn-default btn-sm'}
         ],
         onClosed: 'refreshme',
         allowResize: true,
@@ -279,7 +286,7 @@ function editScripts(url) {
 
 function doPublish() {
     let title = <?php echo xlj('Publish Patient to FHIR Server'); ?>;
-    let url = top.webroot_url + '/phpfhir/providerPublishUI.php?patient_id=<?php echo attr_url($pid); ?>';
+    let url = top.webroot_url + '/phpfhir/providerPublishUI.php?patient_id=' + <?php echo js_url($pid); ?>;
 
     dlgopen(url, 'publish', 'modal-mlg', 750, '', '', {
         buttons: [
@@ -432,7 +439,7 @@ $gfres = sqlStatement("SELECT grp_form_id FROM layout_group_properties WHERE " .
   "ORDER BY grp_seq, grp_title");
 while ($gfrow = sqlFetchArray($gfres)) {
 ?>
-    $(<?php echo js_escape("#".$gfrow['grp_form_id']."_ps_expand"); ?>).load("lbf_fragment.php?formname=<?php echo attr_url($gfrow['grp_form_id']); ?>",
+    $(<?php echo js_escape("#".$gfrow['grp_form_id']."_ps_expand"); ?>).load("lbf_fragment.php?formname=" + <?php echo js_url($gfrow['grp_form_id']); ?>,
         {
             csrf_token_form: <?php echo js_escape(collectCsrfToken()); ?>
         }
@@ -939,8 +946,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
 
                                             // Display the eligibility tab
-                                            echo "<li><a href='#'>" .
-                                                xlt('Eligibility') . "</a></li>";
+                                            echo "<li><a id='eligibility' href='#'>" . xlt('Eligibility') . "</a></li>";
 
                                             ?></ul><?php
                             } ?>
@@ -1104,9 +1110,32 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             } // end foreach
 
                                             // Display the eligibility information
-                                            echo "<div class='tab'>";
-                                            show_eligibility_information($pid, true);
-                                            echo "</div>";
+                                            echo "<div class='tab'>\n" .
+                                                "<div class='tab-content pre-scrollable' style='width:695px;overflow-x: hidden;'>\n";
+
+                                            if ($GLOBALS['enable_oa']) {
+                                                echo "<form method='post' action='./demographics.php'>\n";
+                                                echo "<div class='col col-sm-12'>";
+                                                echo "<button class='btn btn-success btn-xs btn-transmit pull-right' name='status_update' value='true'>" .
+                                                    xlt("Update Status") . "</button>";
+                                                echo "</div><br>\n";
+                                                if ($_POST['status_update'] === 'true') {
+                                                    unset($_POST['status_update']);
+                                                    $showEligibility = true;
+                                                    $ok = requestEligibleTransaction($pid);
+                                                    if ($ok === true) {
+                                                        show_eligibility_information($pid, false);
+                                                    } else {
+                                                        echo $ok;
+                                                    }
+                                                } else {
+                                                    show_eligibility_information($pid, true);
+                                                }
+                                                echo "</form>";
+                                            } else {
+                                                show_eligibility_information($pid, true);
+                                            }
+                                            echo "</div></div>";
 
                                     ///////////////////////////////// END INSURANCE SECTION
                                     ?>
@@ -1914,9 +1943,14 @@ var skipArray = [
 ];
 checkSkipConditions();
 
+var isPost = <?php echo js_escape($showEligibility); ?>;
 var listId = '#' + <?php echo js_escape($list_id); ?>;
 $(document).ready(function(){
     $(listId).addClass("active");
+    if(isPost === true) {
+        $("#eligibility").click();
+        $("#eligibility").get(0).scrollIntoView();
+    }
 });
 
 </script>

@@ -2,27 +2,16 @@
 /**
  * interface/forms/group_attendance/new.php
  *
- * Copyright (C) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
- * Copyright (C) 2016 Amiel Elboim <amielel@matrix.co.il>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
- * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * @author    Amiel Elboim <amielel@matrix.co.il>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
+ * @copyright Copyright (c) 2016 Amiel Elboim <amielel@matrix.co.il>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-
 
 
 require_once("../../globals.php");
@@ -83,7 +72,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
 
 <body class="body_top">
 <?php if ($form_id) { ?>
-<form id="group_attendance_form" method=post onclick="top.restoreSession();" action="<?php echo $rootdir;?>/forms/group_attendance/save.php?mode=update&id=<?php echo attr($form_id) ;?>" name="my_form">
+<form id="group_attendance_form" method=post onclick="top.restoreSession();" action="<?php echo $rootdir;?>/forms/group_attendance/save.php?mode=update&id=<?php echo attr_url($form_id) ;?>" name="my_form">
 <?php } else { ?>
 <form id="group_attendance_form" method=post onclick="top.restoreSession();" action="<?php echo $rootdir;?>/forms/group_attendance/save.php?mode=new" name="my_form">
 <?php } ?>
@@ -195,7 +184,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
             if(name == ""){
                 //If no patient was chosen (validation)
                 $('.new_patient').css("border-color", "red");
-                var err_msg = "<?php echo xlt("Choose Patient"); ?>";
+                var err_msg = <?php echo xlj("Choose Patient"); ?>;
                 $('.error_wrap .error').html(err_msg);
             }
             else{
@@ -213,7 +202,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
                 var exists = $.inArray(new_patient_id, ids_array);
                 if(exists >= 0){
                     $('.new_patient').css("border-color", "red");
-                    var err_msg = "<?php echo xlt("Patient already in form"); ?>";
+                    var err_msg = <?php echo xlj("Patient already in form"); ?>;
                     $('.error_wrap .error').html(err_msg);
                     return;
                 }

@@ -10,6 +10,7 @@
 #         script: null filename or null
 #         link: jquery-ui.min.css filename or null
 #         autoload: true (defaults to false)
+#         loadInFile: relative path to file, load always in specific file (defaults to false) for custom assets.
 assets:
     jquery:
         basePath: %assets_static_relative%/jquery/dist/
@@ -164,3 +165,8 @@ assets:
     underscore:
         basePath: %assets_static_relative%/underscore
         script: underscore-min.js
+    userdebug:
+        basePath: %webroot%/library/js/
+        script: userDebug.js
+        autoload: true
+        allowNoLoad: true

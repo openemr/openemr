@@ -3,12 +3,14 @@
  * ADODB custom wrapper class to support ssl option in main.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 class ADODB_mysqli_log extends ADODB_mysqli
 {
@@ -37,7 +39,7 @@ class ADODB_mysqli_log extends ADODB_mysqli
         // Stash the insert ID into lastidado so it doesn't get clobbered when
         // we insert into the audit log.
         $GLOBALS['lastidado']=$this->Insert_ID();
-        auditSQLEvent($sql, $outcome, $inputarr);
+        EventAuditLogger::instance()->auditSQLEvent($sql, $outcome, $inputarr);
         return $retval;
     }
 

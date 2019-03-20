@@ -213,7 +213,15 @@ $GLOBALS['incdir'] = $include_root;
 $GLOBALS['login_screen'] = $GLOBALS['rootdir'] . "/login_screen.php";
 
 // Variable set for Eligibility Verification [EDI-271] path
-$GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/edi/";
+$GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/";
+
+//  Check necessary writable paths (add them if do not exist)
+if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/gacl')) {
+    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/gacl', 0755, true);
+}
+if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/main')) {
+    mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/main', 0755, true);
+}
 
 //  Set and check that necessary writeable path exist for mPDF tool
 $GLOBALS['MPDF_WRITE_DIR'] = $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp';
@@ -230,6 +238,7 @@ if (! is_dir($GLOBALS['MPDF_WRITE_DIR'])) {
 //  library/date_functions.php - Includes functions for date internationalization
 //  library/validation/validate_core.php - Includes functions for page validation
 //  library/translation.inc.php - Includes translation functions
+//  library/crypto.php - Includes crypto function
 require_once $GLOBALS['vendor_dir'] ."/autoload.php";
 
 // Set up csrf token
@@ -624,3 +633,8 @@ $GLOBALS['temporary_files_dir'] = rtrim(sys_get_temp_dir(), '/');
 
 // turn off PHP compatibility warnings
 ini_set("session.bug_compat_warn", "off");
+// user debug mode
+if ((int) $GLOBALS['user_debug'] > 1) {
+    error_reporting(error_reporting() & ~E_WARNING & ~E_NOTICE & ~E_USER_WARNING);
+    ini_set('display_errors', 1);
+}

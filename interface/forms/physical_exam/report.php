@@ -1,21 +1,27 @@
 <?php
-// Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * physical_exam report.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2005 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
-include_once(dirname(__FILE__).'/../../globals.php');
-include_once($GLOBALS["srcdir"] . "/api.inc");
-include_once("lines.php");
+
+require_once(dirname(__FILE__).'/../../globals.php');
+require_once($GLOBALS["srcdir"] . "/api.inc");
+require_once("lines.php");
 
 function physical_exam_report($pid, $encounter, $cols, $id)
 {
     global $pelines;
 
     $rows = array();
-    $res = sqlStatement("SELECT * FROM form_physical_exam WHERE forms_id = '$id'");
+    $res = sqlStatement("SELECT * FROM form_physical_exam WHERE forms_id = ?", array($id));
     while ($row = sqlFetchArray($res)) {
         $rows[$row['line_id']] = $row;
     }
@@ -35,17 +41,17 @@ function physical_exam_report($pid, $encounter, $cols, $id)
                    echo " <tr>\n";
                    echo "  <td class='text' align='center'>" . ($linedbrow['wnl'] ? "WNL" : "") . "&nbsp;&nbsp;</td>\n";
                    echo "  <td class='text' align='center'>" . ($linedbrow['abn'] ? "ABNL" : "") . "&nbsp;&nbsp;</td>\n";
-                   echo "  <td class='text' nowrap>$sysnamedisp&nbsp;&nbsp;</td>\n";
-                   echo "  <td class='text' nowrap>$description&nbsp;&nbsp;</td>\n";
-                   echo "  <td class='text'>" . $linedbrow['diagnosis'] . "&nbsp;&nbsp;</td>\n";
-                   echo "  <td class='text'>" . htmlentities($linedbrow['comments']) . "</td>\n";
+                   echo "  <td class='text' nowrap>" . text($sysnamedisp) . "&nbsp;&nbsp;</td>\n";
+                   echo "  <td class='text' nowrap>" . text($description) . "&nbsp;&nbsp;</td>\n";
+                   echo "  <td class='text'>" . text($linedbrow['diagnosis']) . "&nbsp;&nbsp;</td>\n";
+                   echo "  <td class='text'>" . text($linedbrow['comments']) . "</td>\n";
                    echo " </tr>\n";
             } else { // treatment line
                      echo " <tr>\n";
                      echo "  <td class='text' align='center'>" . ($linedbrow['wnl'] ? "Y" : "") . "&nbsp;&nbsp;</td>\n";
                      echo "  <td class='text' align='center'>&nbsp;&nbsp;</td>\n";
-                     echo "  <td class='text' colspan='2' nowrap>$description&nbsp;&nbsp;</td>\n";
-                     echo "  <td class='text' colspan='2'>" . htmlentities($linedbrow['comments']) . "</td>\n";
+                     echo "  <td class='text' colspan='2' nowrap>" . text($description) . "&nbsp;&nbsp;</td>\n";
+                     echo "  <td class='text' colspan='2'>" . text($linedbrow['comments']) . "</td>\n";
                      echo " </tr>\n";
             }
 

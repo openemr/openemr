@@ -15,6 +15,7 @@
  */
 // Set the maximum excution time and time limit to unlimited.
 ini_set('max_execution_time', 0);
+ini_set('display_errors', 0);
 set_time_limit(0);
 
 // Warning. If you set $allow_multisite_setup to true, this is a potential security vulnerability.
@@ -30,8 +31,60 @@ if (!$allow_cloning_setup && !empty($_REQUEST['clone_database'])) {
     die("To turn on support for cloning setup, need to edit this script and change \$allow_cloning_setup to true. After you are done setting up the cloning, ensure you change \$allow_cloning_setup back to false or remove this script altogether");
 }
 
-// Checks if the server's PHP version is compatible with OpenEMR:
-require_once(dirname(__FILE__) . "/common/compatibility/Checker.php");
+function recursive_writable_directory_test($dir)
+{
+    // first, collect the directory and subdirectories
+    $ri = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
+    $dirNames = array();
+    foreach ($ri as $file) {
+        if ($file->isDir()) {
+            if (!preg_match("/\.\.$/", $file->getPathname())) {
+                $dirName = realpath($file->getPathname());
+                if (!in_array($dirName, $dirNames)) {
+                    $dirNames[] = $dirName;
+                }
+            }
+        }
+    }
+
+    // second, flag the directories that are not writable
+    $resultsNegative = array();
+    foreach ($dirNames as $value) {
+        if (!is_writable($value)) {
+            $resultsNegative[] = $value;
+        }
+    }
+
+    // third, send the output and return if didn't pass the test
+    if (!empty($resultsNegative)) {
+        echo "<p>";
+        $mainDirTest = "";
+        $outputs = array();
+        foreach ($resultsNegative as $failedDir) {
+            if (basename($failedDir) ==  basename($dir)) {
+                // need to reorder output so the main directory is at the top of the list
+                $mainDirTest = "<FONT COLOR='red'>UNABLE</FONT> to open directory '" . realpath($failedDir) . "' for writing by web server.<br>\r\n";
+            } else {
+                $outputs[] = "<FONT COLOR='red'>UNABLE</FONT> to open subdirectory '" . realpath($failedDir) . "' for writing by web server.<br>\r\n";
+            }
+        }
+        if ($mainDirTest) {
+            // need to reorder output so the main directory is at the top of the list
+            array_unshift($outputs, $mainDirTest);
+        }
+        foreach ($outputs as $output) {
+            echo $output;
+        }
+        echo "(configure directory permissions; see below for further instructions)</p>\r\n";
+        return 1;
+    } else {
+        echo "'" . realpath($dir) . "' directory and its subdirectories are <FONT COLOR='green'><b>ready</b></FONT>.<br>\r\n";
+        return 0;
+    }
+}
+
+// Bring in standard libraries/classes
+require_once dirname(__FILE__) ."/vendor/autoload.php";
 
 use OpenEMR\Common\Checker;
 
@@ -95,6 +148,8 @@ if (!$COMMAND_LINE && empty($_REQUEST['site'])) {
                     <legend>Optional Site ID Selection</legend>
                     <p>Most OpenEMR installations support only one site.  If that is
                     true for you then ignore the rest of this text and just click Continue.</p>
+                    <p class='bg-warning'>If you are using the multisite setup module for the first time please read the
+                    'Multi Site Installation' section of the help file before proceeding.</p>
                     <p>Otherwise please enter a unique Site ID here.</p>
                     <p>A Site ID is a short identifier with no spaces or special
                     characters other than periods or dashes. It is case-sensitive and we
@@ -149,12 +204,6 @@ $checkPermissions = true;
 global $OE_SITE_DIR; // The Installer sets this
 
 $docsDirectory = "$OE_SITE_DIR/documents";
-$billingDirectory = "$OE_SITE_DIR/edi";
-$billingDirectory2 = "$OE_SITE_DIR/era";
-$lettersDirectory = "$OE_SITE_DIR/letter_templates";
-$gaclWritableDirectory = dirname(__FILE__)."/gacl/admin/templates_c";
-$requiredDirectory1 = dirname(__FILE__)."/interface/main/calendar/modules/PostCalendar/pntemplates/compiled";
-$requiredDirectory2 = dirname(__FILE__)."/interface/main/calendar/modules/PostCalendar/pntemplates/cache";
 
 $zendModuleConfigFile = dirname(__FILE__)."/interface/modules/zend_modules/config/application.config.php";
 
@@ -162,10 +211,10 @@ $zendModuleConfigFile = dirname(__FILE__)."/interface/modules/zend_modules/confi
 // correct permissions.
 if (is_dir($OE_SITE_DIR)) {
     $writableFileList = array($installer->conffile,$zendModuleConfigFile);
-    $writableDirList = array($docsDirectory, $billingDirectory, $billingDirectory2, $lettersDirectory, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
+    $writableDirList = array($docsDirectory);
 } else {
     $writableFileList = array();
-    $writableDirList = array($OE_SITES_BASE, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
+    $writableDirList = array($OE_SITES_BASE);
 }
 
 // Include the sqlconf file if it exists yet.
@@ -344,23 +393,28 @@ function cloneClicked() {
             </ul>
             <p>We recommend you print these instructions for future reference.</p>
             <?php
+            echo "<p> The selected theme is :</p>";
+                $installer->displayNewThemeDiv();
             if (empty($installer->clone_database)) {
                 echo "<p><b>The initial OpenEMR user is <span class='text-primary'>'".$installer->iuser."'</span> and the password is <span class='text-primary'>'".$installer->iuserpass."'</span></b></p>";
-                echo "<p> The selected theme is :</p>";
-                $installer->displayNewThemeDiv();
-                $installer->setCurrentTheme();
-                echo "<p>If you edited the PHP or Apache configuration files during this installation process, then we recommend you restart your Apache server before following below OpenEMR link.</p>";
-                echo "<p>In Linux use the following command:</p>";
-                echo "<p><code>sudo apachectl -k restart</code></p>";
-            } ?>
+            } else {
+                echo "<p>The initial OpenEMR user name and password is the same as that of source site <b>'". $installer->source_site_id ."'</span></b></p>";
+            }
+            echo "<p>If you edited the PHP or Apache configuration files during this installation process, then we recommend you restart your Apache server before following below OpenEMR link.</p>";
+            echo "<p>In Linux use the following command:</p>";
+            echo "<p><code>sudo apachectl -k restart</code></p>";
+
+            ?>
             <p>
              <a href='./?site=<?php echo $site_id; ?>'>Click here to start using OpenEMR. </a>
             </p>
             </fieldset>
             <?php
+            $installer->setCurrentTheme();
+
             $end_div = <<<ENDDIV
             </div>
-        </div> 
+        </div>
     </div><!--end of container div-->
 ENDDIV;
             echo $end_div . "\r\n";
@@ -431,16 +485,16 @@ STP2TOP;
                                         </div>
                                         <div>
                                             <input name='server' id='server' type='text' class='form-control' value='localhost'>
-                                        
+
                                         </div>
                                     </div>
                                     <div id="server_info" class="collapse">
                                         <a href="#server_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p>If you run MySQL and Apache/PHP on the same computer, then leave this as 'localhost'.
                                         <p>If they are on separate computers, then enter the IP address of the computer running MySQL.
-                                        
+
                                     </div>
-                                </div>                  
+                                </div>
                                 <div class="col-sm-4">
                                     <div class="clearfix form-group">
                                         <div class="label-div">
@@ -449,7 +503,7 @@ STP2TOP;
                                         <div>
                                             <input name='port' id='port' type='text' class='form-control' value='3306'>
                                         </div>
-                                    </div>                       
+                                    </div>
                                     <div id="port_info" class="collapse">
                                         <a href="#port_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p>This is the MySQL port.
@@ -483,7 +537,7 @@ STP2TOP;
                                         </div>
                                         <div>
                                             <input name='login' ID='login' type='text' class='form-control' value='openemr'>
-                                        
+
                                         </div>
                                     </div>
                                     <div id="login_info" class="collapse">
@@ -491,7 +545,7 @@ STP2TOP;
                                         <p>This is the name that OpenEMR will use to login to the MySQL database.
                                         <p>'openemr' is the recommended name.
                                     </div>
-                                </div>                  
+                                </div>
                                 <div class="col-sm-4">
                                     <div class="clearfix form-group">
                                         <div class="label-div">
@@ -500,7 +554,7 @@ STP2TOP;
                                         <div>
                                             <input name='pass' id='pass' class='form-control' type='password' value='' minlength='12' required>
                                         </div>
-                                    </div>                       
+                                    </div>
                                     <div id="pass_info" class="collapse">
                                         <a href="#pass_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p>This is the Login Password that OpemEMR will use to accesses the MySQL database.
@@ -537,7 +591,7 @@ STP2TBLTOP1;
                                         </div>
                                         <div>
                                             <input name='rootpass' id='rootpass' type='password' class='form-control' value=''>
-                                        
+
                                         </div>
                                     </div>
                                     <div id="rootpass_info" class="collapse">
@@ -545,7 +599,7 @@ STP2TBLTOP1;
                                         <p>This is your MySQL server root password.
                                         <p>For localhost, it is usually ok to leave it blank.
                                         </div>
-                                </div>                  
+                                </div>
                                 <div class="col-sm-4">
                                     <div class="clearfix form-group">
                                         <div class="label-div">
@@ -554,7 +608,7 @@ STP2TBLTOP1;
                                         <div>
                                             <input name='loginhost' id='loginhost' type='text' class='form-control' value='localhost'>
                                         </div>
-                                    </div>                       
+                                    </div>
                                     <div id="loginhost_info" class="collapse">
                                         <a href="#loginhost_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p>If you run Apache/PHP and MySQL on the same computer, then leave this as 'localhost'.
@@ -711,7 +765,7 @@ SOURCESITETOP;
                             }
                                             $source_site_bot = <<<SOURCESITEBOT
                                             </select>
-                                        
+
                                         </div>
                                     </div>
                                     <div id="source_site_id_info" class="collapse">
@@ -725,9 +779,9 @@ SOURCESITETOP;
                                             <label class="control-label" for="clone_database">Clone Source Database:</label> <a href="#clone_database_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div>
-                                            <input type='checkbox' name='clone_database' onclick='cloneClicked()' />
+                                            <input type='checkbox' name='clone_database' id='clone_database' onclick='cloneClicked()' />
                                         </div>
-                                    </div>                       
+                                    </div>
                                     <div id="clone_database_info" class="collapse">
                                         <a href="#clone_database_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p>Clone the source site's database instead of creating a fresh one.
@@ -738,7 +792,25 @@ SOURCESITETOP;
 SOURCESITEBOT;
                             echo $source_site_bot ."\r\n";
                         }
+
                         $randomusername = chr(rand(65, 90)) . chr(rand(65, 90)) . chr(rand(65, 90)) . "-admin-" . rand(0, 9) . rand(0, 9);
+
+                        // App Based TOTP secret
+                        // Shared key (per rfc6238 and rfc4226) should be 20 bytes (160 bits) and encoded in base32, which should
+                        //   be 32 characters in base32
+                        // Would be nice to use the produceRandomBytes() function and then encode to base32, but does not appear
+                        //   to be a standard way to encode binary to base32 in php.
+                        $randomsecret = produceRandomString(32, "234567ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+                        if (empty($randomsecret)) {
+                            error_log('OpenEMR Error : Random String error - exiting');
+                            die();
+                        }
+                        $disableCheckbox = "";
+                        if (empty($randomsecret)) {
+                            $randomsecret = "";
+                            $disableCheckbox = "disabled";
+                        }
+
                         $step2tablebot = <<<STP2TBLBOT
                     </fieldset>
                     <br>
@@ -753,16 +825,16 @@ SOURCESITEBOT;
                                         </div>
                                         <div>
                                             <input name='iuser' id='iuser' type='text' class='form-control' value='$randomusername' minlength='12'>
-                                        
+
                                         </div>
                                     </div>
                                     <div id="iuser_info" class="collapse">
                                         <a href="#iuser_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p>This is the login name of the first user that will be created for you.
                                         <p>Limit this to one word with at least 12 characters and composed of both numbers and letters.
-                                        
+
                                     </div>
-                                </div>                  
+                                </div>
                                 <div class="col-sm-4">
                                     <div class="clearfix form-group">
                                         <div class="label-div">
@@ -771,7 +843,7 @@ SOURCESITEBOT;
                                         <div>
                                             <input name='iuserpass' id='iuserpass' type='password' class='form-control' value='' minlength='12'>
                                         </div>
-                                    </div>                       
+                                    </div>
                                     <div id="iuserpass_info" class="collapse">
                                         <a href="#iuserpass_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p>This is the password for the initial user.
@@ -802,14 +874,14 @@ SOURCESITEBOT;
                                         </div>
                                         <div>
                                             <input name='iuname' id='iuname' type='text' class='form-control' value='Administrator'>
-                                        
+
                                         </div>
                                     </div>
                                     <div id="iuname_info" class="collapse">
                                         <a href="#iuname_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p>This is the Last name of the 'initial user'.
                                     </div>
-                                </div>                  
+                                </div>
                                 <div class="col-sm-4">
                                     <div class="clearfix form-group">
                                         <div class="label-div">
@@ -818,13 +890,49 @@ SOURCESITEBOT;
                                         <div>
                                             <input name='igroup' id='igroup' class='form-control' type='text' value='Default'>
                                         </div>
-                                    </div>                       
+                                    </div>
                                     <div id="igroup_info" class="collapse">
                                         <a href="#igroup_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p>This is the group that will be created for your users.
                                         <p>This should be the name of your practice.
                                     </div>
                                 </div>
+                                <div class="col-sm-4">
+                                    <div class="clearfix form-group">
+                                        <div class="label-div">
+                                            <label class="control-label" for="i2fa">Configure 2FA:</label> <a href="#i2fa_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        </div>
+                                        <div>
+                                            <table>
+                                                <tr>
+                                                    <td><p><input name='i2faenable' id='i2faenable' type='checkbox' $disableCheckbox/> Enable 2FA</p></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <strong><font color='RED'>IMPORTANT IF ENABLED</font></strong>
+                                                        <p><strong>If enabled, you must have an authenticator app on your phone ready to scan the QR code displayed next.</strong></p>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        Example authenticator apps include:
+                                                        <ul>
+                                                            <li>Google Auth
+                                                                (<a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8">ios</a>, <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en">android</a>)</li>
+                                                            <li>Authy
+                                                                (<a href="https://itunes.apple.com/us/app/authy/id494168017?mt=8">ios</a>, <a href="https://play.google.com/store/apps/details?id=com.authy.authy&hl=en">android</a>)</li>
+                                                        </ul>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <input type='hidden' name='i2fasecret' id='i2fasecret' value='$randomsecret' />
+                                        </div>
+                                    </div>
+                                    <div id="i2fa_info" class="collapse">
+                                        <a href="#i2fa_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
+                                        <p>This is 2-Factored Authentication that will make your version of OpenEMR more secure.</p>
+                                    </div>
+                                </div>                                
 							</div>
                         </div>
                     </fieldset>
@@ -1060,13 +1168,43 @@ STP2TBLBOT;
                             flush();
                         }
 
+
+                        // If user has selected to set MFA App Based 2FA, display QR code to scan
+                        $qr = $installer->get_initial_user_2fa_qr();
+                        if ($qr) {
+                            $qrDisplay = <<<TOTP
+                                        <br>
+                                        <table>
+                                            <tr>
+                                                <td>
+                                                    <strong><font color='RED'>IMPORTANT!!</font></strong>
+                                                    <p><strong>You must scan the following QR code with your preferred authenticator app.</strong></p>
+                                                    <img src='$qr' width="150" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    Example authenticator apps include:
+                                                    <ul>
+                                                        <li>Google Auth
+                                                            (<a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8">ios</a>, <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en">android</a>)</li>
+                                                        <li>Authy
+                                                            (<a href="https://itunes.apple.com/us/app/authy/id494168017?mt=8">ios</a>, <a href="https://play.google.com/store/apps/details?id=com.authy.authy&hl=en">android</a>)</li>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        </table>
+TOTP;
+                            echo $qrDisplay;
+                        }
+
                         if ($allow_cloning_setup && !empty($installer->clone_database)) {
                             // Database was cloned, skip ACL setup.
-                            $btn_text = 'Proceed to Final Step';
+                            $btn_text = 'Proceed to Select a Theme';
                             echo "<br>";
-                            echo "<p>The database was cloned, access control list exists therefore skipping ACL setup and skipping theme setup</p>";
+                            echo "<p>The database was cloned, access control list exists therefore skipping ACL setup</p>";
                             echo "<p class='bg-warning'>Click <b>$btn_text</b> for further instructions.</p>";
-                            $next_state = 8;
+                            $next_state = 7;
                         } else {
                             $btn_text = 'Proceed to Step 4';
                             echo "<br>";
@@ -1093,6 +1231,7 @@ FRMTOP;
                                     echo $form_top . "\r\n";
                         if ($allow_cloning_setup) {
                             echo "<input type='hidden' name='clone_database' value='$installer->clone_database'>";
+                            echo "<input name='source_site_id' type='hidden' value='$installer->source_site_id'>";
                         }
                                     $form_bottom = <<<FRMBOT
                                     <button type='submit' id='step-4-btn' value='Continue' class='wait'><b>$btn_text</b></button>
@@ -1151,13 +1290,12 @@ STP4BOT;
                         <ul>
 STP5TOP;
                         echo $step5_top . "\r\n";
+
                         $gotFileFlag = 0;
-                        if (version_compare(PHP_VERSION, '5.2.4', '>=')) {
-                            $phpINIfile = php_ini_loaded_file();
-                            if ($phpINIfile) {
-                                echo "<li><font color='green'>Your php.ini file can be found at ".$phpINIfile."</font></li>\n";
-                                $gotFileFlag = 1;
-                            }
+                        $phpINIfile  = php_ini_loaded_file();
+                        if ($phpINIfile) {
+                            echo "<li><font color='green'>Your php.ini file can be found at ".$phpINIfile."</font></li>\n";
+                            $gotFileFlag = 1;
                         }
 
                         $short_tag = ini_get('short_open_tag')?'On':'Off';
@@ -1258,25 +1396,17 @@ STP5BOT;
                         echo "<fieldset>";
                         echo "<legend>Step $state - Configure Apache Web Server</legend>";
                         echo "<p>Configuration of Apache web server...</p><br>\n";
-                        echo "The <strong>\"".preg_replace("/${site_id}/", "*", realpath($docsDirectory))."\", \"".preg_replace("/${site_id}/", "*", realpath($billingDirectory))."\"</strong> and <strong>\"".preg_replace("/${site_id}/", "*", realpath($billingDirectory2))."\"</strong> directories contain patient information, and
+                        echo "The <strong>\"".preg_replace("/${site_id}/", "*", realpath($docsDirectory))."\"</strong> directory contain patient information, and
                         it is important to secure these directories. Additionally, some settings are required for the Zend Framework to work in OpenEMR. This can be done by pasting the below to end of your apache configuration file:<br><br>
                         &nbsp;&nbsp;&lt;Directory \"".realpath(dirname(__FILE__))."\"&gt;<br>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride FileInfo<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all granted<br>
                         &nbsp;&nbsp;&lt;/Directory&gt;<br>
                         &nbsp;&nbsp;&lt;Directory \"".realpath(dirname(__FILE__))."/sites\"&gt;<br>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride None<br>
                         &nbsp;&nbsp;&lt;/Directory&gt;<br>
                         &nbsp;&nbsp;&lt;Directory \"".preg_replace("/${site_id}/", "*", realpath($docsDirectory))."\"&gt;<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;order deny,allow<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Deny from all<br>
-                        &nbsp;&nbsp;&lt;/Directory&gt;<br>
-                        &nbsp;&nbsp;&lt;Directory \"".preg_replace("/${site_id}/", "*", realpath($billingDirectory))."\"&gt;<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;order deny,allow<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Deny from all<br>
-                        &nbsp;&nbsp;&lt;/Directory&gt;<br>
-                        &nbsp;&nbsp;&lt;Directory \"".preg_replace("/${site_id}/", "*", realpath($billingDirectory2))."\"&gt;<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;order deny,allow<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Deny from all<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all denied<br>
                         &nbsp;&nbsp;&lt;/Directory&gt;<br><br>";
 
                         $btn_text = 'Proceed to Select a Theme';
@@ -1311,7 +1441,7 @@ STP6BOT;
                         $installer->displaySelectedThemeDiv();
                         $theme_form = <<<TMF
                         <div class='row'>
-                        <div class="col-sm-4 col-sm-offset-4"> 
+                        <div class="col-sm-4 col-sm-offset-4">
                             <form method='post'>
                                 <input type='hidden' name='state' value='8'>
                                 <input type='hidden' name='site' value='$site_id'>
@@ -1325,6 +1455,7 @@ STP6BOT;
                                 <input name='dbname' type='hidden' value='{$installer->dbname}'>
                                 <input type='hidden' name='new_theme' id = 'new_theme' value='{$installer->getCurrentTheme()}'>
                                 <input name='clone_database' type='hidden' value='{$installer->clone_database}'>
+                                <input name='source_site_id' type='hidden' value='{$installer->source_site_id}'>
                             <h4>Select One:</h4>
                                 <div class="checkbox">
                                   <label><input type="checkbox" class="check" value="show_theme">Show More Themes</label>
@@ -1391,21 +1522,15 @@ CHKFILE;
                                 break;
                             }
 
-                            echo "<br><FONT COLOR='green'>Ensuring following directories have proper permissions...</FONT><br>\n";
                             $errorWritable = 0;
                             foreach ($writableDirList as $tempDir) {
-                                if (is_writable($tempDir)) {
-                                        echo "'".realpath($tempDir)."' directory is <FONT COLOR='green'><b>ready</b></FONT>.<br>\r\n";
-                                } else {
-                                        echo "<p><FONT COLOR='red'>UNABLE</FONT> to open directory '".realpath($tempDir)."' for writing by web server.<br>\r\n";
-                                        echo "(configure directory permissions; see below for further instructions)</p>\r\n";
-                                    $errorWritable = 1;
-                                }
+                                echo "<br><FONT COLOR='green'>Ensuring the '" . realpath($tempDir) . "' directory and its subdirectories have proper permissions...</FONT><br>\n";
+                                $errorWritable = recursive_writable_directory_test($tempDir);
                             }
 
                             if ($errorWritable) {
                                 $check_directory = <<<CHKDIR
-                                            <p style="font-color:red;">You can't proceed until all directories are ready.</p>
+                                            <p style="font-color:red;">You can't proceed until all directories and subdirectories are ready.</p>
                                             <p>In linux, recommend changing owners of these directories to the web server. For example, in many linux OS's the web server user is 'apache', 'nobody', or 'www-data'. So if 'apache' were the web server user name, could use the command <strong>'chown -R apache:apache directory_name'</strong> command.</p>
                                             <p class='bg-warning'>Fix above directory permissions and then click the <strong>'Check Again'</strong> button to re-check directories.</p>
                                             <br>
@@ -1420,6 +1545,7 @@ CHKDIR;
 
                             //RP_CHECK_LOGIC
                             $form = <<<FRM
+                                        <br>
                                         <p>All required files and directories have been verified.</p>
                                         <p class='bg-warning'>Click <b>Proceed to Step 1</b> to continue with a new installation.</p>
                                         <p class='bg-danger'>$caution: If you are upgrading from a previous version, <strong>DO NOT</strong> use this script. Please read the <strong>'Upgrading'</strong> section found in the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><span style='text-decoration: underline;'>'INSTALL'</span></a> manual file.</p>
@@ -1505,7 +1631,7 @@ BOT;
 
             $( "#create_db_button" ).hover(
                 function() {
-                    if ($('#pass' ).val().length > 11 && $('#iuserpass' ).val().length > 11 && $('#iuser' ).val().length > 11 ){
+                    if (($('#pass' ).val().length > 11 && $('#iuserpass' ).val().length > 11 && $('#iuser' ).val().length > 11 ) || ($('#clone_database').prop('checked') && $('#pass' ).val().length > 11)){
 
                         $("button").click(function(){
                            $(".oe-spinner").css("visibility", "visible");

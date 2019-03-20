@@ -43,7 +43,7 @@ composer dump-autoload -o
 ### Contributors
 
 This project exists thanks to all the people who contribute. [[Contribute]](CONTRIBUTING.md).
-<a href="graphs/contributors"><img src="https://opencollective.com/openemr/contributors.svg?width=890" /></a>
+<a href="https://github.com/openemr/openemr/graphs/contributors"><img src="https://opencollective.com/openemr/contributors.svg?width=890" /></a>
 
 ### Backers
 

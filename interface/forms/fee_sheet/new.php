@@ -8,7 +8,7 @@
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -19,13 +19,14 @@ require_once("codes.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
 //acl check
 if (!acl_check_form('fee_sheet')) {
     ?>
-    <script>alert('<?php echo xls("Not authorized"); ?>')</script>;
+    <script>alert(<?php echo xlj("Not authorized"); ?>)</script>;
     <?php
     formJump();
 }
@@ -78,7 +79,7 @@ function genDiagJS($code_type, $code)
 {
     global $code_types;
     if ($code_types[$code_type]['diag']) {
-        echo "diags.push('" . attr($code_type) . "|" . attr($code) . "');\n";
+        echo "diags.push(" . js_escape($code_type."|".$code) . ");\n";
     }
 }
 
@@ -107,7 +108,7 @@ function echoServiceLines()
         echo " <tr>\n";
 
         echo "  <td class='billcell'>$strike1" .
-        ($codetype == 'COPAY' ? xl($codetype) : text($codetype)) . $strike2;
+        ($codetype == 'COPAY' ? xlt($codetype) : text($codetype)) . $strike2;
         // if the line to ouput is copay, show the date here passed as $ndc_info,
         // since this variable is not applicable in the case of copay.
         if ($codetype == 'COPAY') {
@@ -125,9 +126,9 @@ function echoServiceLines()
         echo "<input type='hidden' name='bill[" . attr($lino) . "][code]' value='" . attr($code) . "' />";
         echo "<input type='hidden' name='bill[" . attr($lino)."][billed]' value='" . attr($billed)."' />";
         if (isset($li['hidden']['method'])) {
-            echo "<input type='hidden' name='bill[$lino][method]'   value='" . attr($li['hidden']['method'  ]) . "' />";
-            echo "<input type='hidden' name='bill[$lino][cyp]'      value='" . attr($li['hidden']['cyp'     ]) . "' />";
-            echo "<input type='hidden' name='bill[$lino][methtype]' value='" . attr($li['hidden']['methtype']) . "' />";
+            echo "<input type='hidden' name='bill[" . attr($lino) . "][method]'   value='" . attr($li['hidden']['method'  ]) . "' />";
+            echo "<input type='hidden' name='bill[" . attr($lino) . "][cyp]'      value='" . attr($li['hidden']['cyp'     ]) . "' />";
+            echo "<input type='hidden' name='bill[" . attr($lino) . "][methtype]' value='" . attr($li['hidden']['methtype']) . "' />";
         }
 
         echo "</td>\n";
@@ -346,8 +347,8 @@ function echoProductLines()
         echo "<input type='hidden' name='prod[" . attr($lino) . "][selector]' value='" . attr($selector) . "'>";
         echo "<input type='hidden' name='prod[" . attr($lino) . "][billed]' value='" . attr($billed) . "'>";
         if (isset($li['hidden']['method'])) {
-            echo "<input type='hidden' name='prod[$lino][method]' value='"   . attr($li['hidden']['method'  ]) . "' />";
-            echo "<input type='hidden' name='prod[$lino][methtype]' value='" . attr($li['hidden']['methtype']) . "' />";
+            echo "<input type='hidden' name='prod[" . attr($lino) . "][method]' value='"   . attr($li['hidden']['method'  ]) . "' />";
+            echo "<input type='hidden' name='prod[" . attr($lino) . "][methtype]' value='" . attr($li['hidden']['methtype']) . "' />";
         }
 
         echo "</td>\n";
@@ -427,7 +428,7 @@ function echoProductLines()
             echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // auth
             if ($GLOBALS['gbl_auto_create_rx']) {
                 echo "  <td class='billcell' align='center'>" .
-                "<input type='checkbox' name='prod[$lino][rx]' value='1'" .
+                "<input type='checkbox' name='prod[" . attr($lino) . "][rx]' value='1'" .
                 ($rx ? " checked" : "") . " /></td>\n";
             }
 
@@ -458,7 +459,7 @@ if (isset($_POST['form_checksum'])) {
     if ($_POST['form_checksum'] != $current_checksum) {
         $alertmsg = xl('Someone else has just changed this visit. Please cancel this page and try again.');
         $comment = "CHECKSUM ERROR, expecting '{$_POST['form_checksum']}'";
-        newEvent("checksum", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $comment, $pid);
+        EventAuditLogger::instance()->newEvent("checksum", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $comment, $pid);
     }
 }
 
@@ -511,7 +512,7 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'] || $_POST['bn_sa
                 // Contraceptive method does not match what is in an existing Contraception
                 // form for this visit, or there is no such form.  Open the form.
                 formJump("{$GLOBALS['rootdir']}/patient_file/encounter/view_form.php" .
-                "?formname=LBFccicon&id=" . ($tmp_form_id < 0 ? 0 : $tmp_form_id));
+                "?formname=LBFccicon&id=" . ($tmp_form_id < 0 ? 0 : urlencode($tmp_form_id)));
                 formFooter();
                 exit;
             }
@@ -521,7 +522,7 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'] || $_POST['bn_sa
             // In rapid data entry mode or if "Save and Checkout" was clicked,
             // we go directly to the Checkout page.
             formJump("{$GLOBALS['rootdir']}/patient_file/pos_checkout.php?framed=1" .
-            "&ptid={$fs->pid}&enid={$fs->encounter}&rde=$rapid_data_entry");
+            "&ptid=" . urlencode($fs->pid) . "&enid=" . urlencode($fs->encounter) . "&rde=" . urlencode($rapid_data_entry));
         } else {
             // Otherwise return to the normal encounter summary frameset.
             //
@@ -553,7 +554,7 @@ $billresult = BillingUtilities::getBillingByEncounter($fs->pid, $fs->encounter, 
 .ui-autocomplete { max-height: 250px; max-width: 350px; overflow-y: auto; overflow-x: hidden; }
 </style>
 <script>
-var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 var diags = new Array();
 
 <?php
@@ -639,7 +640,7 @@ function validate(f) {
   f.bn_reopen.clicked = false;
   if (reopening) {
    if (voiding) {
-    if (!confirm('<?php echo xls('Re-opening this visit will cause a void. Payment information will need to be re-entered. Do you want to proceed?'); ?>')) {
+    if (!confirm(<?php echo xlj('Re-opening this visit will cause a void. Payment information will need to be re-entered. Do you want to proceed?'); ?>)) {
      return false;
     }
    }
@@ -720,11 +721,11 @@ function setSaveAndClose() {
  if (!f.bn_save_close) return;
  if (hasCharges()) {
   f.form_has_charges.value = '1';
-  f.bn_save_close.value = '<?php echo xla('Save and Checkout'); ?>';
+  f.bn_save_close.value = <?php echo xlj('Save and Checkout'); ?>;
  }
  else {
   f.form_has_charges.value = '0';
-  f.bn_save_close.value = '<?php echo xla('Save and Close'); ?>';
+  f.bn_save_close.value = <?php echo xlj('Save and Close'); ?>;
  }
 }
 
@@ -740,7 +741,7 @@ function newEvt() {
 }
 
 function warehouse_changed(sel) {
- if (!confirm('<?php echo xls('Do you really want to change Warehouse?'); ?>')) {
+ if (!confirm(<?php echo xlj('Do you really want to change Warehouse?'); ?>)) {
   // They clicked Cancel so reset selection to its default state.
   for (var i = 0; i < sel.options.length; ++i) {
    sel.options[i].selected = sel.options[i].defaultSelected;
@@ -758,7 +759,7 @@ function pricelevel_changed(sel) {
   f[prname].value = price;
  }
  else {
-  alert('<?php echo xls('Form element not found'); ?>: ' + prname);
+  alert(<?php echo xlj('Form element not found'); ?> + ': ' + prname);
  }
 }
 
@@ -806,7 +807,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
 
 <body class="body_top">
-    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
+    <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
          <div class="row">
             <div class="col-sm-12">
                 <div class="page-header clearfix">
@@ -817,7 +818,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <div class="row">
             <div class="col-sm-12">
                 <form method="post" name="fee_sheet_form" id="fee_sheet_form" action="<?php echo $rootdir; ?>/forms/fee_sheet/new.php?<?php
-                echo "rde=" . urlencode($rapid_data_entry) . "&addmore=" . urlencode($add_more_items); ?>"
+                echo "rde=" . attr_url($rapid_data_entry) . "&addmore=" . attr_url($add_more_items); ?>"
                 onsubmit="return validate(this)">
                     <input type='hidden' name='newcodes' value=''>
                     <?php
@@ -1453,7 +1454,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <?php if ($fs->hasCharges) { // billed with charges ?>
                                         <button type='button' class='btn btn-default btn-show'
                                             onclick="top.restoreSession();location='../../patient_file/pos_checkout.php?framed=1<?php
-                                            echo "&ptid=" . urlencode($fs->pid) . "&enc=" . urlencode($fs->encounter); ?>'" value='<?php echo xla('Show Receipt'); ?>'><?php echo xlt('Show Receipt'); ?></button>
+                                            echo "&ptid=" . attr_url($fs->pid) . "&enc=" . attr_url($fs->encounter); ?>'" value='<?php echo xla('Show Receipt'); ?>'><?php echo xlt('Show Receipt'); ?></button>
                                         <button type='submit' class='btn btn-default btn-undo' name='bn_reopen' onclick='return this.clicked = 2;' value='<?php echo xla('Void Checkout and Re-Open'); ?>'>
                                             <?php echo xlt('Void Checkout and Re-Open'); ?></button>
                                     <?php } else { ?>
@@ -1466,7 +1467,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <button type='button' class='btn btn-link btn-cancel btn-separate-left'onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'">
                                     <?php echo xlt('Cancel');?></button>
                                     <input type='hidden' name='form_has_charges' value='<?php echo $fs->hasCharges ? 1 : 0; ?>' />
-                                    <input type='hidden' name='form_checksum' value='<?php echo $current_checksum; ?>' />
+                                    <input type='hidden' name='form_checksum' value='<?php echo attr($current_checksum); ?>' />
                                     <input type='hidden' name='form_alertmsg' value='<?php echo attr($alertmsg); ?>' />
                             </div>
                         </div>
@@ -1488,7 +1489,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <?php
         echo $justinit;
         if ($alertmsg) {
-            echo "alert('" . addslashes($alertmsg) . "');\n";
+            echo "alert(" . js_escape($alertmsg) . ");\n";
         }
         ?>
     </script>
@@ -1503,7 +1504,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     require_once("contraception_products/initialize_contraception_products.php");
 } ?>
 <script>
-    var translated_price_header = "<?php echo xlt("Price");?>";
+    var translated_price_header = <?php echo xlj("Price");?>;
 
     $("[name='search_term']").keydown(function (event) {
         if (event.keyCode == 13) {
