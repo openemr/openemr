@@ -11,15 +11,13 @@
 
 // Checks if the server's PHP version is compatible with OpenEMR:
 require_once(dirname(__FILE__) . "/../common/compatibility/Checker.php");
+$response = OpenEMR\Common\Checker::checkPhpVersion();
+if ($response !== true) {
+    die(htmlspecialchars($response));
+}
 
-use OpenEMR\Common\Checker;
 use OpenEMR\Core\Kernel;
 use Dotenv\Dotenv;
-
-$response = Checker::checkPhpVersion();
-if ($response !== true) {
-    die($response);
-}
 
 // Throw error if the php openssl module is not installed.
 if (!(extension_loaded('openssl'))) {

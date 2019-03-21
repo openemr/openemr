@@ -12,12 +12,9 @@
 
 // Checks if the server's PHP version is compatible with OpenEMR:
 require_once(dirname(__FILE__) . "/common/compatibility/Checker.php");
-
-use OpenEMR\Common\Checker;
-
-$response = Checker::checkPhpVersion();
+$response = OpenEMR\Common\Checker::checkPhpVersion();
 if ($response !== true) {
-    die($response);
+    die(htmlspecialchars($response));
 }
 
 // Disable PHP timeout.  This will not work in safe mode.
