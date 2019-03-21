@@ -1310,7 +1310,7 @@ if ($GLOBALS['ippf_specific']) { ?>
                 writeCTLine(array());
             }
         } elseif ($list_id == 'issue_types') {
-            $res = sqlStatement("SELECT count(*) as total_rows FROM code_types ORDER BY category, ordering");
+            $res = sqlStatement("SELECT count(*) as total_rows FROM issue_types ORDER BY category, ordering");
             $total_rows = sqlFetchArray($res)["total_rows"];
 
             $res = sqlStatement("SELECT * FROM issue_types " .
