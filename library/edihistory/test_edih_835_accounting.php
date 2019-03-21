@@ -22,6 +22,8 @@
  *
  */
 
+// comment out below exit when need to use this script
+exit;
 use OpenEMR\Billing\ParseERA;
 
 function edih_835_accounting($segments, $delimiters)
