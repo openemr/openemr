@@ -614,7 +614,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     </span>
                                 <?php if (!file_exists($EXPORT_INC)) { ?>
                                     <li><a href='#' id="view-log-link"  data-toggle="modal"  data-target="#myModal" class='link_submit'
-                                           title='<?php xla('See messages from the last set of generated claims'); ?>'><strong><?php echo xlt('View Log'); ?></strong></a>
+                                           title='<?php echo xla('See messages from the last set of generated claims'); ?>'><strong><?php echo xlt('View Log'); ?></strong></a>
                                     </li>
                                 <?php } ?>
                                 <li><a class="link_submit"

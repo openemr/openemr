@@ -3,7 +3,7 @@
 --
 --  Each section within an upgrade sql file is enveloped with an #If*/#EndIf block.  At first glance, these appear to be standard mysql 
 --  comments meant to be cryptic hints to -other developers about the sql goodness contained therein.  However, were you to rely on such basic premises,
---  you would find yourself grossly decieved.  Indeed, without the knowledge that these comments are, in fact a sneakily embedded meta langauge derived 
+--  you would find yourself grossly deceived.  Indeed, without the knowledge that these comments are, in fact a sneakily embedded meta language derived
 --  for a purpose none-other than to aid in the protection of the database during upgrades,  you would no doubt be subject to much ridicule and public 
 --  beratement at the hands of the very developers who envisioned such a crafty use of comments. -jwallace
 --
@@ -479,7 +479,7 @@ CREATE TABLE `procedure_type` (
   `lab_id`              bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references users.id, 0 means default to parent',
   `procedure_code`      varchar(31)  NOT NULL DEFAULT '' COMMENT 'code identifying this procedure',
   `procedure_type`      varchar(31)  NOT NULL DEFAULT '' COMMENT 'see list proc_type',
-  `body_site`           varchar(31)  NOT NULL DEFAULT '' COMMENT 'where to do injection, e.g. arm, buttok',
+  `body_site`           varchar(31)  NOT NULL DEFAULT '' COMMENT 'where to do injection, e.g. arm, buttock',
   `specimen`            varchar(31)  NOT NULL DEFAULT '' COMMENT 'blood, urine, saliva, etc.',
   `route_admin`         varchar(31)  NOT NULL DEFAULT '' COMMENT 'oral, injection',
   `laterality`          varchar(31)  NOT NULL DEFAULT '' COMMENT 'left, right, ...',
@@ -522,7 +522,7 @@ CREATE TABLE `procedure_report` (
   `source`              bigint(20)     NOT NULL DEFAULT 0  COMMENT 'references users.id, who entered this data',
   `specimen_num`        varchar(63)    NOT NULL DEFAULT '',
   `report_status`       varchar(31)    NOT NULL DEFAULT '' COMMENT 'received,complete,error',
-  `review_status`       varchar(31)    NOT NULL DEFAULT 'received' COMMENT 'panding reivew status: received,reviewed',
+  `review_status`       varchar(31)    NOT NULL DEFAULT 'received' COMMENT 'pending review status: received,reviewed',
   PRIMARY KEY (`procedure_report_id`),
   KEY procedure_order_id (procedure_order_id)
 ) ENGINE=MyISAM; 
@@ -541,7 +541,7 @@ CREATE TABLE `procedure_result` (
   `abnormal`            varchar(31)  NOT NULL DEFAULT '' COMMENT 'no,yes,high,low',
   `comments`            text         NOT NULL DEFAULT '' COMMENT 'comments from the lab',
   `document_id`         bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references documents.id if this result is a document',
-  `result_status`       varchar(31)  NOT NULL DEFAULT '' COMMENT 'preliminary, cannot be done, final, corrected, incompete...etc.',
+  `result_status`       varchar(31)  NOT NULL DEFAULT '' COMMENT 'preliminary, cannot be done, final, corrected, incomplete...etc.',
   PRIMARY KEY (`procedure_result_id`),
   KEY procedure_report_id (procedure_report_id)
 ) ENGINE=MyISAM; 

@@ -22,4 +22,8 @@ if (cryptCheckStandard($fh)) {
     $fh = decryptStandard($fh, null, 'database');
 }
 
-echo nl2br(text($fh));
+if (!empty($fh)) {
+    echo nl2br(text($fh));
+} else {
+    echo xlt("Billing log is empty");
+}
