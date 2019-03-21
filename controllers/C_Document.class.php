@@ -1285,9 +1285,21 @@ class C_Document extends Controller
         if (!is_dir($log_path)) {
             mkdir($log_path, 0777, true);
         }
-        $LOG = fopen($log_path.$log_file, 'a');
-        fwrite($LOG, $content);
-        fclose($LOG);
+
+        $LOG = file_get_contents($log_path.$log_file);
+
+        if (cryptCheckStandard($LOG)) {
+            $LOG = decryptStandard($LOG, null, 'database');
+        }
+
+        $LOG .= $content;
+
+        if (!empty($LOG)) {
+            if ($GLOBALS['drive_encryption']) {
+                $LOG = encryptStandard($LOG, null, 'database');
+            }
+            file_put_contents($log_path.$log_file, $LOG);
+        }
     }
 
     function document_send($email, $body, $attfile, $pname)

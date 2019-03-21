@@ -69,7 +69,7 @@ class Dispatcher
      * that the controller dependencies are all injected properly
      *
      * @param Phreezer $phreezer
-     *          Object persistance engine
+     *          Object persistence engine
      * @param IRenderEngine $renderEngine
      *          rendering engine
      * @param

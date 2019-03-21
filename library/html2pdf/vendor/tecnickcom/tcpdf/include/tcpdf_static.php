@@ -1011,7 +1011,7 @@ class TCPDF_STATIC {
 
 	/**
 	 * Format the page numbers.
-	 * This method can be overriden for custom formats.
+	 * This method can be overridden for custom formats.
 	 * @param $num (int) page number
 	 * @since 4.2.005 (2008-11-06)
 	 * @public static
@@ -1022,7 +1022,7 @@ class TCPDF_STATIC {
 
 	/**
 	 * Format the page numbers on the Table Of Content.
-	 * This method can be overriden for custom formats.
+	 * This method can be overridden for custom formats.
 	 * @param $num (int) page number
 	 * @since 4.5.001 (2009-01-04)
 	 * @see addTOC(), addHTMLTOC()
