@@ -41,11 +41,6 @@ if (!isset($ignoreAuth)) {
     $ignoreAuth = false;
 }
 
-// Unless specified explicitly, caller is not offsite_portal and Auth is required
-if (!isset($ignoreAuth_offsite_portal)) {
-    $ignoreAuth_offsite_portal = false;
-}
-
 // Same for onsite
 if (!isset($ignoreAuth_onsite_portal_two)) {
     $ignoreAuth_onsite_portal_two = false;
@@ -576,9 +571,7 @@ $GLOBALS['include_de_identification']=0;
 // don't include the authentication module - we do this to avoid
 // include loops.
 
-if (($ignoreAuth_offsite_portal === true) && ($GLOBALS['portal_offsite_enable'] == 1)) {
-    $ignoreAuth = true;
-} elseif (($ignoreAuth_onsite_portal_two === true) && ($GLOBALS['portal_onsite_two_enable'] == 1)) {
+if (($ignoreAuth_onsite_portal_two === true) && ($GLOBALS['portal_onsite_two_enable'] == 1)) {
     $ignoreAuth = true;
 }
 
