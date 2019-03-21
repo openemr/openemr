@@ -946,8 +946,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
 
                                             // Display the eligibility tab
-                                            echo "<li><a href='#'>" .
-                                                xlt('Eligibility') . "</a></li>";
+                                            echo "<li><a id='eligibility' href='#'>" . xlt('Eligibility') . "</a></li>";
 
                                             ?></ul><?php
                             } ?>
@@ -1111,9 +1110,32 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             } // end foreach
 
                                             // Display the eligibility information
-                                            echo "<div class='tab'>";
-                                            show_eligibility_information($pid, true);
-                                            echo "</div>";
+                                            echo "<div class='tab'>\n" .
+                                                "<div class='tab-content pre-scrollable' style='width:695px;overflow-x: hidden;'>\n";
+
+                                            if ($GLOBALS['enable_oa']) {
+                                                echo "<form method='post' action='./demographics.php'>\n";
+                                                echo "<div class='col col-sm-12'>";
+                                                echo "<button class='btn btn-success btn-xs btn-transmit pull-right' name='status_update' value='true'>" .
+                                                    xlt("Update Status") . "</button>";
+                                                echo "</div><br>\n";
+                                                if ($_POST['status_update'] === 'true') {
+                                                    unset($_POST['status_update']);
+                                                    $showEligibility = true;
+                                                    $ok = requestEligibleTransaction($pid);
+                                                    if ($ok === true) {
+                                                        show_eligibility_information($pid, false);
+                                                    } else {
+                                                        echo $ok;
+                                                    }
+                                                } else {
+                                                    show_eligibility_information($pid, true);
+                                                }
+                                                echo "</form>";
+                                            } else {
+                                                show_eligibility_information($pid, true);
+                                            }
+                                            echo "</div></div>";
 
                                     ///////////////////////////////// END INSURANCE SECTION
                                     ?>
@@ -1921,9 +1943,14 @@ var skipArray = [
 ];
 checkSkipConditions();
 
+var isPost = <?php echo js_escape($showEligibility); ?>;
 var listId = '#' + <?php echo js_escape($list_id); ?>;
 $(document).ready(function(){
     $(listId).addClass("active");
+    if(isPost === true) {
+        $("#eligibility").click();
+        $("#eligibility").get(0).scrollIntoView();
+    }
 });
 
 </script>

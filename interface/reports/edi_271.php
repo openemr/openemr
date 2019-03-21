@@ -42,11 +42,10 @@ if (isset($_FILES) && !empty($_FILES)) {
         $message .= xlt('You may only upload .txt files')."<br>";
     }
     if (!isset($message)) {
-        if (move_uploaded_file($_FILES['uploaded']['tmp_name'], $target)) {
-            $message    = xlt('The following EDI file has been uploaded') . ': "' . text(basename($_FILES['uploaded']['name'])) . '"';
-            $Response271 = file($target);
-            $batch_log = parseEdi271($Response271);
-        }
+        $file_location = move_uploaded_file($_FILES['uploaded']['tmp_name'], $target);
+        $message = xlt('The following EDI file has been uploaded') . ': "' . text(basename($_FILES['uploaded']['name'])) . '"';
+        $Response271 = file($_FILES['uploaded']['tmp_name']);
+        $batch_log = parseEdi271($Response271);
     } else {
         $message .= xlt('Sorry, there was a problem uploading your file') . "<br><br>";
     }

@@ -11,7 +11,7 @@ namespace OpenEMR\Admin;
 /**
  * Sample holder of all events related to Admin actions.
  *
- * Central holder for all Admin events, a convienence location for users to
+ * Central holder for all Admin events, a convenience location for users to
  * subscribe. For instance, when registering, always subscribe to
  * `AdminEvents::BUILD_MAIN_MENU` instead of `admin.menu.build`
  *

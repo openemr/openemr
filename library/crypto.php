@@ -404,7 +404,8 @@ function collectCryptoKey($version = "one", $sub = "", $keySource = 'drive')
     }
 
     if (empty($key)) {
-        error_log("OpenEMR Error : Key creation is not working.");
+        error_log("OpenEMR Error : Key creation is not working - Exiting.");
+        die();
     }
 
     // Return the key
