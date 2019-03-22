@@ -235,9 +235,6 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
   <input type="hidden" name="am_id" id="am_id">
   <!--Patient search for merging data in case of no match-->
   <div id="patient_select">
-    <div style="background: none repeat scroll 0 0 #F1F1F1; width: 100%; height: 25px; text-align: right; margin-bottom: 20px;border-bottom: 1px solid #CCCCCC;">
-      <img title="<?php echo $this->listenerObject->z_xlt('Close');?>" id="close_patient_select" style="height: 25px; cursor: pointer;" src="<?php echo $this->basePath();?>/images/close.png">
-    </div>
     <input type="hidden" name="amid" id="amid">
     <input type="hidden" name="pid" id="pid">
     <!-- Auto suggest -->

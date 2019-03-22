@@ -1130,7 +1130,7 @@ margin: 2px 0 2px 2px;">
 
                 <div style="float:left;left:0.4in;text-decoration:underline;"><?php echo xlt('OD{{right eye}}'); ?></div>
                 <div style="float:right;right:0.4in;text-decoration:underline;"><?php echo xlt('OS{{left eye}}'); ?></div><br />
-                <div class="divTable" style="background: url(../../forms/<?php echo $form_folder; ?>/images/eom.bmp) no-repeat center center;background-size: 90% 75%;height:0.77in;width:0.71in;padding:1px;margin:6 1 1 2;">
+                <div class="divTable" style="background: url(../../forms/<?php echo $form_folder; ?>) no-repeat center center;background-size: 90% 75%;height:0.77in;width:0.71in;padding:1px;margin:6 1 1 2;">
                     <div class="divRow">
                         <div class="divCell">&nbsp;</div>
                     </div>
@@ -1303,7 +1303,7 @@ margin: 2px 0 2px 2px;">
                         <div class="divCell">&nbsp;</div>
                     </div>
                 </div>
-                <div class="divTable" style="float:right;background: url(../../forms/<?php echo $form_folder; ?>/images/eom.bmp) no-repeat center center;background-size: 90% 75%;height:0.77in;width:0.71in;padding:1px;margin:6 2 0 0;">
+                <div class="divTable" style="float:right;background: url(../../forms/<?php echo $form_folder; ?>) no-repeat center center;background-size: 90% 75%;height:0.77in;width:0.71in;padding:1px;margin:6 2 0 0;">
                     <div class="divRow">
                         <div class="divCell">&nbsp;</div>
                     </div>
@@ -4048,21 +4048,6 @@ function report_header($pid, $direction = 'shell')
     ?>
     <table style="width:100%;">
         <tr>
-            <td style='width:150px;text-align:top;'>
-                <?php
-                if ($direction == "web") {
-                    $practice_logo = $GLOBALS['webroot']."/sites/default/images/practice_logo.gif";
-                    if (file_exists($OE_SITE_DIR."/images/practice_logo.gif")) {
-                        echo "<img src='$practice_logo' align='left' style='width:150px;margin:0px 10px;'><br />\n";
-                    }
-                } else {
-                    $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
-                    if (file_exists($practice_logo)) {
-                        echo "<img src='$practice_logo' align='left' style='width:100px;margin:0px 10px;'><br />\n";
-                    }
-                }
-            ?>
-            </td>
             <td style='width:40%;'>
                 <em style="font-weight:bold;font-size:1.4em;"><?php echo text($facility['name']); ?></em><br />
                 <?php echo text($facility['street']); ?><br />
