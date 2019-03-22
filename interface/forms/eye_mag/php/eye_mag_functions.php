@@ -1130,7 +1130,7 @@ margin: 2px 0 2px 2px;">
 
                 <div style="float:left;left:0.4in;text-decoration:underline;"><?php echo xlt('OD{{right eye}}'); ?></div>
                 <div style="float:right;right:0.4in;text-decoration:underline;"><?php echo xlt('OS{{left eye}}'); ?></div><br />
-                <div class="divTable" style="background: url(../../forms/<?php echo $form_folder; ?>) no-repeat center center;background-size: 90% 75%;height:0.77in;width:0.71in;padding:1px;margin:6 1 1 2;">
+                <div class="divTable" style="background: url(../../forms/<?php echo $form_folder; ?>/images/eom.bmp) no-repeat center center;background-size: 90% 75%;height:0.77in;width:0.71in;padding:1px;margin:6 1 1 2;">
                     <div class="divRow">
                         <div class="divCell">&nbsp;</div>
                     </div>
@@ -1303,7 +1303,7 @@ margin: 2px 0 2px 2px;">
                         <div class="divCell">&nbsp;</div>
                     </div>
                 </div>
-                <div class="divTable" style="float:right;background: url(../../forms/<?php echo $form_folder; ?>) no-repeat center center;background-size: 90% 75%;height:0.77in;width:0.71in;padding:1px;margin:6 2 0 0;">
+                <div class="divTable" style="float:right;background: url(../../forms/<?php echo $form_folder; ?>/images/eom.bmp) no-repeat center center;background-size: 90% 75%;height:0.77in;width:0.71in;padding:1px;margin:6 2 0 0;">
                     <div class="divRow">
                         <div class="divCell">&nbsp;</div>
                     </div>
