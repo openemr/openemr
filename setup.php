@@ -13,6 +13,14 @@
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+// Checks if the server's PHP version is compatible with OpenEMR:
+require_once(dirname(__FILE__) . "/common/compatibility/Checker.php");
+$response = OpenEMR\Common\Checker::checkPhpVersion();
+if ($response !== true) {
+    die(htmlspecialchars($response));
+}
+
 // Set the maximum excution time and time limit to unlimited.
 ini_set('max_execution_time', 0);
 ini_set('display_errors', 0);
@@ -85,13 +93,6 @@ function recursive_writable_directory_test($dir)
 
 // Bring in standard libraries/classes
 require_once dirname(__FILE__) ."/vendor/autoload.php";
-
-use OpenEMR\Common\Checker;
-
-$response = Checker::checkPhpVersion();
-if ($response !== true) {
-    die($response);
-}
 
 $COMMAND_LINE = php_sapi_name() == 'cli';
 require_once(dirname(__FILE__) . '/library/authentication/password_hashing.php');

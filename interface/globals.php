@@ -11,15 +11,13 @@
 
 // Checks if the server's PHP version is compatible with OpenEMR:
 require_once(dirname(__FILE__) . "/../common/compatibility/Checker.php");
+$response = OpenEMR\Common\Checker::checkPhpVersion();
+if ($response !== true) {
+    die(htmlspecialchars($response));
+}
 
-use OpenEMR\Common\Checker;
 use OpenEMR\Core\Kernel;
 use Dotenv\Dotenv;
-
-$response = Checker::checkPhpVersion();
-if ($response !== true) {
-    die($response);
-}
 
 // Throw error if the php openssl module is not installed.
 if (!(extension_loaded('openssl'))) {
@@ -39,11 +37,6 @@ $GLOBALS['debug_ssl_mysql_connection'] = false;
 // Unless specified explicitly, apply Auth functions
 if (!isset($ignoreAuth)) {
     $ignoreAuth = false;
-}
-
-// Unless specified explicitly, caller is not offsite_portal and Auth is required
-if (!isset($ignoreAuth_offsite_portal)) {
-    $ignoreAuth_offsite_portal = false;
 }
 
 // Same for onsite
@@ -576,9 +569,7 @@ $GLOBALS['include_de_identification']=0;
 // don't include the authentication module - we do this to avoid
 // include loops.
 
-if (($ignoreAuth_offsite_portal === true) && ($GLOBALS['portal_offsite_enable'] == 1)) {
-    $ignoreAuth = true;
-} elseif (($ignoreAuth_onsite_portal_two === true) && ($GLOBALS['portal_onsite_two_enable'] == 1)) {
+if (($ignoreAuth_onsite_portal_two === true) && ($GLOBALS['portal_onsite_two_enable'] == 1)) {
     $ignoreAuth = true;
 }
 

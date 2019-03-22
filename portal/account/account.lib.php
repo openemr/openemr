@@ -132,11 +132,6 @@ function messageCreate($uname, $pass)
 {
     $message = htmlspecialchars(xl("Patient Portal Web Address"), ENT_NOQUOTES) . ":<br>";
 
-    if ($GLOBALS['portal_onsite_enable']) {
-        $message .= "<a href='" . htmlspecialchars($GLOBALS['portal_onsite_address'], ENT_QUOTES) . "'>" .
-            htmlspecialchars($GLOBALS['portal_onsite_address'], ENT_NOQUOTES) . "</a><br>";
-    }
-
     if ($GLOBALS['portal_onsite_two_enable']) {
         $message .= "<a href='" . htmlspecialchars($GLOBALS['portal_onsite_two_address'], ENT_QUOTES) . "'>" .
             htmlspecialchars($GLOBALS['portal_onsite_two_address'], ENT_NOQUOTES) . "</a><br>";
