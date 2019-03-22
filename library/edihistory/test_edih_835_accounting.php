@@ -434,7 +434,7 @@ if (strncmp('SVC'.$de, $seg, 4) === 0) {
     $loopid = '2110';
 }
 
-        }
+        
     $acctng['lx'][$lx01] = array('ts3amt'=>0, 'fee'=>0, 'clmpmt'=>0, 'clmadj'=>0, 'prvadj'=>0, 'ptrsp'=>0);
 if ($chk) {
     $acctng['pmt'] = $bpr02;
@@ -451,6 +451,4 @@ if ($chk) {
     $pmt_html .= "<tr class='pmt'><td colspan=4>Accounting " . text($bal) . "</td></tr>".PHP_EOL;
     $pmt_html .= "<tr class='pmt'><td>Fee " . text($acctng['fee']) . "</td><td>Adj " . text($acctng['clmadj']) . "</td><td>PtRsp " . text($acctng['ptrsp']) . "</td></tr>".PHP_EOL;
     $pmt_html .= "<tr class='pmt'><td>PMT " . text($acctng['pmt']) . "</td><td>CLP " . text($acctng['clmpmt']) . "</td><td>PLB " . text($acctng['prvadj']) . "</td></tr>".PHP_EOL;
-}
-
 }
