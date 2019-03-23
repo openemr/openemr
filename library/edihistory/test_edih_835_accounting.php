@@ -22,6 +22,7 @@
  *
  */
 
+
 // comment out below exit when need to use this script
 exit;
 use OpenEMR\Billing\ParseERA;
@@ -436,7 +437,6 @@ if (strncmp('SVC'.$de, $seg, 4) === 0) {
     $loopid = '2110';
 }
 
-        
     $acctng['lx'][$lx01] = array('ts3amt'=>0, 'fee'=>0, 'clmpmt'=>0, 'clmadj'=>0, 'prvadj'=>0, 'ptrsp'=>0);
 if ($chk) {
     $acctng['pmt'] = $bpr02;
