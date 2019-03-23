@@ -32,7 +32,7 @@ $zendModDir 	= $GLOBALS['zendModDir'];
 $depObj 	= $this->dependencyObject;
 
 ?>
-<h1><img src="<?php echo $this->basePath()?>/public/images/module.png" class="nav-menu-img"><?php echo $this->escapeHtml($title); ?></h1>
+<h1><img src="<?php echo $GLOBALS['images_static_relative']; ?>/module.png" class="nav-menu-img"><?php echo $this->escapeHtml($title); ?></h1>
 
 <ul class="tabNav">
 		<li class="current divMenu" onclick="$('.registered').show();$('.unregistered').hide();$('.divMenu').removeClass('current');$(this).addClass('current');" >
@@ -143,7 +143,7 @@ $depObj 	= $this->dependencyObject;
 			  								--
 			  							<?php
 			  							}else if ($moduleResult -> modActive == 1){?>
-			  								<a href="javascript:void(0)" class="link_submit active" onclick="configure('<?php echo $this->escapeHtml($moduleResult -> modId) ?>','<?php echo $this->basePath() ?>');" title="<?php echo $listener->z_xla('Click Here to Configure This module');?>"></a>
+			  								<a href="javascript:void(0)" class="link_submit active" onclick="configure('<?php echo $this->escapeHtml($moduleResult -> modId) ?>','<?php echo $this->basePath() ?>');" title="<?php echo $listener->z_xla('Click Here to Configure This module');?>"><img src="<?php echo $this->basePath()?>/images/config.png" border=0></a>
 										<?php }
 										else{?>
 											--

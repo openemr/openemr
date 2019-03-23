@@ -909,7 +909,7 @@ foreach ($docs_list as $doc_iter) {
 <br>
 <a href="<?php echo $doc_url;?>" style="font-size:small;" onsubmit="return top.restoreSession()"><?php echo text(oeFormatShortDate($doc_iter['docdate'])) . ": " . text(basename($doc_iter['url']));?></a>
 <?php if ($note != '') {?>
-            <a href="javascript:void(0);" title="<?php echo attr($note);?>"><img src="../../../public/images/info.png"/></a>
+            <a href="javascript:void(0);" title="<?php echo attr($note);?>"><img src="<?php echo $GLOBALS['images_static_relative']; ?>/info.png"/></a>
     <?php }?>
 <?php } ?>
 </div>

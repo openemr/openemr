@@ -69,10 +69,10 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 
 <!-- 'buttons' to min/max the bottom frame -JRM -->
 <div id="max" title="Restore this information">
-<img src="<?php echo $GLOBALS['webroot']; ?>/public/images/max.gif">
+<img src="<?php echo $GLOBALS['images_static_relative']; ?>/max.gif">
 </div>
 <div id="min" title="Minimize this information">
-<img src="<?php echo $GLOBALS['webroot']; ?>/public/images/min.gif">
+<img src="<?php echo $GLOBALS['images_static_relative']; ?>/min.gif">
 </div>
 
 <?php if ($imauthorized) { ?>
