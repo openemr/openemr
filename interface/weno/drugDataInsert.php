@@ -59,12 +59,15 @@ if (!verifyCsrfToken($_GET["csrf_token_form"])) {
 try {
     $drugs = file_get_contents('../../contrib/weno/erx_weno_drugs.sql');
 } catch (Exception $e) {
-    echo $e->getMessage();
+    echo "SQL file Not found" . $e->getMessage();
 }
+
 try {
     $drugsArray = explode(";\n", $drugs);
+
 } catch (Exception $e) {
-    echo $e->getMessage();
+    echo "Error occurred in array" . $e->getMessage();
+
 }
 // Settings to drastically speed up import with InnoDB
 sqlStatementNoLog("SET autocommit=0");
