@@ -22,8 +22,10 @@
  *  	and the "Process" button will run the script to parse the files and create csv table rows
  *
  */
+
 // comment out below exit when need to use this script
 exit;
+
 /* ** add this function to edih_uploads.php
  * -- or work it into edih_upload_files(), since it is almost a direct copy
  *
@@ -167,8 +169,8 @@ function edih_disp_sftp_upload()
     // imaginary form and POST values
     $str_html = '';
     if (isset($_POST['post_sftp'])) {
-        $la = (isset($_POST['post_sftp'])) ? filter_input(INPUT_POST, 'post_sftp', FILTER_DEFAULT) : ;
-        $x12ptnr = (isset($_POST['sftp_select'])) ? filter_input(INPUT_POST, 'sftp_select', FILTER_DEFAULT) :;
+        $la = (isset($_POST['post_sftp'])) ? filter_input(INPUT_POST, 'post_sftp', FILTER_DEFAULT) :  '';
+        $x12ptnr = (isset($_POST['sftp_select'])) ? filter_input(INPUT_POST, 'sftp_select', FILTER_DEFAULT) : '';
         //
         if (($la == 'get_sftp') && $x12ptnr) {
             // yet to be written -- gets x12 partner info and does sftp download
