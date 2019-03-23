@@ -380,4 +380,3 @@ if (php_sapi_name() == 'cli') {
     fwrite(($exitcd ? STDERR : STDOUT), xl($exitmsgs[$exitcd]).PHP_EOL);
     exit($exitcd);
 }
-
