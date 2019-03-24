@@ -3518,16 +3518,15 @@ class MedEx
         
         $this->curl->makeRequest();
         $response = $this->curl->getResponse();
-        
+       
          //token, news and products returned in $response so far
         if (!empty($response['token'])) {
-            $response['practice']   = $this->practice->sync($response['token']);
-            $response['campaigns']  = $this->campaign->events($response['token']);
             $response['generate']   = $this->events->generate($response['token'], $response['campaigns']['events']);
             $response['success']    = "200";
         }
         $sql = "UPDATE medex_prefs set status = ?";
         sqlQuery($sql, array(json_encode($response)));
+        $this->logging->log_this($response);
         return $response;
     }
     
