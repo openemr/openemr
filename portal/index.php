@@ -37,7 +37,6 @@
 
     use OpenEMR\Core\Header;
 
-    ini_set("error_log", E_ERROR || ~E_NOTICE);
     //exit if portal is turned off
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
     echo htmlspecialchars(xl('Patient Portal is turned off'), ENT_NOQUOTES);
