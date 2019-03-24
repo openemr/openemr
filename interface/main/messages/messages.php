@@ -39,15 +39,13 @@ if (empty($collectthis)) {
 }
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
-
 if ($GLOBALS['medex_enable'] == '1') {
     if ($_REQUEST['SMS_bot']) {
         $result = $MedEx->login('1');
         $MedEx->display->SMS_bot($result);
         exit();
     }
-    $result = $MedEx->login();
-    $logged_in = $result['status'];
+    $logged_in = $MedEx->login();
 }
 
 $setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ');
@@ -163,6 +161,7 @@ if (!empty($_REQUEST['go'])) { ?>
     } elseif ($_REQUEST['go'] == 'SMS_bot') {
         echo "<title>MedEx" . xlt('SMS') . "</title></head><body class='body_top'>";
         $MedEx->display->SMS_bot($logged_in);
+        exit;
     } else {
         echo "<title>" . xlt('MedEx Setup') . "</title></head><body class='body_top'>";
         echo xlt('Warning: Navigation error. Please refresh this page.');

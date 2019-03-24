@@ -130,15 +130,14 @@ if ($_REQUEST['MedEx'] == "start") {
 								PHONE_country_code,LABELS_local,LABELS_choice)
 							VALUES (?,?,?,?,?,?,?,?,?,?)";
             sqlStatement($sqlINSERT, array($response['customer_id'], $response['API_key'], $_POST['new_email'], $facilities, $providers, "1", "1", "1", "1", "5160"));
-            sqlQuery("UPDATE `background_services` SET `active`='1',`execute_interval`='5' WHERE `name`='MedEx'");
+            sqlQuery("UPDATE `background_services` SET `active`='1',`execute_interval`='5', `require_once`='library/MedEx/MedEx_background.php' WHERE `name`='MedEx'");
 
             $info = $MedEx->login('1');
 
-            if ($info['status']['token']) {
-                $info['status']['show'] = xlt("Sign-up successful for") . " " . $data['company'] . ".<br />" . xlt("Proceeding to Preferences") . ".<br />" . xlt("If this page does not refresh, reload the Messages page manually") . ".<br />";
+            if ($info['token']) {
+                $info['show'] = xlt("Sign-up successful for") . " " . $data['company'] . ".<br />" . xlt("Proceeding to Preferences") . ".<br />" . xlt("If this page does not refresh, reload the Messages page manually") . ".<br />";
                 //get js to reroute user to preferences.
-                echo json_encode($info['status']);
-                sqlQuery("UPDATE `background_services` SET `active`='1',`execute_interval`='5' WHERE `name`='MedEx'");
+                echo json_encode($info);
             }
         } else {
             $response_prob = array();
@@ -165,7 +164,7 @@ if (($_REQUEST['pid']) && ($_REQUEST['action'] == "new_recall")) {
      *  Did the clinician create a PLAN at the last visit?
      *  To do an in office test, and get paid for it,
      *  we must have an order (and a report of the findings).
-     *  If the practice is using the eye form then uncomment the 3 lines below.
+     *  If the practice is using the eye form then uncomment the 5 lines below.
      *  It provides the PLAN and orders for next visit.
      *  As forms mature, there should be a uniform way to find the PLAN?
      *  And when that day comes we'll put it here...
