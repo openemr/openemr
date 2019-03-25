@@ -49,11 +49,6 @@ if (!defined('IS_WINDOWS')) {
     define('IS_WINDOWS', (stripos(PHP_OS, 'WIN') === 0));
 }
 
-// Some important php.ini overrides. Defaults for these values are often
-// too small.  You might choose to adjust them further.
-//
-ini_set('session.gc_maxlifetime', '14400');
-
 // The webserver_root and web_root are now automatically collected.
 // If not working, can set manually below.
 // Auto collect the full absolute directory path for openemr.
@@ -101,9 +96,15 @@ $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 // OpenEMR instances on same server to prevent session conflicts; also
 // modified interface/login/login.php and library/restoreSession.php to be
 // consistent with this.
-ini_set('session.cookie_path', $web_root ? $web_root : '/');
-session_name("OpenEMR");
-
+// Defaults for session.gc_maxlifetime is often too small. You might choose to
+// adjust it further.
+if (session_status() === PHP_SESSION_NONE) {
+    // Only can run these when do not have an active session yet
+    // (for example, need to skip this in the portal where the session is already active)
+    ini_set('session.gc_maxlifetime', '14400');
+    ini_set('session.cookie_path', $web_root ? $web_root : '/');
+    session_name("OpenEMR");
+}
 session_start();
 
 // Set the site ID if required.  This must be done before any database
