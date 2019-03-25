@@ -477,7 +477,7 @@ echo generate_select_list(
  <td><select id="access_group_id" name="access_group[]" multiple style="width:150px;" class="form-control">
 <?php
 // Collect the access control group of user
-$list_acl_groups = acl_get_group_title_list($is_super_user || $selected_user_is_superuser );
+$list_acl_groups = acl_get_group_title_list($is_super_user || $selected_user_is_superuser);
 $username_acl_groups = acl_get_group_titles($iter["username"]);
 foreach ($list_acl_groups as $value) {
     if (($username_acl_groups) && in_array($value, $username_acl_groups)) {
