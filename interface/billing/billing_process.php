@@ -104,7 +104,8 @@ function append_claim(&$segs)
         }
 
         if ($elems[0] == 'BHT') {
-            $bat_content .= substr_replace($seg, '*'.$bat_icn.$bat_st_02.'*',  strpos($seg,  '*0123*'), 6);
+            // needle is set in OpenEMR\Billing\X12_5010_837P
+            $bat_content .= substr_replace($seg,'*'.$bat_icn.$bat_st_02.'*', strpos($seg, '*0123*'),6);
             $bat_content .= "~";
             continue;
         }
