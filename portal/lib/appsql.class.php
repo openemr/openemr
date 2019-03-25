@@ -26,6 +26,8 @@
  * @param
  *            wrapper class for moving some care coordination zend product
  */
+$ignoreAuth = true;
+require_once(dirname(__FILE__) . '/../../interface/globals.php');
 require_once(dirname(__FILE__) . '/../../library/sql.inc');
 
 use OpenEMR\Common\Logging\EventAuditLogger;

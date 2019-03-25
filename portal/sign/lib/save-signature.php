@@ -1,38 +1,23 @@
 <?php
 /**
+ * Patient Portal
  *
- * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
- *
- * LICENSE: This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of the
- *  License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @package OpenEMR
- * @author Jerry Padgett <sjpadgett@gmail.com>
- * @link http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-
-
 
 $ignoreAuth = true;
 require_once("../../../interface/globals.php");
-require_once 'sigconvert.php';
-$errors = array ();
-$signer = filter_input(INPUT_POST, 'signer', FILTER_DEFAULT);
-$type = filter_input(INPUT_POST, 'type', FILTER_DEFAULT);
-$pid = filter_input(INPUT_POST, 'pid', FILTER_DEFAULT);
-$output = filter_input(INPUT_POST, 'output', FILTER_UNSAFE_RAW);
-$user = filter_input(INPUT_POST, 'user', FILTER_UNSAFE_RAW);
+
+$data = (array)(json_decode(file_get_contents("php://input")));
+$pid = $data['pid'];
+$user = $data['user'];
+$signer = $data['signer'];
+$type = $data['type'];
+$output = urldecode($data['output']);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($type == 'admin-signature') {
@@ -40,41 +25,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     if (! json_decode($output)) {
-        exit();
+        //die("oops");
     }
 
-/* Don't need at present
-    if( $pid > 0 ) $resizedFile = './../../patient_documents/signed/current/' . $pid . '_master.png';
-    else $resizedFile = './../../patient_documents/signed/current/' . $signer . '_master.png';
- */
-    $svgsig = '';
     if (empty($errors)) {
         try {
-            $svg = new sigToSvg($output, array (
-                    'penWidth' => 6
-            ));
-            $svgsig = $svg->getImage();
-            $r = $svg->max[1] / $svg->max[0];
-            $x = round($svg->max[0] * $r);
-            $y = round($svg->max[1] * $r);
-            $img = sigJsonToImage($output, array (
-                    'imageSize' => array (
-                            $svg->max[0],
-                            $svg->max[1]
-                    )
-            ));
-            ob_start();
-            imagepng($img);
-            $image = ob_get_contents();
-            ob_clean();
-            $image_png = smart_resize_image(null, $image, $svg->max[0], 75, true, 'return', false, false, 100, false);
-            //imagepng( $image_png, $resizedFile, 0 );
-            imagepng($image_png);
-            $image = ob_get_contents();
-            ob_end_clean();
-            imagedestroy($img);
-            imagedestroy($image_png);
-            $image_data = base64_encode($image);
+            $image_data = $output;
+
         } catch (Exception $e) {
             die($e->getMessage());
         }
@@ -99,5 +56,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    print json_encode('Done');
+    echo json_encode('Done');
 }

@@ -1894,7 +1894,8 @@ function processConnection(connection) {
     //console.log(remoteAddress);
     conn.setEncoding('utf8');
 
-    function eventData(xml) {
+    // patched out re: buffer overrun fix. maintain for history.
+    /*function eventData(xml) {
         xml = xml.replace(/(\u000b|\u001c)/gm, "").trim();
         // Sanity check from service manager
         if (xml === 'status' || xml.length < 80) {
@@ -1929,6 +1930,45 @@ function processConnection(connection) {
         conn.write(String.fromCharCode(28) + "\r\r" + '');
         conn.end();
 
+    }*/
+
+    var xml_complete = "";
+
+    function eventData(xml) {
+        xml = xml.replace(/(\u000b|\u001c)/gm, "").trim();
+        // Sanity check from service manager
+        if (xml === 'status' || xml.length < 80) {
+            conn.write("statusok" + String.fromCharCode(28) + "\r\r");
+            conn.end('');
+            return;
+        }
+        xml_complete += xml.toString();
+        if (xml.toString().match(/\<\/CCDA\>$/g)) {
+            // ---------------------start--------------------------------
+            let doc = "";
+            xml_complete = xml_complete.replace(/\t\s+/g, ' ').trim();
+
+            to_json(xml_complete, function (error, data) {
+                // console.log(JSON.stringify(data, null, 4));
+                if (error) { // need try catch
+                    console.log('toJson error: ' + error + 'Len: ' + xml_complete.length);
+                    return;
+                }
+                doc = genCcda(data.CCDA);
+            });
+
+            doc = headReplace(doc);
+            doc = doc.toString().replace(/(\u000b|\u001c|\r)/gm, "").trim();
+            //console.log(doc);
+            let chunk = "";
+            let numChunks = Math.ceil(doc.length / 1024);
+            for (let i = 0, o = 0; i < numChunks; ++i, o += 1024) {
+                chunk = doc.substr(o, 1024);
+                conn.write(chunk);
+            }
+            conn.write(String.fromCharCode(28) + "\r\r" + '');
+            conn.end();
+        }
     }
 
     function eventCloseConn() {

@@ -23,12 +23,12 @@ use OpenEMR\Core\Header;
     <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'jquery-ui', 'jquery-ui-sunny', 'emodal']); ?>
 
 <script type="text/javascript" src="../interface/main/tabs/js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
-<link href="assets/css/style.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
-<link href="sign/css/signer.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
-<link href="sign/assets/signpad.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet">
+<link href="<?php echo $GLOBALS['web_root']; ?>/portal/assets/css/style.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
+<link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
 
-<script src="sign/assets/signpad.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
-<script src="sign/assets/signer.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
+<script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
+<script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
+
 <script type="text/javascript">
     var tab_mode = true; // for dialogs
     <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
@@ -92,7 +92,7 @@ use OpenEMR\Core\Header;
                             <?php if ($GLOBALS['allow_portal_chat']) { ?>
                                 <a href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/secure_chat.php?fullscreen=true"> <i class="fa fa-user fa-fw pull-right"></i><?php echo xlt('Chat'); ?></a>
                                 <?php } ?>
-                                <a href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal"> <i class="fa fa-cog fa-fw pull-right"></i> <?php echo xlt('Settings'); ?></a></li>
+                                <a type="patient-signature" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal"> <i class="fa fa-cog fa-fw pull-right"></i> <?php echo xlt('Settings'); ?></a></li>
 
                             <li class="divider"></li>
 
@@ -174,7 +174,7 @@ use OpenEMR\Core\Header;
                             data-parent="#panelgroup"> <i class="fa fa-envelope"></i> <span><?php echo xlt("Secure Chat"); ?></span>
                     </a></li>
                     <?php } ?>
-                    <li data-toggle="pill"><a href="#openSignModal" data-toggle="modal" > <i
+                    <li data-toggle="pill"><a type="patient-signature" href="#openSignModal" data-toggle="modal" > <i
                             class="fa fa-sign-in"></i><span><?php echo xlt('Signature on File'); ?></span>
                     </a></li>
                     <li><a href="logout.php"><i class="fa fa-ban fa-fw"></i> <span><?php echo xlt('Logout'); ?></span></a></li>

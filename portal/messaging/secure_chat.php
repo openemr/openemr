@@ -507,7 +507,7 @@ $msgApp = new Controller();
     <title><?php echo xlt('Secure Patient Chat'); ?></title>
     <meta name="author" content="Jerry Padgett sjpadgett{{at}} gmail {{dot}} com">
 
-    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-11-3/dist/jquery.js"></script>
+    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
 
     <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
