@@ -93,11 +93,18 @@ function append_claim(&$segs)
         }
         if ($elems[0] == 'ST') {
             ++ $bat_stcount;
-            $bat_content .= sprintf("ST*837*%04d", $bat_stcount);
+            $bat_st_02 = sprintf("%04d", $bat_stcount);
+            $bat_content .= "ST*837*" . $bat_st_02;
             if (! empty($elems[3])) {
                 $bat_content .= "*" . $elems[3];
             }
 
+            $bat_content .= "~";
+            continue;
+        }
+
+        if ($elems[0] == 'BHT') {
+            $bat_content .= substr_replace($seg, '*'.$bat_icn.$bat_st_02.'*',  strpos($seg,  '*0123*'), 6);
             $bat_content .= "~";
             continue;
         }
