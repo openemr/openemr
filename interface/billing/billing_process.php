@@ -13,7 +13,7 @@
  * @copyright Copyright (c) 2014-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (C) 2017 Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2018-2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -105,7 +105,7 @@ function append_claim(&$segs)
 
         if ($elems[0] == 'BHT') {
             // needle is set in OpenEMR\Billing\X12_5010_837P
-            $bat_content .= substr_replace($seg,'*'.$bat_icn.$bat_st_02.'*', strpos($seg, '*0123*'), 6);
+            $bat_content .= substr_replace($seg, '*'.$bat_icn.$bat_st_02.'*', strpos($seg, '*0123*'), 6);
             $bat_content .= "~";
             continue;
         }
