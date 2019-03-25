@@ -146,7 +146,7 @@ CREATE TABLE `form_eye_hpi` (
   `LOCATION3`   text,
   PRIMARY KEY `hpi_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
-  ) ENGINE = InnoDB;
+) ENGINE = InnoDB;
 
 CREATE TABLE `form_eye_ros` (
   `id`           bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
@@ -166,7 +166,7 @@ CREATE TABLE `form_eye_ros` (
   `ROSCOMMENTS`  text,
   PRIMARY KEY `ros_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
-  ) ENGINE = InnoDB;
+) ENGINE = InnoDB;
 
 CREATE TABLE `form_eye_vitals` (
   `id`          bigint(20)  NOT NULL COMMENT 'Links to forms.form_id',
@@ -198,7 +198,7 @@ CREATE TABLE `form_eye_vitals` (
   `OSVF4`       tinyint(1)  DEFAULT NULL,
   PRIMARY KEY `vitals_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
-  ) ENGINE = InnoDB;
+) ENGINE = InnoDB;
 
 CREATE TABLE `form_eye_acuity` (
   `id`            bigint(20)  NOT NULL COMMENT 'Links to forms.form_id',
@@ -232,7 +232,7 @@ CREATE TABLE `form_eye_acuity` (
   `OSVANEARCC`    varchar(25)  DEFAULT NULL,
   PRIMARY KEY `acuity_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
-  ) ENGINE = InnoDB;
+) ENGINE = InnoDB;
 
 CREATE TABLE `form_eye_refraction` (
   `id`                bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
@@ -302,7 +302,7 @@ CREATE TABLE `form_eye_refraction` (
   `ADDCHECKED`        varchar(25)  DEFAULT NULL,
   PRIMARY KEY `refraction_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
-  ) ENGINE = InnoDB;
+) ENGINE = InnoDB;
 
 CREATE TABLE `form_eye_biometrics` (
   `id` bigint (20) NOT NULL COMMENT 'Links to forms.form_id',
@@ -325,7 +325,7 @@ CREATE TABLE `form_eye_biometrics` (
   `OSLT` varchar (20) DEFAULT NULL,
   PRIMARY KEY `biometrics_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
-  ) ENGINE = InnoDB;
+) ENGINE = InnoDB;
 
 CREATE TABLE `form_eye_external` (
   `id`           bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
@@ -360,7 +360,7 @@ CREATE TABLE `form_eye_external` (
   `EXT_COMMENTS` text,
   PRIMARY KEY `external_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
-  ) ENGINE = InnoDB;
+) ENGINE = InnoDB;
 
 CREATE TABLE `form_eye_antseg` (
   `id`                   bigint(20) NOT NULL COMMENT 'Links to forms.form_id',
@@ -404,7 +404,7 @@ CREATE TABLE `form_eye_antseg` (
   `ANTSEG_COMMENTS`      text,
   PRIMARY KEY `antseg_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
-  ) ENGINE = InnoDB;
+) ENGINE = InnoDB;
 
 CREATE  TABLE `form_eye_postseg` (
   `id`              bigint(20)  NOT NULL COMMENT 'Links to forms.form_id',
@@ -434,7 +434,7 @@ CREATE  TABLE `form_eye_postseg` (
   `NEO25`           varchar(25) NOT NULL,
   PRIMARY KEY `postseg_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
-  ) ENGINE = InnoDB;
+) ENGINE = InnoDB;
 
 CREATE  TABLE `form_eye_neuro` (
   `id`         bigint (20) NOT NULL COMMENT 'Links to forms.form_id',
@@ -538,12 +538,12 @@ CREATE  TABLE `form_eye_locking` (
 ) ENGINE = InnoDB;
 
 ALTER TABLE `form_eye_mag_orders`
-    CHANGE `id` `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-    CHANGE `ORDER_PID` `pid` BIGINT(20) NOT NULL,
-    ADD `form_id` bigint(20) NOT NULL AFTER `id`,
-    DROP INDEX `VISIT_ID`;
+  CHANGE `id` `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  CHANGE `ORDER_PID` `pid` BIGINT(20) NOT NULL,
+  ADD `form_id` bigint(20) NOT NULL AFTER `id`,
+  DROP INDEX `VISIT_ID`;
 ALTER TABLE `form_eye_mag_orders`
-    ADD UNIQUE KEY `VISIT_ID` (`pid`, `ORDER_DETAILS`, `ORDER_DATE_PLACED`);
+  ADD UNIQUE KEY `VISIT_ID` (`pid`, `ORDER_DETAILS`, `ORDER_DATE_PLACED`);
 
 INSERT into `form_eye_base` (`id`,`date`,`pid`,`user`,`groupname`,`authorized`, `activity`)
   select `id`,`date`,`pid`,`user`,`groupname`,`authorized`, `activity` from `form_eye_mag`;
@@ -578,7 +578,7 @@ INSERT INTO `form_eye_external` (`id`, `pid`, `RUL`, `LUL`, `RLL`, `LLL`, `RBROW
 
 INSERT INTO `form_eye_antseg` (`id`, `pid`, `ODSCHIRMER1`, `OSSCHIRMER1`, `ODSCHIRMER2`, `OSSCHIRMER2`, `OSCONJ`, `ODCONJ`, `ODCORNEA`, `OSCORNEA`, `ODAC`, `OSAC`, `ODLENS`, `OSLENS`, `ODIRIS`, `OSIRIS`, `PUPIL_NORMAL`, `ODPUPILSIZE1`, `ODPUPILSIZE2`, `ODPUPILREACTIVITY`, `ODAPD`, `OSPUPILSIZE1`, `OSPUPILSIZE2`, `OSPUPILREACTIVITY`, `OSAPD`, `DIMODPUPILSIZE1`, `DIMODPUPILSIZE2`, `DIMODPUPILREACTIVITY`, `DIMOSPUPILSIZE1`, `DIMOSPUPILSIZE2`, `DIMOSPUPILREACTIVITY`, `PUPIL_COMMENTS`, `ODKTHICKNESS`, `OSKTHICKNESS`, `ODGONIO`, `OSGONIO`, `ANTSEG_COMMENTS`)
   SELECT `id`, `pid`, `ODSCHIRMER1`, `OSSCHRIMER1`, `ODSCHRIMER2`, `OSSCHRIMER2`, `OSCONJ`, `ODCONJ`, `ODCORNEA`, `OSCORNEA`, `ODAC`, `OSAC`, `ODLENS`, `OSLENS`, `ODIRIS`, `OSIRIS`, `PUPIL_NORMAL`, `ODPUPILSIZE1`, `ODPUPILSIZE2`, `ODPUPILREACTIVITY`, `ODAPD`, `OSPUPILSIZE1`, `OSPUPILSIZE2`, `OSPUPILREACTIVITY`, `OSAPD`, `DIMODPUPILSIZE1`, `DIMODPUPILSIZE2`, `DIMODPUPILREACTIVITY`, `DIMOSPUPILSIZE1`, `DIMOSPUPILSIZE2`, `DIMOSPUPILREACTIVITY`, `PUPIL_COMMENTS`, `ODKTHICKNESS`, `OSKTHICKNESS`, `ODGONIO`, `OSGONIO`, `ANTSEG_COMMENTS`
-from `form_eye_mag`;
+  from `form_eye_mag`;
 
 INSERT INTO `form_eye_postseg` (`id`, `pid`, `ODDISC`, `OSDISC`, `ODCUP`, `OSCUP`, `ODMACULA`, `OSMACULA`, `ODVESSELS`, `OSVESSELS`, `ODPERIPH`, `OSPERIPH`, `ODCMT`, `OSCMT`, `RETINA_COMMENTS`, `DIL_RISKS`, `WETTYPE`, `ATROPINE`, `CYCLOMYDRIL`, `TROPICAMIDE`, `CYCLOGYL`, `NEO25`)
   SELECT `id`, `pid`, `ODDISC`, `OSDISC`, `ODCUP`, `OSCUP`, `ODMACULA`, `OSMACULA`, `ODVESSELS`, `OSVESSELS`, `ODPERIPH`, `OSPERIPH`, `ODCMT`, `OSCMT`, `RETINA_COMMENTS`, `DIL_RISKS`, `WETTYPE`, `ATROPINE`, `CYCLOMYDRIL`, `TROPICAMIDE`, `CYCLOGYL`, `NEO25`
@@ -661,11 +661,11 @@ UPDATE `list_options` SET `notes`='{"form_datetime":{"futureDate":{"message": "M
 
 #IfNotTable api_token
 CREATE TABLE `api_token` (
-    `id`           bigint(20) NOT NULL AUTO_INCREMENT,
-    `user_id`      bigint(20) NOT NULL,
-    `token`        varchar(256) DEFAULT NULL,
-    `expiry`       datetime NULL,
-    PRIMARY KEY (`id`)
+  `id`           bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id`      bigint(20) NOT NULL,
+  `token`        varchar(256) DEFAULT NULL,
+  `expiry`       datetime NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 #EndIf
 
@@ -717,97 +717,97 @@ CREATE TABLE `keys` (
 
 #IfNotColumnType amendments pid bigint(20)
 ALTER TABLE `amendments`
-    MODIFY `pid` bigint(20) NOT NULL COMMENT 'Patient ID from patient_data';
+  MODIFY `pid` bigint(20) NOT NULL COMMENT 'Patient ID from patient_data';
 #EndIf
 
 #IfNotColumnType billing pid bigint(20)
 ALTER TABLE `billing`
-    MODIFY `pid` bigint(20) default NULL;
+  MODIFY `pid` bigint(20) default NULL;
 #EndIf
 
 #IfNotColumnType dated_reminders pid bigint(20)
 ALTER TABLE `dated_reminders`
-    MODIFY `pid` bigint(20) NOT NULL;
+  MODIFY `pid` bigint(20) NOT NULL;
 #EndIf
 
 #IfNotColumnType drug_sales pid bigint(20)
 ALTER TABLE `drug_sales`
-    MODIFY `pid` bigint(20) NOT NULL default '0';
+  MODIFY `pid` bigint(20) NOT NULL default '0';
 #EndIf
 
 #IfNotColumnType form_ros pid bigint(20)
 ALTER TABLE `form_ros`
-    MODIFY `pid` bigint(20) NOT NULL;
+  MODIFY `pid` bigint(20) NOT NULL;
 #EndIf
 
 #IfNotColumnType issue_encounter pid bigint(20)
 ALTER TABLE `issue_encounter`
-    MODIFY `pid` bigint(20) NOT NULL;
+  MODIFY `pid` bigint(20) NOT NULL;
 #EndIf
 
 #IfNotColumnType onsite_documents pid bigint(20)
 ALTER TABLE `onsite_documents`
-    MODIFY `pid` bigint(20) UNSIGNED DEFAULT NULL;
+  MODIFY `pid` bigint(20) UNSIGNED default NULL;
 #EndIf
 
 #IfNotColumnType patient_access_onsite pid bigint(20)
 ALTER TABLE `patient_access_onsite`
-    MODIFY `pid` bigint(20);
+  MODIFY `pid` bigint(20);
 #EndIf
 
 #IfNotColumnType patient_access_offsite pid bigint(20)
 ALTER TABLE `patient_access_offsite`
-    MODIFY `pid` bigint(20) NOT NULL;
+  MODIFY `pid` bigint(20) NOT NULL;
 #EndIf
 
 #IfNotColumnType form_eye_mag_wearing PID bigint(20)
 ALTER TABLE `form_eye_mag_wearing`
-    MODIFY `PID` bigint(20) NOT NULL;
+  MODIFY `PID` bigint(20) NOT NULL;
 #EndIf
 
 #IfNotColumnType therapy_groups_participants pid bigint(20)
 ALTER TABLE `therapy_groups_participants`
-    MODIFY `pid` bigint(20) NOT NULL;
+  MODIFY `pid` bigint(20) NOT NULL;
 #EndIf
 
 #IfNotColumnType therapy_groups_participant_attendance pid bigint(20)
 ALTER TABLE `therapy_groups_participant_attendance`
-    MODIFY `pid` bigint(20) NOT NULL;
+  MODIFY `pid` bigint(20) NOT NULL;
 #EndIf
 
 #IfNotColumnType notification_log pid bigint(20)
 ALTER TABLE `notification_log`
-    MODIFY `pid` bigint(20) NOT NULL;
+  MODIFY `pid` bigint(20) NOT NULL;
 #EndIf
 
 #IfNotColumnType documents foreign_id bigint(20)
 ALTER TABLE `documents`
-    MODIFY `foreign_id` bigint(20) default NULL;
+  MODIFY `foreign_id` bigint(20) default NULL;
 #EndIf
 
 #IfNotColumnType batchcom patient_id bigint(20)
 ALTER TABLE `batchcom`
-    MODIFY `patient_id` bigint(20) NOT NULL default '0';
+  MODIFY `patient_id` bigint(20) NOT NULL default '0';
 #EndIf
 
 #IfNotColumnType claims patient_id bigint(20)
 ALTER TABLE `claims`
-    MODIFY `patient_id` bigint(20) NOT NULL;
+  MODIFY `patient_id` bigint(20) NOT NULL;
 #EndIf
 
 #IfNotColumnType immunizations patient_id bigint(20)
 ALTER TABLE `immunizations`
-    MODIFY `patient_id` bigint(20) default NULL;
+  MODIFY `patient_id` bigint(20) default NULL;
 #EndIf
 
 #IfNotColumnType prescriptions patient_id bigint(20)
 ALTER TABLE `prescriptions`
-    MODIFY `patient_id` bigint(20) default NULL;
+  MODIFY `patient_id` bigint(20) default NULL;
 #EndIf
 
 #IfNotColumnType ar_session patient_id bigint(20)
 ALTER TABLE `ar_session`
-    MODIFY `patient_id` bigint(20) NOT NULL;
+  MODIFY `patient_id` bigint(20) NOT NULL;
 #EndIf
 
 #IfMissingColumn documents encrypted
@@ -824,24 +824,24 @@ ALTER TABLE `eligibility_verification` CHANGE `response_id` `response_id` VARCHA
 
 #IfNotTable benefit_eligibility
 CREATE TABLE `benefit_eligibility` (
-    `response_id` bigint(20) NOT NULL,
-    `verification_id` bigint(20) NOT NULL,
-    `type` varchar(4) DEFAULT NULL,
-    `benefit_type` varchar(255) DEFAULT NULL,
-    `start_date` date DEFAULT NULL,
-    `end_date` date DEFAULT NULL,
-    `coverage_level` varchar(255) DEFAULT NULL,
-    `coverage_type` varchar(512) DEFAULT NULL,
-    `plan_type` varchar(255) DEFAULT NULL,
-    `plan_description` varchar(255) DEFAULT NULL,
-    `coverage_period` varchar(255) DEFAULT NULL,
-    `amount` decimal(5,2) DEFAULT NULL,
-    `percent` decimal(3,2) DEFAULT NULL,
-    `network_ind` varchar(2) DEFAULT NULL,
-    `message` varchar(512) DEFAULT NULL,
-    `response_status` enum('A','D') DEFAULT 'A',
-    `response_create_date` date DEFAULT NULL,
-    `response_modify_date` date DEFAULT NULL
+  `response_id` bigint(20) NOT NULL,
+  `verification_id` bigint(20) NOT NULL,
+  `type` varchar(4) DEFAULT NULL,
+  `benefit_type` varchar(255) DEFAULT NULL,
+  `start_date` date DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
+  `coverage_level` varchar(255) DEFAULT NULL,
+  `coverage_type` varchar(512) DEFAULT NULL,
+  `plan_type` varchar(255) DEFAULT NULL,
+  `plan_description` varchar(255) DEFAULT NULL,
+  `coverage_period` varchar(255) DEFAULT NULL,
+  `amount` decimal(5,2) DEFAULT NULL,
+  `percent` decimal(3,2) DEFAULT NULL,
+  `network_ind` varchar(2) DEFAULT NULL,
+  `message` varchar(512) DEFAULT NULL,
+  `response_status` enum('A','D') DEFAULT 'A',
+  `response_create_date` date DEFAULT NULL,
+  `response_modify_date` date DEFAULT NULL
 ) ENGINE=InnoDB;
 #Endif
 
