@@ -372,10 +372,11 @@ echo generate_select_list(
  <td><select name="access_group[]" multiple style="width:120px;" class="form-control">
 <?php
 // List the access control groups
-$list_acl_groups = acl_get_group_title_list();
+$is_super_user = acl_check('admin', 'super');
+$list_acl_groups = acl_get_group_title_list($is_super_user ? true : false);
 $default_acl_group = 'Administrators';
 foreach ($list_acl_groups as $value) {
-    if ($default_acl_group == $value) {
+    if ($is_super_user && $default_acl_group == $value) {
         // Modified 6-2009 by BM - Translate group name if applicable
         echo " <option value='" . attr($value) . "' selected>" . text(xl_gacl_group($value)) . "</option>\n";
     } else {

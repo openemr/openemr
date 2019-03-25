@@ -17,6 +17,7 @@ require_once("../../library/acl.inc");
 require_once("$srcdir/auth.inc");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Services\UserService;
 
 if (!empty($_POST)) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -32,6 +33,26 @@ if (!empty($_GET)) {
 
 if (!acl_check('admin', 'users')) {
     die(xlt('Access denied'));
+}
+
+if (!acl_check('admin', 'super')) {
+    //block non-administrator user from create administrator
+    foreach ($_POST['access_group'] as $aro_group) {
+        if (is_group_include_superuser($aro_group)) {
+            die(xlt('Saving denied'));
+        };
+    }
+    if ($_POST['mode'] === 'update') {
+        //block non-administrator user from update administrator
+        $user_service = new UserService();
+        $user = $user_service->getUser($_POST['id']);
+        $aro_groups = acl_get_group_titles($user->getUsername());
+        foreach ($aro_groups as $aro_group) {
+            if (is_group_include_superuser($aro_group)) {
+                die(xlt('Saving denied'));
+            };
+        }
+    }
 }
 
 $alertmsg = '';
