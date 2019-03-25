@@ -52,24 +52,24 @@ function getSignature(othis) {
 function placeImg(responseData, el) {
     if (responseData == "error") {
         $(el).attr('src', "");
-        alert('Error: Patient Id or User Id Missing !');
+        alert('Error Patient and or User Id missing');
         return;
     }
     else if (responseData == "insert error") {
         $(el).attr('src', "");
-        alert('Error: Insert!');
+        alert('Error adding signature');
         return;
     }
     else if (responseData == "waiting" && $(el).attr('type') == 'patient-signature') {
         $(el).attr('src', "");
-        alert('Patient Signature not on file. Please Sign');
+        alert('Signature not on file. Please sign');
         $("#isAdmin").attr('checked', false);
         $("#openSignModal").modal("show");
         return;
     }
     else if (responseData == "waiting" && $(el).attr('type') == 'admin-signature') {
         $(el).attr('src', "");
-        alert('Provider Signature not on file! Please sign.');
+        alert('Signature not on file. Please sign');
         $("#isAdmin").attr('checked', true);
         $("#openSignModal").modal("show");
         return;
@@ -120,7 +120,7 @@ function signDoc(signImage) {
       .then(
         $("#loading").toggle(),
         $("#openSignModal").modal("hide")
-      ).catch(error => alert('Error:', error));
+      ).catch(error => alert(error));
 
     $("#loading").toggle();
 }
@@ -141,10 +141,6 @@ $(function () {
         })
         .then(function () {
             initSignerApi();
-            console.log('*** Init Api ***');
-        })
-        .then(function () {
-            console.log('*** Init Done ***');
         })
         .catch((error) => alert(error));
 });
@@ -190,7 +186,6 @@ function initSignerApi() {
         }).on('shown.bs.modal', function (e) {
             signaturePad = new SignaturePad(canvas, canvasOptions);
             resizeCanvas();
-            //drawSignatureLine();
         }).on('hide.bs.modal', function () {
             $('html').css({
                 'overflow': 'inherit'
@@ -200,14 +195,13 @@ function initSignerApi() {
 
         clearButton.addEventListener("click", function (event) {
             signaturePad.clear();
-            //drawSignatureLine();
         });
 
         saveSignatureButton.addEventListener("click", function (event) {
             if (signaturePad.isEmpty()) {
                 alert("Please provide a signature first.");
             } else {
-                let dataURL = signaturePad.toDataURL(); //trimCanvas(canvas) to remove white space
+                let dataURL = signaturePad.toDataURL();
                 signDoc(encodeURIComponent(dataURL));
             }
         });
@@ -271,8 +265,6 @@ function initSignerApi() {
         // resize  event and initial resize
         window.onresize = resizeCanvas;
         resizeCanvas();
-
-        console.log('*** DOM Ready ***');
     });
 }
 

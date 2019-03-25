@@ -8,9 +8,8 @@
  * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-$ignoreAuth = 1;
-require_once "./../../../interface/globals.php";
+require_once dirname(__FILE__) . "/../../../vendor/autoload.php";
+require_once(dirname(__FILE__) . '/../../../library/sql.inc');
 
 $isAdmin = !empty($_GET['isAdmin']) ? 'checked' : '';
 
@@ -22,7 +21,7 @@ $msg5 = xlt('Clear');
 $msg6 = xlt('Acknowledge Electronic Signature');
 
 $sign_type = 'patient-signature';
-if($isAdmin) {
+if ($isAdmin) {
     $sign_type = 'admin-signature';
 }
 // short & sweet

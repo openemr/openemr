@@ -24,36 +24,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $signer = $user;
     }
 
-    if (! json_decode($output)) {
-        //die("oops");
-    }
+    $image_data = $output;
 
-    if (empty($errors)) {
-        try {
-            $image_data = $output;
-
-        } catch (Exception $e) {
-            die($e->getMessage());
-        }
-    }
-
-    // No validation errors exist, so we can start the database stuff
-    if (empty($errors)) {
-        $sig_hash = sha1($output);
-        $created = time();
-        $ip = $_SERVER['REMOTE_ADDR'];
-        $status = 'filed';
-        $lastmod = date('Y-m-d H:i:s');
-        $r = sqlStatement("SELECT COUNT( DISTINCT TYPE ) x FROM onsite_signatures where pid = ? and user = ? ", array ($pid, $user));
-        $c = sqlFetchArray($r);
-        $isit = $c['x'] * 1;
-        if ($isit) {
-            $qstr = "UPDATE onsite_signatures SET pid=?,lastmod=?,status=?, user=?, signature=?, sig_hash=?, ip=?,sig_image=? WHERE pid=? && user=?";
-            $rcnt = sqlStatement($qstr, array($pid,$lastmod,$status,$user,$svgsig,$sig_hash,$ip,$image_data,$pid,$user));
-        } else {
-            $qstr = "INSERT INTO onsite_signatures (pid,lastmod,status,type,user,signator, signature, sig_hash, ip, created, sig_image) VALUES (?,?,?,?,?,?,?,?,?,?,?) ";
-            sqlStatement($qstr, array($pid , $lastmod, $status,$type, $user, $signer, $svgsig, $sig_hash, $ip, $created, $image_data));
-        }
+    $sig_hash = sha1($output);
+    $created = time();
+    $ip = $_SERVER['REMOTE_ADDR'];
+    $status = 'filed';
+    $lastmod = date('Y-m-d H:i:s');
+    $r = sqlStatement("SELECT COUNT( DISTINCT TYPE ) x FROM onsite_signatures where pid = ? and user = ? ", array($pid, $user));
+    $c = sqlFetchArray($r);
+    $isit = $c['x'] * 1;
+    if ($isit) {
+        $qstr = "UPDATE onsite_signatures SET pid=?,lastmod=?,status=?, user=?, signature=?, sig_hash=?, ip=?,sig_image=? WHERE pid=? && user=?";
+        $rcnt = sqlStatement($qstr, array($pid, $lastmod, $status, $user, $svgsig, $sig_hash, $ip, $image_data, $pid, $user));
+    } else {
+        $qstr = "INSERT INTO onsite_signatures (pid,lastmod,status,type,user,signator, signature, sig_hash, ip, created, sig_image) VALUES (?,?,?,?,?,?,?,?,?,?,?) ";
+        sqlStatement($qstr, array($pid, $lastmod, $status, $type, $user, $signer, $svgsig, $sig_hash, $ip, $created, $image_data));
     }
 
     echo json_encode('Done');
