@@ -3,36 +3,24 @@
  * This file implements the main jquery interface for loading external
  * database files into openEMR
  *
- * Copyright (C) 2012 Patient Healthcare Analytics, Inc.
- * Copyright (C) 2011 Phyaura, LLC <info@phyaura.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  (Mac) Kevin McAloon <mcaloon@patienthealthcareanalytics.com>
- * @author  Rohit Kumar <pandit.rohit@netsity.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    (Mac) Kevin McAloon <mcaloon@patienthealthcareanalytics.com>
+ * @author    Rohit Kumar <pandit.rohit@netsity.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+ * @copyright Copyright (c) 2011 Phyaura, LLC <info@phyaura.com>
+ * @copyright Copyright (c) 2012 Patient Healthcare Analytics, Inc.
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-
 
 
 require_once("../../interface/globals.php");
 require_once("$srcdir/acl.inc");
 
-// Ensure script doesn't time out and has enough memory
+// Ensure script doesn't time out
 set_time_limit(0);
-ini_set('memory_limit', '150M');
 
 // Control access
 if (!acl_check('admin', 'super')) {
@@ -125,7 +113,7 @@ var accOpts = {
             var stg_load_id = '#' + $(ui.newContent).attr('id') + "_stg_loading";
             $(stg_load_id).show();
             var thisInterval;
-                    var parm = 'db=' + $(ui.newContent).attr('id') + '&newInstall=' + (($(this).val() === 'INSTALL') ? 1 : 0) + '&file_checksum=' + $(this).attr('file_checksum') + '&file_revision_date=' + $(this).attr('file_revision_date') + '&version=' + $(this).attr('version');
+                    var parm = 'db=' + $(ui.newContent).attr('id') + '&newInstall=' + (($(this).val() === 'INSTALL') ? 1 : 0) + '&file_checksum=' + $(this).attr('file_checksum') + '&file_revision_date=' + $(this).attr('file_revision_date') + '&version=' + $(this).attr('version') + '&rf=' + $(this).attr('rf');
             var stg_dets_id = '#' + $(ui.newContent).attr('id') + "_stage_details";
             $activeAccordionSection = $("#accordion").accordion('option', 'active');
 

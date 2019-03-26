@@ -3,28 +3,17 @@
  * This library contains functions that implement the database load processing
  * of external database files into openEMR
  *
- * Copyright (C) 2011 Phyaura, LLC <info@phyaura.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Rohit Kumar <pandit.rohit@netsity.com>
- * @author  (Mac) Kevin McAloon <mcaloon@patienthealthcareanalytics.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @author  Roberto Vasquez <robertogagliotta@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Rohit Kumar <pandit.rohit@netsity.com>
+ * @author    (Mac) Kevin McAloon <mcaloon@patienthealthcareanalytics.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+ * @copyright Copyright (c) 2011 Phyaura, LLC <info@phyaura.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../../interface/super/edit_list.php");
 // Function to copy a package to temp
 // $type (RXNORM, SNOMED etc.)
 function temp_copy($filename, $type)
@@ -249,20 +238,22 @@ function snomed_import($us_extension = false)
     return true;
 }
 
-function drop_old_sct() {
+function drop_old_sct()
+{
     $array_to_truncate=array(
         "sct_concepts_drop"=>"DROP TABLE IF EXISTS `sct_concepts`",
         "sct_descriptions_drop"=>"DROP TABLE IF EXISTS `sct_descriptions`",
         "sct_relationships_drop"=>"DROP TABLE IF EXISTS `sct_relationships`"
-);
-    foreach($array_to_truncate as $val){
-       if(trim($val)!=''){
-           sqlStatement($val);
+    );
+    foreach ($array_to_truncate as $val) {
+        if (trim($val)!='') {
+            sqlStatement($val);
         }
     }
 }
 
-function drop_old_sct2() {
+function drop_old_sct2()
+{
     $array_to_truncate=array(
         "sct2_concept_drop"=>"DROP TABLE IF EXISTS `sct2_concept`",
         "sct2_description_drop"=>"DROP TABLE IF EXISTS `sct2_description`",
@@ -270,73 +261,30 @@ function drop_old_sct2() {
         "sct2_relationship_drop"=>"DROP TABLE IF EXISTS `sct2_relationship`",
         "sct2_statedrelationship_drop"=>"DROP TABLE IF EXISTS `sct2_statedrelationship`",
         "sct2_textdefinition_drop"=>"DROP TABLE IF EXISTS `sct2_textdefinition`"
-);
-    foreach($array_to_truncate as $val){
-       if(trim($val)!=''){
-           sqlStatement($val);
+    );
+    foreach ($array_to_truncate as $val) {
+        if (trim($val)!='') {
+            sqlStatement($val);
         }
     }
 }
 
-
-function chg_ct_external_torf1()  {
-$SNOMED = 103;
-$SNOMED_CT = 107;
-$SNOMED_PR = 108;
-$SNOMED_key = 'SNOMED';
-$SNOMED_CT_key = 'SNOMED-CT';
-$SNOMED_PR_key = 'SNOMED-PR';
-$def_diagnosis = 2;
-$def_clinical = 7;
-$def_procedure = 9;
-sqlQuery("UPDATE code_types SET ct_external = '$def_diagnosis' " .
-   "WHERE ((ct_id = '$SNOMED') AND (ct_key = '$SNOMED_key'))");
-
-sqlQuery("UPDATE code_types SET ct_external = '$def_clinical' " .
-   "WHERE ((ct_id = '$SNOMED_CT') AND (ct_key = '$SNOMED_CT_key'))");
-
-sqlQuery("UPDATE code_types SET ct_external = '$def_procedure' " .
-   "WHERE ((ct_id = '$SNOMED_PR') AND (ct_key = '$SNOMED_PR_key'))");
-
-$res = sqlStatement("SELECT * FROM code_types " .
-  "ORDER BY ct_seq, ct_key");
-while ($row = sqlFetchArray($res)) {
-    writeCTLine($row);
-  }
-for ($i = 0; $i < 3; ++$i) {
-    writeCTLine(array());
-  }
-}
-function chg_ct_external_torf2()  {
-$SNOMED = 103;
-$SNOMED_CT = 107;
-$SNOMED_PR = 108;
-$SNOMED_key = 'SNOMED';
-$SNOMED_CT_key = 'SNOMED-CT';
-$SNOMED_PR_key = 'SNOMED-PR';
-$def_diagnosis = 10;
-$def_clinical = 11;
-$def_procedure = 12;
-sqlQuery("UPDATE code_types SET ct_external = '$def_diagnosis' " .
-   "WHERE ((ct_id = '$SNOMED') AND (ct_key = '$SNOMED_key'))");
-
-sqlQuery("UPDATE code_types SET ct_external = '$def_clinical' " .
-   "WHERE ((ct_id = '$SNOMED_CT') AND (ct_key = '$SNOMED_CT_key'))");
-
-sqlQuery("UPDATE code_types SET ct_external = '$def_procedure' " .
-   "WHERE ((ct_id = '$SNOMED_PR') AND (ct_key = '$SNOMED_PR_key'))");
-
-$res = sqlStatement("SELECT * FROM code_types " .
-  "ORDER BY ct_seq, ct_key");
-while ($row = sqlFetchArray($res)) {
-    writeCTLine($row);
-  }
-for ($i = 0; $i < 3; ++$i) {
-    writeCTLine(array());
-  }
+function chg_ct_external_torf1()
+{
+    sqlStatement("UPDATE code_types SET ct_external = 2 WHERE ct_key = 'SNOMED'");
+    sqlStatement("UPDATE code_types SET ct_external = 7 WHERE ct_key = 'SNOMED-CT'");
+    sqlStatement("UPDATE code_types SET ct_external = 9 WHERE ct_key = 'SNOMED-PR'");
 }
 
-function snomedRF2_import() {
+function chg_ct_external_torf2()
+{
+    sqlStatement("UPDATE code_types SET ct_external = 10 WHERE ct_key = 'SNOMED'");
+    sqlStatement("UPDATE code_types SET ct_external = 11 WHERE ct_key = 'SNOMED-CT'");
+    sqlStatement("UPDATE code_types SET ct_external = 12 WHERE ct_key = 'SNOMED-PR'");
+}
+
+function snomedRF2_import()
+{
 
     // set up array
     $table_array_for_snomed=array(
@@ -384,7 +332,7 @@ function snomedRF2_import() {
             `characteristicTypeId` bigint(25) NOT NULL,
             `modifierId` bigint(25) NOT NULL,
              PRIMARY KEY (`id`)
-            ) ENGINE=InnoDB",  
+            ) ENGINE=InnoDB",
         "sct2_statedrelationship_drop"=>"DROP TABLE IF EXISTS `sct2_statedrelationship`",
         "sct2_statedrelationship_structure"=>"CREATE TABLE IF NOT EXISTS `sct2_statedrelationship` (
             `id` bigint(20) NOT NULL,
@@ -408,60 +356,60 @@ function snomedRF2_import() {
             `typeId` bigint(25) NOT NULL,
             `term` varchar(655) NOT NULL,
              PRIMARY KEY (`id`)
-            ) ENGINE=InnoDB"  
-);
+            ) ENGINE=InnoDB"
+    );
 
     // set up paths
     $dir_snomed = $GLOBALS['temporary_files_dir']."/SNOMED/";
-   // $sub_path="Terminology/Content/";
+    // $sub_path="Terminology/Content/";
     $sub_path="Full/Terminology/";
     $dir=$dir_snomed;
-    $dir=str_replace('\\','/',$dir);
+    $dir=str_replace('\\', '/', $dir);
 
     // executing the create statement for tables, these are defined in snomed_capture.inc file
     // this is skipped if the US extension is being added
     //if (!$us_extension) {
         //var_dump($us_extension);
-        foreach($table_array_for_snomed as $val){
-            if(trim($val)!=''){
-                sqlStatement($val);
-            }
+    foreach ($table_array_for_snomed as $val) {
+        if (trim($val)!='') {
+            sqlStatement($val);
         }
+    }
     //}
 
     // reading the SNOMED directory and identifying the files to import and replacing the variables by originals values.
-    if( is_dir($dir) && $handle = opendir($dir)) {
+    if (is_dir($dir) && $handle = opendir($dir)) {
         while (false !== ($filename = readdir($handle))) {
-            if ($filename != "." && $filename != ".." && !strpos($filename,"zip")) {
+            if ($filename != "." && $filename != ".." && !strpos($filename, "zip")) {
                 $path=$dir."".$filename."/".$sub_path;
                 if (!(is_dir($path))) {
                     $path=$dir."".$filename."/RF2Release/".$sub_path;
                 }
-                if( is_dir($path) && $handle1 = opendir($path)) {
+                if (is_dir($path) && $handle1 = opendir($path)) {
                     while (false !== ($filename1 = readdir($handle1))) {
                         $load_script="Load data local infile '#FILENAME#' into table #TABLE# fields terminated by '\\t' ESCAPED BY '' lines terminated by '\\n' ignore 1 lines   ";
                         $array_replace=array("#FILENAME#","#TABLE#");
                         if ($filename1 != "." && $filename1 != "..") {
                             $file_replace=$path.$filename1;
-                            if(strpos($filename1,"Concept") !== false){
-                                $new_str=str_replace($array_replace,array($file_replace,"sct2_concept"),$load_script);
-                            }	
-                            if(strpos($filename1,"Description") !== false){
-                                $new_str=str_replace($array_replace,array($file_replace,"sct2_description"),$load_script);
+                            if (strpos($filename1, "Concept") !== false) {
+                                $new_str=str_replace($array_replace, array($file_replace,"sct2_concept"), $load_script);
                             }
-                            if(strpos($filename1,"Identifier") !== false){
-                                $new_str=str_replace($array_replace,array($file_replace,"sct2_identifier"),$load_script);
+                            if (strpos($filename1, "Description") !== false) {
+                                $new_str=str_replace($array_replace, array($file_replace,"sct2_description"), $load_script);
                             }
-                            if(strpos($filename1,"Relationship") !== false){
-                                $new_str=str_replace($array_replace,array($file_replace,"sct2_relationship"),$load_script);
-                            }  
-                            if(strpos($filename1,"StatedRelationship") !== false){
-                                $new_str=str_replace($array_replace,array($file_replace,"sct2_statedrelationship"),$load_script);
-                            }  
-                            if(strpos($filename1,"TextDefinition") !== false){
-                                $new_str=str_replace($array_replace,array($file_replace,"sct2_textdefinition"),$load_script);
-                            }  
-                            if($new_str!=''){
+                            if (strpos($filename1, "Identifier") !== false) {
+                                $new_str=str_replace($array_replace, array($file_replace,"sct2_identifier"), $load_script);
+                            }
+                            if (strpos($filename1, "Relationship") !== false) {
+                                $new_str=str_replace($array_replace, array($file_replace,"sct2_relationship"), $load_script);
+                            }
+                            if (strpos($filename1, "StatedRelationship") !== false) {
+                                $new_str=str_replace($array_replace, array($file_replace,"sct2_statedrelationship"), $load_script);
+                            }
+                            if (strpos($filename1, "TextDefinition") !== false) {
+                                $new_str=str_replace($array_replace, array($file_replace,"sct2_textdefinition"), $load_script);
+                            }
+                            if ($new_str!='') {
                                 sqlStatement($new_str);
                             }
                         }
@@ -474,6 +422,7 @@ function snomedRF2_import() {
     }
     return true;
 }
+
 // Function to import ICD tables $type differentiates ICD 9, 10 and eventually 11 (circa 2018 :-) etc.
 //
 function icd_import($type)

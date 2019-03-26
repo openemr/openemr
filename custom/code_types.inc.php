@@ -37,25 +37,17 @@
  *
  *  </pre>
  *
- * Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @author  Kevin Yeh <kevin.y@integralemr.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (c) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 
 require_once(dirname(__FILE__)."/../library/csv_like_join.php");
 
@@ -141,12 +133,6 @@ define_external_table($code_external_tables, 5, 'icd9_sg_code', 'formatted_sg_co
 
 // For generic concepts, use the fully specified description (DescriptionType=3) so we can tell the difference between them.
 define_external_table($code_external_tables, 7, 'sct_descriptions', 'ConceptId', 'Term', 'Term', array("DescriptionStatus=0","DescriptionType=3"), "");
-define_external_table($code_external_tables,10,'sct2_description','conceptId','term','term',array("active=1","term LIKE '%(disorder)'"),"");
-//define_external_table($code_external_tables,10,'sct2_description','conceptId','term','term',array("active=1"),"");
-define_external_table($code_external_tables,11,'sct2_description','conceptId','term','term',array("active=1"),"");
-//define_external_table($code_external_tables,12,'sct2_description','conceptId','term','term',array("active=1"),"");
-define_external_table($code_external_tables,12,'sct2_description','conceptId','term','term',array("active=1","term LIKE '%(procedure)'"),"");
-
 
 // To determine codes, we need to evaluate data in both the sct_descriptions table, and the sct_concepts table.
 // the base join with sct_concepts is the same for all types of SNOMED definitions, so we define the common part here
@@ -162,6 +148,15 @@ define_external_table($code_external_tables, 9, 'sct_descriptions', 'ConceptId',
 // Add the filter to choose only procedures. This filter happens as part of the join with the sct_concepts table
 array_push($code_external_tables[9][EXT_JOINS][0][JOIN_FIELDS], "FullySpecifiedName like '%(procedure)'");
 
+// SNOMED RF2 definitions
+define_external_table($code_external_tables, 11, 'sct2_description', 'conceptId', 'term', 'term', array("active=1"), "");
+if (isSnomedSpanish()) {
+    define_external_table($code_external_tables, 10, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(trastorno)'"), "");
+    define_external_table($code_external_tables, 12, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(procedimiento)'"), "");
+} else {
+    define_external_table($code_external_tables, 10, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(disorder)'"), "");
+    define_external_table($code_external_tables, 12, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(procedure)'"), "");
+}
 
 //**** End SNOMED Definitions
 
@@ -188,6 +183,19 @@ $cd_external_options = array(
   '11' => xl('SNOMED (RF2) Clinical Term'),
   '12' => xl('SNOMED (RF2) Procedure')
 );
+
+/**
+ *  Checks to see if using spanish snomed
+ */
+function isSnomedSpanish()
+{
+    // See if most recent SNOMED entry is International:Spanish
+    $sql = sqlQuery("SELECT `revision_version` FROM `standardized_tables_track` WHERE `name` = 'SNOMED' ORDER BY `id` DESC");
+    if ((!empty($sql)) && ($sql['revision_version'] == "International:Spanish")) {
+        return true;
+    }
+    return false;
+}
 
 /**
  * Checks is fee are applicable to any of the code types.
