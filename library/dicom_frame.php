@@ -8,7 +8,7 @@
  * @author  Victor Kofia <https://kofiav.com> 'Viewer'
  * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017-2018 Victor Kofia <https://kofiav.com>
- * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 /* Warning: This script wraps the Dicom viewer which is HTML5 compatible only and bootstrap styling
