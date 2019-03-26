@@ -35,6 +35,7 @@ class C_Prescription extends Controller
         parent::__construct();
 
         $this->template_mod = $template_mod;
+        $this->assign("WEB_ROOT", $GLOBALS['webroot']);  //added by Sherwin 3/14/2019
         $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("TOP_ACTION", $GLOBALS['webroot']."/controller.php?" . "prescription" . "&");
         $this->assign("STYLE", $GLOBALS['style']);
