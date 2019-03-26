@@ -76,6 +76,15 @@ assets:
         link: font-awesome.min.css
         autoload: true
         allowNoLoad: true
+    autocomplete:
+        basePath:  %assets_static_relative%/jquery-ui-1-12-1/
+        link: jquery-ui.min.js
+    autocomplete-theme:
+        basePath: %assets_static_relative%/jquery-ui-1-12-1/theme/smoothness/
+        link: jquery-ui.css
+    jquery-3-2-1:
+        basePath:  %assets_static_relative%/jquery-3-2-1/
+        link: index.js
     datetime-picker:
         basePath: %assets_static_relative%/jquery-datetimepicker/build/
         script: jquery.datetimepicker.full.min.js

@@ -11,7 +11,7 @@
 <html>
 <head>
 
-    {headerTemplate assets='jquery-ui|jquery-ui-base|datetime-picker'}
+    {headerTemplate assets='jquery-ui|jquery-ui-base|autocomplete-theme|jquery-3-2-1|autocomplete|datetime-picker|'}
 
 {literal}
 <style type="text/css">
@@ -307,7 +307,7 @@ $().ready(function() {
         {literal}
         $('#drug').autocomplete({
             {/literal}
-            source: 'library/ajax/drug_autocomplete/search.php?csrf_token_form=' + {$CSRF_TOKEN_FORM|js_url},
+            source: '{$WEB_ROOT}/library/ajax/drug_autocomplete/search.php?csrf_token_form=' + {$CSRF_TOKEN_FORM|js_url},
             minLength: 3
             {literal}
         });
@@ -316,7 +316,7 @@ $().ready(function() {
         {literal}
         $('#drug').autocomplete({
             {/literal}
-            source: 'library/ajax/prescription_drugname_lookup.php?csrf_token_form=' + {$CSRF_TOKEN_FORM|js_url},
+            source: '{$WEB_ROOT}library/ajax/prescription_drugname_lookup.php?csrf_token_form=' + {$CSRF_TOKEN_FORM|js_url},
             minLength: 1
             {literal}
         });
