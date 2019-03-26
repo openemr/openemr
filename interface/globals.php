@@ -130,8 +130,11 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
         }
     }
 
+    // for both REST API and browser access we can't proceed unless we have a valid site id.
+    // since this is user provided content we need to escape the value but we use htmlspecialchars instead
+    // of text() as our helper functions are loaded in later on in this file.
     if (empty($tmp) || preg_match('/[^A-Za-z0-9\\-.]/', $tmp)) {
-        die("Site ID '". text($tmp) . "' contains invalid characters.");
+        die("Site ID '". htmlspecialchars($tmp, ENT_NOQUOTES) . "' contains invalid characters.");
     }
 
     if (isset($_SESSION['site_id']) && ($_SESSION['site_id'] != $tmp)) {
