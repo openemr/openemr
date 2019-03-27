@@ -11,15 +11,13 @@
 
 // Checks if the server's PHP version is compatible with OpenEMR:
 require_once(dirname(__FILE__) . "/../common/compatibility/Checker.php");
+$response = OpenEMR\Common\Checker::checkPhpVersion();
+if ($response !== true) {
+    die(htmlspecialchars($response));
+}
 
-use OpenEMR\Common\Checker;
 use OpenEMR\Core\Kernel;
 use Dotenv\Dotenv;
-
-$response = Checker::checkPhpVersion();
-if ($response !== true) {
-    die($response);
-}
 
 // Throw error if the php openssl module is not installed.
 if (!(extension_loaded('openssl'))) {
@@ -41,11 +39,6 @@ if (!isset($ignoreAuth)) {
     $ignoreAuth = false;
 }
 
-// Unless specified explicitly, caller is not offsite_portal and Auth is required
-if (!isset($ignoreAuth_offsite_portal)) {
-    $ignoreAuth_offsite_portal = false;
-}
-
 // Same for onsite
 if (!isset($ignoreAuth_onsite_portal_two)) {
     $ignoreAuth_onsite_portal_two = false;
@@ -55,11 +48,6 @@ if (!isset($ignoreAuth_onsite_portal_two)) {
 if (!defined('IS_WINDOWS')) {
     define('IS_WINDOWS', (stripos(PHP_OS, 'WIN') === 0));
 }
-
-// Some important php.ini overrides. Defaults for these values are often
-// too small.  You might choose to adjust them further.
-//
-ini_set('session.gc_maxlifetime', '14400');
 
 // The webserver_root and web_root are now automatically collected.
 // If not working, can set manually below.
@@ -108,9 +96,15 @@ $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 // OpenEMR instances on same server to prevent session conflicts; also
 // modified interface/login/login.php and library/restoreSession.php to be
 // consistent with this.
-ini_set('session.cookie_path', $web_root ? $web_root : '/');
-session_name("OpenEMR");
-
+// Defaults for session.gc_maxlifetime is often too small. You might choose to
+// adjust it further.
+if (session_status() === PHP_SESSION_NONE) {
+    // Only can run these when do not have an active session yet
+    // (for example, need to skip this in the portal where the session is already active)
+    ini_set('session.gc_maxlifetime', '14400');
+    ini_set('session.cookie_path', $web_root ? $web_root : '/');
+    session_name("OpenEMR");
+}
 session_start();
 
 // Set the site ID if required.  This must be done before any database
@@ -136,8 +130,13 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
         }
     }
 
+    // for both REST API and browser access we can't proceed unless we have a valid site id.
+    // since this is user provided content we need to escape the value but we use htmlspecialchars instead
+    // of text() as our helper functions are loaded in later on in this file.
     if (empty($tmp) || preg_match('/[^A-Za-z0-9\\-.]/', $tmp)) {
-        die("Site ID '". text($tmp) . "' contains invalid characters.");
+        echo "Invalid URL";
+        error_log("Request with site id '". htmlspecialchars($tmp, ENT_NOQUOTES) . "' contains invalid characters.");
+        die();
     }
 
     if (isset($_SESSION['site_id']) && ($_SESSION['site_id'] != $tmp)) {
@@ -576,9 +575,7 @@ $GLOBALS['include_de_identification']=0;
 // don't include the authentication module - we do this to avoid
 // include loops.
 
-if (($ignoreAuth_offsite_portal === true) && ($GLOBALS['portal_offsite_enable'] == 1)) {
-    $ignoreAuth = true;
-} elseif (($ignoreAuth_onsite_portal_two === true) && ($GLOBALS['portal_onsite_two_enable'] == 1)) {
+if (($ignoreAuth_onsite_portal_two === true) && ($GLOBALS['portal_onsite_two_enable'] == 1)) {
     $ignoreAuth = true;
 }
 

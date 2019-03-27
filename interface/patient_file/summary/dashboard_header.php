@@ -78,7 +78,7 @@ if ($days_deceased) { ?>
             } // eRX Enabled
             //Patient Portal
             $portalUserSetting = true; //flag to see if patient has authorized access to portal
-            if (($GLOBALS['portal_onsite_enable'] && $GLOBALS['portal_onsite_address']) || ($GLOBALS['portal_onsite_two_enable'] && $GLOBALS['portal_onsite_two_address'])) {
+            if ($GLOBALS['portal_onsite_two_enable'] && $GLOBALS['portal_onsite_two_address']) {
                 $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?", array($pid));
                 if ($portalStatus['allow_patient_portal']=='YES') {
                     $portalLogin = sqlQuery("SELECT pid FROM `patient_access_onsite` WHERE `pid`=?", array($pid));?>

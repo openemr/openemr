@@ -1605,13 +1605,6 @@ $GLOBALS_METADATA = array(
             xl('Number of Excluded Appointments to display in the Tooltip')
         ),
 
-        'patient_portal_appt_display_num' => array(
-            xl('Appointments - Onsite Patient Portal - Number to Display'),
-            'num',
-            '20',
-            xl('Number of Appointments to display in the Onsite Patient Portal')
-        ),
-
         'appt_display_sets_option' => array(
             xl('Appointment Display Sets - Ignore Display Limit (Last Set)'),
             'bool',                           // data type
@@ -2559,17 +2552,17 @@ $GLOBALS_METADATA = array(
     'Portal' => array(
 
         'portal_onsite_two_enable' => array(
-            xl('Enable Version 2 Onsite Patient Portal'),
+            xl('Enable Onsite Patient Portal'),
             'bool',                           // data type
             '0',
-            xl('Enable Version 2 Onsite Patient Portal')
+            xl('Enable Onsite Patient Portal')
         ),
 
         'portal_onsite_two_address' => array(
-            xl('Version 2 Onsite Patient Portal Site Address'),
+            xl('Onsite Patient Portal Site Address'),
             'text',                           // data type
             'https://your_web_site.com/openemr/portal',
-            xl('Website link for the Version 2 Onsite Patient Portal.')
+            xl('Website link for the Onsite Patient Portal.')
         ),
 
         'portal_onsite_two_basepath' => array(
@@ -2587,42 +2580,42 @@ $GLOBALS_METADATA = array(
         ),
 
         'portal_onsite_two_register' => array(
-            xl('Allow Version 2 Onsite New Patient Registration Widget'),
+            xl('Allow Onsite New Patient Registration Widget'),
             'bool',                           // data type
             '1',
-            xl('Enable Version 2 Onsite Patient Portal new patient to self register.')
+            xl('Enable Onsite Patient Portal new patient to self register.')
         ),
 
         'allow_portal_appointments' => array(
-            xl('Allow Version 2 Onsite Online Appointments'),
+            xl('Allow Onsite Online Appointments'),
             'bool',                           // data type
             '1',
-            xl('Allow Version 2 Onsite Patient to make and view appointments online.')
+            xl('Allow Onsite Patient to make and view appointments online.')
         ),
 
         'allow_portal_chat' => array(
-            xl('Allow Version 2 Onsite Online Secure Chat'),
+            xl('Allow Onsite Online Secure Chat'),
             'bool',                           // data type
             '1',
-            xl('Allow Version 2 Onsite Patient to use Secure Chat Application.')
+            xl('Allow 2 Onsite Patient to use Secure Chat Application.')
         ),
 
         'portal_two_ledger' => array(
-            xl('Allow Version 2 Onsite Patient Ledger'),
+            xl('Allow Onsite Patient Ledger'),
             'bool',                           // data type
             '1',
-            xl('Allow Version 2 Onsite Patient to view their accounting ledger online.')
+            xl('Allow Onsite Patient to view their accounting ledger online.')
         ),
 
         'portal_two_payments' => array(
-            xl('Allow Version 2 Onsite Online Payments'),
+            xl('Allow Onsite Online Payments'),
             'bool',                           // data type
             '0',
-            xl('Allow Version 2 Onsite Patient to make payments online.')
+            xl('Allow Onsite Patient to make payments online.')
         ),
 
         'portal_two_pass_reset' => array(
-            xl('Allow Version 2 Patients to Reset Credentials'),
+            xl('Allow Onsite Patients to Reset Credentials'),
             'bool',                           // data type
             '0',
             xl('Patient may change their logon from portal login dialog.')
@@ -2633,20 +2626,6 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '1',
             xl('Enables the ability to download documents in the Onsite Patient Portal by the user.')
-        ),
-
-        'portal_onsite_enable' => array(
-            xl('Enable Version 1 Onsite Patient Portal'),
-            'bool',                           // data type
-            '0',
-            xl('Enable Version 1 Onsite Patient Portal')
-        ),
-
-        'portal_onsite_address' => array(
-            xl('Version 1 Onsite Patient Portal Site Address'),
-            'text',                           // data type
-            'https://your_web_site.com/openemr/patients',
-            xl('Website link for the Version 1 Onsite Patient Portal.')
         ),
 
         'portal_offsite_enable' => array(
