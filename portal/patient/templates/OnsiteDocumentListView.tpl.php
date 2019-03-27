@@ -1,25 +1,15 @@
 <?php
 /**
+ * Patient Portal
  *
- * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
- *
- * LICENSE: This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of the
- *  License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @package OpenEMR
- * @author Jerry Padgett <sjpadgett@gmail.com>
- * @link http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\Core\Header;
 
 $this->assign('title', xlt("Patient Portal") . " | " . xlt("Patient Documents"));
 $this->assign('nav', 'onsitedocuments');
@@ -48,27 +38,21 @@ echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
 <title><?php echo xlt('OpenEMR Portal'); ?> | <?php echo xlt('Documents'); ?></title>
 <meta	content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
 <meta name="description" content="Developed By sjpadgett@gmail.com">
-<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
-    <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
-<?php } ?>
 
-<link href="<?php echo $GLOBALS['web_root']; ?>/portal/assets/css/style.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" />
-<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
-<link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" type="text/css" />
-<link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signpad.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
+    <?php Header::setupHeader(['no_main-theme', 'jquery-ui', 'jquery-ui-sunny', 'emodal']); ?>
+
+    <link href="<?php echo $GLOBALS['web_root']; ?>/portal/assets/css/style.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" />
+    <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" type="text/css" />
+
+    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $GLOBALS['v_js_includes']; ?>" type="text/javascript"></script>
+    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $GLOBALS['v_js_includes']; ?>" type="text/javascript"></script>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
 <script type="text/javascript">
     $LAB.setGlobalDefaults({BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"});
-    $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-11-3/dist/jquery.js")
-        .script("<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signpad.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
-        .script("<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
-        .script("<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.min.js")
-        .script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore/underscore-min.js")
+    $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore/underscore-min.js")
         .script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment/moment.js")
         .script("<?php echo $GLOBALS['assets_static_relative']; ?>/backbone/backbone-min.js")
-        .script("<?php echo $GLOBALS['assets_static_relative']; ?>/emodal/dist/eModal.min.js")
         .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")
         .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
         .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
@@ -76,120 +60,135 @@ echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
 </head>
 <script type="text/javascript">
     $LAB.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsitedocuments.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
-        .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsiteportalactivities.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
-        $(document).ready(function(){
-            page.init();
-            pageAudit.init();
-              $('#openSignModal').on('show.bs.modal', function(e) {
-                    $('.sigPad').signaturePad({
-                        drawOnly: true
-                    });
-               });
+        .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsiteportalactivities.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(
+        function () {
+            $(function () {
+                page.init();
+                pageAudit.init();
+                console.log('init done template');
+            });
+            setTimeout(function () {
+                if (!page.isInitialized) {
+                    page.init();
+                    if (!pageAudit.isInitialized)
+                        pageAudit.init();
+                }
+            }, 1000);
         });
-        setTimeout(function(){ // second chance init ie of course....
-            if (!page.isInitialized) page.init();
-        },1000);
-    });
-    function printaDoc(divName){divName='templatediv'
+
+    function printaDoc(divName) {
+        divName = 'templatediv';
         flattenDocument();
-         var printContents = document.getElementById(divName).innerHTML;
-         var originalContents = document.body.innerHTML;
-         document.body.innerHTML = printContents;
-         window.print();
-         document.body.innerHTML = originalContents;
-         $('.sigPad').signaturePad({
-             drawOnly: true
-           });
-         location.reload();
-    };
-    function templateText(el){
-        $(el).data('textvalue',$(el).val());
-        $(el).attr("data-textvalue",$(el).val())
-        return false;
-    }
-    function templateCheckMark(el){
-        if( $(el).data('value') == 'Yes' ){
-            $(el).data('value','No');
-            $(el).attr('data-value','No');
-        }
-        else{
-            $(el).data('value','Yes');
-            $(el).attr('data-value','Yes');
-        }
-        return false;
-    }
-    function templateRadio(el){
-        var rid = $(el).data('id')
-        $('#rgrp'+rid).data( 'value', $(el).val() )
-        $('#rgrp'+rid).attr( 'data-value', $(el).val() )
-        $(el).prop('checked',true)
-        return false;
-    }
-    function replaceTextInputs(){
-        $('.templateInput').each( function(){
-            var rv = $(this).data('textvalue');
-            $(this).replaceWith(rv)
+        var printContents = document.getElementById(divName).innerHTML;
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        $('.sigPad').signaturePad({
+            drawOnly: true
         });
-     }
-    function replaceRadioValues(){
-        $('.ynuGroup').each( function(){
+        location.reload();
+    }
+
+    function templateText(el) {
+        $(el).data('textvalue', $(el).val());
+        $(el).attr("data-textvalue", $(el).val())
+        return false;
+    }
+
+    function templateCheckMark(el) {
+        if ($(el).data('value') == 'Yes') {
+            $(el).data('value', 'No');
+            $(el).attr('data-value', 'No');
+        }
+        else {
+            $(el).data('value', 'Yes');
+            $(el).attr('data-value', 'Yes');
+        }
+        return false;
+    }
+
+    function templateRadio(el) {
+        var rid = $(el).data('id')
+        $('#rgrp' + rid).data('value', $(el).val());
+        $('#rgrp' + rid).attr('data-value', $(el).val());
+        $(el).prop('checked', true)
+        return false;
+    }
+
+    function replaceTextInputs() {
+        $('.templateInput').each(function () {
+            var rv = $(this).data('textvalue');
+            $(this).replaceWith(rv);
+        });
+    }
+
+    function replaceRadioValues() {
+        $('.ynuGroup').each(function () {
             var gid = $(this).data('id');
             var grpid = $(this).prop('id');
-            var rv = $('input:radio[name="ynradio'+gid+'"]:checked').val();
-            $(this).replaceWith(rv)
+            var rv = $('input:radio[name="ynradio' + gid + '"]:checked').val();
+            $(this).replaceWith(rv);
         });
     }
-    function replaceCheckMarks(){
-        $('.checkMark').each( function(){
+
+    function replaceCheckMarks() {
+        $('.checkMark').each(function () {
             var ckid = $(this).data('id');
-            var v = $('#'+ckid).data('value');
-            if(v)
-              $(this).replaceWith(v)
-              else
-                  $(this).replaceWith('No')
+            var v = $('#' + ckid).data('value');
+            if (v)
+                $(this).replaceWith(v)
+            else
+                $(this).replaceWith('No')
         });
     }
-    function restoreTextInputs(){
-        $('.templateInput').each( function(){
+
+    function restoreTextInputs() {
+        $('.templateInput').each(function () {
             var rv = $(this).data('textvalue');
             $(this).val(rv)
         });
-     }
-    function restoreRadioValues(){
-        $('.ynuGroup').each( function(){
+    }
+
+    function restoreRadioValues() {
+        $('.ynuGroup').each(function () {
             var gid = $(this).data('id');
             var grpid = $(this).prop('id');
             var value = $(this).data('value');
-            $("input[name=ynradio"+gid+"][value='"+value+"']").prop('checked', true);
+            $("input[name=ynradio" + gid + "][value='" + value + "']").prop('checked', true);
         });
     }
-    function restoreCheckMarks(){
-        $('.checkMark').each( function(){
+
+    function restoreCheckMarks() {
+        $('.checkMark').each(function () {
             var ckid = $(this).data('id');
             //var v = $('#'+ckid).data('value');
-            if( $('#'+ckid).data('value') == 'Yes' )
-                $('#'+ckid).prop('checked',true)
-              else
-                  $('#'+ckid).prop('checked',false)
+            if ($('#' + ckid).data('value') == 'Yes')
+                $('#' + ckid).prop('checked', true);
+            else
+                $('#' + ckid).prop('checked', false);
         });
     }
-    function flattenDocument(){
+
+    function flattenDocument() {
         replaceCheckMarks();
         replaceRadioValues();
         replaceTextInputs();
 
     }
-    function restoreDocumentEdits(){
+
+    function restoreDocumentEdits() {
         restoreCheckMarks();
         restoreRadioValues();
         restoreTextInputs();
     }
-
 </script>
 <style>
- @media print {
-    #templatecontent { width: 1220px }
-  }
+@media print {
+    #templatecontent {
+        width: 1220px
+    }
+}
 hr {
     margin-top: 2px;
     margin-bottom: 2px;
@@ -226,7 +225,7 @@ body {
 <script type="text/template" id="onsiteDocumentModelTemplate">
     <aside class="col-sm-2 col-xs-3" id="sidebar-pills">
         <ul class="nav nav-pills  nav-stacked" id="sidebar">
-            <li data-toggle="pill" class="bg-info"><a id="signTemplate"  href="#openSignModal"
+            <li data-toggle="pill" class="bg-info"><a type="patient-signature" id="signTemplate"  href="#openSignModal"
                 data-toggle="modal" data-backdrop="true" data-target="#openSignModal"><span><?php echo xlt('Signature');?></span></a></li>
             <li data-toggle="pill" class="bg-info"><a id="saveTemplate" href="#"><span"><?php echo xlt('Save');?></span></a></li>
             <li data-toggle="pill" class="bg-info"><a id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><span"><?php echo xlt('Print');?></span></a></li>
@@ -253,7 +252,6 @@ body {
                 <input type="hidden" name="handler" id="handler" value="download">
                 <input type="hidden" name="status" id="status" value="Open">
              </form>
-            <!-- <button type="button" id="submitTemplatepdf" class="btn btn-primary ">Pdf<i class="fa fa-arrow-circle-right fa-lg"></i></button>  -->
             <div class="panel-footer">
 <!-- delete button is is a separate form to prevent enter key from triggering a delete-->
 <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
@@ -276,7 +274,6 @@ body {
 </div>
 </div>
 </script>
-<!-- 	</div> -->
 <script type="text/template" id="onsiteDocumentCollectionTemplate">
 <body class="skin-blue">
     <div class="container-fluid">
@@ -291,7 +288,7 @@ body {
             <div id="collectionAlert"></div>
         </div>
         <div class="container">
-        <table class="collection table table-hover">
+        <table class="collection table table-condensed table-hover">
         <thead>
             <tr class='bg-primary' style='cursor:pointer'>
                 <th id="header_Id"><?php echo xlt('Doc Id');?><% if (page.orderBy == 'Id') { %> <i class='icon-arrow-<%= page.orderDesc ? 'up' : 'down' %>' /><% } %></th>
@@ -319,49 +316,8 @@ body {
         </table>
         <%=  view.getPaginationHtml(page) %>
 </script>
-<!--  Signature Modal -->
-<div id="openSignModal" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <div class="input-group">
-                    <span class="input-group-addon"
-                        onclick="getSignature(document.getElementById('patientSignaturemodal'))"><em><?php echo xlt('Show Current Signature On File');?><br>
-                        <?php echo xlt('As will appear on documents.');?></em>
-                    </span> <img class="signature form-control" type="patient-signature" id="patientSignaturemodal"
-                        onclick="getSignature(this)" alt="<?php echo xla('Signature On File'); ?>" src="">
-                    <!-- <span class="input-group-addon" onclick="clearSig(this)"><i class="glyphicon glyphicon-trash"></i></span> -->
-                </div>
-                <!-- <h4 class="modal-title">Sign</h4> -->
-            </div>
-            <div class="modal-body">
-                <form name="signit" id="signit" class="sigPad">
-                    <input type="hidden" name="name" id="name" class="name">
-                    <ul class="sigNav">
-                        <li style='display: none;'><input style="display: none"
-                            type="checkbox" id="isAdmin" name="isAdmin" /><?php echo xlt('Is Authorizing Signature');?></li>
-                        <li class="clearButton"><a href="#clear"><button><?php echo xlt('Clear Pad');?></button></a></li>
-                    </ul>
-                    <div class="sig sigWrapper">
-                        <div class="typed"></div>
-                        <canvas class="spad" id="drawpad" width="765" height="325"
-                            style="border: 1px solid #000000; left: 0px;"></canvas>
-                        <img id="loading"
-                            style="display: none; position: absolute; TOP: 150px; LEFT: 315px; WIDTH: 100px; HEIGHT: 100px"
-                            src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/loading.gif" /> <input type="hidden" id="output" name="output" class="output">
-                    </div>
-                    <input type="hidden" name="type" id="type" value="patient-signature">
-                    <button type="button" onclick="signDoc(this)"><?php echo xlt('Acknowledge as my Electronic Signature');?></button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-<img id="waitend"	style="display: none; position: absolute; top: 100px; left: 250px; width: 100px; height: 100px" src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/loading.gif" />
-<!-- Modal -->
     <!-- modal edit dialog -->
-<div class="modal fade" id="onsiteDocumentDetailDialog">
+<div class="modal fade" id="onsiteDocumentDetailDialog" tabindex="-1">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header"><a class="close" data-dismiss="modal">×</a>
@@ -379,10 +335,9 @@ body {
         </div>
     </div>
 </div>
-
+    <!-- processed templates go here.-->
     <div id="onsiteDocumentModelContainer" class="modelContainer"></div>
     <div id="onsiteDocumentCollectionContainer" class="collectionContainer"></div>
-
 
 </div> <!-- /container -->
 </body>
