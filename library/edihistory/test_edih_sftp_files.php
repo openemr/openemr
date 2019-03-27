@@ -170,8 +170,8 @@ function edih_disp_sftp_upload()
     $str_html = '';
 
     if (isset($_POST['post_sftp'])) {
-        $la = (isset($_POST['post_sftp'])) ? filter_input(INPUT_POST, 'post_sftp', FILTER_DEFAULT) : ;
-        $x12ptnr = (isset($_POST['sftp_select'])) ? filter_input(INPUT_POST, 'sftp_select', FILTER_DEFAULT) :;
+        $la = (isset($_POST['post_sftp'])) ? filter_input(INPUT_POST, 'post_sftp', FILTER_DEFAULT) : '';
+        $x12ptnr = (isset($_POST['sftp_select'])) ? filter_input(INPUT_POST, 'sftp_select', FILTER_DEFAULT) : '';
         //
         if (($la == 'get_sftp') && $x12ptnr) {
             // yet to be written -- gets x12 partner info and does sftp download
@@ -383,4 +383,3 @@ if (php_sapi_name() == 'cli') {
     fwrite(($exitcd ? STDERR : STDOUT), xl($exitmsgs[$exitcd]).PHP_EOL);
     exit($exitcd);
 }
-

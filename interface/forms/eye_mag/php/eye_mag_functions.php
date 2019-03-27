@@ -4048,6 +4048,21 @@ function report_header($pid, $direction = 'shell')
     ?>
     <table style="width:100%;">
         <tr>
+            <td style='width:150px;text-align:top;'>
+                <?php
+                if ($direction == "web") {
+                    $practice_logo = $GLOBALS['webroot']."/sites/default/images/practice_logo.gif";
+                    if (file_exists($OE_SITE_DIR."/images/practice_logo.gif")) {
+                        echo "<img src='$practice_logo' align='left' style='width:150px;margin:0px 10px;'><br />\n";
+                    }
+                } else {
+                    $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
+                    if (file_exists($practice_logo)) {
+                        echo "<img src='$practice_logo' align='left' style='width:100px;margin:0px 10px;'><br />\n";
+                    }
+                }
+                ?>
+            </td>
             <td style='width:40%;'>
                 <em style="font-weight:bold;font-size:1.4em;"><?php echo text($facility['name']); ?></em><br />
                 <?php echo text($facility['street']); ?><br />

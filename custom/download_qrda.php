@@ -150,7 +150,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
         <th scope="col" class="multiDownload">
             <input type="checkbox" name="checkAll" id="checkAll"/>
             <div style="display:none" id=downloadAll>
-                <img class="downloadIcon" src="<?php echo $GLOBALS['onclick=downloadAllXML()'];?>"/>
+                <img class="downloadIcon" src="<?php echo $GLOBALS['images_static_relative'];?>/downbtn.gif" onclick="downloadAllXML();" />
             </div>
             <div style="display:none" id=spinAll>
                 <img src="<?php echo $GLOBALS['images_static_relative'];?>/interface/pic/ajax-loader.gif"/>
