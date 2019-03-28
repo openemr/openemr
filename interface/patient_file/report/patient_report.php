@@ -18,6 +18,7 @@ require_once("$srcdir/patient.inc");
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
+
 if (!acl_check('patients', 'pat_rep')) {
     die(xlt('Not authorized'));
 }
