@@ -13,29 +13,18 @@
  * When the staged files are the same as the instance installed then
  * an appropriate message is rendered
  *
- * Copyright (C) 2012 Patient Healthcare Analytics, Inc.
- * Copyright (C) 2011 Phyaura, LLC <info@phyaura.com>
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  (Mac) Kevin McAloon <mcaloon@patienthealthcareanalytics.com>
- * @author  Rohit Kumar <pandit.rohit@netsity.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @author  Roberto Vasquez <robertogagliotta@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    (Mac) Kevin McAloon <mcaloon@patienthealthcareanalytics.com>
+ * @author    Rohit Kumar <pandit.rohit@netsity.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+ * @copyright Copyright (c) 2011 Phyaura, LLC <info@phyaura.com>
+ * @copyright Copyright (c) 2012 Patient Healthcare Analytics, Inc.
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-
 
 
 require_once("../../interface/globals.php");
@@ -187,17 +176,44 @@ if (is_dir($mainPATH)) {
                     $temp_date = array('date'=>$date_release, 'version'=>$version, 'path'=>$mainPATH."/".$matches[0]);
                     array_push($revisions, $temp_date);
                     $supported_file = 1;
+                } else if (preg_match("/SnomedCT_InternationalRF2_PRODUCTION_([0-9]{8})[0-9a-zA-Z]{8}.zip/", $file, $matches)) {
+                    // Hard code the version SNOMED feed to be International:English
+                    //
+                    $version = "International:English";
+                    $rf2 = true;
+                    $date_release = substr($matches[1], 0, 4)."-".substr($matches[1], 4, -2)."-".substr($matches[1], 6);
+                    $temp_date = array('date'=>$date_release, 'version'=>$version, 'path'=>$mainPATH."/".$matches[0]);
+                    array_push($revisions, $temp_date);
+                    $supported_file = 1;
+                } else if (preg_match("/SnomedCT_USEditionRF2_PRODUCTION_([0-9]{8})[0-9a-zA-Z]{8}.zip/", $file, $matches)) {
+                    // Hard code the version SNOMED feed to be Complete US Extension
+                    //
+                    $version = "Complete US Extension";
+                    $rf2 = true;
+                    $date_release = substr($matches[1], 0, 4)."-".substr($matches[1], 4, -2)."-".substr($matches[1], 6);
+                    $temp_date = array('date'=>$date_release, 'version'=>$version, 'path'=>$mainPATH."/".$matches[0]);
+                    array_push($revisions, $temp_date);
+                    $supported_file = 1;
+                } else if (preg_match("/SnomedCT_SpanishRelease-es_PRODUCTION_([0-9]{8})[0-9a-zA-Z]{8}.zip/", $file, $matches)) {
+                    // Hard code the version SNOMED feed to be International:Spanish
+                    //
+                    $version = "International:Spanish";
+                    $rf2 = true;
+                    $date_release = substr($matches[1], 0, 4)."-".substr($matches[1], 4, -2)."-".substr($matches[1], 6);
+                    $temp_date = array('date'=>$date_release, 'version'=>$version, 'path'=>$mainPATH."/".$matches[0]);
+                    array_push($revisions, $temp_date);
+                    $supported_file = 1;
                 } else {
                     // nothing
                 }
             } else if (is_numeric(strpos($db, "ICD"))) {
                 $qry_str = "SELECT `load_checksum`,`load_source`,`load_release_date` FROM `supported_external_dataloads` WHERE `load_type` = ? and `load_filename` = ? and `load_checksum` = ? ORDER BY `load_release_date` DESC";
 
-        // this query determines whether you can load the data into openEMR. you must have the correct
-        // filename and checksum for each file that are part of the same release.
-        //
-        // IMPORTANT: Releases that contain mutliple zip file (e.g. ICD10) are grouped together based
-        // on the load_release_date attribute value specified in the supported_external_dataloads table
+                // this query determines whether you can load the data into openEMR. you must have the correct
+                // filename and checksum for each file that are part of the same release.
+                //
+                // IMPORTANT: Releases that contain mutliple zip file (e.g. ICD10) are grouped together based
+                // on the load_release_date attribute value specified in the supported_external_dataloads table
                 //
                 // Just in case same filename is released on different release dates, best to actually include the md5sum in the query itself.
                 // (and if a hit, then it is a pass)
@@ -251,7 +267,7 @@ if (count($files_array) === 0) {
 if ($supported_file === 1) {
     $success_flag=1;
 
-  // Only allow 1 staged revision for the SNOMED and RXNORM imports
+    // Only allow 1 staged revision for the SNOMED and RXNORM imports
     if (($db=="SNOMED" || $db=="RXNORM") && (count($revisions) > 1)) {
         ?>
         <div class="error_msg"><?php echo xlt("The number of staged files is incorrect. Only place the file that you wish to install/upgrade to."); ?></div>
@@ -260,8 +276,8 @@ if ($supported_file === 1) {
         $success_flag=0;
     }
 
-  // Ensure all release dates and revisions are the same for multiple file imports
-  // and collect the date and revision. Also collect a checksum and path.
+    // Ensure all release dates and revisions are the same for multiple file imports
+    // and collect the date and revision. Also collect a checksum and path.
     $file_revision_date = '';
     $file_revision = '';
     $file_checksum = '';
@@ -301,7 +317,7 @@ if ($supported_file === 1) {
         $file_revision_path = $value['path'];
     }
 
-  // Determine and enforce only a certain number of files to be staged
+    // Determine and enforce only a certain number of files to be staged
     if ($success_flag === 1) {
         $number_files = 1;
         $sql_query_ret = sqlStatement("SELECT * FROM `supported_external_dataloads` WHERE `load_type` = ? AND `load_source` = ? AND `load_release_date` = ?", array($db,$file_revision,$file_revision_date));
@@ -320,7 +336,7 @@ if ($supported_file === 1) {
         }
     }
 
-  // If new version is being offered, then provide install/upgrade options
+    // If new version is being offered, then provide install/upgrade options
     if ($success_flag === 1) {
         $action = "";
         if ($installed_flag === 1) {
@@ -409,8 +425,12 @@ if ($supported_file === 1) {
         }
 
         if (strlen($action) > 0) {
+            $rf = "rf1";
+            if (!empty($rf2)) {
+                $rf = "rf2";
+            }
             ?>
-            <input id="<?php echo attr($db); ?>_install_button" version="<?php echo attr($file_revision); ?>" file_revision_date="<?php echo attr($file_revision_date); ?>" file_checksum="<?php echo attr($file_checksum); ?>" type="button" value="<?php echo attr($action); ?>"/>
+            <input id="<?php echo attr($db); ?>_install_button" version="<?php echo attr($file_revision); ?>" rf="<?php echo $rf; ?>" file_revision_date="<?php echo attr($file_revision_date); ?>" file_checksum="<?php echo attr($file_checksum); ?>" type="button" value="<?php echo attr($action); ?>"/>
       </div>
         <?php
         }
