@@ -97,6 +97,7 @@
  *       ADD  amendment   Amendments                (Physicians,Clinicians(addonly))
  *       ADD  lab         Lab Results               (Physicians,Clinicians(addonly))
  *       ADD  docs_rm     Documents Delete          (Administrators)
+ *       ADD  pat_rep     Patient Report            (Administrators)
  *     Section "admin" (Administration):
  *       ADD  multipledb  Multipledb                (Administrators)
  *       ADD  menu        Menu                      (Administrators)
@@ -691,10 +692,50 @@ if ($acl_version < $upgrade_acl) {
     $acl_version = $upgrade_acl;
 }
 
-
-/* This is a template for a new revision, when needed
 // Upgrade for acl_version 9
 $upgrade_acl = 9;
+if ($acl_version < $upgrade_acl) {
+    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
+
+    //Collect the ACL ID numbers.
+    echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
+    $admin_write = getAclIdNumber('Administrators', 'write');
+    $accounting_view = getAclIdNumber('Accounting', 'view');
+    $clinicians_view = getAclIdNumber('Clinicians', 'view');
+    $emergency_write = getAclIdNumber('Emergency Login', 'write');
+    $frontoffice_view = getAclIdNumber('Front Office', 'view');
+    $physicians_view = getAclIdNumber('Physicians', 'view');
+
+    //Add new object Sections
+    echo "<BR/><B>Adding new object sections</B><BR/>";
+    addObjectAcl('patients', 'Patients', 'pat_rep', 'Patient Report');
+
+    //Add new Objects
+    echo "<BR/><B>Adding new objects</B><BR/>";
+
+    //Update already existing Objects
+    echo "<BR/><B>Upgrading objects</B><BR/>";
+
+    //Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+    // (will also place in the appropriate group and CREATE a new group if needed)
+    echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
+    updateAcl($admin_write, 'Administrators', 'patients', 'Patients', 'pat_rep', 'Patient Report', 'write');
+    updateAcl($accounting_view, 'Accounting', 'patients', 'Patients', 'pat_rep', 'Patient Report', 'view');
+    updateAcl($clinicians_view, 'Clinicians', 'patients', 'Patients', 'pat_rep', 'Patient Report', 'view');
+    updateAcl($emergency_write, 'Emergency Login', 'patients', 'Patients', 'pat_rep', 'Patient Report', 'write');
+    updateAcl($frontoffice_view, 'Front Office', 'patients', 'Patients', 'pat_rep', 'Patient Report', 'view');
+    updateAcl($physicians_view, 'Physicians', 'patients', 'Patients', 'pat_rep', 'Patient Report', 'view');
+
+    //Update the ACLs
+    echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
+
+    //DONE with upgrading to this version
+    $acl_version = $upgrade_acl;
+}
+
+/* This is a template for a new revision, when needed
+// Upgrade for acl_version 10
+$upgrade_acl = 10;
 if ($acl_version < $upgrade_acl) {
     echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
 
@@ -723,8 +764,8 @@ if ($acl_version < $upgrade_acl) {
 */
 
 /* This is a template for a new revision, when needed
-// Upgrade for acl_version 10
-$upgrade_acl = 10;
+// Upgrade for acl_version 11
+$upgrade_acl = 11;
 if ($acl_version < $upgrade_acl) {
     echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
 

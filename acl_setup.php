@@ -188,6 +188,8 @@ $gacl->add_object('patients', 'Amendments (write,addonly optional)', 'amendment'
 // xl('Amendments (write,addonly optional)')
 $gacl->add_object('patients', 'Lab Results (write,addonly optional)', 'lab', 10, 0, 'ACO');
 // xl('Lab Results (write,addonly optional)')
+$gacl->add_object('patients', 'Patient Report', 'pat_rep', 10, 0, 'ACO');
+// xl('Patient Report')
 
 
 $gacl->add_object('groups', 'View/Add/Update groups', 'gadd', 10, 0, 'ACO');
@@ -265,7 +267,7 @@ $gacl->add_acl(
         'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'),
         'encounters'=>array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
         'lists'=>array('default','state','country','language','ethrace'),
-        'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm'),
+        'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'),
         'sensitivities'=>array('normal', 'high'),
         'nationnotes'=>array('nn_configure'),
         'patientportal'=>array('portal'),
@@ -542,7 +544,7 @@ $gacl->add_acl(
         'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'),
         'encounters'=>array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
         'lists'=>array('default','state','country','language','ethrace'),
-        'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm'),
+        'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'),
         'sensitivities'=>array('normal', 'high'),
         'nationnotes'=>array('nn_configure'),
         'patientportal'=>array('portal'),
