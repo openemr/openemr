@@ -35,115 +35,110 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
 <head>
 <title><?php echo xlt('External Data Loads'); ?></title>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'/>
-<link rel='stylesheet' href='../../library/css/jquery-ui-1.8.21.custom.css' type='text/css'/>
+<link rel='stylesheet' href='<?php echo $GLOBALS['assets_static_relative'] . '/jquery-ui-themes-1-10-4/themes/ui-lightness/jquery-ui.min.css'; ?>' type='text/css'/>
 
 
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-7-2/jquery.min.js"></script>
-<script type="text/javascript" src="../../library/js/jquery-ui-1.8.21.custom.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] . '/jquery-ui-1-10-4/ui/minified/jquery-ui.min.js'; ?>"></script>
 <script>
 
-// placemaker for when support DSMIV
-// var db_list = [ "DSMIV", "ICD9", "ICD10", "RXNORM", "SNOMED"];
 var db_list = [ "ICD9", "ICD10", "RXNORM", "SNOMED", "CQM_VALUESET"];
 var accOpts = {
     header: "h3",
-    autoHeight: false,
-
+    heightStyle: "content",
     //add change event callback
-    change: function(e, ui) {
-    var parm = 'db=' + $(ui.newContent).attr('id');
-    var inst_dets_id = '#' + $(ui.newContent).attr('id') + "_install_details";
-    var stg_dets_id = '#' + $(ui.newContent).attr('id') + "_stage_details";
-    var inst_load_id = '#' + $(ui.newContent).attr('id') + "_inst_loading";
-    var stg_load_id = '#' + $(ui.newContent).attr('id') + "_stg_loading";
-    top.restoreSession()
-    $(inst_load_id).show();
-    $(stg_load_id).show();
+    activate: function(e, ui) {
+        var parm = 'db=' + $(ui.newPanel).attr('id');
+        var inst_dets_id = '#' + $(ui.newPanel).attr('id') + "_install_details";
+        var stg_dets_id = '#' + $(ui.newPanel).attr('id') + "_stage_details";
+        var inst_load_id = '#' + $(ui.newPanel).attr('id') + "_inst_loading";
+        var stg_load_id = '#' + $(ui.newPanel).attr('id') + "_stg_loading";
+        top.restoreSession()
+        $(inst_load_id).show();
+        $(stg_load_id).show();
         $.ajax({
             url: 'list_installed.php',
             data: parm,
-        cache: false,
+            cache: false,
             success: function(data) {
                 $(inst_dets_id).html(data);
             }
         });
-    $.ajax({
-        url: 'list_staged.php',
-        data: parm,
-            cache: false,
-        success: function(data) {
-            $(stg_load_id).hide();
-            $(stg_dets_id).html(data);
-            $("#" + $(ui.newContent).attr('id') + "_instrmsg").hover(
-                function() {
-                var dlg = "#" + $(ui.newContent).attr('id') + "_dialog";
-            $(dlg).dialog('open');
-            $(dlg).load($(ui.newContent).attr('id').toLowerCase() + '_howto.php');
-                },
-                function() {
-                }
-            );
-            $("#" + $(ui.newContent).attr('id') + "_unsupportedmsg").hover(
-                function() {
-                $(this).append('<div class="tooltip"><p><?php echo xla("OpenEMR does not recognize the incoming file in the contrib directory. This is most likely because you need to configure the release in the supported_external_dataloads table in the MySQL database."); ?></p></div>');
-                },
-                function() {
-                $("div.tooltip").remove();
-                }
-            );
-            $("#" + $(ui.newContent).attr('id') + "_dirmsg").hover(
-                function() {
-                $(this).append('<div class="tooltip"><p><?php echo xla("Please create the following directory before proceeding"); ?>' + ': contrib/' + $(ui.newContent).attr('id').toLowerCase() + '</p></div>');
-                },
-                function() {
-                $("div.tooltip").remove();
-                }
-            );
-            $("#" + $(ui.newContent).attr('id') + "_msg").hover(
-                function() {
-                $(this).append('<div class="tooltip"><p><?php echo xla("Please place your install files in following directory"); ?>' + ': contrib/' + $(ui.newContent).attr('id').toLowerCase() + '</p></div>');
-                },
-                function() {
-                $("div.tooltip").remove();
-                }
-            );
-            $("#" + $(ui.newContent).attr('id') + "_install_button").click(
-            function(e){
-            $(this).attr("disabled", "disabled");
-            var stg_load_id = '#' + $(ui.newContent).attr('id') + "_stg_loading";
-            $(stg_load_id).show();
-            var thisInterval;
-                    var parm = 'db=' + $(ui.newContent).attr('id') + '&newInstall=' + (($(this).val() === 'INSTALL') ? 1 : 0) + '&file_checksum=' + $(this).attr('file_checksum') + '&file_revision_date=' + $(this).attr('file_revision_date') + '&version=' + $(this).attr('version') + '&rf=' + $(this).attr('rf');
-            var stg_dets_id = '#' + $(ui.newContent).attr('id') + "_stage_details";
-            $activeAccordionSection = $("#accordion").accordion('option', 'active');
+        $.ajax({
+            url: 'list_staged.php',
+            data: parm,
+                cache: false,
+            success: function(data) {
+                $(stg_load_id).hide();
+                $(stg_dets_id).html(data);
+                $("#" + $(ui.newPanel).attr('id') + "_instrmsg").hover(
+                    function() {
+                    var dlg = "#" + $(ui.newPanel).attr('id') + "_dialog";
+                $(dlg).dialog('open');
+                $(dlg).load($(ui.newPanel).attr('id').toLowerCase() + '_howto.php');
+                    },
+                    function() {
+                    }
+                );
+                $("#" + $(ui.newPanel).attr('id') + "_unsupportedmsg").hover(
+                    function() {
+                    $(this).append('<div class="tooltip"><p><?php echo xla("OpenEMR does not recognize the incoming file in the contrib directory. This is most likely because you need to configure the release in the supported_external_dataloads table in the MySQL database."); ?></p></div>');
+                    },
+                    function() {
+                    $("div.tooltip").remove();
+                    }
+                );
+                $("#" + $(ui.newPanel).attr('id') + "_dirmsg").hover(
+                    function() {
+                    $(this).append('<div class="tooltip"><p><?php echo xla("Please create the following directory before proceeding"); ?>' + ': contrib/' + $(ui.newPanel).attr('id').toLowerCase() + '</p></div>');
+                    },
+                    function() {
+                    $("div.tooltip").remove();
+                    }
+                );
+                $("#" + $(ui.newPanel).attr('id') + "_msg").hover(
+                    function() {
+                    $(this).append('<div class="tooltip"><p><?php echo xla("Please place your install files in following directory"); ?>' + ': contrib/' + $(ui.newPanel).attr('id').toLowerCase() + '</p></div>');
+                    },
+                    function() {
+                    $("div.tooltip").remove();
+                    }
+                );
+                $("#" + $(ui.newPanel).attr('id') + "_install_button").click(function(e){
+                    $(this).attr("disabled", "disabled");
+                    var stg_load_id = '#' + $(ui.newPanel).attr('id') + "_stg_loading";
+                    $(stg_load_id).show();
+                    var thisInterval;
+                            var parm = 'db=' + $(ui.newPanel).attr('id') + '&newInstall=' + (($(this).val() === 'INSTALL') ? 1 : 0) + '&file_checksum=' + $(this).attr('file_checksum') + '&file_revision_date=' + $(this).attr('file_revision_date') + '&version=' + $(this).attr('version') + '&rf=' + $(this).attr('rf');
+                    var stg_dets_id = '#' + $(ui.newPanel).attr('id') + "_stage_details";
+                    $activeAccordionSection = $("#accordion").accordion('option', 'active');
 
                     $.ajax({
-                url: 'standard_tables_manage.php',
-                data: parm,
-                        cache: false,
-                success: function(data) {
-                var stg_load_id = '#' + $(ui.newContent).attr('id') + "_stg_loading";
-                $(stg_load_id).hide();
-                var $dialog=$('<div class=stg id="response_dialog"></div>').dialog({
-                        buttons: { "Close": function() { $(this).dialog("close"); } },
-                            close: function(event,ui){$(this).remove ();},
-                            autoOpen:false,
-                            resizable:'false',
-                            modal:true,
-                            show:'blind',
-                            hide:{effect:'blind',duration:300}
-                            });
-                        $dialog.dialog('open');
-                $("#response_dialog").html(data);
-                    $("#accordion").accordion("activate", 0);
-                    $("#accordion").accordion("activate", <?php echo $activeAccordionSection; ?>);
-                }
+                        url: 'standard_tables_manage.php',
+                        data: parm,
+                                cache: false,
+                        success: function(data) {
+                        var stg_load_id = '#' + $(ui.newPanel).attr('id') + "_stg_loading";
+                        $(stg_load_id).hide();
+                        var $dialog=$('<div class=stg id="response_dialog"></div>').dialog({
+                                buttons: { "Close": function() { $(this).dialog("close"); } },
+                                    close: function(event,ui){$(this).remove ();},
+                                    autoOpen:false,
+                                    resizable:'false',
+                                    modal:true,
+                                    show:'blind',
+                                    hide:{effect:'blind',duration:300}
+                                    });
+                                $dialog.dialog('open');
+                        $("#response_dialog").html(data);
+                            $("#accordion").accordion("option", "active", 0);
+                            $("#accordion").accordion("option", "active", <?php echo $activeAccordionSection; ?>);
+                        }
                     });
+                });
+                return false;
             }
-        );
-            return false;
-        }
-    });
+        });
     }
 };
 
@@ -171,7 +166,7 @@ $(function() {
     });
 
     $( ".history_button" ).button({ icons: {primary:'ui-icon-triangle-1-s'}});
-    $("#accordion").accordion("activate", <?php echo $activeAccordionSection; ?>);
+    $("#accordion").accordion("option", "active", <?php echo $activeAccordionSection; ?>);
   });
 });
 </script>
