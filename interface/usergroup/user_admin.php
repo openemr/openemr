@@ -228,11 +228,28 @@ function authorized_clicked() {
 <body class="body_top">
 
 <div class="container">
-
+    <?php
+    /*  Get the list ACL for the user */
+    $is_super_user = acl_check('admin', 'super');
+    $acl_name=acl_get_group_titles($iter["username"]);
+    $bg_name='';
+    $bg_count=count($acl_name);
+    $selected_user_is_superuser = false;
+    for ($i=0; $i<$bg_count; $i++) {
+        if ($acl_name[$i] == "Emergency Login") {
+            $bg_name=$acl_name[$i];
+        }
+        //check if user member on group with superuser rule
+        if (is_group_include_superuser($acl_name[$i])) {
+            $selected_user_is_superuser = true;
+        }
+    }
+    $disabled_save = !$is_super_user && $selected_user_is_superuser ? 'disabled' : '';
+    ?>
 <table><tr><td>
 <span class="title"><?php echo xlt('Edit User'); ?></span>&nbsp;
 </td><td>
-    <a class="btn btn-default btn-save" name='form_save' id='form_save' href='#' onclick='return submitform()'> <span><?php echo xlt('Save');?></span> </a>
+    <a class="btn btn-default btn-save" name='form_save' id='form_save' href='#' onclick='return submitform()' <?php echo $disabled_save; ?>> <span><?php echo xlt('Save');?></span> </a>
     <a class="btn btn-link btn-cancel" id='cancel' href='#'><span><?php echo xlt('Cancel');?></span></a>
 </td></tr>
 </table>
@@ -256,17 +273,6 @@ if ($password_exp != "0000-00-00") {
 ?>
 <input type=hidden name="current_date" value="<?php echo attr(strtotime($current_date)); ?>" >
 <input type=hidden name="grace_time" value="<?php echo attr(strtotime($grace_time1)); ?>" >
-<!--  Get the list ACL for the user -->
-<?php
-$acl_name=acl_get_group_titles($iter["username"]);
-$bg_name='';
-$bg_count=count($acl_name);
-for ($i=0; $i<$bg_count; $i++) {
-    if ($acl_name[$i] == "Emergency Login") {
-        $bg_name=$acl_name[$i];
-    }
-}
-?>
 <input type=hidden name="user_type" value="<?php echo attr($bg_name); ?>" >
 
 <TABLE border=0 cellpadding=0 cellspacing=0>
@@ -471,7 +477,7 @@ echo generate_select_list(
  <td><select id="access_group_id" name="access_group[]" multiple style="width:150px;" class="form-control">
 <?php
 // Collect the access control group of user
-$list_acl_groups = acl_get_group_title_list();
+$list_acl_groups = acl_get_group_title_list($is_super_user || $selected_user_is_superuser);
 $username_acl_groups = acl_get_group_titles($iter["username"]);
 foreach ($list_acl_groups as $value) {
     if (($username_acl_groups) && in_array($value, $username_acl_groups)) {
@@ -490,7 +496,12 @@ foreach ($list_acl_groups as $value) {
   </tr>
   <tr height="20" valign="bottom">
   <td colspan="4" class="text">
-  *<?php echo xlt('You must enter your own password to change user passwords. Leave blank to keep password unchanged.'); ?>
+      <p>*<?php echo xlt('You must enter your own password to change user passwords. Leave blank to keep password unchanged.'); ?></p>
+    <?php
+    if (!$is_super_user && $selected_user_is_superuser) {
+        echo '<p class="redtext">*' . xlt('View mode - only administrator can edit another administrator user') . '.</p>';
+    }
+    ?>
 <!--
 Display red alert if entered password matched one of last three passwords/Display red alert if user password was expired and the user was inactivated previously
 -->

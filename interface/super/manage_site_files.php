@@ -21,31 +21,6 @@ if (!acl_check('admin', 'super')) {
     die(xlt('Not authorized'));
 }
 
-// Prepare array of names of editable files, relative to the site directory.
-$my_files = array(
-  'config.php',
-  'faxcover.txt',
-  'faxtitle.eps',
-  'referral_template.html',
-  'statement.inc.php',
-  'letter_templates/custom_pdf.php',
-);
-// Append LBF plugin filenames to the array.
-$lres = sqlStatement('SELECT grp_form_id FROM layout_group_properties ' .
-    "WHERE grp_form_id LIKE 'LBF%' AND grp_group_id = '' AND grp_activity = 1 ORDER BY grp_seq, grp_title");
-while ($lrow = sqlFetchArray($lres)) {
-    $option_id = $lrow['grp_form_id']; // should start with LBF
-    $my_files[] = "LBF/$option_id.plugin.php";
-}
-
-$form_filename = $_REQUEST['form_filename'];
-// Sanity check to prevent evildoing.
-if (!in_array($form_filename, $my_files)) {
-    $form_filename = '';
-}
-
-$filepath = "$OE_SITE_DIR/$form_filename";
-
 $imagedir     = "$OE_SITE_DIR/images";
 $educationdir = "$OE_SITE_DIR/documents/education";
 
@@ -55,6 +30,31 @@ if (!empty($_POST['bn_save'])) {
         csrfNotVerified();
     }
 
+    /** This is a feature that allows editing of configuration files. Uncomment this
+        at your own risk, since it is considered a critical security vulnerability if
+        OpenEMR is not configured correctly.
+    // Prepare array of names of editable files, relative to the site directory.
+    $my_files = array(
+    'config.php',
+    'faxcover.txt',
+    'faxtitle.eps',
+    'referral_template.html',
+    'statement.inc.php',
+    'letter_templates/custom_pdf.php',
+    );
+    // Append LBF plugin filenames to the array.
+    $lres = sqlStatement('SELECT grp_form_id FROM layout_group_properties ' .
+    "WHERE grp_form_id LIKE 'LBF%' AND grp_group_id = '' AND grp_activity = 1 ORDER BY grp_seq, grp_title");
+    while ($lrow = sqlFetchArray($lres)) {
+    $option_id = $lrow['grp_form_id']; // should start with LBF
+    $my_files[] = "LBF/$option_id.plugin.php";
+    }
+    $form_filename = $_REQUEST['form_filename'];
+    // Sanity check to prevent evildoing.
+    if (!in_array($form_filename, $my_files)) {
+    $form_filename = '';
+    }
+    $filepath = "$OE_SITE_DIR/$form_filename";
     if ($form_filename) {
         // Textareas, at least in Firefox, return a \r\n at the end of each line
         // even though only \n was originally there.  For consistency with
@@ -66,8 +66,9 @@ if (!empty($_POST['bn_save'])) {
         ));
         $form_filename = '';
     }
+    */
 
-  // Handle image uploads.
+    // Handle image uploads.
     if (is_uploaded_file($_FILES['form_image']['tmp_name']) && $_FILES['form_image']['size']) {
         $form_dest_filename = $_POST['form_dest_filename'];
         if ($form_dest_filename == '') {
@@ -100,7 +101,7 @@ if (!empty($_POST['bn_save'])) {
         }
     }
 
-  // Handle PDF uploads for patient education.
+    // Handle PDF uploads for patient education.
     if (is_uploaded_file($_FILES['form_education']['tmp_name']) && $_FILES['form_education']['size']) {
         $form_dest_filename = $_FILES['form_education']['name'];
         $form_dest_filename = strtolower(basename($form_dest_filename));
@@ -268,10 +269,12 @@ function msfFileChanged() {
 <p>
 <table border='1' width='95%'>
 
+<?php /** This is a feature that allows editing of configuration files. Uncomment this
+at your own risk, since it is considered a critical security vulnerability if
+OpenEMR is not configured correctly. ?>
  <tr bgcolor='#dddddd' class='dehead'>
   <td colspan='2' align='center'><?php echo xlt('Edit File in') . " " . text($OE_SITE_DIR); ?></td>
  </tr>
-
  <tr>
   <td valign='top' class='detail' nowrap>
    <select name='form_filename' onchange='msfFileChanged()'>
@@ -282,7 +285,6 @@ foreach ($my_files as $filename) {
     if ($filename == $form_filename) {
         echo " selected";
     }
-
     echo ">" . text($filename) . "</option>\n";
 }
 ?>
@@ -295,6 +297,7 @@ foreach ($my_files as $filename) {
 ?></textarea>
   </td>
  </tr>
+<?php */ ?>
 
  <tr bgcolor='#dddddd' class='dehead'>
   <td colspan='2' align='center'><?php echo text(xl('Upload Image to') . " $imagedir"); ?></td>

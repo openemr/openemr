@@ -12,7 +12,7 @@
 if (!(function_exists('xl'))) {
     function xl($constant, $mode = 'r', $prepend = '', $append = '')
     {
-        if ($GLOBALS['temp_skip_translations']) {
+        if (!empty($GLOBALS['temp_skip_translations'])) {
             return $constant;
         }
 

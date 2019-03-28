@@ -28,6 +28,8 @@ _Example:_ `https://domain/apis/fhir/Patient` returns a Patients bundle resource
 #### POST /api/auth
 
 Obtain an API token with your login (returns an API token). For FHIR replace Uri component 'api' with 'fhir':
+Scope must match a site that has been setup in OpenEMR in the /sites/ directory.  If you haven't created additional sites
+then 'default' should be the scope.
 
 ```
 curl -X POST -H 'Content-Type: application/json' 'https://localhost:8300/apis/api/auth' \

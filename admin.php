@@ -13,12 +13,9 @@
  */
 // Checks if the server's PHP version is compatible with OpenEMR:
 require_once(dirname(__FILE__) . "/common/compatibility/Checker.php");
-
-use OpenEMR\Common\Checker;
-
-$response = Checker::checkPhpVersion();
+$response = OpenEMR\Common\Checker::checkPhpVersion();
 if ($response !== true) {
-    die($response);
+    die(htmlspecialchars($response));
 }
 
 require_once "version.php";
@@ -95,7 +92,7 @@ function sqlQuery($statement, $link)
                 </div>
             </div>
         </div>
-        
+
         <div class="row">
             <div class="col-sm-12">
                 <table class='table table-striped'>
@@ -232,7 +229,7 @@ function sqlQuery($statement, $link)
                         </div>
                         <div class="modal-body" style="height:80%;">
                             <iframe src="" id="targetiframe" style="height:100%; width:100%; overflow-x: hidden; border:none"
-                            allowtransparency="true"></iframe>  
+                            allowtransparency="true"></iframe>
                         </div>
                         <div class="modal-footer" style="margin-top:0px;">
                            <button class="btn btn-link btn-cancel oe-pull-away" data-dismiss="modal" type="button">Close</button>

@@ -58,6 +58,7 @@
     ],
     "autoload" : {
         "exclude-from-classmap" : [
+            "common/compatibility/Checker.php",
             "library/classes/ClinicalTypes/",
             "library/classes/rulesets/",
             "library/classes/smtp/",
