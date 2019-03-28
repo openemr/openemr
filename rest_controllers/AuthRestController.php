@@ -51,12 +51,9 @@ class AuthRestController
         $sql .= "     user_id=?,";
         $sql .= "     token=?,";
         $sql .= "     expiry=DATE_ADD(NOW(), INTERVAL 1 HOUR)";
-
         sqlInsert($sql, [$user["id"], $new_token]);
 
-        $token = sqlQuery("SELECT token FROM api_token WHERE user_id = ? ORDER BY id DESC", array($user["id"]));
-
-        $encoded_token = $token["token"] . $encoded_api_site;
+        $encoded_token = $new_token . $encoded_api_site;
         $give = array("token_type" => "Bearer", "access_token" => $encoded_token, "expires_in" => "3600");
         http_response_code(200);
         return $give;
