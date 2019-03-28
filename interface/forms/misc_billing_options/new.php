@@ -170,7 +170,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                     </div>
                     <div class="form-group">
                         <label class="form-inline"><?php echo xlt('Box 17. Provider') ?>:
-                            <?php genProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', $obj{"provider_id"}); ?>
+                            <?php genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', $obj{"provider_id"}); ?>
                         </label>
                         <label class="form-inline"><?php echo xlt('Box 17. Provider Qualifier'); ?>:
                             <?php echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code', $obj{"provider_qualifier_code"}, 'Provider Qualifier Code'); ?>

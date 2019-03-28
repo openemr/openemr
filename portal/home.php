@@ -73,7 +73,6 @@ $(document).ready(function () {
     $("#payment").load("./portal_payment.php", {}, function () {});
     <?php } ?>
 
-    $('.sigPad').signaturePad({drawOnly: true});
     $(".generateDoc_download").click(function () {
         $("#doc_form").submit();
     });
@@ -167,7 +166,6 @@ function editAppointment(mode,deid){
 
                         <div class="panel-footer"></div>
                     </div>
-
                     <div class="panel panel-primary">
                         <header class="panel-heading"><?php echo xlt('Medications Allergy List'); ?>  </header>
                         <div id="allergylist" class="panel-body"></div>
@@ -349,53 +347,5 @@ function editAppointment(mode,deid){
         <!--<div class="footer-main">Onsite Patient Portal Beta v3.0 Copyright &copy By sjpadgett@gmail.com, 2016 All Rights Reserved and Recorded</div>-->
     </aside><!-- /.right-side -->
     </div><!-- ./wrapper -->
-<div id="openSignModal" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <div class="input-group">
-                    <span class="input-group-addon"
-                          onclick="getSignature(document.getElementById('patientSignaturem'))"><em> <?php echo xlt('Show Current Signature On File'); ?>
-                            <br>
-                            <?php echo xlt('As appears on documents'); ?>.</em></span> <img
-                        class="signature form-control" type="patient-signature"
-                        id="patientSignaturem" onclick="getSignature(this)"
-                        alt="Signature On File" src="">
-                </div>
-            </div>
-            <div class="modal-body">
-                <form name="signit" id="signit" class="sigPad">
-                    <input type="hidden" name="name" id="name" class="name">
-                    <ul class="sigNav">
-                        <label style='display: none;'><input style='display: none;'
-                            type="checkbox" class="" id="isAdmin" name="isAdmin" /><?php echo xlt('Is Authorizing Signature');?></label>
-                        <li class="clearButton"><a href="#clear"><button><?php echo xlt('Clear Signature');?></button></a></li>
-                    </ul>
-                    <div class="sig sigWrapper">
-                        <div class="typed"></div>
-                        <canvas class="spad" id="drawpad" width="765" height="325"
-                            style="border: 1px solid #000000; left: 0px;"></canvas>
-                        <img id="loading"
-                            style="display: none; position: absolute; TOP: 150px; LEFT: 315px; WIDTH: 100px; HEIGHT: 100px"
-                            src="sign/assets/loading.gif" /> <input type="hidden" id="output"
-                            name="output" class="output">
-                    </div>
-                    <input type="hidden" name="type" id="type"
-                        value="patient-signature">
-                    <button type="button" onclick="signDoc(this)"><?php echo xlt('Acknowledge as my Electronic Signature');?>.</button>
-                </form>
-            </div>
-        </div>
-        <!-- <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div> -->
-    </div>
-</div><!-- Modal -->
-<img id="waitend"
-    style="display: none; position: absolute; top: 100px; left: 260px; width: 100px; height: 100px"
-    src="sign/assets/loading.gif" />
-
-
 </body>
 </html>

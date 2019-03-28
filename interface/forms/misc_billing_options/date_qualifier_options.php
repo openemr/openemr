@@ -30,12 +30,9 @@ function generateDateQualifierSelect($name, $options, $obj)
     echo     "</select>";
 }
 
-function genProviderSelect($selname, $toptext, $default = 0, $disabled = false)
+function genReferringProviderSelect($selname, $toptext, $default = 0, $disabled = false)
 {
-    $query = "SELECT id, lname, fname FROM users WHERE " .
-    "( authorized = 1 OR info LIKE '%provider%' ) AND username != '' " .
-    "AND active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
-    "ORDER BY lname, fname";
+    $query = "SELECT id, lname, fname FROM users WHERE npi != '' ORDER BY lname, fname";
     $res = sqlStatement($query);
     echo "<select name='" . attr($selname) . "'";
     if ($disabled) {
