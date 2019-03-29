@@ -63,9 +63,7 @@ if ($tableDoesExist == true && $tableHasData == true) {
     //table needs to be installed
 } else {
     echo "<a href='drugDataInsert.php?csrf_token_form=" . attr_url(collectCsrfToken()) . "' class='btn btn-default'>".xlt("Import Formularies")."</a> <br>".xlt("Be patient, this can take a while.");
-
 }
-
 ?>
 
 <br><br>
