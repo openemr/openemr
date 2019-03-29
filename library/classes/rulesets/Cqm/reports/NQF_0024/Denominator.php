@@ -6,17 +6,16 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-require_once('AbstractCqmReport.php');
-
-class NQF_Unimplemented extends AbstractCqmReport implements RsUnimplementedIF
+class NQF_0024_Denominator implements CqmFilterIF
 {
-    public function __construct()
+    public function getTitle()
     {
-        parent::__construct(array(), array(), null);
+        return "Denominator";
     }
     
-    public function createPopulationCriteria()
+    public function test(CqmPatient $patient, $beginDate, $endDate)
     {
-         return null;
+        // Same as IPP
+        return true ;
     }
 }
