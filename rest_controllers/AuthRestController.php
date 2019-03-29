@@ -42,6 +42,7 @@ class AuthRestController
         $new_token = produceRandomString(32, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
         if (empty($new_token)) {
             http_response_code(500);
+            error_log("OpenEMR Error: API was unable to create a random Bearer token");
             return;
         }
 
