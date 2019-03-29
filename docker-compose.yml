@@ -1,0 +1,66 @@
+# Use admin/pass as user/password credentials to login to openemr (from OE_USER and OE_PASS below)
+# MYSQL_HOST and MYSQL_ROOT_PASS are required for openemr
+# FLEX_REPOSITORY and (FLEX_REPOSITORY_BRANCH or FLEX_REPOSITORY_TAG) are required for flex openemr
+# EASY_DEV_MODE prevents issues with permissions when mounting volumes
+# MYSQL_USER, MYSQL_PASS, OE_USER, MYSQL_PASS are optional for openemr and
+#   if not provided, then default to openemr, openemr, admin, and pass respectively.
+version: '3.1'
+services:
+  mysql:
+    restart: always
+    image: mariadb:10.2
+    command: ['mysqld','--character-set-server=utf8']
+    ports:
+    - 8320:3306
+    volumes:
+    - databasevolume:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  openemr:
+    restart: always
+    # use an image if you're not changing the build steps:
+    image: openemr/openemr:flex
+    # if editing the Dockerfile, clone the devops repo and point to the path:
+    # build: ../openemr-devops/docker/openemr/flex-edge/
+    ports:
+    - 8300:80
+    - 9300:443
+    - 3000:3000 # browsersync
+    - 3001:3001 # browsersync-admin
+    volumes:
+    - .:/var/www/localhost/htdocs/openemr:rw
+    - assetsvolume01:/var/www/localhost/htdocs/openemr/public:rw
+    - configvolume01:/var/www/localhost/htdocs/openemr/sites/default:rw
+    - configvolume02:/var/www/localhost/htdocs/openemr/interface/modules/zend_modules/config:rw
+    - logvolume01:/var/log
+    - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
+    - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
+    - ccdamodule:/var/www/localhost/htdocs/openemr/ccdaservice:rw
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASS: root
+      MYSQL_USER: openemr
+      MYSQL_PASS: openemr
+      OE_USER: admin
+      OE_PASS: pass
+      FLEX_REPOSITORY: https://github.com/openemr/openemr.git
+      FLEX_REPOSITORY_BRANCH: master
+      EASY_DEV_MODE: "yes"
+    depends_on:
+    - mysql
+  phpmyadmin:
+    restart: always
+    image: phpmyadmin/phpmyadmin
+    ports:
+    - 8310:80
+    environment:
+      PMA_HOSTS: mysql
+volumes:
+  databasevolume: {}
+  assetsvolume01: {}
+  configvolume01: {}
+  configvolume02: {}
+  logvolume01: {}
+  nodemodules: {}
+  vendordir: {}
+  ccdamodule: {}
