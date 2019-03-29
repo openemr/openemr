@@ -6,17 +6,19 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-require_once('AbstractCqmReport.php');
-
-class NQF_Unimplemented extends AbstractCqmReport implements RsUnimplementedIF
+class NQF_0038_Numerator3 implements CqmFilterIF
 {
-    public function __construct()
+    public function getTitle()
     {
-        parent::__construct(array(), array(), null);
+        return "Numerator 3";
     }
     
-    public function createPopulationCriteria()
+    public function test(CqmPatient $patient, $beginDate, $endDate)
     {
-         return null;
+        if (Immunizations::checkMmr($patient, $beginDate, $endDate)) {
+            return true;
+        }
+        
+        return false;
     }
 }

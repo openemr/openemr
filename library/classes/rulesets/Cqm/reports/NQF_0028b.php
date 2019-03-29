@@ -1,22 +1,15 @@
 <?php
-// Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
+// Copyright (C) 2011 Brady Miller <brady.g.miller@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-require_once('AbstractCqmReport.php');
-
-class NQF_Unimplemented extends AbstractCqmReport implements RsUnimplementedIF
+class NQF_0028b extends AbstractCqmReport
 {
-    public function __construct()
-    {
-        parent::__construct(array(), array(), null);
-    }
-    
     public function createPopulationCriteria()
     {
-         return null;
+         return new NQF_0028b_PopulationCriteria();
     }
 }

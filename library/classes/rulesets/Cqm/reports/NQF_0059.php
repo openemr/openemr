@@ -6,17 +6,10 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-require_once('AbstractCqmReport.php');
-
-class NQF_Unimplemented extends AbstractCqmReport implements RsUnimplementedIF
+class NQF_0059 extends AbstractCqmReport
 {
-    public function __construct()
-    {
-        parent::__construct(array(), array(), null);
-    }
-    
     public function createPopulationCriteria()
     {
-         return null;
+         return new NQF_0059_PopulationCriteria();
     }
 }
