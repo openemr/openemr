@@ -131,7 +131,7 @@ if (empty($collectthis)) {
 ?>
 <?php $group_disabled = ($_GET['group'] && !$g_edit && $have_group_global_enabled )?' disabled=true; ':'';?>
 <?php if ($group_disabled) {
-    echo '<script>$( document ).ready(function(){
+    echo '<script>$(function (){
     $("input").prop("disabled", true);
     $("select").prop("disabled", true);
 }) </script>';
@@ -2006,7 +2006,7 @@ if ($repeatexdate != "") {
 <script language="javascript">
 // jQuery stuff to make the page a little easier to use
 
-$(document).ready(function(){
+$(function (){
     $("#form_save").click(function(e) { validateform(e,"save"); });
     $("#form_duplicate").click(function(e) { validateform(e,"duplicate"); });
     $("#find_available").click(function() { find_available(''); });
@@ -2031,6 +2031,7 @@ $(document).ready(function(){
     });
 
 });
+
 
 function are_days_checked(){
     var days = document.getElementById("days").getElementsByTagName('input');
