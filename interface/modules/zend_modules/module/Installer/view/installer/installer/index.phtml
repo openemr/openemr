@@ -32,7 +32,7 @@ $zendModDir 	= $GLOBALS['zendModDir'];
 $depObj 	= $this->dependencyObject;
 
 ?>
-<h1><img src="<?php echo $GLOBALS['images_static_relative']; ?>/module.png" class="nav-menu-img"><?php echo $this->escapeHtml($title); ?></h1>
+<h1><img src="<?php echo $this->basePath()?>/images/module.png" class="nav-menu-img"><?php echo $this->escapeHtml($title); ?></h1>
 
 <ul class="tabNav">
 		<li class="current divMenu" onclick="$('.registered').show();$('.unregistered').hide();$('.divMenu').removeClass('current');$(this).addClass('current');" >
