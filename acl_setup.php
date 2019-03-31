@@ -289,7 +289,8 @@ $gacl->add_acl(
 //
 $gacl->add_acl(
     array(
-        'placeholder'=>array('filler')
+        'placeholder'=>array('filler'),
+        'patients'=>array('pat_rep')
     ),
     null,
     array($doc),
@@ -354,7 +355,8 @@ $gacl->add_acl(
 //
 $gacl->add_acl(
     array(
-        'placeholder'=>array('filler')
+        'placeholder'=>array('filler'),
+        'patients'=>array('pat_rep')
     ),
     null,
     array($clin),
@@ -418,7 +420,7 @@ $gacl->add_acl(
 //
 $gacl->add_acl(
     array(
-        'patients'=>array('alert')
+        'patients'=>array('alert','pat_rep')
     ),
     null,
     array($front),
@@ -478,7 +480,7 @@ $gacl->add_acl(
 //
 $gacl->add_acl(
     array(
-        'patients'=>array('alert')
+        'patients'=>array('alert','pat_rep')
     ),
     null,
     array($back),

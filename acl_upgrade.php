@@ -97,7 +97,6 @@
  *       ADD  amendment   Amendments                (Physicians,Clinicians(addonly))
  *       ADD  lab         Lab Results               (Physicians,Clinicians(addonly))
  *       ADD  docs_rm     Documents Delete          (Administrators)
- *       ADD  pat_rep     Patient Report            (Administrators)
  *     Section "admin" (Administration):
  *       ADD  multipledb  Multipledb                (Administrators)
  *       ADD  menu        Menu                      (Administrators)
@@ -107,6 +106,9 @@
  *       ADD  glog        Group encounter log       (Administrators,Physicians, Clinicians)
  *       ADD  gdlog       Group detailed log of appointment in patient record (Administrators)
  *       ADD  gm          Send message from the permanent group therapist to the personal therapist (Administrators)
+ *   5.0.2
+ *     Section "patients" (Patients):
+ *       ADD  pat_rep     Patient Report            (Administrators)
  * </pre>
  *
  * @package   OpenEMR
