@@ -29,7 +29,7 @@
 
 		<td><input type="text" name="files[{$file.document_id|attr}][patient_id]" size="5" value="{$file.patient_id|attr}"><input type="hidden" name="patient_name" value=""></td>
 
-		<td><a href="javascript:{literal}{}{/literal}" onclick="top.restoreSession();var URL='controller.php?patient_finder&find&form_id=queue{"['files[`$file.document_id`][patient_id]']"|attr_url}&form_name=patient_name'; window.open(URL, 'queue', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left = 425,top = 250');"><img src="images/stock_search-16.png" border="0"</a>&nbsp;&nbsp;&nbsp;</td>
+		<td><a href="javascript:{literal}{}{/literal}" onclick="top.restoreSession();var URL='controller.php?patient_finder&find&form_id=queue{"['files[`$file.document_id`][patient_id]']"|attr_url}&form_name=patient_name'; window.open(URL, 'queue', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left = 425,top = 250');"><img src="<?php echo $GLOBALS['images_static_relative']; ?>/stock_search-16.png" border="0" /></a>&nbsp;&nbsp;&nbsp;</td>
 		<td><select name="files[{$file.document_id}][category_id]">{$tree_html_listbox}</select></td>
 
 	</tr>

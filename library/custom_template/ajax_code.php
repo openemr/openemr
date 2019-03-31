@@ -158,11 +158,11 @@ if ($Source!="add_template") {
         $i++;
         echo "<li id='clorder_".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."' style='cursor:pointer'><span>";
         if (acl_check('nationnotes', 'nn_configure')) {
-            echo "<img src='../../images/b_edit.png' onclick=update_item_div('".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."')>";
+            echo "<img src='". $GLOBALS['images_static_relative']/deleteBtn.png . "' onclick=update_item_div('".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."')>";
         }
         echo "<div style='display:inline' id='".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."' onclick=\"moveOptions_11('".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."', 'textarea1');\">".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."</div>";
         if (acl_check('nationnotes', 'nn_configure')) {
-            echo "<img src='../../images/deleteBtn.png' onclick=\"delete_item('".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."')\">";
+            echo "<img src='". $GLOBALS['images_static_relative']/deleteBtn.png . "' onclick=\"delete_item('".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."')\">";
             echo "<div id='update_item".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."' style='display:none'><textarea name='update_item_txt".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."' id='update_item_txt".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."'>".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."</textarea></br>";
             echo "<input type='button' name='update' onclick=update_item('".$row['cl_list_slno']."') value='".htmlspecialchars(xl('Update'), ENT_QUOTES)."'><input type='button' name='cancel' value='". htmlspecialchars(xl('Cancel'), ENT_QUOTES)."' onclick=cancel_item('".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."')></div>";
         }

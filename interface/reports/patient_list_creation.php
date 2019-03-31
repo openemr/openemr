@@ -446,17 +446,17 @@ $communication = trim($_POST["communication"]);
             }
 
             for ($i = 0; $i < count($sort); $i++) {
-                $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sort[$i]) . ",'asc');\" ><img src=\"../../images/sortdown.gif\" border=0 alt=\"".xla('Sort Up')."\"></a>";
+                $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sort[$i]) . ",'asc');\" ><img src='". $GLOBALS['images_static_relative']/sortdown.gif . "' border=0 alt=\"".xla('Sort Up')."\"></a>";
             }
 
             for ($i = 0; $i < count($sort); $i++) {
                 if ($sortby == $sort[$i]) {
                     switch ($sortorder) {
                         case "asc":
-                            $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sortby) . ",'desc');\" ><img src=\"../../images/sortup.gif\" border=0 alt=\"".xla('Sort Up')."\"></a>";
+                            $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sortby) . ",'desc');\" ><img src='". $GLOBALS['images_static_relative']/sortup.gif . "' border=0 alt=\"".xla('Sort Up')."\"></a>";
                             break;
                         case "desc":
-                            $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('" . attr_js($sortby) . "','asc');\" onclick=\"top.restoreSession()\"><img src=\"../../images/sortdown.gif\" border=0 alt=\"".xla('Sort Down')."\"></a>";
+                            $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('" . attr_js($sortby) . "','asc');\" onclick=\"top.restoreSession()\"><img src='". $GLOBALS['images_static_relative']/sortdown.gif . "' border=0 alt=\"".xla('Sort Down')."\"></a>";
                             break;
                     } break;
                 }

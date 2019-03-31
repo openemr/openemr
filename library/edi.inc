@@ -539,7 +539,7 @@ function show_elig($res, $X12info, $segTer, $compEleSep)
 				<td class ='detail' style='width:6%;'>".  htmlspecialchars($row['subscriber_sex'], ENT_NOQUOTES) ."</td>
 				<td class ='detail' style='width:9%;'>".  htmlspecialchars($row['subscriber_ss'], ENT_NOQUOTES) ."</td>
 				<td class ='detail' style='width:2%;'>
-				<img src='../../images/deleteBtn.png' title=' .htmlspecialchars( xl('Delete Row'), ENT_QUOTES) . ' style='cursor:pointer;cursor:hand;' onclick='deletetherow(\"" . $i."_". htmlspecialchars($row['policy_number'], ENT_QUOTES) . "\")'>
+				<img src='". $GLOBALS['images_static_relative']/deleteBtn.png . "' title=' .htmlspecialchars( xl('Delete Row'), ENT_QUOTES) . ' style='cursor:pointer;cursor:hand;' onclick='deletetherow(\"" . $i."_". htmlspecialchars($row['policy_number'], ENT_QUOTES) . "\")'>
 				</td>
 			</tr>
 		";
