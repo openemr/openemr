@@ -48,7 +48,6 @@ From here you can either:
 ## TODOs
 - [ ] Incorporate tabs_style_compact.css and tabs_style_full.css (and associated RTL) into scss
 - [x] Don't require 2 build runs to build the rtl themes
-- [x] Add built css (and other dependencies) to storybook .out directory
 - [ ] Add a lot of documentation on current component usage (starting with theme-only components)
 - [ ] Migrate style dependencies in the php code to use the components from the `interface` directory
 - [ ] Migrate component css still left in the `/themes` directory into scss
