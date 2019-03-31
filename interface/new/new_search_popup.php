@@ -21,7 +21,7 @@ if (!empty($_POST)) {
     }
 }
 
-$fstart = $_REQUEST['fstart'] + 0;
+$fstart = isset($_REQUEST['fstart']) ? $_REQUEST['fstart'] + 0 : 0;
 
 $searchcolor = empty($GLOBALS['layout_search_color']) ?
   '#ffff55' : $GLOBALS['layout_search_color'];

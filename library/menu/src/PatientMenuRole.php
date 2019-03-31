@@ -55,9 +55,14 @@ class PatientMenuRole extends MenuRole
         }
         //to make the url absolute to web root and to account for external urls i.e. those beginning with http or https
         foreach ($menu_parsed as $menu_obj) {
-            $menu_obj -> url = $this->getAbsoluteWebRoot($menu_obj -> url);
+            if (property_exists($menu_obj, 'url')) {
+                $menu_obj -> url = $this->getAbsoluteWebRoot($menu_obj -> url);
+            }
             if (!empty($menu_obj->children)) {
                 foreach ($menu_obj->children as $menu_obj) {
+                    if (property_exists($menu_obj, 'url')) {
+                        $menu_obj -> url = $this->getAbsoluteWebRoot($menu_obj -> url);
+                    }
                     $menu_obj -> url = $this->getAbsoluteWebRoot($menu_obj -> url);
                 }
             }
