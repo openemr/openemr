@@ -10,7 +10,6 @@
     "dev": "gulp --dev && gulp watch",
     "dev-sync": "gulp --dev --sync-only --p 80",
     "gulp-build": "gulp -b --dev",
-    "gulp-docs": "gulp -p 9001 --dev",
     "gulp-watch": "gulp watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
