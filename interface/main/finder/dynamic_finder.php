@@ -167,7 +167,7 @@ while ($row = sqlFetchArray($res)) {
                 </h2>
             </div>
             <div class="col-sm-2">
-                <?php if (acl_check('patients', 'demo', '', array('write','addonly'))){ ?>
+                <?php if (acl_check('patients', 'demo', '', array('write','addonly'))) { ?>
                     <button id="create_patient_btn" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Create Patient'); ?></button>
                 <?php } ?>
             </div>
