@@ -160,11 +160,16 @@ while ($row = sqlFetchArray($res)) {
 <body class="body_top">
     <div class="<?php echo $container;?> expandable">
         <div class="row">
-            <div class="col-sm-12">
+            <div class="col-sm-10">
                 <h2>
                 <?php echo xlt('Patient Finder') ?> <i id="exp_cont_icon" class="fa <?php echo attr($expand_icon_class);?> oe-superscript-small expand_contract"
                 title="<?php echo attr($expand_title); ?>" aria-hidden="true"></i> <i id="show_hide" class="fa fa-search-plus fa-2x small" title="<?php echo xla('Click to show advanced search'); ?>"></i>
                 </h2>
+            </div>
+            <div class="col-sm-2">
+                <?php if (acl_check('patients', 'demo', '', array('write','addonly'))){ ?>
+                    <button id="create_patient_btn" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Create Patient'); ?></button>
+                <?php } ?>
             </div>
         </div>
         <br>
