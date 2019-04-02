@@ -33,7 +33,7 @@ $v_database = 286;
 // controls is (subsequently the acl_upgrade.php script then is used to
 // upgrade and track this value)
 //
-$v_acl = 8;
+$v_acl = 9;
 
 //Offsite Portal SOAP functions version, which are at myportal directory.
 $v_offsite_portal='1.47';

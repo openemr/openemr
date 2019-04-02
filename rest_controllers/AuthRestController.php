@@ -31,10 +31,18 @@ class AuthRestController
             return;
         }
         if (!empty($_SESSION['api']) && !empty($_SESSION['site_id'])) {
-            $encoded_api = bin2hex(trim($_SESSION['api']));
-            $encoded_site = bin2hex(trim($_SESSION['site_id']));
+            $encoded_api_site = bin2hex(trim($_SESSION['api']) . trim($_SESSION['site_id']));
         } else {
             http_response_code(401);
+            return;
+        }
+
+        // Use base64 (except for the special characters which are + and /) in Bearer tokens
+        // (note rfc6750 allows more special characters if wish to support in the future)
+        $new_token = produceRandomString(32, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+        if (empty($new_token)) {
+            http_response_code(500);
+            error_log("OpenEMR Error: API was unable to create a random Bearer token");
             return;
         }
 
@@ -42,14 +50,11 @@ class AuthRestController
 
         $sql = " INSERT INTO api_token SET";
         $sql .= "     user_id=?,";
-        $sql .= "     token=(SELECT LEFT(SHA2(CONCAT(NOW(), RAND(), UUID()), 512), 32)),";
+        $sql .= "     token=?,";
         $sql .= "     expiry=DATE_ADD(NOW(), INTERVAL 1 HOUR)";
+        sqlInsert($sql, [$user["id"], $new_token]);
 
-        sqlInsert($sql, array($user["id"]));
-
-        $token = sqlQuery("SELECT token FROM api_token WHERE user_id = ? ORDER BY id DESC", array($user["id"]));
-
-        $encoded_token = $token["token"] . $encoded_api . $encoded_site;
+        $encoded_token = $new_token . $encoded_api_site;
         $give = array("token_type" => "Bearer", "access_token" => $encoded_token, "expires_in" => "3600");
         http_response_code(200);
         return $give;

@@ -1,12 +1,10 @@
 # OpenEMR-interface
 
-OpenEMR uses [Storybook](https://storybook.js.org) to document and standardize the creation of user interface elements. The project is using bootstrap as base and is built with [SASS](https://sass-lang.com/) (compiled with [gulp](https://gulpjs.com/)).
-
-The live version of this guide can be found at [openemr-interface.surge.sh](http://openemr-interface.surge.sh).
+The OpenEMR UI is built with [SASS](https://sass-lang.com/) on top of a bootstrap base (compiled with [gulp](https://gulpjs.com/)).
 
 ### Themes
 
-Different `themes` share a common `core` and have their own overrides to customize the appearance of OpenEMR. You can view how these themes differ using the "Knobs" tool at the bottom of the storybook interface.
+Different `themes` share a common `core` and have their own overrides to customize the appearance of OpenEMR.
 
 There are three different types of themes:
 * The `light` theme is the default modern theme
@@ -39,8 +37,6 @@ Compiling SASS files locally requires [node.js](http://nodejs.org) and [npm](htt
 - If running in docker: `docker exec -it [your_container_id] /bin/sh` then cd into `openemr`
 
 From here you can either:
-* `npm run dev-docs` - runs Storybook (proxied port 9001) and watches changes to local `.scss` files.
-    * `http://localhost:3000` will refresh css automatically with [BrowserSync](http://www.browsersync.io/) after every change.
 * `npm run dev` - just compiles the local `.scss` files and recompiles them whenever they are changed.
 * `npm run dev-sync` (EXPERIMENTAL*) - loads your local OpenEMR instance using BrowserSync (port 3000) in front of 80 (feel free to edit the package.json to change the port)
     * [See video of `dev-sync` in action](https://imgur.com/a/C0dVnfq)
@@ -48,7 +44,6 @@ From here you can either:
 ## TODOs
 - [ ] Incorporate tabs_style_compact.css and tabs_style_full.css (and associated RTL) into scss
 - [x] Don't require 2 build runs to build the rtl themes
-- [x] Add built css (and other dependencies) to storybook .out directory
 - [ ] Add a lot of documentation on current component usage (starting with theme-only components)
 - [ ] Migrate style dependencies in the php code to use the components from the `interface` directory
 - [ ] Migrate component css still left in the `/themes` directory into scss

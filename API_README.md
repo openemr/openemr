@@ -726,7 +726,7 @@ Note: The `path` query string represents the OpenEMR documents paths with two ex
 #### GET /api/patient/:pid/document/:did
 
 ```
-wget 'http://localhost:8300/apis/api/patient/1/document/1'
+curl -X GET 'http://localhost:8300/apis/api/patient/1/document/1'
 ```
 
 #### POST /api/patient/:pid/message
