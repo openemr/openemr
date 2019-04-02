@@ -26,7 +26,11 @@
         "url": "interface/patient_file/report/patient_report.php",
         "pid":"false",
         "children": [],
-        "requirement": 0
+        "requirement": 0,
+        "acl_req": [
+            "patients",
+            "pat_rep"
+        ]
     },
     {
         "label": "Documents",

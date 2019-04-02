@@ -710,10 +710,10 @@ if ($acl_version < $upgrade_acl) {
 
     //Add new object Sections
     echo "<BR/><B>Adding new object sections</B><BR/>";
-    addObjectAcl('patients', 'Patients', 'pat_rep', 'Patient Report');
 
     //Add new Objects
     echo "<BR/><B>Adding new objects</B><BR/>";
+    addObjectAcl('patients', 'Patients', 'pat_rep', 'Patient Report');
 
     //Update already existing Objects
     echo "<BR/><B>Upgrading objects</B><BR/>";
