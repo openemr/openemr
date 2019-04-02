@@ -78,6 +78,7 @@
   //   trans       Transactions, e.g. referrals (write optional)
   //   docs        Documents (write,addonly optional)
   //   docs_rm     Documents Delete
+  //   pat_rep     Patient Report
   //   notes       Patient Notes (write,addonly optional)
   //   sign        Sign Lab Results (write,addonly optional)
   //   reminder    Patient Reminders (write,addonly optional)

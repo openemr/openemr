@@ -3,37 +3,25 @@
  * This file implements the database load processing when loading external
  * database files into openEMR
  *
- * Copyright (C) 2012 Patient Healthcare Analytics, Inc.
- * Copyright (C) 2011 Phyaura, LLC <info@phyaura.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  (Mac) Kevin McAloon <mcaloon@patienthealthcareanalytics.com>
- * @author  Rohit Kumar <pandit.rohit@netsity.com>
- * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    (Mac) Kevin McAloon <mcaloon@patienthealthcareanalytics.com>
+ * @author    Rohit Kumar <pandit.rohit@netsity.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+ * @copyright Copyright (c) 2011 Phyaura, LLC <info@phyaura.com>
+ * @copyright Copyright (c) 2012 Patient Healthcare Analytics, Inc.
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-
 
 
 require_once("../../interface/globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/standard_tables_capture.inc");
 
-// Ensure script doesn't time out and has enough memory
+// Ensure script doesn't time out
 set_time_limit(0);
-ini_set('memory_limit', '150M');
 
 // Control access
 if (!acl_check('admin', 'super')) {
@@ -43,6 +31,7 @@ if (!acl_check('admin', 'super')) {
 
 $db = isset($_GET['db']) ? $_GET['db'] : '0';
 $version = isset($_GET['version']) ? $_GET['version'] : '0';
+$rf = isset($_GET['rf']) ? $_GET['rf'] : '0';
 $file_revision_date = isset($_GET['file_revision_date']) ? $_GET['file_revision_date'] : '0';
 $file_checksum = isset($_GET['file_checksum']) ? $_GET['file_checksum'] : '0';
 $newInstall =   isset($_GET['newInstall']) ? $_GET['newInstall'] : '0';
@@ -71,17 +60,32 @@ if ($db == 'RXNORM') {
         exit;
     }
 } else if ($db == 'SNOMED') {
-    if ($version == "US Extension") {
+    if ($rf == "rf2") {
+        if (!snomedRF2_import()) {
+            echo htmlspecialchars(xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES) . "<br>";
+            temp_dir_cleanup($db);
+            exit;
+        } else {
+            drop_old_sct();
+            chg_ct_external_torf2();
+        }
+    } else if ($version == "US Extension") {
         if (!snomed_import(true)) {
             echo htmlspecialchars(xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
             temp_dir_cleanup($db);
             exit;
+        } else {
+            drop_old_sct2();
+            chg_ct_external_torf1();
         }
-    } else { //$version is not "US Extension"
+    } else {
         if (!snomed_import(false)) {
             echo htmlspecialchars(xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
             temp_dir_cleanup($db);
             exit;
+        } else {
+            drop_old_sct2();
+            chg_ct_external_torf1();
         }
     }
 } else if ($db == 'CQM_VALUESET') {
