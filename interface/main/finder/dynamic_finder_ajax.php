@@ -16,40 +16,24 @@
 require_once("../../globals.php");
 require_once($GLOBALS['srcdir']."/options.inc.php");
 
-
-//Function do translate from another language to English
-if (!(function_exists('ltox'))) {
-
-    /**
-     * @param $wordInLang
-     * @param bool $oneWord
-     * @return bool or English text of var
-     */
-    function ltox($wordInLang, $oneWord = true)
-    {
-        //$oneWord this variable for future using in case if we are need search by full string
-        if (strlen($wordInLang) <=0) {
-            return false;
-        }
-
-        // set language id
-        if (!empty($_SESSION['language_choice'])) {
-            $lang_id = $_SESSION['language_choice'];
-        } else {
-            $lang_id = 1;
-        }
-
-        if ($lang_id != 1) {
-            $sql = "SELECT constant_name FROM lang_constants WHERE cons_id = (SELECT cons_id FROM lang_definitions WHERE lower(definition) REGEXP '^".mb_strtolower($wordInLang)."[^][[:space:]]*$'  LIMIT 1)";
-            $res = sqlStatement($sql);
-            if ($row = sqlFetchArray($res)) {
-                $wordInLang = $row["constant_name"];
-            }
-        }
-
-        return $wordInLang;
+/**
+ * @param $wordInLang
+ * @return bool
+ */
+function ltox($wordInLang)
+{
+    if (strlen($wordInLang) <= 0) {
+        return false;
     }
+
+    $sql = "SELECT option_id FROM list_options WHERE list_id = 'sex' AND lower(title) like '".mb_strtolower($wordInLang)."%' or lower(option_id) like '".mb_strtolower($wordInLang)."%' ORDER BY option_id ASC LIMIT 1";
+    $res = sqlStatement($sql);
+    if ($row = sqlFetchArray($res)) {
+        $wordInLang = $row["option_id"];
+    }
+    return $wordInLang;
 }
+
 //Function partiality translate date to need format
 if (!(function_exists('DateToYYYYMMDD_Partial'))) {
     function DateToYYYYMMDD_Partial($DateValue)
