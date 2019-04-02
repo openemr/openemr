@@ -11,9 +11,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 namespace OpenEMR\Services;
 
+require_once(dirname(__FILE__)."/../controllers/C_Document.class.php");
+
+use Document;
 use Particle\Validator\Validator;
 
 class DocumentService
@@ -95,58 +97,56 @@ class DocumentService
 
     public function insertAtPath($pid, $path, $fileData)
     {
-        if (!$this->isValidPath($path)) {
+        // Ensure filetype is allowed
+        if ($GLOBALS['secure_upload'] && !isWhiteFile($fileData["tmp_name"])) {
+            error_log("OpenEMR API Error: Attempt to upload unsecure patient document was declined");
             return false;
         }
 
-        $categoryId = $this->getLastIdOfPath($path);
-
-        $nextIdResult = sqlQuery("SELECT MAX(id)+1 as id FROM documents");
-
-        $insertDocSql  = " INSERT INTO documents SET";
-        $insertDocSql .= "   id=?,";
-        $insertDocSql .= "   type='file_url',";
-        $insertDocSql .= "   size=?,";
-        $insertDocSql .= "   date=NOW(),";
-        $insertDocSql .= "   url=?,";
-        $insertDocSql .= "   mimetype=?,";
-        $insertDocSql .= "   foreign_id=?";
-
-        sqlInsert(
-            $insertDocSql,
-            array(
-                $nextIdResult["id"],
-                $fileData["size"],
-                $GLOBALS['oer_config']['documents']['repository'] . $categoryId . "/" . $fileData["name"],
-                $fileData["type"],
-                $pid
-            )
-        );
-
-        $cateToDocsSql  = " INSERT INTO categories_to_documents SET";
-        $cateToDocsSql .= "    category_id=?,";
-        $cateToDocsSql .= "    document_id=?";
-
-        sqlInsert(
-            $cateToDocsSql,
-            array(
-                $categoryId,
-                $nextIdResult["id"]
-            )
-        );
-
-        $newPath = $GLOBALS['oer_config']['documents']['repository'] . "/" . $categoryId;
-        if (!file_exists($newPath)) {
-            mkdir($newPath, 0700, true);
+        // Ensure category exists
+        if (!$this->isValidPath($path)) {
+            error_log("OpenEMR API Error: Attempt to upload patient document to category that did not exist was declined");
+            return false;
         }
 
-        $moved = move_uploaded_file($fileData["tmp_name"], $newPath . "/" . $fileData["name"]);
+        // Collect category id
+        $categoryId = $this->getLastIdOfPath($path);
 
-        return $moved;
+        // Store file in variable
+        $file = file_get_contents($fileData["tmp_name"]);
+        if (empty($file)) {
+            error_log("OpenEMR API Error: Patient document was empty, so declined request");
+            return false;
+        }
+
+        // Store the document in OpenEMR
+        $doc = new \Document();
+        $ret = $doc->createDocument($pid, $categoryId, $fileData["name"], mime_content_type($fileData["tmp_name"]), $file);
+        if (!empty($ret)) {
+            error_log("OpenEMR API Error: There was an error in attempt to upload a patient document");
+            return false;
+        }
+
+        return true;
     }
 
     public function getFile($pid, $did)
     {
-        return sqlQuery("SELECT url FROM documents WHERE id = ? AND foreign_id = ?", array($did, $pid));
+        $filenameSql = sqlQuery("SELECT `url`, `mimetype` FROM `documents` WHERE `id` = ? AND `foreign_id` = ?", [$did, $pid]);
+
+        if (empty(basename($filenameSql['url']))) {
+            $filename = "unknownName";
+        } else {
+            $filename = basename($filenameSql['url']);
+        }
+
+        $obj = new \C_Document();
+        $document = $obj->retrieve_action($pid, $did, true, true, true);
+        if (empty($document)) {
+            error_log("OpenEMR API Error: Requested patient document was empty, so declined request");
+            return false;
+        }
+
+        return ['filename'=>$filename, 'mimetype'=>$filenameSql['mimetype'], 'file'=>$document];
     }
 }
