@@ -63,7 +63,6 @@ class PatientMenuRole extends MenuRole
                     if (property_exists($menu_obj, 'url')) {
                         $menu_obj -> url = $this->getAbsoluteWebRoot($menu_obj -> url);
                     }
-                    $menu_obj -> url = $this->getAbsoluteWebRoot($menu_obj -> url);
                 }
             }
         }
