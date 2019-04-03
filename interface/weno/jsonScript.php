@@ -110,7 +110,8 @@ foreach ($fill as $data) {
                 "strength"     => $drugData['strength'],
                 "route"        => $drugData['route'],
                 "potency"      => $drugData['potency_unit_code'],
-                "qualifier"    => $drugData['drug_db_code_qualifier']
+                "qualifier"    => $drugData['drug_db_code_qualifier'],
+                "dea_sched"    => $drugData['dea_schedule']
             )
         )
     );
