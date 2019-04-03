@@ -78,7 +78,7 @@
             "library/crypto.php"
         ],
         "psr-4" : {
-            "OpenEMR\\Common\\Compatability\\" : "common/compatability",
+            "OpenEMR\\Common\\Compatibility\\" : "common/compatibility",
             "OpenEMR\\Common\\Database\\" : "common/database",
             "OpenEMR\\Common\\Http\\" : "common/http",
             "OpenEMR\\Common\\Logging\\" : "common/logging",
