@@ -35,34 +35,30 @@ function ltox($wordInLang)
 }
 
 //Function partiality translate date to need format
-if (!(function_exists('DateToYYYYMMDD_Partial'))) {
-    function DateToYYYYMMDD_Partial($DateValue)
-    {
-        // Get current display date format
-        $date_display_format = $GLOBALS['date_display_format'];
-        if ($date_display_format > 0) {
-            $date_inp    = explode("/", $DateValue);
+function DateToYYYYMMDD_Partial($DateValue)
+{
+    // Get current display date format
+    $date_display_format = $GLOBALS['date_display_format'];
+    if ($date_display_format > 0) {
+        $date_inp = explode("/", $DateValue);
 
-            $day_input   = attr(trim($date_display_format == 1 ? $date_inp[1] : $date_inp[0]));
-            $month_input = attr(trim($date_display_format == 1 ? $date_inp[0] : $date_inp[1]));
-            $year_input  = attr(trim($date_inp[2]));
+        $day_input = attr(trim($date_display_format == 1 ? $date_inp[1] : $date_inp[0]));
+        $month_input = attr(trim($date_display_format == 1 ? $date_inp[0] : $date_inp[1]));
+        $year_input = attr(trim($date_inp[2]));
 
-            $day_input   = str_pad($day_input, 2, '0', STR_PAD_LEFT);
-            $month_input = (strlen($month_input) > 0 ? str_pad($month_input, 2, '0', STR_PAD_LEFT) . "-" : "");
-            $year_input  = (strlen($year_input) > 0 ? $year_input."-" : "");
+        $day_input = str_pad($day_input, 2, '0', STR_PAD_LEFT);
+        $month_input = (strlen($month_input) > 0 ? str_pad($month_input, 2, '0', STR_PAD_LEFT) . "-" : "");
+        $year_input = (strlen($year_input) > 0 ? $year_input . "-" : "");
 
-            $DateValue = $year_input.$month_input.$day_input;
-        }
-        return $DateValue;
+        $DateValue = $year_input . $month_input . $day_input;
     }
+    return $DateValue;
 }
 
 //Function to prepare a string for "Search with exact method" or without it
-if (!(function_exists('prepareMatchSearch'))) {
-    function prepareMatchSearch($sSearch, $sidepercent, $isMatchSearch)
-    {
-        return $sSearch = (!$isMatchSearch && ($sidepercent == "L" || $sidepercent == "B")  ? "%" : "").$sSearch.(!$isMatchSearch && ($sidepercent == "R" || $sidepercent == "B")  ? "%" : "");
-    }
+function prepareMatchSearch($sSearch, $sidepercent, $isMatchSearch)
+{
+    return $sSearch = (!$isMatchSearch && ($sidepercent == "L" || $sidepercent == "B") ? "%" : "") . $sSearch . (!$isMatchSearch && ($sidepercent == "R" || $sidepercent == "B") ? "%" : "");
 }
 
 
@@ -115,7 +111,6 @@ if (isset($_GET['iSortCol_0'])) {
 $where = '';
 $sSearch = add_escape_custom(trim($_GET['sSearch']));
 $cnt_columns = count($aColumns);
-$newWhere = array();
 
 if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
     foreach ($aColumns as $index_col => $colname) {
