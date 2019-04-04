@@ -83,7 +83,7 @@ if (isset($_POST['drR'])) {
          }
       </style>
       <script type="text/javascript">
-         $(document).ready(function (){
+         $(function (){
             $(".hideDR").click(function(){
               if($(this).html() == "<span><?php echo xla('Hide Reminders') ?></span>"){
                 $(this).html("<span><?php echo xla('Show Reminders') ?></span>");
@@ -93,10 +93,10 @@ if (isset($_POST['drR'])) {
                 $(this).html("<span><?php echo xla('Hide Reminders') ?></span>");
                 $(".drHide").slideDown("slow");
               }
-            })
+            });
            // run updater after 30 seconds
            var updater = setTimeout("updateme(0)", 1);
-         })
+         });
 
            function openAddScreen(id){
              if(id == 0){
