@@ -11,6 +11,8 @@
 
 
 use OpenEMR\Services\FacilityService;
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 
 $facilityService = new FacilityService();
 
@@ -1148,6 +1150,11 @@ function updatePatientData($pid, $new, $create = false)
 
             $sql .= ", `$key` = " . pdValueOrNull($key, $value);
         }
+
+        //create uuid for patient
+        $uuid4 = Uuid::uuid4();
+
+        $sql .= ', uuid ='.pdValueOrNull('uuid', $uuid4->toString());
 
         $db_id = sqlInsert($sql);
     } else {

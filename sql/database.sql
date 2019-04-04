@@ -5881,6 +5881,7 @@ CREATE TABLE `patient_data` (
   `guardianphone` TEXT,
   `guardianworkphone` TEXT,
   `guardianemail` TEXT,
+  `uuid` varchar(64),
   UNIQUE KEY `pid` (`pid`),
   KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
