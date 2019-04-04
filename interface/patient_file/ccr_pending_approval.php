@@ -18,7 +18,7 @@ require_once(dirname(__FILE__) . "/../../library/options.inc.php");
 require_once(dirname(__FILE__) . "/../../library/patient.inc");
 require_once(dirname(__FILE__) . "/../../library/parse_patient_xml.php");
 
-if ($_GET['approve'] == 1) {
+if (isset($_GET['approve']) && $_GET['approve'] == 1) {
     if (!verifyCsrfToken($_GET["csrf_token_form"])) {
         csrfNotVerified();
     }

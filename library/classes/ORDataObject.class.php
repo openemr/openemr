@@ -108,7 +108,7 @@ class ORDataObject
             return $GLOBALS['static']['enums'][$this->_table][$field_name];
         } else {
             $cols = $this->_db->MetaColumns($this->_table);
-            if ($cols && !$cols->EOF) {
+            if ((is_array($cols) && !empty($cols)) || ($cols && !$cols->EOF)) {
                 //why is there a foreach here? at some point later there will be a scheme to autoload all enums
                 //for an object rather than 1x1 manually as it is now
                 foreach ($cols as $col) {
