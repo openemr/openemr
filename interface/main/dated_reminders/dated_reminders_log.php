@@ -96,7 +96,7 @@ if ($_GET) {
         }
     </style>
     <script language="JavaScript">
-      $(document).ready(function (){
+      $(function (){
         $("#submitForm").click(function(){
           // top.restoreSession(); --> can't use this as it negates this ajax refresh
           $.get("dated_reminders_log.php?"+$("#logForm").serialize(),
@@ -111,7 +111,7 @@ if ($_GET) {
                }
              )
           return false;
-        })
+        });
 
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
