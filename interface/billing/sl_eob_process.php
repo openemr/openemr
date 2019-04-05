@@ -20,6 +20,7 @@ require_once("$srcdir/invoice_summary.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Services\InsuranceService;
 
 $debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
 $paydate = parse_date($_GET['paydate']);
@@ -29,7 +30,7 @@ $last_ptname = '';
 $last_invnumber = '';
 $last_code = '';
 $invoice_total = 0.00;
-$InsertionId;//last inserted ID of
+$InsertionId; // last inserted ID of
 
 ///////////////////////// Assorted Functions /////////////////////////
 
@@ -618,6 +619,28 @@ function era_callback(&$out)
                         $bgcolor,
                         'infdetail',
                         'This claim is now re-queued for secondary paper billing'
+                    );
+                }
+            }
+
+            if ($out['corrected'] == '1') {
+                if ($GLOBALS['update_mbi']) {
+                    if ($primary) {
+                        InsuranceService::update($pid, "primary", array($insurance_id, $out['corrected_mbi']));
+                    } else { // secondary medicare
+                        InsuranceService::update($pid, "secondary", array($insurance_id, $out['corrected_mbi']));
+                    }
+
+                    writeMessageLine(
+                        $bgcolor,
+                        'infdetail',
+                        "The policy number has been updated to " . $out['corrected_mbi']
+                    );
+                } else {
+                    writeMessageLine(
+                        $bgcolor,
+                        'infdetail',
+                        "The policy number could be updated to " . $out['corrected_mbi'] . " if you enable it in globals"
                     );
                 }
             }

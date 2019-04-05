@@ -154,7 +154,7 @@ class ParseERA
 
                 $out['check_number'] = trim($seg[2]);
                 $out['payer_tax_id'] = substr($seg[3], 1); // 9 digits
-                $out['payer_id'] = trim($seg[4]);
+            //    $out['payer_id'] = trim($seg[4]); no payer id in TRN04 for 5010
                 // Note: TRN04 further qualifies the paying entity within the
                 // organization identified by TRN03.
             } else if ($segid == 'REF' && $seg[1] == 'EV') {
@@ -180,9 +180,9 @@ class ParseERA
                 if ($out['loopid']) {
                     return 'Unexpected N1|PR segment';
                 }
-
                 $out['loopid'] = '1000A';
                 $out['payer_name'] = trim($seg[2]);
+                $out['payer_id'] = trim($seg[4]); // will be overwritten if in REF*2U below
             } else if ($segid == 'N3' && $out['loopid'] == '1000A') {
                 $out['payer_street'] = trim($seg[1]);
                 // TBD: N302 may exist as an additional address line.
@@ -193,6 +193,9 @@ class ParseERA
             } else if ($segid == 'REF' && $out['loopid'] == '1000A') {
                 // Other types of REFs may be given to identify the payer, but we
                 // ignore them.
+                if (trim($seg[1] == '2U')) {
+                    $out['payer_id'] = trim($seg[2]);
+                }
             } else if ($segid == 'PER' && $out['loopid'] == '1000A') {
                 // TBD: Report payer contact information as a note.
             } //
@@ -202,7 +205,6 @@ class ParseERA
                 if ($out['loopid'] != '1000A') {
                     return 'Unexpected N1|PE segment';
                 }
-
                 $out['loopid'] = '1000B';
                 $out['payee_name'] = trim($seg[2]);
                 $out['payee_tax_id'] = trim($seg[4]);
@@ -247,6 +249,7 @@ class ParseERA
                 $out['subscriber_mname'] = '';
                 $out['subscriber_member_id'] = '';
                 $out['crossover'] = 0;
+                $out['corrected'] = 0;
                 $out['svc'] = array();
                 //
                 // This is the poorly-named "Patient Account Number".  For 837p
@@ -310,10 +313,14 @@ class ParseERA
                 $out['provider_fname'] = trim($seg[4]);
                 $out['provider_mname'] = trim($seg[5]);
                 $out['provider_member_id'] = trim($seg[9]);
-            } else if ($segid == 'NM1' && $seg[1] == 'TT' && $out['loopid'] == '2100') {
+            } // TT = Crossover Carrier (Transfer To another payer)
+            else if ($segid == 'NM1' && $seg[1] == 'TT' && $out['loopid'] == '2100') {
                 $out['crossover'] = 1;//Claim automatic forward case.
             } // 74 = Corrected Insured
-            // TT = Crossover Carrier (Transfer To another payer)
+            else if ($segid == 'NM1' && $seg[1] == '74' && $out['loopid'] == '2100') {
+                $out['corrected'] = 1; // Updated policy number case.
+                $out['corrected_mbi'] = trim($seg[9]); // Usually MBI from Medicare
+            }
             // PR = Corrected Payer
             else if ($segid == 'NM1' && $out['loopid'] == '2100') {
                 // $out['warnings'] .= "NM1 segment at claim level ignored.\n";
