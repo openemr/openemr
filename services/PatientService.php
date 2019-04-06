@@ -15,6 +15,7 @@
 namespace OpenEMR\Services;
 
 use Particle\Validator\Validator;
+use OpenEMR\Common\Utils\UuidUtils;
 
 class PatientService
 {
@@ -114,6 +115,8 @@ class PatientService
     {
         $fresh_pid = $this->getFreshPid();
 
+        $uuid = UuidUtils::createUuid('patient_data');
+
         $sql = " INSERT INTO patient_data SET";
         $sql .= "     pid=?,";
         $sql .= "     title=?,";
@@ -130,6 +133,7 @@ class PatientService
         $sql .= "     sex=?,";
         $sql .= "     race=?,";
         $sql .= "     ethnicity=?";
+        $sql .= "     uuid=?";
 
         $results = sqlInsert(
             $sql,
@@ -148,7 +152,8 @@ class PatientService
                 $data["dob"],
                 $data["sex"],
                 $data["race"],
-                $data["ethnicity"]
+                $data["ethnicity"],
+                $uuid
             )
         );
 
