@@ -198,10 +198,7 @@ class ParseERA
                 }
             } else if ($segid == 'PER' && $out['loopid'] == '1000A') {
                 // TBD: Report payer contact information as a note.
-            } //
-            // Loop 1000B is Payee Identification.
-            //
-            else if ($segid == 'N1' && $seg[1] == 'PE') {
+            } else if ($segid == 'N1' && $seg[1] == 'PE') { // Loop 1000B is Payee Identification.
                 if ($out['loopid'] != '1000A') {
                     return 'Unexpected N1|PE segment';
                 }
@@ -216,12 +213,12 @@ class ParseERA
                 $out['payee_zip'] = trim($seg[3]);
             } else if ($segid == 'REF' && $out['loopid'] == '1000B') {
                 // Used to report additional ID numbers.  Ignored.
-            } //
-            // Loop 2000 provides for logical grouping of claim payment information.
-            // LX is required if any CLPs are present, but so far we do not care
-            // about loop 2000 content.
-            //
-            else if ($segid == 'LX') {
+            } else if ($segid == 'LX') {
+                //
+                // Loop 2000 provides for logical grouping of claim payment information.
+                // LX is required if any CLPs are present, but so far we do not care
+                // about loop 2000 content.
+                //
                 if (!$out['loopid']) {
                     return 'Unexpected LX segment';
                 }
@@ -232,10 +229,8 @@ class ParseERA
                 // ignore
             } else if ($segid == 'TS3' && $out['loopid'] == '2000') {
                 // ignore
-            } //
-            // Loop 2100 is Claim Payment Information. The good stuff begins here.
-            //
-            else if ($segid == 'CLP') {
+            } else if ($segid == 'CLP') {
+                // Loop 2100 is Claim Payment Information. The good stuff begins here.
                 if (!$out['loopid']) {
                     return 'Unexpected CLP segment';
                 }
@@ -295,40 +290,33 @@ class ParseERA
                     $out['svc'][$i]['adj'][$j]['reason_code'] = $seg[$k];
                     $out['svc'][$i]['adj'][$j]['amount'] = $seg[$k + 1];
                 }
-            } // QC = Patient
-            else if ($segid == 'NM1' && $seg[1] == 'QC' && $out['loopid'] == '2100') {
+            } else if ($segid == 'NM1' && $seg[1] == 'QC' && $out['loopid'] == '2100') { // QC = Patient
                 $out['patient_lname'] = trim($seg[3]);
                 $out['patient_fname'] = trim($seg[4]);
                 $out['patient_mname'] = trim($seg[5]);
                 $out['patient_member_id'] = trim($seg[9]);
-            } // IL = Insured or Subscriber
-            else if ($segid == 'NM1' && $seg[1] == 'IL' && $out['loopid'] == '2100') {
+            } else if ($segid == 'NM1' && $seg[1] == 'IL' && $out['loopid'] == '2100') { // IL = Insured or Subscriber
                 $out['subscriber_lname'] = trim($seg[3]);
                 $out['subscriber_fname'] = trim($seg[4]);
                 $out['subscriber_mname'] = trim($seg[5]);
                 $out['subscriber_member_id'] = trim($seg[9]);
-            } // 82 = Rendering Provider
-            else if ($segid == 'NM1' && $seg[1] == '82' && $out['loopid'] == '2100') {
+            } else if ($segid == 'NM1' && $seg[1] == '82' && $out['loopid'] == '2100') { // 82 = Rendering Provider
                 $out['provider_lname'] = trim($seg[3]);
                 $out['provider_fname'] = trim($seg[4]);
                 $out['provider_mname'] = trim($seg[5]);
                 $out['provider_member_id'] = trim($seg[9]);
-            } // TT = Crossover Carrier (Transfer To another payer)
-            else if ($segid == 'NM1' && $seg[1] == 'TT' && $out['loopid'] == '2100') {
-                $out['crossover'] = 1;//Claim automatic forward case.
-            } // 74 = Corrected Insured
-            else if ($segid == 'NM1' && $seg[1] == '74' && $out['loopid'] == '2100') {
+            } else if ($segid == 'NM1' && $seg[1] == 'TT' && $out['loopid'] == '2100') { // TT = Crossover Carrier (Transfer To another payer)
+                $out['crossover'] = 1; //Claim automatic forward case.
+            } else if ($segid == 'NM1' && $seg[1] == '74' && $out['loopid'] == '2100') { // 74 = Corrected Insured
                 $out['corrected'] = 1; // Updated policy number case.
                 $out['corrected_mbi'] = trim($seg[9]); // Usually MBI from Medicare
-            }
-            // PR = Corrected Payer
-            else if ($segid == 'NM1' && $out['loopid'] == '2100') {
+            } else if ($segid == 'NM1' && $out['loopid'] == '2100') { // PR = Corrected Payer
                 // $out['warnings'] .= "NM1 segment at claim level ignored.\n";
             } else if ($segid == 'MOA' && $out['loopid'] == '2100') {
                 $out['warnings'] .= "MOA segment at claim level ignored.\n";
-            } // REF segments may provide various identifying numbers, where REF02
-            // indicates the type of number.
-            else if ($segid == 'REF' && $seg[1] == '1W' && $out['loopid'] == '2100') {
+            } else if ($segid == 'REF' && $seg[1] == '1W' && $out['loopid'] == '2100') {
+                // REF segments may provide various identifying numbers, where REF02
+                // indicates the type of number.
                 $out['claim_comment'] = trim($seg[2]);
             } else if ($segid == 'REF' && $out['loopid'] == '2100') {
                 // ignore
@@ -354,10 +342,7 @@ class ParseERA
             // part of claim balancing.
             else if ($segid == 'QTY' && $out['loopid'] == '2100') {
                 $out['warnings'] .= "QTY segment at claim level ignored.\n";
-            } //
-            // Loop 2110 is Service Payment Information.
-            //
-            else if ($segid == 'SVC') {
+            } else if ($segid == 'SVC') { // Loop 2110 is Service Payment Information.
                 if (!$out['loopid']) {
                     return 'Unexpected SVC segment';
                 }
