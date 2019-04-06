@@ -27,7 +27,6 @@ class UuidUtils
 
         $try = 1;
         while (self::findCollision($table, $uuid4)) {
-
             if ($try > self::MAX_TRIES) {
                 throw new \Exception('Reached maximum amount of tries (max amount: '.self::MAX_TRIES.')');
             }
@@ -50,10 +49,9 @@ class UuidUtils
         $query = "SELECT uuid FROM ".$table." WHERE uuid = ?";
 
         if (sqlQuery($query, $uuid)) {
-           return true;
+            return true;
         }
 
         return false;
     }
-
 }
