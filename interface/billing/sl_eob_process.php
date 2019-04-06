@@ -627,11 +627,11 @@ function era_callback(&$out)
                 if ($GLOBALS['update_mbi']) {
                     if ($primary && (substr($inslabel, 3) == 1)) {
                         $updated_ins = InsuranceService::getOne($pid, "primary");
-                        $updated_ins['provider'] = $insurance_id;
                         $updated_ins['policy_number'] = $out['corrected_mbi'];
                         InsuranceService::update($pid, "primary", $updated_ins);
                     } else { // tbd secondary medicare
                         // InsuranceService::update($pid, "secondary", array($insurance_id, '', $out['corrected_mbi']));
+                        // will need to add method to insurance service to return policy type
                     }
 
                     writeMessageLine(
