@@ -553,7 +553,7 @@ STP2TOP;
                                             <label class="control-label" for="pass">Password:</label> <a href="#pass_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div>
-                                            <input name='pass' id='pass' class='form-control' type='password' value='' minlength='12' required>
+                                            <input name='pass' id='pass' class='form-control' type='password' value='' required>
                                         </div>
                                     </div>
                                     <div id="pass_info" class="collapse">
