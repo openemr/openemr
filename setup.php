@@ -558,7 +558,7 @@ STP2TOP;
                                     </div>
                                     <div id="pass_info" class="collapse">
                                         <a href="#pass_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
-                                        <p>This is the Login Password that OpemEMR will use to accesses the MySQL database.
+                                        <p>This is the Login Password that OpenEMR will use to accesses the MySQL database.
                                         <p>It should be at least 12 characters long and composed of both numbers and letters.
                                     </div>
                                 </div>
@@ -598,7 +598,6 @@ STP2TBLTOP1;
                                     <div id="rootpass_info" class="collapse">
                                         <a href="#rootpass_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                         <p>This is your MySQL server root password.
-                                        <p>For localhost, it is usually ok to leave it blank.
                                         </div>
                                 </div>
                                 <div class="col-sm-4">
@@ -1632,7 +1631,7 @@ BOT;
 
             $( "#create_db_button" ).hover(
                 function() {
-                    if (($('#pass' ).val().length > 11 && $('#iuserpass' ).val().length > 11 && $('#iuser' ).val().length > 11 ) || ($('#clone_database').prop('checked') && $('#pass' ).val().length > 11)){
+                    if (($('#iuserpass' ).val().length > 11 && $('#iuser' ).val().length > 11 ) || ($('#clone_database').prop('checked'))){
 
                         $("button").click(function(){
                            $(".oe-spinner").css("visibility", "visible");
