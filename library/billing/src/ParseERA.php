@@ -398,7 +398,8 @@ class ParseERA
                         break;
                     }
 
-                    if ($seg[1] == 'CO' && $seg[$k + 1] < 0) {
+                    // removing inversion for CO*144 MIPS incentive adjustment to prevent claim balancing
+                    if ($seg[1] == 'CO' && $seg[$k + 1] < 0 && $seg[$k] !== '144') {
                         $out['warnings'] .= "Negative Contractual Obligation adjustment " .
                             "seems wrong. Inverting, but should be checked!\n";
                         $seg[$k + 1] = 0 - $seg[$k + 1];
