@@ -599,7 +599,7 @@ if ($fs && isset($LBF_DIAGS_SECTION)) {
 <?php
 if ($PDF_OUTPUT) {
     $content = getContent();
-    $pdf->writeHTML($content, false);
+    $pdf->writeHTML($content);
     $pdf->Output('form.pdf', 'I'); // D = Download, I = Inline
 } else {
 ?>

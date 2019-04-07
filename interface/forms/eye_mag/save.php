@@ -44,7 +44,6 @@ $form_folder = "eye_mag";
 
 require_once("../../globals.php");
 
-require_once("$srcdir/html2pdf/vendor/autoload.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("php/" . $form_name . "_functions.php");
@@ -55,7 +54,6 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/report.inc");
-require_once("$srcdir/html2pdf/html2pdf.class.php");
 
 use Mpdf\Mpdf;
 use OpenEMR\Billing\BillingUtilities;
@@ -359,19 +357,6 @@ if ($_REQUEST["mode"] == "new") {
         $sql = "DELETE from documents where documents.url like '%" . $filename . "'";
         sqlQuery($sql);
         // We want to overwrite so only one PDF is stored per form/encounter
-        // $pdf = new HTML2PDF('P', 'Letter', 'en', array(5, 5, 5, 5) );  // add a little margin 5cm all around TODO: add to globals
-
-        /***********/
-
-        /*$pdf = new HTML2PDF(
-            $GLOBALS['pdf_layout'],
-            $GLOBALS['pdf_size'],
-            $GLOBALS['pdf_language'],
-            true, // default unicode setting is true
-            'UTF-8', // default encoding setting is UTF-8
-            array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
-            $_SESSION['language_direction'] == 'rtl' ? true : false
-        );*/
         $config_mpdf = array(
             'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
             'mode' => $GLOBALS['pdf_language'],
@@ -431,7 +416,7 @@ if ($_REQUEST["mode"] == "new") {
         //$pdf->writeHTML($styles, 1);
         //$pdf->writeHTML($content, 2);
 
-        $pdf->writeHTML($content, false); // false or zero works for both mPDF and HTML2PDF
+        $pdf->writeHTML($content);
         $tmpdir = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/'; // Best to get a known system temp directory to ensure a writable directory.
         $temp_filename = $tmpdir . $filename;
         $content_pdf = $pdf->Output($temp_filename, 'F');
