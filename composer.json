@@ -43,7 +43,7 @@
         "omnipay/stripe": "3.0.1",
         "waryway/php-traits-library": "^1.0",
         "paragonie/multi-factor": "0.2.2",
-	"phpoffice/phpspreadsheet": "1.6.0"
+	    "phpoffice/phpspreadsheet": "1.6.0"
     },
     "config": {
         "platform": {
