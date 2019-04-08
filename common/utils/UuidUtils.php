@@ -31,7 +31,7 @@ class UuidUtils
                 throw new \Exception('Reached maximum amount of tries (max amount: '.self::MAX_TRIES.')');
             }
 
-            //$uuid4 = Uuid::uuid4();
+            $uuid4 = Uuid::uuid4();
             $try++;
         }
 
