@@ -11,7 +11,6 @@
 
 
 use OpenEMR\Services\FacilityService;
-use Ramsey\Uuid\Uuid;
 use OpenEMR\Common\Utils\UuidUtils;
 
 $facilityService = new FacilityService();
