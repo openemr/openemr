@@ -898,6 +898,5 @@ CREATE TABLE `erx_weno_drugs` (
 ) ENGINE=InnoDB;
 #Endif
 
-#IfNotRow erx_weno_drugs drug_id 1001
-
+#IfNotWenoRx
 #Endif
