@@ -28,7 +28,7 @@ function sniff {
     if [ -d $HOME/.config/composer ]; then
         BIN_DIR="$HOME/.config/composer/vendor/bin"
     fi
-    composer global require "squizlabs/php_codesniffer=3.0.*" 
+    composer global require "squizlabs/php_codesniffer=3.0.*"
     cd $DIR
     $BIN_DIR/phpcs -p -n --extensions=php,inc --report-width=120 $@
 }
@@ -45,9 +45,7 @@ if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
                             -o -path ./interface/main/calendar/modules \
                             -o -path ./interface/reports \
                             -o -path ./contrib/util \
-                            -o -path ./library/html2pdf/vendor/tecnickcom \
                             -o -path ./library/classes/fpdf \
-                            -o -path ./library/html2pdf \
                             -o -path ./gacl \
                             -o -path ./library/edihistory \) -prune -o \
                 -name "*.php" -print0 | xargs -0 -n1 -P8 php -l
