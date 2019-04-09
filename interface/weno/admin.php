@@ -15,8 +15,11 @@
 require_once('../globals.php');
 require_once("$srcdir/options.inc.php");
 
+
 use OpenEMR\Core\Header;
 use OpenEMR\Rx\Weno\AdminProperties;
+
+$tableHasData = sqlQuery("SELECT count(drug_id) AS count FROM erx_weno_drugs");
 
 $tables   = new AdminProperties();
 
@@ -27,13 +30,14 @@ $tables   = new AdminProperties();
      <title><?php print xlt("Weno Admin"); ?></title>
         <?php Header::setupHeader(); ?>
 
-</head>
 <style>
 .row.text-center > div {
     display: inline-block;
     float: none;
 }
 </style>
+</head>
+
 <body class="body_top text-center">
 <div class="container center-block">
 <?php
@@ -50,11 +54,10 @@ if ($GLOBALS['weno_rx_enable'] != 1) {
     print xlt("Weno Service is Enabled")."<br><br>";
 }
 
-$drugData = $tables->drugTableInfo();
-if (!$drugData['ndc']) {
-    echo "<a href='drugPaidInsert.php?csrf_token_form=" . attr_url(collectCsrfToken()) . "' class='btn btn-default'>".xlt("Import Formularies")."</a> <br>".xlt("Be patient, this can take a while.");
+if ($tableHasData['count'] > 1) {
+    print xlt("Formularies are inserted into table")."<br>";
 } else {
-    print xlt("Formularies inserted into table")."<br>";
+    echo "<a href='drugDataInsert.php?csrf_token_form=" . attr_url(collectCsrfToken()) . "' class='btn btn-default'>".xlt("Import Formularies")."</a> <br>".xlt("Be patient, this can take a while.");
 }
 
 ?>

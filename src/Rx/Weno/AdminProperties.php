@@ -40,12 +40,6 @@ class AdminProperties
         return xlt("Narcotic drugs imported");
     }
 
-    public function drugTableInfo()
-    {
-         $sql = "SELECT ndc FROM erx_drug_paid ORDER BY drugid LIMIT 1";
-         return sqlQuery($sql);
-    }
-
     public function pharmacies()
     {
         $sql = "SELECT Store_Name FROM erx_pharmacies ORDER BY id LIMIT 1";

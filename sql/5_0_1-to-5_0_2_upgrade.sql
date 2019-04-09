@@ -872,3 +872,44 @@ ALTER TABLE `x12_partners` ADD `x12_dtp03` CHAR(1) DEFAULT 'A';
 #IfMissingColumn procedure_order order_diagnosis
 ALTER TABLE `procedure_order` ADD `order_diagnosis` VARCHAR(255) DEFAULT '';
 #EndIf
+
+#IfTable erx_drug_paid
+DROP TABLE `erx_drug_paid`;
+#EndIf
+
+#IfNotTable erx_weno_drugs
+CREATE TABLE `erx_weno_drugs` (
+  `drug_id` int(11) NOT NULL AUTO_INCREMENT,
+  `rxcui_drug_coded` int(11) DEFAULT NULL,
+  `generic_rxcui` int(11) DEFAULT NULL,
+  `drug_db_code_qualifier` text,
+  `full_name` varchar(250) NOT NULL,
+  `rxn_dose_form` text,
+  `full_generic_name` varchar(250) NOT NULL,
+  `brand_name` varchar(250) NOT NULL,
+  `display_name` varchar(250) NOT NULL,
+  `route` text,
+  `new_dose_form` varchar(100) DEFAULT NULL,
+  `strength` varchar(15) DEFAULT NULL,
+  `supress_for` text,
+  `display_name_synonym` text,
+  `is_retired` text,
+  `sxdg_rxcui` varchar(10) DEFAULT NULL,
+  `sxdg_tty` text,
+  `sxdg_name` varchar(100) DEFAULT NULL,
+  `psn-drugdescription` varchar(100) DEFAULT NULL,
+  `ncpdp_quantity_term` text,
+  `potency-unit-code` varchar(10) DEFAULT NULL,
+  `dea_schedule_no` int(2) DEFAULT NULL,
+  `dea_schedule` varchar(7) DEFAULT NULL,
+  `ingredients` varchar(100) DEFAULT NULL,
+  `drug_interaction` varchar(100) DEFAULT NULL,
+  `unit_source_code` varchar(3) DEFAULT NULL,
+  `code_list_qualifier` int(3) DEFAULT NULL,
+  PRIMARY KEY (`drug_id`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotWenoRx
+#EndIf
+
