@@ -584,7 +584,6 @@ while ($result4 = sqlFetchArray($res4)) {
                 }
                 echo "</div>";
             } else {
-
                 $formDiv = "<div ";
                 if (hasFormPermission($enc['formdir'])) {
                     $formDiv .= "onmouseover='efmouseover(this," . attr_js($pid) . ","

@@ -183,4 +183,3 @@ function hasFormPermission($formDir)
     $permission = explode('|', $formRow['aco_spec']);
     return acl_check($permission[0], $permission[1]);
 }
-
