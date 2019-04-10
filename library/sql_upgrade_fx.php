@@ -841,7 +841,7 @@ function upgradeFromSqlFile($filename)
             }
             if ($skipping) {
                   echo "<font color='green'>Skipping section $line</font><br />\n";
-              }
+            }
             // convert all *text types to use default null setting
         } else if (preg_match('/^#IfTextNullFixNeeded/', $line)) {
             $items_to_convert = sqlStatement(
