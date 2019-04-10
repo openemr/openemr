@@ -300,8 +300,7 @@ function CreateImmunizationManufacturerList()
  */
 function ImportDrugInformation()
 {
-    if($GLOBALS['weno_rx_enable']){
-
+    if ($GLOBALS['weno_rx_enable']) {
         $drugs = file_get_contents('contrib/weno/erx_weno_drugs.sql');
         $drugsArray = explode(";\n", $drugs);
 
@@ -831,8 +830,7 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } // convert all *text types to use default null setting
-          else if (preg_match('/^#IfNotWenoRx/', $line) && !tableHasRow('erx_weno_drugs', "drug_id", '1008') == true){
+        } else if (preg_match('/^#IfNotWenoRx/', $line) && !tableHasRow('erx_weno_drugs', "drug_id", '1008') == true) {
             if (listExists("erx_weno_drugs")) {
                 $skipping = true;
             } else {
@@ -841,10 +839,10 @@ function upgradeFromSqlFile($filename)
                 $skipping = false;
                 echo "<font color='green'>Imported eRx Weno Drug Data</font><br />\n";
             }
-              if ($skipping) {
+            if ($skipping) {
                   echo "<font color='green'>Skipping section $line</font><br />\n";
               }
-
+            // convert all *text types to use default null setting
         } else if (preg_match('/^#IfTextNullFixNeeded/', $line)) {
             $items_to_convert = sqlStatement(
                 "SELECT col.`table_name`, col.`column_name`, col.`data_type`, col.`column_comment` 
