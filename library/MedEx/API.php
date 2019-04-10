@@ -356,6 +356,19 @@ class Events extends Base
         foreach ($events as $event) {
             $escClause=[];
             $escapedArr = []; //will hold prepared statement items for query.
+            $build_langs ='';
+            $target_lang = '';
+            if ( (!empty($event['E_language'])) && ($event['E_language'] != "all") ) {
+                $langs = explode("|", $event['E_language']);
+                foreach ($langs as $lang) {
+                    if ($lang =='None') { $lang = ''; }
+                    $build_langs .= "pat.language=? OR";
+                    $escapedArr[] = $lang;
+                }
+                $build_langs = rtrim($build_langs, " OR");
+                $target_lang = "(". $build_langs .") AND ";
+            }
+            
             if ($event['M_group'] == 'REMINDER') {
                 if ($event['time_order'] > '0') {
                     $interval ="+";
@@ -417,6 +430,7 @@ class Events extends Base
                                       )
                                     )
                                     ". $appt_status."
+                                    ". $target_lang ."
                                     AND pc_facility IN (".$places.")
                                     AND pat.pid=cal.pc_pid  ORDER BY pc_eventDate,pc_startTime";
                     $result = sqlStatement($query, $escapedArr);
@@ -808,9 +822,8 @@ class Events extends Base
                         $fields2['clinical_reminders'][] = $urow;
                         $count_clinical_reminders++;
                     }
-            } else if ($event['M_group'] == 'GOGREEN') {
-                $escapedArr=[];
-                
+            }
+            else if ($event['M_group'] == 'GOGREEN') {
                 if (!empty($event['appt_stats'])) {
                     $prepare_me ='';
                     $no_fu = '';
@@ -916,18 +929,18 @@ class Events extends Base
                     
                      $frequency = " AND cal.pc_eid NOT in (
                                     SELECT DISTINCT msg_pc_eid from medex_outgoing where
-                                        campaign_uid =? and
+                                        campaign_uid=? and
                                         msg_date > curdate() )
                                     AND
-                                        cal.pc_time >= ? ";
+                                        cal.pc_time >= NOW() - interval 6 hour ";
                      $escapedArr[] = (int)$event['C_UID'];
                      $info = sqlQuery("select MedEx_lastupdated from medex_prefs");
-                     $escapedArr[] =  $info['MedEx_lastupdated'];
+                     //$escapedArr[] =  $info['MedEx_lastupdated'];
                 } else {
                     //make sure this only gets sent once for this campaign
                     $no_dupes = " AND cal.pc_eid NOT IN (
                                     SELECT DISTINCT msg_pc_eid from medex_outgoing where
-                                    campaign_uid =? and msg_date >= curdate() ) ";
+                                    campaign_uid=? and msg_date >= curdate() ) ";
                     // This will screen for repeat messages sent on this day only by this Campaign,
                     //  which covers this Campaign's search period.
                     //  Tomorrow will not include today's search criteria.
@@ -989,6 +1002,7 @@ class Events extends Base
                 $sql_GOGREEN = "SELECT * FROM openemr_postcalendar_events AS cal
                                     LEFT JOIN patient_data AS pat ON cal.pc_pid=pat.pid
                                     WHERE
+                                        ".$target_lang."
                                         ".$target_dates."
                                         ".$appt_status."
                                         ".$providers."
@@ -1005,10 +1019,11 @@ class Events extends Base
                             continue; //not happening - either not allowed or not possible
                     }
                     if ($no_fu) {
+                        
                         $sql_NoFollowUp = "SELECT pc_pid FROM openemr_postcalendar_events WHERE
-                                pc_pid = '". $appt['pc_pid'] ."' AND
-                                pc_eventDate > ( '". $appt['pc_eventDate']. "' + INTERVAL ". $no_interval ." DAY)";
-                        $result = sqlQuery($sql_NoFollowUp);
+                                pc_pid = ? AND
+                                pc_eventDate > ( ? + INTERVAL ". escape_limit($no_interval) ." DAY)";
+                        $result = sqlQuery($sql_NoFollowUp, array($appt['pc_pid'], $appt['pc_eventDate']));
                         if (count($result) > '') {
                             continue;
                         }
@@ -1536,8 +1551,6 @@ class Callback extends Base
                         array($tracker['id'],$datetime,'MedEx',$data['msg_type'],($tracker['lastseq']+1))
                     );
                 } else {
-                    $this->MedEx->logging->log_this("Tracker ID is missing for pc_eid=".$data['pc_eid']."!!!!!!");
-                    $this->MedEx->logging->log_this($tracker);
                 }
             } elseif ($data['msg_reply']=="CALL") {
                 $sqlUPDATE = "UPDATE openemr_postcalendar_events SET pc_apptstatus = 'CALL' WHERE pc_eid=?";
@@ -1579,7 +1592,7 @@ class Logging extends base
     {
         //truly a debug function, that we will probably find handy to keep on end users' servers;)
         return;
-        $log = "/tmp/medex_1.1.log" ;
+        $log = "/tmp/medex.log" ;
         $std_log = fopen($log, 'a');// or die(print_r(error_get_last(), true));
         $timed = date(DATE_RFC2822);
         fputs($std_log, "**********************\nlibrary/MedEx/API.php fn log_this(data):  ".$timed."\n");
