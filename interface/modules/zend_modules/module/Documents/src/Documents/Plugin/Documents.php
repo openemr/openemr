@@ -112,7 +112,7 @@ class Documents extends AbstractPlugin
         $count  = 0;
         $module = array();
         foreach ($result as $row) {
-            $content = \Documents\Plugin\Documents::getDocument($row['id']);
+            $content = $this->getDocument($row['id']);
             $module[$count]['doc_id']   = $row['id'];
             if (preg_match("/<ClinicalDocument/", $content)) {
                 if (preg_match("/2.16.840.1.113883.3.88.11.32.1/", $content)) {

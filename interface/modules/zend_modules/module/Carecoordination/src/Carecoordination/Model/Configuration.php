@@ -59,10 +59,10 @@ class Configuration extends Form implements InputFilterAwareInterface
         'required'  => 'required',
         'id'        => 'hie_author_fname'
             ),
-        'options' => array(
+            'options' => array(
                 'label'     => \Application\Listener\Listener::z_xlt('Author'),
-        'value_options' => $this->getUsers(),
-        ),
+            'value_options' => $this->getUsers(),
+            ),
         ));
     
     /*
@@ -78,10 +78,10 @@ class Configuration extends Form implements InputFilterAwareInterface
         'required'  => 'required',
         'id'        => 'hie_data_enterer_id'
             ),
-        'options' => array(
+            'options' => array(
                 'label'     => \Application\Listener\Listener::z_xlt('Data Enterer'),
-        'value_options' => $this->getUsers(),
-        ),
+            'value_options' => $this->getUsers(),
+            ),
         ));
     
     /*
@@ -97,10 +97,10 @@ class Configuration extends Form implements InputFilterAwareInterface
         'required'  => 'required',
         'id'        => 'hie_informant_id'
             ),
-        'options' => array(
+            'options' => array(
                 'label'     => \Application\Listener\Listener::z_xlt('Informant'),
-        'value_options' => $this->getUsers(),
-        ),
+            'value_options' => $this->getUsers(),
+            ),
         ));
     
     /*
@@ -130,10 +130,10 @@ class Configuration extends Form implements InputFilterAwareInterface
         'required'  => 'required',
         'id'        => 'hie_custodian_id'
             ),
-        'options' => array(
+            'options' => array(
                 'label'     => \Application\Listener\Listener::z_xlt('Custodian'),
-        'value_options' => $this->getUsers(),
-        ),
+            'value_options' => $this->getUsers(),
+            ),
         ));
     
     /*
@@ -149,10 +149,10 @@ class Configuration extends Form implements InputFilterAwareInterface
         'required'  => 'required',
         'id'        => 'hie_recipient_id'
             ),
-        'options' => array(
+            'options' => array(
                 'label'     => \Application\Listener\Listener::z_xlt('Recipient'),
-        'value_options' => $this->getUsers(),
-        ),
+            'value_options' => $this->getUsers(),
+            ),
         ));
     
     /*
@@ -168,10 +168,10 @@ class Configuration extends Form implements InputFilterAwareInterface
         'required'  => 'required',
         'id'        => 'hie_legal_authenticator_id'
             ),
-        'options' => array(
+            'options' => array(
                 'label'     => \Application\Listener\Listener::z_xlt('Legal Authenticator'),
-        'value_options' => $this->getUsers(),
-        ),
+            'value_options' => $this->getUsers(),
+            ),
         ));
     
     /*
@@ -187,10 +187,10 @@ class Configuration extends Form implements InputFilterAwareInterface
         'required'  => 'required',
         'id'        => 'hie_authenticator_id'
             ),
-        'options' => array(
+            'options' => array(
                 'label'     => \Application\Listener\Listener::z_xlt('Authenticator'),
-        'value_options' => $this->getUsers(),
-        ),
+            'value_options' => $this->getUsers(),
+            ),
         ));
     
     /*
@@ -206,10 +206,10 @@ class Configuration extends Form implements InputFilterAwareInterface
         'required'  => 'required',
         'id'        => 'hie_primary_care_provider_id'
             ),
-        'options' => array(
+            'options' => array(
                 'label'     => \Application\Listener\Listener::z_xlt('Primary Care Provider'),
-        'value_options' => $this->getUsers(),
-        ),
+            'value_options' => $this->getUsers(),
+            ),
         ));
     
     /*

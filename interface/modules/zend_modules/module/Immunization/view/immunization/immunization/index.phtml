@@ -87,12 +87,8 @@ $form->prepare();
                     <?php if(count($res) > 0){?>
                     <?php echo $this->formRow($form->get('hl7button')); ?>&nbsp;&nbsp;
                     <?php
-                        $arr = $this->getVariables('Application\Controller\SendtoController','sendAction');
-                        $arr['required_butons'] = array('download');
-                        $arr['send_via']        = 'download';
-                        $arr['download_format'] = array('hl7_format');
-                        $this->layout('immunization/layout/layout');
-                        echo $this->partial("application/sendto/send",$arr);
+                     // @see Application view_helpers for this functionality.
+                     $this->sendToHie('immunization/layout/layout', ['download'], 'hie', ['hl7_format']);
                     ?>
                     <div class="se_in_3" title="<?php echo $listener->z_xla('Reload');?>" onclick="reloadPage();"></div>
                     <?php }?>
@@ -152,7 +148,7 @@ $form->prepare();
                 </tr>
            </table> 
            <?php } else {?>
-                <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($this->details) > 0){ ?>display: none; <?php } ?>">
+                <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($res) > 0){ ?>display: none; <?php } ?>">
                     <?php echo $listener->z_xlt('Nothing to display');?>
                 </div>
            <?php }?>

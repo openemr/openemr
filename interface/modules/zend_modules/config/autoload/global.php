@@ -13,7 +13,6 @@
  * @Author: Oshri R <oshri.rozmarin@gmail.com>
  *
  */
-
 // If to use utf-8 or not in my sql query
 $tmp = $GLOBALS['disable_utf8_flag'] ? "SET sql_mode = ''" : "SET NAMES 'UTF8', sql_mode = ''";
 $tmp .= ", time_zone = '" . (new DateTime())->format("P") . "'";
@@ -33,9 +32,9 @@ if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
 
 // Sets default factory using the default database
 $factories = array(
-    'Zend\Db\Adapter\Adapter' => function ($serviceManager) {
+    'Zend\Db\Adapter\Adapter' => function ($containerInterface, $requestedName) {
         $adapterFactory = new Zend\Db\Adapter\AdapterServiceFactory();
-        $adapter = $adapterFactory->createService($serviceManager);
+        $adapter = $adapterFactory($containerInterface, $requestedName);
         \Zend\Db\TableGateway\Feature\GlobalAdapterFeature::setStaticAdapter($adapter);
         return $adapter;
     }
@@ -85,6 +84,18 @@ return array(
     'service_manager' => array(
         'factories' => $factories
     ),
+    // @see https://docs.zendframework.com/tutorials/i18n/
+    // TODO: we don't seem to have any translation files here... so we may just want to remove this.
+    'translator' => [
+        'locale' => 'en_US',
+        'translation_file_patterns' => [
+            [
+                'type'     => 'gettext',
+                'base_dir' => getcwd() .  '/data/language',
+                'pattern'  => '%s.mo',
+            ],
+        ],
+    ],
 );
 
 

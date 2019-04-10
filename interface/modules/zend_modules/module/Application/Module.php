@@ -30,45 +30,18 @@ class Module
 {
     public function onBootstrap(MvcEvent $e)
     {
-        $e->getApplication()->getServiceManager()->get('translator');
+        /**
+         * Determines if the module namespace should be prepended to the controller name.
+         * This is the case if the route match contains a parameter key matching the MODULE_NAMESPACE constant.
+         */
         $eventManager        = $e->getApplication()->getEventManager();
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
-    }
-    
-    public function getControllerPluginConfig()
-    {
-        return array(
-        'factories' => array(
-          'CommonPlugin' => function ($sm) {
-            $sm = $sm->getServiceLocator();
-            return new Plugin\CommonPlugin($sm);
-          }
-        ),
-        
-        'Phimail' => function ($sm) {
-            $sm = $sm->getServiceLocator();
-            return new Plugin\Phimail($sm);
-        },
-        );
-    }
 
-    public function getServiceConfig()
-    {
-        return array(
-        'factories' => array(
-          'Application\Model\ApplicationTable' =>  function ($sm) {
-            $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-            $table = new ApplicationTable($dbAdapter);
-            return $table;
-          },
-            'Application\Model\SendtoTable' =>  function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $table = new SendtoTable($dbAdapter);
-                    return $table;
-            },
-        ),
-        );
+        // @see https://stackoverflow.com/a/21601229/7884612 for how to debug this.
+        // UNCOMMENT THESE TWO LINES IF YOU WANT TO SEE THE REGISTERED FACTORIES FOR DEBUGGING
+        // $config = $e->getApplication()->getServiceManager()->get('Config');
+        // error_log("Factories: " . var_export(array_keys($config['service_manager']['factories']), true));
     }
 
     public function getConfig()
@@ -76,6 +49,8 @@ class Module
         return include __DIR__ . '/config/module.config.php';
     }
 
+    // TODO: The zf3 autoloader should handle autoloading these classes by default but it's not right now
+    // we need to figure out why that is so we can remove this unnecessary piece.
     public function getAutoloaderConfig()
     {
         return array(

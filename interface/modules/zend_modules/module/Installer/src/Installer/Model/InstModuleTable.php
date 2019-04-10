@@ -27,18 +27,30 @@ use Zend\Db\TableGateway\TableGateway;
 use Zend\Config\Reader\Ini;
 use Zend\Db\ResultSet\ResultSet;
 use \Application\Model\ApplicationTable;
+use Interop\Container\ContainerInterface;
 
 class InstModuleTable
 {
     protected $tableGateway;
+    
+    /**
+     * @var ApplicationTable
+     */
     protected $applicationTable;
-    public function __construct(TableGateway $tableGateway)
+
+    /**
+     * We have to create and populate some classes so we use the service container to load them
+     */
+    private $container;
+
+    public function __construct(TableGateway $tableGateway, ContainerInterface $container)
     {
         $this->tableGateway = $tableGateway;
         $adapter = \Zend\Db\TableGateway\Feature\GlobalAdapterFeature::getStaticAdapter();
         $this->adapter              = $adapter;
         $this->resultSetPrototype   = new ResultSet();
         $this->applicationTable       = new ApplicationTable;
+        $this->container = $container;
     }
   
   /**
@@ -274,7 +286,7 @@ class InstModuleTable
                 );
                 $results   = $this->applicationTable->zQuery($sql, $params);
             }
-        } else if ($mod == "mod_active=0") {
+        } elseif ($mod == "mod_active=0") {
             $resp = $this->checkDependencyOnDisable($id);
             if ($resp['status'] == 'success' && $resp['code'] == '1') {
                 $sql = "UPDATE modules SET mod_active = 0, 
@@ -739,6 +751,8 @@ class InstModuleTable
         $hooksArr = array();
         if ($objHooks) {
             $hooksArr = $objHooks->getHookConfig();
+        } else {
+            error_log("$moduleDirectory does not have a controller object");
         }
 
         return $hooksArr;
@@ -829,6 +843,10 @@ class InstModuleTable
         $retArr   = array();
         if ($objHooks) {
             $retArr   = $objHooks->getDependedModulesConfig();
+            if (!is_array($retArr)) {
+                $retArr = array();
+                error_log(self::class . " Module class " . get_class($objHooks) . " returned a non-array value for getDependedModulesConfig(). resetting to array");
+            }
         }
 
         return $retArr;
@@ -856,10 +874,44 @@ class InstModuleTable
             $this->applicationTable->zQuery($sql, array($modId));
         }
     }
+
+    public function getFormObject($moduleDirectory)
+    {
+        $obj = null;
+        if ($moduleDirectory != 'Installer') {
+            $className        = str_replace('[module_name]', $moduleDirectory, '[module_name]\\Form\\ModuleconfigForm');
+            if ($this->container->has($className)) {
+                $obj = $this->container->get($className);
+            } else {
+                error_log("Could not find class name " . $className);
+            }
+        } else {
+            $obj = $this->getObject($moduleDirectory, 'Form');
+        }
+        return $obj;
+    }
+
+    public function getSetupObject($moduleDirectory)
+    {
+        $className = str_replace('[module_name]', $moduleDirectory, '[module_name]\Controller\SetupController');
+        $setup = array();
+        if ($this->container->has($className)) {
+            $obj = $this->container->get($className);
+        } else {
+            error_log("Could not find Setup object for $className");
+        }
+        if (!empty($obj)) {
+            $setup['module_dir']  = strtolower($moduleDirectory);
+            $setup['title']       = $obj->getTitle();
+        }
+
+        return $setup;
+    }
   
   /**
    * Function getObject
    * Dynamically create Module Controller / Form / Setup Object
+   * TODO: we should make sure the controller conforms to an interface as we are calling methods on here that are dynamic such as getAcl
    *
    * @param string $moduleDirectory Module Directory Name
    * @param string $option Controller / Form / Setup to create an Object
@@ -868,28 +920,18 @@ class InstModuleTable
    */
     public function getObject($moduleDirectory, $option = 'Controller', $adapter = '')
     {
-        if ($option == 'Form' && ($moduleDirectory != 'Installer' || $option != 'Model')) {
-            $phpObjCode   = str_replace('[module_name]', $moduleDirectory, '$obj  = new \[module_name]\\' . $option . '\Moduleconfig' . $option . '($adapter);');
-            $className        = str_replace('[module_name]', $moduleDirectory, '\[module_name]\\' . $option  . '\Moduleconfig' . $option . '');
+        if ($option == 'Form' && $moduleDirectory != 'Installer') {
+            error_log('getObject called with option of Form.  This call signature is deprecated.  Use getFormObject instead');
         } elseif ($option == 'Setup') {
-            $phpObjCode   = str_replace('[module_name]', $moduleDirectory, '$obj  = new \[module_name]\Controller\SetupController;');
-            $setupClass = str_replace('[module_name]', $moduleDirectory, '\[module_name]\Controller\SetupController');
-            $setup = array();
-            if (class_exists($setupClass)) {
-                eval($phpObjCode);
-                $setupTile = $obj->getTitle();
-                $setup['module_dir']  = strtolower($moduleDirectory);
-                $setup['title']       = $setupTile;
-            }
-
-            return $setup;
-        } else {
-            $phpObjCode   = str_replace('[module_name]', $moduleDirectory, '$obj  = new \[module_name]\\' . $option . '\Moduleconfig' . $option . '();');
-            $className        = str_replace('[module_name]', $moduleDirectory, '\[module_name]\\' . $option  . '\Moduleconfig' . $option . '');
+            error_log('getObject called with option of Setup.  This call signature is deprecated.  Use getSetupObject instead');
         }
+
+        $className        = str_replace('[module_name]', $moduleDirectory, '[module_name]\\' . $option  . '\Moduleconfig' . $option . '');
     
-        if (class_exists($className)) {
-            eval($phpObjCode);
+        if ($this->container->has($className)) {
+            $obj = $this->container->get($className);
+        } else {
+            error_log("Could not find class $className");
         }
 
         return $obj;

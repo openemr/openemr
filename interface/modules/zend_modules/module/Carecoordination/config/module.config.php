@@ -1,19 +1,49 @@
 <?php
+namespace Carecoordination;
+
+use Zend\ServiceManager\Factory\InvokableFactory;
+use Zend\Router\Http\Segment;
+use Carecoordination\Controller\CarecoordinationController;
+use Carecoordination\Controller\EncounterccdadispatchController;
+use Carecoordination\Controller\EncountermanagerController;
+use Carecoordination\Controller\SetupController;
+use Carecoordination\Controller\CcdController;
+use Carecoordination\Model\CarecoordinationTable;
+use Carecoordination\Model\EncounterccdadispatchTable;
+use Carecoordination\Model\EncountermanagerTable;
+use Carecoordination\Model\SetupTable;
+use Carecoordination\Model\CcdTable;
+use Carecoordination\Form\ModuleconfigForm;
+use Carecoordination\Factory\EncounterccdadispatchControllerFactory;
+use Carecoordination\Factory\SetupControllerFactory;
+use Carecoordination\Controller\ModuleconfigController;
+use Interop\Container\ContainerInterface;
+use Application\Plugin\CommonPlugin;
+use Documents\Controller\DocumentsController;
+
 return array(
     'controllers' => array(
-        'invokables' => array(
-            'Carecoordination'        => 'Carecoordination\Controller\CarecoordinationController',
-            'Encounterccdadispatch'   => 'Carecoordination\Controller\EncounterccdadispatchController',
-            'encountermanager'        => 'Carecoordination\Controller\EncountermanagerController',
-            'Carecoordination\Setup'  => 'Carecoordination\Controller\SetupController',
-            'Ccd'                     => 'Carecoordination\Controller\CcdController',
-        ),
+        'factories' => [
+            CarecoordinationController::class => function (ContainerInterface $container, $requestedName) {
+                return new CarecoordinationController($container->get(CarecoordinationTable::class), $container->get(DocumentsController::class));
+            },
+            EncountermanagerController::class =>  function (ContainerInterface $container, $requestedName) {
+                return new EncountermanagerController($container->get(\Carecoordination\Model\EncountermanagerTable::class));
+            },
+            // we use factories because the controller code is used in two places.  ZF isolates the controller services into
+            // their own scope and are not available from outside the module.  The factory let's us share the instantiation code.
+            EncounterccdadispatchController::class =>  EncounterccdadispatchControllerFactory::class,
+            SetupController::class => SetupControllerFactory::class,
+            CcdController::class => function (ContainerInterface $container, $requestedName) {
+                return new CcdController($container->get(CcdTable::class), $container->get(CarecoordinationTable::class), $container->get(\Documents\Model\DocumentsTable::class), $container->get(DocumentsController::class));
+            },
+        ],
     ),
 
     'router' => array(
         'routes' => array(
             'carecoordination' => array(
-                'type'    => 'segment',
+                'type'    => Segment::class,
                 'options' => array(
                     'route'    => '/carecoordination[/:action][/:id]',
                     'constraints' => array(
@@ -21,14 +51,27 @@ return array(
                         'id'     => '[0-9]+',
                     ),
                     'defaults' => array(
-                        'controller' => 'Carecoordination',
+                        'controller' => CarecoordinationController::class,
                         'action'     => 'index',
                     ),
                 ),
             ),
-            
+            'setup' => array(
+                'type'    => Segment::class,
+                'options' => array(
+                     'route'    => '/carecoordination/setup[/:action][/:id]',
+                    'constraints' => array(
+                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'id'     => '[0-9]+',
+                    ),
+                    'defaults' => array(
+                        'controller' => SetupController::class,
+                        'action'     => 'index',
+                    ),
+                ),
+            ),
             'encounterccdadispatch' => array(
-                'type'    => 'segment',
+                'type'    => Segment::class,
                 'options' => array(
                     'route'    => '/encounterccdadispatch[/:action][/:id][/:val][/:id][/:val]',
                     'constraints' => array(
@@ -37,40 +80,25 @@ return array(
                         'val'    => '[0-9]*',
                     ),
                     'defaults' => array(
-                        'controller' => 'Encounterccdadispatch',
+                        'controller' => EncounterccdadispatchController::class,
                         'action'     => 'index',
                     ),
                 ),
             ),
             
             'encountermanager' => array(
-                'type'    => 'segment',
+                'type'    => Segment::class,
                 'options' => array(
                     'route'    => '/encountermanager[/:action]',
                     'constraints' => array(
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                     ),
                     'defaults' => array(
-                        'controller' => 'encountermanager',
+                        'controller' => EncountermanagerController::class,
                         'action'     => 'index',
                     ),
                 ),
             ),
-            'setup' => array(
-                'type'    => 'segment',
-                'options' => array(
-                     'route'    => '/carecoordination/setup[/:action][/:id]',
-                    'constraints' => array(
-                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-                        'id'     => '[0-9]+',
-                    ),
-                    'defaults' => array(
-                        'controller' => 'Carecoordination\Setup',
-                        'action'     => 'index',
-                    ),
-                ),
-            ),
-            
             'ccd' => array(
                 'type'    => 'segment',
                 'options' => array(
@@ -80,7 +108,7 @@ return array(
                         'id'     => '[0-9]+',
                     ),
                     'defaults' => array(
-                        'controller' => 'Ccd',
+                        'controller' => CcdController::class,
                         'action'     => 'upload',
                     ),
                 ),
@@ -98,9 +126,39 @@ return array(
             'carecoordination/layout/encountermanager' => __DIR__ . '/../view/layout/encountermanager.phtml',
             'carecoordination/layout/setup' => __DIR__ . '/../view/layout/setup.phtml',
         ),
+        // @see https://olegkrivtsov.github.io/using-zend-framework-3-book/html/en/Model_View_Controller/View_Rendering_Strategies.html
         'strategies' => array(
             'ViewJsonStrategy',
             'ViewFeedStrategy',
         ),
     ),
+
+    'service_manager' => [
+        'factories' => array(
+            CarecoordinationTable::class =>  function (ContainerInterface $container, $requestedName) {
+                return new CarecoordinationTable($container->get(\Zend\Db\Adapter\Adapter::class));
+            },
+            EncounterccdadispatchTable::class =>  function (ContainerInterface $container, $requestedName) {
+                    return new EncounterccdadispatchTable();
+            },
+            EncountermanagerTable::class =>  function (ContainerInterface $container, $requestedName) {
+                    return new EncountermanagerTable($container->get(\Zend\Db\Adapter\Adapter::class));
+            },
+            SetupTable::class =>  function (ContainerInterface $container, $requestedName) {
+                    return new SetupTable($container->get(\Zend\Db\Adapter\Adapter::class));
+            },
+            CcdTable::class =>  function (ContainerInterface $container, $requestedName) {
+                    return new CcdTable($container->get(\Zend\Db\Adapter\Adapter::class));
+            },
+            ModuleconfigForm::class => function (ContainerInterface $container, $requestedName) {
+                return new ModuleconfigForm($container->get(\Zend\Db\Adapter\Adapter::class));
+            },
+            // so this isn't really a 'controller' class used as a route 'controller' but more to reuse component code for other modules...
+            ModuleconfigController::class => function (ContainerInterface $container, $requestedName) {
+                return new ModuleconfigController();
+            },
+            SetupController::class => SetupControllerFactory::class,
+            EncounterccdadispatchController::class => EncounterccdadispatchControllerFactory::class
+        ),
+    ]
 );

@@ -18,10 +18,6 @@
  */
 namespace Multipledb;
 
-use Multipledb\Model\Multipledb;
-use Multipledb\Model\MultipledbTable;
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\TableGateway\TableGateway;
 use Zend\ModuleManager\ModuleManager;
 
 class Module
@@ -48,30 +44,6 @@ class Module
         return include __DIR__ . '/config/module.config.php';
     }
 
-
-    /**
-     * @return array
-     */
-    public function getServiceConfig()
-    {
-        return array(
-            'factories' => array(
-                'Multipledb\Model\MultipledbTable' =>  function ($sm) {
-                    $tableGateway = $sm->get('MultipledbTableGateway');
-                    $table = new MultipledbTable($tableGateway);
-                    return $table;
-                },
-                'MultipledbTableGateway' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $resultSetPrototype = new ResultSet();
-                    $resultSetPrototype->setArrayObjectPrototype(new Multipledb());
-                    return new TableGateway('multiple_db', $dbAdapter, null, $resultSetPrototype);
-                },
-            ),
-        );
-    }
-
-
     /**
      * load global variables foe every controllers
      * @param ModuleManager $manager
@@ -84,6 +56,7 @@ class Module
         $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e) {
             $controller = $e->getTarget();
             //$controller->layout()->setVariable('status', null);
+            // @see https://framework.zend.com/apidoc/2.0/classes/Zend.Mvc.Controller.Plugin.Layout.html
             $controller->layout('multipledb/layout/layout');
 
 

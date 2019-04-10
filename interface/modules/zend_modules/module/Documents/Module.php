@@ -57,31 +57,6 @@ class Module implements AutoloaderProviderInterface
     {
         return include __DIR__ . '/config/module.config.php';
     }
-            
-    public function getServiceConfig()
-    {
-        return array(
-        'factories' => array(
-          'Documents\Model\DocumentsTable' =>  function ($sm) {
-            $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-            $table = new DocumentsTable($dbAdapter);
-            return $table;
-          },
-        ),
-        );
-    }
-    
-    public function getControllerPluginConfig()
-    {
-        return array(
-        'factories' => array(
-          'Documents' => function ($sm) {
-            $sm = $sm->getServiceLocator();
-            return new Plugin\Documents($sm);
-          }
-        )
-        );
-    }
 
     public function getAutoloaderConfig()
     {

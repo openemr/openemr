@@ -20,6 +20,7 @@
 namespace Multipledb\Controller;
 
 use Multipledb\Model\MultipledbData;
+use Multipledb\Model\MultipledbTable;
 use Zend\Json\Server\Exception\ErrorException;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
@@ -29,13 +30,19 @@ use Error;
 class MultipledbController extends BaseController
 {
 
+    /**
+     * TableGateway for the Multipledb data.
+     * @var MultipledbTable
+     */
+    private $MultipledbTable;
 
     /**
      * MultipledbController constructor.
      */
-    public function __construct()
+    public function __construct(MultipledbTable $MultipledbTable)
     {
         parent::__construct();
+        $this->MultipledbTable = $MultipledbTable;
         $this->listenerObject = new Listener;
         //todo add permission of admin
     }
@@ -144,12 +151,6 @@ class MultipledbController extends BaseController
      */
     private function getMultipledbTable()
     {
-
-        if (!$this->MultipledbTable) {
-            $sm = $this->getServiceLocator();
-            $this->MultipledbTable = $sm->get('Multipledb\Model\MultipledbTable');
-        }
-
         return $this->MultipledbTable;
     }
 
