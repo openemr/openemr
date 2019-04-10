@@ -621,8 +621,7 @@ foreach ($ar as $key => $val) {
                     if ($PDF_OUTPUT && $extension == ".pdf") {
                         echo "</div></div>\n"; // HTML to PDF conversion will fail if there are open tags.
                         $content = getContent();
-                        $pdf->writeHTML($content, false); // catch up with buffer.
-                        $pdf->SetImportUse();
+                        $pdf->writeHTML($content); // catch up with buffer.
                         $pg_header = "<span>" . xlt('Document') . " " . text($fname) ."</span>";
                         //$pdf->SetHTMLHeader ($pg_header,'left',false); // A header for imported doc, don't think we need but will keep.
                         $tempDocC = new C_Document;
@@ -834,7 +833,7 @@ if ($PDF_OUTPUT) {
     }
 
     try {
-        $pdf->writeHTML($content, false); // convert html
+        $pdf->writeHTML($content); // convert html
     } catch (MpdfException $exception) {
         die(text($exception));
     }
