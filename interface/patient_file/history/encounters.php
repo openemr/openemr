@@ -161,6 +161,15 @@ function generatePageElement($start, $pagesize, $billing, $issue, $text)
 
     echo "<A HREF='".$url."' onclick='top.restoreSession()'>" . $text . "</A>";
 }
+
+function hasFormPermission($formDir)
+{
+    // get the aco spec from registry table
+    $formRow = sqlQuery("SELECT aco_spec FROM registry WHERE directory = ?", array($formDir));
+    $permission = explode('|', $formRow['aco_spec']);
+    return acl_check($permission[0], $permission[1]);
+}
+
 ?>
 <html>
 <head>
@@ -583,12 +592,19 @@ while ($result4 = sqlFetchArray($res4)) {
                 }
                 echo "</div>";
             } else {
-                echo "<div " .
-                "onmouseover='efmouseover(this," . attr_js($pid) . "," . attr_js($result4['encounter']) .
-                "," . attr_js($formdir) . "," . attr_js($enc['form_id']) . ")' " .
-                "onmouseout='ttMouseOut()'>";
-                echo text(xl_form_title($enc['form_name']));
-                echo "</div>";
+
+                $formDiv = "<div ";
+                if (hasFormPermission($enc['formdir'])) {
+                    $formDiv .= "onmouseover='efmouseover(this," . attr_js($pid) . ","
+                    . attr_js($result4['encounter']) .
+                    "," . attr_js($formdir) . "," . attr_js($enc['form_id'])
+                    . ")' " .
+                    "onmouseout='ttMouseOut()'";
+                }
+                $formDiv .= ">";
+                $formDiv .= text(xl_form_title($enc['form_name']));
+                $formDiv .= "</div>";
+                echo $formDiv;
             }
         } // end encounter Forms loop
 
