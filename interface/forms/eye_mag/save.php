@@ -384,6 +384,7 @@ if ($_REQUEST["mode"] == "new") {
         global $web_root, $webserver_root;
         $content = ob_get_clean();
         // Fix a nasty html2pdf bug - it ignores document root!
+        // TODO - now use mPDF, so should test if still need this fix
         $i = 0;
         $wrlen = strlen($web_root);
         $wsrlen = strlen($webserver_root);

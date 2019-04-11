@@ -33,6 +33,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 require_once "$srcdir/user.inc";
 
+use Mpdf\Mpdf;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Core\Header;
@@ -267,22 +268,35 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
     global $srcdir;
 
     if ($GLOBALS['statement_appearance'] == '1') {
-        require_once("$srcdir/html2pdf/vendor/autoload.php");
-        $pdf2 = new HTML2PDF(
-            $GLOBALS['pdf_layout'],
-            $GLOBALS['pdf_size'],
-            $GLOBALS['pdf_language'],
-            true, // default unicode setting is true
-            'UTF-8', // default encoding setting is UTF-8
-            array($GLOBALS['pdf_left_margin'], $GLOBALS['pdf_top_margin'], $GLOBALS['pdf_right_margin'], $GLOBALS['pdf_bottom_margin']),
-            $_SESSION['language_direction'] == 'rtl' ? true : false
+        $config_mpdf = array(
+            'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
+            'mode' => $GLOBALS['pdf_language'],
+            'format' => $GLOBALS['pdf_size'],
+            'default_font_size' => '9',
+            'default_font' => 'dejavusans',
+            'margin_left' => $GLOBALS['pdf_left_margin'],
+            'margin_right' => $GLOBALS['pdf_right_margin'],
+            'margin_top' => $GLOBALS['pdf_top_margin'],
+            'margin_bottom' => $GLOBALS['pdf_bottom_margin'],
+            'margin_header' => '',
+            'margin_footer' => '',
+            'orientation' => $GLOBALS['pdf_layout'],
+            'shrink_tables_to_fit' => 1,
+            'use_kwt' => true,
+            'autoScriptToLang' => true,
+            'keep_table_proportions' => true
         );
+        $pdf2 = new mPDF($config_mpdf);
+        if ($_SESSION['language_direction'] == 'rtl') {
+            $pdf2->SetDirectionality('rtl');
+        }
         ob_start();
         readfile($file_to_send, "r");//this file contains the HTML to be converted to pdf.
-//echo $file;
+        //echo $file;
         $content = ob_get_clean();
 
-// Fix a nasty html2pdf bug - it ignores document root!
+        // Fix a nasty html2pdf bug - it ignores document root!
+        // TODO - now use mPDF, so should test if still need this fix
         global $web_root, $webserver_root;
         $i = 0;
         $wrlen = strlen($web_root);
