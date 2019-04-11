@@ -1,9 +1,12 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: Gerhard
- * Date: 06-Apr-19
- * Time: 16:17
+ * Utility class for Uuid creation.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Gerhard Brink <gjdbrink@gmail.com>
+ * @copyright Copyright (c) 2019 Gerhard Brink <gjdbrink@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Common\Utils;
