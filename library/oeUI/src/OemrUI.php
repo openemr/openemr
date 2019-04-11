@@ -66,6 +66,8 @@ class OemrUI
     */
     public function __construct($arrOeUiSettings = array())
     {
+        global $v_js_includes;
+
         $this->heading = ($arrOeUiSettings['include_patient_name'] && !empty($arrOeUiSettings['heading_title']))? $arrOeUiSettings['heading_title'] . " - " . getPatientNameFirstLast($_SESSION['pid']):$arrOeUiSettings['heading_title'];
         $this->expandable = $arrOeUiSettings['expandable'];
         $this->arrFiles = $arrOeUiSettings['expandable_files'];
@@ -123,6 +125,7 @@ class OemrUI
             $expand_title = xl('Click to Expand and set to henceforth open in Expanded mode');
             $expand_icon_class = 'fa-expand oe-expand';
         }
+        $expandable_icon = '';
         if ($expandable) {
             $expandable_icon = "<i id='exp_cont_icon' class='oe-superscript-small expand_contract fa " .  attr($expand_icon_class) . "'" . " title='" . attr($expand_title) . "' 
             aria-hidden='true'></i>";
@@ -212,6 +215,7 @@ class OemrUI
     */
     private function helpIcon($display_help_icon = '')
     {
+        $help_icon = '';
         $display_help_icon = $this->display_help_icon;
         if ($display_help_icon) {
             if ($_SESSION ['language_direction'] == 'ltr') {

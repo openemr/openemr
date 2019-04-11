@@ -449,22 +449,22 @@ if ($GLOBALS['enable_help'] == 1) {
                                 </div>
                             </div>
                     </fieldset>
+                    <?php
+                    // To see issues stuff user needs write access to all issue types.
+                    $issuesauth = true;
+                    foreach ($ISSUE_TYPES as $type => $dummy) {
+                        if (!acl_check_issue($type, '', 'write')) {
+                            $issuesauth = false;
+                            break;
+                        }
+                    }
+                    if ($issuesauth) {
+                    ?>
                     <fieldset>
                         <legend><?php echo xlt('Link/Add Issues (Injuries/Medical/Allergy) to Current Visit')?></legend>
                             <div id = "visit-issues">
                                 <div class="form-group clearfix">
                                     <div class="col-sm-6 col-lg-offset-3">
-                                        <?php
-                                        // To see issues stuff user needs write access to all issue types.
-                                        $issuesauth = true;
-                                        foreach ($ISSUE_TYPES as $type => $dummy) {
-                                            if (!acl_check_issue($type, '', 'write')) {
-                                                $issuesauth = false;
-                                                break;
-                                            }
-                                        }
-                                        if ($issuesauth) {
-                                        ?>
                                             <div class="col-sm-12">
                                                 <div class="col-sm-12 pull-left" style="padding-bottom:5px">
                                                     <div class="btn-group" role="group">
@@ -509,13 +509,13 @@ if ($GLOBALS['enable_help'] == 1) {
                                                     . 'Hold down [Ctrl] button to select multiple issues.'); ?></i></p>
                                                 </div>
                                             </div>
-                                        <?php
-                                        }
-                                        ?>
                                     </div>
                                 </div>
                             </div>
                     </fieldset>
+                    <?php
+                    }
+                    ?>
                     <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
                     <div class="form-group clearfix">
                         <div class="col-sm-12 text-left position-override">

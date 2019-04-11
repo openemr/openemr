@@ -47,7 +47,7 @@ function patient_data_view_model(pname,pid,pubpid,str_dob)
        for(var encIdx=0;encIdx<self.encounterArray().length;encIdx++)
        {
            var curEnc=self.encounterArray()[encIdx];
-           if(curEnc.id()===newVal)
+           if(curEnc.id()==newVal)
            {
 
                self.selectedEncounter(curEnc);

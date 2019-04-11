@@ -175,3 +175,11 @@ function getDocumentsByEncounter($patientID = null, $encounterID = null)
 
     return $allDocuments;
 }
+
+function hasFormPermission($formDir)
+{
+    // get the aco spec from registry table
+    $formRow = sqlQuery("SELECT aco_spec FROM registry WHERE directory = ?", array($formDir));
+    $permission = explode('|', $formRow['aco_spec']);
+    return acl_check($permission[0], $permission[1]);
+}

@@ -508,7 +508,7 @@ function make_document($task)
     //$pdf->writeHTML($styles, 1);
     //$pdf->writeHTML($content, 2);
 
-    $pdf->writeHTML($content, 0); // false or zero works for both mPDF and HTML2PDF
+    $pdf->writeHTML($content);
 
     // tmp file in temporary_files_dir
     $temp_filename = tempnam($GLOBALS['temporary_files_dir'], "oer");
