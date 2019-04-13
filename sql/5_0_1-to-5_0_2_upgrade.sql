@@ -85,6 +85,10 @@
 --    arguments: none
 --    behavior: can take a long time.
 
+--  #IfUuidUpdatePatientsNeeded
+--    desc: populate patient table with uuids
+--    arguments: none
+
 UPDATE `background_services` SET `require_once`='/library/MedEx/MedEx_background.php' WHERE `name`='MedEx';
 
 #IfNotRow2Dx2 list_options list_id proc_type option_id fgp title Custom Favorite Group

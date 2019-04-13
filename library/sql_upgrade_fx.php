@@ -866,6 +866,14 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
+        } else if (preg_match('/^#IfUuidUpdatePatientsNeeded/', $line)) {
+
+            if ( \OpenEMR\Common\Utils\UuidUtils::tableNeedsUuidCreation('patient_data')) {
+                \OpenEMR\Common\Utils\UuidUtils::createMissingUuids('patient_data');
+            } else {
+                echo "<font color='green'>Skipping section $line</font><br />\n";
+            }
+
         } else if (preg_match('/^#ConvertLayoutProperties/', $line)) {
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";

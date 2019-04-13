@@ -57,4 +57,44 @@ class UuidUtils
 
         return false;
     }
+
+    /**
+     * @param string $table
+     *
+     * @throws \Exception
+     */
+    public static function createMissingUuids(string $table)
+    {
+        $query = "SELECT id FROM ".$table." WHERE uuid = ''";
+
+        $resultSet = sqlStatement($query);
+
+        while ($row = sqlFetchArray($resultSet)) {
+
+            $uuid = self::createUuid($table);
+
+            $updateQuery = "UPDATE ".$table." SET uuid = ? WHERE id = ?";
+
+            sqlQuery($updateQuery, [$uuid, $row['id']]);
+        }
+
+    }
+
+    /**
+     * @param string $table
+     *
+     * @return bool
+     */
+    public static function tableNeedsUuidCreation(string $table): bool
+    {
+        $query = "SELECT count(id) as total FROM ".$table." WHERE uuid = ''";
+
+        $resultSet = sqlQuery($query);
+
+        if ($resultSet['total'] > 0) {
+           return true;
+        }
+
+        return false;
+    }
 }
