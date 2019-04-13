@@ -257,7 +257,7 @@ if (empty($_SESSION['csrf_token'])) {
  * @link http://open-emr.org/wiki/index.php/Dotenv_Usage
  */
 if (file_exists("{$webserver_root}/.env")) {
-    $dotenv = new Dotenv($webserver_root);
+    $dotenv = Dotenv::create($webserver_root);
     $dotenv->load();
 }
 

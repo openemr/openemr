@@ -159,7 +159,7 @@ if (isset($this_message['pid'])) {
     <?php Header::setupHeader(['datetime-picker','opener','topdialog','common']); ?>
 
     <script language="JavaScript">
-      $(document).ready(function (){
+      $(function (){
 
         $('#timeSpan').change(function(){
           var value = $(this).val();
@@ -192,7 +192,7 @@ if (isset($this_message['pid'])) {
           }
           var curr_year = d.getFullYear();
           $('#dueDate').val(curr_year + "-" + curr_month + "-" + curr_date);
-        })
+        });
 
 
         $("#sendButton").click(function(){
