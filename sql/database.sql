@@ -5133,6 +5133,117 @@ INSERT INTO list_options (list_id,option_id,title) VALUES ('lists','apps','Apps'
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','*OpenEMR','main/main_screen.php',10,1,0);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','Calendar','main/calendar/index.php',20,0,0);
 
+-- Alcohol Use Disorder Identification Test-1
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES('lists', 'Alcohol_Use_Disorder_Identification_Test-1', 'Alcohol Use Disorder Identification Test-1', 306, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Alcohol_Use_Disorder_Identification_Test-1', 'never', 'Never', 0, '', 'LA6270-8');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Alcohol_Use_Disorder_Identification_Test-1', 'monthly_or_less', 'Monthly or less', 1, '', 'LA18926-8');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Alcohol_Use_Disorder_Identification_Test-1', '2_4_times_a_month', '2-4 times a month', 2, '', 'LA18927-6');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Alcohol_Use_Disorder_Identification_Test-1', '2_3_times_a_week', '2-3 times a week', 3, '', 'LA18928-4');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Alcohol_Use_Disorder_Identification_Test-1', '4_or_more_timees_a_week', '4 or more times a week', 4, '', 'LA18929-2');
+
+-- Alcohol Use Disorder Identification Test-2
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES('lists', 'Alcohol_Use_Disorder_Identification_Test-2', 'Alcohol Use Disorder Identification Test-2', 307, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Alcohol_Use_Disorder_Identification_Test-2', '1_or_2', '1 or 2', 0, '', 'LA15694-5');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Alcohol_Use_Disorder_Identification_Test-2', '3_or_4', '3 or 4', 1, '', 'LA15695-2');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Alcohol_Use_Disorder_Identification_Test-2', '5_or_6', '5 or 6', 2, '', 'LA18930-0');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Alcohol_Use_Disorder_Identification_Test-2', '7_to_9', '7 to 9', 3, '', 'LA18931-8');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Alcohol_Use_Disorder_Identification_Test-2', '10_or_more', '10 or more', 4, '', 'LA18932-6');
+
+-- Alcohol Use Disorder Identification Test-3
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES('lists', 'Alcohol_Use_Disorder_Identification_Test-3', 'Alcohol Use Disorder Identification Test-3', 308, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Alcohol_Use_Disorder_Identification_Test-3', 'never', 'Never', 0, '', 'LA6270-8');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Alcohol_Use_Disorder_Identification_Test-3', 'less_than_monthly', 'Less than monthly', 1, '', 'LA18933-4');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Alcohol_Use_Disorder_Identification_Test-3', 'monthly_or_less', 'Monthly', 2, '', 'LA18876-5');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Alcohol_Use_Disorder_Identification_Test-3', 'weekly', 'Weekly', 3, '', 'LA18891-4');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Alcohol_Use_Disorder_Identification_Test-3', 'daily_or_almost_daily', 'Daily or almost daily', 4, '', 'LA18934-2');
+
+-- Depression
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES('lists', 'Depression', 'Depression', 309, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Depression', 'not_at_all', 'Not at all', 0, '', 'LA6568-5');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Depression', 'several_days', 'Several days', 1, '', 'LA6569-3');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Depression', 'more_than_half_the _days', 'More than half the days', 2, '', 'LA6570-1');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Depression', 'nearly_every_day', 'Nearly every day', 3, '', 'LA6571-9');
+
+-- Education
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES('lists', 'Education', 'Education', 310, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', 'never_attended', 'Never attended/kindergarten only', 0, '', 'LA15606-9');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', '1st_grade', '1st grade', 1, '', 'LA15607-7');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', '2nd_grade', '2nd grade', 2, '', 'LA15608-5');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', '3rd_grade', '3rd grade', 3, '', 'LA15609-3');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', '4th_grade', '4th grade', 4, '', 'LA15610-1');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', '5th_grade', '5th grade', 5, '', 'LA15611-9');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', '6th _grade', '6th grade', 6, '', 'LA15612-7');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', '7th_grade', '7th grade', 7, '', 'LA15613-5');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', '8th_grade', '8th grade', 8, '', 'LA15614-3');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', '9th_grade', '9th grade', 9, '', 'LA15615-0');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', '10th_grade', '10th grade', 10, '', 'LA15616-8');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', '11th_grade', '11th grade', 11, '', 'LA15617-6');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', '12th_grade_no_diploma', '12th grade no diploma', 12, '', 'LA15618-4');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', 'high_school_graduate', 'High school graduate', 13, '', 'LA15564-0');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', 'ged', 'GED or equivalent', 14, '', 'LA15619-2');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', 'some_college_no_degree', 'Some college, no degree', 15, '', 'LA15620-0');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', 'associate_degree_occupational', 'Associate degree: occupational, technical, or vocational program ', 16, '', 'LA15621-8');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', 'associate_degree_academic', 'Associate degree: academic program', 17, '', 'LA15622-6');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', 'bachelors_degree', 'Bachelor\'s degree', 18, '', 'LA12460-4');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', 'masters_degree', 'Master\'s degree', 19, '', 'LA12461-2');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', 'professional_degree', 'Professional school degree', 20, '', 'LA15625-9');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', 'doctoral_degree', 'Doctoral degree', 21, '', 'LA15626-7');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', 'refused', 'Refused', 77, '', 'LA4389-8');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Education', 'dont_know', 'Don\'t know', 99, '', 'LA12688-0');
+
+-- Exposure to violence
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES('lists', 'Exposure_to_violence', 'Exposure to violence', 311, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Exposure_to_violence', 'no', 'No', 0, '', 'LA32-8');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Exposure_to_violence', 'yes', 'Yes', 1, '', 'LA33-6');
+
+-- Financial resource strain
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES('lists', 'Financial_resource_strain', 'Financial resource strain', 312, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Financial_resource_strain', 'very_hard', 'Very hard', 1, '', 'LA15832-1');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Financial_resource_strain', 'hard', 'Hard', 2, '', 'LA14745-6');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Financial_resource_strain', 'somewhat_hard', 'Somewhat hard', 3, '', 'LA22683-9');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Financial_resource_strain', 'not_very_hard', 'Not very hard', 4, '', 'LA22682-1');
+
+-- Religious Services
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES('lists', 'Religious_Services', 'Religious Services', 313, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Religious_Services', '0_3', '0 to 3 ', 1, '0', 'OE-REL-1');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Religious_Services', '1_2', '4 or more', 2, '1', 'OE-REL-2');
+
+-- Social connection and isolation panel
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES('lists', 'Social_connection_and_isolation_panel', 'Social connection and isolation panel', 314, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Social_connection_and_isolation_panel', 'married', 'Married', 1, '1', 'LA48-4');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Social_connection_and_isolation_panel', 'widowed', 'Widowed', 2, '0', 'LA49-2');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Social_connection_and_isolation_panel', 'divorced', 'Divorced', 3, '0', 'LA51-8');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Social_connection_and_isolation_panel', 'separated', 'Separated', 4, '0', 'LA4288-2');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Social_connection_and_isolation_panel', 'never_married', 'Never married', 5, '0', 'LA47-6');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Social_connection_and_isolation_panel', 'living_with _partner', 'Living with partner', 6, '1', 'LA15605-1');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Social_connection_and_isolation_panel', 'refused ', 'Refused ', 77, '0', 'LA4389-8');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Social_connection_and_isolation_panel', 'dont_know', 'Don\'t know', 99, '0', 'LA12688-0');
+
+-- Social Contact
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES('lists', 'Social_Contact', 'Social Contact', 315, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Social_Contact', '0', '0', 1, '0', 'OE-SC-1');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Social_Contact', '1_2', '1-2', 2, '0.5', 'OE-SC-2');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Social_Contact', '3_or_more', '3 or more', 3, '1', 'OE-SC-3');
+
+-- Stress
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES('lists', 'Stress', 'Stress', 316, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Stress', 'not_at_all', 'Not at all', 1, '', 'LA6568-5');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Stress', 'only_a_little', 'Only a little', 2, '', 'LA22687-0');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Stress', 'to_some_extent', 'To some extent', 3, '', 'LA22686-2');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Stress', 'rather_much', 'Rather much', 4, '', 'LA22685-4');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `codes`) VALUES('Stress', 'very_much', 'Very much', 5, '', 'LA13914-9');
+
 -----------------------------------------------------------
 
 --
@@ -10988,6 +11099,12 @@ CREATE TABLE `api_token` (
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `benefit_eligibility`
+--
+
 DROP TABLE IF EXISTS `benefit_eligibility`;
 CREATE TABLE `benefit_eligibility` (
     `response_id` bigint(20) NOT NULL,
@@ -11009,3 +11126,75 @@ CREATE TABLE `benefit_eligibility` (
     `response_create_date` date DEFAULT NULL,
     `response_modify_date` date DEFAULT NULL
 ) ENGINE=InnoDB;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `psychosocial_behavior_codes`
+--
+
+DROP TABLE IF EXISTS `psychosocial_behavior_codes`;
+CREATE TABLE `psychosocial_behavior_codes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `loinc_grp_code` varchar(8) NOT NULL,
+  `loinc_grp_text` varchar(255) NOT NULL,
+  `loinc_que_code` varchar(8) NOT NULL,
+  `loinc_que_text` varchar(255) NOT NULL,
+  `loinc_answer_list_id` varchar(12) NOT NULL,
+  `form_link` varchar(25) NOT NULL,
+   PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+
+--
+-- Inserting data into table `psychosocial_behavior_codes`
+--
+
+INSERT INTO `psychosocial_behavior_codes` (`id`, `loinc_grp_code`, `loinc_grp_text`, `loinc_que_code`, `loinc_que_text`, `loinc_answer_list_id`, `form_link`) VALUES
+(1, '', '', '76513-1', 'How hard is it for you to pay for the very basics like food, housing, medical care, and heating', 'LL3266-5', 'financial'),
+(2, '', '', '63504-5', 'What is the highest grade or level of school you have completed or the highest degree you have received', 'LL1069-5', 'education'),
+(3, '', '', '76542-0', 'Do you feel stress - tense, restless, nervous, or anxious, or unable to sleep at night because your mind is troubled all the time - these days', 'LL3267-3', 'stress'),
+(4, '55757-9', 'Patient Health Questionnaire 2', '44250-9', 'Little interest or pleasure in doing things in last 2 weeks', 'LL358-3', 'depression_1'),
+(5, '55757-9', 'Patient Health Questionnaire 2', '44255-8', 'Feeling down, depressed, or hopeless in last 2 weeks', 'LL358-3', 'depression_2'),
+(6, '55757-9', 'Patient Health Questionnaire 2', '55758-7', 'Patient Health Questionnaire 2 item (PHQ-2) total score', 'OE-AL-DEP-01', 'depression_score'),
+(7, '', '', '68515-6', 'How many days of moderate to strenuous exercise, like a brisk walk, did you do in the last 7 days', 'OE-AL-PHY-01', 'physical_activity_1'),
+(8, '', '', '68516-4', 'On those days that you engage in moderate to strenuous exercise, how many minutes, on average, do you exercise', 'OE-AL-PHY-02', 'physical_activity_2'),
+(9, '72109-2', 'Alcohol Use Disorder Identification Test - Consumption', '68518-0', 'How often do you have a drink containing alcohol', 'LL2179-1', 'alcohol_1'),
+(10, '72109-2', 'Alcohol Use Disorder Identification Test - Consumption', '68519-8', 'How many standard drinks containing alcohol do you have on a typical day', 'LL2180-9', 'alcohol_2'),
+(11, '72109-2', 'Alcohol Use Disorder Identification Test - Consumption', '68520-6', 'How often do you have 6 or more drinks on 1 occasion', 'LL2181-7', 'alcohol_3'),
+(12, '72109-2', 'Alcohol Use Disorder Identification Test - Consumption', '75626-2', 'Total score', 'OE-AL-ALC-01', 'alcohol_score'),
+(13, '76506-5', 'Social connection and isolation panel', '63503-7', 'Are you now married, widowed, divorced, separated, never married or living with a partner', 'LL1068-7', 'social_1'),
+(14, '76506-5', 'Social connection and isolation panel', '76508-1', 'In a typical week, how many times do you talk on the telephone with family, friends, or neighbors', 'OE-AL-SOC-01', 'social_2'),
+(15, '76506-5', 'Social connection and isolation panel', '76509-9', 'How often do you get together with friends or relatives', 'OE-AL-SOC-02', 'social_3'),
+(16, '76506-5', 'Social connection and isolation panel', '76510-7', 'How often do you attend church or religious services per year', 'OE-AL-SOC-03', 'social_4'),
+(17, '76506-5', 'Social connection and isolation panel', '76511-5', 'Do you belong to any clubs or organizations such as church groups unions, fraternal or athletic groups, or school groups', 'LL963-0', 'social_5'),
+(18, '76506-5', 'Social connection and isolation panel', '76512-3', 'Social isolation score', 'OE-AL-SOC-04', 'social_score'),
+(19, '76499-3', 'Humiliation, Afraid, Rape, and Kick questionnaire', '76500-8', 'Within the last year, have you been humiliated or emotionally abused in other ways by your partner or ex-partner', 'LL963-0', 'violence_1'),
+(20, '76499-3', 'Humiliation, Afraid, Rape, and Kick questionnaire', '76501-6', 'Within the last year, have you been afraid of your partner or ex-partner', 'LL963-0', 'violence_2'),
+(21, '76499-3', 'Humiliation, Afraid, Rape, and Kick questionnaire', '76502-4', 'Within the last year, have you been raped or forced to have any kind of sexual activity by your partner or ex-partner', 'LL963-0', 'violence_3'),
+(22, '76499-3', 'Humiliation, Afraid, Rape, and Kick questionnaire', '76503-2', 'Within the last year, have you been kicked, hit, slapped, or otherwise physically hurt by your partner or ex-partner', 'LL963-0', 'violence_4'),
+(23, '76499-3', 'Humiliation, Afraid, Rape, and Kick questionnaire', '76504-0', 'Total score', 'OE-AL-VIO-01', 'violence_score');
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `psychosocial_behavior_data`
+--
+
+DROP TABLE IF EXISTS `psychosocial_behavior_data`;
+CREATE TABLE `psychosocial_behavior_data` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `date` date NOT NULL,
+  `pid` bigint(20) NOT NULL,
+  `loinc_grp_code` varchar(12) NOT NULL,
+  `loinc_que_code` varchar(12) NOT NULL,
+  `loinc_answer_list_id` varchar(12) NOT NULL,
+  `loinc_ans_code` varchar(12) NOT NULL,
+  `loinc_ans_value` varchar(4) NOT NULL,
+  `author` int(10) NOT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT '1',
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+

@@ -19,6 +19,17 @@
         "requirement": 0
     },
     {
+        "label": "Snapshot",
+        "menu_id": "snapshot",
+        "target": "main",
+        "on_click":"top.restoreSession()",
+        "url": "interface/patient_file/snapshot/snapshot.php",
+        "pid":"false",
+        "children": [],
+        "requirement": 0,
+        "acl_req":[]
+    },
+    {
         "label": "Report",
         "menu_id": "report",
         "target": "main",

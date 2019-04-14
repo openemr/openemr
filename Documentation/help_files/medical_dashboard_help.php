@@ -124,6 +124,7 @@ require_once("../../interface/globals.php");
                         <ul>
                             <li><?php echo xlt("Dashboard"); ?></li>
                             <li><?php echo xlt("History"); ?></li>
+                            <li><?php echo xlt("Snapshot"); ?></li
                             <li><?php echo xlt("Report"); ?></li>
                             <li><?php echo xlt("Documents"); ?></li>
                             <li><?php echo xlt("Transactions"); ?></li>
@@ -135,6 +136,8 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Dashboard - summarizes all patient related information");?>.
                     
                     <p><?php echo xlt("History - patient's past medical history, family history, personal history");?>.
+                    
+                    <p><?php echo xlt("Snapshot - patient's psychosocial and behavioral data over time");?>.
                     
                     <p><?php echo xlt("Report - Generates and downloads the patient's Continuity of Care Record (CCR), Continuity of Care Document (CCD) and Patient Report");?>.
                     
