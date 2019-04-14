@@ -2583,6 +2583,7 @@ function show_PMSFH_report($PMSFH)
     $counter++;
     echo "<table style='width:700px;'><tr><td style='vertical-align:top;width:150px;' class='show_report'><br /><b>".xlt("POH{{Past Ocular History}}").":</b>";
     //note the HTML2PDF does not like <span style="font-weight:bold;"></span> so we are using the deprecated <b></b>
+    // TODO - now use mPDF, so should test if still need this fix
     ?>
     <br />
     <?php
@@ -5788,11 +5789,12 @@ function display_refractive_data($encounter_data)
                 }
 
                 /*
-              Note html2pdf does not like the last field of a table to be blank.
-              If it is it will squish the lines together.
-              Work around: if the field is blank, then replace it with a "-" else echo it.
-              aka echo (text($field))?:"-");
+                  Note html2pdf does not like the last field of a table to be blank.
+                  If it is it will squish the lines together.
+                  Work around: if the field is blank, then replace it with a "-" else echo it.
+                  aka echo (text($field))?:"-");
                 */
+                // TODO - now use mPDF, so should test if still need this fix
                 ?>
                 <tr>
                     <td class="bold"><?php echo xlt('Wear RX')." #".$i.": "; ?></td>

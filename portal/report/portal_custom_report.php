@@ -1,6 +1,4 @@
 <?php
-use ESign\Api;
-
 /**
  *
  * Patient custom report.
@@ -57,6 +55,10 @@ require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 if ($GLOBALS['gbl_portal_cms_enable']) {
     require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
 }
+require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
+
+use ESign\Api;
+use Mpdf\Mpdf;
 
 // For those who care that this is the patient report.
 $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
@@ -64,15 +66,28 @@ $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
 $PDF_OUTPUT = empty($_POST['pdf']) ? 0 : intval($_POST['pdf']);
 
 if ($PDF_OUTPUT) {
-    require_once("$srcdir/html2pdf/vendor/autoload.php");
-    $pdf = new HTML2PDF(
-        $GLOBALS['pdf_layout'],
-        $GLOBALS['pdf_size'],
-        $GLOBALS['pdf_language'],
-        true, // default unicode setting is true
-        'UTF-8', // default encoding setting is UTF-8
-        array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin'])
+    $config_mpdf = array(
+        'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
+        'mode' => $GLOBALS['pdf_language'],
+        'format' => $GLOBALS['pdf_size'],
+        'default_font_size' => '9',
+        'default_font' => 'dejavusans',
+        'margin_left' => $GLOBALS['pdf_left_margin'],
+        'margin_right' => $GLOBALS['pdf_right_margin'],
+        'margin_top' => $GLOBALS['pdf_top_margin'],
+        'margin_bottom' => $GLOBALS['pdf_bottom_margin'],
+        'margin_header' => '',
+        'margin_footer' => '',
+        'orientation' => $GLOBALS['pdf_layout'],
+        'shrink_tables_to_fit' => 1,
+        'use_kwt' => true,
+        'autoScriptToLang' => true,
+        'keep_table_proportions' => true
     );
+    $pdf = new mPDF($config_mpdf);
+    if ($_SESSION['language_direction'] == 'rtl') {
+        $pdf->SetDirectionality('rtl');
+    }
     ob_start();
 }
 
@@ -103,7 +118,8 @@ function getContent()
 {
     global $web_root, $webserver_root;
     $content = ob_get_clean();
-  // Fix a nasty html2pdf bug - it ignores document root!
+    // Fix a nasty html2pdf bug - it ignores document root!
+    // TODO - now use mPDF, so should test if still need this fix
     $i = 0;
     $wrlen = strlen($web_root);
     $wsrlen = strlen($webserver_root);
@@ -512,13 +528,13 @@ if ($printable) {
         $facility = $results->fields;
     }
 
-  // Setup Headers and Footers for html2PDF only Download
-  // in HTML view it's just one line at the top of page 1
+    // Setup Headers and Footers for mPDF only Download
+    // in HTML view it's just one line at the top of page 1
     echo '<page_header style="text-align:right;"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . $titleres['DOB_TS'] . '</page_header>    ';
     echo '<page_footer style="text-align:right;">' . xlt('Generated on') . ' ' . text(oeFormatShortDate()) . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
 
     // Use logo if it exists as 'practice_logo.gif' in the site dir
-  // old code used the global custom dir which is no longer a valid
+    // old code used the global custom dir which is no longer a valid
     $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
     if (file_exists($practice_logo)) {
         echo "<img src='$practice_logo' align='left'><br />\n";
@@ -831,7 +847,7 @@ foreach ($ar as $key => $val) {
                 if ($extension == ".png" || $extension == ".jpg" || $extension == ".jpeg" || $extension == ".gif") {
                     if ($PDF_OUTPUT) {
                         // OK to link to the image file because it will be accessed by the
-                        // HTML2PDF parser and not the browser.
+                        // mPDF parser and not the browser.
                         $tempDocC = new C_Document;
                         $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                         // tmp file in ../documents/temp since need to be available via webroot
@@ -856,22 +872,22 @@ foreach ($ar as $key => $val) {
                     if ($PDF_OUTPUT && $extension == ".pdf") {
                         echo "</div></div>\n"; // HTML to PDF conversion will fail if there are open tags.
                         $content = getContent();
-                        // $pdf->setDefaultFont('Arial');
-                        $pdf->writeHTML($content, false); // catch up with buffer.
+                        $pdf->writeHTML($content); // catch up with buffer.
                         $tempDocC = new C_Document;
                         $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                         // tmp file in temporary_files_dir
                         $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
                         file_put_contents($from_file_tmp_name, $pdfTemp);
-                        $pagecount = $pdf->pdf->setSourceFile($from_file_tmp_name);
+                        $pagecount = $pdf->setSourceFile($from_file_tmp_name);
                         for ($i = 0; $i < $pagecount; ++$i) {
-                            $pdf->pdf->AddPage();
-                            $itpl = $pdf->pdf->importPage($i + 1, '/MediaBox');
-                            $pdf->pdf->useTemplate($itpl);
+                            $pdf->AddPage();
+                            $itpl = $pdf->importPage($i+1);
+                            $pdf->useTemplate($itpl);
                         }
-                        // Make sure whatever follows is on a new page.
-                        $pdf->pdf->AddPage();
                         unlink($from_file_tmp_name);
+
+                        // Make sure whatever follows is on a new page.
+                        $pdf->AddPage();
 
                         // Resume output buffering and the above-closed tags.
                         ob_start();
@@ -879,7 +895,7 @@ foreach ($ar as $key => $val) {
                         echo "<div><div class='text documents'>\n";
                     } else {
                         if ($PDF_OUTPUT) {
-                            // OK to link to the image file because it will be accessed by the HTML2PDF parser and not the browser.
+                            // OK to link to the image file because it will be accessed by the mPDF parser and not the browser.
                             $tempDocC = new C_Document;
                             $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, false, true, true);
                             // tmp file in ../documents/temp since need to be available via webroot
@@ -1048,8 +1064,7 @@ if ($printable) {
 <?php
 if ($PDF_OUTPUT) {
     $content = getContent();
-  // $pdf->setDefaultFont('Arial');
-    $pdf->writeHTML($content, false);
+    $pdf->writeHTML($content);
     if ($PDF_OUTPUT == 1) {
         $pdf->Output('report.pdf', $GLOBALS['pdf_output']); // D = Download, I = Inline
     } else {
