@@ -417,7 +417,7 @@ echo "<table border='0' cellpadding='1' cellspacing='0' width='100%'>\n";
 // output the TD with the times DIV
 echo "<tr>";
 echo "<td id='times'><div><table>\n";
-echo "<td class='timeslot'>&nbsp;</td>";
+echo "<td class='timeslot providerXbtn' data-username='__PC_ALL__'><i class='fa fa-lg fa-user-md'></i></td>";
 //============================================================================================================================
 foreach ($times as $slottime) {
     $startampm = ($slottime['mer']) == "pm" ? 2 : 1;
@@ -455,9 +455,9 @@ foreach ($providers as $provider) {
     // this is nice when all you see are times on the left side and no head
     // row with the dates or day-of-week (DOW)
     $classForWeekend = is_weekend_day(date('w', $caldate)) ? 'weekend-day' : 'work-day';
-    echo "<td class='schedule " . $classForWeekend . "' title='".htmlspecialchars($provider["fname"],ENT_QUOTES)." ".htmlspecialchars($provider["lname"],ENT_QUOTES)."' date='".date("Ymd",$caldate )."' provider='$providerid'>";
-    echo "<div class='providerheader'>";
-    echo htmlspecialchars($provider['fname'],ENT_QUOTES)." ".htmlspecialchars($provider['lname'],ENT_QUOTES)."</div>";
+    $provfl = attr(trim($provider['fname'].' '.$provider['lname']));
+    echo "<td class='schedule $classForWeekend' title='$provfl' date='".date("Ymd",$caldate )."' provider='$providerid'>";
+    echo "<div class='providerheader'>$provfl<a class='providerXbtn' data-username='".$provider['username']."'><i class='fa fa-times'></i></a></div>";
     echo "<div class='calendar_day'>";
 
     // For each event...
@@ -936,7 +936,18 @@ echo "<P>";
     var tsHeight='[-php-] echo $timeslotHeightVal.$timeslotHeightUnit; [-/php-]';
     var tsHeightNum=[-php-] echo $timeslotHeightVal; [-/php-];
 
-    $(document).ready(function(){
+    function providerXclick(e) {
+        var username=$(this).data('username');
+        if (username=='__PC_ALL__') {
+            $("#pc_username option:gt(0)").prop("selected", true);
+        } else {
+            $("#pc_username option[value="+username+"]").prop("selected", false);
+            // $(this).closest('td').remove();
+        }
+        ChangeProviders($("#pc_username"));
+    }
+
+    $(function(){
         setupDirectTime();
         $("#pc_username").change(function() { ChangeProviders(this); });
         $("#pc_facility").change(function() { ChangeProviders(this); });
@@ -955,6 +966,13 @@ echo "<P>";
 
             dpCal=$("#datePicker>table");
             mp = $("#monthPicker"); mp.width(dpCal.width()); mp.toggle();});
+
+        $('div.providerheader').find('*')
+        .css('font-size', $('div.providerheader:first').css('font-size'))
+        .addClass(' mx-1 p-0 border-0 align-middle');
+        $('a.providerXbtn').addClass('close');
+        $('.providerXbtn').on('click', providerXclick);
+
     });
 
     /* edit an existing event */
