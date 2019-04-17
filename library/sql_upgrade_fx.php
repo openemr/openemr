@@ -830,8 +830,8 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-      }
-          else if (preg_match('/^#IfNotWenoRx/', $line) && !tableHasRow('erx_weno_drugs', "drug_id", '1008') == true){
+        } 
+          else if (preg_match('/^#IfNotWenoRx/', $line) && !tableHasRow('erx_weno_drugs', "drug_id", '1008') == true) {
             if (tableHasRow('erx_weno_drugs', "drug_id", '1008') == true) {
                 $skipping = true;
             } else {
@@ -841,7 +841,7 @@ function upgradeFromSqlFile($filename)
                 echo "<font color='green'>Imported eRx Weno Drug Data</font><br />\n";
             }
             if ($skipping) {
-                  echo "<font color='green'>Skipping section $line</font><br />\n";
+                echo "<font color='green'>Skipping section $line</font><br />\n";
             }
             // convert all *text types to use default null setting
         } else if (preg_match('/^#IfTextNullFixNeeded/', $line)) {
