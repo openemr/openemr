@@ -4,24 +4,11 @@
  * Base concept code by Chtiwi Malek ===> CODICODE.COM
  * Adapted to process multiple canvases on a single page
  *
- * Copyright (C) 2016 Raymond Magauran <magauran@MedFetch.com>
- *
- * LICENSE: This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of the
- *  License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @package OpenEMR
- * @author Ray Magauran <magauran@MedFetch.com>
- * @link http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ray Magauran <magauran@MedFetch.com>
+ * @copyright Copyright (c) 2016 Raymond Magauran <magauran@MedFetch.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 var mousePressed = false;
@@ -35,12 +22,12 @@ var cStep = new Array();
 
 function InitThis(zone) {
     ctx[zone] = document.getElementById('myCanvas_'+zone).getContext("2d");
-  
+
     $('#myCanvas_'+zone).on('touchstart', function(e){
         mousePressed = true;
         Draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, false, zone);
     });
-    
+
     $('#myCanvas_'+zone).on('touchmove',function (e) {
         if (mousePressed) {
             e.preventDefault();
@@ -51,7 +38,7 @@ function InitThis(zone) {
         mousePressed = false;
         cPush(zone);
     });
-    
+
     $('#myCanvas_'+zone).mousedown(function (e) {
         mousePressed = true;
         Draw(e.pageX - $(this).offset().left, e.pageY - $(this).offset().top, false, zone);
@@ -85,11 +72,11 @@ function drawImage(zone) {
         // The PHP code determines which when the page is called
         // and stores it in this id-->
     image[zone].src = $("#url_"+zone).val();
-    $(image[zone]).on('load',function () { 
+    $(image[zone]).on('load',function () {
                         ctx[zone].drawImage(image[zone], 0, 0, 450, 225);
                         // using variable size canvas? -> adjust size for canvas
     cPush(zone);
-    });    
+    });
 }
 
 function Draw(x, y, isDown,zone) {

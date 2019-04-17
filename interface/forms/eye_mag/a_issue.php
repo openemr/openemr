@@ -16,6 +16,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+
 $form_folder= "eye_mag";
 require_once('../../globals.php');
 require_once($GLOBALS['srcdir'].'/lists.inc');
@@ -927,7 +928,7 @@ foreach (explode(',', $given) as $item) {
                       <table >
                         <tr>
                           <td><input type="text" name="form_text_tobacco" id="form_box" size="20" value="<?php echo attr($PMSFH[0]['SOCH']['tobacco']['resnote']); ?>">&nbsp;</td>
-                          
+
                           <td class="text">
                             <input type="radio" name="radio_tobacco" id="radio_tobacco[current]" value="currenttobacco" onclick="smoking_statusClicked(this)" <?php if ($result2['tobacco']['restype'] =='currenttobacco') {
                                 echo "checked";
@@ -961,7 +962,7 @@ foreach (explode(',', $given) as $item) {
                         <tbody>
                           <tr>
                             <td><input type="text" name="form_coffee" id="form_box" size="20" value="<?php echo attr($result2['coffee']['resnote']); ?>">&nbsp;</td>
-                         
+
                             <td class="text"><input type="radio" name="radio_coffee" id="radio_coffee[current]" value="currentcoffee" <?php if ($PMSFH[0]['SOCH']['coffee']['restype'] =='currentcoffee') {
                                 echo "checked";
 } ?>><?php echo xlt('Current'); ?>&nbsp;</td>
@@ -1348,7 +1349,7 @@ foreach (explode(',', $given) as $item) {
             echo "POH";
 } else {
     echo $type_index;
-} ?>');     
+} ?>');
 
         $(document).ready(function() {
 
@@ -1361,7 +1362,7 @@ foreach (explode(',', $given) as $item) {
             });
           });
 
-          $('[title]').tooltip();  
+          $('[title]').tooltip();
     </script>
   </body>
 </html>
