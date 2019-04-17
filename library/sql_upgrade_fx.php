@@ -830,6 +830,7 @@ function upgradeFromSqlFile($filename)
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
+      }
           else if (preg_match('/^#IfNotWenoRx/', $line) && !tableHasRow('erx_weno_drugs', "drug_id", '1008') == true){
             if (tableHasRow('erx_weno_drugs', "drug_id", '1008') == true) {
                 $skipping = true;
