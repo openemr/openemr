@@ -14,16 +14,13 @@
 
 require_once('../globals.php');
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/sql_upgrade_fx.php");
+
 
 use OpenEMR\Core\Header;
 use OpenEMR\Rx\Weno\AdminProperties;
 
-$tblname = "erx_weno_drugs";
-$tableDoesExist = tableExists($tblname);
-$colname = "drug_id";
-$value = 1001;
-$tableHasData = tableHasRow($tblname, $colname, $value);
+$tableHasData = sqlQuery("SELECT count(drug_id) AS count FROM erx_weno_drugs");
+
 $tables   = new AdminProperties();
 
 ?>
@@ -57,10 +54,8 @@ if ($GLOBALS['weno_rx_enable'] != 1) {
     print xlt("Weno Service is Enabled")."<br><br>";
 }
 
-if ($tableDoesExist == true && $tableHasData == true) {
+if ($tableHasData['count'] > 1) {
     print xlt("Formularies are inserted into table")."<br>";
-} elseif ($tableDoesExist == false) {
-    //table needs to be installed
 } else {
     echo "<a href='drugDataInsert.php?csrf_token_form=" . attr_url(collectCsrfToken()) . "' class='btn btn-default'>".xlt("Import Formularies")."</a> <br>".xlt("Be patient, this can take a while.");
 }
