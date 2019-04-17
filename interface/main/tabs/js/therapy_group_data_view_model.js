@@ -34,7 +34,7 @@ function therapy_group_view_model(gid,gname)
        for(var encIdx=0;encIdx<self.encounterArray().length;encIdx++)
        {
            var curEnc=self.encounterArray()[encIdx];
-           if(curEnc.id()===newVal)
+           if(curEnc.id()==newVal)
            {
 
                self.selectedEncounter(curEnc);

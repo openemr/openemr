@@ -50,7 +50,6 @@ if (php_sapi_name() === 'cli') {
 
 require_once("../../globals.php");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/html2pdf/vendor/autoload.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("php/".$form_name."_functions.php");
@@ -62,7 +61,6 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/report.inc");
-require_once("$srcdir/html2pdf/html2pdf.class.php");
 require_once("php/taskman_functions.php");
 require_once("report.php");
 

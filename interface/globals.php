@@ -11,7 +11,7 @@
 
 // Checks if the server's PHP version is compatible with OpenEMR:
 require_once(dirname(__FILE__) . "/../common/compatibility/Checker.php");
-$response = OpenEMR\Common\Checker::checkPhpVersion();
+$response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
 if ($response !== true) {
     die(htmlspecialchars($response));
 }
@@ -257,7 +257,7 @@ if (empty($_SESSION['csrf_token'])) {
  * @link http://open-emr.org/wiki/index.php/Dotenv_Usage
  */
 if (file_exists("{$webserver_root}/.env")) {
-    $dotenv = new Dotenv($webserver_root);
+    $dotenv = Dotenv::create($webserver_root);
     $dotenv->load();
 }
 

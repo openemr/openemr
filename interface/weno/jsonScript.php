@@ -26,7 +26,7 @@ $pid = $GLOBALS['pid'];
 $uid = $_SESSION['authUserID'];
 
 //Randomly generate number for each order unique ID
-$i = rand();
+$i = rand().rand().rand();
 $fillData = filter_input(INPUT_GET, "getJson");
 
 $fill = explode(",", $fillData);
@@ -106,7 +106,12 @@ foreach ($fill as $data) {
                 "refills"      => $drugData['refills'],
                 "dateModified" => $drugData['date_Modified'],
                 "note"         => $drugData['note'],
-                "take"         => $drugData['dosage']
+                "take"         => $drugData['dosage'],
+                "strength"     => $drugData['strength'],
+                "route"        => $drugData['route'],
+                "potency"      => $drugData['potency_unit_code'],
+                "qualifier"    => $drugData['drug_db_code_qualifier'],
+                "dea_sched"    => $drugData['dea_schedule']
             )
         )
     );
