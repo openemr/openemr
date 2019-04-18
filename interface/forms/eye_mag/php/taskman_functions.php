@@ -4,25 +4,11 @@
  *
  * Function which extend taskman.php, current a email-to-fax gateway
  *
- *
- * Copyright (C) 2016 Raymond Magauran <magauran@MedFetch.com>
- *
- * LICENSE: This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of the
- *  License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @package OpenEMR
- * @author Ray Magauran <magauran@MedFetch.com>
- * @link http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ray Magauran <magauran@MedFetch.com>
+ * @copyright Copyright (c) 2016 Raymond Magauran <magauran@MedFetch.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use Mpdf\Mpdf;
@@ -488,6 +474,7 @@ function make_document($task)
     $content = ob_get_clean();
 
     // Fix a nasty html2pdf bug - it ignores document root!
+    // TODO - now use mPDF, so should test if still need this fix
     $i = 0;
     $wrlen = strlen($web_root);
     $wsrlen = strlen($webserver_root);

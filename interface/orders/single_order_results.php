@@ -25,6 +25,8 @@
 require_once(dirname(__FILE__) . '/../globals.php');
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 
+use Mpdf\Mpdf;
+
 // Check authorization.
 $thisauth = acl_check('patients', 'med');
 if (!$thisauth) {
@@ -54,21 +56,41 @@ if (!empty($_POST['form_sign']) && !empty($_POST['form_sign_list'])) {
 
 // This mess generates a PDF report and sends it to the patient.
 if (!empty($_POST['form_send_to_portal'])) {
-  // Borrowing the general strategy here from custom_report.php.
-  // See also: http://wiki.spipu.net/doku.php?id=html2pdf:en:v3:output
-    require_once("$srcdir/html2pdf/html2pdf.class.php");
+    // Borrowing the general strategy here from custom_report.php.
+    // See also: http://wiki.spipu.net/doku.php?id=html2pdf:en:v3:output
     require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
-    $pdf = new HTML2PDF('P', 'Letter', 'en');
+    $config_mpdf = array(
+        'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
+        'mode' => $GLOBALS['pdf_language'],
+        'format' => 'Letter',
+        'default_font_size' => '9',
+        'default_font' => 'dejavusans',
+        'margin_left' => $GLOBALS['pdf_left_margin'],
+        'margin_right' => $GLOBALS['pdf_right_margin'],
+        'margin_top' => $GLOBALS['pdf_top_margin'],
+        'margin_bottom' => $GLOBALS['pdf_bottom_margin'],
+        'margin_header' => '',
+        'margin_footer' => '',
+        'orientation' => 'P',
+        'shrink_tables_to_fit' => 1,
+        'use_kwt' => true,
+        'autoScriptToLang' => true,
+        'keep_table_proportions' => true
+    );
+    $pdf = new mPDF($config_mpdf);
+    if ($_SESSION['language_direction'] == 'rtl') {
+        $pdf->SetDirectionality('rtl');
+    }
     ob_start();
     echo "<link rel='stylesheet' type='text/css' href='$webserver_root/interface/themes/style_pdf.css'>\n";
     echo "<link rel='stylesheet' type='text/css' href='$webserver_root/library/ESign/css/esign_report.css'>\n";
     $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
     generate_order_report($orderid, false, true, $finals_only);
     $GLOBALS['PATIENT_REPORT_ACTIVE'] = false;
-  // echo ob_get_clean(); exit(); // debugging
-    $pdf->writeHTML(ob_get_clean(), false);
+    // echo ob_get_clean(); exit(); // debugging
+    $pdf->writeHTML(ob_get_clean());
     $contents = $pdf->Output('', true);
-  // Send message with PDF as attachment.
+    // Send message with PDF as attachment.
     $result = cms_portal_call(array(
     'action'   => 'putmessage',
     'user'     => $_POST['form_send_to_portal'],
@@ -91,7 +113,7 @@ if (!empty($_POST['form_send_to_portal'])) {
 <style>
 body {
  margin: 9pt;
- font-family: sans-serif; 
+ font-family: sans-serif;
  font-size: 1em;
 }
 </style>
