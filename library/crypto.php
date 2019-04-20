@@ -446,3 +446,16 @@ function produceRandomString($length = 26, $alphabet = 'abcdefghijklmnopqrstuvwx
     }
     return $str;
 }
+
+// Function to create a random unique token with just alphanumeric characters
+function createUniqueToken($length = 40)
+{
+    $new_token = produceRandomString($length, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+
+    if (empty($new_token)) {
+        error_log('OpenEMR Error : OpenEMR is not working because unable to create a random unique token.');
+        die("OpenEMR Error : OpenEMR is not working because unable to create a random unique token.");
+    }
+
+    return $new_token;
+}
