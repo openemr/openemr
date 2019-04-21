@@ -12,7 +12,7 @@ class Dashboard extends React.Component {
         };
     }
     authorizeFirst() {
-        fetch("http://localhost/openemr-community-react/apis/api/auth", {
+        fetch("../../../../apis/api/auth", {
             method: "POST",
             headers: {
                 'Accept': 'application/json',
@@ -41,7 +41,7 @@ class Dashboard extends React.Component {
     }
     getDashboardList() {
         if (this.state.token) {
-            fetch("http://localhost/openemr-community-react/apis/api/list/dashboard", {
+            fetch("../../../../apis/api/list/dashboard", {
                 method: "GET",
                 headers: {
                     'Accept': 'application/json',
