@@ -34,65 +34,6 @@
 
             };
         }
-        authorizeFirst() {
-            fetch("http://<?php echo $_SERVER["SERVER_NAME"]?>/openemr_matrix/openemr/apis/api/auth", {
-                method: "POST",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    grant_type: 'password',
-                    username: 'admin2019admin',
-                    password: '123456789101112a',
-                    scope: 'default'
-                })
-            })
-                .then((res) => res.json())
-                .then(
-                    (result) => {
-                        this.setState({token: result.access_token, isLoaded: true});
-                        console.log("Token: " + result.access_token);
-                    },
-                    (error) => {
-                        this.setState({
-                            isLoaded: true,
-                            error
-                        });
-                        console.log("error");
-                    }
-                )
-        }
-        getDashboardList() {
-            if (this.state.token) {
-                fetch("http://<?php echo $_SERVER["SERVER_NAME"]?>/openemr_matrix/openemr/apis/api/menus", {
-                    method: "POST",
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + this.state.token
-                    }
-                })
-                    .then((res) => res.json())
-                    .then(
-                        (result) => {
-                            this.setState({gadgets: result});
-                            console.log("Dashboard Items:" + JSON.stringify(result));
-                        },
-                        (error) => {
-                            this.setState({
-                                isLoaded: true,
-                                error
-                            });
-                        }
-                    )
-            }
-        }
-
-        componentWillMount() {
-            this.authorizeFirst();
-            this.getDashboardList();
-        }
 
         render() {
             return (

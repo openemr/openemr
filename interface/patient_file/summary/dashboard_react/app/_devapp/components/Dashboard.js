@@ -20,8 +20,8 @@ class Dashboard extends React.Component {
             },
             body: JSON.stringify({
                 grant_type: 'password',
-                username: 'adminadminadmin',
-                password: 'admin123456789',
+                username: 'admin2019admin',
+                password: '123456789101112a',
                 scope: 'default'
             })
         })
@@ -30,50 +30,56 @@ class Dashboard extends React.Component {
                 (result) => {
                     this.setState({token: result.access_token, isLoaded: true});
                     console.log("Token: " + result.access_token);
+                    this.setState.token=result.access_token;
+                    this.getDashboardList();
                 },
                 (error) => {
-                    this.state({
+                    this.setState({
                         isLoaded: true,
                         error
                     });
                 }
             )
     }
+
+    //list/dashboard
     getDashboardList() {
-        if (this.state.token) {
-            fetch("../../../../apis/api/list/dashboard", {
-                method: "GET",
+        if (this.setState.token) {
+            fetch("../../../../apis/api/menus", {
+                method: "POST",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + this.state.token
+                    'Authorization': 'Bearer ' + this.setState.token
                 }
             })
                 .then((res) => res.json())
                 .then(
                     (result) => {
                         this.setState({gadgets: result});
-                        console.log("Dashboard Items:" + JSON.stringify(this.state.gadgets));
+                        console.log("Dashboard Items:" + JSON.stringify(result));
                     },
                     (error) => {
                         this.setState({
                             isLoaded: true,
                             error
                         });
+                        console.log("fail");
                     }
                 )
+        }else{
+            console.log("no token");
         }
     }
 
     componentWillMount() {
         this.authorizeFirst();
-        this.getDashboardList();
     }
 
     render() {
         return (
             <div>
-            {JSON.stringify(this.state.gadgets)}
+            {JSON.stringify(this.setState.gadgets)}
             <PatientData />
             </div>
     );
