@@ -35,7 +35,7 @@
             };
         }
         authorizeFirst() {
-            fetch("http://<?php echo $_SERVER["SERVER_NAME"]?>/matrix-israel/openemr/apis/api/auth", {
+            fetch("http://<?php echo $_SERVER["SERVER_NAME"]?>/openemr_matrix/openemr/apis/api/auth", {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json',
@@ -43,8 +43,8 @@
                 },
                 body: JSON.stringify({
                     grant_type: 'password',
-                    username: 'adminadminadmin',
-                    password: 'pass123456789',
+                    username: 'admin2019admin',
+                    password: '123456789101112a',
                     scope: 'default'
                 })
             })
@@ -55,17 +55,18 @@
                         console.log("Token: " + result.access_token);
                     },
                     (error) => {
-                        this.state({
+                        this.setState({
                             isLoaded: true,
                             error
                         });
+                        console.log("error");
                     }
                 )
         }
         getDashboardList() {
             if (this.state.token) {
-                fetch("http://<?php echo $_SERVER["SERVER_NAME"]?>/matrix-israel/openemr/apis/api/list/dashboard", {
-                    method: "GET",
+                fetch("http://<?php echo $_SERVER["SERVER_NAME"]?>/openemr_matrix/openemr/apis/api/menus", {
+                    method: "POST",
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json',
@@ -76,7 +77,7 @@
                     .then(
                         (result) => {
                             this.setState({gadgets: result});
-                            console.log("Dashboard Items:" + JSON.stringify(this.state.gadgets));
+                            console.log("Dashboard Items:" + JSON.stringify(result));
                         },
                         (error) => {
                             this.setState({

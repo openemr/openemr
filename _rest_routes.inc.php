@@ -28,6 +28,10 @@ use OpenEMR\RestControllers\ONoteRestController;
 use OpenEMR\RestControllers\DocumentRestController;
 use OpenEMR\RestControllers\InsuranceRestController;
 use OpenEMR\RestControllers\MessageRestController;
+use OpenEMR\RestControllers\MenusRestController;
+
+
+
 
 // Note some Http clients may not send auth as json so a function
 // is implemented to determine and parse encoding on auth route's.
@@ -322,6 +326,11 @@ RestConfig::$ROUTE_MAP = array(
         authorization_check("patients", "notes");
         return (new MessageRestController())->delete($pid, $mid);
     },
+    "POST /api/menus" => function () {
+        $data = (array)(json_decode(file_get_contents("php://input")));
+        return (new MenusRestController())->getMenu($data);
+    },
+
 
 );
 
