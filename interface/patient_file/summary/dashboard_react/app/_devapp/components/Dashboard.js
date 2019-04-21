@@ -31,9 +31,11 @@ class Dashboard extends React.Component {
                 (result) => {
                     this.setState({token: result.access_token, isLoaded: true});
                     console.log("Token: " + result.access_token);
+                    this.setState.token=result.access_token;
+                    this.getDashboardList();
                 },
                 (error) => {
-                    this.state({
+                    this.setState({
                         isLoaded: true,
                         error
                     });
@@ -41,42 +43,46 @@ class Dashboard extends React.Component {
             )
     }
 
+
+    //list/dashboard
     getDashboardList() {
-        if (this.state.token) {
-            fetch("../../../../apis/api/list/dashboard", {
-                method: "GET",
+        if (this.setState.token) {
+            fetch("../../../../apis/api/menus", {
+                method: "POST",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + this.state.token
+                    'Authorization': 'Bearer ' + this.setState.token
                 }
             })
                 .then((res) => res.json())
                 .then(
                     (result) => {
                         this.setState({gadgets: result});
-                        console.log("Dashboard Items:" + JSON.stringify(this.state.gadgets));
+                        console.log("Dashboard Items:" + JSON.stringify(result));
                     },
                     (error) => {
                         this.setState({
                             isLoaded: true,
                             error
                         });
+                        console.log("fail");
                     }
                 )
+        }else{
+            console.log("no token");
         }
     }
 
     componentWillMount() {
         this.authorizeFirst();
-        this.getDashboardList();
     }
 
     render() {
         return (
             <div>
-                {JSON.stringify(this.state.gadgets)}
-                <PatientData patientId={getQueryVariable("set_pid")}/>
+            {JSON.stringify(this.setState.gadgets)}
+            <PatientData patientId={getQueryVariable("set_pid")}/>
             </div>
         );
     }
