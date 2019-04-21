@@ -24,22 +24,18 @@
 <div id="root"></div>
 <script type="text/babel">
 
-    class WidgetBill extends React.Component {
+    class Dashboard extends React.Component {
         constructor(props) {
             super(props);
-            // This binding is necessary to make `this` work in the callback
-            this.handleClick = this.handleClick.bind(this);
-            this.handleFacilityListClick = this.handleFacilityListClick.bind(this);
-            this.state = {
-                error: null,
-                isLoaded: false,
-                facilityList:[],
-                token: []
-            }
-        }
 
-        handleClick() {
-            fetch("http://<?php echo $_SERVER["SERVER_NAME"]?>/oem/openemr/apis/api/auth", {
+            this.state = {
+                gadgets: [],
+                token:[]
+
+            };
+        }
+        authorizeFirst() {
+            fetch("http://<?php echo $_SERVER["SERVER_NAME"]?>/matrix-israel/openemr/apis/api/auth", {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json',
@@ -47,8 +43,8 @@
                 },
                 body: JSON.stringify({
                     grant_type: 'password',
-                    username: 'admin',
-                    password: 'pass',
+                    username: 'adminadminadmin',
+                    password: 'pass123456789',
                     scope: 'default'
                 })
             })
@@ -66,10 +62,9 @@
                     }
                 )
         }
-
-        handleFacilityListClick() {
-            if(this.state.isLoaded) {
-                fetch("http://<?php echo $_SERVER["SERVER_NAME"]?>/oem/openemr/apis/api/facility", {
+        getDashboardList() {
+            if (this.state.token) {
+                fetch("http://<?php echo $_SERVER["SERVER_NAME"]?>/matrix-israel/openemr/apis/api/list/dashboard", {
                     method: "GET",
                     headers: {
                         'Accept': 'application/json',
@@ -80,8 +75,8 @@
                     .then((res) => res.json())
                     .then(
                         (result) => {
-                            this.setState({facilityList: result, isLoaded: true});
-                            console.log("FacilityList:" + JSON.stringify(this.state.facilityList) );
+                            this.setState({gadgets: result});
+                            console.log("Dashboard Items:" + JSON.stringify(this.state.gadgets));
                         },
                         (error) => {
                             this.setState({
@@ -91,24 +86,37 @@
                         }
                     )
             }
+        }
 
+        componentWillMount() {
+            this.authorizeFirst();
+            this.getDashboardList();
         }
 
         render() {
             return (
-                [
-                    <div key='1'><button id="auth" onClick={this.handleClick}>Authorize</button></div>,
-                    <div key='2'><button id="faci" onClick={this.handleFacilityListClick}>Facility List</button></div>
-                ]
+                    <div>
+                        {JSON.stringify(this.state.gadgets)}
+                        <PatientData />
+                    </div>
+            );
+        }
+
+
+    }
+
+    class PatientData extends React.Component {
+        render(){
+            return (
+                <div>kjhdskfjh</div>
             )
-                ;
         }
     }
 
-    ReactDOM.render(
-        <WidgetBill/>,
-        document.getElementById('root')
-    );
+    ReactDOM.render(<Dashboard />,document.getElementById('root'));
+
+
+
 
 
 </script>
