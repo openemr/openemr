@@ -1,0 +1,18 @@
+* {
+  box-sizing: border-box; }
+
+body, html {
+  padding: 0;
+  margin: 0; }
+
+.header {
+  background: #45dFFD;
+  padding: 20px 30px;
+  color: #fff;
+  font-size: 40px; }
+
+.dashboard {
+  padding: 0 40px; }
+
+.status {
+  color: red; }
