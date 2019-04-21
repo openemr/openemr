@@ -3,7 +3,9 @@ import { render } from 'react-dom';
 import { asyncComponent } from 'react-async-component';
 
 /** We are importing our index.php my app Vairaible */
-import myApp from 'myApp';
+//import myApp from 'myApp';
+import Dashboard from './components/Dashboard.js';
+import PatientData from './components/PatientData.js';
 
 /* globals __webpack_public_path__ */
 __webpack_public_path__ = `${window.STATIC_URL}/app/assets/bundle/`;
@@ -17,26 +19,13 @@ const Header = asyncComponent({
     )
 });
 
-class Myapp extends Component {
-    render() {
 
-        const { user : { name, email }, logged } = myApp;
 
-        return (
-            <Fragment>
-                <Header/>
-                <div className="dashboard">
-                    {logged &&
-                        <h2 className="status">Logged In</h2>
-                    }
-                    <h1 className="name"> {name}</h1>
-                    <p className="email">{email}</p>
 
-                    <p>API host variable {__API_HOST__}</p>
-                </div>
-            </Fragment>
-        )
-    }
-}
 
-render(<Myapp/>, document.getElementById('app'));
+render(<Dashboard />,document.getElementById('app'));
+
+
+
+
+

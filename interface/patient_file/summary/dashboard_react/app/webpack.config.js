@@ -76,7 +76,7 @@ let config = {
 		new ExtractTextPlugin(path.join('..', 'css', 'app.css')),
 		new webpack.DefinePlugin({
 			'__DEV__' : JSON.stringify(true),
-			'__API_HOST__' : JSON.stringify('http://localhost/my-app/'),
+			'__API_HOST__' : JSON.stringify('./deshboard_react'),
 		}),
 	],
 	  

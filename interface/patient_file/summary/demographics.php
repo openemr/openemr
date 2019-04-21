@@ -16,7 +16,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 //REMOVE ME, THIS IS TEST PAGE
-require_once("dashboard_react.php");
+//require_once("dashboard_react/index.php");
+header('Location: http://localhost/openemr-community-react/interface/patient_file/summary/dashboard_react/');
 die();
 
 
