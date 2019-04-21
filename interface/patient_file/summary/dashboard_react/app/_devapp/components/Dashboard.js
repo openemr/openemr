@@ -76,7 +76,7 @@ class Dashboard extends React.Component {
         return (
             <div>
                 {JSON.stringify(this.state.gadgets)}
-                <PatientData/>
+                <PatientData patientId={getQueryVariable("set_pid")}/>
             </div>
         );
     }
