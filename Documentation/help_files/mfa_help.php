@@ -1,5 +1,5 @@
 <?php
-/**
+    /**
  * Message Center Help.
  *
  * @package   OpenEMR
@@ -34,7 +34,7 @@ require_once("../../interface/globals.php");
             <div class= "row">
                 <div class="col-sm-12">
                     <div>
-                    <p><?php echo xlt("When dealing with protected health information (PHI) and  personally identifying information (PII) it is important to allow only authorized users access to the data");?>.
+                    <p><?php echo xlt("When dealing with protected health information (PHI) and personally identifying information (PII) it is important to allow only authorized users access to the data");?>.
                     
                     <p><?php echo xlt("Authenticating the user thus becomes an important factor in this endeavor");?>.
                     
@@ -80,7 +80,7 @@ require_once("../../interface/globals.php");
                             
                             <p><?php echo xlt("As the secret key need by the authenticator is stored on the mobile phone malware can steal these keys and thus compromise authentication");?>.
                             
-                            <p><?php echo xlt("Proprietary hardware tokens are tamper proof and are not connected  to the internet or any network");?>.
+                            <p><?php echo xlt("Proprietary hardware tokens are tamper proof and are not connected to the internet or any network");?>.
                             
                             <p><?php echo xlt("Disadvantages being cost of device, potential for loss and running out of battery power");?>.
                             
@@ -110,7 +110,7 @@ require_once("../../interface/globals.php");
             <div class= "row" id="section1">
                 <div class="col-sm-12">
                     <h4 class="oe-help-heading"><?php echo xlt("Setting up 2FA"); ?><a href="#top_section"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
-                    <p><?php echo xlt("Clicking on the Miscellaneous > MFA Management menu item or  User Name > MFA Management menu item brings you to the landing page for managing the multi factor autentication page for that user");?>.
+                    <p><?php echo xlt("Clicking on the Miscellaneous > MFA Management menu item or User Name > MFA Management menu item brings you to the landing page for managing the multi factor autentication page for that user");?>.
                     
                     <p><i class="fa fa-exclamation-circle oe-text-orange"  aria-hidden="true"></i> <?php echo xlt("It is important to realize that this manages the MFA for the logged in user");?>.
                     
@@ -124,7 +124,7 @@ require_once("../../interface/globals.php");
                     
                     <p><?php echo xlt("The Current Authentication Method lists all the methods that are active");?>.
                     
-                    <p><?php echo xlt("OpenEMR allows one TOTP and one U2F method per user");?>.
+                    <p><?php echo xlt("OpenEMR allows one TOTP but multiple U2F methods per user");?>.
                     
                     <p><?php echo xlt("This section will allow the logged in user to view existing methods or to delete them ");?>.
                     <button type="button" class="btn btn-default btn-search btn-sm oe-no-float"><?php echo xlt("View"); ?></button>
@@ -183,7 +183,7 @@ require_once("../../interface/globals.php");
 
                             <p><?php echo xlt("All TOTP authenticator apps use the same algorithm and secure hash function - HMAC-SHA1 to generate the unique key");?>.
 
-                            <p><?php echo xlt("An important concept to grasp is that once the secret key delivered via the QR code is captured by the authenticator app there is no further communication between the app and OpenEMR, each will use the current UNIX time and their copy of the user-specific shared secret key to generate the same unique 6 digit number");?>.
+                            <p><?php echo xlt("An important concept to grasp is that once the secret key delivered via the QR code is captured by the authenticator app there is no further communication between the app and OpenEMR, each will use the current UNIX time and its copy of the user-specific shared secret key to generate the same unique 6 digit number");?>.
 
                             <p><?php echo xlt("These numbers need to match to successfully authenticate the user");?>.
 
@@ -207,7 +207,7 @@ require_once("../../interface/globals.php");
                         
                         <p><?php echo xlt("Press the flashing button on the USB key within 1 minute of inserting it and click on register to register the key with OpenEMR");?>.
                         
-                        <p><?php echo xlt("The most popular maker of Security Keys is Yubico, which sells a basic U2F key for $20 (it offers regular USB versions as well as those made for devices that require USB-C connections, such as Apple’s newer Mac OS systems)");?>.
+                        <p><?php echo xlt("The most popular maker of Security Keys is Yubico it offers regular USB versions as well as those made for devices that require USB-C connections, such as Apple’s newer Mac OS systems");?>.
                         
                         <p><?php echo xlt("Yubikey also sells more expensive U2F keys designed to work with mobile devices");?>.
                         
