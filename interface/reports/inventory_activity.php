@@ -429,7 +429,7 @@ table.mymaintable td, table.mymaintable th {
 
 <script language='JavaScript'>
 
-    $(document).ready(function() {
+    $(function() {
         oeFixedHeaderSetup(document.getElementById('mymaintable'));
         var win = top.printLogSetup ? top : opener.top;
         win.printLogSetup(document.getElementById('printbutton'));

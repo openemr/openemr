@@ -1574,7 +1574,7 @@ BOT;
     <?php $installer->setupHelpModal();?>
     <script>
         //jquery-ui tooltip
-        $(document).ready(function() {
+        $(function() {
             $('.icon-tooltip').prop( "title", "Click to see more information").tooltip({
                 show: {
                     delay: 700,
@@ -1586,7 +1586,7 @@ BOT;
         });
     </script>
     <script type = "text/javascript" >
-        $(document).ready(function() {
+        $(function() {
             $("input[type='radio']").click(function() {
                 var radioValue = $("input[name='stylesheet']:checked").val();
                 var imgPath = "public/images/stylesheets/";

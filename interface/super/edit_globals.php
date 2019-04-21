@@ -766,7 +766,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
 
 <script language="JavaScript">
 
-$(document).ready(function(){
+$(function(){
   tabbify();
 
     <?php // mdsupport - Highlight search results ?>

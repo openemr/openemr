@@ -260,7 +260,7 @@ if ($type) { // note this only happens when its new
 ?>
 
 <script language="JavaScript">
- $(document).ready(function() {
+ $(function() {
   // customize the form via the type options
   typeSelect(<?php echo js_escape($row['abook_type']); ?>);
   if(typeof abook_type != 'undefined' && abook_type == 'ord_lab') {

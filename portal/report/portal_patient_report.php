@@ -838,7 +838,7 @@ if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { 
 /* */
 
 }; // end initReport
-$( document ).ready(function(){
+$(function(){
         initReport();
 
     $('.datepicker').datetimepicker({

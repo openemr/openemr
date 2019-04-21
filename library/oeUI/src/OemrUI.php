@@ -321,7 +321,7 @@ JQD;
         $collectToken = js_escape(collectCsrfToken());
         $header_expand_js = <<<EXP
         <script>
-        $(document).ready(function () {
+        $(function () {
             $('.expand_contract').click(function () {
                 var elementTitle;
                 var expandTitle = {$expandTitle};
@@ -386,7 +386,7 @@ EXP;
         $arrAction = $this->arrAction;
         $action_top_js = <<<SHWTOP
         <script>
-        $(document).ready(function () {
+        $(function () {
             $('#show_hide').click(function () {
                 var elementTitle = '';
 SHWTOP;

@@ -518,7 +518,7 @@ Display red alert if entered password matched one of last three passwords/Displa
 <INPUT TYPE="HIDDEN" NAME="secure_pwd" VALUE="<?php echo attr($GLOBALS['secure_password']); ?>">
 </FORM>
 <script language="JavaScript">
-$(document).ready(function(){
+$(function(){
     $("#cancel").click(function() {
           dlgclose();
      });

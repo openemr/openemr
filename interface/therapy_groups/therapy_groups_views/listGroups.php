@@ -173,7 +173,7 @@
 
 
     /* ========= Initialise Data Table & Filters ========= */
-    $(document).ready(function() {
+    $(function() {
 
 //        var lang = '<?php //echo $lang ?>//';//get language support for filters
 

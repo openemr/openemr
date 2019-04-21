@@ -39,7 +39,7 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
     <script language="JavaScript">
         <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
-        $(document).ready(function() {
+        $(function() {
             oeFixedHeaderSetup(document.getElementById('mymaintable'));
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));

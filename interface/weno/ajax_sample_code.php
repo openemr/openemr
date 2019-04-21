@@ -38,7 +38,7 @@ use OpenEMR\Core\Header;
 
 <script>
 
-$(document).ready(function(){
+$(function(){
 
 
     $("#transmit").hide();

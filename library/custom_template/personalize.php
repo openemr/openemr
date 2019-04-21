@@ -78,7 +78,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             document.location.reload();
         }
 
-        $(document).ready(function () {
+        $(function () {
 
             tabbify();
 

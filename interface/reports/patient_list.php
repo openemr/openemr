@@ -63,7 +63,7 @@ if ($_POST['form_csvexport']) {
 
 <script language="JavaScript">
 
-$(document).ready(function() {
+$(function() {
     oeFixedHeaderSetup(document.getElementById('mymaintable'));
     top.printLogSetup(document.getElementById('printbutton'));
 

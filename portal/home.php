@@ -50,7 +50,7 @@ echo "<script>var cpid='" . attr($pid) . "';var cuser='" . attr($user) . "';var 
 <script type="text/javascript">
 var webroot_url = webRoot;
 
-$(document).ready(function () {
+$(function () {
 
     $("#profilereport").load("./get_profile.php", {}, function () {
         $("table").addClass("table  table-responsive");
