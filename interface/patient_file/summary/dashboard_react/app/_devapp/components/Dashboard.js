@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import PatientData from "./PatientData";
 
 class Dashboard extends React.Component {
@@ -7,10 +7,11 @@ class Dashboard extends React.Component {
 
         this.state = {
             gadgets: [],
-            token:[]
+            token: []
 
         };
     }
+
     authorizeFirst() {
         fetch("../../../../apis/api/auth", {
             method: "POST",
@@ -20,6 +21,8 @@ class Dashboard extends React.Component {
             },
             body: JSON.stringify({
                 grant_type: 'password',
+                username: 'admin',
+                password: 'pass',
                 username: 'admin2019admin',
                 password: '123456789101112a',
                 scope: 'default'
@@ -41,6 +44,7 @@ class Dashboard extends React.Component {
                 }
             )
     }
+
 
     //list/dashboard
     getDashboardList() {
@@ -82,7 +86,7 @@ class Dashboard extends React.Component {
             {JSON.stringify(this.setState.gadgets)}
             <PatientData />
             </div>
-    );
+        );
     }
 
 
