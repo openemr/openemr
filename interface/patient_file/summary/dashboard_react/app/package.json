@@ -1,0 +1,58 @@
+{
+  "name": "dashboard",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack --progress --env.NODE_ENV=production --mode production",
+    "watch": "webpack  --colors --debug --display-chunk -w --env.NODE_ENV=development --mode development"
+  },
+  "dependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.2.3",
+    "@babel/preset-react": "^7.0.0",
+    "react": "^16.7.0",
+    "react-async-component": "^2.0.0",
+    "react-dom": "^16.7.0",
+    "react-helmet": "^5.2.0",
+    "react-hot-loader": "^4.6.3",
+    "react-router-dom": "^4.3.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.0.0-rc.1",
+    "@babel/plugin-proposal-decorators": "^7.2.3",
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+    "@babel/preset-env": "^7.0.0-rc.1",
+    "@babel/preset-typescript": "^7.1.0",
+    "autoprefixer": "^9.4.4",
+    "babel-loader": "^8.0.0-beta.4",
+    "css-loader": "^2.1.0",
+    "extract-text-webpack-plugin": "^4.0.0-beta.0",
+    "file-loader": "^3.0.1",
+    "node-sass": "^4.11.0",
+    "path": "^0.12.7",
+    "postcss-flexibility": "^2.0.0",
+    "postcss-loader": "^3.0.0",
+    "sass-loader": "^6.0.7",
+    "style-loader": "^0.23.1",
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.0",
+    "webpack-dev-server": "^3.1.14"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Davisonpro/php-react-starterkit.git"
+  },
+  "keywords": [
+    "React",
+    "PHP",
+    "PHP",
+    "react",
+    "kit"
+  ],
+  "author": "Davison Pro",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Davisonpro/php-react-starterkit/issues"
+  },
+  "homepage": "https://github.com/Davisonpro/php-react-starterkit#readme"
+}
