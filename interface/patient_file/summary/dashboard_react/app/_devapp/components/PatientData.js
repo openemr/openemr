@@ -1,3 +1,6 @@
+import * as React from "react";
+
+
 class PatientData extends  React.Component {
     render(){
         return (

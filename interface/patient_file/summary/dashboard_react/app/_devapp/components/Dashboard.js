@@ -1,3 +1,6 @@
+import * as React from "react";
+import PatientData from "./PatientData";
+
 class Dashboard extends React.Component {
     constructor(props) {
         super(props);
