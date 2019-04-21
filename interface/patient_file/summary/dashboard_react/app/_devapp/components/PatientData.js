@@ -1,11 +1,12 @@
-import * as React from "react";
+import React from "react";
 
 
-class PatientData extends  React.Component {
-    render(){
+class PatientData extends React.Component {
+    render() {
         return (
             <div>kjhdskfjh</div>
-    )
+        )
     }
 }
+
 export default PatientData;
