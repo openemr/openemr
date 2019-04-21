@@ -4,7 +4,6 @@ $user = (object) [
     'email' => 'janedoe@gmail.com',
     'logged' => true
 ];
-
 ?>
 <!doctype html>
 <html lang="en">

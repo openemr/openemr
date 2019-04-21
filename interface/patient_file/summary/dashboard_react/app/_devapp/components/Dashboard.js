@@ -4,7 +4,6 @@ import PatientData from "./PatientData";
 class Dashboard extends React.Component {
     constructor(props) {
         super(props);
-
         this.state = {
             gadgets: [],
             token: []
@@ -32,6 +31,7 @@ class Dashboard extends React.Component {
                     this.setState({token: result.access_token, isLoaded: true});
                     console.log("Token: " + result.access_token);
                     this.setState.token=result.access_token;
+
                     this.getDashboardList();
                 },
                 (error) => {
@@ -74,15 +74,15 @@ class Dashboard extends React.Component {
         }
     }
 
-    componentWillMount() {
-        this.authorizeFirst();
+    componentDidMount() {
+       this.authorizeFirst();
     }
 
     render() {
         return (
             <div>
             {JSON.stringify(this.setState.gadgets)}
-            <PatientData patientId={getQueryVariable("set_pid")}/>
+            <PatientData />
             </div>
         );
     }
