@@ -15,9 +15,11 @@
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+//REMOVE ME, THIS IS TEST PAGE
+require_once("dashboard_react.php");
+die();
 
 
-require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
