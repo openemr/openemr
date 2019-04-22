@@ -93,7 +93,9 @@ class Dashboard extends React.Component {
                     (result) => {
                         this.setState({gadgets: result});
                         console.log("Dashboard Items:" + JSON.stringify(result));
-                        var menu = this.drawPatientFileMenu();
+
+
+                        var menu = this.drawPatientFileMenu(result);
 
                         var node = document.getElementById("app"),
                             ele = document.createElement("div");
@@ -115,33 +117,56 @@ class Dashboard extends React.Component {
     }
 
 
-    drawPatientFileMenu() {
+    drawPatientFileMenu(menu_json) {
+
         console.log("drawing menu");
 
-       // var templateRT = function () {
-            function onclick1() {
-                top.restoreSession();
-            }
-            return React.createElement('div', { 'className': 'row' }, React.createElement('div', { 'className': 'col-sm-12' }, React.createElement('nav', { 'className': 'navbar navbar-default navbar-color navbar-static-top patient-menu' }, React.createElement('div', { 'className': 'container-fluid' }, React.createElement('div', { 'className': 'navbar-header' }, React.createElement('button', {
-                'className': 'navbar-toggle',
-                'data-target': '#myNavbar',
-                'data-toggle': 'collapse',
-                'type': 'button'
-            }, React.createElement('span', { 'className': 'icon-bar' }), React.createElement('span', { 'className': 'icon-bar' }), React.createElement('span', { 'className': 'icon-bar' }))), React.createElement('div', {
-                'className': 'collapse navbar-collapse',
-                'id': 'myNavbar'
-            }, React.createElement('ul', { 'className': 'nav navbar-nav' }, React.createElement('li', {
-                'className': 'oe-bold-black active',
-                'id': 'dashboard'
-            }, React.createElement('a', {
-                'href': '/openemr/openemr/interface/patient_file/summary/demographics.php',
-                'onclick': onclick1.bind(this)
-            }, 'Dashboard'))))))));
-       // };
+        function onclick1() {
+            top.restoreSession();
+        }
+        
+        var main_titles=[];
 
-        //return templateRT;
+        var parsed_menu=JSON.parse(menu_json);
+        for (var property in parsed_menu) {
+            main_titles.push(parsed_menu[property]);
+        }
 
-    }
+        var listElements = main_titles
+            .filter(function(main_titles) { return main_titles.href; })
+            .map(function(main_titles) {
+                return React.createElement('li', {key: main_titles.id,'className': 'oe-bold-black', 'id': main_titles.id},
+                    React.createElement('a', {href: main_titles.href}, main_titles.label)
+                )
+            });
+
+        return  React.createElement('div', { 'className': 'row' },
+            React.createElement('div', { 'className': 'col-sm-12' },
+                React.createElement('nav', { 'className': 'navbar navbar-default navbar-color navbar-static-top patient-menu' },
+                    React.createElement('div', { 'className': 'container-fluid' },
+                        React.createElement('div', { 'className': 'navbar-header' },
+                            React.createElement('button', {
+                                    'className': 'navbar-toggle',
+                                    'data-target': '#myNavbar',
+                                    'data-toggle': 'collapse',
+                                    'type': 'button'
+                                },
+                                React.createElement('span', { 'className': 'icon-bar' }),
+                                React.createElement('span', { 'className': 'icon-bar' }),
+                                React.createElement('span', { 'className': 'icon-bar' }))
+                        ), React.createElement('div', {
+                                'className': 'collapse navbar-collapse',
+                                'id': 'myNavbar'
+                            },
+                            React.createElement('ul', {'className': 'nav navbar-nav' },listElements)
+
+
+                        )))));
+
+
+
+
+    };
 
 
     componentDidMount() {
