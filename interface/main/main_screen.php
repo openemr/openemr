@@ -281,7 +281,7 @@ if ($registrationAttempt) {
             echo '                  <div class="form-group">';
             echo '                      <div class="col-sm-6 col-sm-offset-3">';
             echo '                          <label for="totp">' . xlt('Enter the code from your authentication application on your device') . ':</label>';
-            echo '                          <input type="text" name="totp" class="form-control input-lg" id="totp" maxlength="12">';
+            echo '                          <input type="text" name="totp" class="form-control input-lg" id="totp" placeholder="' . xla('Enter the 6-digit TOTP code') .'" maxlength="12">';
             echo '                          <input type="hidden" name="form_response" value="true" />';
             generate_html_middle();
             echo '                  </div>';
