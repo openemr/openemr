@@ -48,11 +48,18 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
             var redirectUrl = 'mfa_registrations.php';
             window.location.href = 'mfa_registrations.php';
         }
-
+        
+        $(document).ready(function() {
+            $('#clearPass').focus();   
+        });
     </script>
     <style>
         p { 
             text-align: center 
+        }
+            .alert-msg {
+            font-size:100%;
+            font-weight:700;
         }
     </style>
     <?php
@@ -103,7 +110,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                     <div class="row">
                                         <div class="col-sm-12">
                                             <?php if ($error == "auth") { ?>
-                                                <div class="alert alert-danger login-failure m-1" style="font-size:100%; font-weight:700">
+                                                <div class="alert alert-danger alert-msg login-failure m-1">
                                                     <?php echo xlt('Invalid password'); ?>
                                                 </div>
                                             <?php } ?>

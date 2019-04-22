@@ -756,8 +756,8 @@
         <script>
            $('#show_hide').click(function() {
                 var elementTitle = $('#show_hide').prop('title');
-                var hideTitle = '<?php echo xla('Click to Hide'); ?>';
-                var showTitle = '<?php echo xla('Click to Show'); ?>';
+                var hideTitle = '<?php echo ('Click to Hide'); ?>';
+                var showTitle = '<?php echo ('Click to Show'); ?>';
                 $('.hideaway').toggle('1000');
                 $(this).toggleClass('fa-eye-slash fa-eye');
                 if (elementTitle == hideTitle) {
@@ -773,8 +773,8 @@
         // better script for tackling nested divs
            $('.show_hide').click(function() {
                 var elementTitle = $(this).prop('title');
-                var hideTitle = '<?php echo xla('Click to Hide'); ?>';
-                var showTitle = '<?php echo xla('Click to Show'); ?>';
+                var hideTitle = '<?php echo ('Click to Hide'); ?>';
+                var showTitle = '<?php echo ('Click to Show'); ?>';
                 //$('.hideaway').toggle('1000');
                 $(this).parent().parent().closest('div').children('.hideaway').toggle('1000');
                 if (elementTitle == hideTitle) {

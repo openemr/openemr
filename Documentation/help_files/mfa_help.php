@@ -282,7 +282,7 @@ require_once("../../interface/globals.php");
                     <h4 class="oe-help-heading"><?php echo xlt("Using 2FA"); ?><a href="#top_section"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                     <p><?php echo xlt("If you have enabled the TOTP method the next time you login you will be asked to enter the TOTP password");?>.
                     
-                    <p><?php echo xlt("With the U2F key you will need to plug it in to the USB port and then access OpenEMR using the latest versions of the latest versions of the following modern browsers - Chrome, Firefox, Safari, Edge and Opera and press the button on the device");?>.
+                    <p><?php echo xlt("With the U2F key you will need to plug it in to the USB port and then access OpenEMR using the latest versions of the following modern browsers - Chrome, Firefox, Safari, Edge and Opera and pressing the button on the device");?>.
                     
                     <p><?php echo xlt("Login with your user id and password and it will automatically authenticate you");?>.
                     
@@ -291,7 +291,7 @@ require_once("../../interface/globals.php");
                     
                     <p><?php echo xlt("This will re-display the secret key via the QR code that can then be captured and stored on the new Smartphone via its authenticator app");?>.
                     
-                    <p><?php echo xlt("If you have lost your Smartphone those with administrator privileges can delete the keys by going go to Administration > Users and check Clear 2FA checkbox and Click Save");?>.
+                    <p><?php echo xlt("If you have lost your Smartphone those with administrator privileges can delete the keys by going go to Administration > Users and check Clear 2FA checkbox and clicking Save");?>.
                     
                     <p><?php echo xlt("Congratulations for enabling 2FA");?> !!
                 </div>
