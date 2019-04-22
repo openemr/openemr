@@ -291,7 +291,7 @@ require_once("../../interface/globals.php");
                     
                     <p><?php echo xlt("This will re-display the secret key via the QR code that can then be captured and stored on the new Smartphone via its authenticator app");?>.
                     
-                    <p><?php echo xlt("If you have lost your Smartphone those with administrator privileges can delete the keys by going go to Administration > Users and check Clear 2FA checkbox and clicking Save");?>.
+                    <p><?php echo xlt("If you have lost your Smartphone those with administrator privileges can delete the keys by going to Administration > Users and checking the Clear 2FA checkbox and clicking Save");?>.
                     
                     <p><?php echo xlt("Congratulations for enabling 2FA");?> !!
                 </div>
