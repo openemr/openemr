@@ -1,5 +1,6 @@
 import React, {Component} from "react";
-
+import helpers from '../utils/helpers.js';
+import Dashboard from "./Dashboard";
 
 class PatientData extends React.Component {
     constructor(props) {
@@ -10,23 +11,12 @@ class PatientData extends React.Component {
         }
     }
 
-    getQueryVariable(variable) {
-        var query = window.location.search.substring(1);
-        var vars = query.split("&");
-        for (var i = 0; i < vars.length; i++) {
-            var pair = vars[i].split("=");
-            if (pair[0] == variable) {
-                return pair[1];
-            }
-        }
-        return (false);
-    }
+
 
     componentDidMount() {
-        this.setState.patientId = this.getQueryVariable("set_pid");
-
-        if (this.setState.patientId > 0) {
-            fetch("http://localhost/matrix-israel/openemr/apis/api/patient/" + this.state.patientId, {
+       this.setState.patientId = helpers.getPatientId();
+        if (this.setState.patientId >= 0) {
+            fetch("../../../../apis/api/patient/" + this.setState.patientId, {
                 method: "GET",
                 headers: {
                     'Accept': 'application/json',
@@ -53,7 +43,7 @@ class PatientData extends React.Component {
     }
 
     render() {
-  console.log(JSON.stringify());
+
         let data = this.setState.data;
         return (
             <div>

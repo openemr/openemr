@@ -1,6 +1,7 @@
 import React from "react";
 import PatientData from "./PatientData";
 import ReactDOM from 'react-dom';
+import helpers from '../utils/helpers.js';
 
 class Dashboard extends React.Component {
     constructor(props) {
