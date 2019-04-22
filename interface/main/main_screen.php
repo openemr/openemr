@@ -281,7 +281,7 @@ if ($registrationAttempt) {
             echo '                  <div class="form-group">';
             echo '                      <div class="col-sm-6 col-sm-offset-3">';
             echo '                          <label for="totp">' . xlt('Enter the code from your authentication application on your device') . ':</label>';
-            echo '                          <input type="text" name="totp" class="form-control input-lg" id="totp" placeholder="' . xla('Enter the 6-digit TOTP code') .'" maxlength="12">';
+            echo '                          <input type="text" name="totp" class="form-control input-lg" id="totp" maxlength="12">';
             echo '                          <input type="hidden" name="form_response" value="true" />';
             generate_html_middle();
             echo '                  </div>';
@@ -488,24 +488,6 @@ if ($GLOBALS['new_tabs_layout']) {
     exit();
 }
 
-?>
-<?php
-$attr_url = 'attr_url';
-$text = 'text';
-$xlt = 'xlt';
-$attr = 'attr';
-
-    $totp_top = <<<TPT
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="page-header">
-                    <h2>{$xlt('TOTP Verification')}</h2>
-                </div>
-            </div>
-        </div>
-TPT;
-    echo $totp_top ."\r\n";
 ?>
 <html>
 <head>
