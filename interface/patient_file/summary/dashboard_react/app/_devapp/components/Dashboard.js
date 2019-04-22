@@ -71,9 +71,6 @@ class Dashboard extends React.Component {
                         console.log("fail");
                     }
                 )
-       // }else{
-       //     console.log("no token");
-        //}
     }
 
 
@@ -91,11 +88,8 @@ class Dashboard extends React.Component {
                 .then(
                     (result) => {
                         this.setState({gadgets: result});
-                        console.log("Dashboard Items:" + JSON.stringify(result));
-
-
+                        console.log("Dashboard Items will be rendered");
                         var menu = this.drawPatientFileMenu(result);
-
                         var node = document.getElementById("app"),
                             ele = document.createElement("div");
                         ele.id = "menu_container";
@@ -110,23 +104,22 @@ class Dashboard extends React.Component {
                         console.log("fail");
                     }
                 )
-        //}else{
-        //    console.log("no token");
-        //}
     }
+
 
 
     drawPatientFileMenu(menu_json) {
 
         console.log("drawing menu");
 
-        function onclick1() {
+        function topRestoreSession() {
             top.restoreSession();
+            console.log("restoreSession");
         }
-        
-        var main_titles=[];
 
+        var main_titles=[];
         var parsed_menu=JSON.parse(menu_json);
+
         for (var property in parsed_menu) {
             main_titles.push(parsed_menu[property]);
         }
@@ -135,7 +128,7 @@ class Dashboard extends React.Component {
             .filter(function(main_titles) { return main_titles.href; })
             .map(function(main_titles) {
                 return React.createElement('li', {key: main_titles.id,'className': 'oe-bold-black', 'id': main_titles.id},
-                    React.createElement('a', {href: main_titles.href}, main_titles.label)
+                    React.createElement('a', {'onClick': topRestoreSession, 'href': main_titles.href}, main_titles.label)
                 )
             });
 
@@ -158,13 +151,7 @@ class Dashboard extends React.Component {
                                 'id': 'myNavbar'
                             },
                             React.createElement('ul', {'className': 'nav navbar-nav' },listElements)
-
-
                         )))));
-
-
-
-
     };
 
 
