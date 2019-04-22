@@ -1,5 +1,6 @@
 import React from "react";
 import PatientData from "./PatientData";
+import helpers from '../utils/helpers.js';
 
 class Dashboard extends React.Component {
     constructor(props) {
@@ -20,8 +21,8 @@ class Dashboard extends React.Component {
             },
             body: JSON.stringify({
                 grant_type: 'password',
-                username: 'admin2019admin',
-                password: '123456789101112a',
+                username: 'admin',
+                password: 'pass',
                 scope: 'default'
             })
         })
