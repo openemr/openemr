@@ -22,8 +22,8 @@ class Dashboard extends React.Component {
             },
             body: JSON.stringify({
                 grant_type: 'password',
-                username: 'admin2019admin',
-                password: '123456789101112a',
+                username: 'admin',
+                password: 'pass',
                 scope: 'default'
             })
         })
@@ -34,8 +34,7 @@ class Dashboard extends React.Component {
                     console.log("Token: " + result.access_token);
                     this.setState.token=result.access_token;
 
-                    this.getDashboardList();
-                    this.getPatientFileMenu();
+
                 },
                 (error) => {
                     this.setState({
@@ -49,13 +48,13 @@ class Dashboard extends React.Component {
 
     //list/dashboard
     getDashboardList() {
-        if (this.setState.token) {
+        //if (this.setState.token) {
             fetch("../../../../apis/api/menus", {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + this.setState.token
+                    // 'Authorization': 'Bearer ' + this.setState.token
                 }
             })
                 .then((res) => res.json())
@@ -72,20 +71,20 @@ class Dashboard extends React.Component {
                         console.log("fail");
                     }
                 )
-        }else{
-            console.log("no token");
-        }
+       // }else{
+       //     console.log("no token");
+        //}
     }
 
 
     getPatientFileMenu() {
-        if (this.setState.token) {
+       // if (this.setState.token) {
             fetch("../../../../apis/api/menus", {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + this.setState.token
+                    // 'Authorization': 'Bearer ' + this.setState.token
                 }
             })
                 .then((res) => res.json())
@@ -109,9 +108,9 @@ class Dashboard extends React.Component {
                         console.log("fail");
                     }
                 )
-        }else{
-            console.log("no token");
-        }
+        //}else{
+        //    console.log("no token");
+        //}
     }
 
 
@@ -145,7 +144,9 @@ class Dashboard extends React.Component {
 
 
     componentDidMount() {
-       this.authorizeFirst();
+        //this.authorizeFirst();
+        this.getDashboardList();
+        this.getPatientFileMenu();
     }
 
     render() {
