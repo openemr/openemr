@@ -1,6 +1,9 @@
 import React, {Component} from "react";
 import helpers from '../utils/helpers.js';
 import Dashboard from "./Dashboard";
+import Button from "react-bootstrap/Button";
+import Table from "react-bootstrap/Table";
+
 
 class PatientData extends React.Component {
     constructor(props) {
@@ -47,10 +50,12 @@ class PatientData extends React.Component {
         let data = this.setState.data;
         return (
             <div>
-                <table border="1">
+                <Button>asdas</Button>
+
+                <Table>
                     <thead>
                     <tr>
-                    <th>ID</th>
+                    <th>ID </th>
                     <th>PID</th>
                     <th>FName</th>
                     <th>LName</th>
@@ -70,7 +75,7 @@ class PatientData extends React.Component {
                         )
                     })}
                     </tbody>
-                </table>
+                </Table>
             </div>
 
         )

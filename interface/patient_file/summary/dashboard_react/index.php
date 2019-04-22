@@ -13,13 +13,10 @@ $user = (object) [
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="./app/assets/css/app.css" type="text/css">
+        <link rel="stylesheet" href="/matrix-israel/openemr/public/assets/bootstrap/dist/css/bootstrap.min.css?v=43" type="text/css">
+
     </head>
-    <script type="text/javascript">
-        var STATIC_URL = './';
-        var myApp = {
-            user : <?php echo json_encode($user); ?>,
-            logged : <?php echo $user->logged; ?>
-        };
+
     </script>
     <body>
 
