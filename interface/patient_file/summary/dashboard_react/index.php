@@ -1,4 +1,4 @@
-<?php 
+<?php
 $user = (object) [
     'name' => 'Jane Doe',
     'email' => 'janedoe@gmail.com',
@@ -13,7 +13,7 @@ $user = (object) [
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="./app/assets/css/app.css" type="text/css">
-        <link rel="stylesheet" href="/matrix-israel/openemr/public/assets/bootstrap/dist/css/bootstrap.min.css?v=43" type="text/css">
+        <link rel="stylesheet" href="../../../../public/assets/bootstrap/dist/css/bootstrap.min.css?v=43" type="text/css">
 
     </head>
 
