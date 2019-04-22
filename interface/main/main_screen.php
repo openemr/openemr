@@ -158,7 +158,7 @@ if ($registrationAttempt) {
     $form_response = empty($_POST['form_response']) ? '' : $_POST['form_response'];
     if ($form_response) {
         // TOTP METHOD enabled if TOTP is visible in post request
-        if (empty($_POST['totp'])) {
+        if (empty($_POST['totp']) && !$isU2F) {
             $errormsg = xl("Please enter a valid code from the authenticator app");
             $errortype = "TOTP";
         }
@@ -251,11 +251,6 @@ if ($registrationAttempt) {
             $form_response = '';
         }
     }
-    // if (!$form_response) {
-        // if(empty($_POST['totp'])){
-        // echo "<script> alert ('Please enter a valid code from the authenticator app' ) </script>";
-        // }
-    // }
     if (!$form_response) {
         generate_html_start();
         if ($isU2F) {
@@ -280,13 +275,13 @@ if ($registrationAttempt) {
             
             echo '<div class="row">';
             echo '  <div class="col-sm-12">';
-            echo '      <form method="post" action="main_screen.php?auth=login&site=' . attr_url($_GET['site']) . '" target="_top" name="challenge_form">';
+            echo '      <form method="post" action="main_screen.php?auth=login&site=' . attr_url($_GET['site']) . '" target="_top" name="challenge_form" id=="challenge_form">';
             echo '              <fieldset>';
             echo '                  <legend>'. xlt('Provide TOTP code') .'</legend>';
             echo '                  <div class="form-group">';
             echo '                      <div class="col-sm-6 col-sm-offset-3">';
             echo '                          <label for="totp">' . xlt('Enter the code from your authentication application on your device') . ':</label>';
-            echo '                          <input type="text" name="totp" class="form-control input-lg" placeholder="' . xla('Enter the 6-digit TOTP code') . '" id="totp" maxlength="12">';
+            echo '                          <input type="text" name="totp" class="form-control input-lg" id="totp" maxlength="12">';
             echo '                          <input type="hidden" name="form_response" value="true" />';
             generate_html_middle();
             echo '                  </div>';
@@ -323,7 +318,7 @@ if ($registrationAttempt) {
             }
             echo '<div class="row">';
             echo '  <div class="col-sm-12">';
-            echo '          <form method="post" name="u2fform" id="u2fform" action="main_screen.php?auth=login&site=' . attr_url($_GET['site']) . '" target="_top" name="challenge_form">';
+            echo '          <form method="post" name="u2fform" id="u2fform" action="main_screen.php?auth=login&site=' . attr_url($_GET['site']) . '" target="_top">';
             echo '              <fieldset>';
             echo '                  <legend>'. xlt('Insert U2F Key') .'</legend>';
             echo '                  <div class="form-group">';
