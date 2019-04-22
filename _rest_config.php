@@ -40,7 +40,7 @@ class RestConfig
     private static $INSTANCE;
     private static $IS_INITIALIZED = false;
 
-    private $context;
+    private $context = false;
 
     /** prevents external construction */
     private function __construct()
@@ -84,26 +84,36 @@ class RestConfig
     }
 
     /**
-     * Returns the api's context in form of token. e.g api called from OpenEMR authorized session.
-     * @return token or null if not local.
+     * Returns true if api called from within OpenEMR authorized session (ie. locally).
+     * @return true or false if not local.
      */
     function GetContext()
     {
-        if ($this->context == null) {
+        if (!$this->context) {
+            // collect the session id
             $local_auth = isset($_SERVER['HTTP_APPSECRET']) ? $_SERVER['HTTP_APPSECRET'] : false;
-            if ($local_auth) {
+            // collect the api csrf token
+            $app_token = isset($_SERVER['HTTP_APPTOKEN']) ? $_SERVER['HTTP_APPTOKEN'] : false;
+            if (!empty($local_auth)) {
                 session_id($local_auth); // a must for cURL. See oeHttp Client request.
-            } else {
-                session_name("OpenEMR"); // works for browser/ajax.
             }
             session_start();
-            $app_token = isset($_SERVER['HTTP_APPTOKEN']) ? $_SERVER['HTTP_APPTOKEN'] : false;
-            $session_verified = ($app_token === $local_auth); // @todo future may force any http client to pass session id
-            if (isset($_SESSION['authUserID']) && !empty($_SESSION['authUser'])) {
-                $this->context = $_SESSION['csrf_token'];
-            } else {
+            if (empty($local_auth) || empty($app_token) || ($app_token !== $_SESSION['api_csrf_token'])) {
+                // Need the session id and a api csrf token that matches current session
+                //  If not, then destroy session and return false context
                 session_destroy();
+            } else {
+                if (!empty($_SESSION['authUserID']) && !empty($_SESSION['authUser'])) {
+                    // Need a set user/id in the session to continue
+                    //  If so, then return the api_csrf_token to signal a proper authenticated session.
+                    $this->context = true;
+                } else {
+                    //  If not, then destroy session and return false context
+                    session_destroy();
+                }
             }
+            error_log("DEBUG2: " . $local_auth);
+            error_log("DEBUG3: " . $app_token);
         }
 
         return $this->context;

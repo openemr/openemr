@@ -364,6 +364,8 @@ if (isset($_POST['new_login_session_management'])) {
 }
 // Create the csrf_token
 $_SESSION['csrf_token'] = createCsrfToken();
+// Also create a api_csrf_token that is only used for the api
+$_SESSION['api_csrf_token'] = createCsrfToken();
 
 $_SESSION["encounter"] = '';
 

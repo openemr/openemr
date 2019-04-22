@@ -15,7 +15,13 @@
 require_once("./../_rest_config.php");
 
 $gbl = RestConfig::GetInstance();
+
+// set up the session if this is a local api call
 $context = $gbl->GetContext();
+if ($context) {
+    session_write_close();
+}
+
 $base_path = $gbl::$ROOT_URL;
 $routes = array();
 $resource = '';
@@ -67,7 +73,7 @@ if (is_authentication($resource)) {
 require_once("./../interface/globals.php");
 require_once("./../library/acl.inc");
 
-if (!$GLOBALS['rest_api']) {
+if (!$GLOBALS['rest_api'] && !$context) {
     http_response_code(501);
     exit();
 }

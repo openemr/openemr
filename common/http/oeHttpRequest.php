@@ -188,10 +188,13 @@ class oeHttpRequest extends oeOAuth
         if ($this->apiNative && !$this->apiOAuth) {
             $this->usingHeaders([
                 'appsecret' => session_id(),
-                'apptoken' => $_SESSION['csrf_token']
+                'apptoken' => $_SESSION['api_csrf_token']
             ]);
             // important so we may retrieve session in api.
             session_write_close();
+
+            error_log("DEBUG4: " . session_id());
+            error_log("DEBUG5: " . $_SESSION['api_csrf_token']);
         }
 
         if ($this->apiOAuth) {
