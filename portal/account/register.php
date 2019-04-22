@@ -96,7 +96,7 @@ var newPid = 0;
 var curPid = 0;
 var provider = 0;
 
-$(document).ready(function () {
+$(function () {
     /* // test data
     $("#emailInput").val("me@me.com");
     $("#fname").val("Jerry");

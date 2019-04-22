@@ -59,7 +59,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
             document.location.reload();
         }
         CKEDITOR.config.customConfig = top.webroot_url + '/library/js/nncustom_config.js';
-        $(document).ready(function () {
+        $(function () {
 
             tabbify();
 
@@ -110,7 +110,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
         });
     </script>
     <script type="text/javascript">
-        $(document).ready(function () {
+        $(function () {
 
             $(function () {
                 $("#menu5 div").sortable({

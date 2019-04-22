@@ -771,7 +771,7 @@ function writeITLine($it_array)
         }
     </style>
     <script type="text/javascript">
-        $(document).ready(function () {
+        $(function () {
             $(".select-dropdown").select2({
                 theme: "bootstrap",
                 <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
@@ -1410,7 +1410,7 @@ if ($GLOBALS['ippf_specific']) { ?>
 <script type="text/javascript">
     // jQuery stuff to make the page a little easier to use
 
-    $(document).ready(function () {
+    $(function () {
         $("#form_save").click(function () {
             SaveChanges();
         });

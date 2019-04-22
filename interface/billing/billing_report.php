@@ -1356,7 +1356,7 @@ if ($alertmsg) {
     echo "alert(" . js_escape($alertmsg) . ");\n";
 }
 ?>
-$(document).ready(function () {
+$(function () {
     $("#view-log-link").click( function() {
         top.restoreSession();
         dlgopen('customize_log.php', '_blank', 500, 400);

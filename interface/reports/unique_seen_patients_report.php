@@ -68,7 +68,7 @@ if ($_POST['form_labels']) {
 
 <script language="JavaScript">
 
-$(document).ready(function() {
+$(function() {
     var win = top.printLogSetup ? top : opener.top;
     win.printLogSetup(document.getElementById('printbutton'));
 

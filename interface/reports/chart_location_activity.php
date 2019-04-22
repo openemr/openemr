@@ -59,7 +59,7 @@ $form_patient_id = trim($_POST['form_patient_id']);
     </style>
 
     <script language="JavaScript">
-        $(document).ready(function() {
+        $(function() {
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
         });

@@ -439,7 +439,7 @@ $form_inactive = empty($_POST['form_inactive']) ? false : true;
 
 <script type="text/javascript">
 
-$(document).ready(function(){
+$(function(){
 
     tabbify();
 
