@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import Dashboard from "./Dashboard";
 
 
 class PatientData extends React.Component {
@@ -24,9 +25,8 @@ class PatientData extends React.Component {
 
     componentDidMount() {
         this.setState.patientId = this.getQueryVariable("set_pid");
-
-        if (this.setState.patientId > 0) {
-            fetch("http://localhost/matrix-israel/openemr/apis/api/patient/" + this.state.patientId, {
+        if (this.setState.patientId >= 0) {
+            fetch("../../../../apis/api/patient/" + this.setState.patientId, {
                 method: "GET",
                 headers: {
                     'Accept': 'application/json',
@@ -53,7 +53,7 @@ class PatientData extends React.Component {
     }
 
     render() {
-  console.log(JSON.stringify());
+
         let data = this.setState.data;
         return (
             <div>
