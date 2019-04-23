@@ -77,7 +77,7 @@ function generate_html_u2f()
                 60
             );
         }
-        
+
     </script>
     <?php
 }
@@ -162,7 +162,7 @@ if ($registrationAttempt) {
             $errormsg = false;
 
             $form_response = '';
-            
+
             $res1 = sqlQuery(
                 "SELECT a.var1 FROM login_mfa_registrations AS a WHERE a.user_id = ? AND a.method = 'TOTP'",
                 array($_SESSION['authId'])
@@ -268,7 +268,7 @@ if ($registrationAttempt) {
             if ($errormsg && $errortype == "TOTP") {
                 echo '<div class="row"><div class="col-sm-12"><div class="alert alert-danger alert-msg">' . text($errormsg) . '</div></div></div>';
             }
-            
+
             echo '<div class="row">';
             echo '  <div class="col-sm-12">';
             echo '      <form method="post" action="main_screen.php?auth=login&site=' . attr_url($_GET['site']) . '" target="_top" name="challenge_form" id=="challenge_form">';
@@ -300,7 +300,7 @@ if ($registrationAttempt) {
                 "UPDATE users_secure SET login_work_area = ? WHERE id = ?",
                 array($requests, $userid)
             );
-            
+
             echo '<div class="container">';
             echo '<div class="row">';
             echo '    <div class="col-sm-12">';
@@ -327,7 +327,6 @@ if ($registrationAttempt) {
             echo '              </fieldset>';
             echo '                  <div class="form-group clearfix">';
             echo '                      <div class="col-sm-12 text-left position-override">';
-           //echo '                          <a href="#" id="authutf" class="btn btn-default btn-save" onclick="doAuth()">' . xlt('Authenticate U2F') . '</a>';
             echo '                          <button type="button"  id="authutf" class="btn btn-default btn-save" onclick="doAuth()">' . xlt('Authenticate U2F') . '</button>';
             echo '                          <input type="hidden" name="form_requests" value="' . attr($requests) . '" />';
             echo '                          <input type="hidden" name="form_response" value="" />';
