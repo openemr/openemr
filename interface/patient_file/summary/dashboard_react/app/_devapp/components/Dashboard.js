@@ -2,6 +2,7 @@ import React from "react";
 import PatientData from "./PatientData";
 import ReactDOM from 'react-dom';
 import helpers from '../utils/helpers.js';
+import MedicalProblems from "./MedicalProblems";
 
 class Dashboard extends React.Component {
     constructor(props) {
@@ -22,8 +23,8 @@ class Dashboard extends React.Component {
             },
             body: JSON.stringify({
                 grant_type: 'password',
-                username: 'admin',
-                password: 'pass',
+                username: 'adminadminadmin',
+                password: 'admin123456789',
                 scope: 'default'
             })
         })
@@ -177,8 +178,10 @@ class Dashboard extends React.Component {
     render() {
         return (
             <div>
-            {JSON.stringify(this.setState.gadgets)}
+            {
+                JSON.stringify(this.setState.gadgets)}
             <PatientData />
+            <MedicalProblems />
             </div>
         );
     }
