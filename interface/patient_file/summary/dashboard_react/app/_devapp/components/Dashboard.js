@@ -75,7 +75,7 @@ class Dashboard extends React.Component {
     }
 
 
-    getPatientFileMenu() {gi
+    getPatientFileMenu() {
        var url="../../../../apis/api/menus/1/patient_file";
             fetch(url, {
                 method: "GET",
