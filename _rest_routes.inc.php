@@ -326,9 +326,9 @@ RestConfig::$ROUTE_MAP = array(
         authorization_check("patients", "notes");
         return (new MessageRestController())->delete($pid, $mid);
     },
-    "POST /api/menus/:pid/:type" => function ($pid, $type) {
+    "GET /api/menus/:pid/:type" => function ($pid, $type) {
         $data = (array)(json_decode(file_get_contents("php://input")));
-        return (new MenusRestController())->getMenu($pid, $type,$data);
+        return (new MenusRestController())->getMenu($pid, $type);
     },
 
 
