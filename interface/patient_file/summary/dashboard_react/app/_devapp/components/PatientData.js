@@ -15,9 +15,8 @@ class PatientData extends React.Component {
     }
 
 
-
     componentDidMount() {
-       this.setState.patientId = helpers.getPatientId();
+        this.setState.patientId = helpers.getPatientId();
         if (this.setState.patientId >= 0) {
             fetch("../../../../apis/api/patient/" + this.setState.patientId, {
                 method: "GET",
@@ -48,16 +47,15 @@ class PatientData extends React.Component {
         console.log("Data: " + JSON.stringify(this.state.data));
         this.state.data.map((data, i) => {
             //parent.left_nav.setPatient("Hgjghj Ghj",1,"1",''," DOB: 01\/11\/2018 Age: 5 month")
-            parent.left_nav.setPatient (data.fname + " " + data.lname, data.pid, data.pubpid, '', "str_dob");
+            parent.left_nav.setPatient(data.fname + " " + data.lname, data.pid, data.pubpid, '', "str_dob");
         });
 
     }
 
     render() {
         const divStyle = {
-                border: '1px solid gray',
+            border: '1px solid gray',
             display: 'none',
-                width: '250px !important;'
 
         };
 
@@ -69,12 +67,12 @@ class PatientData extends React.Component {
                 <Table>
                     <thead>
                     <tr>
-                    <th>ID </th>
-                    <th>PID</th>
-                    <th>FName</th>
-                    <th>LName</th>
-                    <th>Title</th>
-                    <th>Dob</th>
+                        <th>ID</th>
+                        <th>PID</th>
+                        <th>FName</th>
+                        <th>LName</th>
+                        <th>Title</th>
+                        <th>Dob</th>
                     </tr>
                     </thead>
                     <tbody>
