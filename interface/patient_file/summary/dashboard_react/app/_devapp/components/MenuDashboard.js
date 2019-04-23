@@ -2,8 +2,11 @@ import React from "react";
 import Alert from "react-bootstrap/Alert";
 import helpers from '../utils/helpers.js';
 import ReactDOM from "react-dom";
-import Navbar from "react-bootstrap/Navbar";
+
 import Nav from "react-bootstrap/Nav";
+import Navbar from "react-bootstrap/Navbar";
+import NavDropdown from "react-bootstrap/NavDropdown";
+
 
 
 class MenuDashboard extends React.Component {
@@ -58,31 +61,21 @@ class MenuDashboard extends React.Component {
         var listElements = main_titles
             .filter(function(main_titles) { return main_titles.href; })
             .map(function(main_titles) {
-                return React.createElement('li', {key: main_titles.id,'className': 'oe-bold-black', 'id': main_titles.id},
-                    React.createElement('a', {'onClick': topRestoreSession, 'href': main_titles.href}, main_titles.label)
-                )
+                return  React.createElement(Nav.Link, { 'onClick': topRestoreSession, 'href': main_titles.href }, main_titles.label);
             });
 
         return  React.createElement('div', { 'className': 'row' },
             React.createElement('div', { 'className': 'col-sm-12' },
-                React.createElement('nav', { 'className': 'navbar navbar-default navbar-color navbar-static-top patient-menu' },
-                    React.createElement('div', { 'className': 'container-fluid' },
-                        React.createElement('div', { 'className': 'navbar-header' },
-                            React.createElement('button', {
-                                    'className': 'navbar-toggle',
-                                    'data-target': '#myNavbar',
-                                    'data-toggle': 'collapse',
-                                    'type': 'button'
-                                },
-                                React.createElement('span', { 'className': 'icon-bar' }),
-                                React.createElement('span', { 'className': 'icon-bar' }),
-                                React.createElement('span', { 'className': 'icon-bar' }))
-                        ), React.createElement('div', {
-                                'className': 'collapse navbar-collapse',
-                                'id': 'myNavbar'
-                            },
-                            React.createElement('ul', {'className': 'nav navbar-nav' },listElements)
-                        )))));
+
+
+                React.createElement(Navbar, {'bg': 'light', 'expand': 'lg'},
+                    React.createElement(Navbar.Toggle, { 'aria-controls': 'basic-navbar-nav' }),
+                    React.createElement(Navbar.Collapse, { 'id': 'basic-navbar-nav' },
+                        React.createElement(Nav, { 'className': 'mr-auto' },listElements)
+                    ))
+
+
+            ));
     };
 
     componentDidMount() {
@@ -90,6 +83,7 @@ class MenuDashboard extends React.Component {
     }
     render() {
         return(
+
             <div>
                 {this.state.menu}
             </div>
