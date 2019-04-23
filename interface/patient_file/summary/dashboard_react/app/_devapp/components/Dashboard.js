@@ -76,8 +76,8 @@ class Dashboard extends React.Component {
 
 
     getPatientFileMenu() {
-       // if (this.setState.token) {
-            fetch("../../../../apis/api/menus", {
+       var url="../../../../apis/api/menus/1/patient_file";
+            fetch(url, {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json',
@@ -158,7 +158,6 @@ class Dashboard extends React.Component {
 
     componentDidMount() {
         //this.authorizeFirst();
-        this.getDashboardList();
         this.getPatientFileMenu();
     }
 

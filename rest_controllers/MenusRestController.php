@@ -23,10 +23,21 @@ class MenusRestController
         $this->menusService = new MenusService();
     }
 
-    public function getMenu($data)
+    public function getMenu($pid, $type,$data)
     {
-        $serviceResult = $this->menusService->getMenu($data);
-        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+
+        switch ($type) {
+            case "patient_file":
+                $serviceResult = $this->menusService->getMenu($pid);
+                $responseCode=200;
+                break;
+            default:
+                $serviceResult = null;
+                $responseCode=500;
+        }
+
+
+        return RestControllerHelper::responseHandler($serviceResult, null, $responseCode);
     }
 
 }
