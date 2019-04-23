@@ -63,95 +63,92 @@ class PatientData extends React.Component {
             display: 'block',
 
         };
-        const { open } = this.state;
+        const {open} = this.state;
 
         let data = this.setState.data;
         return (
-            <Card style={{ width: '48rem' }}>
+            <Card style={{width: '48rem'}}>
+                <Card.Header>
+                    <Button
+                        onClick={() => this.setState({open: !open})}
+                        aria-controls="example-collapse-text"
+                        aria-expanded={open}
+                    > - </Button> Patient Data
+                </Card.Header>
                 <Card.Body>
-                    <Card.Title>
-                        <Button
-                            onClick={() => this.setState({open: !open})}
-                            aria-controls="example-collapse-text"
-                            aria-expanded={open}
-                        > - </Button> Patient Data
-                    </Card.Title>
-
-                        <Collapse in={this.state.open}>
-                            <div id="example-fade-text">
-                                <Tab.Container id="left-tabs-example" defaultActiveKey="tab-1">
-                                    <Row>
-                                        <Col sm={3}>
-                                            <Nav variant="pills" className="flex-column">
-                                                <Nav.Item>
-                                                    <Nav.Link eventKey="tab-1">Short Patient Form</Nav.Link>
-                                                </Nav.Item>
-                                                <Nav.Item>
-                                                    <Nav.Link eventKey="tab-2">Contacts</Nav.Link>
-                                                </Nav.Item>
-                                                <Nav.Item>
-                                                    <Nav.Link eventKey="tab-3">Employer</Nav.Link>
-                                                </Nav.Item>
-                                                <Nav.Item>
-                                                    <Nav.Link eventKey="tab-4">Misc</Nav.Link>
-                                                </Nav.Item>
-                                                <Nav.Item>
-                                                    <Nav.Link eventKey="tab-5">Insurance</Nav.Link>
-                                                </Nav.Item>
-                                            </Nav>
-                                        </Col>
-                                        <Col sm={9}>
-                                            <Tab.Content>
-                                                <Tab.Pane eventKey="tab-1">
-                                                    <Table>
-                                                        <thead>
-                                                        <tr>
-                                                            <th>ID</th>
-                                                            <th>PID</th>
-                                                            <th>FName</th>
-                                                            <th>LName</th>
-                                                            <th>Title</th>
-                                                            <th>Dob</th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        {this.state.data.map((data, i) => {
-                                                            return (
-                                                                <tr key={i}>
-                                                                    <td align="center">{data.id}</td>
-                                                                    <td align="center">{data.pid}</td>
-                                                                    <td align="center">{data.fname}</td>
-                                                                    <td align="center">{data.lname}</td>
-                                                                    <td align="center">{data.title}</td>
-                                                                    <td align="center">{data.dob}</td>
-                                                                </tr>
-                                                            )
-                                                        })}
-                                                        </tbody>
-                                                    </Table>
-                                                </Tab.Pane>
-                                                <Tab.Pane eventKey="tab-2">
-                                                    qweqweqwe
-                                                </Tab.Pane>
-                                                <Tab.Pane eventKey="tab-3">
-                                                    qweqweqwe
-                                                </Tab.Pane>
-                                                <Tab.Pane eventKey="tab-4">
-                                                    qweqweqwe
-                                                </Tab.Pane>
-                                                <Tab.Pane eventKey="tab-5">
-                                                    qweqweqwe
-                                                </Tab.Pane>
-                                            </Tab.Content>
-                                        </Col>
-                                    </Row>
-                                </Tab.Container>
-                            </div>
-                        </Collapse>
-
+                    <Collapse in={this.state.open}>
+                        <div id="example-fade-text">
+                            <Tab.Container id="left-tabs-example" defaultActiveKey="tab-1">
+                                <Row>
+                                    <Col sm={3}>
+                                        <Nav variant="pills" className="flex-column">
+                                            <Nav.Item>
+                                                <Nav.Link eventKey="tab-1">Short Patient Form</Nav.Link>
+                                            </Nav.Item>
+                                            <Nav.Item>
+                                                <Nav.Link eventKey="tab-2">Contacts</Nav.Link>
+                                            </Nav.Item>
+                                            <Nav.Item>
+                                                <Nav.Link eventKey="tab-3">Employer</Nav.Link>
+                                            </Nav.Item>
+                                            <Nav.Item>
+                                                <Nav.Link eventKey="tab-4">Misc</Nav.Link>
+                                            </Nav.Item>
+                                            <Nav.Item>
+                                                <Nav.Link eventKey="tab-5">Insurance</Nav.Link>
+                                            </Nav.Item>
+                                        </Nav>
+                                    </Col>
+                                    <Col sm={9}>
+                                        <Tab.Content>
+                                            <Tab.Pane eventKey="tab-1">
+                                                <Table>
+                                                    <thead>
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>PID</th>
+                                                        <th>FName</th>
+                                                        <th>LName</th>
+                                                        <th>Title</th>
+                                                        <th>Dob</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    {this.state.data.map((data, i) => {
+                                                        return (
+                                                            <tr key={i}>
+                                                                <td align="center">{data.id}</td>
+                                                                <td align="center">{data.pid}</td>
+                                                                <td align="center">{data.fname}</td>
+                                                                <td align="center">{data.lname}</td>
+                                                                <td align="center">{data.title}</td>
+                                                                <td align="center">{data.dob}</td>
+                                                            </tr>
+                                                        )
+                                                    })}
+                                                    </tbody>
+                                                </Table>
+                                            </Tab.Pane>
+                                            <Tab.Pane eventKey="tab-2">
+                                                qweqweqwe
+                                            </Tab.Pane>
+                                            <Tab.Pane eventKey="tab-3">
+                                                qweqweqwe
+                                            </Tab.Pane>
+                                            <Tab.Pane eventKey="tab-4">
+                                                qweqweqwe
+                                            </Tab.Pane>
+                                            <Tab.Pane eventKey="tab-5">
+                                                qweqweqwe
+                                            </Tab.Pane>
+                                        </Tab.Content>
+                                    </Col>
+                                </Row>
+                            </Tab.Container>
+                        </div>
+                    </Collapse>
                 </Card.Body>
             </Card>
-
         )
     }
 }
