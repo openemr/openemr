@@ -476,7 +476,7 @@ function genFindBlock()
       });
  }
 
- $(document).ready(function (){
+ $(function (){
    getReminderCount();//
    parent.loadedFrameCount += 1;
    for (var i = 0, len = usrval.length; i < len; i++) {
@@ -1063,7 +1063,7 @@ function removeOptionSelected(EncounterId)
  }
 
 // Treeview activation stuff:
-$(document).ready(function(){
+$(function(){
   if(1 == <?php echo $GLOBALS['menu_styling_vertical'] ?>){
     $("#navigation-slide > li > a.collapsed + ul").slideToggle("medium");
     $("#navigation-slide > li > ul > li > a.collapsed_lv2 + ul").slideToggle("medium");

@@ -61,7 +61,7 @@ while ($row = sqlFetchArray($res)) {
 
     var uspfx = '<?php echo attr($uspfx); ?>';
 
-    $(document).ready(function () {
+    $(function () {
 
             // Initializing the DataTable.
             //
@@ -207,7 +207,7 @@ while ($row = sqlFetchArray($res)) {
         </div>
     </div><!--end of container div-->
     <script>
-    $(document).ready(function(){
+    $(function (){
         $("#pt_table").removeAttr("style");
         $("#exp_cont_icon").click(function(){
             $("#pt_table").removeAttr("style");

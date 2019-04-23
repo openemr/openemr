@@ -48,7 +48,7 @@ $display_collapse_msg = "display:inline;";
 
 <script type="text/javascript">
     var global_date_format = '<?php echo DateFormatRead(); ?>';
-    $(document).ready(function() {
+    $(function() {
         $("#docdiv a").each(function() {
 
             let name = $(this).get(0);

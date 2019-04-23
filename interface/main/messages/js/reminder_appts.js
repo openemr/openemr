@@ -358,7 +358,7 @@ function tabYourIt(tabNAME, url) {
     parent.left_nav.loadFrame('1', tabNAME, url);
 }
 
-$(document).ready(function () {
+$(function () {
     //bootstrap menu functions
     $('.dropdown').hover(function () {
         $(".dropdown").removeClass('open');
