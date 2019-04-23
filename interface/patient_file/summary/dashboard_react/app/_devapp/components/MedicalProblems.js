@@ -82,15 +82,16 @@ class MedicalProblems extends React.Component {
         const { open } = this.state;
         return(     <Card   variant="flush">
                     <Card.Body>
-                    <Card.Title>
+                    <Card.Header>
                     <Button   onClick={() => this.setState({ open: !open })}  aria-controls="example-collapse-text" aria-expanded={open} > -  </Button> Medical issues ({this.medProbCount()})
-                    </Card.Title>
+                    </Card.Header>
+
                     <Collapse in={this.state.open}>
-                    <Card.Text id="example-collapse-text">
+                    <div id="example-collapse-text">
                     <Table>
                     <tbody>{this.medProb()}</tbody>
                     </Table>
-                    </Card.Text>
+                    </div>
                     </Collapse>
                     </Card.Body>
                     </Card>
