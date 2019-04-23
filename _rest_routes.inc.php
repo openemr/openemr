@@ -328,6 +328,7 @@ RestConfig::$ROUTE_MAP = array(
     },
     "GET /api/menus/:pid/:type" => function ($pid, $type) {
         $data = (array)(json_decode(file_get_contents("php://input")));
+        $_SESSION['pid']=$pid;
         return (new MenusRestController())->getMenu($pid, $type);
     },
 
