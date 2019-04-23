@@ -275,7 +275,7 @@ class PatientService
                    state, 
                    country_code, 
                    phone_contact,
-                   email
+                   email,
                    dob,
                    sex,
                    race,

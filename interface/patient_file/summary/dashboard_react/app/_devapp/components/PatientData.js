@@ -24,13 +24,12 @@ class PatientData extends React.Component {
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + this.state.token
                 }
             })
                 .then((res) => res.json())
                 .then(
                     (result) => {
-                        // this.setState.data = result;
+                        //this.setState.data = [result];
                         this.setState({data: [result]});
                     },
                     (error) => {
@@ -39,18 +38,33 @@ class PatientData extends React.Component {
                         //     error
                         // });
                     }
-                )
+                );
         } else {
             console.log("Patient not found");
         }
     }
 
+    componentDidUpdate() {
+        console.log("Data: " + JSON.stringify(this.state.data));
+        this.state.data.map((data, i) => {
+            //parent.left_nav.setPatient("Hgjghj Ghj",1,"1",''," DOB: 01\/11\/2018 Age: 5 month")
+            parent.left_nav.setPatient (data.fname + " " + data.lname, data.pid, data.pubpid, '', "str_dob");
+        });
+
+    }
+
     render() {
+        const divStyle = {
+                border: '1px solid gray',
+            display: 'none',
+                width: '250px !important;'
+
+        };
 
         let data = this.setState.data;
         return (
-            <div>
-                <Button>asdas</Button>
+            <div style={divStyle}>
+                <Button>Button</Button>
 
                 <Table>
                     <thead>
@@ -60,6 +74,7 @@ class PatientData extends React.Component {
                     <th>FName</th>
                     <th>LName</th>
                     <th>Title</th>
+                    <th>Dob</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -71,6 +86,7 @@ class PatientData extends React.Component {
                                 <td align="center">{data.fname}</td>
                                 <td align="center">{data.lname}</td>
                                 <td align="center">{data.title}</td>
+                                <td align="center">{data.dob}</td>
                             </tr>
                         )
                     })}
