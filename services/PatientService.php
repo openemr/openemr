@@ -283,7 +283,7 @@ class PatientService
                 FROM patient_data
                 WHERE pid = ?";
 
-        return sqlQuery($sql, $this->pid);
+        return sqlQuery($sql, array($this->pid));
     }
 
     /**
