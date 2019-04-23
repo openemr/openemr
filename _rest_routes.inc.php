@@ -29,7 +29,7 @@ use OpenEMR\RestControllers\DocumentRestController;
 use OpenEMR\RestControllers\InsuranceRestController;
 use OpenEMR\RestControllers\MessageRestController;
 use OpenEMR\RestControllers\MenusRestController;
-
+use OpenEMR\RestControllers\PatientExtendedRestController;
 
 
 
@@ -85,6 +85,10 @@ RestConfig::$ROUTE_MAP = array(
     "GET /api/patient/:pid" => function ($pid) {
         authorization_check("patients", "demo");
         return (new PatientRestController($pid))->getOne();
+    },
+    "GET /api/patient/extended/:pid" => function ($pid) {
+        authorization_check("patients", "demo");
+        return (new PatientExtendedRestController($pid))->getOne();
     },
     "GET /api/patient/:pid/encounter" => function ($pid) {
         authorization_check("encounters", "auth_a");

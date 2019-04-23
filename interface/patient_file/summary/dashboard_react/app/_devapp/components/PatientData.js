@@ -18,7 +18,7 @@ class PatientData extends React.Component {
     componentDidMount() {
         this.setState.patientId = helpers.getPatientId();
         if (this.setState.patientId >= 0) {
-            fetch("../../../../apis/api/patient/" + this.setState.patientId, {
+            fetch("../../../../apis/api/patient/extended/" + this.setState.patientId, {
                 method: "GET",
                 headers: {
                     'Accept': 'application/json',
@@ -44,10 +44,8 @@ class PatientData extends React.Component {
     }
 
     componentDidUpdate() {
-        console.log("Data: " + JSON.stringify(this.state.data));
         this.state.data.map((data, i) => {
-            //parent.left_nav.setPatient("Hgjghj Ghj",1,"1",''," DOB: 01\/11\/2018 Age: 5 month")
-            parent.left_nav.setPatient(data.fname + " " + data.lname, data.pid, data.pubpid, '', "str_dob");
+            parent.left_nav.setPatient(data.fname + " " + data.lname, data.pid, data.pubpid, '', data.str_dob);
         });
 
     }
@@ -55,7 +53,7 @@ class PatientData extends React.Component {
     render() {
         const divStyle = {
             border: '1px solid gray',
-            display: 'none',
+            display: 'block',
 
         };
 
