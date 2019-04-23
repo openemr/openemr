@@ -1,9 +1,13 @@
 import React from "react";
-import Card from 'react-bootstrap/Container'
+
+import Table from 'react-bootstrap/Table';
+import Button from 'react-bootstrap/Button';
+import Card from 'react-bootstrap/Card';
+import Collapse from 'react-bootstrap/Collapse';
 import Alert from "react-bootstrap/Alert";
 import helpers from '../utils/helpers.js';
 
-import Collapse from 'react-bootstrap/Collapse';
+
 
 
 
@@ -65,17 +69,33 @@ class MedicalProblems extends React.Component {
 
     medProb = () => {
         return this.state.data.map((mp,i) => {
-            return <li>{mp.title}</li>
+            return <tr key={i}><td>{mp.title}</td><td>{mp.diagnosis}</td></tr>
         })
     }
 
-    render() {
 
-        return(
-            <ul>
-                {this.medProb()}
-            </ul>
-        )
+    medProbCount= ()=>{
+     return this.state.data.length;
+    }
+
+    render() {
+        const { open } = this.state;
+        return(     <Card   variant="flush">
+                    <Card.Body>
+                    <Card.Title>
+                    <Button   onClick={() => this.setState({ open: !open })}  aria-controls="example-collapse-text" aria-expanded={open} > -  </Button> Medical issues ({this.medProbCount()})
+                    </Card.Title>
+                    <Collapse in={this.state.open}>
+                    <Card.Text id="example-collapse-text">
+                    <Table>
+                    <tbody>{this.medProb()}</tbody>
+                    </Table>
+                    </Card.Text>
+                    </Collapse>
+                    </Card.Body>
+                    </Card>
+            )
+
     }
 
 
