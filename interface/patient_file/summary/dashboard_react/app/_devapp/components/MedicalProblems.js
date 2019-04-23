@@ -4,9 +4,6 @@ import Alert from "react-bootstrap/Alert";
 import helpers from '../utils/helpers.js';
 
 import Collapse from 'react-bootstrap/Collapse';
-import Button from 'react-bootstrap/Button';
-import Table from "react-bootstrap/Table";
-import $ from "jquery";
 
 
 
@@ -32,8 +29,8 @@ class MedicalProblems extends React.Component {
                 .then((res) => res.json())
                 .then(
                     (result) => {
-                         this.setState.data = result;
-                        //this.setState({data: [result]});
+                        this.setState({data: result});
+
                         if(result==null)
                         {
                             return{
@@ -45,7 +42,6 @@ class MedicalProblems extends React.Component {
                                     }
                                 }
                         }
-                        console.log(result);
 
                     },
                     (error) => {
@@ -58,7 +54,7 @@ class MedicalProblems extends React.Component {
                     }
                 )
         } else {
-            console.log("Patient not found");
+            console.log("Medical Problem not found");
         }
     }
 
@@ -67,12 +63,19 @@ class MedicalProblems extends React.Component {
         this.getMedicalProblems();
     }
 
+    medProb = () => {
+        return this.state.data.map(mp => {
+            return <li>{mp.begdate}</li>
+        })
+    }
+
     render() {
-                                    return (
-                                    <div>
-                                    dsfsd
-                                    </div>
-                                    );
+
+        return(
+            <ul>
+                {this.medProb()}
+            </ul>
+        )
     }
 
 
