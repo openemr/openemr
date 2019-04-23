@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import helpers from '../utils/helpers.js';
-import {Button, Table, Card, Collapse, Tab, Row, Col, Nav} from 'react-bootstrap';
+import {Button, Table, Card, Collapse, Tab, Row, Col, Nav, Container} from 'react-bootstrap';
 
 class PatientData extends React.Component {
     constructor(props) {
@@ -42,6 +42,7 @@ class PatientData extends React.Component {
     }
 
     componentDidUpdate() {
+        console.log("Query:" + JSON.stringify(this.state.data));
         this.state.data.map((data, i) => {
             parent.left_nav.setPatient(data.fname + " " + data.lname, data.pid, data.pubpid, '', data.str_dob);
         });
@@ -86,32 +87,42 @@ class PatientData extends React.Component {
                                             <Col sm={9}>
                                                 <Tab.Content>
                                                     <Tab.Pane eventKey="tab-1">
-                                                        <Table>
-                                                            <thead>
-                                                            <tr>
-                                                                <th>ID</th>
-                                                                <th>PID</th>
-                                                                <th>FName</th>
-                                                                <th>LName</th>
-                                                                <th>Title</th>
-                                                                <th>Dob</th>
-                                                            </tr>
-                                                            </thead>
-                                                            <tbody>
                                                             {this.state.data.map((data, i) => {
                                                                 return (
-                                                                    <tr key={i}>
-                                                                        <td align="center">{data.id}</td>
-                                                                        <td align="center">{data.pid}</td>
-                                                                        <td align="center">{data.fname}</td>
-                                                                        <td align="center">{data.lname}</td>
-                                                                        <td align="center">{data.title}</td>
-                                                                        <td align="center">{data.dob}</td>
-                                                                    </tr>
+                                                                    <div key={i}>
+                                                                        <Container>
+                                                                            <Row>
+                                                                                <Col>First Name:</Col>
+                                                                                <Col>{data.fname}</Col>
+                                                                            </Row>
+                                                                            <Row>
+                                                                                <Col>Last Name:</Col>
+                                                                                <Col>{data.lname}</Col>
+                                                                            </Row>
+                                                                            <Row>
+                                                                                <Col>English full name:</Col>
+                                                                                <Col>{data.title}</Col>
+                                                                            </Row>
+                                                                            <Row>
+                                                                                <Col>Dob:</Col>
+                                                                                <Col>{data.DOB}</Col>
+                                                                            </Row>
+                                                                            <Row>
+                                                                                <Col>S.S.:</Col>
+                                                                                <Col>{data.ss}</Col>
+                                                                            </Row>
+                                                                            <Row>
+                                                                                <Col>Sex:</Col>
+                                                                                <Col>{data.sex}</Col>
+                                                                            </Row>
+                                                                            <Row>
+                                                                                <Col>Birth country:</Col>
+                                                                                <Col>{data.county}</Col>
+                                                                            </Row>
+                                                                        </Container>
+                                                                    </div>
                                                                 )
                                                             })}
-                                                            </tbody>
-                                                        </Table>
                                                     </Tab.Pane>
                                                     <Tab.Pane eventKey="tab-2">
                                                         qweqweqwe
