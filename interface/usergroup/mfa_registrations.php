@@ -12,27 +12,36 @@
  */
 
 
-require_once('../globals.php');
+require_once("../globals.php");
+require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 function writeRow($method, $name, $allowEdit = false)
 {
     echo "        <tr><td>&nbsp;";
-    echo text($method);
+    if ($name =='') {
+        echo '<i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i>'. ' ' . text($method);
+    } else {
+        echo text($method);
+    }
     echo "&nbsp;</td><td>&nbsp;";
     echo text($name);
     echo "&nbsp;</td><td>";
     if ($allowEdit) {
-        echo "<button type='button' class='btn btn-default btn-search' onclick='editclick(" . attr_js($method) . ")'>" . xlt('View') . "</button>";
+        echo "<button type='button' class='btn btn-default btn-search' onclick='editclick(" . attr_js($method) . ")'>" . xlt('View') . "</button> &nbsp";
     }
-    echo "<button type='button' class='btn btn-default btn-delete' onclick='delclick(" . attr_js($method) . ", " .
+    if ($name) {
+        echo "<button type='button' class='btn btn-default btn-delete' onclick='delclick(" . attr_js($method) . ", " .
         attr_js($name) . ")'>" . xlt('Delete') . "</button>";
+    }
     echo "</td></tr>\n";
 }
 
 $userid = $_SESSION['authId'];
-
+$user_name = getUserIDInfo($userid);
+$user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 $message = '';
 if (!empty($_POST['form_delete_method'])) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -46,9 +55,11 @@ if (!empty($_POST['form_delete_method'])) {
     $message = xl('Delete successful.');
 }
 ?>
+<!DOCTYPE html>
 <html>
 <head>
-<?php Header::setupHeader(); ?>
+    <?php Header::setupHeader(); ?>
+
 <title><?php echo xlt('Manage Multi Factor Authentication'); ?></title>
 <script>
 
@@ -86,66 +97,96 @@ function addclick(sel) {
 }
 
 </script>
+<?php
+$arrOeUiSettings = array(
+    'heading_title' => xl('Manage Multi Factor Authentication'),
+    'include_patient_name' => false,
+    'expandable' => false,
+    'expandable_files' => array(),//all file names need suffix _xpd
+    'action' => "",//conceal, reveal, search, reset, link or back
+    'action_title' => "",
+    'action_href' => "",//only for actions - reset, link or back
+    'show_help_icon' => true,
+    'help_file_name' => "mfa_help.php"
+);
+$oemr_ui = new OemrUI($arrOeUiSettings);
+?>
 </head>
 <body class="body_top">
-<form method='post' action='mfa_registrations.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
-
-<div class="container">
-  <div class="row">
-    <div class="col-xs-12">
-      <div class="page-header">
-        <h3><?php echo xlt('Manage Multi Factor Authentication'); ?></h3>
-      </div>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-xs-12">
-      <div id="display_msg"><?php echo text($message); ?></div>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-xs-12">
-      <table>
-        <tr>
-          <th align='left'>&nbsp;<?php echo xlt('Method'); ?>&nbsp;</th>
-          <th align='left'>&nbsp;<?php echo xlt('Key Name'); ?>&nbsp;</th>
-          <th align='left'>&nbsp;<?php echo xlt('Action'); ?>&nbsp;</th>
-        </tr>
-<?php
-$res = sqlStatement("SELECT name, method FROM login_mfa_registrations WHERE " .
-    "user_id = ? ORDER BY method, name", array($userid));
-$disableNewTotp = false;
-while ($row = sqlFetchArray($res)) {
-    if ($row['method'] == "TOTP") {
-        $disableNewTotp = true;
-        writeRow($row['method'], $row['name'], true);
-    } else {
-        writeRow($row['method'], $row['name']);
-    }
-}
-?>
-      </table>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-xs-12">
-      &nbsp;<br />
-      <select name='form_add' onchange='addclick(this)'>
-        <option value=''><?php echo xlt('Add New...'); ?></option>
-        <option value='U2F'><?php echo xlt('U2F USB Device'); ?></option>
-        <option value='TOTP'
-            <?php echo ($disableNewTotp) ? 'title="' . xla('Only one TOTP Key can be set up per user') . '"' : ''; ?>
-            <?php echo ($disableNewTotp) ? 'disabled' : ''; ?>>
-            <?php echo xlt('TOTP Key'); ?>
-        </option>
-      </select>
-      <input type='hidden' name='form_delete_method' value='' />
-      <input type='hidden' name='form_delete_name' value='' />
-    </div>
-  </div>
-</div>
-
-</form>
+    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-header">
+                    <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+            <?php
+            if ($message) {?>
+              <div id="display_msg" class="alert alert-danger" style="font-size:100%; font-weight:700"><?php echo text($message); ?></div>
+            <?php
+            }
+            ?>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <form method='post' action='mfa_registrations.php' onsubmit='return top.restoreSession()'>
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+                    <div>
+                        <fieldset>
+                            <legend><?php echo xlt('Current Authentication Method for') . " " . $user_full_name; ?></legend>
+                            <table class='table'>
+                                <tr>
+                                  <th align='left'>&nbsp;<?php echo xlt('Method'); ?>&nbsp;</th>
+                                  <th align='left'>&nbsp;<?php echo xlt('Key Name'); ?>&nbsp;</th>
+                                  <th align='left'>&nbsp;<?php echo xlt('Action'); ?>&nbsp;</th>
+                                </tr>
+                                <?php
+                                $res = sqlStatement("SELECT name, method FROM login_mfa_registrations WHERE " .
+                                "user_id = ? ORDER BY method, name", array($userid));
+                                $disableNewTotp = false;
+                                if (sqlNumRows($res)) {
+                                    while ($row = sqlFetchArray($res)) {
+                                        if ($row['method'] == "TOTP") {
+                                            $disableNewTotp = true;
+                                            writeRow($row['method'], $row['name'], true);
+                                        } else {
+                                            writeRow($row['method'], $row['name']);
+                                        }
+                                    }
+                                } else {
+                                    writeRow(xl("No method enabled"), '');
+                                }
+                                ?>
+                            </table>
+                        </fieldset>
+                    </div>
+                    <div>
+                        <fieldset>
+                            <legend><?php echo xlt('Select/Add New Authentication Method for') . " " . $user_full_name; ?></legend>
+                            <div class='col-sm-4 col-sm-offset-4'>
+                                <select name='form_add' onchange='addclick(this)'class='col-sm-12'>
+                                    <option value=''><?php echo xlt('Add New...'); ?></option>
+                                    <option value='U2F'><?php echo xlt('U2F USB Device'); ?></option>
+                                    <option value='TOTP'
+                                        <?php echo ($disableNewTotp) ? 'title="' . xla('Only one TOTP Key can be set up per user') . '"' : ''; ?>
+                                        <?php echo ($disableNewTotp) ? 'disabled' : ''; ?>>
+                                        <?php echo xlt('TOTP Key'); ?>
+                                    </option>
+                                </select>
+                            </div>
+                            <input type='hidden' name='form_delete_method' value='' />
+                            <input type='hidden' name='form_delete_name' value='' />
+                        </fieldset>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+    </div><!--end of container div -->
+    <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>
 </html>
