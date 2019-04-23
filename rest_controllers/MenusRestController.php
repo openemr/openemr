@@ -23,7 +23,7 @@ class MenusRestController
         $this->menusService = new MenusService();
     }
 
-    public function getMenu($pid, $type,$data)
+    public function getMenu($pid, $type)
     {
 
         switch ($type) {

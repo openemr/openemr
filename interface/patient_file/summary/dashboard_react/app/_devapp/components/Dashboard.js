@@ -78,7 +78,7 @@ class Dashboard extends React.Component {
     getPatientFileMenu() {
        var url="../../../../apis/api/menus/1/patient_file";
             fetch(url, {
-                method: "POST",
+                method: "GET",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
