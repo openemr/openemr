@@ -303,6 +303,10 @@ if (file_exists($OE_SITE_DIR)) {
         background-color:  WHITESMOKE;
         padding:0 10px;
     }
+    .oe-margin-b-5 {
+        margin-bottom: 5px;
+        
+    }
     button {
     font-weight:bold;
     }
@@ -897,46 +901,52 @@ SOURCESITEBOT;
                                         <p>This should be the name of your practice.
                                     </div>
                                 </div>
-                                <div class="col-sm-4">
+                            </div>
+                        </div>
+                    </fieldset>
+					<br>
+                    <fieldset class='noclone bg-danger oe-margin-b-5'>
+                        <legend name="form_legend" id="form_legend" class='oe-setup-legend text-danger'>Enable 2 Factor Authentication for Initial User (more secure - optional) <i id="2fa-section" class="fa fa-info-circle oe-text-black oe-superscript 2fa-section-tooltip" aria-hidden="true"></i></legend>
+                       
+                        <div class="row">
+                            <div class="col-xs-12 ">
+                                <div class="col-sm-3">
                                     <div class="clearfix form-group">
                                         <div class="label-div">
                                             <label class="control-label" for="i2fa">Configure 2FA:</label> <a href="#i2fa_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div>
-                                            <table>
-                                                <tr>
-                                                    <td><p><input name='i2faenable' id='i2faenable' type='checkbox' $disableCheckbox/> Enable 2FA</p></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
-                                                        <strong><font color='RED'>IMPORTANT IF ENABLED</font></strong>
-                                                        <p><strong>If enabled, you must have an authenticator app on your phone ready to scan the QR code displayed next.</strong></p>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
-                                                        Example authenticator apps include:
-                                                        <ul>
-                                                            <li>Google Auth
-                                                                (<a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8">ios</a>, <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en">android</a>)</li>
-                                                            <li>Authy
-                                                                (<a href="https://itunes.apple.com/us/app/authy/id494168017?mt=8">ios</a>, <a href="https://play.google.com/store/apps/details?id=com.authy.authy&hl=en">android</a>)</li>
-                                                        </ul>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                            <input type='hidden' name='i2fasecret' id='i2fasecret' value='$randomsecret' />
+                                        <input name='i2faenable' id='i2faenable' type='checkbox' $disableCheckbox/> Enable 2FA
+                                        <input type='hidden' name='i2fasecret' id='i2fasecret' value='$randomsecret' />
                                         </div>
                                     </div>
                                     <div id="i2fa_info" class="collapse">
                                         <a href="#i2fa_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
-                                        <p>This is 2-Factored Authentication that will make your version of OpenEMR more secure.</p>
+                                        <p>If selected will allow TOTP 2 factor authentication for the initial user.</p>
+										<p>Click on the help file for more information.</p>
                                     </div>
-                                </div>                                
-							</div>
+                                </div>
+                                <div class="col-sm-5">
+                                    <div class="clearfix form-group">
+                                        <p class="text-danger"><b>IMPORTANT IF ENABLED</b></p>
+                                        <p>If enabled, you must have an authenticator app on your phone ready to scan the QR code displayed next.</p>
+									</div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="clearfix form-group">
+                                        <p>Example authenticator apps include:</p>
+                                        <ul>
+                                            <li>Google Auth
+                                                (<a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8" target="_blank">ios</a>, <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&amp;hl=en">android</a>)</li>
+                                            <li>Authy
+                                                (<a href="https://itunes.apple.com/us/app/authy/id494168017?mt=8">ios</a>, <a href="https://play.google.com/store/apps/details?id=com.authy.authy&amp;hl=en">android</a>)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </fieldset>
-                            <p class='bg-warning'>Click the <b>Create DB and User</b> button to create the database and first user. $note: This process will take a few minutes.</p>
+                            <p class='bg-warning'>Click the <b>Create DB and User</b> button below to create the database and first user <a href='#create_db_button' title='Click me'><i class="fa fa-arrow-circle-down" aria-hidden="true"></i></a>. $note: This process will take a few minutes.</p>
                             <!--<p class='bg-success'>Upon successful completion will automatically take you to the next step.</p>-->
                              <p class='bg-success oe-spinner' style = 'visibility:hidden;'>Upon successful completion will automatically take you to the next step.<i class='fa fa-spinner fa-pulse fa-fw'></i></p>
                             <button type='submit' id='create_db_button' value='Continue' class='wait'><b>Create DB and User</b></button>
@@ -1582,6 +1592,8 @@ BOT;
                 }
             });
             $('.enter-details-tooltip').prop( "title", "Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section").tooltip();
+            $('.2fa-section-tooltip').prop( "title", "Two factor authentication prevents unauthorized access to openEMR thus improves security. It is optional. More information is available in the help file under Step 2 Database and OpenEMR Initial User Setup Details.").tooltip();
+
 
         });
     </script>
