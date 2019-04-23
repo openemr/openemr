@@ -2,6 +2,7 @@ import React from "react";
 import PatientData from "./PatientData";
 import ReactDOM from 'react-dom';
 import helpers from '../utils/helpers.js';
+import MedicalProblems from "./MedicalProblems";
 
 class Dashboard extends React.Component {
     constructor(props) {
@@ -22,8 +23,8 @@ class Dashboard extends React.Component {
             },
             body: JSON.stringify({
                 grant_type: 'password',
-                username: 'admin',
-                password: 'pass',
+                username: 'adminadminadmin',
+                password: 'admin123456789',
                 scope: 'default'
             })
         })
@@ -71,15 +72,12 @@ class Dashboard extends React.Component {
                         console.log("fail");
                     }
                 )
-       // }else{
-       //     console.log("no token");
-        //}
     }
 
 
     getPatientFileMenu() {
-       // if (this.setState.token) {
-            fetch("../../../../apis/api/menus", {
+       var url="../../../../apis/api/menus/1/patient_file";
+            fetch(url, {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json',
@@ -91,11 +89,8 @@ class Dashboard extends React.Component {
                 .then(
                     (result) => {
                         this.setState({gadgets: result});
-                        console.log("Dashboard Items:" + JSON.stringify(result));
-
-
+                        console.log("Dashboard Items will be rendered");
                         var menu = this.drawPatientFileMenu(result);
-
                         var node = document.getElementById("app"),
                             ele = document.createElement("div");
                         ele.id = "menu_container";
@@ -110,23 +105,22 @@ class Dashboard extends React.Component {
                         console.log("fail");
                     }
                 )
-        //}else{
-        //    console.log("no token");
-        //}
     }
+
 
 
     drawPatientFileMenu(menu_json) {
 
         console.log("drawing menu");
 
-        function onclick1() {
+        function topRestoreSession() {
             top.restoreSession();
+            console.log("restoreSession");
         }
-        
-        var main_titles=[];
 
+        var main_titles=[];
         var parsed_menu=JSON.parse(menu_json);
+
         for (var property in parsed_menu) {
             main_titles.push(parsed_menu[property]);
         }
@@ -135,7 +129,7 @@ class Dashboard extends React.Component {
             .filter(function(main_titles) { return main_titles.href; })
             .map(function(main_titles) {
                 return React.createElement('li', {key: main_titles.id,'className': 'oe-bold-black', 'id': main_titles.id},
-                    React.createElement('a', {href: main_titles.href}, main_titles.label)
+                    React.createElement('a', {'onClick': topRestoreSession, 'href': main_titles.href}, main_titles.label)
                 )
             });
 
@@ -158,27 +152,22 @@ class Dashboard extends React.Component {
                                 'id': 'myNavbar'
                             },
                             React.createElement('ul', {'className': 'nav navbar-nav' },listElements)
-
-
                         )))));
-
-
-
-
     };
 
 
     componentDidMount() {
         //this.authorizeFirst();
-        this.getDashboardList();
         this.getPatientFileMenu();
     }
 
     render() {
         return (
             <div>
-            {JSON.stringify(this.setState.gadgets)}
+            {
+                JSON.stringify(this.setState.gadgets)}
             <PatientData />
+            <MedicalProblems />
             </div>
         );
     }

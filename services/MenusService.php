@@ -26,12 +26,11 @@ class MenusService
     }
 
 
-    public function getMenu($data)
+    public function getMenu($pid)
     {
 
         $menuPatient = new PatientMenuRole();
         $menu_restrictions=$menuPatient->getMenu();
-        $pid = $_SESSION['pid'];
         $cat_id = 1;
         $option_id=1;
 
