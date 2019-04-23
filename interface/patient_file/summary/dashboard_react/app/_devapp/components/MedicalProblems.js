@@ -3,8 +3,8 @@ import Container from 'react-bootstrap/Container'
 import Alert from "react-bootstrap/Alert";
 import helpers from '../utils/helpers.js';
 
-import Collapse from 'react-bootstrap/Collapse'
-import Button from 'react-bootstrap/Button'
+import Collapse from 'react-bootstrap/Collapse';
+import Button from 'react-bootstrap/Button';
 import Table from "react-bootstrap/Table";
 import $ from "jquery";
 
@@ -27,7 +27,6 @@ class MedicalProblems extends React.Component {
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + this.state.token
                 }
             })
                 .then((res) => res.json())
@@ -39,11 +38,11 @@ class MedicalProblems extends React.Component {
                         {
                             return{
                                 render() {
-                                <
-                                    Alert > No
+
+                                   < Alert > No
                                     Data
-                                    Found < /Alert>
-                                }
+                                    Found </Alert>
+                                    }
                                 }
                         }
                         console.log(result);
@@ -69,7 +68,11 @@ class MedicalProblems extends React.Component {
     }
 
     render() {
-
+                                    return (
+                                    <div>
+                                    dsfsd
+                                    </div>
+                                    );
     }
 
 
