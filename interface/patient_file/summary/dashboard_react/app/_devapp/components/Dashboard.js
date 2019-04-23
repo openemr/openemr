@@ -75,7 +75,7 @@ class Dashboard extends React.Component {
     }
 
 
-    getPatientFileMenu() {
+    getPatientFileMenu() {gi
        var url="../../../../apis/api/menus/1/patient_file";
             fetch(url, {
                 method: "GET",
@@ -163,12 +163,23 @@ class Dashboard extends React.Component {
 
     render() {
         return (
-            <div>
-            {
-                JSON.stringify(this.setState.gadgets)}
-            <PatientData />
-            <MedicalProblems />
+            <div className="container-fluid">
+                <div className="row">
+                    <div className="col-md-12">
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-md-8">
+                        <PatientData />
+
+                    </div>
+                    <div className="col-md-4">
+                        <MedicalProblems />
+
+                    </div>
+                </div>
             </div>
+
         );
     }
 

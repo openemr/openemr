@@ -1,5 +1,5 @@
 import React from "react";
-import Container from 'react-bootstrap/Container'
+import Card from 'react-bootstrap/Container'
 import Alert from "react-bootstrap/Alert";
 import helpers from '../utils/helpers.js';
 
@@ -64,8 +64,8 @@ class MedicalProblems extends React.Component {
     }
 
     medProb = () => {
-        return this.state.data.map(mp => {
-            return <li>{mp.begdate}</li>
+        return this.state.data.map((mp,i) => {
+            return <li>{mp.title}</li>
         })
     }
 
