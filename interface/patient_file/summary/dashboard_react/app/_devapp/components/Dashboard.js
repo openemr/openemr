@@ -47,6 +47,33 @@ class Dashboard extends React.Component {
     }
 
 
+    setGlobalPatientId() {
+        this.setState.patientId = helpers.getPatientId();
+        fetch("../../../../apis/api/patient/extended/" + this.setState.patientId, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+
+            })
+        })
+            .then((res) => res.json())
+            .then(
+                (result) => {
+
+                },
+                (error) => {
+                    this.setState({
+                        isLoaded: true,
+                        error
+                    });
+                }
+            )
+    }
+
+
     //list/dashboard
     getDashboardList() {
         //if (this.setState.token) {
@@ -158,6 +185,7 @@ class Dashboard extends React.Component {
 
     componentDidMount() {
         //this.authorizeFirst();
+        this.setGlobalPatientId();
         this.getPatientFileMenu();
     }
 

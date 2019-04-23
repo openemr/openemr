@@ -53,7 +53,7 @@ class PatientData extends React.Component {
     render() {
         const divStyle = {
             border: '1px solid gray',
-            display: 'block',
+            display: 'none',
 
         };
 

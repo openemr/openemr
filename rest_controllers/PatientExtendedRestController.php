@@ -14,6 +14,8 @@ namespace OpenEMR\RestControllers;
 use OpenEMR\Services\PatientService;
 use OpenEMR\RestControllers\RestControllerHelper;
 
+include_once ("../../openemr/library/patient.inc");
+
 class PatientExtendedRestController
 {
     private $patientService;
@@ -48,10 +50,27 @@ class PatientExtendedRestController
         return RestControllerHelper::responseHandler($serviceResult, array("pid" => $pid), 200);
     }
 
+    public function setGlobalPatientId($pid)
+    {
+        // Escape $new_pid by forcing it to an integer to protect from sql injection
+        $new_pid_int = intval($this->patientService->getPid());
+        // Be careful not to clear the encounter unless the pid is really changing.
+        if (!isset($_SESSION['pid']) || $pid != $new_pid_int || $pid != $_SESSION['pid']) {
+            $_SESSION['encounter'] = $encounter = 0;
+        }
+        // unset therapy_group session when set session for patient
+        if ($_SESSION['pid'] != 0 && isset($_SESSION['therapy_group'])) {
+            unset($_SESSION['therapy_group']);
+        }
+
+        // Set pid to the escaped pid
+        $_SESSION['pid'] = $new_pid_int;
+
+    }
+
     public function getOne()
     {
-//        $serviceResult = $this->patientService->getOne();
-        $serviceResult  = getPatientData($this->patientService->getPid(), "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
+        $serviceResult = getPatientData($this->patientService->getPid(),"*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
         $date_of_death = is_patient_deceased($this->patientService->getPid())['date_deceased'];
         $serviceResult['str_dob'] = '';
         if (empty($date_of_death)) {

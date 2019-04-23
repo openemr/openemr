@@ -90,6 +90,12 @@ RestConfig::$ROUTE_MAP = array(
         authorization_check("patients", "demo");
         return (new PatientExtendedRestController($pid))->getOne();
     },
+
+    "POST /api/patient/extended/:pid" => function ($pid) {
+        authorization_check("patients", "demo");
+        return (new PatientExtendedRestController($pid))->setGlobalPatientId($pid);
+    },
+
     "GET /api/patient/:pid/encounter" => function ($pid) {
         authorization_check("encounters", "auth_a");
         return (new EncounterRestController())->getAll($pid);
@@ -331,8 +337,6 @@ RestConfig::$ROUTE_MAP = array(
         return (new MessageRestController())->delete($pid, $mid);
     },
     "GET /api/menus/:pid/:type" => function ($pid, $type) {
-        $data = (array)(json_decode(file_get_contents("php://input")));
-        $_SESSION['pid']=$pid;
         return (new MenusRestController())->getMenu($pid, $type);
     },
 
