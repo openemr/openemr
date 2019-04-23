@@ -256,7 +256,7 @@ if (isset($_SESSION['app1'])) {
     $("#dialogDiv").hide();
     ko.applyBindings(app_view_model);
 
-    $(function() {
+    $(function () {
         $('.dropdown-toggle').dropdown();
         goRepeaterServices();
         $('#patient_caret').click(function() {

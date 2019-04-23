@@ -908,12 +908,12 @@ if (!empty($_REQUEST['go'])) { ?>
             })
 
         });
-        $(function(){
+        $(function (){
             $( "ul.navbar-nav" ).children().click(function(){
                 $(".collapse").collapse('hide');
             });
         });
-        $(function(){
+        $(function (){
             //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
             // the relevant css file needs to be called i.e. jquery-ui-darkness
             $('#see-all-tooltip').attr( "title", "<?php echo xla('Click to show messages for all users'); ?>" );

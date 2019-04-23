@@ -1063,7 +1063,7 @@ function removeOptionSelected(EncounterId)
  }
 
 // Treeview activation stuff:
-$(function(){
+$(function (){
   if(1 == <?php echo $GLOBALS['menu_styling_vertical'] ?>){
     $("#navigation-slide > li > a.collapsed + ul").slideToggle("medium");
     $("#navigation-slide > li > ul > li > a.collapsed_lv2 + ul").slideToggle("medium");
