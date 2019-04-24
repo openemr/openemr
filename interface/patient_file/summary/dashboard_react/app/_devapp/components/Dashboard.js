@@ -91,7 +91,14 @@ class Dashboard extends React.Component {
                 </div>
                 <div className="row">
                     <div className="col-md-8">
-                        <PatientData />
+                        <Card>
+                            <Card.Header>
+                                Practical information
+                            </Card.Header>
+                            <Card.Body>
+                                <PatientData />
+                            </Card.Body>
+                        </Card>
 
                     </div>
                     <div className="col-md-4">

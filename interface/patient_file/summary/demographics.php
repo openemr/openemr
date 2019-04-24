@@ -17,10 +17,11 @@
  */
 //REMOVE ME, THIS IS TEST PAGE
 //require_once("dashboard_react/index.php");
-header('Location: dashboard_react/?set_pid='.$_GET["set_pid"]);
-die();
 
 require_once("../../globals.php");
+$pid_id = (isset($_GET["set_pid"]) ? $_GET["set_pid"]  : $_SESSION["pid"]);
+header('Location: dashboard_react/?set_pid='.$pid_id);
+die();
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
