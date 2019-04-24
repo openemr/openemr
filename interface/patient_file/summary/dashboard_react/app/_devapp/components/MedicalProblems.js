@@ -20,7 +20,8 @@ class MedicalProblems extends React.Component {
             patientId: props.patientId,
             data: [],
             element:props.element,
-            element_title:props.element_title
+            element_title:props.element_title,
+            renderElement:false
         }
     }
 
@@ -55,8 +56,10 @@ class MedicalProblems extends React.Component {
 
                         if(result==null)
                         {
-
                            console.log("NO DATA WAS FETCHED");
+                        }
+                        else {
+                            this.setState({renderElement: true})
                         }
 
                     },
@@ -84,7 +87,7 @@ class MedicalProblems extends React.Component {
             return this.state.data.map((mp, i) => {
                 return <tr key={i}>
                     <td>{mp.title}</td>
-                    <td>{mp.status}</td>
+                    {this.state.element=="Allergies"? <td>{mp.reaction}</td> :<td></td>}
                 </tr>
             })
         } else {
@@ -102,14 +105,18 @@ class MedicalProblems extends React.Component {
 
     render() {
         const { open } = this.state;
+        const { renderElement } = this.state;
+        return(
+                    renderElement &&
+                    <Card   variant="flush">
 
-        return(     <Card   variant="flush">
-                    <Card.Body>
                     <Card.Header>
                     <Button   onClick={() => {this.setState({ open: !open }  ); }}  aria-controls="example-collapse-text" aria-expanded={open} >
                         {!open ?  <FontAwesomeIcon icon='plus'/> :  <FontAwesomeIcon icon='minus'/>    }
-                    </Button> {this.state.element} ({this.medProbCount()})
+
+                    </Button> {this.state.element_title} {(this.medProbCount())}
                     </Card.Header>
+                        <Card.Body>
                     <Collapse in={this.state.open}>
                     <div id="example-collapse-text">
                     <Table>
