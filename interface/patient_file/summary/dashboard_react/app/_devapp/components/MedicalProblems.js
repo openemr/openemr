@@ -19,7 +19,8 @@ class MedicalProblems extends React.Component {
         this.state = {
             patientId: props.patientId,
             data: [],
-            element:props.element
+            element:props.element,
+            element_title:props.element_title
         }
     }
 
@@ -56,7 +57,9 @@ class MedicalProblems extends React.Component {
                         {
 
                            console.log("NO DATA WAS FETCHED");
+                          this.setState({render:false})
                         }
+                        this.setState({render:true})
 
                     },
                     (error) => {
@@ -80,7 +83,7 @@ class MedicalProblems extends React.Component {
 
     medProb = () => {
         return this.state.data.map((mp,i) => {
-            return <tr key={i}><td>{mp.title}</td><td>{mp.status}</td></tr>
+            return <tr key={i}><td>{mp.title}</td><td>{mp.diagnosis}</td></tr>
         })
     }
 
@@ -90,24 +93,27 @@ class MedicalProblems extends React.Component {
     }
 
     render() {
+
         const { open } = this.state;
 
-        return(     <Card   variant="flush">
-                    <Card.Body>
+        return(
+                    <Card   variant="flush">
                     <Card.Header>
                     <Button   onClick={() => {this.setState({ open: !open }  ); }}  aria-controls="example-collapse-text" aria-expanded={open} >
                         {!open ?  <FontAwesomeIcon icon='plus'/> :  <FontAwesomeIcon icon='minus'/>    }
-                    </Button> {this.state.element} ({this.medProbCount()})
+                    </Button> {this.state.element_title} ({this.medProbCount()})
                     </Card.Header>
+                        (!this.state.render?<Card.Body></Card.Body></Card>:
+                    <Card.Body>
                     <Collapse in={this.state.open}>
                     <div id="example-collapse-text">
-                    <Table>
+                    <Table stripped>
                     <tbody>{this.medProb()}</tbody>
                     </Table>
                     </div>
                     </Collapse>
                     </Card.Body>
-                    </Card>
+                    </Card>)
             )
 
     }

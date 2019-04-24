@@ -8,6 +8,9 @@ import helpers from '../utils/helpers.js';
 import MedicalProblems from "./MedicalProblems";
 import PatientData from "./PatientData";
 import MenuDashboard from "./MenuDashboard";
+import Card from "react-bootstrap/Card";
+import Button from "react-bootstrap/Button";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 
 class Dashboard extends React.Component {
@@ -92,11 +95,19 @@ class Dashboard extends React.Component {
 
                     </div>
                     <div className="col-md-4">
-                        <MedicalProblems element={"MedicalProblems"}/>
-                        <MedicalProblems element={"Allergies"}/>
-                        <MedicalProblems element={"Medications"}/>
+                        <Card>
 
-                    </div>
+                        <Card.Header>
+                            Medical Highlights
+                        </Card.Header>
+                        <Card.Body>
+                            <MedicalProblems element="MedicalProblems" element_title="Medical Problems"/>
+                            <MedicalProblems element="Allergies"  element_title="Allergies"/>
+                            <MedicalProblems element="Medications"  element_title="Medications"/>
+                        </Card.Body>
+                        </Card>
+
+                        </div>
                 </div>
             </div>
 
