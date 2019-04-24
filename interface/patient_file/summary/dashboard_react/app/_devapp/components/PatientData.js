@@ -1,6 +1,10 @@
 import React, {Component} from "react";
 import helpers from '../utils/helpers.js';
 import {Button, Table, Card, Collapse, Tab, Row, Col, Nav, Container} from 'react-bootstrap';
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus,faMinus } from '@fortawesome/free-solid-svg-icons'
+library.add( faPlus,faMinus )
 
 class PatientData extends React.Component {
     constructor(props) {
@@ -62,7 +66,7 @@ class PatientData extends React.Component {
                         onClick={() => this.setState({open: !open})}
                         aria-controls="example-collapse-text"
                         aria-expanded={open}
-                    > - </Button> Patient Data
+                    > {!open ?  <FontAwesomeIcon icon='plus'/> :  <FontAwesomeIcon icon='minus'/>    } </Button> Patient Data
                     <Collapse in={this.state.open}>
                         <Card>
                             <Card.Body>
