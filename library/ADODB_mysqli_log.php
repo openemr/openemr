@@ -23,23 +23,34 @@ class ADODB_mysqli_log extends ADODB_mysqli
      */
     function Execute($sql, $inputarr = false)
     {
-        $retval= parent::Execute($sql, $inputarr);
+        $is_insert = false;
+        if (stripos($sql, 'INSERT INTO') !== false ||
+            stripos($sql, 'INSERT IGNORE') !== false ||
+            stripos($sql, 'REPLACE INTO') !== false
+        ) {
+            $is_insert = true;
+        }
+
+        $retval = parent::Execute($sql, $inputarr);
         if ($retval === false) {
             $outcome = false;
             // Stash the error into last_mysql_error so it doesn't get clobbered when
             // we insert into the audit log.
-            $GLOBALS['last_mysql_error']=$this->ErrorMsg();
+            $GLOBALS['last_mysql_error'] = $this->ErrorMsg();
 
             // Last error no
-            $GLOBALS['last_mysql_error_no']=$this->ErrorNo();
+            $GLOBALS['last_mysql_error_no'] = $this->ErrorNo();
         } else {
             $outcome = true;
         }
 
         // Stash the insert ID into lastidado so it doesn't get clobbered when
         // we insert into the audit log.
-        $GLOBALS['lastidado']=$this->Insert_ID();
+        if ($is_insert === true) {
+            $GLOBALS['lastidado'] = $this->Insert_ID();
+        }
         EventAuditLogger::instance()->auditSQLEvent($sql, $outcome, $inputarr);
+
         return $retval;
     }
 
