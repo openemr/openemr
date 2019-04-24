@@ -129,16 +129,16 @@ class PatientData extends React.Component {
                                                         })}
                                                     </Tab.Pane>
                                                     <Tab.Pane eventKey="tab-2">
-                                                        qweqweqwe
+                                                        Contacts
                                                     </Tab.Pane>
                                                     <Tab.Pane eventKey="tab-3">
-                                                        qweqweqwe
+                                                        Employer
                                                     </Tab.Pane>
                                                     <Tab.Pane eventKey="tab-4">
-                                                        qweqweqwe
+                                                        Misc
                                                     </Tab.Pane>
                                                     <Tab.Pane eventKey="tab-5">
-                                                        qweqweqwe
+                                                        Insurance
                                                     </Tab.Pane>
                                                 </Tab.Content>
                                             </Col>
