@@ -5,11 +5,14 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Collapse from 'react-bootstrap/Collapse';
 import helpers from '../utils/helpers.js';
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
+
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus,faMinus } from '@fortawesome/free-solid-svg-icons'
-library.add( faPlus,faMinus )
+import { faPlus,faMinus,faEdit } from '@fortawesome/free-solid-svg-icons'
+library.add( faPlus,faMinus,faEdit )
 
 
 
@@ -111,10 +114,20 @@ class MedicalProblems extends React.Component {
                     <Card   variant="flush">
 
                     <Card.Header>
+
+                        <Row>
+                            <Col>
                     <Button   onClick={() => {this.setState({ open: !open }  ); }}  aria-controls="example-collapse-text" aria-expanded={open} >
                         {!open ?  <FontAwesomeIcon icon='plus'/> :  <FontAwesomeIcon icon='minus'/>    }
 
                     </Button> {this.state.element_title} {(this.medProbCount())}
+                            </Col>
+                            <Col>
+
+                        <FontAwesomeIcon  icon='edit'/>
+                            </Col>
+                        </Row>
+
                     </Card.Header>
                         <Card.Body>
                     <Collapse in={this.state.open}>
