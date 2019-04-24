@@ -57,9 +57,7 @@ class MedicalProblems extends React.Component {
                         {
 
                            console.log("NO DATA WAS FETCHED");
-                          this.setState({render:false})
                         }
-                        this.setState({render:true})
 
                     },
                     (error) => {
@@ -82,38 +80,45 @@ class MedicalProblems extends React.Component {
     }
 
     medProb = () => {
-        return this.state.data.map((mp,i) => {
-            return <tr key={i}><td>{mp.title}</td><td>{mp.diagnosis}</td></tr>
-        })
+        if (Array.isArray(this.state.data)) {
+            return this.state.data.map((mp, i) => {
+                return <tr key={i}>
+                    <td>{mp.title}</td>
+                    <td>{mp.status}</td>
+                </tr>
+            })
+        } else {
+            return <tr>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            </tr>
+        }
     }
 
 
-    medProbCount= ()=>{
-     return this.state.data.length;
+    medProbCount = () => {
+        return Array.isArray(this.state.data) ? this.state.data.length : null;
     }
 
     render() {
-
         const { open } = this.state;
 
-        return(
-                    <Card   variant="flush">
+        return(     <Card   variant="flush">
+                    <Card.Body>
                     <Card.Header>
                     <Button   onClick={() => {this.setState({ open: !open }  ); }}  aria-controls="example-collapse-text" aria-expanded={open} >
                         {!open ?  <FontAwesomeIcon icon='plus'/> :  <FontAwesomeIcon icon='minus'/>    }
-                    </Button> {this.state.element_title} ({this.medProbCount()})
+                    </Button> {this.state.element} ({this.medProbCount()})
                     </Card.Header>
-                        (!this.state.render?<Card.Body></Card.Body></Card>:
-                    <Card.Body>
                     <Collapse in={this.state.open}>
                     <div id="example-collapse-text">
-                    <Table stripped>
+                    <Table>
                     <tbody>{this.medProb()}</tbody>
                     </Table>
                     </div>
                     </Collapse>
                     </Card.Body>
-                    </Card>)
+                    </Card>
             )
 
     }
