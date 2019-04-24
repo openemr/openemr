@@ -4,10 +4,12 @@ import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Collapse from 'react-bootstrap/Collapse';
-import Alert from "react-bootstrap/Alert";
 import helpers from '../utils/helpers.js';
 
-
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus,faMinus } from '@fortawesome/free-solid-svg-icons'
+library.add( faPlus,faMinus )
 
 
 
@@ -16,14 +18,29 @@ class MedicalProblems extends React.Component {
         super(props);
         this.state = {
             patientId: props.patientId,
-            data: []
+            data: [],
+            element:props.element
         }
     }
 
     getMedicalProblems() {
         this.setState.patientId = helpers.getPatientId();
         if (this.setState.patientId >= 0) {
-            fetch("../../../../apis/api/patient/" + this.setState.patientId+"/medical_problem", {
+            let urlToFetch = ""
+            switch (this.state.element)
+            {
+                case "Allergies":
+                    urlToFetch="allergy";
+                    break;
+                case "MedicalProblems":
+                    urlToFetch="medical_problem";
+                    break;
+                case "Medications":
+                    urlToFetch="medication";
+                    break;
+            }
+
+            fetch("../../../../apis/api/patient/" + this.setState.patientId+"/"+urlToFetch, {
                 method: "GET",
                 headers: {
                     'Accept': 'application/json',
@@ -63,7 +80,7 @@ class MedicalProblems extends React.Component {
 
     medProb = () => {
         return this.state.data.map((mp,i) => {
-            return <tr key={i}><td>{mp.title}</td><td>{mp.diagnosis}</td></tr>
+            return <tr key={i}><td>{mp.title}</td><td>{mp.status}</td></tr>
         })
     }
 
@@ -74,12 +91,14 @@ class MedicalProblems extends React.Component {
 
     render() {
         const { open } = this.state;
+
         return(     <Card   variant="flush">
                     <Card.Body>
                     <Card.Header>
-                    <Button   onClick={() => this.setState({ open: !open })}  aria-controls="example-collapse-text" aria-expanded={open} > -  </Button> Medical issues ({this.medProbCount()})
+                    <Button   onClick={() => {this.setState({ open: !open }  ); }}  aria-controls="example-collapse-text" aria-expanded={open} >
+                        {!open ?  <FontAwesomeIcon icon='plus'/> :  <FontAwesomeIcon icon='minus'/>    }
+                    </Button> {this.state.element} ({this.medProbCount()})
                     </Card.Header>
-
                     <Collapse in={this.state.open}>
                     <div id="example-collapse-text">
                     <Table>
