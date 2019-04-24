@@ -8,7 +8,8 @@ class PatientData extends React.Component {
         this.state = {
             patientId: props.patientId,
             data: [],
-            open: false
+            open: false,
+            isLoaded: false
         }
     }
 
@@ -26,8 +27,9 @@ class PatientData extends React.Component {
                 .then((res) => res.json())
                 .then(
                     (result) => {
-                        //this.setState.data = [result];
-                        this.setState({data: [result]});
+                        if( result != null && JSON.stringify(result) ){
+                            this.setState({data: [result], isLoaded: true});
+                        }
                     },
                     (error) => {
                         // this.setState({
@@ -42,7 +44,7 @@ class PatientData extends React.Component {
     }
 
     componentDidUpdate() {
-        console.log("Query:" + JSON.stringify(this.state.data));
+        // console.log("Query:" + JSON.stringify(this.state.data));
         this.state.data.map((data, i) => {
             parent.left_nav.setPatient(data.fname + " " + data.lname, data.pid, data.pubpid, '', data.str_dob);
         });
@@ -51,7 +53,9 @@ class PatientData extends React.Component {
 
     render() {
         const {open} = this.state;
+        const {isLoaded} = this.state;
         return (
+            isLoaded &&
             <div className="card" variant="dark">
                 <div className="card-header">
                     <Button
@@ -87,42 +91,42 @@ class PatientData extends React.Component {
                                             <Col sm={9}>
                                                 <Tab.Content>
                                                     <Tab.Pane eventKey="tab-1">
-                                                            {this.state.data.map((data, i) => {
-                                                                return (
-                                                                    <div key={i}>
-                                                                        <Container>
-                                                                            <Row>
-                                                                                <Col>First Name:</Col>
-                                                                                <Col>{data.fname}</Col>
-                                                                            </Row>
-                                                                            <Row>
-                                                                                <Col>Last Name:</Col>
-                                                                                <Col>{data.lname}</Col>
-                                                                            </Row>
-                                                                            <Row>
-                                                                                <Col>English full name:</Col>
-                                                                                <Col>{data.title}</Col>
-                                                                            </Row>
-                                                                            <Row>
-                                                                                <Col>Dob:</Col>
-                                                                                <Col>{data.DOB}</Col>
-                                                                            </Row>
-                                                                            <Row>
-                                                                                <Col>S.S.:</Col>
-                                                                                <Col>{data.ss}</Col>
-                                                                            </Row>
-                                                                            <Row>
-                                                                                <Col>Sex:</Col>
-                                                                                <Col>{data.sex}</Col>
-                                                                            </Row>
-                                                                            <Row>
-                                                                                <Col>Birth country:</Col>
-                                                                                <Col>{data.county}</Col>
-                                                                            </Row>
-                                                                        </Container>
-                                                                    </div>
-                                                                )
-                                                            })}
+                                                        {this.state.data.map((data, i) => {
+                                                            return (
+                                                                <div key={i}>
+                                                                    <Container>
+                                                                        <Row>
+                                                                            <Col>First Name:</Col>
+                                                                            <Col>{data.fname}</Col>
+                                                                        </Row>
+                                                                        <Row>
+                                                                            <Col>Last Name:</Col>
+                                                                            <Col>{data.lname}</Col>
+                                                                        </Row>
+                                                                        <Row>
+                                                                            <Col>English full name:</Col>
+                                                                            <Col>{data.title}</Col>
+                                                                        </Row>
+                                                                        <Row>
+                                                                            <Col>Dob:</Col>
+                                                                            <Col>{data.DOB}</Col>
+                                                                        </Row>
+                                                                        <Row>
+                                                                            <Col>S.S.:</Col>
+                                                                            <Col>{data.ss}</Col>
+                                                                        </Row>
+                                                                        <Row>
+                                                                            <Col>Sex:</Col>
+                                                                            <Col>{data.sex}</Col>
+                                                                        </Row>
+                                                                        <Row>
+                                                                            <Col>Birth country:</Col>
+                                                                            <Col>{data.county}</Col>
+                                                                        </Row>
+                                                                    </Container>
+                                                                </div>
+                                                            )
+                                                        })}
                                                     </Tab.Pane>
                                                     <Tab.Pane eventKey="tab-2">
                                                         qweqweqwe

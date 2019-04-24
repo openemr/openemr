@@ -14,7 +14,7 @@ namespace OpenEMR\RestControllers;
 use OpenEMR\Services\PatientService;
 use OpenEMR\RestControllers\RestControllerHelper;
 
-include_once ("../../openemr/library/patient.inc");
+include_once("../../openemr/library/patient.inc");
 
 class PatientExtendedRestController
 {
@@ -32,7 +32,8 @@ class PatientExtendedRestController
 
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult; }
+            return $validationHandlerResult;
+        }
 
         $serviceResult = $this->patientService->insert($data);
         return RestControllerHelper::responseHandler($serviceResult, array("pid" => $serviceResult), 201);
@@ -44,7 +45,8 @@ class PatientExtendedRestController
 
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult; }
+            return $validationHandlerResult;
+        }
 
         $serviceResult = $this->patientService->update($pid, $data);
         return RestControllerHelper::responseHandler($serviceResult, array("pid" => $pid), 200);
@@ -70,15 +72,19 @@ class PatientExtendedRestController
 
     public function getOne()
     {
-        $serviceResult = getPatientData($this->patientService->getPid(),"*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
+        $serviceResult = getPatientData($this->patientService->getPid(), "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
         $date_of_death = is_patient_deceased($this->patientService->getPid())['date_deceased'];
-        $serviceResult['str_dob'] = '';
-        if (empty($date_of_death)) {
-            $serviceResult['str_dob'] = " " . xl('DOB') . ": " . oeFormatShortDate($serviceResult['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAgeDisplay($serviceResult['DOB_YMD']);
-        } else {
-            $serviceResult['str_dob'] = " " . xl('DOB') . ": " . oeFormatShortDate($serviceResult['DOB_YMD']) . " " . xl('Age at death') . ": " . oeFormatAge($serviceResult['DOB_YMD'], $date_of_death);
+        if ($serviceResult) {
+            $serviceResult['str_dob'] = '';
+            if (empty($date_of_death)) {
+                $serviceResult['str_dob'] = " " . xl('DOB') . ": " . oeFormatShortDate($serviceResult['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAgeDisplay($serviceResult['DOB_YMD']);
+            } else {
+                $serviceResult['str_dob'] = " " . xl('DOB') . ": " . oeFormatShortDate($serviceResult['DOB_YMD']) . " " . xl('Age at death') . ": " . oeFormatAge($serviceResult['DOB_YMD'], $date_of_death);
+            }
+            $serviceResult['str_dob'] = stripslashes($serviceResult['str_dob']);
+        }else{
+            $serviceResult = [];
         }
-        $serviceResult['str_dob'] = stripslashes($serviceResult['str_dob']);
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
