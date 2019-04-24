@@ -6,11 +6,11 @@ import Card from 'react-bootstrap/Card';
 import Collapse from 'react-bootstrap/Collapse';
 import helpers from '../utils/helpers.js';
 
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus,faMinus } from '@fortawesome/free-solid-svg-icons'
-library.add( faPlus,faMinus )
+import {library} from '@fortawesome/fontawesome-svg-core'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faPlus, faMinus} from '@fortawesome/free-solid-svg-icons'
 
+library.add(faPlus, faMinus)
 
 
 class MedicalProblems extends React.Component {
@@ -19,7 +19,7 @@ class MedicalProblems extends React.Component {
         this.state = {
             patientId: props.patientId,
             data: [],
-            element:props.element
+            element: props.element
         }
     }
 
@@ -27,20 +27,19 @@ class MedicalProblems extends React.Component {
         this.setState.patientId = helpers.getPatientId();
         if (this.setState.patientId >= 0) {
             let urlToFetch = ""
-            switch (this.state.element)
-            {
+            switch (this.state.element) {
                 case "Allergies":
-                    urlToFetch="allergy";
+                    urlToFetch = "allergy";
                     break;
                 case "MedicalProblems":
-                    urlToFetch="medical_problem";
+                    urlToFetch = "medical_problem";
                     break;
                 case "Medications":
-                    urlToFetch="medication";
+                    urlToFetch = "medication";
                     break;
             }
 
-            fetch("../../../../apis/api/patient/" + this.setState.patientId+"/"+urlToFetch, {
+            fetch("../../../../apis/api/patient/" + this.setState.patientId + "/" + urlToFetch, {
                 method: "GET",
                 headers: {
                     'Accept': 'application/json',
@@ -52,20 +51,19 @@ class MedicalProblems extends React.Component {
                     (result) => {
                         this.setState({data: result});
 
-                        if(result==null)
-                        {
+                        if (result == null) {
 
-                           console.log("NO DATA WAS FETCHED");
+                            console.log("NO DATA WAS FETCHED");
                         }
 
                     },
                     (error) => {
-                         this.setState({
-                             isLoaded: true,
-                             error
-                         });
+                        this.setState({
+                            isLoaded: true,
+                            error
+                        });
 
-                         console.log(error);
+                        console.log(error);
                     }
                 )
         } else {
@@ -79,39 +77,50 @@ class MedicalProblems extends React.Component {
     }
 
     medProb = () => {
-        return this.state.data.map((mp,i) => {
-            return <tr key={i}><td>{mp.title}</td><td>{mp.status}</td></tr>
-        })
+        if (Array.isArray(this.state.data)) {
+            return this.state.data.map((mp, i) => {
+                return <tr key={i}>
+                    <td>{mp.title}</td>
+                    <td>{mp.status}</td>
+                </tr>
+            })
+        } else {
+            return <tr>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            </tr>
+        }
     }
 
 
-    medProbCount= ()=>{
-     return this.state.data.length;
+    medProbCount = () => {
+        return Array.isArray(this.state.data) ? this.state.data.length : null;
     }
 
     render() {
-        const { open } = this.state;
+        const {open} = this.state;
 
-        return(     <Card   variant="flush">
-                    <Card.Body>
+        return (<Card variant="flush">
+                <Card.Body>
                     <Card.Header>
-                    <Button   onClick={() => {this.setState({ open: !open }  ); }}  aria-controls="example-collapse-text" aria-expanded={open} >
-                        {!open ?  <FontAwesomeIcon icon='plus'/> :  <FontAwesomeIcon icon='minus'/>    }
-                    </Button> {this.state.element} ({this.medProbCount()})
+                        <Button onClick={() => {
+                            this.setState({open: !open});
+                        }} aria-controls="example-collapse-text" aria-expanded={open}>
+                            {!open ? <FontAwesomeIcon icon='plus'/> : <FontAwesomeIcon icon='minus'/>}
+                        </Button> {this.state.element} ({this.medProbCount()})
                     </Card.Header>
                     <Collapse in={this.state.open}>
-                    <div id="example-collapse-text">
-                    <Table>
-                    <tbody>{this.medProb()}</tbody>
-                    </Table>
-                    </div>
+                        <div id="example-collapse-text">
+                            <Table>
+                                <tbody>{this.medProb()}</tbody>
+                            </Table>
+                        </div>
                     </Collapse>
-                    </Card.Body>
-                    </Card>
-            )
+                </Card.Body>
+            </Card>
+        )
 
     }
-
 
 
 }
