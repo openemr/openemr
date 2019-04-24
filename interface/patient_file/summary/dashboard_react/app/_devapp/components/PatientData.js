@@ -52,7 +52,7 @@ class PatientData extends React.Component {
     render() {
         const {open} = this.state;
         return (
-            <div className="card" variant="dark" style={{width: '48rem'}}>
+            <div className="card" variant="dark">
                 <div className="card-header">
                     <Button
                         onClick={() => this.setState({open: !open})}
@@ -60,7 +60,7 @@ class PatientData extends React.Component {
                         aria-expanded={open}
                     > - </Button> Patient Data
                     <Collapse in={this.state.open}>
-                        <Card style={{width: '45rem'}}>
+                        <Card>
                             <Card.Body>
                                 <div id="example-fade-text">
                                     <Tab.Container id="left-tabs-example" defaultActiveKey="tab-1">

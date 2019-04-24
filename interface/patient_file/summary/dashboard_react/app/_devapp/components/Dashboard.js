@@ -14,7 +14,7 @@ class Dashboard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-
+            gadgets:''
         };
     }
 
@@ -48,8 +48,8 @@ class Dashboard extends React.Component {
     //list/dashboard
     getDashboardList() {
         //if (this.setState.token) {
-            fetch("../../../../apis/api/menus", {
-                method: "POST",
+            fetch("../../../../apis/api/list/dashboard", {
+                method: "GET",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
@@ -59,8 +59,8 @@ class Dashboard extends React.Component {
                 .then((res) => res.json())
                 .then(
                     (result) => {
+                        console.log("Got dashboard items");
                         this.setState({gadgets: result});
-                        console.log("Dashboard Items:" + JSON.stringify(result));
                     },
                     (error) => {
                         this.setState({
@@ -74,6 +74,7 @@ class Dashboard extends React.Component {
 
     componentDidMount() {
         this.setGlobalPatientId();
+        this.getDashboardList();
     }
 
 
