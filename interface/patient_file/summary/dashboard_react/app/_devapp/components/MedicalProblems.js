@@ -37,14 +37,8 @@ class MedicalProblems extends React.Component {
 
                         if(result==null)
                         {
-                            return{
-                                render() {
 
-                                   < Alert > No
-                                    Data
-                                    Found </Alert>
-                                    }
-                                }
+                           console.log("NO DATA WAS FETCHED");
                         }
 
                     },
