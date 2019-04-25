@@ -54,7 +54,7 @@ if ($_POST['form_save']) {
             ) VALUES (
             ?, ?, ?
             )";
-            sqlInsert($query, array($line_id, $ordering, $diagnosis));
+            sqlStatement($query, array($line_id, $ordering, $diagnosis));
         }
     }
 

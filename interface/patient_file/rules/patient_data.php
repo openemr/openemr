@@ -108,7 +108,7 @@ if ($_POST['form_complete']) {
 
     if (!isset($form_entryID)) {
         // Insert new row of data into rule_patient_data table
-        sqlInsert("INSERT INTO `rule_patient_data` (`date`, `pid`, `category`, `item`, `complete`, `result`) " .
+        sqlStatement("INSERT INTO `rule_patient_data` (`date`, `pid`, `category`, `item`, `complete`, `result`) " .
         "VALUES (?,?,?,?,?,?)", array($form_date, $pid, $form_category, $form_item, $form_complete, $form_result));
     } else { // $form_mode == "edit"
         // Modify selected row in rule_patient_data table

@@ -47,9 +47,9 @@ $hidden_type_code        = isset($_REQUEST['hidden_type_code']) ? $_REQUEST['hid
 
 if ($mode == "new_payment" || $mode == "distribute") {
     if (trim($_POST['type_name'])=='insurance') {
-        $QueryPart="payer_id = '" . add_escape_custom($hidden_type_code) . "', patient_id = '0" ; // Closing Quote in idSqlStatement below
+        $QueryPart="payer_id = '" . add_escape_custom($hidden_type_code) . "', patient_id = '0" ;
     } elseif (trim($_POST['type_name'])=='patient') {
-        $QueryPart="payer_id = '0', patient_id = '" .add_escape_custom($hidden_type_code); // Closing Quote in idSqlStatement below
+        $QueryPart="payer_id = '0', patient_id = '" .add_escape_custom($hidden_type_code);
     }
       $user_id=$_SESSION['authUserID'];
       $closed=0;
@@ -63,7 +63,7 @@ if ($mode == "new_payment" || $mode == "distribute") {
     if ($_POST['deposit_date']=='') {
         $deposit_date=$post_to_date;
     }
-      $payment_id = idSqlStatement("insert into ar_session set "    .
+      $payment_id = sqlInsert("insert into ar_session set "    .
         $QueryPart .
         "', user_id = '"     . trim(add_escape_custom($user_id))  .
         "', closed = '"      . trim(add_escape_custom($closed))  .

@@ -139,7 +139,7 @@ function fetch_Patient_Tracker_Events($from_date, $to_date, $provider_id = null,
 #check to see if a status code exist as a check in
 function is_checkin($option)
 {
-  
+
     $row = sqlQuery("SELECT toggle_setting_1 FROM list_options WHERE " .
     "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));
     if (empty($row['toggle_setting_1'])) {
@@ -152,7 +152,7 @@ function is_checkin($option)
 #check to see if a status code exist as a check out
 function is_checkout($option)
 {
-  
+
     $row = sqlQuery("SELECT toggle_setting_2 FROM list_options WHERE " .
     "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));
     if (empty($row['toggle_setting_2'])) {
@@ -214,7 +214,7 @@ function manage_tracker_status($apptdate, $appttime, $eid, $pid, $user, $status 
         );
         #If there is a status or a room, then add a tracker item.
         if (!empty($status) || !empty($room)) {
-            sqlInsert(
+            sqlStatement(
                 "INSERT INTO `patient_tracker_element` " .
                 "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `room`, `seq`) " .
                 "VALUES (?,?,?,?,?,'1')",
@@ -232,7 +232,7 @@ function manage_tracker_status($apptdate, $appttime, $eid, $pid, $user, $status 
                  array(($tracker['lastseq']+1),$tracker_id)
              );
             #Add a tracker item.
-            sqlInsert(
+            sqlStatement(
                 "INSERT INTO `patient_tracker_element` " .
                 "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `room`, `seq`) " .
                 "VALUES (?,?,?,?,?,?)",
@@ -282,7 +282,7 @@ function collectApptStatusSettings($option)
 }
 
 # This is used to collect the tracker elements for the Patient Flow Board Report
-# returns the elements in an array 
+# returns the elements in an array
 function collect_Tracker_Elements($trackerid)
 {
     $res = sqlStatement("SELECT * FROM patient_tracker_element WHERE pt_tracker_id = ? ORDER BY LENGTH(seq), seq ", array($trackerid));
@@ -293,7 +293,7 @@ function collect_Tracker_Elements($trackerid)
     return $returnval;
 }
 
-#used to determine check in time 
+#used to determine check in time
 function collect_checkin($trackerid)
 {
     $tracker = sqlQuery(

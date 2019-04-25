@@ -62,7 +62,7 @@ if (!empty($code_text)) {
             codetext = ?,
             description= ?,
             date = ?";
-        sqlInsert(
+        sqlStatement(
             "INSERT INTO form_functional_cognitive_status SET $sets",
             [
                 $newid,

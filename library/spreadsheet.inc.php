@@ -149,7 +149,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
                 $formid = 1;
             }
 
-            sqlInsert(
+            sqlStatement(
                 "INSERT INTO " . escape_table_name('form_' .$spreadsheet_form_name) . " ( " .
                 "id, rownbr, colnbr, datatype, value " .
                 ") VALUES ( ?, -1, -1, 0, ? )",
@@ -210,7 +210,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
                     $tempid = -1;
                 }
 
-                sqlInsert(
+                sqlStatement(
                     "INSERT INTO " . escape_table_name('form_' . $spreadsheet_form_name) . " ( " .
                     "id, rownbr, colnbr, datatype, value " .
                     ") VALUES ( ?, -1, -1, 0, ? )",
@@ -234,7 +234,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
                 $celltype = substr($tmp, 0, 1) + 0;
                 $cellvalue = form2db(substr($tmp, 1));
                 if ($celltype) {
-                    sqlInsert(
+                    sqlStatement(
                         "INSERT INTO " . escape_table_name('form_' . $spreadsheet_form_name) .
                         " ( id, rownbr, colnbr, datatype, value ) " .
                         "VALUES ( ?, ?, ?, ?, ? )",

@@ -1122,7 +1122,7 @@ class Events extends Base
 
             #Add a new tracker item for this appt.
             $datetime = date("Y-m-d H:i:s");
-            sqlInsert(
+            sqlStatement(
                 "INSERT INTO `patient_tracker` " .
                                 "(`date`, `apptdate`, `appttime`, `eid`, `pid`, `original_user`, `encounter`, `lastseq`) " .
                                 "VALUES (?,?,?,?,?,'MedEx','0','1')",
@@ -1499,7 +1499,7 @@ class Callback extends Base
                     );
                     #Add a tracker item.
                     $datetime = date("Y-m-d H:i:s");
-                    sqlInsert(
+                    sqlStatement(
                         "INSERT INTO `patient_tracker_element` " .
                                 "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `seq`) " .
                                 "VALUES (?,?,?,?,?)",

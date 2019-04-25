@@ -220,7 +220,7 @@ elseif ($_GET['mode'] == 'update') {
 
     /* update the data in the form's table */
     $success = formUpdate($table_name, $field_names, $_GET['id'], $userauthorized);
-    /* sqlInsert('update '.$table_name." set pid = {".$_SESSION['pid']."},groupname='".$_SESSION['authProvider']."',user='".$_SESSION['authUser']."',authorized=$userauthorized,activity=1,date = NOW(), where id=$id"); */
+    /* sqlStatement('update '.$table_name." set pid = {".$_SESSION['pid']."},groupname='".$_SESSION['authProvider']."',user='".$_SESSION['authUser']."',authorized=$userauthorized,activity=1,date = NOW(), where id=$id"); */
 }
 ]]></xsl:text>
 </xsl:if>

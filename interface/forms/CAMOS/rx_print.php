@@ -80,7 +80,7 @@ if ($_POST['update']) { // OPTION update practice inf
     "fax = '" . add_escape_custom($_POST['practice_fax']) . "', " .
     "federaldrugid = '" . add_escape_custom($_POST['practice_dea']) . "' " .
     "where id ='" . add_escape_custom($_SESSION['authUserID']) ."'";
-    sqlInsert($query);
+    sqlStatement($query);
 }
 
 //get user information

@@ -61,6 +61,6 @@ function catch_logs()
 {
     $sql = sqlStatement("select * from log where id not in(select log_id from log_validator) and checksum is NOT null and checksum != ''");
     while ($row = sqlFetchArray($sql)) {
-        sqlInsert("INSERT into log_validator (log_id,log_checksum) VALUES(?,?)", array($row['id'],$row['checksum']));
+        sqlStatement("INSERT into log_validator (log_id,log_checksum) VALUES(?,?)", array($row['id'],$row['checksum']));
     }
 }

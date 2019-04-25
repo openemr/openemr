@@ -113,7 +113,7 @@ if ($_POST['bn_save']) {
              ) VALUES (
              ?, ?, ?, ?, ?, ?
              )";
-            sqlInsert($query, array($formid, $line_id, $wnl, $abn, $diagnosis, $comments));
+            sqlStatement($query, array($formid, $line_id, $wnl, $abn, $diagnosis, $comments));
         }
     }
 

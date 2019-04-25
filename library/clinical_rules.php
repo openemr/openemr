@@ -417,7 +417,7 @@ function compare_log_alerts($patient_id, $current_targets, $category = 'clinical
             $new_targets_json = json_encode($new_targets);
         }
 
-        sqlInsert("INSERT INTO `clinical_rules_log` " .
+        sqlStatement("INSERT INTO `clinical_rules_log` " .
               "(`date`,`pid`,`uid`,`category`,`value`,`new_value`) " .
               "VALUES (NOW(),?,?,?,?,?)", array($patient_id,$userid,$category,$current_targets_json,$new_targets_json));
     }

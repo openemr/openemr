@@ -293,7 +293,7 @@ my $noredirect=<<'START';
 $newid = formSubmit("form_FORM_NAME", $field_names, $_GET["id"], $userauthorized);
 addForm($encounter, "FORM_NAME", $newid, "FORM_NAME", $pid, $userauthorized);
 }elseif ($_GET["mode"] == "update") {
-sqlInsert("update form_FORM_NAME set pid = '" . add_escape_custom($_SESSION["pid"]) . "', groupname='" . add_escape_custom($_SESSION["authProvider"]) . "', user='" . add_escape_custom($_SESSION["authUser"]) . "', authorized='" . add_escape_custom($userauthorized) . "', activity=1, date = NOW(), FIELDS where id='" . add_escape_custom($id) . "'");
+sqlStatement("update form_FORM_NAME set pid = '" . add_escape_custom($_SESSION["pid"]) . "', groupname='" . add_escape_custom($_SESSION["authProvider"]) . "', user='" . add_escape_custom($_SESSION["authUser"]) . "', authorized='" . add_escape_custom($userauthorized) . "', activity=1, date = NOW(), FIELDS where id='" . add_escape_custom($id) . "'");
 }
 START
 
