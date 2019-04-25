@@ -209,7 +209,7 @@ if ($_POST['form_save']) {
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
     if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
-        $payment_id = idSqlStatement(
+        $payment_id = sqlInsert(
             "insert into ar_session set " .
             "payer_id = ?" .
             ", patient_id = ?" .
@@ -285,7 +285,7 @@ if ($_POST['form_save']) {
                     }
 
                     $adjustment_code = 'patient_payment';
-                    $payment_id = idSqlStatement(
+                    $payment_id = sqlInsert(
                         "insert into ar_session set " .
                         "payer_id = ?" .
                         ", patient_id = ?" .

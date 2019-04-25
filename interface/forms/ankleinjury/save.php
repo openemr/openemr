@@ -28,7 +28,7 @@ if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_ankleinjury", $_POST, $_GET["id"], $userauthorized);
     addForm($encounter, "Ankle Evaluation Form", $newid, "ankleinjury", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
-    sqlInsert(
+    sqlStatement(
         "update form_ankleinjury set pid = ?,
             groupname = ?,
             user = ?,

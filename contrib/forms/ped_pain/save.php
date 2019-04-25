@@ -18,7 +18,7 @@ if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_ped_pain", $_POST, $_GET["id"], $userauthorized);
     addForm($encounter, "Pediatric Pain Evaluation", $newid, "ped_pain", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
-        sqlInsert("update form_ped_fever set pid = ?,
+    sqlStatement("update form_ped_fever set pid = ?,
 	groupname = ?,
 	user = ?
 	authorized =,

@@ -408,7 +408,7 @@ class Prescription extends ORDataObject
 
             if (!isset($dataRow['id'])) {
                 //add the record to the medication list
-                sqlInsert("insert into lists(date,begdate,type,activity,pid,user,groupname,title) values (now(),cast(now() as date),'medication',1," . add_escape_custom($this->patient->id) . ",'" . $$_SESSION['authUser']. "','" . $$_SESSION['authProvider'] . "','" . add_escape_custom($this->drug) . "')");
+                sqlStatement("insert into lists(date,begdate,type,activity,pid,user,groupname,title) values (now(),cast(now() as date),'medication',1," . add_escape_custom($this->patient->id) . ",'" . $$_SESSION['authUser']. "','" . $$_SESSION['authProvider'] . "','" . add_escape_custom($this->drug) . "')");
             } else {
                 $dataRow = sqlQuery('update lists set activity = 1'
                             . " ,user = '" . $$_SESSION['authUser']

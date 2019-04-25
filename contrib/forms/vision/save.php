@@ -12,7 +12,7 @@ if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_vision", $_POST, $_GET["id"], $userauthorized);
     addForm($encounter, "Vision", $newid, "vision", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
-    sqlInsert("update form_vision set pid = ?
+    sqlStatement("update form_vision set pid = ?
         groupname= ?,
         user= ?,
         authorized= ?,

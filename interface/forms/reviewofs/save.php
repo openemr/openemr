@@ -29,7 +29,7 @@ if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_reviewofs", $_POST, $_GET["id"], $userauthorized);
     addForm($encounter, "Review of Systems Checks", $newid, "reviewofs", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
-    sqlInsert(
+    sqlStatement(
         "UPDATE form_reviewofs set pid = ?,
             groupname=?,
             user=?,

@@ -242,7 +242,7 @@ class UserAudit extends UserMail
                             );
                         }
                     } elseif ($table=='openemr_postcalendar_events') {
-                        sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
+                        sqlStatement("INSERT INTO openemr_postcalendar_events ( " .
                          "pc_pid,pc_title,pc_time,pc_hometext,pc_eventDate,pc_endDate,pc_startTime,pc_endTime,pc_duration,pc_catid,pc_eventstatus,pc_aid,pc_facility" .
                          ") VALUES ( " .
                          "'" . add_escape_custom($pid)             . "', " .
@@ -259,7 +259,7 @@ class UserAudit extends UserMail
                          "'" . add_escape_custom($newdata['openemr_postcalendar_events']['pc_aid'])."', " .
                          "'" . add_escape_custom($newdata['openemr_postcalendar_events']['pc_facility'])               . "')");
                     } elseif ($table=='ar_session') {
-                        sqlInsert("INSERT INTO ar_session ( " .
+                        sqlStatement("INSERT INTO ar_session ( " .
                          "payer_id, user_id, reference, check_date, pay_total, modified_time, payment_type, description, post_to_date, patient_id, payment_method" .
                          ") VALUES ( " .
                          "'" . add_escape_custom($newdata['ar_session']['payer_id']) . "', " .
@@ -322,7 +322,7 @@ class UserAudit extends UserMail
                     } elseif ($table=='patient_access_offsite') {
                         $query = sqlStatement("SELECT * FROM patient_access_offsite WHERE portal_username = '".$newdata['patient_access_offsite']['portal_username']."'");
                         if (sqlNumRows($query) == 0) {
-                            sqlInsert("INSERT INTO patient_access_offsite ( " .
+                            sqlStatement("INSERT INTO patient_access_offsite ( " .
                               "pid,portal_username,portal_pwd,portal_pwd_status" .
                               ") VALUES ( " .
                               "'" . add_escape_custom($pid) . "', " .
@@ -396,7 +396,7 @@ class UserAudit extends UserMail
 
             $detail_query = substr($detail_query, 0, -1);
             $detail_query=$detail_query.';';
-            sqlInsert($detail_query, $detail_query_array);
+            sqlStatement($detail_query, $detail_query_array);
             if ($var['auto_update']==1) {
                 $var['audit_master_id'] = $audit_master_id;
                 UserAudit::update_audited_data($var);

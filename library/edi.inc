@@ -661,9 +661,9 @@ function eligibility_verification_save($subscriber = [])
         $query = "REPLACE INTO eligibility_verification SET verification_id = ?, insurance_id = ?, response_id = ?, eligibility_check_date = now(), create_date = now()";
         array_push($sqlBindArray, $verification_id, $insurance_id, $partner_id);
 
-        $res = sqlStatement($query, $sqlBindArray);
+        $res = sqlInsert($query, $sqlBindArray);
         if (!$verification_id) {
-            $verification_id = getSqlLastID();
+            $verification_id = $res;
         }
     }
 

@@ -933,7 +933,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 if (!$dryrun) {
                     sqlBeginTrans();
                     $procedure_order_seq = sqlQuery("SELECT IFNULL(MAX(procedure_order_seq),0) + 1 AS increment FROM procedure_order_code WHERE procedure_order_id = ? ", array($in_orderid));
-                    sqlInsert(
+                    sqlStatement(
                         "INSERT INTO procedure_order_code SET " .
                         "procedure_order_id = ?, " .
                         "procedure_order_seq = ?, " .

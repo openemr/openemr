@@ -293,7 +293,7 @@ if ($_POST['form_action'] == "save") {
             $r2 = array_diff($providers_new, $providers_current);
             if (count($r2)) {
                 foreach ($r2 as $to_be_inserted) {
-                    sqlInsert("INSERT INTO openemr_postcalendar_events ( pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility)
+                    sqlStatement("INSERT INTO openemr_postcalendar_events ( pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility)
                 VALUES ( " .
                     "'" . add_escape_custom($_POST['form_category'])         . "', " .
                     "'" . add_escape_custom($row['pc_multiple'])             . "', " .
@@ -400,7 +400,7 @@ if ($_POST['form_action'] == "save") {
             $new_multiple_value = $max['max'] + 1;
 
             foreach ($_POST['form_provider_ae'] as $provider) {
-                sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
+                sqlStatement("INSERT INTO openemr_postcalendar_events ( " .
                 "pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
                 "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
                 "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
@@ -431,7 +431,7 @@ if ($_POST['form_action'] == "save") {
         } else {
             $_POST['form_apptstatus'] = '^';
             $insert = true;
-            sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
+            sqlStatement("INSERT INTO openemr_postcalendar_events ( " .
                 "pc_catid, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
                 "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
                 "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
