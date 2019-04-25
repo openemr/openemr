@@ -361,7 +361,7 @@ function collectCryptoKey($version = "one", $sub = "", $keySource = 'drive')
 
     // If the key does not exist, then create it
     if ($keySource == 'database') {
-        $sqlValue = sqlQuery("SELECT `value` FROM `keys` WHERE `name` = ?", [$label]);
+        $sqlValue = sqlQueryNoLog("SELECT `value` FROM `keys` WHERE `name` = ?", [$label]);
         if (empty($sqlValue['value'])) {
             // Create a new key and place in database
             // Produce a 256bit key (32 bytes equals 256 bits)
@@ -370,7 +370,7 @@ function collectCryptoKey($version = "one", $sub = "", $keySource = 'drive')
                 error_log('OpenEMR Error : Random Bytes error - exiting');
                 die();
             }
-            sqlInsert("INSERT INTO `keys` (`name`, `value`) VALUES (?, ?)", [$label, base64_encode($newKey)]);
+            sqlStatementNoLog("INSERT INTO `keys` (`name`, `value`) VALUES (?, ?)", [$label, base64_encode($newKey)]);
         }
     } else { //$keySource == 'drive'
         if (!file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label)) {
@@ -392,7 +392,7 @@ function collectCryptoKey($version = "one", $sub = "", $keySource = 'drive')
 
     // Collect key
     if ($keySource == 'database') {
-        $sqlKey = sqlQuery("SELECT `value` FROM `keys` WHERE `name` = ?", [$label]);
+        $sqlKey = sqlQueryNoLog("SELECT `value` FROM `keys` WHERE `name` = ?", [$label]);
         $key = base64_decode($sqlKey['value']);
     } else { //$keySource == 'drive'
         if (($version == "one") || ($version == "two") || ($version == "three") || ($version == "four")) {
