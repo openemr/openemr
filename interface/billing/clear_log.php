@@ -19,10 +19,10 @@
      
 require_once("../globals.php");
 
-$filename = $GLOBALS['OE_SITE_DIR'] . '/edi/process_bills.log';
+$filename = $GLOBALS['OE_SITE_DIR'] . '/documents/edi/process_bills.log';
 $date = date("Y-m-d");
 
-$newlog = $GLOBALS['OE_SITE_DIR'] . '/edi/' . $date . '_process_bills.log';
+$newlog = $GLOBALS['OE_SITE_DIR'] . '/documents/edi/' . $date . '_process_bills.log';
 
 rename($filename, $newlog);
 

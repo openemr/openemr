@@ -619,12 +619,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                            title='<?php echo xla('See messages from the last set of generated claims'); ?>'><strong><?php echo xlt('View Log'); ?></strong></a>
                                     </li>
                                 <?php } ?>
-                                <li><a href="<?php echo $webroot ?>/interface/billing/customize_log.php" target="_blank"><?php  echo xlt('Tab Log') ?></a>
+                                <li><a href="<?php echo $webroot ?>/interface/billing/customize_log.php" target="_blank"><strong><?php  echo xlt('Tab Log') ?></strong></a>
                                 </li>
                                 <li><a class="link_submit"
                                        href="JavaScript:void(0);" onclick="select_all(); return false;"><strong><?php echo xlt('Select All'); ?></strong></a>
                                 </li>
-                                <li><a  id="clear-log" href="#" class='btn btn-default btn-sm' title='<?php xla('Clear the log'); ?>'><?php echo xlt('Clear Log') ?></a>
+                                <li><a  id="clear-log" href="#" title='<?php xla('Clear the log'); ?>'><?php echo xlt('Clear Log') ?></a>
                                 </li>
                             </ul>
                             <ul>
@@ -1368,7 +1368,7 @@ $(function () {
         dlgopen('customize_log.php', '_blank', 500, 400);
     });
     $("#clear-log").click( function(){
-        var checkstr = confirm('Do you really want to clear the log?');
+        var checkstr = confirm(<?php echo xlj("Do you really want to clear the log?"); ?>);
         if(checkstr == true){
             dlgopen("clear_log.php", '_blank', 500, 400);
         }else{
