@@ -211,7 +211,7 @@ class X12_5010_837P
         } else {
             $log .= "*** Billing facility has no city.\n";
         }
-        $out .= "~\n";
+        $out .= "*";
         if ($claim->billingFacilityState()) {
             $out .= $claim->billingFacilityState();
         } else {
