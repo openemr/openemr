@@ -25,10 +25,6 @@ echo "<script>var pid='" . attr($pid) . "'</script>";
 <head>
     <?php Header::setupHeader(['opener']); ?>
     <script>
-        $(document).ready(function () {
-
-        });
-
         function doPublish(e, req) {
             top.restoreSession();
             e.preventDefault();

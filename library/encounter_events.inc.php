@@ -416,9 +416,14 @@ function InsertEvent($args, $from = 'general')
  */
 function &__increment($d, $m, $y, $f, $t)
 {
+    if ($t == REPEAT_DAYS_EVERY_WEEK) {
+        $old_appointment_date = date('Y-m-d', mktime(0, 0, 0, $m, $d, $y));
+        $next_appointment_date = getTheNextAppointment($old_appointment_date, $f);
+        return $next_appointment_date;
+    }
 
     if ($t == REPEAT_EVERY_DAY) {
-        return date('Y-m-d', mktime(0, 0, 0, $m, ($d+$f), $y));
+        $d = $d+$f;
     } elseif ($t == REPEAT_EVERY_WORK_DAY) {
         // a workday is defined as Mon,Tue,Wed,Thu,Fri
         // repeating on every or Nth work day means to not include
@@ -442,24 +447,23 @@ function &__increment($d, $m, $y, $f, $t)
             if ($nextWorkDOW == $GLOBALS['weekend_days'][0]) {
                 $f+=2;
             } elseif ($nextWorkDOW == $GLOBALS['weekend_days'][1]) {
-                 $f++;
+                $f++;
             }
         } elseif (count($GLOBALS['weekend_days']) === 1 && $nextWorkDOW === $GLOBALS['weekend_days'][0]) {
             $f++;
         }
 
-        return date('Y-m-d', mktime(0, 0, 0, $m, ($d+$f), $y));
+        $d = $d+$f;
     } elseif ($t == REPEAT_EVERY_WEEK) {
-        return date('Y-m-d', mktime(0, 0, 0, $m, ($d+(7*$f)), $y));
+        $d = $d+(7*$f);
     } elseif ($t == REPEAT_EVERY_MONTH) {
-        return date('Y-m-d', mktime(0, 0, 0, ($m+$f), $d, $y));
+        $m = $m+$f;
     } elseif ($t == REPEAT_EVERY_YEAR) {
-        return date('Y-m-d', mktime(0, 0, 0, $m, $d, ($y+$f)));
-    } elseif ($t == REPEAT_DAYS_EVERY_WEEK) {
-        $old_appointment_date = date('Y-m-d', mktime(0, 0, 0, $m, $d, $y));
-        $next_appointment_date = getTheNextAppointment($old_appointment_date, $f);
-        return $next_appointment_date;
+        $y = $y+$f;
     }
+
+    $dtYMD = date('Y-m-d', mktime(0, 0, 0, $m, $d, $y));
+    return $dtYMD;
 }
 
 function getTheNextAppointment($appointment_date, $freq)

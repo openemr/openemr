@@ -103,7 +103,7 @@ if (isset($_GET["fid"])) {
             return false;
         }
 
-        $(document).ready(function(){
+        $(function(){
             $("#cancel").click(function() {
                 dlgclose();
             });

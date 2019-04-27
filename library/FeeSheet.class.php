@@ -283,7 +283,7 @@ class FeeSheet
     public function insert_lbf_item($form_id, $field_id, $field_value)
     {
         if ($form_id) {
-            sqlInsert("INSERT INTO lbf_data (form_id, field_id, field_value) " .
+            sqlStatement("INSERT INTO lbf_data (form_id, field_id, field_value) " .
             "VALUES (?, ?, ?)", array($form_id, $field_id, $field_value));
         } else {
             $form_id = sqlInsert("INSERT INTO lbf_data (field_id, field_value) " .
@@ -777,7 +777,7 @@ class FeeSheet
 
                     if (!$id) {
                         // adding new copay from fee sheet into ar_session and ar_activity tables
-                        $session_id = idSqlStatement(
+                        $session_id = sqlInsert(
                             "INSERT INTO ar_session " .
                             "(payer_id, user_id, pay_total, payment_type, description, patient_id, payment_method, " .
                             "adjustment_code, post_to_date) " .

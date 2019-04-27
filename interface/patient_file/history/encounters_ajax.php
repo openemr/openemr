@@ -13,6 +13,7 @@
 
 
 require_once("../../globals.php");
+require_once("$srcdir/forms.inc");
 
 if (!verifyCsrfToken($_GET["csrf_token_form"])) {
     csrfNotVerified();
@@ -25,6 +26,10 @@ $formname = strtr(
     array('.' => '', '\\' => '', '/' => '', '\'' => '', '"' => '', "\r" => '', "\n" => '')
 );
 $formid   = $_GET['formid'] + 0;
+
+if (!hasFormPermission($formname)) {
+    exit;
+}
 
 if (substr($formname, 0, 3) == 'LBF') {
     include_once("{$GLOBALS['incdir']}/forms/LBF/report.php");

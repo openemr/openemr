@@ -1424,7 +1424,7 @@ class C_Document extends Controller
 
             $img_result = sqlQuery("select * from procedure_result where procedure_report_id = ? and document_id = ?", array($img_report_id,$document_id));
             if (empty($img_result)) {
-                sqlInsert("INSERT INTO procedure_result(procedure_report_id,date,document_id,result_status) values(?,?,?,'final')", array($img_report_id,date('Y-m-d H:i:s'),$document_id));
+                sqlStatement("INSERT INTO procedure_result(procedure_report_id,date,document_id,result_status) values(?,?,?,'final')", array($img_report_id,date('Y-m-d H:i:s'),$document_id));
             }
 
             $this->image_result_indication($document_id, 0, $img_procedure_id);

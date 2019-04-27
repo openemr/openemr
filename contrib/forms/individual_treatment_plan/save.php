@@ -17,7 +17,7 @@ if ($_GET["mode"] == "new") {
 
     addForm($encounter, "Individual Treatment Plan", $newid, "individual_treatment_plan", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
-    sqlInsert("update form_individual_treatment_plan set pid = ?, groupname= ?, user = ?, authorized = ?, activity=1, date = NOW(), 
+    sqlStatement("update form_individual_treatment_plan set pid = ?, groupname= ?, user = ?, authorized = ?, activity=1, date = NOW(), 
 date_of_referal = ?,
 dcn = ?,
 icd9 = ?,

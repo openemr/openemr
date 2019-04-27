@@ -661,9 +661,9 @@ function eligibility_verification_save($subscriber = [])
         $query = "REPLACE INTO eligibility_verification SET verification_id = ?, insurance_id = ?, response_id = ?, eligibility_check_date = now(), create_date = now()";
         array_push($sqlBindArray, $verification_id, $insurance_id, $partner_id);
 
-        $res = sqlStatement($query, $sqlBindArray);
+        $res = sqlInsert($query, $sqlBindArray);
         if (!$verification_id) {
-            $verification_id = getSqlLastID();
+            $verification_id = $res;
         }
     }
 
@@ -757,7 +757,7 @@ function requestEligibility($partner = '', $x12_270 = '')
         $payloadId = vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
 
-    $boundary = createUniqueToken(8);
+    $boundary = createUniqueToken(12);
     $rt_passwrd = $X12info['x12_isa04'];
     $rt_user = $X12info['x12_isa02'];
     $sender_id = $X12info['x12_sender_id'];

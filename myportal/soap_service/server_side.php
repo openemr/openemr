@@ -640,7 +640,7 @@ class UserService extends Userforms
             $username=$var['username'];
             $authPass=$var['authPass'];
             $query="insert into patient_access_offsite(pid,portal_username,portal_pwd) values (?,?,?)";
-            sqlInsert($query, array($pid,$username,$authPass));
+            sqlStatement($query, array($pid,$username,$authPass));
         } else {
             throw new SoapFault("Server", "credentials failed");
         }
@@ -825,7 +825,7 @@ class UserService extends Userforms
     {
          global $pid,$auditmasterid;
         if (UserService::valid($data[0])=='existingpatient' || UserService::valid($data[0])=='newpatient') {
-            sqlInsert("INSERT INTO documents_legal_detail (dld_pid,dld_signed,dld_filepath,dld_master_docid,dld_filename,dld_encounter,dld_file_for_pdf_generation) ".
+            sqlStatement("INSERT INTO documents_legal_detail (dld_pid,dld_signed,dld_filepath,dld_master_docid,dld_filename,dld_encounter,dld_file_for_pdf_generation) ".
             " VALUES (?,?,?,?,?,?,?)", array($pid,$data[2],$data[3],$data[4],$data[5],$data[6],$data[7]));
         } elseif (UserService::valid($data[0])=='newpatienttoapprove') {
             $param=array($data[0],'audit_master_id_to_delete'=>"",'pid'=>"$pid",'approval_status'=>'1',
@@ -1062,7 +1062,7 @@ class UserService extends Userforms
         if (UserService::valid($data_credentials)) {
             $authorizenetid=$var['authorizenetid'];
             $query="UPDATE patient_access_offsite SET authorize_net_id = ? WHERE pid = ?";
-            sqlInsert($query, array($authorizenetid,$pid));
+            sqlStatement($query, array($authorizenetid,$pid));
         } else {
             throw new SoapFault("Server", "credentials failed");
         }

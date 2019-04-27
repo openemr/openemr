@@ -71,13 +71,13 @@ if (substr($_POST['hidden_mode'], 0, 3) == 'add') {
     if ($_POST['hidden_selection'] == 'change_category') {
         $preselect_category_override = $_POST['change_category'];
         $query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_category")." (user, category) values (?, ?)";
-        sqlInsert($query, array($_SESSION['authUser'], $category));
+        sqlStatement($query, array($_SESSION['authUser'], $category));
     } elseif ($_POST['hidden_selection'] == 'change_subcategory') {
         $preselect_subcategory_override = $_POST['change_subcategory'];
         $category_id = $_POST['hidden_category'];
         if ($category_id >= 0) {
             $query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." (user, subcategory, category_id) values (?, ?, ?)";
-            sqlInsert($query, array($_SESSION['authUser'], $subcategory, $category_id));
+            sqlStatement($query, array($_SESSION['authUser'], $subcategory, $category_id));
         }
     } elseif ($_POST['hidden_selection'] == 'change_item') {
         $preselect_item_override = $_POST['change_item'];
@@ -85,7 +85,7 @@ if (substr($_POST['hidden_mode'], 0, 3) == 'add') {
         $subcategory_id = $_POST['hidden_subcategory'];
         if (($category_id >= 0 ) && ($subcategory_id >=0)) {
             $query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_item")." (user, item, content, subcategory_id) values (?, ?, ?, ?)";
-            sqlInsert($query, array($_SESSION['authUser'], $item, $content, $subcategory_id));
+            sqlStatement($query, array($_SESSION['authUser'], $item, $content, $subcategory_id));
         }
     } elseif ($_POST['hidden_selection'] == 'change_content') {
         $item_id = $_POST['hidden_item'];
@@ -98,7 +98,7 @@ if (substr($_POST['hidden_mode'], 0, 3) == 'add') {
             }
 
             $query = "UPDATE ".mitigateSqlTableUpperCase("form_CAMOS_item")." set content = ? where id = ?";
-            sqlInsert($query, array($content, $item_id));
+            sqlStatement($query, array($content, $item_id));
         }
     }
 } elseif ($_POST['hidden_mode'] == 'delete') {
@@ -108,30 +108,30 @@ if (substr($_POST['hidden_mode'], 0, 3) == 'add') {
             $statement1 = sqlStatement("select id from ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." where category_id = ?", array($to_delete_id));
             while ($result1 = sqlFetchArray($statement1)) {
                 $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_item")." WHERE subcategory_id = ?";
-                sqlInsert($query, array($result1['id']));
+                sqlStatement($query, array($result1['id']));
             }
 
             $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." WHERE category_id = ?";
-            sqlInsert($query, array($to_delete_id));
+            sqlStatement($query, array($to_delete_id));
             $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_category")." WHERE id = ?";
-            sqlInsert($query, array($to_delete_id));
+            sqlStatement($query, array($to_delete_id));
         } elseif ($_POST['hidden_selection'] == 'change_subcategory') {
             $to_delete_id = $_POST['hidden_subcategory'];
             $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_item")." WHERE subcategory_id = ?";
-            sqlInsert($query, array($to_delete_id));
+            sqlStatement($query, array($to_delete_id));
             $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." WHERE id = ?";
-            sqlInsert($query, array($to_delete_id));
+            sqlStatement($query, array($to_delete_id));
         } elseif ($_POST['hidden_selection'] == 'change_item') {
             if ((isset($_POST['select_item'])) && (count($_POST['select_item'])>1)) {
                 foreach ($_POST['select_item'] as $v) {
                     $to_delete_id = $v;
                     $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_item")." WHERE id = ?";
-                    sqlInsert($query, array($to_delete_id));
+                    sqlStatement($query, array($to_delete_id));
                 }
             } else {
                 $to_delete_id = $_POST['hidden_item'];
                 $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_item")." WHERE id = ?";
-                sqlInsert($query, array($to_delete_id));
+                sqlStatement($query, array($to_delete_id));
             }
         }
     } else {
@@ -159,14 +159,14 @@ if (substr($_POST['hidden_mode'], 0, 3) == 'add') {
 
         if ($subtablename == '') {
             $query = "DELETE FROM ".escape_table_name($to_delete_from_table)." WHERE id like ?";
-            sqlInsert($query, array($to_delete_id));
+            sqlStatement($query, array($to_delete_id));
         } else {
             $query = "SELECT count(id) FROM ".escape_table_name($to_delete_from_subtable)." WHERE " . escape_sql_column_name($tablename.'_id', [$to_delete_from_subtable]) . " like ?";
             $statement = sqlStatement($query, array($to_delete_id));
             if ($result = sqlFetchArray($statement)) {
                 if ($result['count(id)'] == 0) {
                     $query = "DELETE FROM ".escape_table_name($to_delete_from_table)." WHERE id like ?";
-                    sqlInsert($query, array($to_delete_id));
+                    sqlStatement($query, array($to_delete_id));
                 } else {
                     $error = $subtablename." not empty!";
                 }
@@ -189,7 +189,7 @@ if (substr($_POST['hidden_mode'], 0, 3) == 'add') {
         $to_alter_column = 'item';
     }
 
-    sqlInsert("UPDATE ".escape_table_name($to_alter_table)." set " . escape_sql_column_name($to_alter_column, [$to_alter_table]) . " = ? where id =  ?", array($newval, $to_alter_id));
+    sqlStatement("UPDATE ".escape_table_name($to_alter_table)." set " . escape_sql_column_name($to_alter_column, [$to_alter_table]) . " = ? where id =  ?", array($newval, $to_alter_id));
 }
 
   //preselect column items

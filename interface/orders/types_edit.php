@@ -243,7 +243,7 @@ function proc_type_changed() {
             "<?php echo xlt('Enter Details for Recommendation'); ?>" + "   <i id='rec' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
     }
 }
-    $(document).ready(function() {
+    $(function () {
         proc_type_changed();
     });
 
@@ -722,7 +722,7 @@ function proc_type_changed() {
         </div><!--end of conatainer div-->
         <script>
             //jqury-ui tooltip
-            $(document).ready(function() {
+            $(function () {
                 //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
                 // the relevant css file needs to be called i.e. jquery-ui-darkness - to get a black tooltip
                 $('.icon-tooltip').attr("title", "<?php echo xla('Click to see more information'); ?>").tooltip({

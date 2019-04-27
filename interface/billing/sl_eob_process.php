@@ -6,8 +6,10 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -20,6 +22,7 @@ require_once("$srcdir/invoice_summary.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Services\InsuranceService;
 
 $debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
 $paydate = parse_date($_GET['paydate']);
@@ -29,7 +32,7 @@ $last_ptname = '';
 $last_invnumber = '';
 $last_code = '';
 $invoice_total = 0.00;
-$InsertionId;//last inserted ID of
+$InsertionId; // last inserted ID of
 
 ///////////////////////// Assorted Functions /////////////////////////
 
@@ -618,6 +621,32 @@ function era_callback(&$out)
                         $bgcolor,
                         'infdetail',
                         'This claim is now re-queued for secondary paper billing'
+                    );
+                }
+            }
+
+            if ($out['corrected'] == '1') {
+                if ($GLOBALS['update_mbi']) {
+                    if ($primary && (substr($inslabel, 3) == 1)) {
+                        $updated_ins = InsuranceService::getOne($pid, "primary");
+                        $updated_ins['provider'] = $insurance_id;
+                        $updated_ins['policy_number'] = $out['corrected_mbi'];
+                        InsuranceService::update($pid, "primary", $updated_ins);
+                    } else { // tbd secondary medicare
+                        // InsuranceService::update($pid, "secondary", array($insurance_id, '', $out['corrected_mbi']));
+                        // will need to add method to insurance service to return policy type
+                    }
+
+                    writeMessageLine(
+                        $bgcolor,
+                        'infdetail',
+                        "The policy number has been updated to " . $out['corrected_mbi']
+                    );
+                } else {
+                    writeMessageLine(
+                        $bgcolor,
+                        'infdetail',
+                        "The policy number could be updated to " . $out['corrected_mbi'] . " if you enable it in globals"
                     );
                 }
             }

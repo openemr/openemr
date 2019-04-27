@@ -284,7 +284,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
                     }
                 }
 
-                sqlInsert(
+                sqlStatement(
                     "INSERT INTO drug_templates ( " .
                     "drug_id, selector, dosage, period, quantity, refills, taxrates " .
                     ") VALUES ( ?, ?, ?, ?, ?, ?, ? )",

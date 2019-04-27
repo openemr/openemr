@@ -6,19 +6,26 @@
  * @link      http://www.open-emr.org
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
 
 require_once("../globals.php");
 require_once("$srcdir/auth.inc");
+require_once("$srcdir/user.inc");
 
 use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
 
 if ($GLOBALS['use_active_directory']) {
     exit();
 }
+$userid = $_SESSION['authId'];
+$user_name = getUserIDInfo($userid);
+$user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 ?>
 <html>
 <head>
@@ -55,6 +62,20 @@ function update_password()
 }
 
 </script>
+<?php
+$arrOeUiSettings = array(
+    'heading_title' => xl('Change Password'),
+    'include_patient_name' => false,
+    'expandable' => false,
+    'expandable_files' => array(),//all file names need suffix _xpd
+    'action' => "",//conceal, reveal, search, reset, link or back
+    'action_title' => "",
+    'action_href' => "",//only for actions - reset, link or back
+    'show_help_icon' => false,
+    'help_file_name' => ""
+);
+$oemr_ui = new OemrUI($arrOeUiSettings);
+?>
 </head>
 <body class="body_top" onload="document.forms[0].curPass.focus()">
 
@@ -64,63 +85,66 @@ $res = sqlStatement("select fname,lname,username from users where id=?", array($
 $row = sqlFetchArray($res);
       $iter=$row;
 ?>
-<div class="container">
-   <div class="row">
-      <div class="col-xs-12">
-         <div class="page-header">
-            <h3><?php echo xlt('Change Password'); ?></h3>
-         </div>
-      </div>
-   </div>
-   <div class="row">
-      <div class="col-xs-12">
-        <div id="display_msg"></div>
-      </div>
-   </div>
-
-  <div class="row">
-     <div class="col-xs-12">
-        <form method='post' action='user_info.php' class='form-horizontal' onsubmit='return update_password()'>
-        <input type=hidden name=secure_pwd value="<?php echo attr($GLOBALS['secure_password']); ?>">
-        <div class="form-group">
-           <label class='control-label col-sm-2'><?php echo xlt('Full Name') . ":"; ?></label>
-           <div class="col-sm-10">
-           <p class="form-control-static"><?php echo text($iter["fname"]) . " " . text($iter["lname"]) ?></p>
-           </div>
+<div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="page-header">
+            <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
+            </div>
         </div>
-        <div class="form-group">
-           <label class='control-label col-sm-2'><?php echo xlt('User Name') . ":"; ?></label>
-           <div class="col-sm-10">
-           <p class="form-control-static"><?php echo text($iter["username"]) ?></p>
-           </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="display_msg"></div>
         </div>
-        <div class="form-group">
-           <label for='curPass' class='control-label col-sm-2'><?php echo xlt('Current Password') . ":"; ?></label>
-           <div class='col-sm-3'>
-           <input type='password' class='form-control'  name='curPass'  id='curPass' value="" autocomplete='off'>
-           </div>
-        </div>
-        <div class="form-group">
-           <label class='control-label col-sm-2'><?php echo xlt('New Password') . ":"; ?></label>
-           <div class='col-sm-3'>
-           <input type='password' class='form-control' name='newPass'  value="" autocomplete='off'>
-           </div>
-        </div>
-        <div class="form-group">
-           <label class='control-label col-sm-2'><?php echo xlt('Repeat New Password') . ":"; ?></label>
-           <div class='col-sm-3'>
-           <input type='password' class='form-control' name=newPass2  value="" autocomplete='off'>
-           </div>
-        </div>
-        <div class="form-group">
-           <div class='col-sm-offset-2 col-sm-10'>
-              <button type="Submit" class='btn btn-default btn-save'><?php echo xlt('Save Changes'); ?></button>
-           </div>
-        </div>
-        </form>
-     </div>
-  </div>
-</div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <form method='post' action='user_info.php' class='form-horizontal' onsubmit='return update_password()'>
+                <input type=hidden name=secure_pwd value="<?php echo attr($GLOBALS['secure_password']); ?>">
+                <fieldset>
+                    <legend><?php echo xlt('Change Password for') . " " . $user_full_name; ?></legend>
+                    <div class="form-group">
+                        <label class='control-label col-sm-2'><?php echo xlt('Full Name') . ":"; ?></label>
+                        <div class="col-sm-10">
+                            <p class="form-control-static"><?php echo text($iter["fname"]) . " " . text($iter["lname"]) ?></p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class='control-label col-sm-2'><?php echo xlt('User Name') . ":"; ?></label>
+                        <div class="col-sm-10">
+                            <p class="form-control-static"><?php echo text($iter["username"]) ?></p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for='curPass' class='control-label col-sm-2'><?php echo xlt('Current Password') . ":"; ?></label>
+                        <div class='col-sm-3'>
+                            <input type='password' class='form-control'  name='curPass'  id='curPass' value="" autocomplete='off'>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class='control-label col-sm-2'><?php echo xlt('New Password') . ":"; ?></label>
+                        <div class='col-sm-3'>
+                            <input type='password' class='form-control' name='newPass'  value="" autocomplete='off'>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class='control-label col-sm-2'><?php echo xlt('Repeat New Password') . ":"; ?></label>
+                        <div class='col-sm-3'>
+                            <input type='password' class='form-control' name=newPass2  value="" autocomplete='off'>
+                        </div>
+                    </div>
+                </fieldset>
+                <div class="form-group">
+                    <div class='col-sm-offset-2 col-sm-10'>
+                        <button type="Submit" class='btn btn-default btn-save'><?php echo xlt('Save Changes'); ?></button>
+                    </div>
+                </div>
+            </form>
+    </div>
+    </div>
+</div><!--end of container div -->
+<?php $oemr_ui->oeBelowContainerDiv();?>
 
 </body>
 </html>

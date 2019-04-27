@@ -308,7 +308,7 @@ if (!acl_check('acct', 'eob')) {
 
 <!-- end DataTables js Begin local js -->
 <script type="text/javascript">
-    jQuery(document).ready(function() {
+    jQuery(function() {
         // activate tab interface
         jQuery("#tabs").tabs();
         jQuery("#tabs").tabs().css('visibility','visible');

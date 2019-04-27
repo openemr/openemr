@@ -41,7 +41,7 @@ $provider  = trim($_POST['form_provider']);
 
 <script LANGUAGE="JavaScript">
 
- $(document).ready(function() {
+ $(function() {
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
 

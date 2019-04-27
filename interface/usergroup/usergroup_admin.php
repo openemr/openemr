@@ -439,7 +439,7 @@ $form_inactive = empty($_POST['form_inactive']) ? false : true;
 
 <script type="text/javascript">
 
-$(document).ready(function(){
+$(function(){
 
     tabbify();
 
@@ -509,8 +509,8 @@ function authorized_clicked() {
                         <th><?php echo xlt('Username'); ?></th>
                         <th><?php echo xlt('Real Name'); ?></th>
                         <th><?php echo xlt('Additional Info'); ?></th>
-                        <th><?php echo xlt('Authorized'); ?>?</th>
-                        <th></th>
+                        <th><?php echo xlt('Authorized'); ?></th>
+                        <th><?php echo xlt('MFA'); ?></th>
                     </tr>
                     <tbody>
                         <?php
@@ -529,7 +529,18 @@ function authorized_clicked() {
                             if ($iter{"authorized"}) {
                                 $iter{"authorized"} = xl('yes');
                             } else {
-                                $iter{"authorized"} = "";
+                                $iter{"authorized"} = xl('no');
+                            }
+
+                            $mfa = sqlQuery(
+                                "SELECT `method` FROM `login_mfa_registrations` " .
+                                "WHERE `user_id` = ? AND (`method` = 'TOTP' OR `method` = 'U2F')",
+                                [$iter['id']]
+                            );
+                            if (!empty($mfa['method'])) {
+                                $isMfa = xl('yes');
+                            } else {
+                                $isMfa = xl('no');
                             }
 
                             print "<tr>
@@ -537,9 +548,8 @@ function authorized_clicked() {
                                 "' class='medium_modal' onclick='top.restoreSession()'>" . text($iter{"username"}) . "</a></b>" ."&nbsp;</td>
                                 <td>" . text($iter{"fname"}) . ' ' . text($iter{"lname"}) ."&nbsp;</td>
                                 <td>" . text($iter{"info"}) . "&nbsp;</td>
-                                <td align='left'><span>" .text($iter{"authorized"}) . "&nbsp;</td>";
-                            print "<td><!--<a href='usergroup_admin.php?mode=delete&id=" . attr_url($iter{"id"}) . "&csrf_token_form=" . attr_url(collectCsrfToken()) .
-                                "' class='link_submit'>[Delete]</a>--></td>";
+                                <td align='left'><span>" .text($iter{"authorized"}) . "</td>
+                                <td align='left'><span>" .text($isMfa) . "</td>";
                             print "</tr>\n";
                         }
                         ?>

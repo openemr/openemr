@@ -312,7 +312,7 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
                 $form_sale_date = date('Y-m-d');
             }
 
-            sqlInsert(
+            sqlStatement(
                 "INSERT INTO drug_sales ( " .
                 "drug_id, inventory_id, prescription_id, pid, encounter, user, " .
                 "sale_date, quantity, fee, xfer_inventory_id, distributor_id, notes " .

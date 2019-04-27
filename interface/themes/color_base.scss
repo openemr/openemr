@@ -488,6 +488,11 @@ th.currentvalues, th.historicalvalues {
 	background: $dark !important;
 }
 
+#create_patient_btn {
+	float: right;
+	margin-top: 35px;
+}
+
 @import "colors/openemr5/batch-payments";
 @import "colors/openemr5/recall-flow-board";
 @import "colors/openemr5/help-files";

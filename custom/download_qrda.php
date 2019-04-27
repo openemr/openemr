@@ -43,7 +43,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
     var provider_id = <?php echo js_escape($provider_id);?>;
     var zipFileArray = new Array();
     var failureMessage = "";
-    $(document).ready(function(){
+    $(function(){
         $("#checkAll").on("change", function() {
             var checked =  ( $("#checkAll").prop("checked") ) ? true : false;
             $("#thisForm input:checkbox").each(function() {
@@ -105,7 +105,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
                 if ( zipFileArray.length ) {
                     var zipFiles = zipFileArray.join(",");
                     //console.log(zipFiles);
-                    window.location = 'ajax_download.php?fileName=' + encodeURIComponent(zipFiles) + '&csrf_token_form=' + <?php echo js_url($_SESSION['csrf_token']); ?>;
+                    window.location = 'ajax_download.php?fileName=' + encodeURIComponent(zipFiles) + '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>;
                     zipFileArray.length = 0;
                 }
                 if ( failureMessage ) {

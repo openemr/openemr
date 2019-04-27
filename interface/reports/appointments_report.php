@@ -115,7 +115,7 @@ function fetch_reminders($pid, $appt_date)
     <?php Header::setupHeader(["datetime-picker","report-helper"]); ?>
 
     <script type="text/javascript">
-        $(document).ready(function() {
+        $(function() {
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
 

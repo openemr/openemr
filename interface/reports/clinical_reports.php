@@ -55,7 +55,7 @@ $communication = trim($_POST["communication"]);
     <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
     <script language="JavaScript">
-        $(document).ready(function() {
+        $(function() {
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
         });
@@ -181,7 +181,7 @@ $communication = trim($_POST["communication"]);
             }
         }
 
-        $(document).ready(function() {
+        $(function() {
             $(".numeric_only").keydown(function(event) {
                 //alert(event.keyCode);
                 // Allow only backspace and delete

@@ -39,19 +39,16 @@ class DocumentRestController
     public function downloadFile($pid, $did)
     {
         $results = $this->documentService->getFile($pid, $did);
-        $file = $results['url'];
-        if (file_exists($file)) {
+
+        if (!empty($results)) {
             header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header("Content-Type: application/force-download");
-            header('Content-Disposition: attachment; filename=' . urlencode(basename($file)));
+            header("Content-Type: " . $results['mimetype']);
+            header('Content-Disposition: attachment; filename=' . $results['filename']);
             header('Expires: 0');
             header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
             header('Pragma: public');
-            header('Content-Length: ' . filesize($file));
-            ob_clean();
-            flush();
-            readfile($file);
+            header('Content-Length: ' . strlen($results['file']));
+            echo $results['file'];
             exit;
         } else {
             http_response_code(400);

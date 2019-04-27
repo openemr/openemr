@@ -336,7 +336,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
 </div><!-- container -->
 
 <script type="text/javascript">
-$(document).ready(function() {
+$(function() {
 
 <?php // if something went wrong
 if (isset($_GET['requestNew'])) {

@@ -134,7 +134,7 @@ foreach ($docs as $doc) {
         $objDoc->populate();
         // mdsupport - Need set_category method for the Document
         if (is_numeric($objDoc->get_id())) {
-            sqlInsert("INSERT INTO categories_to_documents(category_id, document_id) VALUES(?,?)", array($arg['category'], $objDoc->get_id()));
+            sqlStatement("INSERT INTO categories_to_documents(category_id, document_id) VALUES(?,?)", array($arg['category'], $objDoc->get_id()));
         }
         printf('%s - %s%s', text($doc_pathname), (is_numeric($objDoc->get_id()) ? text($objDoc->get_url()) : xlt('Documents setup error')), "\n");
     } else {
