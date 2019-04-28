@@ -55,16 +55,16 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Http\oeHttp;
+use GuzzleHttp\Client;
 
 class RxList
 {
 
     function getPage($query)
     {
-        $url = "https://rxnav.nlm.nih.gov/REST/Prescribe/drugs";
-        $response = oeHttp::get($url, ['name'=>$query]);
-        $buffer = $response->body();
+        $clientGuzzle = new Client;
+        $response = $clientGuzzle->get("https://rxnav.nlm.nih.gov/REST/Prescribe/drugs", ['query' => ['name' => $query]]);
+        $buffer = $response->getBody();
         return $buffer ? $buffer : false;
     } // end function RxList::getPage
 

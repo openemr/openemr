@@ -12,7 +12,7 @@
 
 namespace OpenEMR\Rx\Weno;
 
-use OpenEMR\Common\Http\oeHttp;
+use GuzzleHttp\Client;
 
 class TransmitData
 {
@@ -109,10 +109,9 @@ class TransmitData
             'skip' => '',
             'version' => '2.0',
         ];
-        $response = oeHttp::bodyFormat('body')->get('https://npiregistry.cms.hhs.gov/api/', $query);
-
-        $body = $response->body(); // already should be json.
-
+        $clientGuzzle = new Client;
+        $response = $clientGuzzle->get('https://npiregistry.cms.hhs.gov/api/', ['query' => $query]);
+        $body = $response->getBody();
         $validated = json_decode($body);
 
         return $validated->result_count;
