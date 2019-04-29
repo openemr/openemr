@@ -159,4 +159,9 @@ class PatientData extends React.Component {
     }
 }
 
-export default PatientData;
+
+export default {
+    view: () => (
+        <PatientData/>
+    )
+};

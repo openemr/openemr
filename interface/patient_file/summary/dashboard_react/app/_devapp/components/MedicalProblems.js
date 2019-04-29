@@ -27,7 +27,10 @@ class MedicalProblems extends React.Component {
             renderElement:false
         }
     }
-
+    setElement(  element,element_title){
+        this.setState.element=element;
+        this.setState.element_title=element_title;
+    }
     getMedicalProblems() {
         this.setState.patientId = helpers.getPatientId();
         if (this.setState.patientId >= 0) {
@@ -147,5 +150,11 @@ class MedicalProblems extends React.Component {
 
 }
 
-export default MedicalProblems;
 
+
+export default {
+    view: (props) => (
+
+         <MedicalProblems element={props.element} element_title={props.element_title} />
+    )
+};

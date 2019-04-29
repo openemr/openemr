@@ -11,13 +11,20 @@ import MenuDashboard from "./MenuDashboard";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {LazyLoadModule} from "../lazy";
 
 
 class Dashboard extends React.Component {
+    /*
+    *      <!--MedicalProblems element="MedicalProblems" element_title="Medical Problems"/>
+                            <MedicalProblems element="Allergies"  element_title="Allergies"/>
+                            <MedicalProblems element="Medications"  element_title="Medications"/>-->
+    * */
     constructor(props) {
         super(props);
         this.state = {
-            gadgets:''
+            gadgets:'',
+            moudle:'MenuDashboard'
         };
     }
 
@@ -83,10 +90,14 @@ class Dashboard extends React.Component {
 
     render() {
         return (
+
+
+
+
             <div className="container-fluid">
                 <div className="row">
                     <div className="col-md-12">
-                        <MenuDashboard />
+                        <LazyLoadModule resolve={() => import("./MenuDashboard")}/>
                     </div>
                 </div>
                 <div className="row">
@@ -96,7 +107,7 @@ class Dashboard extends React.Component {
                                 Practical information
                             </Card.Header>
                             <Card.Body>
-                                <PatientData />
+                                <LazyLoadModule resolve={() => import("./PatientData")}/>
                             </Card.Body>
                         </Card>
 
@@ -108,9 +119,10 @@ class Dashboard extends React.Component {
                             Medical Highlights
                         </Card.Header>
                         <Card.Body>
-                            <MedicalProblems element="MedicalProblems" element_title="Medical Problems"/>
-                            <MedicalProblems element="Allergies"  element_title="Allergies"/>
-                            <MedicalProblems element="Medications"  element_title="Medications"/>
+                                <LazyLoadModule resolve={() =>  import("./MedicalProblems")}  element="MedicalProblems" element_title="Medical Problems" />
+                                <LazyLoadModule resolve={() =>    import("./MedicalProblems")} element="Allergies" element_title="Allergies" />
+                                <LazyLoadModule resolve={() =>    import("./MedicalProblems")} element="Medications" element_title="Medications" />
+
                         </Card.Body>
                         </Card>
 

@@ -91,5 +91,8 @@ class MenuDashboard extends React.Component {
     }
 }
 
-export default MenuDashboard;
-
+export default {
+    view: () => (
+        <MenuDashboard/>
+    )
+};

@@ -44,7 +44,8 @@
     "style-loader": "^0.23.1",
     "webpack": "^4.30.0",
     "webpack-cli": "^3.3.0",
-    "webpack-dev-server": "^3.1.14"
+    "webpack-dev-server": "^3.1.14",
+    "babel-polyfill": "^6.0.16"
   },
   "repository": {
     "type": "git",
