@@ -117,13 +117,12 @@ if ($_REQUEST['startdate']) {
         $matches = explode('-', $sdate);
         $sdate = date(
             "Y-m-d",
-            mktime(0,0,0, $matches[1], $matches[2], $matches[0])
+            mktime(0, 0, 0, $matches[1], $matches[2], $matches[0])
         );
         $edate = date(
             "Y-m-d",
             mktime(0, 0, 0, $matches[1], $matches[2] + $searchdays, $matches[0])
         );
-
     } else if ($GLOBALS['date_display_format'] == 1) {
         // $matches[0] is MM, $matches[1] is DD, $matches[2] is YYYY
         $matches = explode('/', $sdate);
@@ -136,8 +135,8 @@ if ($_REQUEST['startdate']) {
         // $matches[0] is DD, $matches[1] is MM, $matches[2] is YYYY
         $matches = explode('/', $sdate);
         $sdate = date(
-                "Y-m-d",
-                mktime(0,0,0, $matches[1], $matches[0], $matches[2])
+            "Y-m-d",
+            mktime(0, 0, 0, $matches[1], $matches[0], $matches[2])
         );
         $edate = date(
             "Y-m-d",
