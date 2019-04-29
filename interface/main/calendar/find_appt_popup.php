@@ -110,21 +110,20 @@ if ($_REQUEST['searchdays']) {
 }
 
  // Get a start date.
-if ($_REQUEST['startdate'] && preg_match(
-    "/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
-    $_REQUEST['startdate'],
-    $matches
-)) {
-    $sdate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
+if ($_REQUEST['startdate']) {
+    if ($GLOBALS['date_display_format'] == 1) {
+        $sdate = ($_REQUEST['startdate']);
+        // $matches[0] is MM, $matches[1] is DD, $matches[2] is YYYY
+        $matches = explode('/', $sdate);
+    }
 } else {
     $sdate = date("Y-m-d");
 }
 
 // Get an end date - actually the date after the end date.
-preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $sdate, $matches);
 $edate = date(
     "Y-m-d",
-    mktime(0, 0, 0, $matches[2], $matches[3] + $searchdays, $matches[1])
+    mktime(0, 0, 0, $matches[0], $matches[1] + $searchdays, $matches[2])
 );
 
 // compute starting time slot number and number of slots.
