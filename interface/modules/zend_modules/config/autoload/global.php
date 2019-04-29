@@ -83,19 +83,7 @@ return array(
     ),
     'service_manager' => array(
         'factories' => $factories
-    ),
-    // @see https://docs.zendframework.com/tutorials/i18n/
-    // TODO: we don't seem to have any translation files here... so we may just want to remove this.
-    'translator' => [
-        'locale' => 'en_US',
-        'translation_file_patterns' => [
-            [
-                'type'     => 'gettext',
-                'base_dir' => getcwd() .  '/data/language',
-                'pattern'  => '%s.mo',
-            ],
-        ],
-    ],
+    )
 );
 
 

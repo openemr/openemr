@@ -34,7 +34,6 @@ use Zend\Db\Adapter\Adapter;
 
 class InstallerController extends AbstractActionController
 {
-    const MODULE_FILE_PATH = '/config/modules.config.php';
     /**
      * @var Installer\Model\InstModuleTable
      */
@@ -95,7 +94,7 @@ class InstallerController extends AbstractActionController
         $request  = $this->getRequest();
         if ($request->isPost()) {
             if ($request->getPost('mtype') == 'zend') {
-                // TODO: We only show modules to register that are in the MODULE_FILE_PATH.  We want to be able to load the modules
+                // TODO: We want to be able to load the modules
                 // from the database.. however, this can be fairly slow so we might want to do some kind of APC caching of the module
                 // list that is loaded using the OpenEMR db connector and not the zend db connector, cache the modules, and then
                 // we can filter / update that list.  We'll have to inject the unloaded module list into the installer but that is fine.
