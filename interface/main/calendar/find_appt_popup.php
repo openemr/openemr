@@ -3,26 +3,17 @@
  *
  * Script to find open appointmnent slots
  *
- * Copyright (C) 2005-2013 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
  * @package OpenEMR
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Ian Jardine ( github.com/epsdky )
  * @author Roberto Vasquez <robertogagliotta@gmail.com>
  * @author Brady Miller <brady.g.miller@gmail.com>
- * @link http://www.open-emr.org
+ * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (C) 2005-2013 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @link https://github.com/openemr/openemr/tree/master
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
  include_once("../../globals.php");
