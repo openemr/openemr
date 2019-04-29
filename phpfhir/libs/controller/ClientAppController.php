@@ -70,7 +70,7 @@ class clientController extends oeDispatchController
         $fhir_uri = $type . '/' . strtolower($type) . '-' . $oeid;
         $api_uri = $type . '/' . $oeid;
         // get resource from api
-        $response = oeHttp::usingBaseUri($this->apiBase)->get($api_uri);
+        $response = oeHttp::setLocalApiContext(true)->usingBaseUri($this->apiBase)->get($api_uri);
         $resource = $response->body(); // json encoded
 
         // create resource on Fhir server.
