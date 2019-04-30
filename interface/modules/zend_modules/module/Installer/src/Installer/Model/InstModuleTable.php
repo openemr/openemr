@@ -882,8 +882,6 @@ class InstModuleTable
             $className        = str_replace('[module_name]', $moduleDirectory, '[module_name]\\Form\\ModuleconfigForm');
             if ($this->container->has($className)) {
                 $obj = $this->container->get($className);
-            } else {
-                error_log("Could not find class name " . $className);
             }
         } else {
             $obj = $this->getObject($moduleDirectory, 'Form');
@@ -897,8 +895,6 @@ class InstModuleTable
         $setup = array();
         if ($this->container->has($className)) {
             $obj = $this->container->get($className);
-        } else {
-            error_log("Could not find Setup object for $className");
         }
         if (!empty($obj)) {
             $setup['module_dir']  = strtolower($moduleDirectory);
@@ -927,11 +923,8 @@ class InstModuleTable
         }
 
         $className        = str_replace('[module_name]', $moduleDirectory, '[module_name]\\' . $option  . '\Moduleconfig' . $option . '');
-    
         if ($this->container->has($className)) {
             $obj = $this->container->get($className);
-        } else {
-            error_log("Could not find class $className");
         }
 
         return $obj;

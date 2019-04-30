@@ -14,18 +14,26 @@ $core_modules = [
     'Application', // Main application module starting point.
     'Installer', // Handles the dynamic adding / removing of modules in the system.
     'Acl', // Handles all of the permission checks in the system.
-    'Carecoordination', // Handles import / export of CCR,CDA Immunization, Syndromicsurveillance
-    'Ccr', // Module specific code for dealing with CCR import/export
-    'Documents', // Handles the loading / creating of documents
-    'Immunization',
-    'Syndromicsurveillance',
-    'Patientvalidation', // Validates patients for duplicate records
-    'Multipledb', // Allows multiple database handlers within the module system
-    'PrescriptionTemplates' // Handles the printing / displaying of prescriptions.
 ];
 
-// TODO: if we ever want to load module definitions from the database we would do that there...
-$plugin_modules = [];
+/**
+ * Grabs the actively enabled modules from the database and injects them into the system.
+ * For the list of active modules you can see them from the modules installer tab, or by querying the modules table
+ * Otherwise the modules are found inside the modules/zend_modules folder.  The uninstalled script will dynamically find them
+ * in the filesystem.
+ */
+function oemr_zend_load_modules_from_db()
+{
+    // we skip the audit log as it has no bearing on user activity and is core system related...
+    $resultSet = sqlStatementNoLog($statement = "SELECT mod_name FROM modules WHERE mod_active = 1 ORDER BY `mod_ui_order`, `date`");
+    $db_modules = [];
+    while ($row = sqlFetchArray($resultSet)) {
+        $db_modules[] = $row["mod_name"];
+    }
+    return $db_modules;
+}
+$plugin_modules = oemr_zend_load_modules_from_db();
+$vendor_path = !empty($GLOBALS['vendor_dir']) ? $GLOBALS['vendor_dir'] : (realpath(__DIR__) . '/../vendor');
 
 return [
     'modules' =>  array_merge($core_modules, $plugin_modules)
@@ -34,10 +42,11 @@ return [
             realpath(__DIR__) . '/autoload/{,*.}{global,local}.php',
         ],
         'module_paths' =>  [
-            './module',
+            realpath(__DIR__) . '/../module',
                 // yes this means you can install modules through composer... but you have to either include them into core modules
-                // array up above or register them in the database.
-            './vendor',
+                // array up above
+            $vendor_path
         ],
-    ]
+    ],
+    'service_manager' => []
 ];

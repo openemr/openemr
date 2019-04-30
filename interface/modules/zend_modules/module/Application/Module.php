@@ -31,7 +31,7 @@ class Module
     public function onBootstrap(MvcEvent $e)
     {
         /**
-         * Determines if the module namespace should be prepended to the controller name.
+         * Determines if the module namespace should be prepended to the controller name. 
          * This is the case if the route match contains a parameter key matching the MODULE_NAMESPACE constant.
          */
         $eventManager        = $e->getApplication()->getEventManager();
