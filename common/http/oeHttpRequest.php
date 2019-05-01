@@ -55,10 +55,10 @@ class oeHttpRequest extends oeOAuth
         });
     }
 
-    public function setApiContext($isExternal = false)
+    public function setLocalApiContext($isLocalApiContext = false)
     {
-        return $this->tap($this, function ($request) use ($isExternal) {
-            $this->apiNative = !$isExternal;
+        return $this->tap($this, function ($request) use ($isLocalApiContext) {
+            $this->apiNative = $isLocalApiContext;
         });
     }
 

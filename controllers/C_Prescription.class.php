@@ -160,7 +160,7 @@ class C_Prescription extends Controller
                     // (array_filter removes empty items)
                     $rxcui_list = implode("+", array_filter($nameList));
                     // Unable to urlencode the $rxcui, since this breaks the + items on call to rxnav.nlm.nih.gov; so need to include it in the path
-                    $response = oeHttp::bodyFormat('body')->get('https://rxnav.nlm.nih.gov/REST/interaction/list.json?rxcuis=' . $rxcui_list);
+                    $response = oeHttp::get('https://rxnav.nlm.nih.gov/REST/interaction/list.json?rxcuis=' . $rxcui_list);
                     $data = $response->body();
                     $json = json_decode($data, true);
                     if (!empty($json['fullInteractionTypeGroup'][0]['fullInteractionType'])) {

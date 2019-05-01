@@ -43,9 +43,9 @@ class clientController extends oeDispatchController
 
     public function createEncounterAllAction()
     {
-        $pid = $this->getRequest(pid);
-        $oeid = $this->getRequest(oeid);
-        $type = $this->getRequest(type);
+        $pid = $this->getRequest('pid');
+        $oeid = $this->getRequest('oeid');
+        $type = $this->getRequest('type');
 
         $this->encounterService = new EncounterService();
         $this->fhirService = new FhirResourcesService();
@@ -64,13 +64,13 @@ class clientController extends oeDispatchController
 
     public function createAction()
     {
-        $oeid = $this->getRequest(oeid);
-        $type = $this->getRequest(type);
+        $oeid = $this->getRequest('oeid');
+        $type = $this->getRequest('type');
 
         $fhir_uri = $type . '/' . strtolower($type) . '-' . $oeid;
         $api_uri = $type . '/' . $oeid;
         // get resource from api
-        $response = oeHttp::usingBaseUri($this->apiBase)->get($api_uri);
+        $response = oeHttp::setLocalApiContext(true)->usingBaseUri($this->apiBase)->get($api_uri);
         $resource = $response->body(); // json encoded
 
         // create resource on Fhir server.
@@ -87,8 +87,8 @@ class clientController extends oeDispatchController
 
     public function historyAction()
     {
-        $oeid = $this->getRequest(oeid);
-        $type = $this->getRequest(type);
+        $oeid = $this->getRequest('oeid');
+        $type = $this->getRequest('type');
 
         $id = strtolower($type) . '-' . $oeid;
         $uri = $type . '/' . $id . '/_history';
@@ -98,8 +98,8 @@ class clientController extends oeDispatchController
 
     public function readAction()
     {
-        $oeid = $this->getRequest(oeid);
-        $type = $this->getRequest(type);
+        $oeid = $this->getRequest('oeid');
+        $type = $this->getRequest('type');
 
         $uri = $type . '/' . strtolower($type) . '-' . $oeid;
         $response = oeHttp::usingBaseUri($this->fhirBase)->get($uri);
@@ -109,8 +109,8 @@ class clientController extends oeDispatchController
 
     public function searchAction()
     {
-        $pid = $this->getRequest(pid);
-        $type = $this->getRequest(type);
+        $pid = $this->getRequest('pid');
+        $type = $this->getRequest('type');
         if ($type === 'Patient') {
             return xlt('Patient Search Not Available');
         }
