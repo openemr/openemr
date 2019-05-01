@@ -13,5 +13,5 @@ error_log("DEBUG1: " . $_SERVER['HTTP_HOST'] . " : " . $GLOBALS['web_root']);
 // (for example, if trying to run this through a php-fpm instance that does not include apache/nginx then not sure how it would work)
 $server = (preg_match('/^localhost:[0-9]+$/', $_SERVER['HTTP_HOST'])) ? 'localhost' : $_SERVER['HTTP_HOST'];
 
-$response = oeHttp::bodyFormat('body')->get($server . $GLOBALS['web_root'] . '/apis/api/facility');
+$response = oeHttp::setLocalApiContext(true)->get($server . $GLOBALS['web_root'] . '/apis/api/facility');
 echo $response->body();

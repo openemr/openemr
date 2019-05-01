@@ -187,6 +187,9 @@ class oeHttpRequest extends oeOAuth
     {
         if ($this->apiNative && !$this->apiOAuth) {
             $this->usingHeaders([
+
+                error_log("DEBUG6: sending sensitive data via header for internal api call!");
+
                 'appsecret' => session_id(),
                 'apptoken' => $_SESSION['api_csrf_token']
             ]);
