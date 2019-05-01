@@ -19,6 +19,7 @@
 require_once("$srcdir/edihistory/codes/edih_271_code_class.php");
 
 use OpenEMR\Common\Http\oeHttp;
+use OpenEMR\Common\Utils\RandomGenUtils;
 
 // @TODO global to become private var when this goes to a class.
 //
@@ -757,7 +758,7 @@ function requestEligibility($partner = '', $x12_270 = '')
         $payloadId = vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
 
-    $boundary = createUniqueToken(12);
+    $boundary = RandomGenUtils::createUniqueToken(12);
     $rt_passwrd = $X12info['x12_isa04'];
     $rt_user = $X12info['x12_isa02'];
     $sender_id = $X12info['x12_sender_id'];

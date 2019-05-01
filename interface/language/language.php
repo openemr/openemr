@@ -16,6 +16,8 @@ require_once("$srcdir/registry.inc");
 require_once("../../library/acl.inc");
 require_once("language.inc.php");
 
+use OpenEMR\Common\Utils\RandomGenUtils;
+
 //START OUT OUR PAGE....
 ?>
 <html>
@@ -51,7 +53,7 @@ if (!empty($_GET['m'])) {
 
     // Pass a unique variable, so below scripts can
     // not be run on their own
-    $unique_id = createUniqueToken();
+    $unique_id = RandomGenUtils::createUniqueToken();
     $_SESSION['lang_module_unique_id'] = $unique_id;
 
     switch ($_GET['m']) :

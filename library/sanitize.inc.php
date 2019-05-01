@@ -13,6 +13,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Utils\RandomGenUtils;
+
 // Function to collect ip address(es)
 function collectIpAddresses()
 {
@@ -34,7 +36,7 @@ function collectIpAddresses()
 // Function to create a csrf_token
 function createCsrfToken()
 {
-    return createUniqueToken();
+    return RandomGenUtils::createUniqueToken();
 }
 
 // Function to collect the csrf token

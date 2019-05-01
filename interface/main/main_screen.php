@@ -16,6 +16,7 @@
 /* Include our required headers */
 require_once('../globals.php');
 
+use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 use u2flib_server\U2F;
@@ -478,7 +479,7 @@ if ($GLOBALS['new_tabs_layout']) {
     }
 
     // Pass a unique token, so main.php script can not be run on its own
-    $_SESSION['token_main_php'] = createUniqueToken();
+    $_SESSION['token_main_php'] = RandomGenUtils::createUniqueToken();
     header('Location: ' . $web_root . "/interface/main/tabs/main.php?token_main=" . urlencode($_SESSION['token_main_php']));
     exit();
 }
