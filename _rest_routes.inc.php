@@ -38,7 +38,7 @@ RestConfig::$ROUTE_MAP = array(
         return (new AuthRestController())->authenticate($data);
     },
     "GET /api/facility" => function () {
-        authorization_check("admin", "users");
+        //authorization_check("admin", "users");
         return (new FacilityRestController())->getAll();
     },
     "GET /api/facility/:fid" => function ($fid) {

@@ -41,6 +41,8 @@ if (!empty($_REQUEST['_REWRITE_COMMAND'])) {
     }
 }
 
+error_log("DEBUG7: " . $resource);
+
 $ignoreAuth = true;
 // Maintain site id for multi site compatibility.
 // token is a 32 character hash followed by hex encoded 4 char api flag and site id.

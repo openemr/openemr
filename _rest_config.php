@@ -185,4 +185,4 @@ class RestConfig
 
 // Include our routes and init routes global
 //
-include_once("./../_rest_routes.inc.php");
+require_once(dirname(__FILE__) . "/_rest_routes.inc.php");
