@@ -11,6 +11,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Utils\RandomGenUtils;
 
 /**
  * Standard function to encrypt
@@ -108,7 +109,7 @@ function coreEncrypt($sValue, $customPassword = null, $keySource = 'drive', $key
         $sSecretKeyHmac = collectCryptoKey($keyNumber, "b", $keySource);
     } else {
         // customPassword mode, so turn the password into keys
-        $sSalt = produceRandomBytes(32);
+        $sSalt = RandomGenUtils::produceRandomBytes(32);
         if (empty($sSalt)) {
             error_log('OpenEMR Error : Random Bytes error - exiting');
             die();
@@ -122,7 +123,7 @@ function coreEncrypt($sValue, $customPassword = null, $keySource = 'drive', $key
         error_log("OpenEMR Error : Encryption is not working because key(s) is blank.");
     }
 
-    $iv = produceRandomBytes(openssl_cipher_iv_length('aes-256-cbc'));
+    $iv = RandomGenUtils::produceRandomBytes(openssl_cipher_iv_length('aes-256-cbc'));
     if (empty($iv)) {
         error_log('OpenEMR Error : Random Bytes error - exiting');
         die();
@@ -365,7 +366,7 @@ function collectCryptoKey($version = "one", $sub = "", $keySource = 'drive')
         if (empty($sqlValue['value'])) {
             // Create a new key and place in database
             // Produce a 256bit key (32 bytes equals 256 bits)
-            $newKey = produceRandomBytes(32);
+            $newKey = RandomGenUtils::produceRandomBytes(32);
             if (empty($newKey)) {
                 error_log('OpenEMR Error : Random Bytes error - exiting');
                 die();
@@ -376,7 +377,7 @@ function collectCryptoKey($version = "one", $sub = "", $keySource = 'drive')
         if (!file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label)) {
             // Create a key and place in drive
             // Produce a 256bit key (32 bytes equals 256 bits)
-            $newKey = produceRandomBytes(32);
+            $newKey = RandomGenUtils::produceRandomBytes(32);
             if (empty($newKey)) {
                 error_log('OpenEMR Error : Random Bytes error - exiting');
                 die();
@@ -410,52 +411,4 @@ function collectCryptoKey($version = "one", $sub = "", $keySource = 'drive')
 
     // Return the key
     return $key;
-}
-
-// Produce random bytes (uses random_bytes with error checking)
-function produceRandomBytes($length)
-{
-    try {
-        $randomBytes = random_bytes($length);
-    } catch (Error $e) {
-        error_log('OpenEMR Error : Encryption is not working because of random_bytes() Error: ' . $e->getMessage());
-        return '';
-    } catch (Exception $e) {
-        error_log('OpenEMR Error : Encryption is not working because of random_bytes() Exception: ' . $e->getMessage());
-        return '';
-    }
-
-    return $randomBytes;
-}
-
-// Produce random string (uses random_int with error checking)
-function produceRandomString($length = 26, $alphabet = 'abcdefghijklmnopqrstuvwxyz234567')
-{
-    $str = '';
-    $alphamax = strlen($alphabet) - 1;
-    for ($i = 0; $i < $length; ++$i) {
-        try {
-            $str .= $alphabet[random_int(0, $alphamax)];
-        } catch (Error $e) {
-            error_log('OpenEMR Error : Encryption is not working because of random_int() Error: ' . $e->getMessage());
-            return '';
-        } catch (Exception $e) {
-            error_log('OpenEMR Error : Encryption is not working because of random_int() Exception: ' . $e->getMessage());
-            return '';
-        }
-    }
-    return $str;
-}
-
-// Function to create a random unique token with just alphanumeric characters
-function createUniqueToken($length = 40)
-{
-    $new_token = produceRandomString($length, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-
-    if (empty($new_token)) {
-        error_log('OpenEMR Error : OpenEMR is not working because unable to create a random unique token.');
-        die("OpenEMR Error : OpenEMR is not working because unable to create a random unique token.");
-    }
-
-    return $new_token;
 }

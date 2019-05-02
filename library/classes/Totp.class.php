@@ -11,6 +11,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
 
+use OpenEMR\Common\Utils\RandomGenUtils;
 use ParagonIE\MultiFactor\Vendor\GoogleAuth;
 
 /**
@@ -41,9 +42,9 @@ class Totp
         } else {
             // Shared key (per rfc6238 and rfc4226) should be 20 bytes (160 bits) and encoded in base32, which should
             //   be 32 characters in base32
-            // Would be nice to use the produceRandomBytes() function and then encode to base32, but does not appear
-            //   to be a standard way to encode binary to base32 in php.
-            $this->_secret = produceRandomString(32, "234567ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+            // Would be nice to use the OpenEMR\Common\Utils\RandomGenUtils\produceRandomBytes() function and then encode to base32,
+            //   but does not appear to be a standard way to encode binary to base32 in php.
+            $this->_secret = RandomGenUtils::produceRandomString(32, "234567ABCDEFGHIJKLMNOPQRSTUVWXYZ");
             if (empty($this->_secret)) {
                 error_log('OpenEMR Error : Random String error - exiting');
                 die();
