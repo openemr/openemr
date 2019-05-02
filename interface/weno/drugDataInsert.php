@@ -17,6 +17,10 @@ require_once('../globals.php');
 if (!verifyCsrfToken($_GET["csrf_token_form"])) {
     csrfNotVerified();
 }
+// check to make sure only administrators access this page.
+if (!acl_check('admin', 'super')) {
+    die(xlt("You are not authorized!"));
+}
 
 function insertDrugData()
 {
