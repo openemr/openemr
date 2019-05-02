@@ -801,7 +801,7 @@ SOURCESITEBOT;
                         }
 
                         $randomusernamepre = RandomGenUtils::produceRandomString(3, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-                        $randomusernamepost = RandomGenUtils::produceRandomString(3, "0123456789");
+                        $randomusernamepost = RandomGenUtils::produceRandomString(2, "0123456789");
                         $randomusername = $randomusernamepre . "-admin-" . $randomusernamepost;
 
                         // App Based TOTP secret
