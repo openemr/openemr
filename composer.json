@@ -90,11 +90,11 @@
             "library/formatting.inc.php",
             "library/date_functions.php",
             "library/validation/validate_core.php",
-            "library/translation.inc.php",
-            "library/crypto.php"
+            "library/translation.inc.php"
         ],
         "psr-4" : {
             "OpenEMR\\Common\\Compatibility\\" : "common/compatibility",
+            "OpenEMR\\Common\\Crypto\\" : "common/crypto",
             "OpenEMR\\Common\\Database\\" : "common/database",
             "OpenEMR\\Common\\Http\\" : "common/http",
             "OpenEMR\\Common\\Logging\\" : "common/logging",

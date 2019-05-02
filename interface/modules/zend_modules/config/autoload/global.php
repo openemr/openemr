@@ -13,6 +13,9 @@
  * @Author: Oshri R <oshri.rozmarin@gmail.com>
  *
  */
+
+use OpenEMR\Common\Crypto\CryptoGen;
+
 // If to use utf-8 or not in my sql query
 $tmp = $GLOBALS['disable_utf8_flag'] ? "SET sql_mode = ''" : "SET NAMES 'UTF8', sql_mode = ''";
 $tmp .= ", time_zone = '" . (new DateTime())->format("P") . "'";
@@ -49,13 +52,14 @@ if ($GLOBALS['allow_multiple_databases']) {
     if ($res->execute()) {
         foreach ($res->fetchAll() as $row) {
             // Create new adapters using data from database
+            $cryptoGen = new CryptoGen();
             $adapters[$row['namespace']] = array(
                 'driver' => 'Pdo',
                 'dsn' => 'mysql:dbname=' . $row['dbname'] . ';host=' . $row['host'] . '',
                 'driver_options' => $utf8,
                 'port' => $row['port'],
                 'username' => $row['username'],
-                'password' => (cryptCheckStandard($row['password'])) ? decryptStandard($row['password']) : my_decrypt($row['password']),
+                'password' => ($cryptoGen->cryptCheckStandard($row['password'])) ? $cryptoGen->decryptStandard($row['password']) : my_decrypt($row['password']),
             );
 
             // Create new factories using data from custom database

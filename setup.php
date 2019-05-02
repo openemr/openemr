@@ -97,6 +97,7 @@ require_once dirname(__FILE__) ."/vendor/autoload.php";
 require_once(dirname(__FILE__) . '/library/authentication/password_hashing.php');
 require_once dirname(__FILE__) . '/library/classes/Installer.class.php';
 
+use OpenEMR\Common\Crypto\CryptoGen; // Used in Installer class when use the class from setup.php
 use OpenEMR\Common\Utils\RandomGenUtils;
 
 $COMMAND_LINE = php_sapi_name() == 'cli';

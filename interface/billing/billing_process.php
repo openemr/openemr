@@ -24,6 +24,7 @@ require_once("$srcdir/billrep.inc");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\HCFA_1500;
 use OpenEMR\Billing\X12_5010_837P;
+use OpenEMR\Common\Crypto\CryptoGen;
 
 if (!verifyCsrfToken($_POST["csrf_token_form"])) {
     csrfNotVerified();
@@ -160,12 +161,15 @@ function process_form($ar)
     global $bill_info, $webserver_root, $bat_filename, $pdf, $template;
     global $ub04id;
 
+    // Set up crypto object
+    $cryptoGen = new CryptoGen();
+
     if (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter']) || isset($ar['bn_process_hcfa']) || isset($ar['bn_hcfa_txt_file']) || isset($ar['bn_process_hcfa_form'])
         || isset($ar['bn_process_ub04_form']) || isset($ar['bn_process_ub04']) || isset($ar['bn_ub04_x12'])) {
         if ($GLOBALS['billing_log_option'] == 1) {
             $hlog = file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log");
-            if (cryptCheckStandard($hlog)) {
-                $hlog = decryptStandard($hlog, null, 'database');
+            if ($cryptoGen->cryptCheckStandard($hlog)) {
+                $hlog = $cryptoGen->decryptStandard($hlog, null, 'database');
             }
         } else { // ($GLOBALS['billing_log_option'] == 2)
             $hlog = '';
@@ -317,7 +321,7 @@ function process_form($ar)
 
     if (!empty($hlog)) {
         if ($GLOBALS['drive_encryption']) {
-            $hlog = encryptStandard($hlog, null, 'database');
+            $hlog = $cryptoGen->encryptStandard($hlog, null, 'database');
         }
         file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log", $hlog);
     }

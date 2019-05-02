@@ -28,6 +28,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 require_once("./appsql.class.php");
 
 use OpenEMR\Billing\PaymentGateway;
+use OpenEMR\Common\Crypto\CryptoGen;
 
 if ($_SESSION['portal_init'] !== true) {
     $_SESSION['whereto'] = 'paymentpanel';
@@ -156,7 +157,8 @@ function SaveAudit($pid, $amts, $cc)
         $audit['table_args'] = $amts;
         $audit['action_user'] = "0";
         $audit['action_taken_time'] = "";
-        $audit['checksum'] = encryptStandard($cc);
+        $cryptoGen = new CryptoGen();
+        $audit['checksum'] = $cryptoGen->encryptStandard($cc);
 
         $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
         $audit['date'] = $edata['date'];
@@ -188,7 +190,8 @@ function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'no
         $audit['table_args'] = $amts;
         $audit['action_user'] = isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : "0";
         $audit['action_taken_time'] = date("Y-m-d H:i:s");
-        $audit['checksum'] = encryptStandard($cc);
+        $cryptoGen = new CryptoGen();
+        $audit['checksum'] = $cryptoGen->encryptStandard($cc);
 
         $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
         $audit['date'] = $edata['date'];

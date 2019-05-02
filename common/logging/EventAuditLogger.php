@@ -14,6 +14,7 @@
 namespace OpenEMR\Common\Logging;
 
 use \DateTime;
+use OpenEMR\Common\Crypto\CryptoGen;
 use Waryway\PhpTraitsLibrary\Singleton;
 
 class EventAuditLogger
@@ -145,6 +146,12 @@ MSG;
      */
     public function newEvent($event, $user, $groupname, $success, $comments = "", $patient_id = null, $log_from = 'open-emr', $menu_item = 'dashboard', $ccda_doc_id = 0)
     {
+        // Set up crypto object that will be used by this singleton class for for encryption/decryption (if not set up already)
+        if (!isset($this->cryptoGen)) {
+            // error_log("DEBUG4:newEvent CREATE new inner CryptGen");
+            $this->cryptoGen = new CryptoGen();
+        }
+
         $adodb = $GLOBALS['adodb']['db'];
         $crt_user=isset($_SERVER['SSL_CLIENT_S_DN_CN']) ?  $_SERVER['SSL_CLIENT_S_DN_CN'] : null;
 
@@ -158,7 +165,7 @@ MSG;
         $encrypt_comment = 'No';
         if (!empty($comments)) {
             if ($GLOBALS["enable_auditlog_encryption"]) {
-                $comments =  encryptStandard($comments);
+                $comments =  $this->cryptoGen->encryptStandard($comments);
                 $encrypt_comment = 'Yes';
             }
         }
@@ -710,6 +717,12 @@ MSG;
      */
     public function auditSQLEvent($statement, $outcome, $binds = null)
     {
+        // Set up crypto object that will be used by this singleton class for for encryption/decryption (if not set up already)
+        if (!isset($this->cryptoGen)) {
+            // error_log("DEBUG5:auditSQLEvent CREATE new inner CryptGen");
+            $this->cryptoGen = new CryptoGen();
+        }
+
         $user =  $_SESSION['authUser'] ?? "";
 
         /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
@@ -855,7 +868,7 @@ MSG;
         $encrypt_comment = 'No';
         //July 1, 2014: Ensoftek: Check and encrypt audit logging
         if (array_key_exists('enable_auditlog_encryption', $GLOBALS) && $GLOBALS["enable_auditlog_encryption"]) {
-            $comments =  encryptStandard($comments);
+            $comments =  $this->cryptoGen->encryptStandard($comments);
             $encrypt_comment = 'Yes';
         }
 

@@ -26,6 +26,7 @@
 // +------------------------------------------------------------------------------+
 require_once("server_audit.php");
 
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 class Userforms extends UserAudit
@@ -602,9 +603,10 @@ class Userforms extends UserAudit
                     return("$config_err $err");
                 }
 
-                    $phimail_username = $GLOBALS['phimail_username'];
-                    $phimail_password = decryptStandard($GLOBALS['phimail_password']);
-                    $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
+                $phimail_username = $GLOBALS['phimail_username'];
+                $cryptoGen = new CryptoGen();
+                $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
+                $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
                 if ($ret!==true) {
                     return("$config_err 4");
                 }

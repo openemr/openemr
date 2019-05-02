@@ -5,8 +5,8 @@
 // of the License, or (at your option) any later version.
 
 require_once(dirname(__FILE__) . "/../library/forms.inc");
-require_once(dirname(__FILE__) . "/../library/crypto.php");
 
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
 
@@ -46,6 +46,9 @@ class C_Document extends Controller
         //print_r($t->tree);
         $this->tree = $t;
         $this->Document = new Document();
+
+        // Create a crypto object that will be used for for encryption/decryption
+        $this->cryptoGen = new CryptoGen();
     }
 
     function upload_action($patient_id, $category_id)
@@ -187,7 +190,7 @@ class C_Document extends Controller
                     $filetext = fread($tmpfile, $_FILES['file']['size'][$key]);
                     fclose($tmpfile);
                     if ($doDecryption) {
-                        $filetext = decryptStandard($filetext, $passphrase);
+                        $filetext = $this->cryptoGen->decryptStandard($filetext, $passphrase);
                         if ($filetext === false) {
                             error_log("OpenEMR Error: Unable to decrypt a document since decryption failed.");
                             $filetext = "";
@@ -548,7 +551,7 @@ class C_Document extends Controller
             header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
             header('Pragma: public');
             if ($doEncryption) {
-                $ciphertext = encryptStandard($filetext, $passphrase);
+                $ciphertext = $this->cryptoGen->encryptStandard($filetext, $passphrase);
                 header('Content-Disposition: attachment; filename="' . basename_international("/encrypted_aes_".$d->get_url_file()) . '"');
                 header("Content-Type: application/octet-stream");
                 header("Content-Length: " . strlen($ciphertext));
@@ -669,7 +672,7 @@ class C_Document extends Controller
             if ($original_file) {
                 //normal case when serving the file referenced in database
                 if ($d->get_encrypted() == 1) {
-                    $filetext = decryptStandard(file_get_contents($url), null, 'database');
+                    $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), null, 'database');
                 } else {
                     $filetext = file_get_contents($url);
                 }
@@ -682,7 +685,7 @@ class C_Document extends Controller
                 header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
                 header('Pragma: public');
                 if ($doEncryption) {
-                    $ciphertext = encryptStandard($filetext, $passphrase);
+                    $ciphertext = $this->cryptoGen->encryptStandard($filetext, $passphrase);
                     header('Content-Disposition: attachment; filename="' . basename_international("/encrypted_aes_".$d->get_url_file()) . '"');
                     header("Content-Type: application/octet-stream");
                     header("Content-Length: " . strlen($ciphertext));
@@ -703,7 +706,7 @@ class C_Document extends Controller
                 if (!is_file($url)) {
                     if ($d->get_encrypted() == 1) {
                         // decrypt the from-file into a temporary file
-                        $from_file_unencrypted = decryptStandard(file_get_contents($originalUrl), null, 'database');
+                        $from_file_unencrypted = $this->cryptoGen->decryptStandard(file_get_contents($originalUrl), null, 'database');
                         $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
                         file_put_contents($from_file_tmp_name, $from_file_unencrypted);
                         // prepare a temporary file for the unencrypted to-file
@@ -715,7 +718,7 @@ class C_Document extends Controller
                         unlink($from_file_tmp_name);
                         // make the encrypted to-file if a to-file was created in above convert call
                         if (is_file($to_file_tmp_name)) {
-                            $to_file_encrypted = encryptStandard(file_get_contents($to_file_tmp_name), null, 'database');
+                            $to_file_encrypted = $this->cryptoGen->encryptStandard(file_get_contents($to_file_tmp_name), null, 'database');
                             file_put_contents($url, $to_file_encrypted);
                             // remove unencrypted tmp files
                             unlink($to_file_tmp);
@@ -728,7 +731,7 @@ class C_Document extends Controller
                 }
                 if (is_file($url)) {
                     if ($d->get_encrypted() == 1) {
-                        $filetext = decryptStandard(file_get_contents($url), null, 'database');
+                        $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), null, 'database');
                     } else {
                         $filetext = file_get_contents($url);
                     }
@@ -1019,7 +1022,7 @@ class C_Document extends Controller
             }
 
             if ($d->get_encrypted() == 1) {
-                $content = decryptStandard(file_get_contents($url), null, 'database');
+                $content = $this->cryptoGen->decryptStandard(file_get_contents($url), null, 'database');
             } else {
                 $content = file_get_contents($url);
             }
@@ -1290,15 +1293,15 @@ class C_Document extends Controller
 
         $LOG = file_get_contents($log_path.$log_file);
 
-        if (cryptCheckStandard($LOG)) {
-            $LOG = decryptStandard($LOG, null, 'database');
+        if ($this->cryptoGen->cryptCheckStandard($LOG)) {
+            $LOG = $this->cryptoGen->decryptStandard($LOG, null, 'database');
         }
 
         $LOG .= $content;
 
         if (!empty($LOG)) {
             if ($GLOBALS['drive_encryption']) {
-                $LOG = encryptStandard($LOG, null, 'database');
+                $LOG = $this->cryptoGen->encryptStandard($LOG, null, 'database');
             }
             file_put_contents($log_path.$log_file, $LOG);
         }
