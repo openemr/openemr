@@ -7,12 +7,12 @@ import Collapse from 'react-bootstrap/Collapse';
 import helpers from '../utils/helpers.js';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
+import ToggleButton from "./global/ToggleButton";
 
-
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus,faMinus,faEdit } from '@fortawesome/free-solid-svg-icons'
-library.add( faPlus,faMinus,faEdit )
+// import { library } from '@fortawesome/fontawesome-svg-core'
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+// import { faPlus,faMinus,faEdit } from '@fortawesome/free-solid-svg-icons'
+// library.add( faPlus,faMinus,faEdit )
 
 
 
@@ -24,7 +24,8 @@ class MedicalProblems extends React.Component {
             data: [],
             element:props.element,
             element_title:props.element_title,
-            renderElement:false
+            renderElement:false,
+            isOpen:false
         }
     }
     setElement(  element,element_title){
@@ -104,6 +105,9 @@ class MedicalProblems extends React.Component {
         }
     }
 
+    localToggle() {
+        this.setState({isOpen: !this.state.isOpen});
+    }
 
     medProbCount = () => {
         return Array.isArray(this.state.data) ? this.state.data.length : null;
@@ -120,10 +124,15 @@ class MedicalProblems extends React.Component {
 
                         <Row>
                             <Col>
-                    <Button   onClick={() => {this.setState({ open: !open }  ); }}  aria-controls="example-collapse-text" aria-expanded={open} >
-                        {!open ?  <FontAwesomeIcon icon='plus'/> :  <FontAwesomeIcon icon='minus'/>    }
+                    {/*<Button   onClick={() => {this.setState({ open: !open }  ); }}  aria-controls="example-collapse-text" aria-expanded={open} >*/}
+                    {/*    {!open ?  <FontAwesomeIcon icon='plus'/> :  <FontAwesomeIcon icon='minus'/>    }*/}
 
-                    </Button> {this.state.element_title} {(this.medProbCount())}
+                    {/*</Button> {this.state.element_title}*/}
+
+                                <ToggleButton isOpen={this.state.isOpen}
+                                              onClick={() => this.localToggle()}
+                                              rightText={this.state.element_title  + " " + (this.medProbCount())}/>
+
                             </Col>
                             <Col>
 
@@ -133,7 +142,7 @@ class MedicalProblems extends React.Component {
 
                     </Card.Header>
                         <Card.Body>
-                    <Collapse in={this.state.open}>
+                    <Collapse in={this.state.isOpen}>
                     <div id="example-collapse-text">
                     <Table>
                     <tbody>{this.medProb()}</tbody>

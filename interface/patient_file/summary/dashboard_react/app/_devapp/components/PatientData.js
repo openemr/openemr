@@ -1,10 +1,7 @@
 import React, {Component} from "react";
 import helpers from '../utils/helpers.js';
+import ToggleButton from './global/ToggleButton.js';
 import {Button, Table, Card, Collapse, Tab, Row, Col, Nav, Container} from 'react-bootstrap';
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus,faMinus } from '@fortawesome/free-solid-svg-icons'
-library.add( faPlus,faMinus )
 
 class PatientData extends React.Component {
     constructor(props) {
@@ -12,7 +9,7 @@ class PatientData extends React.Component {
         this.state = {
             patientId: props.patientId,
             data: [],
-            open: false,
+            isOpen: false,
             isLoaded: false
         }
     }
@@ -31,7 +28,7 @@ class PatientData extends React.Component {
                 .then((res) => res.json())
                 .then(
                     (result) => {
-                        if( result != null && JSON.stringify(result) ){
+                        if (result != null && JSON.stringify(result)) {
                             this.setState({data: [result], isLoaded: true});
                         }
                     },
@@ -47,6 +44,10 @@ class PatientData extends React.Component {
         }
     }
 
+    localToggle() {
+        this.setState({isOpen: !this.state.isOpen});
+    }
+
     componentDidUpdate() {
         // console.log("Query:" + JSON.stringify(this.state.data));
         this.state.data.map((data, i) => {
@@ -56,21 +57,24 @@ class PatientData extends React.Component {
     }
 
     render() {
-        const {open} = this.state;
+        const {isOpen} = this.state;
         const {isLoaded} = this.state;
+        var rightTextButton = "Patient Data";
         return (
             isLoaded &&
             <div className="card" variant="dark">
                 <div className="card-header">
-                    <Button
-                        onClick={() => this.setState({open: !open})}
-                        aria-controls="example-collapse-text"
-                        aria-expanded={open}
-                    > {!open ?  <FontAwesomeIcon icon='plus'/> :  <FontAwesomeIcon icon='minus'/>    } </Button> Patient Data
-                    <Collapse in={this.state.open}>
+
+                    <ToggleButton isOpen={this.state.isOpen}
+                                    onClick={() => this.localToggle()}
+                                    rightText={rightTextButton}/>
+
+                    <Collapse in={this.state.isOpen}>
+
                         <Card>
                             <Card.Body>
                                 <div id="example-fade-text">
+
                                     <Tab.Container id="left-tabs-example" defaultActiveKey="tab-1">
                                         <Row>
                                             <Col sm={3}>
@@ -148,10 +152,12 @@ class PatientData extends React.Component {
                                             </Col>
                                         </Row>
                                     </Tab.Container>
+
                                 </div>
 
                             </Card.Body>
                         </Card>
+
                     </Collapse>
                 </div>
             </div>
