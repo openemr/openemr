@@ -1248,7 +1248,7 @@ function edih_format_percent($str_val)
 function csv_thead_html($file_type, $csv_type, $tblhd = null)
 {
     //
-    if (is_array($tblhd) & count($tblhd)) {
+    if (is_array($tblhd) && count($tblhd)) {
         $hvals = $tblhd;
     } else {
         $hvals = csv_table_header($file_type, $csv_type);
