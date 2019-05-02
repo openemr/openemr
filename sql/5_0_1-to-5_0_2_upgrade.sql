@@ -900,3 +900,7 @@ CREATE TABLE `erx_weno_drugs` (
 
 #IfNotWenoRx
 #Endif
+
+#IfMissingColumn users_secure login_fail_counter
+ALTER TABLE `users_secure` ADD `login_fail_counter` INT(11) DEFAULT '0';
+#Endif
