@@ -740,14 +740,17 @@ MSG;
         $success = (int)($outcome !== false);
         $checksum = ($outcome !== false) ? $this->sql_checksum_of_modified_row($statement) : '';
 
-        if (is_array($binds) && !empty($processed_binds)) {
-            $processed_binds = "";
+        if (is_array($binds)) {
             // Need to include the binded variable elements in the logging
+            $processed_binds = "";
             foreach ($binds as $value_bind) {
                 $processed_binds .= "'" . add_escape_custom($value_bind) . "',";
             }
             rtrim($processed_binds, ',');
-            $comments .= " (" . $processed_binds . ")";
+
+            if (!empty($processed_binds)) {
+                $comments .= " (" . $processed_binds . ")";
+            }
         }
 
         // ViSolve : Don't log sequences - to avoid the affect due to GenID calls

@@ -89,7 +89,7 @@ if (!empty($code_desc)) {
             ob_value    = ?,
             ob_unit     = ?,
             date        = ?";
-        sqlInsert(
+        sqlStatement(
             "INSERT INTO form_observation SET $sets",
             [
                 $newid,

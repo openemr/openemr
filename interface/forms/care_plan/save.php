@@ -67,7 +67,7 @@ if (!empty($count)) {
             description = ?,
             date =  ?,
             care_plan_type = ?";
-        sqlInsert(
+        sqlStatement(
             "INSERT INTO form_care_plan SET " . $sets,
             [
                 $newid,

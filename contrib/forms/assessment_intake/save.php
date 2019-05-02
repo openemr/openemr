@@ -29,7 +29,7 @@ if ($_GET["mode"] == "new") {
     print 'formSubmitt';  /*debugging */
     addForm($encounter, "Assessment and Intake", $newid, "assessment_intake", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
-    sqlInsert(
+    sqlStatement(
         "update form_assessment_intake set pid = ?,
         groupname=?,
         user=?,

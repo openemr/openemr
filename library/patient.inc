@@ -1062,7 +1062,7 @@ function newPatientData(
 
     if (!$db_id) {
       // find the last inserted id for new patient case
-        $db_id = getSqlLastID();
+        $db_id = $id;
     }
 
     $foo = sqlQuery("select pid from patient_data where id=? order by date limit 0,1", array($id));

@@ -793,10 +793,8 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 </fieldset>
                 <fieldset id="search-upload">
                     <legend>
-                        &nbsp;<span><?php echo xlt('Select Method'); ?></span>&nbsp;<i id='select-method-tooltip'
-                                                                                       class="fa fa-info-circle oe-superscript"
-                                                                                       aria-hidden="true"></i>
-                        <div id="radio-div" class="pull-right oe-legend-radio">
+                        <i id='select-method-tooltip' class="fa fa-info-circle" aria-hidden="true"></i>
+                        <div id="radio-div" class="pull-left oe-legend-radio">
                             <label class="radio-inline">
                                 <input type="radio" id="invoice_search" name="radio-search" onclick=""
                                        value="inv-search"><?php echo xlt('Invoice Search'); ?>
@@ -1072,6 +1070,11 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                     continue;
                                 }
 
+                                // Determine if customer is in collections.
+                                //
+                                $billnote = $row['billing_note'];
+                                $in_collections = stristr($billnote, 'IN COLLECTIONS') !== false;
+
                                 // $duncount was originally supposed to be the number of times that
                                 // the patient was sent a statement for this invoice.
                                 //
@@ -1093,7 +1096,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 // An invoice is now due from the patient if money is owed and we are
                                 // not waiting for insurance to pay.
                                 //
-                                $isduept = ($duncount >= 0 && $isdueany) ? " checked" : "";
+                                $isduept = ($duncount >= 0 && $isdueany && !$in_collections) ? " checked" : "";
 
                                 // Skip invoices not in the desired "Due..." category.
                                 //
@@ -1112,10 +1115,6 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 $svcdate = substr($row['date'], 0, 10);
                                 $last_stmt_date = empty($row['last_stmt_date']) ? '' : $row['last_stmt_date'];
 
-                                // Determine if customer is in collections.
-                                //
-                                $billnote = $row['billing_note'];
-                                $in_collections = stristr($billnote, 'IN COLLECTIONS') !== false;
                                 ?>
                                 <tr>
                                     <td class="detail">

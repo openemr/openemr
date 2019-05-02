@@ -1873,6 +1873,13 @@ $GLOBALS_METADATA = array(
             xl('Period in days where a user may login with an expired password.')
         ),
 
+        'password_max_failed_logins' => array(
+            xl('Maximum Failed Login Attempts'),
+            'num',                            // data type
+            '0',                              // default
+            xl('Maximum Failed Login Attempts (0 for no maximum).')
+        ),
+
         'is_client_ssl_enabled' => array(
             xl('Enable Client SSL'),
             'bool',                           // data type

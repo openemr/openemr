@@ -61,7 +61,7 @@ if ($_POST['formaction'] == 'save' && $list_id) {
             $option = trim($iter['option']);
             $codes = trim($iter['codes']);
             if (strlen($category) > 0 && strlen($option) > 0) {
-                sqlInsert("INSERT INTO fee_sheet_options ( " .
+                sqlStatement("INSERT INTO fee_sheet_options ( " .
                     "fs_category, fs_option, fs_codes " .
                     ") VALUES ( ?,?,? )", array($category, $option, $codes));
             }
@@ -90,7 +90,7 @@ if ($_POST['formaction'] == 'save' && $list_id) {
             $ct_problem = empty($iter['ct_problem']) ? 0 : 1;
             $ct_drug = empty($iter['ct_drug']) ? 0 : 1;
             if (strlen($ct_key) > 0 && $ct_id > 0) {
-                sqlInsert(
+                sqlStatement(
                     "INSERT INTO code_types ( " .
                     "ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_mask, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim, ct_proc, ct_term, ct_problem, ct_drug " .
                     ") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -125,7 +125,7 @@ if ($_POST['formaction'] == 'save' && $list_id) {
             $it_category = trim($iter['category']);
             $it_type = trim($iter['type']);
             if ((strlen($it_category) > 0) && (strlen($it_type) > 0)) {
-                sqlInsert("INSERT INTO issue_types (" .
+                sqlStatement("INSERT INTO issue_types (" .
                     "`active`,`category`,`ordering`, `type`, `plural`, `singular`, `abbreviation`, `style`, " .
                     "`force_show`, `aco_spec`) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", array(
                     trim($iter['active']),
@@ -203,7 +203,7 @@ if ($_POST['formaction'] == 'save' && $list_id) {
                     continue;
                 }
                 // Insert the list item
-                sqlInsert(
+                sqlStatement(
                     "INSERT INTO list_options ( " .
                     "list_id, option_id, title, seq, is_default, option_value, mapping, notes, codes, toggle_setting_1, toggle_setting_2, activity, subtype " .
                     ") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -235,7 +235,7 @@ if ($_POST['formaction'] == 'save' && $list_id) {
     $row = sqlQuery("SELECT max(seq) AS maxseq FROM list_options WHERE list_id= 'lists'");
 
     // add the new list to the list-of-lists
-    sqlInsert("INSERT INTO list_options ( " .
+    sqlStatement("INSERT INTO list_options ( " .
         "list_id, option_id, title, seq, is_default, option_value " .
         ") VALUES ( 'lists', ?, ?, ?, '1', '0')", array($newlistID, $_POST['newlistname'], ($row['maxseq'] + 1)));
     $list_id = $newlistID;
@@ -771,7 +771,7 @@ function writeITLine($it_array)
         }
     </style>
     <script type="text/javascript">
-        $(document).ready(function () {
+        $(function () {
             $(".select-dropdown").select2({
                 theme: "bootstrap",
                 <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
@@ -1410,7 +1410,7 @@ if ($GLOBALS['ippf_specific']) { ?>
 <script type="text/javascript">
     // jQuery stuff to make the page a little easier to use
 
-    $(document).ready(function () {
+    $(function () {
         $("#form_save").click(function () {
             SaveChanges();
         });

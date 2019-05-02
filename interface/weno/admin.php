@@ -68,7 +68,7 @@ if (file_exists('../../contrib/weno/pharmacyList.csv')) {
 
 </div>
 <script>
-$(document).ready(function(){
+$(function(){
     $("#addtolistid_state").hide();
  });
 </script>

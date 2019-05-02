@@ -36,10 +36,8 @@ class oeOAuth
     protected $oauth;
     protected $token_storage;
     protected $stack;
-    // defaults to normally using as rest client for calling rest controllers and services.
-    // current session is discretely passed and maintained in this mode otherwise, sessions are
-    // destroyed after each api call by rest dispatcher.
-    public $apiNative = true;
+    // If $apiNative is set to true, then current session is discretely passed as header and maintained.
+    public $apiNative = false;
     public $apiOAuth = false;
     public $DEBUG_MODE = false;
     public $useProxy = false;

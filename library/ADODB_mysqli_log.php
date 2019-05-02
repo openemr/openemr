@@ -21,7 +21,7 @@ class ADODB_mysqli_log extends ADODB_mysqli
      * @param  array   $inputarr    binded variables array (optional)
      * @return boolean              returns false if error
      */
-    function Execute($sql, $inputarr = false)
+    function Execute($sql, $inputarr = false, $insertNeedReturn = false)
     {
         $retval= parent::Execute($sql, $inputarr);
         if ($retval === false) {
@@ -38,7 +38,9 @@ class ADODB_mysqli_log extends ADODB_mysqli
 
         // Stash the insert ID into lastidado so it doesn't get clobbered when
         // we insert into the audit log.
-        $GLOBALS['lastidado']=$this->Insert_ID();
+        if ($insertNeedReturn) {
+            $GLOBALS['lastidado'] = $this->Insert_ID();
+        }
         EventAuditLogger::instance()->auditSQLEvent($sql, $outcome, $inputarr);
         return $retval;
     }

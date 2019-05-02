@@ -68,7 +68,7 @@ function insert_into_tgpa_table($form_id, $pid, $participantData)
 {
     $sql_for_table_tgpa = "INSERT INTO therapy_groups_participant_attendance (form_id, pid, meeting_patient_comment, meeting_patient_status) " .
         "VALUES(?,?,?,?);";
-    sqlInsert($sql_for_table_tgpa, array($form_id, $pid, $participantData['comment'], $participantData['status']));
+    sqlStatement($sql_for_table_tgpa, array($form_id, $pid, $participantData['comment'], $participantData['status']));
 }
 
 /**

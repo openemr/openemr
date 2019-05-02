@@ -403,7 +403,7 @@ function process_form($ar)
 <script type="text/javascript"
     src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-9-1/jquery.min.js"></script>
 <script>
-    $(document).ready( function() {
+    $( function() {
         $("#close-link").click( function() {
             window.close();
         });

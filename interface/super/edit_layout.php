@@ -1775,7 +1775,7 @@ function validateNewField(idpfx) {
 
 // jQuery stuff to make the page a little easier to use
 
-$(document).ready(function(){
+$(function(){
 
     $(function () {
         $('.typeAddons').select2({

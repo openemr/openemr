@@ -6,13 +6,17 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @copyright Copyright (c) 2018 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 /* Include our required headers */
 require_once('../globals.php');
 
+use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 use u2flib_server\U2F;
@@ -24,7 +28,7 @@ use u2flib_server\U2F;
 function posted_to_hidden($name)
 {
     if (isset($_POST[$name])) {
-        echo "<input type='hidden' name='" . attr($name) . "' value='" . attr($_POST[$name]) . "' />\n";
+        echo "<input type='hidden' name='" . attr($name) . "' value='" . attr($_POST[$name]) . "' />\r\n";
     }
 }
 
@@ -35,6 +39,12 @@ function generate_html_start()
     <head>
     <?php Header::setupHeader(); ?>
     <title><?php echo xlt("MFA Authorization"); ?></title>
+    <style>
+    .alert-msg {
+        font-size:100%;
+        font-weight:700;
+    }
+    </style>
     <?php
 }
 
@@ -68,15 +78,26 @@ function generate_html_u2f()
                 60
             );
         }
+
     </script>
     <?php
+}
+function input_focus()
+{
+    ?>
+    <script>
+        $(function() {
+                $('#totp').focus();
+        });
+    </script>
+
+<?php
 }
 
 function generate_html_top()
 {
     echo '</head>';
     echo '<body>';
-    echo '<div class="container">';
 }
 
 function generate_html_middle()
@@ -136,7 +157,6 @@ if ($registrationAttempt) {
     }
     $userid = $_SESSION['authId'];
     $form_response = empty($_POST['form_response']) ? '' : $_POST['form_response'];
-
     if ($form_response) {
         // TOTP METHOD enabled if TOTP is visible in post request
         if (isset($_POST['totp']) && trim($_POST['totp']) != "" && $isTOTP) {
@@ -191,7 +211,7 @@ if ($registrationAttempt) {
                 $errormsg = xl("The code you entered was not valid");
                 $errortype = "TOTP";
             }
-        } else if ($isU2F) { // Otherwise use U2F METHOD
+        } elseif ($isU2F) { // Otherwise use U2F METHOD
             // We have key data, check if it matches what was registered.
             $tmprow = sqlQuery("SELECT login_work_area FROM users_secure WHERE id = ?", array($userid));
             try {
@@ -228,15 +248,17 @@ if ($registrationAttempt) {
             $form_response = '';
         }
     }
-
     if (!$form_response) {
         generate_html_start();
         if ($isU2F) {
             generate_html_u2f();
         }
+        if ($isTOTP) {
+            input_focus();
+        }
         generate_html_top();
         if ($isTOTP) {
-            echo '<form method="post" action="main_screen.php?auth=login&site=' . attr_url($_GET['site']) . '" target="_top" name="challenge_form">';
+            echo '<div class="container">';
             echo '<div class="row">';
             echo '    <div class="col-sm-12">';
             echo '        <div class="page-header">';
@@ -245,18 +267,31 @@ if ($registrationAttempt) {
             echo '    </div>';
             echo '</div>';
             if ($errormsg && $errortype == "TOTP") {
-                echo '<div class="row"><div class="col-sm-12"><div class="alert alert-danger">' . text($errormsg) . '</div></div></div>';
+                echo '<div class="row"><div class="col-sm-12"><div class="alert alert-danger alert-msg">' . text($errormsg) . '</div></div></div>';
             }
+
             echo '<div class="row">';
-            echo '    <div class="form-group">';
-            echo '        <label for="totp">' . xlt('Enter the code from your authentication application on your device') . ':</label>';
-            echo '        <input type="text" name="totp" class="form-control input-lg" id="totp" maxlength="12">';
-            echo '        <input type="hidden" name="form_response" value="true" />';
+            echo '  <div class="col-sm-12">';
+            echo '      <form method="post" action="main_screen.php?auth=login&site=' . attr_url($_GET['site']) . '" target="_top" name="challenge_form" id=="challenge_form">';
+            echo '              <fieldset>';
+            echo '                  <legend>'. xlt('Provide TOTP code') .'</legend>';
+            echo '                  <div class="form-group">';
+            echo '                      <div class="col-sm-6 col-sm-offset-3">';
+            echo '                          <label for="totp">' . xlt('Enter the code from your authentication application on your device') . ':</label>';
+            echo '                          <input type="text" name="totp" class="form-control input-lg" id="totp" maxlength="12" required>';
+            echo '                          <input type="hidden" name="form_response" value="true" />';
             generate_html_middle();
-            echo '    </div>';
-            echo '    <button type="submit" class="btn btn-default btn-save">' . xlt('Authenticate TOTP') . '</button>';
+            echo '                  </div>';
+            echo '              </fieldset>';
+            echo '                  <div class="form-group clearfix">';
+            echo '                      <div class="col-sm-12 text-left position-override">';
+            echo '                          <button type="submit" class="btn btn-default btn-save">' . xlt('Authenticate TOTP') . '</button>';
+            echo '                  </div>';
+            echo '              </div>';
+            echo '          </div>';
+            echo '      </form>';
+            echo '  </div>';
             echo '</div>';
-            echo '</form>';
         }
         if ($isU2F) {
             // There is no key data yet or authentication failed, so we need to solicit it.
@@ -267,7 +302,7 @@ if ($registrationAttempt) {
                 array($requests, $userid)
             );
 
-            echo '<form method="post" name="u2fform" id="u2fform" action="main_screen.php?auth=login&site=' . attr_url($_GET['site']) . '" target="_top" name="challenge_form">';
+            echo '<div class="container">';
             echo '<div class="row">';
             echo '    <div class="col-sm-12">';
             echo '        <div class="page-header">';
@@ -276,20 +311,32 @@ if ($registrationAttempt) {
             echo '    </div>';
             echo '</div>';
             if ($errormsg && $errortype == "U2F") {
-                echo '<div class="row"><div class="col-sm-12"><div class="alert alert-danger">' . text($errormsg) . '</div></div></div>';
+                echo '<div class="row"><div class="col-sm-12"><div class="alert alert-danger  alert-msg">' . text($errormsg) . '</div></div></div>';
             }
             echo '<div class="row">';
-            echo '    <div class="form-group">';
-            echo '        <label>' . xlt('Insert your key into a USB port and click the Authenticate button below.') . ' ' . xlt('Then press the flashing button on your key within 1 minute.') . '</label>';
-            echo '    </div>';
-            echo '    <div class="form-group">';
-            echo '        <a href="#" id="authutf" class="btn btn-default btn-save" onclick="doAuth()">' . xlt('Authenticate U2F') . '</a>';
-            echo '        <input type="hidden" name="form_requests" value="' . attr($requests) . '" />';
-            echo '        <input type="hidden" name="form_response" value="" />';
+            echo '  <div class="col-sm-12">';
+            echo '          <form method="post" name="u2fform" id="u2fform" action="main_screen.php?auth=login&site=' . attr_url($_GET['site']) . '" target="_top">';
+            echo '              <fieldset>';
+            echo '                  <legend>'. xlt('Insert U2F Key') .'</legend>';
+            echo '                  <div class="form-group">';
+            echo '                      <div class="col-sm-6 col-sm-offset-3">';
+            echo '                          <ul>';
+            echo '                              <li>' . xlt('Insert your key into a USB port and click the Authenticate button below.') . '</li>';
+            echo '                              <li>' . xlt('Then press the flashing button on your key within 1 minute.') . '</li>';
+            echo '                          </ul>';
+            echo '                  </div>';
+            echo '              </fieldset>';
+            echo '                  <div class="form-group clearfix">';
+            echo '                      <div class="col-sm-12 text-left position-override">';
+            echo '                          <button type="button"  id="authutf" class="btn btn-default btn-save" onclick="doAuth()">' . xlt('Authenticate U2F') . '</button>';
+            echo '                          <input type="hidden" name="form_requests" value="' . attr($requests) . '" />';
+            echo '                          <input type="hidden" name="form_response" value="" />';
             generate_html_middle();
-            echo '    </div>';
+            echo '                      </div>';
+            echo '                  </div>';
+            echo '          </form>';
+            echo '  </div>';
             echo '</div>';
-            echo '</form>';
         }
         exit(generate_html_end());
     }
@@ -364,7 +411,7 @@ if ($is_expired) {
   //display the php file containing the password expiration message.
     $frame1url = "pwd_expires_alert.php?csrf_token_form=" . attr_url(collectCsrfToken());
     $frame1target = "adm";
-} else if (!empty($_POST['patientID'])) {
+} elseif (!empty($_POST['patientID'])) {
     $patientID = 0 + $_POST['patientID'];
     if (empty($_POST['encounterID'])) {
         // Open patient summary screen (without a specific encounter)
@@ -376,7 +423,7 @@ if ($is_expired) {
         $frame1url = "../patient_file/summary/demographics.php?set_pid=" . attr_url($patientID) . "&set_encounterid=" . attr_url($encounterID);
         $frame1target = "pat";
     }
-} else if (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
+} elseif (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
     $frame1url = "calendar/index.php?pid=" . attr_url($_GET['pid']);
     if (isset($_GET['date'])) {
         $frame1url .= "&date=" . attr_url($_GET['date']);
@@ -432,7 +479,7 @@ if ($GLOBALS['new_tabs_layout']) {
     }
 
     // Pass a unique token, so main.php script can not be run on its own
-    $_SESSION['token_main_php'] = createUniqueToken();
+    $_SESSION['token_main_php'] = RandomGenUtils::createUniqueToken();
     header('Location: ' . $web_root . "/interface/main/tabs/main.php?token_main=" . urlencode($_SESSION['token_main_php']));
     exit();
 }

@@ -41,7 +41,7 @@ if ($_POST['confirm']) {
     if ($_POST['id'] != "*" && $_POST['id'] != '') {
       // set the deleted flag of the indicated form
         $sql = "update forms set deleted=1 where id=?";
-        sqlInsert($sql, array($_POST['id']));
+        sqlStatement($sql, array($_POST['id']));
       // Delete the visit's "source=visit" attributes that are not used by any other form.
         sqlStatement(
             "DELETE FROM shared_attributes WHERE " .

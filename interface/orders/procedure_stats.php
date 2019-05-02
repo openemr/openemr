@@ -313,14 +313,14 @@ body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
 <script language="JavaScript">
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
-$(document).ready(function() {
-$('.datepicker').datetimepicker({
-<?php $datetimepicker_timepicker = false; ?>
-<?php $datetimepicker_showseconds = false; ?>
-<?php $datetimepicker_formatInput = true; ?>
-<?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-<?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-});
+$(function() {
+    $('.datepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
 });
 </script>
 
