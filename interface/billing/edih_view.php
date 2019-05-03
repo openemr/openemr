@@ -447,9 +447,9 @@ jQuery-UI dialog
             appendTo: appendElem,
             draggable: true,
             resizable: true,
-            height: 328,
-            width: 512,
-            maxWidth: 768,
+            height: 512,
+            width: 768,
+            // no need for maxWidth: 768, since some files are pretty wide
             title: 'Transaction Detail',
             close: function(event, ui)
             {
