@@ -94,9 +94,12 @@ function recursive_writable_directory_test($dir)
 // Bring in standard libraries/classes
 require_once dirname(__FILE__) ."/vendor/autoload.php";
 
-$COMMAND_LINE = php_sapi_name() == 'cli';
 require_once(dirname(__FILE__) . '/library/authentication/password_hashing.php');
 require_once dirname(__FILE__) . '/library/classes/Installer.class.php';
+
+use OpenEMR\Common\Utils\RandomGenUtils;
+
+$COMMAND_LINE = php_sapi_name() == 'cli';
 
 $state = isset($_POST["state"]) ? ($_POST["state"]) : '';
 $installer = new Installer($_REQUEST);
@@ -305,7 +308,7 @@ if (file_exists($OE_SITE_DIR)) {
     }
     .oe-margin-b-5 {
         margin-bottom: 5px;
-        
+
     }
     button {
     font-weight:bold;
@@ -797,15 +800,17 @@ SOURCESITEBOT;
                             echo $source_site_bot ."\r\n";
                         }
 
-                        $randomusername = chr(rand(65, 90)) . chr(rand(65, 90)) . chr(rand(65, 90)) . "-admin-" . rand(0, 9) . rand(0, 9);
+                        $randomusernamepre = RandomGenUtils::produceRandomString(3, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+                        $randomusernamepost = RandomGenUtils::produceRandomString(2, "0123456789");
+                        $randomusername = $randomusernamepre . "-admin-" . $randomusernamepost;
 
                         // App Based TOTP secret
                         // Shared key (per rfc6238 and rfc4226) should be 20 bytes (160 bits) and encoded in base32, which should
                         //   be 32 characters in base32
-                        // Would be nice to use the produceRandomBytes() function and then encode to base32, but does not appear
-                        //   to be a standard way to encode binary to base32 in php.
-                        $randomsecret = produceRandomString(32, "234567ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-                        if (empty($randomsecret)) {
+                        // Would be nice to use the OpenEMR\Common\Utils\RandomGenUtils\produceRandomBytes() function and then encode to base32,
+                        //   but does not appear to be a standard way to encode binary to base32 in php.
+                        $randomsecret = RandomGenUtils::produceRandomString(32, "234567ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+                        if (empty($randomsecret) || empty($randomusernamepre) || empty($randomusernamepost)) {
                             error_log('OpenEMR Error : Random String error - exiting');
                             die();
                         }

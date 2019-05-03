@@ -109,7 +109,7 @@ class TransmitData
             'skip' => '',
             'version' => '2.0',
         ];
-        $response = oeHttp::bodyFormat('body')->get('https://npiregistry.cms.hhs.gov/api/', $query);
+        $response = oeHttp::get('https://npiregistry.cms.hhs.gov/api/', $query);
 
         $body = $response->body(); // already should be json.
 

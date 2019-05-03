@@ -26,7 +26,6 @@ require_once("$srcdir/calendar.inc");
 require_once("$srcdir/edi.inc");
 
 use OpenEMR\Core\Header;
-use OpenEMR\Common\Http\oeHttp;
 
 if (!empty($_POST)) {
     if (!verifyCsrfToken($_POST["csrf_token_form"])) {

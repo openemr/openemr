@@ -48,14 +48,14 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
             var redirectUrl = 'mfa_registrations.php';
             window.location.href = 'mfa_registrations.php';
         }
-        
+
         $(function() {
-            $('#clearPass').focus();   
+            $('#clearPass').focus();
         });
     </script>
     <style>
-        p { 
-            text-align: center 
+        p {
+            text-align: center
         }
             .alert-msg {
             font-size:100%;
@@ -97,7 +97,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                         <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
 
 
-                        
+
 
                         <?php
                         // step 1 is to verify the password
@@ -136,7 +136,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                             }
 
                             // Redirect back to step 1 if user password is incorrect
-                            if (!validate_user_password($_SESSION['authUser'], $_POST['clearPass'], $_SESSION['authProvider'])) {
+                            if (!confirm_user_password($_SESSION['authUser'], $_POST['clearPass'])) {
                                 header("Location: mfa_totp.php?action=reg1&error=auth");
                                 exit();
                             }
