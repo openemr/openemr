@@ -564,14 +564,14 @@ function authorized_clicked() {
                 }
 
                 foreach ($result5 as $iter) {
-                    $grouplist{$iter{"name"}} .= $iter{"user"} .
+                    $grouplist{$iter{"name"}} .= text($iter{"user"}) .
                         "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
                         attr_url($iter{"id"}) . "&csrf_token_form=" . attr_url(collectCsrfToken()) ."' onclick='top.restoreSession()'>" . xlt('Remove') . "</a>), ";
                 }
 
                 foreach ($grouplist as $groupname => $list) {
                     print "<span class='bold'>" . text($groupname) . "</span><br>\n<span>" .
-                        text(substr($list, 0, strlen($list)-2)) . "</span><br>\n";
+                        substr($list, 0, strlen($list)-2) . "</span><br>\n";
                 }
             }
             ?>
