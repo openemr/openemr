@@ -431,11 +431,11 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
                 if ($row['code'] == 'SS003') {
                     if ($row['ob_value'] == '261QE0002X') {
                         $text ='Emergency Care';
-                    } else if ($row['ob_value'] == '261QM2500X') {
+                    } elseif ($row['ob_value'] == '261QM2500X') {
                         $text ='Medical Specialty';
-                    } else if ($row['ob_value'] == '261QP2300X') {
+                    } elseif ($row['ob_value'] == '261QP2300X') {
                         $text ='Primary Care';
-                    } else if ($row['ob_value'] == '261QU0200X') {
+                    } elseif ($row['ob_value'] == '261QU0200X') {
                         $text ='Urgent Care';
                     }
 

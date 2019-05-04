@@ -25,9 +25,19 @@ use Zend\View\Helper\AbstractHelper;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\View\Exception;
+use Application\Controller\SendtoController;
  
-class Getvariables extends \Zend\View\Helper\AbstractHelper implements ServiceLocatorAwareInterface
+class SendToHieHelper extends \Zend\View\Helper\AbstractHelper
 {
+  /**
+   * @var \Application\Controller\SendtoController
+   */
+    private $sendController;
+
+    public function __construct(SendtoController $sendController)
+    {
+        $this->sendController = $sendController;
+    }
 
   /**
    * @var ServiceLocatorInterface
@@ -43,13 +53,19 @@ class Getvariables extends \Zend\View\Helper\AbstractHelper implements ServiceLo
    * @author  Basil PT <basil@zhservices.com>
    **/
   
-    public function __invoke($controllerName, $actionName, $params = array())
+    public function __invoke($layoutName, array $required_buttons, $send_via, $download_format = null)
     {
-        $controllerLoader = $this->serviceLocator->getServiceLocator()->get('ControllerLoader');
-        $controllerLoader->setInvokableClass($controllerName, $controllerName);
-        $controller = $controllerLoader->get($controllerName);
-        $viewModel = $controller->$actionName($params);
-        return $viewModel->getVariables();
+        $viewModel = $this->sendController->sendAction();
+        $arr = $viewModel->getVariables();
+        $arr['required_butons'] = $required_buttons;
+        $arr['send_via']        = $send_via;
+        if (!empty($download_format)) {
+            $arr['download_format'] = $download_format;
+        }
+      
+        $this->getView()->layout('carecoordination/layout/encountermanager');
+        echo $this->getView()->partial("application/sendto/send", $arr);
+        return '';
     }
 
   /**

@@ -26,7 +26,9 @@ use Zend\View\Model\ViewModel;
 use Zend\View\Model\JsonModel;
 use Application\Listener\Listener;
 use Documents\Controller\DocumentsController;
-
+use Carecoordination\Model\CcdTable;
+use Carecoordination\Model\CarecoordinationTable;
+use Documents\Model\DocumentsTable;
 use C_Document;
 use Document;
 use CouchDB;
@@ -34,15 +36,32 @@ use xmltoarray_parser_htmlfix;
 
 class CcdController extends AbstractActionController
 {
+    /**
+     * @var \Carecoordination\Model\CcdTable
+     */
     protected $ccdTable;
     
     protected $carecoordinationTable;
     
     protected $documentsTable;
+
+    /**
+     * @var Documents\Controller\DocumentsController
+     */
+    private $documentsController;
     
-    public function __construct($sm = null)
-    {
+    public function __construct(
+        CcdTable $ccdTable,
+        CarecoordinationTable $carecoordinationTable,
+        DocumentsTable $documentsTable,
+        DocumentsController $documentsController
+    ) {
+    
         $this->listenerObject = new Listener;
+        $this->ccdTable = $ccdTable;
+        $this->carecoordinationTable = $carecoordinationTable;
+        $this->documentsTable = $documentsTable;
+        $this->documentsController = $documentsController;
     }
 
     /*
@@ -56,7 +75,7 @@ class CcdController extends AbstractActionController
 
         if ($upload == 1) {
             $time_start         = date('Y-m-d H:i:s');
-            $obj_doc            = new DocumentsController();
+            $obj_doc            = $this->documentsController;
             $cdoc               = $obj_doc->uploadAction($request);
             $uploaded_documents = array();
             $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(array('user' => $_SESSION['authId'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')));
@@ -110,21 +129,17 @@ class CcdController extends AbstractActionController
 
         $this->getCcdTable()->import($array, $document_id);
 
-        $view = new ViewModel();
+        // we return just empty Json, otherwise it triggers an error if we don't return some kind of HTTP response.
+        $view = new \Zend\View\Model\JsonModel();
         $view->setTerminal(true);
         return $view;
     }
     /**
     * Table gateway
-    * @return object
+    * @return \Carecoordination\Model\CcdTable
     */
     public function getCcdTable()
     {
-        if (!$this->ccdTable) {
-            $sm = $this->getServiceLocator();
-            $this->ccdTable = $sm->get('Carecoordination\Model\CcdTable');
-        }
-
         return $this->ccdTable;
     }
     /**
@@ -133,21 +148,11 @@ class CcdController extends AbstractActionController
      */
     public function getCarecoordinationTable()
     {
-        if (!$this->carecoordinationTable) {
-            $sm = $this->getServiceLocator();
-            $this->carecoordinationTable = $sm->get('Carecoordination\Model\CarecoordinationTable');
-        }
-
         return $this->carecoordinationTable;
     }
     
     public function getDocumentsTable()
     {
-        if (!$this->documentsTable) {
-            $sm = $this->getServiceLocator();
-            $this ->documentsTable = $sm->get('Documents\Model\DocumentsTable');
-        }
-
         return $this->documentsTable;
     }
 }

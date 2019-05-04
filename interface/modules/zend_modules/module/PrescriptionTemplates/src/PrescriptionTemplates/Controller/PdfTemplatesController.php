@@ -23,6 +23,7 @@ namespace PrescriptionTemplates\Controller;
 
 use Zend\View\Model\ViewModel;
 use Mpdf\Mpdf;
+use Zend\View\Renderer\PhpRenderer;
 
 /**
  * Class PdfTemplatesController
@@ -34,6 +35,12 @@ use Mpdf\Mpdf;
  */
 class PdfTemplatesController extends PrescriptionTemplatesController
 {
+    private $renderer;
+
+    public function __construct(PhpRenderer $renderer)
+    {
+        $this->renderer = $renderer;
+    }
 
     /**
      * default template for prescription using zend module
@@ -43,8 +50,7 @@ class PdfTemplatesController extends PrescriptionTemplatesController
         $id = $this->params()->fromQuery('id');
         $defaultHtml = $this->getDefaultTemplate($id);
 
-        $renderer = $this->getServiceLocator()->get('Zend\View\Renderer\PhpRenderer');
-        $htmlView = $renderer->render($defaultHtml);
+        $htmlView = $this->renderer->render($defaultHtml);
 
         /* create pdf */
         $mpdf = new Mpdf(array('tempDir' => $GLOBALS['MPDF_WRITE_DIR']));

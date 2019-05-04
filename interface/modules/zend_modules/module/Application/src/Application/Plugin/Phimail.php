@@ -23,6 +23,7 @@ namespace Application\Plugin;
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 use Application\Model\ApplicationTable;
 use Application\Listener\Listener;
+use Interop\Container\ContainerInterface;
 
 require_once($GLOBALS['srcdir'].'/direct_message_check.inc');
 
@@ -32,12 +33,13 @@ class Phimail extends AbstractPlugin
   /**
   *
   * Application Table Object
-  * Listener Oblect
-  * @param type $sm Service Manager
+  * Listener Object
+  * @param type $container ContainerInterface
   */
-    public function __construct($sm)
+    public function __construct(ContainerInterface $container)
     {
-        $sm->get('Zend\Db\Adapter\Adapter');
+        // TODO: again why grab the service... construct the tables and do nothing with them.  Can this code be removed?
+        $container->get('Zend\Db\Adapter\Adapter');
         $this->application    = new ApplicationTable();
         $this->listenerObject = new Listener;
     }

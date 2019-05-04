@@ -201,11 +201,8 @@ foreach($this->status_details as $row_status){
                     <input type="hidden" name="pid_ccda" id="pid_ccda" value="">
                     <input type="hidden" name="latestccda" id="latestccda" value="">
                     <?php
-                    $arr = $this->getVariables('Application\Controller\SendtoController','sendAction');
-                    $arr['required_butons'] = array('hie','emr_direct','download_all');
-                    $arr['send_via']        = 'hie';
-                    $this->layout('carecoordination/layout/encountermanager');
-                    echo $this->partial("application/sendto/send",$arr);
+                    // @see Application view_helpers for this functionality.
+                    $this->sendToHie('carecoordination/layout/encountermanager', array('hie','emr_direct','download_all'), 'hie');
                     ?>
                     <div class="se_in_3" title="<?php echo $this->listenerObject->z_xlt('Reload');?>" onclick="javascript:clearCount();document.getElementById('theform').submit();"></div>
                 </div><!-- header_wrap_left -->

@@ -35,8 +35,9 @@ class ImmunizationController extends AbstractActionController
     
     protected $date_format;
     
-    public function __construct()
+    public function __construct(\Immunization\Model\ImmunizationTable $table)
     {
+        $this->immunizationTable = $table;
         $this->listenerObject   = new Listener;
     }
     
@@ -459,7 +460,7 @@ class ImmunizationController extends AbstractActionController
 
                     if ($r['administered_by_id'] == 0 && $r['information_source'] == 'hist_inf_src_unspecified') {
                         $ordering_provider = "";
-                    } else if ($r['ordering_provider']) {
+                    } elseif ($r['ordering_provider']) {
                         $ordering_provider = $r['ordering_provider']."^".$r['ordering_provider_name']."^^^^^NIST-AA-1^L";
                     }
 
@@ -581,10 +582,10 @@ class ImmunizationController extends AbstractActionController
                                 $obs_value              = $obs_value_notes."^".$val_obs['imo_criteria_value']."^HL70064";
                                 $obs_method             = "VXC40^per immunization^CDCPHINVS";
                                 $value_type             = "CE";
-                            } else if ($val_obs['imo_criteria'] == 'vaccine_type') {
+                            } elseif ($val_obs['imo_criteria'] == 'vaccine_type') {
                                 $obs_value              = $val_obs['imo_code']."^".$val_obs['imo_codetext']."^".$val_obs['imo_codetype'];
                                 $value_type             = "CE";
-                            } else if ($val_obs['imo_criteria'] == 'disease_with_presumed_immunity') {
+                            } elseif ($val_obs['imo_criteria'] == 'disease_with_presumed_immunity') {
                                 $value_type             = "CE";
                                 $obs_value              = $val_obs['imo_code']."^".$val_obs['imo_codetext']."^SCT";
                             }
@@ -772,11 +773,6 @@ class ImmunizationController extends AbstractActionController
     */
     public function getImmunizationTable()
     {
-        if (!$this->immunizationTable) {
-            $sm = $this->getServiceLocator();
-            $this->immunizationTable = $sm->get('Immunization\Model\ImmunizationTable');
-        }
-
         return $this->immunizationTable;
     }
 }

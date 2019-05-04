@@ -32,10 +32,8 @@ require_once(dirname(__FILE__) . "/../../../../../../../forms/vitals/report.php"
 
 class EncounterccdadispatchTable extends AbstractTableGateway
 {
-    protected $sm;
-    public function __construct($table_gateway, $sm)
+    public function __construct()
     {
-        $this->sm = $sm;
     }
 
     public function validcredential($credentials)
@@ -428,10 +426,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $details['fname']   = 'MyHealth';
             $details['lname']   = '';
             $details['organization'] = '';
-        } else if ($recipients == 'emr_direct') {
+        } elseif ($recipients == 'emr_direct') {
             $query          = "select fname, lname, organization, street, city, state, zip, phonew1 from users where email = ?";
             $field_name[]   = $params;
-        } else if ($recipients == 'patient') {
+        } elseif ($recipients == 'patient') {
             $query          = "select fname, lname from patient_data WHERE pid = ?";
             $field_name[]   = $params;
         } else {
@@ -585,7 +583,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 if ($get_code_details[0] == 'RXNORM') {
                     $code_rx            = $get_code_details[1];
                     $code_text_rx = lookup_code_descriptions($single_code);
-                } else if ($get_code_details[0] == 'SNOMED') {
+                } elseif ($get_code_details[0] == 'SNOMED') {
                     $code_snomed      = $get_code_details[1];
                     $code_text_snomed = lookup_code_descriptions($row['code']);
                 } else {
@@ -944,7 +942,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             if ($row['order_status']== 'complete') {
                 $order_status = 'completed';
                 $order_status_table = 'completed';
-            } else if ($row['order_status'] == 'pending') {
+            } elseif ($row['order_status'] == 'pending') {
                 $order_status = 'active';
                 $order_status_table = 'pending';
             } else {
@@ -1832,14 +1830,14 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
                 $field_names_type1 .= $row['ccda_field'];
                 $ret[$row['ccda_component_section']."_".$form_dir] = array($form_type, $table_name, $form_dir, $field_names_type1);
-            } else if ($form_type == 2) {
+            } elseif ($form_type == 2) {
                 if ($field_names_type2) {
                     $field_names_type2 .= ',';
                 }
 
                 $field_names_type2 .= $row['ccda_field'];
                 $ret[$row['ccda_component_section']."_".$form_dir] = array($form_type, $table_name, $form_dir, $field_names_type2);
-            } else if ($form_type == 3) {
+            } elseif ($form_type == 3) {
                 if ($field_names_type3) {
                     $field_names_type3 .= ',';
                 }
@@ -1906,7 +1904,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                         }
                     }
                 }
-            } else if ($formTables_details[0] == 2) {//Fetching the values from an LBF form
+            } elseif ($formTables_details[0] == 2) {//Fetching the values from an LBF form
                 if (!$formTables_details[1]) {//Fetching the complete LBF
                     foreach ($form_ids as $row) {
                         foreach ($row as $key => $value) {
@@ -1971,7 +1969,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                         $res[0][$row['field_id']] .= $row['field_value'];
                     }
                 }
-            } else if ($formTables_details[0] == 3) {//Fetching documents from mapped folders
+            } elseif ($formTables_details[0] == 3) {//Fetching documents from mapped folders
                 $query      = "SELECT c.id, c.name, d.id AS document_id, d.type, d.mimetype, d.url, d.docdate
                 FROM categories AS c, documents AS d, categories_to_documents AS c2d
                 WHERE c.id = ? AND c.id = c2d.category_id AND c2d.document_id = d.id AND d.foreign_id = ?";
@@ -2289,6 +2287,24 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             return $result;
         }
     }
+
+    /**
+     * Checks to see if the snomed codes are installed and we can then query against them.
+     */
+    private function is_snomed_codes_installed(ApplicationTable $appTable)
+    {
+        $codes_installed = false;
+        // this throws an exception... which is sad
+        // TODO: is there a better way to know if the snomed codes are installed instead of using this method?
+        // we set $error=false or else it will display on the screen, which seems counterintuitive... it also supresses the exception
+        $result = $appTable->zQuery("Describe `sct_descriptions`", $params = '', $log = true, $error = false);
+        if ($result !== false) { // will return false if there is an error
+            $codes_installed = true;
+        }
+        
+
+        return $codes_installed;
+    }
     /*
     * get details from care plan form
     * @param    int     $pid           Patient Internal Identifier.
@@ -2312,15 +2328,26 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
         }
 
-        $planofcare = '';
-        $query  = "SELECT 'care_plan' AS source,fcp.code,fcp.codetext,fcp.description,fcp.date,IF(sct_descriptions.ConceptId,'SNOMED-CT',ct.`ct_key`) AS fcp_code_type , l.`notes` AS moodCode
+        // some installations of OpenEMR do not have the SNOMED codes installed.  Rather than failing on a left join because
+        // the table does not exist we will include the SNOMED code pieces only if we have the sct_descriptions table installed.
+        // TODO: is there a better way to find out if the SNOMED tables have been installed through a global setting instead of describing the tables?
+        $fcp_code_type = 'ct.`ct_key` AS fcp_code_type';
+        $sct_descriptions_join = '';
+        $care_plan_query_data = ['Plan_of_Care_Type',$pid,'care_plan',0,$pid];
+        if ($this->is_snomed_codes_installed($appTable)) {
+            $fcp_code_type = "IF(sct_descriptions.ConceptId,'SNOMED-CT',ct.`ct_key`) AS fcp_code_type";
+            $sct_descriptions_join = ' LEFT JOIN sct_descriptions ON sct_descriptions.ConceptId = fcp.`code` 
+            AND sct_descriptions.DescriptionStatus = ? AND sct_descriptions.DescriptionType = ?
+            LEFT JOIN sct_concepts ON sct_descriptions.ConceptId = sct_concepts.ConceptId ';
+            $care_plan_query_data = array_merge([0,1], $care_plan_query_data);
+        }
+
+        $query  = "SELECT 'care_plan' AS source,fcp.code,fcp.codetext,fcp.description,fcp.date," . $fcp_code_type . " , l.`notes` AS moodCode
                  FROM forms AS f 
                 LEFT JOIN form_care_plan AS fcp ON fcp.id = f.form_id
                  LEFT JOIN codes AS c ON c.code = fcp.code 
                  LEFT JOIN code_types AS ct ON c.`code_type` = ct.ct_id 
-                 LEFT JOIN sct_descriptions ON sct_descriptions.ConceptId = fcp.`code` 
-                 AND sct_descriptions.DescriptionStatus = ? AND sct_descriptions.DescriptionType = ?
-                 LEFT JOIN sct_concepts ON sct_descriptions.ConceptId = sct_concepts.ConceptId 
+                " . $sct_descriptions_join . "
                  LEFT JOIN `list_options` l ON l.`option_id` = fcp.`care_plan_type` AND l.`list_id`=?
                  WHERE f.pid = ? AND f.formdir = ? AND f.deleted = ? $wherCon
                  UNION
@@ -2331,7 +2358,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                  LEFT JOIN lbt_data AS l3 ON l3.form_id=t.id AND l3.field_id = 'refer_to' 
                  LEFT JOIN users AS u ON u.id = l3.field_value
                  WHERE t.pid = ?";
-        $res        = $appTable->zQuery($query, array(0,1,'Plan_of_Care_Type',$pid,'care_plan',0,$pid));
+        $res        = $appTable->zQuery($query, $care_plan_query_data);
         $status = 'Pending';
         $status_entry = 'active';
         $planofcare .= '<planofcare>';
@@ -2340,9 +2367,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $code_type = '';
             if ($row['fcp_code_type'] == 'SNOMED-CT') {
                 $code_type = '2.16.840.1.113883.6.96';
-            } else if ($row['fcp_code_type'] == 'CPT4') {
+            } elseif ($row['fcp_code_type'] == 'CPT4') {
                 $code_type = '2.16.840.1.113883.6.12';
-            } else if ($row['fcp_code_type'] == 'LOINC') {
+            } elseif ($row['fcp_code_type'] == 'LOINC') {
                 $code_type = '2.16.840.1.113883.6.1';
             }
 

@@ -25,6 +25,13 @@ use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\Mvc\Controller\AbstractActionController;
 
+/**
+ * This class is supposed to listen for events in the module like the aclcheckEvent and trigger actions
+ * based on those events.  However, it doesn't appear to be used for that at all.  Instead it acts as
+ * an adapter for the OpenEMR language conversion within the module system.
+ * TODO: We should look at deleting this class or renaming it to be a TranslatorAdapter since that appears
+ * to be its functionality here...
+ */
 class Listener extends AbstractActionController implements ListenerAggregateInterface
 {
   /**
@@ -35,14 +42,16 @@ class Listener extends AbstractActionController implements ListenerAggregateInte
   /**
    * {@inheritDoc}
    */
-    public function attach(EventManagerInterface $events)
+    public function attach(EventManagerInterface $events, $priority = 1)
     {
+        // TODO: This aclcheckEvent doesn't appear to be in the system or used... especially since the callable onAclcheckEvent doesn't exist
+        // in this class.  We should look at removing this.
         $sharedEvents      = $events->getSharedManager();
         $this->listeners[] = $events->attach('aclcheckEvent', array($this, 'onAclcheckEvent'));
     }
   
 
-    public function detach(EventManagerInterface $events)
+    public function detach(EventManagerInterface $events, $priority = 1)
     {
         foreach ($this->listeners as $index => $listener) {
             if ($events->detach($listener)) {

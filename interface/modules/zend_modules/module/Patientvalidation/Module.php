@@ -28,8 +28,6 @@ use Zend\ModuleManager\ModuleManager;
 
 class Module
 {
-
-
     public function getAutoloaderConfig()
     {
         return array(
@@ -49,30 +47,6 @@ class Module
     {
         return include __DIR__ . '/config/module.config.php';
     }
-
-
-    /**
-     * @return array
-     */
-    public function getServiceConfig()
-    {
-        return array(
-            'factories' => array(
-                'Patientvalidation\Model\PatientDataTable' =>  function ($sm) {
-                    $tableGateway = $sm->get('PatientDataTableGateway');
-                    $table = new PatientDataTable($tableGateway);
-                    return $table;
-                },
-                'PatientDataTableGateway' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $resultSetPrototype = new ResultSet();
-                    $resultSetPrototype->setArrayObjectPrototype(new PatientData());
-                    return new TableGateway('patient_data', $dbAdapter, null, $resultSetPrototype);
-                },
-            ),
-        );
-    }
-
 
     /**
      * load global variables foe every controllers

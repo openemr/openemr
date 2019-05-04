@@ -165,7 +165,7 @@ class EncountermanagerTable extends AbstractTableGateway
                 $data    = array($GLOBALS['couchdb_dbase'], $row['couch_docid']);
                 $resp    = $couch->retrieve_doc($data);
                 $content = base64_decode($resp->data);
-            } else if (!$row['couch_docid']) {
+            } elseif (!$row['couch_docid']) {
                 $fccda   = fopen($row['ccda_data'], "r");
                 $content = fread($fccda, filesize($row['ccda_data']));
                 fclose($fccda);
@@ -312,7 +312,7 @@ class EncountermanagerTable extends AbstractTableGateway
                     $ccda_out = $ccda->saveXml();
                     $ccda_len = strlen($ccda_out);
                     \Application\Plugin\Phimail::phimail_write($fp, "ADD " . ($xml_type=="CCR" ? $xml_type . ' ' : "CDA ") . $ccda_len . $att_filename . "\n");
-                } else if (strtolower($xml_type) == 'html' || strtolower($xml_type) == 'pdf') {
+                } elseif (strtolower($xml_type) == 'html' || strtolower($xml_type) == 'pdf') {
                     $ccda_out = $ccda_file;
                     $message_length = strlen($ccda_out);
                     $add_type = (strtolower($xml_type) == 'html') ? 'TEXT' : 'RAW';

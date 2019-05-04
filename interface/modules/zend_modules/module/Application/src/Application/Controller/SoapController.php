@@ -30,59 +30,37 @@ use Zend\Soap\Server;
 
 class SoapController extends AbstractActionController
 {
-    protected $sendtoTable;
-    protected $applicationTable;
     protected $listenerObject;
-    protected $encounterccdadispatchTable;
+    protected $encounterCCDADispatchController;
     
-    public function __construct()
+    // TODO: verify that a single object instance (ie singleton) that is injected here is ok
+    // as the prior codebase instantiated a new $encounterController on each call to indexAction...
+    // should only be one call per http request lifecycle, but needs to be double checked.
+    public function __construct(EncounterccdadispatchController $encounterCCDADispatchController)
     {
         $this->listenerObject   = new Listener;
+        $this->encounterCCDADispatchController = $encounterCCDADispatchController;
     }
     
     
     public function indexAction()
     {
 
+        // What we are doing is taking all of the public methods of EncounterccdadispatchController and exposing it as
+        // part of our soap service.
+        // @see https://framework.zend.com/blog/2017-01-24-zend-soap-server.html for more details
         $server = new Server(
             null,
             array('uri' => 'http://localhost/index/soap')
         );
         // set SOAP service class
         // Bind already initialized object to Soap Server
-        $server->setObject(new EncounterccdadispatchController($this->getServiceLocator()));
+        // TODO: This is bad practice to couple our Application Module to the Carecoordination module as Application is loaded
+        // much before CareCoordination module (if its even enabled)...
+        // we should check to see if this is even used anywhere?  If not we should remove it or move it into the Carecoordination module...
+        $server->setObject($this->encounterCCDADispatchController);
         // handle request
         $server->handle();
         exit;
-    }
-    
-        /**
-    * Table Gateway
-    *
-    * @return type
-    */
-    public function getEncounterccdadispatchTable()
-    {
-        if (!$this->encounterccdadispatchTable) {
-            $sm = $this->getServiceLocator();
-            $this->encounterccdadispatchTable = $sm->get('Zend\Db\Adapter\Adapter');
-        }
-
-        return $this->encounterccdadispatchTable;
-    }
-    
-    /**
-    * Table Gateway
-    *
-    * @return type
-    */
-    public function getApplicationTable()
-    {
-        if (!$this->applicationTable) {
-            $sm = $this->getServiceLocator();
-            $this->applicationTable = $sm->get('Application\Model\ApplicationTable');
-        }
-
-        return $this->applicationTable;
     }
 }

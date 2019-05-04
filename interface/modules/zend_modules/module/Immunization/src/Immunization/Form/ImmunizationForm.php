@@ -97,6 +97,9 @@ class ImmunizationForm extends Form
                                         'value' => \Application\Listener\Listener::z_xlt('GET HL7'),
                                         'id'    => 'hl7button',
                                         'onclick'=> 'getHl7(this.value);',
+                                        // the button is hidden as we apparently use it to submit the form when the
+                                        // shared sendTo will trigger this button to click...
+                                        // @see sendTo.js and immunization.js and search for #hl7button
                                         'style' => 'display:none;'
                                         ),
                     ));
