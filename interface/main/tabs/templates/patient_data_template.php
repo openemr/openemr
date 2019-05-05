@@ -18,9 +18,6 @@
 <script type="text/html" id="patient-data-template">
     <div>
         <span class="patientDataColumn">
-            <span class="float-element"><a data-bind="click: viewPtFinder" href="#" class="btn btn-default btn-sm">
-                <i class="fa fa-search" aria-hidden="true"></i>
-            </a></span>
             <div class="patientInfo float-element">
               <!-- ko if: patient -->
                   <div data-bind="with: patient" class="patientPicture">
@@ -50,7 +47,13 @@
             <div class="patientInfo">
             <!-- ko if: patient -->
                 <span data-bind="text:patient().str_dob()"></span>
-            <!-- /ko -->
+                <!-- /ko -->
+                <div>
+                    <span class="float-element">
+                        <input type="search" onkeypress="doAnySearch(event)" size="12" id="anySearchBox" placeholder="<?php echo xla("Any Demographic Search") ?>">
+                        <a id="searchFinder" data-bind="click: viewPtFinder" href="#" class="btn btn-default btn-xs"><i class="fa fa-search" aria-hidden="true"></i></a>
+                    </span>
+                </div>
             </div>
         </span>
         <span class="patientDataColumn">
