@@ -5,9 +5,11 @@
  * @link      http://www.open-emr.org
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2016 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2018-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -103,13 +105,6 @@ function editSettings()
 function changePassword()
 {
     navigateTab(webroot_url+"/interface/usergroup/user_info.php","msc", function () {
-        activateTabByName("msc",true);
-    });
-}
-
-function changeMFA()
-{
-    navigateTab(webroot_url+"/interface/usergroup/mfa_registrations.php","msc", function () {
         activateTabByName("msc",true);
     });
 }
