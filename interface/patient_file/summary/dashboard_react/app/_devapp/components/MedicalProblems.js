@@ -116,6 +116,7 @@ class MedicalProblems extends React.Component {
     render() {
         const { open } = this.state;
         const { renderElement } = this.state;
+
         return(
                     renderElement &&
                     <Card   variant="flush">
@@ -141,15 +142,17 @@ class MedicalProblems extends React.Component {
                         </Row>
 
                     </Card.Header>
+                        <Collapse in={this.state.isOpen}>
                         <Card.Body>
-                    <Collapse in={this.state.isOpen}>
+
                     <div id="example-collapse-text">
                     <Table>
                     <tbody>{this.medProb()}</tbody>
                     </Table>
                     </div>
-                    </Collapse>
+
                     </Card.Body>
+                        </Collapse>
                     </Card>
             )
 
