@@ -109,6 +109,13 @@ function changePassword()
     });
 }
 
+function changeMFA()
+{
+    navigateTab(webroot_url+"/interface/usergroup/mfa_registrations.php","msc", function () {
+        activateTabByName("msc",true);
+    });
+}
+
 function logout()
 {
     top.restoreSession();
