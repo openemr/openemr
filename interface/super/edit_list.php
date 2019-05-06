@@ -1094,7 +1094,7 @@ function writeITLine($it_array)
                 <!--Added filter-->
                 <script type="text/javascript">
                     function lister() {
-                        var urlFull   = new URL($(location).attr('href'));
+                        var queryParams = getQueryStringAsObject();
                         var list_from = parseInt($("#list-from").val());
                         var list_to   = parseInt($("#list-to").val());
                         var list_id_container = $("#list_id").val();
@@ -1104,19 +1104,18 @@ function writeITLine($it_array)
                             return false;
                         }
                         if( list_from >= 0 ){
-                            urlFull.searchParams.delete("list_from");
-                            urlFull.searchParams.set("list_from",list_from);
+                            queryParams['list_from'] = list_from;
                         }
 
                         if( list_to >= 0 ){
-                            urlFull.searchParams.delete("list_to");
-                            urlFull.searchParams.set("list_to",list_to);
+                            queryParams['list_to'] = list_to;
                         }
                         if( list_id_container.length > 0 ){
-                            urlFull.searchParams.delete("list_id_container");
-                            urlFull.searchParams.set("list_id_container", list_id_container );
+                            queryParams['list_id_container'] = list_id_container;
                         }
-                        window.location.replace(urlFull);
+                        var urlParts = document.URL.split('?');
+                        var newUrl = urlParts[0] + '?' + $.param(queryParams);
+                        window.location.replace(newUrl);
                     }
                 </script>
                 <?php
@@ -1437,8 +1436,12 @@ if ($GLOBALS['ippf_specific']) { ?>
             totalRecordDiv.text("<?php echo xlt("Showing items"); ?>: <?php echo ( $list_to > 0 ? attr($list_from+1). " - ".attr($list_to) : attr($res->_numOfRows) );?> of <?php echo attr($total_rows);?>");
         }
 
-        var urlFull    = new URL($(location).attr('href'));
-        var listIdCont = urlFull.searchParams.get('list_id_container');
+        var queryParams = getQueryStringAsObject();
+        var listIdCont = null;
+        if (typeof queryParams['list_id_container'] !== 'undefined') {
+            listIdCont = queryParams['list_id_container'];
+        }
+
 
         if( totalRecords >= <?php echo attr($records_per_page);?> || listIdCont != null || $("#list_to").val() > 0) {
             $(".blck-filter").show();
@@ -1499,6 +1502,20 @@ if ($GLOBALS['ippf_specific']) { ?>
             }
         };
     });
+
+    function getQueryStringAsObject() {
+
+        var paramsString = document.URL.split('?');
+        var paramsFull = (paramsString.length > 1) ? paramsString[1].split('&') : [];
+        var listIdCont = null;
+        var queryParameter;
+        var resObject = {};
+        for (var i = 0; i < paramsFull.length; i++ ) {
+            queryParameter = paramsFull[i].split('=');
+            resObject[queryParameter[0]] = queryParameter[1];
+        }
+        return resObject;
+    }
 
 </script>
 </html>
