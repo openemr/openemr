@@ -177,7 +177,7 @@ td { font-size:10pt; }
   document.getElementById('row_distributor').style.display = showDistributor ? '' : 'none';
  }
 
-    $(document).ready(function(){
+    $(function(){
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>

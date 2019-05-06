@@ -96,7 +96,7 @@ function dosort(orderby) {
  return false;
 }
 
-$(document).ready(function() {
+$(function() {
   oeFixedHeaderSetup(document.getElementById('mymaintable'));
 });
 

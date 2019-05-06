@@ -134,7 +134,7 @@ if ($_FILES['form_erafile']['size']) {
         ?>
     }
 
-    $(document).ready(function() {
+    $(function() {
        $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>

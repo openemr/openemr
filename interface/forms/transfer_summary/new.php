@@ -36,7 +36,7 @@ $obj = $formid ? formFetch("form_transfer_summary", $formid) : array();
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="JavaScript">
- $(document).ready(function() {
+ $(function() {
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
 

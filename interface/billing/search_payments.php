@@ -215,7 +215,7 @@ if (isset($_POST["mode"])) {
 
 <script type='text/javascript'>
 
-$(document).ready(function() {
+$(function() {
     $(".medium_modal").on('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
