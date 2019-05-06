@@ -105,7 +105,7 @@ foreach ($this->get_template_vars('A_EVENTS') as $eDate => $date_events) {
         echo "<td class='calsearch_provider'>".$event['provider_name'];
         $imgtitle = $provinfo['fname'] . " " . xl('contact info') . ":\n";
         $imgtitle .= $provinfo['phonew1']."\n".$provinfo['street']."\n".$provinfo['city']." ".$provinfo['state'];
-        echo " <img class'provinfo' src='". $GLOBALS['images_static_relative'] . "/deleteBtn.png' title=\"".$imgtitle."\" />";
+        echo " <img class'provinfo' src='". $GLOBALS['images_static_relative'] . "/info.png' title=\"".$imgtitle."\" />";
         echo "</td>";
 
         // category

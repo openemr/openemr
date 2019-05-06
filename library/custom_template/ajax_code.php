@@ -158,7 +158,7 @@ if ($Source!="add_template") {
         $i++;
         echo "<li id='clorder_".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."' style='cursor:pointer'><span>";
         if (acl_check('nationnotes', 'nn_configure')) {
-            echo "<img src='" . $GLOBALS['images_static_relative'] . "/deleteBtn.png' onclick=update_item_div('".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."')>";
+            echo "<img src='" . $GLOBALS['images_static_relative'] . "/b_edit.png' onclick=update_item_div('".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."')>";
         }
         echo "<div style='display:inline' id='".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."' onclick=\"moveOptions_11('".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."', 'textarea1');\">".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."</div>";
         if (acl_check('nationnotes', 'nn_configure')) {
