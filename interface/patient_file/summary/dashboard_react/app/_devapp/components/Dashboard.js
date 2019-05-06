@@ -12,7 +12,9 @@ import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {LazyLoadModule} from "../lazy";
+import FetchList from "./FetchList";
 
+window['fetchList'] = new FetchList();
 
 class Dashboard extends React.Component {
     /*
@@ -23,9 +25,13 @@ class Dashboard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            gadgets:'',
-            moudle:'MenuDashboard'
+            gadgets:null,
+            moudle:'MenuDashboard',
+            lists : window['fetchList']
         };
+
+
+
     }
 
     setGlobalPatientId() {
@@ -56,7 +62,8 @@ class Dashboard extends React.Component {
 
 
     //list/dashboard
-    getDashboardList() {
+   /* getDashboardList() {
+
         //if (this.setState.token) {
             fetch("../../../../apis/api/list/dashboard", {
                 method: "GET",
@@ -80,24 +87,317 @@ class Dashboard extends React.Component {
                         console.log("fail");
                     }
                 )
-    }
+    }*/
+
+   componentWillMount() {
+
+     //  this.state.lists.fetchList('dashboard');
+      /*  this.state.lists.fetchList('abook_type');
+        this.state.lists.fetchList('adjreason');
+        this.state.lists.fetchList('allergy_issue_list');
+        this.state.lists.fetchList('amendment_from');
+        this.state.lists.fetchList('amendment_status');
+        this.state.lists.fetchList('apps');
+        this.state.lists.fetchList('apptstat');
+        this.state.lists.fetchList('attendstat');
+        this.state.lists.fetchList('boolean');
+        this.state.lists.fetchList('chartloc');
+        this.state.lists.fetchList('clinical_plans');
+        this.state.lists.fetchList('clinical_rules');
+        this.state.lists.fetchList('country');
+        this.state.lists.fetchList('county');
+        this.state.lists.fetchList('CTLBrand');
+        this.state.lists.fetchList('CTLManufacturer');
+        this.state.lists.fetchList('CTLSupplier');
+        this.state.lists.fetchList('date_master_criteria');
+        this.state.lists.fetchList('disclosure_type');
+        this.state.lists.fetchList('drug_form');
+        this.state.lists.fetchList('drug_interval');
+        this.state.lists.fetchList('drug_route');
+        this.state.lists.fetchList('drug_units');
+        this.state.lists.fetchList('eligibility');
+        this.state.lists.fetchList('ethnicity');
+        this.state.lists.fetchList('ethrace');
+        this.state.lists.fetchList('exams');
+        this.state.lists.fetchList('Eye_Coding_Fields');
+        this.state.lists.fetchList('Eye_Coding_Terms');
+        this.state.lists.fetchList('Eye_Defaults_for_GENERAL');
+        this.state.lists.fetchList('Eye_Lens_Material');
+        this.state.lists.fetchList('Eye_Lens_Treatments');
+        this.state.lists.fetchList('Eye_QP_ANTSEG_defaults');
+        this.state.lists.fetchList('Eye_QP_EXT_defaults');
+        this.state.lists.fetchList('Eye_QP_RETINA_defaults');
+        this.state.lists.fetchList('Eye_todo_done_defaults');
+        this.state.lists.fetchList('files_white_list');
+        this.state.lists.fetchList('formdir_keys');
+        this.state.lists.fetchList('general_issue_list');
+        this.state.lists.fetchList('groupstat');
+        this.state.lists.fetchList('immunizations');
+        this.state.lists.fetchList('immunization_administered_site');
+        this.state.lists.fetchList('Immunization_Completion_Status');
+        this.state.lists.fetchList('immunization_informationsource');
+        this.state.lists.fetchList('Immunization_Manufacturer');
+        this.state.lists.fetchList('immunization_observation');
+        this.state.lists.fetchList('immunization_refusal_reason');
+        this.state.lists.fetchList('immunization_registry_status');
+        this.state.lists.fetchList('imm_vac_eligibility_results');
+        this.state.lists.fetchList('Industry');
+        this.state.lists.fetchList('insurance_types');
+        this.state.lists.fetchList('irnpool');
+        this.state.lists.fetchList('issue_subtypes');
+        this.state.lists.fetchList('language');
+        this.state.lists.fetchList('LBF_Validations');
+        this.state.lists.fetchList(' this.state.lists');
+        this.state.lists.fetchList('marital');
+        this.state.lists.fetchList('medical_problem_issue_list');
+        this.state.lists.fetchList('medication_issue_list');
+        this.state.lists.fetchList('message_status');
+        this.state.lists.fetchList('mh_cities');
+        this.state.lists.fetchList('mh_ins_organizations');
+        this.state.lists.fetchList('mh_medic_approval');
+        this.state.lists.fetchList('mh_reason_of_death');
+        this.state.lists.fetchList('mh_ss_income_desc');
+        this.state.lists.fetchList('mh_streets');
+        this.state.lists.fetchList('mh_yes_no_unknown');
+        this.state.lists.fetchList('moh_abnormal_result');
+        this.state.lists.fetchList('moh_abscess_treatment');
+        this.state.lists.fetchList('moh_academic_education');
+        this.state.lists.fetchList('moh_achivements');
+        this.state.lists.fetchList('moh_allows_medic_info');
+        this.state.lists.fetchList('moh_appearance');
+        this.state.lists.fetchList('moh_appearence_form');
+        this.state.lists.fetchList('moh_approval_types');
+        this.state.lists.fetchList('moh_checklist_time');
+        this.state.lists.fetchList('moh_collaboration');
+        this.state.lists.fetchList('moh_consciousness');
+        this.state.lists.fetchList('moh_cooperation_in_examination');
+        this.state.lists.fetchList('moh_countermeasure_for_test');
+        this.state.lists.fetchList('moh_counter_measuretest');
+        this.state.lists.fetchList('moh_country');
+        this.state.lists.fetchList('moh_criminal_legal_status');
+        this.state.lists.fetchList('moh_dangerous_impression');
+        this.state.lists.fetchList('moh_decision');
+        this.state.lists.fetchList('moh_doctors_list');
+        this.state.lists.fetchList('moh_dosage_command');
+        this.state.lists.fetchList('moh_dosage_drugs');
+        this.state.lists.fetchList('moh_dosage_reasons');
+        this.state.lists.fetchList('moh_drug_treatment');
+        this.state.lists.fetchList('moh_drug_units');
+        this.state.lists.fetchList('moh_effect_range');
+        this.state.lists.fetchList('moh_effect_variety');
+        this.state.lists.fetchList('moh_escort_relation');
+        this.state.lists.fetchList('moh_family_history_findings');
+        this.state.lists.fetchList('moh_family_therapy_list');
+        this.state.lists.fetchList('moh_filter_age');
+        this.state.lists.fetchList('moh_findings');
+        this.state.lists.fetchList('moh_forms_types');
+        this.state.lists.fetchList('moh_group_therapy_list');
+        this.state.lists.fetchList('list_id');
+        this.state.lists.fetchList('moh_guidance');
+        this.state.lists.fetchList('moh_indevidual_therapy_list');
+        this.state.lists.fetchList('moh_insight');
+        this.state.lists.fetchList('moh_institutes');
+        this.state.lists.fetchList('moh_institute_type');
+        this.state.lists.fetchList('moh_instruction_against_vaccine');
+        this.state.lists.fetchList('MOH_KUPAT_CHOLIM_BRANCHES');
+        this.state.lists.fetchList('moh_materials_type');
+        this.state.lists.fetchList('moh_matriculation_completion');
+        this.state.lists.fetchList('moh_military_service');
+        this.state.lists.fetchList('moh_mood');
+        this.state.lists.fetchList('moh_occupations');
+        this.state.lists.fetchList('moh_perception');
+        this.state.lists.fetchList('moh_place_do_test');
+        this.state.lists.fetchList('moh_profession_category');
+        this.state.lists.fetchList('moh_pupils');
+        this.state.lists.fetchList('moh_reasons_beginning_use');
+        this.state.lists.fetchList('moh_reason_for_exemption');
+        this.state.lists.fetchList('moh_reference');
+        this.state.lists.fetchList('moh_referrers');
+        this.state.lists.fetchList('moh_reflexes');
+        this.state.lists.fetchList('moh_responsible_organisation');
+        this.state.lists.fetchList('moh_res_labtesting');
+        this.state.lists.fetchList('moh_res_notperform_test');
+        this.state.lists.fetchList('moh_roll_in_military_service');
+        this.state.lists.fetchList('moh_speech');
+        this.state.lists.fetchList('moh_templates_params');
+        this.state.lists.fetchList('moh_train_of_thought');
+        this.state.lists.fetchList('moh_treatment_plan');
+        this.state.lists.fetchList('moh_treatment_type');
+        this.state.lists.fetchList('moh_trip_goal');
+        this.state.lists.fetchList('moh_trip_type');
+        this.state.lists.fetchList('moh_types_of_offenses');
+        this.state.lists.fetchList('moh_type_of_rehab');
+        this.state.lists.fetchList('moh_type_of_relative');
+        this.state.lists.fetchList('moh_undo_reasons_of_test');
+        this.state.lists.fetchList('moh_units_measurement');
+        this.state.lists.fetchList('moh_vaccination_plan');
+        this.state.lists.fetchList('moh_vaccinator_authority_type');
+        this.state.lists.fetchList('moh_vaccine_administration_technique');
+        this.state.lists.fetchList('moh_vaccine_alert_messages');
+        this.state.lists.fetchList('moh_vaccine_clinics');
+        this.state.lists.fetchList('moh_vaccine_place');
+        this.state.lists.fetchList('moh_vaccine_source_report');
+        this.state.lists.fetchList('moh_vaccine_status');
+        this.state.lists.fetchList('moh_vaccine_status_reasons');
+        this.state.lists.fetchList('moh_vaccine_warnings');
+        this.state.lists.fetchList('moh_vac_vaccines_manufacturer');
+        this.state.lists.fetchList('moh_way_of_use');
+        this.state.lists.fetchList('msp_remit_codes');
+        this.state.lists.fetchList('nation_notes_replace_buttons');
+        this.state.lists.fetchList('newcrop_erx_role');
+        this.state.lists.fetchList('next_of_kin_relationship');
+        this.state.lists.fetchList('note_type');
+        this.state.lists.fetchList('Occupation');
+        this.state.lists.fetchList('occurrence');
+        this.state.lists.fetchList('order_type');
+        this.state.lists.fetchList('ord_priority');
+        this.state.lists.fetchList('ord_status');
+        this.state.lists.fetchList('outcome');
+        this.state.lists.fetchList('page_validation');
+        this.state.lists.fetchList('patient_flow_board_rooms');
+        this.state.lists.fetchList('payment_adjustment_code');
+        this.state.lists.fetchList('payment_date');
+        this.state.lists.fetchList('payment_gateways');
+        this.state.lists.fetchList('payment_ins');
+        this.state.lists.fetchList('payment_method');
+        this.state.lists.fetchList('payment_sort_by');
+        this.state.lists.fetchList('payment_status');
+        this.state.lists.fetchList('payment_type');
+        this.state.lists.fetchList('personal_relationship');
+        this.state.lists.fetchList('physician_type');
+        this.state.lists.fetchList('Plan_of_Care_Type');
+        this.state.lists.fetchList('pricelevel');
+        this.state.lists.fetchList('proc_body_site');
+        this.state.lists.fetchList('proc_lat');
+        this.state.lists.fetchList('proc_rep_status');
+        this.state.lists.fetchList('proc_res_abnormal');
+        this.state.lists.fetchList('proc_res_bool');
+        this.state.lists.fetchList('proc_res_status');
+        this.state.lists.fetchList('proc_route');
+        this.state.lists.fetchList('proc_specimen');
+        this.state.lists.fetchList('proc_type');
+        this.state.lists.fetchList('proc_unit');
+        this.state.lists.fetchList('provider_qualifier_code');
+        this.state.lists.fetchList('ptlistcols');
+        this.state.lists.fetchList('publicity_code');
+        this.state.lists.fetchList('race');
+        this.state.lists.fetchList('reaction');
+        this.state.lists.fetchList('refsource');
+        this.state.lists.fetchList('religious_affiliation');
+        this.state.lists.fetchList('riskfactors');
+        this.state.lists.fetchList('risklevel');
+        this.state.lists.fetchList('rule_action');
+        this.state.lists.fetchList('rule_action_category');
+        this.state.lists.fetchList('rule_age_intervals');
+        this.state.lists.fetchList('rule_comparisons');
+        this.state.lists.fetchList('rule_enc_types');
+        this.state.lists.fetchList('rule_filters');
+        this.state.lists.fetchList('rule_reminder_due_opt');
+        this.state.lists.fetchList('list_id');
+        this.state.lists.fetchList('rule_reminder_inactive_opt');
+        this.state.lists.fetchList('rule_reminder_intervals');
+        this.state.lists.fetchList('rule_reminder_methods');
+        this.state.lists.fetchList('rule_targets');
+        this.state.lists.fetchList('rule_target_intervals');
+        this.state.lists.fetchList('severity_ccda');
+        this.state.lists.fetchList('sex');
+        this.state.lists.fetchList('smoking_status');
+        this.state.lists.fetchList('state');
+        this.state.lists.fetchList('sub_relation');
+        this.state.lists.fetchList('superbill');
+        this.state.lists.fetchList('surgery_issue_list');
+        this.state.lists.fetchList('titles');
+        this.state.lists.fetchList('userlist1');
+        this.state.lists.fetchList('userlist2');
+        this.state.lists.fetchList('userlist3');
+        this.state.lists.fetchList('userlist4');
+        this.state.lists.fetchList('userlist5');
+        this.state.lists.fetchList('userlist6');
+        this.state.lists.fetchList('userlist7');
+        this.state.lists.fetchList('warehouse');
+        this.state.lists.fetchList('yesno');*/
+
+
+       this.state.lists.fetchList("dashboard");
+   }
 
     componentDidMount() {
-        this.setGlobalPatientId();
-        this.getDashboardList();
+
+        let checkForDashboardListReady = window['fetchList'].state.staticLists['dashboard'];
+
+        if(!checkForDashboardListReady) {
+           let timerId = setTimeout(()=>{
+
+                checkForDashboardListReady = window['fetchList'].state.staticLists['dashboard']
+                if(checkForDashboardListReady){
+                    debugger;
+                    this.setState({'gadgets':checkForDashboardListReady});
+                    this.setGlobalPatientId();
+                    console.log(this);
+                    clearTimeout(timerId);
+                }
+            },1000)
+        }
+
+
+        /*let dashboardList = lists.getStaticListByName['dashboard'] ;
+
+        this.setState('gadgets', lists.getState('staticLists'));
+*/
+
+
     }
 
+    GetElement (id){
+
+        try {
+
+            let items = [];
+            let elementObject = this.state.gadgets;
+
+            var result = [];
+
+                for(var i in elementObject) {
+
+                    let item = elementObject[i];
+
+                    if(item.notes.id == id) {
+                        debugger;
+                        var element = item.notes.element;
+                        var title = item.title;
+                        var element_component = item.notes.element_component;
+
+                        items.push(<LazyLoadModule key={item} resolve={() => import("./" + element_component)}
+                                                   element={element}
+                                                   element_title={title}/>)
+
+
+                    }
+                }
+            return items;
+        }
+        catch
+            (e)
+            {
+                console.log(e);
+            }
+            debugger;
+
+
+    }
 
     render() {
+
         return (
 
 
+            <div>
+                {
+            this.state && this.state.gadgets && <div className="container-fluid">
 
-
-            <div className="container-fluid">
                 <div className="row">
                     <div className="col-md-12">
-                        <LazyLoadModule resolve={() => import("./MenuDashboard")}/>
+                        {this.GetElement('header')}
                     </div>
                 </div>
                 <div className="row">
@@ -107,7 +407,7 @@ class Dashboard extends React.Component {
                                 Practical information
                             </Card.Header>
                             <Card.Body>
-                                <LazyLoadModule resolve={() => import("./PatientData")}/>
+                                {this.GetElement('left')}
                             </Card.Body>
                         </Card>
 
@@ -119,9 +419,7 @@ class Dashboard extends React.Component {
                             Medical Highlights
                         </Card.Header>
                         <Card.Body>
-                                <LazyLoadModule resolve={() =>  import("./MedicalProblems")}  element="MedicalProblems" element_title="Medical Problems" />
-                                <LazyLoadModule resolve={() =>    import("./MedicalProblems")} element="Allergies" element_title="Allergies" />
-                                <LazyLoadModule resolve={() =>    import("./MedicalProblems")} element="Medications" element_title="Medications" />
+                            {this.GetElement('right')}
 
                         </Card.Body>
                         </Card>
@@ -129,7 +427,8 @@ class Dashboard extends React.Component {
                         </div>
                 </div>
             </div>
-
+                }
+            </div>
         );
     }
 
