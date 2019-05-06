@@ -1,7 +1,11 @@
-import React, {Component} from "react";
+import React from "react";
+import agent from '../utils/agent.js';
+
 import helpers from '../utils/helpers.js';
 import ToggleButton from './global/ToggleButton.js';
 import {Button, Table, Card, Collapse, Tab, Row, Col, Nav, Container} from 'react-bootstrap';
+
+const Promise = global.Promise;
 
 class PatientData extends React.Component {
     constructor(props) {
@@ -9,39 +13,23 @@ class PatientData extends React.Component {
         this.state = {
             patientId: props.patientId,
             data: [],
+            groups: [],
             isOpen: false,
             isLoaded: false
         }
     }
 
+    componentWillMount() {
+        this.setState.patientId = helpers.getPatientId();
+        var groupsList = Promise.all([agent.PatientDataAgent.groups(), agent.PatientDataAgent.patient(this.setState.patientId )]);
+        groupsList.then( ([listGroups, patientData]) => {
+            this.setState({ groups: [listGroups][0], data: [patientData], isLoaded: true });
+        });
+        // console.log("My name is: " + this.name + ": 1");
+    }
 
     componentDidMount() {
-        this.setState.patientId = helpers.getPatientId();
-        if (this.setState.patientId >= 0) {
-            fetch("../../../../apis/api/patient/extended/" + this.setState.patientId, {
-                method: "GET",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                }
-            })
-                .then((res) => res.json())
-                .then(
-                    (result) => {
-                        if (result != null && JSON.stringify(result)) {
-                            this.setState({data: [result], isLoaded: true});
-                        }
-                    },
-                    (error) => {
-                        // this.setState({
-                        //     isLoaded: true,
-                        //     error
-                        // });
-                    }
-                );
-        } else {
-            console.log("Patient not found");
-        }
+        // console.log("My name is: " + this.name + ": 2");
     }
 
     localToggle() {
@@ -49,6 +37,7 @@ class PatientData extends React.Component {
     }
 
     componentDidUpdate() {
+        // console.log("My name is: " + this.name + ": 3");
         // console.log("Query:" + JSON.stringify(this.state.data));
         this.state.data.map((data, i) => {
             parent.left_nav.setPatient(data.fname + " " + data.lname, data.pid, data.pubpid, '', data.str_dob);
@@ -57,8 +46,12 @@ class PatientData extends React.Component {
     }
 
     render() {
+        // console.log("My name is: " + this.name + ": 4");
+
         const {isOpen} = this.state;
         const {isLoaded} = this.state;
+        const {data} = this.state;
+// console.log(this.state.data);
         var rightTextButton = "Patient Data";
         return (
             isLoaded &&
@@ -74,80 +67,29 @@ class PatientData extends React.Component {
                         <Card>
                             <Card.Body>
                                 <div id="example-fade-text">
-
-                                    <Tab.Container id="left-tabs-example" defaultActiveKey="tab-1">
+                                    <Tab.Container id="left-tabs-example" defaultActiveKey="tab-0">
                                         <Row>
                                             <Col sm={3}>
                                                 <Nav variant="pills" className="flex-column">
-                                                    <Nav.Item>
-                                                        <Nav.Link eventKey="tab-1">Short Patient Form</Nav.Link>
-                                                    </Nav.Item>
-                                                    <Nav.Item>
-                                                        <Nav.Link eventKey="tab-2">Contacts</Nav.Link>
-                                                    </Nav.Item>
-                                                    <Nav.Item>
-                                                        <Nav.Link eventKey="tab-3">Employer</Nav.Link>
-                                                    </Nav.Item>
-                                                    <Nav.Item>
-                                                        <Nav.Link eventKey="tab-4">Misc</Nav.Link>
-                                                    </Nav.Item>
-                                                    <Nav.Item>
-                                                        <Nav.Link eventKey="tab-5">Insurance</Nav.Link>
-                                                    </Nav.Item>
+                                                    {this.state.groups.map((group, j) => {
+                                                        var jt = "tab-" + j;
+                                                            return (
+                                                            <Nav.Item key={j}>
+                                                                <Nav.Link eventKey={jt}>{group.grp_title}</Nav.Link>
+                                                            </Nav.Item>
+                                                            )
+                                                        })}
                                                 </Nav>
                                             </Col>
                                             <Col sm={9}>
                                                 <Tab.Content>
-                                                    <Tab.Pane eventKey="tab-1">
-                                                        {this.state.data.map((data, i) => {
-                                                            return (
-                                                                <div key={i}>
-                                                                    <Container>
-                                                                        <Row>
-                                                                            <Col>First Name:</Col>
-                                                                            <Col>{data.fname}</Col>
-                                                                        </Row>
-                                                                        <Row>
-                                                                            <Col>Last Name:</Col>
-                                                                            <Col>{data.lname}</Col>
-                                                                        </Row>
-                                                                        <Row>
-                                                                            <Col>English full name:</Col>
-                                                                            <Col>{data.title}</Col>
-                                                                        </Row>
-                                                                        <Row>
-                                                                            <Col>Dob:</Col>
-                                                                            <Col>{data.DOB}</Col>
-                                                                        </Row>
-                                                                        <Row>
-                                                                            <Col>S.S.:</Col>
-                                                                            <Col>{data.ss}</Col>
-                                                                        </Row>
-                                                                        <Row>
-                                                                            <Col>Sex:</Col>
-                                                                            <Col>{data.sex}</Col>
-                                                                        </Row>
-                                                                        <Row>
-                                                                            <Col>Birth country:</Col>
-                                                                            <Col>{data.county}</Col>
-                                                                        </Row>
-                                                                    </Container>
-                                                                </div>
-                                                            )
-                                                        })}
-                                                    </Tab.Pane>
-                                                    <Tab.Pane eventKey="tab-2">
-                                                        Contacts
-                                                    </Tab.Pane>
-                                                    <Tab.Pane eventKey="tab-3">
-                                                        Employer
-                                                    </Tab.Pane>
-                                                    <Tab.Pane eventKey="tab-4">
-                                                        Misc
-                                                    </Tab.Pane>
-                                                    <Tab.Pane eventKey="tab-5">
-                                                        Insurance
-                                                    </Tab.Pane>
+                                                    {this.state.groups.map((group, i) => {
+                                                        var it = "tab-" + i;
+                                                        return (
+                                                            <Tab.Pane eventKey={it} key={i}>{group.grp_title}</Tab.Pane>
+                                                        )
+                                                    })}
+
                                                 </Tab.Content>
                                             </Col>
                                         </Row>

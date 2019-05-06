@@ -30,6 +30,7 @@ use OpenEMR\RestControllers\InsuranceRestController;
 use OpenEMR\RestControllers\MessageRestController;
 use OpenEMR\RestControllers\MenusRestController;
 use OpenEMR\RestControllers\PatientExtendedRestController;
+use OpenEMR\RestControllers\LayoutRestController;
 
 
 
@@ -340,7 +341,9 @@ RestConfig::$ROUTE_MAP = array(
         return (new MenusRestController())->getMenu($pid, $type);
     },
 
-
+    "GET /api/layout/:form_id" => function ( $form_id ) {
+        return (new LayoutRestController())->getGroupsByFormId($form_id);
+    }
 );
 
 use OpenEMR\RestControllers\FhirPatientRestController;
