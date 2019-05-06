@@ -34,6 +34,8 @@ class C_Document extends Controller
 
         $this->assign("CSRF_TOKEN_FORM", collectCsrfToken());
 
+        $this->assign("IMAGES_STATIC_RELATIVE", $GLOBALS['images_static_relative']);
+
         //get global config options for this namespace
         $this->_config = $GLOBALS['oer_config']['documents'];
 
@@ -1117,7 +1119,7 @@ class C_Document extends Controller
         $menu  = new HTML_TreeMenu();
         $rnode = $this->_array_recurse($this->tree->tree, $categories_list);
         $menu->addItem($rnode);
-        $treeMenu = new HTML_TreeMenu_DHTML($menu, array('images' => 'images', 'defaultClass' => 'treeMenuDefault'));
+        $treeMenu = new HTML_TreeMenu_DHTML($menu, array('images' => 'public/images', 'defaultClass' => 'treeMenuDefault'));
         $treeMenu_listbox  = new HTML_TreeMenu_Listbox($menu, array('linkTarget' => '_self'));
         $this->assign("tree_html", $treeMenu->toHTML());
 

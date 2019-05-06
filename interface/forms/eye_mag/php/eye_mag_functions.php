@@ -4049,7 +4049,7 @@ function report_header($pid, $direction = 'shell')
                         echo "<img src='$practice_logo' align='left' style='width:100px;margin:0px 10px;'><br />\n";
                     }
                 }
-            ?>
+                ?>
             </td>
             <td style='width:40%;'>
                 <em style="font-weight:bold;font-size:1.4em;"><?php echo text($facility['name']); ?></em><br />

@@ -237,7 +237,7 @@ if(EventCats.eval(cat).end_date_flag > 0)
 				<input type="text"	name="patient_name" size="15" value="[-$patient_value-]" readonly >
 				<input type="hidden" name="event_pid" value="[-$event_pid-]">
 				<a href="javascript:{}" onclick="top.restoreSession();var URL='[-$webroot-]/controller.php?patient_finder&find&form_id=add_event[\'event_pid\']&form_name=add_event[\'patient_name\']&pid=true'; window.open(URL, 'add_event', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left = 425,top = 250');">
-					<img src="[-$webroot-]/images/stock_search-16.png" border="0"</a>
+					<img src="[-php-] echo $GLOBALS['images_static_relative']; [-/php-]/stock_search-16.png" border="0" </a>
                 
 				</td><td>&nbsp;</td><td>
 				Provider<br />
