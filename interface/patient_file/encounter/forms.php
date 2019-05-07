@@ -891,7 +891,7 @@ if (!empty($docs_list) && count($docs_list) > 0) {
 <?php
 $doc = new C_Document();
 foreach ($docs_list as $doc_iter) {
-    $doc_url = $doc->_tpl_vars[CURRENT_ACTION]. "&view&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_iter[id]) . "&";
+    $doc_url = $doc->_tpl_vars['CURRENT_ACTION']. "&view&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_iter['id']) . "&";
     // Get notes for this document.
     $queryString = "SELECT GROUP_CONCAT(note ORDER BY date DESC SEPARATOR '|') AS docNotes, GROUP_CONCAT(date ORDER BY date DESC SEPARATOR '|') AS docDates
 			FROM notes WHERE foreign_id = ? GROUP BY foreign_id";
