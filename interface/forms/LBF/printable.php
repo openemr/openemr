@@ -118,7 +118,6 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 <?php if (!$PDF_OUTPUT) { ?>
 <html>
 <head>
-<?php html_header_show();?>
 <?php } ?>
 
 <style>

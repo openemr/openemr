@@ -57,7 +57,6 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
 <html>
 
 <head>
-    <?php html_header_show();?>
 
     <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/datatables.net-jqui/css/dataTables.jqueryui.css" type="text/css">

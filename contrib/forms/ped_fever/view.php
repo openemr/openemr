@@ -20,7 +20,6 @@
 include_once("../../globals.php");
 ?>
 <html><head>
-<?php echo  html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 <body class="body_top">

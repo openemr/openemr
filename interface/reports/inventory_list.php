@@ -59,7 +59,6 @@ $res = sqlStatement("SELECT d.*, SUM(di.on_hand) AS on_hand " .
 <html>
 
 <head>
-<?php html_header_show(); ?>
 
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 <title><?php echo xlt('Inventory List'); ?></title>

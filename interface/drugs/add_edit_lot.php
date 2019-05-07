@@ -105,7 +105,6 @@ if (!$drug_id) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <title><?php echo $lot_id ? xlt("Edit") : xlt("Add New");
 echo " " . xlt('Lot'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>

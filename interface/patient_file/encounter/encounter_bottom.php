@@ -15,7 +15,6 @@ require_once("$srcdir/encounter.inc");
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 </head>
 <frameset rows="*" cols="200,400,*">
     <?php
