@@ -268,7 +268,7 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
      document.getElementById('TdUnappliedAmount').innerHTML=document.getElementById('payment_amount').value;
     }
 
-    $(document).ready(function() {
+    $(function() {
        $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
@@ -505,7 +505,7 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
     <?php $oemr_ui->oeBelowContainerDiv();?>
 <script src = '<?php echo $webroot;?>/library/js/oeUI/oeFileUploads.js'></script>
 <script>
-$(document).ready(function() {
+$(function() {
     $('select').removeClass('class1 text')
 });
 </script>

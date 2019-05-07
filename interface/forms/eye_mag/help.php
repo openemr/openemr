@@ -58,7 +58,7 @@ if ($showit=='ext') {
         active: 0
         });
     });
-    $(document).ready(function() {
+    $(function() {
         $("[name^='accordion_']").hide();
         $("#accordion_<?php echo attr($showit); ?>_group").show()
         $("#<?php echo attr($showit); ?>_button").css("color","red");

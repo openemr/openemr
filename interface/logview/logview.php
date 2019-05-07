@@ -441,7 +441,7 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
 <script language="javascript">
 
 // jQuery stuff to make the page a little easier to use
-$(document).ready(function(){
+$(function(){
     // billing log modal
     $("#view-billing-log-link").click( function() {
         top.restoreSession();

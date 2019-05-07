@@ -209,7 +209,7 @@ function validate() {
  return true;
 }
 
-$(document).ready(function() {
+$(function() {
     $("#form_type").change(function() {
         myRestoreSession();
         document.forms[0].submit();

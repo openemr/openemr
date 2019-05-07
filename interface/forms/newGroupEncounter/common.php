@@ -93,7 +93,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
     }
     ?>
  var collectvalidation = <?php echo $collectthis; ?>;
- $(document).ready(function(){
+ $(function(){
    window.saveClicked = function(event) {
      var submit = submitme(1, event, 'new-encounter-form', collectvalidation);
      if (submit) {

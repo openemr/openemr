@@ -46,7 +46,7 @@ echo "<html><head>";
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript">
-$(document).ready(function(){
+$(function(){
     $('.datetimepicker').datetimepicker({
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = true; ?>
