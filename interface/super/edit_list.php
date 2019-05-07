@@ -1410,7 +1410,8 @@ if ($GLOBALS['ippf_specific']) { ?>
     // jQuery stuff to make the page a little easier to use
 
     $(function () {
-        $("#form_save").click(function () {
+        $("#form_save").click(function (e) {
+            e.preventDefault();
             SaveChanges();
         });
         $("#list_id").change(function () {
