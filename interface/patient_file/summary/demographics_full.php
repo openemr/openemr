@@ -400,7 +400,7 @@ function policykeyup(e) {
 }
 
 // Added 06/2009 by BM to make compatible with list_options table and functions - using jquery
-$(document).ready(function() {
+$(function() {
 
     <?php for ($i=1; $i<=3; $i++) { ?>
   $("#form_i<?php echo attr($i); ?>subscriber_relationship").change(function() { auto_populate_employer_address<?php echo attr($i); ?>(); });
