@@ -2102,7 +2102,7 @@ function showpnotes(docid) {
     }
 }
 
-$(document).ready(function() {
+$(function() {
                   check_lock();
 
 var allPanels = $('.building_blocks > dd').hide();

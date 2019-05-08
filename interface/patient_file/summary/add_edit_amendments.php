@@ -152,7 +152,7 @@ function formValidation() {
     $("#add_edit_amendments").submit();
 }
 
-$(document).ready(function() {
+$(function() {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>

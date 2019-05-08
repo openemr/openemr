@@ -156,7 +156,7 @@ $trow = $transid ? getTransById($transid) : array();
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
 <script type="text/javascript">
-$(document).ready(function() {
+$(function() {
   if(window.tabbify){
     tabbify();
   }
