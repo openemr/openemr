@@ -26,7 +26,13 @@ class LayoutRestController
 
     public function getGroupsByFormId($form_id)
     {
-        $serviceResult = $this->layoutService->getGroupsByFormId($form_id);
+        $serviceResult = $this->layoutService->getGroupsListByFormId($form_id);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+    }
+
+    public function getFieldsByFormId($form_id, $group_id)
+    {
+        $serviceResult = $this->layoutService->getFieldsByFormId($form_id, $group_id);
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
