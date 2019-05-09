@@ -23,6 +23,4 @@
  * @param Smarty
  */
 function smarty_function_headerShow($params, &$smarty)
-{
-    return html_header_show();
-}
+

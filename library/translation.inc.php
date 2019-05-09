@@ -264,7 +264,6 @@ shows some informations for pages html header
 @param none
 @return void
 */
-function html_header_show()
 {
 
     // Below line was commented by the UTF-8 project on 05-2009 by BM.
