@@ -12,7 +12,7 @@
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2014-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
- * @copyright Copyright (C) 2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018-2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -51,8 +51,9 @@ $bat_time = time();
 $bat_hhmm = date('Hi', $bat_time);
 $bat_yymmdd = date('ymd', $bat_time);
 $bat_yyyymmdd = date('Ymd', $bat_time);
-// Minutes since 1/1/1970 00:00:00 GMT will be our interchange control number:
-$bat_icn = sprintf('%09.0f', $bat_time / 60);
+// Seconds since 1/1/1970 00:00:00 GMT will be our interchange control number
+// but since limited to 9 char must be without leading 1
+$bat_icn = substr((string)$bat_time, 1, 9);
 $bat_filename = date("Y-m-d-Hi", $bat_time) . "-batch.";
 $bat_filename .= (isset($_POST['bn_process_hcfa']) || isset($_POST['bn_process_hcfa_form']) || isset($_POST['bn_process_ub04']) || isset($_POST['bn_process_ub04_form'])) ? 'pdf' : 'txt';
 $template = array();
