@@ -23,11 +23,11 @@
 
 namespace Carecoordination\Model;
 
+use OpenEMR\Common\Crypto\CryptoGen;
 use Zend\Db\TableGateway\AbstractTableGateway;
 use Application\Model\ApplicationTable;
 use Zend\Db\Adapter\Driver\Pdo\Result;
 use ZipArchive;
-
 use CouchDB;
 use DOMPDF;
 
@@ -206,7 +206,8 @@ class EncountermanagerTable extends AbstractTableGateway
             }
 
             $phimail_username = $GLOBALS['phimail_username'];
-            $phimail_password = decryptStandard($GLOBALS['phimail_password']);
+            $cryptoGen = new CryptoGen();
+            $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
             $ret = \Application\Plugin\Phimail::phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
             if ($ret!==true) {
                 return("$config_err 4");

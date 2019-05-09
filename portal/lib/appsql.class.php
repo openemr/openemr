@@ -10,6 +10,7 @@
  */
 require_once(dirname(__FILE__) . '/../../interface/globals.php');
 
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 class ApplicationTable
@@ -365,7 +366,8 @@ class ApplicationTable
         $encrypt_comment = 'No';
         if (! empty($comments)) {
             if ($GLOBALS["enable_auditlog_encryption"]) {
-                $comments = encryptStandard($comments);
+                $cryptoGen = new CryptoGen();
+                $comments = $cryptoGen->encryptStandard($comments);
                 $encrypt_comment = 'Yes';
             }
         }

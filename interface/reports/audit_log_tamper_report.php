@@ -14,6 +14,7 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 if (!empty($_GET)) {
@@ -214,6 +215,9 @@ if (($eventname == "") && ($type_event != "")) {
 $dispArr = array();
 $icnt = 1;
 if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent))) {
+    // Set up crypto object (object will increase performance since caches used keys)
+    $cryptoGen = new CryptoGen();
+
     foreach ($ret as $iter) {
         //translate comments
         $patterns = array ('/^success/','/^failure/','/ encounter/');
@@ -246,7 +250,7 @@ if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,
             if ($encryptVersion == 3) {
                 // Use new openssl method
                 if (extension_loaded('openssl')) {
-                    $trans_comments = decryptStandard($iter["comments"]);
+                    $trans_comments = $cryptoGen->decryptStandard($iter["comments"]);
                     if ($trans_comments !== false) {
                         $trans_comments = preg_replace($patterns, $replace, trim($trans_comments));
                     } else {
@@ -258,7 +262,7 @@ if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,
             } else if ($encryptVersion == 2) {
                 // Use new openssl method
                 if (extension_loaded('openssl')) {
-                    $trans_comments = aes256DecryptTwo($iter["comments"]);
+                    $trans_comments = $cryptoGen->aes256DecryptTwo($iter["comments"]);
                     if ($trans_comments !== false) {
                         $trans_comments = preg_replace($patterns, $replace, trim($trans_comments));
                     } else {
@@ -270,14 +274,14 @@ if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,
             } else if ($encryptVersion == 1) {
                 // Use new openssl method
                 if (extension_loaded('openssl')) {
-                    $trans_comments = preg_replace($patterns, $replace, trim(aes256DecryptOne($iter["comments"])));
+                    $trans_comments = preg_replace($patterns, $replace, trim($cryptoGen->aes256DecryptOne($iter["comments"])));
                 } else {
                     $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
                 }
             } else { //$encryptVersion == 0
                 // Use old mcrypt method
                 if (extension_loaded('mcrypt')) {
-                    $trans_comments = preg_replace($patterns, $replace, trim(aes256Decrypt_mycrypt($iter["comments"])));
+                    $trans_comments = preg_replace($patterns, $replace, trim($cryptoGen->aes256Decrypt_mycrypt($iter["comments"])));
                 } else {
                     $trans_comments = xl("Unable to decrypt these comments since the PHP mycrypt module is not installed.");
                 }

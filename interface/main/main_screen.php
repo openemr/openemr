@@ -16,6 +16,7 @@
 /* Include our required headers */
 require_once('../globals.php');
 
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
@@ -175,7 +176,8 @@ if ($registrationAttempt) {
 
             // Decrypt the secret
             // First, try standard method that uses standard key
-            $secret = decryptStandard($registrationSecret);
+            $cryptoGen = new CryptoGen();
+            $secret = $cryptoGen->decryptStandard($registrationSecret);
             if (empty($secret)) {
                 // Second, try the password hash, which was setup during install and is temporary
                 $passwordResults = privQuery(
@@ -183,11 +185,11 @@ if ($registrationAttempt) {
                     array($_POST["authUser"])
                 );
                 if (!empty($passwordResults["password"])) {
-                    $secret = decryptStandard($registrationSecret, $passwordResults["password"]);
+                    $secret = $cryptoGen->decryptStandard($registrationSecret, $passwordResults["password"]);
                     if (!empty($secret)) {
                         error_log("Disregard the decryption failed authentication error reported above this line; it is not an error.");
                         // Re-encrypt with the more secure standard key
-                        $secretEncrypt = encryptStandard($secret);
+                        $secretEncrypt = $cryptoGen->encryptStandard($secret);
                         privStatement(
                             "UPDATE login_mfa_registrations SET var1 = ? where user_id = ? AND method = 'TOTP'",
                             array($secretEncrypt, $userid)

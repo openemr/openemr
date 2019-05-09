@@ -20,6 +20,8 @@ require_once($GLOBALS['srcdir'] . '/acl.inc');
 require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 
+use OpenEMR\Common\Crypto\CryptoGen;
+
 if (!verifyCsrfToken($_POST["csrf_token_form"])) {
     csrfNotVerified();
 }
@@ -364,8 +366,9 @@ if ('dotx' == $ext) {
 $fileData = file_get_contents($templatepath);
 
 // Decrypt file, if applicable.
-if (cryptCheckStandard($fileData)) {
-    $fileData = decryptStandard($fileData, null, 'database');
+$cryptoGen = new CryptoGen();
+if ($cryptoGen->cryptCheckStandard($fileData)) {
+    $fileData = $cryptoGen->decryptStandard($fileData, null, 'database');
 }
 
 // Create a temporary file to hold the template.

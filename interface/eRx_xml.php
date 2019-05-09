@@ -13,6 +13,7 @@
  */
 
 
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -32,7 +33,8 @@ function getErxCredentials()
     $cred=array();
     $cred[]=$GLOBALS['erx_account_partner_name'];
     $cred[]=$GLOBALS['erx_account_name'];
-    $cred[]=decryptStandard($GLOBALS['erx_account_password']);
+    $cryptoGen = new CryptoGen();
+    $cred[]=$cryptoGen->decryptStandard($GLOBALS['erx_account_password']);
 
     return $cred;
 }

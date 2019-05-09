@@ -23,6 +23,7 @@
 
 namespace Documents\Controller;
 
+use OpenEMR\Common\Crypto\CryptoGen;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Zend\View\Model\JsonModel;
@@ -88,7 +89,8 @@ class DocumentsController extends AbstractActionController
 
                 // Decrypt Encrypted File
                 if ($encrypted_file == '1') {
-                    $plaintext  = decryptStandard($filetext, $encryption_key);
+                    $cryptoGen = new CryptoGen();
+                    $plaintext  = $cryptoGen->decryptStandard($filetext, $encryption_key);
                     if ($plaintext === false) {
                         error_log("OpenEMR Error: Unable to decrypt a document since decryption failed.");
                         $plaintext = "";

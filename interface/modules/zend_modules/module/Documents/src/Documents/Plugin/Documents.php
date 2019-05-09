@@ -20,6 +20,7 @@
 */
 namespace Documents\Plugin;
 
+use OpenEMR\Common\Crypto\CryptoGen;
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 use Documents\Model\DocumentsTable;
 use Application\Model\ApplicationTable;
@@ -52,7 +53,8 @@ class Documents extends AbstractPlugin
         $host       = $GLOBALS['couchdb_host'];
         $port       = $GLOBALS['couchdb_port'];
         $usename    = $GLOBALS['couchdb_user'];
-        $password   = decryptStandard($GLOBALS['couchdb_pass']);
+        $cryptoGen  = new CryptoGen();
+        $password   = $cryptoGen->decryptStandard($GLOBALS['couchdb_pass']);
         $database   = $GLOBALS['couchdb_dbase'];
         $enable_log = ($GLOBALS['couchdb_log'] == 1) ? true : false;
 
