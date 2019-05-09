@@ -52,8 +52,8 @@ $bat_hhmm = date('Hi', $bat_time);
 $bat_yymmdd = date('ymd', $bat_time);
 $bat_yyyymmdd = date('Ymd', $bat_time);
 // Seconds since 1/1/1970 00:00:00 GMT will be our interchange control number
-// but since limited to 9 must be without leading 1
-$bat_icn = substr($bat_time, 1, 9);
+// but since limited to 9 char must be without leading 1
+$bat_icn = substr((string)$bat_time, 1, 9);
 $bat_filename = date("Y-m-d-Hi", $bat_time) . "-batch.";
 $bat_filename .= (isset($_POST['bn_process_hcfa']) || isset($_POST['bn_process_hcfa_form']) || isset($_POST['bn_process_ub04']) || isset($_POST['bn_process_ub04_form'])) ? 'pdf' : 'txt';
 $template = array();
