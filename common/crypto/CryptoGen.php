@@ -391,9 +391,7 @@ class CryptoGen
     {
         // Check if key is in the cache first (and return it if it is)
         $cacheLabel = $version.$sub.$keySource;
-        // error_log("DEBUG1: cacheLabel is:" . $cacheLabel);
         if (!empty($this->{$cacheLabel})) {
-            // error_log("DEBUG2: used cached key labeled:" . $cacheLabel . " key:" . $this->{$cacheLabel});
             return $this->{$cacheLabel};
         }
 
@@ -450,7 +448,6 @@ class CryptoGen
         }
 
         // Store key in cache and then return the key
-        // error_log("DEBUG3: returning key labeled:" . $cacheLabel . " key:" . $key);
         $this->{$cacheLabel} = $key;
         return $key;
     }

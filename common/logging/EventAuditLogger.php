@@ -148,7 +148,6 @@ MSG;
     {
         // Set up crypto object that will be used by this singleton class for for encryption/decryption (if not set up already)
         if (!isset($this->cryptoGen)) {
-            // error_log("DEBUG4:newEvent CREATE new inner CryptGen");
             $this->cryptoGen = new CryptoGen();
         }
 
@@ -719,7 +718,6 @@ MSG;
     {
         // Set up crypto object that will be used by this singleton class for for encryption/decryption (if not set up already)
         if (!isset($this->cryptoGen)) {
-            // error_log("DEBUG5:auditSQLEvent CREATE new inner CryptGen");
             $this->cryptoGen = new CryptoGen();
         }
 

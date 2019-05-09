@@ -373,9 +373,9 @@ class Installer
         }
 
         // Create new 2fa if enabled
-        if (($this->i2faEnable) && (!empty($this->i2faSecret)) && (class_exists('Totp')) && (class_exists('CryptoGen'))) {
+        if (($this->i2faEnable) && (!empty($this->i2faSecret)) && (class_exists('Totp')) && (class_exists('OpenEMR\Common\Crypto\CryptoGen'))) {
             // Encrypt the new secret with the hashed password
-            $cryptoGen = new CryptoGen();
+            $cryptoGen = new OpenEMR\Common\Crypto\CryptoGen();
             $secret = $cryptoGen->encryptStandard($this->i2faSecret, $hash);
             if ($this->execute_sql("INSERT INTO login_mfa_registrations (user_id, name, method, var1, var2) VALUES (1, 'App Based 2FA', 'TOTP', '".$this->escapeSql($secret)."', '')") == false) {
                 $this->error_message = "ERROR. Unable to add initial user's 2FA credentials\n".
