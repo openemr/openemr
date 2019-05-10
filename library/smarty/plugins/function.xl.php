@@ -27,4 +27,3 @@
  * {xl t="some words"}
  *
  * @param array
-

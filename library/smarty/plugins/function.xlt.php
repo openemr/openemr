@@ -27,4 +27,3 @@
  * {xlt t="some words"}
  *
  * @param array
- 

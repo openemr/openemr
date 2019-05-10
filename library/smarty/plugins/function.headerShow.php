@@ -19,5 +19,3 @@
  * Type:     function<br>
  * Name:     headerShow<br>
  * Purpose:  headerShow in OpenEMR - Smarty templates<br>
- *
- 
