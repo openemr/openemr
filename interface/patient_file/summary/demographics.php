@@ -1003,12 +1003,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                                 }
                                                                 ?>
                                                               <br>
-                                                                <?php echo xlt('Policy Number'); ?>:
-                                                                <?php echo text($row['policy_number']) ?><br>
-                                                                <?php echo xlt('Plan Name'); ?>:
-                                                                <?php echo text($row['plan_name']); ?><br>
-                                                                <?php echo xlt('Group Number'); ?>:
-                                                                <?php echo text($row['group_number']); ?></span>
+                                                                <?php echo xlt('Policy Number'); ?>: <?php echo text($row['policy_number']) ?><br>
+                                                                <?php echo xlt('Plan Name'); ?>: <?php echo text($row['plan_name']); ?><br>
+                                                                <?php echo xlt('Group Number'); ?>: <?php echo text($row['group_number']); ?>
+                                                              </span>
                                                              </td>
                                                              <td valign='top'>
                                                                 <span class='bold'><?php echo xlt('Subscriber'); ?>: </span><br>
