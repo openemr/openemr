@@ -27,18 +27,4 @@
  * {xl t="some words"}
  *
  * @param array
- * @param Smarty
- */
 
-
-function smarty_function_xl($params, &$smarty)
-{
-    if (empty($params['t'])) {
-        $smarty->trigger_error("xk: missing 't' parameter");
-            return;
-    } else {
-            $translate = $params['t'];
-    }
-
-    echo xl($translate);
-}
