@@ -21,3 +21,4 @@
  * Name:     amcCollect<br>
  * Purpose:  amcCollect in OpenEMR - Smarty templates<br>
  *
+ 

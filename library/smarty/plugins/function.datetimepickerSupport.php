@@ -25,3 +25,4 @@
  * Purpose:  datetimepickerSupport in OpenEMR - Smarty templates<br>
  *
  * @param array
+ 
