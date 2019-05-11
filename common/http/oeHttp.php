@@ -36,8 +36,6 @@ class oeOAuth
     protected $oauth;
     protected $token_storage;
     protected $stack;
-    // If $apiNative is set to true, then current session is discretely passed as header and maintained.
-    public $apiNative = false;
     public $apiOAuth = false;
     public $DEBUG_MODE = false;
     public $useProxy = false;
@@ -59,8 +57,6 @@ class oeOAuth
 
     public function initOAuthClient()
     {
-        // Set some flags to ensure we implement this grant.
-        $this->apiNative = false;
         $this->apiOAuth = true;
 
         // auth endpoint debug

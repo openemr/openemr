@@ -14,7 +14,7 @@ namespace OpenEMR\Common\Http;
 
 class HttpRestRouteHandler
 {
-    public static function dispatch(&$routes, $route, $request_method)
+    public static function dispatch(&$routes, $route, $request_method, $return_method = 'standard')
     {
         // Taken from https://stackoverflow.com/questions/11722711/url-routing-regex-php/11723153#11723153
         foreach ($routes as $routePath => $routeCallback) {
@@ -24,10 +24,16 @@ class HttpRestRouteHandler
             $pattern = "@^" . preg_replace('/\\\:[a-zA-Z0-9\_\-]+/', '([a-zA-Z0-9\-\_]+)', preg_quote($path)) . "$@D";
             $matches = array();
             if ($method == $request_method && preg_match($pattern, $route, $matches)) {
-                header('Content-Type: application/json');
                 array_shift($matches);
                 $result = call_user_func_array($routeCallback, $matches);
-                echo json_encode($result);
+                if ($return_method == 'standard') {
+                    header('Content-Type: application/json');
+                    echo json_encode($result);
+                } else if ($return_method == 'direct-json') {
+                    return json_encode($result);
+                } else { // $return_method == 'direct'
+                    return $result;
+                }
             }
         }
     }

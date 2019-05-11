@@ -14,7 +14,7 @@
 
 namespace OpenEMR\RestControllers;
 
-require_once("./../library/authentication/common_operations.php");
+require_once(dirname(__FILE__) . "/../library/authentication/common_operations.php");
 
 use OpenEMR\Common\Utils\RandomGenUtils;
 
@@ -26,12 +26,17 @@ class AuthRestController
 
     public function authenticate($authPayload)
     {
-        $is_valid = confirm_user_password($authPayload["username"], $authPayload["password"]);
-
-        if (!$is_valid && strtolower(trim($authPayload["grant_type"])) !== 'password') {
+        if (strtolower(trim($authPayload["grant_type"])) !== 'password') {
             http_response_code(401);
             return;
         }
+
+        $is_valid = confirm_user_password($authPayload["username"], $authPayload["password"]);
+        if (!$is_valid) {
+            http_response_code(401);
+            return;
+        }
+
         if (!empty($_SESSION['api']) && !empty($_SESSION['site_id'])) {
             $encoded_api_site = bin2hex(trim($_SESSION['api']) . trim($_SESSION['site_id']));
         } else {
@@ -94,12 +99,10 @@ class AuthRestController
 
     public function aclCheck($token, $section, $value)
     {
+        if (empty($token)) {
+            return false;
+        }
         $username = $this->getUserFromToken($token);
-        return acl_check($section, $value, $username);
-    }
-
-    public function aclCheckByUsername($username, $section, $value)
-    {
         return acl_check($section, $value, $username);
     }
 

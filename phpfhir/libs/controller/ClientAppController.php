@@ -10,7 +10,9 @@
  */
 
 require_once("oeDispatcher.php");
+require_once(dirname(__FILE__) . "/../../../_rest_config.php");
 
+use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FhirResourcesService;
@@ -68,10 +70,12 @@ class clientController extends oeDispatchController
         $type = $this->getRequest('type');
 
         $fhir_uri = $type . '/' . strtolower($type) . '-' . $oeid;
-        $api_uri = $type . '/' . $oeid;
+        $api = '/fhir/' . $type . '/' . $oeid;
+
         // get resource from api
-        $response = oeHttp::setLocalApiContext(true)->usingBaseUri($this->apiBase)->get($api_uri);
-        $resource = $response->body(); // json encoded
+        $gbl = RestConfig::GetInstance();
+        $gbl::setNotRestCall();
+        $resource = HttpRestRouteHandler::dispatch($gbl::$FHIR_ROUTE_MAP, $api, 'GET', 'direct-json');
 
         // create resource on Fhir server.
         $returned = oeHttp::bodyFormat('body')->usingBaseUri($this->fhirBase)->put($fhir_uri, $resource);

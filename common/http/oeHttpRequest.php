@@ -55,13 +55,6 @@ class oeHttpRequest extends oeOAuth
         });
     }
 
-    public function setLocalApiContext($isLocalApiContext = false)
-    {
-        return $this->tap($this, function ($request) use ($isLocalApiContext) {
-            $this->apiNative = $isLocalApiContext;
-        });
-    }
-
     public function asJson()
     {
         return $this->bodyFormat('json')->contentType('application/json');
@@ -84,7 +77,6 @@ class oeHttpRequest extends oeOAuth
 
     public function reAuth()
     {
-        $this->apiNative = false;
         $this->apiOAuth = true;
         return $this->tap($this, function ($request) {
             return $this->initOAuthClient();
@@ -185,15 +177,6 @@ class oeHttpRequest extends oeOAuth
 
     public function send($method, $url, $options = '')
     {
-        if ($this->apiNative && !$this->apiOAuth) {
-            $this->usingHeaders([
-                'appsecret' => session_id(),
-                'apptoken' => $_SESSION['csrf_token']
-            ]);
-            // important so we may retrieve session in api.
-            session_write_close();
-        }
-
         if ($this->apiOAuth) {
             $this->setOptions([
                 'handler' => $this->stack,
