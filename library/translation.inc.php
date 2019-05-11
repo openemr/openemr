@@ -257,6 +257,12 @@ function getLanguageDir($lang_id)
 
 // ----------------------------------------------------------------------------
 /**
+HEADER HTML
+
+shows some informations for pages html header
+
+@param none
+@return void
 */
 {
 

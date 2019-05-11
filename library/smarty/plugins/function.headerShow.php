@@ -20,4 +20,7 @@
  * Name:     headerShow<br>
  * Purpose:  headerShow in OpenEMR - Smarty templates<br>
  *
- 
+ * @param Smarty
+ */
+function smarty_function_headerShow($params, &$smarty)
+
