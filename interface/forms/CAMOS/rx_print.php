@@ -145,7 +145,6 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
     ?>
   <html>
   <head>
-    <?php html_header_show();?>
 <title>
     <?php echo xlt('CAMOS'); ?>
 </title>
@@ -419,7 +418,6 @@ else { //OPTION selection of what to print
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <title>
 <?php echo xlt('CAMOS'); ?>
 </title>

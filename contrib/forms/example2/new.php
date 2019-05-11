@@ -25,7 +25,6 @@ $returnurl = 'encounter_top.php';
 ?>
 
 <html><head>
-<?php html_header_show();?>
 
 <!-- other supporting javascript code -->
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>

@@ -27,7 +27,6 @@ $obj = $formid ? formFetch("form_treatment_plan", $formid) : array();
   "authorized != 0 AND active = 1 ORDER BY lname, fname");
 ?>
 <html><head>
-<?php html_header_show();?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">

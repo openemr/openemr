@@ -108,7 +108,6 @@ $customAttributes = ( $onlyRead ) ? array("disabled" => "true") : null;
 
 <html>
 <head>
-<?php html_header_show();?>
 
 <!-- supporting javascript code -->
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
