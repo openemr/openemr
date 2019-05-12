@@ -360,9 +360,9 @@ class C_Document extends Controller
         $this->assign("csrf_token_form", collectCsrfToken());
 
         $this->assign("file", $d);
-        $this->assign("web_path", $this->_link("retrieve") . "document_id=" . $d->get_id() . "&");
+        $this->assign("web_path", $this->_link("retrieve") . "document_id=" . urlencode($d->get_id()) . "&");
         $this->assign("NOTE_ACTION", $this->_link("note"));
-        $this->assign("MOVE_ACTION", $this->_link("move") . "document_id=" . $d->get_id() . "&process=true");
+        $this->assign("MOVE_ACTION", $this->_link("move") . "document_id=" . urlencode($d->get_id()) . "&process=true");
         $this->assign("hide_encryption", $GLOBALS['hide_document_encryption']);
         $this->assign("assets_static_relative", $GLOBALS['assets_static_relative']);
         $this->assign("webroot", $GLOBALS['webroot']);
@@ -402,7 +402,7 @@ class C_Document extends Controller
 
         // For tagging to encounter
         // Populate the dropdown with patient's encounter list
-        $this->assign("TAG_ACTION", $this->_link("tag") . "document_id=" . $d->get_id() . "&process=true");
+        $this->assign("TAG_ACTION", $this->_link("tag") . "document_id=" . urlencode($d->get_id()) . "&process=true");
         $encOptions = "<option value='0'>-- " . xlt('Select Encounter') . " --</option>";
         $result_docs = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
             "LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date desc", array($patient_id));
@@ -416,7 +416,7 @@ class C_Document extends Controller
 
         //clear encounter tag
         if ($d->get_encounter_id() != 0) {
-            $this->assign('clear_encounter_tag', $this->_link('clear_encounter_tag')."document_id=" . $d->get_id());
+            $this->assign('clear_encounter_tag', $this->_link('clear_encounter_tag')."document_id=" . urlencode($d->get_id()));
         } else {
             $this->assign('clear_encounter_tag', 'javascript:void(0)');
         }
@@ -435,7 +435,7 @@ class C_Document extends Controller
 
         $this->assign("notes", $notes);
 
-        $this->assign("IMG_PROCEDURE_TAG_ACTION", $this->_link("image_procedure") . "document_id=" . $d->get_id());
+        $this->assign("IMG_PROCEDURE_TAG_ACTION", $this->_link("image_procedure") . "document_id=" . urlencode($d->get_id()));
             // Populate the dropdown with image procedure order list
         $imgOptions = "<option value='0'>-- " . xlt('Select Image Procedure') . " --</option>";
         $imgOrders  = sqlStatement("select procedure_name,po.procedure_order_id,procedure_code from procedure_order po inner join procedure_order_code poc on poc.procedure_order_id = po.procedure_order_id where po.patient_id = ?  and poc.procedure_order_title = 'imaging'", array($patient_id));
@@ -452,7 +452,7 @@ class C_Document extends Controller
 
         $this->assign('IMAGE_PROCEDURE_LIST', $imgOptions);
 
-        $this->assign('clear_procedure_tag', $this->_link('clear_procedure_tag')."document_id=" . $d->get_id());
+        $this->assign('clear_procedure_tag', $this->_link('clear_procedure_tag')."document_id=" . urlencode($d->get_id()));
 
         $this->_last_node = null;
 
@@ -780,7 +780,7 @@ class C_Document extends Controller
                     preg_match("/^([0-9]+)_/", basename_international($file), $patient_match);
                     $file_info['patient_id'] = $patient_match[1];
                     $file_info['document_id'] = $d->get_id();
-                    $file_info['web_path'] = $this->_link("retrieve", true) . "document_id=" . $d->get_id() . "&";
+                    $file_info['web_path'] = $this->_link("retrieve", true) . "document_id=" . urlencode($d->get_id()) . "&";
 
                     //merge the tmp array into the larger array
                     $queue_files[] = $file_info;
@@ -1252,7 +1252,7 @@ class C_Document extends Controller
             $icon = "file3.png";
             if (is_array($categories[$id])) {
                 foreach ($categories[$id] as $doc) {
-                    $link = $this->_link("view") . "doc_id=" . $doc['document_id'] . "&";
+                    $link = $this->_link("view") . "doc_id=" . urlencode($doc['document_id']) . "&";
           // If user has no access then there will be no link.
                     if (!acl_check_aco_spec($doc['aco_spec'])) {
                         $link = '';
@@ -1263,7 +1263,7 @@ class C_Document extends Controller
                         'link' => $link,
                         'icon' => $icon,
                         'expandedIcon' => $expandedIcon,
-                        'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCR&doc_id=" . $doc['document_id'] . "','_blank');")
+                        'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCR&doc_id=" . attr_url($doc['document_id']) . "','_blank');")
                                 )));
                     } elseif ($this->tree->get_node_name($id) == "CCD") {
                                 $current_node->addItem(new HTML_TreeNode(array(
@@ -1271,7 +1271,7 @@ class C_Document extends Controller
                         'link' => $link,
                         'icon' => $icon,
                         'expandedIcon' => $expandedIcon,
-                        'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCD&doc_id=" . $doc['document_id'] . "','_blank');")
+                        'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCD&doc_id=" . attr_url($doc['document_id']) . "','_blank');")
                                 )));
                     } else {
                                 $current_node->addItem(new HTML_TreeNode(array(
