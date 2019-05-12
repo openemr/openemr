@@ -69,7 +69,7 @@ class Dashboard extends React.Component {
                    // debugger;
                     this.setState({'gadgets':checkForDashboardListReady});
                     this.setGlobalPatientId();
-                    console.log(this);
+                    // console.log(this);
                     clearTimeout(timerId);
                 }
             },1000)
@@ -94,13 +94,13 @@ class Dashboard extends React.Component {
             this.state.gadgets.map((v,i) => {
                 let item = v;
 
-                  if(item.notes.id == id && item.activity ) {
+                  if(item.notes.id == id && item.activity != 0) {
                       // debugger;
-                      console.log('-------');
+                      // console.log('-------');
                       let element = item.notes.element;
                       let title = item.title;
                       let element_component = item.notes.element_component;
-                      console.log(element_component);
+                      // console.log(element_component);
                       items.push(<LazyLoadModule key={element_component + i}
                                                  resolve={() => import(/* webpackMode: "eager" */"./"+ element_component)}
                                                  element={element}
