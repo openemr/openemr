@@ -341,8 +341,11 @@ RestConfig::$ROUTE_MAP = array(
         return (new MenusRestController())->getMenu($pid, $type);
     },
 
-    "GET /api/layout/:form_id" => function ( $form_id ) {
+    "GET /api/layout/list/:form_id" => function ( $form_id ) {
         return (new LayoutRestController())->getGroupsByFormId($form_id);
+    },
+    "GET /api/layout/list/:form_id/:group_id" => function ( $form_id, $group_id ) {
+        return (new LayoutRestController())->getFieldsByFormId($form_id, $group_id);
     }
 );
 

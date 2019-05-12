@@ -1,5 +1,6 @@
 import React from "react";
 import agent from '../utils/agent.js';
+import PatientDataTabBlock from './PatientData/PatientDataTabBlock';
 
 import helpers from '../utils/helpers.js';
 import ToggleButton from './global/ToggleButton.js';
@@ -14,14 +15,16 @@ class PatientData extends React.Component {
             patientId: props.patientId,
             data: [],
             groups: [],
+            groupFields: [],
             isOpen: false,
             isLoaded: false
         }
+        this.clickSelect = this.clickSelect.bind(this);
     }
 
     componentWillMount() {
         this.setState.patientId = helpers.getPatientId();
-        var groupsList = Promise.all([agent.PatientDataAgent.groups(), agent.PatientDataAgent.patient(this.setState.patientId )]);
+        var groupsList = Promise.all([agent.PatientDataAgent.groups("DEM"), agent.PatientDataAgent.patient(this.setState.patientId )]);
         groupsList.then( ([listGroups, patientData]) => {
             this.setState({ groups: [listGroups][0], data: [patientData], isLoaded: true });
         });
@@ -36,6 +39,27 @@ class PatientData extends React.Component {
         this.setState({isOpen: !this.state.isOpen});
     }
 
+
+    clickSelect(groupId) {
+            Promise.all([agent.PatientDataAgent.byGroupId("DEM", groupId)]).then(
+                result => {
+                    result.map((a) => {
+
+                        if(!this.state.groupFields[groupId]){
+                            this.setState({
+                                groupFields: {
+                                    [groupId] : a
+                                }
+                            });
+
+                        }
+
+                    });
+                    // console.log(result);
+                }
+            );
+    }
+
     componentDidUpdate() {
         // console.log("My name is: " + this.name + ": 3");
         // console.log("Query:" + JSON.stringify(this.state.data));
@@ -47,14 +71,15 @@ class PatientData extends React.Component {
 
     render() {
         // console.log("My name is: " + this.name + ": 4");
-
         const {isOpen} = this.state;
         const {isLoaded} = this.state;
         const {data} = this.state;
-// console.log(this.state.data);
         var rightTextButton = "Patient Data";
+        // console.log("AA: ");
+        // console.log(this.state.groupFields);
+        // console.log("BB: ");
         return (
-            isLoaded &&
+            isLoaded && this.state.groups &&
             <div className="card" variant="dark">
                 <div className="card-header">
 
@@ -74,8 +99,8 @@ class PatientData extends React.Component {
                                                     {this.state.groups.map((group, j) => {
                                                         var jt = "tab-" + j;
                                                             return (
-                                                            <Nav.Item key={j}>
-                                                                <Nav.Link eventKey={jt}>{group.grp_title}</Nav.Link>
+                                                            <Nav.Item key={j} onClick={()=>this.clickSelect(group.grp_group_id)} >
+                                                                <Nav.Link eventKey={jt} key={j} >{group.grp_title}</Nav.Link>
                                                             </Nav.Item>
                                                             )
                                                         })}
@@ -86,10 +111,11 @@ class PatientData extends React.Component {
                                                     {this.state.groups.map((group, i) => {
                                                         var it = "tab-" + i;
                                                         return (
-                                                            <Tab.Pane eventKey={it} key={i}>{group.grp_title}</Tab.Pane>
+                                                            <Tab.Pane eventKey={it} key={i}  >
+                                                                <PatientDataTabBlock groupId={group.grp_group_id} groups={this.state.groupFields} />
+                                                            </Tab.Pane>
                                                         )
                                                     })}
-
                                                 </Tab.Content>
                                             </Col>
                                         </Row>

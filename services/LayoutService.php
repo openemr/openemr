@@ -35,9 +35,10 @@ class LayoutService
 //
 //        return $validator->validate($message);
     }
-    public function getGroupsByFormId($form_id)
+
+    public function getGroupsListByFormId($form_id)
     {
-        $sql = "SELECT grp_group_id,grp_title FROM layout_group_properties WHERE grp_form_id=?";
+        $sql = "SELECT grp_group_id,grp_title FROM layout_group_properties WHERE grp_form_id=? AND grp_group_id > 0 AND grp_activity = 1 ";
 
         $statementResults = sqlStatement($sql, array($form_id));
 
@@ -48,6 +49,22 @@ class LayoutService
 
         return $results;
     }
+
+    public function getFieldsByFormId($form_id, $group_id)
+    {
+        $sql = "SELECT form_id, field_id, group_id, title, seq, description FROM layout_options WHERE form_id=? AND group_id=? ";
+
+        $statementResults = sqlStatement($sql, array($form_id, $group_id));
+
+        $results = array();
+        while ($row = sqlFetchArray($statementResults)) {
+            array_push($results, $row);
+        }
+
+        return $results;
+    }
+
+
     public function getFormattedMessageBody($from, $to, $body)
     {
         return "\n" . date("Y-m-d H:i") . " (" . $from . " to " . $to . ") " . $body;
