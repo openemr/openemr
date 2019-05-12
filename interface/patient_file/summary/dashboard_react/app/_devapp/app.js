@@ -5,7 +5,7 @@ import {asyncComponent} from 'react-async-component';
 /** We are importing our index.php my app Vairaible */
 
 import Dashboard from './components/Dashboard.js';
-import PatientData from './components/PatientData.js';
+//import PatientData from './components/PatientData.js';
 
 /* globals __webpack_public_path__ */
 __webpack_public_path__ = `${window.STATIC_URL}/app/assets/bundle/`;
