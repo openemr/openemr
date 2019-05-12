@@ -27,10 +27,10 @@ class C_PatientFinder extends Controller
     }
 
     /**
-    * Function that will display a patient finder widged, allowing
+    * Function that will display a patient finder widget, allowing
     *   the user to input search parameters to find a patient id.
     */
-    function find_action($form_id, $form_name, $pid)
+    function find_action($form_id, $form_name, $pid = null)
     {
         $isPid = false;
 

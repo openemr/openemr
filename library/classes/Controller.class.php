@@ -160,14 +160,14 @@ class Controller extends Smarty
         }
 
         if ($inlining) {
-            $link .= "&" . $inline_arg;
-            $link .= "&action=" . $url_parts[0];
+            $link .= "&" . urlencode($inline_arg);
+            $link .= "&action=" . urlencode($url_parts[0]);
         } else {
-            $link .= "&" . $url_parts[0];
+            $link .= "&" . urlencode($url_parts[0]);
         }
 
         foreach ($this->_args as $arg_name => $arg) {
-            $link .= "&" . $arg_name . "=" . $arg;
+            $link .= "&" . urlencode($arg_name) . "=" . urlencode($arg);
         }
 
             $link .= "&";
