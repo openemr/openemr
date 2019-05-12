@@ -62,13 +62,9 @@ class Dashboard extends React.Component {
 
 
        this.state.lists.fetchList("dashboard");
-   }
+       let checkForDashboardListReady = window['fetchList'].state.staticLists['dashboard'];
 
-    componentDidMount() {
-
-        let checkForDashboardListReady = window['fetchList'].state.staticLists['dashboard'];
-
-        if(!checkForDashboardListReady) {
+       if(!checkForDashboardListReady) {
            let timerId = setTimeout(()=>{
 
                 checkForDashboardListReady = window['fetchList'].state.staticLists['dashboard']
@@ -82,6 +78,11 @@ class Dashboard extends React.Component {
             },1000)
         }
 
+   }
+
+    componentDidMount() {
+        /*let dashboardList = lists.getStaticListByName['dashboard'] ;
+        this.setState('gadgets', lists.getState('staticLists'));*/
     }
 
     GetElement (id){
@@ -171,4 +172,3 @@ class Dashboard extends React.Component {
 }
 
 export default Dashboard;
-

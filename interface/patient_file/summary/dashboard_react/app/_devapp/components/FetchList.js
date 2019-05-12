@@ -41,7 +41,7 @@ class FetchList extends React.Component {
                 staticLists[listName][i]=mp;
                 var temp = staticLists[listName][i];
                 let notes = mp['notes'];
-           //     debugger;
+               // debugger;
                 if (this.IsValidJSONString(notes)) {
 
                     let notes = JSON.parse(mp.notes);

@@ -60,8 +60,8 @@ class MenuDashboard extends React.Component {
 
         var listElements = main_titles
             .filter(function(main_titles) { return main_titles.href; })
-            .map(function(main_titles) {
-                return  React.createElement(Nav.Link, { 'onClick': topRestoreSession, 'href': main_titles.href }, main_titles.label);
+            .map(function(main_titles, m) {
+                return  React.createElement(Nav.Link, { 'onClick': topRestoreSession, 'href': main_titles.href, 'key':m }, main_titles.label);
             });
 
         return  React.createElement('div', { 'className': 'row' },
