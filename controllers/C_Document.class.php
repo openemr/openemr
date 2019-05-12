@@ -1,8 +1,13 @@
 <?php
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * C_Document.class.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 require_once(dirname(__FILE__) . "/../library/forms.inc");
 
@@ -365,8 +370,8 @@ class C_Document extends Controller
         // Added by Rod to support document delete:
         $delete_string = '';
         if (acl_check('patients', 'docs_rm')) {
-            $delete_string = "<a href='' class='css_button' onclick='return deleteme(" . $d->get_id() .
-                ")'><span><font color='red'>" . xl('Delete') . "</font></span></a>";
+            $delete_string = "<a href='' class='css_button' onclick='return deleteme(" . attr_js($d->get_id()) .
+                ")'><span><font color='red'>" . xlt('Delete') . "</font></span></a>";
         }
         $this->assign("delete_string", $delete_string);
         $this->assign("REFRESH_ACTION", $this->_link("list"));
