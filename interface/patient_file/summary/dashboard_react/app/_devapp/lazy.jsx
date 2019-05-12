@@ -38,7 +38,7 @@ export class LazyLoadModule extends React.Component {
         if (hasError) return <div>{hasError.message}</div>;
         if (!module) return <div>Loading module...</div>;
         console.log(module.view);
-        if (module.view) return React.createElement(module.view,this.props);
+        if (module.view) return React.createElement(module.view, this.props);
 
         return <div>Module loaded</div>;
     }

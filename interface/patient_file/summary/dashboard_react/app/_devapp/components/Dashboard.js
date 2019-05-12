@@ -5,9 +5,6 @@ import React, { Component } from "react";
 
 import ReactDOM from 'react-dom';
 import helpers from '../utils/helpers.js';
-import MedicalProblems from "./MedicalProblems";
-import PatientData from "./PatientData";
-import PatientMessages from "./PatientMessages";
 import MenuDashboard from "./MenuDashboard";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
@@ -105,7 +102,7 @@ class Dashboard extends React.Component {
                       let element_component = item.notes.element_component;
                       console.log(element_component);
                       items.push(<LazyLoadModule key={element_component + i}
-                                                 resolve={() => import("./" + element_component+".js")}
+                                                 resolve={() => import(/* webpackMode: "eager" */"./"+ element_component)}
                                                  element={element}
                                                  element_title={title}/>);
                   }
