@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import helpers from "./helpers";
 import Globals from "./globals";
 const requests = {}
-
+const lists ={};
 const PatientDataAgent = {
     groups: (group_name) => {
             return fetch("../../../../apis/api/layout/list/" + group_name, {
@@ -52,52 +52,90 @@ const PatientDataAgent = {
 
 }
 const Lists = {
-    addDataToList:(listName)=> {
-        var staticLists = window['fetchList'].state["staticLists"];
-        if (Array.isArray(this.state.data)) {
-            this.state.data.map((mp, i) => {
+    addDataToList:async (listName,result)=> {
+        debugger;
+        const addToList = new Promise((resolve, reject) => {
+            var staticLists = lists;
+            if (Array.isArray(result)) {
+                result.map((mp, i) => {
 
-                if(staticLists[listName]  ==undefined)
-                {
-                    staticLists[listName] = [];
-                }
-                staticLists[listName][i]=mp;
-                var temp = staticLists[listName][i];
-                let notes = mp['notes'];
-                debugger;
-                if (this.IsValidJSONString(notes)) {
+                    if (staticLists[listName] == undefined) {
+                        staticLists[listName] = [];
+                    }
+                    staticLists[listName][i] = mp;
+                    var temp = staticLists[listName][i];
+                    let notes = mp['notes'];
+                    // debugger;
+                    if (Lists.IsValidJSONString(notes)) {
 
-                    let notes = JSON.parse(mp.notes);
+                        let notes = JSON.parse(mp.notes);
 
-                    temp['notes'] = notes;
-                    //the json is ok
+                        temp['notes'] = notes;
+                        //the json is ok
 
-                }else{
+                    } else {
 
-                    temp['notes']= mp.notes;
-                    //the json is not ok
+                        temp['notes'] = mp.notes;
+                        //the json is not ok
 
-                }
+                    }
 
-            })
+                })
 
-            console.log( listName +" was added to globals :" + staticLists );
-        } else {
-            console.log( listName +" was not added to globals ");
-        }
+                console.log(listName + " was added to globals");
+            } else {
+                console.log(listName + " was not added to globals ");
+            }
+
+
+            console.log('add to listArray');
+            return resolve("done adding to listArray");
+
+
+        });
+        return await Promise.all([addToList]);
+
+
+
     },
 
-    checkIfListExistsInLists:()=>{
-        if(this.setState.listName in this.state.staticLists){
+    checkIfListExistsInLists:(listName)=>{
+        debugger;
+
+        if(listName in  lists){
             return true;
         }
         else{
             return false;
         }
     },
-    fetchList : (listName = null) =>{
+    IsValidJSONString(str) {
+        try {
+            JSON.parse(str);
+        } catch (e) {
+            return false;
+        }
+        return true;
+    },
+    getList : (listName = null) =>{
+        if(!listName) {
+            console.log("NO LIST WAS SELECTED FOR RETRIEVAL.")
+            return;
+        }
 
-        if(listName!="" && !this.checkIfListExistsInLists()) {
+        return lists[listName];
+
+    },
+    getAllList : () =>{
+               return lists;
+
+    },
+    fetchList : async (listName = null) =>{
+
+        if(listName!="" && !Lists.checkIfListExistsInLists(listName)) {
+
+            const fetchListPromise = new Promise((resolve, reject) => {
+
 
             fetch("../../../../apis/api/list/" + listName, {
                 method: "GET",
@@ -109,24 +147,42 @@ const Lists = {
                 .then((res) => res.json())
                 .then(
                     (result) => {
-                        this.state.data= result;
+
 
                         if (result == null) {
-                            console.log(this.setState.listName+" WAS NOT FOUND - NO DATA WAS FETCHED ");
+                            console.log(listName+" WAS NOT FOUND - NO DATA WAS FETCHED ");
                         } else {
-                            this.addDataToList(listName);
+
+
+
+                                console.log('added to list');
+                                Lists.addDataToList(listName, result).then((res)=>{
+                                    console.log('fetchList to list');
+                                    return resolve("done fetchList and adding to list");
+                                });
+
+
+
                         }
+
+
+
+
 
                     },
                     (error) => {
-                        this.setState({
-                            isLoaded: true,
-                            error
-                        });
+
 
                         console.log(error);
-                    }
-                )
+                    })
+
+
+
+
+
+        });
+            debugger;
+            return await Promise.all([fetchListPromise]);
         }
 
     }

@@ -12,9 +12,12 @@ import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {LazyLoadModule} from "../lazy";
+/*
 import FetchList from "./FetchList";
 
 window['fetchList'] = new FetchList();
+*/
+import agent from '../utils/agent.js';
 
 class Dashboard extends React.Component {
     /*
@@ -25,7 +28,7 @@ class Dashboard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            gadgets:null,
+            gadgets:"",
             moudle:'MenuDashboard',
             lists : window['fetchList']
         };
@@ -60,6 +63,21 @@ class Dashboard extends React.Component {
             )
     }
 
+    fetchData = async (listName) => {
+
+        const a = new Promise((resolve, reject) => {
+             agent.Lists.fetchList(listName);
+
+            console.log('one');
+
+            return resolve("done fetching");
+
+        });
+
+
+
+        return await Promise.all([a]) ? true : false;
+    }
 
     //list/dashboard
    /* getDashboardList() {
@@ -90,7 +108,15 @@ class Dashboard extends React.Component {
     }*/
 
    componentWillMount() {
-       this.state.lists.fetchList("dashboard");
+
+
+      //    console.log( agent.Lists.getAllList())
+      //     this.setState({'gadgets': agent.Lists.getList("dashboard")});
+
+
+
+       /*
+      // this.state.lists.fetchList("dashboard");
        let checkForDashboardListReady = window['fetchList'].state.staticLists['dashboard'];
 
        if(!checkForDashboardListReady) {
@@ -105,11 +131,22 @@ class Dashboard extends React.Component {
                    clearTimeout(timerId);
                }
            },1000)
-       }
+       }*/
 
    }
 
     componentDidMount() {
+
+        this.fetchData("dashboard").then((result) => {
+
+            if(result) {
+                debugger;
+                var list = agent.Lists.getList("dashboard");
+                this.setState({'gadgets': list});
+
+
+            }
+        });
         /*let dashboardList = lists.getStaticListByName['dashboard'] ;
         this.setState('gadgets', lists.getState('staticLists'));*/
     }
@@ -153,7 +190,7 @@ class Dashboard extends React.Component {
     }
 
     render() {
-
+        console.log(this.state.gadgets);
         return (
 
 
