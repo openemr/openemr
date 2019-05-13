@@ -2,6 +2,9 @@ import React from 'react';
 import {Button, Table, Card, Collapse, Tab, Row, Col, Nav, Container, ListGroup, ListGroupItem} from 'react-bootstrap';
 import MessagesRow from "./MessageRow"
 
+/**
+ * This component is wrapper of the summary of all the messages
+ */
 class MessagesSummary extends React.Component {
 
     constructor(props) {
