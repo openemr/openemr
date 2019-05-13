@@ -15,7 +15,7 @@ class PatientMessages extends React.Component {
         this.state = {
             messages:[],
             isOpen: false,
-            sumOfMessages:null
+            sumOfMessages: null
         };
     }
 
@@ -32,7 +32,7 @@ class PatientMessages extends React.Component {
         getMassage.then(res => res.json()).then((response) => {
             this.setState({
                 messages:response,
-                sumOfMessages:response.length
+                sumOfMessages: response === null ? null: response.length
             });
         })
     }

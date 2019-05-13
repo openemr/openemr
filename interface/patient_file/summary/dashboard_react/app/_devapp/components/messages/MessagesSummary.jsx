@@ -11,9 +11,9 @@ class MessagesSummary extends React.Component {
         super(props);
         this.showAll = this.showAll.bind(this);
         this.state = {
-            countShown:1
+            countShown:0
         };
-        console.log(this.props)
+        // console.log(this.props)
     }
 
     showAll() {
@@ -24,13 +24,18 @@ class MessagesSummary extends React.Component {
 
 
     render() {
+        let messagesRows = '';
+        let messagesCount = 0;
 
-        let messagesRows = this.props.messages.map((message, index) => {
-            console.log(index);
-                if (this.state.countShown === 'all' || index+1 <= this.state.countShown ) {
+        if( this.props.messages ) {
+            messagesRows = this.props.messages.map((message, index) => {
+                console.log(index);
+                if (this.state.countShown === 'all' || index + 1 <= this.state.countShown) {
                     return <MessagesRow key={index} message={message}></MessagesRow>
                 }
-        });
+            });
+            messagesCount = this.props.messages.length;
+        }
 
         return (
             <ListGroup variant="flush">
@@ -46,7 +51,7 @@ class MessagesSummary extends React.Component {
                 {messagesRows}
                 <ListGroup.Item  variant="secondary">
                     <Row>
-                        <Col>Shown {this.state.countShown === 'all' ? this.props.messages.length : this.state.countShown} from {this.props.messages.length}. <a onClick={this.showAll}><button>All messages</button></a></Col>
+                        <Col>Shown {this.state.countShown === 'all' ? messagesCount : this.state.countShown} from {messagesCount}. <a onClick={this.showAll}><button>All messages</button></a></Col>
                     </Row>
                 </ListGroup.Item>
             </ListGroup>

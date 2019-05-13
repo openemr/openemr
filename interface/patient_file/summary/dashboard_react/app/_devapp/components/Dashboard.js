@@ -41,6 +41,7 @@ class Dashboard extends React.Component {
             patientId:helpers.getPatientId()
         });
 
+        agent.PatientDataAgent.setGlobalPatientId(this.state.patientId);
 
         this.fetchData("dashboard").then(result => {
 
