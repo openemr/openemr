@@ -4,6 +4,9 @@ import ToggleButton from './global/ToggleButton.js';
 import {Button, Table, Card, Collapse, Tab, Row, Col, Nav, Container} from 'react-bootstrap';
 import MessagesSummary from "./messages/MessagesSummary"
 
+/**
+ * Main component of the patient messages gadget
+ */
 class PatientMessages extends React.Component {
     constructor(props) {
 
@@ -20,6 +23,9 @@ class PatientMessages extends React.Component {
         this.setState({isOpen: !this.state.isOpen});
     }
 
+    /**
+     * Fetch all the messages of logged in patient on component did mount
+     */
     componentDidMount() {
 
         let getMassage = OEApi.PatientApi.fetch(this.props.pid, 'message');
@@ -32,12 +38,12 @@ class PatientMessages extends React.Component {
     }
 
     render() {
-        console.log(this.props);
+        // create dynamic title
         let rightTextButton = 'Patient messages';
         if (this.state.sumOfMessages !== null) {
             rightTextButton += ' (' + this.state.sumOfMessages + ')';
         }
-
+        // only if widget is opened add the children components with all data.
         let messageSummaryWidget = '';
         if (this.state.isOpen) {
             messageSummaryWidget = <MessagesSummary messages={this.state.messages} />

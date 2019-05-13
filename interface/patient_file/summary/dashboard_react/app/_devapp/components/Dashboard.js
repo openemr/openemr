@@ -10,15 +10,19 @@ import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {LazyLoadModule} from "../lazy";
-
 import agent from '../utils/agent.js';
 
+/**
+ * Dashboard is the parent component of this app
+ * This component load the activity gadgets from dashboard list and print the in selected section.
+ */
 class Dashboard extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
             gadgets:[],
+            /* sections */
             header:[],
             right:[],
             left:[],
@@ -28,51 +32,18 @@ class Dashboard extends React.Component {
 
     }
 
-    setGlobalPatientId() {
-
-        fetch("../../../../apis/api/patient/extended/" + this.state.patientId, {
-            method: "POST",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-
-            })
-        })
-            .then((res) => res.json())
-            .then(
-                (result) => {
-
-                },
-                (error) => {
-                    this.setState({
-                        isLoaded: true,
-                        error
-                    });
-                }
-            )
-    }
-
-    fetchData = async (listName) => {
-
-       // const a = new Promise((resolve, reject) => {
-        var result = await agent.Lists.fetchList(listName);
-
-        return result ? true : false;
-    }
-
-
-    componentWillMount() {
+    /**
+     * Fetch current pid and activity component on component did mount
+     */
+    componentDidMount() {
 
         this.setState({
             patientId:helpers.getPatientId()
         });
 
 
-        var result = this.fetchData("dashboard").then( result => {
+        this.fetchData("dashboard").then(result => {
 
-                console.log(result)
                 var list = agent.Lists.getList("dashboard");
                 console.log(list)
                 this.setState({'gadgets': list}, () => {
@@ -84,6 +55,23 @@ class Dashboard extends React.Component {
 
     }
 
+
+    /**
+     * fetch list from database using 'agent.Lists' and result boolean when list was saved in the agent.Lists
+     * @param listName
+     * @returns {Promise.<boolean>}
+     */
+    fetchData = async (listName) => {
+
+        var result = await agent.Lists.fetchList(listName);
+
+        return result ? true : false;
+    }
+
+    /**
+     * Run after the gadgets were returned from database.
+     * Update every state of section with your gadgets
+     */
     updateGadgets () {
         this.setState({
             header:this.getElement('header'),
@@ -92,6 +80,11 @@ class Dashboard extends React.Component {
         })
     }
 
+    /**
+     * return array of components that loaded using lazy load components
+     * @param id of section position - header/right/left
+     * @returns {Array}
+     */
     getElement (id){
 
         try {
@@ -126,7 +119,6 @@ class Dashboard extends React.Component {
                 console.log(e);
             }
     }
-
 
 
     render() {

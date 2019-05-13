@@ -1,6 +1,10 @@
 import * as React from "react";
 import PropTypes from "prop-types";
 
+/**
+ * Load dynamic components
+ * The name and import function of component come with the props variable
+ */
 export class LazyLoadModule extends React.Component {
     constructor(props) {
         //console.log(props)
@@ -15,6 +19,11 @@ export class LazyLoadModule extends React.Component {
         this.setState({ hasError: error });
     }
 
+    /**
+     * Import the component using prop - resolve()
+     * Set the current component in the state
+     * @returns {Promise.<void>}
+     */
     async componentDidMount() {
         try {
             const { resolve } = this.props;
@@ -33,7 +42,7 @@ export class LazyLoadModule extends React.Component {
 
         if (hasError) return <div>{hasError.message}</div>;
         if (!module) return <div>Loading module...</div>;
-        console.log(this.props)
+        // create the new component
         if (module.view) return React.createElement(module.view, this.props);
 
         return <div>Module loaded</div>;
