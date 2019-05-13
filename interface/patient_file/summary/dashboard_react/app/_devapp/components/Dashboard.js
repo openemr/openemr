@@ -36,17 +36,18 @@ class Dashboard extends React.Component {
      * Fetch current pid and activity component on component did mount
      */
     componentDidMount() {
+        let patientId = helpers.getPatientId();
 
         this.setState({
-            patientId:helpers.getPatientId()
+            patientId: patientId
         });
 
-        agent.PatientDataAgent.setGlobalPatientId(this.state.patientId);
+        agent.PatientDataAgent.setGlobalPatientId(patientId);
 
         this.fetchData("dashboard").then(result => {
 
                 var list = agent.Lists.getList("dashboard");
-                console.log(list)
+                // console.log(list)
                 this.setState({'gadgets': list}, () => {
                     this.updateGadgets();
                 });
