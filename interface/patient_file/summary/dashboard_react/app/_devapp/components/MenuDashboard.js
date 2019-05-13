@@ -92,7 +92,7 @@ class MenuDashboard extends React.Component {
 }
 
 export default {
-    view: () => (
-        <MenuDashboard/>
+    view: (props) => (
+        <MenuDashboard pid={props.pid} title={props.element_title}/>
     )
 };

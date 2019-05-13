@@ -18,12 +18,13 @@ class Dashboard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            gadgets:"",
+            gadgets:[],
+            header:[],
+            right:[],
+            left:[],
             moudle:'MenuDashboard',
-
+            patientId: null
         };
-
-        this.state.patientId = helpers.getPatientId();
 
     }
 
@@ -55,41 +56,43 @@ class Dashboard extends React.Component {
 
     fetchData = async (listName) => {
 
-        const a = new Promise((resolve, reject) => {
-             agent.Lists.fetchList(listName);
+       // const a = new Promise((resolve, reject) => {
+        var result = await agent.Lists.fetchList(listName);
 
-            console.log('fetchData started');
-
-            return resolve("done fetching");
-
-        });
-
-
-
-        return await Promise.all([a]) ? true : false;
+        return result ? true : false;
     }
 
 
-   componentWillMount() {
+    componentWillMount() {
 
-   }
+        this.setState({
+            patientId:helpers.getPatientId()
+        });
 
-    componentDidMount() {
 
-        this.fetchData("dashboard").then((result) => {
+        var result = this.fetchData("dashboard").then( result => {
 
-            if(result) {
-                debugger;
+                console.log(result)
                 var list = agent.Lists.getList("dashboard");
-                this.setState({'gadgets': list});
-
-
+                console.log(list)
+                this.setState({'gadgets': list}, () => {
+                    this.updateGadgets();
+                });
             }
-        });
+
+        );
 
     }
 
-    GetElement (id){
+    updateGadgets () {
+        this.setState({
+            header:this.getElement('header'),
+            left:this.getElement('left'),
+            right:this.getElement('right')
+        })
+    }
+
+    getElement (id){
 
         try {
 
@@ -111,14 +114,14 @@ class Dashboard extends React.Component {
                       items.push(<LazyLoadModule key={element_component + i}
                                                  resolve={() => import(/* webpackMode: "eager" */"./"+ element_component)}
                                                  element={element}
-                                                 element_title={title}/>);
+                                                 element_title={title}
+                                                 pid={this.state.patientId}/>);
                   }
             })
 
             return items;
         }
-        catch
-            (e)
+        catch (e)
             {
                 console.log(e);
             }
@@ -130,14 +133,13 @@ class Dashboard extends React.Component {
 
         return (
 
-
             <div>
                 {
-            this.state && this.state.gadgets && <div className="container-fluid">
+            this.state && <div className="container-fluid">
 
                 <div className="row">
                     <div className="col-md-12">
-                        {this.GetElement('header')}
+                        {this.state.header}
                     </div>
                 </div>
                 <div className="row">
@@ -147,20 +149,18 @@ class Dashboard extends React.Component {
                                 Practical information
                             </Card.Header>
                             <Card.Body>
-                                {this.GetElement('left')}
+                                {this.state.left}
                             </Card.Body>
                         </Card>
 
                     </div>
                     <div className="col-md-4">
                         <Card>
-
                         <Card.Header>
                             Medical Highlights
                         </Card.Header>
                         <Card.Body>
-                            {this.GetElement('right')}
-
+                            {this.state.right}
                         </Card.Body>
                         </Card>
 

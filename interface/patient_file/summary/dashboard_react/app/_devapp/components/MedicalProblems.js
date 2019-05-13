@@ -167,6 +167,6 @@ class MedicalProblems extends React.Component {
 export default {
     view: (props) => (
 
-         <MedicalProblems element={props.element} element_title={props.element_title} />
+         <MedicalProblems pid={props.pid} element={props.element} element_title={props.element_title} />
     )
 };

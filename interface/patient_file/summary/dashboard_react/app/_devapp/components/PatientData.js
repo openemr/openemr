@@ -121,7 +121,7 @@ class PatientData extends React.Component {
 
 
 export default {
-    view: () => (
-        <PatientData/>
+    view: (props) => (
+        <PatientData pid={props.pid} title={props.element_title}/>
     )
 };

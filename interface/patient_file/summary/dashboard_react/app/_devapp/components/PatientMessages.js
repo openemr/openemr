@@ -6,7 +6,9 @@ import MessagesSummary from "./messages/MessagesSummary"
 
 class PatientMessages extends React.Component {
     constructor(props) {
+
         super(props);
+
         this.state = {
             messages:[],
             isOpen: false,
@@ -30,6 +32,7 @@ class PatientMessages extends React.Component {
     }
 
     render() {
+        console.log(this.props);
         let rightTextButton = 'Patient messages';
         if (this.state.sumOfMessages !== null) {
             rightTextButton += ' (' + this.state.sumOfMessages + ')';
@@ -58,8 +61,8 @@ class PatientMessages extends React.Component {
 }
 
 export default {
-    view: () => (
-        <PatientMessages/>
+    view: (props) => (
+        <PatientMessages pid={props.pid} title={props.element_title}/>
     )
 };
 

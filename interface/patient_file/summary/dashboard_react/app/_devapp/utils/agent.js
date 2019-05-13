@@ -1,16 +1,16 @@
 import React, {Component} from 'react';
 import helpers from "./helpers";
-import Globals from "./globals";
+
 const requests = {}
 const lists ={};
 const PatientDataAgent = {
     groups: (group_name) => {
-            return fetch("../../../../apis/api/layout/list/" + group_name, {
-                method: "GET",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                }
+        return fetch("../../../../apis/api/layout/list/" + group_name, {
+            method: "GET",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            }
         })
             .then((res) => res.json())
             .catch((error) => {
@@ -45,14 +45,14 @@ const PatientDataAgent = {
             }
         })
             .then((res) => res.json())
-            // .catch((error) => {
-            //     console.error(error);
-            // })
+        // .catch((error) => {
+        //     console.error(error);
+        // })
     },
 
 }
 const Lists = {
-    addDataToList:async (listName,result)=> {
+    addDataToList: async (listName,result)=> {
         //debugger;
         const addToList = new Promise((resolve, reject) => {
             var staticLists = lists;
@@ -86,17 +86,12 @@ const Lists = {
             } else {
                 console.log(listName + " was not added to globals ");
             }
-
-
             console.log('add to listArray');
             return resolve("done adding to listArray");
 
 
         });
         return await Promise.all([addToList]);
-
-
-
     },
 
     checkIfListExistsInLists:(listName)=>{
@@ -127,62 +122,44 @@ const Lists = {
 
     },
     getAllList : () =>{
-               return lists;
+        return lists;
 
     },
     fetchList : async (listName = null) =>{
 
         if(listName!="" && !Lists.checkIfListExistsInLists(listName)) {
 
-            const fetchListPromise = new Promise((resolve, reject) => {
+            const fetchListPromise = await new Promise((resolve, reject) => {
 
 
-            fetch("../../../../apis/api/list/" + listName, {
-                method: "GET",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                }
-            })
+                fetch("../../../../apis/api/list/" + listName, {
+                    method: "GET",
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    }
+                })
                 .then((res) => res.json())
-                .then(
-                    (result) => {
-
-
+                .then((result) => {
                         if (result == null) {
                             console.log(listName+" WAS NOT FOUND - NO DATA WAS FETCHED ");
                         } else {
 
-
-
-                                console.log('added to list');
-                                Lists.addDataToList(listName, result).then((res)=>{
-                                    console.log('fetchList to list');
-                                    return resolve("done fetchList and adding to list");
-                                });
-
-
+                            console.log('added to list');
+                            Lists.addDataToList(listName, result).then((res)=>{
+                                console.log('fetchList to list');
+                                return resolve("done fetchList and adding to list");
+                            });
 
                         }
 
-
-
-
-
                     },
                     (error) => {
-
-
                         console.log(error);
-                    })
-
-
-
-
-
-        });
+                })
+             });
             //debugger;
-            return await Promise.all([fetchListPromise]);
+            return fetchListPromise;
         }
 
     }
