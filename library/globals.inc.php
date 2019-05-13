@@ -115,6 +115,7 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'new_tabs_layout',
     'theme_tabs_layout',
     'css_header',
+    'vertical_responsive_menu',
     'menu_styling_vertical',
     'default_encounter_view',
     'gbl_pt_list_page_size',
@@ -187,7 +188,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'new_tabs_layout' => array(
-            xl('Layout (need to logout/login after change this setting)'),
+            xl('Layout (need to logout/login after changing this setting)'),
             array(
                 '0' => xl('Frame'),
                 '1' => xl('Tabs'),
@@ -197,17 +198,17 @@ $GLOBALS_METADATA = array(
         ),
 
         'theme_tabs_layout' => array(
-            xl('Tabs Layout Theme (need to logout/login after change this setting)'),
+            xl('Tabs Layout Theme (need to logout/login after changing this setting)'),
             'tabs_css',
             'tabs_style_full.css',
             xl('Theme of the tabs layout (need to logout and then login to see this new setting). Note this is only applicable if use the Light or Manila general theme below.')
         ),
 
         'css_header' => array(
-            xl('General Theme (need to logout/login after change this setting)'),
+            xl('General Theme (need to logout/login after changing this setting)'),
             'css',
-            'style_light.css',
-            xl('Pick a general theme (need to logout/login after change this setting).')
+            'style_dune.css',
+            xl('Pick a general theme (need to logout/login after changing this setting).')
         ),
 
         'font-family' => array(
@@ -228,7 +229,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'font-size' => array(
-            xl('Default font size (need to logout/login after change this setting)'),
+            xl('Default font size (need to logout/login after changing this setting)'),
             array(
                 '__default__' => 'Use Theme Font Size',
                 '10px' => '10px',
@@ -240,15 +241,41 @@ $GLOBALS_METADATA = array(
             '__default__',
             xl("Select the default font size"),
         ),
+        
+        'vertical_responsive_menu' => array(
+            xl('Responsive Vertical Menu Style for Tabs (need to logout/login after changing this setting)'),
+            array(
+                '736' => xl('iPhone 6/7/8 Plus') . " - " . attr('736 X 414 px'),
+                '740' => xl('Galaxy S9/S9 Plus') . " - " . attr('740 X 360 px'),
+                '812' => xl('iPhone X/XS') . " - " . attr('812 X 375 px'),
+                '896' => xl('iPhone XR/XS Max') . " - " . attr('896 X 414 px'),
+                '1024' => xl('iPad/iPad Mini, XGA') . " - " . attr('1024 X 768 px'),
+                '1112' => xl('iPad Pro 10.5 inches') . " - " . attr('1112 X 834 px'),
+                '1280' => xl('Kindle Fire HDX, Laptop MDPI , WXGA') . " - " . attr('1280 X 800 px'),
+                '1336' => xl('iPad Pro 12.5 inches') . " - " . attr('1336 X 1024 px'),
+                '1366' => xl('HD') . " - " . attr('1366 X 768 px'),
+                '1440' => xl('Laptop HiDPI, WXGA+') . " - " . attr('1440 X 900 px'),
+                '1600' => xl('HD+') . " - " . attr('1600 X 900 px'),
+                '1680' => xl('WSXGA+') . " - " . attr('1680 X 1050 px'),
+                '1920' => xl('FHD, WUXGA') . " - " . attr('1920 X 1080').", ". attr('1920 X 1200 px'),
+                '2048' => xl('QWXGA') . " - " . attr('2048 X 1152 px'),
+                '2560' => xl('QHD') . " - " . attr('2560 X 1440 px'),
+                '3840' => xl('4K UHD') . " - " . attr('3840 X 2160 px'),
+                
+            ),
+             
+            '1024', //default iPad/iPad mini
+            xl('Selecting the width for responsive vertical style menus in tab based layout (need to logout/login after change this setting)')
+        ),
 
         'menu_styling_vertical' => array(
-            xl('Vertical Menu Style'),
+            xl('Vertical Menu Style for Frames'),
             array(
                 '0' => xl('Tree'),
                 '1' => xl('Sliding'),
             ),
             '1',
-            xl('Vertical Menu Style')
+            xl('Vertical Menu Style for frame based layouts')
         ),
 
         'default_encounter_view' => array(
@@ -262,10 +289,10 @@ $GLOBALS_METADATA = array(
         ),
 
         'gbl_nav_area_width' => array(
-            xl('Navigation Area Width'),
+            xl('Navigation Area Width for Frames'),
             'num',
             '175',
-            xl('Width in pixels of the left navigation frame.')
+            xl('Width in pixels of the left navigation frame in frame based layout.')
         ),
 
         'openemr_name' => array(

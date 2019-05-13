@@ -125,6 +125,14 @@ body {
 .body_top {
 	background-color: $paler;
 }
+.body_main {
+    background-color: $midpale !important;
+    border-top: solid 8px $dark;
+}
+.body_main_widescreen {
+    background-color: $midpale !important;
+    border-top: solid 14px $dark;
+}
 /* $top_bg_line RP_MODIFIED 2/8/15 $paler*/
 
 .bgcolor2 {
