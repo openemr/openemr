@@ -44,6 +44,14 @@ function js_url($text)
 }
 
 /**
+ * Escape variables that are outputted into the php error log.
+ */
+function errorLogEscape($text)
+{
+    return attr($text);
+}
+
+/**
  * Escape a PHP string for use as (part of) an HTML / XML text node.
  *
  * It only escapes a few special chars: the ampersand (&) and both the left-
