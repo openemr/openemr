@@ -15,13 +15,13 @@ class PatientDataTabBlock extends React.Component {
     render() {
 
         if (this.props.groupFields) {
-            return (<div>
+            return (<>
                 {
                     this.props.groupFields.map((pdata, j) => {
                         return (<div id={j} key={j}>{pdata.field_id}</div>)
                     })
                 }
-            </div>)
+            </>)
         }
         return <Spinner animation="border" variant="primary" />;
     }
