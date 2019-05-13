@@ -21,10 +21,12 @@ class Dashboard extends React.Component {
         this.state = {
             gadgets:null,
             moudle:'MenuDashboard',
-            lists : window['fetchList']
+            lists : window['fetchList'],
+            patientId: null
         };
 
-        this.state.patientId = helpers.getPatientId();
+
+        this.GetElement = this.GetElement.bind(this);
 
     }
 
@@ -55,8 +57,11 @@ class Dashboard extends React.Component {
     }
 
 
-   componentWillMount() {
+    componentDidMount() {
 
+        this.setState({
+            patientId:helpers.getPatientId()
+        });
 
        this.state.lists.fetchList("dashboard");
        let checkForDashboardListReady = window['fetchList'].state.staticLists['dashboard'];
@@ -77,10 +82,7 @@ class Dashboard extends React.Component {
 
    }
 
-    componentDidMount() {
-        /*let dashboardList = lists.getStaticListByName['dashboard'] ;
-        this.setState('gadgets', lists.getState('staticLists'));*/
-    }
+
 
     GetElement (id){
 
@@ -104,7 +106,8 @@ class Dashboard extends React.Component {
                       items.push(<LazyLoadModule key={element_component + i}
                                                  resolve={() => import(/* webpackMode: "eager" */"./"+ element_component)}
                                                  element={element}
-                                                 element_title={title}/>);
+                                                 element_title={title}
+                                                 pid={this.state.patientId}/>);
                   }
             })
 

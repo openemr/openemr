@@ -18,12 +18,8 @@ export class LazyLoadModule extends React.Component {
     async componentDidMount() {
         try {
             const { resolve } = this.props;
-            let x= await resolve();
-            console.log(x);
-            const { default: module } = x;
 
-            console.log(module)
-           // debugger;
+            const { default: module } = await resolve();
 
             this.setState({ module });
         } catch (error) {
@@ -37,7 +33,6 @@ export class LazyLoadModule extends React.Component {
 
         if (hasError) return <div>{hasError.message}</div>;
         if (!module) return <div>Loading module...</div>;
-        console.log(module.view);
         if (module.view) return React.createElement(module.view, this.props);
 
         return <div>Module loaded</div>;
