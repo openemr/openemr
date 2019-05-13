@@ -53,7 +53,7 @@ const PatientDataAgent = {
 }
 const Lists = {
     addDataToList:async (listName,result)=> {
-        debugger;
+        //debugger;
         const addToList = new Promise((resolve, reject) => {
             var staticLists = lists;
             if (Array.isArray(result)) {
@@ -65,7 +65,7 @@ const Lists = {
                     staticLists[listName][i] = mp;
                     var temp = staticLists[listName][i];
                     let notes = mp['notes'];
-                    // debugger;
+                    // //debugger;
                     if (Lists.IsValidJSONString(notes)) {
 
                         let notes = JSON.parse(mp.notes);
@@ -100,7 +100,7 @@ const Lists = {
     },
 
     checkIfListExistsInLists:(listName)=>{
-        debugger;
+        //debugger;
 
         if(listName in  lists){
             return true;
@@ -181,7 +181,7 @@ const Lists = {
 
 
         });
-            debugger;
+            //debugger;
             return await Promise.all([fetchListPromise]);
         }
 

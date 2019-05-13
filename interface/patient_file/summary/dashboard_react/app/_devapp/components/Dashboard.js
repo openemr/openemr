@@ -1,12 +1,10 @@
 import bootstrap from "bootstrap/dist/css/bootstrap.css"
-import React from "react";
+import React, { Component } from "react";
 
 
 
 import ReactDOM from 'react-dom';
 import helpers from '../utils/helpers.js';
-import MedicalProblems from "./MedicalProblems";
-import PatientData from "./PatientData";
 import MenuDashboard from "./MenuDashboard";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
@@ -20,26 +18,22 @@ window['fetchList'] = new FetchList();
 import agent from '../utils/agent.js';
 
 class Dashboard extends React.Component {
-    /*
-    *      <!--MedicalProblems element="MedicalProblems" element_title="Medical Problems"/>
-                            <MedicalProblems element="Allergies"  element_title="Allergies"/>
-                            <MedicalProblems element="Medications"  element_title="Medications"/>-->
-    * */
+
     constructor(props) {
         super(props);
         this.state = {
             gadgets:"",
             moudle:'MenuDashboard',
-            lists : window['fetchList']
+
         };
 
-
+        this.state.patientId = helpers.getPatientId();
 
     }
 
     setGlobalPatientId() {
-        this.setState.patientId = helpers.getPatientId();
-        fetch("../../../../apis/api/patient/extended/" + this.setState.patientId, {
+
+        fetch("../../../../apis/api/patient/extended/" + this.state.patientId, {
             method: "POST",
             headers: {
                 'Accept': 'application/json',
@@ -68,7 +62,7 @@ class Dashboard extends React.Component {
         const a = new Promise((resolve, reject) => {
              agent.Lists.fetchList(listName);
 
-            console.log('one');
+            console.log('fetchData started');
 
             return resolve("done fetching");
 
@@ -79,59 +73,16 @@ class Dashboard extends React.Component {
         return await Promise.all([a]) ? true : false;
     }
 
-    //list/dashboard
-   /* getDashboardList() {
-
-        //if (this.setState.token) {
-            fetch("../../../../apis/api/list/dashboard", {
-                method: "GET",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    // 'Authorization': 'Bearer ' + this.setState.token
-                }
-            })
-                .then((res) => res.json())
-                .then(
-                    (result) => {
-                        console.log("Got dashboard items");
-                        this.setState({gadgets: result});
-                    },
-                    (error) => {
-                        this.setState({
-                            isLoaded: true,
-                            error
-                        });
-                        console.log("fail");
-                    }
-                )
-    }*/
 
    componentWillMount() {
 
 
-      //    console.log( agent.Lists.getAllList())
-      //     this.setState({'gadgets': agent.Lists.getList("dashboard")});
+       this.fetchData("dashboard").then(()=>{
+           let dashboardComponents = agent.Lists.getList("dashboard");
 
+           this.setState({'gadgets':dashboardComponents});
+       });
 
-
-       /*
-      // this.state.lists.fetchList("dashboard");
-       let checkForDashboardListReady = window['fetchList'].state.staticLists['dashboard'];
-
-       if(!checkForDashboardListReady) {
-           let timerId = setTimeout(()=>{
-
-               checkForDashboardListReady = window['fetchList'].state.staticLists['dashboard']
-               if(checkForDashboardListReady){
-                   // debugger;
-                   this.setState({'gadgets':checkForDashboardListReady});
-                   this.setGlobalPatientId();
-                   // console.log(this);
-                   clearTimeout(timerId);
-               }
-           },1000)
-       }*/
 
    }
 
@@ -147,8 +98,7 @@ class Dashboard extends React.Component {
 
             }
         });
-        /*let dashboardList = lists.getStaticListByName['dashboard'] ;
-        this.setState('gadgets', lists.getState('staticLists'));*/
+
     }
 
     GetElement (id){
@@ -156,27 +106,27 @@ class Dashboard extends React.Component {
         try {
 
             let items = [];
-            let elementObject = this.state.gadgets;
+           // let elementObject = this.state.gadgets;
 
             var result = [];
 
-                for(var i in elementObject) {
+            this.state.gadgets.map((v,i) => {
+                let item = v;
 
-                    let item = elementObject[i];
+                  if(item.notes.id == id && item.activity ) {
+                      // debugger;
+                      console.log('-------');
+                      let element = item.notes.element;
+                      let title = item.title;
+                      let element_component = item.notes.element_component;
+                      console.log(element_component);
+                      items.push(<LazyLoadModule key={element_component + i}
+                                                 resolve={() => import(/* webpackMode: "eager" */"./"+ element_component)}
+                                                 element={element}
+                                                 element_title={title}/>);
+                  }
+            })
 
-                    if(item.notes.id == id && item.activity != 0) {
-                        // debugger;
-                        var element = item.notes.element;
-                        var title = item.title;
-                        var element_component = item.notes.element_component;
-
-                        items.push(<LazyLoadModule key={item} resolve={() => import("./" + element_component)}
-                                                   element={element}
-                                                   element_title={title}/>)
-
-
-                    }
-                }
             return items;
         }
         catch
@@ -184,13 +134,12 @@ class Dashboard extends React.Component {
             {
                 console.log(e);
             }
-            // debugger;
-
-
     }
 
+
+
     render() {
-        console.log(this.state.gadgets);
+
         return (
 
 

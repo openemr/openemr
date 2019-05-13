@@ -24,6 +24,12 @@ class MessageRestController
         $this->messageService = new MessageService();
     }
 
+    public function getAll($pid)
+    {
+        $serviceResult = $this->messageService->getAll($pid);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+    }
+
     public function put($pid, $mid, $data)
     {
         $validationResult = $this->messageService->validate($data);

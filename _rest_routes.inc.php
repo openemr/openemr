@@ -323,6 +323,10 @@ RestConfig::$ROUTE_MAP = array(
         $data = (array)(json_decode(file_get_contents("php://input")));
         return (new InsuranceRestController())->put($pid, $type, $data);
     },
+    "GET /api/patient/:pid/message" => function ($pid) {
+        authorization_check("patients", "notes");
+        return (new MessageRestController())->getAll($pid);;
+    },
     "POST /api/patient/:pid/message" => function ($pid) {
         authorization_check("patients", "notes");
         $data = (array)(json_decode(file_get_contents("php://input")));

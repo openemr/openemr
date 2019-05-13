@@ -22,6 +22,20 @@ class MessageService
     {
     }
 
+    public function getAll($pid)
+    {
+        $sql = "SELECT * FROM pnotes WHERE pid=?";
+
+        $statementResults = sqlStatement($sql, array($pid));
+
+        $results = array();
+        while ($row = sqlFetchArray($statementResults)) {
+            array_push($results, $row);
+        }
+
+        return $results;
+    }
+
     public function validate($message)
     {
         $validator = new Validator();
