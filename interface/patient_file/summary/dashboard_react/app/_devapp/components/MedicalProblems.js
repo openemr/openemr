@@ -114,7 +114,7 @@ class MedicalProblems extends React.Component {
     }
 
     goToMedicalIssue = () => {
-        debugger;
+      /*  debugger;*/
         if(typeof(this.state.element)!="undefined") {
 
             let urlToFetch = "";
