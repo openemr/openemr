@@ -21,3 +21,5 @@ app_view_model.application_data.user=ko.observable(null);
 app_view_model.application_data.therapy_group=ko.observable(null);
 
 app_view_model.attendant_template_type=ko.observable('patient-data-template');
+
+app_view_model.responsiveDisplay=null;
