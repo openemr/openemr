@@ -10,11 +10,7 @@ import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {LazyLoadModule} from "../lazy";
-/*
-import FetchList from "./FetchList";
 
-window['fetchList'] = new FetchList();
-*/
 import agent from '../utils/agent.js';
 
 class Dashboard extends React.Component {
@@ -76,14 +72,6 @@ class Dashboard extends React.Component {
 
    componentWillMount() {
 
-
-       this.fetchData("dashboard").then(()=>{
-           let dashboardComponents = agent.Lists.getList("dashboard");
-
-           this.setState({'gadgets':dashboardComponents});
-       });
-
-
    }
 
     componentDidMount() {
@@ -113,13 +101,13 @@ class Dashboard extends React.Component {
             this.state.gadgets.map((v,i) => {
                 let item = v;
 
-                  if(item.notes.id == id && item.activity ) {
+                  if(item.notes.id == id && item.activity != 0) {
                       // debugger;
-                      console.log('-------');
+                      // console.log('-------');
                       let element = item.notes.element;
                       let title = item.title;
                       let element_component = item.notes.element_component;
-                      console.log(element_component);
+                      // console.log(element_component);
                       items.push(<LazyLoadModule key={element_component + i}
                                                  resolve={() => import(/* webpackMode: "eager" */"./"+ element_component)}
                                                  element={element}
