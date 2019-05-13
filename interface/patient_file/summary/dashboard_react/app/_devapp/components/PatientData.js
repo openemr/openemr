@@ -1,6 +1,7 @@
 import React from "react";
 import agent from '../utils/agent.js';
 import PatientDataTabBlock from './PatientData/PatientDataTabBlock';
+import PatientDataSummary from './PatientData/PatientDataSummary';
 
 import helpers from '../utils/helpers.js';
 import ToggleButton from './global/ToggleButton.js';
@@ -43,19 +44,14 @@ class PatientData extends React.Component {
     clickSelect(groupId) {
             Promise.all([agent.PatientDataAgent.byGroupId("DEM", groupId)]).then(
                 result => {
-                    result.map((a) => {
-
-                        if(!this.state.groupFields[groupId]){
+                    //result.map((a) => {
+                        //if(!this.state.groupFields){
                             this.setState({
-                                groupFields: {
-                                    [groupId] : a
-                                }
+                                groupFields: result[0]
                             });
 
-                        }
-
-                    });
-                    // console.log(result);
+                       // }
+                    //});
                 }
             );
     }
@@ -70,14 +66,11 @@ class PatientData extends React.Component {
     }
 
     render() {
-        // console.log("My name is: " + this.name + ": 4");
         const {isOpen} = this.state;
         const {isLoaded} = this.state;
         const {data} = this.state;
         var rightTextButton = "Patient Data";
-        // console.log("AA: ");
-        // console.log(this.state.groupFields);
-        // console.log("BB: ");
+
         return (
             isLoaded && this.state.groups &&
             <div className="card" variant="dark">
@@ -108,14 +101,7 @@ class PatientData extends React.Component {
                                             </Col>
                                             <Col sm={9}>
                                                 <Tab.Content>
-                                                    {this.state.groups.map((group, i) => {
-                                                        var it = "tab-" + i;
-                                                        return (
-                                                            <Tab.Pane eventKey={it} key={i}  >
-                                                                <PatientDataTabBlock groupId={group.grp_group_id} groups={this.state.groupFields} />
-                                                            </Tab.Pane>
-                                                        )
-                                                    })}
+                                                    <PatientDataSummary groups={this.state.groups} groupFields={this.state.groupFields} />
                                                 </Tab.Content>
                                             </Col>
                                         </Row>
@@ -135,7 +121,7 @@ class PatientData extends React.Component {
 
 
 export default {
-    view: () => (
+    view: (props) => (
         <PatientData pid={props.pid} title={props.element_title}/>
     )
 };

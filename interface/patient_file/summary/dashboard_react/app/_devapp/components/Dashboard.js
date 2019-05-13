@@ -10,23 +10,21 @@ import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {LazyLoadModule} from "../lazy";
-import FetchList from "./FetchList";
 
-window['fetchList'] = new FetchList();
+import agent from '../utils/agent.js';
 
 class Dashboard extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            gadgets:null,
+            gadgets:[],
+            header:[],
+            right:[],
+            left:[],
             moudle:'MenuDashboard',
-            lists : window['fetchList'],
             patientId: null
         };
-
-
-        this.GetElement = this.GetElement.bind(this);
 
     }
 
@@ -56,35 +54,45 @@ class Dashboard extends React.Component {
             )
     }
 
+    fetchData = async (listName) => {
 
-    componentDidMount() {
+       // const a = new Promise((resolve, reject) => {
+        var result = await agent.Lists.fetchList(listName);
+
+        return result ? true : false;
+    }
+
+
+    componentWillMount() {
 
         this.setState({
             patientId:helpers.getPatientId()
         });
 
-       this.state.lists.fetchList("dashboard");
-       let checkForDashboardListReady = window['fetchList'].state.staticLists['dashboard'];
 
-       if(!checkForDashboardListReady) {
-           let timerId = setTimeout(()=>{
+        var result = this.fetchData("dashboard").then( result => {
 
-                checkForDashboardListReady = window['fetchList'].state.staticLists['dashboard']
-                if(checkForDashboardListReady){
-                   // debugger;
-                    this.setState({'gadgets':checkForDashboardListReady});
-                    this.setGlobalPatientId();
-                    console.log(this);
-                    clearTimeout(timerId);
-                }
-            },1000)
-        }
+                console.log(result)
+                var list = agent.Lists.getList("dashboard");
+                console.log(list)
+                this.setState({'gadgets': list}, () => {
+                    this.updateGadgets();
+                });
+            }
 
-   }
+        );
 
+    }
 
+    updateGadgets () {
+        this.setState({
+            header:this.getElement('header'),
+            left:this.getElement('left'),
+            right:this.getElement('right')
+        })
+    }
 
-    GetElement (id){
+    getElement (id){
 
         try {
 
@@ -96,13 +104,13 @@ class Dashboard extends React.Component {
             this.state.gadgets.map((v,i) => {
                 let item = v;
 
-                  if(item.notes.id == id && item.activity ) {
+                  if(item.notes.id == id && item.activity != 0) {
                       // debugger;
-                      console.log('-------');
+                      // console.log('-------');
                       let element = item.notes.element;
                       let title = item.title;
                       let element_component = item.notes.element_component;
-                      console.log(element_component);
+                      // console.log(element_component);
                       items.push(<LazyLoadModule key={element_component + i}
                                                  resolve={() => import(/* webpackMode: "eager" */"./"+ element_component)}
                                                  element={element}
@@ -113,8 +121,7 @@ class Dashboard extends React.Component {
 
             return items;
         }
-        catch
-            (e)
+        catch (e)
             {
                 console.log(e);
             }
@@ -126,14 +133,13 @@ class Dashboard extends React.Component {
 
         return (
 
-
             <div>
                 {
-            this.state && this.state.gadgets && <div className="container-fluid">
+            this.state && <div className="container-fluid">
 
                 <div className="row">
                     <div className="col-md-12">
-                        {this.GetElement('header')}
+                        {this.state.header}
                     </div>
                 </div>
                 <div className="row">
@@ -143,20 +149,18 @@ class Dashboard extends React.Component {
                                 Practical information
                             </Card.Header>
                             <Card.Body>
-                                {this.GetElement('left')}
+                                {this.state.left}
                             </Card.Body>
                         </Card>
 
                     </div>
                     <div className="col-md-4">
                         <Card>
-
                         <Card.Header>
                             Medical Highlights
                         </Card.Header>
                         <Card.Body>
-                            {this.GetElement('right')}
-
+                            {this.state.right}
                         </Card.Body>
                         </Card>
 
