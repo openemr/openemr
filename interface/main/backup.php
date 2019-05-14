@@ -643,8 +643,9 @@ if ($cmd) {
              $res=sqlStatement("drop table if exists log_validator");
              $res=sqlStatement("rename table log_validator_backup to log_validator");
         }
+        //Removed the connection details as it exposes all the database credentials
 
-        die("\"" . text($cmd) . "\" returned " . text($tmp2) . ": " . text($tmp0));
+        die("There was an error on the backup");
     }
 
   //  ViSolve:  If the Eventlog is set, then clear the temporary table  -- Start here
