@@ -4,6 +4,33 @@ import helpers from "./helpers";
 const requests = {}
 const lists ={};
 const PatientDataAgent = {
+
+    setGlobalPatientId: (patientId) => {
+
+        return fetch("../../../../apis/api/patient/extended/" + patientId, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+
+            })
+        })
+            .then((res) => res.json())
+            .then(
+                (result) => {
+
+                },
+                (error) => {
+                    this.setState({
+                        isLoaded: true,
+                        error
+                    });
+                }
+            )
+    },
+
     groups: (group_name) => {
         return fetch(webroot+"/apis/api/layout/list/" + group_name, {
             method: "GET",

@@ -113,6 +113,27 @@ class MedicalProblems extends React.Component {
         return Array.isArray(this.state.data) ? this.state.data.length : null;
     }
 
+    goToMedicalIssue = () => {
+      /*  debugger;*/
+        if(typeof(this.state.element)!="undefined") {
+
+            let urlToFetch = "";
+            switch (this.state.element) {
+                case "Allergies":
+                    urlToFetch = "allergy";
+                    break;
+                case "MedicalProblems":
+                    urlToFetch = "medical_problem";
+                    break;
+                case "Medications":
+                    urlToFetch = "medication";
+                    break;
+            }
+
+            window.location.href="../../../patient_file/summary/stats_full.php?active=all&category="+urlToFetch;
+        }
+    }
+
     render() {
         const { open } = this.state;
         const { renderElement } = this.state;
@@ -136,8 +157,10 @@ class MedicalProblems extends React.Component {
 
                             </Col>
                             <Col>
+                        <div  onClick={() => this.goToMedicalIssue()} >
+                        <FontAwesomeIcon icon='edit' size='1px' className={"medical_issues"}  />
+                        </div>
 
-                        <FontAwesomeIcon  icon='edit'/>
                             </Col>
                         </Row>
 

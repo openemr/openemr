@@ -19,3 +19,4 @@ ccdaservice/node_modules
 # dev editor configs
 /.idea/*
 /nbproject/*
+/interface/patient_file/summary/dashboard_react/app/assets/*

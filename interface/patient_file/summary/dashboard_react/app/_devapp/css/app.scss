@@ -18,3 +18,13 @@ body, html {
     color: red;
 }
 
+.btn-primary ~ label {
+    cursor: pointer;
+}
+.card {
+    margin-bottom: 10px;
+}
+.medical_issues {
+    float: right;
+    margin: 10px;
+}
