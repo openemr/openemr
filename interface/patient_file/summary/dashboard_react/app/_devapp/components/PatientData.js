@@ -31,10 +31,6 @@ class PatientData extends React.Component {
         // console.log("My name is: " + this.name + ": 1");
     }
 
-    componentDidMount() {
-        // console.log("My name is: " + this.name + ": 2");
-    }
-
     localToggle() {
         this.setState({isOpen: !this.state.isOpen});
     }
