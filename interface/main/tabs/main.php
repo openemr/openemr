@@ -435,15 +435,5 @@ app_view_model.responsiveDisplay = displayViewModel;
         });
     });
 </script>
-<script>
-    // $('#username').hover(function() {
-        // $('.hideaway').show();
-    // });
-   // $('#username').on ('click', function() {
-        // $('.hideaway').toggle('1000');
-        // $(this).parent().parent().parent().focus();
-    // });
-</script>
-
 </body>
 </html>
