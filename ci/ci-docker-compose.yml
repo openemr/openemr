@@ -1,0 +1,23 @@
+#
+# This is for building a OpenEMR testing environment for ci
+#
+version: '3.1'
+  openemr:
+    restart: always
+    image: openemr/openemr:flex
+    volumes:
+    - ..:/var/www/localhost/htdocs/openemr
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASS: root
+      MYSQL_USER: openemr
+      MYSQL_PASS: openemr
+      OE_USER: admin
+      OE_PASS: pass
+      EMPTY: "yes"
+  mysql:
+    restart: always
+    image: mariadb:10.3
+    command: ['mysqld','--character-set-server=utf8']
+    environment:
+      MYSQL_ROOT_PASSWORD: root

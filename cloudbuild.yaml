@@ -1,5 +1,4 @@
+# for google cloud build ci
 steps:
-- name: 'gcr.io/cloud-builders/npm'
-  args: ['install']
-- name: 'gcr.io/cloud-builders/npm'
-  args: ['run', 'build']
+- name: 'docker/compose:1.21.2'
+  args: ['up', '-d', '-f ci/ci-docker-compose.yml']
