@@ -18,7 +18,7 @@ class PatientDataTabBlock extends React.Component {
             return (<>
                 {
                     this.props.groupFields.map((pdata, j) => {
-                        return (<div id={j} key={j}>{pdata.field_id}</div>)
+                        return (<div id={j} key={j}>{pdata.field_id} - {this.props.data[0][pdata.field_id]}</div>)
                     })
                 }
             </>)
