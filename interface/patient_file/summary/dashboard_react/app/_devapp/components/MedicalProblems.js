@@ -158,7 +158,7 @@ class MedicalProblems extends React.Component {
                             </Col>
                             <Col>
                         <div  onClick={() => this.goToMedicalIssue()} >
-                        <FontAwesomeIcon icon='edit' size='2x' style={{ float: 'right' }} />
+                        <FontAwesomeIcon icon='edit' size='1px' className={"medical_issues"}  />
                         </div>
 
                             </Col>
