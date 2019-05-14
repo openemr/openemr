@@ -5,7 +5,7 @@ const requests = {}
 const lists ={};
 const PatientDataAgent = {
     groups: (group_name) => {
-        return fetch("../../../../apis/api/layout/list/" + group_name, {
+        return fetch(webroot+"/apis/api/layout/list/" + group_name, {
             method: "GET",
             headers: {
                 'Accept': 'application/json',
@@ -21,7 +21,7 @@ const PatientDataAgent = {
     },
 
     byGroupId: (group_name, group_id) => {
-        return fetch("../../../../apis/api/layout/list/" + group_name + "/" + group_id, {
+        return fetch(webroot + "/apis/api/layout/list/" + group_name + "/" + group_id, {
             method: "GET",
             headers: {
                 'Accept': 'application/json',
@@ -37,7 +37,7 @@ const PatientDataAgent = {
     },
 
     patient: (patient_id) => {
-        return fetch("../../../../apis/api/patient/extended/" + patient_id, {
+        return fetch(webroot +"/apis/api/patient/extended/" + patient_id, {
             method: "GET",
             headers: {
                 'Accept': 'application/json',
@@ -132,7 +132,7 @@ const Lists = {
             const fetchListPromise = await new Promise((resolve, reject) => {
 
 
-                fetch("../../../../apis/api/list/" + listName, {
+                fetch(webroot + "/apis/api/list/" + listName, {
                     method: "GET",
                     headers: {
                         'Accept': 'application/json',
