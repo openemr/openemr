@@ -1,3 +1,5 @@
+<?php require "../../../globals.php"?>
+
 <!doctype html>
 <html lang="en">
     <head>
@@ -12,7 +14,10 @@
 
         <div id="app">
         </div>
-
+        <script>
+        var webroot = '<?php echo $GLOBALS['webroot'] ?>';
+        var dateFormat = '<?php echo DateFormatRead('validateJS'); ?>'
+        </script>
         <script type="text/javascript" src="./app/assets/bundle/main.bundle.js" ></script>
 
     </body>

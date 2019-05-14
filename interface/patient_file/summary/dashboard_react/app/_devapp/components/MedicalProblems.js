@@ -35,21 +35,8 @@ class MedicalProblems extends React.Component {
     getMedicalProblems() {
         this.setState.patientId = helpers.getPatientId();
         if (this.setState.patientId >= 0) {
-            let urlToFetch = ""
-            switch (this.state.element)
-            {
-                case "Allergies":
-                    urlToFetch="allergy";
-                    break;
-                case "MedicalProblems":
-                    urlToFetch="medical_problem";
-                    break;
-                case "Medications":
-                    urlToFetch="medication";
-                    break;
-            }
 
-            fetch("../../../../apis/api/patient/" + this.setState.patientId+"/"+urlToFetch, {
+            fetch("../../../../apis/api/patient/" + this.setState.patientId+"/"+this.returnUrl(this.state.element), {
                 method: "GET",
                 headers: {
                     'Accept': 'application/json',
@@ -112,25 +99,27 @@ class MedicalProblems extends React.Component {
     medProbCount = () => {
         return Array.isArray(this.state.data) ? this.state.data.length : null;
     }
-
+    returnUrl = ( urlToFetch = "")=>{
+        switch (urlToFetch) {
+            case "Allergies":
+                urlToFetch = "allergy";
+                break;
+            case "MedicalProblems":
+                urlToFetch = "medical_problem";
+                break;
+            case "Medications":
+                urlToFetch = "medication";
+                break;
+        }
+        return urlToFetch;
+    }
     goToMedicalIssue = () => {
       /*  debugger;*/
         if(typeof(this.state.element)!="undefined") {
 
-            let urlToFetch = "";
-            switch (this.state.element) {
-                case "Allergies":
-                    urlToFetch = "allergy";
-                    break;
-                case "MedicalProblems":
-                    urlToFetch = "medical_problem";
-                    break;
-                case "Medications":
-                    urlToFetch = "medication";
-                    break;
-            }
 
-            window.location.href="../../../patient_file/summary/stats_full.php?active=all&category="+urlToFetch;
+
+            window.location.href="../../../patient_file/summary/stats_full.php?active=all&category="+this.returnUrl(this.state.element);
         }
     }
 
@@ -158,7 +147,7 @@ class MedicalProblems extends React.Component {
                             </Col>
                             <Col>
                         <div  onClick={() => this.goToMedicalIssue()} >
-                        <FontAwesomeIcon icon='edit' size='2x' style={{ float: 'right' }} />
+                        <FontAwesomeIcon icon='edit' size='1px' className={"medical_issues"}  />
                         </div>
 
                             </Col>

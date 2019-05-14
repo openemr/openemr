@@ -23,9 +23,8 @@ class PatientData extends React.Component {
         this.clickSelect = this.clickSelect.bind(this);
     }
 
-    componentWillMount() {
-        this.setState.patientId = helpers.getPatientId();
-        var groupsList = Promise.all([agent.PatientDataAgent.groups("DEM"), agent.PatientDataAgent.patient(this.setState.patientId )]);
+    componentDidMount() {
+        var groupsList = Promise.all([agent.PatientDataAgent.groups("DEM"), agent.PatientDataAgent.patient(this.props.pid)]);
         groupsList.then( ([listGroups, patientData]) => {
             this.setState({ groups: [listGroups][0], data: [patientData], isLoaded: true });
         });
