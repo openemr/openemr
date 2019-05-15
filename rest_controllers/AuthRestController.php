@@ -16,6 +16,8 @@ namespace OpenEMR\RestControllers;
 
 require_once("./../library/authentication/common_operations.php");
 
+use OpenEMR\Common\Utils\RandomGenUtils;
+
 class AuthRestController
 {
     public function __construct()
@@ -39,7 +41,7 @@ class AuthRestController
 
         // Use base64 (except for the special characters which are + and /) in Bearer tokens
         // (note rfc6750 allows more special characters if wish to support in the future)
-        $new_token = produceRandomString(32, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+        $new_token = RandomGenUtils::produceRandomString(32, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
         if (empty($new_token)) {
             http_response_code(500);
             error_log("OpenEMR Error: API was unable to create a random Bearer token");
@@ -52,7 +54,7 @@ class AuthRestController
         $sql .= "     user_id=?,";
         $sql .= "     token=?,";
         $sql .= "     expiry=DATE_ADD(NOW(), INTERVAL 1 HOUR)";
-        sqlInsert($sql, [$user["id"], $new_token]);
+        sqlStatement($sql, [$user["id"], $new_token]);
 
         $encoded_token = $new_token . $encoded_api_site;
         $give = array("token_type" => "Bearer", "access_token" => $encoded_token, "expires_in" => "3600");

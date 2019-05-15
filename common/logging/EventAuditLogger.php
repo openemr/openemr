@@ -14,6 +14,7 @@
 namespace OpenEMR\Common\Logging;
 
 use \DateTime;
+use OpenEMR\Common\Crypto\CryptoGen;
 use Waryway\PhpTraitsLibrary\Singleton;
 
 class EventAuditLogger
@@ -145,6 +146,11 @@ MSG;
      */
     public function newEvent($event, $user, $groupname, $success, $comments = "", $patient_id = null, $log_from = 'open-emr', $menu_item = 'dashboard', $ccda_doc_id = 0)
     {
+        // Set up crypto object that will be used by this singleton class for for encryption/decryption (if not set up already)
+        if (!isset($this->cryptoGen)) {
+            $this->cryptoGen = new CryptoGen();
+        }
+
         $adodb = $GLOBALS['adodb']['db'];
         $crt_user=isset($_SERVER['SSL_CLIENT_S_DN_CN']) ?  $_SERVER['SSL_CLIENT_S_DN_CN'] : null;
 
@@ -158,7 +164,7 @@ MSG;
         $encrypt_comment = 'No';
         if (!empty($comments)) {
             if ($GLOBALS["enable_auditlog_encryption"]) {
-                $comments =  encryptStandard($comments);
+                $comments =  $this->cryptoGen->encryptStandard($comments);
                 $encrypt_comment = 'Yes';
             }
         }
@@ -710,6 +716,11 @@ MSG;
      */
     public function auditSQLEvent($statement, $outcome, $binds = null)
     {
+        // Set up crypto object that will be used by this singleton class for for encryption/decryption (if not set up already)
+        if (!isset($this->cryptoGen)) {
+            $this->cryptoGen = new CryptoGen();
+        }
+
         $user =  $_SESSION['authUser'] ?? "";
 
         /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
@@ -740,14 +751,17 @@ MSG;
         $success = (int)($outcome !== false);
         $checksum = ($outcome !== false) ? $this->sql_checksum_of_modified_row($statement) : '';
 
-        if (is_array($binds) && !empty($processed_binds)) {
-            $processed_binds = "";
+        if (is_array($binds)) {
             // Need to include the binded variable elements in the logging
+            $processed_binds = "";
             foreach ($binds as $value_bind) {
                 $processed_binds .= "'" . add_escape_custom($value_bind) . "',";
             }
             rtrim($processed_binds, ',');
-            $comments .= " (" . $processed_binds . ")";
+
+            if (!empty($processed_binds)) {
+                $comments .= " (" . $processed_binds . ")";
+            }
         }
 
         // ViSolve : Don't log sequences - to avoid the affect due to GenID calls
@@ -852,7 +866,7 @@ MSG;
         $encrypt_comment = 'No';
         //July 1, 2014: Ensoftek: Check and encrypt audit logging
         if (array_key_exists('enable_auditlog_encryption', $GLOBALS) && $GLOBALS["enable_auditlog_encryption"]) {
-            $comments =  encryptStandard($comments);
+            $comments =  $this->cryptoGen->encryptStandard($comments);
             $encrypt_comment = 'Yes';
         }
 

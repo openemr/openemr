@@ -20,18 +20,31 @@
 *
 * +------------------------------------------------------------------------------+
 */
+namespace Acl;
+
+use Zend\ServiceManager\Factory\InvokableFactory;
+use Zend\Router\Http\Segment;
+use Interop\Container\ContainerInterface;
 
 return array(
     'controllers' => array(
-        'invokables' => array(
-            'Acl' => 'Acl\Controller\AclController',
-        ),
+        'factories' => [
+            Controller\AclController::class => function (ContainerInterface $container, $requestedName) {
+                /**
+                 * @see https://stackoverflow.com/a/49275531/7884612 on tips for getting the view helpers from zf2 to zf3
+                 * @see https://github.com/zendframework/zend-view/blob/master/src/Helper/EscapeHtml.php
+                 */
+                $escapeHtml = $container->get('ViewHelperManager')->get('escapeHtml');
+                $aclTable = $container->get(Model\AclTable::class);
+                return new Controller\AclController($escapeHtml, $aclTable);
+            },
+        ],
     ),
 
     'router' => array(
         'routes' => array(
             'acl' => array(
-                'type'    => 'segment',
+                'type'    => Segment::class,
                 'options' => array(
                     'route'    => '/acl[/:action][/:id]',
                     'constraints' => array(
@@ -39,7 +52,7 @@ return array(
                         'id'     => '[0-9]+',
                     ),
                     'defaults' => array(
-                        'controller' => 'Acl',
+                        'controller' => Controller\AclController::class,
                         'action'     => 'index',
                     ),
                 ),
@@ -59,4 +72,13 @@ return array(
             'ViewFeedStrategy',
         ),
     ),
+    'service_manager' => [
+        'factories' => [
+            Model\AclTable::class =>  function (ContainerInterface $container, $requestedName) {
+                $dbAdapter = $container->get(\Zend\Db\Adapter\Adapter::class);
+                $table = new Model\AclTable($dbAdapter);
+                return $table;
+            },
+        ]
+    ]
 );

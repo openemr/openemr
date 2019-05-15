@@ -24,7 +24,6 @@ $form_name = "note";
 ?>
 
 <html><head>
-<?php html_header_show();?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
@@ -104,7 +103,7 @@ var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
 // jQuery stuff to make the page a little easier to use
 
-$(document).ready(function(){
+$(function(){
     $(".save").click(function() { top.restoreSession(); $('#my_form').submit(); });
     $(".dontsave").click(function() { parent.closeTab(window.name, false); });
     //$("#printform").click(function() { PrintForm(); });

@@ -33,6 +33,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 require_once "$srcdir/user.inc";
 
+use Mpdf\Mpdf;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Core\Header;
@@ -267,22 +268,35 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
     global $srcdir;
 
     if ($GLOBALS['statement_appearance'] == '1') {
-        require_once("$srcdir/html2pdf/vendor/autoload.php");
-        $pdf2 = new HTML2PDF(
-            $GLOBALS['pdf_layout'],
-            $GLOBALS['pdf_size'],
-            $GLOBALS['pdf_language'],
-            true, // default unicode setting is true
-            'UTF-8', // default encoding setting is UTF-8
-            array($GLOBALS['pdf_left_margin'], $GLOBALS['pdf_top_margin'], $GLOBALS['pdf_right_margin'], $GLOBALS['pdf_bottom_margin']),
-            $_SESSION['language_direction'] == 'rtl' ? true : false
+        $config_mpdf = array(
+            'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
+            'mode' => $GLOBALS['pdf_language'],
+            'format' => $GLOBALS['pdf_size'],
+            'default_font_size' => '9',
+            'default_font' => 'dejavusans',
+            'margin_left' => $GLOBALS['pdf_left_margin'],
+            'margin_right' => $GLOBALS['pdf_right_margin'],
+            'margin_top' => $GLOBALS['pdf_top_margin'],
+            'margin_bottom' => $GLOBALS['pdf_bottom_margin'],
+            'margin_header' => '',
+            'margin_footer' => '',
+            'orientation' => $GLOBALS['pdf_layout'],
+            'shrink_tables_to_fit' => 1,
+            'use_kwt' => true,
+            'autoScriptToLang' => true,
+            'keep_table_proportions' => true
         );
+        $pdf2 = new mPDF($config_mpdf);
+        if ($_SESSION['language_direction'] == 'rtl') {
+            $pdf2->SetDirectionality('rtl');
+        }
         ob_start();
         readfile($file_to_send, "r");//this file contains the HTML to be converted to pdf.
-//echo $file;
+        //echo $file;
         $content = ob_get_clean();
 
-// Fix a nasty html2pdf bug - it ignores document root!
+        // Fix a nasty html2pdf bug - it ignores document root!
+        // TODO - now use mPDF, so should test if still need this fix
         global $web_root, $webserver_root;
         $i = 0;
         $wrlen = strlen($web_root);
@@ -637,7 +651,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
             setTimeout(function(){parent.left_nav.loadFrame('enc2', 'enc', encurl);}, 3000);
         }
 
-        $(document).ready(function () {
+        $(function () {
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
@@ -779,10 +793,8 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 </fieldset>
                 <fieldset id="search-upload">
                     <legend>
-                        &nbsp;<span><?php echo xlt('Select Method'); ?></span>&nbsp;<i id='select-method-tooltip'
-                                                                                       class="fa fa-info-circle oe-superscript"
-                                                                                       aria-hidden="true"></i>
-                        <div id="radio-div" class="pull-right oe-legend-radio">
+                        <i id='select-method-tooltip' class="fa fa-info-circle" aria-hidden="true"></i>
+                        <div id="radio-div" class="pull-left oe-legend-radio">
                             <label class="radio-inline">
                                 <input type="radio" id="invoice_search" name="radio-search" onclick=""
                                        value="inv-search"><?php echo xlt('Invoice Search'); ?>
@@ -1058,6 +1070,11 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                     continue;
                                 }
 
+                                // Determine if customer is in collections.
+                                //
+                                $billnote = $row['billing_note'];
+                                $in_collections = stristr($billnote, 'IN COLLECTIONS') !== false;
+
                                 // $duncount was originally supposed to be the number of times that
                                 // the patient was sent a statement for this invoice.
                                 //
@@ -1079,7 +1096,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 // An invoice is now due from the patient if money is owed and we are
                                 // not waiting for insurance to pay.
                                 //
-                                $isduept = ($duncount >= 0 && $isdueany) ? " checked" : "";
+                                $isduept = ($duncount >= 0 && $isdueany && !$in_collections) ? " checked" : "";
 
                                 // Skip invoices not in the desired "Due..." category.
                                 //
@@ -1098,10 +1115,6 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 $svcdate = substr($row['date'], 0, 10);
                                 $last_stmt_date = empty($row['last_stmt_date']) ? '' : $row['last_stmt_date'];
 
-                                // Determine if customer is in collections.
-                                //
-                                $billnote = $row['billing_note'];
-                                $in_collections = stristr($billnote, 'IN COLLECTIONS') !== false;
                                 ?>
                                 <tr>
                                     <td class="detail">
@@ -1234,7 +1247,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         });
 
 // We can watch for our custom `fileselect` event like this
-        $(document).ready(function () {
+        $(function () {
             $(':file').on('fileselect', function (event, numFiles, label) {
                 var input = $(this).parents('.input-group').find(':text'),
                     log = numFiles > 1 ? numFiles + ' files selected' : label;
@@ -1250,7 +1263,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 
     });
     //to dynamically show /hide relevant divs and change Fieldset legends
-    $(document).ready(function () {
+    $(function () {
         $("input[name=radio-search]").on("change", function () {
 
             let flip = $(this).val();
@@ -1289,7 +1302,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
     }
 
     ?>
-    $(document).ready(function () {
+    $(function () {
 //using jquery-ui-1-12-1 tooltip instead of bootstrap tooltip
         $('#select-method-tooltip').attr("title", <?php echo xlj('Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>).tooltip();
     });

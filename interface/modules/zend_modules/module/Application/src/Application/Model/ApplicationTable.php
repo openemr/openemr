@@ -36,6 +36,7 @@ class ApplicationTable extends AbstractTableGateway
      */
     public function __construct()
     {
+        // TODO: I can't find any reason why we grab the static adapter instead of injecting a regular DB adapter here...
         $adapter = \Zend\Db\TableGateway\Feature\GlobalAdapterFeature::getStaticAdapter();
         $this->adapter = $adapter;
         $this->resultSetPrototype = new ResultSet();
@@ -366,9 +367,9 @@ class ApplicationTable extends AbstractTableGateway
     {
         if ($format == "0") {
             $date_format = 'yyyy/mm/dd';
-        } else if ($format == 1) {
+        } elseif ($format == 1) {
             $date_format = 'mm/dd/yyyy';
-        } else if ($format == 2) {
+        } elseif ($format == 2) {
             $date_format = 'dd/mm/yyyy';
         } else {
             $date_format = $format;

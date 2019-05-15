@@ -52,6 +52,9 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Crypto\CryptoGen;
+
+$cryptoGen = new CryptoGen();
 
 $appsql = new ApplicationTable();
 $pid = isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $pid;
@@ -78,7 +81,7 @@ if ($recid) {
 $ccdata = array();
 $invdata = array();
 if ($edata) {
-    $ccdata = json_decode(decryptStandard($edata['checksum']), true);
+    $ccdata = json_decode($cryptoGen->decryptStandard($edata['checksum']), true);
     $invdata = json_decode($edata['table_args'], true);
     echo "<script  type='text/javascript'>var jsondata='" . $edata['table_args'] . "';var ccdata='" . $edata['checksum'] . "'</script>";
 }
@@ -209,7 +212,7 @@ if ($_POST['form_save']) {
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
     if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
-        $payment_id = idSqlStatement(
+        $payment_id = sqlInsert(
             "insert into ar_session set " .
             "payer_id = ?" .
             ", patient_id = ?" .
@@ -285,7 +288,7 @@ if ($_POST['form_save']) {
                     }
 
                     $adjustment_code = 'patient_payment';
-                    $payment_id = idSqlStatement(
+                    $payment_id = sqlInsert(
                         "insert into ar_session set " .
                         "payer_id = ?" .
                         ", patient_id = ?" .
@@ -555,8 +558,8 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                 xl('Until then you will continue to see payment details here.') . "\n" . xl('Thank You.');
             echo json_encode($amsg);
             ?>;
-        var publicKey = <?php echo json_encode(decryptStandard($GLOBALS['gateway_public_key'])); ?>;
-        var apiKey = <?php echo json_encode(decryptStandard($GLOBALS['gateway_api_key'])); ?>;
+        var publicKey = <?php echo json_encode($cryptoGen->decryptStandard($GLOBALS['gateway_public_key'])); ?>;
+        var apiKey = <?php echo json_encode($cryptoGen->decryptStandard($GLOBALS['gateway_api_key'])); ?>;
 
         function calctotal() {
             var flag = 0;

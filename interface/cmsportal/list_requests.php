@@ -114,7 +114,6 @@ if (!empty($_POST['bn_delete'])) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
@@ -187,7 +186,7 @@ function openMessage(messageid) {
  document.location.href = 'upload_form.php?messageid=' + messageid;
 }
 
-$(document).ready(function() {
+$(function() {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>

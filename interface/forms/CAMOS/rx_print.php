@@ -80,7 +80,7 @@ if ($_POST['update']) { // OPTION update practice inf
     "fax = '" . add_escape_custom($_POST['practice_fax']) . "', " .
     "federaldrugid = '" . add_escape_custom($_POST['practice_dea']) . "' " .
     "where id ='" . add_escape_custom($_SESSION['authUserID']) ."'";
-    sqlInsert($query);
+    sqlStatement($query);
 }
 
 //get user information
@@ -145,7 +145,6 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
     ?>
   <html>
   <head>
-    <?php html_header_show();?>
 <title>
     <?php echo xlt('CAMOS'); ?>
 </title>
@@ -419,7 +418,6 @@ else { //OPTION selection of what to print
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <title>
 <?php echo xlt('CAMOS'); ?>
 </title>

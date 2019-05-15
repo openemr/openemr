@@ -13,6 +13,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Utils\RandomGenUtils;
+
 // Function to collect ip address(es)
 function collectIpAddresses()
 {
@@ -31,34 +33,10 @@ function collectIpAddresses()
     );
 }
 
-// Function to create a random unique token
-// Length is in bytes that the openssl_random_pseudo_bytes() function will create
-function createUniqueToken($length = 32)
-{
-    try {
-        $uniqueToken = random_bytes($length);
-    } catch (Error $e) {
-        error_log('OpenEMR Error : OpenEMR is not working because of random_bytes() Error: ' . $e->getMessage());
-        die("OpenEMR Error : OpenEMR is not working because because of random_bytes() Error.");
-    } catch (Exception $e) {
-        error_log('OpenEMR Error : OpenEMR is not working because because of random_bytes() Exception: ' . $e->getMessage());
-        die("OpenEMR Error : OpenEMR is not working because because of random_bytes() Exception.");
-    }
-
-    $uniqueToken = base64_encode($uniqueToken);
-
-    if (empty($uniqueToken)) {
-        error_log("OpenEMR Error : OpenEMR is not working because a random unique token is not being formed correctly.");
-        die("OpenEMR Error : OpenEMR is not working because a random unique token is not being formed correctly.");
-    }
-
-    return $uniqueToken;
-}
-
 // Function to create a csrf_token
 function createCsrfToken()
 {
-    return createUniqueToken(32);
+    return RandomGenUtils::createUniqueToken();
 }
 
 // Function to collect the csrf token

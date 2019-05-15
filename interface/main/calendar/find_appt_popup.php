@@ -1,34 +1,26 @@
 <?php
 /**
  *
- * Script to find open appointmnent slots
+ * Script to find open appointment slots
  *
- * Copyright (C) 2005-2013 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author Rod Roark <rod@sunsetsystems.com>
- * @author Ian Jardine ( github.com/epsdky )
- * @author Roberto Vasquez <robertogagliotta@gmail.com>
- * @author Brady Miller <brady.g.miller@gmail.com>
- * @link http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Ian Jardine ( github.com/epsdky )
+ * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2005-2013 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
- include_once("../../globals.php");
- include_once("$srcdir/patient.inc");
- require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
- require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
+
+require_once("../../globals.php");
+require_once("$srcdir/patient.inc");
+require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
+require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
 
 use OpenEMR\Core\Header;
 
@@ -40,13 +32,13 @@ if (!acl_check('patients', 'appt', '', array('write','wsome'))) {
     die(xlt('Access not allowed'));
 }
 
- // If the caller is updating an existing event, then get its ID so
- // we don't count it as a reserved time slot.
- $eid = empty($_REQUEST['eid']) ? 0 : 0 + $_REQUEST['eid'];
+// If the caller is updating an existing event, then get its ID so
+// we don't count it as a reserved time slot.
+$eid = empty($_REQUEST['eid']) ? 0 : 0 + $_REQUEST['eid'];
 
- $input_catid = $_REQUEST['catid'];
+$input_catid = $_REQUEST['catid'];
 
- // Record an event into the slots array for a specified day.
+// Record an event into the slots array for a specified day.
 function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
 {
     global $slots, $slotsecs, $slotstime, $slotbase, $slotcount, $input_catid;
@@ -90,11 +82,11 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
     }
 }
 
- // seconds per time slot
- $slotsecs = $GLOBALS['calendar_interval'] * 60;
+// seconds per time slot
+$slotsecs = $GLOBALS['calendar_interval'] * 60;
 
 
- $catslots = 1;
+$catslots = 1;
 if ($input_catid) {
     $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = ?", array($input_catid));
     if ($srow['pc_duration']) {
@@ -102,23 +94,15 @@ if ($input_catid) {
     }
 }
 
- $info_msg = "";
+$info_msg = "";
 
- $searchdays = 7; // default to a 1-week lookahead
+$searchdays = 7; // default to a 1-week lookahead
 if ($_REQUEST['searchdays']) {
     $searchdays = $_REQUEST['searchdays'];
 }
 
- // Get a start date.
-if ($_REQUEST['startdate'] && preg_match(
-    "/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
-    $_REQUEST['startdate'],
-    $matches
-)) {
-    $sdate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
-} else {
-    $sdate = date("Y-m-d");
-}
+// Get a start date.
+$sdate = ($_REQUEST['startdate']) ? DateToYYYYMMDD($_REQUEST['startdate']) : date("Y-m-d");
 
 // Get an end date - actually the date after the end date.
 preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $sdate, $matches);
@@ -254,11 +238,11 @@ if (in_array($sdate, $holidays)) {
 
 <?php
 
- // The cktime parameter is a number of minutes into the starting day of a
- // tentative appointment that is to be checked.  If it is present then we are
- // being asked to check if this indicated slot is available, and to submit
- // the opener and go away quietly if it is.  If it's not then we have more
- // work to do.
+// The cktime parameter is a number of minutes into the starting day of a
+// tentative appointment that is to be checked.  If it is present then we are
+// being asked to check if this indicated slot is available, and to submit
+// the opener and go away quietly if it is.  If it's not then we have more
+// work to do.
 
 if (isset($_REQUEST['cktime'])) {
     $cktime = 0 + $_REQUEST['cktime'];
@@ -296,7 +280,7 @@ if (isset($_REQUEST['cktime'])) {
 
  function setappt(year,mon,mday,hours,minutes) {
   if (opener.closed || ! opener.setappt)
-   alert('<?php echo xls('The destination form was closed; I cannot act on your selection.'); ?>');
+   alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
   else
    opener.setappt(year,mon,mday,hours,minutes);
   dlgclose();
@@ -353,10 +337,10 @@ form {
 <body class="body_top">
 <div class="container-responsive">
 <div id="searchCriteria">
-<form class="form-inline" method='post' name='theform' action='find_appt_popup.php?providerid=<?php echo attr($providerid) ?>&catid=<?php echo attr($input_catid) ?>'>
+<form class="form-inline" method='post' name='theform' action='find_appt_popup.php?providerid=<?php echo attr_url($providerid) ?>&catid=<?php echo attr_url($input_catid) ?>'>
     <?php echo xlt('Start date:'); ?>
-   <input type='text' class='datepicker input-sm' name='startdate' id='startdate' size='10' value='<?php echo attr($sdate) ?>'
-    title='<?php echo xla('yyyy-mm-dd starting date for search'); ?> '/>
+   <input type='text' class='datepicker input-sm' name='startdate' id='startdate' size='10' value='<?php echo attr(oeFormatShortDate($sdate)); ?>'
+    title='<?php echo xla('Starting date for search'); ?> '/>
     <?php echo xlt('for'); ?>
    <input type='text' class="input-sm" name='searchdays' size='3' value='<?php echo attr($searchdays) ?>'
     title='<?php echo xla('Number of days to search from the start date'); ?>' />
@@ -402,7 +386,7 @@ for ($i = 0; $i < $slotcount; ++$i) {
         $lastdate = $thisdate;
         $dayName = date("l", $utime);
         echo " <tr class='oneresult'>\n";
-        echo "  <td class='srDate'>" . xlt($dayName)."<br>".date("Y-m-d", $utime) . "</td>\n";
+        echo "  <td class='srDate'>" . xlt($dayName)."<br>". text(oeFormatSDFT($utime)) . "</td>\n";
         echo "  <td class='srTimes'>";
         echo "<div id='am'>AM ";
         $ampmFlag = "am";  // reset the AMPM flag
@@ -418,12 +402,12 @@ for ($i = 0; $i < $slotcount; ++$i) {
     $atitle = "Choose ".date("h:i a", $utime);
     $adate = getdate($utime);
     $anchor = "<a href='' onclick='return setappt(" .
-    $adate['year'] . "," .
-    $adate['mon'] . "," .
-    $adate['mday'] . "," .
-    $adate['hours'] . "," .
-    $adate['minutes'] . ")'".
-    " title='$atitle' alt='$atitle'".
+    attr_js($adate['year']) . "," .
+    attr_js($adate['mon']) . "," .
+    attr_js($adate['mday']) . "," .
+    attr_js($adate['hours']) . "," .
+    attr_js($adate['minutes']) . ")'".
+    " title='" . attr($atitle) . "' alt='" . attr($atitle) . "'".
     ">";
     echo (strlen(date('g', $utime)) < 2 ? "<span style='visibility:hidden'>0</span>" : "") .
     $anchor . date("g:i", $utime) . "</a> ";
@@ -457,7 +441,7 @@ $(function(){
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
-        <?php $datetimepicker_formatInput = false; ?>
+        <?php $datetimepicker_formatInput = true; ?>
         <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
@@ -468,7 +452,7 @@ $(function(){
 if (!$ckavail) {
     if (acl_check('patients', 'appt', '', 'write')) {
         if ($is_holiday) { ?>
-            if (confirm('<?php echo xls('On this date there is a holiday, use it anyway?'); ?>')) {
+            if (confirm(<?php echo xlj('On this date there is a holiday, use it anyway?'); ?>)) {
                 opener.top.restoreSession();
                 opener.document.forms[0].submit();
                 dlgclose();
@@ -476,10 +460,10 @@ if (!$ckavail) {
         } else {
             //Someone is going to have to go over this with a fine-toothed comb because I couldn't really parse the original here
             if ($isProv) { ?>
-                if (confirm('<?php echo xls('Provider not available, use it anyway?'); ?>')) {
+                if (confirm(<?php echo xlj('Provider not available, use it anyway?'); ?>)) {
             <?php
             } else { ?>
-                if (confirm('<?php echo xls('This appointment slot is already used, use it anyway?'); ?>')) {
+                if (confirm(<?php echo xlj('This appointment slot is already used, use it anyway?'); ?>)) {
             <?php
             } ?>
             opener.top.restoreSession();
@@ -490,14 +474,14 @@ if (!$ckavail) {
         }
     } else {
         if ($is_holiday) { ?>
-            alert('<?php echo xls('On this date there is a holiday, use it anyway?'); ?>');
+            alert(<?php echo xlj('On this date there is a holiday, use it anyway?'); ?>);
         <?php
         } else {
             if ($isProv) { ?>
-                alert('<?php echo xls('Provider not available, please choose another.'); ?>');
+                alert(<?php echo xlj('Provider not available, please choose another.'); ?>);
             <?php
             } else { ?>
-                alert('<?php echo xls('This appointment slot is already used, please choose another.'); ?>');
+                alert(<?php echo xlj('This appointment slot is already used, please choose another.'); ?>);
             <?php
             }
         } //close if is holiday

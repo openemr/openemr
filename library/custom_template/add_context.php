@@ -54,7 +54,7 @@ if (trim($_POST['contextname'])!='' && $_POST['action']=='add') {
         <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
         <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
         <script type="text/javascript">
-            $(document).ready(function() {
+            $(function() {
             $('#contextadd').hide();
             $('#contextupdate').hide();
             $('#addcontextbtn').click(function() {
@@ -171,8 +171,8 @@ if (trim($_POST['contextname'])!='' && $_POST['action']=='add') {
                             <tr class="text <?php echo $class;?>">
                                 <td class="right bottom left"><?php echo htmlspecialchars($i, ENT_QUOTES);?></td>
                                 <td class="right bottom"><?php echo htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES);?></td>
-                                <td class="right bottom"><a href="#" onclick='editme("<?php echo htmlspecialchars($row['cl_list_slno'], ENT_QUOTES);?>","<?php echo htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES);?>")'><img src='../../images/b_edit.png' border=0></a></td>
-                                <td class="right bottom"><a href="#" onclick="deleteme(<?php echo htmlspecialchars($row['cl_list_slno'], ENT_QUOTES);?>)"><img src='../../images/deleteBtn.png' border=0></a></td>
+                                <td class="right bottom"><a href="#" onclick='editme("<?php echo htmlspecialchars($row['cl_list_slno'], ENT_QUOTES);?>","<?php echo htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES);?>")'><img src='<?php echo $GLOBALS['images_static_relative']; ?>/b_edit.png' border=0></a></td>
+                                <td class="right bottom"><a href="#" onclick="deleteme(<?php echo htmlspecialchars($row['cl_list_slno'], ENT_QUOTES);?>)"><img src='<?php echo $GLOBALS['images_static_relative']; ?>/deleteBtn.png' border=0></a></td>
                             </tr>
                         <?php
                         }

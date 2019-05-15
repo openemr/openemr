@@ -32,8 +32,9 @@ class EncountermanagerController extends AbstractActionController
     protected $encountermanagerTable;
     protected $listenerObject;
     
-    public function __construct()
+    public function __construct(\Carecoordination\Model\EncountermanagerTable $table)
     {
+        $this->encountermanagerTable = $table;
         $this->listenerObject   = new Listener;
     }
     
@@ -90,7 +91,7 @@ class EncountermanagerController extends AbstractActionController
             }
 
             $components   = $request->getPost('components') ? $request->getPost('components') : $request->getQuery()->components;
-            $this->forward()->dispatch('encounterccdadispatch', array('action'       => 'index',
+            $this->forward()->dispatch(EncounterccdadispatchController::class, array('action'       => 'index',
                                                                    'pids'         => $pids,
                                                                    'view'         => 1,
                                                                    'downloadccda' => $downloadccda,
@@ -220,8 +221,15 @@ class EncountermanagerController extends AbstractActionController
             header("Content-Type: application/download");
             header("Content-Transfer-Encoding: binary");
             readfile($zip_dir.$zip_name);
-        
-            exit;
+            
+            $view = new ViewModel();
+            $view->setTerminal(true);
+            return $view;
+        } else {
+        // we return just empty Json, otherwise it triggers an error if we don't return some kind of HTTP response.
+            $view = new \Zend\View\Model\JsonModel();
+            $view->setTerminal(true);
+            return $view;
         }
     }
     public function transmitCCDAction()
@@ -241,11 +249,6 @@ class EncountermanagerController extends AbstractActionController
     */
     public function getEncountermanagerTable()
     {
-        if (!$this->encountermanagerTable) {
-            $sm = $this->getServiceLocator();
-            $this->encountermanagerTable = $sm->get('Carecoordination\Model\EncountermanagerTable');
-        }
-
         return $this->encountermanagerTable;
     }
 }

@@ -158,7 +158,7 @@ function twAddFrameTab(tabsid, label, url) {
   twAddTab(
     tabsid,
     label,
-    "<iframe name='" + panelId + "' frameborder='0' style='height:100%;width:100%;' src='" + url + "'>Oops</iframe>"
+    "<iframe name='" + panelId + "' frameborder='0' style='height:95.3%;width:100%;' src='" + url + "'>Oops</iframe>"
   );
   return panelId;
 }

@@ -391,7 +391,6 @@ else {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <title><?php echo xlt('Inventory Activity'); ?></title>
 
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
@@ -429,7 +428,7 @@ table.mymaintable td, table.mymaintable th {
 
 <script language='JavaScript'>
 
-    $(document).ready(function() {
+    $(function() {
         oeFixedHeaderSetup(document.getElementById('mymaintable'));
         var win = top.printLogSetup ? top : opener.top;
         win.printLogSetup(document.getElementById('printbutton'));

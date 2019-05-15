@@ -59,7 +59,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
             document.location.reload();
         }
         CKEDITOR.config.customConfig = top.webroot_url + '/library/js/nncustom_config.js';
-        $(document).ready(function () {
+        $(function () {
 
             tabbify();
 
@@ -110,7 +110,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
         });
     </script>
     <script type="text/javascript">
-        $(document).ready(function () {
+        $(function () {
 
             $(function () {
                 $("#menu5 div").sortable({
@@ -156,9 +156,9 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
                             </td>
                             <td>
                                 <div id="share" style="display:none"></div>
-                <a href="#" id="enter" onclick="top.restoreSession();ascii_write('13','textarea1');" title="<?php echo htmlspecialchars(xl('Enter Key'), ENT_QUOTES);?>"><img border=0 src="../../images/enter.gif"></a>&nbsp;
-                                <a href="#" id="quest" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('? ');" title="<?php echo htmlspecialchars(xl('Question Mark'), ENT_QUOTES);?>"><img border=0 src="../../images/question.png"></a>&nbsp;
-                                <a href="#" id="para" onclick="top.restoreSession();ascii_write('para','textarea1');"  title="<?php echo htmlspecialchars(xl('New Paragraph'), ENT_QUOTES);?>"><img border=0 src="../../images/paragraph.png"></a>&nbsp;
+                <a href="#" id="enter" onclick="top.restoreSession();ascii_write('13','textarea1');" title="<?php echo htmlspecialchars(xl('Enter Key'), ENT_QUOTES);?>"><img border=0 src="<?php echo $GLOBALS['images_static_relative']; ?>/enter.gif"></a>&nbsp;
+                                <a href="#" id="quest" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('? ');" title="<?php echo htmlspecialchars(xl('Question Mark'), ENT_QUOTES);?>"><img border=0 src="<?php echo $GLOBALS['images_static_relative']; ?>/question.png"></a>&nbsp;
+                                <a href="#" id="para" onclick="top.restoreSession();ascii_write('para','textarea1');"  title="<?php echo htmlspecialchars(xl('New Paragraph'), ENT_QUOTES);?>"><img border=0 src="<?php echo $GLOBALS['images_static_relative']; ?>/paragraph.png"></a>&nbsp;
                                 <a href="#" id="space" onclick="top.restoreSession();ascii_write('32','textarea1');" class="css_button" title="<?php echo htmlspecialchars(xl('Space'), ENT_QUOTES);?>"><span><?php echo htmlspecialchars(xl('SPACE'), ENT_QUOTES);?></span></a>
                                 <?php
                                 $res=sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS cl ON cl.cl_list_slno=tu.tu_template_id

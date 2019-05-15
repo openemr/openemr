@@ -129,7 +129,7 @@ function toggle( target, div ) {
 
 }
 
-$(document).ready(function(){
+$(function(){
 
     $("#dem_view").click( function() {
         toggle( $(this), "#DEM" );
@@ -137,7 +137,7 @@ $(document).ready(function(){
 
 });
 
-$(document).ready(function(){
+$(function(){
     $("#cancel").click(function() {
           dlgclose();
      });

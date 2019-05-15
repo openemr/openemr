@@ -48,7 +48,7 @@ if ($isAuthorized !== true) {
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui/jquery-ui.min.js"></script>
 
 <script type="text/javascript">
-$( document ).ready(function() {
+$(function() {
     $( "[title*='DATE']" ).datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>

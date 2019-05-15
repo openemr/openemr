@@ -11,7 +11,7 @@
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Sharon Cohen <sharonco@matrix.co.il>
- * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2018-2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -1003,12 +1003,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                                 }
                                                                 ?>
                                                               <br>
-                                                                <?php echo xlt('Policy Number'); ?>:
-                                                                <?php echo text($row['policy_number']) ?><br>
-                                                                <?php echo xlt('Plan Name'); ?>:
-                                                                <?php echo text($row['plan_name']); ?><br>
-                                                                <?php echo xlt('Group Number'); ?>:
-                                                                <?php echo text($row['group_number']); ?></span>
+                                                                <?php echo xlt('Policy Number'); ?>: <?php echo text($row['policy_number']) ?><br>
+                                                                <?php echo xlt('Plan Name'); ?>: <?php echo text($row['plan_name']); ?><br>
+                                                                <?php echo xlt('Group Number'); ?>: <?php echo text($row['group_number']); ?>
+                                                              </span>
                                                              </td>
                                                              <td valign='top'>
                                                                 <span class='bold'><?php echo xlt('Subscriber'); ?>: </span><br>

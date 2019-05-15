@@ -482,7 +482,7 @@ function genFindBlock()
    for (var i = 0, len = usrval.length; i < len; i++) {
        if (usrval[i] != "checked") toggleFrame(i+1);
    }
- })
+ });
  // end of tajemo work dated reminders counter
 
  // Master values for current pid and encounter.

@@ -454,7 +454,7 @@ function validate(f) {
     return true;
 }
 
-$(document).ready(function () {
+$(function () {
     // calendars need to be available to init dynamically for procedure item adds.
     initCalendars();
     initDeletes();

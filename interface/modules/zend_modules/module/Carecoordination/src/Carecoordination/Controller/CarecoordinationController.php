@@ -28,6 +28,7 @@ use Zend\View\Model\ViewModel;
 use Zend\View\Model\JsonModel;
 use Application\Listener\Listener;
 use Documents\Controller\DocumentsController;
+use Carecoordination\Model\CarecoordinationTable;
 
 use C_Document;
 use Document;
@@ -36,11 +37,22 @@ use xmltoarray_parser_htmlfix;
 
 class CarecoordinationController extends AbstractActionController
 {
+    /**
+     * @var Carecoordination\Model\CarecoordinationTable
+     */
+    private $carecoordinationTable;
 
-    public function __construct($sm = null)
+    /**
+     * @var Documents\Controller\DocumentsController
+     */
+    private $documentsController;
+
+    public function __construct(CarecoordinationTable $table, DocumentsController $documentsController)
     {
+        $this->carecoordinationTable = $table;
         $this->listenerObject = new Listener;
         $this->date_format = \Application\Model\ApplicationTable::dateFormat($GLOBALS['date_display_format']);
+        $this->documentsController = $documentsController;
     }
 
     /**
@@ -74,7 +86,7 @@ class CarecoordinationController extends AbstractActionController
 
         if ($upload == 1) {
             $time_start = date('Y-m-d H:i:s');
-            $obj_doc    = new DocumentsController();
+            $obj_doc    = $this->documentsController;
             $cdoc = $obj_doc->uploadAction($request);
             $uploaded_documents = array();
             $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(array('user' => $_SESSION['authId'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')));
@@ -109,7 +121,7 @@ class CarecoordinationController extends AbstractActionController
      * Function to import the data CCDA file to audit tables.
      *
      * @param    document_id     integer value
-     * @return   none
+     * @return \Zend\View\Model\JsonModel
      */
     public function importAction()
     {
@@ -235,9 +247,12 @@ class CarecoordinationController extends AbstractActionController
 
         $this->getCarecoordinationTable()->import($array, $document_id);
 
-        $view = new ViewModel();
+        $view = new \Zend\View\Model\JsonModel();
         $view->setTerminal(true);
         return $view;
+        // $view = new ViewModel(array());
+        // $view->setTerminal(true);
+        // return $view;
     }
 
     public function revandapproveAction()
@@ -252,7 +267,7 @@ class CarecoordinationController extends AbstractActionController
             return $this->redirect()->toRoute('carecoordination', array(
                         'controller' => 'Carecoordination',
                         'action' => 'upload'));
-        } else if ($request->getPost('setval') == 'discard') {
+        } elseif ($request->getPost('setval') == 'discard') {
             $this->getCarecoordinationTable()->discardCCDAData(array('audit_master_id' => $audit_master_id));
             return $this->redirect()->toRoute('carecoordination', array(
                         'controller' => 'Carecoordination',
@@ -322,6 +337,9 @@ class CarecoordinationController extends AbstractActionController
         $demographics_old[0]['state'] = $this->getCarecoordinationTable()->getListTitle($demographics_old[0]['state'], 'state', '');
 
         $view = new ViewModel(array(
+            'carecoordinationTable' => $this->getCarecoordinationTable(),
+            'ApplicationTable' => $this->getApplicationTable(),
+            'commonplugin' => $this->CommonPlugin(), // this comes from the Application Module
             'demographics' => $demographics,
             'demographics_old' => $demographics_old,
             'problems' => $problems,
@@ -838,11 +856,14 @@ class CarecoordinationController extends AbstractActionController
      */
     public function getCarecoordinationTable()
     {
-        if (!$this->carecoordinationTable) {
-            $sm = $this->getServiceLocator();
-            $this->carecoordinationTable = $sm->get('Carecoordination\Model\CarecoordinationTable');
-        }
-
         return $this->carecoordinationTable;
+    }
+
+    /**
+     * Returns the application table.
+     */
+    public function getApplicationTable()
+    {
+        return $this->applicationTable;
     }
 }

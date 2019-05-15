@@ -1037,7 +1037,6 @@ if ($form_output == 3) {
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
 <title><?php echo text($report_title); ?></title>
 
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
@@ -1087,7 +1086,7 @@ f['form_show[]'].style.visibility = isdis;
 
 // End experimental code
 
-$(document).ready(function() {
+$(function() {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>

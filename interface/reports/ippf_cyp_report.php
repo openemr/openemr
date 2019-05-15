@@ -168,7 +168,6 @@ if ($_POST['form_csvexport']) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
@@ -179,7 +178,7 @@ if ($_POST['form_csvexport']) {
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="JavaScript">
-    $(document).ready(function() {
+    $(function() {
         var win = top.printLogSetup ? top : opener.top;
         win.printLogSetup(document.getElementById('printbutton'));
 

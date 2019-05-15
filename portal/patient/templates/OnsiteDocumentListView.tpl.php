@@ -84,9 +84,6 @@ echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
         document.body.innerHTML = printContents;
         window.print();
         document.body.innerHTML = originalContents;
-        $('.sigPad').signaturePad({
-            drawOnly: true
-        });
         location.reload();
     }
 
@@ -162,7 +159,6 @@ echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
     function restoreCheckMarks() {
         $('.checkMark').each(function () {
             var ckid = $(this).data('id');
-            //var v = $('#'+ckid).data('value');
             if ($('#' + ckid).data('value') == 'Yes')
                 $('#' + ckid).prop('checked', true);
             else
@@ -225,8 +221,8 @@ body {
 <script type="text/template" id="onsiteDocumentModelTemplate">
     <aside class="col-sm-2 col-xs-3" id="sidebar-pills">
         <ul class="nav nav-pills  nav-stacked" id="sidebar">
-            <li data-toggle="pill" class="bg-info"><a type="patient-signature" id="signTemplate"  href="#openSignModal"
-                data-toggle="modal" data-backdrop="true" data-target="#openSignModal"><span><?php echo xlt('Signature');?></span></a></li>
+            <li data-toggle="pill" class="bg-info"><a id="signTemplate" href="#openSignModal"
+                data-toggle="modal" data-backdrop="true" data-target="#openSignModal"data-type="patient-signature"><span><?php echo xlt('Signature');?></span></a></li>
             <li data-toggle="pill" class="bg-info"><a id="saveTemplate" href="#"><span"><?php echo xlt('Save');?></span></a></li>
             <li data-toggle="pill" class="bg-info"><a id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><span"><?php echo xlt('Print');?></span></a></li>
             <li data-toggle="pill" class="bg-info"><a id="submitTemplate"  href="#"><span"><?php echo xlt('Download');?></span></a></li>

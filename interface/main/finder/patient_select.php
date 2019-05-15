@@ -30,7 +30,6 @@ $from_page = isset($_REQUEST['from_page']) ? $_REQUEST['from_page'] : "";
 <!DOCTYPE html>
 <html>
 <head>
-<?php html_header_show();?>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">

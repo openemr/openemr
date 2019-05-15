@@ -19,6 +19,7 @@
 require_once("$srcdir/edihistory/codes/edih_271_code_class.php");
 
 use OpenEMR\Common\Http\oeHttp;
+use OpenEMR\Common\Utils\RandomGenUtils;
 
 // @TODO global to become private var when this goes to a class.
 //
@@ -539,7 +540,7 @@ function show_elig($res, $X12info, $segTer, $compEleSep)
 				<td class ='detail' style='width:6%;'>".  htmlspecialchars($row['subscriber_sex'], ENT_NOQUOTES) ."</td>
 				<td class ='detail' style='width:9%;'>".  htmlspecialchars($row['subscriber_ss'], ENT_NOQUOTES) ."</td>
 				<td class ='detail' style='width:2%;'>
-				<img src='../../images/deleteBtn.png' title=' .htmlspecialchars( xl('Delete Row'), ENT_QUOTES) . ' style='cursor:pointer;cursor:hand;' onclick='deletetherow(\"" . $i."_". htmlspecialchars($row['policy_number'], ENT_QUOTES) . "\")'>
+				<img src=\"" . $GLOBALS['images_static_relative'] . "/deleteBtn.png\" title=" .htmlspecialchars(xl('Delete Row'), ENT_QUOTES) . " style='cursor:pointer;cursor:hand;' onclick='deletetherow(\"" . $i."_". htmlspecialchars($row['policy_number'], ENT_QUOTES) . "\")'>
 				</td>
 			</tr>
 		";
@@ -661,9 +662,9 @@ function eligibility_verification_save($subscriber = [])
         $query = "REPLACE INTO eligibility_verification SET verification_id = ?, insurance_id = ?, response_id = ?, eligibility_check_date = now(), create_date = now()";
         array_push($sqlBindArray, $verification_id, $insurance_id, $partner_id);
 
-        $res = sqlStatement($query, $sqlBindArray);
+        $res = sqlInsert($query, $sqlBindArray);
         if (!$verification_id) {
-            $verification_id = getSqlLastID();
+            $verification_id = $res;
         }
     }
 
@@ -757,7 +758,7 @@ function requestEligibility($partner = '', $x12_270 = '')
         $payloadId = vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
 
-    $boundary = createUniqueToken(8);
+    $boundary = RandomGenUtils::createUniqueToken(12);
     $rt_passwrd = $X12info['x12_isa04'];
     $rt_user = $X12info['x12_isa02'];
     $sender_id = $X12info['x12_sender_id'];

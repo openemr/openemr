@@ -23,10 +23,12 @@
 
 namespace Documents\Controller;
 
+use OpenEMR\Common\Crypto\CryptoGen;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Zend\View\Model\JsonModel;
 use Application\Listener\Listener;
+use Documents\Model\DocumentsTable;
 use Document;
 
 class DocumentsController extends AbstractActionController
@@ -34,18 +36,14 @@ class DocumentsController extends AbstractActionController
     protected $documentsTable;
     protected $listenerObject;
 
-    public function __construct()
+    public function __construct(DocumentsTable $table)
     {
         $this->listenerObject = new Listener;
+        $this->documentsTable = $table;
     }
 
     public function getDocumentsTable()
     {
-        if (!$this->documentsTable) {
-            $sm = $this->getServiceLocator();
-            $this ->documentsTable = $sm->get('Documents\Model\DocumentsTable');
-        }
-
         return $this->documentsTable;
     }
 
@@ -91,7 +89,8 @@ class DocumentsController extends AbstractActionController
 
                 // Decrypt Encrypted File
                 if ($encrypted_file == '1') {
-                    $plaintext  = decryptStandard($filetext, $encryption_key);
+                    $cryptoGen = new CryptoGen();
+                    $plaintext  = $cryptoGen->decryptStandard($filetext, $encryption_key);
                     if ($plaintext === false) {
                         error_log("OpenEMR Error: Unable to decrypt a document since decryption failed.");
                         $plaintext = "";
@@ -139,7 +138,8 @@ class DocumentsController extends AbstractActionController
         $skip_headers   = false;
         $contentType    = $result['mimetype'];
 
-        $document       = \Documents\Plugin\Documents::getDocument($documentId, $doEncryption, $encryptionKey);
+        // @see Documents/Plugin/Documents
+        $document       = $this->Documents()->getDocument($documentId, $doEncryption, $encryptionKey);
         $categoryIds    = $this->getDocumentsTable()->getCategoryIDs(array('CCD','CCR','CCDA'));
         if (in_array($result['category_id'], $categoryIds) && $contentType == 'text/xml'  && !$doEncryption) {
             $xml          = simplexml_load_string($document);

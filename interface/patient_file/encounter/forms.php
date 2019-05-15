@@ -891,7 +891,7 @@ if (!empty($docs_list) && count($docs_list) > 0) {
 <?php
 $doc = new C_Document();
 foreach ($docs_list as $doc_iter) {
-    $doc_url = $doc->_tpl_vars[CURRENT_ACTION]. "&view&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_iter[id]) . "&";
+    $doc_url = $doc->_tpl_vars['CURRENT_ACTION']. "&view&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_iter['id']) . "&";
     // Get notes for this document.
     $queryString = "SELECT GROUP_CONCAT(note ORDER BY date DESC SEPARATOR '|') AS docNotes, GROUP_CONCAT(date ORDER BY date DESC SEPARATOR '|') AS docDates
 			FROM notes WHERE foreign_id = ? GROUP BY foreign_id";
@@ -909,7 +909,7 @@ foreach ($docs_list as $doc_iter) {
 <br>
 <a href="<?php echo $doc_url;?>" style="font-size:small;" onsubmit="return top.restoreSession()"><?php echo text(oeFormatShortDate($doc_iter['docdate'])) . ": " . text(basename($doc_iter['url']));?></a>
 <?php if ($note != '') {?>
-            <a href="javascript:void(0);" title="<?php echo attr($note);?>"><img src="../../../images/info.png"/></a>
+            <a href="javascript:void(0);" title="<?php echo attr($note);?>"><img src="<?php echo $GLOBALS['images_static_relative']; ?>/info.png"/></a>
     <?php }?>
 <?php } ?>
 </div>

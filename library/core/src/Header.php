@@ -74,7 +74,6 @@ class Header
     public static function setupHeader($assets = [])
     {
         try {
-            html_header_show();
             echo self::includeAsset($assets);
         } catch (\InvalidArgumentException $e) {
             error_log($e->getMessage());

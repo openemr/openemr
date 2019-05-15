@@ -29,7 +29,6 @@ $group_id  = empty($_GET['group_id' ]) ? '' : $_GET['group_id' ];
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <title><?php echo xlt("Edit Layout Properties"); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 

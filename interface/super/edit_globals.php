@@ -19,8 +19,12 @@ require_once("$srcdir/globals.inc.php");
 require_once("$srcdir/user.inc");
 require_once(dirname(__FILE__)."/../../myportal/soap_service/portal_connectivity.php");
 
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
+
+// Set up crypto object
+$cryptoGen = new CryptoGen();
 
 $userMode = (array_key_exists('mode', $_GET) && $_GET['mode'] == 'user');
 
@@ -131,7 +135,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
                         if (empty(trim($_POST["form_$i"]))) {
                             $fldvalue = '';
                         } else {
-                            $fldvalue = encryptStandard(trim($_POST["form_$i"]));
+                            $fldvalue = $cryptoGen->encryptStandard(trim($_POST["form_$i"]));
                         }
                     } else {
                         $fldvalue = trim($_POST["form_$i"]);
@@ -266,7 +270,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
                     if (empty(trim($fldvalue))) {
                         $fldvalue = '';
                     } else {
-                        $fldvalue = encryptStandard($fldvalue);
+                        $fldvalue = $cryptoGen->encryptStandard($fldvalue);
                     }
                 }
 
@@ -526,9 +530,9 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                     if (empty($fldvalue)) {
                         // empty value
                         $fldvalueDecrypted = '';
-                    } else if (cryptCheckStandard($fldvalue)) {
+                    } else if ($cryptoGen->cryptCheckStandard($fldvalue)) {
                         // normal behavior when not empty
-                        $fldvalueDecrypted = decryptStandard($fldvalue);
+                        $fldvalueDecrypted = $cryptoGen->decryptStandard($fldvalue);
                     } else {
                         // this is used when value has not yet been encrypted (only happens once when upgrading)
                         $fldvalueDecrypted = $fldvalue;
@@ -539,9 +543,9 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                         if (empty($globalValue)) {
                             // empty value
                             $globalTitle = '';
-                        } else if (cryptCheckStandard($globalValue)) {
+                        } else if ($cryptoGen->cryptCheckStandard($globalValue)) {
                             // normal behavior when not empty
-                            $globalTitle = decryptStandard($globalValue);
+                            $globalTitle = $cryptoGen->decryptStandard($globalValue);
                         } else {
                             // this is used when value has not yet been encrypted (only happens once when upgrading)
                             $globalTitle = $globalValue;
@@ -766,7 +770,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
 
 <script language="JavaScript">
 
-$(document).ready(function(){
+$(function(){
   tabbify();
 
     <?php // mdsupport - Highlight search results ?>

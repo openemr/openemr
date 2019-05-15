@@ -1,28 +1,14 @@
 <?php
-
 /**
  * forms/eye_mag/SpectacleRx.php
  *
  * Functions for printing a glasses prescription
  *
- * Copyright (C) 2016 Raymond Magauran <magauran@MedFetch.com>
- *
- * LICENSE: This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of the
- *  License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @package OpenEMR
- * @author Ray Magauran <magauran@MedFetch.com>
- * @link http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ray Magauran <magauran@MedFetch.com>
+ * @copyright Copyright (c) 2016 Raymond Magauran <magauran@MedFetch.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -303,14 +289,14 @@ if ($_REQUEST['dispensed']) {
     <head>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-1-10-2/jquery.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap/dist/js/bootstrap.min.js"></script>
-  
+
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-themes-1-10-4/themes/ui-lightness/jquery-ui.min.css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure/0.5.0/pure-min.css">
-  
+
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
 
@@ -717,7 +703,7 @@ if ($_REQUEST['dispensed']) {
     <head>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-1-10-2/jquery.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap/dist/js/bootstrap.min.js"></script>
-   
+
 
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['css_header']; ?>" type="text/css">
@@ -1310,7 +1296,7 @@ if ($REFTYPE == "CTL") {
 
 </body>
 <script>
-    $(document).ready(function () {
+    $(function () {
         $('.header').click(function () {
             var $this = $(this);
             $(this).nextUntil('tr.header').slideToggle(100).promise().done(function () {

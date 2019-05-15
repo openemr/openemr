@@ -20,6 +20,7 @@
 */
 namespace Documents\Plugin;
 
+use OpenEMR\Common\Crypto\CryptoGen;
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 use Documents\Model\DocumentsTable;
 use Application\Model\ApplicationTable;
@@ -52,7 +53,8 @@ class Documents extends AbstractPlugin
         $host       = $GLOBALS['couchdb_host'];
         $port       = $GLOBALS['couchdb_port'];
         $usename    = $GLOBALS['couchdb_user'];
-        $password   = decryptStandard($GLOBALS['couchdb_pass']);
+        $cryptoGen  = new CryptoGen();
+        $password   = $cryptoGen->decryptStandard($GLOBALS['couchdb_pass']);
         $database   = $GLOBALS['couchdb_dbase'];
         $enable_log = ($GLOBALS['couchdb_log'] == 1) ? true : false;
 
@@ -112,7 +114,7 @@ class Documents extends AbstractPlugin
         $count  = 0;
         $module = array();
         foreach ($result as $row) {
-            $content = \Documents\Plugin\Documents::getDocument($row['id']);
+            $content = $this->getDocument($row['id']);
             $module[$count]['doc_id']   = $row['id'];
             if (preg_match("/<ClinicalDocument/", $content)) {
                 if (preg_match("/2.16.840.1.113883.3.88.11.32.1/", $content)) {

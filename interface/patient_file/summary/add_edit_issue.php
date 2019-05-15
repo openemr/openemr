@@ -612,7 +612,7 @@ function divclick(cb, divid) {
  return true;
 }
 
-$(document).ready(function() {
+$(function() {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -885,7 +885,7 @@ if ($issue) {
  // Set up the tabbed UI.
  tabbify();
 
-$(document).ready(function() {
+$(function() {
     // Include bs3 / bs4 classes here.  Keep html tags functional.
     $('table').addClass('table table-sm');
 });

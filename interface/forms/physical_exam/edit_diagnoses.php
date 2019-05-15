@@ -24,7 +24,6 @@ if ($issue && !acl_check('patients', 'med', '', 'write')) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <title><?php echo xlt('Edit Diagnoses for');?><?php echo text($line_id); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
@@ -54,7 +53,7 @@ if ($_POST['form_save']) {
             ) VALUES (
             ?, ?, ?
             )";
-            sqlInsert($query, array($line_id, $ordering, $diagnosis));
+            sqlStatement($query, array($line_id, $ordering, $diagnosis));
         }
     }
 

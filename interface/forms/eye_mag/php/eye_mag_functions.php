@@ -4,33 +4,20 @@
  *
  * Functions which extend clinical forms
  *
- * Copyright (C) 2016 Raymond Magauran <magauran@MedFetch.com>
- *
- * LICENSE: This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of the
- *  License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @package OpenEMR
- * @author Ray Magauran <magauran@MedFetch.com>
- * @link http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ray Magauran <magauran@MedFetch.com>
+ * @copyright Copyright (c) 2016 Raymond Magauran <magauran@MedFetch.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 $form_folder = "eye_mag";
 require_once(dirname(__FILE__)."/../../../../custom/code_types.inc.php");
 require_once(dirname(__FILE__)."/../../../../library/options.inc.php");
 global $PMSFH;
-    
+
     use OpenEMR\Services\FacilityService;
-    
+
     $facilityService = new FacilityService();
 
 /**
@@ -960,7 +947,7 @@ margin: 2px 0 2px 2px;">
                         </tr>
                     </table>
                 </div>
-                
+
             </div>
                 <?php
                 $hash_tag = '<i class="fa fa-minus"></i>';
@@ -2010,7 +1997,7 @@ function build_PMSFH($pid)
     $PMSFH['ROS']['ROSIMMUNO']['short_title']=xlt("IMMUNO{{Immunology/Rheumatology}}");
     $PMSFH['ROS']['ROSENDOCRINE']['short_title']=xlt("ENDO{{Endocrine}}");
     $PMSFH['ROS']['ROSCOMMENTS']['short_title']=xlt("Comments");
-    
+
     $PMSFH['ROS']['ROSGENERAL']['title']=xlt("General");
     $PMSFH['ROS']['ROSHEENT']['title']=xlt("HEENT");
     $PMSFH['ROS']['ROSCV']['title']=xlt("Cardiovascular");
@@ -2024,7 +2011,7 @@ function build_PMSFH($pid)
     $PMSFH['ROS']['ROSIMMUNO']['title']=xlt("Immune System");
     $PMSFH['ROS']['ROSENDOCRINE']['title']=xlt("Endocrine");
     $PMSFH['ROS']['ROSCOMMENTS']['title']=xlt("Comments");
-    
+
     return array($PMSFH); //yowsah!
 }
 /**
@@ -2596,6 +2583,7 @@ function show_PMSFH_report($PMSFH)
     $counter++;
     echo "<table style='width:700px;'><tr><td style='vertical-align:top;width:150px;' class='show_report'><br /><b>".xlt("POH{{Past Ocular History}}").":</b>";
     //note the HTML2PDF does not like <span style="font-weight:bold;"></span> so we are using the deprecated <b></b>
+    // TODO - now use mPDF, so should test if still need this fix
     ?>
     <br />
     <?php
@@ -3488,7 +3476,7 @@ function build_IMPPLAN_items($pid, $form_id)
 
     return $IMPPLAN_items;
 }
-    
+
             /**
              *  This builds the CODING_items variable for a given pid and encounter.
              *  @param string $pid patient_id
@@ -3500,7 +3488,7 @@ function build_CODING_items($pid, $encounter)
     $query ="select * from billing where encounter=? and pid=? ORDER BY id";
     $fres = sqlStatement($query, array($encounter,$pid));
     $i=0;
-    
+
     while ($frow = sqlFetchArray($fres)) {
         $CODING_items[$i]['encounter'] = $frow['encounter'];
         $CODING_items[$i]['pid'] = $frow['pid'];
@@ -3622,9 +3610,9 @@ function display($pid, $encounter, $category_value)
 
     for ($j=0; $j < count($documents['zones'][$category_value]); $j++) {
         $count_here = count($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]);
-        
+
         $id_to_show = $documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here-1]['document_id'];
-    
+
         $episode .= "<tr>
         <td class='right'><b>".text($documents['zones'][$category_value][$j]['name'])."</b>:&nbsp;</td>
         <td>
@@ -3930,7 +3918,7 @@ function menu_overhaul_left($pid, $encounter)
                         ?>
                     </td>
                 </tr>
-                
+
                 <tr><td class="right" nowrap><b><?php echo xlt("Referred By"); ?>:</b>&nbsp;</td><td style="font-size:0.8em;">&nbsp;
                     <?php
                             $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
@@ -4061,7 +4049,7 @@ function report_header($pid, $direction = 'shell')
                         echo "<img src='$practice_logo' align='left' style='width:100px;margin:0px 10px;'><br />\n";
                     }
                 }
-            ?>
+                ?>
             </td>
             <td style='width:40%;'>
                 <em style="font-weight:bold;font-size:1.4em;"><?php echo text($facility['name']); ?></em><br />
@@ -4927,7 +4915,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     foreach ($documents['docs_in_name']['VF'] as $VF) {
                         if ($count < 1) {
                             //    $episode .= '<a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.$pid.'&doc_id='.$id_to_show.'\',\'Documents\');"><img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" /></a>';
-    
+
                             $current_VF = '<tr><td class="GFS_td_1 blue">
                                 <a onclick="openNewForm(\''.$GLOBALS['webroot'].'/controller.php?document&view&patient_id='.attr($pid).'&doc_id='.attr($VF['id']).'\',\'Documents\');">
                                 <img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
@@ -5745,7 +5733,7 @@ function display_refractive_data($encounter_data)
 {
     @extract($encounter_data);
     $count_rx = '0';
-    
+
     $query = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? ORDER BY RX_NUMBER";
 
     $wear = sqlStatement($query, array($pid,$id));
@@ -5772,7 +5760,7 @@ function display_refractive_data($encounter_data)
         ${"W_$count_rx"} = '1';
         ${"RX_TYPE_$count_rx"} = $wearing['RX_TYPE'];
     }
-    
+
     if (!$ODVA||$OSVA||$ARODSPH||$AROSSPH||$MRODSPH||$MROSSPH||$CRODSPH||$CROSSPH||$CTLODSPH||$CTLOSSPH) { ?>
         <table class="refraction_tables">
            <tr class="text-center bold underline" style="background-color: #F3EEC7;">
@@ -5799,13 +5787,14 @@ function display_refractive_data($encounter_data)
                 } else if (${"RX_TYPE_$i"} =="3") {
                     $RX_TYPE = xlt('Progressive');
                 }
-                
+
                 /*
-              Note html2pdf does not like the last field of a table to be blank.
-              If it is it will squish the lines together.
-              Work around: if the field is blank, then replace it with a "-" else echo it.
-              aka echo (text($field))?:"-");
+                  Note html2pdf does not like the last field of a table to be blank.
+                  If it is it will squish the lines together.
+                  Work around: if the field is blank, then replace it with a "-" else echo it.
+                  aka echo (text($field))?:"-");
                 */
+                // TODO - now use mPDF, so should test if still need this fix
                 ?>
                 <tr>
                     <td class="bold"><?php echo xlt('Wear RX')." #".$i.": "; ?></td>
@@ -5844,7 +5833,7 @@ function display_refractive_data($encounter_data)
                     ?><tr><td colspan="10">--------------------------------------------------------</td></tr>
                     <?php
             }
-            
+
             if ($ARODSPH||$AROSSPH) { ?>
                    <tr style="border-bottom:1pt solid black;">
                        <td class="bold"><?php echo xlt('AutoRef'); ?></td>
@@ -5883,7 +5872,7 @@ function display_refractive_data($encounter_data)
                    <tr><td colspan="10">--------------------------------------------------------</td></tr>
                     <?php
             }
-            
+
             if ($MRODSPH||$MROSSPH) { ?>
                    <tr>
                        <td class="bold"><?php echo xlt('MR (Dry)'); ?></td>
@@ -5913,7 +5902,7 @@ function display_refractive_data($encounter_data)
                 <tr><td colspan="10">--------------------------------------------------------</td></tr>
                     <?php
             }
-            
+
             if ($CRODSPH||$CROSSPH) { ?>
                    <tr>
                        <td class="bold"><?php echo xlt('CR (Wet)'); ?></td>
@@ -5942,7 +5931,7 @@ function display_refractive_data($encounter_data)
                 <tr><td colspan="10">--------------------------------------------------------</td></tr>
                     <?php
             }
-            
+
             if ($CTLODSPH||$CTLOSSPH) { ?>
                    <tr class="bold text-center underline">
                        <td></td>
@@ -6015,10 +6004,10 @@ if (!empty($COMMENTS)) { ?>
             ?>
             <tr><td colspan="10">--------------------------------------------------------</td></tr>
         </table>
-    
+
         <?php
     } ?>
-        
+
     <?php
     if ($GLAREODVA||$CONTRASTODVA||$ODK1||$ODK2||$LIODVA||$PAMODBA) { ?>
       <table>

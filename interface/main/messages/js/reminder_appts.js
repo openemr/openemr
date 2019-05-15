@@ -5,7 +5,7 @@
  * @link    http://www.MedExbank.com
  * @author  MedEx <support@MedExBank.com>
  * @copyright Copyright (c) 2017 MedEx <support@MedExBank.com>
- * @license https://www.gnu.org/licenses/agpl-3.0.en.html GNU Affero General Public License 3
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 var labels = [];

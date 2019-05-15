@@ -31,13 +31,20 @@ class IndexController extends AbstractActionController
     protected $applicationTable;
     protected $listenerObject;
     
-    public function __construct()
+    public function __construct(\Application\Model\ApplicationTable $applicationTable)
     {
         $this->listenerObject = new Listener;
+        $this->applicationTable = $applicationTable;
     }
     
     public function indexAction()
     {
+        // you can uncomment this to test the index action.
+        // $request  = $this->getRequest();
+        // $message  = $request->getPost()->msg;
+        // $array    = array('msg' => "test message");
+        // $return   = new JsonModel($array);
+        // return $return;
     }
     
      /**
@@ -62,11 +69,6 @@ class IndexController extends AbstractActionController
      */
     public function getApplicationTable()
     {
-        if (!$this->applicationTable) {
-            $sm = $this->getServiceLocator();
-            $this->applicationTable = $sm->get('Application\Model\ApplicationTable');
-        }
-
         return $this->applicationTable;
     }
     
@@ -79,7 +81,7 @@ class IndexController extends AbstractActionController
     public function searchAction()
     {
         $request      = $this->getRequest();
-        $result       = $this->forward()->dispatch('Application\Controller\Index', array(
+        $result       = $this->forward()->dispatch(IndexController::class, array(
                                                       'action' => 'auto-suggest'
                                                  ));
         return $result;

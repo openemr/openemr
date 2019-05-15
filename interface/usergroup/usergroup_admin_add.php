@@ -506,7 +506,7 @@ if ($alertmsg = trim($alertmsg)) {
     echo "alert('" . js_escape($alertmsg) . "');\n";
 }
 ?>
-$(document).ready(function(){
+$(function(){
     $("#cancel").click(function() {
           dlgclose();
      });

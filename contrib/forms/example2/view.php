@@ -47,7 +47,6 @@ if ($record['sig_date'] != "") {
 ?>
 
 <html><head>
-<?php html_header_show();?>
 
 <!-- supporting javascript code -->
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
@@ -143,7 +142,7 @@ Date of signature:
 <script language="javascript">
 // jQuery stuff to make the page a little easier to use
 
-$(document).ready(function(){
+$(function(){
     $(".save").click(function() { top.restoreSession(); document.my_form.submit(); });
     $(".dontsave").click(function() { parent.closeTab(window.name, false); });
     $(".printform").click(function() { PrintForm(); });

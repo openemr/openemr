@@ -167,7 +167,7 @@ function generate_receipt($patient_id, $encounter = 0)
 
         <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
-        $(document).ready(function() {
+        $(function() {
          var win = top.printLogSetup ? top : opener.top;
          win.printLogSetup(document.getElementById('printbutton'));
         });
@@ -795,7 +795,7 @@ function generate_receipt($patient_id, $encounter = 0)
              return true;
             }
 
-            $(document).ready(function() {
+            $(function() {
              $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>

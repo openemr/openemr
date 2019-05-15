@@ -149,7 +149,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
                 $formid = 1;
             }
 
-            sqlInsert(
+            sqlStatement(
                 "INSERT INTO " . escape_table_name('form_' .$spreadsheet_form_name) . " ( " .
                 "id, rownbr, colnbr, datatype, value " .
                 ") VALUES ( ?, -1, -1, 0, ? )",
@@ -210,7 +210,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
                     $tempid = -1;
                 }
 
-                sqlInsert(
+                sqlStatement(
                     "INSERT INTO " . escape_table_name('form_' . $spreadsheet_form_name) . " ( " .
                     "id, rownbr, colnbr, datatype, value " .
                     ") VALUES ( ?, -1, -1, 0, ? )",
@@ -234,7 +234,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
                 $celltype = substr($tmp, 0, 1) + 0;
                 $cellvalue = form2db(substr($tmp, 1));
                 if ($celltype) {
-                    sqlInsert(
+                    sqlStatement(
                         "INSERT INTO " . escape_table_name('form_' . $spreadsheet_form_name) .
                         " ( id, rownbr, colnbr, datatype, value ) " .
                         "VALUES ( ?, ?, ?, ?, ? )",
@@ -305,7 +305,6 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
@@ -594,7 +593,7 @@ foreach ($bcodes['Phys']['Physiotherapy Procedures'] as $key => $value) {
   inelem.value = s.substring(0, i) + sel.value + s.substring(j);
  }
 
-    $(document).ready(function() {
+    $(function() {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>

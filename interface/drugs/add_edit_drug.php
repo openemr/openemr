@@ -73,7 +73,6 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
 <title><?php echo $drug_id ? xlt("Edit") : xlt("Add New");
 echo ' ' . xlt('Drug'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
@@ -284,7 +283,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
                     }
                 }
 
-                sqlInsert(
+                sqlStatement(
                     "INSERT INTO drug_templates ( " .
                     "drug_id, selector, dosage, period, quantity, refills, taxrates " .
                     ") VALUES ( ?, ?, ?, ?, ?, ?, ? )",

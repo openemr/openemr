@@ -46,7 +46,7 @@ echo "<html><head>";
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript">
-$(document).ready(function(){
+$(function(){
     $('.datetimepicker').datetimepicker({
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = true; ?>
@@ -150,7 +150,7 @@ if ($formid) {
 
             // store data to track_anything_db
             $query = "INSERT INTO form_track_anything_results (track_anything_id, track_timestamp, itemid, result) VALUES (?, ?, ?, ?)";
-            sqlInsert($query, array($formid,$thedate,$thisid,$thisvalue));
+            sqlStatement($query, array($formid,$thedate,$thisid,$thisvalue));
         }
     }
 

@@ -31,9 +31,11 @@ class SendtoController extends AbstractActionController
     protected $applicationTable;
     protected $listenerObject;
     
-    public function __construct()
+    public function __construct(\Application\Model\ApplicationTable $applicationTable, \Application\Model\SendtoTable $sendToTable)
     {
         $this->listenerObject   = new Listener;
+        $this->applicationTable = $applicationTable;
+        $this->sendtoTable = $sendToTable;
     }
     
     /*
@@ -130,11 +132,6 @@ class SendtoController extends AbstractActionController
     */
     public function getSendtoTable()
     {
-        if (!$this->sendtoTable) {
-            $sm = $this->getServiceLocator();
-            $this->sendtoTable = $sm->get('Application\Model\SendtoTable');
-        }
-
         return $this->sendtoTable;
     }
     
@@ -145,11 +142,6 @@ class SendtoController extends AbstractActionController
     */
     public function getApplicationTable()
     {
-        if (!$this->applicationTable) {
-            $sm = $this->getServiceLocator();
-            $this->applicationTable = $sm->get('Application\Model\ApplicationTable');
-        }
-
         return $this->applicationTable;
     }
 }

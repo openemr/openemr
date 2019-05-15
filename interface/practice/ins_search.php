@@ -167,7 +167,7 @@ if ($_POST['form_save']) {
     } else {
         $ins_id = generate_id();
 
-        sqlInsert("INSERT INTO insurance_companies ( " .
+        sqlStatement("INSERT INTO insurance_companies ( " .
         "id, name, attn, cms_id, ins_type_code, x12_receiver_id, x12_default_partner_id " .
         ") VALUES ( " .
         "'" . add_escape_custom($ins_id)                   . "', " .
@@ -179,7 +179,7 @@ if ($_POST['form_save']) {
         "'" . add_escape_custom($_POST['form_partner'])    . "' "  .
         ")");
 
-        sqlInsert("INSERT INTO addresses ( " .
+        sqlStatement("INSERT INTO addresses ( " .
         "id, line1, line2, city, state, zip, country, foreign_id " .
         ") VALUES ( " .
         "'" . add_escape_custom(generate_id())          . "', " .
@@ -199,7 +199,7 @@ if ($_POST['form_save']) {
             $phone_parts
         );
 
-        sqlInsert("INSERT INTO phone_numbers ( " .
+        sqlStatement("INSERT INTO phone_numbers ( " .
         "id, country_code, area_code, prefix, number, type, foreign_id " .
         ") VALUES ( " .
         "'" . add_escape_custom(generate_id())   . "', " .

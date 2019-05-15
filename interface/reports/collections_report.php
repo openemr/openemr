@@ -356,7 +356,7 @@ if ($_POST['form_csvexport']) {
             });
         }
 
-        $(document).ready(function() {
+        $(function() {
             oeFixedHeaderSetup(document.getElementById('mymaintable'));
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));

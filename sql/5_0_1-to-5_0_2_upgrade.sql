@@ -860,3 +860,7 @@ ALTER TABLE `insurance_companies` ADD `eligibility_id` VARCHAR(32) DEFAULT NULL;
 #IfMissingColumn x12_default_eligibility_id insurance_companies
 ALTER TABLE `insurance_companies` ADD `x12_default_eligibility_id` INT(11)  DEFAULT NULL;
 #Endif
+
+#IfMissingColumn users_secure login_fail_counter
+ALTER TABLE `users_secure` ADD `login_fail_counter` INT(11) DEFAULT '0';
+#Endif

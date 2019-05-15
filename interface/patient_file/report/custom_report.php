@@ -621,10 +621,8 @@ foreach ($ar as $key => $val) {
                     if ($PDF_OUTPUT && $extension == ".pdf") {
                         echo "</div></div>\n"; // HTML to PDF conversion will fail if there are open tags.
                         $content = getContent();
-                        $pdf->writeHTML($content, false); // catch up with buffer.
-                        $pdf->SetImportUse();
+                        $pdf->writeHTML($content); // catch up with buffer.
                         $pg_header = "<span>" . xlt('Document') . " " . text($fname) ."</span>";
-                        //$pdf->SetHTMLHeader ($pg_header,'left',false); // A header for imported doc, don't think we need but will keep.
                         $tempDocC = new C_Document;
                         $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                         // tmp file in temporary_files_dir
@@ -639,7 +637,7 @@ foreach ($ar as $key => $val) {
                         unlink($from_file_tmp_name);
 
                         // Make sure whatever follows is on a new page.
-                        // $pdf->AddPage(); // Only needed for signature line. Patched out 04/20/2017 sjpadgett.
+                        $pdf->AddPage();
 
                         // Resume output buffering and the above-closed tags.
                         ob_start();
@@ -834,7 +832,7 @@ if ($PDF_OUTPUT) {
     }
 
     try {
-        $pdf->writeHTML($content, false); // convert html
+        $pdf->writeHTML($content); // convert html
     } catch (MpdfException $exception) {
         die(text($exception));
     }

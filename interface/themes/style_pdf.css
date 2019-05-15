@@ -588,7 +588,7 @@ font-weight: bold;
  * CSS BUTTONS
 */
 .css_button_small {
-    background: transparent url( '../../images/bg_button_a_small.gif' ) no-repeat scroll top right;
+    background: transparent url('../../public/images/bg_button_a_small.gif') no-repeat scroll top right;
     color: #444;
     display: block;
     float: left;
@@ -600,14 +600,14 @@ font-weight: bold;
 }
 
 .css_button_small span {
-    background: transparent url( '../../images/bg_button_span_small.gif' ) no-repeat;
+    background: transparent url('../../public/images/bg_button_span_small.gif') no-repeat;
     display: block;
     line-height: 20px;
     padding: 0px 0px 0px 10px;
 }
 
 .css_button {
-    background: transparent url( '../../images/bg_button_a.gif' ) no-repeat scroll top right;
+    background: transparent url('../../public/images/bg_button_a.gif') no-repeat scroll top right;
     color: #444;
     display: block;
     float: left;
@@ -619,7 +619,7 @@ font-weight: bold;
 }
 
 .css_button span {
-    background: transparent url( '../../images/bg_button_span.gif' ) no-repeat;
+    background: transparent url('../../public/images/bg_button_span.gif') no-repeat;
     display: block;
     line-height: 14px;
     padding: 5px 0 5px 10px;

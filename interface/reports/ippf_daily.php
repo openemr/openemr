@@ -133,7 +133,6 @@ if ($form_output == 3) {
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
 <title><?php echo text($report_title); ?></title>
 
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
@@ -150,7 +149,7 @@ if ($form_output == 3) {
 <script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
-    $(document).ready(function() {
+    $(function() {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>

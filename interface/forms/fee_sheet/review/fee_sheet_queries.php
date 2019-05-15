@@ -87,7 +87,7 @@ function update_issues($pid, $encounter, $diags)
             $issue_encounter=sqlStatement($sqlFindIssueEncounter, $encounter_params);
             if (sqlNumRows($issue_encounter)==0) {
                 // An issue encounter entry didn't exist, so create it
-                sqlInsert($sqlCreateIssueEncounter, array($pid,$list_id,$encounter));
+                sqlStatement($sqlCreateIssueEncounter, array($pid,$list_id,$encounter));
             }
 
             // Check the description in the problem
@@ -97,12 +97,12 @@ function update_issues($pid, $encounter, $diags)
             // No Problem found for this diagnosis
             if ($diags->create_problem) { // TODO: per entry create
             // If the create flag is set, then create an entry for this diagnosis.
-                sqlInsert($sqlCreateProblem, array($target_date,$target_date,$pid,$diagnosis_key,$diags->description));
+                sqlStatement($sqlCreateProblem, array($target_date,$target_date,$pid,$diagnosis_key,$diags->description));
                 $newProblem=sqlStatement($sqlFindProblem, $lists_params); // requerying the database for the newly created ID, instead of using the sqlInsert return value for backwards compatbility with 4.1.0 and earlier insert ID bug.
                 if (sqlNumRows($newProblem)>0) {
                     $list_id=$newProblem->fields['id'];
                     if ($list_id>0) {
-                        sqlInsert($sqlCreateIssueEncounter, array($pid,$list_id,$encounter));
+                        sqlStatement($sqlCreateIssueEncounter, array($pid,$list_id,$encounter));
                     }
                 }
 
@@ -197,7 +197,7 @@ function create_procs($req_pid, $req_encounter, $procs)
         $proc->addArrayParams($insert_params);
         array_push($insert_params, $req_pid, $authorized, $_SESSION['authId'], $_SESSION['authProvider'], $provid);
         $proc->addProcParameters($insert_params);
-        sqlInsert($sql.$param, $insert_params);
+        sqlStatement($sql.$param, $insert_params);
     }
 }
 

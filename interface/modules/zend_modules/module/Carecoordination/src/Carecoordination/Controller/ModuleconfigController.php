@@ -36,6 +36,7 @@ class ModuleconfigController extends AbstractActionController
     
     public function indexAction()
     {
+        // TODO: how does this even work?? It's constructor expects an adapter class and it's not used...
         $form = new ModuleconfigForm();
         $form->get('hie_author_id')->setAttribute('options', array('user 1','user 2'));
         
@@ -87,7 +88,13 @@ class ModuleconfigController extends AbstractActionController
     
     public function getDependedModulesConfig()
     {
-        $dependedModules = array('Ccr','Immunization','Syndromicsurveillance');
+        // these modules need to be activated before this module can be installed
+        $dependedModules = array(
+            'Ccr'
+            ,'Immunization'
+            ,'Syndromicsurveillance'
+            , 'Documents'       // Handles the saving and retrieving of embedded documents in this module.
+        );
         return $dependedModules;
     }
     

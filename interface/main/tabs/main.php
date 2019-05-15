@@ -6,8 +6,10 @@
  * @link      http://www.open-emr.org
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2016 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -33,6 +35,8 @@ $esignApi = new Api();
 <html>
 <head>
 <title><?php echo text($openemr_name); ?></title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script type="text/javascript">
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
@@ -200,7 +204,11 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters', 'notes', '', 'writ
 <?php require_once("templates/therapy_group_template.php"); ?>
 <?php require_once("templates/user_data_template.php"); ?>
 <?php require_once("menu/menu_json.php"); ?>
-<?php $userQuery = sqlQuery("select * from users where username = ?", array($_SESSION['authUser'])); ?>
+<?php $userQuery = sqlQuery("select * from users where username = ?", array($_SESSION['authUser']));?>
+<?php $width = $GLOBALS['vertical_responsive_menu']; //will be vertical menu at and below this width
+
+
+?>
 <script type="text/javascript">
     <?php if (!empty($_SESSION['frame1url']) && !empty($_SESSION['frame1target'])) { ?>
         app_view_model.application_data.tabs.tabsList()[0].url(<?php echo json_encode("../".$_SESSION['frame1url']); ?>);
@@ -216,11 +224,53 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters', 'notes', '', 'writ
         .',' . json_encode($userQuery['fname'])
         .',' . json_encode($userQuery['lname'])
         .',' . json_encode($_SESSION['authGroup']); ?>));
-
+   
+</script>
+<script>
+    $(window).on('resize', function() {
+        
+     var win = $(this);
+     var winWidth = $(this).width();
+        if (winWidth >  <?php echo js_escape($width); ?>) {
+            $("#tabs_div").removeClass('col-sm-10');
+            $("#mainFrames_div").removeClass('col-sm-10');
+            $("#menu_icon").addClass('fa-bars');
+            
+            $("#username div:first-child" ).addClass("userSection");
+            $(".appMenu_small").addClass('appMenu');
+            $(".appMenu_small").removeClass('appMenu_small');
+            
+        } else if (winWidth <=  <?php echo js_escape($width); ?> ){
+            $("#username div:first-child" ).removeClass("userSection");
+            $(".appMenu").addClass('appMenu_small');
+            $(".appMenu").removeClass('appMenu');
+        } 
+    });
+    $(function() {
+        $(window).trigger('resize');// to avoid repeating code triggers above on page open
+    });
 </script>
 
+<style>
+@media only screen and (max-width: <?php echo attr($width); ?>px) {
+    .patientDataColumn
+    {
+        width: 100% !important;
+        float: left;
+        display: block;
+    }
+}
+
+html, body{
+    
+    min-height:100% !important;
+    height:100% !important;
+}
+
+</style>
+  
 </head>
-<body>
+<body data-bind="css: responsiveDisplay.objWidth().bodyMain">
 <!-- Below iframe is to support auto logout when timeout is reached -->
 <iframe name="timeout" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="timeout_iframe.php"></iframe>
 <?php // mdsupport - app settings
@@ -237,21 +287,141 @@ if (isset($_SESSION['app1'])) {
     }
 }
 ?>
-<div id="mainBox" <?php echo $disp_mainBox ?>>
-    <div id="dialogDiv"></div>
-    <div class="body_top">
-        <a href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank"><img class="logo" alt="openEMR small logo"  border="0" src="<?php echo $GLOBALS['images_static_relative']; ?>/menu-logo.png"></a>
-        <span id="menu logo" data-bind="template: {name: 'menu-template', data: application_data} "></span>
-        <span id="userData" data-bind="template: {name: 'user-data-template', data:application_data} "></span>
-    </div>
-    <div id="attendantData" class="body_title acck" data-bind="template: {name: app_view_model.attendant_template_type, data: application_data} ">
-    </div>
-    <div class="body_title" data-bind="template: {name: 'tabs-controls', data: application_data} "> </div>
+<div id="mainBox" <?php echo $disp_mainBox ?> data-bind='attr: {id: responsiveDisplay.objWidth().mainBoxId}  '>
 
-    <div class="mainFrames">
-        <div id="framesDisplay" data-bind="template: {name: 'tabs-frames', data: application_data}"> </div>
+    <div id="dialogDiv"></div>
+    
+    <div class="body_top" id="body_top_div" data-bind='css: responsiveDisplay.objWidth().bodyTopDivWidth'>
+        <div id="logo_menu" >
+        <a href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank"><img class="logo" id='oemr_logo' alt="openEMR small logo"  style="width:20px" border="0" src="<?php echo $GLOBALS['images_static_relative']; ?>/menu-logo.png"></a>
+        <div>
+        <i class="fa fa-2x fa-bars oe-hidden col-sm-2" aria-hidden="true" id='menu_icon' data-bind='css: responsiveDisplay.objWidth().menuIconHide, click: function(){ responsiveDisplay.verticalMenuObservable(); responsiveDisplay.menuIconObservable()}, css2: {"fa-bars" : !responsiveDisplay.oeMenuIcon(), "fa-eye-slash" : responsiveDisplay.oeMenuIcon}'></i>
+        </div>
+        <div class="clearfix" data-bind="css: {'clearfix' : responsiveDisplay.winWidth() <= <?php echo attr($width); ?>}"></div>
+        </div>
+        <div id="menu_items" class="oe-hidden" data-bind=" css2: {'oe-hidden' : !responsiveDisplay.oeVerticalMenu() && responsiveDisplay.winWidth() <= <?php echo attr($width); ?>}">
+            <span id="menu_logo" data-bind="template: {name: 'menu-template', data: application_data} "></span>
+            <div>
+            <span id="userData" data-bind="template: {name: 'user-data-template', data:application_data} "></span>
+            <a href="../../logout.php" rel="noopener" id="logout_link" onclick="top.restoreSession()" data-bind="css: {'oe-hidden' :responsiveDisplay.oeLogoutIcon}" title="<?php echo xla("Logout");?>"><i class="fa fa-2x fa-sign-out" aria-hidden="true" id="logout_icon"></i></a>
+            </div>
+        </div>
+        <div class="clearfix" data-bind="css: {'clearfix' : responsiveDisplay.winWidth() <= <?php echo attr($width); ?>}"></div>
+    </div>
+    <div id="attendantData" class="body_title acck"  data-bind="template: {name: app_view_model.attendant_template_type, data: application_data}, css: responsiveDisplay.objWidth().attendantDataWidth + ' '  + responsiveDisplay.objWidth().attendantDataClear ">
+    </div>
+   
+    <div class="body_title" id="tabs_div" data-bind="template: {name: 'tabs-controls', data: application_data}, css: responsiveDisplay.objWidth().tabsDivWidth"> </div>
+
+    <div class="mainFrames" id="mainFrames_div" style="display: flex;" data-bind="css: responsiveDisplay.objWidth().mainFramesDivWidth  + ' ' +  responsiveDisplay.objWidth().mainFramesDivFill">
+        <div id="framesDisplay" data-bind="template: {name: 'tabs-frames', data: application_data}, css: responsiveDisplay.objWidth().framesDisplayFill"> </div>
     </div>
 </div>
+<script>
+    
+var displayViewModel = {
+   winWidth: ko.observable(),
+   winHeight: ko.observable(),
+   winDevice: ko.observable(),
+   objWidth: {}
+  
+};
+
+displayViewModel.objWidth = ko.computed(function() {
+        if(this.winWidth() <= <?php echo js_escape($width); ?>){
+            currWidth = {
+               mainBoxId: "mainBox_vertical",
+               mainFramesDivFill: "oe-fill",
+               framesDisplayFill: "oe-fill",
+               menuItemsHide: "oe-hidden",
+               menuIconHide: "",
+               menuHideHide: "oe-hidden"
+            }
+            if(this.winWidth() > 1440){
+                currWidth.bodyTopDivWidth = "col-sm-1";
+                currWidth.bodyMain = "body_main_widescreen";
+            } else {
+                currWidth.bodyTopDivWidth = "col-sm-2";
+                currWidth.bodyMain = "body_main";
+            }
+            if(this.oeVerticalMenu()){
+                if(this.winWidth() > 1440){
+                    currWidth.tabsDivWidth = "col-sm-11";
+                    currWidth.mainFramesDivWidth = "col-sm-11";
+                    currWidth.bodyTopDivWidth = "col-sm-1";
+                } else {
+                    currWidth.tabsDivWidth = "col-sm-10";
+                    currWidth.mainFramesDivWidth = "col-sm-10";
+                    currWidth.bodyTopDivWidth = "col-sm-2";
+                }
+            } else {
+               currWidth.tabsDivWidth = "col-sm-12";
+               currWidth.mainFramesDivWidth = "col-sm-12";
+            }
+            if (this.winWidth() <= 767){
+                currWidth.attendantDataClear = "clearfix";
+                currWidth.attendantDataWidth = "";
+            } else if (this.winWidth() > 767){
+                currWidth.attendantDataClear = "";
+                if(this.winWidth() > 1440){
+                    currWidth.attendantDataWidth = "col-sm-11";
+                } else{
+                    currWidth.attendantDataWidth = "col-sm-10";
+                }
+            }
+        } else {
+            currWidth = {
+               mainBoxId: "mainBox",
+               bodyTopDivWidth : "",
+               tabsDivWidth: "",
+               mainFramesDivWidth: "",
+               mainFramesDivFill: "",
+               framesDisplayFill: "",
+               menuItemsHide: "",
+               menuIconHide: "oe-hidden",
+               menuHideHide: "oe-hidden",
+               attendantDataClear: "",
+               attendantDataWidth: ""
+            }
+        }
+    return currWidth;
+}, displayViewModel);
+
+displayViewModel.oeVerticalMenu = ko.observable(false);
+displayViewModel.oeVerticalDisplay = ko.computed(function(){
+    var vertDispl = displayViewModel.winWidth() > <?php echo js_escape($width); ?> ? false : true;
+    return vertDispl;
+}, displayViewModel);
+
+displayViewModel.verticalMenuObservable = function() {
+    displayViewModel.oeVerticalMenu(!displayViewModel.oeVerticalMenu());
+ };
+displayViewModel.oeMenuIcon = ko.observable(false);
+displayViewModel.menuIconObservable = function() {
+    displayViewModel.oeMenuIcon(!displayViewModel.oeMenuIcon());
+ };
+
+ displayViewModel.oeLogoutIcon = ko.computed(function(){
+    var logoutIcon =  this.winWidth() > <?php echo js_escape($width); ?>  ? true : false; 
+    return logoutIcon;
+ }, displayViewModel);
+var $window = $(window);
+$window.resize(function () { 
+    displayViewModel.winWidth($window.width());
+    displayViewModel.winHeight($window.height());
+    if($window.width() > <?php echo js_escape($width); ?>){
+    displayViewModel.winDevice('ipad');
+    } else {
+    displayViewModel.winDevice('bipad');
+    }
+    
+});
+$(function() {
+        $(window).trigger('resize');// to avoid repeating code triggers above on page open
+    });
+ko.bindingHandlers['css2'] = ko.bindingHandlers.css;    
+app_view_model.responsiveDisplay = displayViewModel;
+</script>
 <script>
     $("#dialogDiv").hide();
     ko.applyBindings(app_view_model);

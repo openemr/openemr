@@ -229,7 +229,7 @@ if ($form_step == 1) {
                               // The following should always be true, otherwise duplicate input row.
                         if (empty($trow['procedure_type_id']) || $trow['activity'] == 0) {
                             if (empty($trow['procedure_type_id'])) {
-                                sqlInsert(
+                                sqlStatement(
                                     "INSERT INTO procedure_type SET " .
                                     "parent = ?, name = ?, lab_id = ?, procedure_code = ?, procedure_type = ?",
                                     array($ptid, $acsv[3], $lab_id, $acsv[2], 'res')

@@ -100,7 +100,7 @@ if ($handle === false) {
             } else {
                 $query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_category")." (user, category) ".
                 "values (?, ?)";
-                sqlInsert($query, array($_SESSION['authUser'], $category));
+                sqlStatement($query, array($_SESSION['authUser'], $category));
                 $statement = sqlStatement("select id from ".mitigateSqlTableUpperCase("form_CAMOS_category")." where category like ?", array($category));
                 if ($result = sqlFetchArray($statement)) {
                     $category_id = $result['id'];
@@ -117,7 +117,7 @@ if ($handle === false) {
             } else {
                 $query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." (user, subcategory, category_id) ".
                 "values (?, ?, ?)";
-                sqlInsert($query, array($_SESSION['authUser'], $subcategory, $category_id));
+                sqlStatement($query, array($_SESSION['authUser'], $subcategory, $category_id));
                 $statement = sqlStatement("select id from ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." where subcategory " .
                 "like ? and category_id = ?", array($subcategory, $category_id));
                 if ($result = sqlFetchArray($statement)) {
@@ -146,7 +146,7 @@ if ($handle === false) {
                         if (!($inner_result = sqlFetchArray($inner_statement))) {//doesn't exist
                             $inner_query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_item")." (user, item, subcategory_id) ".
                             "values (?, ?, ?)";
-                            sqlInsert($inner_query, array($_SESSION['authUser'], $insert_value, $subcategory_id));
+                            sqlStatement($inner_query, array($_SESSION['authUser'], $insert_value, $subcategory_id));
                             $inserted_duplicate = true;
                         } else {
                             $postfix++;
@@ -155,7 +155,7 @@ if ($handle === false) {
                 } else {
                     $query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_item")." (user, item, subcategory_id) ".
                     "values (?, ?, ?)";
-                    sqlInsert($query, array($_SESSION['authUser'], $value, $subcategory_id));
+                    sqlStatement($query, array($_SESSION['authUser'], $value, $subcategory_id));
                 }
 
                 if ($postfix == 0) {
@@ -177,7 +177,7 @@ if ($handle === false) {
                 }
 
                 $query = "UPDATE ".mitigateSqlTableUpperCase("form_CAMOS_item")." set content = ? where id = ?";
-                sqlInsert($query, array($content, $item_id));
+                sqlStatement($query, array($content, $item_id));
             }
         }
     }

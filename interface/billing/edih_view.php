@@ -308,7 +308,7 @@ if (!acl_check('acct', 'eob')) {
 
 <!-- end DataTables js Begin local js -->
 <script type="text/javascript">
-    jQuery(document).ready(function() {
+    jQuery(function() {
         // activate tab interface
         jQuery("#tabs").tabs();
         jQuery("#tabs").tabs().css('visibility','visible');
@@ -447,9 +447,9 @@ jQuery-UI dialog
             appendTo: appendElem,
             draggable: true,
             resizable: true,
-            height: 328,
-            width: 512,
-            maxWidth: 768,
+            height: 512,
+            width: 768,
+            // no need for maxWidth: 768, since some files are pretty wide
             title: 'Transaction Detail',
             close: function(event, ui)
             {

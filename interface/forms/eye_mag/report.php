@@ -1,5 +1,4 @@
 <?php
-
 /**
  * forms/eye_mag/report.php
  *
@@ -7,25 +6,6 @@
  * is created.  New reports are created via new.php and then this script is displayed.
  * Edit are performed in view.php.  Nothing is editable here, but it is scrollable
  * across time...
- *
- * Copyright (C) 2016 Raymond Magauran <magauran@MedFetch.com>
- *
- * LICENSE: This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as
- *  published by the Free Software Foundation, either version 3 of the
- *  License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @package OpenEMR
- * @author Ray Magauran <magauran@MedFetch.com>
- * @link http://www.open-emr.org
  *
  *   * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *  The HTML5 Sketch plugin stuff:
@@ -40,9 +20,13 @@
  *  The above copyright notice and this permission notice shall be included in all copies or substantial
  *  portions of the Software.
  *   * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ray Magauran <magauran@MedFetch.com>
+ * @copyright Copyright (c) 2016 Raymond Magauran <magauran@MedFetch.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-
 
 
 require_once("../../globals.php");
@@ -1007,12 +991,13 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                             $RX_TYPE = xlt('Progressive');
                         }
 
-                      /*
-                    Note html2pdf does not like the last field of a table to be blank.
-                    If it is it will squish the lines together.
-                    Work around: if the field is blank, then replace it with a "-" else echo it.
-                    aka echo (text($field))?:"-");
-                      */
+                        /*
+                          Note html2pdf does not like the last field of a table to be blank.
+                          If it is it will squish the lines together.
+                          Work around: if the field is blank, then replace it with a "-" else echo it.
+                          aka echo (text($field))?:"-");
+                        */
+                        // TODO - now use mPDF, so should test if still need this fix
                         ?>
                   <tr>
                         <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo xlt('Current RX')." #".$i.": "; ?></td>

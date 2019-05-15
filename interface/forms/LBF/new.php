@@ -380,7 +380,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             parent.closeTab(window.name, false);
         }
 
-        $(document).ready(function () {
+        $(function () {
 
             if (window.tabbify) {
                 tabbify();
@@ -684,7 +684,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 '?codetype=' + encodeURIComponent(a[0]) +
                 '&code=' + encodeURIComponent(a[1]) +
                 '&pricelevel=' + encodeURIComponent(f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "") +
-                '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>));
+                '&csrf_token_form=' + <?php echo js_url(collectCsrfToken()); ?>);
         }
 
         // Respond to selecting a package of codes.

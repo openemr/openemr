@@ -3,6 +3,8 @@
 require_once(dirname(__FILE__) . "/../pnotes.inc");
 require_once(dirname(__FILE__) . "/../gprelations.inc.php");
 
+use OpenEMR\Common\Crypto\CryptoGen;
+
 /**
  * class Document
  * This class is the logical representation of a physical file on some system somewhere that can be referenced with a URL
@@ -581,6 +583,9 @@ class Document extends ORDataObject
         // That was probably a mistake, but we reference it here for documentation
         // and leave it empty. Logically, documents are not tied to encounters.
 
+        // Create a crypto object that will be used for for encryption/decryption
+        $cryptoGen = new CryptoGen();
+
         if ($GLOBALS['generate_doc_thumb']) {
             $thumb_size = ($GLOBALS['thumb_doc_max_size'] > 0) ? $GLOBALS['thumb_doc_max_size'] : null;
             $thumbnail_class = new Thumbnail($thumb_size);
@@ -706,7 +711,7 @@ class Document extends ORDataObject
 
             // Store the file.
             if ($GLOBALS['drive_encryption']) {
-                $storedData = encryptStandard($data, null, 'database');
+                $storedData = $cryptoGen->encryptStandard($data, null, 'database');
             } else {
                 $storedData = $data;
             }
@@ -718,7 +723,7 @@ class Document extends ORDataObject
                 // Store the thumbnail.
                 $this->thumb_url = "file://" . $filepath . $this->get_thumb_name($filename);
                 if ($GLOBALS['drive_encryption']) {
-                    $storedThumbnailData = encryptStandard($thumbnail_data, null, 'database');
+                    $storedThumbnailData = $cryptoGen->encryptStandard($thumbnail_data, null, 'database');
                 } else {
                     $storedThumbnailData = $thumbnail_data;
                 }

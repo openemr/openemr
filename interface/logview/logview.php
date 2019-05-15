@@ -13,6 +13,7 @@
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
@@ -311,6 +312,9 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
     }
 
     if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent,'direction' => $_GET['direction']))) {
+        // Set up crypto object (object will increase performance since caches used keys)
+        $cryptoGen = new CryptoGen();
+
         foreach ($ret as $iter) {
             //translate comments
             $patterns = array ('/^success/','/^failure/','/ encounter/');
@@ -330,7 +334,7 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
                 if ($encryptVersion == 3) {
                     // Use new openssl method
                     if (extension_loaded('openssl')) {
-                        $trans_comments = decryptStandard($iter["comments"]);
+                        $trans_comments = $cryptoGen->decryptStandard($iter["comments"]);
                         if ($trans_comments !== false) {
                             $trans_comments = preg_replace($patterns, $replace, $trans_comments);
                         } else {
@@ -342,7 +346,7 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
                 } else if ($encryptVersion == 2) {
                     // Use new openssl method
                     if (extension_loaded('openssl')) {
-                        $trans_comments = aes256DecryptTwo($iter["comments"]);
+                        $trans_comments = $cryptoGen->aes256DecryptTwo($iter["comments"]);
                         if ($trans_comments !== false) {
                             $trans_comments = preg_replace($patterns, $replace, $trans_comments);
                         } else {
@@ -354,14 +358,14 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
                 } else if ($encryptVersion == 1) {
                     // Use new openssl method
                     if (extension_loaded('openssl')) {
-                        $trans_comments = preg_replace($patterns, $replace, aes256DecryptOne($iter["comments"]));
+                        $trans_comments = preg_replace($patterns, $replace, $cryptoGen->aes256DecryptOne($iter["comments"]));
                     } else {
                         $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
                     }
                 } else { //$encryptVersion == 0
                     // Use old mcrypt method
                     if (extension_loaded('mcrypt')) {
-                        $trans_comments = preg_replace($patterns, $replace, aes256Decrypt_mycrypt($iter["comments"]));
+                        $trans_comments = preg_replace($patterns, $replace, $cryptoGen->aes256Decrypt_mycrypt($iter["comments"]));
                     } else {
                         $trans_comments = xl("Unable to decrypt these comments since the PHP mycrypt module is not installed.");
                     }
@@ -441,7 +445,7 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
 <script language="javascript">
 
 // jQuery stuff to make the page a little easier to use
-$(document).ready(function(){
+$(function(){
     // billing log modal
     $("#view-billing-log-link").click( function() {
         top.restoreSession();

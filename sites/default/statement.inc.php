@@ -35,7 +35,7 @@ $STMT_PRINT_CMD = $GLOBALS['print_command'];
  *  1.  The original statement, a text based statement, using CezPDF
  *      Altering this statement is labor intensive, but capable of being altered any way desired...
  *
- *  2.  Branded Statement, whose core is build from 1., the original statement, using HTML2PDF.
+ *  2.  Branded Statement, whose core is build from 1., the original statement, using mPDF.
  *
  *      To customize 2., add your practice location/images/practice_logo.gif
  *      In the base/default install this is located at '/openemr/sites/default/images/practice_logo.gif',

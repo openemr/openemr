@@ -27,6 +27,7 @@
 require_once(dirname(__FILE__) . "/../library/patient.inc");
 require_once(dirname(__FILE__) . "/../library/direct_message_check.inc");
 
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 /*
@@ -67,7 +68,8 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
     }
 
     $phimail_username = $GLOBALS['phimail_username'];
-    $phimail_password = decryptStandard($GLOBALS['phimail_password']);
+    $cryptoGen = new CryptoGen();
+    $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
     if ($ret!==true) {
         return("$config_err 4");

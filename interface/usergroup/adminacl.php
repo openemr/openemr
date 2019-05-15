@@ -40,7 +40,7 @@ if (!isset($phpgacl_location)) {
     <?php Header::setupHeader(); ?>
 
     <script type="text/JavaScript">
-        $(document).ready(function(){
+        $(function(){
             //using jquery-ui-1-12-1 tooltip instead of bootstrap tooltip
             var groupTitle = <?php echo xlj('This section allows you to create and remove groups and modify or grant access privileges to existing groups. Check the check box to display section'); ?>;
             $('#advanced-tooltip').attr( "title", <?php echo xlj('Click to manually configure access control, recommended for advanced users'); ?> ).tooltip();

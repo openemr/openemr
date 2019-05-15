@@ -12,6 +12,7 @@ node_modules
 !/public/assets/manual-added-packages
 !/public/assets/modified
 /.docs/.out/*
+docker-compose.yml
 
 # ccda service build
 ccdaservice/node_modules

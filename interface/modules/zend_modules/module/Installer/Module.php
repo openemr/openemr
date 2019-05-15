@@ -32,14 +32,17 @@ use Installer\Model\InstModuleTable;
 use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\TableGateway\TableGateway;
 
+/**
+ * Handles the initial module load.  Any configuration should in the module.config.php file
+ * instead of overloading methods here if at all possible
+ */
 class Module
 {
     public function getAutoloaderConfig()
     {
         return array(
-            'Zend\Loader\ClassMapAutoloader' => array(
-                __DIR__ . '/autoload_classmap.php',
-            ),
+            // TODO: The zf3 autoloader should handle autoloading these classes by default but it's not right now
+            // we need to figure out why that is so we can remove this unnecessary piece.
             'Zend\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
@@ -53,25 +56,6 @@ class Module
         return include __DIR__ . '/config/module.config.php';
     }
 
-    public function getServiceConfig()
-    {
-        return array(
-            'factories' => array(
-                'Installer\Model\InstModuleTable' =>  function ($sm) {
-                    $tableGateway = $sm->get('InstModuleTableGateway');
-                    $table = new InstModuleTable($tableGateway);
-                    return $table;
-                },
-                'InstModuleTableGateway' => function ($sm) {
-                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    $resultSetPrototype = new ResultSet();
-                    $resultSetPrototype->setArrayObjectPrototype(new InstModule());
-                    return new TableGateway('InstModule', $dbAdapter, null, $resultSetPrototype);
-                },
-            ),
-        );
-    }
-  
     
     public function onBootstrap(\Zend\EventManager\EventInterface $e)
     {

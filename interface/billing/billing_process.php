@@ -12,7 +12,7 @@
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2014-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
- * @copyright Copyright (C) 2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018-2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -24,6 +24,7 @@ require_once("$srcdir/billrep.inc");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\HCFA_1500;
 use OpenEMR\Billing\X12_5010_837P;
+use OpenEMR\Common\Crypto\CryptoGen;
 
 if (!verifyCsrfToken($_POST["csrf_token_form"])) {
     csrfNotVerified();
@@ -50,8 +51,9 @@ $bat_time = time();
 $bat_hhmm = date('Hi', $bat_time);
 $bat_yymmdd = date('ymd', $bat_time);
 $bat_yyyymmdd = date('Ymd', $bat_time);
-// Minutes since 1/1/1970 00:00:00 GMT will be our interchange control number:
-$bat_icn = sprintf('%09.0f', $bat_time / 60);
+// Seconds since 1/1/1970 00:00:00 GMT will be our interchange control number
+// but since limited to 9 char must be without leading 1
+$bat_icn = substr((string)$bat_time, 1, 9);
 $bat_filename = date("Y-m-d-Hi", $bat_time) . "-batch.";
 $bat_filename .= (isset($_POST['bn_process_hcfa']) || isset($_POST['bn_process_hcfa_form']) || isset($_POST['bn_process_ub04']) || isset($_POST['bn_process_ub04_form'])) ? 'pdf' : 'txt';
 $template = array();
@@ -160,12 +162,15 @@ function process_form($ar)
     global $bill_info, $webserver_root, $bat_filename, $pdf, $template;
     global $ub04id;
 
+    // Set up crypto object
+    $cryptoGen = new CryptoGen();
+
     if (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter']) || isset($ar['bn_process_hcfa']) || isset($ar['bn_hcfa_txt_file']) || isset($ar['bn_process_hcfa_form'])
         || isset($ar['bn_process_ub04_form']) || isset($ar['bn_process_ub04']) || isset($ar['bn_ub04_x12'])) {
         if ($GLOBALS['billing_log_option'] == 1) {
             $hlog = file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log");
-            if (cryptCheckStandard($hlog)) {
-                $hlog = decryptStandard($hlog, null, 'database');
+            if ($cryptoGen->cryptCheckStandard($hlog)) {
+                $hlog = $cryptoGen->decryptStandard($hlog, null, 'database');
             }
         } else { // ($GLOBALS['billing_log_option'] == 2)
             $hlog = '';
@@ -317,7 +322,7 @@ function process_form($ar)
 
     if (!empty($hlog)) {
         if ($GLOBALS['drive_encryption']) {
-            $hlog = encryptStandard($hlog, null, 'database');
+            $hlog = $cryptoGen->encryptStandard($hlog, null, 'database');
         }
         file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log", $hlog);
     }
@@ -395,15 +400,12 @@ function process_form($ar)
 ?>
 <html>
 <head>
-<?php if (function_exists(html_header_show)) {
-    html_header_show();
-}?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript"
     src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-9-1/jquery.min.js"></script>
 <script>
-    $(document).ready( function() {
+    $( function() {
         $("#close-link").click( function() {
             window.close();
         });

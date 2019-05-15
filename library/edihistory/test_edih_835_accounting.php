@@ -22,9 +22,9 @@
  *
  */
 
+
 // comment out below exit when need to use this script
 exit;
-
 use OpenEMR\Billing\ParseERA;
 
 function edih_835_accounting($segments, $delimiters)
@@ -436,7 +436,6 @@ function edih_835_accounting($segments, $delimiters)
 if (strncmp('SVC'.$de, $seg, 4) === 0) {
     $loopid = '2110';
 }
-
 
     $acctng['lx'][$lx01] = array('ts3amt'=>0, 'fee'=>0, 'clmpmt'=>0, 'clmadj'=>0, 'prvadj'=>0, 'ptrsp'=>0);
 if ($chk) {

@@ -24,6 +24,7 @@ namespace Application\Plugin;
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 use Application\Model\ApplicationTable;
 use Application\Listener\Listener;
+use Interop\Container\ContainerInterface;
 
 class CommonPlugin extends AbstractPlugin
 {
@@ -31,12 +32,14 @@ class CommonPlugin extends AbstractPlugin
   
   /**
    * Application Table Object
-   * Listener Oblect
-   * @param type $sm Service Manager
+   * Listener Object
+   * @param type $container ContainerInterface
    */
-    public function __construct($sm)
+    public function __construct(ContainerInterface $container)
     {
-        $sm->get('Zend\Db\Adapter\Adapter');
+        // TODO: this is crazy... why do we grab the service locator so we can load the db adapter?
+        // is there some db related state that is being loaded here in a global type of way that we aren't aware of?? Or can we just remove this line?
+        $container->get('Zend\Db\Adapter\Adapter');
         $this->application    = new ApplicationTable();
         $this->listenerObject = new Listener;
     }

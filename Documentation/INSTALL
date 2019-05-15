@@ -78,11 +78,9 @@ The setup script will step you through the configuration of the OpenEMR.
 
 The first screen of the setup script will ensure that the webserver user
 (in linux, often is "apache", "www-data", or "nobody") has write privileges on
-certain files and directories. The files include
-openemr/sites/default/sqlconf.php and
-openemr/interface/modules/zend_modules/config/application.config.php.
-In linux, these can be set by "chmod a+w filename"
-command to grant global write permissions to the file. The directory includes
+certain file and directories. The file is openemr/sites/default/sqlconf.php.
+In linux, this can be set by "chmod a+w filename"
+command to grant global write permissions to the file. The directory is
 openemr/sites/default/documents. In
 linux, if the webserver user name is "apache", then the command
 "chown -R apache:apache directory_name" will grant global write permissions
