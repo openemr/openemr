@@ -146,7 +146,7 @@ function includeScript(url, async, type) {
             }
         }
 
-        throw new Error('<?php echo xlt("Failed to get URL:") ?>' + url);
+        throw new Error("Failed to get URL:" + url);
 
     }
     catch (e) {
@@ -174,6 +174,28 @@ function inDom(dependency, type, remove) {
     return false;
 }
 
+// These functions may be called from scripts that may be out of scope with top so...
+// if opener is tab then we need to be in tabs UI scope and while we're at it, let's bring webroot along...
+//
+if (typeof top.tab_mode === "undefined") {
+    if (typeof opener.top.tab_mode !== "undefined") {
+        top.tab_mode = opener.top.tab_mode;
+        top.webroot_url = opener.top.webroot_url;
+    }
+}
+// We'll need these if out of scope
+//
+if (typeof top.set_opener !== "function") {
+    var opener_list = [];
+
+    function set_opener(window, opener) {
+        top.opener_list[window] = opener;
+    }
+
+    function get_opener(window) {
+        return top.opener_list[window];
+    }
+}
 // Test if supporting dialog callbacks and close dependencies are in scope.
 // This is useful when opening and closing the dialog is in the same scope. Still use include_opener.js
 // in script that will close a dialog that is not in the same scope dlgopen was used
@@ -191,58 +213,57 @@ if (typeof dlgclose !== "function") {
         }
     }
 
-    var dlgclose =
-        function (call, args) {
-            var frameName = window.name;
-            var wframe = opener;
-            if (frameName === '') {
-                // try to find dialog. dialogModal is embedded dialog class
-                // It has to be here somewhere.
-                frameName = $(".dialogModal").attr('id');
+    const dlgclose = function (call, args) {
+        var frameName = window.name;
+        var wframe = opener;
+        if (frameName === '') {
+            // try to find dialog. dialogModal is embedded dialog class
+            // It has to be here somewhere.
+            frameName = $(".dialogModal").attr('id');
+            if (!frameName) {
+                frameName = parent.$(".dialogModal").attr('id');
                 if (!frameName) {
-                    frameName = parent.$(".dialogModal").attr('id');
-                    if (!frameName) {
-                        console.log("Unable to find dialog.");
-                        return false;
-                    }
+                    console.log("Unable to find dialog.");
+                    return false;
                 }
             }
-            if (!top.tab_mode) {
-                for (; wframe.name !== 'RTop' && wframe.name !== 'RBot'; wframe = wframe.parent) {
-                    if (wframe.parent === wframe) {
-                        wframe = window;
-                    }
+        }
+        if (!top.tab_mode) {
+            for (; wframe.name !== 'RTop' && wframe.name !== 'RBot'; wframe = wframe.parent) {
+                if (wframe.parent === wframe) {
+                    wframe = window;
                 }
-                for (let i = 0; wframe.document.body.localName !== 'body' && i < 4; wframe = wframe[i++]) {
-                    if (i === 3) {
-                        console.log("Opener: unable to find modal's frame");
-                        return false;
-                    }
+            }
+            for (let i = 0; wframe.document.body.localName !== 'body' && i < 4; wframe = wframe[i++]) {
+                if (i === 3) {
+                    console.log("Opener: unable to find modal's frame");
+                    return false;
                 }
+            }
+            dialogModal = wframe.$('div#' + frameName);
+            if (dialogModal.length === 0) {
+                // Never give up...
+                frameName = $(".dialogModal").attr('id');
                 dialogModal = wframe.$('div#' + frameName);
-                if (dialogModal.length === 0) {
-                    // Never give up...
-                    frameName = $(".dialogModal").attr('id');
-                    dialogModal = wframe.$('div#' + frameName);
-                    console.log("Frame: used local find dialog");
-                }
-            } else {
-                var dialogModal = top.$('div#' + frameName);
-                wframe = top;
+                console.log("Frame: used local find dialog");
             }
+        } else {
+            var dialogModal = top.$('div#' + frameName);
+            wframe = top;
+        }
 
-            var removeFrame = dialogModal.find("iframe[name='" + frameName + "']");
-            if (removeFrame.length > 0) {
-                removeFrame.remove();
-            }
+        var removeFrame = dialogModal.find("iframe[name='" + frameName + "']");
+        if (removeFrame.length > 0) {
+            removeFrame.remove();
+        }
 
-            if (dialogModal.length > 0) {
-                if (call) {
-                    wframe.setCallBack(call, args); // sets/creates callback function in dialogs scope.
-                }
-                dialogModal.modal('hide');
+        if (dialogModal.length > 0) {
+            if (call) {
+                wframe.setCallBack(call, args); // sets/creates callback function in dialogs scope.
             }
-        };
+            dialogModal.modal('hide');
+        }
+    };
 }
 
 /*
@@ -279,7 +300,6 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     jQuery(function () {
         // Check for dependencies we will need.
         // webroot_url is a global defined in main_screen.php or main.php.
-
         let bscss = top.webroot_url + '/public/assets/bootstrap/dist/css/bootstrap.min.css';
         let bscssRtl = top.webroot_url + '/public/assets/bootstrap-rtl/dist/css/bootstrap-rtl.min.css';
         let bsurl = top.webroot_url + '/public/assets/bootstrap/dist/js/bootstrap.min.js';
@@ -343,7 +363,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         }
         for (let i = 0; wframe.document.body.localName !== 'body' && i < 6; wframe = wframe[i++]) {
             if (i === 5) {
-                alert('<?php echo xlt("Unable to find window to build") ?>');
+                alert('Unable to find window to build');
                 return false;
             }
         }
@@ -607,7 +627,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             var msg = data.error ?
                 data.error(r, s, params) :
                 '<div class="alert alert-danger">' +
-                '<strong><?php echo xlt("XHR Failed:") ?></strong> [ ' + params.url + '].' + '</div>';
+                '<strong>XHR Failed:</strong> [ ' + params.url + '].' + '</div>';
 
             $dialog.find('.modal-body').html(msg);
 
@@ -660,7 +680,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             }
         } else {
             //if no buttons defined by user, add a standard close button.
-            oFoot.append('<button class="closeBtn btn btn-default" data-dismiss=modal type=button><?php echo xlt("Close") ?></button>');
+            oFoot.append('<button class="closeBtn btn btn-default" data-dismiss=modal type=button>Close</button>');
         }
 
         return oFoot; // jquery object of modal footer.

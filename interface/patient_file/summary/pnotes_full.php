@@ -74,7 +74,6 @@ if ($_REQUEST['s'] == '1') {
     $inbox = "current";
     $outbox = "";
     $inbox_style = "style='border:5px solid #FFFFFF;'";
-    ;
     $outbox_style = "style='display:none;border:5px solid #FFFFFF;'";
 }
 
@@ -211,7 +210,7 @@ $result_sent = getSentPnotesByDate(
 <html>
 <head>
 
-    <?php Header::setupHeader(['common', 'jquery-ui']); ?>
+    <?php Header::setupHeader(['common', 'jquery-ui', 'opener']); ?>
 
 <script type="text/javascript">
 /// todo, move this to a common library
@@ -239,7 +238,7 @@ $(document).ready(function(){
     $(".note_modal").on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        dlgopen('', '', 650, 400, '', '', {
+        dlgopen('', '', 700, 400, '', '', {
             buttons: [
                 {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
             ],
@@ -267,11 +266,15 @@ function refreshme() {
     top.restoreSession();
     document.location.reload();
 }
+
+function restoreSession() {
+    return opener.top.restoreSession();
+}
 </script>
 </head>
 <body class="body_top">
 
-<div id="pnotes"> <!-- large outer DIV -->
+<div class="container-fluid" id="pnotes"> <!-- large outer DIV -->
 
 <form border='0' method='post' name='new_note' id="new_note" action='pnotes_full.php?docid=<?php echo attr_url($docid); ?>&orderid=<?php echo attr_url($orderid); ?>&<?php echo $activity_string_html; ?>' onsubmit='return top.restoreSession()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
@@ -289,16 +292,20 @@ if ($orderid) {
 }
 
 $urlparms = "docid=" . attr_url($docid) . "&orderid=" . attr_url($orderid);
+$title = text(getPatientName($patient_id));
 ?>
-
+    <title><?php echo $title; ?></title>
     <div class="row">
         <div class="col-md-12">
             <div class="page-header">
-                <h2><?php echo xlt('Patient Messages') . text($title_docname); ?></h2>
-                <div id='namecontainer_pnotes' class='namecontainer_pnotes oe-margin-b-20'>
-                    <?php echo xlt('for'); ?>&nbsp;<span class="title">
-      <a href="../summary/demographics.php" onclick="return top.restoreSession()"><?php echo text(getPatientName($patient_id)); ?></a></span>
-                </div>
+                <h3><?php echo xlt('Patient Messages') . text($title_docname) . " " . xlt('for');
+                if (!$orderid) {
+?>&nbsp;
+                        <span><a href="../summary/demographics.php"
+                                           onclick="return top.restoreSession()"><?php echo $title; ?></a></span>
+                    <?php } else { ?>
+                        <span><?php echo $title; ?></span><?php } ?>
+                </h3>
             </div>
         </div>
     </div>
@@ -307,15 +314,14 @@ $urlparms = "docid=" . attr_url($docid) . "&orderid=" . attr_url($orderid);
             <a href="pnotes_full_add.php?<?php echo $urlparms; ?>" class="btn btn-default note_modal" onclick='return top.restoreSession()'><span><?php echo xlt('Add'); ?></span></a>
             <a href="#" class="change_activity btn btn-default" ><span><?php echo xlt('Update Active'); ?></span></a>
             <a href="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" class="btn btn-default" id='Submit' onclick='return top.restoreSession()'><span><?php echo xlt('Refresh'); ?></span></a>
-            <a href="demographics.php" class="btn btn-default" onclick="top.restoreSession()">
-                <span><?php echo xlt('Back to Patient'); ?></span>
-            </a>
+            <?php if (!$orderid) { ?>
+                <a href="demographics.php" class="btn btn-default" onclick="top.restoreSession()"><span><?php echo xlt('Back to Patient'); ?></span></a>
+            <?php } ?>
         </div>
 
     </div>
     <div class="row oe-margin-b-10">
         <div class="col-md-12">
-
             <?php
             // Get the billing note if there is one.
             $billing_note = "";
@@ -422,7 +428,7 @@ $urlparms = "docid=" . attr_url($docid) . "&orderid=" . attr_url($orderid);
 
 if ($result != "") {
     echo " <tr class=showborder_head align='left'>\n";
-    echo "  <th style='width:100px';>&nbsp;</th>\n";
+    echo "  <th style='width:130px;'>" . xlt('Actions') . "</th>\n";
     echo "  <th>" . xlt('Active') . "&nbsp;</th>\n";
     echo "  <th>" . (($docid || $orderid) ? xlt('Linked') : '') . "</th>\n";
     echo "  <th>" . xlt('Type') . "</th>\n";

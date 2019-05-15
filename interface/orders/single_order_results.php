@@ -26,6 +26,7 @@ require_once(dirname(__FILE__) . '/../globals.php');
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 
 use Mpdf\Mpdf;
+use OpenEMR\Core\Header;
 
 // Check authorization.
 $thisauth = acl_check('patients', 'med');
@@ -52,12 +53,17 @@ if (!empty($_POST['form_sign']) && !empty($_POST['form_sign_list'])) {
         "review_status = 'reviewed' WHERE " .
         "procedure_report_id = ?", array($id));
     }
+    if ($orderid) {
+        sqlStatement("UPDATE procedure_order SET " .
+            "order_status = 'complete' WHERE " .
+            "procedure_order_id = ?", array($orderid));
+    }
 }
 
 // This mess generates a PDF report and sends it to the patient.
 if (!empty($_POST['form_send_to_portal'])) {
-    // Borrowing the general strategy here from custom_report.php.
-    // See also: http://wiki.spipu.net/doku.php?id=html2pdf:en:v3:output
+  // Borrowing the general strategy here from custom_report.php.
+  // See also: http://wiki.spipu.net/doku.php?id=html2pdf:en:v3:output
     require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
     $config_mpdf = array(
         'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
@@ -87,10 +93,10 @@ if (!empty($_POST['form_send_to_portal'])) {
     $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
     generate_order_report($orderid, false, true, $finals_only);
     $GLOBALS['PATIENT_REPORT_ACTIVE'] = false;
-    // echo ob_get_clean(); exit(); // debugging
+  // echo ob_get_clean(); exit(); // debugging
     $pdf->writeHTML(ob_get_clean());
     $contents = $pdf->Output('', true);
-    // Send message with PDF as attachment.
+  // Send message with PDF as attachment.
     $result = cms_portal_call(array(
     'action'   => 'putmessage',
     'user'     => $_POST['form_send_to_portal'],
@@ -107,12 +113,12 @@ if (!empty($_POST['form_send_to_portal'])) {
 ?>
 <html>
 <head>
-<link rel="stylesheet" href='<?php echo $css_header; ?>' type='text/css'>
+    <?php Header::setupHeader(['jquery-ui']); ?>
 <title><?php echo xlt('Order Results'); ?></title>
 <style>
 body {
  margin: 9pt;
- font-family: sans-serif;
+ font-family: sans-serif; 
  font-size: 1em;
 }
 </style>
@@ -138,7 +144,8 @@ if (empty($_POST['form_sign'])) {
    f.submit();
   }
  }
- window.close();
+ let stayHere = './single_order_results.php?orderid=' + encodeURIComponent('<?php echo $orderid; ?>');
+ window.location.assign(stayHere);
 </script>
 <?php
 }
