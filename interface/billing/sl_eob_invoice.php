@@ -304,7 +304,6 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
     if ($_POST['form_save']) {
         if (!verifyCsrfToken($_POST["csrf_token_form"])) {
             csrfNotVerified();
-
         }
 
         if ($debug) {
