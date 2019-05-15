@@ -65,20 +65,6 @@ function storeNote($s)
     return $key;
 }
 
-function diagDesc($code)
-{
-    if (!$code) {
-        return false;
-    }
-    $tmp = explode(':', $code);
-    $code = $tmp[1];
-    $query = "SELECT CONCAT('ICD10:',formatted_dx_code) AS code, short_desc FROM icd10_dx_order_code ";
-    $query .= "WHERE active = 1 AND valid_for_coding = 1 AND (formatted_dx_code LIKE '" . $code . "%') ";
-    $result = sqlQuery($query);
-
-    return $result;
-}
-
 // Display a single row of output including order, report and result information.
 //
 function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
@@ -368,7 +354,9 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
         if (!$d) {
             continue;
         }
-        $codes[] = diagDesc($d);
+        $r['code'] = $d;
+        $r['short_desc'] = lookup_code_descriptions($d, "code_text_short");
+        $codes[] = $r;
     }
 
     $patient_id = $orow['patient_id'];
@@ -471,9 +459,9 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
             }
             var othername = (w.name == 'RTop') ? 'RBot' : 'RTop';
             w.parent.left_nav.forceDual();
-            w.parent.left_nav.loadFrame('pno1', othername, 'patient_file/summary/pnotes_full.php?orderid=' + encodeURIComponent(orderid));
+            w.parent.left_nav.loadFrame('pno1', othername, 'patient_file/summary/pnotes_full.php?orderid=' + <?php echo js_url($orderid); ?>);
         } else {
-            let url = top.webroot_url + '/interface/patient_file/summary/pnotes_full.php?orderid=' + encodeURIComponent(orderid);
+            let url = top.webroot_url + '/interface/patient_file/summary/pnotes_full.php?orderid=' + <?php echo js_url($orderid); ?>;
             dlgopen(url, 'notes', 950, 750, false, '');
         }
         return false;
