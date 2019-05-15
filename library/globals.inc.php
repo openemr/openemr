@@ -207,7 +207,7 @@ $GLOBALS_METADATA = array(
         'css_header' => array(
             xl('General Theme (need to logout/login after changing this setting)'),
             'css',
-            'style_dune.css',
+            'style_light.css',
             xl('Pick a general theme (need to logout/login after changing this setting).')
         ),
 
@@ -241,7 +241,7 @@ $GLOBALS_METADATA = array(
             '__default__',
             xl("Select the default font size"),
         ),
-        
+
         'vertical_responsive_menu' => array(
             xl('Responsive Vertical Menu Style for Tabs (need to logout/login after changing this setting)'),
             array(
@@ -261,9 +261,9 @@ $GLOBALS_METADATA = array(
                 '2048' => xl('QWXGA') . " -  2048 X 1152" . xl('px'),
                 '2560' => xl('QHD') . " -  2560 X 1440" . xl('px'),
                 '3840' => xl('4K UHD') . " -  3840 X 2160" . xl('px'),
-                
+
             ),
-             
+
             '1024', //default iPad/iPad mini
             xl('Selecting the width for responsive vertical style menus in tab based layout (need to logout/login after change this setting)')
         ),
