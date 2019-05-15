@@ -13,7 +13,7 @@
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2018-2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -229,7 +229,7 @@ function row_delete($table, $where)
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
-            <?php $datetimepicker_formatInput = false; ?>
+            <?php $datetimepicker_formatInput = true; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
@@ -288,11 +288,12 @@ if (empty($ferow)) {
 $patient_id = 0 + $ferow['pid'];
 $encounter_id = 0 + $ferow['encounter'];
 $svcdate = substr($ferow['date'], 0, 10);
-$form_payer_id = 0 + $_POST['form_payer_id'];
+$form_payer_id = ($_POST['$form_payer_id']) ? (0 + $_POST['form_payer_id']) : 0;
 $form_reference = $_POST['form_reference'];
-$form_check_date = fixDate($_POST['form_check_date'], date('Y-m-d'));
-$form_deposit_date = fixDate($_POST['form_deposit_date'], $form_check_date);
-$form_pay_total = 0 + $_POST['form_pay_total'];
+$form_check_date = ($_POST['form_check_date']) ? DateToYYYYMMDD($_POST['form_check_date']) : date('Y-m-d');
+$form_deposit_date = ($_POST['form_deposit_date']) ? DateToYYYYMMDD($_POST['form_deposit_date']) : date('Y-m-d');
+$form_pay_total = ($_POST['form_pay_total']) ? (0 + $_POST['form_pay_total']) : 0;
+
 
 $payer_type = 0;
 if (preg_match('/^Ins(\d)/i', $_POST['form_insurance'], $matches)) {
@@ -303,6 +304,7 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
     if ($_POST['form_save']) {
         if (!verifyCsrfToken($_POST["csrf_token_form"])) {
             csrfNotVerified();
+
         }
 
         if ($debug) {
