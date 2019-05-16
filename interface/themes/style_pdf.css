@@ -305,10 +305,6 @@ font-weight: bold;
     border-collapse:collapse;
 }
 
-#pnotes .noterow {
-    cursor: pointer;
-}
-
 #pnotes .noterow td {
     border-bottom:1px dashed black;
     vertical-align: top;
