@@ -13,17 +13,20 @@ class PatientDataTabBlock extends React.Component {
     }
 
     render() {
+        let html;
+        if (this.props.groupFields.length > 0) {
+            html = this.props.groupFields.map((pdata, j) => {
+                return (<div id={j} key={j}>{pdata.field_id} - {this.props.data[0][pdata.field_id]}</div>)
+            })
 
-        if (this.props.groupFields) {
-            return (<>
-                {
-                    this.props.groupFields.map((pdata, j) => {
-                        return (<div id={j} key={j}>{pdata.field_id} - {this.props.data[0][pdata.field_id]}</div>)
-                    })
-                }
-            </>)
+        } else {
+            html = <Spinner animation="border" variant="primary"/>
         }
-        return <Spinner animation="border" variant="primary" />;
+
+
+        return (
+                <>{html}</>
+               )
     }
 }
 
