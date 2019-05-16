@@ -830,7 +830,7 @@ while ($drow /* && $count <= $N */) {
 <script language="javascript">
 // jQuery stuff to make the page a little easier to use
 
-$(document).ready(function(){
+$(function (){
     $(".encrow").on("mouseover", function() { $(this).toggleClass("highlight"); });
     $(".encrow").on("mouseout", function() { $(this).toggleClass("highlight"); });
     $(".encrow").on("click", function() { toencounter(this.id); });
