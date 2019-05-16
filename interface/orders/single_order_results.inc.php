@@ -472,7 +472,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
         dlgopen(top.webroot_url + '/interface/patient_file/education.php' +
             '?type=' + encodeURIComponent(codetype) +
             '&code=' + encodeURIComponent(codevalue) +
-            '&language=<?php echo js_url($language); ?>',
+            '&language=' + <?php echo js_url($language); ?>,
             '_blank', 1024, 750, true); // Force a new window instead of iframe to address cross site scripting potential
     }
 </script>

@@ -144,7 +144,7 @@ if (empty($_POST['form_sign'])) {
    f.submit();
   }
  }
- let stayHere = './single_order_results.php?orderid=' + encodeURIComponent('<?php echo $orderid; ?>');
+ let stayHere = './single_order_results.php?orderid=' + <?php echo js_escape($orderid); ?>;
  window.location.assign(stayHere);
 </script>
 <?php
