@@ -156,7 +156,7 @@ function PrintForm() {
 <script type="text/javascript">
 // jQuery stuff to make the page a little easier to use
 
-$(document).ready(function(){
+$(function (){
     $(".save").click(function() { top.restoreSession(); document.forms["<?php echo $form_folder; ?>"].submit(); });
 
 <?php if ($returnurl == 'show.php') { ?>

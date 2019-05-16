@@ -127,7 +127,7 @@ $check_res = $formid ? $check_res : array();
                 }
             }
 
-            $(document).ready(function() {
+            $(function () {
                 // special case to deal with static and dynamic datepicker items
                 $(document).on('mouseover','.datepicker', function(){
                     $(this).datetimepicker({

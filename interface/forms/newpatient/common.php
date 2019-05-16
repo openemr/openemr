@@ -613,7 +613,7 @@ if ($GLOBALS['enable_group_therapy']) { ?>
 <?php
 } ?>
 
-$(document).ready(function(){
+$(function (){
     $('#billing_facility').addClass('col-sm-9');
     //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
     // the relevant css file needs to be called i.e. jquery-ui-darkness - to get a black tooltip
