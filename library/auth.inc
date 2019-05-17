@@ -30,6 +30,40 @@ require_once("$srcdir/authentication/login_operations.php");
 
 use OpenEMR\Common\Logging\EventAuditLogger;
 
+$log_caller = [
+    // $_SERVER keys of interest
+    'REMOTE_ADDR', 'SCRIPT_FILENAME', 'PHP_SELF', 'argv', 'QUERY_STRING', 'HTTP_REFERER', 'PHP_AUTH_USER',
+    // $_SESSION keys of interest
+    'authUser', 'authUserID', 'authId', 'userauthorized', "last_update", 'authGroup', 'authProvider',
+];
+$log_caller = array_flip($log_caller);
+$log_caller = array_merge(
+    array_intersect_key($_SERVER, $log_caller),
+    array_intersect_key($_SESSION, $log_caller)
+);
+//If session has timed out / been destroyed, logout record for null user/provider will be invalid.
+// Placeholder adjustments to $log_caller to prevent nulls in log
+if (is_null($_SESSION['authUser'])) {
+    $log_caller['authUser'] = '';
+}
+if (is_null($_SESSION['authProvider'])) {
+    $log_caller['authProvider'] = '';
+}
+$log_caller_print = print_r($log_caller, true);
+
+// Fast track logout requests
+if ((isset($_GET['auth'])) && ($_GET['auth'] == "logout")) {
+    // If session has timed out / been destroyed, logout record for null user/provider will be invalid.
+    // mdsupport : For destroyed sessions, ip address is valid info to close login loop (TBD : adodb qstr on null)
+    if (!empty($_SESSION['authUser']) && !empty($_SESSION['authProvider'])) {
+        EventAuditLogger::instance()->newEvent("logout", $log_caller['authUser'], $log_caller['authProvider'], 1, 
+                                               "Session closed : ".$log_caller_print);
+    }
+    authCloseSession();
+    authLoginScreen(true);
+    exit;
+}
+
 $incoming_site_id = '';
 
 if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser']) &&
@@ -64,12 +98,6 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
     //store the very first initial timestamp for timeout errors
     $_SESSION["last_update"] = time();
 } else if ((isset($_GET['auth'])) && ($_GET['auth'] == "logout")) {
-    //If session has timed out / been destroyed, logout record for null user/provider will be invalid.
-    if (!empty($_SESSION['authUser']) && !empty($_SESSION['authProvider'])) {
-        EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "success");
-    }
-    authCloseSession();
-    authLoginScreen(true);
 } else {
     if (authCheckSession()) {
         if (isset($_SESSION['pid']) && empty($GLOBALS['DAEMON_FLAG'])) {
