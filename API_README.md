@@ -17,8 +17,7 @@ Enable this API service in OpenEMR menu: Administration->Globals->Connectors->"E
 
 ### Using API Internally
 There are several ways to make API calls from an authorized session and maintain security:
-* cURL or Guzzle requests
-* oeHttp OpenEMR Http Rest Client
+* See the script at tests/api/tempFileTestInternalApi.php for examples of internal API use cases.
 
 ### Endpoints
 Note: FHIR endpoints follow normal FHIR REST endpoints. Use `https://domain/apis/fhir as base URI.`
