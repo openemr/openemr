@@ -5,7 +5,9 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -55,13 +57,6 @@ class oeHttpRequest extends oeOAuth
         });
     }
 
-    public function setLocalApiContext($isLocalApiContext = false)
-    {
-        return $this->tap($this, function ($request) use ($isLocalApiContext) {
-            $this->apiNative = $isLocalApiContext;
-        });
-    }
-
     public function asJson()
     {
         return $this->bodyFormat('json')->contentType('application/json');
@@ -84,7 +79,6 @@ class oeHttpRequest extends oeOAuth
 
     public function reAuth()
     {
-        $this->apiNative = false;
         $this->apiOAuth = true;
         return $this->tap($this, function ($request) {
             return $this->initOAuthClient();
@@ -185,15 +179,6 @@ class oeHttpRequest extends oeOAuth
 
     public function send($method, $url, $options = '')
     {
-        if ($this->apiNative && !$this->apiOAuth) {
-            $this->usingHeaders([
-                'appsecret' => session_id(),
-                'apptoken' => $_SESSION['csrf_token']
-            ]);
-            // important so we may retrieve session in api.
-            session_write_close();
-        }
-
         if ($this->apiOAuth) {
             $this->setOptions([
                 'handler' => $this->stack,

@@ -5,7 +5,9 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -36,8 +38,6 @@ class oeOAuth
     protected $oauth;
     protected $token_storage;
     protected $stack;
-    // If $apiNative is set to true, then current session is discretely passed as header and maintained.
-    public $apiNative = false;
     public $apiOAuth = false;
     public $DEBUG_MODE = false;
     public $useProxy = false;
@@ -59,8 +59,6 @@ class oeOAuth
 
     public function initOAuthClient()
     {
-        // Set some flags to ensure we implement this grant.
-        $this->apiNative = false;
         $this->apiOAuth = true;
 
         // auth endpoint debug

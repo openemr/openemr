@@ -17,8 +17,7 @@ Enable this API service in OpenEMR menu: Administration->Globals->Connectors->"E
 
 ### Using API Internally
 There are several ways to make API calls from an authorized session and maintain security:
-* cURL or Guzzle requests
-* oeHttp OpenEMR Http Rest Client
+* See the script at tests/api/tempFileTestInternalApi.php for examples of internal API use cases.
 
 ### Endpoints
 Note: FHIR endpoints follow normal FHIR REST endpoints. Use `https://domain/apis/fhir as base URI.`
@@ -780,10 +779,7 @@ curl -X DELETE 'http://localhost:8300/apis/api/patient/1/message/1'
 
 ### Project Management
 
-- TODO(team): Consider using Symfony's router
 - TODO(sherwin): Encounter POST
-- TODO(matthew): Fix authorization piece
-- TODO(?): Support CouchDB with document API
 - TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
 - TODO(?): API for fee sheets
 - TODO(?): API for pharmacies

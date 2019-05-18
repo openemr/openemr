@@ -8,7 +8,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2018 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -367,6 +367,8 @@ if (isset($_POST['new_login_session_management'])) {
 }
 // Create the csrf_token
 $_SESSION['csrf_token'] = createCsrfToken();
+// Also create a api_csrf_token that is only used for the api
+$_SESSION['api_csrf_token'] = createCsrfToken();
 
 $_SESSION["encounter"] = '';
 
