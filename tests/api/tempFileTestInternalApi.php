@@ -12,7 +12,7 @@
 
 // comment below exit command to run this test script
 //  (when done, remember to uncomment it again)
-// exit;
+exit;
 
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
