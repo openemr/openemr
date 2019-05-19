@@ -86,7 +86,7 @@ class Logger
         if (is_writable($combinedLogDir)) {
             $this->logFile = $combinedLogDir . DIRECTORY_SEPARATOR . $fileName;
         } else {
-            error_log('Can\'t write application log file to ' . $combinedLogDir);
+            error_log('Can\'t write application log file to ' . errorLogEscape($combinedLogDir);
         }
     }
 
@@ -193,7 +193,7 @@ class Logger
             file_put_contents($this->logFile, $logEntry.PHP_EOL, FILE_APPEND | LOCK_EX);
 
             if ($type === "ERROR") {
-                error_log($message);
+                error_log(errorLogEscape($message));
             }
         }
     }
