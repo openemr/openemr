@@ -12,7 +12,7 @@ class PatientDataSummary extends React.Component {
             var it = "tab-" + i;
             return (
                 <Tab.Pane eventKey={it} key={i}>
-                    <PatientDataTabBlock groupId={group.grp_group_id} groupFields={this.props.groupFields}/>
+                    <PatientDataTabBlock groupId={group.grp_group_id} groupFields={this.props.groupFields} data={this.props.data}/>
                 </Tab.Pane>
             )
         });

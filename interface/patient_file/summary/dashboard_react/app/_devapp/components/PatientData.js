@@ -31,10 +31,6 @@ class PatientData extends React.Component {
         // console.log("My name is: " + this.name + ": 1");
     }
 
-    componentDidMount() {
-        // console.log("My name is: " + this.name + ": 2");
-    }
-
     localToggle() {
         this.setState({isOpen: !this.state.isOpen});
     }
@@ -57,7 +53,7 @@ class PatientData extends React.Component {
 
     componentDidUpdate() {
         // console.log("My name is: " + this.name + ": 3");
-        // console.log("Query:" + JSON.stringify(this.state.data));
+        // console.log(this.state.data);
         this.state.data.map((data, i) => {
             parent.left_nav.setPatient(data.fname + " " + data.lname, data.pid, data.pubpid, '', data.str_dob);
         });
@@ -100,7 +96,7 @@ class PatientData extends React.Component {
                                             </Col>
                                             <Col sm={9}>
                                                 <Tab.Content>
-                                                    <PatientDataSummary groups={this.state.groups} groupFields={this.state.groupFields} />
+                                                    <PatientDataSummary groups={this.state.groups} groupFields={this.state.groupFields} data={this.state.data} />
                                                 </Tab.Content>
                                             </Col>
                                         </Row>
