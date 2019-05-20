@@ -39,10 +39,10 @@ class RandomGenUtils
             try {
                 $str .= $alphabet[random_int(0, $alphamax)];
             } catch (Error $e) {
-                error_log('OpenEMR Error : Encryption is not working because of random_int() Error: ' . errorLogEscape($e->getMessage());
+                error_log('OpenEMR Error : Encryption is not working because of random_int() Error: ' . errorLogEscape($e->getMessage()));
                 return '';
             } catch (Exception $e) {
-                error_log('OpenEMR Error : Encryption is not working because of random_int() Exception: ' . errorLogEscape($e->getMessage());
+                error_log('OpenEMR Error : Encryption is not working because of random_int() Exception: ' . errorLogEscape($e->getMessage()));
                 return '';
             }
         }
