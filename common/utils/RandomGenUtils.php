@@ -23,7 +23,7 @@ class RandomGenUtils
             error_log('OpenEMR Error : Encryption is not working because of random_bytes() Error: ' . errorLogEscape($e->getMessage()));
             return '';
         } catch (Exception $e) {
-            error_log('OpenEMR Error : Encryption is not working because of random_bytes() Exception: ' . errorLogEscape($e->getMessage());
+            error_log('OpenEMR Error : Encryption is not working because of random_bytes() Exception: ' . errorLogEscape($e->getMessage()));
             return '';
         }
 

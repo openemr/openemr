@@ -198,7 +198,7 @@ class C_Document extends Controller
                         $filetext = $this->cryptoGen->decryptStandard($filetext, $passphrase);
                         if ($filetext === false) {
                             error_log("OpenEMR Error: Unable to decrypt a document since decryption failed.");
-                            errorLogEscape($filetext = "");
+                            ($filetext = "");
                         }
                     }
                     if ($_POST['destination'] != '') {
