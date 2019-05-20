@@ -24,7 +24,7 @@ class PatientData extends React.Component {
     }
 
     componentDidMount() {
-        var groupsList = Promise.all([agent.PatientDataAgent.groups("DEM"), agent.PatientDataAgent.patient(this.props.pid)]);
+        var groupsList = Promise.all([agent.PatientDataAgent.groups("DEM"), agent.PatientDataAgent.patientExtend(this.props.pid)]);
         groupsList.then( ([listGroups, patientData]) => {
             this.setState({ groups: [listGroups][0], data: [patientData], isLoaded: true });
         });

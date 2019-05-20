@@ -63,19 +63,36 @@ const PatientDataAgent = {
             })
     },
 
-    patient: (patient_id) => {
+    patientExtend: (patient_id) => {
         return fetch(webroot +"/apis/api/patient/extended/" + patient_id, {
             method: "GET",
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
             }
-        })
-            .then((res) => res.json())
-        // .catch((error) => {
-        //     console.error(error);
-        // })
+        }).then((res) => res.json())
     },
+    patientApi: (method, ...vars) => {
+        let postParams;
+        if (method.toUpperCase() !== 'GET') {
+            postParams = vars.pop();
+        };
+        let params = vars.join('/');
+        let body = {
+            method: method,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            }
+        };
+        if (method.toUpperCase() !== 'GET') {
+            body['body'] = JSON.stringify(postParams);
+        };
+
+        return fetch(webroot +`/apis/api/patient/${params}`,
+            body
+        )
+    }
 
 }
 const Lists = {
