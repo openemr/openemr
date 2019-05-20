@@ -1840,24 +1840,22 @@ EOF;
 function postcalendar_admin_clearCache()
 {
     if (!PC_ACCESS_ADMIN) {
-        return _POSTCALENDAR_NOAUTH; }
+        return _POSTCALENDAR_NOAUTH;
+    }
 
-        $tpl = new pcSmarty();
-        //fmg: check that both subdirs to be cleared first exist and are writeable
-        $spec_err = '';
+    $tpl = new pcSmarty();
+    //fmg: check that both subdirs to be cleared first exist and are writeable
+    $spec_err = '';
+
     if (!file_exists($tpl->compile_dir)) {
-         $spec_err .= "Error: folder '$tpl->compile_dir' doesn't exist!<br>";
+        $spec_err .= "Error: folder '$tpl->compile_dir' doesn't exist!<br>";
     } else if (!is_writeable($tpl->compile_dir)) {
         $spec_err .= "Error: folder '$tpl->compile_dir' not writeable!<br>";
     }
-    if (!file_exists($tpl->cache_dir)) {
-        $spec_err .= "Error: folder '$tpl->cache_dir' doesn't exist!<br>";
-    } else if (!is_writeable($tpl->cache_dir)) {
-        $spec_err .= "Error: folder '$tpl->cache_dir' not writeable!<br>";
-    }
-        //note: we don't abort on error... like before.
-        $tpl->clear_all_cache();
-        $tpl->clear_compiled_tpl();
+
+    //note: we don't abort on error... like before.
+    $tpl->clear_all_cache();
+    $tpl->clear_compiled_tpl();
 
     return postcalendar_admin_modifyconfig('<center>'.$spec_err._PC_CACHE_CLEARED.'</center>');
 }
@@ -2026,21 +2024,6 @@ function postcalendar_admin_testSystem()
         $info .= "<br /><div style=\"color: red;\">$error</div>";
     }
     array_push($infos, array('smarty compile dir',  $info));
-
-    $info = $tpl->cache_dir;
-    $error = "";
-    if (!file_exists($tpl->cache_dir)) {
-        $error .= " cache dir doesn't exist! [$tpl->cache_dir]<br />";
-    } else {
-        // dir exists -> check if it's writeable
-        if (!is_writeable($tpl->cache_dir)) {
-            $error .= " cache dir not writeable! [$tpl->cache_dir]<br />";
-        }
-    }
-    if (strlen($error) > 0) {
-        $info .= "<br /><div style=\"color: red;\">$error</div>";
-    }
-    array_push($infos, array('smarty cache dir',  $info));
 
     $header = <<<EOF
 	<html>
