@@ -11,7 +11,7 @@ import Button from "react-bootstrap/Button";
 
 class Container extends Component {
     componentDidMount() {
-        debugger;
+        //debugger;
         this.setState({gadgets : this.getElement()});
     }
     constructor(props) {
@@ -26,23 +26,23 @@ class Container extends Component {
     getElement (){
 
         try {
-            debugger;
+            //debugger;
             let items = [];
             var result = [];
 
             this.state.children.map((v,i) => {
 
-                console.log(v);
-                console.log(i);
+                //console.log(v);
+                //console.log(i);
                 let item = v;
 
              if( item.activity != 0) {
-                    // debugger;
-                    // console.log('-------');
+                    // //debugger;
+                    // //console.log('-------');
                     let element = item.element;
                     let title = item.element_title;
                     let element_component = item.element_component;
-                    // console.log(element_component);
+                    // //console.log(element_component);
                     items.push(<LazyLoadModule key={element_component + i}
                                                resolve={() => import("./"+ element_component)}
                                                element={element}
@@ -55,7 +55,7 @@ class Container extends Component {
         }
         catch (e)
         {
-            console.log(e);
+            //console.log(e);
         }
     }
 
