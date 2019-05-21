@@ -24,9 +24,9 @@ class PatientData extends React.Component {
     }
 
     componentDidMount() {
-        var groupsList = Promise.all([agent.PatientDataAgent.groups("DEM"), agent.PatientDataAgent.patient(this.props.pid)]);
-        groupsList.then(([listGroups, patientData]) => {
-            this.setState({groups: [listGroups][0], data: [patientData], isLoaded: true});
+        var groupsList = Promise.all([agent.PatientDataAgent.groups("DEM"), agent.PatientDataAgent.patientExtend(this.props.pid)]);
+        groupsList.then( ([listGroups, patientData]) => {
+            this.setState({ groups: [listGroups][0], data: [patientData], isLoaded: true });
         });
         // console.log("My name is: " + this.name + ": 1");
     }
@@ -37,21 +37,18 @@ class PatientData extends React.Component {
 
 
     clickSelect(groupId) {
-        this.setState({
-            groupFields: []
-        });
-        Promise.all([agent.PatientDataAgent.byGroupId("DEM", groupId)]).then(
-            result => {
-                //result.map((a) => {
-                //if(!this.state.groupFields){
-                this.setState({
-                    groupFields: result[0]
-                });
+            Promise.all([agent.PatientDataAgent.byGroupId("DEM", groupId)]).then(
+                result => {
+                    //result.map((a) => {
+                        //if(!this.state.groupFields){
+                            this.setState({
+                                groupFields: result[0]
+                            });
 
-                // }
-                //});
-            }
-        );
+                       // }
+                    //});
+                }
+            );
     }
 
     componentDidUpdate() {

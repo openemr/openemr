@@ -1,5 +1,5 @@
 import React from "react";
-import OEApi from "../utils/api"
+import agent from "../utils/agent"
 import ToggleButton from './global/ToggleButton.js';
 import {Button, Table, Card, Collapse, Tab, Row, Col, Nav, Container} from 'react-bootstrap';
 import MessagesSummary from "./messages/MessagesSummary"
@@ -28,7 +28,7 @@ class PatientMessages extends React.Component {
      */
     componentDidMount() {
 
-        let getMassage = OEApi.PatientApi.fetch(this.props.pid, 'message');
+        let getMassage = agent.PatientDataAgent.patientApi('GET', this.props.pid, 'message');
         getMassage.then(res => res.json()).then((response) => {
             this.setState({
                 messages:response,

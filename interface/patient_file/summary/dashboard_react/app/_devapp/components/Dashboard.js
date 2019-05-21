@@ -42,6 +42,7 @@ class Dashboard extends React.Component {
             patientId: patientId
         });
 
+        //TEMP SOLUTION - create pid session
         agent.PatientDataAgent.setGlobalPatientId(patientId);
 
         this.fetchData("dashboard").then(result => {
