@@ -25,8 +25,8 @@ class PatientData extends React.Component {
 
     componentDidMount() {
         var groupsList = Promise.all([agent.PatientDataAgent.groups("DEM"), agent.PatientDataAgent.patient(this.props.pid)]);
-        groupsList.then( ([listGroups, patientData]) => {
-            this.setState({ groups: [listGroups][0], data: [patientData], isLoaded: true });
+        groupsList.then(([listGroups, patientData]) => {
+            this.setState({groups: [listGroups][0], data: [patientData], isLoaded: true});
         });
         // console.log("My name is: " + this.name + ": 1");
     }
@@ -37,18 +37,21 @@ class PatientData extends React.Component {
 
 
     clickSelect(groupId) {
-            Promise.all([agent.PatientDataAgent.byGroupId("DEM", groupId)]).then(
-                result => {
-                    //result.map((a) => {
-                        //if(!this.state.groupFields){
-                            this.setState({
-                                groupFields: result[0]
-                            });
+        this.setState({
+            groupFields: []
+        });
+        Promise.all([agent.PatientDataAgent.byGroupId("DEM", groupId)]).then(
+            result => {
+                //result.map((a) => {
+                //if(!this.state.groupFields){
+                this.setState({
+                    groupFields: result[0]
+                });
 
-                       // }
-                    //});
-                }
-            );
+                // }
+                //});
+            }
+        );
     }
 
     componentDidUpdate() {
@@ -72,8 +75,8 @@ class PatientData extends React.Component {
                 <div className="card-header">
 
                     <ToggleButton isOpen={this.state.isOpen}
-                                    onClick={() => this.localToggle()}
-                                    rightText={rightTextButton}/>
+                                  onClick={() => this.localToggle()}
+                                  rightText={rightTextButton}/>
 
                     <Collapse in={this.state.isOpen}>
 
@@ -86,17 +89,21 @@ class PatientData extends React.Component {
                                                 <Nav variant="pills" className="flex-column">
                                                     {this.state.groups.map((group, j) => {
                                                         var jt = "tab-" + j;
-                                                            return (
-                                                            <Nav.Item key={j} onClick={()=>this.clickSelect(group.grp_group_id)} >
-                                                                <Nav.Link eventKey={jt} key={j} >{group.grp_title}</Nav.Link>
+                                                        return (
+                                                            <Nav.Item key={j}
+                                                                      onClick={() => this.clickSelect(group.grp_group_id)}>
+                                                                <Nav.Link eventKey={jt}
+                                                                          key={j}>{group.grp_title}</Nav.Link>
                                                             </Nav.Item>
-                                                            )
-                                                        })}
+                                                        )
+                                                    })}
                                                 </Nav>
                                             </Col>
                                             <Col sm={9}>
                                                 <Tab.Content>
-                                                    <PatientDataSummary groups={this.state.groups} groupFields={this.state.groupFields} data={this.state.data} />
+                                                    <PatientDataSummary groups={this.state.groups}
+                                                                        groupFields={this.state.groupFields}
+                                                                        data={this.state.data}/>
                                                 </Tab.Content>
                                             </Col>
                                         </Row>
