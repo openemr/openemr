@@ -106,12 +106,16 @@ class Dashboard extends React.Component {
                       let element = item.notes.element;
                       let title = item.title;
                       let element_component = item.notes.element_component;
+                      let children = item.notes.children;
                       // console.log(element_component);
                       items.push(<LazyLoadModule key={element_component + i}
                                                  resolve={() => import(/* webpackMode: "eager" */"./"+ element_component)}
                                                  element={element}
                                                  element_title={title}
-                                                 pid={this.state.patientId}/>);
+                                                 pid={this.state.patientId}
+                                                 children={children}
+
+                      />);
                   }
             })
 
@@ -150,16 +154,11 @@ class Dashboard extends React.Component {
 
                     </div>
                     <div className="col-md-4">
-                        <Card>
-                        <Card.Header>
-                            Medical Highlights
-                        </Card.Header>
-                        <Card.Body>
+
                             {this.state.right}
-                        </Card.Body>
-                        </Card>
 
                         </div>
+
                 </div>
             </div>
                 }
