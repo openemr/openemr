@@ -25,10 +25,9 @@ class PatientData extends React.Component {
 
     componentDidMount() {
         var groupsList = Promise.all([agent.PatientDataAgent.groups("DEM"), agent.PatientDataAgent.patientExtend(this.props.pid)]);
-        groupsList.then( ([listGroups, patientData]) => {
-            this.setState({ groups: [listGroups][0], data: [patientData], isLoaded: true });
+        groupsList.then(([listGroups, patientData]) => {
+            this.setState({groups: [listGroups][0], data: [patientData], isLoaded: true});
         });
-        // console.log("My name is: " + this.name + ": 1");
     }
 
     localToggle() {
@@ -37,23 +36,24 @@ class PatientData extends React.Component {
 
 
     clickSelect(groupId) {
-            Promise.all([agent.PatientDataAgent.byGroupId("DEM", groupId)]).then(
-                result => {
-                    //result.map((a) => {
-                        //if(!this.state.groupFields){
-                            this.setState({
-                                groupFields: result[0]
-                            });
+        this.setState({
+            groupFields: []
+        });
+        Promise.all([agent.PatientDataAgent.byGroupId("DEM", groupId)]).then(
+            result => {
+                //result.map((a) => {
+                //if(!this.state.groupFields){
+                this.setState({
+                    groupFields: result[0]
+                });
 
-                       // }
-                    //});
-                }
-            );
+                // }
+                //});
+            }
+        );
     }
 
     componentDidUpdate() {
-        // console.log("My name is: " + this.name + ": 3");
-        // console.log(this.state.data);
         this.state.data.map((data, i) => {
             parent.left_nav.setPatient(data.fname + " " + data.lname, data.pid, data.pubpid, '', data.str_dob);
         });
