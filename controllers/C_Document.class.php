@@ -613,7 +613,7 @@ class C_Document extends Controller
                     unlink($to_file_tmp);
                     unlink($to_file_tmp_name);
                 } else {
-                    error_log("ERROR: Document '" . basename_international($url) . "' cannot be converted to JPEG. Perhaps ImageMagick is not installed?");
+                    error_log("ERROR: Document '" . errorLogEscape(basename_international($url)) . "' cannot be converted to JPEG. Perhaps ImageMagick is not installed?");
                 }
                 // now collect the newly created converted jpg
                 $couchF = new CouchDB();
@@ -742,7 +742,7 @@ class C_Document extends Controller
                     }
                 } else {
                     $filetext = '';
-                    error_log("ERROR: Document '" . basename_international($url) . "' cannot be converted to JPEG. Perhaps ImageMagick is not installed?");
+                    error_log("ERROR: Document '" . errorLogEscape(basename_international($url)) . "' cannot be converted to JPEG. Perhaps ImageMagick is not installed?");
                 }
                 if ($disable_exit == true) {
                     return $filetext;
