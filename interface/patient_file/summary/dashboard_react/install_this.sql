@@ -7,4 +7,5 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('dashboard', 'menu_dashboard', 'Menu', 1, 0, 0, '', '{\"id\":\"header\",\"element_component\":\"MenuDashboard\",\"element\":\"MenuDashboard\"}', '', 0, 0, 1, '', 1, '2019-04-21 06:33:30'),
 ('dashboard', 'patient_details', 'Patient Details', 2, 0, 0, '', '{\"id\":\"left\",\"element_component\":\"PatientData\",\"element\":\"PatientData\"}', '', 0, 0, 1, '', 1, '2019-04-21 06:33:30'),
 ('dashboard', 'patient_messages', 'Patient Messages', '7', '0', '0', '', '{"id":"left","element_component":"PatientMessages","element":"PatientMessages"}', '', '0', '0', '1', '', '1', '2019-04-21 06:33:30'),
+('dashboard', 'billing', 'Billing', '8', '0', '0', '', '{"id":"left","element_component":"Billing","element":"Billing"}', '', '0', '0', '1', '', '1', '2019-04-21 06:33:30'),
 ('lists', 'dashboard', 'dashboard', 306, 1, 0, '', NULL, '', 0, 0, 1, '', 1, '2019-04-21 06:30:49');
