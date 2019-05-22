@@ -408,10 +408,12 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 
     $appointments = sortAppointments($appointments, $form_orderby);
     $pid_list = array();  // Initialize list of PIDs for Superbill option
+    $apptdate_list = array(); // same as above for the appt details
     $totalAppontments = count($appointments);
 
     foreach ($appointments as $appointment) {
         array_push($pid_list, $appointment['pid']);
+        array_push($apptdate_list, $appointment['pc_eventDate']);
         $patient_id = $appointment['pid'];
         $docname  = $appointment['ulname'] . ', ' . $appointment['ufname'] . ' ' . $appointment['umname'];
 

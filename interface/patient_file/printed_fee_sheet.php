@@ -15,7 +15,9 @@
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
+require_once("$srcdir/appointments.inc.php");
 require_once("$srcdir/patient.inc");
+require_once("$srcdir/user.inc");
 
 use OpenEMR\Services\FacilityService;
 
@@ -98,9 +100,13 @@ if (empty($_GET['fill'])) {
 
 // Show based on session array or single pid?
 $pid_list = array();
+$apptdate_list = array();
+
 
 if (!empty($_SESSION['pidList']) and $form_fill == 2) {
     $pid_list = $_SESSION['pidList'];
+    // If PID list is in Session, then Appt. Date list is expected to be a parallel array
+    $apptdate_list = $_SESSION['apptdateList'];
 } else if ($form_fill == 1) {
     array_push($pid_list, $pid); //get from active PID
 } else {
@@ -325,14 +331,7 @@ function printlog_before_print() {
 <body bgcolor='#ffffff'>
 <form name='theform' method='post' action='printed_fee_sheet.php?fill=" . attr_url($form_fill) . "'
 onsubmit='return opener.top.restoreSession()'>
-<center>";
-
-// Set Pagebreak for multi forms
-if ($form_fill == 2) {
-    $html .= "<div class=pagebreak>\n";
-} else {
-    $html .= "<div>\n";
-}
+<div style='text-align: center;'>";
 
 $today = date('Y-m-d');
 
@@ -361,11 +360,26 @@ if (is_file("$webserver_root/$ma_logo_path")) {
 
 // Loop on array of PIDS
 $saved_pages = $pages; //Save calculated page count of a single fee sheet
+$loop_idx = 0; // counter for appt list
+
 
 foreach ($pid_list as $pid) {
+
+    $apptdate = $apptdate_list[$loop_idx]; // parallel array to pid_list
+    $appointment = fetchAppointments( $apptdate, $apptdate, $patient_id=$pid );  // Only expecting one row for pid
+
+    // Set Pagebreak for multi forms
+    if ($form_fill == 2) {
+        $html .= "<div class=pagebreak>\n";
+    } else {
+        $html .= "<div>\n";
+    }
+
     if ($form_fill) {
         // Get the patient's name and chart number.
         $patdata = getPatientData($pid);
+        // Get the referring providers info
+        $referDoc = getUserIDInfo($patdata['ref_providerID']);
     }
 
 // This tracks our position in the $SBCODES array.
@@ -373,8 +387,13 @@ foreach ($pid_list as $pid) {
 
     while (--$pages >= 0) {
         $html .= genFacilityTitle(xl('Superbill/Fee Sheet'), -1, $logo);
-
-        $html .="
+        $html .= '<table style="width: 100%"><tr>' .
+            '<td>Patient: <span style="font-weight: bold;">' . $patdata['fname'] . ' ' . $patdata['mname'] . ' ' . $patdata['lname'] . '</span></td>' .
+            '<td>DOB: <span style="font-weight: bold;">' . date("m-d-Y", $patdata['DOB']) . '</span></td>' .
+            '<td>Date of Service: <span style="font-weight: bold;">' . date("m-d-Y", $appointment['pc_eventDate']) . '</span></td>' .
+            '<td>Ref Prov: <span style="font-weight: bold;">' . $referDoc['fname'] . ' ' . $referDoc['lname'] . '</span></td>' .
+            '</tr></table>';
+        $html .= "
 <table class='bordertbl' cellspacing='0' cellpadding='0' width='100%'>
 <tr>
 <td valign='top'>
@@ -403,14 +422,15 @@ foreach ($pid_list as $pid) {
             $html .= "</td>
 <td valign='top' class='fshead'>";
             $html .= xlt('DOB');
-            $html .= ":<br />";
+            $html .= ": ";
 
             if ($form_fill) {
                 $html .= text($patdata['DOB']);
+                $html .= "<br />";
             }
 
             $html .= xlt('ID');
-            $html .= ":<br />";
+            $html .= ": ";
 
             if ($form_fill) {
                 $html .= text($patdata['pubpid']);
@@ -421,7 +441,7 @@ foreach ($pid_list as $pid) {
 <tr>
 <td colspan='3' valign='top' class='fshead' style='height:${lheight}pt'>";
             $html .= xlt('Doctor');
-            $html .= ":<br />";
+            $html .= ": ";
 
             $encdata = false;
             if ($form_fill && $encounter) {
@@ -445,6 +465,10 @@ foreach ($pid_list as $pid) {
             if (!empty($encdata)) {
                 $html .= text($encdata['reason']);
             }
+
+            // Note: You would think that pc_comments would have the Appt. comments,
+            // but it is actually stored in pc_hometext in DB table (openemr_postcalendar_events).
+            $html .= $appointment['pc_hometext'];
 
             $html .= "</td>
 </tr>
@@ -569,10 +593,11 @@ foreach ($pid_list as $pid) {
 
 </table>";
 
-        $html .= "</div>";  //end of div.pageLetter
+        $html .= "</div>";  // end of div.pageLetter
     } // end while
-    $pages = $saved_pages; //RESET
-}
+    $pages = $saved_pages; // reset
+    $loop_idx++; // appt list counter
+} // end foreach
 
 // Common End Code
 if ($form_fill != 2) {   //use native browser 'print' for multipage
@@ -586,8 +611,8 @@ if ($form_fill != 2) {   //use native browser 'print' for multipage
 }
 
 $html .= "
+</div>
 </form>
-</center>
 </body>
 </html>";
 
