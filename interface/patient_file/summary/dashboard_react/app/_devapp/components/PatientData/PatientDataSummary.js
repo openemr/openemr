@@ -9,7 +9,7 @@ class PatientDataSummary extends React.Component {
 
     render() {
         let tabContents = this.props.groups.map((group, i) => {
-            var it = "tab-" + i;
+            var it = "tab-" + group.grp_group_id;
             return (
                 <Tab.Pane eventKey={it} key={i}>
                     <PatientDataTabBlock groupId={group.grp_group_id} groupFields={this.props.groupFields} data={this.props.data}/>

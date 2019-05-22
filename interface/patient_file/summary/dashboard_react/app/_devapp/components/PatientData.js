@@ -32,6 +32,10 @@ class PatientData extends React.Component {
 
     localToggle() {
         this.setState({isOpen: !this.state.isOpen});
+        const {isLoaded} = this.state;
+        if(isLoaded) {
+             this.clickSelect(this.props.settings['defaultGroupId']);
+        }
     }
 
 
@@ -61,10 +65,10 @@ class PatientData extends React.Component {
     }
 
     render() {
-        const {isOpen} = this.state;
         const {isLoaded} = this.state;
-        const {data} = this.state;
-        var rightTextButton = "Patient Data";
+        //TODO
+        //Make a variable for save a last opened tab
+        let defaultActiveTab = "tab-" + this.props.settings['defaultGroupId'];
 
         return (
             isLoaded && this.state.groups &&
@@ -73,19 +77,19 @@ class PatientData extends React.Component {
 
                     <ToggleButton isOpen={this.state.isOpen}
                                   onClick={() => this.localToggle()}
-                                  rightText={rightTextButton}/>
+                                  rightText={this.props.title}/>
 
                     <Collapse in={this.state.isOpen}>
 
                         <Card>
                             <Card.Body>
                                 <div id="example-fade-text">
-                                    <Tab.Container id="left-tabs-example" defaultActiveKey="tab-0">
+                                    <Tab.Container id="left-tabs-example" defaultActiveKey={defaultActiveTab} >
                                         <Row>
                                             <Col sm={3}>
                                                 <Nav variant="pills" className="flex-column">
                                                     {this.state.groups.map((group, j) => {
-                                                        var jt = "tab-" + j;
+                                                        var jt = "tab-" + group.grp_group_id;
                                                         return (
                                                             <Nav.Item key={j}
                                                                       onClick={() => this.clickSelect(group.grp_group_id)}>
@@ -121,6 +125,6 @@ class PatientData extends React.Component {
 
 export default {
     view: (props) => (
-        <PatientData pid={props.pid} title={props.element_title}/>
+        <PatientData pid={props.pid} title={props.element_title} settings={props.settings}/>
     )
 };

@@ -107,13 +107,14 @@ class Dashboard extends React.Component {
                       let title = item.title;
                       let element_component = item.notes.element_component;
                       let children = item.notes.children;
-                      // console.log(element_component);
+                      let settings = item.notes.settings ? item.notes.settings : null;
                       items.push(<LazyLoadModule key={element_component + i}
                                                  resolve={() => import(/* webpackMode: "eager" */"./"+ element_component)}
                                                  element={element}
                                                  element_title={title}
                                                  pid={this.state.patientId}
                                                  children={children}
+                                                 settings={settings}
 
                       />);
                   }
