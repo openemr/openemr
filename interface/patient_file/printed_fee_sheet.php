@@ -364,9 +364,8 @@ $loop_idx = 0; // counter for appt list
 
 
 foreach ($pid_list as $pid) {
-
     $apptdate = $apptdate_list[$loop_idx]; // parallel array to pid_list
-    $appointment = fetchAppointments( $apptdate, $apptdate, $patient_id=$pid );  // Only expecting one row for pid
+    $appointment = fetchAppointments($apptdate, $apptdate, $pid);  // Only expecting one row for pid
 
     // Set Pagebreak for multi forms
     if ($form_fill == 2) {
@@ -388,10 +387,10 @@ foreach ($pid_list as $pid) {
     while (--$pages >= 0) {
         $html .= genFacilityTitle(xl('Superbill/Fee Sheet'), -1, $logo);
         $html .= '<table style="width: 100%"><tr>' .
-            '<td>Patient: <span style="font-weight: bold;">' . $patdata['fname'] . ' ' . $patdata['mname'] . ' ' . $patdata['lname'] . '</span></td>' .
-            '<td>DOB: <span style="font-weight: bold;">' . date("m-d-Y", $patdata['DOB']) . '</span></td>' .
-            '<td>Date of Service: <span style="font-weight: bold;">' . date("m-d-Y", $appointment['pc_eventDate']) . '</span></td>' .
-            '<td>Ref Prov: <span style="font-weight: bold;">' . $referDoc['fname'] . ' ' . $referDoc['lname'] . '</span></td>' .
+            '<td>' . xlt(Patient) . ': <span style="font-weight: bold;">' . text($patdata['fname']) . ' ' . text($patdata['mname']) . ' ' . text($patdata['lname']) . '</span></td>' .
+            '<td>' . xlt(DOB) . ': <span style="font-weight: bold;">' . text(date("m-d-Y", $patdata['DOB'])) . '</span></td>' .
+            '<td>' . xlt(Date of Service) . ': <span style="font-weight: bold;">' . text(date("m-d-Y", $appointment['pc_eventDate'])) . '</span></td>' .
+            '<td>' . xlt(Ref Prov) . ': <span style="font-weight: bold;">' . text($referDoc['fname']) . ' ' . text($referDoc['lname']) . '</span></td>' .
             '</tr></table>';
         $html .= "
 <table class='bordertbl' cellspacing='0' cellpadding='0' width='100%'>
