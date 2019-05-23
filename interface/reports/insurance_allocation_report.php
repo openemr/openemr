@@ -218,7 +218,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
     ksort($insarr);
 
-    while (list($key, $val) = each($insarr)) {
+    foreach ($insarr as $key => $val) {
         if ($_POST['form_csvexport']) {
             echo '"' . $key                                                . '",';
             echo '"' . oeFormatMoney($val['charges'])                      . '",';
