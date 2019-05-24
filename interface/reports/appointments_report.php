@@ -7,8 +7,12 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Ron Pulcer <rspulcer_2k@yahoo.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Ron Pulcer <rspulcer_2k@yahoo.com>
+ * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -32,6 +36,7 @@ if (!empty($_POST)) {
 # report, which is then used by the 'Superbills' and 'Address Labels'
 # features on this report.
 unset($_SESSION['pidList']);
+unset($_SESSION['apptdateList']);
 
 $alertmsg = ''; // not used yet but maybe later
 $patient = $_REQUEST['patient'];
@@ -490,6 +495,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 
     // assign the session key with the $pid_list array - note array might be empty -- handle on the printed_fee_sheet.php page.
         $_SESSION['pidList'] = $pid_list;
+        $_SESSION['apptdateList'] = $apptdate_list;
     ?>
     <tr>
         <td colspan="10" align="left"><?php echo xlt('Total number of appointments'); ?>:&nbsp;<?php echo text($totalAppontments);?></td>

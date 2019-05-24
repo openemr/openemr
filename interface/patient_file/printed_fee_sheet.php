@@ -7,8 +7,12 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Ron Pulcer <rspulcer_2k@yahoo.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2007-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Ron Pulcer <rspulcer_2k@yahoo.com>
+ * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -362,11 +366,9 @@ if (is_file("$webserver_root/$ma_logo_path")) {
 $saved_pages = $pages; //Save calculated page count of a single fee sheet
 $loop_idx = 0; // counter for appt list
 
-
 foreach ($pid_list as $pid) {
     $apptdate = $apptdate_list[$loop_idx]; // parallel array to pid_list
     $appointment = fetchAppointments($apptdate, $apptdate, $pid);  // Only expecting one row for pid
-
     // Set Pagebreak for multi forms
     if ($form_fill == 2) {
         $html .= "<div class=pagebreak>\n";
@@ -388,8 +390,8 @@ foreach ($pid_list as $pid) {
         $html .= genFacilityTitle(xl('Superbill/Fee Sheet'), -1, $logo);
         $html .= '<table style="width: 100%"><tr>' .
             '<td>' . xlt('Patient') . ': <span style="font-weight: bold;">' . text($patdata['fname']) . ' ' . text($patdata['mname']) . ' ' . text($patdata['lname']) . '</span></td>' .
-            '<td>' . xlt('DOB') . ': <span style="font-weight: bold;">' . text(date("m-d-Y", $patdata['DOB'])) . '</span></td>' .
-            '<td>' . xlt('Date of Service') . ': <span style="font-weight: bold;">' . text(date("m-d-Y", $appointment['pc_eventDate'])) . '</span></td>' .
+            '<td>' . xlt('DOB') . ': <span style="font-weight: bold;">' . text(oeFormatShortDate($patdata['DOB'])) . '</span></td>' .
+            '<td>' . xlt('Date of Service') . ': <span style="font-weight: bold;">' . text(oeFormatShortDate($appointment[0]['pc_eventDate'])) . ' ' . text(oeFormatTime($appointment[0]['pc_startTime'])) . '</span></td>' .
             '<td>' . xlt('Ref Prov') . ': <span style="font-weight: bold;">' . text($referDoc['fname']) . ' ' . text($referDoc['lname']) . '</span></td>' .
             '</tr></table>';
         $html .= "
@@ -409,8 +411,7 @@ foreach ($pid_list as $pid) {
         if ($pages == 0) { // if this is the last page
             $html .= "<tr>
 <td colspan='3' valign='top' class='fshead' style='height:" . $lheight * 2 . "pt'>";
-            $html .= xlt('Patient');
-            $html .= ":<br />";
+            $html .= xlt('Patient') . ": ";
 
             if ($form_fill) {
                 $html .= text($patdata['fname'] . ' ' . $patdata['mname'] . ' ' . $patdata['lname']) . "<br />\n";
@@ -439,7 +440,7 @@ foreach ($pid_list as $pid) {
 </tr>
 <tr>
 <td colspan='3' valign='top' class='fshead' style='height:${lheight}pt'>";
-            $html .= xlt('Doctor');
+            $html .= xlt('Provider');
             $html .= ": ";
 
             $encdata = false;
