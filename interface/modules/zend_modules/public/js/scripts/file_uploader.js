@@ -1,22 +1,13 @@
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  Basil PT <basil@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/public/js/scripts/file_uploader.js
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Basil PT <basil@zhservices.com>
+ * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 
 $(document).ready(function(){
 	$(".file-uploader-progress-close").click(function(){
@@ -27,7 +18,7 @@ $(document).ready(function(){
 		$(this).siblings(".file-uploader-progress-expand").show();
 		$(this).parents().eq(1).css("height","28px");
 		$(this).parents().eq(1).css("overflow","hidden");
-		
+
 	});
 	$(".file-uploader-progress-expand").click(function(){
 		window_height = window.innerHeight;
@@ -36,23 +27,23 @@ $(document).ready(function(){
 		$(this).siblings(".file-uploader-progress-minimize").show();
 		$(this).parents().eq(1).css("height",progress_div_height+"px");
 		$(this).parents().eq(1).css("overflow","auto");
-		
+
 	});
 });
 
 function AjaxFileUploader(settings) {
 	uplader_id = settings.uploader_id;
-	
+
 	drag_enter_class = settings.custom_classes.drag_enter;
 	drag_over_class	 = settings.custom_classes.drag_over;
-	
+
 	// Window Height & Width
 	window_height = window.innerHeight;
 	window_width	= window.innerWidth;
-	
+
 	progress_div_height = Number(window_height*40/100);
 	progress_div_width	= Number(window_width*40/100);
-	
+
 	if($(".file-uploader-progress").length <1 && settings.progress_bar) {
 		var progress_div = "<div class='file-uploader-progress' "+
 										 " style='width:"+progress_div_width+"px;height:"+progress_div_height+"px;'>"+
@@ -81,10 +72,10 @@ function AjaxFileUploader(settings) {
 			var files = $("#"+uplader_id+"_browse").prop("files");
 			handleFileUpload(files,$(".file-uploader-progress-content"),settings);
 	});
-	
+
 	if(settings.uploader_type == "single") {
 		$("body").prepend("<div id='"+uplader_id+"_drop' class='disable-select file-uploader-drop-div' style='width:"+window_width+"px;height:"+window_height+"px;'></div>");
-		
+
 		// To Show/Hide Drop handler on file drag
 		$(document).on('dragenter', function (e)
 		{
@@ -106,30 +97,30 @@ function AjaxFileUploader(settings) {
 		{
 			e.stopPropagation();
 			e.preventDefault();
-			
+
 			$('#'+uplader_id+'_drop').removeClass(drag_over_class);
 			$('#'+uplader_id+'_drop').removeClass(drag_enter_class);
-			
+
 			$('#'+uplader_id+'_drop').hide();
-			
+
 			progress_div_height = Number(window_height*40/100);
 			progress_div_width	= Number(window_width*80/100);
 			$(".file-uploader-progress").css("height",progress_div_height+"px");
 			$(".file-uploader-progress").css("width",progress_div_width+"px");
 			$(".file-uploader-progress").show();
-			
+
 			var files = e.originalEvent.dataTransfer.files;
 			handleFileUpload(files,$(".file-uploader-progress-content"),settings);
-			
+
 		});
 
 		$("body").on('dragleave', function (e)
 		{
 			$('#'+uplader_id+'_drop').removeClass(drag_over_class);
 			$('#'+uplader_id+'_drop').removeClass(drag_enter_class);
-			
+
 			$('#'+uplader_id+'_drop').hide();
-			
+
 			e.stopPropagation();
 			e.preventDefault();
 		});
@@ -150,23 +141,23 @@ function AjaxFileUploader(settings) {
 		$(document).on('drop', function (e)
 		{
 			e.stopPropagation();
-			e.preventDefault();	
+			e.preventDefault();
 		});
-		
+
 		var obj = $("#"+uplader_id);
-	
+
 		obj.on('dragenter', function (e){
 			obj.addClass(drag_enter_class);
 			e.stopPropagation();
 			e.preventDefault();
 		});
-	
+
 		obj.on('dragover', function (e){
 			obj.addClass(drag_over_class);
 			e.stopPropagation();
 			e.preventDefault();
 		});
-	
+
 		obj.on('drop', function (e){
 			obj.removeClass(drag_over_class);
 			obj.removeClass(drag_enter_class);
@@ -176,11 +167,11 @@ function AjaxFileUploader(settings) {
 			$(".file-uploader-progress").css("height",progress_div_height+"px");
 			$(".file-uploader-progress").css("width",progress_div_width+"px");
 			$(".file-uploader-progress").show();
-			
+
 			var files = e.originalEvent.dataTransfer.files;
 			handleFileUpload(files,$(".file-uploader-progress-content"),settings);
 		});
-		
+
 		$("body").on('dragleave', function (e)
 		{
 			obj.removeClass(drag_over_class);
@@ -211,7 +202,7 @@ function handleFileUpload(files,obj,settings)
 		fd.append('encounter_specific', settings.encounter_specific.toString());
 		fd.append('user_specific', settings.user_specific.toString());
 		fd.append('batch_upload', (files.length >1 && settings.batch_upload) ? 1 : 0);
-		
+
 		sendFileToServer(fd,status,settings.progress_bar,settings.success_function);
 	}
 }
@@ -234,7 +225,7 @@ function sendFileToServer(formData,status,progress_bar,success_function)
 					if(progress_bar) {
 						status.setProgress(percent);
 					}
-					
+
 				}, false);
 			}
 			return xhrobj;
@@ -270,7 +261,7 @@ function createStatusbar(obj)
 	 var resultTranslated = js_xl('Abort');
      this.abort = $("<div class='abort'>"+resultTranslated.msg+"</div>").appendTo(this.statusbar);
      obj.after(this.statusbar);
- 
+
     this.setFileNameSize = function(name,size)
     {
         var sizeStr="";
@@ -284,13 +275,13 @@ function createStatusbar(obj)
         {
             sizeStr = sizeKB.toFixed(2)+" KB";
         }
- 
+
         this.filename.html(name);
         this.size.html(sizeStr);
     }
     this.setProgress = function(progress)
-    {       
-        var progressBarWidth =progress*this.progressBar.width()/ 100;  
+    {
+        var progressBarWidth =progress*this.progressBar.width()/ 100;
         this.progressBar.find('div').animate({ width: progressBarWidth }, 10).html(progress + "% ");
         if(parseInt(progress) >= 100)
         {

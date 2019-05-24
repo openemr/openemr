@@ -1,23 +1,13 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  Vinish K  <vinish@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Syndromicsurveillance/view/syndromicsurveillance/syndromicsurveillance/index.phtml
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Vinish K <vinish@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 $code_list  = $this->code_list;
 $provider   = $this->provider;
@@ -29,13 +19,13 @@ $provider   = $this->provider;
         if(height_value < 300){ height_value = 300 };
         if (parent.document.getElementById('syndromicsurveillance_iframe')) {
             parent.iframeLoaded(height_value, 'syndromicsurveillance_iframe');
-        }        
+        }
     });
 </script>
 <form method="post" name="theform" id="theform">
 <input type="hidden" name="download_hl7" id="download_hl7">
 <div class="body_inner_wrapper">
-    <div class="header_wrap">        
+    <div class="header_wrap">
         <div class="header_wrap_left">
             <div class="search_button" id="searchbutton" title="Search"><?php echo $this->listenerObject->z_xlt('SEARCH'); ?></div>&nbsp;&nbsp;
             <?php
@@ -63,7 +53,7 @@ $provider   = $this->provider;
                                     $( "#form_date_to" ).datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['form_date_to'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>');
                                 });
                             </script>
-                        </td> 
+                        </td>
                     </tr>
                     <tr>
                         <td class="se_in_16_label"><label><?php echo $this->listenerObject->z_xlt('Diagnosis'); ?></label></td>
@@ -138,7 +128,7 @@ $provider   = $this->provider;
         <?php
         if(count($this->result) > 0){
         ?>
-        <table class="responsive"> 
+        <table class="responsive">
             <tr class="se_in_9">
                 <th width="2%"><?php echo '#';?></th>
                 <th width="10%" nowrap><?php echo $this->listenerObject->z_xlt('Patient Name'); ?></th>
@@ -149,7 +139,7 @@ $provider   = $this->provider;
                 <th><?php echo $this->listenerObject->z_xlt('Issue Date'); ?></th>
             </tr>
             <?php
-            $slno = ($this->escapeHtml($this->form_data['current_page']) - 1) * $this->escapeHtml($this->form_data['results']); 
+            $slno = ($this->escapeHtml($this->form_data['current_page']) - 1) * $this->escapeHtml($this->form_data['results']);
             foreach($this->result as $row_records){
                 $slno++;
                 ?>
@@ -177,7 +167,7 @@ $provider   = $this->provider;
         }
         ?>
     </div>
-    
+
     <input type="hidden" name="form_current_page" id="form_current_page" value="<?php echo $this->escapeHtml($this->form_data['current_page']);?>" />
     <input type="hidden" name="form_total_pages" id="form_total_pages" value="<?php echo $this->escapeHtml($this->form_data['total_pages']);?>" />
     <input type="hidden" name="form_count" id="form_count" value="<?php echo $this->escapeHtml($this->form_data['res_count']);?>" />

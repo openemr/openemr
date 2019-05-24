@@ -1,25 +1,14 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*    @author  Vinish K <vinish@zhservices.com>
-*    @author  Riju K P <rijukp@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncountermanagerController.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Vinish K <vinish@zhservices.com>
+ * @author    Riju K P <rijukp@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 namespace Carecoordination\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
@@ -31,13 +20,13 @@ class EncountermanagerController extends AbstractActionController
 {
     protected $encountermanagerTable;
     protected $listenerObject;
-    
+
     public function __construct(\Carecoordination\Model\EncountermanagerTable $table)
     {
         $this->encountermanagerTable = $table;
         $this->listenerObject   = new Listener;
     }
-    
+
     public function indexAction()
     {
         $request        = $this->getRequest();
@@ -48,12 +37,12 @@ class EncountermanagerController extends AbstractActionController
         $pid            = $request->getPost('form_pid', null);
         $encounter      = $request->getPost('form_encounter', null);
         $status         = $request->getPost('form_status', null);
-        
+
         if (!$pid && !$encounter && !$status) {
             $fromDate       = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400*7));
             $toDate         = $request->getPost('form_date_to', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_to', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
         }
-        
+
         $results        = $request->getPost('form_results', 100);
         $results        = ($results > 0) ? $results : 100;
         $current_page   = $request->getPost('form_current_page', 1);
@@ -63,7 +52,7 @@ class EncountermanagerController extends AbstractActionController
         $start          = ($end - $results);
         $new_search     = $request->getPost('form_new_search', null);
         $form_sl_no     = $request->getPost('form_sl_no', 0);
-        
+
         $downloadccda       = $request->getPost('downloadccda') ? $request->getPost('downloadccda') : $request->getQuery()->downloadccda;
         $latest_ccda    = $request->getPost('latestccda') ? $request->getPost('latestccda') : $this->getRequest()->getQuery('latest_ccda');
 
@@ -77,7 +66,7 @@ class EncountermanagerController extends AbstractActionController
             } else {
                 $combination     = $request->getPost('ccda_pid');
             }
-          
+
             for ($i=0; $i<count($combination); $i++) {
                 if ($i == (count($combination)-1)) {
                     if ($combination == $pid) {
@@ -99,7 +88,7 @@ class EncountermanagerController extends AbstractActionController
                                                                    'latest_ccda'  => $latest_ccda,
                                                                   ));
         }
-        
+
         $params     = array(
                         'from_date'     => $fromDate,
                         'to_date'       => $toDate,
@@ -114,7 +103,7 @@ class EncountermanagerController extends AbstractActionController
                         'expand_all'    => $expand_all,
                         'sl_no'         => $form_sl_no,
                     );
-        
+
         if ($new_search) {
             $count  = $this->getEncountermanagerTable()->getEncounters($params, 1);
         } else {
@@ -122,16 +111,16 @@ class EncountermanagerController extends AbstractActionController
         }
 
         $totalpages     = ceil($count/$results);
-        
+
         $details        = $this->getEncountermanagerTable()->getEncounters($params);
         $status_details = $this->getEncountermanagerTable()->getStatus($this->getEncountermanagerTable()->getEncounters($params));
-        
+
         $params['res_count'] = $count;
         $params['total_pages'] = $totalpages;
-        
+
         $layout     = $this->layout();
         $layout->setTemplate('carecoordination/layout/encountermanager');
-        
+
         $index = new ViewModel(array(
             'details'       => $details,
             'form_data'     => $params,
@@ -142,7 +131,7 @@ class EncountermanagerController extends AbstractActionController
         ));
         return $index;
     }
-    
+
     public function downloadAction()
     {
         $id         = $this->getRequest()->getQuery('id');
@@ -152,21 +141,21 @@ class EncountermanagerController extends AbstractActionController
             mkdir($dir, true);
             chmod($dir, 0777);
         }
-        
+
         $zip_dir    = sys_get_temp_dir()."/";
         $zip_name   = "CCDA_$id.zip";
-        
+
         $content    = $this->getEncountermanagerTable()->getFile($id);
         $f          = fopen($dir.$filename, "w");
         fwrite($f, $content);
         fclose($f);
-        
+
         copy(dirname(__FILE__)."/../../../../../public/css/CDA.xsl", $dir."CDA.xsl");
-        
+
         $zip = new Zip();
         $zip->setArchive($zip_dir.$zip_name);
         $zip->compress($dir);
-        
+
         ob_clean();
         header("Cache-Control: public");
         header("Content-Description: File Transfer");
@@ -174,7 +163,7 @@ class EncountermanagerController extends AbstractActionController
         header("Content-Type: application/download");
         header("Content-Transfer-Encoding: binary");
         readfile($zip_dir.$zip_name);
-        
+
         $view = new ViewModel();
         $view->setTerminal(true);
         return $view;
@@ -213,7 +202,7 @@ class EncountermanagerController extends AbstractActionController
             $zip_name = "CCDA.zip";
             $zip->setArchive($zip_dir.$zip_name);
             $zip->compress($parent_dir);
-        
+
             ob_clean();
             header("Cache-Control: public");
             header("Content-Description: File Transfer");
@@ -221,7 +210,7 @@ class EncountermanagerController extends AbstractActionController
             header("Content-Type: application/download");
             header("Content-Transfer-Encoding: binary");
             readfile($zip_dir.$zip_name);
-            
+
             $view = new ViewModel();
             $view->setTerminal(true);
             return $view;
@@ -241,7 +230,7 @@ class EncountermanagerController extends AbstractActionController
         echo $result;
         return $this->response;
     }
-    
+
     /**
     * Table Gateway
     *

@@ -1,23 +1,13 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  Vinish K  <vinish@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Ccr/view/ccr/ccr/revandapprove.phtml
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Vinish K <vinish@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 $patient_data = array(
 	'sex'			=> $this->listenerObject->z_xlt('Sex'),
@@ -63,9 +53,9 @@ $update = $this->listenerObject->z_xlt('Update');
             <input type="submit" class="search_button" value="<?php echo $this->listenerObject->z_xlt('Discard');?>" onclick="submit_form('discard');" style="position: absolute; left: 52%;top: 25px;">
         </div>
         <div class="clear"></div>
-        
+
         <div id="status1"></div>
-        
+
         <div class="clear"></div>
         <div class="se_in_8">
             <table class="responsive">
@@ -189,7 +179,7 @@ $update = $this->listenerObject->z_xlt('Update');
                             unset($aud_res['lists1'][$k]);
                         }
                     }
-                    
+
                     if($set == 0){
                         ?>
                         <tr>
