@@ -699,7 +699,7 @@ while ($row = sqlFetchArray($res)) {
         "z-index:1000;left:-1000px;top:0px;font-size:9pt;'>\n" .
         "<table width='100%'>\n" .
         "<tr><td class='bold' align='center' colspan='2' style='padding:4pt 0 4pt 0'>" .
-        htmlspecialchars($result_text) .
+        text($result_text) .
         "</td></tr>\n" .
         "<tr><td class='bold' width='1%' nowrap>" . xlt('Status') . ": </td>" .
         "<td>" . generate_select_list(
@@ -712,17 +712,17 @@ while ($row = sqlFetchArray($res)) {
           "<tr><td class='bold' nowrap>" . xlt('Facility') . ": </td>" .     // Ensoftek: Changed Facility to Text Area as the field procedure_result-->facility is now multi-line
           "<td><textarea rows='3' cols='15' name='form_facility[$lino]'" .
           " title='" . xla('Supplier facility name') . "'" .
-          " style='width:100%' />" . htmlspecialchars($result_facility) .
+          " style='width:100%' />" . text($result_facility) .
           "</textarea></td></tr>\n" .
           "<tr><td class='bold' nowrap>" . xlt('Comments') . ": </td>" .
           "<td><textarea rows='3' cols='15' name='form_comments[$lino]'" .
           " title='" . xla('Comments for this result or recommendation') . "'" .
-          " style='width:100%' />" . htmlspecialchars($result_comments) .
+          " style='width:100%' />" . text($result_comments) .
           "</textarea></td></tr>\n" .
           "<tr><td class='bold' nowrap>" . xlt('Notes') . ": </td>" .
           "<td><textarea rows='4' cols='15' name='form_notes[$lino]'" .
           " title='" . xla('Additional notes for this result or recommendation') . "'" .
-          " style='width:100%' />" . htmlspecialchars($result_notes) .
+          " style='width:100%' />" . text($result_notes) .
           "</textarea></td></tr>\n" .
           "</table>\n" .
           "<p><center><input type='button' value='" . xla('Close') . "' " .
@@ -746,10 +746,10 @@ if (!empty($facilities)) {
             if ($facility_array) {
                 $extra_html .=
                 "<tr><td><hr></td></tr>" .
-                "<tr><td>". htmlspecialchars($facility_array['fname']) . " " . htmlspecialchars($facility_array['lname']) . ", " . htmlspecialchars($facility_array['title']). "</td></tr>" .
-                "<tr><td>". htmlspecialchars($facility_array['organization']) . "</td></tr>" .
-                "<tr><td>". htmlspecialchars($facility_array['street']) . " " .htmlspecialchars($facility_array['city']) . " " . htmlspecialchars($facility_array['state']) . "</td></tr>" .
-                "<tr><td>". htmlspecialchars(formatPhone($facility_array['phone'])) . "</td></tr>";
+                "<tr><td>". text($facility_array['fname']) . " " . text($facility_array['lname']) . ", " . text($facility_array['title']). "</td></tr>" .
+                "<tr><td>". text($facility_array['organization']) . "</td></tr>" .
+                "<tr><td>". text($facility_array['street']) . " " .text($facility_array['city']) . " " . text($facility_array['state']) . "</td></tr>" .
+                "<tr><td>". text(formatPhone($facility_array['phone'])) . "</td></tr>";
             }
         }
     }
