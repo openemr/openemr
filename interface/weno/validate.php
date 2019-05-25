@@ -72,7 +72,7 @@ if (empty($pharmacy['ncpdp']) || $ncpdpLength < 10) {
 }
 $npiLength = strlen($pharmacy['npi']);
 if (empty($pharmacy['npi'] || $npiLength < 7)) {
-    print xlt("Pharmacy missing NPI  or less than 7 digits"). "<br>";
+    print xlt("Pharmacy missing NPI or less than 7 digits"). "<br>";
     exit;
 }
 //validate NPI exist
