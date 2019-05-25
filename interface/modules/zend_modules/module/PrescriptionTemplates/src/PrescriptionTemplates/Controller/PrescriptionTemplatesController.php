@@ -24,7 +24,6 @@ namespace PrescriptionTemplates\Controller;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 
-
 class PrescriptionTemplatesController extends AbstractActionController
 {
 
