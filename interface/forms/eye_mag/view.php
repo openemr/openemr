@@ -3661,7 +3661,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                         $found++;
                                                     }
                                                     // <!-- <i title="Build your plan." class="fa fa-mail-forward fa-flip-horizontal" id="make_blank_PLAN" name="make_blank_PLAN"></i>-->
-                                                    echo "<input type='checkbox' id='PLAN$counter' name='PLAN[]' $checked value='".attr($row[title])."'> ";
+                                                    echo "<input type='checkbox' id='PLAN$counter' name='PLAN[]' $checked value='".attr($row['title'])."'> ";
                                                     $label = text(substr($row['title'], 0, 30));
                                                     echo "<label for='PLAN$counter' class='input-helper input-helper--checkbox' title='".attr($row['notes'])."'>";
                                                     echo $label."</label><br />";
