@@ -1,23 +1,13 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  Vinish K <vinish@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Controller/SyndromicsurveillanceController.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Vinish K <vinish@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 namespace Syndromicsurveillance\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
@@ -33,13 +23,13 @@ class SyndromicsurveillanceController extends AbstractActionController
     protected $syndromicsurveillanceTable;
 
     protected $listenerObject;
-    
+
     public function __construct(\Syndromicsurveillance\Model\SyndromicsurveillanceTable $table)
     {
         $this->listenerObject   = new Listener;
         $this->syndromicsurveillanceTable = $table;
     }
-    
+
     /*
     * Display the list of patients having ICD9 codes which are reportable
     *
@@ -59,7 +49,7 @@ class SyndromicsurveillanceController extends AbstractActionController
         $toDate         = $request->getPost('form_date_to', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_to', null), 'yyyy-mm-dd', $date_display_format) : $default_to_date;
         $code_selected  = $request->getPost('form_icd_codes', null);
         $provider_selected  = $request->getPost('form_provider_id', null);
-        
+
         $results        = $request->getPost('form_results', 100);
         $results        = ($results > 0) ? $results : 100;
         $current_page   = $request->getPost('form_current_page', 1);
@@ -68,7 +58,7 @@ class SyndromicsurveillanceController extends AbstractActionController
         $new_search     = $request->getPost('form_new_search', null);
         $form_sl_no     = $request->getPost('form_sl_no', 0);
         $download_hl7   = $request->getPost('download_hl7', 0);
-        
+
         $params     = array(
                         'form_date_from'    => $fromDate,
                         'form_date_to'      => $toDate,
@@ -81,7 +71,7 @@ class SyndromicsurveillanceController extends AbstractActionController
                         'sl_no'         => $form_sl_no,
                     );
         $params['form_icd_codes'][] = $code_selected;
-        
+
         if ($new_search) {
             $count = $this->getSyndromicsurveillanceTable()->fetch_result($fromDate, $toDate, $code_selected, $provider_selected, $start, $end, 1);
         } else {
@@ -89,7 +79,7 @@ class SyndromicsurveillanceController extends AbstractActionController
         }
 
         $totalpages     = ceil($count/$results);
-        
+
         $params['res_count']    = $count;
         $params['total_pages']  = $totalpages;
         if ($download_hl7) {
@@ -97,10 +87,10 @@ class SyndromicsurveillanceController extends AbstractActionController
         }
 
         $search_result  = $this->getSyndromicsurveillanceTable()->fetch_result($fromDate, $toDate, $code_selected, $provider_selected, $start, $end);
-        
+
         $code_list  = $this->getSyndromicsurveillanceTable()->non_reported_codes();
         $provider   = $this->getSyndromicsurveillanceTable()->getProviderList();
-        
+
         $view               =  new ViewModel(array(
             'code_list'     => $code_list,
             'provider'      => $provider,
@@ -112,7 +102,7 @@ class SyndromicsurveillanceController extends AbstractActionController
         ));
         return $view;
     }
-    
+
     /**
     * Table Gateway
     *

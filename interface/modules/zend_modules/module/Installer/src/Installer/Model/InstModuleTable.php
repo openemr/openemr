@@ -1,25 +1,15 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  Jacob T.Paul  <jacob@zhservices.com>
-*    @author  Vipin Kumar   <vipink@zhservices.com>
-*    @author  Remesh Babu S <remesh@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jacob T.Paul <jacob@zhservices.com>
+ * @author    Vipin Kumar <vipink@zhservices.com>
+ * @author    Remesh Babu S <remesh@zhservices.com>
+ * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 namespace Installer\Model;
 
@@ -32,7 +22,7 @@ use Interop\Container\ContainerInterface;
 class InstModuleTable
 {
     protected $tableGateway;
-    
+
     /**
      * @var ApplicationTable
      */
@@ -52,7 +42,7 @@ class InstModuleTable
         $this->applicationTable       = new ApplicationTable;
         $this->container = $container;
     }
-  
+
   /**
    * Get All Modules Configuration Settings
    *
@@ -66,7 +56,7 @@ class InstModuleTable
         $result = $this->applicationTable->zQuery($sql, $params);
         return $result;
     }
-  
+
   /**
    *
    * @param type $dir
@@ -95,7 +85,7 @@ class InstModuleTable
             return true;
         }
     }
-  
+
   /**
    * Save Configuration Settings
    *
@@ -204,7 +194,7 @@ class InstModuleTable
 
             $result = $this->applicationTable->zQuery($sql, $params);
             $moduleInsertId = $result->getGeneratedValue();
-      
+
             $sql = "INSERT INTO module_acl_sections VALUES (?,?,0,?,?)";
             $params = array($moduleInsertId,$name,strtolower($directory),$moduleInsertId);
             $result = $this->applicationTable->zQuery($sql, $params);
@@ -213,7 +203,7 @@ class InstModuleTable
 
         return false;
     }
-  
+
   /**
    * get the list of all modules
    * @return multitype:
@@ -234,7 +224,7 @@ class InstModuleTable
         $all = array();
         $sql = "select * from modules where mod_active = 1 order by mod_ui_order asc";
         $res =  $this->applicationTable->zQuery($sql);
-     
+
         if (count($res) > 0) {
             foreach ($res as $row) {
                 $mod = new InstModule();
@@ -245,7 +235,7 @@ class InstModuleTable
 
         return $all;
     }
-  
+
   /**
    * @param int $id
    * @param string $cols
@@ -255,7 +245,7 @@ class InstModuleTable
     {
         $sql = "SELECT mod_directory FROM modules WHERE mod_id = ?";
         $results   = $this->applicationTable->zQuery($sql, array($id));
-    
+
         $resultSet    = new ResultSet();
         $resultSet->initialize($results);
         $resArr       = $resultSet->toArray();
@@ -312,7 +302,7 @@ class InstModuleTable
 
         return $resp;
     }
-  
+
   /**
    * Function to get ACL objects for module
    * @param int         $mod_id     Module PK
@@ -344,7 +334,7 @@ class InstModuleTable
 
         return $all;
     }
-  
+
   /**
    * Function to get Oemr User Group
    */
@@ -393,7 +383,7 @@ class InstModuleTable
 
         return $all;
     }
-  
+
   /**
    * Function to get Active Users
    */
@@ -414,7 +404,7 @@ class InstModuleTable
 
         return $all;
     }
-  
+
     public function getTabSettings($mod_id)
     {
         $all = array();
@@ -443,7 +433,7 @@ class InstModuleTable
         $result = $this->applicationTable->zQuery($sql, array($mod_id));
         $Section = $result->current();
         $aco = "modules_" . $Section['mod_directory'];
-    
+
         $sql = "SELECT * FROM gacl_aco_map WHERE section_value=?";
         $MapRes = $this->applicationTable->zQuery($sql, array($aco));
         foreach ($MapRes as $key => $MapRow) {
@@ -464,7 +454,7 @@ class InstModuleTable
 
         return $arr;
     }
-  
+
   /**
    *Function To Get Saved Hooks For this Module
    */
@@ -483,7 +473,7 @@ class InstModuleTable
 
         return $all;
     }
-  
+
   /**
    * Function to get Status of a Hook
    */
@@ -506,7 +496,7 @@ class InstModuleTable
             }
         }
     }
-  
+
   /**
    * Function to Delete Hooks
    */
@@ -517,7 +507,7 @@ class InstModuleTable
             $this->applicationTable->zQuery($sql, array($modId, $hookId, $hangerId));
         }
     }
-  
+
   /**
    * Save Module Hook settings
    */
@@ -546,7 +536,7 @@ class InstModuleTable
             $this->applicationTable->zQuery("DELETE FROM modules_hooks_settings WHERE id = ? ", array($post['hooksID']));
         }
     }
-  
+
   /**
    * Function to Delete Module Hooks
    */
@@ -557,7 +547,7 @@ class InstModuleTable
             $this->applicationTable->zQuery("DELETE FROM modules_hooks_settings WHERE mod_id = ? ", array($modId));
         }
     }
-  
+
     public function checkDependencyOnEnable($mod_id)
     {
         $retArray = array();
@@ -576,7 +566,7 @@ class InstModuleTable
                     }
                 }
             }
-  
+
             if (count($requiredModules) > 0) {
                 $retArray['status']   = "failure";
                 $retArray['code']   = "200";
@@ -594,8 +584,8 @@ class InstModuleTable
 
         return $retArray;
     }
-  
-  
+
+
     public function checkDependencyOnDisable($mod_id)
     {
         $retArray = array();
@@ -645,7 +635,7 @@ class InstModuleTable
 
         return $retArray;
     }
-  
+
     public function getDependencyModules($mod_id)
     {
         $reader = new Ini();
@@ -670,7 +660,7 @@ class InstModuleTable
 
         return $ret_str;
     }
-  
+
     public function getDependencyModulesDir($mod_id)
     {
         $depModulesArr    = array();
@@ -682,7 +672,7 @@ class InstModuleTable
 
         return $depModulesArr;
     }
-  
+
     public function getModuleStatusByDirectoryName($moduleDir)
     {
         $sql = "SELECT mod_active,mod_directory FROM modules WHERE mod_directory = ? ";
@@ -711,7 +701,7 @@ class InstModuleTable
         'modules'  => "Modules",
         );
     }
-  
+
     public function getModuleDirectory($mod_id)
     {
         $moduleName   = "";
@@ -728,7 +718,7 @@ class InstModuleTable
             return $moduleName;
         }
     }
-  
+
     public function checkModuleHookExists($mod_id, $hookId)
     {
         $sql = "SELECT obj_name FROM modules_settings WHERE mod_id = ? AND fld_type = '3' AND obj_name = ? ";
@@ -743,7 +733,7 @@ class InstModuleTable
             return "0";
         }
     }
-  
+
   //GET MODULE HOOKS FROM A FUNCTION IN CONFIGURATION MODEL CLASS
     public function getModuleHooks($moduleDirectory)
     {
@@ -757,8 +747,8 @@ class InstModuleTable
 
         return $hooksArr;
     }
-  
-  
+
+
   //GET MODULE ACL SECTIONS FROM A FUNCTION IN CONFIGURATION MODEL CLASS
     public function getModuleAclSections($moduleDirectory)
     {
@@ -770,7 +760,7 @@ class InstModuleTable
 
         return $aclArray;
     }
-  
+
     public function insertAclSections($acl_data, $mod_dir, $module_id)
     {
         $obj    = new ApplicationTable;
@@ -825,7 +815,7 @@ class InstModuleTable
             $result = $obj->zQuery($sql, array($module_id,$mod_dir,$mod_dir));
         }
     }
-  
+
     public function deleteACLSections($module_id)
     {
         $obj    = new ApplicationTable;
@@ -835,7 +825,7 @@ class InstModuleTable
         $sqsl     = "DELETE FROM modules_settings WHERE mod_id =? AND fld_type = 1";
         $obj->zQuery($sql, array($module_id));
     }
-  
+
   //GET DEPENDED MODULES OF A MODULE FROM A FUNCTION IN CONFIGURATION MODEL CLASS
     public function getDependedModulesByDirectoryName($moduleDirectory)
     {
@@ -851,7 +841,7 @@ class InstModuleTable
 
         return $retArr;
     }
-  
+
   /**
    * Function to Save Module Hooks
    */
@@ -862,7 +852,7 @@ class InstModuleTable
             $this->applicationTable->zQuery($sql, array($modId, $hookId, $hookTitle, $hookPath));
         }
     }
-  
+
   /**
    * Function to Save Module Hooks
    *
@@ -903,7 +893,7 @@ class InstModuleTable
 
         return $setup;
     }
-  
+
   /**
    * Function getObject
    * Dynamically create Module Controller / Form / Setup Object
@@ -929,7 +919,7 @@ class InstModuleTable
 
         return $obj;
     }
-  
+
   /**
    * validateNickName
    * @param String $name nickname

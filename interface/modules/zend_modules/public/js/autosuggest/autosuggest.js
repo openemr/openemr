@@ -1,30 +1,20 @@
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  Remesh Babu S <remesh@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
-/** 
- * Auto suggest 
+/**
+ * interface/modules/zend_modules/public/js/autosuggest/autosuggest.js
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Remesh Babu S <remesh@zhservices.com>
+ * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+/**
+ * Auto suggest
  * autosuggest.js
  */
 
 /**
  * Function PreventIt
- * 
+ *
  * @param {type} evt Event
  * @returns {undefined}
  */
@@ -39,9 +29,9 @@ function PreventIt(evt) {
 
 /**
    * Function lookup
-   * 
+   *
    * @param {string}  inputString   keyword
-   * @param {string}  searchType    Patient, CPT, Diagnosis etc. 
+   * @param {string}  searchType    Patient, CPT, Diagnosis etc.
    * @param {int}     searchEleNo   more then one search box
    * @param {string}  searchMode    Single / Multiple
    * @returns {undefined}
@@ -82,7 +72,7 @@ function PreventIt(evt) {
       var count = arr[1].split("/").length-1;
       var newPath = './';
       for(var i = 0; i < count; i++){
-        newPath += '../'; 
+        newPath += '../';
       }
 	    dataType: "html",
 			$.post(newPath + "public/application/index/search", {
@@ -114,12 +104,12 @@ function PreventIt(evt) {
                 $('#list_' + searchEleNo + '_1').focus();
                 $('#list_' + searchEleNo + '_1').css("background-color","#659CD8");
             }
-					} 
+					}
 				}
 			});
 		}
 	}
-  
+
 /**
  * Key Board Controls
  *
@@ -127,7 +117,7 @@ function PreventIt(evt) {
  * @param {type} row  Line No.
  * @param {type} id   ID for arrow key scroll
  * @param {type} no   Search Element no
- * @returns {undefined} 
+ * @returns {undefined}
  */
 function move(evt, row, id, no) {
 	evt = (evt) ? evt : window.event;
@@ -170,7 +160,7 @@ function move(evt, row, id, no) {
 		} else {
 			$('#closeme').trigger('click');
 		}
-		
+
 	} else {
 		if (no > 0) {
 			document.getElementById('inputString' + no).focus();
@@ -181,10 +171,10 @@ function move(evt, row, id, no) {
 }
 
 /**
- * 
+ *
  * @param {type} params
- * @param {type} id 
- * @param {type} no 
+ * @param {type} id
+ * @param {type} no
  * @returns {undefined}
  */
 function nextPage(params, id, no, mode) {
@@ -208,9 +198,9 @@ function previousPage(params, id, no, mode) {
 /**
  * Function Fill
  * Fill the selected value in the input box
- *  
+ *
  * @param {string} thisValue  Name to be Filled in the box
- * @param {string} id         Search Type 'Patient, CPT, Diagnosis etc.' 
+ * @param {string} id         Search Type 'Patient, CPT, Diagnosis etc.'
  * @param {int}    no         search Element No more then one search box
  * @param {string} mode       Search Mode Single / Multiple
  * @returns {undefined}
@@ -223,7 +213,7 @@ function fill(thisValue, id, no, mode) {
 	}*/
   $('#form_date').prop('disabled', true);
   $('#form_to_date').prop('disabled', true);
-  $('.validatebox-text').prop('disabled', true);	
+  $('.validatebox-text').prop('disabled', true);
   var arr = thisValue.split("|");
   if (mode == 'single') {
     if (no == '' || no == 0) {
@@ -256,8 +246,8 @@ function fill(thisValue, id, no, mode) {
       }
 
       var close_id = 'close|' + arr[0] + '|' + arr[1] + '|' + no;
-      var stringValue = '<div id="'+ arr[1] + '" class="selected_item">' 
-              + arr[0] 
+      var stringValue = '<div id="'+ arr[1] + '" class="selected_item">'
+              + arr[0]
               + '<span class="close" id="' + close_id + '">&times;</span></div>';
       $('#selected_search').append(stringValue);
       //$("#target").append('<div style="border:1px solid red">' + arr[0] + '</div>');
@@ -276,21 +266,21 @@ function fill(thisValue, id, no, mode) {
       }
 
       var close_id = 'close|' + arr[0] + '|' + arr[1] + '|' + no;
-      var stringValue = '<div id="'+ arr[1] + '" class="selected_item">' 
-              + arr[0] 
+      var stringValue = '<div id="'+ arr[1] + '" class="selected_item">'
+              + arr[0]
               + '<span class="close" id="' + close_id + '">&times;</span></div>';
       $('#selected_search' + no).append(stringValue);
       //$("#target").append('<div style="border:1px solid red">' + arr[0] + '</div>');
       setTimeout("$('#suggestions" + no + "').hide();", 100);
     }
   }
-	
+
 	$('#page').val("");
 }
 
 /**
  * Remove Selected Item
- * 
+ *
  */
 $(document).on('click', '.close', function(e){
   var id = $(this).attr("id");
@@ -363,7 +353,7 @@ $(document).on('change click keyup', '.lookup', function(e){
   if (e.type == 'click') {
     if ($(e.target).closest('.suggestions').length === 0) {
       $('.suggestions').hide();
-    } 
+    }
   }
 });
 

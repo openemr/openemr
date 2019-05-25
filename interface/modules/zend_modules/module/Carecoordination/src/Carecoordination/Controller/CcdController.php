@@ -1,24 +1,13 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*    @author  Riju KP <rijukp@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Riju KP <rijukp@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 namespace Carecoordination\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
@@ -40,23 +29,23 @@ class CcdController extends AbstractActionController
      * @var \Carecoordination\Model\CcdTable
      */
     protected $ccdTable;
-    
+
     protected $carecoordinationTable;
-    
+
     protected $documentsTable;
 
     /**
      * @var Documents\Controller\DocumentsController
      */
     private $documentsController;
-    
+
     public function __construct(
         CcdTable $ccdTable,
         CarecoordinationTable $carecoordinationTable,
         DocumentsTable $documentsTable,
         DocumentsController $documentsController
     ) {
-    
+
         $this->listenerObject = new Listener;
         $this->ccdTable = $ccdTable;
         $this->carecoordinationTable = $carecoordinationTable;
@@ -150,7 +139,7 @@ class CcdController extends AbstractActionController
     {
         return $this->carecoordinationTable;
     }
-    
+
     public function getDocumentsTable()
     {
         return $this->documentsTable;

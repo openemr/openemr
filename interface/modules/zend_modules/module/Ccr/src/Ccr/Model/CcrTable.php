@@ -1,23 +1,13 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  Vinish K <vinish@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Vinish K <vinish@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 namespace Ccr\Model;
 
 use Zend\Db\TableGateway\AbstractTableGateway;
@@ -35,7 +25,7 @@ require_once(dirname(__FILE__) . "/../../../../../../../../library/patient.inc")
 
 class CcrTable extends AbstractTableGateway
 {
-  
+
     public function __construct()
     {
     }
@@ -57,7 +47,7 @@ class CcrTable extends AbstractTableGateway
 
         return $records;
     }
-  
+
   /*
   * Fetch the documents uploaded by a user
   *
@@ -80,7 +70,7 @@ class CcrTable extends AbstractTableGateway
 
         return $records;
     }
-  
+
   /*
   * List the documents uploaded by the user alogn with the matched data
   *
@@ -110,7 +100,7 @@ class CcrTable extends AbstractTableGateway
 
         return $records;
     }
-  
+
   /*
   * Update the audit mater ID to documents table for future reference
   *
@@ -123,7 +113,7 @@ class CcrTable extends AbstractTableGateway
         $query = "UPDATE documents SET audit_master_id = ? WHERE id = ?";
         $appTable->zQuery($query, array($audit_master_id, $doc_id));
     }
-  
+
   /*
   * Insert the imprted data to audit master table
   *
@@ -139,15 +129,15 @@ class CcrTable extends AbstractTableGateway
         $ip_address = $var['ip_address'];
         $field_name_value_array     = $var['field_name_value_array'];
         $entry_identification_array = $var['entry_identification_array'];
-    
+
         if ($audit_master_id_to_delete) {
             $qry  = "DELETE from audit_details WHERE audit_master_id=?";
             $appTable->zQuery($qry, array($audit_master_id_to_delete));
-      
+
             $qry  = "DELETE from audit_master WHERE id=?";
             $appTable->zQuery($qry, array($audit_master_id_to_delete));
         }
-    
+
         $master_query = "INSERT INTO audit_master SET pid = ?,approval_status = ?,ip_address = ?,type = ?";
         $result       = $appTable->zQuery($master_query, array(0,$approval_status,$ip_address,$type));
         $audit_master_id    = $result->getGeneratedValue();
@@ -171,7 +161,7 @@ class CcrTable extends AbstractTableGateway
         $appTable->zQuery($detail_query, $detail_query_array);
         return $audit_master_id;
     }
-  
+
   /*
   * Library function to parse the CCR xml
   *
@@ -208,7 +198,7 @@ class CcrTable extends AbstractTableGateway
 
         return $res;
     }
-  
+
   /*
   * Fetch the data from audit tables
   *
@@ -244,7 +234,7 @@ class CcrTable extends AbstractTableGateway
 
         return $records;
     }
-  
+
   /*
   * Fetch the demographics data from audit tables
   *
@@ -264,7 +254,7 @@ class CcrTable extends AbstractTableGateway
 
         return $records;
     }
-  
+
   /*
   * Fetch the current demographics data of a patient from patient_data table
   *
@@ -283,7 +273,7 @@ class CcrTable extends AbstractTableGateway
 
         return $records;
     }
-  
+
   /*
   * Fetch the current Problems of a patient from lists table
   *
@@ -302,7 +292,7 @@ class CcrTable extends AbstractTableGateway
 
         return $records;
     }
-  
+
   /*
   * Fetch the current Allergies of a patient from lists table
   *
@@ -321,7 +311,7 @@ class CcrTable extends AbstractTableGateway
 
         return $records;
     }
-  
+
   /*
   * Fetch the current Medications of a patient from prescriptions table
   *
@@ -340,7 +330,7 @@ class CcrTable extends AbstractTableGateway
 
         return $records;
     }
-  
+
   /*
   * Fetch the current Immunizations of a patient from immunizations table
   *
@@ -359,7 +349,7 @@ class CcrTable extends AbstractTableGateway
 
         return $records;
     }
-  
+
   /*
   * Fetch the currect Lab Results of a patient
   *
@@ -380,7 +370,7 @@ class CcrTable extends AbstractTableGateway
 
         return $records;
     }
-  
+
   /*
   * Insert the CCR data to the respective tables after approval
   *
@@ -459,7 +449,7 @@ class CcrTable extends AbstractTableGateway
         $appTable->zQuery("UPDATE audit_master SET approval_status = '2' WHERE id=?", array($data['amid']));
         $appTable->zQuery("UPDATE documents SET audit_master_approval_status=2 WHERE audit_master_id=?", array($data['amid']));
     }
-  
+
   /*
   * Reject the data obtained from the CCR xml
   *
@@ -472,7 +462,7 @@ class CcrTable extends AbstractTableGateway
         $appTable->zQuery($query, array($data['audit_master_id']));
         $appTable->zQuery("UPDATE documents SET audit_master_approval_status=2 WHERE audit_master_id=?", array($data['audit_master_id']));
     }
-  
+
   /*
   * Fetch the patient data from audit tables and update to patient_data table
   *
@@ -541,7 +531,7 @@ class CcrTable extends AbstractTableGateway
         $appTable->zQuery("UPDATE audit_master SET approval_status=2 WHERE id=?", array($audit_master_id));
         $appTable->zQuery("UPDATE documents SET audit_master_approval_status=2 WHERE audit_master_id=?", array($audit_master_id));
     }
-  
+
   /*
   * Fetch a document from the database
   *
@@ -553,7 +543,7 @@ class CcrTable extends AbstractTableGateway
         $content = \Documents\Plugin\Documents::getDocument($document_id);
         return $content;
     }
-  
+
   /*
   * Update the status of a document after importing
   *

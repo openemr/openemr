@@ -1,24 +1,13 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*    @author  Riju KP <rijukp@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdTable.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Riju KP <rijukp@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 namespace Carecoordination\Model;
 
 use Zend\Db\TableGateway\AbstractTableGateway;
@@ -37,7 +26,7 @@ use Documents\Model\DocumentsTable;
 class CcdTable extends AbstractTableGateway
 {
     protected $ccd_data_array;
-    
+
     /*
      *  Fetch the component values from the CCDA XML*
      *
@@ -48,7 +37,7 @@ class CcdTable extends AbstractTableGateway
         $audit_master_approval_status        = $this->ccd_data_array['approval_status'] = 1;
         $this->ccd_data_array['ip_address']  = $_SERVER['REMOTE_ADDR'];
         $this->ccd_data_array['type']        = '13';
-    
+
     //Patient Details
         $this->ccd_data_array['field_name_value_array']['patient_data'][1]['fname']        = $xml['recordTarget']['patientRole']['patient']['name']['given'][0];
         $this->ccd_data_array['field_name_value_array']['patient_data'][1]['mname']        = $xml['recordTarget']['patientRole']['patient']['name']['given'][1];
@@ -62,12 +51,12 @@ class CcdTable extends AbstractTableGateway
         $this->ccd_data_array['field_name_value_array']['patient_data'][1]['phone_home']   = preg_replace('/[^0-9]+/i', '', $xml['recordTarget']['patientRole']['telecom']['value']);
         $this->ccd_data_array['field_name_value_array']['patient_data'][1]['extension']    = $xml['recordTarget']['patientRole']['id']['extension'];
 
-        
+
         // TODO: this should be created through DI
         $audit_master_id = \Application\Plugin\CommonPlugin::insert_ccr_into_audit_data($this->ccd_data_array);
         $this->update_document_table($document_id, $audit_master_id, $audit_master_approval_status);
     }
-    
+
     public function update_document_table($document_id, $audit_master_id, $audit_master_approval_status)
     {
         $appTable   = new ApplicationTable();

@@ -1,25 +1,14 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*    @author  Vinish K <vinish@zhservices.com>
-*    @author  Riju KP <rijukp@zhservices.com> 
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Vinish K <vinish@zhservices.com>
+ * @author    Riju KP <rijukp@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 namespace Ccr\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
@@ -34,16 +23,16 @@ class CcrController extends AbstractActionController
     protected $ccrTable;
     protected $listenerObject;
     private $documentsController;
-    
+
     public function __construct(CcrTable $ccrTable, DocumentsController $documentsController)
     {
         $this->ccrTable = $ccrTable;
         $this->listenerObject   = new Listener;
         $this->documentsController = $documentsController;
     }
-    
+
     /*
-    * Upload CCR XML file 
+    * Upload CCR XML file
     */
     public function indexAction()
     {
@@ -55,12 +44,12 @@ class CcrController extends AbstractActionController
         }
 
         $category_details = $this->getCcrTable()->fetch_cat_id('CCR');
-        
+
         $time_start     = date('Y-m-d H:i:s');
         $docid          = $this->documentsController->uploadAction($request);
         $uploaded_documents     = array();
         $uploaded_documents     = $this->getCcrTable()->fetch_uploaded_documents(array('user' => $_SESSION['authId'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')));
-        
+
         if ($uploaded_documents[0]['id'] > 0) {
             $_REQUEST["document_id"]    = $uploaded_documents[0]['id'];
             $_REQUEST["batch_import"]   = 'YES';
@@ -77,7 +66,7 @@ class CcrController extends AbstractActionController
                 }
             }
         }
-  
+
         $records = $this->getCcrTable()->document_fetch(array('cat_title' => 'CCR'));
         $view = new ViewModel(array(
             'records'       => $records,
@@ -89,7 +78,7 @@ class CcrController extends AbstractActionController
         ));
         return $view;
     }
-    
+
     /*
     * Import CCR data and update to audit tables
     *
@@ -241,7 +230,7 @@ class CcrController extends AbstractActionController
             $audit_master_id = $this->getCcrTable()->insert_ccr_into_audit_data($var);
             $this->getCcrTable()->update_imported($doc_id);
             $this->getCcrTable()->update_document($doc_id, $audit_master_id);
-            
+
             if ($_REQUEST["batch_import"]   == 'YES') {
                 return;
             } else {
@@ -252,7 +241,7 @@ class CcrController extends AbstractActionController
             //exit('Could not read the file');
         }
     }
-    
+
     /*
     * Review the data imported from the CCR file
     * Approve/Discard the data imported
@@ -267,7 +256,7 @@ class CcrController extends AbstractActionController
         $audit_master_id    = $request->getQuery('amid') ? $request->getQuery('amid') : $request->getPost('amid', null);
         $pid                = $request->getQuery('pid') ? $request->getQuery('pid') : $request->getPost('pid', null);
         $document_id        = $request->getQuery('document_id') ? $request->getQuery('document_id') : $request->getPost('document_id', null);
-        
+
         if ($request->getPost('setval') == 'approve') {
             $this->getCcrTable()->insertApprovedData($_REQUEST);
             return $this->redirect()->toRoute('ccr', array('action'=>'index'));
@@ -275,25 +264,25 @@ class CcrController extends AbstractActionController
             $this->getCcrTable()->discardCCRData(array('audit_master_id' => $audit_master_id));
             return $this->redirect()->toRoute('ccr', array('action'=>'index'));
         }
-        
+
         $demographics       = $this->getCcrTable()->getDemographics(array('audit_master_id' => $audit_master_id));
         $demographics_old   = $this->getCcrTable()->getDemographicsOld(array('pid' => $pid));
-        
+
         $problems           = $this->getCcrTable()->getProblems(array('pid' => $pid));
         $problems_audit     = $this->getCcrTable()->createAuditArray($audit_master_id, 'lists1');
-        
+
         $allergies          = $this->getCcrTable()->getAllergies(array('pid' => $pid));
         $allergies_audit    = $this->getCcrTable()->createAuditArray($audit_master_id, 'lists2');
-        
+
         $medications        = $this->getCcrTable()->getMedications(array('pid' => $pid));
         $medications_audit  = $this->getCcrTable()->createAuditArray($audit_master_id, 'prescriptions');
-        
+
         $immunizations      = $this->getCcrTable()->getImmunizations(array('pid' => $pid));
         $immunizations_audit  = $this->getCcrTable()->createAuditArray($audit_master_id, 'immunizations');
-        
+
         $lab_results        = $this->getCcrTable()->getLabResults(array('pid' => $pid));
         $lab_results_audit  = $this->getCcrTable()->createAuditArray($audit_master_id, 'procedure_result,procedure_type');
-        
+
         $view = new ViewModel(array(
             'demographics'      => $demographics,
             'demographics_old'  => $demographics_old,
@@ -312,11 +301,11 @@ class CcrController extends AbstractActionController
             'document_id'       => $document_id,
             'listenerObject'    => $this->listenerObject,
             'commonplugin'      => $this->CommonPlugin(),
-            
+
         ));
         return $view;
     }
-    
+
     /**
     * Table Gateway
     *
