@@ -34,13 +34,13 @@ $form_review = empty($_GET['review']) ? 0 : 1;
 // Check authorization.
 $thisauth = acl_check('patients', 'med');
 if (!$thisauth) {
-    die(xl('Not authorized'));
+    die(xlt('Not authorized'));
 }
 
 // Check authorization for pending review.
 $reviewauth = acl_check('patients', 'sign');
 if ($form_review and !$reviewauth and !$thisauth) {
-    die(xl('Not authorized'));
+    die(xlt('Not authorized'));
 }
 
 // Set pid for pending review.
@@ -52,13 +52,13 @@ if ($_GET['set_pid'] && $form_review) {
     $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
     ?>
   <script language='JavaScript'>
-    parent.left_nav.setPatient(<?php echo js_escape($result['fname'] . " " . $result['lname']) . "," . js_escape($pid) . "," . js_escape($result['pubpid']) . ",''," . js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAge($result['DOB_YMD'])); ?>);
+    parent.left_nav.setPatient(<?php echo js_escape($result['fname'] . " " . $result['lname']) . "," . js_escape($pid) . "," . js_escape($result['pubpid']) . ",''," . js_escape(" " . xlt('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xlt('Age') . ": " . getPatientAge($result['DOB_YMD'])); ?>);
   </script>
     <?php
 }
 
 if (!$form_batch && !$pid && !$form_review) {
-    die(xl('There is no current patient'));
+    die(xlt('There is no current patient'));
 }
 
 function oresRawData($name, $index)
@@ -163,7 +163,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
-<title><?php  xl('Procedure Results', 'e'); ?></title>
+<title><?php  xlt('Procedure Results', 'e'); ?></title>
 
 <style>
 
@@ -281,7 +281,7 @@ function extShow(lino, show) {
 function prDateRequired(rlino) {
  var f = document.forms[0];
  if (f['form_date_report['+rlino+']'].value.length < 10) {
-  alert('<?php xl('Missing report date', 'e') ?>');
+  alert('<?php xlt('Missing report date', 'e') ?>');
   if (f['form_date_report['+rlino+']'].focus)
    f['form_date_report['+rlino+']'].focus();
   return false;
@@ -354,23 +354,23 @@ if ($form_batch) {
         $form_proc_type_desc = $ptrow['name'];
     }
 ?>
-    <?php xl('Procedure', 'e'); ?>:
+    <?php xlt('Procedure', 'e'); ?>:
    <input type='text' size='30' name='form_proc_type_desc'
     value='<?php echo addslashes($form_proc_type_desc) ?>'
     onclick='sel_proc_type()' onfocus='this.blur()'
-    title='<?php xl('Click to select the desired procedure', 'e'); ?>'
+    title='<?php xlt('Click to select the desired procedure', 'e'); ?>'
     style='cursor:pointer;cursor:hand' readonly />
    <input type='hidden' name='form_proc_type' value='<?php echo $form_proc_type ?>' />
 
-   &nbsp;<?php xl('From', 'e'); ?>:
+   &nbsp;<?php xlt('From', 'e'); ?>:
    <input type='text' size='10' class='datepicker' name='form_from_date' id='form_from_date'
     value='<?php echo $form_from_date ?>'
     title='<?php xl('yyyy-mm-dd', 'e'); ?>' />
 
-   &nbsp;<?php xl('To', 'e'); ?>:
+   &nbsp;<?php xlt('To', 'e'); ?>:
    <input type='text' size='10' class='datepicker' name='form_to_date' id='form_to_date'
     value='<?php echo $form_to_date ?>'
-    title='<?php xl('yyyy-mm-dd', 'e'); ?>' />
+    title='<?php xlt('yyyy-mm-dd', 'e'); ?>' />
 
    &nbsp;
 <?php
@@ -379,7 +379,7 @@ if ($form_batch) {
    <!-- removed by jcw -- check/submit sequece too tedious.  This is a quick fix -->
 <!--   <input type='checkbox' name='form_all' value='1' <?php if ($_POST['form_all']) {
     echo " checked";
-} ?>><?php xl('Include Completed', 'e') ?>
+} ?>><?php xlt('Include Completed', 'e') ?>
    &nbsp;-->
    <input type='submit' name='form_refresh' value=<?php xl('Refresh', 'e'); ?>>
   </td>
@@ -392,25 +392,25 @@ if ($form_batch) {
 
  <tr class='head'>
   <td colspan='2'><?php echo $form_batch ? xl('Patient') : xl('Order'); ?></td>
-  <td colspan='4'><?php xl('Report', 'e'); ?></td>
-  <td colspan='7'><?php xl('Results and', 'e'); ?> <span class='reccolor''>
-    <?php  xl('Recommendations', 'e'); ?></span></td>
+  <td colspan='4'><?php xlt('Report', 'e'); ?></td>
+  <td colspan='7'><?php xlt('Results and', 'e'); ?> <span class='reccolor''>
+    <?php  xlt('Recommendations', 'e'); ?></span></td>
  </tr>
 
  <tr class='head'>
-  <td><?php echo $form_batch ? xl('Name') : xl('Date'); ?></td>
-  <td><?php echo $form_batch ? xl('ID') : xl('Procedure Name'); ?></td>
-  <td><?php xl('Reported', 'e'); ?></td>
-  <td><?php xl('Ext Time Collected', 'e'); ?></td>
-  <td><?php xl('Specimen', 'e'); ?></td>
-  <td><?php xl('Status', 'e'); ?></td>
-  <td><?php xl('Code', 'e'); ?></td>
-  <td><?php xl('Name', 'e'); ?></td>
-  <td><?php xl('Abn', 'e'); ?></td>
-  <td><?php xl('Value', 'e'); ?></td>
-  <td><?php xl('Units', 'e'); ?></td>
-  <td><?php xl('Range', 'e'); ?></td>
-  <td><?php xl('?', 'e'); ?></td>
+  <td><?php echo $form_batch ? xlt('Name') : xlt('Date'); ?></td>
+  <td><?php echo $form_batch ? xlt('ID') : xlt('Procedure Name'); ?></td>
+  <td><?php xlt('Reported', 'e'); ?></td>
+  <td><?php xlt('Ext Time Collected', 'e'); ?></td>
+  <td><?php xlt('Specimen', 'e'); ?></td>
+  <td><?php xlt('Status', 'e'); ?></td>
+  <td><?php xlt('Code', 'e'); ?></td>
+  <td><?php xlt('Name', 'e'); ?></td>
+  <td><?php xlt('Abn', 'e'); ?></td>
+  <td><?php xlt('Value', 'e'); ?></td>
+  <td><?php xlt('Units', 'e'); ?></td>
+  <td><?php xlt('Range', 'e'); ?></td>
+  <td><?php xlt('?', 'e'); ?></td>
  </tr>
 
 <?php
@@ -602,7 +602,7 @@ while ($row = sqlFetchArray($res)) {
             echo "  <td nowrap>";
             echo "<input type='text' size='13' name='form_date_report[$lino]'" .
             " id='form_date_report[$lino]' class='celltextfw datetimepicker' value='" . attr($date_report) . "' " .
-            " title='" . xl('Date and time of this report') . "'" .
+            " title='" . xlt('Date and time of this report') . "'" .
             " />";
             echo "</td>\n";
 
@@ -610,14 +610,14 @@ while ($row = sqlFetchArray($res)) {
             echo "<input type='text' size='13' name='form_date_collected[$lino]'" .
             " id='form_date_collected[$lino]'" .
             " class='celltextfw datetimepicker' value='" . attr($date_collected) . "' " .
-            " title='" . xl('Date and time of sample collection') . "'" .
+            " title='" . xlt('Date and time of sample collection') . "'" .
             " />";
             echo "</td>\n";
 
             echo "  <td>";
             echo "<input type='text' size='8' name='form_specimen_num[$lino]'" .
             " class='celltext' value='" . attr($specimen_num) . "' " .
-            " title='" . xl('Specimen number/identifier') . "'" .
+            " title='" . xlt('Specimen number/identifier') . "'" .
             " />";
             echo "</td>\n";
 
@@ -626,7 +626,7 @@ while ($row = sqlFetchArray($res)) {
                 "form_report_status[$lino]",
                 'proc_rep_status',
                 $report_status,
-                xl('Report Status'),
+                xlt('Report Status'),
                 ' ',
                 'cellselect'
             );
@@ -650,7 +650,7 @@ while ($row = sqlFetchArray($res)) {
             "form_result_abnormal[$lino]",
             'proc_res_abnormal',
             $result_abnormal,
-            xl('Indicates abnormality'),
+            xlt('Indicates abnormality'),
             ' ',
             'cellselect'
         );
@@ -670,14 +670,14 @@ while ($row = sqlFetchArray($res)) {
         echo "  <td>";
         echo "<input type='text' size='4' name='form_result_units[$lino]'" .
         " class='celltext' value='" . attr($result_units) . "' " .
-        " title='" . xl('Units applicable to the result value') . "'" .
+        " title='" . xlt('Units applicable to the result value') . "'" .
         " />";
         echo "</td>\n";
 
         echo "  <td>";
         echo "<input type='text' size='8' name='form_result_range[$lino]'" .
         " class='celltext' value='" . attr($result_range) . "' " .
-        " title='" . xl('Reference range of results') . "'" .
+        " title='" . xlt('Reference range of results') . "'" .
         " />";
         // Include a hidden form field containing all IDs for this line.
         echo "<input type='hidden' name='form_line[$lino]' " .
@@ -686,7 +686,7 @@ while ($row = sqlFetchArray($res)) {
 
         echo "  <td class='bold' style='cursor:pointer' " .
         "onclick='extShow($lino, this)' align='center' " .
-        "title='" . xl('Click here to view/edit more details') . "'>";
+        "title='" . xlt('Click here to view/edit more details') . "'>";
         echo "&nbsp;?&nbsp;";
         echo "</td>\n";
 
@@ -706,7 +706,7 @@ while ($row = sqlFetchArray($res)) {
             "form_result_status[$lino]",
             'proc_res_status',
             $result_status,
-            xl('Result Status'),
+            xlt('Result Status'),
             ''
         ) . "</td></tr>\n" .
           "<tr><td class='bold' nowrap>" . xlt('Facility') . ": </td>" .     // Ensoftek: Changed Facility to Text Area as the field procedure_result-->facility is now multi-line
@@ -739,7 +739,7 @@ while ($row = sqlFetchArray($res)) {
 if (!empty($facilities)) {
   // display facility information
     $extra_html .= "<table>";
-    $extra_html .= "<tr><th>". xl('Performing Laboratory Facility') . "</th></tr>";
+    $extra_html .= "<tr><th>". xlt('Performing Laboratory Facility') . "</th></tr>";
     foreach ($facilities as $facilityID) {
         foreach (explode(":", $facilityID) as $lab_facility) {
             $facility_array = getFacilityInfo($lab_facility);
@@ -766,20 +766,20 @@ if ($form_review) {
     if ($reviewauth) {
         ?>
      <center><p>
-         <input type='submit' name='form_submit' value='<?php xl('Sign Results', 'e'); ?>' />
+         <input type='submit' name='form_submit' value='<?php xlt('Sign Results', 'e'); ?>' />
      </p></center>
     <?php
     } else {
         ?>
      <center><p>
-         <input type='button' name='form_submit' value='<?php xl('Sign Results', 'e'); ?>' onclick="alert('<?php xl('Not authorized', 'e') ?>');" />
+         <input type='button' name='form_submit' value='<?php xlt('Sign Results', 'e'); ?>' onclick="alert('<?php xlt('Not authorized', 'e') ?>');" />
      </p></center>
     <?php
     }
 } else {
 ?>
  <center><p>
-  <input type='submit' name='form_submit' value='<?php xl('Save', 'e'); ?>' />
+  <input type='submit' name='form_submit' value='<?php xlt('Save', 'e'); ?>' />
  </p></center>
 <?php
 }
