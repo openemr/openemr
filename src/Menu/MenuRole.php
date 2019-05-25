@@ -16,7 +16,7 @@
 
 namespace OpenEMR\Menu;
 
-require_once(dirname(__FILE__) . "/../../registry.inc");
+require_once(dirname(__FILE__) . "/../../library/registry.inc");
 
 use OpenEMR\Services\UserService;
 

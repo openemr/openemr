@@ -14,7 +14,7 @@
 
 namespace OpenEMR\RestControllers;
 
-require_once(dirname(__FILE__) . "/../library/authentication/common_operations.php");
+require_once(dirname(__FILE__) . "/../../library/authentication/common_operations.php");
 
 use OpenEMR\Common\Utils\RandomGenUtils;
 

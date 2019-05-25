@@ -8,7 +8,7 @@
 
 namespace OpenEMR\Core;
 
-require_once("../../../../interface/globals.php");
+require_once("../../interface/globals.php");
 
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventDispatcher;

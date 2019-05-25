@@ -12,7 +12,7 @@ use OpenEMR\Admin\AdminEvents;
 use OpenEMR\Admin\Event\MenuEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-require_once '../../../../interface/globals.php';
+require_once '../../../interface/globals.php';
 
 /**
  * Class AdminMenuBuilder.

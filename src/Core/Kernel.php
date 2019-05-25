@@ -7,7 +7,7 @@
 
 namespace OpenEMR\Core;
 
-require_once dirname(__FILE__) . '/../../../interface/globals.php';
+require_once dirname(__FILE__) . '/../../interface/globals.php';
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Reference;

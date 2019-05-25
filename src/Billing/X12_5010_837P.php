@@ -14,7 +14,7 @@
 
 namespace OpenEMR\Billing;
 
-require_once(dirname(__FILE__) . "/../../invoice_summary.inc.php");
+require_once(dirname(__FILE__) . "/../../library/invoice_summary.inc.php");
 
 use OpenEMR\Billing\Claim;
 

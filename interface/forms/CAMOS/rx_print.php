@@ -13,7 +13,6 @@
 
 
 require_once('../../globals.php');
-require_once('../../../library/classes/Prescription.class.php');
 
 //practice data
 $physician_name = '';

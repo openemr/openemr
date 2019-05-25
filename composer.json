@@ -74,11 +74,10 @@
     ],
     "autoload" : {
         "exclude-from-classmap" : [
-            "common/compatibility/Checker.php",
+            "src/Common/Compatibility/Checker.php",
             "library/classes/ClinicalTypes/",
             "library/classes/rulesets/",
-            "library/classes/smtp/",
-            "library/classes/Prescription.class.php"
+            "library/classes/smtp/"
         ],
         "classmap" : [
             "library/classes"
@@ -93,29 +92,8 @@
             "library/translation.inc.php"
         ],
         "psr-4" : {
-            "OpenEMR\\Common\\Compatibility\\" : "common/compatibility",
-            "OpenEMR\\Common\\Crypto\\" : "common/crypto",
-            "OpenEMR\\Common\\Database\\" : "common/database",
-            "OpenEMR\\Common\\Http\\" : "common/http",
-            "OpenEMR\\Common\\Logging\\" : "common/logging",
-            "OpenEMR\\Common\\Utils\\" : "common/utils",
-            "OpenEMR\\Common\\System\\" : "common/system",
-            "OpenEMR\\Entities\\" : "entities",
-            "OpenEMR\\Services\\" : "services",
-            "OpenEMR\\RestControllers\\" : "rest_controllers",
-            "OpenEMR\\Repositories\\" : "repositories",
-            "OpenEMR\\Admin\\" : "library/admin/src",
-            "OpenEMR\\Core\\" : "library/core/src",
-            "OpenEMR\\Menu\\" : "library/menu/src",
-            "OpenEMR\\Calendar\\" : "library/calendar/src",
-            "OpenEMR\\Sample\\" : "library/sample/src",
-            "OpenEMR\\Reminder\\" : "library/reminder/src",
-            "OpenEMR\\Billing\\" : "library/billing/src",
-            "OpenEMR\\Pdf\\" : "library/pdf/src",
-            "OpenEMR\\Tabs\\" : "library/tabs/src",
-            "OpenEMR\\Rx\\Weno\\" : "library/weno/src",
-            "HL7\\FHIR\\STU3\\": "phpfhir/HL7/FHIR/STU3/src",
-            "OpenEMR\\OeUI\\" : "library/oeUI/src"
+            "OpenEMR\\" : "src",
+            "HL7\\FHIR\\STU3\\": "phpfhir/HL7/FHIR/STU3/src"
         }
     }
 }
