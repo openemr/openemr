@@ -77,8 +77,7 @@
             "src/Common/Compatibility/Checker.php",
             "library/classes/ClinicalTypes/",
             "library/classes/rulesets/",
-            "library/classes/smtp/",
-            "library/classes/Prescription.class.php"
+            "library/classes/smtp/"
         ],
         "classmap" : [
             "library/classes"

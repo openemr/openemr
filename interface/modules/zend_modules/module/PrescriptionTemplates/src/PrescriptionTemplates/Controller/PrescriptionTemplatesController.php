@@ -24,7 +24,6 @@ namespace PrescriptionTemplates\Controller;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 
-require_once($GLOBALS['fileroot'] . "/library/classes/Prescription.class.php");
 
 class PrescriptionTemplatesController extends AbstractActionController
 {
