@@ -47,7 +47,7 @@ class Dashboard extends React.Component {
 
         this.fetchData("dashboard").then(result => {
 
-                var list = agent.Lists.getList("dashboard");
+                let list = agent.Lists.getList("dashboard");
                 // console.log(list)
                 this.setState({'gadgets': list}, () => {
                     this.updateGadgets();
