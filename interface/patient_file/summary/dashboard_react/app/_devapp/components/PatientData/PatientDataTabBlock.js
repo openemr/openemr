@@ -1,6 +1,9 @@
 import React from 'react';
 import agent from "../../utils/agent";
-import {Spinner} from "react-bootstrap";
+import ReactPlaceholder from 'react-placeholder';
+import "react-placeholder/lib/reactPlaceholder.css";
+
+// https://github.com/buildo/react-placeholder - documentation for react placeholder
 
 class PatientDataTabBlock extends React.Component {
     constructor(props) {
@@ -13,20 +16,18 @@ class PatientDataTabBlock extends React.Component {
     }
 
     render() {
-        let html;
-        if (this.props.groupFields.length > 0) {
-            html = this.props.groupFields.map((pdata, j) => {
-                return (<div id={j} key={j}>{pdata.field_id} - {this.props.data[0][pdata.field_id]}</div>)
-            })
-
-        } else {
-            html = <Spinner animation="border" variant="primary"/>
-        }
-
-
         return (
-                <>{html}</>
-               )
+            <>
+                <ReactPlaceholder type='text' showLoadingAnimation={true} rows={7}
+                                  ready={this.props.groupFields.length > 0}>
+                    {this.props.groupFields.map((pdata, j) => {
+                        return (
+                            <div id={j} key={j}>{pdata.field_id} - {this.props.data[0][pdata.field_id]}</div>
+                        )
+                    })}
+                </ReactPlaceholder>
+            </>
+        )
     }
 }
 

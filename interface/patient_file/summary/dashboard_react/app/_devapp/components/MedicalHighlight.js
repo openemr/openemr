@@ -16,7 +16,7 @@ library.add( faEdit )
 
 
 
-class MedicalProblems extends React.Component {
+class MedicalHighlight extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -135,11 +135,6 @@ class MedicalProblems extends React.Component {
 
                         <Row>
                             <Col>
-                    {/*<Button   onClick={() => {this.setState({ open: !open }  ); }}  aria-controls="example-collapse-text" aria-expanded={open} >*/}
-                    {/*    {!open ?  <FontAwesomeIcon icon='plus'/> :  <FontAwesomeIcon icon='minus'/>    }*/}
-
-                    {/*</Button> {this.state.element_title}*/}
-
                                 <ToggleButton isOpen={this.state.isOpen}
                                               onClick={() => this.localToggle()}
                                               rightText={this.state.element_title  + " " + (this.medProbCount())}/>
@@ -147,7 +142,7 @@ class MedicalProblems extends React.Component {
                             </Col>
                             <Col>
                         <div  onClick={() => this.goToMedicalIssue()} >
-                        <FontAwesomeIcon icon='edit' size='1px' className={"medical_issues"}  />
+                        <FontAwesomeIcon icon='edit'  className={"medical_issues"}  />
                         </div>
 
                             </Col>
@@ -179,6 +174,6 @@ class MedicalProblems extends React.Component {
 export default {
     view: (props) => (
 
-         <MedicalProblems pid={props.pid} element={props.element} element_title={props.element_title} />
+         <MedicalHighlight pid={props.pid} element={props.element} element_title={props.element_title} />
     )
 };
