@@ -11,7 +11,7 @@ import Button from "react-bootstrap/Button";
 
 class Container extends Component {
     componentDidMount() {
-        //////debugger;
+        ////////debugger;
         this.setState({gadgets : this.getElement()});
     }
     constructor(props) {
@@ -25,7 +25,7 @@ class Container extends Component {
     getElement (){
 
         try {
-            ////debugger;
+            //////debugger;
             let items = [];
             var result = [];
             let patientId = this.state.patientId;
@@ -36,7 +36,7 @@ class Container extends Component {
                 let item = v;
 
              if( item.activity != 0) {
-                   //debugger;
+                   ////debugger;
                     // //console.log('-------');
                     let element = item.element;
                     let title = item.element_title;

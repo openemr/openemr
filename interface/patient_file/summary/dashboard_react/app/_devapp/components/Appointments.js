@@ -16,7 +16,7 @@ import agent from "../utils/agent";
 import {ListGroup} from "react-bootstrap";
 class Appointments extends React.Component  {
     constructor(props) {
-        debugger;
+        //debugger;
         super(props);
         this.state = {
             pid: props.pid,
@@ -42,7 +42,7 @@ class Appointments extends React.Component  {
         }
     }
     createAppointmentHtml(element,mp,i){
-        //debugger
+        ////debugger
         let counter=i;
         if(mp.length==0)
             return  <></>
@@ -153,7 +153,7 @@ class Appointments extends React.Component  {
     }
     getAppointments() {
 
-////debugger;
+//////debugger;
         if (this.state.pid >= 0 && typeof this.state.element!="undefined") {
             let url=this.selectAppointment(this.state.element);
 
