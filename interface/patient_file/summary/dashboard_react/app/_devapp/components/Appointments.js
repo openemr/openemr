@@ -16,6 +16,7 @@ import agent from "../utils/agent";
 import {ListGroup} from "react-bootstrap";
 class Appointments extends React.Component  {
     constructor(props) {
+        debugger;
         super(props);
         this.state = {
             pid: props.pid,
@@ -189,6 +190,6 @@ class Appointments extends React.Component  {
 
 export default {
     view: (props) => (
-        <Appointments  pid={props.pid} element={props.element} element_title={props.element_title}/>
+        <Appointments  pid={props.pid} element={props.type} element_title={props.element_title}/>
     )
 };

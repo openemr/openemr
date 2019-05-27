@@ -41,11 +41,13 @@ class Container extends Component {
                     let element = item.element;
                     let title = item.element_title;
                     let element_component = item.element_component;
+                    let type = item.type;
                     // //console.log(element_component);
                     items.push(<LazyLoadModule key={element_component + i}
                                                resolve={() => import("./"+ element_component)}
                                                element={element}
                                                element_title={title}
+                                               type = {type}
                                                pid={ this.state.patientId}/>);
                 }
             })
