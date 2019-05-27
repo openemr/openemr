@@ -12,22 +12,73 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
 
 import Collapse from "react-bootstrap/Collapse";
+import agent from "../utils/agent";
+import {ListGroup} from "react-bootstrap";
 class Appointments extends React.Component  {
     constructor(props) {
         super(props);
         this.state = {
-            patientId: props.patientId,
+            pid: props.pid,
             data: [],
-            groups: [],
-            groupFields: [],
-            isOpen: false,
-            isLoaded: false,
+            element:props.element,
+            element_title:props.element_title,
             renderElement:false,
-            element_title:"Appointments"
+            isOpen:false
         }
 
     }
+    selectAppointment(){
+        switch(this.state.element){
+            case "future":
+                return "future_appointments";
+                break;
+            case "past":
+                return "past_appointments";
+                break;
+            case "appointment_recurrences":
+                return "appointment_recurrences"
+                break;
+        }
+    }
+    createAppointmentHtml(element,mp,i){
+        //debugger
+        let counter=i;
+        if(mp.length==0)
+            return  <></>
+        switch(element){
+            case "past":
+            case "future":
 
+                return <Card  bg="light" border="secondary" key={i}><Card.Body   >
+                    When : {mp.pc_eventDate} {mp.pc_startTime} -   {mp.pc_endTime} <br/>
+                    Appointment type :{mp.pc_title} <br/>
+                    Therapist :{mp.ufname+" "+mp.ulname} <br/>
+                    Status : {mp.pc_apptstatus} <br/>
+                    Comments : {mp.pc_hometext}  <br/>
+
+                     {/*{mp.facility_name}
+                     {mp.billing_location_name}*/}
+
+                </Card.Body>
+                </Card>
+            break;
+            case "appointment_recurrences":
+                return <Card bg="light"  border="secondary" variant="dark" key={i}>
+                    <Card.Body  >
+                <br/>
+                When : {mp.pc_recurrspec} <br/>
+                Appointment Type : {mp.pc_title} <br/>
+                End date : {mp.pc_endDate}
+                <br/>
+
+                </Card.Body>
+                </Card>
+            break;
+        }
+    }
+    componentWillMount() {
+
+    }
 
     localToggle() {
         this.setState({isOpen: !this.state.isOpen});
@@ -37,54 +88,45 @@ class Appointments extends React.Component  {
             const {isOpen} = this.state;
             const {isLoaded} = this.state;
             const {data} = this.state;
-                const { open } = this.state;
-                const { renderElement } = this.state;
+            const { open } = this.state;
+            const { renderElement } = this.state;
+
                 return(
-                renderElement &&
-                <Card   variant="flush">
 
-                    <Card.Header>
+                renderElement && <>
 
-                        <Row>
-                            <Col>
+                        <Card   >
 
-                                <ToggleButton isOpen={this.state.isOpen}
-                                              onClick={() => this.localToggle()}
-                                              rightText={this.state.element_title  + " " + (this.apptCount())}/>
+                            <Card.Header>
 
-                            </Col>
-                            <Col>
-                                <div  onClick={() => this.goToMedicalIssue()} >
-                                    <FontAwesomeIcon icon='edit'   className={"medical_issues"}  />
-                                </div>
+                                <Row>
+                                    <Col-md-10>
+                                        <ToggleButton isOpen={this.state.isOpen}
+                                                      onClick={() => this.localToggle()}
+                                                      rightText={this.state.element_title  + " " + this.apptCount()}/>
 
-                            </Col>
-                        </Row>
+                                    </Col-md-10>
+                                    <Col>
+                                      {/*  <div  onClick={() => this.goToMedicalIssue()} >
+                                            <FontAwesomeIcon icon='edit'  className={"medical_issues"}  />
+                                        </div>*/}
 
-                    </Card.Header>
-                    <Collapse in={this.state.isOpen}>
-                        <Card.Body>
+                                    </Col>
+                                </Row>
 
-                            <div id="example-collapse-text">
-                                <Table>
-        <thead>
-        <tr>
-        <th>Event Date</th>
-        <th>Start Time</th>
-        <th>End Time</th>
-        <th>Facility Name</th>
-        <th>Billing Location</th>
-        </tr>
-        </thead>
-        <tbody>
-        {this.drawApp()}
-        </tbody>
-    </Table>
-                            </div>
+                            </Card.Header>
+                            <Collapse in={this.state.isOpen}>
+                                <Card.Body>
 
-                        </Card.Body>
-                    </Collapse>
-                </Card>
+                    {this.drawApp()}
+
+
+                                </Card.Body>
+                            </Collapse>
+                        </Card>
+                    </>
+
+
 
         );
     }
@@ -93,28 +135,28 @@ class Appointments extends React.Component  {
     }
 
     drawApp = () => {
-        if (Array.isArray(this.state.data)) {
-            return this.state.data.map((mp, i) => {
-                return <tr key={i}>
-                    <td>{mp.pc_eventDate}</td>
-                    <td>{mp.pc_startTime}</td>
-                    <td>{mp.pc_endTime}</td>
-                   {/* <td>{mp.pc_facility}</td>
-                    <td>{mp.pc_billing_location}</td>*/}
-                    <td>{mp.facility_name}</td>
-                    <td>{mp.billing_location_name}</td>
-               </tr>
-            })
-        }
-    }
+
+
+
+
+       if(Array.isArray(this.state.data)) {
+                return this.state.data.map((mp, i) => {
+                    //console.log(mp);
+                    return this.createAppointmentHtml(this.state.element,mp,i)
+                })
+            }
+   }
+
     componentDidMount() {
         this.getAppointments();
     }
     getAppointments() {
-        this.setState.patientId = helpers.getPatientId();
-        if (this.setState.patientId >= 0) {
 
-            OEApi.PatientApi.fetch(this.setState.patientId,"appointment")
+////debugger;
+        if (this.state.pid >= 0 && typeof this.state.element!="undefined") {
+            let url=this.selectAppointment(this.state.element);
+
+            OEApi.PatientApi.fetch(this.state.pid,url)
                 .then((res) => res.json())
                 .then(
                     (result) => {
@@ -147,6 +189,6 @@ class Appointments extends React.Component  {
 
 export default {
     view: (props) => (
-        <Appointments />
+        <Appointments  pid={props.pid} element={props.element} element_title={props.element_title}/>
     )
 };
