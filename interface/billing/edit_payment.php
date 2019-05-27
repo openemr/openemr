@@ -630,7 +630,7 @@ $ResultSearchSub = sqlStatement("SELECT  distinct encounter,code_type,code,modif
     }
     //========================================================================================
 
-    $(document).ready(function() {
+    $(function() {
        $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>

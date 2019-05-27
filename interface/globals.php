@@ -10,7 +10,7 @@
  */
 
 // Checks if the server's PHP version is compatible with OpenEMR:
-require_once(dirname(__FILE__) . "/../common/compatibility/Checker.php");
+require_once(dirname(__FILE__) . "/../src/Common/Compatibility/Checker.php");
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
 if ($response !== true) {
     die(htmlspecialchars($response));
@@ -237,7 +237,6 @@ if (! is_dir($GLOBALS['MPDF_WRITE_DIR'])) {
 //  library/date_functions.php - Includes functions for date internationalization
 //  library/validation/validate_core.php - Includes functions for page validation
 //  library/translation.inc.php - Includes translation functions
-//  library/crypto.php - Includes crypto function
 require_once $GLOBALS['vendor_dir'] ."/autoload.php";
 
 // Set up csrf token

@@ -26,7 +26,6 @@ $form_to_date = isset($_POST['form_to_date']) ? DateToYYYYMMDD($_POST['form_to_d
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <title><?php echo xlt('Destroyed Drugs'); ?></title>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">

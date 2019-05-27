@@ -1351,7 +1351,7 @@ foreach (explode(',', $given) as $item) {
     echo $type_index;
 } ?>');
 
-        $(document).ready(function() {
+        $(function() {
 
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>

@@ -69,10 +69,10 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 
 <!-- 'buttons' to min/max the bottom frame -JRM -->
 <div id="max" title="Restore this information">
-<img src="<?php echo $GLOBALS['webroot']; ?>/images/max.gif">
+<img src="<?php echo $GLOBALS['images_static_relative']; ?>/max.gif">
 </div>
 <div id="min" title="Minimize this information">
-<img src="<?php echo $GLOBALS['webroot']; ?>/images/min.gif">
+<img src="<?php echo $GLOBALS['images_static_relative']; ?>/min.gif">
 </div>
 
 <?php if ($imauthorized) { ?>
@@ -241,7 +241,7 @@ if ($authorize) {
 
 /* added to adjust the height of this frame by the min/max buttons */
 var origRows = null;
-$(document).ready(function(){
+$(function (){
 
     $(".noterow").on("mouseover", function() { $(this).toggleClass("highlight"); });
     $(".noterow").on("mouseout", function() { $(this).toggleClass("highlight"); });

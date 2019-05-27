@@ -3,6 +3,9 @@
 #mainBox>.body_top, .body_top_tabs {
     background-color: $dark !important;
 }
+#mainBox_vertical > .body_top, .body_top_tabs {
+    background-color: $midpale !important;
+}
 .tabSpan, .tabSpan_tabs {
     border-top: 5px solid $dark !important;
     border-left: 1px solid $dark !important;
@@ -138,3 +141,8 @@ img[src *="show_calendar.gif"] {
     margin-bottom: 3px;
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 calendar icon*~~~~~~~~~~~~~~~~~~~~~~*/
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 tabs menu , user and logout icon~~~~*/
+#menu_icon, #logout_icon, #user_icon {
+    color:$darker !important;
+}

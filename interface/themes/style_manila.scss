@@ -461,6 +461,16 @@ body dl {
 .chevron_color {
     color: #063f80;
 }
+
+/* main.php*/
+.body_main{
+  background-color:#C9DBF2;
+}
+/*~~openemr5 tabs menu , user and logout icon~~*/
+#menu_icon, #logout_icon, #user_icon {
+    color:#676666 !important;
+}
+
 @import "oe-bootstrap";
 @import "oe-common/all-common-import";
 

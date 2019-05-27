@@ -305,7 +305,6 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 

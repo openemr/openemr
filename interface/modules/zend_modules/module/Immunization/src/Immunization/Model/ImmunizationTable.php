@@ -1,23 +1,14 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  Bindia Nandakumar <bindia@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Bindia Nandakumar <bindia@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace Immunization\Model;
 
 use Zend\Db\TableGateway\TableGateway;
@@ -45,7 +36,7 @@ class ImmunizationTable extends AbstractTableGateway
         $this->resultSetPrototype   =   new ResultSet();
         $this->applicationTable     =   new ApplicationTable;
     }
-    
+
     /**
     * function codeslist()
     * Codes List
@@ -56,7 +47,7 @@ class ImmunizationTable extends AbstractTableGateway
         $result =   $this->applicationTable->zQuery($sql);
         return $result;
     }
-    
+
     /**
     * function immunized patient details
     * @param type $form_data
@@ -170,18 +161,18 @@ class ImmunizationTable extends AbstractTableGateway
         add_escape_custom($query_codes) .
         $query_pids .
         "i.cvx_code = c.code ORDER BY i.patient_id, i.id";
-        
+
         if ($getCount) {
             $result     =   $this->applicationTable->zQuery($query, $query_data);
             $resCount   =   $result->count();
             return $resCount;
         }
-        
+
         $query .= " LIMIT ".\Application\Plugin\CommonPlugin::escapeLimit($form_data['limit_start']).",".\Application\Plugin\CommonPlugin::escapeLimit($form_data['results']);
         $result =   $this->applicationTable->zQuery($query, $query_data);
         return $result;
     }
-  
+
     public function getNotes($option_id, $list_id)
     {
         if ($option_id) {
@@ -198,7 +189,7 @@ class ImmunizationTable extends AbstractTableGateway
 
         return $res_cur['notes'];
     }
-  
+
     /**
     * function getImmunizationObservationResultsData function to get immunization observation data
     * @param type $pid
@@ -220,7 +211,7 @@ class ImmunizationTable extends AbstractTableGateway
 
         return $val;
     }
-  
+
     public function getCodes($option_id, $list_id)
     {
         if ($option_id) {

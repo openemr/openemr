@@ -3609,7 +3609,7 @@ function display($pid, $encounter, $category_value)
     }
 
     for ($j=0; $j < count($documents['zones'][$category_value]); $j++) {
-        $count_here = count($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]);
+        $count_here = empty($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]) ? 0 : count($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]);
 
         $id_to_show = $documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here-1]['document_id'];
 
@@ -4049,7 +4049,7 @@ function report_header($pid, $direction = 'shell')
                         echo "<img src='$practice_logo' align='left' style='width:100px;margin:0px 10px;'><br />\n";
                     }
                 }
-            ?>
+                ?>
             </td>
             <td style='width:40%;'>
                 <em style="font-weight:bold;font-size:1.4em;"><?php echo text($facility['name']); ?></em><br />
@@ -4582,14 +4582,14 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         list($documents) = document_engine($pid);
     }
 
-    $count_OCT = count($documents['docs_in_name']['OCT']);
+    $count_OCT = empty($documents['docs_in_name']['OCT']) ? 0 : count($documents['docs_in_name']['OCT']);
     if ($count_OCT > 0) {
         foreach ($documents['docs_in_name']['OCT'] as $OCT) {
             $OCT_date[] = $OCT['docdate'];
         }
     }
 
-    $count_VF = count($documents['docs_in_name']['VF']);
+    $count_VF = empty($documents['docs_in_name']['VF']) ? 0 : count($documents['docs_in_name']['VF']);
     if ($count_VF > 0) {
         foreach ($documents['docs_in_name']['VF'] as $VF) {
             $VF_date[] = $VF['docdate'];
@@ -4742,10 +4742,12 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
     usort($times_OU, "cmp");
 
     for ($a=0; $a < count($date_OU); $a++) {
-        foreach ($GONIO_date as $GONIO) {
-            if ($date_OU[$a] == $GONIO) {
-                $GONIO_values[$a] = "1";
-                break;
+        if (!empty($GONIO_date)) {
+            foreach ($GONIO_date as $GONIO) {
+                if ($date_OU[$a] == $GONIO) {
+                    $GONIO_values[$a] = "1";
+                    break;
+                }
             }
         }
 
@@ -6092,9 +6094,11 @@ if (!empty($COMMENTS)) { ?>
  */
 function in_array_r($needle, $haystack, $strict = false)
 {
-    foreach ($haystack as $item) {
-        if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && in_array_r($needle, $item, $strict))) {
-            return true;
+    if (!empty($haystack)) {
+        foreach ($haystack as $item) {
+            if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && in_array_r($needle, $item, $strict))) {
+                return true;
+            }
         }
     }
     return false;

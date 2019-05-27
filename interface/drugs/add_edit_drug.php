@@ -73,7 +73,6 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
 <title><?php echo $drug_id ? xlt("Edit") : xlt("Add New");
 echo ' ' . xlt('Drug'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>

@@ -1,23 +1,14 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  Bindia Nandakumar <bindia@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Immunization/src/Immunization/Form/ImmunizationForm.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Bindia Nandakumar <bindia@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace Immunization\Form;
 
 use Zend\Form\Form;
@@ -29,7 +20,7 @@ class ImmunizationForm extends Form
         global $pid,$encounter;
         parent::__construct('immunization');
         $this->setAttribute('method', 'post');
-        
+
      // Codes
         $this->add(array(
                 'name'          => 'codes',
@@ -47,7 +38,7 @@ class ImmunizationForm extends Form
                                 '' => \Application\Listener\Listener::z_xlt('Unassigned'),
                         ),),
         ));
-        
+
         $this->add(array(
                             'name' => 'from_date',
                             'type' => 'Zend\Form\Element\Text',
@@ -59,7 +50,7 @@ class ImmunizationForm extends Form
                                             'style'       => 'width: 42%;cursor:not-allowed;',
                             ),
                           ));
-       
+
         $this->add(array(
                         'name' => 'to_date',
                         'type' => 'Date',
@@ -73,7 +64,7 @@ class ImmunizationForm extends Form
                                         'onchange' => 'validate_search();'
                         ),
                     ));
-        
+
         $this->add(array(
                         'name' => 'search',
                         'type' => 'submit',
@@ -97,6 +88,9 @@ class ImmunizationForm extends Form
                                         'value' => \Application\Listener\Listener::z_xlt('GET HL7'),
                                         'id'    => 'hl7button',
                                         'onclick'=> 'getHl7(this.value);',
+                                        // the button is hidden as we apparently use it to submit the form when the
+                                        // shared sendTo will trigger this button to click...
+                                        // @see sendTo.js and immunization.js and search for #hl7button
                                         'style' => 'display:none;'
                                         ),
                     ));

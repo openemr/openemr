@@ -314,6 +314,11 @@ div.category-display {
 	margin-top: 25px;
 }
 
+/*~~openemr5 tabs menu , user and logout icon~~*/
+#menu_icon, #logout_icon, #user_icon {
+    color:#676666 !important;
+}
+
 @import "oe-bootstrap";
 @import "oe-common/all-common-import";
 

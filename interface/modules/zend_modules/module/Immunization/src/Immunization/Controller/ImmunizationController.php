@@ -1,23 +1,13 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  Bindia Nandakumar <bindia@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Bindia Nandakumar <bindia@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 namespace Immunization\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
@@ -30,16 +20,17 @@ use Application\Listener\Listener;
 class ImmunizationController extends AbstractActionController
 {
     protected $immunizationTable;
-    
+
     protected $listenerObject;
-    
+
     protected $date_format;
-    
-    public function __construct()
+
+    public function __construct(\Immunization\Model\ImmunizationTable $table)
     {
+        $this->immunizationTable = $table;
         $this->listenerObject   = new Listener;
     }
-    
+
     /**
     * Index Page
     * @return \Zend\View\Model\ViewModel
@@ -86,7 +77,7 @@ class ImmunizationController extends AbstractActionController
             $query_pids          = rtrim($query_pids, 'or');
             $query_pids         .= ') and ';
         }
-        
+
         if (empty($form_code)) {
             $query_codes = '';
         } else {
@@ -130,12 +121,12 @@ class ImmunizationController extends AbstractActionController
 
         $params['res_count'] = $count;
         $params['total_pages'] = $totalpages;
-      
+
         $codes  = $this->getAllCodes($data);
         if ($codes != '') {
             $form->get('codes')->setValueOptions($codes);
         }
-        
+
         $view = new ViewModel(array(
                 'listenerObject'    =>  $this->listenerObject,
                 'form'             =>  $form,
@@ -146,7 +137,7 @@ class ImmunizationController extends AbstractActionController
             ));
         return $view;
     }
-    
+
     /**
     * function getAllCodes
     * List All Codes in the combobox
@@ -173,7 +164,7 @@ class ImmunizationController extends AbstractActionController
 
         return $rows;
     }
-    
+
     /**
     * function getHL7
     * generating HL7 format
@@ -229,7 +220,7 @@ class ImmunizationController extends AbstractActionController
                 $query_pids          = rtrim($query_pids, 'or');
                 $query_pids         .= ') and ';
             }
-            
+
             $params     = array(
                 'form_from_date'     => $from_date,
                 'form_to_date'       => $to_date,
@@ -241,7 +232,7 @@ class ImmunizationController extends AbstractActionController
                 'limit_end'          => $end,
                 'query_pids'         => $query_pids,
             );
-          
+
             if ($new_search) {
                 $count  = $this->getImmunizationTable()->immunizedPatientDetails($params, 1);
             } else {
@@ -250,7 +241,7 @@ class ImmunizationController extends AbstractActionController
                     $count = $this->getImmunizationTable()->immunizedPatientDetails($params, 1);
                 }
             }
-          
+
             $totalpages     = ceil($count/$results);
 
             $details        = $this->getImmunizationTable()->immunizedPatientDetails($params);
@@ -278,7 +269,7 @@ class ImmunizationController extends AbstractActionController
                     $immunization_refusal   = $ordering_provider = $entered_by = $publicity_code_val = '';
                     $publicity_code         = $imm_registry_status_code = $protection_indicator = '';
                     $guardiansname          = '';
-                    
+
                     if ($r['patientid'] != $patient_id) {
                         $content .= "MSH|^~\&|OPENEMR|" .$r['facility_code']."||NIST Test Iz Reg|$nowdate||".
                         "VXU^V04^VXU_V04|OPENEMR-110316102457117|P|2.5.1|||AL|ER" .
@@ -375,7 +366,7 @@ class ImmunizationController extends AbstractActionController
                         "|" . // 38. Production Class Code
                         ""  . // 39. Tribal Citizenship
                         "$D" ;
-                      
+
                         if ($r['publicity_code']) {
                             $publicity_code_val   = $this->getImmunizationTable()->getNotes($r['publicity_code'], 'publicity_code');
                             $publicity_code       = $publicity_code_val."^".$r['publicity_code']."^HL70215";
@@ -459,7 +450,7 @@ class ImmunizationController extends AbstractActionController
 
                     if ($r['administered_by_id'] == 0 && $r['information_source'] == 'hist_inf_src_unspecified') {
                         $ordering_provider = "";
-                    } else if ($r['ordering_provider']) {
+                    } elseif ($r['ordering_provider']) {
                         $ordering_provider = $r['ordering_provider']."^".$r['ordering_provider_name']."^^^^^NIST-AA-1^L";
                     }
 
@@ -581,10 +572,10 @@ class ImmunizationController extends AbstractActionController
                                 $obs_value              = $obs_value_notes."^".$val_obs['imo_criteria_value']."^HL70064";
                                 $obs_method             = "VXC40^per immunization^CDCPHINVS";
                                 $value_type             = "CE";
-                            } else if ($val_obs['imo_criteria'] == 'vaccine_type') {
+                            } elseif ($val_obs['imo_criteria'] == 'vaccine_type') {
                                 $obs_value              = $val_obs['imo_code']."^".$val_obs['imo_codetext']."^".$val_obs['imo_codetype'];
                                 $value_type             = "CE";
-                            } else if ($val_obs['imo_criteria'] == 'disease_with_presumed_immunity') {
+                            } elseif ($val_obs['imo_criteria'] == 'disease_with_presumed_immunity') {
                                 $value_type             = "CE";
                                 $obs_value              = $val_obs['imo_code']."^".$val_obs['imo_codetext']."^SCT";
                             }
@@ -707,7 +698,7 @@ class ImmunizationController extends AbstractActionController
             }
         }
     }
-    
+
     /**
     *
     * @param type $ethnicity
@@ -724,7 +715,7 @@ class ImmunizationController extends AbstractActionController
                 return ("U^Unknown^HL70189");
         }
     }
-    
+
     /**
     *
     * @param type   $a
@@ -734,7 +725,7 @@ class ImmunizationController extends AbstractActionController
     {
         return (str_replace(' ', '^', $a));
     }
-    
+
     /**
     *
     * @param type   $cvx_code
@@ -748,7 +739,7 @@ class ImmunizationController extends AbstractActionController
 
         return $cvx_code;
     }
-    
+
     /**
     *
     * @param   $phone      String          phone number
@@ -766,17 +757,12 @@ class ImmunizationController extends AbstractActionController
                 return $this->tr("000 0000000");
         }
     }
-    
+
     /*
     *   Table Gateway
     */
     public function getImmunizationTable()
     {
-        if (!$this->immunizationTable) {
-            $sm = $this->getServiceLocator();
-            $this->immunizationTable = $sm->get('Immunization\Model\ImmunizationTable');
-        }
-
         return $this->immunizationTable;
     }
 }

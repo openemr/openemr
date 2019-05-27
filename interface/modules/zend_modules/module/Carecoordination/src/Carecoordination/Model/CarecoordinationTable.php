@@ -1,25 +1,14 @@
 <?php
-/* +-----------------------------------------------------------------------------+
- *    OpenEMR - Open Source Electronic Medical Record
- *    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+/**
+ * interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php
  *
- *    This program is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU Affero General Public License as
- *    published by the Free Software Foundation, either version 3 of the
- *    License, or (at your option) any later version.
- *
- *    This program is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU Affero General Public License for more details.
- *
- *    You should have received a copy of the GNU Affero General Public License
- *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *    @author  Vinish K <vinish@zhservices.com>
- *    @author  Chandni Babu <chandnib@zhservices.com>
- *    @author  Riju KP <rijukp@zhservices.com>
- * +------------------------------------------------------------------------------+
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Vinish K <vinish@zhservices.com>
+ * @author    Chandni Babu <chandnib@zhservices.com>
+ * @author    Riju KP <rijukp@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 namespace Carecoordination\Model;
 
@@ -38,12 +27,13 @@ use Documents\Model\DocumentsTable;
 
 class CarecoordinationTable extends AbstractTableGateway
 {
+
     protected $ccda_data_array;
     /*
      * Fetch the category ID using category name
      *
      * @param		$title		String		Category Name
-     * @return		$records	Array		Category ID	
+     * @return		$records	Array		Category ID
      */
     public function fetch_cat_id($title)
     {
@@ -236,7 +226,7 @@ class CarecoordinationTable extends AbstractTableGateway
         //Personal Informant
         $this->ccda_data_array['field_name_value_array']['custodian'][1]['extension'] = $xml['custodian']['assignedCustodian']['representedCustodianOrganization']['id']['extension'];
         $this->ccda_data_array['field_name_value_array']['custodian'][1]['organisation'] = $xml['custodian']['assignedCustodian']['representedCustodianOrganization']['name'];
-        
+
         //documentationOf
         $doc_of_str = '';
         if (!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['prefix'])) {
@@ -256,9 +246,9 @@ class CarecoordinationTable extends AbstractTableGateway
         }
 
         $this->ccda_data_array['field_name_value_array']['documentationOf'][1]['assignedPerson'] = $doc_of_str;
-                
+
         $documentationOf = $this->ccda_data_array['field_name_value_array']['documentationOf'][1]['assignedPerson'];
-                
+
         $audit_master_id = \Application\Plugin\CommonPlugin::insert_ccr_into_audit_data($this->ccda_data_array);
         $this->update_document_table($document_id, $audit_master_id, $audit_master_approval_status, $documentationOf);
     }
@@ -773,7 +763,7 @@ class CarecoordinationTable extends AbstractTableGateway
         unset($component);
         return;
     }
-    
+
     public function fetch_referral_value($referral_data)
     {
         if (is_array($referral_data['text']['paragraph'])) {
@@ -796,7 +786,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
         return;
     }
-        
+
     public function discharge_medications($component)
     {
         $component['section']['text'] = '';
@@ -844,7 +834,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 unset($discharge_medications_data);
                 return;
     }
-        
+
     public function discharge_summary($component)
     {
         if ($component['section']['entry'][0]) {
@@ -858,7 +848,7 @@ class CarecoordinationTable extends AbstractTableGateway
         unset($component);
         return;
     }
-    
+
     public function fetch_discharge_summary_value($discharge_summary_data)
     {
         $i = count($this->ccda_data_array['field_name_value_array']['discharge_summary']) + 1;
@@ -1303,7 +1293,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $arr_care_plan = array();
         $arr_functional_cognitive_status = array();
         $arr_referral = array();
-        
+
         $p1_arr = explode("||", $data['problem1check']);
         $p2_arr = explode('||', $data['problem2check']);
         $p3_arr = explode('||', $data['problem3check']);
@@ -1313,7 +1303,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $m1_arr = explode("||", $data['med1check']);
         $m2_arr = explode('||', $data['med2check']);
         $m3_arr = explode('||', $data['med3check']);
-    
+
         foreach ($data as $key => $val) {
             if (substr($key, -4) == '-sel') {
                 if (is_array($val)) {
@@ -1554,7 +1544,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                     $o_id,
                                     $data['pid'],
                                     $data['lists1-old-id-con'][$i]));
-                                
+
                                 if ($p1_arr[$i] == 1) {
                                     $query7 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
                                     $appTable->zQuery($query7, array(date('Y-m-d'),$data['pid'], $data['lists1-old-id-con'][$i]));
@@ -1653,7 +1643,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $reaction_option_id ? $reaction_option_id : 0,
                                 $data['pid'],
                                 $data['lists2-list_id-con'][$i]));
-                        
+
                                 if ($a1_arr[$i] == 1) {
                                     $query5 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
                                     $appTable->zQuery($query5, array(date('Y-m-d'),$data['pid'], $data['lists2-list_id-con'][$i]));
@@ -1871,7 +1861,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $appTable = new ApplicationTable();
         $query    = "SELECT encounter FROM documents d inner join form_encounter e on ( e.pid = d.foreign_id and e.date = d.docdate ) where d.id = ? and pid = ?";
         $docEnc   = $appTable->zQuery($query, array($doc_id,$pid));
-        
+
         if ($docEnc->count() == 0) {
             $enc = $appTable->zQuery("SELECT encounter
                                       FROM form_encounter
@@ -2376,7 +2366,7 @@ class CarecoordinationTable extends AbstractTableGateway
         return $formatted_date;
     }
 
-    public function getOptionId($list_id, $title, $codes)
+    public function getOptionId($list_id, $title, $codes = null)
     {
         $appTable = new ApplicationTable();
         if ($title) {
@@ -2387,7 +2377,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $res_cur = $result->current();
         }
 
-        if ($codes) {
+        if ($codes !== null) {
             $query = "SELECT option_id 
                   FROM list_options 
                   WHERE list_id=? AND codes=?";
@@ -3269,7 +3259,7 @@ class CarecoordinationTable extends AbstractTableGateway
                          FROM prescriptions
                          WHERE patient_id = ? AND external_id = ?";
             $res_q_sel_pres = $appTable->zQuery($q_sel_pres, array($pid, $value['extension']));
-            
+
             if ($res_q_sel_pres->count() == 0) {
                 $query = "INSERT INTO prescriptions 
                   ( patient_id,
@@ -3550,7 +3540,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $med_pblm_enddate_value = fixDate($med_pblm_enddate);
                 $med_pblm_enddate_value = (null);
             }
-            
+
             if ($revapprove == 1) {
                 if ($value['resolved'] == 1) {
                     if (!$med_pblm_enddate_value) {
@@ -3560,7 +3550,7 @@ class CarecoordinationTable extends AbstractTableGateway
                     $med_pblm_enddate_value = (null);
                 }
             }
-            
+
             $query_select = "SELECT * FROM list_options WHERE list_id = ? AND title = ?";
             $result = $appTable->zQuery($query_select, array('outcome', $value['observation_text']));
             if ($result->count() > 0) {
@@ -3763,7 +3753,7 @@ class CarecoordinationTable extends AbstractTableGateway
     /*
      * Fetch list details
      *
-     * @param    list_id  string     
+     * @param    list_id  string
      * @return   records   Array  list of list details
      */
     public function getList($list)
@@ -3802,7 +3792,7 @@ class CarecoordinationTable extends AbstractTableGateway
     }
       /*
    * fetch documentationOf and returns
-   * 
+   *
    * @param audit_master_id   Integer  ID from audi_master table
    */
     public function getdocumentationOf($audit_master_id)
@@ -3816,7 +3806,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
         return $documentationOf;
     }
-  
+
    /*
     * Return the list of CCDA components
     *
@@ -3829,14 +3819,14 @@ class CarecoordinationTable extends AbstractTableGateway
         $query      = "select * from ccda_components where ccda_type = ?";
         $appTable   = new ApplicationTable();
         $result     = $appTable->zQuery($query, array($type));
-        
+
         foreach ($result as $row) {
             $components[$row['ccda_components_field']] = $row['ccda_components_name'];
         }
 
         return $components;
     }
-    
+
     public function getMonthString($m)
     {
         $m = trim($m);
@@ -3866,7 +3856,7 @@ class CarecoordinationTable extends AbstractTableGateway
             return "Dec";
         }
     }
-    
+
     public function getListCodes($option_id, $list_id)
     {
         $appTable = new ApplicationTable();

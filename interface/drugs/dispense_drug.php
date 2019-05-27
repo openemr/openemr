@@ -33,8 +33,8 @@ function send_email($subject, $body)
     $mail->Subject = $subject;
     $mail->AddAddress($recipient);
     if (!$mail->Send()) {
-        error_log('There has been a mail error sending to' . " " . $recipient .
-        " " . $mail->ErrorInfo);
+        error_log('There has been a mail error sending to' . " " . errorLogEscape($recipient .
+        " " . $mail->ErrorInfo));
     }
 }
 
@@ -217,7 +217,6 @@ if (false) { // if PDF output is desired
 <html>
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <head>
-    <?php html_header_show();?>
 <style type="text/css">
 body {
     font-family: sans-serif;

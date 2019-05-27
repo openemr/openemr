@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
     <?php Header::setupHeader(); ?>
 
     <script language="JavaScript">
-        $(document).ready(function() {
+        $(function() {
             $("#req_button").click(function() {
                 // hide the button, show the message, and send the ajax call
                 $('#req_button').hide();

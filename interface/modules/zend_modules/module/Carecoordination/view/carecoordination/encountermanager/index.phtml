@@ -1,25 +1,15 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  Vinish K <vinish@zhservices.com>
-*    @author  Riju K P <rijukp@zhservices.com>
-*    @author  Chandni Babu <chandnib@zhservices.com> 
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Carecoordination/view/carecoordination/encountermanager/index.phtml
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Vinish K <vinish@zhservices.com>
+ * @author    Riju K P <rijukp@zhservices.com>
+ * @author    Chandni Babu <chandnib@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 $status_title   = array('0' => 'Pending', '1' => 'Completed','2' => 'Secure Transfer', '3' => 'View');
 $status_details = array();
 foreach($this->status_details as $row_status){
@@ -38,7 +28,7 @@ foreach($this->status_details as $row_status){
       $(".ap-st-st-12").css("left",Number(e.pageX)+"px");
       $(".ap-st-st-12").toggle();
     });
-      
+
     $(document).mouseup(function (e){
         var container = $(".ap-st-st-12");
         button = $(".search_button2");
@@ -47,20 +37,20 @@ foreach($this->status_details as $row_status){
           $(container).css("display","none");
         }
     });
-      
+
     /* Main tab click function **/
     $('.main-tab-head li').on("click",function(){
       $('.main-tab-head li').removeClass("main_active");
       $(this).addClass("main_active");
-      $('.child-all').hide(); 
+      $('.child-all').hide();
       data_type = $(this).data('type');
           if(data_type == 'import') {
               if(srcset == false){
                  var src = $('#ccd_iframe').data('src');
                  $('#ccd_iframe').attr('src',src);
                  $('.import-child-tab-1').show();
-                 srcset = true; 
-              }              
+                 srcset = true;
+              }
           }
       $('.child-tab-1').show();
       var mainIndex = $(this).index() + 1;
@@ -116,17 +106,17 @@ foreach($this->status_details as $row_status){
       $('#downloadccda').val('download_ccda');
       $('#theform').submit();
     });
-    
+
     $("#download_ccr").click(function(){
       $("#downloadccr").val('download_ccr');
       $("#theform").submit();
     });
-    
+
     $("#download_ccd").click(function(){
       $("#downloadccd").val('download_ccd');
       $("#theform").submit();
     });
-    
+
   });
   function reloadIframe()
   {
@@ -170,7 +160,7 @@ foreach($this->status_details as $row_status){
                                                 $( "#form_date_to" ).datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['to_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>');
                                         });
                                 </script>
-                        </td> 
+                        </td>
                     </tr>
                     <tr>
                         <td nowrap><label><?php echo $this->listenerObject->z_xlt('Patient Name/ID'); ?></label></td>
@@ -186,7 +176,7 @@ foreach($this->status_details as $row_status){
                     </tr>
                 </table> <!-- table -->
         </div><!-- se in 15 -->
-        
+
         <div class="body_inner_wrapper">
             <div class="header_wrap">
                 <div class="header_wrap_left">
@@ -201,11 +191,8 @@ foreach($this->status_details as $row_status){
                     <input type="hidden" name="pid_ccda" id="pid_ccda" value="">
                     <input type="hidden" name="latestccda" id="latestccda" value="">
                     <?php
-                    $arr = $this->getVariables('Application\Controller\SendtoController','sendAction');
-                    $arr['required_butons'] = array('hie','emr_direct','download_all');
-                    $arr['send_via']        = 'hie';
-                    $this->layout('carecoordination/layout/encountermanager');
-                    echo $this->partial("application/sendto/send",$arr);
+                    // @see Application view_helpers for this functionality.
+                    $this->sendToHie('carecoordination/layout/encountermanager', array('hie','emr_direct','download_all'), 'hie');
                     ?>
                     <div class="se_in_3" title="<?php echo $this->listenerObject->z_xlt('Reload');?>" onclick="javascript:clearCount();document.getElementById('theform').submit();"></div>
                 </div><!-- header_wrap_left -->
@@ -235,11 +222,11 @@ foreach($this->status_details as $row_status){
                         line-height: 17px !important;
                 }
                 </style>
-                <script type="text/javascript">                
+                <script type="text/javascript">
                 $(document).ready(function(){
                         $('.expand_details').click(function(){
                                 var arr = (this.id).split('_');
-                                
+
                                 if($('#'+this.id).hasClass('se_in_23')){
                                         $('#'+this.id).addClass("se_in_24");
                                         $('#'+this.id).removeClass("se_in_23");
@@ -252,18 +239,18 @@ foreach($this->status_details as $row_status){
                                 }
                         });
                         $('#expand_all').click(function(){
-                                if($('#expand_all').hasClass('se_in_23')){                                        
+                                if($('#expand_all').hasClass('se_in_23')){
                                         $('.expand_details').addClass("se_in_24");
-                                        $('.expand_details').removeClass("se_in_23");                                        
+                                        $('.expand_details').removeClass("se_in_23");
                                         $('.expand_all').addClass("se_in_24");
-                                        $('.expand_all').removeClass("se_in_23");                                        
+                                        $('.expand_all').removeClass("se_in_23");
                                         $('.ccda_details').show('slow');
                                 }
                                 else if($('#expand_all').hasClass('se_in_24')){
                                         $('.expand_details').addClass("se_in_23");
-                                        $('.expand_details').removeClass("se_in_24");                                        
+                                        $('.expand_details').removeClass("se_in_24");
                                         $('.expand_all').addClass("se_in_23");
-                                        $('.expand_all').removeClass("se_in_24");                                        
+                                        $('.expand_all').removeClass("se_in_24");
                                         $('.ccda_details').hide('slow');
                                 }
                         });
@@ -294,7 +281,7 @@ foreach($this->status_details as $row_status){
                         <th width="3%">&nbsp;</th>
                     </tr>
                     <?php
-                    $slno       = ($this->escapeHtml($this->form_data['current_page']) - 1) * $this->escapeHtml($this->form_data['results']);                    
+                    $slno       = ($this->escapeHtml($this->form_data['current_page']) - 1) * $this->escapeHtml($this->form_data['results']);
                     foreach($this->details as $row){
                         $slno++;
                         ?>
@@ -307,8 +294,8 @@ foreach($this->status_details as $row_status){
                                 <td><label><?php echo $this->escapeHtml($row['ccda_transfer_count']);?></label></td>
                                 <td><label><?php echo $this->escapeHtml($row['ccda_successfull_transfer_count']);?></label></td>
                                 <td><label><?php echo $this->commonplugin->date_format($row['last_visit_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?></label></td>
-                                <td nowrap>                                        
-                                        <input class="check_pid check_pid_<?php echo $this->escapeHtml($row['pid']);?>" type="checkbox" name="ccda_pid[]" value="<?php echo $this->escapeHtml($row['pid']);?>" <?php if($this->form_data['select_all'] ==1) echo "checked"; ?>>                                        
+                                <td nowrap>
+                                        <input class="check_pid check_pid_<?php echo $this->escapeHtml($row['pid']);?>" type="checkbox" name="ccda_pid[]" value="<?php echo $this->escapeHtml($row['pid']);?>" <?php if($this->form_data['select_all'] ==1) echo "checked"; ?>>
                                 </td>
                                 <td style="padding: 5px;">
                                         <a href="<?php echo $this->basePath();?>/encounterccdadispatch/index?combination=<?php echo $this->escapeHtml($row['pid']);?>&view=1&recipient=self&param=<?php echo $_SESSION['authId'];?>" rel="noopener" target="_blank" style="text-decoration: none;">
@@ -359,20 +346,20 @@ foreach($this->status_details as $row_status){
                                                                                 </a>
                                                                         </td>
                                                                 </tr>
-                                                                <?php                                                        
+                                                                <?php
                                                         }
                                                         ?>
                                                 </table>
                                         </td>
                                 </tr>
-                                        <?php                                
+                                        <?php
                     }
                     ?>
                 </table>
                 <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($this->details) > 0){ ?>display: none; <?php } ?>">
                         <?php echo $this->listenerObject->z_xlt('Nothing to display');?>
                 </div>
-            </div>   
+            </div>
             <!-- body contents  -->
         </div><!-- body_inner_wrapper -->
         <input type="hidden" name="form_current_page" id="form_current_page" value="<?php echo $this->escapeHtml($this->form_data['current_page']);?>" />
@@ -383,11 +370,11 @@ foreach($this->status_details as $row_status){
         <input type="hidden" name="form_new_search" id="form_new_search" value="" />
         </form>
       </div>
-            <!-- --> 
+            <!-- -->
           </div>
           </div><!-- Immunization Tab -->
           <div class="child-tab-2 child-all">
-                <iframe id="immunization_iframe" border="0" width="100%" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/immunization/index"></iframe>               
+                <iframe id="immunization_iframe" border="0" width="100%" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/immunization/index"></iframe>
           </div><!-- Syndromic Surveillance Tab -->
           <div class="child-tab-3 child-all">
                 <iframe id="syndromicsurveillance_iframe" border="0" width="100%" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/syndromicsurveillance/index"></iframe>
@@ -396,7 +383,7 @@ foreach($this->status_details as $row_status){
             <ul class="child-tab-head-import">
                 <li class="child_active"><?php echo $this->listenerObject->z_xlt('CCD');?></li>
                 <li><?php echo $this->listenerObject->z_xlt('CCR');?></li>
-                <li><?php echo $this->listenerObject->z_xlt('CCDA');?></li>                
+                <li><?php echo $this->listenerObject->z_xlt('CCDA');?></li>
           </ul><div class="clear"></div>
                 <!--CCD Tab-->
           <div class="import-child-tab-1 child-all-import">
@@ -409,8 +396,8 @@ foreach($this->status_details as $row_status){
                 <!--CCDA Tab-->
           <div class="import-child-tab-3 child-all-import">
                 <iframe id="ccda_iframe" border="0" width="100%" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/carecoordination/upload?id=1"></iframe>
-           </div>                
-        </div> 
+           </div>
+        </div>
         <div class="clear"></div>
     </div> <!-- New Wrapper ends-->
 

@@ -83,7 +83,6 @@ if ($postid) {
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
 <link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
@@ -182,7 +181,7 @@ function validate() {
  return true;
 }
 
-$(document).ready(function() {
+$(function() {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>

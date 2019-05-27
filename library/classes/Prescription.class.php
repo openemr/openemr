@@ -1,6 +1,13 @@
 <?php
-require_once(dirname(__FILE__) . "/../lists.inc");
-//below is required for the set_medication() function
+/**
+ * Prescription.class.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 // Below list of terms are deprecated, but we keep this list
 //   to keep track of the official openemr drugs terms and
@@ -71,23 +78,9 @@ require_once(dirname(__FILE__) . "/../lists.inc");
 // define('SUBSTITUTE_NO',2);
 //
 
-// Added 7-2009 by BM to incorporate the units, forms, interval, route lists from list_options
-//  This mechanism may only be temporary; will likely migrate changes more downstream to allow
-//   users the options of using the addlist widgets and validation frunctions from options.inc.php
-//   in the forms and output.
-function load_drug_attributes($id)
-{
-    $res = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq", array($id));
-    while ($row = sqlFetchArray($res)) {
-        if ($row['title'] == '') {
-             $arr[$row['option_id']] = ' ';
-        } else {
-             $arr[$row['option_id']] = xl_list_label($row['title']);
-        }
-    }
 
-    return $arr;
-}
+require_once(dirname(__FILE__) . "/../lists.inc");
+
 
 /**
  * class Prescription
@@ -152,14 +145,10 @@ class Prescription extends ORDataObject
 
     function __construct($id = "", $_prefix = "")
     {
-
-    // Modified 7-2009 by BM to load the arrays from the lists in lists_options.
-    // Plan for this to only be temporary, hopefully have the lists used directly
-    //  from forms in future to allow use of widgets etc.
-        $this->route_array = load_drug_attributes('drug_route');
-        $this->form_array = load_drug_attributes('drug_form');
-        $this->interval_array = load_drug_attributes('drug_interval');
-        $this->unit_array = load_drug_attributes('drug_units');
+        $this->route_array = $this->load_drug_attributes('drug_route');
+        $this->form_array = $this->load_drug_attributes('drug_form');
+        $this->interval_array = $this->load_drug_attributes('drug_interval');
+        $this->unit_array = $this->load_drug_attributes('drug_units');
 
         $this->substitute_array = array("",xl("substitution allowed"),
             xl("do not substitute"));
@@ -260,6 +249,21 @@ class Prescription extends ORDataObject
             return $string;
         }
     }
+
+    private function load_drug_attributes($id)
+    {
+        $res = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq", array($id));
+        while ($row = sqlFetchArray($res)) {
+            if ($row['title'] == '') {
+                $arr[$row['option_id']] = ' ';
+            } else {
+                $arr[$row['option_id']] = xl_list_label($row['title']);
+            }
+        }
+
+        return $arr;
+    }
+
     function get_encounter()
     {
         return $_SESSION['encounter'];

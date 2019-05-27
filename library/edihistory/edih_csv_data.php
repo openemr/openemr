@@ -514,7 +514,7 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
             $pd = $matches[0];
             $gtdt = getdate();
             $mon = (string)$gtdt['mon'];
-            $day = (string)($gtdt['mday'] - $gtdt['wday'] + 1);
+            $day = (string)($gtdt['mday']); // - $gtdt['wday'] + 1); not sure why this was valuable
             $yr = (string)$gtdt['year'];
             if (strtoupper($period) == 'ALL') {
                 $is_period = false;

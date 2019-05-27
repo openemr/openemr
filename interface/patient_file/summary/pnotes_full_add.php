@@ -171,7 +171,6 @@ $result = getPnotesByDate(
 
 <html>
 <head>
-<?php html_header_show();?>
 
 <link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css" type="text/css">
@@ -179,22 +178,19 @@ $result = getPnotesByDate(
 <!-- supporting javascript code -->
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-<!--<script type="text/javascript" src="../../../library/dialog.js?v=<?php /*echo $v_js_includes; */?>"></script>-->
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 <script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
-
 <script type="text/javascript">
 function submitform(attr) {
-if (attr="newnote")
-document.forms[0].submit();
+    if (attr == "newnote") {
+        document.forms[0].submit();
+    }
 }
 </script>
 </head>
 <body class="body_top">
-
 <div id="pnotes"> <!-- large outer DIV -->
-
 <?php
 $title_docname = "";
 if ($docid) {
@@ -211,23 +207,20 @@ $urlparms = "docid=" . attr_url($docid) . "&orderid= " . attr_url($orderid);
 ?>
 
 <form border='0' method='post' name='new_note' id="new_note" action='pnotes_full.php?<?php echo $urlparms; ?>'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(collectCsrfToken()); ?>" />
+<div>
+    <div id="pnotes_title">
+        <span class="title"><?php echo xlt('Patient Message') . text($title_docname); ?></span>
+    </div>
     <div>
-        <div id="pnotes_title">
-            <span class="title"><?php echo xlt('Patient Message') . text($title_docname); ?></span>
-        </div>
-        <div>
-            <?php if ($noteid) { ?>
+        <?php if ($noteid) { ?>
             <!-- existing note -->
             <a href="#" class="css_button" id="printnote"><span><?php echo xlt('View Printable Version'); ?></span></a>
-            <?php } ?>
-            <a class="css_button large_button" id='cancel' href='javascript:;'>
-            <span class='css_button_span large_button_span'><?php echo xlt('Cancel'); ?></span>
-            </a>
-        </div>
+        <?php } ?>
+        <a class="css_button large_button" id='cancel' href='javascript:;'><span class='css_button_span large_button_span'><?php echo xlt('Cancel'); ?></span></a>
     </div>
-
-    <br/>
+</div>
+<br/>
 
 <input type='hidden' name='mode' id="mode" value="new">
 <input type='hidden' name='trigger' id="trigger" value="add">
@@ -253,7 +246,6 @@ $urlparms = "docid=" . attr_url($docid) . "&orderid= " . attr_url($orderid);
  <tr>
   <td class='text'>
     <br/>
-
    <b><?php echo xlt('Type'); ?>:</b>
     <?php
    // Added 6/2009 by BM to incorporate the patient notes into the list_options listings

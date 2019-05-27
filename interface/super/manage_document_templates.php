@@ -15,9 +15,14 @@
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 
+use OpenEMR\Common\Crypto\CryptoGen;
+
 if (!acl_check('admin', 'super')) {
     die(xlt('Not authorized'));
 }
+
+// Set up crypto object
+$cryptoGen = new CryptoGen();
 
 $form_filename = convert_safe_file_dir_name($_REQUEST['form_filename']);
 
@@ -38,8 +43,8 @@ if (!empty($_POST['bn_download'])) {
     $fileData = file_get_contents($templatepath);
 
     // Decrypt file, if applicable
-    if (cryptCheckStandard($fileData)) {
-        $fileData = decryptStandard($fileData, null, 'database');
+    if ($cryptoGen->cryptCheckStandard($fileData)) {
+        $fileData = $cryptoGen->decryptStandard($fileData, null, 'database');
     }
 
     header('Content-Description: File Transfer');
@@ -108,7 +113,7 @@ if (!empty($_POST['bn_upload'])) {
 
         // Encrypt uploaded file, if applicable.
         if ($GLOBALS['drive_encryption']) {
-            $storedData = encryptStandard($fileData, null, 'database');
+            $storedData = $cryptoGen->encryptStandard($fileData, null, 'database');
         } else {
             $storedData = $fileData;
         }

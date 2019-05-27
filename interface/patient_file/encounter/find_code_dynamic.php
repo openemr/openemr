@@ -57,7 +57,7 @@ var oTable;
 // Keeps track of which items have been selected during this session.
 var oChosenIDs = {};
 
-$(document).ready(function() {
+$(function() {
 
  // Initializing the DataTable.
  oTable = $('#my_data_table').dataTable({

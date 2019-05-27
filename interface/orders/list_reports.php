@@ -206,8 +206,9 @@ $(function () {
         $info['orphaned_order'] = "R";
     }
     // Attempt to post any incoming results.
-    $errmsg = poll_hl7_results($info);
-
+    if (empty($_POST['form_external_refresh'])) {
+        $errmsg = poll_hl7_results($info);
+    }
     // echo "<!--\n";  // debugging
     // print_r($info); // debugging
     // echo "-->\n";   // debugging

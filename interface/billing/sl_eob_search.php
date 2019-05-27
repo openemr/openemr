@@ -212,7 +212,7 @@ function emailLogin($patient_id, $message)
         return true;
     } else {
         $email_status = $mail->ErrorInfo;
-        error_log("EMAIL ERROR: " . $email_status, 0);
+        error_log("EMAIL ERROR: " . errorLogEscape($email_status), 0);
         return false;
     }
 }
@@ -651,7 +651,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
             setTimeout(function(){parent.left_nav.loadFrame('enc2', 'enc', encurl);}, 3000);
         }
 
-        $(document).ready(function () {
+        $(function () {
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
@@ -1247,7 +1247,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         });
 
 // We can watch for our custom `fileselect` event like this
-        $(document).ready(function () {
+        $(function () {
             $(':file').on('fileselect', function (event, numFiles, label) {
                 var input = $(this).parents('.input-group').find(':text'),
                     log = numFiles > 1 ? numFiles + ' files selected' : label;
@@ -1263,7 +1263,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 
     });
     //to dynamically show /hide relevant divs and change Fieldset legends
-    $(document).ready(function () {
+    $(function () {
         $("input[name=radio-search]").on("change", function () {
 
             let flip = $(this).val();
@@ -1302,7 +1302,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
     }
 
     ?>
-    $(document).ready(function () {
+    $(function () {
 //using jquery-ui-1-12-1 tooltip instead of bootstrap tooltip
         $('#select-method-tooltip').attr("title", <?php echo xlj('Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>).tooltip();
     });

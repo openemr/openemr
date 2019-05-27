@@ -1,30 +1,21 @@
 <?php
-//    +-----------------------------------------------------------------------------+ 
-//    OpenEMR - Open Source Electronic Medical Record
-//    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-//
-//    This program is free software: you can redistribute it and/or modify
-//    it under the terms of the GNU Affero General Public License as
-//    published by the Free Software Foundation, either version 3 of the
-//    License, or (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU Affero General Public License for more details.
-//
-//    You should have received a copy of the GNU Affero General Public License
-//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//    Author:   Basil PT <basil@zhservices.com>
-//
-// +------------------------------------------------------------------------------+
+/**
+ * interface/modules/zend_modules/module/Documents/view/layout/layout.phtml
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Basil PT <basil@zhservices.com>
+ * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 ?>
 <?php echo $this->doctype(); ?>
 
 <html lang="en" ng-app="documentsApp">
     <head>
         <meta charset="utf-8">
-        <?php echo $this->headTitle($this->translate('Welcome to ZHOpenEMR'))->setSeparator(' - ')->setAutoEscape(false) ?>
+        <?php echo $this->headTitle($this->translate()->xl('Welcome to OpenEMR'))->setSeparator(' - ')->setAutoEscape(false) ?>
 
         <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0') ?>
 

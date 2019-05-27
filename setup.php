@@ -15,7 +15,7 @@
  */
 
 // Checks if the server's PHP version is compatible with OpenEMR:
-require_once(dirname(__FILE__) . "/common/compatibility/Checker.php");
+require_once(dirname(__FILE__) . "/src/Common/Compatibility/Checker.php");
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
 if ($response !== true) {
     die(htmlspecialchars($response));
@@ -209,12 +209,10 @@ global $OE_SITE_DIR; // The Installer sets this
 
 $docsDirectory = "$OE_SITE_DIR/documents";
 
-$zendModuleConfigFile = dirname(__FILE__)."/interface/modules/zend_modules/config/application.config.php";
-
 //These are files and dir checked before install for
 // correct permissions.
 if (is_dir($OE_SITE_DIR)) {
-    $writableFileList = array($installer->conffile,$zendModuleConfigFile);
+    $writableFileList = array($installer->conffile);
     $writableDirList = array($docsDirectory);
 } else {
     $writableFileList = array();
@@ -1510,7 +1508,7 @@ TOP;
                                     echo $top;
                         if ($checkPermissions) {
                             echo "<p>We will now ensure correct file and directory permissions before starting installation:</p>\n";
-                            echo "<FONT COLOR='green'>Ensuring following files are world-writable...</FONT><br>\n";
+                            echo "<FONT COLOR='green'>Ensuring following file is world-writable...</FONT><br>\n";
                             $errorWritable = 0;
                             foreach ($writableFileList as $tempFile) {
                                 if (is_writable($tempFile)) {

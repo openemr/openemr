@@ -84,9 +84,6 @@ class ThumbnailGenerator
                 case 1:
                     $new_file =  $this->generate_couch_file($row['couch_docid'], $row['url']);
                     break;
-                default:
-                    $this->error_log($row['url']);
-                    continue;
             }
 
             // Write error to log if failed

@@ -1,92 +1,142 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  Remesh Babu S <remesh@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Application/config/module.config.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Remesh Babu S <remesh@zhservices.com>
+ * @author    Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+namespace Application;
 
+use Application\Controller\IndexController;
+use Application\Listener\Listener;
+use Zend\Router\Http\Literal;
+use Zend\Router\Http\Segment;
+use Zend\ServiceManager\Factory\InvokableFactory;
+use Zend\Mvc\I18n\TranslatorFactory;
+use Interop\Container\ContainerInterface;
+
+//
 return array(
     'router' => array(
         'routes' => array(
             'home' => array(
-                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'type' => Literal::class,
                 'options' => array(
                     'route'    => '/',
                     'defaults' => array(
-                        'controller' => 'Application\Controller\Index',
+                        'controller' => \Application\Controller\IndexController::class,
                         'action'     => 'index',
                     ),
                 ),
             ),
-            // The following is a route to simplify getting started creating
-            // new controllers and actions without needing to create a new
-            // module. Simply drop new controllers in, and you can access them
-            // using the path /application/:controller/:action
+            // The literal match does a simple string comparison and serves up the controller
+            // when the expression matches exactly
             'application' => array(
-                'type'    => 'Literal',
+                'type'    => Literal::class,
                 'options' => array(
                     'route'    => '/application',
                     'defaults' => array(
-                        '__NAMESPACE__' => 'Application\Controller',
-                        'controller'    => 'Index',
+                        'controller'    => \Application\Controller\IndexController::class,
                         'action'        => 'index',
                     ),
                 ),
+                // child routes will load up as /application/child_route_key/ using the segment matcher which uses regex for the routers
                 'may_terminate' => true,
                 'child_routes' => array(
-                    'default' => array(
-                        'type'    => 'Segment',
+                    'index' => array(
+                        'type'    => Segment::class,
                         'options' => array(
-                            'route'    => '/[:controller[/:action]]',
+                            'route'    => '/index[/:action]',
                             'constraints' => array(
-                                'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
-                                'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
+                                'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                             ),
                             'defaults' => array(
+                                'controller' => IndexController::class,
+                                'action'     => 'index',
+                            ),
+                        ),
+                    ),
+                    'sendto' => array(
+                        'type'    => Segment::class,
+                        'options' => array(
+                            'route'    => '/sendto[/:action]',
+                            'constraints' => array(
+                                'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                            ),
+                            'defaults' => array(
+                                'controller' => \Application\Controller\SendtoController::class,
+                                'action'     => 'index',
+                            ),
+                        ),
+                    ),
+                    'soap' => array(
+                        'type'    => Segment::class,
+                        'options' => array(
+                            'route'    => '/soap[/:action]',
+                            'constraints' => array(
+                                'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                                'id'     => '[a-zA-Z_]*',
+                                'val'    => '[0-9]*',
+                            ),
+                            'defaults' => array(
+                                'controller' => \Application\Controller\SoapController::class,
+                                'action'     => 'index',
                             ),
                         ),
                     ),
                 ),
             ),
         ),
+    )
+    // These plugins classes get added as methods onto the module controllers.  So you can reference inside a controller
+    // that extends AbstractActionController.  An example below:
+    // $this->CommonPlugin() as it uses (in ZF3) AbstractActionController->AbstractController->__call to call the plugin's code.  Similar to duck-typing or mixins
+    // from other frameworks/languages.
+    // in Several of the views the CommonPlugin is injected as 'commonplugin'
+    // @see https://olegkrivtsov.github.io/using-zend-framework-3-book/html/en/Model_View_Controller/Controller_Plugins.html for more details.
+    ,'controller_plugins' => array(
+        'factories' => array(
+            'CommonPlugin' => function (ContainerInterface $container, $requestedName) {
+                return new Plugin\CommonPlugin($container);
+            }
+            ,'Phimail' => function (ContainerInterface $container) {
+                return new Plugin\Phimail($container);
+            }
+        )
+    )
+    ,'controllers' => array(
+        'factories' => [
+            \Application\Controller\IndexController::class => function (ContainerInterface $container, $requestedName) {
+                return new \Application\Controller\IndexController($container->get(\Application\Model\ApplicationTable::class));
+            },
+            \Application\Controller\SoapController::class => function (ContainerInterface $container, $requestedName) {
+                return new \Application\Controller\SoapController($container->get(\Carecoordination\Controller\EncounterccdadispatchController::class));
+            },
+            \Application\Controller\SendtoController::class => function (ContainerInterface $container, $requestedName) {
+                return new \Application\Controller\SendtoController($container->get(\Application\Model\ApplicationTable::class), $container->get(\Application\Model\SendtoTable::class));
+            }
+        ]
     ),
     'service_manager' => array(
         'factories' => array(
-            'translator' => 'Zend\I18n\Translator\TranslatorServiceFactory',
-        ),
-        'invokables' => array(
-            'Listener' => 'Application\Listener\Listener',
-        ),
-    ),
-    'translator' => array(
-        'locale' => 'en_US',
-        'translation_file_patterns' => array(
-            array(
-                'type'     => 'gettext',
-                'base_dir' => __DIR__ . '/../language',
-                'pattern'  => '%s.mo',
-            ),
-        ),
-    ),
-    'controllers' => array(
-        'invokables' => array(
-            'Application\Controller\Index' => 'Application\Controller\IndexController',
-            'Application\Controller\Sendto' => 'Application\Controller\SendtoController',
-            'Application\Controller\Soap' => 'Application\Controller\SoapController',
+            Listener::class => InvokableFactory::class,
+            \Application\Model\ApplicationTable::class => function (ContainerInterface $container, $requestedName) {
+                $dbAdapter = $container->get('Zend\Db\Adapter\Adapter');
+                $table = new \Application\Model\ApplicationTable($dbAdapter);
+                return $table;
+            },
+            \Application\Model\SendtoTable::class => function (ContainerInterface $container, $requestedName) {
+                $dbAdapter = $container->get('Zend\Db\Adapter\Adapter');
+                $table = new \Application\Model\SendtoTable($dbAdapter);
+                return $table;
+            },
+            \Application\Controller\SendtoController::class => function (ContainerInterface $container, $requestedName) {
+                return new \Application\Controller\SendtoController($container->get(\Application\Model\ApplicationTable::class), $container->get(\Application\Model\SendtoTable::class));
+            }
         ),
     ),
     'view_manager' => array(
@@ -107,8 +157,17 @@ return array(
     ),
     'view_helpers' => array(
         'invokables'=> array(
-            'getVariables'      => 'Application\Helper\Getvariables',
-            'javascriptGlobals' => 'Application\Helper\Javascript',
-        )
+            'javascriptGlobals' => \Application\Helper\Javascript::class,
+        ),
+        'factories' => [
+            'translate' => function (\Interop\Container\ContainerInterface $container, $requestedName) {
+                // TODO: we should look at renaming this to be TranslatorAdapter
+                return new \Application\Helper\TranslatorViewHelper();
+            }
+            // TODO: this used to be the Getvariables functionality.. the whole thing has a leaky abstraction and should be refactored into services instead of jumping to a controller view
+            , 'sendToHie'      => function (\Interop\Container\ContainerInterface $container, $requestedName) {
+                return new \Application\Helper\SendToHieHelper($container->get(\Application\Controller\SendtoController::class));
+            }
+        ]
     ),
 );

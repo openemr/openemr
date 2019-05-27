@@ -1,25 +1,15 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  Jacob T.Paul  <jacob@zhservices.com>
-*    @author  Vipin Kumar   <vipink@zhservices.com>
-*    @author  Remesh Babu S <remesh@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jacob T.Paul <jacob@zhservices.com>
+ * @author    Vipin Kumar <vipink@zhservices.com>
+ * @author    Remesh Babu S <remesh@zhservices.com>
+ * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 namespace Installer\Controller;
 
@@ -29,15 +19,27 @@ use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
 use Installer\Model\InstModule;
 use Application\Listener\Listener;
+use Installer\Model\InstModuleTable;
+use Zend\Db\Adapter\Adapter;
 
 class InstallerController extends AbstractActionController
 {
+    /**
+     * @var Installer\Model\InstModuleTable
+     */
     protected $InstallerTable;
     protected $listenerObject;
 
-    public function __construct()
+    /**
+     * @var Zend\Db\Adapter\Adapter
+     */
+    private $dbAdapter;
+
+    public function __construct(InstModuleTable $installerTable)
     {
         $this->listenerObject = new Listener;
+        $this->InstallerTable = $installerTable;
+        $this->dbAdapter = $adapter;
     }
 
     public function nolayout()
@@ -47,7 +49,7 @@ class InstallerController extends AbstractActionController
         $viewModel->setTerminal(true);
         return $viewModel;
     }
-    
+
     public function indexAction()
     {
         //get the list of installed and new modules
@@ -68,52 +70,34 @@ class InstallerController extends AbstractActionController
         ));
     }
 
+    /**
+     * @return Installer\Model\InstModuleTable
+     */
     public function getInstallerTable()
     {
-        if (!$this->InstallerTable) {
-            $sm = $this->getServiceLocator();
-            $this -> InstallerTable = $sm -> get('Installer\Model\InstModuleTable');
-        }
-
         return $this->InstallerTable;
     }
-    
+
     public function registerAction()
     {
         $status   = false;
         $request  = $this->getRequest();
         if ($request->isPost()) {
             if ($request->getPost('mtype') == 'zend') {
+                // TODO: We want to be able to load the modules
+                // from the database.. however, this can be fairly slow so we might want to do some kind of APC caching of the module
+                // list that is loaded using the OpenEMR db connector and not the zend db connector, cache the modules, and then
+                // we can filter / update that list.  We'll have to inject the unloaded module list into the installer but that is fine.
                 $rel_path = "public/".$request->getPost('mod_name')."/";
-                $fName = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir'].$GLOBALS['zendModDir']."/config/application.config.php";
-                $tmp = include $fName;
-                $modName = trim($request->getPost('mod_name'));
-                $module_exist_in_config = false;
-                if (in_array($modName, $tmp['modules'], true)) {
-                    $module_exist_in_config = true;
-                }
 
+                // registering the table inserts the module record into the database.
+                // it's always loaded regardless, but it inserts it in the database as not activated
                 if ($this -> getInstallerTable() -> register($request->getPost('mod_name'), $rel_path, 0, $GLOBALS['zendModDir'])) {
-                    //add the Module name in the application config file if not already present
-                    $fileName = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir'].$GLOBALS['zendModDir']."/config/application.config.php";
-                    $data = include  $fileName;
-                    //TODO what if same name is already there for another module
-                    $data['modules'] = array_merge($data['modules'], array($request->getPost('mod_name')));
-                    //recreate the config file
-                    if (is_writable($fileName)) {
-                        if (!$module_exist_in_config) {
-                            $content = "<?php return array(";
-                            $content .= $this->getContent($data);
-                            $content .= ");";
-                            file_put_contents($fileName, $content);
-                        }
-                    } else {
-                        die($this->listenerObject->z_xlt("Unable to modify application config Please give write permission to")." $fileName");
-                    }
-
                     $status = true;
                 }
             } else {
+                // TODO: there doesn't appear to be any methodology in how to load these custom registered modules... which seems pretty odd.
+                // there aren't any in the system... but why have this then?
                 $rel_path = $request->getPost('mod_name')."/index.php";
                 if ($this -> getInstallerTable() -> register($request->getPost('mod_name'), $rel_path)) {
                     $status = true;
@@ -123,7 +107,7 @@ class InstallerController extends AbstractActionController
             die($status ? $this->listenerObject->z_xlt("Success") : $this->listenerObject->z_xlt("Failure"));
         }
     }
-    
+
     public function manageAction()
     {
         $request = $this->getRequest();
@@ -145,7 +129,7 @@ class InstallerController extends AbstractActionController
                     }
 
                     $status = $this->listenerObject->z_xlt("Dependency Problem") . ':' . implode(", ", $resp['value']) . " " . $this->listenerObject->z_xlt($plural) . " " . $this->listenerObject->z_xlt("Should be Enabled");
-                } else if ($resp['status'] == 'failure' && ($resp['code'] == '300' || $resp['code'] == '400')) {
+                } elseif ($resp['status'] == 'failure' && ($resp['code'] == '300' || $resp['code'] == '400')) {
                     $status = $resp['value'];
                 } else {
                     $status = $this->listenerObject->z_xlt("Success");
@@ -167,7 +151,7 @@ class InstallerController extends AbstractActionController
         echo $status;
         exit(0);
     }
-  
+
   /**
    * Function to install ACL for the installed modules
    * @param     string  $dir Location of the php file which calling functions to add sections,aco etc.
@@ -180,7 +164,7 @@ class InstallerController extends AbstractActionController
             include_once($aclfile);
         }
     }
-  
+
   /**
    * Used to recreate the application config file
    * @param unknown_type $data
@@ -204,7 +188,7 @@ class InstallerController extends AbstractActionController
 
         return $string;
     }
-  
+
     public function SaveHooksAction()
     {
         $request = $this->getRequest();
@@ -226,25 +210,24 @@ class InstallerController extends AbstractActionController
         $arr = new JsonModel($return);
         return $arr;
     }
- 
+
     public function configureAction()
     {
         $request  = $this->getRequest();
         $modId        = $request->getPost('mod_id');
 
         /** Configuration Details */
-        $result = $this->getInstallerTable()->getConfigSettings($request->getPost('mod_id'));
+        $result = $this->getInstallerTable()->getConfigSettings($modId);
         $configuration    = array();
         foreach ($result as $tmp) {
             $configuration[$tmp['field_name']] = $tmp;
-            array_push($config['moduleconfig'], $tmp);
         }
 
         //INSERT MODULE HOOKS IF NOT EXISTS
         $moduleDirectory  = $this->getInstallerTable()->getModuleDirectory($modId);
         //GET MODULE HOOKS FROM A FUNCTION IN CONFIGURATION MODEL CLASS
         $hooksArr = $this->getInstallerTable()->getModuleHooks($moduleDirectory);
-    
+
         if (count($hooksArr) > 0) {
             foreach ($hooksArr as $hook) {
                 if (count($hook) > 0) {
@@ -275,22 +258,20 @@ class InstallerController extends AbstractActionController
         }
 
         /** Configuration Form and Configuration Form Class */
-        /** Adapter in Forms  */
-        $dbAdapter = $this->getServiceLocator()->get('Zend\Db\Adapter\Adapter');
-        $configForm = $this->getInstallerTable()->getObject($moduleDirectory, 'Form', $dbAdapter);
-    
+        $configForm = $this->getInstallerTable()->getFormObject($moduleDirectory);
+
         /** Setup Config Details */
-        $setup = $this->getInstallerTable()->getObject($moduleDirectory, 'Setup');
+        $setup = $this->getInstallerTable()->getSetupObject($moduleDirectory);
 
         return new ViewModel(array(
-          'mod_id'                  => $request->getPost('mod_id'),
-          'TabSettings'             => $this->getInstallerTable()->getTabSettings($request->getPost('mod_id')),
-          'ACL'                     => $this->getInstallerTable()->getSettings('ACL', $request->getPost('mod_id')),
+          'mod_id'                  => $modId,
+          'TabSettings'             => $this->getInstallerTable()->getTabSettings($modId),
+          'ACL'                     => $this->getInstallerTable()->getSettings('ACL', $modId),
           'OemrUserGroup'           => $this->getInstallerTable()->getOemrUserGroup(),
           'OemrUserGroupAroMap'     => $this->getInstallerTable()->getOemrUserGroupAroMap(),
           'ListActiveUsers'         => $this->getInstallerTable()->getActiveUsers(),
-          'ListActiveACL'           => $this->getInstallerTable()->getActiveACL($request->getPost('mod_id')),
-          'ListActiveHooks'         => $this->getInstallerTable()->getActiveHooks($request->getPost('mod_id')),
+          'ListActiveACL'           => $this->getInstallerTable()->getActiveACL($modId),
+          'ListActiveHooks'         => $this->getInstallerTable()->getActiveHooks($modId),
           'helperObject'            => $this->helperObject,
           'configuration'           => $configuration,
           'hangers'                 => $this->getInstallerTable()->getHangers(),
@@ -306,7 +287,7 @@ class InstallerController extends AbstractActionController
     {
         $request    = $this->getRequest();
         $moduleId   = $request->getPost()->module_id;
-   
+
         foreach ($request->getPost() as $key => $value) {
             $fieldName  = $key;
             $fieldValue = $value;
@@ -314,13 +295,13 @@ class InstallerController extends AbstractActionController
                 $result = $this->getInstallerTable()->saveSettings($fieldName, $fieldValue, $moduleId);
             }
         }
-    
+
         $data         = array();
         $returnArr    = array('modeId' => $moduleId);
         $return   = new JsonModel($returnArr);
         return $return;
     }
-  
+
     public function DeleteAclAction()
     {
         $request = $this->getRequest();
@@ -329,7 +310,7 @@ class InstallerController extends AbstractActionController
         $arr        = new JsonModel($return);
         return $arr;
     }
-  
+
     public function DeleteHooksAction()
     {
         $request = $this->getRequest();
@@ -338,7 +319,7 @@ class InstallerController extends AbstractActionController
         $arr        = new JsonModel($return);
         return $arr;
     }
-  
+
     public function nickNameAction()
     {
         $request    = $this->getRequest();

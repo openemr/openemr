@@ -5,9 +5,13 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\RestControllers\AuthRestController;
 
 // also a handy place to add utility methods
 //
@@ -40,7 +44,11 @@ class RestConfig
     private static $INSTANCE;
     private static $IS_INITIALIZED = false;
 
-    private $context;
+    /**  @var set to true if local api call */
+    private static $localCall = false;
+
+    /**  @var set to true if not rest call */
+    private static $notRestCall = false;
 
     /** prevents external construction */
     private function __construct()
@@ -83,31 +91,6 @@ class RestConfig
         return self::$INSTANCE;
     }
 
-    /**
-     * Returns the api's context in form of token. e.g api called from OpenEMR authorized session.
-     * @return token or null if not local.
-     */
-    function GetContext()
-    {
-        if ($this->context == null) {
-            $local_auth = isset($_SERVER['HTTP_APPSECRET']) ? $_SERVER['HTTP_APPSECRET'] : false;
-            if ($local_auth) {
-                session_id($local_auth); // a must for cURL. See oeHttp Client request.
-            } else {
-                session_name("OpenEMR"); // works for browser/ajax.
-            }
-            session_start();
-            $app_token = isset($_SERVER['HTTP_APPTOKEN']) ? $_SERVER['HTTP_APPTOKEN'] : false;
-            $session_verified = ($app_token === $local_auth); // @todo future may force any http client to pass session id
-            if (isset($_SESSION['authUserID']) && !empty($_SESSION['authUser'])) {
-                $this->context = $_SESSION['csrf_token'];
-            } else {
-                session_destroy();
-            }
-        }
-
-        return $this->context;
-    }
 
     /**
      * Basic paths when GLOBALS are not yet available.
@@ -134,7 +117,7 @@ class RestConfig
         }
     }
 
-    function destroySession()
+    static function destroySession()
     {
         if (!isset($_SESSION)) {
             return;
@@ -171,8 +154,84 @@ class RestConfig
 
         return false;
     }
+
+    static function authorization_check($section, $value)
+    {
+        if (self::$notRestCall || self::$localCall) {
+            $result = acl_check($section, $value, $_SESSION['authUser']);
+        } else {
+            $authRestController = new AuthRestController();
+            $result = $authRestController->aclCheck($_SERVER["HTTP_X_API_TOKEN"], $section, $value);
+        }
+        if (!$result) {
+            if (!self::$notRestCall) {
+                http_response_code(401);
+            }
+            exit();
+        }
+    }
+
+    static function setLocalCall()
+    {
+        self::$localCall = true;
+    }
+
+    static function setNotRestCall()
+    {
+        self::$notRestCall = true;
+    }
+
+    static function is_authentication($resource)
+    {
+        return ($resource === "/api/auth" || $resource === "/fhir/auth");
+    }
+
+    static function get_bearer_token()
+    {
+        $parse = preg_split("/[\s,]+/", $_SERVER["HTTP_AUTHORIZATION"]);
+        if (strtoupper(trim($parse[0])) !== 'BEARER') {
+            return false;
+        }
+
+        return trim($parse[1]);
+    }
+
+    static function is_fhir_request($resource)
+    {
+        return (stripos(strtolower($resource), "/fhir/") !== false) ? true : false;
+    }
+
+    static function verify_api_request($resource, $api)
+    {
+        $api = strtolower(trim($api));
+        if (self::is_fhir_request($resource)) {
+            if ($api !== 'fhir') {
+                http_response_code(401);
+                exit();
+            }
+        } elseif ($api !== 'oemr') {
+            http_response_code(401);
+            exit();
+        }
+
+        return;
+    }
+
+    static function authentication_check($resource)
+    {
+        if (!self::is_authentication($resource)) {
+            $token = $_SERVER["HTTP_X_API_TOKEN"];
+            $authRestController = new AuthRestController();
+            if (!$authRestController->isValidToken($token)) {
+                http_response_code(401);
+                exit();
+            } else {
+                $authRestController->optionallyAddMoreTokenTime($token);
+            }
+        }
+    }
 }
 
 // Include our routes and init routes global
 //
-include_once("./../_rest_routes.inc.php");
+require_once(dirname(__FILE__) . "/_rest_routes.inc.php");

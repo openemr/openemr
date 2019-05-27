@@ -1956,28 +1956,29 @@ if ($ODCMT||$OSCMT) { ?>
                     $i++;
                 }
 
-                  //for ($i=0; $i < count($IMPPLAN_item); $i++) {
-                foreach ($IMPPLAN_items as $item) {
-                    echo ($item['IMPPLAN_order'] +1).'. <b>'.text($item['title']).'</b><br />';
-                    echo  '<div style="padding-left:15px;">';
-                    $pattern = '/Code/';
-                    if (preg_match($pattern, $item['code'])) {
-                        $item['code'] = '';
-                    }
-
-                    if ($item['codetext'] > '') {
-                        echo $item['codetext']."<br />";
-                    } else {
-                        if ($item['code'] > '') {
-                            if ($item['codetype'] > '') {
-                                $item['code'] =  $item['codetype'].": ".$item['code'];
-                            }
-
-                            echo $item['code']."<br />";
+                if (!empty($IMPPLAN_items)) {
+                    foreach ($IMPPLAN_items as $item) {
+                        echo ($item['IMPPLAN_order'] + 1) . '. <b>' . text($item['title']) . '</b><br />';
+                        echo '<div style="padding-left:15px;">';
+                        $pattern = '/Code/';
+                        if (preg_match($pattern, $item['code'])) {
+                            $item['code'] = '';
                         }
-                    }
 
-                    echo  $item['plan']."</div><br />";
+                        if ($item['codetext'] > '') {
+                            echo $item['codetext'] . "<br />";
+                        } else {
+                            if ($item['code'] > '') {
+                                if ($item['codetype'] > '') {
+                                    $item['code'] = $item['codetype'] . ": " . $item['code'];
+                                }
+
+                                echo $item['code'] . "<br />";
+                            }
+                        }
+
+                        echo $item['plan'] . "</div><br />";
+                    }
                 }
                 $query = "SELECT * FROM form_eye_mag_orders where form_id=? and pid=? ORDER BY id ASC";
                 $PLAN_results = sqlStatement($query, array($form_id, $pid ));

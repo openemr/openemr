@@ -5,12 +5,16 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("oeDispatcher.php");
+require_once(dirname(__FILE__) . "/../../../_rest_config.php");
 
+use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FhirResourcesService;
@@ -68,10 +72,12 @@ class clientController extends oeDispatchController
         $type = $this->getRequest('type');
 
         $fhir_uri = $type . '/' . strtolower($type) . '-' . $oeid;
-        $api_uri = $type . '/' . $oeid;
+        $api = '/fhir/' . $type . '/' . $oeid;
+
         // get resource from api
-        $response = oeHttp::setLocalApiContext(true)->usingBaseUri($this->apiBase)->get($api_uri);
-        $resource = $response->body(); // json encoded
+        $gbl = RestConfig::GetInstance();
+        $gbl::setNotRestCall();
+        $resource = HttpRestRouteHandler::dispatch($gbl::$FHIR_ROUTE_MAP, $api, 'GET', 'direct-json');
 
         // create resource on Fhir server.
         $returned = oeHttp::bodyFormat('body')->usingBaseUri($this->fhirBase)->put($fhir_uri, $resource);

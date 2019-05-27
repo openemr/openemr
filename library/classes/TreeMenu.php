@@ -602,7 +602,7 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
         $this->isDynamic = $isDynamic;
 
         // Defaults
-        $this->images           = 'images';
+        $this->images           = 'public/images';
         $this->maxDepth         = 0;        // No limit
         $this->linkTarget       = '_self';
         $this->defaultClass     = '';

@@ -273,7 +273,7 @@ if ($GLOBALS['enable_help'] == 1) {
 
 <script language="javascript">
     // jQuery stuff to make the page a little easier to use
-    $(document).ready(function () {
+    $(function () {
         $(".dontsave").click(function () {
             <?php if (isset($_REQUEST['isBilling'])) { ?>
                 dlgclose();
@@ -292,7 +292,7 @@ if ($GLOBALS['enable_help'] == 1) {
     });
 </script>
 <script>
-    $(document).ready(function () {
+    $(function () {
         $('select').addClass("form-control");
     });
 </script>

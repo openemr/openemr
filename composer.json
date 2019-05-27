@@ -26,15 +26,29 @@
         "phpseclib/phpseclib" : "2.0.15",
         "rospdf/pdf-php" : "0.12.49",
         "smarty/smarty" : "2.6.31",
-        "symfony/config" : "3.4.24",
-        "symfony/dependency-injection" : "3.4.24",
-        "symfony/event-dispatcher" : "3.4.24",
-        "symfony/http-foundation" : "3.4.24",
-        "symfony/yaml" : "3.4.24",
+        "symfony/config" : "3.4.27",
+        "symfony/dependency-injection" : "3.4.27",
+        "symfony/event-dispatcher" : "3.4.27",
+        "symfony/http-foundation" : "3.4.27",
+        "symfony/yaml" : "3.4.27",
         "twig/twig" : "2.7.4",
         "vlucas/phpdotenv" : "3.3.3",
         "yubico/u2flib-server" : "1.0.2",
-        "zendframework/zendframework" : "2.5.3",
+        "zendframework/zend-db" : "2.10.0",
+        "zendframework/zend-mvc" : "3.1.1",
+        "zendframework/zend-loader" : "2.6.0",
+        "zendframework/zend-inputfilter" : "2.10.0",
+        "zendframework/zend-soap" : "2.7.0",
+        "zendframework/zend-servicemanager" : "3.4.0",
+        "zendframework/zend-eventmanager" : "3.2.1",
+        "zendframework/zend-stdlib" : "3.2.1",
+        "zendframework/zend-escaper" : "2.6.0",
+        "zendframework/zend-config" : "3.1.0",
+        "zendframework/zend-filter" : "2.9.1",
+        "zendframework/zend-form" : "2.14.1",
+        "zendframework/zend-xmlrpc" : "2.7.0",
+        "zendframework/zend-session" : "2.8.5",
+        "zendframework/zend-json" : "3.1.0",
         "particle/validator": "2.3.4",
         "guzzlehttp/guzzle": "6.3.3",
         "kamermans/guzzle-oauth2-subscriber": "1.0.6",
@@ -42,7 +56,9 @@
         "academe/omnipay-authorizenetapi": "3.1.1",
         "omnipay/stripe": "3.0.1",
         "waryway/php-traits-library": "1.0.4",
-        "paragonie/multi-factor": "0.2.2"
+        "paragonie/multi-factor": "0.2.2",
+        "zendframework/zend-mvc-i18n": "1.1.0",
+        "zendframework/zend-json-server": "3.1.0"
     },
     "config": {
         "platform": {
@@ -58,11 +74,10 @@
     ],
     "autoload" : {
         "exclude-from-classmap" : [
-            "common/compatibility/Checker.php",
+            "src/Common/Compatibility/Checker.php",
             "library/classes/ClinicalTypes/",
             "library/classes/rulesets/",
-            "library/classes/smtp/",
-            "library/classes/Prescription.class.php"
+            "library/classes/smtp/"
         ],
         "classmap" : [
             "library/classes"
@@ -74,31 +89,11 @@
             "library/formatting.inc.php",
             "library/date_functions.php",
             "library/validation/validate_core.php",
-            "library/translation.inc.php",
-            "library/crypto.php"
+            "library/translation.inc.php"
         ],
         "psr-4" : {
-            "OpenEMR\\Common\\Compatibility\\" : "common/compatibility",
-            "OpenEMR\\Common\\Database\\" : "common/database",
-            "OpenEMR\\Common\\Http\\" : "common/http",
-            "OpenEMR\\Common\\Logging\\" : "common/logging",
-            "OpenEMR\\Common\\Utils\\" : "common/utils",
-            "OpenEMR\\Entities\\" : "entities",
-            "OpenEMR\\Services\\" : "services",
-            "OpenEMR\\RestControllers\\" : "rest_controllers",
-            "OpenEMR\\Repositories\\" : "repositories",
-            "OpenEMR\\Admin\\" : "library/admin/src",
-            "OpenEMR\\Core\\" : "library/core/src",
-            "OpenEMR\\Menu\\" : "library/menu/src",
-            "OpenEMR\\Calendar\\" : "library/calendar/src",
-            "OpenEMR\\Sample\\" : "library/sample/src",
-            "OpenEMR\\Reminder\\" : "library/reminder/src",
-            "OpenEMR\\Billing\\" : "library/billing/src",
-            "OpenEMR\\Pdf\\" : "library/pdf/src",
-            "OpenEMR\\Tabs\\" : "library/tabs/src",
-            "OpenEMR\\Rx\\Weno\\" : "library/weno/src",
-            "HL7\\FHIR\\STU3\\": "phpfhir/HL7/FHIR/STU3/src",
-            "OpenEMR\\OeUI\\" : "library/oeUI/src"
+            "OpenEMR\\" : "src",
+            "HL7\\FHIR\\STU3\\": "phpfhir/HL7/FHIR/STU3/src"
         }
     }
 }

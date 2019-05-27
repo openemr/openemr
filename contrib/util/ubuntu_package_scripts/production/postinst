@@ -274,9 +274,6 @@ case "$1" in
          chmod 600 $OPENEMR/ippf_upgrade.php
          chmod 600 $OPENEMR/gacl/setup.php
 
-         #set writable files and directories (that are not within sites directory)
-         chown $WEB_GROUP.$WEB_USER $OPENEMR/interface/modules/zend_modules/config/application.config.php
-
          #set writable directories (that are within sites directory)
          # (go through each site)
          for dir in $(find $SITEDIR/* -maxdepth 0 -type d ); do
@@ -531,7 +528,6 @@ case "$1" in
 
       # Set file and directory permissions (note use default site directory for new install)
       chmod 666 $SITEDIR/default/sqlconf.php
-      chown $WEB_GROUP.$WEB_USER $OPENEMR/interface/modules/zend_modules/config/application.config.php
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/default/documents
 
       if $configure_flag; then

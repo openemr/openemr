@@ -108,7 +108,6 @@ $customAttributes = ( $onlyRead ) ? array("disabled" => "true") : null;
 
 <html>
 <head>
-<?php html_header_show();?>
 
 <!-- supporting javascript code -->
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
@@ -152,7 +151,7 @@ function formValidation() {
     $("#add_edit_amendments").submit();
 }
 
-$(document).ready(function() {
+$(function() {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>

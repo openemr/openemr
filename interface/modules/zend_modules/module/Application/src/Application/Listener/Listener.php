@@ -1,23 +1,13 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  Remesh Babu S <remesh@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Application/src/Application/Listener/Listener.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Remesh Babu S <remesh@zhservices.com>
+ * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 namespace Application\Listener;
 
@@ -25,6 +15,13 @@ use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\Mvc\Controller\AbstractActionController;
 
+/**
+ * This class is supposed to listen for events in the module like the aclcheckEvent and trigger actions
+ * based on those events.  However, it doesn't appear to be used for that at all.  Instead it acts as
+ * an adapter for the OpenEMR language conversion within the module system.
+ * TODO: We should look at deleting this class or renaming it to be a TranslatorAdapter since that appears
+ * to be its functionality here...
+ */
 class Listener extends AbstractActionController implements ListenerAggregateInterface
 {
   /**
@@ -35,14 +32,16 @@ class Listener extends AbstractActionController implements ListenerAggregateInte
   /**
    * {@inheritDoc}
    */
-    public function attach(EventManagerInterface $events)
+    public function attach(EventManagerInterface $events, $priority = 1)
     {
+        // TODO: This aclcheckEvent doesn't appear to be in the system or used... especially since the callable onAclcheckEvent doesn't exist
+        // in this class.  We should look at removing this.
         $sharedEvents      = $events->getSharedManager();
         $this->listeners[] = $events->attach('aclcheckEvent', array($this, 'onAclcheckEvent'));
     }
-  
 
-    public function detach(EventManagerInterface $events)
+
+    public function detach(EventManagerInterface $events, $priority = 1)
     {
         foreach ($this->listeners as $index => $listener) {
             if ($events->detach($listener)) {
@@ -50,7 +49,7 @@ class Listener extends AbstractActionController implements ListenerAggregateInte
             }
         }
     }
-  
+
   /**
    * Language converter
    * @param string $str
@@ -60,7 +59,7 @@ class Listener extends AbstractActionController implements ListenerAggregateInte
     {
         return xl($str);
     }
-  
+
   /**
    * Language converter
    * @param string $str
@@ -70,7 +69,7 @@ class Listener extends AbstractActionController implements ListenerAggregateInte
     {
         return xlt($str);
     }
-  
+
   /**
    * Language converter
    * @param string $str
@@ -80,7 +79,7 @@ class Listener extends AbstractActionController implements ListenerAggregateInte
     {
         return xla($str);
     }
-  
+
     /**
    * Language converter
    * @param string $str

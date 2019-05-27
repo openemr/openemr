@@ -1,24 +1,13 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*    @author  Vinish K <vinish@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Carecoordination/view/carecoordination/setup/index.phtml
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Vinish K <vinish@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 ?>
 <script type="text/javascript">
 var save_array = new Array();
@@ -45,7 +34,7 @@ $(function() {
             rearrange();
         }
     });
-    $("#sortabledrop .delete").click(function() { 
+    $("#sortabledrop .delete").click(function() {
         $(this).parent().remove();
         rearrange();
     });
@@ -56,7 +45,7 @@ function rearrange(){
     $( "#sortabledrop" ).each(function( index ) {
         var str = '';
         var component = '';
-        var section = '';                
+        var section = '';
         $(this).find('li').each(function(){
             if($( this ).attr('id') && ($( this ).attr('id')).match(/\s?ID.*\s?/gi)){
                 component = ($( this ).attr('id')).replace('ID','');
@@ -82,24 +71,24 @@ function rearrange(){
 $(function() {
     $( "#tabs" ).tabs().addClass( "ui-tabs-vertical ui-helper-clearfix" );
     $( "#tabs li" ).removeClass( "ui-corner-top" ).addClass( "ui-corner-left" );
-    
+
     $('.sortable_li').click(function(){
         $('#sub_'+this.id).toggle('slow');
     });
-    
+
     $( "#sortabledrop" ).sortable({
         cancel      : ".ui-state-disabled",
         items       : "li:not(.ui-state-disabled-complete)",
         placeholder : "ui-state-highlight"
     });
-    
+
     $('#system_based_forms').addClass("activeTabForm");
     $('.top-menu li').click(function(){
         $('.top-menu li').removeClass("activeTabForm");
         $('.all-form').hide();
         $('#tabs-'+$(this).attr("id")).fadeIn(100).addClass("activeWindowForm");
         $(this).addClass("activeTabForm");
-        
+
     });
 });
 </script>
@@ -119,7 +108,7 @@ $(function() {
     <?php
     foreach($this->menu as $key => $value){
         $class_name = $key."_class";
-    ?>        
+    ?>
     <div id = 'tabs-<?php echo $this->escapeHtml($key);?>' class="all-form">
         <div id = "paginatediv_<?php echo $this->escapeHtml($key);?>" class = "paginationstyle">
             <a href="#" rel="previous" style="float:left;"><img src="<?php echo $this->basePath().'/images/prev.png' ?>" alt="" /></a>
@@ -157,12 +146,12 @@ $(function() {
                         </ul>
                         <?php
                     }
-                    ?>                    
+                    ?>
                 </li>
                 <?php
                 $count++;
             }
-            ?>	
+            ?>
         </div>
         <script type="text/javascript">
             var pagecontent = new virtualpaginate({
@@ -173,7 +162,7 @@ $(function() {
                 wraparound      : false,
                 persist         : false                             //Remember last viewed page and recall it when user returns within a browser session?
             })
-            pagecontent.buildpagination(["paginatediv_<?php echo $this->escapeHtml($key);?>"])                        
+            pagecontent.buildpagination(["paginatediv_<?php echo $this->escapeHtml($key);?>"])
         </script>
         <?php
         }
@@ -212,17 +201,17 @@ $(function() {
                         <?php
                         $count++;
                     }
-                    ?>                
+                    ?>
                     <li class="ui-state-default ui-state-disabled <?php echo $completed;?> <?php echo "sub_".$this->escapeHtml($row['ccda_components_field']);?> <?php echo "FIELD".$this->escapeHtml($row['ccda_sections_field']) ;?> child-drop-area" style="color: #000000 !important; display: none;">
-                        <?php echo $this->listenerObject->z_xlt($row['ccda_sections_name']);?>                        
+                        <?php echo $this->listenerObject->z_xlt($row['ccda_sections_name']);?>
                     </li>
-                    <?php                    
+                    <?php
                     if($this->saved[$row['ccda_components_field']][$row['ccda_sections_field']]){
                         foreach($this->saved[$row['ccda_components_field']][$row['ccda_sections_field']] as $key_1 => $value_1){
                             if(!$this->listenerObject->z_xlt($this->saved[$row['ccda_components_field']][$row['ccda_sections_field']][$key_1]['name'])) continue;
                         ?>
                         <li class="ui-state-default sortable_li <?php echo "sub_".$this->escapeHtml($row['ccda_components_field']);?> <?php echo $this->escapeHtml($this->saved[$row['ccda_components_field']][$row['ccda_sections_field']][$key_1]['class']);?> " style="display: none">
-                            <?php                            
+                            <?php
                             echo $this->listenerObject->z_xlt($this->saved[$row['ccda_components_field']][$row['ccda_sections_field']][$key_1]['name']);
                             ?>
                             <img class="delete" height="15px" width="15px" src="<?php echo $this->basePath() . '/images/delete1.png';?>" style="float:right; margin-top:1px;">
@@ -234,7 +223,7 @@ $(function() {
                     <?php
                     $prev = $row['ccda_components_field'];
                 }
-                ?>                
+                ?>
             </ul>
         </div>
     </div>

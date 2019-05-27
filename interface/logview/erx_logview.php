@@ -73,7 +73,7 @@ if ($filename) {
         <?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'datetime-picker']); ?>
 
         <script language="JavaScript">
-            $(document).ready(function(){
+            $(function(){
                 $('.datepicker').datetimepicker({
                     <?php $datetimepicker_timepicker = false; ?>
                     <?php $datetimepicker_showseconds = false; ?>

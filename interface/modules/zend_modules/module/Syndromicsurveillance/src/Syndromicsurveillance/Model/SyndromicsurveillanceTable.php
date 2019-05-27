@@ -1,23 +1,13 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  Vinish K <vinish@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Model/SyndromicsurveillanceTable.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Vinish K <vinish@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 namespace Syndromicsurveillance\Model;
 
 use Zend\Db\TableGateway\TableGateway;
@@ -44,7 +34,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         $query      = "select id, concat('ICD9:',code) as name from codes where reportable = 1 ORDER BY name";
         $appTable   = new ApplicationTable();
         $result     = $appTable->zQuery($query);
-        
+
         $codes      = array();
         foreach ($result as $row) {
             $codes[] = $row;
@@ -52,7 +42,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 
         return $codes;
     }
-    
+
     /*
 	* Get list of providers in EMR
 	*
@@ -63,18 +53,18 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         global $encounter;
         global $pid;
         $appTable   = new ApplicationTable();
-        
+
         $sqlSelctProvider       = "SELECT * FROM form_encounter WHERE encounter = ? AND pid = ?";
         $resultSelctProvider    = $appTable->zQuery($sqlSelctProvider, array($encounter, $pid));
         foreach ($resultSelctProvider as $resultSelctProvider_row) {
             $provider = $resultSelctProvider_row['provider_id'];
         }
-        
+
         $query = "SELECT id, fname, lname, specialty FROM users 
 			WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) 
 			AND authorized = 1 
 			ORDER BY lname, fname";
-        
+
         $result = $appTable->zQuery($query, array());
         $rows[0] = array (
             'value' => '',
@@ -100,7 +90,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 
         return $rows;
     }
-    
+
     /*
 	* Fetch the list of patients having the reportable ICD9
 	*
@@ -111,7 +101,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 	* @param	start			integer		pagination start
 	* @param	end				integer		pagination end
 	* @param	get_count		integer		flag to identify whether to return the selected rows or the number of rows
-	* 
+	*
 	* @return	records			array		return the list of patients having the reportable ICD9 codes
 	* @return	count			integer		return the count of patients having the reportable ICD9 codes
 	*/
@@ -119,17 +109,17 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     {
         $records = array();
         $query_string = array();
-        
+
         $query = "SELECT   c.code_text,l.pid AS patientid,p.language,l.diagnosis,CONCAT(p.fname, ' ', p.mname, ' ', p.lname) AS patientname,l.date AS issuedate, l.id AS issueid,l.title AS issuetitle 
 			FROM
 			  lists l, patient_data p, codes c, form_encounter AS fe 
 			WHERE c.reportable = 1 ";
-        
+
         if ($provider_selected) {
             $query .= " AND provider_id = ? ";
             $query_string[] = $provider_selected;
         }
-        
+
         $query .= " AND l.id NOT IN 
 			(SELECT 
 				lists_id 
@@ -138,11 +128,11 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 			AND l.date >= ? AND l.date <= ? AND l.pid = p.pid ";
         $query_string[] = $fromDate;
         $query_string[] = $toDate;
-        
+
         if ($code_selected) {
             $query .= add_escape_custom(" AND c.id IN (".implode(',', $code_selected).") ");
         }
-        
+
         $query .= " AND l.diagnosis LIKE 'ICD9:%' 
 					AND ( SUBSTRING(l.diagnosis, 6) = c.code || SUBSTRING(l.diagnosis, 6) = CONCAT_WS('', c.code, ';') ) 
 					AND fe.pid = l.pid 
@@ -152,11 +142,11 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 					billing b, patient_data p, codes c, form_encounter fe 
 				WHERE c.reportable = 1 
 					AND b.code_type = 'ICD9' AND b.activity = '1' AND b.pid = p.pid AND fe.encounter = b.encounter ";
-        
+
         if ($code_selected) {
             $query .= add_escape_custom(" AND c.id IN (".implode(',', $code_selected).") ");
         }
-        
+
         $query .= " AND c.code = b.code 
 			AND fe.date IN 
 			(SELECT 
@@ -164,16 +154,16 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 			FROM
 				form_encounter AS fenc 
 			WHERE fenc.pid = fe.pid) ";
-        
+
         if ($provider_selected) {
             $query .= " AND provider_id = ? ";
             $query_string[] = $provider_selected;
         }
-        
+
         $query      .= " AND fe.date >= ? AND fe.date <= ?";
         $query_string[] = $fromDate;
         $query_string[] = $toDate;
-        
+
         if ($get_count) {
             $appTable   = new ApplicationTable();
             $result     = $appTable->zQuery($query, $query_string);
@@ -183,21 +173,21 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 
             return count($records);
         }
-        
+
         $query      .= " LIMIT ".\Application\Plugin\CommonPlugin::escapeLimit($start).",".\Application\Plugin\CommonPlugin::escapeLimit($end);
-        
+
         $appTable   = new ApplicationTable();
         $result     = $appTable->zQuery($query, $query_string);
         foreach ($result as $row) {
             $records[] = $row;
         }
-        
+
         return $records;
     }
-    
+
     /*
 	* generate the HL7
-	* 
+	*
 	* @param	fromDate		date		encounter date
 	* @param	toDate			date		encounter date
 	* @param	code_selected	string		selected ICD9 codes from the filter
@@ -211,7 +201,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     {
         $records = array();
         $query_string = array();
-        
+
         $query = "SELECT   c.code_text,l.pid AS patientid,p.language,l.diagnosis,
 			DATE_FORMAT(p.DOB,'%Y%m%d') as DOB, concat(p.street, '^',p.postal_code,'^', p.city, '^', p.state) as address, 
 			p.country_code, p.phone_home, p.phone_biz, p.status, p.sex, p.ethnoracial,p.county, c.code_text, c.code, c.code_type, DATE_FORMAT(l.date,'%Y%m%d') as issuedate, 
@@ -220,12 +210,12 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 			  lists l, patient_data p, codes c, form_encounter AS fe
         LEFT JOIN facility AS fac ON fac.id = fe.facility_id
 			WHERE c.reportable = 1 ";
-        
+
         if ($provider_selected) {
             $query .= " AND provider_id = ? ";
             $query_string[] = $provider_selected;
         }
-        
+
         $query .= " AND l.id NOT IN 
 			(SELECT 
 			  lists_id 
@@ -234,12 +224,12 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 			AND l.date >= ? AND l.date <= ? AND l.pid = p.pid ";
         $query_string[] = $fromDate;
         $query_string[] = $toDate;
-        
+
         if ($code_selected) {
             $query .= " AND c.id IN (?) ";
             $query_string[] = implode(',', $code_selected);
         }
-        
+
         $query .= " AND l.diagnosis LIKE 'ICD9:%' 
 				AND ( SUBSTRING(l.diagnosis, 6) = c.code || SUBSTRING(l.diagnosis, 6) = CONCAT_WS('', c.code, ';') ) 
 				AND fe.pid = l.pid 
@@ -253,12 +243,12 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         LEFT JOIN facility AS fac ON fac.id = fe.facility_id
 			  WHERE c.reportable = 1 
 				AND b.code_type = 'ICD9' AND b.activity = '1' AND b.pid = p.pid AND fe.encounter = b.encounter ";
-        
+
         if ($code_selected) {
             $query .= " AND c.id IN (?) ";
             $query_string[] = implode(',', $code_selected);
         }
-        
+
         $query .= " AND c.code = b.code 
 		  AND fe.date IN 
 		  (SELECT 
@@ -266,27 +256,27 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 		  FROM
 			form_encounter AS fenc 
 		  WHERE fenc.pid = fe.pid) ";
-        
+
         if ($provider_selected) {
             $query .= " AND provider_id = ? ";
             $query_string[] = $provider_selected;
         }
-        
+
         $query      .= " AND fe.date >= ? AND fe.date <= ?";
         $query_string[] = $fromDate;
         $query_string[] = $toDate;
-        
+
         $content = '';
-        
+
         $appTable   = new ApplicationTable();
         $result     = $appTable->zQuery($query, $query_string);
-        
+
         $D="\r";
         $nowdate    = date('YmdHis');
         $now          = date('YmdGi');
         $now1       = date('Y-m-d G:i');
         $filename   = "syn_sur_". $now . ".hl7";
-    
+
         foreach ($result as $r) {
             $fac_name = $race_code = $ethnicity_code = $county_code = '';
             $o_query        = "SELECT * FROM `form_observation` WHERE `encounter` =  ? AND `pid` = ? AND `activity` = ?" ;
@@ -431,11 +421,11 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
                 if ($row['code'] == 'SS003') {
                     if ($row['ob_value'] == '261QE0002X') {
                         $text ='Emergency Care';
-                    } else if ($row['ob_value'] == '261QM2500X') {
+                    } elseif ($row['ob_value'] == '261QM2500X') {
                         $text ='Medical Specialty';
-                    } else if ($row['ob_value'] == '261QP2300X') {
+                    } elseif ($row['ob_value'] == '261QP2300X') {
                         $text ='Primary Care';
-                    } else if ($row['ob_value'] == '261QU0200X') {
+                    } elseif ($row['ob_value'] == '261QU0200X') {
                         $text ='Urgent Care';
                     }
 
@@ -506,7 +496,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             //"|" . // 20.C Diagnosis Identifier
             //"" . // 21.C Diagnosis Action Code
             "$D" ;
-              
+
             //mark if issues generated/sent
             $query_insert = "insert into syndromic_surveillance(lists_id,submission_date,filename) values (?, ?, ?)";
             $appTable->zQuery($query_insert, array($r['issueid'], $now1, $filename));
@@ -515,12 +505,12 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         //send the header here
         header('Content-type: text/plain');
         header('Content-Disposition: attachment; filename=' . $filename);
-          
+
         // put the content in the file
         echo($content);
         exit;
     }
-    
+
     /*
 	* date format conversion
 	*/
@@ -531,7 +521,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         $formatted_date = $arr[2]."-".$arr[0]."-".$arr[1];
         return $formatted_date;
     }
-    
+
     /*
     * Convert date from database format to required format
     *
@@ -551,7 +541,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         $date   = $temp[0];
         $date   = str_replace('/', '-', $date);
         $arr    = explode('-', $date);
-        
+
         if ($format == 'm/d/y') {
             $formatted_date = $arr[1]."/".$arr[2]."/".$arr[0];
         }
@@ -559,7 +549,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         $formatted_date = $temp[1] ? $formatted_date." ".$temp[1] : $formatted_date; //append the time, if exists, with the new formatted date
         return $formatted_date;
     }
-    
+
     /*
     * param		string		Content in HL7 format
     * return	string		Formatted HL7 string

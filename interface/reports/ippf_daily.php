@@ -133,7 +133,6 @@ if ($form_output == 3) {
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
 <title><?php echo text($report_title); ?></title>
 
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>

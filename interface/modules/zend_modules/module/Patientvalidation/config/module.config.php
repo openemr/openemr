@@ -19,13 +19,26 @@
 * +------------------------------------------------------------------------------+
  *
  */
+namespace Patientvalidation;
+
+use Interop\Container\ContainerInterface;
+use Zend\ServiceManager\Factory\InvokableFactory;
+use Zend\Router\Http\Segment;
+use Patientvalidation\Controller\PatientvalidationController;
+use Patientvalidation\Model\PatientDataTable;
+use Patientvalidation\Model\PatientData;
+use Zend\Db\ResultSet\ResultSet;
+use Zend\Db\TableGateway\TableGateway;
+
 return array(
 
     /* declare all controllers */
     'controllers' => array(
-        'invokables' => array(
-            'Patientvalidation\Controller\Patientvalidation' => 'Patientvalidation\Controller\PatientvalidationController',
-        ),
+        'factories' => [
+            PatientvalidationController::class =>  function (ContainerInterface $container, $requestedName) {
+                return new PatientvalidationController($container->get(PatientDataTable::class));
+            }
+        ],
     ),
 
     /**
@@ -35,7 +48,7 @@ return array(
     'router' => array(
         'routes' => array(
             'patientvalidation' => array(
-                'type'    => 'segment',
+                'type'    => Segment::class,
                 'options' => array(
                     'route'    => '/patientvalidation[/:action][/:id]',
                     'constraints' => array(
@@ -43,7 +56,7 @@ return array(
                         'id'     => '[0-9]+',
                     ),
                     'defaults' => array(
-                        'controller' => 'Patientvalidation\Controller\patientvalidation',
+                        'controller' => PatientvalidationController::class,
                         'action'     => 'index',
                     ),
                 ),
@@ -57,4 +70,17 @@ return array(
             'patientvalidation' => __DIR__ . '/../view',
         ),
     ),
+
+    'service_manager' => [
+        'factories' => array(
+            PatientDataTable::class =>  function (ContainerInterface $container, $requestedName) {
+                $dbAdapter = $container->get(\Zend\Db\Adapter\Adapter::class);
+                $resultSetPrototype = new ResultSet();
+                $resultSetPrototype->setArrayObjectPrototype(new PatientData());
+                $tableGateway = new TableGateway('patient_data', $dbAdapter, null, $resultSetPrototype);
+                $table = new PatientDataTable($tableGateway);
+                return $table;
+            }
+        ),
+    ]
 );

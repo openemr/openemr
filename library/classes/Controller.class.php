@@ -19,7 +19,7 @@ class Controller extends Smarty
          $this->compile_check = true;
          $this->plugins_dir = array(dirname(__FILE__) . "/../smarty/plugins", $GLOBALS['vendor_dir'] . "/smarty/smarty/libs/plugins");
          $this->assign("PROCESS", "true");
-         $this->assign("HEADER", "<html><head><?php html_header_show();?></head><body>");
+         $this->assign("HEADER", "<html><head></head><body>");
          $this->assign("FOOTER", "</body></html>");
          $this->assign("CONTROLLER", "controller.php?");
          $this->assign("CONTROLLER_THIS", "controller.php?" . $_SERVER['QUERY_STRING']);
@@ -160,14 +160,14 @@ class Controller extends Smarty
         }
 
         if ($inlining) {
-            $link .= "&" . $inline_arg;
-            $link .= "&action=" . $url_parts[0];
+            $link .= "&" . urlencode($inline_arg);
+            $link .= "&action=" . urlencode($url_parts[0]);
         } else {
-            $link .= "&" . $url_parts[0];
+            $link .= "&" . urlencode($url_parts[0]);
         }
 
         foreach ($this->_args as $arg_name => $arg) {
-            $link .= "&" . $arg_name . "=" . $arg;
+            $link .= "&" . urlencode($arg_name) . "=" . urlencode($arg);
         }
 
             $link .= "&";

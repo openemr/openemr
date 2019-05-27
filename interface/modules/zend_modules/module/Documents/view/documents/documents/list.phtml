@@ -1,28 +1,18 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*    @author  Basil PT <basil@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Documents/view/documents/documents/list.phtml
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Basil PT <basil@zhservices.com>
+ * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 $category = $this->category;
 $pid			= $this->pid;
 ?>
 <input type="hidden" name="angular_jquery_map" id="angular_jquery_map">
-<input type="hidden" value="<?php echo $this->escapeHtml($pid); ?>" name="current_pid" id="current_pid"> 
+<input type="hidden" value="<?php echo $this->escapeHtml($pid); ?>" name="current_pid" id="current_pid">
 <input type="hidden" name="document_category" id="document_category">
 <div class="container" ng-init="getCategories(0);">
 	<div class="row doc-doc-ls-1">
@@ -37,7 +27,7 @@ $pid			= $this->pid;
 						<input type="file" name="uploader_1_browse" id="uploader_1_browse" class="">
 						<span><?php echo $this->layout()->plugin->z_xlt('Browse'); ?></span>
 					</div>
-					<a id="uploader_1_upload" class="doc-doc-ls-12 button-small default_button rounded_button disable-select" href="#" ><?php echo $this->layout()->plugin->z_xlt('Upload'); ?></a>		
+					<a id="uploader_1_upload" class="doc-doc-ls-12 button-small default_button rounded_button disable-select" href="#" ><?php echo $this->layout()->plugin->z_xlt('Upload'); ?></a>
 				</div>
 				<?php $style = ($GLOBALS['zhemr']['enable_document_encryption'] == '1') ? "" : "style='display:none;'"; ?>
 				<div <?php echo $style; ?> class="doc-doc-ls-14 doc-doc-ls-13">
@@ -79,7 +69,7 @@ $pid			= $this->pid;
 				</li>
 			</ul>
 		</div>
-	</div> 
+	</div>
 </div>
 <div class="container doc-doc-ls-4 doc-doc-ls-16">
 	<div class="row">
@@ -102,7 +92,7 @@ $pid			= $this->pid;
                 <option value="select1"><?php echo $this->layout()->plugin->z_xlt('Select1'); ?></option>
                 <option value="select2"><?php echo $this->layout()->plugin->z_xlt('Select2'); ?></option>
 							</select>
-                              
+
 						</td>
 					</tr>
 					<tr>
@@ -145,6 +135,6 @@ $pid			= $this->pid;
 				<iframe id="file_preview" class="doc-doc-ls-22"></iframe>
 			</div>
 		</div>
-	</div> 
+	</div>
 </div>
 <div class="clear"></div>

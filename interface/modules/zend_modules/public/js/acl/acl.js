@@ -1,22 +1,12 @@
-/* +-----------------------------------------------------------------------------+
- *    OpenEMR - Open Source Electronic Medical Record
- *    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+/**
+ * interface/modules/zend_modules/public/js/acl/acl.js
  *
- *    This program is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU Affero General Public License as
- *    published by the Free Software Foundation, either version 3 of the
- *    License, or (at your option) any later version.
- *
- *    This program is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU Affero General Public License for more details.
- *
- *    You should have received a copy of the GNU Affero General Public License
- *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *    @author  Jacob T.Paul <jacob@zhservices.com>
- *    @author  Basil P T <basil@zhservices.com>
- * +------------------------------------------------------------------------------+
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jacob T.Paul <jacob@zhservices.com>
+ * @author    Basil P T <basil@zhservices.com>
+ * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 // Global variables
@@ -50,7 +40,7 @@ $(document).one("mouseover", function() {
   $("#expand_tree").click();
 });
 
-$(document).ready(function() {
+$(function() {
   $(".popup_items").draggable();
   createtree();
   $(".draggable2").draggable({
@@ -97,7 +87,7 @@ $(document).ready(function() {
 				} else {
 					invalid_group = true;
 				}
-        
+
       } else {
 				user_delete = true;
       }
@@ -112,7 +102,7 @@ $(document).ready(function() {
               if (index_1 != -1) allowed_array.splice(index_1, 1);
             });
           }
-        } 
+        }
 
 
       } else if (selected_user.indexOf("user_group_denied_") != -1) {
@@ -125,7 +115,7 @@ $(document).ready(function() {
               if (index_1 != -1) denied_array.splice(index_1, 1);
             });
           }
-        } 
+        }
       }
 			if(user_delete){
 				var resultTranslated = js_xl('User Cannot be Deleted');
@@ -142,7 +132,7 @@ $(document).ready(function() {
 			} else {
 				saveAcl();
 			}
-      
+
     },
   });
   $(".droppableAllowed").droppable({
@@ -277,7 +267,7 @@ $(document).ready(function() {
         new_id = selected_user.replace("user_group_", "user_group_denied_");
         denied_id = selected_user.replace("user_group_", "user_group_allowed_");
       }
-			
+
 			target_visibility = $("#li_" + new_id).css("display");
       $("#li_" + new_id).css("display", "");
       var arr_id = selected_user.split("-");

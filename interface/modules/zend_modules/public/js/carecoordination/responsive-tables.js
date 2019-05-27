@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(function() {
   var switched = false;
   var updateTables = function() {
     if (($(window).width() < 767) && !switched ){

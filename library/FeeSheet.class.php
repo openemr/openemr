@@ -29,7 +29,6 @@ require_once(dirname(__FILE__) . "/../custom/code_types.inc.php");
 require_once(dirname(__FILE__) . "/../interface/drugs/drugs.inc.php");
 require_once(dirname(__FILE__) . "/options.inc.php");
 require_once(dirname(__FILE__) . "/appointment_status.inc.php");
-require_once(dirname(__FILE__) . "/classes/Prescription.class.php");
 require_once(dirname(__FILE__) . "/forms.inc");
 
 use OpenEMR\Billing\BillingUtilities;

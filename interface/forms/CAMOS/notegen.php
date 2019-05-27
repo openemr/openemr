@@ -48,7 +48,6 @@ if (!$_POST['submit_pdf'] && !$_POST['submit_html'] && !($_GET['pid'] && $_GET['
 <?php echo xlt('Print Notes'); ?>
 </title>
 
-<?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
@@ -58,7 +57,7 @@ if (!$_POST['submit_pdf'] && !$_POST['submit_html'] && !($_GET['pid'] && $_GET['
 <script type="text/javascript" src="<?php echo $depth ?>library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript">
-$(document).ready(function(){
+$(function(){
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>

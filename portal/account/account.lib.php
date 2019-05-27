@@ -199,7 +199,7 @@ function doCredentials($pid)
         $sent = true;
     } else {
         $email_status = $mail->ErrorInfo;
-        error_log("EMAIL ERROR: " . $email_status, 0);
+        error_log("EMAIL ERROR: " . errorLogEscape($email_status), 0);
         $sent = false;
     }
     if ($sent) {

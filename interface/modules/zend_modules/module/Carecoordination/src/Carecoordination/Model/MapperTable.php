@@ -1,24 +1,13 @@
 <?php
-/* +-----------------------------------------------------------------------------+
-*    OpenEMR - Open Source Electronic Medical Record
-*    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU Affero General Public License as
-*    published by the Free Software Foundation, either version 3 of the
-*    License, or (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU Affero General Public License for more details.
-*
-*    You should have received a copy of the GNU Affero General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*    @author  Vinish K <vinish@zhservices.com>
-* +------------------------------------------------------------------------------+
-*/
+/**
+ * interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/MapperTable.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Vinish K <vinish@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 namespace Carecoordination\Model;
 
@@ -30,14 +19,14 @@ class MapperTable extends AbstractTableGateway
 {
     /*
     * This function will return an array of CCDA components and its sections, which will be displayed in the configuration screen.
-    
+
     * @param        none
     * @return       array       $sections.
     */
     public function getSections()
     {
         $sections   = array();
-        
+
         $query      = "select com.ccda_components_field, com.ccda_components_name, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping
                         from ccda_components as com
                         left join ccda_sections as sec on sec.ccda_components_id = com.ccda_components_id
@@ -47,20 +36,20 @@ class MapperTable extends AbstractTableGateway
         foreach ($row as $result) {
             $sections[] = $result;
         }
-        
+
         return $sections;
     }
-    
+
     /*
     * This function will return an array of all the HTML forms, which will be displayed in the configuration screen.
-    
+
     * @param        none
     * @return       array       $forms.
     */
     public function getFormsList()
     {
         $forms = array();
-        
+
         $query      = "select name, directory, nickname from registry where state=? ORDER BY name";
         $appTable   = new ApplicationTable();
         $row        = $appTable->zQuery($query, array(1));
@@ -69,20 +58,20 @@ class MapperTable extends AbstractTableGateway
             $directory  = "1|".$result['directory'];
             $forms[]    = array($name, $directory);
         }
-        
+
         return $forms;
     }
-    
+
     /*
     * This function will return an array of all the LBF forms and its elements, which will be displayed in the configuration screen.
-    
+
     * @param        none
     * @return       array       $lbf.
     */
     public function getLbfList()
     {
         $lbf = array();
-        
+
         $query      = "select option_id, title from list_options where list_id = ? ORDER BY seq,title";
         $appTable   = new ApplicationTable();
         $row        = $appTable->zQuery($query, array('lbfnames'));
@@ -100,20 +89,20 @@ class MapperTable extends AbstractTableGateway
 
             $count++;
         }
-        
+
         return $lbf;
     }
-    
+
     /*
     * This function will return an array of all the tables and its fields in EMR, which will be displayed in the configuration screen.
-    
+
     * @param        none
     * @return       array       $tables.
     */
     public function getTableList()
     {
         $tables = array();
-        
+
         $query  = "SHOW TABLES LIKE 'form_%'";
         $appTable   = new ApplicationTable();
         $res        = $appTable->zQuery($query, array());
@@ -132,40 +121,40 @@ class MapperTable extends AbstractTableGateway
 
             $count++;
         }
-        
+
         return $tables;
     }
-    
+
     /*
     * This function will return an array of document categories, which will be displayed in the configuration screen.
-    
+
     * @param        none
     * @return       array       $document_categories.
     */
     public function getDocuments()
     {
         $document_categories = array();
-        
+
         $query      = "SELECT * FROM categories WHERE id != ? ORDER BY NAME ASC";
         $appTable   = new ApplicationTable();
         $res        = $appTable->zQuery($query, array(1));
         foreach ($res as $row) {
             $document_categories[] = array($row['name'], '4|'.$row['id']);
         }
-        
+
         return $document_categories;
     }
-    
+
     /*
     * Function to fetch the mapped CCDA components and forms
-    
+
     *  @param		None
     *  @return		$mapped_values
     */
     public function getMappedFields($id)
     {
         $mapped_values  = array();
-        
+
         $query      = "SELECT *, reg.name AS form_name, lo.title as title, cat.name, cat.id FROM ccda_table_mapping AS tab1
 			    LEFT JOIN ccda_field_mapping AS tab2 ON tab1.id = tab2.table_id
 			    LEFT JOIN registry AS reg ON reg.directory = tab1.form_dir
@@ -174,7 +163,7 @@ class MapperTable extends AbstractTableGateway
 			    WHERE tab1.deleted = ?";
         $appTable       = new ApplicationTable();
         $res            = $appTable->zQuery($query, array('lbfnames',0));
-        
+
         $count      = 0;
         $class      = '';
         foreach ($res as $row) {
@@ -208,12 +197,12 @@ class MapperTable extends AbstractTableGateway
 
             $count++;
         }
-        
+
         return $mapped_values;
     }
-    
+
     /*Function to fetch the maximum id of the CCDA template from mapping table
-    
+
     * @param	None
     * @return	$id
     */
@@ -226,9 +215,9 @@ class MapperTable extends AbstractTableGateway
             return $row['id'];
         }
     }
-    
+
     /*Saving the CCDA structure in the master table
-    
+
     * @param	$values		Array of values to be inserted in the table
     * @return	$row['id']	Last inserted ID from the table
     */
@@ -245,9 +234,9 @@ class MapperTable extends AbstractTableGateway
             return $row['id'];
         }
     }
-    
+
     /*Saving the CCDA structure in the child table
-    
+
     * @param	None
     * @return	None
     */
@@ -257,9 +246,9 @@ class MapperTable extends AbstractTableGateway
         $appTable   = new ApplicationTable();
         $res        = $appTable->zQuery($sql_sub, $values);
     }
-    
+
     /*Deleted existing CCDA mapped fields
-    
+
     * @param	None
     * @return	None
     */

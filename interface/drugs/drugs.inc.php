@@ -38,8 +38,8 @@ function send_drug_email($subject, $body)
     $mail->Subject = $subject;
     $mail->AddAddress($recipient);
     if (!$mail->Send()) {
-        error_log("There has been a mail error sending to " . $recipient .
-        " " . $mail->ErrorInfo);
+        error_log("There has been a mail error sending to " . errorLogEscape($recipient .
+        " " . $mail->ErrorInfo));
     }
 }
 

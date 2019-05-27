@@ -8,7 +8,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2018 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -16,6 +16,7 @@
 /* Include our required headers */
 require_once('../globals.php');
 
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
@@ -175,7 +176,8 @@ if ($registrationAttempt) {
 
             // Decrypt the secret
             // First, try standard method that uses standard key
-            $secret = decryptStandard($registrationSecret);
+            $cryptoGen = new CryptoGen();
+            $secret = $cryptoGen->decryptStandard($registrationSecret);
             if (empty($secret)) {
                 // Second, try the password hash, which was setup during install and is temporary
                 $passwordResults = privQuery(
@@ -183,11 +185,11 @@ if ($registrationAttempt) {
                     array($_POST["authUser"])
                 );
                 if (!empty($passwordResults["password"])) {
-                    $secret = decryptStandard($registrationSecret, $passwordResults["password"]);
+                    $secret = $cryptoGen->decryptStandard($registrationSecret, $passwordResults["password"]);
                     if (!empty($secret)) {
                         error_log("Disregard the decryption failed authentication error reported above this line; it is not an error.");
                         // Re-encrypt with the more secure standard key
-                        $secretEncrypt = encryptStandard($secret);
+                        $secretEncrypt = $cryptoGen->encryptStandard($secret);
                         privStatement(
                             "UPDATE login_mfa_registrations SET var1 = ? where user_id = ? AND method = 'TOTP'",
                             array($secretEncrypt, $userid)
@@ -365,6 +367,8 @@ if (isset($_POST['new_login_session_management'])) {
 }
 // Create the csrf_token
 $_SESSION['csrf_token'] = createCsrfToken();
+// Also create a api_csrf_token that is only used for the api
+$_SESSION['api_csrf_token'] = createCsrfToken();
 
 $_SESSION["encounter"] = '';
 
