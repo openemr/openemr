@@ -17,6 +17,7 @@ class PatientData extends React.Component {
             data: [],
             groups: [],
             groupFields: [],
+            currentGroupId: 0,
             isOpen: false,
             isLoaded: false
         }
@@ -33,16 +34,20 @@ class PatientData extends React.Component {
     localToggle() {
         this.setState({isOpen: !this.state.isOpen});
         const {isLoaded} = this.state;
-        if(isLoaded) {
-             this.clickSelect(this.props.settings['defaultGroupId']);
+        const {currentGroupId} = this.state;
+        const {isOpen} = this.state;
+        if(isLoaded && !isOpen) {
+             this.clickSelect(currentGroupId > 0 ? currentGroupId : this.props.settings['defaultGroupId']);
         }
     }
 
 
     clickSelect(groupId) {
         this.setState({
-            groupFields: []
+            groupFields: [],
+            currentGroupId: groupId
         });
+
         Promise.all([agent.PatientDataAgent.byGroupId("DEM", groupId)]).then(
             result => {
                 //result.map((a) => {
