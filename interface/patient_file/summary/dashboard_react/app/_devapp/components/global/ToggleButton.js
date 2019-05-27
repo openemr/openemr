@@ -9,7 +9,7 @@ library.add(faPlus, faMinus);
 
 class ToggleButton extends React.Component {
     render() {
-        const fontAwesome = this.props.isOpen ? <FontAwesomeIcon icon='minus'/> : <FontAwesomeIcon icon='plus'/>
+        const fontAwesome = this.props.isOpen ? <FontAwesomeIcon  icon='minus'/> : <FontAwesomeIcon  icon='plus'/>
         return (
             <div>
                 <Button
@@ -17,7 +17,8 @@ class ToggleButton extends React.Component {
                     aria-controls="example-collapse-text"
                     aria-expanded={this.props.isOpen}
                 > {fontAwesome}
-                </Button> <label onClick={() => this.props.onClick()}>{this.props.rightText}</label>
+                </Button>
+                <label className='padding-right' onClick={() => this.props.onClick()}>{this.props.rightText}</label>
             </div>
         )
     }

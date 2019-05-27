@@ -12,8 +12,9 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\Services\AppointmentService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\AppointmentService;
+
 
 class AppointmentRestController
 {
@@ -33,6 +34,22 @@ class AppointmentRestController
     public function getAll()
     {
         $serviceResult = $this->appointmentService->getAppointmentsForPatient(null);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+    }
+    public function getAllRecurencces($pid)
+    {
+
+        $serviceResult = $this->appointmentService->getAppointmentsRecurrences($pid);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+    }
+    public function getPastAppointments($pid)
+    {
+        $serviceResult = $this->appointmentService->getPastEvents($pid);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+    }
+    public function getFutureAppointments($pid)
+    {
+        $serviceResult = $this->appointmentService->getFutureEvents($pid);
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 

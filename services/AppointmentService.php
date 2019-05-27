@@ -14,7 +14,9 @@
 
 namespace OpenEMR\Services;
 
+use Option;
 use Particle\Validator\Validator;
+require_once(dirname(__FILE__)."/../library/appointments.inc.php");
 
 class AppointmentService
 {
@@ -44,6 +46,74 @@ class AppointmentService
         return $validator->validate($appointment);
     }
 
+
+
+    function getAppointmentsRecurrences($pid)
+    {
+
+        return fetchRecurrences($pid);
+    }
+
+
+    function getListOptions($list_id)
+    {
+        $options = array();
+        $sql = sqlStatement(
+            "SELECT option_id, title from list_options WHERE list_id = ? AND activity = 1",
+            array($list_id)
+        );
+        for ($iter=0; $row=sqlFetchArray($sql); $iter++) {
+            $options[$row['option_id']] = $row['title'];
+        }
+
+        return $options;
+    }
+
+    function getPastEvents($pid){
+
+        $apptList = $this->getListOptions("attendstat");
+
+        $d=strtotime("-12 Months");
+        $from_date = date("Y-m-d h:i:sa", $d);
+
+        $appts =  fetchAppointments($from_date,  date("Y-m-d"), $pid);
+        $counter = 0;
+        for($i=0;$i<sizeof($appts);$i++){
+            $status = $appts[$i]['pc_apptstatus'];
+            if(!is_null($status)) {
+                unset ( $appts[$i]['pc_apptstatus']);
+
+               $appts[$i]['pc_apptstatus'] = $apptList[$status];
+            }
+        }
+
+        return $appts;
+    }
+
+    function getFutureEvents($pid){
+
+
+
+
+        $apptList = $this->getListOptions("attendstat");
+        $aaptArr = [];
+        foreach($apptList as $aaptStatus){
+            $aaptArr[$aaptStatus['option_id']] =$aaptStatus['title'];
+        }
+
+        $d=strtotime("+12 Months");
+        $from_date = date("Y-m-d h:i:sa", $d);
+
+
+        $appts =  fetchAppointments($from_date,  date("Y-m-d"), $pid);
+        $counter = 0;
+        for($i=1;$i<sizeof($appts);$i++){
+            $appts[$i]['pc_apptstatus'] = $apptList[$appts[$i]['pc_apptstatus']];
+        }
+
+        return $appts;
+    }
+
     public function getAppointmentsForPatient($pid)
     {
         $sqlBindArray = array();
@@ -52,6 +122,8 @@ class AppointmentService
                        pd.fname,
                        pd.lname,
                        pd.DOB,
+                       SUBSTRING_INDEX(lo.title,' ',-1)  as apptTitle,
+                       pce.pc_title,
                        pce.pc_apptstatus,
                        pce.pc_eventDate,
                        pce.pc_startTime,
@@ -61,6 +133,7 @@ class AppointmentService
                        f1.name as facility_name,
                        f2.name as billing_location_name
                        FROM openemr_postcalendar_events as pce
+                       LEFT JOIN list_options lo on option_id =pc_apptstatus
                        LEFT JOIN facility as f1 ON pce.pc_facility = f1.id
                        LEFT JOIN facility as f2 ON pce.pc_billing_location = f2.id
                        LEFT JOIN patient_data as pd ON pd.pid = pce.pc_pid";
