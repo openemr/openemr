@@ -8,3 +8,6 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('dashboard', 'patient_details', 'Patient Details', 2, 0, 0, '', '{\"id\":\"left\",\"element_component\":\"PatientData\",\"element\":\"PatientData\"}', '', 0, 0, 1, '', 1, '2019-04-21 03:33:30'),
 ('dashboard', 'patient_messages', 'Patient Messages', 3, 0, 0, '', '{\"id\":\"left\",\"element_component\":\"PatientMessages\",\"element\":\"PatientMessages\"}', '', 0, 0, 1, '', 1, '2019-04-21 03:33:30'),
 ('lists', 'dashboard', 'dashboard', 306, 1, 0, '', NULL, '', 0, 0, 1, '', 1, '2019-04-21 03:30:49');
+
+
+UPDATE `list_options` SET `notes` = '{ \"id\": \"right\", \"element_component\": \"Container\", \"element\": \"Container\", \"element_title\": \"Appointments\", \"children\": [ { \"type\":\"past\" ,\"element_active\": true, \"element_component\": \"Appointments\", \"element\": \"appointments\", \"element_title\": \"Past appointments\" }, {\"type\":\"appointment_recurrences\", \"element_active\": true, \"element_component\": \"Appointments\", \"element\": \"appointments\", \"element_title\": \"Recurrenced appointments\" }, { \"element_active\": true, \"element_component\": \"Appointments\", \"element\": \"appointments\",\"type\":\"future\", \"element_title\": \"Future appointments\" } ]}' WHERE `list_options`.`list_id` = 'dashboard' AND `list_options`.`option_id` = 'appointments';
