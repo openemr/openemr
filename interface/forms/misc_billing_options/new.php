@@ -11,7 +11,7 @@
  * @copyright Copyright (C) 2007 Bo Huynh
  * @copyright Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (C) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (C) 2017 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (C) 2017-2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (C) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -21,6 +21,7 @@ require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/api.inc");
 require_once("date_qualifier_options.php");
+require_once("$srcdir/user.inc");
 
 use OpenEMR\Core\Header;
 
@@ -170,7 +171,12 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                     </div>
                     <div class="form-group">
                         <label class="form-inline"><?php echo xlt('Box 17. Provider') ?>:
-                            <?php genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', $obj{"provider_id"}); ?>
+                            <?php
+                            if ($obj{"provider_id"}) {
+                                genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', $obj{"provider_id"});
+                            } else { // defalut to the patient's ref_prov
+                                genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', getPatientData($pid, "ref_providerID")['ref_providerID']);
+                            } ?>
                         </label>
                         <label class="form-inline"><?php echo xlt('Box 17. Provider Qualifier'); ?>:
                             <?php echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code', $obj{"provider_qualifier_code"}, 'Provider Qualifier Code'); ?>
