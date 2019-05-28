@@ -1,23 +1,14 @@
 <?php
 /**
- * Copyright (C) 2010-2010 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
+ * orders_results.php
  *
  * @package   OpenEMR
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @link      http://www.open-emr.org
+ * @copyright Copyright (c) 2010-2010 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../globals.php");
@@ -90,7 +81,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
 
         // Not using xl() here because this is for debugging only.
         if (empty($order_id)) {
-            die("Order ID is missing from line $lino.");
+            die("Order ID is missing from line " . text($lino) . ".");
         }
 
         // If report data exists for this line, save it.
@@ -98,9 +89,9 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
 
         if (!empty($date_report)) {
             $sets =
-            "procedure_order_id = '$order_id', " .
-            "procedure_order_seq = '$order_seq', " .
-            "date_report = '$date_report', " .
+            "procedure_order_id = '" . add_escape_custom($order_id) . "', " .
+            "procedure_order_seq = '" . add_escape_custom($order_seq) . "', " .
+            "date_report = '" . add_escape_custom($date_report) . "', " .
             "date_collected = " . QuotedOrNull(oresData("form_date_collected", $lino)) . ", " .
             "specimen_num = '" . oresData("form_specimen_num", $lino) . "', " .
             "report_status = '" . oresData("form_report_status", $lino) . "'";
@@ -112,7 +103,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
 
             if ($report_id) { // Report already exists.
                 sqlStatement("UPDATE procedure_report SET $sets "  .
-                "WHERE procedure_report_id = '$report_id'");
+                "WHERE procedure_report_id = '" . add_escape_custom($report_id) . "'");
             } else { // Add new report.
                 $report_id = sqlInsert("INSERT INTO procedure_report SET $sets");
             }
@@ -136,7 +127,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
             }
 
             $sets =
-            "procedure_report_id = '$current_report_id', " .
+            "procedure_report_id = '" . add_escape_custom($current_report_id) . "', " .
             "result_code = '" . oresData("form_result_code", $lino) . "', " .
             "result_text = '" . oresData("form_result_text", $lino) . "', " .
             "abnormal = '" . oresData("form_result_abnormal", $lino) . "', " .
@@ -148,7 +139,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
             "result_status = '" . oresData("form_result_status", $lino) . "'";
             if ($result_id) { // result already exists
                 sqlStatement("UPDATE procedure_result SET $sets "  .
-                "WHERE procedure_result_id = '$result_id'");
+                "WHERE procedure_result_id = '" . add_escape_custom($result_id) . "'");
             } else { // Add new result.
                 $result_id = sqlInsert("INSERT INTO procedure_result SET $sets");
             }
@@ -160,7 +151,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
 
 <head>
 
-<link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
 <title><?php echo xlt('Procedure Results'); ?></title>
@@ -216,15 +207,13 @@ a, a:visited, a:hover { color:#0000cc; }
 
 <script language="JavaScript">
 
-var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
-
 // This invokes the find-procedure-type popup.
 var ptvarname;
 function sel_proc_type(varname) {
  var f = document.forms[0];
  if (typeof varname == 'undefined') varname = 'form_proc_type';
  ptvarname = varname;
- dlgopen('types.php?popup=1&order=' + f[ptvarname].value, '_blank', 800, 500);
+ dlgopen('types.php?popup=1&order=' + encodeURIComponent(f[ptvarname].value), '_blank', 800, 500);
 }
 
 // This is for callback by the find-procedure-type popup.
@@ -328,7 +317,7 @@ $(function () {
 </head>
 
 <body class="body_top">
-<form method='post' action='orders_results.php?batch=<?php echo $form_batch; ?>&review=<?php echo $form_review; ?>'
+<form method='post' action='orders_results.php?batch=<?php echo attr_url($form_batch); ?>&review=<?php echo attr_url($form_review); ?>'
  onsubmit='return validate(this)'>
 
 <table>
@@ -336,8 +325,8 @@ $(function () {
   <td class='text'>
 <?php
 if ($form_batch) {
-    $form_from_date = formData('form_from_date', 'P', true);
-    $form_to_date   = formData('form_to_date', 'P', true);
+    $form_from_date = isset($_POST['form_from_date']) ? trim($_POST['form_from_date']) : '';
+    $form_to_date = isset($_POST['form_to_date']) ? trim($_POST['form_to_date']) : '';
     if (empty($form_to_date)) {
         $form_to_date = $form_from_date;
     }
@@ -350,26 +339,26 @@ if ($form_batch) {
     $form_proc_type_desc = '';
     if ($form_proc_type > 0) {
         $ptrow = sqlQuery("SELECT name FROM procedure_type WHERE " .
-        "procedure_type_id = '$form_proc_type'");
+        "procedure_type_id = ?", [$form_proc_type]);
         $form_proc_type_desc = $ptrow['name'];
     }
 ?>
     <?php echo xlt('Procedure'); ?>:
    <input type='text' size='30' name='form_proc_type_desc'
-    value='<?php echo addslashes($form_proc_type_desc) ?>'
+    value='<?php echo attr($form_proc_type_desc) ?>'
     onclick='sel_proc_type()' onfocus='this.blur()'
     title='<?php echo xla('Click to select the desired procedure'); ?>'
     style='cursor:pointer;cursor:hand' readonly />
-   <input type='hidden' name='form_proc_type' value='<?php echo $form_proc_type ?>' />
+   <input type='hidden' name='form_proc_type' value='<?php echo attr($form_proc_type); ?>' />
 
    &nbsp;<?php echo xlt('From'); ?>:
    <input type='text' size='10' class='datepicker' name='form_from_date' id='form_from_date'
-    value='<?php echo $form_from_date ?>'
-    title='<?php xl('yyyy-mm-dd', 'e'); ?>' />
+    value='<?php echo attr($form_from_date); ?>'
+    title='<?php echo xla('yyyy-mm-dd'); ?>' />
 
    &nbsp;<?php echo xlt('To'); ?>:
    <input type='text' size='10' class='datepicker' name='form_to_date' id='form_to_date'
-    value='<?php echo $form_to_date ?>'
+    value='<?php echo attr($form_to_date); ?>'
     title='<?php echo xla('yyyy-mm-dd'); ?>' />
 
    &nbsp;
@@ -381,7 +370,7 @@ if ($form_batch) {
     echo " checked";
 } ?>><?php echo xlt('Include Completed') ?>
    &nbsp;-->
-   <input type='submit' name='form_refresh' value=<?php xl('Refresh', 'e'); ?>>
+   <input type='submit' name='form_refresh' value='<?php echo xla('Refresh'); ?>'>
   </td>
  </tr>
 </table>
@@ -391,7 +380,7 @@ if ($form_batch) {
 <table width='100%' cellpadding='1' cellspacing='2'>
 
  <tr class='head'>
-  <td colspan='2'><?php echo $form_batch ? xl('Patient') : xl('Order'); ?></td>
+  <td colspan='2'><?php echo $form_batch ? xlt('Patient') : xlt('Order'); ?></td>
   <td colspan='4'><?php echo xlt('Report'); ?></td>
   <td colspan='7'><?php echo xlt('Results and'); ?> <span class='reccolor''>
     <?php echo xlt('Recommendations'); ?></span></td>
@@ -414,6 +403,8 @@ if ($form_batch) {
  </tr>
 
 <?php
+$sqlBindArray = array();
+
 $selects =
   "po.procedure_order_id, po.date_ordered, pc.procedure_order_seq, " .
   "pt1.procedure_type_id AS order_type_id, pc.procedure_name, " .
@@ -442,19 +433,21 @@ if ($form_batch) {
     "pd.fname, pd.mname, pd.lname, pd.pubpid, $selects " .
     "FROM procedure_order AS po " .
     "LEFT JOIN patient_data AS pd ON pd.pid = po.patient_id $joins " .
-    "WHERE pt1.procedure_type_id = '$form_proc_type' AND " .
-    "po.date_ordered >= '$form_from_date' AND po.date_ordered <= '$form_to_date' " .
+    "WHERE pt1.procedure_type_id = ? AND " .
+    "po.date_ordered >= ? AND po.date_ordered <= ? " .
     "AND $where " .
     "ORDER BY pd.lname, pd.fname, pd.mname, po.patient_id, $orderby";
+    array_push($sqlBindArray, $form_proc_type, $form_from_date, $form_to_date);
 } else {
     $query = "SELECT $selects " .
     "FROM procedure_order AS po " .
     "$joins " .
-    "WHERE po.patient_id = '$pid' AND $where " .
+    "WHERE po.patient_id = ? AND $where " .
     "ORDER BY $orderby";
+    array_push($sqlBindArray, $pid);
 }
 
-$res = sqlStatement($query);
+$res = sqlStatement($query, $sqlBindArray);
 
 $lastpoid = -1;
 $lastpcid = -1;
@@ -500,11 +493,11 @@ while ($row = sqlFetchArray($res)) {
     "ps.range, ps.result_status, ps.facility, ps.comments, ps.units, ps.comments";
 
   // procedure_type_id for order:
-    $pt2cond = "pt2.parent = $order_type_id AND " .
+    $pt2cond = "pt2.parent = '" . add_escape_custom($order_type_id) . "' AND " .
     "(pt2.procedure_type LIKE 'res%' OR pt2.procedure_type LIKE 'rec%')";
 
   // pr.procedure_report_id or 0 if none:
-    $pscond = "ps.procedure_report_id = $report_id";
+    $pscond = "ps.procedure_report_id = '" . add_escape_custom($report_id) . "'";
 
     $joincond = "ps.result_code = pt2.procedure_code";
 
@@ -560,7 +553,7 @@ while ($row = sqlFetchArray($res)) {
 
         $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
 
-        echo " <tr class='detail' bgcolor='$bgcolor'>\n";
+        echo " <tr class='detail' bgcolor='" . attr($bgcolor) . "'>\n";
 
         // Generate first 2 columns.
         if ($lastpoid != $order_id || $lastpcid != $order_seq) {
@@ -579,7 +572,7 @@ while ($row = sqlFetchArray($res)) {
                 }
             } else {
                 if ($lastpoid != $order_id) {
-                    echo "  <td>" . $row['date_ordered'] . "</td>\n";
+                    echo "  <td>" . text($row['date_ordered']) . "</td>\n";
                 } else {
                     echo "  <td style='background-color:transparent'>&nbsp;</td>";
                 }
@@ -600,22 +593,22 @@ while ($row = sqlFetchArray($res)) {
         //
         if ($report_id != $lastprid) {
             echo "  <td nowrap>";
-            echo "<input type='text' size='13' name='form_date_report[$lino]'" .
-            " id='form_date_report[$lino]' class='celltextfw datetimepicker' value='" . attr($date_report) . "' " .
+            echo "<input type='text' size='13' name='form_date_report[" . attr($lino) . "]'" .
+            " id='form_date_report[" . attr($lino) . "]' class='celltextfw datetimepicker' value='" . attr($date_report) . "' " .
             " title='" . xla('Date and time of this report') . "'" .
             " />";
             echo "</td>\n";
 
             echo "  <td nowrap>";
-            echo "<input type='text' size='13' name='form_date_collected[$lino]'" .
-            " id='form_date_collected[$lino]'" .
+            echo "<input type='text' size='13' name='form_date_collected[" . attr($lino) . "]'" .
+            " id='form_date_collected[" . attr($lino) . "]'" .
             " class='celltextfw datetimepicker' value='" . attr($date_collected) . "' " .
             " title='" . xla('Date and time of sample collection') . "'" .
             " />";
             echo "</td>\n";
 
             echo "  <td>";
-            echo "<input type='text' size='8' name='form_specimen_num[$lino]'" .
+            echo "<input type='text' size='8' name='form_specimen_num[" . attr($lino) . "]'" .
             " class='celltext' value='" . attr($specimen_num) . "' " .
             " title='" . xla('Specimen number/identifier') . "'" .
             " />";
@@ -636,12 +629,12 @@ while ($row = sqlFetchArray($res)) {
         }
 
         echo "  <td nowrap>";
-        echo "<input type='text' size='6' name='form_result_code[$lino]'" .
+        echo "<input type='text' size='6' name='form_result_code[" . attr($lino) . "]'" .
         " class='celltext' value='" . attr($result_code) . "' />" .
         "</td>\n";
 
         echo "  <td>" .
-        "<input type='text' size='16' name='form_result_text[$lino]'" .
+        "<input type='text' size='16' name='form_result_text[" . attr($lino) . "]'" .
         " class='celltext' value='" . attr($result_text) . "' />";
         "</td>\n";
 
@@ -660,7 +653,7 @@ while ($row = sqlFetchArray($res)) {
         if ($result_units == 'bool') {
               echo "&nbsp;--";
         } else {
-              echo "<input type='text' size='7' name='form_result_result[$lino]'" .
+              echo "<input type='text' size='7' name='form_result_result[" . attr($lino) . "]'" .
                 " class='celltext' value='" . attr($result_result) . "' " .
                 " />";
         }
@@ -668,24 +661,24 @@ while ($row = sqlFetchArray($res)) {
         echo "</td>\n";
 
         echo "  <td>";
-        echo "<input type='text' size='4' name='form_result_units[$lino]'" .
+        echo "<input type='text' size='4' name='form_result_units[" . attr($lino) . "]'" .
         " class='celltext' value='" . attr($result_units) . "' " .
         " title='" . xla('Units applicable to the result value') . "'" .
         " />";
         echo "</td>\n";
 
         echo "  <td>";
-        echo "<input type='text' size='8' name='form_result_range[$lino]'" .
+        echo "<input type='text' size='8' name='form_result_range[" . attr($lino) . "]'" .
         " class='celltext' value='" . attr($result_range) . "' " .
         " title='" . xla('Reference range of results') . "'" .
         " />";
         // Include a hidden form field containing all IDs for this line.
-        echo "<input type='hidden' name='form_line[$lino]' " .
-        "value='$order_id:$order_seq:$report_id:$result_id' />";
+        echo "<input type='hidden' name='form_line[" . attr($lino) . "]' " .
+        "value='" . attr($order_id) . ":" . attr($order_seq) . ":" . attr($report_id) . ":" . attr($result_id) . "' />";
         echo "</td>\n";
 
         echo "  <td class='bold' style='cursor:pointer' " .
-        "onclick='extShow($lino, this)' align='center' " .
+        "onclick='extShow(" . attr_js($lino) . ", this)' align='center' " .
         "title='" . xla('Click here to view/edit more details') . "'>";
         echo "&nbsp;?&nbsp;";
         echo "</td>\n";
@@ -693,7 +686,7 @@ while ($row = sqlFetchArray($res)) {
         echo " </tr>\n";
 
         // Create a floating div for additional attributes of this result.
-        $extra_html .= "<div id='ext_$lino' " .
+        $extra_html .= "<div id='ext_" . attr($lino) . "' " .
         "style='position:absolute;width:750px;border:1px solid black;" .
         "padding:2px;background-color:#cccccc;visibility:hidden;" .
         "z-index:1000;left:-1000px;top:0px;font-size:9pt;'>\n" .
@@ -710,23 +703,23 @@ while ($row = sqlFetchArray($res)) {
             ''
         ) . "</td></tr>\n" .
           "<tr><td class='bold' nowrap>" . xlt('Facility') . ": </td>" .     // Ensoftek: Changed Facility to Text Area as the field procedure_result-->facility is now multi-line
-          "<td><textarea rows='3' cols='15' name='form_facility[$lino]'" .
+          "<td><textarea rows='3' cols='15' name='form_facility[" . attr($lino) . "]'" .
           " title='" . xla('Supplier facility name') . "'" .
           " style='width:100%' />" . text($result_facility) .
           "</textarea></td></tr>\n" .
           "<tr><td class='bold' nowrap>" . xlt('Comments') . ": </td>" .
-          "<td><textarea rows='3' cols='15' name='form_comments[$lino]'" .
+          "<td><textarea rows='3' cols='15' name='form_comments[" . attr($lino) . "]'" .
           " title='" . xla('Comments for this result or recommendation') . "'" .
           " style='width:100%' />" . text($result_comments) .
           "</textarea></td></tr>\n" .
           "<tr><td class='bold' nowrap>" . xlt('Notes') . ": </td>" .
-          "<td><textarea rows='4' cols='15' name='form_notes[$lino]'" .
+          "<td><textarea rows='4' cols='15' name='form_notes[" . attr($lino) . "]'" .
           " title='" . xla('Additional notes for this result or recommendation') . "'" .
           " style='width:100%' />" . text($result_notes) .
           "</textarea></td></tr>\n" .
           "</table>\n" .
           "<p><center><input type='button' value='" . xla('Close') . "' " .
-          "onclick='extShow($lino, false)' /></center></p>\n".
+          "onclick='extShow(" . attr_js($lino) . ", false)' /></center></p>\n".
           "</div>";
 
         $lastpoid = $order_id;
