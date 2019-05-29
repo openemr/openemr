@@ -863,7 +863,7 @@ function writeFieldLine($linedata)
     // Create a floating div for the additional attributes of this field.
     $conditions = empty($linedata['conditions']) ?
       array(0 => array('id' => '', 'itemid' => '', 'operator' => '', 'value' => '')) :
-      unserialize($linedata['conditions']);
+        unserialize($linedata['conditions'], ['allowed_classes' => false]);
     $action = empty($conditions['action']) ? 'skip' : $conditions['action'];
     $action_value = $action == 'skip' ? '' : substr($action, 6);
     //

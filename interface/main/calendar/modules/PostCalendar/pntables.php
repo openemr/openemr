@@ -24,7 +24,7 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
- 
+
 /**
  * This function is called internally by the core whenever the module is
  * loaded.  It adds in the information
@@ -69,7 +69,7 @@ function postcalendar_pntables()
         'sharing'       => 'pc_sharing',
         'language'      => 'pc_language'
         );
-    
+
     // @since version 3.1
     // new category table
     $pc_categories = $prefix . '_postcalendar_categories';
@@ -84,15 +84,6 @@ function postcalendar_pntables()
         'recurrfreq'    =>  'pc_recurrfreq',
         'duration'      =>  'pc_duration',
         'limit'         =>  'pc_dailylimit'
-        );
-    $pc_limit = $prefix . '_postcalendar_limits';
-    $pntable['postcalendar_limits'] = $pc_limit;
-    $pntable['postcalendar_limits_column'] = array(
-        'limitid'       =>  'pc_limitid',
-        'catid'         =>  'pc_catid',
-        'starttime'     =>  'pc_starttime',
-        'endtime'       =>  'pc_endtime',
-        'limit'         =>  'pc_limit'
         );
     return $pntable;
 }

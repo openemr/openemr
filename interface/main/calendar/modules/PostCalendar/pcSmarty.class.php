@@ -28,9 +28,6 @@ class pcSmarty extends Smarty
 {
     function __construct()
     {
-        $theme = pnUserGetTheme();
-        $osTheme = pnVarPrepForOS($theme);
-        pnThemeLoad($theme);
         global $bgcolor1,$bgcolor2,$bgcolor3,$bgcolor4,$bgcolor5,$bgcolor6,$textcolor1,$textcolor2;
 
         // call constructor
@@ -74,7 +71,7 @@ class pcSmarty extends Smarty
 
         $this->autoload_filters = array('output' => array('trimwhitespace'));
 
-        $lang = pnUserGetLang();
+        $lang = 'eng';
         $func = pnVarCleanFromInput('func');
         $print = pnVarCleanFromInput('print');
         // assign theme globals
@@ -98,15 +95,6 @@ class pcSmarty extends Smarty
         $this->assign('24HOUR_TIME', _SETTING_TIME_24HOUR);
         $this->assign_by_ref('MODULE_NAME', $pcDisplayName);
         $this->assign_by_ref('MODULE_DIR', $pcDir);
-        $this->assign('ACCESS_NONE', PC_ACCESS_NONE);
-        $this->assign('ACCESS_OVERVIEW', PC_ACCESS_OVERVIEW);
-        $this->assign('ACCESS_READ', PC_ACCESS_READ);
-        $this->assign('ACCESS_COMMENT', PC_ACCESS_COMMENT);
-        $this->assign('ACCESS_MODERATE', PC_ACCESS_MODERATE);
-        $this->assign('ACCESS_EDIT', PC_ACCESS_EDIT);
-        $this->assign('ACCESS_ADD', PC_ACCESS_ADD);
-        $this->assign('ACCESS_DELETE', PC_ACCESS_DELETE);
-        $this->assign('ACCESS_ADMIN', PC_ACCESS_ADMIN);
         //=================================================================
         //  Find out what Template we're using
         //=================================================================
@@ -129,6 +117,5 @@ class pcSmarty extends Smarty
         $this->assign('TPL_IMAGE_PATH', $GLOBALS['rootdir']."/main/calendar/modules/$pcDir/pntemplates/$template_name/images");
         $this->assign('TPL_ROOTDIR', $GLOBALS['rootdir']);
         $this->assign('TPL_STYLE_PATH', "modules/$pcDir/pntemplates/$template_name/style");
-        $this->assign('THEME_PATH', "themes/$osTheme");
     }
 }

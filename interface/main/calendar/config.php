@@ -32,7 +32,6 @@ if (!$disable_utf8_flag) {
 
 $pnconfig['modname'] = "PostCalendar";
 $pnconfig['startpage'] = "PostCalendar";
-$pnconfig['language'] = "eng";
 $pnconfig['dbtype'] = 'mysqli_mod';
 $pnconfig['dbtabletype'] = 'MyISAM';
 $pnconfig['dbhost'] = $host;
@@ -42,49 +41,6 @@ $pnconfig['dbpass'] = $pass;
 $pnconfig['dbname'] = $dbase;
 $pnconfig['system'] = '0';
 $pnconfig['prefix'] = 'openemr';
-$pnconfig['encoded'] = '0';
-
-
-$pntable = array();
-$session_info = $prefix . '_session_info';
-$pntable['session_info'] = $session_info;
-$pntable['session_info_column'] = array (
-        'sessid'    => $session_info .
-        '.pn_sessid', 'ipaddr'    => $session_info .
-        '.pn_ipaddr','firstused' => $session_info .
-        '.pn_firstused','lastused'  => $session_info .
-        '.pn_lastused','uid'       => $session_info .
-        '.pn_uid','vars'      => $session_info .
-        '.pn_vars');
-// ----------------------------------------------------------------------
-// For debugging (Pablo Roca)
-//
-// $debug - debugger windows active
-//          0 = No
-//          1 = Yes
-//
-// $debug_sql - show SQL in lens debug
-//          0 = No
-//          1 = Yes
-// ----------------------------------------------------------------------
-global $pndebug;
-$pndebug['debug']          = 0;
-$pndebug['debug_sql']      = 0;
-
-// ----------------------------------------------------------------------
-// You have finished configuring the database. Now you can start to
-// change your site settings in the Administration Section.
-//
-// Thanks for choosing PostNuke.
-// ----------------------------------------------------------------------
-
-// ----------------------------------------------------------------------
-// if there is a personal_config.php in the folder where is config.php
-// we add it. (This HAS to be at the end, after all initialization.)
-// ----------------------------------------------------------------------
-if (@file_exists("personal_config.php")) {
-    include("personal_config.php");
-}
 
 // ----------------------------------------------------------------------
 // Make config file backwards compatible (deprecated)

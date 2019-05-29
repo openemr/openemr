@@ -26,7 +26,7 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Core\Header;
 
 $form_key = $_REQUEST['key'];
-$args = unserialize($form_key);
+$args = unserialize($form_key, ['allowed_classes' => false]);
 $form_ss = preg_replace('/[^0-9]/', '', $args['ss']);
 $form_fname = $args['fname'];
 $form_lname = $args['lname'];

@@ -2803,7 +2803,7 @@ function disp_end_group()
 // Accumulate action conditions into a JSON expression for the browser side.
 function accumActionConditions($field_id, &$condition_str, &$condarr)
 {
-    $conditions = empty($condarr) ? array() : unserialize($condarr);
+    $conditions = empty($condarr) ? array() : unserialize($condarr, ['allowed_classes' => false]);
     $action = 'skip';
     foreach ($conditions as $key => $condition) {
         if ($key === 'action') {
@@ -2853,7 +2853,7 @@ function isSkipped(&$frow, $currvalue)
         return false;
     }
 
-    $skiprows  = unserialize($frow['conditions']);
+    $skiprows  = unserialize($frow['conditions'], ['allowed_classes' => false]);
     $prevandor = '';
     $prevcond  = false;
     $datatype  = $frow['data_type'];
