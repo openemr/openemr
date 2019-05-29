@@ -10,10 +10,12 @@
  * @author    Terry Hill <terry@lilysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2010 MMF Systems, Inc
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -77,8 +79,7 @@ if ($exclude_policy != "") {
     $arrayExplode   =   explode(",", $exclude_policy);
     array_walk($arrayExplode, 'arrFormated');
     $exclude_policy = implode(",", $arrayExplode);
-    $exclude_policy = add_escape_custom($exclude_policy);
-    $where .= " AND i.policy_number NOT IN ('$exclude_policy')";
+    $where .= " AND i.policy_number NOT IN ($exclude_policy)";
 }
 
     $where .= " AND (i.policy_number is NOT NULL AND i.policy_number != '')";
@@ -164,9 +165,9 @@ if ($exclude_policy != "") {
     if (isset($_POST['form_savefile']) && !empty($_POST['form_savefile']) && $res) {
         header('Content-Type: text/plain');
         header(sprintf(
-            'Content-Disposition: attachment; filename="elig-270.%s.%s.txt"',
-            $from_date,
-            $to_date
+            'Content-Disposition: attachment; filename="batch-elig-270.%s.%s.txt"',
+            strtolower(str_replace(' ', '', $X12info['name'])),
+            date("Y-m-d:H:i:s")
         ));
         print_elig($res, $X12info, $segTer, $compEleSep);
         exit;
