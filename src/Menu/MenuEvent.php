@@ -10,9 +10,11 @@
  */
 
 namespace OpenEMR\Menu;
+
 use Symfony\Component\EventDispatcher\Event;
 
-class MenuEvent extends Event {
+class MenuEvent extends Event
+{
 
      /**
      * The UPDATE event occurs once a menu has been created and had it's update
@@ -51,7 +53,8 @@ class MenuEvent extends Event {
         return $this->menu;
     }
 
-    public function setMenu(array $menu) {
+    public function setMenu(array $menu)
+    {
         $this->menu = $menu;
     }
 }

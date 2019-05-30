@@ -12,13 +12,15 @@
  */
 
 namespace OpenEMR\Core;
+
 use OpenEMR\Core\Kernel;
 use Zend\Mvc\Application;
 use Zend\Mvc\Service\ServiceManagerConfig;
 use Zend\ServiceManager\ServiceManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ModulesApplication {
+class ModulesApplication
+{
     
     /**
      * The application reference pointer for the zend mvc modules application
@@ -26,13 +28,13 @@ class ModulesApplication {
      */
     private $application;
 
-    public function __construct(Kernel $kernel, $webRootPath, $modulePath, $zendModulePath) {
-
+    public function __construct(Kernel $kernel, $webRootPath, $modulePath, $zendModulePath)
+    {
         $zendConfigurationPath = $webRootPath . DIRECTORY_SEPARATOR . $modulePath . DIRECTORY_SEPARATOR . $zendModulePath;
         $configuration = require $zendConfigurationPath . DIRECTORY_SEPARATOR . 'config/application.config.php';
         
         // Prepare the service manager
-        // We customize this and skip using the static Zend\Mvc\Application::init in order to inject the 
+        // We customize this and skip using the static Zend\Mvc\Application::init in order to inject the
         // Symfony Kernel's EventListener that way we can bridge the two frameworks.
         $smConfig = isset($configuration['service_manager']) ? $configuration['service_manager'] : [];
         $smConfig = new ServiceManagerConfig($smConfig);
@@ -55,7 +57,8 @@ class ModulesApplication {
         $this->application = $serviceManager->get('Application')->bootstrap($listeners);
     }
 
-    public function run() {
+    public function run()
+    {
         $this->application->run();
     }
 }

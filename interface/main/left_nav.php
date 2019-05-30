@@ -388,7 +388,8 @@ function genFindBlock()
  * as the rest of the menu item code relies on that.
  * @param $modUrl The full absolute url for the module
  */
-function genModUrl($modUrl) {
+function genModUrl($modUrl)
+{
     return substr($modUrl, strlen('/interface') +1);
 }
 
@@ -400,7 +401,8 @@ function genModUrl($modUrl) {
  * @param $modId The unique id of the module.
  * @return stdClass
  */
-function genModuleMenuObject($moduleName, $modId) {
+function genModuleMenuObject($moduleName, $modId)
+{
     $moduleMenuContainer=new \stdClass();
     $moduleMenuContainer->label=xlt($moduleName);
     $moduleMenuContainer->url= '';
@@ -409,7 +411,6 @@ function genModuleMenuObject($moduleName, $modId) {
     $moduleMenuContainer->target='mod';
     $moduleMenuContainer->children = [];
     return $moduleMenuContainer;
-
 }
 
 /**
@@ -418,7 +419,8 @@ function genModuleMenuObject($moduleName, $modId) {
  * @param $navMenuItems  The tree object structure.  @see genModuleMenuObject for the structure of this array.
  * @param $disallowed A hashmap of acl restrictions.
  */
-function genModuleMenuFromMenuItems($navMenuItems, $disallowed) {
+function genModuleMenuFromMenuItems($navMenuItems, $disallowed)
+{
     // there's only one menu item in this case
     if (!empty($navMenuItems[0])) {
         foreach ($navMenuItems[0]->children as $menuItem) {
@@ -441,8 +443,7 @@ function genModuleMenuFromMenuItems($navMenuItems, $disallowed) {
                 <?php
             }
         }
-    }
-    else {
+    } else {
         error_log("System error.  MENU_UPDATE event did not return a valid menu object back");
     }
 }
@@ -1604,7 +1605,7 @@ if ($reglastcat) {
                 $updatedSecurityEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(MenuEvent::MENU_RESTRICT, new MenuEvent($updatedMenuEvent->getMenu()));
                 $updatedMenuItems = $updatedSecurityEvent->getMenu();
                 genModuleMenuFromMenuItems($updatedSecurityEvent->getMenu(), $disallowed);
-         ?>
+?>
 
         <?php if (acl_check('patients', 'demo') || acl_check('patients', 'med') ||
         (acl_check('patients', 'rx') && !$GLOBALS['disable_prescriptions'])) { ?>

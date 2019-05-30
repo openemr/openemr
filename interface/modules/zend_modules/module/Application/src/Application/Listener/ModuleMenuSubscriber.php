@@ -29,9 +29,8 @@ use OpenEMR\Menu\MenuEvent;
  */
 class ModuleMenuSubscriber implements EventSubscriberInterface
 {
-
-    public function __construct() {
-
+    public function __construct()
+    {
     }
 
     public static function getSubscribedEvents()
@@ -50,16 +49,16 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
      * @param MenuEvent $menu
      * @return MenuEvent
      */
-    public function onMenuUpdate(MenuEvent $menu) {
+    public function onMenuUpdate(MenuEvent $menu)
+    {
         $menuItems = $menu->getMenu();
         // we are working with objects so this will modify the objects in memory
         foreach ($menuItems as $menuItem) {
             // We don't use the label as the menu's have been translated at this point
             // We want to update the modules
-            if ($menuItem->menu_id === 'modimg') { 
+            if ($menuItem->menu_id === 'modimg') {
                 $this->updateModulesModulesMenu($menuItem);
-            }
-            else if ($menuItem->menu_id === 'repimg') {
+            } elseif ($menuItem->menu_id === 'repimg') {
                 $this->updateModulesReportsMenu($menuItem);
             }
         }
@@ -70,18 +69,19 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
      * If we need to adjust anything in the menu's permissions for the modules
      * we can do that work here..
      */
-    public function onMenuRestrict(MenuEvent $menu) {
+    public function onMenuRestrict(MenuEvent $menu)
+    {
         return $menu;
     }
 
-     /**
-      * Load modules created by modules system  This was originally in the core codebase but has been moved into the
-      * module system as it really deals with module code.
-      * @param $menu_list
-      */
+    /**
+     * Load modules created by modules system  This was originally in the core codebase but has been moved into the
+     * module system as it really deals with module code.
+     * @param $menu_list
+     */
     private function updateModulesModulesMenu(&$menu_list)
     {
-        // TODO: there's a lot of globals here.. these really need to be injected or extracted 
+        // TODO: there's a lot of globals here.. these really need to be injected or extracted
         // out so we can test these things...
         $module_query = sqlStatement("select mod_id,mod_directory,mod_name,mod_nick_name,mod_relative_link,type from modules where mod_active = 1 AND sql_run= 1 order by mod_ui_order asc");
         if (sqlNumRows($module_query)) {
