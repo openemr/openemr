@@ -464,13 +464,57 @@ body dl {
 
 /* main.php*/
 .body_main{
-  background-color:#C9DBF2;
+  background-color:#F4F4F4;
 }
 /*~~openemr5 tabs menu , user and logout icon~~*/
 #menu_icon, #logout_icon, #user_icon {
-    color:#676666 !important;
+    color:#9c9c9c !important;
 }
-
+/*~~openemr5 tabs menu , user and logout icon~~*/
+/*openrmr5.0.2 edit_globals vertical menu*/
+#oe-nav-ul.tabNav li {
+    border: none;
+    border-radius:0;
+}
+#oe-nav-ul.tabNav li.current {
+	color: #676666;
+}
+#oe-nav-ul.tabNav a {
+	background: #f4f4f4;
+	border-left: 2px solid #9c9c9c;
+	border-bottom: 1px solid #ccc;
+}
+#oe-nav-ul.tabNav a:hover {
+	background-color: #fff !important;
+	color:  #9c9c9c;
+}
+#oe-nav-ul.tabNav {
+	background: rgba(0, 0, 0, .05)!important;
+}
+#oe-nav-ul.tabNav .current a {
+	border-color: #9c9c9c;
+	background: #fff;
+	color: #676666;
+}
+#globals-div .tabContainer {
+	border-color: #9c9c9c;
+}
+.oe-global-tab-heading {
+	color: #676666;
+    margin-top: -20px;
+}
+.tabSpan {
+    border-top: 3pt solid #9c9c9c !important;
+    border-left: 1px solid #9c9c9c !important;
+    border-right: 1px solid #9c9c9c !important;
+}
+.tabNotchosen {
+    border-bottom: 1pt solid #9c9c9c !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+ }
+/*openrmr5.0.2 edit_globals vertical menu*/
 @import "oe-bootstrap";
 @import "oe-common/all-common-import";
 

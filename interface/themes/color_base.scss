@@ -488,10 +488,7 @@ div.section, div.borderbox {
 @import "colors/openemr5/bootstrap-nav-menu";
 @import "colors/openemr5/bootstrap";
 
-#globals_form_search {
-	margin-top: -3px;
-	padding: 2px 3px 1px 3px;
-}
+
 th.currentvalues, th.historicalvalues {
 	background: $dark !important;
 }
@@ -505,6 +502,7 @@ th.currentvalues, th.historicalvalues {
 @import "colors/openemr5/recall-flow-board";
 @import "colors/openemr5/help-files";
 @import "oe-common/all-common-import";
+@import "colors/openemr5/edit_globals_colors";
 
 @include if-rtl {
 	@include rtl_style;

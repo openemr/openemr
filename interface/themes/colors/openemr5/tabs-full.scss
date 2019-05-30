@@ -13,7 +13,13 @@
     border-right: 1px solid $dark !important;
     border-radius: 3px 6px 0px 0px !important;
 }
-.tabNotchosen, .tabsNoHover {
+.tabNotchosen {
+    border-bottom: 2px solid $dark !important;
+    border-top: 5px solid $pale !important;
+    border-left: 1px solid $pale !important;
+    border-right: 1px solid $pale !important;
+}
+.tabsNoHover {
     border-bottom: 2px solid $dark !important;
 }
 .tabNotchosen:hover {
