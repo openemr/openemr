@@ -17,6 +17,7 @@ if ($response !== true) {
 }
 
 use OpenEMR\Core\Kernel;
+use OpenEMR\Core\ModulesApplication;
 use Dotenv\Dotenv;
 
 // Throw error if the php openssl module is not installed.
@@ -595,6 +596,20 @@ $SMTP_Auth = !empty($GLOBALS['SMTP_USER']);
 $GLOBALS['baseModDir'] = "interface/modules/"; //default path of modules
 $GLOBALS['customModDir'] = "custom_modules"; //non zend modules
 $GLOBALS['zendModDir'] = "zend_modules"; //zend modules
+
+try {
+    // load up the modules system and bootstrap them.
+    // This has to be fast, so any modules that tie into the bootstrap must be kept lightweight
+    // registering event listeners, etc.
+    // TODO: why do we have 3 different directories we need to pass in for the zend dir path. shouldn't zendModDir already have all the paths set up?
+    /** @var ModulesApplication */
+    $GLOBALS['modules_application'] = new ModulesApplication($GLOBALS["kernel"], 
+        $GLOBALS['fileroot'], $GLOBALS['baseModDir'], $GLOBALS['zendModDir']);
+}
+catch (\Exception $ex) {
+    error_log($ex->getMessage() . $ex->getTraceAsString());
+    die();
+}
 
 // Don't change anything below this line. ////////////////////////////
 
