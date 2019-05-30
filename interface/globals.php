@@ -604,10 +604,10 @@ try {
     // TODO: why do we have 3 different directories we need to pass in for the zend dir path. shouldn't zendModDir already have all the paths set up?
     /** @var ModulesApplication */
     $GLOBALS['modules_application'] = new ModulesApplication(
-        $GLOBALS["kernel"]
-        , $GLOBALS['fileroot']
-        , $GLOBALS['baseModDir']
-        , $GLOBALS['zendModDir']
+        $GLOBALS["kernel"],
+        $GLOBALS['fileroot'],
+        $GLOBALS['baseModDir'],
+        $GLOBALS['zendModDir']
     );
 } catch (\Exception $ex) {
     error_log($ex->getMessage() . $ex->getTraceAsString());
