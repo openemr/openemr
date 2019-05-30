@@ -532,6 +532,7 @@ class eRxXMLBuilder
         }
 
         $element->appendChild($this->createElementText('licenseNumber', $userDetails['state_license_number']));
+        $element->appendChild($this->createElementTextFieldEmpty('npi', $userDetails['npi'], xl('Midlevel Prescriber NPI')));
 
         return $element;
     }
