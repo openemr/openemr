@@ -426,9 +426,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <div class="input-group col-sm-4 oe-pull-away">
                         <?php // mdsupport - Optional server based searching mechanism for large number of fields on this screen.
                         if (!$userMode) {
-                            $placeholder = xlt('Search global settings');
+                            $placeholder = xla('Search global settings');
                         } else {
-                            $placeholder = xlt('Search user settings');
+                            $placeholder = xla('Search user settings');
                         }
                         ?>
                           <input name='srch_desc' id='srch_desc' class='form-control' type='text' placeholder='<?php echo $placeholder; ?>' value='<?php echo (!empty($_POST['srch_desc']) ? attr($_POST['srch_desc']) : '') ?>' />
@@ -463,7 +463,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                                     echo "<div class=''>";
                                     $addendum = $grpname == 'Appearance' ? ' (*'. xl("need to logout/login after changing these settings") .')' : '';
-                                    echo "<div class='col-sm-12 oe-global-tab-heading'><div class='oe-pull-toward' style='font-size: 1.4em'>". xl($grpname) ." &nbsp;</div><div style='margin-top: 5px'>" . $addendum ."</div></div>";
+                                    echo "<div class='col-sm-12 oe-global-tab-heading'><div class='oe-pull-toward' style='font-size: 1.4em'>". xlt($grpname) ." &nbsp;</div><div style='margin-top: 5px'>" . text($addendum) ."</div></div>";
                                     echo "<div class='clearfix'></div>";
                                     if ($userMode) {
                                         echo "<div class='row'>";
@@ -786,7 +786,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         }
                                     }
                                    
-                                    echo "<div><div class='oe-pull-away oe-margin-t-10' style=''>". xl($grpname) ." &nbsp;<i class='fa fa-lg fa-arrow-circle-up oe-help-redirect scroll' aria-hidden='true'></i></div><div class='clearfix'></div></div>";
+                                    echo "<div><div class='oe-pull-away oe-margin-t-10' style=''>". xlt($grpname) ." &nbsp;<i class='fa fa-lg fa-arrow-circle-up oe-help-redirect scroll' aria-hidden='true'></i></div><div class='clearfix'></div></div>";
                                     echo " </div>\n";
                                     echo " </div>\n";
                                 }
@@ -804,7 +804,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 <?php
 $post_srch_desc = $_POST['srch_desc'];
 if (!empty($post_srch_desc) && $srch_item == 0) {
-    echo "<script>alert('{$post_srch_desc} - " . xlt('search term was not found, please try another search') . "');</script>";
+    echo "<script>alert(" . js_escape($post_srch_desc." - ".xl('search term was not found, please try another search')) . ");</script>";
 }
 ?>
 
