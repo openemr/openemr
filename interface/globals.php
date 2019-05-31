@@ -610,7 +610,7 @@ try {
         $GLOBALS['zendModDir']
     );
 } catch (\Exception $ex) {
-    error_log($ex->getMessage() . $ex->getTraceAsString());
+    error_log(errorLogEscape($ex->getMessage() . $ex->getTraceAsString()));
     die();
 }
 

@@ -404,7 +404,7 @@ function genModUrl($modUrl)
 function genModuleMenuObject($moduleName, $modId)
 {
     $moduleMenuContainer=new \stdClass();
-    $moduleMenuContainer->label=xlt($moduleName);
+    $moduleMenuContainer->label=xl($moduleName);
     $moduleMenuContainer->url= '';
     $moduleMenuContainer->menu_id = $modId;
     $moduleMenuContainer->requirement=0;
@@ -429,7 +429,7 @@ function genModuleMenuFromMenuItems($navMenuItems, $disallowed)
                 genMiscLink2('RTop', $acl_section, '0', $menuItem->label, genModUrl($menuItem->url));
             } else if (!$disallowed['adm']) { // admin are not allowed hook settings...
                 ?>
-                <li><a class="collapsed_lv2"><span><?= $menuItem->label; ?></span></a>
+                <li><a class="collapsed_lv2"><span><?php echo text($menuItem->label); ?></span></a>
 
                     <ul>
                         <?php
