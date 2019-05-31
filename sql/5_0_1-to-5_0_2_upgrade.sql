@@ -843,24 +843,24 @@ CREATE TABLE `benefit_eligibility` (
     `response_create_date` date DEFAULT NULL,
     `response_modify_date` date DEFAULT NULL
 ) ENGINE=InnoDB;
-#Endif
+#EndIf
 
 #IfTable eligibility_response
 DROP TABLE `eligibility_response`;
-#Endif
+#EndIf
 
 #IfTable x12_partners
 ALTER TABLE `x12_partners` CHANGE `processing_format` `processing_format` ENUM('standard','medi-cal','cms','proxymed','oa-eligibility','avality-eligibility') DEFAULT NULL;
-#Endif
+#EndIf
 
 #IfMissingColumn eligibility_id insurance_companies
 ALTER TABLE `insurance_companies` ADD `eligibility_id` VARCHAR(32) DEFAULT NULL;
-#Endif
+#EndIf
 
 #IfMissingColumn x12_default_eligibility_id insurance_companies
 ALTER TABLE `insurance_companies` ADD `x12_default_eligibility_id` INT(11)  DEFAULT NULL;
-#Endif
+#EndIf
 
 #IfMissingColumn users_secure login_fail_counter
 ALTER TABLE `users_secure` ADD `login_fail_counter` INT(11) DEFAULT '0';
-#Endif
+#EndIf
