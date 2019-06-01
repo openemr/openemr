@@ -6,11 +6,11 @@
  * The original author did not pursue this but I thought it would be a good addition to
  * the patient portal
  *
- * @package OpenEMR
- * @link https://www.open-emr.org
- * @author Giorgos Vasilakos <giorg.vasilakos@gmail.com>
- * @author Terry Hill <terry@lilysystems.com>
- * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Giorgos Vasilakos <giorg.vasilakos@gmail.com>
+ * @author    Terry Hill <terry@lilysystems.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2012 Giorgos Vasilakos <giorg.vasilakos@gmail.com>
  * @copyright Copyright (c) 2015-2017 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>

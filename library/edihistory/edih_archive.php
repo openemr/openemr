@@ -3,12 +3,12 @@
  * edih_archive.php
  * Purpose: to archive old entries in the csv files and old files
  *
- * @package OpenEMR
+ * @package    OpenEMR
  * @subpackage ediHistory
- * @link: https://www.open-emr.org
- * @author Kevin McCormick
- * @copyright Copyright (c) 2016 Kevin McCormick    Longview, Texas
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @link       https://www.open-emr.org
+ * @author     Kevin McCormick
+ * @copyright  Copyright (c) 2016 Kevin McCormick    Longview, Texas
+ * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 // a security measure to prevent direct web access to this file

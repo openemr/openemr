@@ -2,12 +2,12 @@
 /**
  * edih_uploads.php
  *
- * @package OpenEMR
+ * @package    OpenEMR
  * @subpackage ediHistory
- * @link: https://www.open-emr.org
- * @author Kevin McCormick
- * @copyright Copyright (c) 2017 Kevin McCormick
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @link       https://www.open-emr.org
+ * @author     Kevin McCormick
+ * @copyright  Copyright (c) 2017 Kevin McCormick
+ * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 

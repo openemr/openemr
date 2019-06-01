@@ -3,10 +3,10 @@
  *
  * QRDA Ajax Download
  *
- * @package OpenEMR
- * @link    https://www.open-emr.org
- * @author  Ensoftek
- * @author  Stephen Waite <stephen.waite@cmsvt.com
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ensoftek
+ * @author    Stephen Waite <stephen.waite@cmsvt.com
  * @copyright Copyright (c) 2015 Ensoftek, Inc
  * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
