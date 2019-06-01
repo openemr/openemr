@@ -1,31 +1,14 @@
 <?php
-/*************  edih_archive.php
- * Author:  Kevin McCormick   Longview Texas
- *
- * Copyright 2016 Kevin McCormick    Longview, Texas
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301, USA.
- *
- *
+/**
+ * edih_archive.php
  * Purpose: to archive old entries in the csv files and old files
  *
- * @author Kevin McCormick
- * @link: https://www.open-emr.org
  * @package OpenEMR
  * @subpackage ediHistory
+ * @link: https://www.open-emr.org
+ * @author Kevin McCormick
+ * @copyright Copyright (c) 2016 Kevin McCormick    Longview, Texas
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 // a security measure to prevent direct web access to this file
