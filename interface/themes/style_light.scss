@@ -318,7 +318,39 @@ div.category-display {
 #menu_icon, #logout_icon, #user_icon {
     color:#676666 !important;
 }
-
+/*~~openemr5 tabs menu , user and logout icon~~*/
+/*openrmr5.0.2 edit_globals vertical menu*/
+#theform input[type="text"] {
+	border: 1px solid #ccc;
+	margin: 0;
+}
+#oe-nav-ul.tabNav li.current {
+	color: #2672ec;
+}
+#oe-nav-ul.tabNav a {
+	background: #f4f4f4;
+	border-left: 2px solid #1976d2;
+	border-bottom: 1px solid #ccc;
+}
+#oe-nav-ul.tabNav a:hover {
+	background-color: #fff !important;
+	color: #2672ec;
+}
+#oe-nav-ul.tabNav {
+	background: rgba(0, 0, 0, .05)!important;
+}
+#oe-nav-ul.tabNav .current a {
+	border-color: #2672ec;
+	background: #fff;
+	color: #2672ec;
+}
+#globals-div .tabContainer {
+	border-color: #2672ec;
+}
+.oe-global-tab-heading {
+	color: #2672ec;
+}
+/*openrmr5.0.2 edit_globals vertical menu*/
 @import "oe-bootstrap";
 @import "oe-common/all-common-import";
 

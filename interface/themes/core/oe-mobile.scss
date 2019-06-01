@@ -1,0 +1,34 @@
+/* customized settings to make OpenEMR mobile friendly*/
+/*for Smartphones*/
+@media only screen and (max-width: 400px) {
+    h1{
+        font-size: 30px;
+    }
+    h2{
+        font-size: 24px;
+    }
+    h3{
+        font-size: 18px;
+    }
+    h4{
+        font-size: 14px;
+    }
+    h5{
+        font-size: 12px;
+    }
+    h6{
+        font-size: 10px;
+    }
+    #oe-nav-ul.tabNav li {
+        font-size: .8em
+    }
+}
+/*Dashboard navbar styling for tablets*/
+@media only screen and (max-width: 1024px) {
+    .navbar-nav {
+        font-size: 14px !important;
+    }
+    .nav>li>a {
+        padding: 15px 8px;
+    }
+}
