@@ -13,11 +13,14 @@ namespace Application;
 
 use Application\Controller\IndexController;
 use Application\Listener\Listener;
+use Application\Listener\ModuleMenuSubscriber;
 use Zend\Router\Http\Literal;
 use Zend\Router\Http\Segment;
 use Zend\ServiceManager\Factory\InvokableFactory;
 use Zend\Mvc\I18n\TranslatorFactory;
 use Interop\Container\ContainerInterface;
+use OpenEmr\Core\Kernel;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 //
 return array(
@@ -136,7 +139,8 @@ return array(
             },
             \Application\Controller\SendtoController::class => function (ContainerInterface $container, $requestedName) {
                 return new \Application\Controller\SendtoController($container->get(\Application\Model\ApplicationTable::class), $container->get(\Application\Model\SendtoTable::class));
-            }
+            },
+            ModuleMenuSubscriber::class => InvokableFactory::class
         ),
     ),
     'view_manager' => array(
