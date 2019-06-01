@@ -325,7 +325,7 @@ function print_elig($res, $X12info, $segTer, $compEleSep)
             $PATEDI  .= create_NM1($row, 'PR', $X12info, $segTer, $compEleSep);
             // For Provider Segment
             $PATEDI  .= create_HL($row, 2, $X12info, $segTer, $compEleSep);
-            $PATEDI  .= create_NM1($row, 'PI', $X12info, $segTer, $compEleSep);  // 5010 no longer uses FA
+            $PATEDI  .= create_NM1($row, '1P', $X12info, $segTer, $compEleSep);  // 5010 no longer uses FA
             $nHlCounter = $nHlCounter + 2;
             $segmentcount = 6; // segement counts - start from ST
         }
