@@ -48,7 +48,7 @@ function temp_unarchive($filename, $type)
     // use checksums to determine the "version"
     //
         $zip = new ZipArchive;
-        if ($zip->open($filename) === true) {
+        if ($zip->open($filename, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE) === true) {
             if (!($zip->extractTo($GLOBALS['temporary_files_dir']."/".$type))) {
                 return false;
             }
