@@ -10,10 +10,12 @@
  * @author    Terry Hill <terry@lilysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2010 MMF Systems, Inc
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 require_once("$srcdir/edihistory/codes/edih_271_code_class.php");
@@ -140,7 +142,7 @@ function create_NM1($row, $nm1Cast, $X12info, $segTer, $compEleSep)
         $NM1[5] = "";                       // Data Element not required.
         $NM1[6] = "";                       // Data Element not required.
         $NM1[7] = "";                       // Data Element not required.
-        $NM1[8] = $X12info['id_number'] ? $X12info['id_number'] : "46";  // 46 - Electronic Transmitter Identification Number (ETIN)
+        $NM1[8] = "PI";                     // 5010 no longer uses "46"
         if ($GLOBALS['enable_oa']) {
             $payerId = $row['eligibility_id'];
         } else {
@@ -323,7 +325,7 @@ function print_elig($res, $X12info, $segTer, $compEleSep)
             $PATEDI  .= create_NM1($row, 'PR', $X12info, $segTer, $compEleSep);
             // For Provider Segment
             $PATEDI  .= create_HL($row, 2, $X12info, $segTer, $compEleSep);
-            $PATEDI  .= create_NM1($row, 'FA', $X12info, $segTer, $compEleSep);
+            $PATEDI  .= create_NM1($row, '1P', $X12info, $segTer, $compEleSep);  // 5010 no longer uses FA
             $nHlCounter = $nHlCounter + 2;
             $segmentcount = 6; // segement counts - start from ST
         }
