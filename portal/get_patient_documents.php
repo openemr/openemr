@@ -145,7 +145,7 @@ function Zip($source, $destination)
     }
 
     $zip = new ZipArchive();
-    if (!$zip->open($destination, ZIPARCHIVE::CREATE)) {
+    if (!$zip->open($destination, ZipArchive::CREATE)) {
         return false;
     }
 

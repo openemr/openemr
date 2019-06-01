@@ -360,7 +360,7 @@ function edih_archive_create_zip($parameters, $filename_ar, $archive_date, $arch
     $zip_obj = new ZipArchive();
     csv_edihist_log("edih_archive_create_zip: now opening archive $archive_filename");
     if (is_file($zip_name)) {
-        $isOK = $zip_obj->open($zip_name, ZIPARCHIVE::CHECKCONS);
+        $isOK = $zip_obj->open($zip_name, ZipArchive::CHECKCONS);
         if ($isOK) {
             if ($zip_obj->locateName($ft) === false) {
                 $isOK = $zip_obj->addEmptyDir($ft);
@@ -375,7 +375,7 @@ function edih_archive_create_zip($parameters, $filename_ar, $archive_date, $arch
             return $isOK;
         }
     } else {
-        $isOK = $zip_obj->open($zip_name, ZIPARCHIVE::CREATE);
+        $isOK = $zip_obj->open($zip_name, ZipArchive::CREATE);
         $isOK = $zip_obj->addEmptyDir('csv');
         $isOK = $zip_obj->addEmptyDir($ft);
         $zip_obj->setArchiveComment("edi_history archive prior to $archive_date");
@@ -408,7 +408,7 @@ function edih_archive_create_zip($parameters, $filename_ar, $archive_date, $arch
         // reopen the zip archive on each loop so the open file count is controlled
         if (is_file($zip_name)) {
             csv_edihist_log("edih_archive_create_zip: now opening archive");
-            $isOK = $zip_obj->open($zip_name, ZIPARCHIVE::CHECKCONS);
+            $isOK = $zip_obj->open($zip_name, ZipArchive::CHECKCONS);
         }
 
         //
@@ -769,9 +769,9 @@ function edih_archive_restore($archive_name)
 
     //
     $zip_obj = new ZipArchive();
-    // open archive (ZIPARCHIVE::CHECKCONS the ZIPARCHIVE::CREATE is supposedly necessary for microsoft)
-    //$res = $zip_obj->open($arch, ZIPARCHIVE::CHECKCONS);
-    if ($zip_obj->open($arch, ZIPARCHIVE::CHECKCONS) === true) {
+    // open archive (ZipArchive::CHECKCONS the ZipArchive::CREATE is supposedly necessary for microsoft)
+    //$res = $zip_obj->open($arch, ZipArchive::CHECKCONS);
+    if ($zip_obj->open($arch, ZipArchive::CHECKCONS) === true) {
         $f_ct = $zip_obj->numFiles;
         $str_out .= "Extracting " . text($f_ct) . " items from " . text($archive_name) . " <br>";
         csv_edihist_log("edih_archive_restore: Extracting $f_ct items from $archive_name");

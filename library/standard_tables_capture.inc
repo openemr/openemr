@@ -44,11 +44,11 @@ function temp_unarchive($filename, $type)
     if (!file_exists($filename)) {
         return false;
     } else {
-    // let's uzip the file
+    // let's unzip the file
     // use checksums to determine the "version"
     //
         $zip = new ZipArchive;
-        if ($zip->open($filename, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE) === true) {
+        if ($zip->open($filename, ZipArchive::CREATE) === true) {
             if (!($zip->extractTo($GLOBALS['temporary_files_dir']."/".$type))) {
                 return false;
             }

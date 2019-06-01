@@ -216,8 +216,8 @@ function edih_ziptoarray($zipfilename, $param_ar, $single = false)
     $edih_upldir = csv_edih_tmpdir();
     //
     $zip_obj = new ZipArchive();
-    // open archive (ZIPARCHIVE::CHECKCONS the ZIPARCHIVE::CREATE is supposedly necessary for microsoft)
-    if ($zip_obj->open($zipfilename, ZIPARCHIVE::CHECKCONS) !== true) {
+    // open archive (ZipArchive::CHECKCONS the ZipArchive::CREATE is supposedly necessary for microsoft)
+    if ($zip_obj->open($zipfilename, ZipArchive::CHECKCONS) !== true) {
         //$html_str .= "Error: Could not open archive $zipfilename <br />" . PHP_EOL;
         csv_edihist_log('edih_ziptoarray: Error: Could not open archive '.$zipfilename);
         $f_zr['reject'][] = array('name'=>$zipfilename, 'comment'=>'Error: Could not open archive '.$zipfilename);

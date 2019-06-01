@@ -403,7 +403,7 @@ function create_and_download_certificates()
              return;
         }
 
-        if ($zip->open($zipName, ZIPARCHIVE::CREATE)) {
+        if ($zip->open($zipName, ZipArchive::CREATE)) {
             $files = array("CertificateAuthority.key", "CertificateAuthority.crt",
                        "Server.key", "Server.crt", "admin.p12");
             foreach ($files as $file) {

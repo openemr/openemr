@@ -50,7 +50,7 @@ if ($fileName) {
         $currentTime = date("Y-m-d-H-i-s");
         global $qrda_file_path;
         $finalZip = $qrda_file_path . "QRDA_2014_1_" . $currentTime . ".zip";
-        if ($zip->open($finalZip, ZIPARCHIVE::CREATE) != true) {
+        if ($zip->open($finalZip, ZipArchive::CREATE) != true) {
             echo xlt("FAILURE: Couldn't create the zip");
         }
 
@@ -107,7 +107,7 @@ if (count($patients)) {
         $files[] = $fileName;
     }
 
-    if ($zip->open($zipFileFullPath, ZIPARCHIVE::CREATE) != true) {
+    if ($zip->open($zipFileFullPath, ZipArchive::CREATE) != true) {
         echo xlt("FAILURE: Couldn't create the zip");
     }
 
