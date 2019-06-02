@@ -16,11 +16,20 @@ use Application\Model\ApplicationTable;
 use Application\Model\SendtoTable;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
+use Application\Listener\ModuleMenuSubscriber;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class Module
 {
     public function onBootstrap(MvcEvent $e)
     {
+        // @see https://stackoverflow.com/a/21601229/7884612 for how to debug this.
+        // UNCOMMENT THESE TWO LINES IF YOU WANT TO SEE THE REGISTERED FACTORIES FOR DEBUGGING
+        // $config = $e->getApplication()->getServiceManager()->get('Config');
+        // echo "<pre><h1>Factories</h1>";
+        // var_dump(array_keys($config['service_manager']['factories']));
+        // echo "</pre>";
+
         /**
          * Determines if the module namespace should be prepended to the controller name.
          * This is the case if the route match contains a parameter key matching the MODULE_NAMESPACE constant.
@@ -29,10 +38,10 @@ class Module
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
 
-        // @see https://stackoverflow.com/a/21601229/7884612 for how to debug this.
-        // UNCOMMENT THESE TWO LINES IF YOU WANT TO SEE THE REGISTERED FACTORIES FOR DEBUGGING
-        // $config = $e->getApplication()->getServiceManager()->get('Config');
-        // error_log("Factories: " . var_export(array_keys($config['service_manager']['factories']), true));
+        $serviceManager = $e->getApplication()->getServiceManager();
+        $oemrDispatcher = $serviceManager->get(EventDispatcherInterface::class);
+        $menuSubscriber = $serviceManager->get(ModuleMenuSubscriber::class);
+        $oemrDispatcher->addSubscriber($menuSubscriber);
     }
 
     public function getConfig()

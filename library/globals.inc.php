@@ -188,7 +188,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'new_tabs_layout' => array(
-            xl('Layout (need to logout/login after changing this setting)'),
+            xl('Layout').'*',
             array(
                 '0' => xl('Frame'),
                 '1' => xl('Tabs'),
@@ -198,21 +198,21 @@ $GLOBALS_METADATA = array(
         ),
 
         'theme_tabs_layout' => array(
-            xl('Tabs Layout Theme (need to logout/login after changing this setting)'),
+            xl('Tabs Layout Theme').'*',
             'tabs_css',
             'tabs_style_full.css',
-            xl('Theme of the tabs layout (need to logout and then login to see this new setting). Note this is only applicable if use the Light or Manila general theme below.')
+            xl('Theme of the tabs layout (need to logout and then login to see this new setting).')
         ),
 
         'css_header' => array(
-            xl('General Theme (need to logout/login after changing this setting)'),
+            xl('General Theme') .'*',
             'css',
             'style_light.css',
             xl('Pick a general theme (need to logout/login after changing this setting).')
         ),
 
         'font-family' => array(
-            xl('Default font (need to logout/login after change this setting)'),
+            xl('Default font') .'*',
             array(
                 '__default__' => 'Use Theme Font',
                 'Arial, Helvetica, sans-serif' => "Arial",
@@ -225,11 +225,11 @@ $GLOBALS_METADATA = array(
                 'lato' => "Lato",
             ),
             '__default__',
-            xl('Select the default font'),
+            xl('Select the default font (need to logout/login after changing this setting).'),
         ),
 
         'font-size' => array(
-            xl('Default font size (need to logout/login after changing this setting)'),
+            xl('Default font size').'*',
             array(
                 '__default__' => 'Use Theme Font Size',
                 '10px' => '10px',
@@ -239,11 +239,11 @@ $GLOBALS_METADATA = array(
                 '18px' => '18px',
             ),
             '__default__',
-            xl("Select the default font size"),
+            xl("Select the default font size (need to logout/login after changing this setting)."),
         ),
 
         'vertical_responsive_menu' => array(
-            xl('Responsive Vertical Menu Style for Tabs (need to logout/login after changing this setting)'),
+            xl('Responsive Vertical Menu Style for Tabs')  .'*' ,
             array(
                 '736' => xl('iPhone 6/7/8 Plus') . " -  736 X 414" . xl('px'),
                 '740' => xl('Galaxy S9/S9 Plus') . " -  740 X 360" . xl('px'),
@@ -265,7 +265,7 @@ $GLOBALS_METADATA = array(
             ),
 
             '1024', //default iPad/iPad mini
-            xl('Selecting the width for responsive vertical style menus in tab based layout (need to logout/login after change this setting)')
+            xl('Selecting the width for responsive vertical style menus in tab based layout (need to logout/login after changing this setting)')
         ),
 
         'menu_styling_vertical' => array(

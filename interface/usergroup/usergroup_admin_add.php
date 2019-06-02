@@ -309,7 +309,7 @@ foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key =>
   </td>
   <td>
     <?php
-    $menuMain = new MainMenuRole();
+    $menuMain = new MainMenuRole($GLOBALS['kernel']->getEventDispatcher());
     echo $menuMain->displayMenuRoleSelector();
     ?>
   </td>

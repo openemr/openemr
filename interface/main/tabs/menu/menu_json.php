@@ -15,7 +15,7 @@
 use OpenEMR\Menu\MainMenuRole;
 
 // Collect the menu then build it
-$menuMain = new MainMenuRole();
+$menuMain = new MainMenuRole($GLOBALS['kernel']->getEventDispatcher());
 $menu_restrictions = $menuMain->getMenu();
 ?>
 <script type="text/javascript">

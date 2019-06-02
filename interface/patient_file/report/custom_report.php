@@ -231,7 +231,7 @@ if ($printable) {
 <?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?> <?php echo text($facility['postal_code']); ?><br clear='all'>
 <?php echo text($facility['phone']); ?><br>
 
-<a href="javascript:window.close();"><span class='title'><?php echo text($titleres['fname']) . " " . text($titleres['lname']); ?></span></a><br>
+<a href="javascript:window.close();"><span class='title'><?php echo xlt('Patient') . ": " . text($titleres['fname']) . " " . text($titleres['lname']); ?></span></a><br>
 <span class='text'><?php echo xlt('Generated on'); ?>: <?php echo text(oeFormatShortDate()); ?></span>
 <?php echo "</td></tr></tbody></table></div>";?>
 
@@ -872,7 +872,6 @@ if ($PDF_OUTPUT) {
     }
 } else {
 ?>
-</body>
 <?php if (!$printable) { // Set up translated strings for use by interactive search ?>
 <script type="text/javascript">
 var xl_string = <?php echo json_encode(array(
@@ -885,5 +884,6 @@ var xl_string = <?php echo json_encode(array(
 </script>
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/interface/patient_file/report/custom_report.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php } ?>
+</body>
 </html>
 <?php } ?>

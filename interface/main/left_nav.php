@@ -93,6 +93,7 @@ require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 require_once $GLOBALS['srcdir'].'/user.inc';
 
 use ESign\Api;
+use OpenEMR\Menu\MenuEvent;
 
 // Fetch user preferences saved from prior session
 $uspfx = substr(__FILE__, strlen($GLOBALS['fileroot']."/")) . '.';
@@ -381,6 +382,71 @@ function genFindBlock()
 </table>
 <?php
 } // End function genFindBlock()
+
+/**
+ * Module URLs have an absolute URL and need to have the /interface part removed
+ * as the rest of the menu item code relies on that.
+ * @param $modUrl The full absolute url for the module
+ */
+function genModUrl($modUrl)
+{
+    return substr($modUrl, strlen('/interface') +1);
+}
+
+/**
+ * Given a module name and id, create the associated stdClass object that we can use
+ * for the menu event system.  We use these objects in other parts of OpenEMR so we
+ * conform to the same interface.
+ * @param $moduleName The name of the module
+ * @param $modId The unique id of the module.
+ * @return stdClass
+ */
+function genModuleMenuObject($moduleName, $modId)
+{
+    $moduleMenuContainer=new \stdClass();
+    $moduleMenuContainer->label=xl($moduleName);
+    $moduleMenuContainer->url= '';
+    $moduleMenuContainer->menu_id = $modId;
+    $moduleMenuContainer->requirement=0;
+    $moduleMenuContainer->target='mod';
+    $moduleMenuContainer->children = [];
+    return $moduleMenuContainer;
+}
+
+/**
+ * Given a tree object structure of navigation items go through and generate the side navigation
+ * items for the given tree.  If the user is not an administrator than hook menu items are hidden.
+ * @param $navMenuItems  The tree object structure.  @see genModuleMenuObject for the structure of this array.
+ * @param $disallowed A hashmap of acl restrictions.
+ */
+function genModuleMenuFromMenuItems($navMenuItems, $disallowed)
+{
+    // there's only one menu item in this case
+    if (!empty($navMenuItems[0])) {
+        foreach ($navMenuItems[0]->children as $menuItem) {
+            $acl_section = $menuItem->menu_id; // we use the url as the key since it's unique...
+            if (empty($menuItem->children)) {
+                genMiscLink2('RTop', $acl_section, '0', $menuItem->label, genModUrl($menuItem->url));
+            } else if (!$disallowed['adm']) { // admin are not allowed hook settings...
+                ?>
+                <li><a class="collapsed_lv2"><span><?php echo text($menuItem->label); ?></span></a>
+
+                    <ul>
+                        <?php
+                        foreach ($menuItem->children as $childHookContainer) :
+                            $acl_section = $childHookContainer->url;
+                            // li closed in genMiscLink
+                            genMiscLink('RTop', $acl_section, '0', $childHookContainer->label, genModUrl($childHookContainer->url));
+                        endforeach; ?>
+                    </ul>
+                </li>
+                <?php
+            }
+        }
+    } else {
+        error_log("System error.  MENU_UPDATE event did not return a valid menu object back");
+    }
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -1362,62 +1428,14 @@ if ($reglastcat) {
 
         <?php //genTreeLink('RTop','ort',xl('Settings')); ?>
         <?php
-        $module_query = sqlStatement("select mod_id, mod_directory,mod_name,mod_nick_name,mod_relative_link,type from modules where mod_active = 1 AND sql_run= 1 order by mod_ui_order asc");
-        if (sqlNumRows($module_query)) {
-            while ($modulerow = sqlFetchArray($module_query)) {
-                  $module_hooks =  sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
-                                    obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
-                                    WHERE m.mod_id = ? AND fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='modules' ORDER BY m.mod_id", array($modulerow['mod_id']));
 
-                  $modulePath = "";
-                  $added        = "";
-                if ($modulerow['type'] == 0) {
-                    $modulePath = $GLOBALS['customModDir'];
-                    $added        = "";
-                } else {
-                    $added      = "index";
-                    $modulePath = $GLOBALS['zendModDir'];
-                }
-
-                if (sqlNumRows($module_hooks) == 0) {
-                    // module without hooks in module section
-                    $acl_section = strtolower($modulerow['mod_directory']);
-                    $disallowed[$acl_section] = zh_acl_check($_SESSION['authUserID'], $acl_section) ?  "" : "1";
-
-                    $relative_link ="modules/".$modulePath."/".$modulerow['mod_relative_link'].$added;
-                    $mod_nick_name = $modulerow['mod_nick_name'] ? $modulerow['mod_nick_name'] : $modulerow['mod_name'];
-                     genMiscLink2('RTop', $acl_section, '0', xl($mod_nick_name), $relative_link);
-                } else {
-                  // module with hooks in module section
-                    $jid = 0;
-                    $modid = '';
-                    while ($hookrow = sqlFetchArray($module_hooks)) {
-                        $disallowed[$hookrow['obj_name']] = !$disallowed['adm'] || zh_acl_check($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1";
-
-                        $relative_link ="modules/".$modulePath."/".$hookrow['mod_relative_link'].$hookrow['path'];
-                        $mod_nick_name = $hookrow['menu_name'] ? $hookrow['menu_name'] : 'NoName';
-
-                        if ($jid==0 || ($modid!=$hookrow['mod_id'])) {
-                            if ($modid!='') {
-                                echo "</ul>";
-                            }
-                            ?>
-                          <li><a class="collapsed_lv2"><span><?php echo xlt($hookrow['mod_ui_name']); ?></span></a>
-                            <ul>
-                                <?php
-                        }
-
-                          $jid++;
-                          $modid = $hookrow['mod_id'];
-                          genMiscLink('RTop', $hookrow['obj_name'], '0', xl($mod_nick_name), $relative_link);
-                    }
-
-                      echo "</ul>";
-                }
-            }
-                    ?>
-            <?php
-        } ?>
+        $moduleMenuContainer = genModuleMenuObject('Modules', 'modimg');
+        // updated menu's have already been filtered for security
+        $updatedMenuEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(MenuEvent::MENU_UPDATE, new MenuEvent([$moduleMenuContainer]));
+        $updatedSecurityEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(MenuEvent::MENU_RESTRICT, new MenuEvent($updatedMenuEvent->getMenu()));
+        $updatedMenuItems = $updatedSecurityEvent->getMenu();
+        genModuleMenuFromMenuItems($updatedSecurityEvent->getMenu(), $disallowed);
+        ?>
     </ul>
    </li>
 
@@ -1581,45 +1599,13 @@ if ($reglastcat) {
   <li><a class="collapsed" id="repimg" ><span><?php echo xlt('Reports') ?></span></a>
     <ul>
                 <?php
-                $module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
-                                    obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
-                                    WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='reports' ORDER BY mod_id");
-                if (sqlNumRows($module_query)) {
-                    $jid = 0;
-                    $modid = '';
-                    while ($modulerow = sqlFetchArray($module_query)) {
-                        $modulePath = "";
-                        $added      = "";
-                        if ($modulerow['type'] == 0) {
-                            $modulePath = $GLOBALS['customModDir'];
-                            $added      = "";
-                        } else {
-                            $added      = "index";
-                            $modulePath = $GLOBALS['zendModDir'];
-                        }
-
-                        $disallowed[$modulerow['obj_name']] = !$disallowed['adm'] || zh_acl_check($_SESSION['authUserID'], $modulerow['obj_name']) ?  "" : "1";
-
-                        $relative_link ="modules/".$modulePath."/".$modulerow['mod_relative_link'].$modulerow['path'];
-                        $mod_nick_name = $modulerow['menu_name'] ? $modulerow['menu_name'] : 'NoName';
-
-                        if ($jid==0 || ($modid!=$modulerow['mod_id'])) {
-                            if ($modid!='') {
-                                echo "</ul>";
-                            }
-                        ?>
-                        <li><a class="collapsed_lv2"><span><?php echo xlt($modulerow['mod_ui_name']); ?></span></a>
-                            <ul>
-                        <?php
-                        }
-
-                        $jid++;
-                        $modid = $modulerow['mod_id'];
-                        genMiscLink('RTop', $modulerow['obj_name'], '0', xl($mod_nick_name), $relative_link);
-                    }
-
-                    echo "</ul>";
-                } ?>
+                $moduleMenuContainer = genModuleMenuObject('Reports', 'repimg');
+                // updated menu's have already been filtered for security
+                $updatedMenuEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(MenuEvent::MENU_UPDATE, new MenuEvent([$moduleMenuContainer]));
+                $updatedSecurityEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(MenuEvent::MENU_RESTRICT, new MenuEvent($updatedMenuEvent->getMenu()));
+                $updatedMenuItems = $updatedSecurityEvent->getMenu();
+                genModuleMenuFromMenuItems($updatedSecurityEvent->getMenu(), $disallowed);
+?>
 
         <?php if (acl_check('patients', 'demo') || acl_check('patients', 'med') ||
         (acl_check('patients', 'rx') && !$GLOBALS['disable_prescriptions'])) { ?>

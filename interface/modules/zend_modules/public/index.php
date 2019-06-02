@@ -43,4 +43,15 @@ require_once(dirname(__FILE__)."/../../../../library/acl.inc");
 chdir(dirname(__DIR__));
 
 // Run the application!
-Zend\Mvc\Application::init(require 'config/application.config.php')->run();
+/** @var OpenEMR/Core/ModulesApplication
+ * Defined in globals.php
+*/
+if (!empty($GLOBALS['modules_application'])) {
+    // $time_start = microtime(true);
+    // run the request lifecycle.  The application has already inited in the globals.php
+    $GLOBALS['modules_application']->run();
+    // $time_end = microtime(true);
+    // echo "App runtime: " . ($time_end - $time_start) . "<br />";
+} else {
+    die("global modules_application is not defined.  Cannot run zend module request");
+}

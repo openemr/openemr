@@ -14,6 +14,11 @@ $(function () {
         },
         hide: {
             delay: 0
+        },
+        position: {
+            my: "center top",
+            at: "center bottom-5",
+            collision: "flipfit"
         }
     });
     $(this).click(function () {

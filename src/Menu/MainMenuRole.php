@@ -12,14 +12,20 @@
 namespace OpenEMR\Menu;
 
 use OpenEMR\Services\UserService;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MainMenuRole extends MenuRole
 {
 
     /**
+     * @var EventDispatcher
+     */
+    private $dispatcher;
+
+    /**
      * Constructor
      */
-    public function __construct()
+    public function __construct(EventDispatcherInterface $dispatcher)
     {
         // This is where the magic happens to support special menu items.
         //   An empty menu_update_map array is created in MenuRole class
@@ -27,8 +33,7 @@ class MainMenuRole extends MenuRole
         //   to functions in this class.
         parent::__construct();
         $this->menu_update_map["Visit Forms"]="updateVisitForms";
-        $this->menu_update_map["Modules"]="updateModulesModulesMenu";
-        $this->menu_update_map["Reports"]="updateModulesReportsMenu";
+        $this->dispatcher = $dispatcher;
     }
 
     /**
@@ -56,9 +61,13 @@ class MainMenuRole extends MenuRole
         }
 
         $this->menuUpdateEntries($menu_parsed);
+        $updatedMenuEvent = $this->dispatcher->dispatch(MenuEvent::MENU_UPDATE, new MenuEvent($menu_parsed));
+
         $menu_restrictions=array();
-        $this->menuApplyRestrictions($menu_parsed, $menu_restrictions);
-        return $menu_restrictions;
+        $this->menuApplyRestrictions($updatedMenuEvent->getMenu(), $menu_restrictions);
+        $updatedRestrictions = $this->dispatcher->dispatch(MenuEvent::MENU_RESTRICT, new MenuEvent($menu_restrictions));
+
+        return $updatedRestrictions->getMenu();
     }
 
     /**
@@ -109,138 +118,6 @@ class MainMenuRole extends MenuRole
         }
 
         return $mainMenuRole;
-    }
-
-    /**
-     * load modules created by modules system
-     * @param $menu_list
-     */
-    protected function updateModulesModulesMenu(&$menu_list)
-    {
-        $module_query = sqlStatement("select mod_id,mod_directory,mod_name,mod_nick_name,mod_relative_link,type from modules where mod_active = 1 AND sql_run= 1 order by mod_ui_order asc");
-        if (sqlNumRows($module_query)) {
-            while ($modulerow = sqlFetchArray($module_query)) {
-                $module_hooks =  sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type, m.mod_relative_link FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
-                                    obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
-                                    WHERE m.mod_id = ? AND fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='modules' ORDER BY m.mod_id", array($modulerow['mod_id']));
-
-                $modulePath = "";
-                $added      = "";
-                if ($modulerow['type'] == 0) {
-                    $modulePath = $GLOBALS['customModDir'];
-                    $added      = "";
-                } else {
-                    $added      = "index";
-                    $modulePath = $GLOBALS['zendModDir'];
-                }
-
-                $relative_link ="/interface/modules/".$modulePath."/".$modulerow['mod_relative_link'].$added;
-                $mod_nick_name = $modulerow['mod_nick_name'] ? $modulerow['mod_nick_name'] : $modulerow['mod_name'];
-
-                if (sqlNumRows($module_hooks) == 0) {
-                    // module without hooks in module section
-                    $acl_section = strtolower($modulerow['mod_directory']);
-                    if (zh_acl_check($_SESSION['authUserID'], $acl_section) ?  "" : "1") {
-                        continue;
-                    }
-
-                    $newEntry=new \stdClass();
-                    $newEntry->label=xlt($mod_nick_name);
-                    $newEntry->url=$relative_link;
-                    $newEntry->requirement=0;
-                    $newEntry->target='mod';
-                    array_push($menu_list->children, $newEntry);
-                } else {
-                    // module with hooks in module section
-                    $newEntry=new \stdClass();
-                    $newEntry->requirement=0;
-                    $newEntry->icon="fa-caret-right";
-                    $newEntry->label=xlt($mod_nick_name);
-                    $newEntry->children=array();
-                    $jid = 0;
-                    $modid = '';
-                    while ($hookrow = sqlFetchArray($module_hooks)) {
-                        if (zh_acl_check($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1") {
-                            continue;
-                        }
-
-                        $relative_link ="/interface/modules/".$modulePath."/".$hookrow['mod_relative_link'].$hookrow['path'];
-                        $mod_nick_name = $hookrow['menu_name'] ? $hookrow['menu_name'] : 'NoName';
-
-                        if ($jid==0 || ($modid!=$hookrow['mod_id'])) {
-                            $subEntry=new \stdClass();
-                            $subEntry->requirement=0;
-                            $subEntry->target='mod';
-                            $subEntry->menu_id='mod0';
-                            $subEntry->label=xlt($mod_nick_name);
-                            $subEntry->url=$relative_link;
-                            $newEntry->children[] = $subEntry;
-                        }
-
-                        $jid++;
-                    }
-
-                    array_push($menu_list->children, $newEntry);
-                }
-            }
-        }
-    }
-
-    /**
-     * load reports created by modules system
-     * @param $menu_list
-     */
-    protected function updateModulesReportsMenu(&$menu_list)
-    {
-        $module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
-                                    obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
-                                    WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='reports' ORDER BY mod_id");
-        $reportsHooks = array();
-        if (sqlNumRows($module_query)) {
-            $jid = 0;
-            $modid = '';
-
-            while ($hookrow = sqlFetchArray($module_query)) {
-                if ($hookrow['type'] == 0) {
-                    $modulePath = $GLOBALS['customModDir'];
-                    $added = "";
-                } else {
-                    $added = "index";
-                    $modulePath = $GLOBALS['zendModDir'];
-                }
-
-                if ($jid == 0 || ($modid != $hookrow['mod_id'])) {
-                    //create new label
-                    $newEntry = new \stdClass();
-                    $newEntry->requirement = 0;
-                    $newEntry->icon = "fa-caret-right";
-                    $newEntry->label = xlt($hookrow['mod_ui_name']);
-                    $newEntry->children = array();
-
-                    $reportsHooks[] = $newEntry;
-                    array_unshift($menu_list->children, $newEntry);
-                }
-
-                if (zh_acl_check($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1") {
-                    continue;
-                }
-
-                $relative_link = "/interface/modules/" . $modulePath . "/" . $hookrow['mod_relative_link'] . $hookrow['path'];
-                $mod_nick_name = $hookrow['menu_name'] ? $hookrow['menu_name'] : 'NoName';
-
-                $subEntry = new \stdClass();
-                $subEntry->requirement = 0;
-                $subEntry->target = 'rep';
-                $subEntry->menu_id = 'rep0';
-                $subEntry->label = xlt($mod_nick_name);
-                $subEntry->url = $relative_link;
-
-                $reportsHooks[count($reportsHooks)-1]->children[] = $subEntry;
-
-                $jid++;
-                $modid = $hookrow['mod_id'];
-            }
-        }
     }
 
     // This creates menu entries for all encounter forms.

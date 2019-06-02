@@ -366,12 +366,12 @@ function postcalendar_user_submit($args)
     $category = pnVarCleanFromInput('category');
 
     if (!empty($category)) {
-        $category = unserialize(base64_decode($category));
+        $category = unserialize(base64_decode($category), ['allowed_classes' => false]);
         //print_r($category);
     } else { //print_r($_POST);
         $cat = $_POST['category'];
 
-        $category = unserialize(base64_decode($cat));
+        $category = unserialize(base64_decode($cat), ['allowed_classes' => false]);
         //print_r($category);
     }
 
