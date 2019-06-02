@@ -21,6 +21,7 @@
 
 namespace PrescriptionTemplates\Controller;
 
+use Interop\Container\ContainerInterface;
 use Zend\View\Model\ViewModel;
 use Mpdf\Mpdf;
 use Zend\View\Renderer\PhpRenderer;
@@ -35,11 +36,12 @@ use Zend\View\Renderer\PhpRenderer;
  */
 class PdfTemplatesController extends PrescriptionTemplatesController
 {
-    private $renderer;
+    public $renderer;
 
-    public function __construct(PhpRenderer $renderer)
+    public function __construct(ContainerInterface $container)
     {
-        $this->renderer = $renderer;
+        parent::__construct($container);
+        $this->renderer = $container->get(\Zend\View\Renderer\PhpRenderer::class);
     }
 
     /**
