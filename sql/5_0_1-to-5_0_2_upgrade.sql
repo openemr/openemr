@@ -868,3 +868,7 @@ ALTER TABLE `users_secure` ADD `login_fail_counter` INT(11) DEFAULT '0';
 #IfMissingColumn x12_partners x12_dtp03
 ALTER TABLE `x12_partners` ADD `x12_dtp03` CHAR(1) DEFAULT 'A';
 #EndIf
+
+#IfMissingColumn procedure_order order_diagnosis
+ALTER TABLE `procedure_order` ADD `order_diagnosis` VARCHAR(255) DEFAULT '';
+#EndIf
