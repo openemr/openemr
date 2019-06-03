@@ -7,10 +7,13 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="./app/assets/css/app.css" type="text/css">
+        <?php if($_SESSION["language_direction"] == "rtl"): ?>
+        <link rel="stylesheet" href="./app/node_modules/bootstrap-v4-rtl/dist/css/bootstrap-rtl.min.css" type="text/css">
+        <?php endif;?>
     </head>
 
     </script>
-    <body>
+    <body dir="<?php echo $_SESSION["language_direction"];?>">
 
         <div id="app">
         </div>

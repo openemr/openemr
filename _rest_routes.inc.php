@@ -255,6 +255,18 @@ RestConfig::$ROUTE_MAP = array(
         authorization_check("patients", "appt");
         return (new AppointmentRestController())->getAllForPatient($pid);
     },
+    "GET /api/patient/:pid/appointment_recurrences" => function ($pid) {
+         authorization_check("patients", "appt");
+        return (new AppointmentRestController())->getAllRecurencces($pid);
+    },
+    "GET /api/patient/:pid/past_appointments" => function ($pid) {
+         authorization_check("patients", "appt");
+        return (new AppointmentRestController())->getPastAppointments($pid);
+    },
+    "GET /api/patient/:pid/future_appointments" => function ($pid) {
+         authorization_check("patients", "appt");
+        return (new AppointmentRestController())->getFutureAppointments($pid);
+    },
     "POST /api/patient/:pid/appointment" => function ($pid) {
         authorization_check("patients", "appt");
         $data = (array)(json_decode(file_get_contents("php://input")));
