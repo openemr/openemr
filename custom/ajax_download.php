@@ -3,22 +3,13 @@
  *
  * QRDA Ajax Download
  *
- * Copyright (C) 2015 Ensoftek, Inc
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ensoftek
+ * @author    Stephen Waite <stephen.waite@cmsvt.com
+ * @copyright Copyright (c) 2015 Ensoftek, Inc
+ * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -50,7 +41,7 @@ if ($fileName) {
         $currentTime = date("Y-m-d-H-i-s");
         global $qrda_file_path;
         $finalZip = $qrda_file_path . "QRDA_2014_1_" . $currentTime . ".zip";
-        if ($zip->open($finalZip, ZIPARCHIVE::CREATE) != true) {
+        if ($zip->open($finalZip, ZipArchive::CREATE) != true) {
             echo xlt("FAILURE: Couldn't create the zip");
         }
 
@@ -107,7 +98,7 @@ if (count($patients)) {
         $files[] = $fileName;
     }
 
-    if ($zip->open($zipFileFullPath, ZIPARCHIVE::CREATE) != true) {
+    if ($zip->open($zipFileFullPath, ZipArchive::CREATE) != true) {
         echo xlt("FAILURE: Couldn't create the zip");
     }
 

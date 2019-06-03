@@ -160,7 +160,7 @@ function gnrtCCR($ccr, $raw = "no", $requested_by = "")
                     return;
         }
 
-        if ($zip->open($zipName, ZIPARCHIVE::CREATE)) {
+        if ($zip->open($zipName, ZipArchive::CREATE)) {
             $zip->addFile("stylesheet/ccr.xsl", "stylesheet/ccr.xsl");
             $xmlName = $tempDir . "/" . getReportFilename() . "-ccr.xml";
             if (file_exists($xmlName)) {
@@ -253,7 +253,7 @@ function viewCCD($ccr, $raw = "no", $requested_by = "")
             return;
         }
 
-        if ($zip->open($zipName, ZIPARCHIVE::CREATE)) {
+        if ($zip->open($zipName, ZipArchive::CREATE)) {
             $zip->addFile("stylesheet/cda.xsl", "stylesheet/cda.xsl");
             $xmlName = $tempDir . "/" . getReportFilename() . "-ccd.xml";
             if (file_exists($xmlName)) {

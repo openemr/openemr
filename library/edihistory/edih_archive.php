@@ -1,31 +1,14 @@
 <?php
-/*************  edih_archive.php
- * Author:  Kevin McCormick   Longview Texas
- *
- * Copyright 2016 Kevin McCormick    Longview, Texas
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301, USA.
- *
- *
+/**
+ * edih_archive.php
  * Purpose: to archive old entries in the csv files and old files
  *
- * @author Kevin McCormick
- * @link: https://www.open-emr.org
- * @package OpenEMR
+ * @package    OpenEMR
  * @subpackage ediHistory
+ * @link       https://www.open-emr.org
+ * @author     Kevin McCormick
+ * @copyright  Copyright (c) 2016 Kevin McCormick    Longview, Texas
+ * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 // a security measure to prevent direct web access to this file
@@ -360,7 +343,7 @@ function edih_archive_create_zip($parameters, $filename_ar, $archive_date, $arch
     $zip_obj = new ZipArchive();
     csv_edihist_log("edih_archive_create_zip: now opening archive $archive_filename");
     if (is_file($zip_name)) {
-        $isOK = $zip_obj->open($zip_name, ZIPARCHIVE::CHECKCONS);
+        $isOK = $zip_obj->open($zip_name, ZipArchive::CHECKCONS);
         if ($isOK) {
             if ($zip_obj->locateName($ft) === false) {
                 $isOK = $zip_obj->addEmptyDir($ft);
@@ -375,7 +358,7 @@ function edih_archive_create_zip($parameters, $filename_ar, $archive_date, $arch
             return $isOK;
         }
     } else {
-        $isOK = $zip_obj->open($zip_name, ZIPARCHIVE::CREATE);
+        $isOK = $zip_obj->open($zip_name, ZipArchive::CREATE);
         $isOK = $zip_obj->addEmptyDir('csv');
         $isOK = $zip_obj->addEmptyDir($ft);
         $zip_obj->setArchiveComment("edi_history archive prior to $archive_date");
@@ -408,7 +391,7 @@ function edih_archive_create_zip($parameters, $filename_ar, $archive_date, $arch
         // reopen the zip archive on each loop so the open file count is controlled
         if (is_file($zip_name)) {
             csv_edihist_log("edih_archive_create_zip: now opening archive");
-            $isOK = $zip_obj->open($zip_name, ZIPARCHIVE::CHECKCONS);
+            $isOK = $zip_obj->open($zip_name, ZipArchive::CHECKCONS);
         }
 
         //
@@ -769,9 +752,9 @@ function edih_archive_restore($archive_name)
 
     //
     $zip_obj = new ZipArchive();
-    // open archive (ZIPARCHIVE::CHECKCONS the ZIPARCHIVE::CREATE is supposedly necessary for microsoft)
-    //$res = $zip_obj->open($arch, ZIPARCHIVE::CHECKCONS);
-    if ($zip_obj->open($arch, ZIPARCHIVE::CHECKCONS) === true) {
+    // open archive (ZipArchive::CHECKCONS the ZipArchive::CREATE is supposedly necessary for microsoft)
+    //$res = $zip_obj->open($arch, ZipArchive::CHECKCONS);
+    if ($zip_obj->open($arch, ZipArchive::CHECKCONS) === true) {
         $f_ct = $zip_obj->numFiles;
         $str_out .= "Extracting " . text($f_ct) . " items from " . text($archive_name) . " <br>";
         csv_edihist_log("edih_archive_restore: Extracting $f_ct items from $archive_name");
