@@ -81,6 +81,34 @@ class InsuranceService
         return $results;
     }
 
+    /**
+     * Get up to 3 insurances (primary, secondary, tertiary) that are effective
+     * for the given patient on the given date.
+     *
+     * @param int     The PID of the patient.
+     * @param string  Date in yyyy-mm-dd format.
+     * @return array  Array of 0-3 insurance_data rows.
+     */
+    public function getEffectiveInsurances($pid, $encdate)
+    {
+        $insarr = array();
+        foreach (array('primary','secondary','tertiary') as $type) {
+            $tmp = sqlQuery(
+                "SELECT * FROM insurance_data " .
+                "WHERE pid = ? AND type = ? " .
+                "AND date <= ? ORDER BY date DESC LIMIT 1",
+                array($pid, $type, $encdate)
+            );
+            if (empty($tmp['provider'])) {
+                break;
+            }
+
+            $insarr[] = $tmp;
+        }
+
+        return $insarr;
+    }
+
     public function doesInsuranceTypeHaveEntry($pid, $type)
     {
         return $this->getOne($pid, $type) !== null;

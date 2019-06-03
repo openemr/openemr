@@ -31,6 +31,7 @@ use OpenEMR\RestControllers\MessageRestController;
 use OpenEMR\RestControllers\MenusRestController;
 use OpenEMR\RestControllers\PatientExtendedRestController;
 use OpenEMR\RestControllers\LayoutRestController;
+use OpenEMR\RestControllers\BillingRestController;
 
 
 
@@ -352,6 +353,9 @@ RestConfig::$ROUTE_MAP = array(
     "DELETE /api/patient/:pid/message/:mid" => function ($pid, $mid) {
         authorization_check("patients", "notes");
         return (new MessageRestController())->delete($pid, $mid);
+    },
+    "GET /api/patient/:pid/billing" => function ($pid) {
+        return (new BillingRestController())->getBalances($pid);
     },
     "GET /api/menus/:pid/:type" => function ($pid, $type) {
         return (new MenusRestController())->getMenu($pid, $type);
