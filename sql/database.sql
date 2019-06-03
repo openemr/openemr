@@ -7249,7 +7249,7 @@ CREATE TABLE `x12_partners` (
   `x12_isa15` char(1)     NOT NULL DEFAULT 'P',
   `x12_gs02`  varchar(15) NOT NULL DEFAULT '',
   `x12_per06` varchar(80) NOT NULL DEFAULT '',
-  `x12_gs03`  varchar(15) NOT NULL DEFAULT '',
+  `x12_dtp03` char(1)     NOT NULL DEFAULT 'A',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB;
 
@@ -7569,8 +7569,9 @@ CREATE TABLE `procedure_order` (
   `specimen_volume`        varchar(30)  NOT NULL DEFAULT '' COMMENT 'from a text input field',
   `date_transmitted`       datetime     DEFAULT NULL        COMMENT 'time of order transmission, null if unsent',
   `clinical_hx`            varchar(255) NOT NULL DEFAULT '' COMMENT 'clinical history text that may be relevant to the order',
-  `external_id` VARCHAR(20) DEFAULT NULL,
-  `history_order` enum('0','1') DEFAULT '0' COMMENT 'references order is added for history purpose only.',
+  `external_id`            varchar(20) DEFAULT NULL,
+  `history_order`          enum('0','1') DEFAULT '0' COMMENT 'references order is added for history purpose only.',
+  `order_diagnosis`        varchar(255) DEFAULT '' COMMENT 'primary order diagnosis',
   PRIMARY KEY (`procedure_order_id`),
   KEY datepid (date_ordered, patient_id),
   KEY `patient_id` (`patient_id`)

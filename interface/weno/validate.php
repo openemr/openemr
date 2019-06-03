@@ -66,13 +66,13 @@ if (empty($pharmacy['name'])) {
     exit;
 }
 $ncpdpLength = strlen($pharmacy['ncpdp']);
-if (empty($pharmacy['ncpdp']) || $ncpdpLength < 10) {
-    print xlt("Pharmacy missing NCPDP ID or less than 10 digits"). "<br>";
+if (empty($pharmacy['ncpdp']) || $ncpdpLength < 7) {
+    print xlt("Pharmacy missing NCPDP ID or less than 7 digits"). "<br>";
     exit;
 }
 $npiLength = strlen($pharmacy['npi']);
-if (empty($pharmacy['npi'] || $npiLength < 7)) {
-    print xlt("Pharmacy missing NPI or less than 7 digits"). "<br>";
+if (empty($pharmacy['npi'] || $npiLength < 10)) {
+    print xlt("Pharmacy missing NPI  or less than 10 digits"). "<br>";
     exit;
 }
 //validate NPI exist

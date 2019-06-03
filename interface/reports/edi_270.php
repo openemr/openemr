@@ -26,6 +26,7 @@ require_once("$srcdir/patient.inc");
 require_once "$srcdir/options.inc.php";
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/edi.inc");
+require_once("$srcdir/appointments.inc.php");
 
 use OpenEMR\Core\Header;
 
@@ -52,18 +53,19 @@ $exclude_policy = $_POST['removedrows'] ? $_POST['removedrows'] : '';
 $x12_partner    = $_POST['form_x12'] ? $_POST['form_x12'] : '';
 $X12info        = getX12Partner($x12_partner);
 
+// grab appointments, sort by date and make unique to first upcoming appt by pid.
+$appts = fetchAppointments($from_date, $to_date);
+$appts = sortAppointments($appts);
+$appts = unique_by_key($appts, 'pid');
+$ids = [];
+foreach ($appts as $eid) {
+    $ids[] = $eid['pc_eid'];
+}
 //Set up the sql variable binding array (this prevents sql-injection attacks)
 $sqlBindArray = array();
 
-$where  = "e.pc_pid IS NOT NULL AND e.pc_eventDate >= ?";
-array_push($sqlBindArray, $from_date);
-
-//$where .="and e.pc_eventDate = (select max(pc_eventDate) from openemr_postcalendar_events where pc_aid = d.id)";
-
-if ($to_date) {
-    $where .= " AND e.pc_eventDate <= ?";
-    array_push($sqlBindArray, $to_date);
-}
+$ids = count($ids) > 0 ? implode(',', $ids) : "'0'";
+$where  = "e.pc_eid in($ids) ";
 
 if ($form_facility != "") {
     $where .= " AND f.id = ? ";
@@ -81,40 +83,39 @@ if ($exclude_policy != "") {
     $exclude_policy = implode(",", $arrayExplode);
     $where .= " AND i.policy_number NOT IN ($exclude_policy)";
 }
-
     $where .= " AND (i.policy_number is NOT NULL AND i.policy_number != '')";
     $where .= " GROUP BY p.pid ORDER BY c.name";
-    $query = sprintf("SELECT DATE_FORMAT(e.pc_eventDate, '%%Y%%m%%d') as pc_eventDate,
-            e.pc_facility,
-            p.lname,
-            p.fname,
-            p.mname,
-            DATE_FORMAT(p.dob, '%%Y%%m%%d') as dob,
-            p.ss,
-            p.sex,
-            p.pid,
-            p.pubpid,
-            i.subscriber_ss,
-            i.policy_number,
-            i.provider as payer_id,
-            i.subscriber_relationship,
-            i.subscriber_lname,
-            i.subscriber_fname,
-            i.subscriber_mname,
-            DATE_FORMAT(i.subscriber_dob, '%%Y%%m%%d') as subscriber_dob,
-            i.policy_number,
-            i.subscriber_sex,
-            DATE_FORMAT(i.date,'%%Y%%m%%d') as date,
-            d.lname as provider_lname,
-            d.fname as provider_fname,
-            d.npi as provider_npi,
-            d.upin as provider_pin,
-            f.federal_ein as federal_ein,
-            f.facility_npi as facility_npi,
-            f.name as facility_name,
-            c.cms_id as cms_id,
-            c.eligibility_id as eligibility_id,
-            c.name as payer_name 
+    $query = sprintf("SELECT e.pc_facility,
+        e.pc_eid,
+        p.lname,
+        p.fname,
+        p.mname,
+        DATE_FORMAT(p.dob, '%%Y%%m%%d') as dob,
+        p.ss,
+        p.sex,
+        p.pid,
+        p.pubpid,
+        i.subscriber_ss,
+        i.policy_number,
+        i.provider as payer_id,
+        i.subscriber_relationship,
+        i.subscriber_lname,
+        i.subscriber_fname,
+        i.subscriber_mname,
+        DATE_FORMAT(i.subscriber_dob, '%%Y%%m%%d') as subscriber_dob,
+        i.policy_number,
+        i.subscriber_sex,
+        DATE_FORMAT(i.date,'%%Y%%m%%d') as date,
+        d.lname as provider_lname,
+        d.fname as provider_fname,
+        d.npi as provider_npi,
+        d.upin as provider_pin,
+        f.federal_ein as federal_ein,
+        f.facility_npi as facility_npi,
+        f.name as facility_name,
+        c.cms_id as cms_id,
+        c.eligibility_id as eligibility_id,
+        c.name as payer_name 
         FROM openemr_postcalendar_events AS e
         LEFT JOIN users AS d on (e.pc_aid is not null and e.pc_aid = d.id)
         LEFT JOIN facility AS f on (f.id = e.pc_facility)
@@ -124,8 +125,16 @@ if ($exclude_policy != "") {
         WHERE %s ", $where);
 
     // Run the query
-    $res = sqlStatement($query, $sqlBindArray);
-
+    $rslt = sqlStatement($query, $sqlBindArray);
+    $res = [];
+    while ($row = sqlFetchArray($rslt)) {
+        foreach ($appts as $tmp) {
+            if ((int)$tmp['pc_eid'] === (int)$row['pc_eid']) {
+                $row['pc_eventDate'] = date("Ymd", strtotime($tmp['pc_eventDate']));
+            }
+        }
+        $res[] = $row;
+    }
     // Get the facilities information
     $facilities     = getUserFacilities($_SESSION['authId']);
 
@@ -171,6 +180,23 @@ if ($exclude_policy != "") {
         ));
         print_elig($res, $X12info, $segTer, $compEleSep);
         exit;
+    }
+
+// unique multidimensional array by key
+    function unique_by_key($source, $key)
+    {
+        $i = 0;
+        $rtn_array = array();
+        $key_array = array();
+
+        foreach ($source as $val) {
+            if (!in_array($val[$key], $key_array)) {
+                $key_array[$i] = $val[$key];
+                $rtn_array[$i] = $val;
+            }
+            $i++;
+        }
+        return $rtn_array;
     }
 ?>
 

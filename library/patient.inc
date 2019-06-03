@@ -386,9 +386,9 @@ function getCalendarProviderInfo($providerID = "%", $providers_only = true)
     return $returnval;
 }
 
-function getProviderName($providerID)
+function getProviderName($providerID, $provider_only = 'any')
 {
-    $pi = getProviderInfo($providerID, 'any');
+    $pi = getProviderInfo($providerID, $provider_only);
     if (strlen($pi[0]["lname"]) > 0) {
         if (strlen($pi[0]["suffix"]) > 0) {
             $pi[0]["lname"] .= ", ".$pi[0]["suffix"];

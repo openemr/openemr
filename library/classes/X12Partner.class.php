@@ -22,6 +22,7 @@ class X12Partner extends ORDataObject
     var $x12_isa14; // Acknowledgment Requested. 0 = No, 1 = Yes.
     var $x12_isa15; // Usage Indicator. T = testing, P = production.
     var $x12_gs02;  // Application Sender's Code. Default to ISA06.
+    var $x12_dtp03; // 270 2100C DTP03 service date for eligibility.
     var $x12_per06; // The submitter's EDI Access Number, if any.
     var $x12_version;
     var $processing_format;
@@ -45,6 +46,7 @@ class X12Partner extends ORDataObject
         $this->x12_isa05 = "ZZ";
         $this->x12_isa07 = "ZZ";
         $this->x12_isa14 = "0";
+        $this->x12_dtp03 = "A";
         if ($id != "") {
             $this->populate();
         }
@@ -216,6 +218,16 @@ class X12Partner extends ORDataObject
             $this->x12_gs02 = $string;
     }
 
+    function get_x12_dtp03()
+    {
+        return $this->x12_dtp03;
+    }
+
+    function set_x12_dtp03($string)
+    {
+        $this->x12_dtp03 = $string;
+    }
+
     function get_x12_per06()
     {
         return $this->x12_per06;
@@ -294,6 +306,15 @@ class X12Partner extends ORDataObject
         return array(
         '005010X222A1' => '005010X222A1',
         '004010X098A1' => '004010X098A1',
+        );
+    }
+
+    function get_x12_dtp03_type_array()
+    {
+        return array(
+            'C' => 'Current Date',
+            'A' => 'Appointment Date',
+            'E' => 'Subscriber Effective Date',
         );
     }
 }
