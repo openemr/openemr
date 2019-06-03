@@ -29,7 +29,7 @@ if (!empty($_POST)) {
 }
 
 //  File location (URL or server path)
-$target         = $GLOBALS['edi_271_file_path'];
+$target = $GLOBALS['edi_271_file_path'];
 $batch_log = '';
 
 if (isset($_FILES) && !empty($_FILES)) {
@@ -38,14 +38,22 @@ if (isset($_FILES) && !empty($_FILES)) {
     if ($_FILES['uploaded']['size'] > 350000) {
         $message .=  xlt('Your file is too large')."<br>";
     }
-    if ($_FILES['uploaded']['type']!="text/plain") {
+    if ($_FILES['uploaded']['type'] != "text/plain") {
         $message .= xlt('You may only upload .txt files')."<br>";
     }
     if (!isset($message)) {
-        $file_location = move_uploaded_file($_FILES['uploaded']['tmp_name'], $target);
-        $message = xlt('The following EDI file has been uploaded') . ': "' . text(basename($_FILES['uploaded']['name'])) . '"';
-        $Response271 = file($_FILES['uploaded']['tmp_name']);
-        $batch_log = parseEdi271($Response271);
+        $file_moved = move_uploaded_file($_FILES['uploaded']['tmp_name'], $target);
+        if ($file_moved) {
+            $message = xlt('The following EDI file has been uploaded') . ': "' . text(basename($_FILES['uploaded']['name'])) . '"';
+            $Response271 = file($target);
+            if ($Response271) {
+                $batch_log = parseEdi271($Response271);
+            } else {
+                $message = xlt('The following EDI file upload failed to open') . ': "' . text(basename($_FILES['uploaded']['name'])) . '"';
+            }
+        } else {
+            $message = xlt('The following EDI file failed save to archive') . ': "' . text(basename($_FILES['uploaded']['name'])) . '"';
+        }
     } else {
         $message .= xlt('Sorry, there was a problem uploading your file') . "<br><br>";
     }

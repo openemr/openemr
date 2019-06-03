@@ -607,7 +607,7 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 #EndIf
 #IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2018-10-01 load_filename 2019-ICD-10-PCS-Order-File.zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2018-10-01', '2019-ICD-10-PCS-Order-File.zip', 'eb545fe61ada9efad0ad97a669f8671f');
-#Endif
+#EndIf
 
 #IfNotTable login_mfa_registrations
 CREATE TABLE `login_mfa_registrations` (
@@ -853,14 +853,18 @@ DROP TABLE `eligibility_response`;
 ALTER TABLE `x12_partners` CHANGE `processing_format` `processing_format` ENUM('standard','medi-cal','cms','proxymed','oa-eligibility','avality-eligibility') DEFAULT NULL;
 #EndIf
 
-#IfMissingColumn eligibility_id insurance_companies
+#IfMissingColumn insurance_companies eligibility_id
 ALTER TABLE `insurance_companies` ADD `eligibility_id` VARCHAR(32) DEFAULT NULL;
 #EndIf
 
-#IfMissingColumn x12_default_eligibility_id insurance_companies
+#IfMissingColumn insurance_companies x12_default_eligibility_id
 ALTER TABLE `insurance_companies` ADD `x12_default_eligibility_id` INT(11)  DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn users_secure login_fail_counter
 ALTER TABLE `users_secure` ADD `login_fail_counter` INT(11) DEFAULT '0';
+#EndIf
+
+#IfMissingColumn x12_partners x12_dtp03
+ALTER TABLE `x12_partners` ADD `x12_dtp03` CHAR(1) DEFAULT 'A';
 #EndIf
