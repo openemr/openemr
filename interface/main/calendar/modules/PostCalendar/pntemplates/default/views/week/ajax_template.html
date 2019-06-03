@@ -898,7 +898,7 @@ foreach ($providers as $provider) {
     var tsHeight='[-php-] echo $timeslotHeightVal.$timeslotHeightUnit; [-/php-]';
     var tsHeightNum=[-php-] echo $timeslotHeightVal; [-/php-];
 
-    $(document).ready(function(){
+    $(function (){
         setupDirectTime();
         $("#pc_username").change(function() { ChangeProviders(this); });
         $("#pc_facility").change(function() { ChangeProviders(this); });

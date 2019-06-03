@@ -54,7 +54,7 @@ var check_count = 0;
 
 }(this.jQuery || this.Zepto));
 
-$(document).ready(function(){
+$(function (){
 
 	  /* show hide on click  */
 		$('.send-to').click(function(){
