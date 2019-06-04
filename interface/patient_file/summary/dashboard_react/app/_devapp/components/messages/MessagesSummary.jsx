@@ -11,8 +11,10 @@ class MessagesSummary extends React.Component {
         super(props);
         this.showAll = this.showAll.bind(this);
         this.state = {
-            countShown:1
+            countShown:1,
+            messagesDone: []
         };
+        this.onMessageDone = this.onMessageDone.bind(this);
         // console.log(this.props)
     }
 
@@ -22,6 +24,10 @@ class MessagesSummary extends React.Component {
         });
     }
 
+    onMessageDone(id) {
+        this.props.onMessageDone();
+        this.setState({ messagesDone: this.state.messagesDone.concat([id]) });
+    }
 
     render() {
         let messagesRows = '';
@@ -29,13 +35,17 @@ class MessagesSummary extends React.Component {
         let countShown = 0;
 
         if( this.props.messages ) {
-            messagesRows = this.props.messages.map((message, index) => {
+            messagesRows = this.props.messages
+                .filter(message => this.state.messagesDone.indexOf(message.id) === -1)
+                .map((message, index) => {
                 if (this.state.countShown === 'all' || index + 1 <= this.state.countShown) {
-                    return <MessagesRow key={index} message={message}></MessagesRow>
+                   // if (message.message_status !== 'Done') {
+                        messagesCount++;
+                        return <MessagesRow onMessageDone={this.onMessageDone} key={index} message={message}></MessagesRow>
+                  //  }
                 }
             });
-            messagesCount = this.props.messages.length;
-            countShown    = this.state.countShown;
+            countShown  = this.state.countShown;
         }
 
         return (

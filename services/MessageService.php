@@ -92,6 +92,12 @@ class MessageService
     public function update($pid, $mid, $data)
     {
         $existingBody = sqlQuery("SELECT body FROM pnotes WHERE id = ?", $mid);
+        if ($existingBody['body'] === $data["body"]) {
+            //update only status
+            $body = $data["body"];
+        } else {
+            $body =  $existingBody["body"] . $this->getFormattedMessageBody($data["from"], $data["to"], $data["body"]);
+        }
 
         $sql  = " UPDATE pnotes SET";
         $sql .= "     body=?,";
@@ -105,7 +111,7 @@ class MessageService
         $results = sqlStatement(
             $sql,
             array(
-                $existingBody["body"] . $this->getFormattedMessageBody($data["from"], $data["to"], $data["body"]),
+                $body,
                 $data['groupname'],
                 $data['from'],
                 $data['to'],
