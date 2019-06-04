@@ -9,7 +9,7 @@
  */
 
 // Ready Events Ends
-$(document).ready(function(){
+$(function (){
 	$( ".date_field" ).datepicker({
 		changeMonth: true,
 		changeYear: true,

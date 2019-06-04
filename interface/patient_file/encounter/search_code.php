@@ -156,7 +156,7 @@ if ($result) {
 
 // jQuery stuff to make the page a little easier to use
 
-$(document).ready(function(){
+$(function (){
     $("#text").trigger("focus");
     $(".oneresult").on("mouseover", function() { $(this).toggleClass("highlight"); });
     $(".oneresult").on("mouseout", function() { $(this).toggleClass("highlight"); });
