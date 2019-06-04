@@ -382,6 +382,8 @@ foreach ($providers as $provider) {
 
                 // loop over the events in this timeslot and adjust their width
                 foreach ($events_in_timeslot as $eid) {
+                    $eventPositions[$eid] = new stdClass();
+
                     // set the width if not already set or if the current width is smaller
                     // than was was previously set
                     if (! isset($eventPositions[$eid]->width)) { $eventPositions[$eid]->width = $width; }
