@@ -29,7 +29,7 @@ foreach ($matches as $match) {
     $key = $match[1];
     if (!array_key_exists($key, $GLOBALS)) {
         $msg = sprintf("The key '%s' was not found in the list of global variables", $key);
-        error_log($msg);
+        error_log(errorLogEscape($msg));
         continue;
     }
 

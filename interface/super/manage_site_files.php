@@ -181,7 +181,7 @@ if ($GLOBALS['secure_upload']) {
             $mime_types[] = $name;
         }
     } else {
-        error_log('Get list of mime-type error: "' . curl_error($curl) . '" - Code: ' . curl_errno($curl));
+        error_log('Get list of mime-type error: "' . errorLogEscape(curl_error($curl)) . '" - Code: ' . errorLogEscape(curl_errno($curl)));
         $mime_types_list = array(
             'application/pdf',
             'image/jpeg',

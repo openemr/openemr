@@ -77,7 +77,7 @@ function json_sanitize($json)
     if (json_decode($json)) {
         return json_encode(json_decode($json, true));
     } else {
-        error_log("OPENEMR ERROR: " . $json . " is not a valid json ");
+        error_log("OPENEMR ERROR: " . errorLogEscape($json) . " is not a valid json ");
         return false;
     }
 }
@@ -86,7 +86,7 @@ function json_sanitize($json)
 function check_file_dir_name($label)
 {
     if (empty($label) || preg_match('/[^A-Za-z0-9_.-]/', $label)) {
-        error_log("ERROR: The following variable contains invalid characters:" . $label);
+        error_log("ERROR: The following variable contains invalid characters:" . errorLogEscape($label));
         die(xlt("ERROR: The following variable contains invalid characters").": ". attr($label));
     } else {
         return $label;

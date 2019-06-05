@@ -51,14 +51,14 @@ $GLOBALS['dbh'] = $database->_connectionID;
 if (!$disable_utf8_flag) {
     $success_flag = $database->Execute("SET NAMES 'utf8'");
     if (!$success_flag) {
-        error_log("PHP custom error: from openemr library/sql.inc  - Unable to set up UTF8 encoding with mysql database: ".getSqlLastError(), 0);
+        error_log("PHP custom error: from openemr library/sql.inc  - Unable to set up UTF8 encoding with mysql database: " . errorLogEscape(getSqlLastError()), 0);
     }
 }
 
 // Turn off STRICT SQL
 $sql_strict_set_success = $database->Execute("SET sql_mode = ''");
 if (!$sql_strict_set_success) {
-    error_log("Unable to set strict sql setting: ".getSqlLastError(), 0);
+    error_log("Unable to set strict sql setting: " . errorLogEscape(getSqlLastError()), 0);
 }
 
 // set up associations in adodb calls (not sure why above define
@@ -66,7 +66,7 @@ if (!$sql_strict_set_success) {
 $GLOBALS['adodb']['db']->SetFetchMode(ADODB_FETCH_ASSOC);
 
 if ($GLOBALS['debug_ssl_mysql_connection']) {
-    error_log("CHECK SSL CIPHER IN MAIN ADODB: " . print_r($GLOBALS['adodb']['db']->ExecuteNoLog("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true));
+    error_log("CHECK SSL CIPHER IN MAIN ADODB: " . errorLogEscape(print_r($GLOBALS['adodb']['db']->ExecuteNoLog("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true)));
 }
 
 //fmg: This makes the login screen informative when no connection can be made
@@ -503,7 +503,7 @@ function HelpfulDie($statement, $sqlerr = '')
 
     $logMsg.="==>".$backtrace[1]["file"]." at ".$backtrace[1]["line"].":".$backtrace[1]["function"];
 
-    error_log($logMsg);
+    error_log(errorLogEscape($logMsg));
 
     exit;
 }

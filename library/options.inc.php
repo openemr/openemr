@@ -2878,7 +2878,7 @@ function isSkipped(&$frow, $currvalue)
 
         $id = $skiprow['id'];
         if (!isset($sk_layout_items[$id])) {
-            error_log("Function isSkipped() cannot find skip source field '$id'.");
+            error_log("Function isSkipped() cannot find skip source field '" . errorLogEscape($id) . "'.");
             continue;
         }
         $itemid   = $skiprow['itemid'];
@@ -2918,7 +2918,7 @@ function isSkipped(&$frow, $currvalue)
         } elseif ($operator == 'ns') {
             $condition = $srcvalue != true;
         } else {
-            error_log("Unknown skip operator '$operator' for field '$field_id'.");
+            error_log("Unknown skip operator '" . errorLogEscape($operator) . "' for field '" . errorLogEscape($field_id) . "'.");
         }
 
         // Logic to accumulate multiple conditions for the same target.

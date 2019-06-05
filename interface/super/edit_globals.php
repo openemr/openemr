@@ -177,10 +177,10 @@ if (array_key_exists('form_download', $_POST) && $_POST['form_download']) {
         $response = $client->getPortalConnectionFiles($credentials);
     } catch (SoapFault $e) {
         error_log('SoapFault Error');
-        error_log(var_dump(get_object_vars($e)));
+        error_log(errorLogEscape(var_dump(get_object_vars($e))));
     } catch (Exception $e) {
         error_log('Exception Error');
-        error_log(var_dump(get_object_vars($e)));
+        error_log(errorLogEscape(var_dump(get_object_vars($e))));
     }
 
     if (array_key_exists('status', $response) && $response['status'] == "1") {//WEBSERVICE RETURNED VALUE SUCCESSFULLY
@@ -473,18 +473,18 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         echo "<div class='col-sm-2 '><b>" . xlt('Default') . "</b></div>";
                                         echo "</div>";
                                     }
-                                    
+
                                     foreach ($grparr as $fldid => $fldarr) {
                                         if (!$userMode || in_array($fldid, $USER_SPECIFIC_GLOBALS)) {
                                             list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
                                             // mdsupport - Check for matches
                                             $srch_cl = '';
-                                            
+
                                             if (!empty($_POST['srch_desc']) && (stristr(($fldname.$flddesc), $_POST['srch_desc']) !== false)) {
                                                 $srch_cl = ' srch';
                                                 $srch_item++;
                                             }
-                                            
+
                                             // Most parameters will have a single value, but some will be arrays.
                                             // Here we cater to both possibilities.
                                             $glres = sqlStatement("SELECT gl_index, gl_value FROM globals WHERE " .
@@ -785,7 +785,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             echo "</div>";
                                         }
                                     }
-                                   
+
                                     echo "<div><div class='oe-pull-away oe-margin-t-10' style=''>". xlt($grpname) ." &nbsp;<i class='fa fa-lg fa-arrow-circle-up oe-help-redirect scroll' aria-hidden='true'></i></div><div class='clearfix'></div></div>";
                                     echo " </div>\n";
                                     echo " </div>\n";

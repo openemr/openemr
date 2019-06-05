@@ -360,7 +360,7 @@ while ($frow = sqlFetchArray($fres)) {
 
     if ($currvalue === false) {
         // Should not happen.
-        error_log("Function lbf_current_value() failed for field '$field_id'.");
+        error_log("Function lbf_current_value() failed for field '" . errorLogEscape($field_id) . "'.");
         continue;
     }
 

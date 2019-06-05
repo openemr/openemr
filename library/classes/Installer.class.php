@@ -678,7 +678,7 @@ if ($it_died != 0) {
             if ($showError) {
                 $error_mes = mysqli_error($this->dbh);
                 $this->error_message = "unable to execute SQL: '$sql' due to: " . $error_mes;
-                error_log("ERROR IN OPENEMR INSTALL: Unable to execute SQL: " . $sql . " due to: " . $error_mes);
+                error_log("ERROR IN OPENEMR INSTALL: Unable to execute SQL: " . htmlspecialchars($sql, ENT_QUOTES) . " due to: " . htmlspecialchars($error_mes, ENT_QUOTES));
             }
             return false;
         }

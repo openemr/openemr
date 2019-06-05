@@ -190,7 +190,7 @@ class gacl {
 		        if ($this->_db_utf8_flag) {
 			        $success_flag = $this->db->Execute("SET NAMES 'utf8'");
 			        if (!$success_flag) {
-			                error_log("PHP custom error: from gacl gacl/gacl.class.php  - Unable to set up UTF8 encoding with mysql database".$this->db->ErrorMsg(), 0);
+			                error_log("PHP custom error: from gacl gacl/gacl.class.php  - Unable to set up UTF8 encoding with mysql database" . htmlspecialchars($this->db->ErrorMsg(), ENT_QUOTES), 0);
 				}
 			}
 		        // ---------------------------------------
@@ -198,11 +198,11 @@ class gacl {
 			//Turn off STRICT SQL
 			$sql_strict_set_success = $this->db->Execute("SET sql_mode = ''");
 			if (!$sql_strict_set_success) {
-				error_log("Unable to set strict sql setting: ".$this->db->ErrorMsg(), 0);
+				error_log("Unable to set strict sql setting: " . htmlspecialchars($this->db->ErrorMsg(), ENT_QUOTES), 0);
 			}
 
             if ($GLOBALS['debug_ssl_mysql_connection']) {
-                error_log("CHECK SSL CIPHER IN GACL ADODB: " . print_r($this->db->Execute("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true));
+                error_log("CHECK SSL CIPHER IN GACL ADODB: " . htmlspecialchars(print_r($this->db->Execute("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true), ENT_QUOTES));
             }
 
 		}

@@ -331,12 +331,12 @@ function getTablesList($arg = array())
 {
     $binds = array();
     $sql = 'SELECT table_name FROM information_schema.tables WHERE table_schema=database() AND table_type="BASE TABLE"';
-    
+
     if (!empty($arg['engine'])) {
         $binds[] = $arg['engine'];
         $sql .= ' AND engine=?';
     }
-    
+
     if (!empty($arg['table_name'])) {
         $binds[] = $arg['table_name'];
         $sql .= ' AND table_name=?';
@@ -899,7 +899,7 @@ function upgradeFromSqlFile($filename)
                         printf('<font color="green">Table %s migrated to InnoDB.</font><br />', $t);
                     } else {
                         printf('<font color="red">Error migrating table %s to InnoDB</font><br />', $t);
-                        error_log(sprintf('Error migrating table %s to InnoDB', $t));
+                        error_log(sprintf('Error migrating table %s to InnoDB', errorLogEscape($t)));
                     }
                 }
             }

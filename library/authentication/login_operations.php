@@ -175,7 +175,7 @@ function active_directory_validation($user, $pass)
         $prov = $ad->connect('', $user.$GLOBALS['account_suffix'], $pass);
         $valid = $prov->auth()->attempt($user, $pass, true);
     } catch (Exception $e) {
-        error_log($e->getMessage());
+        error_log(errorLogEscape($e->getMessage()));
     }
 
     return $valid;

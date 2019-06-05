@@ -214,6 +214,6 @@ class ThumbnailGenerator
     private function error_log($url)
     {
 
-        error_log('Failed to create thumbnail of ' . $url);
+        error_log('Failed to create thumbnail of ' . errorLogEscape($url));
     }
 }
