@@ -227,7 +227,7 @@ $(function () {
             $s .= "  <td>&nbsp;</td>\n";
             $s .= "  <td>&nbsp;</td>\n";
             $s .= "  <td><a href='javascript:openPtMatch(\"" . addslashes($matchkey) . "\")'>";
-            $tmp = unserialize($matchkey);
+            $tmp = unserialize($matchkey, ['allowed_classes' => false]);
             $s .= xlt('Click to match patient') . ' "' . text($tmp['lname']) . ', ' . text($tmp['fname']) . '"';
             $s .= "</a>";
             $s .= "</td>\n";

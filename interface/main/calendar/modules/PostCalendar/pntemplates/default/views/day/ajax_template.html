@@ -35,11 +35,11 @@ $timeslotHeightUnit="px";
   dlgopen('add_edit_event.php?startampm=' + startampm +
    '&starttimeh=' + starttimeh + '&userid=' + providerid + '&starttimem=' + starttimem +
    '&date=' + eventdate + '&catid=' + catid[-php-]
-    if(isset($_SESSION[pid]))
+    if(isset($_SESSION['pid']))
         {
-            if($_SESSION[pid]>0)
+            if($_SESSION['pid']>0)
                 {
-                    echo "+'&patientid=$_SESSION[pid]'";
+                    echo "+'&patientid=" . $_SESSION['pid'] . "'";
                 }
         }
     [-/php-]
@@ -123,11 +123,6 @@ $timeslotHeightUnit="px";
  // echo "<!-- A_EVENTS = "; print_r($this->_tpl_vars['A_EVENTS']); echo " -->\n"; // debugging
 
  $A_CATEGORY  =& $this->_tpl_vars['A_CATEGORY'];
-
- // [-if $PRINT_VIEW != 1-]
- // [-*Main Navigation*-]
- // [-include file="$TPL_NAME/views/global/navigation.html"-]
- // [-/if-]
 
  $A_EVENTS  =& $this->_tpl_vars['A_EVENTS'];
  // $S_EVENTS  =& $this->_tpl_vars['S_EVENTS']; // Deleted by Rod
@@ -521,32 +516,37 @@ foreach ($providers as $provider) {
 
             }
             $leftpos = 0;
-            $width = 100 / count($events_in_timeslot);
+            $width = 100;
+            if (!empty($events_in_timeslot)) {
+                $width = 100 / count($events_in_timeslot);
 
-            // loop over the events in this timeslot and adjust their width
-            foreach ($events_in_timeslot as $eid) {
-                // set the width if not already set or if the current width is smaller
-                // than was was previously set
-				if (!isset($eventPositions[$eid]->width))
-				{
-					$eventPositions[$eid]->width = $width;
-				} else if ($eventPositions[$eid]->width > $width)
-				{
-					$eventPositions[$eid]->width = $width;
-				}
+                // loop over the events in this timeslot and adjust their width
+                foreach ($events_in_timeslot as $eid) {
+                    $eventPositions[$eid] = new stdClass();
 
-                // set the left position if not already set or if the current left is
-                // greater than what was previously set
-				if (!isset($eventPositions[$eid]->leftpos))
-				{
-					$eventPositions[$eid]->leftpos = $leftpos;
-				} else if ($eventPositions[$eid]->leftpos < $leftpos)
-				{
-					$eventPositions[$eid]->leftpos = $leftpos;
-				}
+                    // set the width if not already set or if the current width is smaller
+                    // than was was previously set
+                    if (!isset($eventPositions[$eid]->width))
+                    {
+                        $eventPositions[$eid]->width = $width;
+                    } else if ($eventPositions[$eid]->width > $width)
+                    {
+                        $eventPositions[$eid]->width = $width;
+                    }
 
-                // increment the leftpos by the width
-                $leftpos += $width;
+                    // set the left position if not already set or if the current left is
+                    // greater than what was previously set
+                    if (!isset($eventPositions[$eid]->leftpos))
+                    {
+                        $eventPositions[$eid]->leftpos = $leftpos;
+                    } else if ($eventPositions[$eid]->leftpos < $leftpos)
+                    {
+                        $eventPositions[$eid]->leftpos = $leftpos;
+                    }
+
+                    // increment the leftpos by the width
+                    $leftpos += $width;
+                }
             }
         } // end overlap detection
 
@@ -729,7 +729,7 @@ foreach ($providers as $provider) {
                 if ($comment) $atitle .= " $comment";
                 $divTitle .= "\n[".$atitle ."]";
                 $content .= $catname;
-                if ($event['recurrtype'] > 0) $content .= "<img src='{$this->_tpl_vars[TPL_IMAGE_PATH]}/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='".htmlspecialchars(xl("Repeating event"),ENT_QUOTES)."' alt='".htmlspecialchars(xl("Repeating event"),ENT_QUOTES)."'>";
+                if ($event['recurrtype'] > 0) $content .= "<img src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='".htmlspecialchars(xl("Repeating event"),ENT_QUOTES)."' alt='".htmlspecialchars(xl("Repeating event"),ENT_QUOTES)."'>";
                 if ($comment) $content .= " $comment";
             }
             else {
@@ -740,7 +740,7 @@ foreach ($providers as $provider) {
                     $divTitle .= "\r\n[".$catname.' '.htmlspecialchars($comment, ENT_QUOTES) ."]".htmlspecialchars($fname, ENT_QUOTES)." ".htmlspecialchars($lname, ENT_QUOTES);
                 $content .= "<span class='appointment'>";
                 $content .= create_event_time_anchor($dispstarth.":".$startm);
-                if ($event['recurrtype'] > 0) $content .= "<img src='{$this->_tpl_vars[TPL_IMAGE_PATH]}/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='".htmlspecialchars(xl("Repeating event"),ENT_QUOTES)."' alt='".htmlspecialchars(xl("Repeating event"),ENT_QUOTES)."'>";
+                if ($event['recurrtype'] > 0) $content .= "<img src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='".htmlspecialchars(xl("Repeating event"),ENT_QUOTES)."' alt='".htmlspecialchars(xl("Repeating event"),ENT_QUOTES)."'>";
                 // $content .= htmlspecialchars($event['apptstatus']);
                 $content .= '&nbsp;'.htmlspecialchars($event['apptstatus']);
                 if ($patientid) {
@@ -749,7 +749,7 @@ foreach ($providers as $provider) {
                     $link_title .= "(" . xl('Click to view') . ")";
 
                     $content .= "<a href='javascript:goPid($patientid)' title='$link_title'>";
-                    $content .= "<img src='{$this->_tpl_vars[TPL_IMAGE_PATH]}/user-green.gif'
+                    $content .= "<img src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/user-green.gif'
                                       onmouseover=\"javascript:ShowImage('".$GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=".attr($patientid)."&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture');\"
                                       onmouseout=\"javascript:HideImage();\"
                                       border='0' title='$link_title' alt='View Patient' />";
@@ -773,7 +773,7 @@ foreach ($providers as $provider) {
                     $link_title .= $divTitle ."\n";
                     $link_title .= "(" . xl('Click to view') . ")";
                     $content .= "<a href='javascript:goGid($groupid)' title='$link_title'>";
-                    $content .= "<img src='{$this->_tpl_vars[TPL_IMAGE_PATH]}/user-blue.gif' border='0' title='$link_title' alt='" . xla('View Patient') . "' />";
+                    $content .= "<img src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/user-blue.gif' border='0' title='$link_title' alt='" . xla('View Patient') . "' />";
                     if ($catid == 1) $content .= "<strike>";
                     $content .= htmlspecialchars($groupname);
                     if ($GLOBALS['calendar_appt_style'] != 1) {
@@ -922,10 +922,6 @@ foreach ($providers as $provider) {
 echo " </tr>\n";
 echo "</table>\n";
 echo "<P>";
-
- // [-*footer*-]
- // [-include file="$TPL_NAME/views/global/footer.html"-]
- // [-include file="$TPL_NAME/views/footer.html"-]
 
 [-/php-]
 </div>  <!-- end bigCal DIV -->

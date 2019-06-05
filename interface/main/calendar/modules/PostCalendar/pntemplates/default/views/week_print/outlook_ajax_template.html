@@ -429,7 +429,11 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
             // diff between event start and schedule start
             $eMinDiff = $eStartMin - $calStartMin;
             // diff divided by the time interval of the schedule
-            $eStartInterval = $eMinDiff / $interval;
+            if (empty($interval)) {
+                $eStartInterval = 0;
+            } else {
+                $eStartInterval = $eMinDiff / $interval;
+            }
             // times the interval height
             $eStartPos = $eStartInterval * $timeslotHeightVal;
             $evtTop = $eStartPos.$timeslotHeightUnit;
@@ -439,7 +443,11 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
             $eEndMin = $eStartMin + ($event['duration']/60);
             $eMinDiff = $eEndMin - $eStartMin;
             // diff divided by the time interval of the schedule
-            $eEndInterval = $eMinDiff / $interval;
+            if (empty($interval)) {
+                $eEndInterval = 0;
+            } else {
+                $eEndInterval = $eMinDiff / $interval;
+            }
             // times the interval height
             $eHeight = $eEndInterval * $timeslotHeightVal;
             $evtHeight = $eHeight.$timeslotHeightUnit;

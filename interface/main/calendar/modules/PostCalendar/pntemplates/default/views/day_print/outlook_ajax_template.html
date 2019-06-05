@@ -226,11 +226,6 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 
  $A_CATEGORY  =& $this->_tpl_vars['A_CATEGORY'];
 
- // [-if $PRINT_VIEW != 1-]
- // [-*Main Navigation*-]
- // [-include file="$TPL_NAME/views/global/navigation.html"-]
- // [-/if-]
-
  $A_EVENTS  =& $this->_tpl_vars['A_EVENTS'];
  // $S_EVENTS  =& $this->_tpl_vars['S_EVENTS']; // Deleted by Rod
  $providers =& $this->_tpl_vars['providers'];
@@ -381,22 +376,27 @@ foreach ($providers as $provider) {
             }
 
             $leftpos = 0;
-            $width = 100 / count($events_in_timeslot);
+            $width = 100;
+            if (!empty($events_in_timeslot)) {
+                $width = 100 / count($events_in_timeslot);
 
-            // loop over the events in this timeslot and adjust their width
-            foreach ($events_in_timeslot as $eid) {
-                // set the width if not already set or if the current width is smaller
-                // than was was previously set
-                if (! isset($eventPositions[$eid]->width)) { $eventPositions[$eid]->width = $width; }
-                else if ($eventPositions[$eid]->width > $width) { $eventPositions[$eid]->width = $width; }
+                // loop over the events in this timeslot and adjust their width
+                foreach ($events_in_timeslot as $eid) {
+                    $eventPositions[$eid] = new stdClass();
 
-                // set the left position if not already set or if the current left is
-                // greater than what was previously set
-                if (! isset($eventPositions[$eid]->leftpos)) { $eventPositions[$eid]->leftpos = $leftpos; }
-                else if ($eventPositions[$eid]->leftpos < $leftpos) { $eventPositions[$eid]->leftpos = $leftpos; }
+                    // set the width if not already set or if the current width is smaller
+                    // than was was previously set
+                    if (! isset($eventPositions[$eid]->width)) { $eventPositions[$eid]->width = $width; }
+                    else if ($eventPositions[$eid]->width > $width) { $eventPositions[$eid]->width = $width; }
 
-                // increment the leftpos by the width
-                $leftpos += $width;
+                    // set the left position if not already set or if the current left is
+                    // greater than what was previously set
+                    if (! isset($eventPositions[$eid]->leftpos)) { $eventPositions[$eid]->leftpos = $leftpos; }
+                    else if ($eventPositions[$eid]->leftpos < $leftpos) { $eventPositions[$eid]->leftpos = $leftpos; }
+
+                    // increment the leftpos by the width
+                    $leftpos += $width;
+                }
             }
         } // end overlap detection
 
@@ -614,11 +614,6 @@ foreach ($providers as $provider) {
 echo " </tr>\n";
 echo "</table>\n";
 echo "<P>";
-
- // [-*footer*-]
- // [-include file="$TPL_NAME/views/global/footer.html"-]
- // [-include file="$TPL_NAME/views/footer.html"-]
-
 
 /* output a small calendar, based on the date-picker code from the normal calendar */
 function PrintDatePicker($caldate, $DOWlist, $daynames) {

@@ -1,39 +1,24 @@
 <?php
-// File: $Id$ $Name$
-// ----------------------------------------------------------------------
-// POST-NUKE Content Management System
-// Copyright (C) 2001 by the Post-Nuke Development Team.
-// http://www.postnuke.com/
-// ----------------------------------------------------------------------
-// Based on:
-// PHP-NUKE Web Portal System - http://phpnuke.org/
-// Thatware - http://thatware.org/
-// ----------------------------------------------------------------------
-// LICENSE
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License (GPL)
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// To read the license please visit http://www.gnu.org/copyleft/gpl.html
-// ----------------------------------------------------------------------
-// Original Author of this file: Francisco Burzi
-// Purpose of this file: Directs to the start page as defined in config.php
-// ----------------------------------------------------------------------
+/**
+ * POST-NUKE Content Management System
+ * Based on:
+ * PHP-NUKE Web Portal System - http://phpnuke.org/
+ * Thatware - http://thatware.org/
+ *
+ * Purpose of this file: Directs to the start page as defined in config.php
+ *
+ * @author    Francisco Burzi
+ * @author    Post-Nuke Development Team
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2001 by the Post-Nuke Development Team <http://www.postnuke.com/>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
-// include base api
 
-//$ignoreAuth = true;
 require_once("../../globals.php");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/patient.inc");
-require_once "includes/pnre.inc.php";
 require_once 'includes/pnAPI.php';
 require_once("$srcdir/acl.inc");
 
@@ -75,9 +60,9 @@ if ($GLOBALS['login_into_facility']) {
 // override the cookie if the user doesn't have access to that facility any more
 if ($_SESSION['userauthorized'] != 1 && $GLOBALS['restrict_user_facility']) {
     $facilities = getUserFacilities($_SESSION['authId']);
-  // use the first facility the user has access to, unless...
+    // use the first facility the user has access to, unless...
     $_SESSION['pc_facility'] = $facilities[0]['id'];
-  // if the cookie is in the users' facilities, use that.
+    // if the cookie is in the users' facilities, use that.
     foreach ($facilities as $facrow) {
         if (($facrow['id'] == $_COOKIE['pc_facility']) && $GLOBALS['set_facility_cookie']) {
             $_SESSION['pc_facility'] = $_COOKIE['pc_facility'];
@@ -108,133 +93,95 @@ if (isset($_REQUEST['viewtype'])) {
     $_SESSION['viewtype'] = $_REQUEST['viewtype'];
 }
 
-
-
-
-/*
-print_r($_POST);
-print_r($_GET);
-print_r($_SESSION);
-die;
-*/
-//print_r($_SESSION);
 // start PN
 pnInit();
 
 // Get variables
 list($module,
      $func,
-     $op,
-     $name,
-     $file,
-     $type,) = pnVarCleanFromInput(
+     $type) = pnVarCleanFromInput(
          'module',
          'func',
-         'op',
-         'name',
-         'file',
          'type'
      );
+
+if ($module != "PostCalendar") {
+    // exit if not using PostCalendar module
+    exit;
+}
+
+if ($type == "admin") {
+    if (!acl_check('admin', 'calendar')) {
+        // exit if do not have access
+        exit;
+    }
+    if (($func != "modifyconfig") &&
+        ($func != "clearCache") &&
+        ($func != "testSystem") &&
+        ($func != "categories") &&
+        ($func != "categoriesConfirm") &&
+        ($func != "categoriesUpdate")) {
+        // only support certain functions in admin use
+        exit;
+    }
+}
+
+if (empty($type)) {
+    $type = 'user';
+}
+
+if ($type == "user") {
+    if (($func != "view") &&
+        ($func != "search")) {
+        // only support view and search functions in for non-admin use
+        exit;
+    }
+}
+
+if (($type != "user") && ($type != "admin")) {
+    // only support admin and user type
+    exit;
+}
 
 // Defaults for variables
 if (isset($catid)) {
     pnVarCleanFromInput('catid');
 }
 
-// check requested module and set to start module if not present
-if (empty($name)) {
-    $name = pnConfigGetVar('startpage');
-    // fixed for the new style of loading modules and set start page for them [class007]
-    if (empty($module)) {
-        $module = $name;
-    }
-}
-
-// get module information
-$modinfo = pnModGetInfo(pnModGetIDFromName($module));
-
-if ($modinfo['type'] == 2) {
-    // New-new style of loading modules
-    if (empty($type)) {
-        $type = 'user';
-    }
-
-    if (empty($func)) {
-        $func="main";
-    }
-
-    // it should be $module not $name [class007]
-    if (pnModAvailable($module)) {
-        if (pnModLoad($module, $type)) {
-            // Run the function
-            $return = pnModFunc($module, $type, $func);
-        } else {
-            $return = false;
-        }
+if (pnModAvailable($module)) {
+    if (pnModLoad($module, $type)) {
+        // Run the function
+        $return = pnModFunc($module, $type, $func);
     } else {
         $return = false;
     }
-
-    // Sort out return of function.  Can be
-    // true - finished
-    // false - display error msg
-    // text - return information
-    if ((empty($return)) || ($return == false)) {
-        // Failed to load the module
-        $output = new pnHTML();
-        $output->StartPage();
-        $output->Text('Failed to load module ' . $module .' ( At function: "'.$func.'" )');
-        $output->EndPage();
-        $output->PrintPage();
-        exit;
-    } elseif (strlen($return) > 1) {
-        // Text
-        $output = new pnHTML();
-        //$output->StartPage();
-        $output->SetInputMode(_PNH_VERBATIMINPUT);
-        $output->Text($return);
-        $output->SetInputMode(_PNH_PARSEINPUT);
-        //$output->EndPage();
-        $output->PrintPage();
-    } else {
-        // duh?
-    }
-
-    exit;
 } else {
-    // Old-old style of loading modules
-    if (empty($op)) {
-        $op = "modload";
-    }
-
-    if (empty($file)) {
-        $file="index";
-    }
-
-    include 'includes/legacy.php';
-    switch ($op) {
-        case 'modload':
-            define("LOADED_AS_MODULE", "1");
-            // added for the module/system seperation [class007]
-            if (file_exists('modules/' . pnVarPrepForOS($name) . '/' . pnVarPrepForOS($file) . '.php')) {
-                include 'modules/' . pnVarPrepForOS($name) . '/'  . pnVarPrepForOS($file) . '.php';
-            } else {
-                // Failed to load the module
-                $output = new pnHTML();
-                //$output->StartPage();
-                $output->Text('Failed to load module ' . $module);
-                $output->EndPage();
-                $output->PrintPage();
-                exit;
-            }
-            break;
-        default:
-            // Failed to load the module
-            $output = new pnHTML();
-            //$output->StartPage();
-            $output->Text('Sorry, you cannot access this file directly...');
-            $output->EndPage();
-            $output->PrintPage();
-            break;
-    }
+    $return = false;
 }
+
+// Sort out return of function.  Can be
+// true - finished
+// false - display error msg
+// text - return information
+if ((empty($return)) || ($return == false)) {
+    // Failed to load the module
+    $output = new pnHTML();
+    $output->StartPage();
+    $output->Text('Failed to load module ' . text($module) .' ( At function: "' . text($func) . '" )');
+    $output->EndPage();
+    $output->PrintPage();
+    exit;
+} elseif (strlen($return) > 1) {
+    // Text
+    $output = new pnHTML();
+    //$output->StartPage();
+    $output->SetInputMode(_PNH_VERBATIMINPUT);
+    $output->Text($return);
+    $output->SetInputMode(_PNH_PARSEINPUT);
+    //$output->EndPage();
+    $output->PrintPage();
+} else {
+    // duh?
+}
+
+exit;

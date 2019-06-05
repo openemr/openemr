@@ -1063,7 +1063,7 @@ class Events extends Base
         Now Convert them to real appt slots for MedEx\n");
 
         //any dates that match need to be spawned from recurrent and made to live on their own.
-        $oldRecurrspec = unserialize($appt['pc_recurrspec']);
+        $oldRecurrspec = unserialize($appt['pc_recurrspec'], ['allowed_classes' => false]);
 
         foreach ($hits as $selected_date) {
             $exclude = str_replace("-", "", $selected_date);
@@ -1227,7 +1227,7 @@ class Events extends Base
                 break;
             case '1':
             case '3':
-                $event_recurrspec = @unserialize($event['pc_recurrspec']);
+                $event_recurrspec = @unserialize($event['pc_recurrspec'], ['allowed_classes' => false]);
 
                 $rfreq = $event_recurrspec['event_repeat_freq'];
                 $rtype = $event_recurrspec['event_repeat_freq_type'];
@@ -1266,7 +1266,7 @@ class Events extends Base
 
           //////
             case '2':
-                $event_recurrspec = @unserialize($event['pc_recurrspec']);
+                $event_recurrspec = @unserialize($event['pc_recurrspec'], ['allowed_classes' => false]);
 
                 if (checkEvent($event['pc_recurrtype'], $event_recurrspec)) {
                     break; }

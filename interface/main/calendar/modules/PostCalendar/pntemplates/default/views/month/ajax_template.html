@@ -35,11 +35,11 @@ $timeslotHeightUnit="px";
   dlgopen('add_edit_event.php?startampm=' + startampm +
    '&starttimeh=' + starttimeh + '&starttimem=' + starttimem +
    '&date=' + eventdate + '&userid=' + providerid + '&catid=' + catid[-php-]
-    if(isset($_SESSION[pid]))
+    if(isset($_SESSION['pid']))
         {
-            if($_SESSION[pid]>0)
+            if($_SESSION['pid']>0)
                 {
-                    echo "+'&patientid=$_SESSION[pid]'";
+                    echo "+'&patientid=" . $_SESSION['pid'] . "'";
                 }
         }
     [-/php-]
@@ -119,11 +119,6 @@ $timeslotHeightUnit="px";
  // echo "<!-- A_EVENTS = "; print_r($this->_tpl_vars['A_EVENTS']); echo " -->\n"; // debugging
 
  $A_CATEGORY  =& $this->_tpl_vars['A_CATEGORY'];
-
- // [-if $PRINT_VIEW != 1-]
- // [-*Main Navigation*-]
- // [-include file="$TPL_NAME/views/global/navigation.html"-]
- // [-/if-]
 
  $A_EVENTS  =& $this->_tpl_vars['A_EVENTS'];
  $providers =& $this->_tpl_vars['providers'];
@@ -561,7 +556,7 @@ foreach ($providers as $provider) {
                     $link_title .= xl('Age') . ": ".$patient_age."\n" . xl('DOB') . ": ".$patient_dob.htmlspecialchars($comment, ENT_QUOTES)."\n";
                     $link_title .= "(" . xl('Click to view') . ")";
                     $content .= "<a href='javascript:goPid($patientid)' title='$link_title'>";
-                    $content .= "<img src='{$this->_tpl_vars[TPL_IMAGE_PATH]}/user-green.gif'
+                    $content .= "<img src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/user-green.gif'
                                       onmouseover=\"javascript:ShowImage('".$GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=".attr($patientid)."&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture');\"
                                       onmouseout=\"javascript:HideImage();\"
                                       border='0' title='$link_title' alt='View Patient' />";
@@ -585,7 +580,7 @@ foreach ($providers as $provider) {
                     $link_title .= $divTitle ."\n";
                     $link_title .= "(" . xl('Click to view') . ")";
                     $content .= "<a href='javascript:goGid($groupid)' title='$link_title'>";
-                    $content .= "<img src='{$this->_tpl_vars[TPL_IMAGE_PATH]}/user-blue.gif' border='0' title='$link_title' alt='View Patient' />";
+                    $content .= "<img src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/user-blue.gif' border='0' title='$link_title' alt='View Patient' />";
                     if ($catid == 1) $content .= "<strike>";
                     $content .= htmlspecialchars($groupname);
                     if ($GLOBALS['calendar_appt_style'] != 1) {
@@ -652,10 +647,6 @@ foreach ($providers as $provider) {
     echo "</table>\n";
     echo "<P>";
 } // end provider
-
- // [-*footer*-]
- // [-include file="$TPL_NAME/views/global/footer.html"-]
- // [-include file="$TPL_NAME/views/footer.html"-]
 
 [-/php-]
 </div>  <!-- end bigCal DIV -->
