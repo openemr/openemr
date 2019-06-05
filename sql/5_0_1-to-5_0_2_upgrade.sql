@@ -897,9 +897,9 @@ CREATE TABLE `erx_weno_drugs` (
   `sxdg_rxcui` varchar(10) DEFAULT NULL,
   `sxdg_tty` text,
   `sxdg_name` varchar(100) DEFAULT NULL,
-  `psn-drugdescription` varchar(100) DEFAULT NULL,
+  `psn_drugdescription` varchar(100) DEFAULT NULL,
   `ncpdp_quantity_term` text,
-  `potency-unit-code` varchar(10) DEFAULT NULL,
+  `potency_unit_code` varchar(10) DEFAULT NULL,
   `dea_schedule_no` int(2) DEFAULT NULL,
   `dea_schedule` varchar(7) DEFAULT NULL,
   `ingredients` varchar(100) DEFAULT NULL,
@@ -912,4 +912,3 @@ CREATE TABLE `erx_weno_drugs` (
 
 #IfNotWenoRx
 #EndIf
-

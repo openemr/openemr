@@ -1530,7 +1530,7 @@ CREATE  TABLE `erx_ttl_touch` (
 --
 
 DROP TABLE IF EXISTS `erx_weno_drugs`;
-CREATE TABLE IF NOT EXISTS `erx_weno_drugs` (
+CREATE TABLE `erx_weno_drugs` (
   `drug_id` int(11) NOT NULL AUTO_INCREMENT,
   `rxcui_drug_coded` int(11) DEFAULT NULL,
   `generic_rxcui` int(11) DEFAULT NULL,
@@ -1549,16 +1549,16 @@ CREATE TABLE IF NOT EXISTS `erx_weno_drugs` (
   `sxdg_rxcui` varchar(10) DEFAULT NULL,
   `sxdg_tty` text,
   `sxdg_name` varchar(100) DEFAULT NULL,
-  `psn-drugdescription` varchar(100) DEFAULT NULL,
-  `ncpdp-quantity-term` text,
-  `potency-unit-code` varchar(10) DEFAULT NULL,
-  `dea-schedule-no` int(2) DEFAULT NULL,
-  `dea-schedule` varchar(7) DEFAULT NULL,
+  `psn_drugdescription` varchar(100) DEFAULT NULL,
+  `ncpdp_quantity_term` text,
+  `potency_unit_code` varchar(10) DEFAULT NULL,
+  `dea_schedule_no` int(2) DEFAULT NULL,
+  `dea_schedule` varchar(7) DEFAULT NULL,
   `ingredients` varchar(100) DEFAULT NULL,
-  `drug-interaction` varchar(100) DEFAULT NULL,
-  `unit-source-code` varchar(3) DEFAULT NULL,
-  `code-list-qualifier` int(3) DEFAULT NULL,
-   PRIMARY KEY (`drug_id`)
+  `drug_interaction` varchar(100) DEFAULT NULL,
+  `unit_source_code` varchar(3) DEFAULT NULL,
+  `code_list_qualifier` int(3) DEFAULT NULL,
+  PRIMARY KEY (`drug_id`)
 ) ENGINE=InnoDB;
 
 -----------------------------------------------------------
