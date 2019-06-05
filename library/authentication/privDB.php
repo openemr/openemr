@@ -67,7 +67,7 @@ function getPrivDB()
             $GLOBALS[PRIV_DB]->SetFetchMode(ADODB_FETCH_ASSOC);
             // debug hook for ssl stuff
             if ($GLOBALS['debug_ssl_mysql_connection']) {
-                error_log("CHECK SSL CIPHER IN PRIV_DB ADODB: " . print_r($GLOBALS[PRIV_DB]->ExecuteNoLog("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true));
+                error_log("CHECK SSL CIPHER IN PRIV_DB ADODB: " . errorLogEscape(print_r($GLOBALS[PRIV_DB]->ExecuteNoLog("SHOW STATUS LIKE 'Ssl_cipher';")->fields), true));
             }
         } else {
             $GLOBALS[PRIV_DB]=$GLOBALS['adodb']['db'];
@@ -98,8 +98,8 @@ function privStatement($sql, $params = null)
         echo "Failure during database access! Check server error log.";
         $backtrace=debug_backtrace();
 
-        error_log("Executing as user:" .getPrivDB()->user." Statement failed:".$sql.":". $GLOBALS['last_mysql_error']
-              ."==>".$backtrace[1]["file"]." at ".$backtrace[1]["line"].":".$backtrace[1]["function"]);
+        error_log("Executing as user:" . errorLogEscape(getPrivDB()->user) . " Statement failed:" . errorLogEscape($sql) . ":" . errorLogEscape($GLOBALS['last_mysql_error'])
+              . "==>" . errorLogEscape($backtrace[1]["file"]) . " at " . errorLogEscape($backtrace[1]["line"]) . ":" . errorLogEscape($backtrace[1]["function"]));
         exit;
     }
 

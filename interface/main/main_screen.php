@@ -232,7 +232,7 @@ if ($registrationAttempt) {
                         array(json_encode($registration), $userid, $regs[$strhandle])
                     );
                 } else {
-                    error_log("Unexpected keyHandle returned from doAuthenticate(): '$strhandle'");
+                    error_log("Unexpected keyHandle returned from doAuthenticate(): '" . errorLogEscape($strhandle) . "'");
                 }
                 // Keep track of when challenges were last answered correctly.
                 sqlStatement(

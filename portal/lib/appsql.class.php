@@ -277,7 +277,7 @@ class ApplicationTable
          */
         $logMsg .= "\n SQL statement : $sql" . $processedBinds;
         $logMsg .= "\n $trace";
-        error_log("ERROR: " . $logMsg, 0);
+        error_log("ERROR: " . htmlspecialchars($logMsg, ENT_QUOTES), 0);
     }
     public function escapeHtml($string)
     {

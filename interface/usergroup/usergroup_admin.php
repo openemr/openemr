@@ -172,7 +172,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
               $password_err_msg="";
               $success=update_password($_SESSION['authId'], $_POST['id'], $clearAdminPass, $clearUserPass, $password_err_msg);
             if (!$success) {
-                error_log($password_err_msg);
+                error_log(errorLogEscape($password_err_msg));
                 $alertmsg.=$password_err_msg;
             }
         }
@@ -307,7 +307,7 @@ if (isset($_POST["mode"])) {
                 trim((isset($_POST['rumple']) ? $_POST['rumple'] : '')),
                 $prov_id
             );
-            error_log($password_err_msg);
+            error_log(errorLogEscape($password_err_msg));
             $alertmsg .=$password_err_msg;
             if ($success) {
                 //set the facility name from the selected facility_id
