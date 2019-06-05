@@ -600,7 +600,7 @@ class Prescription extends ORDataObject
         $this->drug = $drug;
 
         if ($GLOBALS['weno_rx_enable']) {
-            $sql = "SELECT NDC FROM erx_drug_paid WHERE drug_label_name LIKE ? ";
+            $sql = "SELECT rxcui_drug_coded FROM erx_weno_drugs WHERE full_name LIKE ? ";
             $val = array('%'.$drug.'%');
             $ndc = sqlQuery($sql, $val);
             $drug_id = $ndc['NDC'];
@@ -612,7 +612,7 @@ class Prescription extends ORDataObject
     {
         if ($GLOBALS['weno_rx_enable']) {
             $drug = trim($this->drug);
-            $sql = "SELECT NDC FROM erx_drug_paid WHERE drug_label_name LIKE ? ";
+            $sql = "SELECT rxcui_drug_coded FROM erx_weno_drugs WHERE full_name  LIKE ? ";
             $val = array('%'.$drug.'%');
             $ndc = sqlQuery($sql, $val);
             $drug_id = $ndc['NDC'];
