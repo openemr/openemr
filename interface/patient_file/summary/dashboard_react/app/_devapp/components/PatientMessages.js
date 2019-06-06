@@ -17,6 +17,7 @@ class PatientMessages extends React.Component {
             isOpen: false,
             sumOfMessages: null
         };
+        this.onMessageDone = this.onMessageDone.bind(this);
     }
 
     localToggle() {
@@ -37,6 +38,12 @@ class PatientMessages extends React.Component {
         })
     }
 
+    onMessageDone() {
+        this.setState({
+            sumOfMessages: this.state.sumOfMessages -1
+        });
+    }
+
     render() {
         // create dynamic title
         let rightTextButton = 'Patient messages';
@@ -46,7 +53,7 @@ class PatientMessages extends React.Component {
         // only if widget is opened add the children components with all data.
         let messageSummaryWidget = '';
         if (this.state.isOpen) {
-            messageSummaryWidget = <MessagesSummary messages={this.state.messages} />
+            messageSummaryWidget = <MessagesSummary onMessageDone={this.onMessageDone}  messages={this.state.messages} />
         }
 
         return (

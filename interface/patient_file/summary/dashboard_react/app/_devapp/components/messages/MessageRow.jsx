@@ -13,10 +13,12 @@ class MessageRow extends React.Component {
 
     messageDone() {
         this.props.message.message_status = 'Done';
-       /* let postChange = agent.PatientDataAgent.patientApi('PUT', this.props.message.pid, 'message', this.props.message.id, this.props.message);
+        this.props.message.from = this.props.message.user;
+        this.props.message.to = this.props.message.user;
+        let postChange = agent.PatientDataAgent.patientApi('PUT', this.props.message.pid, 'message', this.props.message.id, this.props.message);
         postChange.then(res => res.json()).then((data) => {
-            console.log(data)
-        })*/
+            this.props.onMessageDone(data.mid);
+        })
 
     }
 
