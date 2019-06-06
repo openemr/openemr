@@ -522,6 +522,11 @@ $GLOBALS['style']['BGCOLOR1'] = "#cccccc";
 // The height in pixels of the Title bar:
 $GLOBALS['titleBarHeight'] = 50;
 
+//translation cache system
+if (!is_file(dirname(__FILE__)) . '/language/i18n/' . getLanguageCode($_SESSION['language_choice']) . '.json') {
+    $GLOBALS['i18n'] = json_decode(file_get_contents(dirname(__FILE__) . '/language/i18n/' . getLanguageCode($_SESSION['language_choice']) . '.json'), true);
+}
+
 // The assistant word, MORE printed next to titles that can be clicked:
 //   Note this label gets translated here via the xl function
 //    -if you don't want it translated, then strip the xl function away

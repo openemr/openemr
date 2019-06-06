@@ -18,7 +18,7 @@ var runSequence = require('run-sequence');
 var sass = require('gulp-sass');
 var sourcemaps = require('gulp-sourcemaps');
 var watch = require('gulp-watch');
-
+var exec = require('child_process').exec
 
 var packages = require('./package.json');
 
@@ -32,6 +32,7 @@ var config = {
     syncOnly: argv['sync-only'],
     proxy: argv['p'],
     install: argv['i'],
+    translation: argv['t'],
 
     /* Source file locations */
     src: {
@@ -246,6 +247,15 @@ gulp.task('sync-only', function () {
     });
 })
 
+// use gulp-run to start a pipeline
+gulp.task('generate-i18n', function() {
+    exec('php ./interface/language/i18n_generator.php', function (err, stdout, stderr) {
+        console.log(stdout)
+        console.log(stderr)
+    })
+        ;
+})
+
 /**
 * Default config
 * - runs by default when `gulp` is called from CLI
@@ -254,9 +264,11 @@ if (config.install) {
     gulp.task('default', ['install']);
 } else if (config.syncOnly && config.proxy) {
     gulp.task('default', ['sync-only', 'watch']);
+} else if(config.translation) {
+    gulp.task('default',['generate-i18n'])
 } else {
     gulp.task('default', function (callback) {
-        runSequence('clean', ['sync'], 'rtl:setup', 'rtl_styles', 'rtl:teardown', callback);
+        runSequence('clean', ['sync'], 'rtl:setup', 'rtl_styles', 'rtl:teardown', 'generate-i18n', callback);
     });
 }
 

@@ -36,12 +36,18 @@ if (!(function_exists('xl'))) {
              $constant = preg_replace($patterns, $replace, $constant);
 
              // second, attempt translation
-             $sql="SELECT * FROM lang_definitions JOIN lang_constants ON " .
-            "lang_definitions.cons_id = lang_constants.cons_id WHERE " .
-            "lang_id=? AND constant_name = ? LIMIT 1";
-             $res = sqlStatementNoLog($sql, array($lang_id,$constant));
-             $row = SqlFetchArray($res);
-             $string = $row['definition'];
+            //using cache
+            if (!empty($GLOBALS['i18n'])) {
+                $string = $GLOBALS['i18n'][$constant];
+            } else {
+                $sql="SELECT * FROM lang_definitions JOIN lang_constants ON " .
+                    "lang_definitions.cons_id = lang_constants.cons_id WHERE " .
+                    "lang_id=? AND constant_name = ? LIMIT 1";
+                $res = sqlStatementNoLog($sql, array($lang_id,$constant));
+                $row = SqlFetchArray($res);
+                $string = $row['definition'];
+            }
+
             if ($string == '') {
                 $string = "$constant";
             }
@@ -232,6 +238,31 @@ function getLanguageTitle($val)
     };
     $languageTitle = $result[0]{"lang_description"};
     return $languageTitle;
+}
+
+// ---------------------------------
+// Miscellaneous language translation functions
+
+// Function to return the title of a language from the id
+// @param integer (language id)
+// return string (language title)
+function getLanguageCode($val)
+{
+
+    // validate language id
+    if (!empty($val)) {
+        $lang_id = $val;
+    } else {
+        $lang_id = 1;
+    }
+
+    // get language title
+    $res = sqlStatement("select lang_code from lang_languages where lang_id =?", array($lang_id));
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+        $result[$iter] = $row;
+    };
+    $languageCode = $result[0]{"lang_code"};
+    return $languageCode;
 }
 
 

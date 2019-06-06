@@ -19,3 +19,6 @@ ccdaservice/node_modules
 # dev editor configs
 /.idea/*
 /nbproject/*
+
+#i18n files
+/interface/language/i18n
