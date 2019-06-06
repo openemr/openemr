@@ -16,17 +16,49 @@ class PatientDataTabBlock extends React.Component {
     }
 
     render() {
+        {
+            var isSkipped = -1;
+            var lastTitle = '';
+            var data = {};
+            {
+                this.props.groupFields.map((pdata, j) => {
+                    let title = pdata.title;
+                    if (title.length > 0 ){
+                        if( isSkipped > 0 || isSkipped == 0) {
+                            isSkipped = 0;
+                            lastTitle = '';
+                        }
+                        data[title] = [];
+                        data[title].push(this.props.data[0][pdata.field_id]);
+                        lastTitle = title;
+                    }else {
+                        isSkipped++;
+                        data[lastTitle].push(this.props.data[0][pdata.field_id]);
+                    }
+                })
+            }
+        }
+
         return (
-            <>
+
                 <ReactPlaceholder type='text' showLoadingAnimation={true} rows={7}
                                   ready={this.props.groupFields.length > 0}>
-                    {this.props.groupFields.map((pdata, j) => {
+                    <div className="table">
+                    {Object.keys(data).map((key, j) => {
                         return (
-                            <div id={j} key={j}>{pdata.field_id} - {this.props.data[0][pdata.field_id]}</div>
+                            <div className={j % 2 === 0 ? 'cell-row evenClass' : 'cell-row'} key={j}>
+                                <div className="cell-1">
+                                    <span>{key}</span>:
+                                </div>
+                                <div  className="cell-2">
+                                    { Array.isArray( data[key] ) ? data[key].join(' ') : data[key] }
+                                </div>
+                            </div>
                         )
                     })}
+                    </div>
                 </ReactPlaceholder>
-            </>
+
         )
     }
 }

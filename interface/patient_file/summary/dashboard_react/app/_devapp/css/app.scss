@@ -31,3 +31,28 @@ body, html {
 .padding-right{
     margin-left:10px;
 }
+.cell-1 {
+    padding: 5px;
+    width: auto;
+    display: table-cell;
+    border-radius: 5px 0px 0px 5px;
+    width: 30%;
+}
+
+.cell-2 {
+    display: table-cell;
+    padding: 5px;
+    border-radius: 0px 5px 5px 0px;
+    width: 70%;
+}
+.cell-row {
+    display: table-row;
+    width: 100%;
+
+}
+.evenClass{
+    background: #f4f4f4;
+}
+.tab-content .table {
+    display: table;
+}
