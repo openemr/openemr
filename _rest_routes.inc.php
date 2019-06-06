@@ -369,6 +369,10 @@ RestConfig::$ROUTE_MAP = array(
         authorization_check("patients", "rx");
         return (new PrescriptionRestController())->getAll($pid);
     },
+    "GET /api/patient/:pid/prescriptionFormatted" => function ($pid) {
+        authorization_check("patients", "rx");
+        return (new PrescriptionRestController())->getAllFormattedRow($pid);
+    }
 );
 
 use OpenEMR\RestControllers\FhirPatientRestController;

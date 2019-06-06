@@ -34,6 +34,22 @@ class PrescriptionService
         return $results;
     }
 
-
+    public function getAllFormattedRow($pid){
+        include_once('../library/options.inc.php');
+        $rxs=[];
+        $serviceResult = $this->getAll($pid);
+        foreach ($serviceResult as $row){
+            $runit = generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['unit']);
+            $rin = generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']);
+            $rroute = generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row['route']);
+            $rint = generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), $row['interval']);
+            $unit='';
+            if ($row['size'] > 0) {
+                $unit = text($row['size']) . " " . $runit . " ";
+            }
+            $rxs[] = $unit . " " . text($row['dosage']) . " " . $rin . " " . $rroute . " " . $rint;
+        }
+        return $rxs;
+    }
 
 }

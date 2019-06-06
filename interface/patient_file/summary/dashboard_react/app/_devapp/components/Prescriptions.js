@@ -40,7 +40,7 @@ class Prescriptions extends React.Component {
      * Fetch all the prescriptions of logged in patient on component did mount
      */
     componentDidMount() {
-        let getPrescriptions = agent.PatientDataAgent.patientApi('GET', this.props.pid, 'prescription');
+        let getPrescriptions = agent.PatientDataAgent.patientApi('GET', this.props.pid, 'prescriptionFormatted');
         getPrescriptions.then(res => res.json()).then((response) => {
             this.setState({
                 prescriptions: response,
@@ -53,7 +53,7 @@ class Prescriptions extends React.Component {
         if (Array.isArray(this.state.prescriptions)) {
             return this.state.prescriptions.map((rx, i) => {
                 return <tr key={i}>
-                    <td>{rx.drug}</td>
+                    <td>{rx}</td>
                 </tr>
             })
         } else {

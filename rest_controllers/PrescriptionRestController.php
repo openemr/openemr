@@ -10,6 +10,7 @@
  */
 
 
+
 namespace OpenEMR\RestControllers;
 
 use OpenEMR\Services\PrescriptionService;
@@ -27,6 +28,11 @@ class PrescriptionRestController
     public function getAll($pid)
     {
         $serviceResult = $this->prescriptionService->getAll($pid);
+        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+    }
+    public function getAllFormattedRow($pid)
+    {
+        $serviceResult = $this->prescriptionService->getAllFormattedRow($pid);
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
