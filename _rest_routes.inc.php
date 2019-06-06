@@ -31,6 +31,8 @@ use OpenEMR\RestControllers\MessageRestController;
 use OpenEMR\RestControllers\MenusRestController;
 use OpenEMR\RestControllers\PatientExtendedRestController;
 use OpenEMR\RestControllers\LayoutRestController;
+use OpenEMR\RestControllers\PrescriptionRestController;
+
 
 
 
@@ -362,7 +364,11 @@ RestConfig::$ROUTE_MAP = array(
     },
     "GET /api/layout/list/:form_id/:group_id" => function ( $form_id, $group_id ) {
         return (new LayoutRestController())->getFieldsByFormId($form_id, $group_id);
-    }
+    },
+    "GET /api/patient/:pid/prescription" => function ($pid) {
+        authorization_check("patients", "rx");
+        return (new PrescriptionRestController())->getAll($pid);
+    },
 );
 
 use OpenEMR\RestControllers\FhirPatientRestController;
