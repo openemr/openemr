@@ -302,6 +302,9 @@ RestConfig::$ROUTE_MAP = array(
     "GET /api/insurance_company" => function () {
         return (new InsuranceCompanyRestController())->getAll();
     },
+    "GET /api/insurance_company/:iid" => function ($iid) {
+        return (new InsuranceCompanyRestController())->getOne($iid);
+    },
     "GET /api/insurance_type" => function () {
         return (new InsuranceCompanyRestController())->getInsuranceTypes();
     },

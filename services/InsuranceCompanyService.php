@@ -71,6 +71,31 @@ class InsuranceCompanyService
         return $results;
     }
 
+    public function getOne($iid)
+    {
+        $sql  = " SELECT i.id,";
+        $sql .= "        i.name,";
+        $sql .= "        i.attn,";
+        $sql .= "        i.cms_id,";
+        $sql .= "        i.ins_type_code,";
+        $sql .= "        i.x12_receiver_id,";
+        $sql .= "        i.x12_default_partner_id,";
+        $sql .= "        i.alt_cms_id,";
+        $sql .= "        i.inactive,";
+        $sql .= "        a.line1,";
+        $sql .= "        a.line2,";
+        $sql .= "        a.city,";
+        $sql .= "        a.state,";
+        $sql .= "        a.zip,";
+        $sql .= "        a.country";
+        $sql .= " FROM insurance_companies i";
+        $sql .= " JOIN addresses a ON i.id = a.foreign_id";
+        $sql .= " WHERE i.id = ?";
+
+        return sqlQuery($sql, array($iid));
+
+    }
+
     public function getInsuranceTypes()
     {
         return array(

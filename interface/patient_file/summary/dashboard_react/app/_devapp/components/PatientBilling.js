@@ -10,7 +10,9 @@ class PatientBilling extends React.Component {
         super(props);
 
         this.state = {
+            patientData: [],
             billing: [],
+            insurance: [],
             isOpen: false,
             debtExists: false
         };
@@ -24,13 +26,31 @@ class PatientBilling extends React.Component {
      * Fetch billing of logged in patient on component did mount
      */
     componentDidMount() {
+        let getPatientData = agent.PatientDataAgent.patientExtend(this.props.pid);
+        getPatientData.then((response) => {
+            this.setState({
+                patientData:response
+            });
+        })
+        //console.log(this.state.patientData)
+
         let getBilling = agent.PatientDataAgent.patientApi('GET', this.props.pid, 'billing');
         getBilling.then(res => res.json()).then((response) => {
             this.setState({
                 billing:response
             });
         })
-        console.log(this.state.billing);
+
+        let getInsurance = agent.PatientDataAgent.patientApi('GET', this.props.pid, 'insurance', 'primary');
+        getInsurance.then(res => res.json()).then((response) => {
+            let getInsuranceProvider = agent.InsuranceDataAgent.insuranceCompaniesApi('GET', response.provider);
+            getInsuranceProvider.then(res2 => res2.json()).then((response2) => {
+                response.name = response2.name;
+                this.setState({
+                    insurance:response
+                });
+            });
+        })
     }
 
     render() {
@@ -42,8 +62,10 @@ class PatientBilling extends React.Component {
         // only if widget is opened add the children components with all data.
         let billingSummaryWidget = '';
         if (this.state.isOpen) {
-            console.log('is open');
-            billingSummaryWidget = <BillingSummary billing={this.state.billing} />
+            //console.log('is open');
+            billingSummaryWidget = <BillingSummary billing={this.state.billing}
+                                                   patientData={this.state.patientData}
+                                                   insurance={this.state.insurance}/>
         }
 
         return (

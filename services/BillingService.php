@@ -22,9 +22,9 @@ class BillingService
 
     public function getBalances($pid)
     {
-        $patientBalance = $this->getPatientBalance($pid, false);
-        $insuranceBalance = $this->getPatientBalance($pid, true) - $patientBalance;
-        $totalBalance = $patientBalance + $insuranceBalance;
+        $patientBalance = oeFormatMoney($this->getPatientBalance($pid, false));
+        $insuranceBalance = oeFormatMoney($this->getPatientBalance($pid, true) - $patientBalance);
+        $totalBalance = oeFormatMoney($patientBalance + $insuranceBalance);
         return array(
             'patientBalance' => $patientBalance,
             'insuranceBalance' => $insuranceBalance,

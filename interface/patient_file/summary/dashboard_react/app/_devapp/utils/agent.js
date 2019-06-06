@@ -93,7 +93,29 @@ const PatientDataAgent = {
             body
         )
     }
+}
+const InsuranceDataAgent = {
+    insuranceCompaniesApi: (method, ...vars) => {
+        let postParams;
+        if (method.toUpperCase() !== 'GET') {
+            postParams = vars.pop();
+        };
+        let params = vars.join('/');
+        let body = {
+            method: method,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            }
+        };
+        if (method.toUpperCase() !== 'GET') {
+            body['body'] = JSON.stringify(postParams);
+        };
 
+        return fetch(webroot +`/apis/api/insurance_company/${params}`,
+            body
+        )
+    }
 }
 const Lists = {
     addDataToList: async (listName,result)=> {
@@ -210,5 +232,5 @@ const Lists = {
 }
 
 export default {
-    PatientDataAgent,Lists
+    PatientDataAgent,Lists,InsuranceDataAgent
 };
