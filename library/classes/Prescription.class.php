@@ -603,7 +603,7 @@ class Prescription extends ORDataObject
             $sql = "SELECT rxcui_drug_coded FROM erx_weno_drugs WHERE full_name LIKE ? ";
             $val = array('%'.$drug.'%');
             $ndc = sqlQuery($sql, $val);
-            $drug_id = $ndc['NDC'];
+            $drug_id = $ndc['rxcui_drug_coded'];
             //Save this drug id
             $this->drug_id = $drug_id;
         }
@@ -615,7 +615,7 @@ class Prescription extends ORDataObject
             $sql = "SELECT rxcui_drug_coded FROM erx_weno_drugs WHERE full_name  LIKE ? ";
             $val = array('%'.$drug.'%');
             $ndc = sqlQuery($sql, $val);
-            $drug_id = $ndc['NDC'];
+            $drug_id = $ndc['rxcui_drug_coded'];
             //Save this drug id
             $this->drug_id = $drug_id;
         }
