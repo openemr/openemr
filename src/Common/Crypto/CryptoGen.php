@@ -9,11 +9,12 @@
  *    4. The private database key set is used when encrypting/decrypting data that is stored on the drive.
  *    5. The private drive key set is used when encrypting/decrypting data that is stored in the database.
  *    6. The private drive key set is encrypted by the private database key set
- *    6. Encryption/key versioning is used to support algorithm improvements while also ensuring
+ *    7. Encryption/key versioning is used to support algorithm improvements while also ensuring
  *       backwards compatibility of decryption.
- *    7. To ensure performance, the CryptoGen class will cache the key sets that are used inside the object,
+ *    8. To ensure performance, the CryptoGen class will cache the key sets that are used inside the object,
  *       which avoids numerous repeat calls to collect the key sets (and repeat decryption of the key set
  *       from the drive).
+ *    9. There is also support for passphrase encryption/decryption (ie. no private keys are used).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
