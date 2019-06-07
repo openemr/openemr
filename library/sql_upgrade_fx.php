@@ -302,7 +302,7 @@ function ImportDrugInformation()
 {
     if ($GLOBALS['weno_rx_enable']) {
         $drugs = file_get_contents('contrib/weno/erx_weno_drugs.sql');
-        $drugsArray = explode(";\n", $drugs);
+        $drugsArray = preg_split('/;\R/', $drugs);
 
         // Settings to drastically speed up import with InnoDB
         sqlStatementNoLog("SET autocommit=0");
