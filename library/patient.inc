@@ -1661,31 +1661,6 @@ function dateToDB($date)
 
 // ----------------------------------------------------------------------------
 /**
- * DROPDOWN FOR COUNTRIES
- *
- * build a dropdown with all countries from geo_country_reference
- *
- * @param int $selected - id for selected record
- * @param string $name - the name/id for select form
- * @return void - just echo the html encoded string
- */
-function dropdown_countries($selected = 0, $name = 'country_code')
-{
-    $r = sqlStatement("SELECT * FROM geo_country_reference ORDER BY countries_name");
-
-    $string = "<select name='" . attr($name) . "' id='" . attr($name) . "'>";
-    while ($row = sqlFetchArray($r)) {
-        $sufix = ( $selected == $row['countries_id']) ? 'selected="selected"' : '';
-        $string .= "<option value='" . attr($row['countries_id']) . "' $sufix>" . text($row['countries_name']) . "</option>";
-    }
-
-    $string .= '</select>';
-    echo $string;
-}
-
-
-// ----------------------------------------------------------------------------
-/**
  * DROPDOWN FOR YES/NO
  *
  * build a dropdown with two options (yes - 1, no - 0)
@@ -1826,38 +1801,6 @@ function dropdown_insurance($selected = 0, $name = 'iprovider')
     $string .= '</select>';
 
     echo $string;
-}
-
-
-// ----------------------------------------------------------------------------
-/**
- * COUNTRY CODE
- *
- * return the name or the country code, function of arguments
- *
- * @param int $country_code
- * @param string $country_name
- * @return string | int - name or code
- */
-function country_code($country_code = 0, $country_name = '')
-{
-    $strint = '';
-    $sqlBindArray = array();
-    if ($country_code) {
-        $sql = "SELECT countries_name AS res FROM geo_country_reference WHERE countries_id = ?";
-        array_push($sqlBindArray, $country_code);
-    } else {
-        $sql = "SELECT countries_id AS res FROM geo_country_reference WHERE countries_name = ?";
-        array_push($sqlBindArray, $country_name);
-    }
-
-    $db = $GLOBALS['adodb']['db'];
-    $result = $db->Execute($sql, $sqlBindArray);
-    if ($result && !$result->EOF) {
-        $strint = $result->fields['res'];
-    }
-
-    return $strint;
 }
 
 function DBToDate($date)
