@@ -1848,11 +1848,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
                             }
 
+                            $petitle = xl('(Click to edit)');
                             if ($row['pc_hometext'] != "") {
-                                $etitle = xl('Comments').": ".($row['pc_hometext'])."\r\n".$etitle;
+                                $petitle = xl('Comments').": ".($row['pc_hometext'])."\r\n".$petitle;
                             }
 
-                            echo "<a href='javascript:oldEvt(" . attr_js(preg_replace("/-/", "", $row['pc_eventDate'])) . ', ' . attr_js($row['pc_eid']) . ")' title='" . attr($etitle) . "'>";
+                            echo "<a href='javascript:oldEvt(" . attr_js(preg_replace("/-/", "", $row['pc_eventDate'])) . ', ' . attr_js($row['pc_eid']) . ")' title='" . attr($petitle) . "'>";
                             echo "<b>" . text(xl($dayname) . ", " . oeFormatShortDate($row['pc_eventDate'])) . "</b> " . xlt("Status") .  "(";
                             echo " " .  generate_display_field(array('data_type'=>'1','list_id'=>'apptstat'), $row['pc_apptstatus']) . ")<br>";   // can't use special char parser on this
                             echo text("$disphour:$dispmin ") . xlt($dispampm) . " ";
