@@ -924,3 +924,23 @@ DROP TABLE `openemr_postcalendar_topics`;
 #IfTable openemr_session_info
 DROP TABLE `openemr_session_info`;
 #EndIf
+
+#IfTable array
+DROP TABLE `array`;
+#EndIf
+
+#IfTable config
+DROP TABLE `config`;
+#EndIf
+
+#IfTable config_seq
+DROP TABLE `config_seq`;
+#EndIf
+
+#IfTable geo_country_reference
+DROP TABLE `geo_country_reference`;
+#EndIf
+
+#IfTable geo_zone_reference
+DROP TABLE `geo_zone_reference`;
+#EndIf
