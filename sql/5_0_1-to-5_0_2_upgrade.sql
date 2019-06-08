@@ -944,7 +944,3 @@ DROP TABLE `geo_country_reference`;
 #IfTable geo_zone_reference
 DROP TABLE `geo_zone_reference`;
 #EndIf
-
-#IfTable notes
-DROP TABLE `notes`;
-#EndIf

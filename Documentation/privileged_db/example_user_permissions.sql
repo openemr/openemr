@@ -114,6 +114,7 @@
 	GRANT ALL ON openemr.lists to 'openemr'@'localhost';
 	GRANT ALL ON openemr.lists_touch to 'openemr'@'localhost';
 	GRANT ALL ON openemr.log to 'openemr'@'localhost';
+	GRANT ALL ON openemr.notes to 'openemr'@'localhost';
 	GRANT ALL ON openemr.notification_log to 'openemr'@'localhost';
 	GRANT ALL ON openemr.notification_settings to 'openemr'@'localhost';
 	GRANT ALL ON openemr.onotes to 'openemr'@'localhost';
