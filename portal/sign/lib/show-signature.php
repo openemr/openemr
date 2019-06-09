@@ -24,6 +24,8 @@ if ($type == 'patient-signature') {
         // authorized by patient portal
         $pid = $_SESSION['pid'];
         $ignoreAuth = true;
+    } else {
+        exit();
     }
 } else if ($type == 'admin-signature') {
     // authorize via main openemr
