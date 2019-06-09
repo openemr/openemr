@@ -15,12 +15,12 @@
     <tr>
         <td>
             <a href="{$CURRENT_ACTION}action=edit&x12_partner_id={$partner->id|attr}" onclick="top.restoreSession()">
-                {$partner->get_name()|attr}&nbsp;
+                {$partner->get_name()|text}&nbsp;
             </a>
         </td>
-        <td>{$partner->get_x12_sender_id()|attr}&nbsp;</td>
-        <td>{$partner->get_x12_receiver_id()|attr}&nbsp;</td>
-        <td>{$partner->get_x12_version()|attr}&nbsp;</td>
+        <td>{$partner->get_x12_sender_id()|text}&nbsp;</td>
+        <td>{$partner->get_x12_receiver_id()|text}&nbsp;</td>
+        <td>{$partner->get_x12_version()|text}&nbsp;</td>
     </tr>
     {foreachelse}
     <tr>
