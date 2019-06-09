@@ -218,7 +218,7 @@ foreach ($dirlist as $file) {
     echo '<td><button id="tedit' . attr($t) . '" class="btn btn-sm btn-primary" onclick="tedit(' . attr_js($t) . ')" type="button">' . text($file['name']) . '</button>
  		<button id="tdelete' . attr($t) . '" class="btn btn-xs btn-danger" onclick="tdelete(' . attr_js($t) . ')" type="button">' . xlt("Delete") . '</button></td>';
     echo "<td>" . text($file['size']) . "</td>";
-    echo "<td>", date('r', $file['lastmod']), "</td>";
+    echo "<td>" . text(date('r', $file['lastmod'])) . "</td>";
     echo "</tr>";
 }
 

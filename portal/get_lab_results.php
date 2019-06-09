@@ -68,11 +68,11 @@ if (sqlNumRows($res)>0) {
         "ps.range, ps.result_status, ps.facility, ps.comments, ps.units, ps.comments";
 
         // procedure_type_id for order:
-        $pt2cond = "pt2.parent = " . add_escape_custom($order_type_id) . " AND " .
+        $pt2cond = "pt2.parent = '" . add_escape_custom($order_type_id) . "' AND " .
         "(pt2.procedure_type LIKE 'res%' OR pt2.procedure_type LIKE 'rec%')";
 
         // pr.procedure_report_id or 0 if none:
-        $pscond = "ps.procedure_report_id = " . add_escape_custom($report_id);
+        $pscond = "ps.procedure_report_id = '" . add_escape_custom($report_id) . "'";
 
         $joincond = "ps.result_code = pt2.procedure_code";
 

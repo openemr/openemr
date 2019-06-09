@@ -823,7 +823,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
             $("#mode").val("portal-save");
             let inv_values = JSON.stringify(getFormObj('invoiceForm'));
             let extra_values = JSON.stringify(getFormObj('paymentForm'));
-            let extra = "&inv_values=" + encode​URIComponent(inv_values) + "&extra_values=" + encode​URIComponent(extra_values);
+            let extra = "&inv_values=" + encodeURIComponent(inv_values) + "&extra_values=" + encodeURIComponent(extra_values);
             let flag = 0
             let liburl = './lib/paylib.php';
             $.ajax({

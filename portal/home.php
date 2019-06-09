@@ -91,7 +91,7 @@ $(function () {
                 ],
             onClosed: 'reload',
             type: 'GET',
-            url: webRoot + '/portal/patient/patientdata?pid=' + encode​URIComponent(cpid) + '&user=' + encode​URIComponent(cuser)
+            url: webRoot + '/portal/patient/patientdata?pid=' + encodeURIComponent(cpid) + '&user=' + encodeURIComponent(cuser)
         };
         dlgopen('','','modal-xl', 500, '', title, params);
     }

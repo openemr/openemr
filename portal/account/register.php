@@ -234,7 +234,7 @@ $(function () {
 
     $("#insuranceForm").submit(function (e) {
         e.preventDefault();
-        var url = "account.php?action=new_insurance&pid=" + encode​URIComponent(newPid);
+        var url = "account.php?action=new_insurance&pid=" + encodeURIComponent(newPid);
         $.ajax({
             url: url,
             type: 'post',
@@ -357,7 +357,7 @@ function callServer(action, value, value2, last, first) {
             // alert below for ease of testing.
             //alert(rtn); // sync alert.. rtn holds username and password for testing.
 
-            let message = <?php echo xlj("Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon."); ?>
+            let message = <?php echo xlj("Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon."); ?>;
             eModal.alert(message); // This is an async call. The modal close event exits us to portal landing page after cleanup.
         }
     }).fail(function (err) {

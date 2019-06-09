@@ -896,7 +896,7 @@ while ($crow = sqlFetchArray($cres)) {
      s = se.options[se.selectedIndex].value;
         <?php }?>
      var formDate = document.getElementById('form_date');
-     var url = 'find_appt_popup_user.php?bypatient&providerid=' + encode​URIComponent(s) + '&catid=5' + '&startdate=' + encode​URIComponent(formDate.value);
+     var url = 'find_appt_popup_user.php?bypatient&providerid=' + encodeURIComponent(s) + '&catid=5' + '&startdate=' + encodeURIComponent(formDate.value);
      var params = {
          buttons: [
              {text: <?php echo xlj('Cancel'); ?>, close: true, style: 'danger btn-sm'}
