@@ -9,6 +9,9 @@
 // Updated by:	Larry Lart on 10/03/2008
 ////////////////////////////////////////////////////////////////////
 
+// comment below exit if plan to use this script
+exit;
+
 // larry :: hack add for command line version
 $_SERVER['REQUEST_URI']=$_SERVER['PHP_SELF'];
 $_SERVER['SERVER_NAME']='localhost';
@@ -16,8 +19,8 @@ $backpic = "";
 
 // email notification
 $ignoreAuth=1;
-include_once("../../interface/globals.php");
-include_once("cron_functions.php");
+require_once("../../interface/globals.php");
+require_once("cron_functions.php");
 
 $TYPE = "Email";
 $CRON_TIME = 5;
@@ -49,23 +52,23 @@ for ($p=0; $p<count($db_patient); $p++) {
 	*/
     $app_date = $prow['pc_eventDate']." ".$prow['pc_startTime'];
     $app_time = strtotime($app_date);
-    
+
     $app_time_hour = round($app_time/3600);
     $curr_total_hour = round(time()/3600);
-    
+
     $remaining_app_hour = round($app_time_hour - $curr_total_hour);
     $remain_hour = round($remaining_app_hour - $EMAIL_NOTIFICATION_HOUR);
-    
+
     $strMsg = "\n========================".$TYPE." || ".date("Y-m-d H:i:s")."=========================";
     $strMsg .= "\nSEND NOTIFICATION BEFORE:".$EMAIL_NOTIFICATION_HOUR." || CRONJOB RUN EVERY:".$CRON_TIME." || APPDATETIME:".$app_date." || REMAINING APP HOUR:".($remaining_app_hour)." || SEND ALERT AFTER:".($remain_hour);
-    
+
     if ($remain_hour >= -($CRON_TIME) &&  $remain_hour <= $CRON_TIME) {
         // insert entry in notification_log table
         cron_InsertNotificationLogEntry($TYPE, $prow, $db_email_msg);
 
         //set message
         $db_email_msg['message'] = cron_setmessage($prow, $db_email_msg);
-        
+
         // send mail to patinet
         cron_SendMail(
             $prow['email'],
@@ -73,14 +76,14 @@ for ($p=0; $p<count($db_patient); $p++) {
             $db_email_msg['message'],
             $db_email_msg['email_sender']
         );
-        
+
         //update entry >> pc_sendalertemail='Yes'
         cron_updateentry($TYPE, $prow['pid'], $prow['pc_eid']);
-        
+
         $strMsg .= " || ALERT SENT SUCCESSFULLY TO ".$prow['email'];
         $strMsg .= "\n".$patient_info."\n".$smsgateway_info."\n".$data_info."\n".$db_email_msg['message'];
     }
-    
+
     WriteLog($strMsg);
 
     // larry :: get notification data again - since was updated by cron_updateentry

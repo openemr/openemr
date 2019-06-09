@@ -5,14 +5,16 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
- require_once("verify_session.php");
- require_once("$srcdir/patient.inc");
- require_once("$srcdir/options.inc.php");
- require_once("lib/portal_mail.inc");
+require_once("verify_session.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/options.inc.php");
+require_once("lib/portal_mail.inc");
 
 
 if ($_SESSION['register'] === true) {
@@ -45,7 +47,7 @@ foreach ($msgs as $i) {
 
 require_once '_header.php';
 
-echo "<script>var cpid='" . attr($pid) . "';var cuser='" . attr($user) . "';var webRoot='" . $GLOBALS['web_root'] . "';var ptName='" . attr($_SESSION['ptName']) . "';</script>";
+echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($user) . ";var webRoot=" . js_escape($GLOBALS['web_root']) . ";var ptName=" . js_escape($_SESSION['ptName']) . ";</script>";
 ?>
 <script type="text/javascript">
 var webroot_url = webRoot;
@@ -67,7 +69,7 @@ $(function () {
     $("#amendmentslist").load("./get_amendments.php", {}, function () {});
     $("#problemslist").load("./get_problems.php", {}, function () {});
     $("#allergylist").load("./get_allergies.php", {}, function () {});
-    $("#reports").load("./report/portal_patient_report.php?pid='<?php echo attr($pid) ?>'", {}, function () {});
+    $("#reports").load("./report/portal_patient_report.php?pid='<?php echo attr_url($pid) ?>'", {}, function () {});
 
     <?php if ($GLOBALS['portal_two_payments']) { ?>
     $("#payment").load("./portal_payment.php", {}, function () {});
@@ -78,18 +80,18 @@ $(function () {
     });
 
     function showProfileModal() {
-        var title = '<?php echo xla('Demographics Legend Red: Charted Values. Blue: Patient Edits'); ?> ';
+        var title = <?php echo xlj('Demographics Legend Red: Charted Values. Blue: Patient Edits'); ?> + ' ';
 
         var params = {
             buttons: [
-                {text: '<?php echo xla('Help'); ?>', close: false, style: 'info', id: 'formHelp'},
-                {text: '<?php echo xla('Cancel'); ?>', close: true, style: 'default'},
-                {text: '<?php echo xla('Revert Edits'); ?>', close: false, style: 'danger', id: 'replaceAllButton'},
-                {text: '<?php echo xla('Send for Review'); ?>', close: false, style: 'success', id: 'donePatientButton'}
+                {text: <?php echo xlj('Help'); ?>, close: false, style: 'info', id: 'formHelp'},
+                {text: <?php echo xlj('Cancel'); ?>, close: true, style: 'default'},
+                {text: <?php echo xlj('Revert Edits'); ?>, close: false, style: 'danger', id: 'replaceAllButton'},
+                {text: <?php echo xlj('Send for Review'); ?>, close: false, style: 'success', id: 'donePatientButton'}
                 ],
             onClosed: 'reload',
             type: 'GET',
-            url: webRoot + '/portal/patient/patientdata?pid=' + cpid + '&user=' + cuser
+            url: webRoot + '/portal/patient/patientdata?pid=' + encodeURIComponent(cpid) + '&user=' + encodeURIComponent(cuser)
         };
         dlgopen('','','modal-xl', 500, '', title, params);
     }
@@ -98,7 +100,7 @@ $(function () {
         page.updateModel();
     }
 
-    var gowhere = '#<?php echo $whereto?>';
+    var gowhere = '#' + <?php echo js_escape($whereto); ?>;
     $(gowhere).collapse('show');
 
     var $doHides = $('#panelgroup');
@@ -130,17 +132,17 @@ $(function () {
 
 function editAppointment(mode,deid){
     if(mode == 'add'){
-        var title = '<?php echo xla('Request New Appointment'); ?>';
+        var title = <?php echo xlj('Request New Appointment'); ?>;
         var mdata = {pid:deid};
     }
     else{
-        var title = '<?php echo xla('Edit Appointment'); ?>';
+        var title = <?php echo xlj('Edit Appointment'); ?>;
         var mdata = {eid:deid};
     }
     var params = {
         dialogId: 'editpop',
         buttons: [
-            { text: '<?php echo xla('Cancel'); ?>', close: true, style: 'default' }
+            { text: <?php echo xlj('Cancel'); ?>, close: true, style: 'default' }
             //{ text: 'Print', close: false, style: 'success', click: showCustom }
         ],
         type:'GET',
@@ -237,13 +239,13 @@ function editAppointment(mode,deid){
                                 }
 
                                 echo "<tr><td><p>";
-                                echo "<a href='#' onclick='editAppointment(0," . htmlspecialchars($row ['pc_eid'], ENT_QUOTES) . ')' .
-                                    "' title='" . htmlspecialchars($etitle, ENT_QUOTES) . "'>";
-                                echo "<b>" . htmlspecialchars($dayname . ", " . $row ['pc_eventDate'], ENT_NOQUOTES) . "&nbsp;";
-                                echo htmlspecialchars("$disphour:$dispmin " . $dispampm, ENT_NOQUOTES) . "</b><br>";
-                                echo htmlspecialchars($row ['pc_catname'], ENT_NOQUOTES) . "<br><b>";
-                                echo xlt("Provider") . ":</b> " . htmlspecialchars($row ['fname'] . " " . $row ['lname'], ENT_NOQUOTES) . "<br><b>";
-                                echo xlt("Status") . ":</b> " . htmlspecialchars($status_title, ENT_NOQUOTES);
+                                echo "<a href='#' onclick='editAppointment(0," . attr_js($row ['pc_eid']) . ")" .
+                                    "' title='" . attr($etitle) . "'>";
+                                echo "<b>" . text($dayname . ", " . $row ['pc_eventDate']) . "&nbsp;";
+                                echo text($disphour . ":" . $dispmin . " " . $dispampm) . "</b><br>";
+                                echo text($row ['pc_catname']) . "<br><b>";
+                                echo xlt("Provider") . ":</b> " . text($row ['fname'] . " " . $row ['lname']) . "<br><b>";
+                                echo xlt("Status") . ":</b> " . text($status_title);
                                 echo "</a></p></td></tr>";
                             }
 
@@ -259,7 +261,7 @@ function editAppointment(mode,deid){
                             echo '</tbody></table>';
                         ?>
                             <div style='margin: 5px 0 5px'>
-                                <a href='#' onclick="editAppointment('add',<?php echo attr($pid); ?>)">
+                                <a href='#' onclick="editAppointment('add',<?php echo attr_js($pid); ?>)">
                                     <button class='btn btn-primary pull-right'><?php echo xlt('Schedule New Appointment'); ?></button>
                                 </a>
                             </div>
@@ -326,7 +328,7 @@ function editAppointment(mode,deid){
                         <header class="panel-heading"><?php echo xlt('Ledger');?> </header>
                         <div id="patledger" class="panel-body"></div>
                         <div class="panel-footer">
-                          <iframe src="./report/pat_ledger.php?form=1&patient_id=<?php echo attr($pid);?>" width="100%" height="475" scrolling="yes"></iframe>
+                          <iframe src="./report/pat_ledger.php?form=1&patient_id=<?php echo attr_url($pid); ?>" width="100%" height="475" scrolling="yes"></iframe>
                         </div>
                     </div>
                 </div><!-- /.col -->

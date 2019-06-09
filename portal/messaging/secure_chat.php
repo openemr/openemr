@@ -5,13 +5,15 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace SMA_Common;
 
- session_start();
+session_start();
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;
@@ -291,7 +293,7 @@ class Model extends SMA_Common\Model
     public function getMessages($limit = CHAT_HISTORY, $reverse = true)
     {
         $response = sqlStatementNoLog("(SELECT * FROM onsite_messages
-            ORDER BY `date` DESC LIMIT {$limit}) ORDER BY `date` ASC");
+            ORDER BY `date` DESC LIMIT " . escape_limit($limit) . ") ORDER BY `date` ASC");
 
         $result = array();
         while ($row = sqlFetchArray($response)) {
@@ -355,7 +357,7 @@ class Model extends SMA_Common\Model
     public function clearOffline($timeRange = CHAT_ONLINE_RANGE)
     {
         return sqlStatementNoLog("DELETE FROM onsite_online
-            WHERE last_update <= (NOW() - INTERVAL {$timeRange} MINUTE)");
+            WHERE last_update <= (NOW() - INTERVAL " . escape_limit($timeRange) . " MINUTE)");
     }
 
     public function __destruct()
@@ -574,13 +576,13 @@ $msgApp = new Controller();
         $scope.lastMessageId = null;
         $scope.historyFromId = null;
         $scope.onlines = []; // all online users id and ip's
-        $scope.user = "<?php echo $_SESSION['ptName'] ? $_SESSION['ptName'] : ADMIN_USERNAME;?>";// current user - dashboard user is from session authUserID
-        $scope.userid = "<?php echo IS_PORTAL ? $_SESSION['pid'] : $_SESSION['authUser'];?>";
+        $scope.user = <?php echo $_SESSION['ptName'] ? js_escape($_SESSION['ptName']) : js_escape(ADMIN_USERNAME); ?>;// current user - dashboard user is from session authUserID
+        $scope.userid = <?php echo IS_PORTAL ? js_escape($_SESSION['pid']) : js_escape($_SESSION['authUser']); ?>;
         $scope.isPortal = "<?php echo IS_PORTAL;?>";
         $scope.isFullScreen = "<?php echo IS_FULLSCREEN; ?>";
         $scope.pusers = []; // selected recipients for chat
         $scope.chatusers = []; // authorize chat recipients for dashboard user
-        $scope.noRecipError = '<?php echo xla("Please Select a Recipient for Message.") ?>';
+        $scope.noRecipError = <?php echo xlj("Please Select a Recipient for Message.") ?>;
         $scope.me = {
             username: $scope.user,
             message: null,

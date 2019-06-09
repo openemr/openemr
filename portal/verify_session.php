@@ -35,7 +35,7 @@
 session_start();
 
 //landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=".$_SESSION['site_id'];
+$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
 //
 
 // kick out if patient not authenticated

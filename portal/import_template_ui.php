@@ -5,7 +5,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -98,7 +100,7 @@ var tsave = function() {
     getDocument(currentEdit, 'save', makrup)
     };
 var tdelete = function(docname) {
-    var delok = confirm("<?php echo xls('You are about to delete template'); ?>: "+docname+"\n<?php echo xls('Is this Okay?'); ?>");
+    var delok = confirm(<?php echo xlj('You are about to delete template'); ?> + ": " + docname + "\n" + <?php echo xlj('Is this Okay?'); ?>);
     if(delok === true) {getDocument(docname, 'delete', '')}
     return false;
     };
@@ -114,7 +116,7 @@ function getDocument(docname, mode, content) {
         },
         error: function (qXHR, textStatus, errorThrow) {
             console.log("There was an error");
-            alert('<?php echo xlt("File Error") ?>' + "\n" + docname)
+            alert(<?php echo xlj("File Error") ?> + "\n" + docname)
         },
         success: function (templateHtml, textStatus, jqXHR) {
             if (mode == 'get') {
@@ -213,10 +215,10 @@ echo "<tbody>";
 foreach ($dirlist as $file) {
     $t = "'" . $file['pathname'] . "'";
     echo "<tr>";
-    echo '<td><button id="tedit' . attr($t) . '" class="btn btn-sm btn-primary" onclick="tedit(' . attr($t) . ')" type="button">' . text($file['name']) . '</button>
- 		<button id="tdelete' . attr($t) . '" class="btn btn-xs btn-danger" onclick="tdelete(' . attr($t) . ')" type="button">' . xlt("Delete") . '</button></td>';
-    echo "<td>{$file['size']}</td>";
-    echo "<td>", date('r', $file['lastmod']), "</td>";
+    echo '<td><button id="tedit' . attr($t) . '" class="btn btn-sm btn-primary" onclick="tedit(' . attr_js($t) . ')" type="button">' . text($file['name']) . '</button>
+ 		<button id="tdelete' . attr($t) . '" class="btn btn-xs btn-danger" onclick="tdelete(' . attr_js($t) . ')" type="button">' . xlt("Delete") . '</button></td>';
+    echo "<td>" . text($file['size']) . "</td>";
+    echo "<td>" . text(date('r', $file['lastmod'])) . "</td>";
     echo "</tr>";
 }
 

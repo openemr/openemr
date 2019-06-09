@@ -3,24 +3,15 @@
  *
  * Modified from main codebase for the patient portal.
  *
- * Copyright (C) 2005-2006, 2013 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author Rod Roark <rod@sunsetsystems.com>
- * @author Jerry Padgett <sjpadgett@gmail.com>
- * @link http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (C) 2005-2013 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 // Note from Rod 2013-01-22:
@@ -33,7 +24,7 @@ session_start();
 //
 
 //landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=".$_SESSION['site_id'];
+$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
 //
 
 // kick out if patient not authenticated
@@ -49,10 +40,10 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 
 $ignoreAuth = 1;
 
- require_once("../interface/globals.php");
- require_once("$srcdir/patient.inc");
+require_once("../interface/globals.php");
+require_once("$srcdir/patient.inc");
 
- $input_catid = $_REQUEST['catid'];
+$input_catid = $_REQUEST['catid'];
 
  // Record an event into the slots array for a specified day.
 function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
@@ -403,7 +394,7 @@ function setappt(year,mon,mday,hours,minutes) {
 <body class="body_top">
 
 <div id="searchCriteria">
-<form method='post' name='theform' action='./find_appt_popup_user.php?providerid=<?php echo attr($providerid); ?>&catid=<?php echo attr($input_catid); ?>'>
+<form method='post' name='theform' action='./find_appt_popup_user.php?providerid=<?php echo attr_url($providerid); ?>&catid=<?php echo attr_url($input_catid); ?>'>
    <input type="hidden" name='bypatient' />
 
     <?php echo xlt('Start date:'); ?>
@@ -477,12 +468,12 @@ for ($i = 0; $i < $slotcount; ++$i) {
     $atitle = "Choose ".date("h:i a", $utime);
     $adate = getdate($utime);
     $anchor = "<a href='' onclick='return setappt(" .
-    $adate['year'] . "," .
-    $adate['mon'] . "," .
-    $adate['mday'] . "," .
-    $adate['hours'] . "," .
-    $adate['minutes'] . ")'".
-    " title='$atitle' alt='$atitle'".
+    attr_js($adate['year']) . "," .
+    attr_js($adate['mon']) . "," .
+    attr_js($adate['mday']) . "," .
+    attr_js($adate['hours']) . "," .
+    attr_js($adate['minutes']) . ")'".
+    " title='" . attr($atitle) . "' alt='" . attr($atitle) . "'".
     ">";
     echo (strlen(date('g', $utime)) < 2 ? "<span style='visibility:hidden'>0</span>" : "") .
     $anchor . date("g:i", $utime) . "</a> ";
