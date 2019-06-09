@@ -183,13 +183,23 @@ class Header
         $links = [];
 
         if ($script) {
-            $script = self::parsePlaceholders($script);
-            if ($alreadyBuilt) {
-                $path = $script;
-            } else {
-                $path = self::createFullPath($basePath, $script);
+            if (!is_string($script) && !is_array($script)) {
+                throw new \InvalidArgumentException("Link must be of type string or array");
             }
-            $scripts[] = self::createElement($path, 'script', $alreadyBuilt);
+
+            if (is_string($script)) {
+                $script = [$script];
+            }
+
+            foreach ($script as $s) {
+                $s = self::parsePlaceholders($s);
+                if ($alreadyBuilt) {
+                    $path = $s;
+                } else {
+                    $path = self::createFullPath($basePath, $s);
+                }
+                $scripts[] = self::createElement($path, 'script', $alreadyBuilt);
+            }
         }
 
         if ($link) {

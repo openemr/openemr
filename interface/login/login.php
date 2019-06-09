@@ -219,7 +219,7 @@ if (count($emr_app)) {
                                   $res3=SqlStatement($sql);
                             } else {
                                 // Use and sort by the translated language name.
-                                $sql = "SELECT ll.lang_id, " .
+                                $sql = "SELECT ll.lang_id, ll.lang_code, " .
                                     "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
                                       "ll.lang_description " .
                                     "FROM lang_languages AS ll " .
@@ -344,7 +344,7 @@ if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)) : // B
                                                 continue; // skip the dummy language
                                             }
 
-                                                echo "<option value='".attr($iter['lang_id'])."'>".text($iter['trans_lang_description'])."</option>\n";
+                                                echo "<option data-code='".attr($iter['lang_code'])."' value='".attr($iter['lang_id'])."'>".text($iter['trans_lang_description'])."</option>\n";
                                         } else {
                                             if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
                                                 if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
@@ -393,5 +393,27 @@ if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)) : // B
             </div>
         </form>
     </div>
+    <script>
+        //Store i18n file in the sessionStorage, change on language is changed.
+        //The translations will be available for js in each page
+        function loadI18nToSessionStorage(lang_code) {
+            $('[type="submit"]').attr('disabled', true);
+            $.ajax( {
+                url: <?php echo js_escape($GLOBALS['webroot'])?>+"/interface/language/i18n/"+lang_code+".json",
+                dataType: 'text'
+            })
+            .done(function (data) {
+                sessionStorage.setItem('i18n', data);
+                $('[type="submit"]').attr('disabled', false);
+            });
+        }
+
+        $('[name="languageChoice"]').on('change', function () {
+            //refresh i18n file in the session storage
+            loadI18nToSessionStorage($('[name="languageChoice"] option[value="'+ $(this).val() +'"]').data('code'));
+        });
+
+        loadI18nToSessionStorage(<?php echo js_escape(getLanguageCode($_SESSION['language_choice'])) ?>)
+    </script>
 </body>
 </html>

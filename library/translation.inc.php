@@ -36,7 +36,7 @@ if (!(function_exists('xl'))) {
              $constant = preg_replace($patterns, $replace, $constant);
 
              // second, attempt translation
-            //using cache
+            //load from cache
             if (!empty($GLOBALS['i18n'])) {
                 $string = $GLOBALS['i18n'][$constant];
             } else {

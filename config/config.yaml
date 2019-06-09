@@ -170,3 +170,7 @@ assets:
         script: userDebug.js
         autoload: true
         allowNoLoad: true
+    js-translation:
+        script:
+            - %assets_static_relative%/i18next/dist/umd/i18next.min.js
+            - %webroot%/library/js/xl/init_i18next.js
