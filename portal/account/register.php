@@ -2,10 +2,12 @@
 /**
  * Portal Registration Wizard
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Jerry Padgett <sjpadgett@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017-2018 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -18,7 +20,7 @@ $_SESSION['pid'] = true;
 $_SESSION['register'] = true;
 
 $_SESSION['site_id'] = isset($_SESSION['site_id']) ? $_SESSION['site_id'] : 'default';
-$landingpage = "index.php?site=" . $_SESSION['site_id'];
+$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
 
 $ignoreAuth_onsite_portal_two = true;
 
@@ -69,7 +71,7 @@ if ($GLOBALS['language_menu_login']) {
         $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='1' />\n";
     }
 } else {
-    $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='" . htmlspecialchars($defaultLangID, ENT_QUOTES) . "' />\n";
+    $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='" . attr($defaultLangID) . "' />\n";
 }
 
 ?>
@@ -232,7 +234,7 @@ $(function () {
 
     $("#insuranceForm").submit(function (e) {
         e.preventDefault();
-        var url = "account.php?action=new_insurance&pid=" + newPid;
+        var url = "account.php?action=new_insurance&pid=" + encode​URIComponent(newPid);
         $.ajax({
             url: url,
             type: 'post',
@@ -255,7 +257,7 @@ $(function () {
     $('#inscompany').on('change', function () {
         if ($('#inscompany').val().toUpperCase() === 'SELF') {
             $("#insuranceForm input").removeAttr("required");
-            let message = "<?php echo xls('You have chosen to be self insured or currently do not have insurance. Click next to continue registration.'); ?>";
+            let message = <?php echo xlj('You have chosen to be self insured or currently do not have insurance. Click next to continue registration.'); ?>;
             alert(message);
         }
     });
@@ -346,7 +348,7 @@ function callServer(action, value, value2, last, first) {
         }
         else if (action == 'do_signup') {
             if (rtn == "") {
-                let message = "<?php echo xls('Unable to either create credentials or send email.'); ?>";
+                let message = <?php echo xlj('Unable to either create credentials or send email.'); ?>;
                 alert(message);
                 return false;
             }
@@ -355,11 +357,11 @@ function callServer(action, value, value2, last, first) {
             // alert below for ease of testing.
             //alert(rtn); // sync alert.. rtn holds username and password for testing.
 
-            let message = "<?php echo xls("Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon."); ?>"
+            let message = <?php echo xlj("Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon."); ?>
             eModal.alert(message); // This is an async call. The modal close event exits us to portal landing page after cleanup.
         }
     }).fail(function (err) {
-        let message = "<?php echo xls('Something went wrong.') ?>";
+        let message = <?php echo xlj('Something went wrong.') ?>;
         alert(message);
     });
 }
@@ -400,22 +402,22 @@ function callServer(action, value, value2, last, first) {
                             <label for="selLanguage"><?php echo xlt('Language'); ?></label>
                             <select class="form-control" id="selLanguage" name="languageChoice">
                             <?php
-                                echo "<option selected='selected' value='" . htmlspecialchars($defaultLangID, ENT_QUOTES) . "'>" .
-                                     htmlspecialchars(xl('Default') . " - " . xl($defaultLangName), ENT_NOQUOTES) . "</option>\n";
+                                echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
+                                    text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
                             foreach ($result3 as $iter) {
                                 if ($GLOBALS['language_menu_showall']) {
                                     if (! $GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
                                         continue; // skip the dummy language
                                     }
-                                    echo "<option value='" . htmlspecialchars($iter['lang_id'], ENT_QUOTES) . "'>" .
-                                         htmlspecialchars($iter['trans_lang_description'], ENT_NOQUOTES) . "</option>\n";
+                                    echo "<option value='" . attr($iter['lang_id']) . "'>" .
+                                        text($iter['trans_lang_description']) . "</option>\n";
                                 } else {
                                     if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
                                         if (! $GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
                                             continue; // skip the dummy language
                                         }
-                                        echo "<option value='" . htmlspecialchars($iter['lang_id'], ENT_QUOTES) . "'>" .
-                                             htmlspecialchars($iter['trans_lang_description'], ENT_NOQUOTES) . "</option>\n";
+                                        echo "<option value='" . attr($iter['lang_id']) . "'>" .
+                                            text($iter['trans_lang_description']) . "</option>\n";
                                     }
                                 }
                             }

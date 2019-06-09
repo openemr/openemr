@@ -9,7 +9,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-$ignoreAuth = true;
 require_once("../../../interface/globals.php");
 
 $data = (array)(json_decode(file_get_contents("php://input")));

@@ -126,7 +126,7 @@ use OpenEMR\Core\Header;
                     <li data-toggle="pill"><a href="#lists" data-toggle="collapse"
                         data-parent="#panelgroup"> <i class="fa fa-list"></i> <span><?php echo xlt('Lists'); ?></span>
                     </a></li>
-                    <li><a href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr($pid); ?>"> <i class="fa fa-gavel"></i>
+                    <li><a href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr_url($pid); ?>"> <i class="fa fa-gavel"></i>
                             <span><?php echo xlt('Patient Documents'); ?></span>
                     </a></li>
                     <?php if ($GLOBALS['allow_portal_appointments']) { ?>

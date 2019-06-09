@@ -3,26 +3,17 @@
  *
  * namespace OnsitePortal
  *
- * Copyright (C) 2006-2015 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author Rod Roark <rod@sunsetsystems.com>
- * @author Jerry Padgett <sjpadgett@gmail.com>
- * @link http://www.open-emr.org
- *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2006-2015 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 session_start();
 $isPortal = false;
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
@@ -120,14 +111,14 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
     $encounter = $encounter ? $encounter : '';
     echo " <tr id='tr_" . attr($var_index) . "' >\n";
     echo "  <td class='detail'>" . text(oeFormatShortDate($date)) . "</td>\n";
-    echo "  <td class='detail' id='" . attr($date) . "' align='left'>" . htmlspecialchars($encounter, ENT_QUOTES) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_charges_$var_index' >" . htmlspecialchars(bucks($charges), ENT_QUOTES) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_inspaid_$var_index' >" . htmlspecialchars(bucks($inspaid * -1), ENT_QUOTES) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_ptpaid_$var_index' >" . htmlspecialchars(bucks($ptpaid * -1), ENT_QUOTES) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_patient_copay_$var_index' >" . htmlspecialchars(bucks($patcopay), ENT_QUOTES) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_copay_$var_index' >" . htmlspecialchars(bucks($copay), ENT_QUOTES) . "</td>\n";
-    echo "  <td class='detail' align='center' id='balance_$var_index'>" . htmlspecialchars(bucks($balance), ENT_QUOTES) . "</td>\n";
-    echo "  <td class='detail' align='center' id='duept_$var_index'>" . htmlspecialchars(bucks(round($duept, 2) * 1), ENT_QUOTES) . "</td>\n";
+    echo "  <td class='detail' id='" . attr($date) . "' align='left'>" . text($encounter) . "</td>\n";
+    echo "  <td class='detail' align='center' id='td_charges_$var_index' >" . text(bucks($charges)) . "</td>\n";
+    echo "  <td class='detail' align='center' id='td_inspaid_$var_index' >" . text(bucks($inspaid * -1)) . "</td>\n";
+    echo "  <td class='detail' align='center' id='td_ptpaid_$var_index' >" . text(bucks($ptpaid * -1)) . "</td>\n";
+    echo "  <td class='detail' align='center' id='td_patient_copay_$var_index' >" . text(bucks($patcopay)) . "</td>\n";
+    echo "  <td class='detail' align='center' id='td_copay_$var_index' >" . text(bucks($copay)) . "</td>\n";
+    echo "  <td class='detail' align='center' id='balance_$var_index'>" . text(bucks($balance)) . "</td>\n";
+    echo "  <td class='detail' align='center' id='duept_$var_index'>" . text(bucks(round($duept, 2) * 1)) . "</td>\n";
     echo "  <td class='detail' align='center'><input class='form-control' name='" . attr($iname) . "'  id='paying_" . attr($var_index) .
         "' " . " value='" . '' . "' onchange='coloring();calctotal()'  autocomplete='off' " . "onkeyup='calctotal()'/></td>\n";
     echo " </tr>\n";
@@ -452,13 +443,13 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
         }
 
         function notifyPatient() {
-            let pid = <?php echo attr($pid);?>;
+            let pid = <?php echo js_escape($pid); ?>;
             let note = $('#pop_receipt').html();
             let formURL = './messaging/handle_note.php';
-            let owner = '<?php echo attr($adminUser['recip_id']); ?>';
-            let sn = '<?php echo attr($adminUser['username']); ?>';
-            let rid = '<?php echo attr($portalPatient['recip_id']); ?>';
-            let rn = '<?php echo attr($portalPatient['username']); ?>';
+            let owner = <?php echo js_escape($adminUser['recip_id']); ?>;
+            let sn = <?php echo js_escape($adminUser['username']); ?>;
+            let rid = <?php echo js_escape($portalPatient['recip_id']); ?>;
+            let rn = <?php echo js_escape($portalPatient['username']); ?>;
             $.ajax({
                 url: formURL,
                 type: "POST",
@@ -492,7 +483,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
         <p><?php echo text($frow['name']) ?>
             <br><?php echo text($frow['street']) ?>
             <br><?php echo text($frow['city'] . ', ' . $frow['state']) . ' ' . text($frow['postal_code']) ?>
-            <br><?php echo htmlentities($frow['phone']) ?>
+            <br><?php echo text($frow['phone']) ?>
         <p>
         <div style="text-align: center; margin: auto;">
             <table border='0' cellspacing='8'
@@ -578,7 +569,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
             f.form_paytotal.value = Number(total).toFixed(2);
             if (flag) {
                 $('#invoiceForm')[0].reset();
-                alert("<?php echo addslashes(xl('Negative payments not accepted')) ?>")
+                alert(<?php echo xlj('Negative payments not accepted'); ?>)
             }
             return true;
         }
@@ -638,7 +629,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                     if (ename.indexOf('form_upay[0') == 0) //Today is this text box.
                     {
                         if (elem.value * 1 > 0) {//A warning message, if the amount is posted with out encounter.
-                            if (confirm("<?php echo addslashes(xl('Are you sure to post for today?')) ?>")) {
+                            if (confirm(<?php echo xlj('Are you sure to post for today?'); ?>)) {
                                 ok = 1;
                             }
                             else {
@@ -652,11 +643,11 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
             }
             else if (document.getElementsByName('form_paytotal')[0].value <= 0)//total 0
             {
-                alert("<?php echo addslashes(xl('Invalid Total!')) ?>")
+                alert(<?php echo xlj('Invalid Total!'); ?>)
                 return false;
             }
             if (ok == -1) {
-                if (confirm("<?php echo addslashes(xl('Payment Validated: Save?')) ?>")) {
+                if (confirm(<?php echo xlj('Payment Validated: Save?'); ?>)) {
                     return true;
                 }
                 else {
@@ -832,7 +823,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
             $("#mode").val("portal-save");
             let inv_values = JSON.stringify(getFormObj('invoiceForm'));
             let extra_values = JSON.stringify(getFormObj('paymentForm'));
-            let extra = "&inv_values=" + inv_values + "&extra_values=" + extra_values;
+            let extra = "&inv_values=" + encode​URIComponent(inv_values) + "&extra_values=" + encode​URIComponent(extra_values);
             let flag = 0
             let liburl = './lib/paylib.php';
             $.ajax({
@@ -842,12 +833,12 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                 beforeSend: function (xhr) {
                     if (validateCC() !== true) return false;
                     if ($('#cardCode').val() == "" || $('#cardHolderName').val() == "" || $('#expYear').val() == "" || $('#expMonth').val() == "") {
-                        alert("<?php echo addslashes(xl('Invalid Credit Card Values: Please correct')) ?>")
+                        alert(<?php echo xlj('Invalid Credit Card Values: Please correct'); ?>)
                         return false;
                     }
                     if (validate() != true) {
                         flag = 1;
-                        alert("<?php echo addslashes(xl('Validation error: Fix and resubmit. This popup info is preserved!')) ?>")
+                        alert(<?php echo xlj('Validation error: Fix and resubmit. This popup info is preserved!'); ?>)
                         return false;
                     }
                     $("#openPayModal .close").click()
@@ -898,12 +889,12 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                 beforeSend: function (xhr) {
                     if (validate() != true) {
                         flag = 1;
-                        alert("<?php echo addslashes(xl('Validation error: Fix and resubmit.')) ?>")
+                        alert(<?php echo xlj('Validation error: Fix and resubmit.'); ?>)
                         return false;
                     }
                 },
                 error: function (xhr, textStatus, error) {
-                    alert("<?php echo addslashes(xl('There is a Post error')) ?>")
+                    alert(<?php echo xlj('There is a Post error'); ?>)
                     console.log("There was an error:" + textStatus);
                     return false;
                 },
@@ -942,7 +933,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
 
         function getAuth() {
             let authnum = document.getElementById("check_number").value;
-            authnum = prompt("<?php echo xlt('Please enter card comfirmation authorization') ?>", authnum);
+            authnum = prompt(<?php echo xlj('Please enter card comfirmation authorization'); ?>, authnum);
             if (authnum != null) {
                 document.getElementById("check_number").value = authnum;
             }
@@ -954,7 +945,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
 
     <form id="invoiceForm" method='post' action='<?php echo $GLOBALS["webroot"] ?>/portal/portal_payment.php'>
         <input type='hidden' name='form_pid' value='<?php echo attr($pid) ?>'/>
-        <input type='hidden' name='form_save' value='<?php echo xlt('Invoice'); ?>'/>
+        <input type='hidden' name='form_save' value='<?php echo xla('Invoice'); ?>'/>
         <table>
             <tr height="10">
                 <td colspan="3">&nbsp;</td>
@@ -962,10 +953,10 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
             <tr>
                 <td colspan='3' align='center' class='text'>
                     <b><?php echo xlt('Accept Payment for'); ?>&nbsp;:&nbsp;&nbsp;<?php
-                    echo htmlspecialchars($patdata['fname'], ENT_QUOTES) . " " .
-                        htmlspecialchars($patdata['lname'], ENT_QUOTES) . " " .
-                        htmlspecialchars($patdata['mname'], ENT_QUOTES) . " (" .
-                        htmlspecialchars($patdata['pid'], ENT_QUOTES) . ")" ?></b>
+                    echo text($patdata['fname']) . " " .
+                        text($patdata['lname']) . " " .
+                        text($patdata['mname']) . " (" .
+                        text($patdata['pid']) . ")" ?></b>
                     <?php $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname']; ?>
                 </td>
             </tr>
@@ -984,8 +975,8 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                             if ($brow1112['option_id'] != 'credit_card' || $brow1112['option_id'] == 'debit' || $brow1112['option_id'] == 'bank_draft') {
                                 continue;
                             }
-                            echo "<option value='" . htmlspecialchars($brow1112['option_id'], ENT_QUOTES) . "'>" .
-                                htmlspecialchars(xl_list_label($brow1112['title']), ENT_QUOTES) . "</option>";
+                            echo "<option value='" . attr($brow1112['option_id']) . "'>" .
+                                text(xl_list_label($brow1112['title'])) . "</option>";
                         }
                         ?>
                     </select></td>
@@ -996,7 +987,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                 </tr>
                 <tr>
                     <td class='text'>
-                        <?php echo xla('Authorized'); ?>:
+                        <?php echo xlt('Authorized'); ?>:
                     </td>
                     <td colspan='2'>
                         <?php if ($ccdata['authCode'] && empty($payrow['source'])) {
@@ -1260,9 +1251,9 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
             <strong><?php echo xlt('Card Number'); ?>: </strong><span id="ccn">
         <?php
         if (isset($_SESSION['authUserID']) || isset($ccdata["transId"])) {
-            echo $ccdata["cardNumber"] . "</span><br>";
+            echo text($ccdata["cardNumber"]) . "</span><br>";
         } else {
-            echo "**********  " . substr($ccdata["cardNumber"], -4) . "</span><br>";
+            echo "**********  " . text(substr($ccdata["cardNumber"], -4)) . "</span><br>";
         }
         ?>
         <?php
@@ -1391,7 +1382,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                                         <div class="col-md-3">
                                             <input name="cardCode" id="cardCode" type="text" class="form-control"
                                                    autocomplete="off" maxlength="4" onfocus="validateCC()"
-                                                   title="<?php echo xlt('Three or four digits at back of your card'); ?>"
+                                                   title="<?php echo xla('Three or four digits at back of your card'); ?>"
                                                    value=""/>
                                         </div>
                                         <div class="col-md-3">
@@ -1464,7 +1455,7 @@ if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
         </div>
     </div>
     <script type="text/javascript">
-        var ccerr = <?php echo json_encode(xl('Invalid Credit Card Number')); ?>
+        var ccerr = <?php echo xlj('Invalid Credit Card Number'); ?>
 
         // In House CC number Validation
         $('#cardNumber').validateCreditCard(function (result) {

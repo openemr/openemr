@@ -18,7 +18,7 @@
  */
 
     require_once("verify_session.php");
-    include_once("$srcdir/documents.php");
+    require_once("$srcdir/documents.php");
     require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 
     // TODO: see if this can be removed (test in PHP 5 and 7)... throwing a warning

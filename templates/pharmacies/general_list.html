@@ -13,7 +13,7 @@
 	{foreach from=$pharmacies item=pharmacy}
 	<tr>
 		<td>
-		    <a href="{$CURRENT_ACTION}action=edit&id={$pharmacy->id|escape:'html'}" onclick="top.restoreSession()">
+		    <a href="{$CURRENT_ACTION}action=edit&id={$pharmacy->id|attr'}" onclick="top.restoreSession()">
 		        {$pharmacy->name|text}
 		    </a>
 		</td>

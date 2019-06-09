@@ -6,39 +6,41 @@
  * @link      https://www.open-emr.org
  * @author    Cassian LUP <cassi.lup@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2011 Cassian LUP <cassi.lup@gmail.com>
  * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-    //setting the session & other config options
-    session_start();
+//setting the session & other config options
+session_start();
 
-    //don't require standard openemr authorization in globals.php
-    $ignoreAuth = 1;
+//don't require standard openemr authorization in globals.php
+$ignoreAuth = 1;
 
-    //For redirect if the site on session does not match
-    $landingpage = "index.php?site=".$_GET['site'];
+//For redirect if the site on session does not match
+$landingpage = "index.php?site=" . urlencode($_GET['site']);
 
-    //includes
-    require_once('../interface/globals.php');
+//includes
+require_once('../interface/globals.php');
 
-    use OpenEMR\Core\Header;
+use OpenEMR\Core\Header;
 
-    //exit if portal is turned off
+//exit if portal is turned off
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
-    echo htmlspecialchars(xl('Patient Portal is turned off'), ENT_NOQUOTES);
+    echo xlt('Patient Portal is turned off');
     exit;
 }
 
-    // security measure -- will check on next page.
-    $_SESSION['itsme'] = 1;
-    //
+// security measure -- will check on next page.
+$_SESSION['itsme'] = 1;
+//
 
-    //
-    // Deal with language selection
-    //
-    // collect default language id (skip this if this is a password update)
+//
+// Deal with language selection
+//
+// collect default language id (skip this if this is a password update)
 if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
     $res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default']));
     for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
@@ -54,9 +56,9 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
         $defaultLangName = "English";
     }
 
-  // set session variable to default so login information appears in default language
+    // set session variable to default so login information appears in default language
     $_SESSION['language_choice'] = $defaultLangID;
-  // collect languages if showing language menu
+    // collect languages if showing language menu
     if ($GLOBALS['language_menu_login']) {
         // sorting order of language titles depends on language translation options.
         $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
@@ -83,7 +85,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
             $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='1' />\n";
         }
     } else {
-        $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='".htmlspecialchars($defaultLangID, ENT_QUOTES)."' />\n";
+        $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='" . attr($defaultLangID) . "' />\n";
     }
 }
 ?>
@@ -105,7 +107,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
 <script type="text/javascript">
     function process() {
         if (!(validate())) {
-            alert ('<?php echo addslashes(xl('Field(s) are missing!')); ?>');
+            alert (<?php echo xlj('Field(s) are missing!'); ?>);
             return false;
         }
     }
@@ -123,15 +125,15 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
     }
     function process_new_pass() {
         if (!(validate_new_pass())) {
-            alert ('<?php echo addslashes(xl('Field(s) are missing!')); ?>');
+            alert (<?php echo xlj('Field(s) are missing!'); ?>);
             return false;
         }
         if (document.getElementById('pass_new').value != document.getElementById('pass_new_confirm').value) {
-            alert ('<?php echo addslashes(xl('The new password fields are not the same.')); ?>');
+            alert (<?php echo xlj('The new password fields are not the same.'); ?>);
             return false;
         }
         if (document.getElementById('pass').value == document.getElementById('pass_new').value) {
-            alert ('<?php echo addslashes(xl('The new password can not be the same as the current password.')); ?>');
+            alert (<?php echo xlj('The new password can not be the same as the current password.'); ?>);
             return false;
         }
     }
@@ -292,22 +294,22 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                             <label for="selLanguage"><?php echo xlt('Language'); ?></label>
                             <select class="form-control" id="selLanguage" name="languageChoice">
                             <?php
-                                echo "<option selected='selected' value='" . htmlspecialchars($defaultLangID, ENT_QUOTES) . "'>" .
-                                     htmlspecialchars(xl('Default') . " - " . xl($defaultLangName), ENT_NOQUOTES) . "</option>\n";
+                                echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
+                                     text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
                             foreach ($result3 as $iter) {
                                 if ($GLOBALS['language_menu_showall']) {
                                     if (! $GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
                                         continue; // skip the dummy language
                                     }
-                                    echo "<option value='" . htmlspecialchars($iter['lang_id'], ENT_QUOTES) . "'>" .
-                                         htmlspecialchars($iter['trans_lang_description'], ENT_NOQUOTES) . "</option>\n";
+                                    echo "<option value='" . attr($iter['lang_id']) . "'>" .
+                                        text($iter['trans_lang_description']) . "</option>\n";
                                 } else {
                                     if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
                                         if (! $GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
                                             continue; // skip the dummy language
                                         }
-                                        echo "<option value='" . htmlspecialchars($iter['lang_id'], ENT_QUOTES) . "'>" .
-                                             htmlspecialchars($iter['trans_lang_description'], ENT_NOQUOTES) . "</option>\n";
+                                        echo "<option value='" . attr($iter['lang_id']) . "'>" .
+                                            text($iter['trans_lang_description']) . "</option>\n";
                                     }
                                 }
                             }
@@ -359,8 +361,8 @@ if (isset($_GET['requestNew'])) {
 <?php } ?>
 <?php if (isset($_GET['w'])) { ?>
     var unique_id = $.gritter.add({
-        title: '<span class="red"><?php echo xlt('Oops!');?></span>',
-        text: '<?php echo xlt('Something went wrong. Please try again.'); ?>',
+        title: '<span class="red">' + <?php echo xlj('Oops!');?> + '</span>',
+        text: <?php echo xlj('Something went wrong. Please try again.'); ?>,
         sticky: false,
         time: '5000',
         class_name: 'my-nonsticky-class'
@@ -369,8 +371,8 @@ if (isset($_GET['requestNew'])) {
 <?php // if successfully logged out
 if (isset($_GET['logout'])) { ?>
     var unique_id = $.gritter.add({
-        title: '<span class="green"><?php echo xlt('Success');?></span>',
-        text: '<?php echo xlt('You have been successfully logged out.');?>',
+        title: '<span class="green">' + <?php echo xlj('Success');?> + '</span>',
+        text: <?php echo xlj('You have been successfully logged out.');?>,
         sticky: false,
         time: '5000',
         class_name: 'my-nonsticky-class'
@@ -422,7 +424,7 @@ function callServer(action, value, value2, last, first) {
         }
         else if (action == "is_new") {
             if (parseInt(rtn) > 0) {
-                var yes = confirm('<?php echo xls("Account is validated. Send new credentials?") ?>');
+                var yes = confirm(<?php echo xlj("Account is validated. Send new credentials?") ?>);
                 if(!yes)
                     callServer('cleanup');
                 else
@@ -430,22 +432,22 @@ function callServer(action, value, value2, last, first) {
             }
             else {
                 // After error alert app exit to landing page.
-                var message = "<?php echo xls('Unable to find your records. Be sure to use your correct Dob, First and Last name and Email of record. If you have opted out of email with none on file then leave blank.'); ?>";
+                var message = <?php echo xlj('Unable to find your records. Be sure to use your correct Dob, First and Last name and Email of record. If you have opted out of email with none on file then leave blank.'); ?>;
                 eModal.alert(message);
             }
         }
         else if (action == 'do_signup') {
             if (rtn == "") {
-                var message = "<?php echo xlt('Unable to either create credentials or send email.'); ?>";
+                var message = <?php echo xlj('Unable to either create credentials or send email.'); ?>;
                 alert(message);
                 return false;
             }
             //alert(rtn); // sync alert.. rtn holds username and password for testing.
-            var message = "<?php echo xls("Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon."); ?>"
+            var message = <?php echo xlj("Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon."); ?>
             eModal.alert(message); // This is an async call. The modal close event exits us to portal landing page after cleanup.
         }
     }).fail(function (err) {
-        var message = "<?php echo xls('Something went wrong.') ?>";
+        var message = <?php echo xlj('Something went wrong.') ?>;
         alert(message);
     });
 }

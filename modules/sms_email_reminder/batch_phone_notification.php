@@ -15,6 +15,9 @@
 // Updated by:	Maviq on 01/12/2010
 ////////////////////////////////////////////////////////////////////
 
+// comment below exit if plan to use this script
+exit;
+
 $backpic = "";
 //phone notification
 $ignoreAuth=1;
@@ -184,7 +187,7 @@ function cron_InsertNotificationLogEntry($prow, $phone_msg, $phone_gateway)
 
     $sql_loginsert = "INSERT INTO `notification_log` ( `iLogId` , `pid` , `pc_eid` , `message`, `type` , `patient_info` , `smsgateway_info` , `pc_eventDate` , `pc_endDate` , `pc_startTime` , `pc_endTime` , `dSentDateTime` ) VALUES ";
     $sql_loginsert .= "(NULL , ?, ?, ?, 'Phone', ?, ?, ?, ?, ?, ?, ?)";
-    $db_loginsert = ( sqlStatement($sql_loginsert, array($prow[pid], $prow[pc_eid], $message, $patient_info, $phone_gateway, $prow[pc_eventDate], $prow[pc_endDate], $prow[pc_startTime], $prow[pc_endTime], date("Y-m-d H:i:s"))));
+    $db_loginsert = ( sqlStatement($sql_loginsert, array($prow['pid'], $prow['pc_eid'], $message, $patient_info, $phone_gateway, $prow['pc_eventDate'], $prow['pc_endDate'], $prow['pc_startTime'], $prow['pc_endTime'], date("Y-m-d H:i:s"))));
 }
 
 ////////////////////////////////////////////////////////////////////

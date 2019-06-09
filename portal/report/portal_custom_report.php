@@ -1,29 +1,21 @@
 <?php
 /**
- *
  * Patient custom report.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
- * @author  Ken Chapple <ken@mi-squared.com>
- * @author  Tony McCormick <tony@mi-squared.com>
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady@sparmy.com>
+ * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Tony McCormick <tony@mi-squared.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+
 session_start();
 
 //landing page definition -- where to go if something goes wrong
-$landingpage = "../index.php?site=".$_SESSION['site_id'];
+$landingpage = "../index.php?site=" . urlencode($_SESSION['site_id']);
 //
 
 // kick out if patient not authenticated
@@ -515,7 +507,7 @@ if ($printable) {
   *******************************************************************/
     $titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
     if ($_SESSION['pc_facility']) {
-        $sql = "select * from facility where id=" . $_SESSION['pc_facility'];
+        $sql = "select * from facility where id=" . add_escape_custom($_SESSION['pc_facility']);
     } else {
         $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
     }
@@ -530,7 +522,7 @@ if ($printable) {
 
     // Setup Headers and Footers for mPDF only Download
     // in HTML view it's just one line at the top of page 1
-    echo '<page_header style="text-align:right;"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . $titleres['DOB_TS'] . '</page_header>    ';
+    echo '<page_header style="text-align:right;"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . text($titleres['DOB_TS']) . '</page_header>    ';
     echo '<page_footer style="text-align:right;">' . xlt('Generated on') . ' ' . text(oeFormatShortDate()) . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
 
     // Use logo if it exists as 'practice_logo.gif' in the site dir
@@ -540,13 +532,13 @@ if ($printable) {
         echo "<img src='$practice_logo' align='left'><br />\n";
     }
     ?>
-    <h2><?php echo $facility['name'] ?></h2>
-<?php echo $facility['street'] ?><br>
-<?php echo $facility['city'] ?>, <?php echo $facility['state'] ?> <?php echo $facility['postal_code'] ?><br clear='all'>
+    <h2><?php echo text($facility['name']); ?></h2>
+<?php echo text($facility['street']); ?><br>
+<?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?> <?php echo text($facility['postal_code']); ?><br clear='all'>
 <?php echo $facility['phone'] ?><br>
 
-<a href="javascript:window.close();"><span class='title'><?php echo $titleres['fname'] . " " . $titleres['lname']; ?></span></a><br>
-<span class='text'><?php xl('Generated on', 'e'); ?>: <?php echo text(oeFormatShortDate()); ?></span>
+<a href="javascript:window.close();"><span class='title'><?php echo text($titleres['fname']) . " " . text($titleres['lname']); ?></span></a><br>
+<span class='text'><?php echo xlt('Generated on'); ?>: <?php echo text(oeFormatShortDate()); ?></span>
 <br><br>
 
 <?php
@@ -556,8 +548,8 @@ if ($printable) {
     <!-- old href was here
     <br><br> -->
 
-    <a href="./report/portal_custom_report.php?printable=1&<?php print postToGet($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
-<button><?php xl('Printable Version', 'e'); ?></button>
+    <a href="./report/portal_custom_report.php?printable=1&<?php echo postToGet($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
+<button><?php echo xlt('Printable Version'); ?></button>
 </a><br>
 <!--<div class="report_search_bar" style="width:100%;" id="search_options">
   <table style="width:100%;">
@@ -620,7 +612,7 @@ if ($printable) {
 <?php
 
 // include ALL form's report.php files
-$inclookupres = sqlStatement("select distinct formdir from forms where pid = '$pid' AND deleted=0");
+$inclookupres = sqlStatement("select distinct formdir from forms where pid = ? AND deleted=0", [$pid]);
 while ($result = sqlFetchArray($inclookupres)) {
   // include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
     $formdir = $result['formdir'];
@@ -648,7 +640,7 @@ foreach ($ar as $key => $val) {
         if ($val == "demographics") {
             echo "<hr />";
             echo "<div class='text demographics' id='DEM'>\n";
-            print "<h1>".xl('Patient Data').":</h1>";
+            print "<h1>".xlt('Patient Data').":</h1>";
             // printRecDataOne($patient_data_array, getRecPatientData ($pid), $N);
             $result1 = getPatientData($pid);
             $result2 = getEmployerData($pid);
@@ -660,7 +652,7 @@ foreach ($ar as $key => $val) {
             echo "<hr />";
             echo "<div class='text history' id='HIS'>\n";
             //if (acl_check('patients', 'med')) {
-                print "<h1>".xl('History Data').":</h1>";
+                print "<h1>".xlt('History Data').":</h1>";
                 // printRecDataOne($history_data_array, getRecHistoryData ($pid), $N);
                 $result1 = getHistoryData($pid);
                 echo "   <table>\n";
@@ -675,22 +667,22 @@ foreach ($ar as $key => $val) {
         } elseif ($val == "insurance") {
             echo "<hr />";
             echo "<div class='text insurance'>";
-            echo "<h1>".xl('Insurance Data').":</h1>";
-            print "<br><span class=bold>".xl('Primary Insurance Data').":</span><br>";
+            echo "<h1>".xlt('Insurance Data').":</h1>";
+            print "<br><span class=bold>".xlt('Primary Insurance Data').":</span><br>";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
-            print "<span class=bold>".xl('Secondary Insurance Data').":</span><br>";
+            print "<span class=bold>".xlt('Secondary Insurance Data').":</span><br>";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
-            print "<span class=bold>".xl('Tertiary Insurance Data').":</span><br>";
+            print "<span class=bold>".xlt('Tertiary Insurance Data').":</span><br>";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
             echo "</div>";
         } elseif ($val == "billing") {
             echo "<hr />";
             echo "<div class='text billing'>";
-            print "<h1>".xl('Billing Information').":</h1>";
+            print "<h1>".xlt('Billing Information').":</h1>";
             if (count($ar['newpatient']) > 0) {
                 $billings = array();
                 echo "<table>";
-                echo "<tr><td width='400' class='bold'>Code</td><td class='bold'>".xl('Fee')."</td></tr>\n";
+                echo "<tr><td width='400' class='bold'>Code</td><td class='bold'>".xlt('Fee')."</td></tr>\n";
                 $total = 0.00;
                 $copays = 0.00;
                 foreach ($ar['newpatient'] as $be) {
@@ -700,10 +692,10 @@ foreach ($ar as $key => $val) {
                     foreach ($billing as $b) {
                         echo "<tr>\n";
                         echo "<td class=text>";
-                        echo $b['code_type'] . ":\t" . $b['code'] . "&nbsp;". $b['modifier'] . "&nbsp;&nbsp;&nbsp;" . $b['code_text'] . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                        echo text($b['code_type']) . ":\t" . text($b['code']) . "&nbsp;". text($b['modifier']) . "&nbsp;&nbsp;&nbsp;" . text($b['code_text']) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
                         echo "</td>\n";
                         echo "<td class=text>";
-                        echo oeFormatMoney($b['fee']);
+                        echo text(oeFormatMoney($b['fee']));
                         echo "</td>\n";
                         echo "</tr>\n";
                         $total += $b['fee'];
@@ -714,9 +706,9 @@ foreach ($ar as $key => $val) {
                 }
 
                 echo "<tr><td>&nbsp;</td></tr>";
-                echo "<tr><td class=bold>".xl('Sub-Total')."</td><td class=text>" . oeFormatMoney($total + abs($copays)) . "</td></tr>";
-                echo "<tr><td class=bold>".xl('Paid')."</td><td class=text>" . oeFormatMoney(abs($copays)) . "</td></tr>";
-                echo "<tr><td class=bold>".xl('Total')."</td><td class=text>" . oeFormatMoney($total) . "</td></tr>";
+                echo "<tr><td class=bold>".xlt('Sub-Total')."</td><td class=text>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
+                echo "<tr><td class=bold>".xlt('Paid')."</td><td class=text>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
+                echo "<tr><td class=bold>".xlt('Total')."</td><td class=text>" . text(oeFormatMoney($total)) . "</td></tr>";
                 echo "</table>";
                 echo "<pre>";
                 //print_r($billings);
@@ -749,29 +741,29 @@ foreach ($ar as $key => $val) {
             //if (acl_check('patients', 'med')) {
                 echo "<hr />";
                 echo "<div class='text immunizations'>\n";
-                print "<h1>".xl('Patient Immunization').":</h1>";
+                print "<h1>".xlt('Patient Immunization').":</h1>";
                 $sql = "select i1.immunization_id, i1.administered_date, substring(i1.note,1,20) as immunization_note, c.code_text_short ".
                    " from immunizations i1 ".
                    " left join code_types ct on ct.ct_key = 'CVX' ".
                    " left join codes c on c.code_type = ct.ct_id AND i1.cvx_code = c.code ".
-                   " where i1.patient_id = '$pid' and i1.added_erroneously = 0 ".
+                   " where i1.patient_id = ? and i1.added_erroneously = 0 ".
                    " order by administered_date desc";
-                $result = sqlStatement($sql);
+                $result = sqlStatement($sql, [$pid]);
             while ($row=sqlFetchArray($result)) {
               // Figure out which name to use (ie. from cvx list or from the custom list)
                 if ($GLOBALS['use_custom_immun_list']) {
                      $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
                 } else {
                     if (!empty($row['code_text_short'])) {
-                        $vaccine_display = htmlspecialchars(xl($row['code_text_short']), ENT_NOQUOTES);
+                        $vaccine_display = xlt($row['code_text_short']);
                     } else {
                          $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
                     }
                 }
 
-                echo $row['administered_date'] . " - " . $vaccine_display;
+                echo text($row['administered_date']) . " - " . $vaccine_display;
                 if ($row['immunization_note']) {
-                     echo " - " . $row['immunization_note'];
+                     echo " - " . text($row['immunization_note']);
                 }
 
                 echo "<br>\n";
@@ -784,25 +776,25 @@ foreach ($ar as $key => $val) {
         } elseif ($val == "batchcom") {
             echo "<hr />";
             echo "<div class='text transactions'>\n";
-            print "<h1>".xl('Patient Communication sent').":</h1>";
-            $sql="SELECT concat( 'Messsage Type: ', batchcom.msg_type, ', Message Subject: ', batchcom.msg_subject, ', Sent on:', batchcom.msg_date_sent ) AS batchcom_data, batchcom.msg_text, concat( users.fname, users.lname ) AS user_name FROM `batchcom` JOIN `users` ON users.id = batchcom.sent_by WHERE batchcom.patient_id='$pid'";
+            print "<h1>".xlt('Patient Communication sent').":</h1>";
+            $sql="SELECT concat( 'Messsage Type: ', batchcom.msg_type, ', Message Subject: ', batchcom.msg_subject, ', Sent on:', batchcom.msg_date_sent ) AS batchcom_data, batchcom.msg_text, concat( users.fname, users.lname ) AS user_name FROM `batchcom` JOIN `users` ON users.id = batchcom.sent_by WHERE batchcom.patient_id=?";
             // echo $sql;
-            $result = sqlStatement($sql);
+            $result = sqlStatement($sql, [$pid]);
             while ($row=sqlFetchArray($result)) {
-                echo $row{'batchcom_data'}.", By: ".$row{'user_name'}."<br>Text:<br> ".$row{'msg_txt'}."<br>\n";
+                echo text($row{'batchcom_data'}).", By: ".text($row{'user_name'})."<br>Text:<br> ".text($row{'msg_txt'})."<br>\n";
             }
 
             echo "</div>\n";
         } elseif ($val == "notes") {
             echo "<hr />";
             echo "<div class='text notes'>\n";
-            print "<h1>".xl('Patient Notes').":</h1>";
+            print "<h1>".xlt('Patient Notes').":</h1>";
             printPatientNotes($pid);
             echo "</div>";
         } elseif ($val == "transactions") {
             echo "<hr />";
             echo "<div class='text transactions'>\n";
-            print "<h1>".xl('Patient Transactions').":</h1>";
+            print "<h1>".xlt('Patient Transactions').":</h1>";
             printPatientTransactions($pid);
             echo "</div>";
         }
@@ -934,31 +926,31 @@ foreach ($ar as $key => $val) {
                 $prevIssueType = 'asdf1234!@#$'; // random junk so as to not match anything
                 $first_issue = 0;
                 echo "<hr />";
-                echo "<h1>".xl("Issues")."</h1>";
+                echo "<h1>".xlt("Issues")."</h1>";
             }
 
             preg_match('/^(.*)_(\d+)$/', $key, $res);
             $rowid = $res[2];
             $irow = sqlQuery("SELECT type, title, comments, diagnosis " .
-                            "FROM lists WHERE id = '$rowid'");
+                            "FROM lists WHERE id = ?", [$rowid]);
             $diagnosis = $irow['diagnosis'];
             if ($prevIssueType != $irow['type']) {
                 // output a header for each Issue Type we encounter
                 $disptype = $ISSUE_TYPES[$irow['type']][0];
-                echo "<div class='issue_type'>" . $disptype . ":</div>\n";
+                echo "<div class='issue_type'>" . attr($disptype) . ":</div>\n";
                 $prevIssueType = $irow['type'];
             }
 
             echo "<div class='text issue'>";
-            echo "<span class='issue_title'>" . $irow['title'] . ":</span>";
-            echo "<span class='issue_comments'> " . $irow['comments'] . "</span>\n";
+            echo "<span class='issue_title'>" . text($irow['title']) . ":</span>";
+            echo "<span class='issue_comments'> " . text($irow['comments']) . "</span>\n";
             // Show issue's chief diagnosis and its description:
             if ($diagnosis) {
                 echo "<div class='text issue_diag'>";
-                echo "<span class='bold'>[".xl('Diagnosis')."]</span><br>";
+                echo "<span class='bold'>[".xlt('Diagnosis')."]</span><br>";
                 $dcodes = explode(";", $diagnosis);
                 foreach ($dcodes as $dcode) {
-                    echo "<span class='italic'>".$dcode."</span>: ";
+                    echo "<span class='italic'>".text($dcode)."</span>: ";
                     echo lookup_code_descriptions($dcode)."<br>\n";
                 }
 
@@ -969,11 +961,11 @@ foreach ($ar as $key => $val) {
             // Supplemental data for GCAC or Contraception issues.
             if ($irow['type'] == 'ippf_gcac') {
                 echo "   <table>\n";
-                display_layout_rows('GCA', sqlQuery("SELECT * FROM lists_ippf_gcac WHERE id = '$rowid'"));
+                display_layout_rows('GCA', sqlQuery("SELECT * FROM lists_ippf_gcac WHERE id = ?", [$rowid]));
                 echo "   </table>\n";
             } else if ($irow['type'] == 'contraceptive') {
                 echo "   <table>\n";
-                display_layout_rows('CON', sqlQuery("SELECT * FROM lists_ippf_con WHERE id = '$rowid'"));
+                display_layout_rows('CON', sqlQuery("SELECT * FROM lists_ippf_con WHERE id = ?", [$rowid]));
                 echo "   </table>\n";
             }
 
@@ -995,17 +987,17 @@ foreach ($ar as $key => $val) {
 
                 if ($res[1] == 'newpatient') {
                     echo "<div class='text encounter'>\n";
-                    echo "<h1>" . xl($formres["form_name"]) . "</h1>";
+                    echo "<h1>" . xlt($formres["form_name"]) . "</h1>";
                 } else {
                     echo "<div class='text encounter_form'>";
-                    echo "<h1>" . xl_form_title($formres["form_name"]) . "</h1>";
+                    echo "<h1>" . text(xl_form_title($formres["form_name"])) . "</h1>";
                 }
 
                 // show the encounter's date
-                echo "(" . oeFormatSDFT(strtotime($dateres["date"])) . ") ";
+                echo "(" . text(oeFormatSDFT(strtotime($dateres["date"]))) . ") ";
                 if ($res[1] == 'newpatient') {
                     // display the provider info
-                    echo ' '. xl('Provider') . ': ' . text(getProviderName(getProviderIdOfEncounter($form_encounter)));
+                    echo ' '. xlt('Provider') . ': ' . text(getProviderName(getProviderIdOfEncounter($form_encounter)));
                 }
 
                 echo "<br>\n";
@@ -1043,8 +1035,8 @@ foreach ($ar as $key => $val) {
                         array($pid, $form_encounter)
                     );
                     while ($brow=sqlFetchArray($bres)) {
-                        echo "<span class='bold'>&nbsp;".xl('Procedure').": </span><span class='text'>" .
-                            $brow['code'] . " " . $brow['code_text'] . "</span><br>\n";
+                        echo "<span class='bold'>&nbsp;".xlt('Procedure').": </span><span class='text'>" .
+                            text($brow['code']) . " " . text($brow['code_text']) . "</span><br>\n";
                     }
                 }
 
@@ -1055,7 +1047,7 @@ foreach ($ar as $key => $val) {
 } // end $ar loop
 
 if ($printable) {
-    echo "<br /><br />" . xl('Signature') . ": _______________________________<br />";
+    echo "<br /><br />" . xlt('Signature') . ": _______________________________<br />";
 }
 ?>
 

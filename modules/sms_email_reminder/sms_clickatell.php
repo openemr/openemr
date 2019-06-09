@@ -375,7 +375,7 @@ class sms
         $session = substr($result, 4);
         $code = substr($result, 0, 2);
         if ($code!="OK") {
-            die("Error in SMS authorization! ($result)");
+            die("Error in SMS authorization! (" . text($result) . ")");
         }
 
         return $session;
@@ -389,7 +389,7 @@ class sms
     {
         $code = substr($result, 0, 2);
         if ($code!="ID") {
-            die("Error sending SMS! ($result)");
+            die("Error sending SMS! (" . text($result) . ")");
         } else {
             $code = "OK";
         }
