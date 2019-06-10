@@ -52,7 +52,7 @@ class LayoutService
 
     public function getFieldsByFormId($form_id, $group_id)
     {
-        $sql = "SELECT form_id, field_id, group_id, title, seq, description FROM layout_options WHERE form_id=? AND group_id=? ";
+        $sql = "SELECT form_id, field_id, group_id, title, seq, description FROM layout_options WHERE form_id=? AND group_id=? ORDER by seq";
 
         $statementResults = sqlStatement($sql, array($form_id, $group_id));
 
