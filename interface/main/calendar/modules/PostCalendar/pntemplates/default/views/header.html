@@ -18,12 +18,12 @@
  */
 function create_event_time_anchor($displayString)
 {
-    $title=xla('Click to edit');
-    return "<a class='event_time' onclick='event_time_click(this)' title='" .$title."'>".$displayString."</a>";
+    $title=xl('Click to edit');
+    return "<a class='event_time' onclick='event_time_click(this)' title='" . attr($title) . "'>" . text($displayString) . "</a>";
 }
 [-/php-]
 
 </head>
 [-php-]
-echo "<body class = ' ".$_SESSION['language_direction']." calsearch_body' style='background-color:".$GLOBALS['style']['BGCOLOR2']."'>";
+echo "<body class = ' " . attr($_SESSION['language_direction']) . " calsearch_body' style='background-color:" . attr($GLOBALS['style']['BGCOLOR2']) . "'>";
 [-/php-]

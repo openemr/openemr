@@ -132,7 +132,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     font-size: 10pt;
 }
 .timeslot {
-    height: [-php-]echo $timeslotHeightVal.$timeslotHeightUnit;[-/php-];
+    height: [-php-]echo attr($timeslotHeightVal.$timeslotHeightUnit);[-/php-];
     margin: 0px;
     padding: 0px;
 }
@@ -266,14 +266,14 @@ foreach ($providers as $provider) {
 
     echo "<div id='bigCalText'>";
     // output the provider name
-    echo "<span id='provname'>".$provider['fname'] . " " . $provider['lname']."</span>";
+    echo "<span id='provname'>" . text($provider['fname']) . " " . text($provider['lname']) . "</span>";
     echo "<br>";
     // output the date range
     echo "<span id='daterange'>";
     $atmp = array_keys($A_EVENTS);
-    echo xl(date('F', strtotime($atmp[0]))) . " "  . date('d', strtotime($atmp[0]));
+    echo xlt(date('F', strtotime($atmp[0]))) . " "  . text(date('d', strtotime($atmp[0])));
     echo " - <br>";
-    echo xl(date('F', strtotime($atmp[count($atmp)-1]))) . " "  . date('d', strtotime($atmp[count($atmp)-1]));
+    echo xlt(date('F', strtotime($atmp[count($atmp)-1]))) . " "  . text(date('d', strtotime($atmp[count($atmp)-1])));
     echo "</span>";
     echo "</div>";
 
@@ -311,7 +311,7 @@ foreach ($providers as $provider) {
         $eventdate = substr($date, 0, 4) . substr($date, 5, 2) . substr($date, 8, 2);
 
         // each date gets it's own header
-        echo "<td><div id='dowheader'>". xl(date("D",strtotime($eventdate))) . " " . date("m/d", strtotime($eventdate))."</div>";
+        echo "<td><div id='dowheader'>". xlt(date("D",strtotime($eventdate))) . " " . text(date("m/d", strtotime($eventdate))) . "</div>";
 
         // output the events for this date
         PrintEvents($events, $providerid, $TPL_IMAGE_PATH);
@@ -320,7 +320,7 @@ foreach ($providers as $provider) {
         echo "</td><td>";
         $dateplusfour = strtotime($eventdate) + (4 * 24 * 60 * 60);
         if (isset($A_EVENTS[date("Y-m-d", $dateplusfour)])) {
-            echo "<div id='dowheader'>". xl(date("D",$dateplusfour)) . " " . date("m/d", $dateplusfour)."</div>";
+            echo "<div id='dowheader'>". xlt(date("D",$dateplusfour)) . " " . text(date("m/d", $dateplusfour)) . "</div>";
             $tmpEvents = $A_EVENTS[date("Y-m-d", $dateplusfour)];
             PrintEvents($tmpEvents, $providerid, $TPL_IMAGE_PATH);
         }
@@ -469,7 +469,7 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
             $patient_dob = $event['patient_dob'];
             $patient_age = $event['patient_age'];
             $catid = $event['catid'];
-            $comment = addslashes($event['hometext']);
+            $comment = $event['hometext'];
             $catname = $event['catname'];
             $title = "Age $patient_age ($patient_dob)";
 
@@ -489,25 +489,25 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
                 else if ($catid ==  8) $catname = xl("LUNCH");
                 else if ($catid == 11) $catname = xl("RESERVED");
 
-                $content .= date("h:i", $eventdatetime);
+                $content .= text(date("h:i", $eventdatetime));
                 if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
-                $content .= " ".$catname;
-                if ($comment) $content .= " $comment";
+                $content .= " " . text($catname);
+                if ($comment) $content .= " " . text($comment);
             }
             else {
                 // some sort of patient appointment
-                $content .= "<span class='appointment".$apptToggle."'>";
-                $content .= date("h:i", $eventdatetime). " ";
+                $content .= "<span class='appointment" . attr($apptToggle) . "'>";
+                $content .= text(date("h:i", $eventdatetime)) . " ";
                 if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
                 if ($patientid) {
                     if ($catid == 1) $content .= "<strike>";
-                    $content .= htmlspecialchars($lname);
+                    $content .= text($lname);
                     if ($GLOBALS['calendar_appt_style'] != 1) {
-                        $content .= "," . htmlspecialchars($fname);
+                        $content .= "," . text($fname);
                         if ($event['title'] && $GLOBALS['calendar_appt_style'] >= 3) {
-                            $content .= "(" . $event['title'];
+                            $content .= "(" . text($event['title']);
                             if ($event['hometext'] && $GLOBALS['calendar_appt_style'] >= 4)
-                                $content .= ": <font color='green'>" . htmlspecialchars(trim($event['hometext'])) . "</font>";
+                                $content .= ": <font color='green'>" . text(trim($event['hometext'])) . "</font>";
                             $content .= ")";
                         }
                     }
@@ -515,7 +515,7 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
                 }
                 else {
                     // no patient id, just output the category name
-                    $content .= $catname;
+                    $content .= text($catname);
                 }
 
                 $content .= "</span>";
@@ -524,9 +524,9 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
             $divTitle .= "\n(double click to edit)";
 
             // output the DIV and content
-            echo "<div class='".$evtClass." event' style='background-color:".$event["catcolor"].
+            echo "<div class='" . attr($evtClass) . " event' style='background-color:".$event["catcolor"].
                     "' ".
-                    " id='".$eventdate."-".$eventid."'".
+                    " id='" . attr($eventdate) . "-" . attr($eventid) . "'".
                     ">";
             echo $content;
             echo "</div>";
@@ -545,12 +545,12 @@ function PrintDatePicker($caldate, $DOWlist, $daynames) {
     echo '<table>';
     echo '<tr>';
     echo '<td colspan="7" class="tdMonthName-small">';
-    echo date('F Y', $caldate);
+    echo text(date('F Y', $caldate));
     echo '</td>';
     echo '</tr>';
     echo '<tr>';
     foreach ($DOWlist as $dow) {
-        echo "<td class='tdDOW-small'>".$daynames[$dow]."</td>";
+        echo "<td class='tdDOW-small'>" . text($daynames[$dow]) . "</td>";
     }
     echo '</tr>';
 
@@ -593,8 +593,8 @@ function PrintDatePicker($caldate, $DOWlist, $daynames) {
 
         // output the TD
         $td = "<td ";
-        $td .= "class=\"".$tdClass."\" ";
-        $td .= "> ".date('d', $currdate)."</td>\n";
+        $td .= "class=\"" . attr($tdClass) . "\" ";
+        $td .= "> " . text(date('d', $currdate)) . "</td>\n";
         if ($skipit == true) { echo "<td></td>"; }
         else { echo $td; }
 
