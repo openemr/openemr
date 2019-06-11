@@ -24,7 +24,6 @@ if (!empty($languages) && !is_dir(dirname(__FILE__) . '/i18n/')) {
 }
 
 while ($lang = SqlFetchArray($languages)) {
-
     if (!is_file(dirname(__FILE__)) . '/i18n/' . $lang['lang_code'] . '.json') {
         touch(dirname(__FILE__) . '/i18n/' . $lang['lang_code'] . '.json');
     }
@@ -37,8 +36,4 @@ while ($lang = SqlFetchArray($languages)) {
         $json[$row['constant_name']] = $row['definition'];
     }
     file_put_contents(dirname(__FILE__) . '/i18n/' . $lang['lang_code'] . '.json', json_encode($json, JSON_UNESCAPED_UNICODE));
-
 }
-
-#update globals for refresh cache
-sqlStatement("REPLACE INTO `globals` (`gl_name`, `gl_index`, `gl_value`) VALUES ('i18n_updated', '0', '1')");
