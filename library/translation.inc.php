@@ -36,8 +36,8 @@ if (!(function_exists('xl'))) {
              $constant = preg_replace($patterns, $replace, $constant);
 
              // second, attempt translation
-            //load from cache
             if (!empty($GLOBALS['i18n'])) {
+                // search the translation in cache from i18n files
                 $string = $GLOBALS['i18n'][$constant];
             } else {
                 $sql="SELECT * FROM lang_definitions JOIN lang_constants ON " .

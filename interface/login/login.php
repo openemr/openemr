@@ -394,8 +394,9 @@ if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)) : // B
         </form>
     </div>
     <script>
-        //Store i18n file in the sessionStorage, change on language is changed.
+        //Store i18n file in the sessionStorage, replace json on language is changed.
         //The translations will be available for js in each page
+        //For develop js with translation recommended to load the i18next library with Header::setupHeader(['js-translation'])
         function loadI18nToSessionStorage(lang_code) {
             $('[type="submit"]').attr('disabled', true);
             $.ajax( {

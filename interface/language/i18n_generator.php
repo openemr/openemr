@@ -1,4 +1,16 @@
 <?php
+/**
+ * i18n_generator script
+ * Create/update i18n json files from the languages table
+ * The files will saved in the openemr/interface/language/i18n
+ * The generator run in part of command 'npm run build' or 'npm run translation'
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Amiel Elboim <amielel@matrix.co.il>
+ * @copyright Copyright (c) 2019 Amiel Elboim <amielel@matrix.co.il>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 require_once dirname(__FILE__) . "/../../vendor/autoload.php";
 
