@@ -165,9 +165,9 @@ $chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-cir
 <input type="hidden" name="jumpdate" id="jumpdate" value="">
 <input type="hidden" name="viewtype" id="viewtype" value="[-php-]echo attr($viewtype);[-/php-]">
 [-php-]
-echo "   <a href='#' title='" . xlt("New Appointment") . "' onclick='newEvt(1, 9, 00, " . attr_js($Date) . ", 0, 0)' class='css_button css_button_icon'>
+echo "   <a href='#' title='" . xla("New Appointment") . "' onclick='newEvt(1, 9, 00, " . attr_js($Date) . ", 0, 0)' class='css_button css_button_icon'>
             <i class='fa fa-plus' aria-hidden='true'></i></a>\n";
-echo "   <a href='#' title='" . xlt("Search Appointment") . "'
+echo "   <a href='#' title='" . xla("Search Appointment") . "'
             onclick='top.restoreSession();location=\"index.php?module=PostCalendar&func=search\"' class='css_button css_button_icon'>
             <i class='fa fa-search' aria-hidden='true'></i></a>\n";
 [-/php-]
