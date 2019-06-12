@@ -442,13 +442,13 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
 
     if (!empty($e)) {
         $output->Text('<div style="padding:5px; border:1px solid red; background-color: pink;">');
-        $output->Text('<center><b>'.$e.'</b></center>');
+        $output->Text('<center><b>' . text($e) . '</b></center>');
         $output->Text('</div><br />');
     }
 
     if (!empty($msg)) {
         $output->Text('<div style="padding:5px; border:1px solid green; background-color: lightgreen;">');
-        $output->Text('<center><b>'.$msg.'</b></center>');
+        $output->Text('<center><b>' . text($msg) . '</b></center>');
         $output->Text('</div><br />');
     }
 
@@ -567,8 +567,8 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
     $tpl->assign('ALL_DAY_CAT_YES', _PC_ALL_DAY_CAT_YES);
     $tpl->assign('ALL_DAY_CAT_NO', _PC_ALL_DAY_CAT_NO);
 
- //ALL Day End
-// End date gather date start
+    //ALL Day End
+    // End date gather date start
 
     $tpl->assign('InputEndDateFreq', 'end_date_freq');
     $tpl->assign('InputEndOn', 'end_date_flag');
@@ -657,14 +657,14 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
     $output->SetOutputMode(_PNH_RETURNOUTPUT);
     $output->SetOutputMode(_PNH_KEEPOUTPUT);
 
-    $form_hidden = "<input type=\"hidden\" name=\"is_update\" value=\"$is_update\" />";
-    $form_hidden .= "<input type=\"hidden\" name=\"pc_event_id\" value=\"$pc_event_id\" />";
+    $form_hidden = "<input type=\"hidden\" name=\"is_update\" value=\"" . attr($is_update) . "\" />";
+    $form_hidden .= "<input type=\"hidden\" name=\"pc_event_id\" value=\"" . attr($pc_event_id) . "\" />";
     if (isset($data_loaded)) {
-        $form_hidden .= "<input type=\"hidden\" name=\"data_loaded\" value=\"$data_loaded\" />";
+        $form_hidden .= "<input type=\"hidden\" name=\"data_loaded\" value=\"" . attr($data_loaded) . "\" />";
         $tpl->assign('FormHidden', $form_hidden);
     }
     $form_submit = '<input type=hidden name="form_action" value="commit"/>
-				   '.$authkey.'<input type="submit" name="submit" value="' . xl('go') . '">';
+				   ' . text($authkey) . '<input type="submit" name="submit" value="' . xla('go') . '">';
     $tpl->assign('FormSubmit', $form_submit);
 
     $output->Text($tpl->fetch($template_name.'/admin/submit_category.html'));
@@ -823,7 +823,7 @@ EOF;
     $output .= $header;
     $output  = postcalendar_adminmenu();
     $output .= '<table border="1" cellpadding="3" cellspacing="1">';
-    $output .= '  <tr><th align="left">Name</th><th align="left">Value</th>';
+    $output .= '  <tr><th align="left">' . xlt('Name') . '</th><th align="left">' . xlt('Value') . '</th>';
     $output .= '</tr>';
     foreach ($infos as $info) {
         $output.= '<tr><td ><b>' . pnVarPrepHTMLDisplay($info[0]) . '</b></td>';
