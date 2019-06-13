@@ -213,7 +213,7 @@ echo "<tr><th>" . xlt("Template") . " - <i>" . xlt("Click to edit") . "</i></th>
 echo "</thead>";
 echo "<tbody>";
 foreach ($dirlist as $file) {
-    $t = "'" . $file['pathname'] . "'";
+    $t =  $file['pathname'];
     echo "<tr>";
     echo '<td><button id="tedit' . attr($t) . '" class="btn btn-sm btn-primary" onclick="tedit(' . attr_js($t) . ')" type="button">' . text($file['name']) . '</button>
  		<button id="tdelete' . attr($t) . '" class="btn btn-xs btn-danger" onclick="tdelete(' . attr_js($t) . ')" type="button">' . xlt("Delete") . '</button></td>';
