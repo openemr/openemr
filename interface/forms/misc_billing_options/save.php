@@ -27,6 +27,7 @@ if (!verifyCsrfToken($_POST["csrf_token_form"])) {
 if (isset($_SESSION['billencounter'])) {
     $pid = $_SESSION['billpid'];
     $encounter = $_SESSION['billencounter'];
+    echo "<script type='text/javascript' src='" . $webroot . "/interface/main/tabs/js/include_opener.js'></script>";
 }
 if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
@@ -161,7 +162,7 @@ if (empty($id)) {
 if (isset($_SESSION['billencounter'])) {
     unset($_SESSION['billpid']);
     unset($_SESSION['billencounter']);
-    echo "<script>parent.dlgclose('SubmitTheScreen')</script>";
+    echo "<script>dlgclose('SubmitTheScreen')</script>";
 } else {
     formHeader("Redirecting....");
     formJump();
