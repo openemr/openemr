@@ -205,7 +205,7 @@ payerid = <?php echo js_escape($payerid);?>;
 pid = <?php echo js_escape($pid);?>;
 encounter = <?php echo js_escape($encounter);?>;
 isTemplate = <?php echo js_escape(($isAuthorized === true ? $isAuthorized : 0)); ?>;
-ub04id = <?php echo js_escape($ub04id);?>;
+ub04id = <?php echo $ub04id;?>;
 
 function adjustForm()
 {
