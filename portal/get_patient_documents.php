@@ -21,9 +21,6 @@
     require_once("$srcdir/documents.php");
     require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 
-    // TODO: see if this can be removed (test in PHP 5 and 7)... throwing a warning
-    use C_Document;
-
     // get the temporary folder
     $tmp = $GLOBALS['temporary_files_dir'];
     // get all the documents of the patient
