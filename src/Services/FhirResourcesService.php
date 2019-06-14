@@ -12,24 +12,24 @@
 
 namespace OpenEMR\Services;
 
-use HL7\FHIR\STU3\FHIRDomainResource\FHIREncounter;
-use HL7\FHIR\STU3\FHIRDomainResource\FHIRPatient;
-use HL7\FHIR\STU3\FHIRDomainResource\FHIRPractitioner;
-use HL7\FHIR\STU3\FHIRElement\FHIRAddress;
-use HL7\FHIR\STU3\FHIRElement\FHIRAdministrativeGender;
-use HL7\FHIR\STU3\FHIRElement\FHIRCodeableConcept;
-use HL7\FHIR\STU3\FHIRElement\FHIRHumanName;
-use HL7\FHIR\STU3\FHIRElement\FHIRId;
-use HL7\FHIR\STU3\FHIRElement\FHIRReference;
-use HL7\FHIR\STU3\FHIRResource\FHIREncounter\FHIREncounterParticipant;
-use HL7\FHIR\STU3\FHIRResource\FHIRBundle;
-use HL7\FHIR\STU3\FHIRResource\FHIRBundle\FHIRBundleLink;
-use HL7\FHIR\STU3\PHPFHIRResponseParser;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterParticipant;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleLink;
+use OpenEMR\FHIR\R4\PHPFHIRResponseParser;
 
-//use HL7\FHIR\STU3\FHIRResource\FHIREncounter\FHIREncounterLocation;
-//use HL7\FHIR\STU3\FHIRResource\FHIREncounter\FHIREncounterDiagnosis;
-//use HL7\FHIR\STU3\FHIRElement\FHIRPeriod;
-//use HL7\FHIR\STU3\FHIRElement\FHIRParticipantRequired;
+//use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterLocation;
+//use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterDiagnosis;
+//use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
+//use OpenEMR\FHIR\R4\FHIRElement\FHIRParticipantRequired;
 
 class FhirResourcesService
 {
